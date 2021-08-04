@@ -1,5 +1,8 @@
 import { createGlobalStyle, ThemeProvider } from "styled-components";
-import { createTheme, ThemeProvider as MuiThemeProvider } from "@material-ui/core/styles";
+import {
+  createTheme,
+  ThemeProvider as MuiThemeProvider,
+} from "@material-ui/core/styles";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -12,14 +15,12 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-const theme = {
-
-};
+const theme = {};
 
 const muiTheme = createTheme({
-  palette:{
-    type: 'dark'
-  }
+  palette: {
+    type: "dark",
+  },
 });
 
 export default function App({ Component, pageProps }) {
