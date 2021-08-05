@@ -17,8 +17,6 @@ jobs:
         with:
           node-version: '14'
           cache: 'npm'
-      # - name: Use NPM 7
-      #   run: npm i -g npm@latest
 
       - name: Build
         env:
@@ -27,6 +25,7 @@ jobs:
           npm install
           npm run build
           npm run export
+          
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
