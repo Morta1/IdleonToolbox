@@ -191,6 +191,7 @@ export const cardsObject = {
       effect: effects.CritChance,
       category: cardCategory.BlunderHills,
       base: 1,
+      alsoEffect: [effect.TotalDamage],
     },
 
     {
@@ -567,6 +568,7 @@ export const cardsObject = {
       effect: effects.CritChance,
       category: cardCategory.FrostbiteTundra,
       base: 1,
+      alsoEffect: [effect.TotalDamage],
     },
     {
       img: "Bloodbone_Card.png",
