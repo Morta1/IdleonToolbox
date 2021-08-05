@@ -16,23 +16,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14'
-          
-      - name: Use NPM 7
-        run: npm i -g npm@latest
+          cache: 'npm'
+      # - name: Use NPM 7
+      #   run: npm i -g npm@latest
 
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-            ${{ runner.OS }}-
       - name: Build
         env:
           NODE_ENV: production
         run: |
-          npm i --legacy-peer-deps
+          npm install
           npm run build
           npm run export
       - name: Deploy
