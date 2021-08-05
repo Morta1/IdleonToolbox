@@ -17,6 +17,7 @@ export default function Home() {
     "Catching",
     "Trapping",
     "Accuracy",
+    "Card Drop",
     "Monster Exp",
     "Skill Exp",
     "Damage",
