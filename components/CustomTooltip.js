@@ -5,8 +5,8 @@ import { prefix } from "../Utilities";
 const CustomTooltip = ({ header, base, children }) => {
   return (
     <StyledTooltip
-      enterTouchDelay={0}
-      placement={"top"}
+      enterTouchDelay={150}
+      placement={"top-start"}
       title={
         <div className="tooltip-body">
           <div className="tooltip-header">{header}</div>
@@ -38,7 +38,7 @@ const CustomTooltip = ({ header, base, children }) => {
 
 const StyledTooltip = styled((props) => (
   <Tooltip
-    classes={{ popper: props.className, tooltip: "tooltip" }}
+    classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }}
     {...props}
   />
 ))`
@@ -46,6 +46,18 @@ const StyledTooltip = styled((props) => (
     font-size: 16px;
     background-color: rebeccapurple;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    max-width: 300px;
+    @media only screen and (max-width: 600px) {
+      max-width: 200px;
+    }
+  }
+
+  & .touch {
+    padding: 8px;
+    max-width: 300px;
+    @media only screen and (max-width: 600px) {
+      max-width: 200px;
+    }
   }
 
   .tooltip-body {
@@ -65,13 +77,11 @@ const StyledTooltip = styled((props) => (
         display: flex;
         align-items: center;
         flex-direction: column;
-        margin: 0 10px;
       }
       .image-wrapper {
-        /* min-width: 40px; */
       }
       .stat {
-        /* margin-left: 15px; */
+        margin-top: 3px;
       }
     }
   }
