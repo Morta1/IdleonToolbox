@@ -45,12 +45,7 @@ export default function Home() {
   return (
     <Wrapper>
       <Head>
-        <title>Idleon Card Search</title>
-        <meta
-          name="description"
-          content="Legends of Idleon - Search cards by stats"
-        />
-        <link rel="icon" href={`${prefix}/favicon.ico`} />
+
       </Head>
 
       <Main>

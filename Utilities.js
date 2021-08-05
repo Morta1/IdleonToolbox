@@ -11,7 +11,7 @@ const baseEffects = {
   BaseMP: "Base MP",
   MoveSpeed: "Move Speed",
   WeaponPower: "Weapon Power",
-  MinimumDamage: "Minimum Damage",
+  MinimumDamage: "% Minimum Damage",
 };
 
 const MultiplierEffects = {

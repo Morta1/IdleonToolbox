@@ -3,6 +3,7 @@ import {
   createTheme,
   ThemeProvider as MuiThemeProvider,
 } from "@material-ui/core/styles";
+import Head from 'next/head'
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -26,6 +27,13 @@ const muiTheme = createTheme({
 export default function App({ Component, pageProps }) {
   return (
     <>
+      <Head>
+        <title>Idleon Card Search</title>
+        <meta
+          name="description"
+          content="Legends of Idleon - Search cards by stats"
+        />
+      </Head>
       <GlobalStyle />
       <MuiThemeProvider theme={muiTheme}>
         <ThemeProvider theme={theme}>

@@ -1,6 +1,7 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 import { ServerStyleSheet } from "styled-components";
 import { ServerStyleSheets } from "@material-ui/core/styles";
+import { prefix } from "../Utilities";
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
@@ -34,6 +35,7 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
+          <link rel="icon" href={`${prefix}/favicon.ico`} />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link
             rel="preconnect"
