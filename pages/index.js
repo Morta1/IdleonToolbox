@@ -15,7 +15,10 @@ export default function Home() {
     "Mining",
     "Fishing",
     "Catching",
+    "Trapping",
     "Accuracy",
+    "Monster Exp",
+    "Skill Exp",
     "Damage",
     "Drop Rate",
     "STR",
@@ -26,9 +29,13 @@ export default function Home() {
   useEffect(() => {
     const newCards = Object.keys(cardsObject).reduce((res, cardSet) => {
       const cardsArr = cardsObject[cardSet];
-      const sortedCardArr = cardsArr.filter(({ effect }) =>
-        effect?.toLowerCase()?.includes(value.toLowerCase())
-      );
+      const sortedCardArr = cardsArr.filter(({ effect, alsoEffect }) => {
+        const isEffect = effect?.toLowerCase()?.includes(value.toLowerCase());
+        const isAlsoEffect = alsoEffect?.some((anotherEffect) =>
+          anotherEffect?.toLowerCase()?.includes(value.toLowerCase())
+        );
+        return isEffect || isAlsoEffect;
+      });
       return { ...res, [cardSet]: sortedCardArr };
     }, {});
     setCardObject(newCards);
@@ -38,7 +45,10 @@ export default function Home() {
     <Wrapper>
       <Head>
         <title>Idleon Card Search</title>
-        <meta name="description" content="Legends of Idleon - Search cards by stats" />
+        <meta
+          name="description"
+          content="Legends of Idleon - Search cards by stats"
+        />
         <link rel="icon" href={`${prefix}/favicon.ico`} />
       </Head>
 

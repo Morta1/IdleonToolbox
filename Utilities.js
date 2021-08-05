@@ -74,7 +74,7 @@ const SkillEffect = {
   WorshipChargeRate: "% Worship Charge Rate",
   WorshipBase: "Base Worship Power",
   WorshipPoints: "Starting Points in Worship",
-  TrappingShiny: "% Shiny Critter Chance",
+  TrappingShiny: "% Trapping Shiny Critter Chance",
   TrappingEfficiency: "% Trapping Efficiency",
   TrappingExp: "% Trapping EXP",
   TrappingBase: "Base Trapping Power",
@@ -128,6 +128,7 @@ export const cardsObject = {
       effect: effects.BaseLUK,
       category: cardCategory.BlunderHills,
       base: 3,
+      alsoEffect: [effects.DropRate],
     },
     {
       img: "Frog_Card.png",
@@ -170,6 +171,7 @@ export const cardsObject = {
       effect: effects.BaseSTR,
       category: cardCategory.BlunderHills,
       base: 2,
+      alsoEffect: [effects.FishingEfficiency, effects.MiningEfficiency],
     },
     {
       img: "Gigafrog_Card.png",
@@ -253,6 +255,7 @@ export const cardsObject = {
       effect: effects.WeaponPower,
       category: cardCategory.YumYumDesert,
       base: 1,
+      alsoEffect: [effects.TotalDamage],
     },
     {
       img: "Mashed_Potato_Card.png",
@@ -265,6 +268,7 @@ export const cardsObject = {
       effect: effects.BaseSTR,
       category: cardCategory.YumYumDesert,
       base: 5,
+      alsoEffect: [effects.FishingEfficiency, effects.MiningEfficiency],
     },
     {
       img: "Moonmoon_Card.png",
@@ -289,6 +293,7 @@ export const cardsObject = {
       effect: effects.BaseLUK,
       category: cardCategory.YumYumDesert,
       base: 6,
+      alsoEffect: [effects.DropRate],
     },
     {
       img: "Crystal_Crabal_Card.png",
@@ -487,6 +492,7 @@ export const cardsObject = {
       effect: effects.BaseSTR,
       category: cardCategory.FrostbiteTundra,
       base: 7,
+      alsoEffect: [effects.FishingEfficiency, effects.MiningEfficiency],
     },
     {
       img: "Sir_Stache_Card.png",
@@ -529,6 +535,7 @@ export const cardsObject = {
       effect: effects.BaseLUK,
       category: cardCategory.FrostbiteTundra,
       base: 7,
+      alsoEffect: [effects.DropRate],
     },
     {
       img: "Cryosnake_Card.png",
@@ -553,6 +560,7 @@ export const cardsObject = {
       effect: effects.WeaponPower,
       category: cardCategory.FrostbiteTundra,
       base: 2,
+      alsoEffect: [effects.TotalDamage],
     },
     {
       img: "Xylobone_Card.png",
@@ -579,6 +587,7 @@ export const cardsObject = {
       effect: effects.BaseLUK,
       category: cardCategory.HardResources,
       base: 4,
+      alsoEffect: [effects.DropRate],
     },
     {
       img: "Rooted_Soul_Card.png",
@@ -619,6 +628,14 @@ export const cardsObject = {
     {
       img: "Bunny_Card.png",
       effect: effects.SkillAfk,
+      alsoEffect: [
+        effects.ChoppinAfk,
+        effects.MiningAfk,
+        effects.CatchingAfk,
+        effects.FishingAfk,
+        effects.TrappingEfficiency,
+        effects.SmithingEfficiency,
+      ],
       category: cardCategory.HardResources,
       base: 1,
     },
@@ -669,6 +686,14 @@ export const cardsObject = {
     {
       img: "Normal_Amarok_Card.png",
       effect: effects.SkillAfk,
+      alsoEffect: [
+        effects.ChoppinAfk,
+        effects.MiningAfk,
+        effects.CatchingAfk,
+        effects.FishingAfk,
+        effects.TrappingEfficiency,
+        effects.SmithingEfficiency,
+      ],
       category: cardCategory.Bosses,
       base: 2.5,
     },
@@ -763,6 +788,7 @@ export const cardsObject = {
       effect: effects.BaseLUK,
       category: cardCategory.Events,
       base: 3,
+      alsoEffect: [effects.DropRate],
     },
     {
       img: "Egggulyte_Card.png",
