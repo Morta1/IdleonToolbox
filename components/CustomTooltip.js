@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Tooltip } from "@material-ui/core";
+import { prefix } from "../Utilities";
 
 const CustomTooltip = ({ header, stats, children }) => {
   return (
@@ -16,7 +17,7 @@ const CustomTooltip = ({ header, stats, children }) => {
                     {index === 0 ? (
                       "Base"
                     ) : (
-                      <img src={`/Star${index}.png`} alt="" />
+                      <img src={`${prefix}/Star${index}.png`} alt="" />
                     )}
                   </div>
                   <div className="stat">{stat}</div>

@@ -1,7 +1,7 @@
 import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { cards, cardsObject } from "../Utilities";
+import { prefix, cardsObject } from "../Utilities";
 import { TextField, Chip, InputAdornment } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 import CustomTooltip from "../components/CustomTooltip";
@@ -78,7 +78,7 @@ export default function Home() {
                 <React.Fragment key={cardSet + "" + cardSetIndex}>
                   <img
                     className="card-banner"
-                    src={`/${cardSet}_Cardbanner.png`}
+                    src={`${prefix}/${cardSet}_Cardbanner.png`}
                     alt=""
                   />
                   <div>
@@ -95,7 +95,7 @@ export default function Home() {
                           >
                             <img
                               className="card"
-                              src={`/cards/${img}`}
+                              src={`${prefix}/cards/${img}`}
                               alt={effect}
                               height={72}
                               width={52}
