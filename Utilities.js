@@ -147,6 +147,7 @@ export const cardsObject = {
       effect: effects.BaseWIS,
       category: cardCategory.BlunderHills,
       base: 2,
+      alsoEffect: [effects.ChoppinEfficiency],
     },
     {
       img: "Baby_Boa_Card.png",
@@ -159,6 +160,7 @@ export const cardsObject = {
       effect: effects.BaseAGI,
       category: cardCategory.BlunderHills,
       base: 2,
+      alsoEffect: [effects.SmithingEfficiency],
     },
     {
       img: "Glublin_Card.png",
@@ -199,6 +201,7 @@ export const cardsObject = {
       effect: effects.BaseWIS,
       category: cardCategory.BlunderHills,
       base: 5,
+      alsoEffect: [effects.ChoppinEfficiency],
     },
     {
       img: "Nutto_Card.png",
@@ -244,6 +247,7 @@ export const cardsObject = {
       effect: effects.BaseAGI,
       category: cardCategory.YumYumDesert,
       base: 5,
+      alsoEffect: [effects.SmithingEfficiency],
     },
     {
       img: "Sand_Castle_Card.png",
@@ -506,6 +510,7 @@ export const cardsObject = {
       effect: effects.BaseAGI,
       category: cardCategory.FrostbiteTundra,
       base: 7,
+      alsoEffect: [effects.SmithingEfficiency],
     },
     {
       img: "Mamooth_Card.png",
@@ -524,6 +529,7 @@ export const cardsObject = {
       effect: effects.BaseWIS,
       category: cardCategory.FrostbiteTundra,
       base: 7,
+      alsoEffect: [effects.ChoppinEfficiency],
     },
     {
       img: "Thermister_Card.png",
