@@ -12,7 +12,7 @@ const NavBar = () => {
   ];
   const handleClick = (e, label, path) => {
     e.preventDefault();
-    window.location.href = label.includes("Card") ? "/" : path;
+    window.location.href =  prefix && label.includes("Card") ? "/" : path;
   };
   return (
     <List>
