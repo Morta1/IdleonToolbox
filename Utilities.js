@@ -849,7 +849,7 @@ export const sortingPriority = {
 };
 
 const isProd = process.env.NODE_ENV === "production";
-export const prefix = isProd ? "/IdelonToolbox/" : "";
+export const prefix = isProd ? "/IdleonToolbox/" : "";
 
 export const classColors = {
   Archer: '#51e406',
