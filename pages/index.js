@@ -103,7 +103,7 @@ export default function Home() {
                           >
                             <img
                               className="card"
-                              src={`${prefix}cards/${img}`}
+                              src={`${prefix}/cards/${img}`}
                               alt={effect}
                               height={72}
                               width={52}
