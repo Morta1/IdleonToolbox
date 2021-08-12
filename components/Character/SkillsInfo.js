@@ -9,7 +9,7 @@ const SkillsInfo = ({ skills }) => {
         const skillLevel = skills[skillName];
         if (skillName === 'character') return null;
         return <Skill key={index}>
-          <img title={skillName.capitalize()} src={`${prefix}/icons/${skillName.capitalize()}_icon.png`} alt=""/>
+          <img title={skillName.capitalize()} src={`${prefix}icons/${skillName.capitalize()}_icon.png`} alt=""/>
           <div>LV {skillLevel}</div>
         </Skill>;
       })}

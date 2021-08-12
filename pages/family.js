@@ -71,7 +71,7 @@ const Family = () => {
                         value={value} onChange={handleChange}>
               {userData?.characters?.map(({ name, class: charClassName }, charIndex) => {
                 return <Tab key={name + charIndex} label={<div className={'tab-name'}>
-                  <img src={`${prefix}/icons/${charClassName}_icon.png`} alt=""/>
+                  <img src={`${prefix}icons/${charClassName}_icon.png`} alt=""/>
                   {name}
                 </div>}/>;
               })}
@@ -89,7 +89,7 @@ const Family = () => {
               <InfoIcon style={{ marginLeft: 10 }}/>
             </Info></div>
 
-          <img src={`${prefix}/etc/Dr_Defecaus_Walking.gif`} alt=""/>
+          <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
         </div> : null}
 
       </Main>

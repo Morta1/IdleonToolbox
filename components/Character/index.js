@@ -16,7 +16,7 @@ const Character = ({
                    }) => {
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-profile'}>
-      <img src={`${prefix}/classes/${charClassName}.png`} alt=""/>
+      <img src={`${prefix}classes/${charClassName}.png`} alt=""/>
       <div className="info">
         <div className="name">Name: {charName}</div>
         <div>Level: {level}</div>

@@ -8,7 +8,7 @@ const EquippedBubbles = ({ bubbles }) => {
       {bubbles?.map((bubbleName, index) => {
         const alteredBubbleName = bubbleName === 'Sanic_Tools' ? 'Bug2' : bubbleName;
         return <img title={alteredBubbleName.replace(/_/g, " ")} key={bubbleName + index}
-                    src={`${prefix}/alchemy/${alteredBubbleName}.png`} alt=""/>;
+                    src={`${prefix}alchemy/${alteredBubbleName}.png`} alt=""/>;
       })}
     </EquippedBubblesStyled>
   );

@@ -86,7 +86,7 @@ export default function Home() {
                 <React.Fragment key={cardSet + "" + cardSetIndex}>
                   <img
                     className="card-banner"
-                    src={`${prefix}/banners/${cardSet}_Cardbanner.png`}
+                    src={`${prefix}banners/${cardSet}_Cardbanner.png`}
                     alt=""
                   />
                   <div>
@@ -103,7 +103,7 @@ export default function Home() {
                           >
                             <img
                               className="card"
-                              src={`${prefix}/cards/${img}`}
+                              src={`${prefix}cards/${img}`}
                               alt={effect}
                               height={72}
                               width={52}
