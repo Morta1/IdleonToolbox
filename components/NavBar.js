@@ -7,12 +7,12 @@ const NavBar = () => {
   const router = useRouter();
 
   const names = [
-    { label: "Card Search", path: `${prefix}` },
+    { label: "Card Search", path: prefix ? prefix : '/' },
     { label: "Family", path: `${prefix}family` },
   ];
-  const handleClick = (e, name) => {
+  const handleClick = (e, label, path) => {
     e.preventDefault();
-    window.location.href = name.includes("Card") ? "/" : name;
+    window.location.href = label.includes("Card") ? "/" : path;
   };
   return (
     <List>
@@ -21,7 +21,7 @@ const NavBar = () => {
           <React.Fragment key={label + "-" + index}>
             <ListItem
               active={router?.pathname === path}
-              onClick={(e) => handleClick(e, path)}
+              onClick={(e) => handleClick(e, label, path)}
             >
               {label}
             </ListItem>
