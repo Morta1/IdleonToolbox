@@ -71,7 +71,7 @@ const Family = () => {
                         value={value} onChange={handleChange}>
               {userData?.characters?.map(({ name, class: charClassName }, charIndex) => {
                 return <Tab key={name + charIndex} label={<div className={'tab-name'}>
-                  <img src={`${prefix}icons/${charClassName}_icon.png`} alt=""/>
+                  <img src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
                   {name}
                 </div>}/>;
               })}
