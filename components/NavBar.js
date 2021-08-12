@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
+import { prefix } from "../Utilities";
 
 const NavBar = () => {
   const router = useRouter();
 
   const names = [
-    { label: "Card Search", path: "/" },
-    { label: "Family", path: "/family" },
+    { label: "Card Search", path: `${prefix}/` },
+    { label: "Family", path: `${prefix}/family` },
   ];
   const handleClick = (e, name) => {
     e.preventDefault();
