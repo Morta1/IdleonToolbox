@@ -5,7 +5,7 @@ import { prefix } from "../Utilities";
 const CustomTooltip = ({ header, base, children }) => {
   return (
     <StyledTooltip
-      enterTouchDelay={150}
+      enterTouchDelay={100}
       placement={"top-start"}
       title={
         <div className="tooltip-body">
@@ -13,19 +13,19 @@ const CustomTooltip = ({ header, base, children }) => {
           <div className="stars">
             {base
               ? [1, 2, 3, 4]?.map((_, index) => {
-                  return (
-                    <div className="star-line" key={base + " " + index}>
-                      <div className="image-wrapper">
-                        {index === 0 ? (
-                          <span style={{ fontWeight: "bold" }}>Base</span>
-                        ) : (
-                          <img src={`${prefix}/Star${index}.png`} alt="" />
-                        )}
-                      </div>
-                      <div className="stat">{base * (index + 1)}</div>
+                return (
+                  <div className="star-line" key={base + " " + index}>
+                    <div className="image-wrapper">
+                      {index === 0 ? (
+                        <span style={{ fontWeight: "bold" }}>Base</span>
+                      ) : (
+                        <img src={`${prefix}/Star${index}.png`} alt=""/>
+                      )}
                     </div>
-                  );
-                })
+                    <div className="stat">{base * (index + 1)}</div>
+                  </div>
+                );
+              })
               : null}
           </div>
         </div>
@@ -45,7 +45,7 @@ const StyledTooltip = styled((props) => (
   & .tooltip {
     font-size: 16px;
     background-color: rebeccapurple;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
     max-width: 300px;
     @media only screen and (max-width: 600px) {
       max-width: 200px;
@@ -86,7 +86,5 @@ const StyledTooltip = styled((props) => (
     }
   }
 `;
-
-const Wrapper = styled.div``;
 
 export default CustomTooltip;

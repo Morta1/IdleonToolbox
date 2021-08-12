@@ -850,3 +850,18 @@ export const sortingPriority = {
 
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/IdleonCardSearch/" : "";
+
+export const classColors = {
+  Archer: '#51e406',
+  Hunter: '#51e406',
+  Bowman: '#51e406',
+  Mage: '#dc3cdc',
+  Shaman: '#dc3cdc',
+  Wizard: '#dc3cdc',
+  Warrior: '#ff9900',
+  Barbarian: '#ff9900',
+  Squire: '#ff9900',
+  Beginner: 'yellow',
+  Journeyman: 'yellow',
+  Maestro: 'yellow'
+}

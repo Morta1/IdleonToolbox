@@ -1,10 +1,11 @@
-import Head from "next/head";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { prefix, cardsObject } from "../Utilities";
-import { TextField, Chip, InputAdornment } from "@material-ui/core";
+import { cardsObject, prefix } from "../Utilities";
+import { Chip, InputAdornment, TextField } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 import CustomTooltip from "../components/CustomTooltip";
+import NavBar from "../components/NavBar";
+import { Wrapper } from "../components/common-styles";
 
 export default function Home() {
   const [value, setValue] = useState("");
@@ -44,17 +45,14 @@ export default function Home() {
 
   return (
     <Wrapper>
-      <Head>
-
-      </Head>
-
-      <Main>
+      <NavBar/>
+      <Main style={{ padding: 10 }}>
         <h1>Search Cards by Stats</h1>
         <StyledTextField
           InputProps={{
             endAdornment: (
               <StyledInputAdornment onClick={() => setValue("")} position="end">
-                <ClearIcon />
+                <ClearIcon/>
               </StyledInputAdornment>
             ),
           }}
@@ -88,7 +86,7 @@ export default function Home() {
                 <React.Fragment key={cardSet + "" + cardSetIndex}>
                   <img
                     className="card-banner"
-                    src={`${prefix}/${cardSet}_Cardbanner.png`}
+                    src={`${prefix}/banners/${cardSet}_Cardbanner.png`}
                     alt=""
                   />
                   <div>
@@ -111,7 +109,7 @@ export default function Home() {
                               width={52}
                             />
                           </CustomTooltip>
-                          {index === 7 ? <br /> : null}
+                          {index === 7 ? <br/> : null}
                         </React.Fragment>
                       );
                     })}
@@ -128,15 +126,11 @@ export default function Home() {
   );
 }
 
-const Wrapper = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
 const StyledTextField = styled(TextField)`
   && label.Mui-focused {
     color: rgba(255, 255, 255, 0.7);
   }
+
   & .MuiInput-underline:after {
     border-bottom-color: green;
   }
@@ -148,7 +142,6 @@ const StyledInputAdornment = styled(InputAdornment)`
 
 const Main = styled.main`
   color: white;
-  width: 90%;
 
   .chips {
     margin: 20px 0;

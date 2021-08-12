@@ -1,4 +1,4 @@
-import Document, { Html, Head, Main, NextScript } from "next/document";
+import Document, { Head, Html, Main, NextScript } from "next/document";
 import { ServerStyleSheet } from "styled-components";
 import { ServerStyleSheets } from "@material-ui/core/styles";
 import { prefix } from "../Utilities";
@@ -31,12 +31,13 @@ export default class MyDocument extends Document {
       sheet.seal();
     }
   }
+
   render() {
     return (
       <Html>
         <Head>
-          <link rel="icon" href={`${prefix}/favicon.ico`} />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="icon" href={`${prefix}/favicon.ico`}/>
+          <link rel="preconnect" href="https://fonts.googleapis.com"/>
           <link
             rel="preconnect"
             href="https://fonts.gstatic.com"
@@ -50,10 +51,11 @@ export default class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap"
             rel="stylesheet"
           />
+          <title>Test</title>
         </Head>
         <body>
-          <Main />
-          <NextScript />
+        <Main/>
+        <NextScript/>
         </body>
       </Html>
     );

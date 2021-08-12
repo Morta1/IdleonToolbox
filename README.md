@@ -1,7 +1,10 @@
-# Idleon Card Search
+# Idleon Toolbox
 
-A mini app to search for cards by their stats.
+A mini app to help you through your adventure in [Legends Of Idelon](https://legendsofidleon.com).
 
 ## Features
 
+- Follow your characters' (offline) progression, by taking advantage of the parsed JSON provided
+  by [Idleon API Downloader](https://github.com/Corbeno/Idleon-Api-Downloader)
 - Search cards by stat name.
+
