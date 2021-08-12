@@ -7,8 +7,8 @@ const NavBar = () => {
   const router = useRouter();
 
   const names = [
-    { label: "Card Search", path: `${prefix}/` },
-    { label: "Family", path: `${prefix}/family` },
+    { label: "Card Search", path: `${prefix}` },
+    { label: "Family", path: `${prefix}family` },
   ];
   const handleClick = (e, name) => {
     e.preventDefault();
