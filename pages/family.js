@@ -20,14 +20,11 @@ const Family = () => {
   const [view, setView] = useState();
 
   useEffect(() => {
-    const temp = localStorage.getItem('view');
-    console.log(temp);
-    setView(temp);
+    setView(localStorage.getItem('view') || 'dashboard');
     if (!userData) {
       try {
         const data = localStorage.getItem('characterData');
         const parsed = JSON.parse(data);
-        console.log(parsed);
         setUserData(parsed);
       } catch (e) {
         console.log('Failed to import family data from localStorage');
