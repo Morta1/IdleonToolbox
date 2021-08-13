@@ -5,6 +5,7 @@ import { prefix } from "../Utilities";
 const CustomTooltip = ({ header, base, children }) => {
   return (
     <StyledTooltip
+      interactive
       enterTouchDelay={100}
       placement={"top-start"}
       title={

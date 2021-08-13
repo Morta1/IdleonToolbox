@@ -93,7 +93,7 @@ export default function Home() {
                   <div>
                     {cardsArr.map(({ img, effect, base }, index) => {
                       return (
-                        <div style={{ display: 'inline' }} key={effect + "" + index}>
+                        <React.Fragment key={effect + "" + index}>
                           <CustomTooltip
                             header={
                               img.replace(/_/g, " ").replace(/Card.png/, "") +
@@ -111,7 +111,7 @@ export default function Home() {
                             />
                           </CustomTooltip>
                           {index === 7 ? <br/> : null}
-                        </div>
+                        </React.Fragment>
                       );
                     })}
                   </div>
