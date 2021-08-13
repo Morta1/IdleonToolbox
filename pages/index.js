@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { cardsObject, prefix } from "../Utilities";
-import { Chip, InputAdornment, TextField } from "@material-ui/core";
+import { Chip, IconButton, InputAdornment, TextField } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
 import CustomTooltip from "../components/CustomTooltip";
 import NavBar from "../components/NavBar";
@@ -101,8 +101,10 @@ export default function Home() {
                             }
                             base={base}
                           >
-                            <div className={'image-wrapper'}>
+                            <IconButton>
                               {effect}
+                            </IconButton>
+                            {/*<div className={'image-wrapper'}>*/}
                               {/*<img*/}
                               {/*  className="card"*/}
                               {/*  src={`${prefix}cards/${img}`}*/}
@@ -110,7 +112,7 @@ export default function Home() {
                               {/*  height={72}*/}
                               {/*  width={52}*/}
                               {/*/>*/}
-                            </div>
+                            {/*</div>*/}
                           </CustomTooltip>
                           {index === 7 ? <br/> : null}
                         </React.Fragment>
