@@ -64,6 +64,15 @@ const Family = () => {
             return <Character {...characterData} key={tabPanelIndex}/>;
           })}
         </div> : null}
+        {!userData ? <div className={'missing-json'}>
+          <div className={'missing-text'}>
+            <span>Please load your family JSON</span>
+            <Info>
+              <InfoIcon style={{ marginLeft: 10 }}/>
+            </Info></div>
+
+          <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
+        </div> : null}
         {view === 'dashboard' ? userData ? <>
           <AppBar position="static">
             <StyledTabs scrollButtons="auto"
@@ -82,15 +91,7 @@ const Family = () => {
               return tabPanelIndex === value ? <Character {...characterData} key={tabPanelIndex}/> : null;
             })}
           </div>
-        </> : <div className={'missing-json'}>
-          <div className={'missing-text'}>
-            <span>Please load your family JSON</span>
-            <Info>
-              <InfoIcon style={{ marginLeft: 10 }}/>
-            </Info></div>
-
-          <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
-        </div> : null}
+        </> : null : null}
 
       </Main>
     </Wrapper>

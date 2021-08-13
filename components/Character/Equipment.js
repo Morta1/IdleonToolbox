@@ -8,7 +8,8 @@ const Equipment = ({ equipment }) => {
       {equipment?.map(({ name: equipName }, equipIndex) => {
         if (equipIndex > 7) return null;
         return (
-          <Box title={equipName.replace(/_/g, " ")} key={equipName + equipIndex} img={equipName}/>
+          <Box aria-label={equipName} role="img" title={equipName.replace(/_/g, " ")} key={equipName + equipIndex}
+               img={equipName}/>
         );
       })}
     </EquipmentStyle>
@@ -24,7 +25,7 @@ const EquipmentStyle = styled.div`
     grid-template-columns: 85px 85px;
     grid-template-rows: 85px 85px;
   }
-  
+
   @media (max-width: 370px) {
     grid-template-columns: 60px 60px;
     grid-template-rows: 60px 60px;
@@ -42,12 +43,12 @@ const Box = styled.div`
     width: 85px;
     height: 85px;
   }
-  
+
   @media (max-width: 370px) {
     width: 60px;
     height: 60px;
   }
-  
+
   @media (max-width: 370px) {
     width: 60px;
     height: 60px;
