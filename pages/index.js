@@ -47,20 +47,6 @@ export default function Home() {
     <Wrapper>
       <NavBar/>
       <Main style={{ padding: 10 }}>
-        <div>
-          <CustomTooltip
-            header={"TEST"}
-            base={12}
-          >
-            <img
-              className="card"
-              src={`${prefix}cards/Baba_Yaga_Card.png`}
-              alt={"effect"}
-              height={72}
-              width={52}
-            />
-          </CustomTooltip>
-        </div>
         <h1>Search Cards by Stats</h1>
 
         <StyledTextField
@@ -107,7 +93,7 @@ export default function Home() {
                   <div>
                     {cardsArr.map(({ img, effect, base }, index) => {
                       return (
-                        <React.Fragment key={effect + "" + index}>
+                        <div style={{ display: 'inline' }} key={effect + "" + index}>
                           <CustomTooltip
                             header={
                               img.replace(/_/g, " ").replace(/Card.png/, "") +
@@ -125,7 +111,7 @@ export default function Home() {
                             />
                           </CustomTooltip>
                           {index === 7 ? <br/> : null}
-                        </React.Fragment>
+                        </div>
                       );
                     })}
                   </div>
