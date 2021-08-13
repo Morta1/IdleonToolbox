@@ -101,13 +101,15 @@ export default function Home() {
                             }
                             base={base}
                           >
-                            <img
-                              className="card"
-                              src={`${prefix}cards/${img}`}
-                              alt={effect}
-                              height={72}
-                              width={52}
-                            />
+                            <div className={'image-wrapper'}>
+                              <img
+                                className="card"
+                                src={`${prefix}cards/${img}`}
+                                alt={effect}
+                                height={72}
+                                width={52}
+                              />
+                            </div>
                           </CustomTooltip>
                           {index === 7 ? <br/> : null}
                         </React.Fragment>
@@ -171,9 +173,15 @@ const Main = styled.main`
       margin: 20px;
       font-size: 30px;
     }
+
+    .image-wrapper {
+      display: inline-block;
+    }
   }
 
   h1 {
     color: white;
   }
+  
+  
 `;

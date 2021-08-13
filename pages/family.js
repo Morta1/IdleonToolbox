@@ -68,9 +68,10 @@ const Family = () => {
           <div className={'missing-text'}>
             <span>Please load your family JSON</span>
             <Info>
-              <InfoIcon style={{ marginLeft: 10 }}/>
+              <IconButton>
+                <InfoIcon/>
+              </IconButton>
             </Info></div>
-
           <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
         </div> : null}
         {view === 'dashboard' ? userData ? <>
