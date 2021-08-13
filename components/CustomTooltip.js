@@ -8,29 +8,30 @@ const CustomTooltip = ({ header, base, children }) => {
       interactive
       enterTouchDelay={100}
       placement={"top-start"}
-      title={
-        <div className="tooltip-body">
-          <div className="tooltip-header">{header}</div>
-          <div className="stars">
-            {base
-              ? [1, 2, 3, 4]?.map((_, index) => {
-                return (
-                  <div className="star-line" key={base + " " + index}>
-                    <div className="image-wrapper">
-                      {index === 0 ? (
-                        <span style={{ fontWeight: "bold" }}>Base</span>
-                      ) : (
-                        <img src={`${prefix}etc/Star${index}.png`} alt=""/>
-                      )}
-                    </div>
-                    <div className="stat">{base * (index + 1)}</div>
-                  </div>
-                );
-              })
-              : null}
-          </div>
-        </div>
-      }
+      title={"TEST"}
+      // title={
+      //   <div className="tooltip-body">
+      //     <div className="tooltip-header">{header}</div>
+      //     <div className="stars">
+      //       {base
+      //         ? [1, 2, 3, 4]?.map((_, index) => {
+      //           return (
+      //             <div className="star-line" key={base + " " + index}>
+      //               <div className="image-wrapper">
+      //                 {index === 0 ? (
+      //                   <span style={{ fontWeight: "bold" }}>Base</span>
+      //                 ) : (
+      //                   <img src={`${prefix}etc/Star${index}.png`} alt=""/>
+      //                 )}
+      //               </div>
+      //               <div className="stat">{base * (index + 1)}</div>
+      //             </div>
+      //           );
+      //         })
+      //         : null}
+      //     </div>
+      //   </div>
+      // }
     >
       {children}
     </StyledTooltip>

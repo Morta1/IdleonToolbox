@@ -837,17 +837,6 @@ export const cardsObject = {
   ],
 };
 
-export const sortingPriority = {
-  "Blunder Hills": 1,
-  "Yum Yum Desert": 2,
-  "Easy Resources": 3,
-  "Medium Resources": 4,
-  "Hard Resources": 5,
-  "Frostbite Tundra": 6,
-  Bosses: 7,
-  Events: 8,
-};
-
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/IdleonToolbox/" : "";
 
