@@ -102,13 +102,14 @@ export default function Home() {
                             base={base}
                           >
                             <div className={'image-wrapper'}>
-                              <img
-                                className="card"
-                                src={`${prefix}cards/${img}`}
-                                alt={effect}
-                                height={72}
-                                width={52}
-                              />
+                              {effect}
+                              {/*<img*/}
+                              {/*  className="card"*/}
+                              {/*  src={`${prefix}cards/${img}`}*/}
+                              {/*  alt={effect}*/}
+                              {/*  height={72}*/}
+                              {/*  width={52}*/}
+                              {/*/>*/}
                             </div>
                           </CustomTooltip>
                           {index === 7 ? <br/> : null}

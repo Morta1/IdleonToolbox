@@ -22,7 +22,7 @@ const InfoTooltip = ({ children }) => {
 };
 
 const StyledTooltip = styled(((props) =>
-    <Tooltip classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }} {...props} />
+    <Tooltip classes={{ popper: props.className, tooltip: "tooltip"}} {...props} />
 ))`
   & .tooltip {
     color: black;
