@@ -8,3 +8,6 @@ A mini app to help you through your adventure in [Legends Of Idelon](https://leg
   by [Idleon API Downloader](https://github.com/Corbeno/Idleon-Api-Downloader)
 - Search cards by stat name.
 
+## Credits
+
+- Corbeno - for the parsed JSON by [Idleon API Downloader](https://github.com/Corbeno/Idleon-Api-Downloader).
