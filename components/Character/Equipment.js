@@ -36,7 +36,7 @@ const Box = styled.div`
   width: 85px;
   height: 85px;
   border: 1px solid white;
-  background: url(${({ img }) => img !== 'None' ? `${prefix}/materials-v2/${img}.png` : ''}) no-repeat;
+  background: url(${({ img }) => img !== 'None' ? `${prefix}/materials/${img}.png` : ''}) no-repeat;
   background-size: contain;
 
   @media (max-width: 1440px) {
