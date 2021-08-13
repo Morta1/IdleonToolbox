@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { cardsObject, prefix } from "../Utilities";
-import { Chip, IconButton, InputAdornment, TextField, Tooltip } from "@material-ui/core";
+import { Chip, InputAdornment, TextField } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
+import CustomTooltip from "../components/CustomTooltip";
 import NavBar from "../components/NavBar";
 import { Wrapper } from "../components/common-styles";
-import InfoIcon from "@material-ui/icons/Info";
 
 export default function Home() {
   const [value, setValue] = useState("");
@@ -93,31 +93,24 @@ export default function Home() {
                     {cardsArr.map(({ img, effect, base }, index) => {
                       return (
                         <React.Fragment key={effect + "" + index}>
-                          <Tooltip
-                            enterTouchDelay={100}
-                            placement={"top-start"}
-                            title={effect}
-
-                            // header={
-                            //   img.replace(/_/g, " ").replace(/Card.png/, "") +
-                            //   " - " +
-                            //   effect
-                            // }
-                            // base={base}
+                          <CustomTooltip
+                            header={
+                              img.replace(/_/g, " ").replace(/Card.png/, "") +
+                              " - " +
+                              effect
+                            }
+                            base={base}
                           >
-                            <IconButton>
-                              <InfoIcon/>
-                            </IconButton>
-                            {/*<div className={'image-wrapper'}>*/}
-                            {/*<img*/}
-                            {/*  className="card"*/}
-                            {/*  src={`${prefix}cards/${img}`}*/}
-                            {/*  alt={effect}*/}
-                            {/*  height={72}*/}
-                            {/*  width={52}*/}
-                            {/*/>*/}
-                            {/*</div>*/}
-                          </Tooltip>
+                            <div className={'image-wrapper'}>
+                              <img
+                                className="card"
+                                src={`${prefix}cards/${img}`}
+                                alt={effect}
+                                height={72}
+                                width={52}
+                              />
+                            </div>
+                          </CustomTooltip>
                           {index === 7 ? <br/> : null}
                         </React.Fragment>
                       );
@@ -189,6 +182,6 @@ const Main = styled.main`
   h1 {
     color: white;
   }
-
-
+  
+  
 `;

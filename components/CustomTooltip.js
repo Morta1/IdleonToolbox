@@ -36,12 +36,9 @@ const CustomTooltip = ({ header, base, children }) => {
   );
 };
 
-const StyledTooltip = styled((props) => (
-  <Tooltip
-    classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }}
-    {...props}
-  />
-))`
+const StyledTooltip = styled((props) =>
+  <Tooltip classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }} {...props} />
+)`
   & .tooltip {
     font-size: 16px;
     background-color: rebeccapurple;
@@ -78,8 +75,10 @@ const StyledTooltip = styled((props) => (
         align-items: center;
         flex-direction: column;
       }
+
       .image-wrapper {
       }
+
       .stat {
         margin-top: 3px;
       }
