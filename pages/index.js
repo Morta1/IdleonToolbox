@@ -47,7 +47,22 @@ export default function Home() {
     <Wrapper>
       <NavBar/>
       <Main style={{ padding: 10 }}>
+        <div>
+          <CustomTooltip
+            header={"TEST"}
+            base={12}
+          >
+            <img
+              className="card"
+              src={`${prefix}cards/Baba_Yaga_Card.png`}
+              alt={"effect"}
+              height={72}
+              width={52}
+            />
+          </CustomTooltip>
+        </div>
         <h1>Search Cards by Stats</h1>
+
         <StyledTextField
           InputProps={{
             endAdornment: (
@@ -101,15 +116,13 @@ export default function Home() {
                             }
                             base={base}
                           >
-                            <div className={'image-wrapper'}>
-                              <img
-                                className="card"
-                                src={`${prefix}cards/${img}`}
-                                alt={effect}
-                                height={72}
-                                width={52}
-                              />
-                            </div>
+                            <img
+                              className="card"
+                              src={`${prefix}cards/${img}`}
+                              alt={effect}
+                              height={72}
+                              width={52}
+                            />
                           </CustomTooltip>
                           {index === 7 ? <br/> : null}
                         </React.Fragment>
@@ -182,6 +195,6 @@ const Main = styled.main`
   h1 {
     color: white;
   }
-  
-  
+
+
 `;

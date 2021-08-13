@@ -37,7 +37,7 @@ const CustomTooltip = ({ header, base, children }) => {
 };
 
 const StyledTooltip = styled((props) =>
-  <Tooltip classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }} {...props} />
+  <Tooltip {...props} classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }}  />
 )`
   & .tooltip {
     font-size: 16px;
