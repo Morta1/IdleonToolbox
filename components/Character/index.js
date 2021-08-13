@@ -39,6 +39,11 @@ const Character = ({
 const CharacterStyle = styled.div`
   margin-bottom: 15px;
 
+  .list & {
+    display: grid;
+    place-content: center;
+  }
+
   .character-profile {
     display: flex;
     align-items: center;
@@ -74,7 +79,7 @@ const CharacterStyle = styled.div`
       grid-column-gap: 0;
       grid-template-columns: 170px 170px;
     }
-    
+
     @media (max-width: 370px) {
       grid-column-gap: 0;
       grid-template-columns: 120px 120px;

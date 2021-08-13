@@ -59,7 +59,7 @@ const Family = () => {
             <ViewListIcon/>
           </IconButton>
         </div>
-        {view === 'list' ? <div className="characters">
+        {view === 'list' ? <div className="characters list">
           {userData?.characters?.map((characterData, tabPanelIndex) => {
             return <Character {...characterData} key={tabPanelIndex}/>;
           })}
@@ -87,7 +87,7 @@ const Family = () => {
               })}
             </StyledTabs>
           </AppBar>
-          <div className="characters">
+          <div className="characters dashboard">
             {userData?.characters?.map((characterData, tabPanelIndex) => {
               return tabPanelIndex === value ? <Character {...characterData} key={tabPanelIndex}/> : null;
             })}
