@@ -6,6 +6,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 import CustomTooltip from "../components/CustomTooltip";
 import NavBar from "../components/NavBar";
 import { Wrapper } from "../components/common-styles";
+import InfoTooltip from "../components/InfoTooltip";
 
 export default function Home() {
   const [value, setValue] = useState("");
@@ -94,7 +95,7 @@ export default function Home() {
                     {cardsArr.map(({ img, effect, base }, index) => {
                       return (
                         <React.Fragment key={effect + "" + index}>
-                          <CustomTooltip
+                          <InfoTooltip
                             header={
                               img.replace(/_/g, " ").replace(/Card.png/, "") +
                               " - " +
@@ -109,7 +110,7 @@ export default function Home() {
                               height={72}
                               width={52}
                             />
-                          </CustomTooltip>
+                          </InfoTooltip>
                           {index === 7 ? <br/> : null}
                         </React.Fragment>
                       );
