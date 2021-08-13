@@ -19,7 +19,7 @@ const CustomTooltip = ({ header, base, children }) => {
                       {index === 0 ? (
                         <span style={{ fontWeight: "bold" }}>Base</span>
                       ) : (
-                        <img src={`${prefix}Star${index}.png`} alt=""/>
+                        <img src={`${prefix}etc/Star${index}.png`} alt=""/>
                       )}
                     </div>
                     <div className="stat">{base * (index + 1)}</div>
