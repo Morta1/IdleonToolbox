@@ -19,21 +19,10 @@ const SkillsInfo = ({ skills }) => {
 
 const SkillsInfoStyled = styled.div`
   display: grid;
-  grid-template-columns: 70px 70px 70px;
-  grid-template-rows: 70px 70px 70px;
+  grid-template-columns: repeat(3, minmax(45px, 70px));
+  grid-template-rows: repeat(3, minmax(45px, 70px));
   grid-auto-flow: column;
-
-  @media (max-width: 750px) {
-  }
-  @media (max-width: 450px) {
-    grid-template-columns: repeat(3, 60px);
-    grid-template-rows: repeat(3, 60px);
-  }
-  
-  @media (max-width: 370px) {
-    grid-template-columns: repeat(3, 45px);
-    grid-template-rows: repeat(3, 45px);
-  }
+  justify-content: center;  
 `;
 
 const Skill = styled.div`

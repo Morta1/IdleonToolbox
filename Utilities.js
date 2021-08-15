@@ -840,6 +840,35 @@ export const cardsObject = {
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/IdleonToolbox/" : "";
 
+export const constantBags = [
+  "Inventory_Bag_A",
+  "Inventory_Bag_B",
+  "Inventory_Bag_C",
+  "Inventory_Bag_D",
+  "Inventory_Bag_E",
+  "Inventory_Bag_F",
+  "Inventory_Bag_G",
+  "Inventory_Bag_H",
+  "Inventory_Bag_I",
+  "Inventory_Bag_U",
+  "Inventory_Bag_V",
+  "Inventory_Bag_W",
+  "Inventory_Bag_X",
+  "Inventory_Bag_Y",
+  "Inventory_Bag_Z",
+  "Snakeskinventory_Bag",
+  "Totally_Normal_and_not_fake_Bag",
+  "Blunderbag",
+  "Sandy_Satchel",
+  "Bummo_Bag",
+  "Capitalist_Case",
+  "Wealthy_Wallet",
+  "Prosperous_Pouch",
+  "Sack_of_Success",
+  "Shivering_Sack",
+  "Mamooth_Hide_Bag",
+]
+
 export const classColors = {
   Archer: '#51e406',
   Hunter: '#51e406',

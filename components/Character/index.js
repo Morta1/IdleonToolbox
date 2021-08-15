@@ -3,6 +3,7 @@ import Equipment from "./Equipment";
 import styled from "styled-components";
 import EquippedBubbles from "./EquippedBubbles";
 import SkillsInfo from "./SkillsInfo";
+import Bags from "./Bags";
 
 const Character = ({
                      name: charName,
@@ -12,6 +13,7 @@ const Character = ({
                      tools,
                      bubblesEquipped,
                      skillLevels,
+                     invBagsUsed,
                      strength, agility, wisdom, luck
                    }) => {
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -31,6 +33,7 @@ const Character = ({
       <Equipment equipment={equipment}/>
       <Equipment equipment={tools}/>
       <SkillsInfo skills={skillLevels}/>
+      <Bags bags={invBagsUsed}/>
       <EquippedBubbles bubbles={bubblesEquipped}/>
     </div>
   </CharacterStyle>
@@ -40,8 +43,7 @@ const CharacterStyle = styled.div`
   margin-bottom: 15px;
 
   .list & {
-    display: grid;
-    place-content: center;
+
   }
 
   .character-profile {
@@ -66,24 +68,11 @@ const CharacterStyle = styled.div`
 
   .row {
     display: grid;
-    grid-column-gap: 15px;
-    grid-template-columns: 170px 170px 210px;
-    grid-row-gap: 15px;
-
-    @media (max-width: 1440px) {
-      grid-column-gap: 15px;
-      grid-template-columns: 170px 170px 210px;
-    }
-
-    @media (max-width: 750px) {
-      grid-column-gap: 0;
-      grid-template-columns: 170px 170px;
-    }
-
-    @media (max-width: 370px) {
-      grid-column-gap: 0;
-      grid-template-columns: 120px 120px;
-      justify-content: center;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    justify-content: center;
+    @media(max-width: 600px){
+      grid-template-columns: 1fr;
     }
   }
 `;

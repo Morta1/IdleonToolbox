@@ -121,19 +121,11 @@ const Main = styled.main`
 
   .characters {
     display: grid;
-    grid-template-columns: ${({ view }) => view === 'dashboard' ? 'max-content' : '1fr 1fr 1fr'};
-    place-content: center;
-
-    @media (max-width: 1919px) {
-      grid-template-columns: ${({ view }) => view === 'dashboard' ? 'max-content' : '1fr 1fr'};
-    }
-
-    @media (max-width: 1200px) {
-      grid-template-columns: ${({ view }) => view === 'dashboard' ? 'max-content' : 'none'};
-    }
-
-    @media (max-width: 750px) {
-      grid-template-columns: none;
+    gap: 1rem;
+    //grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));
+    grid-template-columns: repeat(auto-fit,  minmax(580px, 1fr));
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
     }
   }
 

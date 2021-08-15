@@ -20,7 +20,7 @@ const NavBar = () => {
         return (
           <React.Fragment key={label + "-" + index}>
             <ListItem
-              active={router?.pathname === path}
+              active={router?.pathname.endsWith(path)}
               onClick={(e) => handleClick(e, path)}
             >
               {label}

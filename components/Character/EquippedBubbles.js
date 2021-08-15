@@ -17,15 +17,13 @@ const EquippedBubbles = ({ bubbles }) => {
 const EquippedBubblesStyled = styled.div`
   justify-self: center;
   @media (max-width: 750px) {
-    justify-self: right;
     img {
       width: 48px;
       height: 48px;
     }
   }
-  
+
   @media (max-width: 370px) {
-    justify-self: right;
     img {
       width: 36px;
       height: 36px;
