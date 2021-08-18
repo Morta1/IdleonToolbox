@@ -5,9 +5,5 @@ A mini app to help you through your adventure in [Legends Of Idelon](https://leg
 ## Features
 
 - Follow your characters' (offline) progression by taking advantage of the parsed JSON provided
-  by [Idleon API Downloader](https://github.com/Corbeno/Idleon-Api-Downloader)
+  by [idleon-data-extractor](https://github.com/Morta1/idleon-data-extractor)
 - Search cards by stat name.
-
-## Credits
-
-- Corbeno - for the parsed JSON by [Idleon API Downloader](https://github.com/Corbeno/Idleon-Api-Downloader).
