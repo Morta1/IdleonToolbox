@@ -9,10 +9,9 @@ const InfoTooltip = ({ children }) => {
       placement={"top-start"}
       title={
         <div>
-          Head over to <a href="https://github.com/Corbeno/Idleon-Api-Downloader"
+          Head over to <a href="https://github.com/Morta1/idleon-data-extractor"
                           rel={'noreferrer'}
-                          target={'_blank'}>Idleon-Api-Downloader</a> and use it to copy the&nbsp;<b>&apos;Clean
-          JSON&apos;</b> option and click <b>&apos;Import JSON&apos;</b>
+                          target={'_blank'}>idleon-data-extractor</a> and use it to copy the JSON Data and then click <b>&apos;Import JSON&apos;</b>
         </div>
       }
     >

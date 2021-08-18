@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { constantBags, prefix } from "../../Utilities";
+import { cleanUnderscore, constantBags, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const Bags = ({ bags }) => {
@@ -10,7 +10,7 @@ const Bags = ({ bags }) => {
   return (
     <BagsStyled>
       {invBags && constantBags?.map((bagName, index) => {
-        return <Bag exists={invBags[bagName]} title={bagName.replace(/_/g, " ")}
+        return <Bag exists={invBags[bagName]} title={cleanUnderscore(bagName)}
                     key={bagName + index}
                     src={`${prefix}checklist/${bagName}.png`} alt=""/>;
       })}

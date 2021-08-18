@@ -1,5 +1,5 @@
 import React from 'react';
-import { prefix } from "../../Utilities";
+import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const EquippedBubbles = ({ bubbles }) => {
@@ -7,7 +7,7 @@ const EquippedBubbles = ({ bubbles }) => {
     <EquippedBubblesStyled>
       {bubbles?.map((bubbleName, index) => {
         const alteredBubbleName = bubbleName === 'Sanic_Tools' ? 'Bug2' : bubbleName;
-        return <img title={alteredBubbleName.replace(/_/g, " ")} key={bubbleName + index}
+        return <img title={cleanUnderscore(alteredBubbleName)} key={bubbleName + index}
                     src={`${prefix}alchemy/${alteredBubbleName}.png`} alt=""/>;
       })}
     </EquippedBubblesStyled>

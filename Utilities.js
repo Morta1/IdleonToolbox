@@ -882,4 +882,12 @@ export const classColors = {
   Beginner: 'yellow',
   Journeyman: 'yellow',
   Maestro: 'yellow'
+};
+
+export const numberWithCommas = (num) => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+export const cleanUnderscore = (str) => {
+  return str.replace(/_/g, " ");
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from "styled-components";
-import { prefix } from "../../Utilities";
+import { cleanUnderscore, prefix } from "../../Utilities";
 
 const Equipment = ({ equipment }) => {
   return (
@@ -8,7 +8,7 @@ const Equipment = ({ equipment }) => {
       {equipment?.map(({ name: equipName }, equipIndex) => {
         if (equipIndex > 7) return null;
         return (
-          <Box aria-label={equipName} role="img" title={equipName.replace(/_/g, " ")} key={equipName + equipIndex}
+          <Box aria-label={equipName} role="img" title={cleanUnderscore(equipName)} key={equipName + equipIndex}
                img={equipName}/>
         );
       })}

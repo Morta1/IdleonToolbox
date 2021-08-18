@@ -4,6 +4,10 @@ import styled from "styled-components";
 import EquippedBubbles from "./EquippedBubbles";
 import SkillsInfo from "./SkillsInfo";
 import Bags from "./Bags";
+import AnvilProducts from "./AnvilProducts";
+import PrinterProducts from "./PrinterProducts";
+import StarSigns from "./StarSign";
+import EquippedCards from "./EquippedCards";
 
 const Character = ({
                      name: charName,
@@ -11,11 +15,16 @@ const Character = ({
                      class: charClassName,
                      equipment,
                      tools,
-                     bubblesEquipped,
-                     skillLevels,
+                     equippedBubbles,
+                     skillsInfo,
                      invBagsUsed,
-                     strength, agility, wisdom, luck
+                     anvil,
+                     printer,
+                     starSigns,
+                     cardsEquip,
+                     stats
                    }) => {
+  const { strength, agility, wisdom, luck } = stats;
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-profile'}>
       <img src={`${prefix}classes/${charClassName}.png`} alt=""/>
@@ -29,12 +38,16 @@ const Character = ({
         <div>Luk: {luck}</div>
       </div>
     </div>
-    <div className={'row'}>
+    <div className={'character-information-container'}>
       <Equipment equipment={equipment}/>
       <Equipment equipment={tools}/>
-      <SkillsInfo skills={skillLevels}/>
+      <SkillsInfo skills={skillsInfo}/>
       <Bags bags={invBagsUsed}/>
-      <EquippedBubbles bubbles={bubblesEquipped}/>
+      <EquippedBubbles bubbles={equippedBubbles}/>
+      <AnvilProducts products={anvil?.selected}/>
+      <PrinterProducts products={printer?.selected}/>
+      <StarSigns signs={starSigns}/>
+      <EquippedCards cards={cardsEquip}/>
     </div>
   </CharacterStyle>
 };
@@ -42,15 +55,15 @@ const Character = ({
 const CharacterStyle = styled.div`
   margin-bottom: 15px;
 
-  .list & {
-
-  }
-
   .character-profile {
     display: flex;
     align-items: center;
     margin: 15px 0;
     min-height: 110px;
+
+    .list & {
+      justify-content: center;
+    }
 
     > img {
       margin-right: 10px;
@@ -61,17 +74,18 @@ const CharacterStyle = styled.div`
     }
   }
 
+
   .name {
     font-weight: bold;
     color: ${({ classColor }) => classColor || 'white'};
   }
 
-  .row {
+  .character-information-container {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     justify-content: center;
-    @media(max-width: 600px){
+    @media (max-width: 600px) {
       grid-template-columns: 1fr;
     }
   }
