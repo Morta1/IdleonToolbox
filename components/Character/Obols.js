@@ -6,10 +6,9 @@ const Obols = ({ obols }) => {
   return (
     <ObolsStyled>
       {obols?.map(({name}, index) => {
-        
-        return name !== "Empty"  ? <img title={cleanUnderscore(name)} key={name + index}
-                    src={`${prefix}materials/${name}.png`} alt=""/> : 
-                    <img title={cleanUnderscore(name)} key={name + index} src={`${prefix}materials/Empty_Obol.png`} />;
+        const imgName = name === "Empty" ? 'Empty_Obol' : name;
+        return imgName !== "Locked" ? <img title={cleanUnderscore(name)} key={name + index}
+                    src={`${prefix}materials/${imgName}.png`} alt=""/>  : null;
       })}
     </ObolsStyled>
   );
