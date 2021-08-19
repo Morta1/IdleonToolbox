@@ -8,6 +8,7 @@ import AnvilProducts from "./AnvilProducts";
 import PrinterProducts from "./PrinterProducts";
 import StarSigns from "./StarSign";
 import EquippedCards from "./EquippedCards";
+import Obols from "./Obols";
 
 const Character = ({
                      name: charName,
@@ -22,7 +23,8 @@ const Character = ({
                      printer,
                      starSigns,
                      cardsEquip,
-                     stats
+                     stats,
+                     obols
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -48,6 +50,7 @@ const Character = ({
       <PrinterProducts products={printer?.selected}/>
       <StarSigns signs={starSigns}/>
       <EquippedCards cards={cardsEquip}/>
+      <Obols obols={obols}/>
     </div>
   </CharacterStyle>
 };
