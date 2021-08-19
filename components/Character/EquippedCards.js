@@ -5,10 +5,10 @@ import styled from 'styled-components';
 const EquippedCards = ({ cards }) => {
   return (
     <EquippedCardsStyled>
-      {cards?.map(({ name, stars }, index) => {
-        const cardName = name.split("(", 2)[0].trim().replace(/ /, '_');
-        return cardName !== 'None' ? <img title={name} key={cardName + index}
-                    src={`${prefix}cards/${cardName}_Card.png`} alt=""/> : null;
+      {cards?.equippedCards?.map(({ cardName, stars }, index) => {
+        const cleanCardName = cardName.split("(", 2)[0].trim().replace(/ /, '_');
+        return cardName !== 'None' ? <img title={cardName} key={cleanCardName + index}
+                                          src={`${prefix}cards/${cleanCardName}_Card.png`} alt=""/> : null;
       })}
     </EquippedCardsStyled>
   );

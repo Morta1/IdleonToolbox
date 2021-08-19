@@ -680,7 +680,7 @@ export const cardsObject = {
       base: 10,
     },
     {
-      img: "Dr._Defecaus_Card.png",
+      img: "Dr_Defecaus_Card.png",
       effect: effects.TotalDamage,
       category: cardCategory.Bosses,
       base: 5,
@@ -692,7 +692,7 @@ export const cardsObject = {
       base: 1,
     },
     {
-      img: "Normal_Amarok_Card.png",
+      img: "Amarok_Card.png",
       effect: effects.SkillAfk,
       alsoEffect: [
         effects.ChoppinAfk,
@@ -724,7 +724,7 @@ export const cardsObject = {
       base: 6,
     },
     {
-      img: "Normal_Efaunt_Card.png",
+      img: "Efaunt_Card.png",
       effect: effects.MonsterExp,
       category: cardCategory.Bosses,
       base: 5,

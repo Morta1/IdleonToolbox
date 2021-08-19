@@ -22,7 +22,7 @@ const Character = ({
                      anvil,
                      printer,
                      starSigns,
-                     cardsEquip,
+                     cards,
                      stats,
                      obols
                    }) => {
@@ -49,7 +49,7 @@ const Character = ({
       <AnvilProducts products={anvil?.selected}/>
       <PrinterProducts products={printer?.selected}/>
       <StarSigns signs={starSigns}/>
-      <EquippedCards cards={cardsEquip}/>
+      <EquippedCards cards={cards}/>
       <Obols obols={obols}/>
     </div>
   </CharacterStyle>
@@ -86,7 +86,7 @@ const CharacterStyle = styled.div`
   .character-information-container {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     justify-content: center;
     @media (max-width: 600px) {
       grid-template-columns: 1fr;
