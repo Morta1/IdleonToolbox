@@ -24,7 +24,7 @@ const Character = ({
                      cardsEquip,
                      stats
                    }) => {
-  const { strength, agility, wisdom, luck } = stats;
+  const { strength, agility, wisdom, luck } = stats || {};
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-profile'}>
       <img src={`${prefix}classes/${charClassName}.png`} alt=""/>
