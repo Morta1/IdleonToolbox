@@ -21,7 +21,10 @@ const Family = () => {
   });
 
   useEffect(() => {
-    setDisplay(JSON.parse(localStorage.getItem('display')));
+    setDisplay(JSON.parse(localStorage.getItem('display')) || {
+      view: 0,
+      subView: '',
+    });
     if (!userData) {
       try {
         const data = localStorage.getItem('characterData');
