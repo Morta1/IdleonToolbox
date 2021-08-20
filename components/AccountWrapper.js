@@ -32,7 +32,7 @@ const AccountWrapper = ({ account }) => {
     <StyledAccordion ref={accordionRef} onChange={(e, expanded) => {expanded && scrollToAccordion()}}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-        Looty Shooty Missing Items
+        Looty Shooty Missing Items ({account?.missingLootyItems.length})
       </AccordionSummary>
       <AccordionDetails>
         <Looty items={account?.missingLootyItems}/>

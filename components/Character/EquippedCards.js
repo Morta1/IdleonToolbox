@@ -1,15 +1,16 @@
 import React from 'react';
-import { prefix } from "../../Utilities";
+import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const EquippedCards = ({ cards }) => {
-  console.log(cards?.cardSet?.stars);
   return (
     <EquippedCardsStyled>
       <div className={'card-set'}>
         {cards?.cardSet?.stars > 0 ?
-          <img className='border' src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
-        <img className={'card'} title={cards?.cardSet?.name} src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
+          <img className='border' title={cleanUnderscore(cards?.cardSet?.name)}
+               src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
+        <img className={'card'} title={cleanUnderscore(cards?.cardSet?.name)}
+             src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
              alt=""/>
       </div>
       {cards?.equippedCards?.map(({ cardName, stars }, index) => {
@@ -29,9 +30,8 @@ const EquippedCardsStyled = styled.div`
   display: grid;
   gap: 5px;
   grid-template-columns: repeat(4, minmax(36px, 60px));
-  grid-template-rows: repeat(2, minmax(36px, 100px));
+  grid-template-rows: repeat(3, minmax(36px, 100px));;
   justify-content: center;
-
 
   .card-set {
     grid-column: span 4;
@@ -40,7 +40,7 @@ const EquippedCardsStyled = styled.div`
     .border {
       position: absolute;
       z-index: 1;
-      height: 90px;
+      height: 88px;
       width: 65px;
     }
 
