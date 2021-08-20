@@ -3,8 +3,15 @@ import { prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const EquippedCards = ({ cards }) => {
+  console.log(cards?.cardSet?.stars);
   return (
     <EquippedCardsStyled>
+      <div className={'card-set'}>
+        {cards?.cardSet?.stars > 0 ?
+          <img className='border' src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
+        <img className={'card'} title={cards?.cardSet?.name} src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
+             alt=""/>
+      </div>
       {cards?.equippedCards?.map(({ cardName, stars }, index) => {
         const cleanCardName = cardName.split("(", 2)[0].trim().replace(/ /, '_');
         return cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
@@ -18,11 +25,30 @@ const EquippedCards = ({ cards }) => {
 };
 
 const EquippedCardsStyled = styled.div`
+  position: relative;
   display: grid;
   gap: 5px;
   grid-template-columns: repeat(4, minmax(36px, 60px));
   grid-template-rows: repeat(2, minmax(36px, 100px));
   justify-content: center;
+
+
+  .card-set {
+    grid-column: span 4;
+    justify-self: center;
+
+    .border {
+      position: absolute;
+      z-index: 1;
+      height: 90px;
+      width: 65px;
+    }
+
+    .card {
+      width: 58px;
+      height: 72px;
+    }
+  }
 `;
 
 const CardWrapper = styled.div`
