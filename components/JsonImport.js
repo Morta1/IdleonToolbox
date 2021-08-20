@@ -31,6 +31,7 @@ const JsonImport = ({ handleImport }) => {
 const JsonImportStyled = styled.div`
   display: inline-flex;
   align-items: center;
+  margin-left: 10px;
 `;
 
 export default JsonImport;

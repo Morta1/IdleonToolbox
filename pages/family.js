@@ -1,26 +1,27 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import NavBar from "../components/NavBar";
-import { Wrapper } from "../components/common-styles";
-import AppBar from "@material-ui/core/AppBar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import Character from '../components/Character';
+import { StyledTabs, Wrapper } from "../components/common-styles";
 import { prefix } from "../Utilities";
 import JsonImport from "../components/JsonImport";
 import Info from "../components/InfoTooltip";
 import InfoIcon from "@material-ui/icons/Info";
-import ViewListIcon from '@material-ui/icons/ViewList';
-import DashboardIcon from '@material-ui/icons/Dashboard';
 import { IconButton } from "@material-ui/core";
+import Tab from "@material-ui/core/Tab";
+import AppBar from "@material-ui/core/AppBar";
+import CharacterWrapper from "../components/CharacterWrapper";
+import AccountWrapper from "../components/AccountWrapper";
+import GuildWrapper from "../components/GuildWrapper";
 
 const Family = () => {
   const [userData, setUserData] = useState(null);
-  const [value, setValue] = useState(0);
-  const [view, setView] = useState();
+  const [display, setDisplay] = useState({
+    view: 0,
+    subView: '',
+  });
 
   useEffect(() => {
-    setView(localStorage.getItem('view') || 'dashboard');
+    setDisplay(JSON.parse(localStorage.getItem('display')));
     if (!userData) {
       try {
         const data = localStorage.getItem('characterData');
@@ -32,8 +33,10 @@ const Family = () => {
     }
   }, []);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleChange = (event, newTabIndex) => {
+    const displayObj = { view: newTabIndex, subView: '' };
+    localStorage.setItem('display', JSON.stringify((displayObj)));
+    setDisplay(displayObj);
   };
 
   const handleImport = (json) => {
@@ -41,29 +44,11 @@ const Family = () => {
     localStorage.setItem('characterData', JSON.stringify(json));
   };
 
-  const changeView = (newView) => {
-    localStorage.setItem('view', newView);
-    setView(newView);
-  };
-
   return (
     <Wrapper>
       <NavBar/>
-      <Main view={view}>
-        <h1>Family <JsonImport handleImport={handleImport}/></h1>
-        <div className={'view-icons'}>
-          <IconButton onClick={() => changeView('dashboard')} aria-label={'dashboard-view'} title={'dashboard-view'}>
-            <DashboardIcon/>
-          </IconButton>
-          <IconButton onClick={() => changeView('list')} aria-label={'list-view'} title={'list-view'}>
-            <ViewListIcon/>
-          </IconButton>
-        </div>
-        {view === 'list' ? <div className="characters list">
-          {userData?.characters?.map((characterData, tabPanelIndex) => {
-            return <Character {...characterData} key={tabPanelIndex}/>;
-          })}
-        </div> : null}
+      <Main>
+        <h1>Idleon Progression <JsonImport handleImport={handleImport}/></h1>
         {!userData ? <div className={'missing-json'}>
           <div className={'missing-text'}>
             <span>Please load your family JSON</span>
@@ -73,27 +58,18 @@ const Family = () => {
               </IconButton>
             </Info></div>
           <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
-        </div> : null}
-        {view === 'dashboard' ? userData ? <>
-          <AppBar position="static">
-            <StyledTabs scrollButtons="auto"
-                        variant="scrollable"
-                        value={value} onChange={handleChange}>
-              {userData?.characters?.map(({ name, class: charClassName }, charIndex) => {
-                return <Tab key={name + charIndex} label={<div className={'tab-name'}>
-                  <img src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
-                  {name}
-                </div>}/>;
-              })}
+        </div> : <div className={'tab-wrapper'}>
+          <AppBar position="static" style={{ maxWidth: 550 }}>
+            <StyledTabs value={display?.view} onChange={handleChange} variant="fullWidth">
+              <Tab label={'Account'}/>
+              <Tab label={'Characters'}/>
+              <Tab label={'Guild'}/>
             </StyledTabs>
           </AppBar>
-          <div className="characters dashboard">
-            {userData?.characters?.map((characterData, tabPanelIndex) => {
-              return tabPanelIndex === value ? <Character {...characterData} key={tabPanelIndex}/> : null;
-            })}
-          </div>
-        </> : null : null}
-
+          {display?.view === 0 ? <AccountWrapper account={userData?.account}/> : null}
+          {display?.view === 1 ? <CharacterWrapper characters={userData?.characters}/> : null}
+          {display?.view === 2 ? <GuildWrapper guild={userData?.guild}/> : null}
+        </div>}
       </Main>
     </Wrapper>
   );
@@ -105,29 +81,10 @@ const Main = styled.main`
   h1 {
     color: white;
     padding: 10px;
-    display: grid;
-    grid-template-columns: 135px 135px;
-  }
-
-  .view-icons {
     display: flex;
-    justify-content: flex-end;
+
   }
 
-  .tab-name {
-    display: flex;
-    align-items: center;
-  }
-
-  .characters {
-    display: grid;
-    gap: 1rem;
-    //grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));
-    grid-template-columns: repeat(auto-fit,  minmax(580px, 1fr));
-    @media (max-width: 600px) {
-      grid-template-columns: 1fr;
-    }
-  }
 
   .missing-json {
     display: grid;
@@ -141,17 +98,6 @@ const Main = styled.main`
     > img {
       place-self: center;
     }
-  }
-
-`;
-
-const StyledTabs = styled(Tabs)`
-  && {
-    background-color: #545456;
-  }
-
-  & .MuiTabs-indicator {
-    background-color: #50ff00;
   }
 `;
 export default Family;

@@ -889,5 +889,6 @@ export const numberWithCommas = (num) => {
 }
 
 export const cleanUnderscore = (str) => {
+  if (!str) return '';
   return str.replace(/_/g, " ");
 }

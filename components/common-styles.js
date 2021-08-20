@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import Tabs from "@material-ui/core/Tabs";
 
 const Wrapper = styled.div`
   width: 95%;
@@ -14,4 +15,14 @@ const Wrapper = styled.div`
   }
 `;
 
-export { Wrapper };
+const StyledTabs = styled(Tabs)`
+  && {
+    background-color: #545456;
+  }
+
+  & .MuiTabs-indicator {
+    background-color: #50ff00;
+  }
+`;
+
+export { Wrapper, StyledTabs };

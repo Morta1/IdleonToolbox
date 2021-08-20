@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
-const Obols = ({ obols }) => {
+const Obols = ({ obols, type }) => {
   const getImgName = (name, shape) => {
     switch (name) {
       case 'Locked': {
@@ -20,15 +20,15 @@ const Obols = ({ obols }) => {
   return (
     <ObolsStyled>
       {/*The array is temporary hard coded just for Character - will change when I add family Obols*/}
-      {[5, 9, 12, 16, 23].map((endInd, rowNumber, array) => {
+      {(type === 'character' ? [5, 9, 12, 16, 23] : [5, 10, 14, 19, 24]).map((endInd, rowNumber, array) => {
         const startInd = rowNumber === 0 ? 0 : array[rowNumber - 1];
         const relevantArray = obols?.slice(startInd, endInd);
         return <div className={'obol-row'} key={startInd + rowNumber}>
-          {relevantArray?.map(({ name, shape }, index) => {
-            const imgName = getImgName(name, shape);
-            return <img title={cleanUnderscore(name)} key={name + index} src={`${prefix}materials/${imgName}.png`}
-                        alt=""/>;
-          })}
+      {relevantArray?.map(({name, shape}, index) => {
+        const imgName = getImgName(name, shape);
+        return <img title={cleanUnderscore(name)} key={name + index} src={`${prefix}materials/${imgName}.png`}
+        alt=""/>;
+      })}
         </div>;
       })}
     </ObolsStyled>

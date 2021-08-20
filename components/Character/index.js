@@ -45,7 +45,7 @@ const Character = ({
       <Equipment equipment={tools}/>
       <SkillsInfo skills={skillsInfo}/>
       <Bags bags={invBagsUsed}/>
-      <Obols obols={obols}/>
+      <Obols obols={obols} type={'character'}/>
       <EquippedCards cards={cards}/>
       <div className="small">
         <StarSigns signs={starSigns}/>
