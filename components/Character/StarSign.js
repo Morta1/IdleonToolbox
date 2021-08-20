@@ -34,7 +34,7 @@ const StarSignsStyled = styled.div`
 
     > div {
       text-align: center;
-
+      max-width: 250px;
       > span {
         margin: 0 5px;
         display: block;

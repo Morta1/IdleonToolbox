@@ -45,12 +45,14 @@ const Character = ({
       <Equipment equipment={tools}/>
       <SkillsInfo skills={skillsInfo}/>
       <Bags bags={invBagsUsed}/>
-      <EquippedBubbles bubbles={equippedBubbles}/>
-      <AnvilProducts products={anvil?.selected}/>
-      <PrinterProducts products={printer?.selected}/>
-      <StarSigns signs={starSigns}/>
-      <EquippedCards cards={cards}/>
       <Obols obols={obols}/>
+      <EquippedCards cards={cards}/>
+      <div className="small">
+        <StarSigns signs={starSigns}/>
+        <AnvilProducts products={anvil?.selected}/>
+        <PrinterProducts products={printer?.selected}/>
+        <EquippedBubbles bubbles={equippedBubbles}/>
+      </div>
     </div>
   </CharacterStyle>
 };
@@ -88,6 +90,13 @@ const CharacterStyle = styled.div`
     gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     justify-content: center;
+
+    .small {
+      display: grid;
+      grid-template-rows: repeat(4, minmax(36px, 72px));
+      row-gap: 30px;
+    }
+
     @media (max-width: 600px) {
       grid-template-columns: 1fr;
     }
