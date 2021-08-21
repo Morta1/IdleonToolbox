@@ -5,14 +5,14 @@ import styled from 'styled-components';
 const Bags = ({ bags, capBags }) => {
   const [invBags, setInvBags] = useState();
   useEffect(() => {
-    setInvBags(bags.reduce((res, { name }) => ({ ...res, [name]: true }), {}));
+    setInvBags(bags.reduce((res, { rawName }) => ({ ...res, [rawName]: true }), {}));
   }, []);
   return (
     <BagsStyled>
       {invBags && constantBags?.map((bagName, index) => {
         return <Bag exists={invBags[bagName]} title={cleanUnderscore(bagName)}
                     key={bagName + index}
-                    src={`${prefix}checklist/${bagName}.png`} alt=""/>;
+                    src={`${prefix}data/${bagName}.png`} alt=""/>;
       })}
       {capBags?.map(({ name, rawName }, index) => {
         return <Bag exists={true} title={cleanUnderscore(name)}
