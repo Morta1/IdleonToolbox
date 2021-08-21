@@ -6,7 +6,7 @@ const Stamps = ({ stamps }) => {
     <StampsWrapper>
       <div className={'stamp-group'}>
         {stamps?.map(({ name, rawName, level }, index) => {
-          return name !== 'FILLER' && name !== 'Blank' ? <div key={name + index} className={'stamp-wrapper'}>
+          return name !== 'FILLER' && name !== 'Blank' && level > 0 ? <div key={name + index} className={'stamp-wrapper'}>
             <span className={'level'}>{level}</span>
             <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
           </div> : null;
@@ -33,6 +33,9 @@ const StampsWrapper = styled.div`
       top: -10px;
       right: 0;
       font-weight: bold;
+      background: #000000eb;
+      font-size: 13px;
+      padding: 0 5px;
     }
   }
 `;

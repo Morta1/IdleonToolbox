@@ -28,7 +28,7 @@ const CharacterWrapper = ({ characters }) => {
     setView(displayObj);
   };
 
-  return <CharacterWrapperStyle>
+  return <CharacterWrapperStyle className={view?.subView}>
     <div className={'view-icons'}>
       <IconButton onClick={() => changeView('dashboard')} aria-label={'dashboard-view'} title={'dashboard-view'}>
         <DashboardIcon/>
@@ -37,7 +37,7 @@ const CharacterWrapper = ({ characters }) => {
         <ViewListIcon/>
       </IconButton>
     </div>
-    {view?.subView === 'list' ? <div className="characters list">
+    {view?.subView === 'list' ? <div className="characters">
       {characters?.map((characterData, tabPanelIndex) => {
         return <Character {...characterData} key={tabPanelIndex}/>;
       })}
@@ -55,7 +55,7 @@ const CharacterWrapper = ({ characters }) => {
           })}
         </StyledTabs>
       </AppBar>
-      <div className="characters dashboard">
+      <div className="characters">
         {characters?.map((characterData, tabPanelIndex) => {
           return tabPanelIndex === value ? <Character {...characterData} key={tabPanelIndex}/> : null;
         })}
@@ -72,6 +72,9 @@ const CharacterWrapperStyle = styled.div`
     position: absolute;
     right: 0;
     top: -45px;
+    @media (max-width: 750px) {
+      top: 80px;
+    }
   }
 
   .tab-name {

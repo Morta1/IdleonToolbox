@@ -16,7 +16,8 @@ const EquippedCards = ({ cards }) => {
       {cards?.equippedCards?.map(({ cardName, stars }, index) => {
         const cleanCardName = cardName.split("(", 2)[0].trim().replace(/ /, '_');
         return cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
-          {stars > 0 ? <img className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
+          {stars > 0 ?
+            <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
           <img className='card' title={cardName}
                src={`${prefix}cards/${cleanCardName}_Card.png`} alt=""/>
         </CardWrapper> : null;

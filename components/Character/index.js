@@ -16,9 +16,11 @@ const Character = ({
                      class: charClassName,
                      equipment,
                      tools,
+                     food,
                      equippedBubbles,
                      skillsInfo,
                      invBagsUsed,
+                     carryCapBags,
                      anvil,
                      printer,
                      starSigns,
@@ -41,10 +43,9 @@ const Character = ({
       </div>
     </div>
     <div className={'character-information-container'}>
-      <Equipment equipment={equipment}/>
-      <Equipment equipment={tools}/>
+      <Equipment equipment={equipment} tools={tools} foods={food}/>
       <SkillsInfo skills={skillsInfo}/>
-      <Bags bags={invBagsUsed}/>
+      <Bags bags={invBagsUsed} capBags={carryCapBags}/>
       <Obols obols={obols} type={'character'}/>
       <EquippedCards cards={cards}/>
       <div className="small">
@@ -88,7 +89,8 @@ const CharacterStyle = styled.div`
   .character-information-container {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-rows: repeat(1, 465px);
     justify-content: center;
 
     .small {
@@ -99,6 +101,7 @@ const CharacterStyle = styled.div`
 
     @media (max-width: 600px) {
       grid-template-columns: 1fr;
+      grid-template-rows: repeat(1, 465px);
     }
   }
 `;

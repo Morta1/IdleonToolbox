@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanUnderscore, numberWithCommas, prefix } from "../../Utilities";
+import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const PrinterProducts = ({ products }) => {
@@ -7,10 +7,9 @@ const PrinterProducts = ({ products }) => {
     <PrinterProductsStyled>
       {products?.map(({ item, value }, index) => {
         return <div className={'product-container'} key={item + index}>
-          <span className={'product-value'}>{numberWithCommas(value)}</span>
-          <img title={cleanUnderscore(item)}
-               src={`${prefix}materials/${item}.png`} alt="">
-          </img>
+          <span className={'product-value'}>{kFormatter(value)}/hr</span>
+          <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
+          <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
         </div>
 
       })}
@@ -25,10 +24,21 @@ const PrinterProductsStyled = styled.div`
     position: relative;
     display: inline-block;
 
+    .print-slot {
+      position: absolute;
+      z-index: -1;
+      height: 100%;
+    }
+
     .product-value {
       position: absolute;
+      font-weight: bold;
+      background: #000000eb;
+      font-size: 13px;
+      padding: 0 5px;
+      text-align: center;
       right: 0;
-      top: -5px;
+      top: -10px;
     }
   }
 

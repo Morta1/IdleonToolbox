@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { cleanUnderscore, constantBags, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
-const Bags = ({ bags }) => {
+const Bags = ({ bags, capBags }) => {
   const [invBags, setInvBags] = useState();
   useEffect(() => {
     setInvBags(bags.reduce((res, { name }) => ({ ...res, [name]: true }), {}));
@@ -13,6 +13,11 @@ const Bags = ({ bags }) => {
         return <Bag exists={invBags[bagName]} title={cleanUnderscore(bagName)}
                     key={bagName + index}
                     src={`${prefix}checklist/${bagName}.png`} alt=""/>;
+      })}
+      {capBags?.map(({ name, rawName }, index) => {
+        return <Bag exists={true} title={cleanUnderscore(name)}
+                    key={name + index}
+                    src={`${prefix}data/${rawName}.png`} alt=""/>;
       })}
     </BagsStyled>
   );
