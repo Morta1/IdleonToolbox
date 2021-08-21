@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from "styled-components";
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 
 const Equipment = ({ equipment, tools, foods }) => {
   const [items, setItems] = useState(equipment);
@@ -22,7 +22,7 @@ const Equipment = ({ equipment, tools, foods }) => {
         if (equipIndex > 7) return null;
         return (
           <Box aria-label={equipName} role="img" title={cleanUnderscore(equipName)} key={equipName + equipIndex}
-               img={rawName}>{amount > 0 ? <span>{amount}</span> : null}</Box>
+               img={rawName}>{amount > 0 ? <span>{kFormatter(amount)}</span> : null}</Box>
         );
       })}
     </EquipmentStyle>
