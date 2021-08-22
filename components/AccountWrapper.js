@@ -5,6 +5,7 @@ import Looty from "./General/Looty";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Stamps from "./General/Stamps";
 import { useRef } from "react";
+import Statues from "./General/Statues";
 
 const AccountWrapper = ({ account }) => {
   const accordionRef = useRef();
@@ -24,6 +25,7 @@ const AccountWrapper = ({ account }) => {
   return <AccountWrapperStyle>
     <div className="row">
       <Obols obols={account?.obols} type={'account'}/>
+      <Statues statues={account?.statues}/>
       <Stamps stamps={account?.stamps?.combat}/>
       <Stamps stamps={account?.stamps?.skills}/>
       <Stamps stamps={account?.stamps?.misc}/>
