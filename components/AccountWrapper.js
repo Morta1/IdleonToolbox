@@ -57,7 +57,9 @@ const AccountWrapperStyle = styled.div`
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(1, 450px) repeat(auto-fit, minmax(200px, 300px));
-
+    @media (max-width: 750px) {
+      grid-template-columns: 1fr;
+    }
     @media (max-width: 600px) {
       grid-template-columns: 1fr;
     }
