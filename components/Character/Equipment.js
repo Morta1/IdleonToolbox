@@ -4,18 +4,30 @@ import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 
 const Equipment = ({ equipment, tools, foods }) => {
   const [items, setItems] = useState(equipment);
+  const [active, setActive] = useState('tab1');
 
   return (
-    <EquipmentStyle>
+    <EquipmentStyle active={active}>
       <div className={'tabs'}>
         {equipment ?
-          <img onClick={() => {setItems(equipment)}} className={'tab1'} src={`${prefix}data/UIinventoryEquipTabs1.png`}
+          <img onClick={() => {
+            setItems(equipment);
+            setActive('tab1')
+          }} className={`tab1 ${active === 'tab1' && 'active'}`} src={`${prefix}data/UIinventoryEquipTabs1.png`}
                alt=""/> : null}
         {tools ?
-          <img onClick={() => {setItems(tools)}} className={'tab2'} src={`${prefix}data/UIinventoryEquipTabs2.png`}
+          <img onClick={() => {
+            {
+              setItems(tools);
+              setActive('tab2')
+            }
+          }} className={`tab2 ${active === 'tab2' && 'active'}`} src={`${prefix}data/UIinventoryEquipTabs2.png`}
                alt=""/> : null}
         {foods ?
-          <img onClick={() => {setItems(foods)}} className={'tab3'} src={`${prefix}data/UIinventoryEquipTabs3.png`}
+          <img onClick={() => {
+            setItems(foods);
+            setActive('tab3')
+          }} className={`tab3 ${active === 'tab3' && 'active'}`} src={`${prefix}data/UIinventoryEquipTabs3.png`}
                alt=""/> : null}
       </div>
       {items?.map(({ name: equipName, rawName, amount }, equipIndex) => {
@@ -49,6 +61,7 @@ const EquipmentStyle = styled.div`
       position: absolute;
       height: 50px;
       cursor: pointer;
+      filter: brightness(0.5);
     }
 
     .tab1 {
@@ -67,6 +80,10 @@ const EquipmentStyle = styled.div`
       left: 125px;
       top: -5px;
     }
+
+    > .active {
+      filter: brightness(1);
+    }
   }
 }`;
 
@@ -75,7 +92,7 @@ const Box = styled.div`
   height: 85px;
   border: 1px solid #7b7b7b8c;
   position: relative;
-  background: url(${({ img }) => img !== 'None' ? `${prefix}data/${img}.png` : ''}) no-repeat;
+  background: url(${({ img }) => img !== 'None' && img !== 'Blank' ? `${prefix}data/${img}.png` : ''}) no-repeat;
   background-size: contain;
 
   > span {
