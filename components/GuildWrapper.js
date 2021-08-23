@@ -100,7 +100,7 @@ const StyledHeaderCell = styled(TableCell)`
 const GuildWrapperStyle = styled.div`
   margin-top: 15px;
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
 
   .bonuses {
     display: grid;
@@ -108,6 +108,10 @@ const GuildWrapperStyle = styled.div`
     grid-template-columns: repeat(4, 50px);
     grid-template-rows: repeat(auto-fit, 50px);
     justify-content: center;
+    @media (max-width: 1239px) {
+      grid-row: 1;
+      margin-top: 20px;
+    }
 
     .bonus-wrapper {
       position: relative;
