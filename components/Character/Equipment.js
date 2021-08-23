@@ -5,29 +5,37 @@ import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 const Equipment = ({ equipment, tools, foods }) => {
   const [items, setItems] = useState(equipment);
   const [active, setActive] = useState('tab1');
+  const [equipsInd, setEquipsInd] = useState(0);
+
+  const switchEquips = (ind) => {
+    const temp = [...equipment];
+    setEquipsInd(ind);
+    setItems(ind === 0 ? temp.slice(0, 8) : temp.slice(8, temp.length));
+  }
+
+  const switchTabs = (tab, data, specials) => {
+    if (specials) {
+      switchEquips(equipsInd);
+    } else {
+      setItems(data);
+    }
+    setActive(tab);
+  }
 
   return (
-    <EquipmentStyle active={active}>
+    <EquipmentStyle active={active} equipsInd={equipsInd}>
       <div className={'tabs'}>
         {equipment ?
-          <img onClick={() => {
-            setItems(equipment);
-            setActive('tab1')
-          }} className={`tab1 ${active === 'tab1' && 'active'}`} src={`${prefix}data/UIinventoryEquipTabs1.png`}
+          <img onClick={() => switchTabs('tab1', equipment, true)} className={`tab1 ${active === 'tab1' && 'active'}`}
+               src={`${prefix}data/UIinventoryEquipTabs1.png`}
                alt=""/> : null}
         {tools ?
-          <img onClick={() => {
-            {
-              setItems(tools);
-              setActive('tab2')
-            }
-          }} className={`tab2 ${active === 'tab2' && 'active'}`} src={`${prefix}data/UIinventoryEquipTabs2.png`}
+          <img onClick={() => switchTabs('tab2', tools)} className={`tab2 ${active === 'tab2' && 'active'}`}
+               src={`${prefix}data/UIinventoryEquipTabs2.png`}
                alt=""/> : null}
         {foods ?
-          <img onClick={() => {
-            setItems(foods);
-            setActive('tab3')
-          }} className={`tab3 ${active === 'tab3' && 'active'}`} src={`${prefix}data/UIinventoryEquipTabs3.png`}
+          <img onClick={() => switchTabs('tab3', foods)} className={`tab3 ${active === 'tab3' && 'active'}`}
+               src={`${prefix}data/UIinventoryEquipTabs3.png`}
                alt=""/> : null}
       </div>
       {items?.map(({ name: equipName, rawName, amount }, equipIndex) => {
@@ -37,6 +45,15 @@ const Equipment = ({ equipment, tools, foods }) => {
                img={rawName}>{amount > 0 ? <span>{kFormatter(amount)}</span> : null}</Box>
         );
       })}
+      {active === 'tab1' ? <div className={'equips-arrows'}>
+        {equipsInd === 1 ?
+          <img onClick={() => switchEquips(0)} className={'arrow'} src={`${prefix}data/UIAnvilArrows2.png`}
+               alt=""/> : null}
+        <span className={'arrow-text'}>{equipsInd === 0 ? 'Equipment' : 'Specials'}</span>
+        {equipsInd === 0 ?
+          <img onClick={() => switchEquips(1)} className={'arrow'} src={`${prefix}data/UIAnvilArrows1.png`}
+               alt=""/> : null}
+      </div> : null}
     </EquipmentStyle>
   );
 };
@@ -52,6 +69,24 @@ const EquipmentStyle = styled.div`
   padding-top: 15px;
   grid-row-gap: 2px;
   grid-column-gap: 5px;
+
+  .equips-arrows {
+    height: 80%;
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: ${({ equipsInd }) => equipsInd === 0 ? '2fr 1fr' : '1fr 2fr'};
+
+    .arrow-text {
+      justify-self: ${({ equipsInd }) => equipsInd === 0 ? 'right' : 'left'};
+      align-self: center;
+    }
+
+    .arrow {
+      cursor: pointer;
+      height: 25px;
+      place-self: center;
+    }
+  }
 
   .tabs {
     grid-column: span 2;
