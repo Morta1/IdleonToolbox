@@ -9,6 +9,7 @@ import PrinterProducts from "./PrinterProducts";
 import StarSigns from "./StarSign";
 import EquippedCards from "./EquippedCards";
 import Obols from "./Obols";
+import Talents from "./Talents";
 
 const Character = ({
                      name: charName,
@@ -26,7 +27,8 @@ const Character = ({
                      starSigns,
                      cards,
                      stats,
-                     obols
+                     obols,
+                     talents
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -44,6 +46,7 @@ const Character = ({
     </div>
     <div className={'character-information-container'}>
       <Equipment equipment={equipment} tools={tools} foods={food}/>
+      <Talents talents={talents}/>
       <SkillsInfo skills={skillsInfo}/>
       <Bags bags={invBagsUsed} capBags={carryCapBags}/>
       <Obols obols={obols} type={'character'}/>
@@ -88,8 +91,8 @@ const CharacterStyle = styled.div`
 
   .character-information-container {
     display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, 360px);
     grid-template-rows: repeat(1, 465px);
     justify-content: center;
 
@@ -99,9 +102,12 @@ const CharacterStyle = styled.div`
       row-gap: 30px;
     }
 
+    @media (max-width: 785px) {
+      grid-template-rows: repeat(1, 465px) repeat(1, 320px)
+    }
     @media (max-width: 600px) {
       grid-template-columns: 1fr;
-      grid-template-rows: repeat(1, 465px);
+      grid-template-rows: repeat(1, 465px) repeat(1, 320px);
     }
   }
 `;
