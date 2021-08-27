@@ -4,13 +4,14 @@ import styled from 'styled-components';
 
 const Bags = ({ bags, capBags }) => {
   const [invBags, setInvBags] = useState();
+
   useEffect(() => {
-    setInvBags(bags.reduce((res, { rawName }) => ({ ...res, [rawName]: true }), {}));
+    setInvBags(bags.reduce((res, { rawName, ...rest }) => ({ ...res, [rawName]: { ...rest } }), {}));
   }, []);
   return (
     <BagsStyled>
       {invBags && constantBags?.map((bagName, index) => {
-        return <Bag exists={invBags[bagName]} title={cleanUnderscore(bagName)}
+        return <Bag exists={invBags[bagName]} title={cleanUnderscore(invBags[bagName]?.name)}
                     key={bagName + index}
                     src={`${prefix}data/${bagName}.png`} alt=""/>;
       })}

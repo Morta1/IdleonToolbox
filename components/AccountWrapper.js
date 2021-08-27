@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Stamps from "./General/Stamps";
 import { useRef } from "react";
 import Statues from "./General/Statues";
+import GeneralInfo from "./General/GeneralInfo";
 
 const AccountWrapper = ({ account }) => {
   const accordionRef = useRef();
@@ -25,6 +26,10 @@ const AccountWrapper = ({ account }) => {
   return <AccountWrapperStyle>
     <div className="row">
       <Obols obols={account?.obols} type={'account'}/>
+      <GeneralInfo silverPens={account?.silverPens}
+                   keys={account?.keys}
+                   colosseumTickets={account?.colosseumTickets} teleports={account?.worldTeleports}
+                   obolFragments={account?.obolFragments}/>
       <Statues statues={account?.statues}/>
       <Stamps stamps={account?.stamps?.combat}/>
       <Stamps stamps={account?.stamps?.skills}/>

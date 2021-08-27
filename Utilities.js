@@ -904,5 +904,5 @@ export const kFormatter = (num, digits = 1) => {
 
 export const cleanUnderscore = (str) => {
   if (!str) return '';
-  return str.replace(/_/g, " ");
+  return str?.replace(/_/g, " ");
 }
