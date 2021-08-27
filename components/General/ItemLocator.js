@@ -6,7 +6,6 @@ import { kFormatter, prefix } from "../../Utilities";
 import { createFilterOptions } from '@material-ui/lab/Autocomplete';
 
 const filterOptions = createFilterOptions({
-  limit: 15,
   trim: true
 });
 
@@ -24,7 +23,7 @@ const ItemLocator = ({ userData }) => {
     const sorted = tempLabels.sort((a, b) => {
       const nameA = a?.['name']?.replace(/_/g, ' ').toUpperCase() || ''; // ignore upper and lowercase
       const nameB = b?.['name']?.replace(/_/g, ' ').toUpperCase() || ''; // ignore upper and lowercase
-      return nameB.localeCompare(nameA);
+      return nameA.localeCompare(nameB);
     })
     setLabels(sorted);
     setItems(totalItems);
