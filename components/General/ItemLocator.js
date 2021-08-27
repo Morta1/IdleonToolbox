@@ -6,7 +6,8 @@ import { kFormatter, prefix } from "../../Utilities";
 import { createFilterOptions } from '@material-ui/lab/Autocomplete';
 
 const filterOptions = createFilterOptions({
-  limit: 15
+  limit: 15,
+  trim: true
 });
 
 const ItemLocator = ({ userData }) => {
