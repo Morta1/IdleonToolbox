@@ -45,12 +45,12 @@ const AccountWrapper = ({ account }) => {
 
 const StyledAccordion = styled(Accordion)`
   && {
-    background-color: #9c3c3c;
+    background-color: #352633;
   }
 `;
 
 const AccountWrapperStyle = styled.div`
-  margin-top: 15px;
+  margin-top: 25px;
 
   .row {
     margin: 15px 0;

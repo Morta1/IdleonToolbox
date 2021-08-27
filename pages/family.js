@@ -12,6 +12,8 @@ import AppBar from "@material-ui/core/AppBar";
 import CharacterWrapper from "../components/CharacterWrapper";
 import AccountWrapper from "../components/AccountWrapper";
 import GuildWrapper from "../components/GuildWrapper";
+import ItemLocator from "../components/General/ItemLocator";
+
 
 const Family = () => {
   const [userData, setUserData] = useState(null);
@@ -63,16 +65,18 @@ const Family = () => {
             </Info></div>
           <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
         </div> : <div className={'tab-wrapper'}>
-          <AppBar position="static" style={{ maxWidth: 550 }}>
+          <AppBar position="static" style={{ maxWidth: 650 }}>
             <StyledTabs value={display?.view} onChange={handleChange} variant="fullWidth">
               <Tab label={'Account'}/>
               <Tab label={'Characters'}/>
               <Tab label={'Guild'}/>
+              <Tab label={'Item Locator'}/>
             </StyledTabs>
           </AppBar>
           {display?.view === 0 ? <AccountWrapper account={userData?.account}/> : null}
           {display?.view === 1 ? <CharacterWrapper characters={userData?.characters}/> : null}
           {display?.view === 2 ? <GuildWrapper guild={userData?.guild}/> : null}
+          {display?.view === 3 ? <ItemLocator userData={userData}/> : null}
         </div>}
       </Main>
     </Wrapper>
