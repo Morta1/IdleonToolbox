@@ -27,6 +27,7 @@ const AccountWrapper = ({ account }) => {
     <div className="row">
       <Obols obols={account?.obols} type={'account'}/>
       <GeneralInfo silverPens={account?.silverPens}
+                   money={account?.money}
                    keys={account?.keys}
                    colosseumTickets={account?.colosseumTickets} teleports={account?.worldTeleports}
                    obolFragments={account?.obolFragments}/>
@@ -60,7 +61,7 @@ const AccountWrapperStyle = styled.div`
   .row {
     margin: 15px 0;
     display: grid;
-    gap: 1rem;
+    gap: 1.5rem;
     grid-template-columns: repeat(1, 450px) repeat(auto-fit, minmax(200px, 300px));
     @media (max-width: 750px) {
       grid-template-columns: 1fr;
