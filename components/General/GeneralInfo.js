@@ -42,6 +42,7 @@ const GeneralInfoStyle = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 74px);
   grid-template-rows: repeat(4, 74px);
+  justify-content: center;
 
   .box {
     position: relative;
@@ -76,14 +77,11 @@ const GeneralInfoStyle = styled.div`
         left: 50%;
         bottom: -10px;
         transform: translateX(-50%);
-        //position: absolute;
         font-weight: bold;
         background: #000000eb;
         font-size: 13px;
         padding: 0 5px;
         text-align: center;
-        //right: 0;
-        //bottom: -10px;
       }
     }
 

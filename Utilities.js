@@ -896,7 +896,7 @@ export const kFormatter = (num, digits = 1) => {
     { value: 1e18, symbol: "E" }
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  const item = lookup.slice().reverse().find(function(item) {
+  const item = lookup.slice().reverse().find(function (item) {
     return num >= item.value;
   });
   return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
@@ -906,3 +906,50 @@ export const cleanUnderscore = (str) => {
   if (!str) return '';
   return str?.replace(/_/g, " ");
 }
+
+export const fields = [
+  {
+    "name": "Equipment",
+    "selected": true
+  },
+  {
+    "name": "Talents",
+    "selected": true
+  },
+  {
+    "name": "Skills",
+    "selected": true
+  },
+  {
+    "name": "Bags",
+    "selected": true
+  },
+  {
+    "name": "Obols",
+    "selected": true
+  },
+  {
+    "name": "Cards",
+    "selected": true
+  },
+  {
+    "name": "Star Sign",
+    "selected": true
+  },
+  {
+    "name": "Anvil Products",
+    "selected": true
+  },
+  {
+    "name": "Printer Products",
+    "selected": true
+  },
+  {
+    "name": "Equipped Bubbles",
+    "selected": true
+  },
+  {
+    "name": "Prayers",
+    "selected": true
+  },
+];

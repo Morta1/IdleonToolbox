@@ -59,6 +59,7 @@ const Equipment = ({ equipment, tools, foods }) => {
 };
 
 const EquipmentStyle = styled.div`
+  height: 455px;
   position: relative;
   display: grid;
   justify-content: center;

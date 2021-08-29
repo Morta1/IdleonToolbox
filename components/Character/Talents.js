@@ -63,6 +63,7 @@ const Talents = ({ talents }) => {
 const StyledTalents = styled.div`
   background: url(${() => `${prefix}data/UIskills.png`}) no-repeat top;
   text-align: center;
+  height: 320px;
 
   .tabs {
     position: relative;

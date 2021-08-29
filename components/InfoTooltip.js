@@ -11,7 +11,8 @@ const InfoTooltip = ({ children }) => {
         <div>
           Head over to <a href="https://github.com/Morta1/idleon-data-extractor"
                           rel={'noreferrer'}
-                          target={'_blank'}>idleon-data-extractor</a> and use it to copy the JSON Data and then click <b>&apos;Import JSON&apos;</b>
+                          target={'_blank'}>idleon-data-extractor</a> and download the extension, after installing the
+          extension, click on Load JSON!
         </div>
       }
     >
@@ -21,7 +22,7 @@ const InfoTooltip = ({ children }) => {
 };
 
 const StyledTooltip = styled(((props) =>
-    <Tooltip {...props} classes={{ popper: props.className, tooltip: "tooltip"}}  />
+    <Tooltip {...props} classes={{ popper: props.className, tooltip: "tooltip" }}/>
 ))`
   & .tooltip {
     color: black;

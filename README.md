@@ -6,4 +6,5 @@ A mini app to help you through your adventure in [Legends Of Idelon](https://leg
 
 - Follow your characters' (offline) progression by taking advantage of the parsed JSON provided
   by [idleon-data-extractor](https://github.com/Morta1/idleon-data-extractor) extension.
+- Item Locator - find an item somewhere in your account.
 - Search cards by stat name.

@@ -1,20 +1,23 @@
 import AppBar from "@material-ui/core/AppBar";
 import { StyledTabs } from "./common-styles";
 import Tab from "@material-ui/core/Tab";
-import { IconButton } from "@material-ui/core";
+import { Chip, IconButton } from "@material-ui/core";
+import Character from "./Character";
+import { fields, prefix } from "../Utilities";
+import React, { useEffect, useState } from "react";
+import styled from 'styled-components';
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import ViewListIcon from "@material-ui/icons/ViewList";
-import Character from "./Character";
-import { prefix } from "../Utilities";
-import { useEffect, useState } from "react";
-import styled from 'styled-components';
 
 const CharacterWrapper = ({ characters }) => {
   const [view, setView] = useState();
   const [value, setValue] = useState(0);
+  const [dataFilter, setDataFilter] = useState();
 
   useEffect(() => {
     const displayObj = JSON.parse(localStorage.getItem('display'));
+    const fieldsObj = JSON.parse(localStorage.getItem('fields'));
+    setDataFilter(fieldsObj ? fieldsObj : fields);
     setView(displayObj && displayObj.subView ? displayObj : { view: 1, subView: 'dashboard' });
   }, [])
 
@@ -28,18 +31,47 @@ const CharacterWrapper = ({ characters }) => {
     setView(displayObj);
   };
 
+  const getFields = () => {
+    return dataFilter?.reduce((res, field) => ({ ...res, ...(field?.selected ? { [field?.name]: true } : {}) }), {});
+  }
+
+  const onChipClick = (clickedIndex) => {
+    const updatedArr = dataFilter?.map((field, index) => index === clickedIndex ? {
+      ...field,
+      selected: !field.selected
+    } : field);
+    localStorage.setItem('fields', JSON.stringify(updatedArr));
+    setDataFilter(updatedArr);
+  }
+
   return <CharacterWrapperStyle className={view?.subView}>
-    <div className={'view-icons'}>
-      <IconButton onClick={() => changeView('dashboard')} aria-label={'dashboard-view'} title={'dashboard-view'}>
-        <DashboardIcon/>
-      </IconButton>
-      <IconButton onClick={() => changeView('list')} aria-label={'list-view'} title={'list-view'}>
-        <ViewListIcon/>
-      </IconButton>
+    <div className={'filters'}>
+      {view?.subView === 'list' ? <div className="chips">
+        {dataFilter?.map(({ name, selected }, index) => {
+          return <Chip
+            key={name + "" + index}
+            className="chip"
+            size="small"
+            clickable
+            color={selected ? 'primary' : 'default'}
+            variant={selected ? 'default' : 'outlined'}
+            label={name}
+            onClick={() => onChipClick(index)}
+          />
+        })}
+      </div> : null}
+      <div className={'view-icons'}>
+        <IconButton onClick={() => changeView('dashboard')} aria-label={'dashboard-view'} title={'dashboard-view'}>
+          <DashboardIcon/>
+        </IconButton>
+        <IconButton onClick={() => changeView('list')} aria-label={'list-view'} title={'list-view'}>
+          <ViewListIcon/>
+        </IconButton>
+      </div>
     </div>
     {view?.subView === 'list' ? <div className="characters">
       {characters?.map((characterData, tabPanelIndex) => {
-        return <Character {...characterData} key={tabPanelIndex}/>;
+        return <Character fields={getFields()} {...characterData} key={tabPanelIndex}/>;
       })}
     </div> : null}
     {view?.subView === 'dashboard' ? characters ? <>
@@ -57,7 +89,8 @@ const CharacterWrapper = ({ characters }) => {
       </AppBar>
       <div className="characters">
         {characters?.map((characterData, tabPanelIndex) => {
-          return tabPanelIndex === value ? <Character {...characterData} key={tabPanelIndex}/> : null;
+          return tabPanelIndex === value ?
+            <Character {...characterData} key={tabPanelIndex}/> : null;
         })}
       </div>
     </> : null : null}
@@ -66,14 +99,24 @@ const CharacterWrapper = ({ characters }) => {
 
 const CharacterWrapperStyle = styled.div`
   position: relative;
-  margin-top: 15px;
 
-  .view-icons {
-    position: absolute;
-    right: 0;
-    top: -45px;
-    @media (max-width: 750px) {
-      top: 80px;
+  .filters {
+    display: flex;
+    justify-content: ${({ className }) => className === 'list' ? 'space-between' : 'flex-end'};
+
+    .chips {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      @media (max-width: 1041px) {
+        margin-top: 15px;
+      }
+    }
+
+    .view-icons {
+      display: flex;
+      justify-self: flex-end;
     }
   }
 
@@ -85,7 +128,7 @@ const CharacterWrapperStyle = styled.div`
   .characters {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     @media (max-width: 600px) {
       grid-template-columns: 1fr;
     }
