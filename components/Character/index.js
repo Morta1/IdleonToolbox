@@ -38,7 +38,6 @@ const Character = ({
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-information-container'}>
       <div className={'character-profile'}>
-        {/*<img src={`${prefix}classes/${charClassName}.png`} alt=""/>*/}
         <div className="info">
           <div className="name">{charName}</div>
           <div>Level: {level}</div>

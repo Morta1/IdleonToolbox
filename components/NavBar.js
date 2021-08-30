@@ -10,10 +10,12 @@ const NavBar = () => {
     { label: "Card Search", path: prefix ? prefix : '/' },
     { label: "Family", path: `${prefix}family` },
   ];
+
   const handleClick = (e, path) => {
     e.preventDefault();
-    window.location.href = path;
+    router.push(path);
   };
+
   return (
     <List>
       {names.map(({ label, path }, index) => {
