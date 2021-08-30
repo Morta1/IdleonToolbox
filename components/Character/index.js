@@ -1,4 +1,4 @@
-import { classColors, prefix } from "../../Utilities";
+import { classColors, cleanUnderscore, prefix } from "../../Utilities";
 import Equipment from "./Equipment";
 import styled from "styled-components";
 import EquippedBubbles from "./EquippedBubbles";
@@ -49,7 +49,7 @@ const Character = ({
         </div>
         <div className={'activity'}>
           <h4>Activity</h4>
-          <img width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`} alt=""/>
+          <img title={cleanUnderscore(afkTarget)} width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`} alt=""/>
         </div>
       </div>
       {!fields || fields?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
