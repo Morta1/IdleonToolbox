@@ -7,10 +7,12 @@ const RequiredItems = ({ item, materials, inventoryItems, showNestedCrafts, copi
   const { itemName, itemQuantity, rawName } = item || {};
   let quantityOwned;
 
-  const inventoryItem = findItemInInventory(inventoryItems, item?.itemName);
-  quantityOwned = Object.values(inventoryItem)?.reduce((res, { amount }) => {
-    return res + amount;
-  }, 0);
+  if (item?.itemName) {
+    const inventoryItem = findItemInInventory(inventoryItems, item?.itemName);
+    quantityOwned = Object.values(inventoryItem)?.reduce((res, { amount }) => {
+      return res + amount;
+    }, 0);
+  }
 
   return (
     <RequiredItemsStyle className={'materials'}>
