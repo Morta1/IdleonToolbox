@@ -868,21 +868,21 @@ export const constantBags = [
   "InvBag108",
   "InvBag109",
   "InvBag110",
-]
+];
 
 export const classColors = {
-  Archer: '#51e406',
-  Hunter: '#51e406',
-  Bowman: '#51e406',
-  Mage: '#dc3cdc',
-  Shaman: '#dc3cdc',
-  Wizard: '#dc3cdc',
-  Warrior: '#ff9900',
-  Barbarian: '#ff9900',
-  Squire: '#ff9900',
-  Beginner: 'yellow',
-  Journeyman: 'yellow',
-  Maestro: 'yellow'
+  Archer: "#51e406",
+  Hunter: "#51e406",
+  Bowman: "#51e406",
+  Mage: "#dc3cdc",
+  Shaman: "#dc3cdc",
+  Wizard: "#dc3cdc",
+  Warrior: "#ff9900",
+  Barbarian: "#ff9900",
+  Squire: "#ff9900",
+  Beginner: "yellow",
+  Journeyman: "yellow",
+  Maestro: "yellow",
 };
 
 export const kFormatter = (num, digits = 1) => {
@@ -893,63 +893,81 @@ export const kFormatter = (num, digits = 1) => {
     { value: 1e9, symbol: "G" },
     { value: 1e12, symbol: "T" },
     { value: 1e15, symbol: "P" },
-    { value: 1e18, symbol: "E" }
+    { value: 1e18, symbol: "E" },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  const item = lookup.slice().reverse().find(function (item) {
-    return num >= item.value;
-  });
-  return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
-}
+  const item = lookup
+    .slice()
+    .reverse()
+    .find(function (item) {
+      return num >= item.value;
+    });
+  return item
+    ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol
+    : "0";
+};
 
 export const cleanUnderscore = (str) => {
-  if (!str) return '';
+  if (!str) return "";
   return str?.replace(/_/g, " ");
-}
+};
 
 export const fields = [
   {
-    "name": "Equipment",
-    "selected": true
+    name: "Equipment",
+    selected: true,
   },
   {
-    "name": "Talents",
-    "selected": true
+    name: "Talents",
+    selected: true,
   },
   {
-    "name": "Skills",
-    "selected": true
+    name: "Skills",
+    selected: true,
   },
   {
-    "name": "Bags",
-    "selected": true
+    name: "Bags",
+    selected: true,
   },
   {
-    "name": "Obols",
-    "selected": true
+    name: "Obols",
+    selected: true,
   },
   {
-    "name": "Cards",
-    "selected": true
+    name: "Cards",
+    selected: true,
   },
   {
-    "name": "Star Sign",
-    "selected": true
+    name: "Star Sign",
+    selected: true,
   },
   {
-    "name": "Anvil Products",
-    "selected": true
+    name: "Anvil Products",
+    selected: true,
   },
   {
-    "name": "Printer Products",
-    "selected": true
+    name: "Printer Products",
+    selected: true,
   },
   {
-    "name": "Equipped Bubbles",
-    "selected": true
+    name: "Equipped Bubbles",
+    selected: true,
   },
   {
-    "name": "Prayers",
-    "selected": true
+    name: "Prayers",
+    selected: true,
   },
 ];
+
+export const findItemInInventory = (arr, itemName) => {
+  return arr.reduce((res, { name, owner, amount }) => {
+    if (name.includes(itemName)) {
+      if (res?.[owner]) {
+        return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
+      } else {
+        return { ...res, [owner]: { amount } };
+      }
+    }
+    return res;
+  }, {});
+};

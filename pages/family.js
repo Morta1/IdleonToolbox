@@ -10,6 +10,7 @@ import CharacterWrapper from "../components/CharacterWrapper";
 import AccountWrapper from "../components/AccountWrapper";
 import GuildWrapper from "../components/GuildWrapper";
 import ItemLocator from "../components/General/ItemLocator";
+import CraftIt from "../components/General/CraftIt";
 
 
 const Family = () => {
@@ -79,18 +80,20 @@ const Family = () => {
           </div>
           <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
         </div> : <div className={'tab-wrapper'}>
-          <AppBar position="static" style={{ maxWidth: 650 }}>
+          <AppBar position="static" style={{ maxWidth: 800 }}>
             <StyledTabs value={display?.view} onChange={handleChange} variant="fullWidth">
               <Tab label={'Account'}/>
               <Tab label={'Characters'}/>
               <Tab label={'Guild'}/>
               <Tab label={'Item Locator'}/>
+              {/* <Tab label={'Craft It'}/> */}
             </StyledTabs>
           </AppBar>
           {display?.view === 0 ? <AccountWrapper account={userData?.account}/> : null}
           {display?.view === 1 ? <CharacterWrapper characters={userData?.characters}/> : null}
           {display?.view === 2 ? <GuildWrapper guild={userData?.guild}/> : null}
           {display?.view === 3 ? <ItemLocator userData={userData}/> : null}
+          {/* {display?.view === 4 ? <CraftIt userData={userData}/> : null} */}
         </div>}
       </Main>
     </Wrapper>
