@@ -1,6 +1,7 @@
 {
   "Boxing_Gloves": {
     "rawName": "EquipmentPunching1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Crimson_String",
@@ -16,6 +17,7 @@
   },
   "Wooden_Spear": {
     "rawName": "TestObj1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Cap",
@@ -31,6 +33,7 @@
   },
   "Wooden_Bow": {
     "rawName": "EquipmentBows1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Cap",
@@ -46,6 +49,7 @@
   },
   "Gnarled_Wand": {
     "rawName": "EquipmentWands1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Cap",
@@ -61,6 +65,7 @@
   },
   "Farmer_Brim": {
     "rawName": "EquipmentHats1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Cap",
@@ -76,6 +81,7 @@
   },
   "Orange_Tee": {
     "rawName": "EquipmentShirts1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Cap",
@@ -91,6 +97,7 @@
   },
   "Torn_Jeans": {
     "rawName": "EquipmentPants1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Frog_Leg",
@@ -111,6 +118,7 @@
   },
   "Flip_Flops": {
     "rawName": "EquipmentShoes9",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bean_Slices",
@@ -131,6 +139,7 @@
   },
   "Copper_Pickaxe": {
     "rawName": "EquipmentTools2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -146,6 +155,7 @@
   },
   "Cramped_Mining_Pouch": {
     "rawName": "MaxCapBag1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Ore",
@@ -156,6 +166,7 @@
   },
   "Copper_Chopper": {
     "rawName": "EquipmentToolsHatchet3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -176,6 +187,7 @@
   },
   "Cramped_Choppin_Pouch": {
     "rawName": "MaxCapBag7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Oak_Logs",
@@ -191,6 +203,7 @@
   },
   "Leather_Cap": {
     "rawName": "EquipmentHats15",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Frog_Leg",
@@ -211,6 +224,7 @@
   },
   "The_Stingers": {
     "rawName": "EquipmentPunching2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -231,6 +245,7 @@
   },
   "Cramped_Food_Pouch": {
     "rawName": "MaxCapBag8",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Nomwich",
@@ -256,6 +271,7 @@
   },
   "Cramped_Material_Pouch": {
     "rawName": "MaxCapBagM2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Trusty_Nails",
@@ -276,6 +292,7 @@
   },
   "Copper_Helmet": {
     "rawName": "EquipmentHats17",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -291,6 +308,7 @@
   },
   "Copper_Platebody": {
     "rawName": "EquipmentShirts11",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -306,6 +324,7 @@
   },
   "Copper_Platelegs": {
     "rawName": "EquipmentPants2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -321,6 +340,7 @@
   },
   "Copper_Boots": {
     "rawName": "EquipmentShoes1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -331,6 +351,7 @@
   },
   "Militia_Helm": {
     "rawName": "EquipmentHats20",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -351,6 +372,7 @@
   },
   "Thief_Hood": {
     "rawName": "EquipmentHats3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -371,6 +393,7 @@
   },
   "Top_Hat": {
     "rawName": "EquipmentHats16",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -391,6 +414,7 @@
   },
   "Party_Hat": {
     "rawName": "EquipmentHats21",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -406,6 +430,7 @@
   },
   "Steel_Axe": {
     "rawName": "TestObj7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Slime_Sludge",
@@ -421,6 +446,7 @@
   },
   "Birch_Longbow": {
     "rawName": "EquipmentBows3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Slime_Sludge",
@@ -436,6 +462,7 @@
   },
   "Quarterstaff": {
     "rawName": "EquipmentWands2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Slime_Sludge",
@@ -451,6 +478,7 @@
   },
   "Copper_Band": {
     "rawName": "EquipmentRings2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -461,6 +489,7 @@
   },
   "Iron_Pickaxe": {
     "rawName": "EquipmentTools3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -476,6 +505,7 @@
   },
   "Small_Mining_Pouch": {
     "rawName": "MaxCapBag2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Ore",
@@ -486,6 +516,7 @@
   },
   "Iron_Hatchet": {
     "rawName": "EquipmentToolsHatchet1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Jungle_Logs",
@@ -501,6 +532,7 @@
   },
   "Small_Choppin_Pouch": {
     "rawName": "MaxCapBag9",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bleach_Logs",
@@ -511,6 +543,7 @@
   },
   "Iron_Helmet": {
     "rawName": "EquipmentHats18",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -526,6 +559,7 @@
   },
   "Iron_Platebody": {
     "rawName": "EquipmentShirts12",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -541,6 +575,7 @@
   },
   "Iron_Platelegs": {
     "rawName": "EquipmentPants3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -556,6 +591,7 @@
   },
   "Anvil_Tab_2": {
     "rawName": "EquipmentSmithingTabs2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -581,6 +617,7 @@
   },
   "Blue_Tee": {
     "rawName": "EquipmentShirts2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Cap",
@@ -601,6 +638,7 @@
   },
   "Sleek_Shank": {
     "rawName": "EquipmentPendant10",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Thread",
@@ -626,6 +664,7 @@
   },
   "Iron_Boots": {
     "rawName": "EquipmentShoes15",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Trusty_Nails",
@@ -646,6 +685,7 @@
   },
   "Steel_Band": {
     "rawName": "EquipmentRings3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -656,6 +696,7 @@
   },
   "Purple_Tupacband": {
     "rawName": "EquipmentHats8",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bleach_Logs",
@@ -676,6 +717,7 @@
   },
   "Icing_Ironbite": {
     "rawName": "FoodMining1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Ore",
@@ -691,6 +733,7 @@
   },
   "Saucy_Logfries": {
     "rawName": "FoodChoppin1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Jungle_Logs",
@@ -706,6 +749,7 @@
   },
   "Goo_Galoshes": {
     "rawName": "EquipmentShoes7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Slime_Sludge",
@@ -726,6 +770,7 @@
   },
   "Fur_Shirt": {
     "rawName": "EquipmentShirts10",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Goblin_Ear",
@@ -741,6 +786,7 @@
   },
   "Hide_Shirt": {
     "rawName": "EquipmentShirts20",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bleach_Logs",
@@ -761,6 +807,7 @@
   },
   "Eco_Friendly_Oil": {
     "rawName": "OilBarrel5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Crude_Oil",
@@ -776,6 +823,7 @@
   },
   "Dooble_Goopi": {
     "rawName": "EquipmentRings14",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Slime_Sludge",
@@ -796,6 +844,7 @@
   },
   "Bleached_Designer_Wode_Patch_Pants": {
     "rawName": "EquipmentPants15",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Torn_Jeans",
@@ -816,6 +865,7 @@
   },
   "Dirty_Coal_Miner_Baggy_Soot_Pants": {
     "rawName": "EquipmentPants18",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Torn_Jeans",
@@ -831,6 +881,7 @@
   },
   "Peanut": {
     "rawName": "Peanut",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Hot_Dog",
@@ -851,6 +902,7 @@
   },
   "Golden_Peanut": {
     "rawName": "PeanutG",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Peanut",
@@ -866,6 +918,7 @@
   },
   "Blunderbag": {
     "rawName": "InvBag102",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spore_Tee",
@@ -886,6 +939,7 @@
   },
   "Purple_Tee": {
     "rawName": "EquipmentShirts25",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Red_Spore_Cap",
@@ -906,6 +960,7 @@
   },
   "Green_Tee": {
     "rawName": "EquipmentShirts24",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Thread",
@@ -926,6 +981,7 @@
   },
   "Black_Tee": {
     "rawName": "EquipmentShirts3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Orange_Tee",
@@ -951,6 +1007,7 @@
   },
   "Blunderhills_NPC_Completion_Token": {
     "rawName": "BadgeG1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Easy_Blunderhills_NPC_Token",
@@ -971,6 +1028,7 @@
   },
   "Blunder_Skills_Completion_Token": {
     "rawName": "BadgeG2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Platinum_Bar",
@@ -991,6 +1049,7 @@
   },
   "Blunderhills_Misc_Completion_Token": {
     "rawName": "BadgeG3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Peanut",
@@ -1016,6 +1075,7 @@
   },
   "Easy_Blunderhills_NPC_Token": {
     "rawName": "NPCtoken1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Woodsman_Token",
@@ -1041,6 +1101,7 @@
   },
   "Med_Blunderhills_NPC_Token": {
     "rawName": "NPCtoken2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Krunk_Token",
@@ -1066,6 +1127,7 @@
   },
   "Hard_Blunderhills_NPC_Token": {
     "rawName": "NPCtoken3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Picnic_Token",
@@ -1091,6 +1153,7 @@
   },
   "Amarok_Helmet": {
     "rawName": "EquipmentHats22",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Amarok_Slab",
@@ -1111,6 +1174,7 @@
   },
   "Amarok_Bodyplate": {
     "rawName": "EquipmentShirts18",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Amarok_Slab",
@@ -1131,6 +1195,7 @@
   },
   "Amarok_Hinds": {
     "rawName": "EquipmentPants17",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Amarok_Slab",
@@ -1151,6 +1216,7 @@
   },
   "Amarok_Paws": {
     "rawName": "EquipmentShoes20",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Amarok_Slab",
@@ -1171,6 +1237,7 @@
   },
   "Fishing_Overalls": {
     "rawName": "EquipmentPants22",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bleached_Designer_Wode_Patch_Pants",
@@ -1186,6 +1253,7 @@
   },
   "Bandito_Pantaloon": {
     "rawName": "EquipmentPants23",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dirty_Coal_Miner_Baggy_Soot_Pants",
@@ -1201,6 +1269,7 @@
   },
   "Chaotic_Amarok_Pendant": {
     "rawName": "EquipmentPendant17",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Chaotic_Amarok_Slab",
@@ -1221,6 +1290,7 @@
   },
   "Copper_Fish_Rod": {
     "rawName": "FishingRod2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Copper_Bar",
@@ -1236,6 +1306,7 @@
   },
   "Cramped_Fish_Pouch": {
     "rawName": "MaxCapBagFi1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Goldfish",
@@ -1246,6 +1317,7 @@
   },
   "Copper_Netted_Net": {
     "rawName": "CatchingNet2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Jungle_Logs",
@@ -1261,6 +1333,7 @@
   },
   "Cramped_Bug_Pouch": {
     "rawName": "MaxCapBagB1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Fly",
@@ -1271,6 +1344,7 @@
   },
   "Iron_Fishing_Rod": {
     "rawName": "FishingRod3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Iron_Bar",
@@ -1291,6 +1365,7 @@
   },
   "Small_Fish_Pouch": {
     "rawName": "MaxCapBagFi2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Hermit_Can",
@@ -1306,6 +1381,7 @@
   },
   "Reinforced_Net": {
     "rawName": "CatchingNet3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Fibres",
@@ -1326,6 +1402,7 @@
   },
   "Small_Bug_Pouch": {
     "rawName": "MaxCapBagB2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Butterfly",
@@ -1341,6 +1418,7 @@
   },
   "Silkskin_Traps": {
     "rawName": "TrapBoxSet2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Poison_Froge",
@@ -1356,6 +1434,7 @@
   },
   "Small_Critter_Pouch": {
     "rawName": "MaxCapBagTr1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Froge",
@@ -1371,6 +1450,7 @@
   },
   "Ceramic_Skull": {
     "rawName": "WorshipSkull2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Soul",
@@ -1386,6 +1466,7 @@
   },
   "Small_Soul_Pouch": {
     "rawName": "MaxCapBagS1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Soul",
@@ -1401,6 +1482,7 @@
   },
   "Gold_Helmet": {
     "rawName": "EquipmentHats28",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Fly",
@@ -1421,6 +1503,7 @@
   },
   "Gold_Platebody": {
     "rawName": "EquipmentShirts13",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Pocket_Sand",
@@ -1441,6 +1524,7 @@
   },
   "Gold_Platelegs": {
     "rawName": "EquipmentPants4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Goldfish",
@@ -1461,6 +1545,7 @@
   },
   "Gold_Boots": {
     "rawName": "EquipmentShoes3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Bar",
@@ -1481,6 +1566,7 @@
   },
   "Bandage_Wraps": {
     "rawName": "EquipmentPunching3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cue_Tape",
@@ -1501,6 +1587,7 @@
   },
   "Royal_Bayonet": {
     "rawName": "TestObj3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Fibres",
@@ -1521,6 +1608,7 @@
   },
   "Spiked_Menace": {
     "rawName": "EquipmentBows5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Bar",
@@ -1541,6 +1629,7 @@
   },
   "Starlight": {
     "rawName": "EquipmentWands5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Chain_Link",
@@ -1561,6 +1650,7 @@
   },
   "Gold_Pickaxe": {
     "rawName": "EquipmentTools5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Megalodon_Tooth",
@@ -1581,6 +1671,7 @@
   },
   "Average_Mining_Pouch": {
     "rawName": "MaxCapBag3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cramped_Mining_Pouch",
@@ -1601,6 +1692,7 @@
   },
   "Golden_Axe": {
     "rawName": "EquipmentToolsHatchet2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Dubloon",
@@ -1621,6 +1713,7 @@
   },
   "Average_Choppin_Pouch": {
     "rawName": "MaxCapBagT3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cramped_Choppin_Pouch",
@@ -1641,6 +1734,7 @@
   },
   "Gold_Fishing_Rod": {
     "rawName": "FishingRod4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Hermit_Can",
@@ -1661,6 +1755,7 @@
   },
   "Average_Fish_Pouch": {
     "rawName": "MaxCapBagFi3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cramped_Fish_Pouch",
@@ -1681,6 +1776,7 @@
   },
   "Gilded_Net": {
     "rawName": "CatchingNet4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Dubloon",
@@ -1701,6 +1797,7 @@
   },
   "Average_Bug_Pouch": {
     "rawName": "MaxCapBagB3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cramped_Bug_Pouch",
@@ -1721,6 +1818,7 @@
   },
   "Defenders_Dignity": {
     "rawName": "EquipmentRings11",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Goldfish",
@@ -1741,6 +1839,7 @@
   },
   "Strung_Bludgeon": {
     "rawName": "EquipmentPendant16",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bullfrog_Horn",
@@ -1761,6 +1860,7 @@
   },
   "Average_Food_Pouch": {
     "rawName": "MaxCapBagF3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cramped_Food_Pouch",
@@ -1786,6 +1886,7 @@
   },
   "Average_Material_Pouch": {
     "rawName": "MaxCapBagM4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Cramped_Material_Pouch",
@@ -1806,6 +1907,7 @@
   },
   "Platinum_Helmet": {
     "rawName": "EquipmentHats19",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Jellyfish",
@@ -1826,6 +1928,7 @@
   },
   "Platinum_Platbody": {
     "rawName": "EquipmentShirts14",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Potato_Remains",
@@ -1846,6 +1949,7 @@
   },
   "Platinum_Shins": {
     "rawName": "EquipmentPants5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Sentient_Cereal",
@@ -1866,6 +1970,7 @@
   },
   "Platinum_Boots": {
     "rawName": "EquipmentShoes4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tropilogs",
@@ -1886,6 +1991,7 @@
   },
   "Enforced_Slasher": {
     "rawName": "EquipmentSword1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Nuget_Cake",
@@ -1906,6 +2012,7 @@
   },
   "Pharoah_Bow": {
     "rawName": "EquipmentBows6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Woodular_Circle",
@@ -1926,6 +2033,7 @@
   },
   "Crows_Nest": {
     "rawName": "EquipmentWands6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Plop",
@@ -1946,6 +2054,7 @@
   },
   "Platinum_Pickaxe": {
     "rawName": "EquipmentTools6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Platinum_Bar",
@@ -1966,6 +2075,7 @@
   },
   "Sizable_Mining_Pouch": {
     "rawName": "MaxCapBag4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Platinum_Ore",
@@ -1981,6 +2091,7 @@
   },
   "Plat_Hatchet": {
     "rawName": "EquipmentToolsHatchet4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tropilogs",
@@ -2001,6 +2112,7 @@
   },
   "Sizable_Choppin_Pouch": {
     "rawName": "MaxCapBagT4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tropilogs",
@@ -2016,6 +2128,7 @@
   },
   "Plat_Fishing_Rod": {
     "rawName": "FishingRod5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bloach",
@@ -2036,6 +2149,7 @@
   },
   "Sizable_Fish_Pouch": {
     "rawName": "MaxCapBagFi4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bloach",
@@ -2051,6 +2165,7 @@
   },
   "Platinet": {
     "rawName": "CatchingNet5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Fruitfly",
@@ -2071,6 +2186,7 @@
   },
   "Sizable_Bug_Pouch": {
     "rawName": "MaxCapBagB4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Fruitfly",
@@ -2086,6 +2202,7 @@
   },
   "Sizable_Food_Pouch": {
     "rawName": "MaxCapBagF4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Meat_Pie",
@@ -2106,6 +2223,7 @@
   },
   "Sizable_Materials_Pouch": {
     "rawName": "MaxCapBagM5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Plop",
@@ -2126,6 +2244,7 @@
   },
   "Anvil_Tab_3": {
     "rawName": "EquipmentSmithingTabs3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Platinum_Bar",
@@ -2151,6 +2270,7 @@
   },
   "Empty_Box": {
     "rawName": "Quest13",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Hermit_Can",
@@ -2171,6 +2291,7 @@
   },
   "Googley_Eyes": {
     "rawName": "Quest35",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Woodular_Circle",
@@ -2191,6 +2312,7 @@
   },
   "Bullet": {
     "rawName": "Bullet",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Fibres",
@@ -2206,6 +2328,7 @@
   },
   "FMJ_Bullet": {
     "rawName": "BulletB",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Ore",
@@ -2221,6 +2344,7 @@
   },
   "Viking_Cap": {
     "rawName": "TestObj13",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Militia_Helm",
@@ -2241,6 +2365,7 @@
   },
   "Sleek_Coif": {
     "rawName": "EquipmentHats41",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Thief_Hood",
@@ -2261,6 +2386,7 @@
   },
   "Witch_Hat": {
     "rawName": "EquipmentHats26",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Top_Hat",
@@ -2281,6 +2407,7 @@
   },
   "Studded_Hide": {
     "rawName": "EquipmentShirts5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Hide_Shirt",
@@ -2301,6 +2428,7 @@
   },
   "Feral_Leathering": {
     "rawName": "EquipmentShirts23",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Fur_Shirt",
@@ -2321,6 +2449,7 @@
   },
   "Furled_Robes": {
     "rawName": "EquipmentShirts22",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tattered_Cloth",
@@ -2341,6 +2470,7 @@
   },
   "Cavern_Trekkers": {
     "rawName": "EquipmentShoes16",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Boots",
@@ -2366,6 +2496,7 @@
   },
   "Angler_Boots": {
     "rawName": "EquipmentShoes18",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Boots",
@@ -2391,6 +2522,7 @@
   },
   "Logger_Heels": {
     "rawName": "EquipmentShoes17",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Boots",
@@ -2416,6 +2548,7 @@
   },
   "Bandito_Boots": {
     "rawName": "EquipmentShoes19",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Gold_Boots",
@@ -2441,6 +2574,7 @@
   },
   "Slurpin_Herm": {
     "rawName": "FoodFish1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Hermit_Can",
@@ -2456,6 +2590,7 @@
   },
   "Buttered_Toasted_Butter": {
     "rawName": "FoodCatch1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Butterfly",
@@ -2471,6 +2606,7 @@
   },
   "Dootjat_Eye": {
     "rawName": "Quest36",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Silver_Antique",
@@ -2491,6 +2627,7 @@
   },
   "Sandy_Satchel": {
     "rawName": "InvBag103",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Plop",
@@ -2511,6 +2648,7 @@
   },
   "Efaunt_Helmet": {
     "rawName": "EquipmentHats52",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Ripped_Tunic",
@@ -2536,6 +2674,7 @@
   },
   "Efaunt_Ribcage": {
     "rawName": "EquipmentShirts26",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Ripped_Tunic",
@@ -2556,6 +2695,7 @@
   },
   "Efaunt_Hipilium": {
     "rawName": "EquipmentPants20",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Ripped_Tunic",
@@ -2576,6 +2716,7 @@
   },
   "Efaunts_Broken_Ankles": {
     "rawName": "EquipmentShoes21",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Ripped_Tunic",
@@ -2596,6 +2737,7 @@
   },
   "Efaunt_Trunculus": {
     "rawName": "EquipmentRings16",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Ribbed_Tunic",
@@ -2621,6 +2763,7 @@
   },
   "Wooden_Traps": {
     "rawName": "TrapBoxSet3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Mutant_Crabbo",
@@ -2636,6 +2779,7 @@
   },
   "Sizable_Critter_Pouch": {
     "rawName": "MaxCapBagTr3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Crabbo",
@@ -2651,6 +2795,7 @@
   },
   "Horned_Skull": {
     "rawName": "WorshipSkull3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dune_Soul",
@@ -2666,6 +2811,7 @@
   },
   "Sizable_Soul_Pouch": {
     "rawName": "MaxCapBagS3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dune_Soul",
@@ -2681,6 +2827,7 @@
   },
   "Yumyum_Desert_NPC_Completion_Token": {
     "rawName": "BadgeD1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Easy_Yumyum_Dez_NPC_Token",
@@ -2701,6 +2848,7 @@
   },
   "Yumyum_Skills_Completion_Token": {
     "rawName": "BadgeD2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bloach",
@@ -2721,6 +2869,7 @@
   },
   "Yumyum_Misc_Completion_Token": {
     "rawName": "BadgeD3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Minuteglass",
@@ -2746,6 +2895,7 @@
   },
   "Star_Talent_Reset_Potion": {
     "rawName": "ResetCompletedS",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Talent_Point_Reset_Fragment",
@@ -2761,6 +2911,7 @@
   },
   "Easy_Yumyum_Dez_NPC_Token": {
     "rawName": "NPCtoken28",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bandit_Bob_Token",
@@ -2786,6 +2937,7 @@
   },
   "Med_Yumyum_Dez_NPC_Token": {
     "rawName": "NPCtoken29",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Carpetiem_Token",
@@ -2811,6 +2963,7 @@
   },
   "Hard_Yumyum_Dez_NPC_Token": {
     "rawName": "NPCtoken30",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Loominadi_Token",
@@ -2836,6 +2989,7 @@
   },
   "Dementia_Helmet": {
     "rawName": "EquipmentHats53",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Froge",
@@ -2856,6 +3010,7 @@
   },
   "Dementia_Body": {
     "rawName": "EquipmentShirts15",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Soul",
@@ -2876,6 +3031,7 @@
   },
   "Dementia_Shins": {
     "rawName": "EquipmentPants6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Floof_Ploof",
@@ -2896,6 +3052,7 @@
   },
   "Dementia_Boots": {
     "rawName": "EquipmentShoes5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Poison_Froge",
@@ -2916,6 +3073,7 @@
   },
   "Uninflated_Glove": {
     "rawName": "EquipmentPunching4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Melty_Cube",
@@ -2931,6 +3089,7 @@
   },
   "The_Ice_Breaker": {
     "rawName": "EquipmentSword2",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Melty_Cube",
@@ -2951,6 +3110,7 @@
   },
   "Blizzard_Bow": {
     "rawName": "EquipmentBows7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Forest_Soul",
@@ -2971,6 +3131,7 @@
   },
   "Spriggly_Storm": {
     "rawName": "EquipmentWands3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tundra_Logs",
@@ -2991,6 +3152,7 @@
   },
   "Dementia_Pickaxe": {
     "rawName": "EquipmentTools7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dementia_Bar",
@@ -3011,6 +3173,7 @@
   },
   "Big_Mining_Pouch": {
     "rawName": "MaxCapBag5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dementia_Ore",
@@ -3026,6 +3189,7 @@
   },
   "Dementia_Dicer": {
     "rawName": "EquipmentToolsHatchet5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tundra_Logs",
@@ -3046,6 +3210,7 @@
   },
   "Big_Choppin_Pouch": {
     "rawName": "MaxCapBagT5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Tundra_Logs",
@@ -3061,6 +3226,7 @@
   },
   "Dementia_Rod_for_Fishing": {
     "rawName": "FishingRod6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dementia_Bar",
@@ -3081,6 +3247,7 @@
   },
   "Big_Fish_Pouch": {
     "rawName": "MaxCapBagFi5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Crescent_Scorpie",
@@ -3101,6 +3268,7 @@
   },
   "Dementia_Net": {
     "rawName": "CatchingNet6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Mosquisnow",
@@ -3121,6 +3289,7 @@
   },
   "Big_Bug_Pouch": {
     "rawName": "MaxCapBagB5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Mosquisnow",
@@ -3136,6 +3305,7 @@
   },
   "Natural_Traps": {
     "rawName": "TrapBoxSet4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Nakeo_Moleo",
@@ -3156,6 +3326,7 @@
   },
   "Big_Critter_Pouch": {
     "rawName": "MaxCapBagTr4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Mousey",
@@ -3171,6 +3342,7 @@
   },
   "Prickle_Skull": {
     "rawName": "WorshipSkull4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Rooted_Soul",
@@ -3191,6 +3363,7 @@
   },
   "Big_Soul_Pouch": {
     "rawName": "MaxCapBagS4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Rooted_Soul",
@@ -3206,6 +3379,7 @@
   },
   "Big_Food_Pouch": {
     "rawName": "MaxCapBagF5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Slurpin_Herm",
@@ -3231,6 +3405,7 @@
   },
   "Big_Materials_Pouch": {
     "rawName": "MaxCapBagM6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Sticky_Stick",
@@ -3251,6 +3426,7 @@
   },
   "Void_Imperium_Helmet": {
     "rawName": "EquipmentHats54",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spontaneity_Salts",
@@ -3276,6 +3452,7 @@
   },
   "Void_Imperium_Platebody": {
     "rawName": "EquipmentShirts27",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Audio_Cord",
@@ -3301,6 +3478,7 @@
   },
   "Void_Imperium_Shardshins": {
     "rawName": "EquipmentPants21",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Wispy_Lumber",
@@ -3326,6 +3504,7 @@
   },
   "Void_Imperium_Kicks": {
     "rawName": "EquipmentShoes22",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Flycicle",
@@ -3351,6 +3530,7 @@
   },
   "undefined": {
     "rawName": "EquipmentPunching5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Yellow_Snowflake",
@@ -3376,6 +3556,7 @@
   },
   "Deuscythe": {
     "rawName": "EquipmentSword3",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Black_Lense",
@@ -3401,6 +3582,7 @@
   },
   "Blackhole_Bow": {
     "rawName": "EquipmentBows8",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Black_Lense",
@@ -3426,6 +3608,7 @@
   },
   "Grey_Gatsby": {
     "rawName": "EquipmentWands7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Black_Lense",
@@ -3451,6 +3634,7 @@
   },
   "Void_Imperium_Pik": {
     "rawName": "EquipmentTools11",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Void_Bar",
@@ -3471,6 +3655,7 @@
   },
   "Large_Mining_Pouch": {
     "rawName": "MaxCapBagMi6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Void_Ore",
@@ -3486,6 +3671,7 @@
   },
   "Void_Imperium_Axe": {
     "rawName": "EquipmentToolsHatchet7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Wispy_Lumber",
@@ -3506,6 +3692,7 @@
   },
   "Large_Choppin_Pouch": {
     "rawName": "MaxCapBagT6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Wispy_Lumber",
@@ -3521,6 +3708,7 @@
   },
   "Void_Imperium_Rod": {
     "rawName": "FishingRod7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Spontaneity_Salts",
@@ -3546,6 +3734,7 @@
   },
   "Large_Fish_Pouch": {
     "rawName": "MaxCapBagFi6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Bloach",
@@ -3561,6 +3750,7 @@
   },
   "Void_Imperium_Net": {
     "rawName": "CatchingNet7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Flycicle",
@@ -3581,6 +3771,7 @@
   },
   "Large_Bug_Pouch": {
     "rawName": "MaxCapBagB6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Flycicle",
@@ -3596,6 +3787,7 @@
   },
   "Steel_Traps": {
     "rawName": "TrapBoxSet5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Eternal_Lord_of_The_Undying_Ember",
@@ -3616,6 +3808,7 @@
   },
   "Large_Critter_Pouch": {
     "rawName": "MaxCapBagTr5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Pingy",
@@ -3631,6 +3824,7 @@
   },
   "Manifested_Skull": {
     "rawName": "WorshipSkull5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Frigid_Soul",
@@ -3651,6 +3845,7 @@
   },
   "Large_Soul_Pouch": {
     "rawName": "MaxCapBagS5",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Rooted_Soul",
@@ -3666,6 +3861,7 @@
   },
   "Large_Food_Pouch": {
     "rawName": "MaxCapBagF6",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Golden_Ham",
@@ -3691,6 +3887,7 @@
   },
   "Large_Materials_Pouch": {
     "rawName": "MaxCapBagM7",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Audio_Cord",
@@ -3711,6 +3908,7 @@
   },
   "Anvil_Tab_4": {
     "rawName": "EquipmentSmithingTabs4",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Not_Yet",
@@ -3736,6 +3934,7 @@
   },
   "Mark_of_Member": {
     "rawName": "EquipmentHats61",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Grandma_Disguise",
@@ -3756,6 +3955,7 @@
   },
   "Murmillo_Helm": {
     "rawName": "EquipmentHats58",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3771,6 +3971,7 @@
   },
   "Conquistador_Plume": {
     "rawName": "EquipmentHats59",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3786,6 +3987,7 @@
   },
   "Adornment_of_the_High_Priest": {
     "rawName": "EquipmentHats60",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3801,6 +4003,7 @@
   },
   "Member_Hoodie": {
     "rawName": "EquipmentShirts31",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3821,6 +4024,7 @@
   },
   "Damascus_Plates": {
     "rawName": "EquipmentShirts28",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3836,6 +4040,7 @@
   },
   "Evergreen_Wraps": {
     "rawName": "EquipmentShirts29",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3851,6 +4056,7 @@
   },
   "Elegantine_Robes": {
     "rawName": "EquipmentShirts30",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
@@ -3866,6 +4072,7 @@
   },
   "Critter_Numnums": {
     "rawName": "FoodTrapping1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Crabbo",
@@ -3881,6 +4088,7 @@
   },
   "Soulble_Gum": {
     "rawName": "FoodWorship1",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Dune_Soul",
@@ -3896,6 +4104,7 @@
   },
   "Shivering_Sack": {
     "rawName": "InvBag109",
+    "itemQuantity": 1,
     "materials": [
       {
         "itemName": "Mamooth_Hide_Bag",

@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import crafts from "../../data/crafts.json";
-import { TextField, FormControlLabel, Checkbox } from "@material-ui/core";
+import crafts from "../../../data/crafts.json";
+import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
-import {
-  cleanUnderscore,
-  findItemInInventory,
-  prefix,
-  kFormatter,
-} from "../../Utilities";
+import { prefix, } from "../../../Utilities";
+import RequiredItems from "./RequiredItems";
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -32,16 +28,18 @@ const CraftIt = ({ userData }) => {
     setMyItems(totalItems);
   }, []);
 
+  const onItemChange = (newValue) => {
+    setValue(newValue);
+    setSelectedItem(crafts[newValue]);
+  }
+
   return (
     <CraftItStyled>
       <div className='controls'>
         <Autocomplete
           id='item-locator'
           value={value}
-          onChange={(event, newValue) => {
-            setValue(newValue);
-            setSelectedItem(crafts[newValue]);
-          }}
+          onChange={(event, newValue) => onItemChange(newValue)}
           autoComplete
           options={[value, ...labels]}
           filterSelectedOptions
@@ -72,7 +70,7 @@ const CraftIt = ({ userData }) => {
           }}
           style={{ width: 300 }}
           renderInput={(params) => (
-            <StyledTextField {...params} label='Item Name' variant='outlined' />
+            <StyledTextField {...params} label='Item Name' variant='outlined'/>
           )}
         />
         <StyledTextField
@@ -96,103 +94,34 @@ const CraftIt = ({ userData }) => {
         />
       </div>
       {myItems && selectedItem?.rawName ? (
-        <MaterialComponent
-          main={true}
-          copies={copies}
-          key={selectedItem?.rawName}
-          item={selectedItem}
-          inventoryItems={myItems}
-          materials={selectedItem?.materials}
-          showNestedCrafts={showNestedCrafts}
-        />
+        <div className={'crafts-container'}>
+          <img
+            src={`${prefix}data/${selectedItem?.rawName}.png`}
+            alt=''
+          />
+          <RequiredItems
+            copies={copies}
+            inventoryItems={myItems}
+            materials={selectedItem?.materials}
+            showNestedCrafts={showNestedCrafts}
+          />
+        </div>
       ) : null}
     </CraftItStyled>
   );
 };
 
-const MaterialComponent = ({
-  main,
-  item,
-  materials,
-  inventoryItems,
-  showNestedCrafts,
-  className,
-  copies,
-}) => {
-  let quantityOwned = 0;
-
-  if (!main) {
-    const inventoryItem = findItemInInventory(inventoryItems, item?.itemName);
-    quantityOwned = Object.values(inventoryItem)?.reduce((res, { amount }) => {
-      return res + amount;
-    }, 0);
-  }
-
-  const { itemName, itemQuantity, rawName } = item || {};
-  return (
-    <div className={className}>
-      <div className='item'>
-        <img
-          title={cleanUnderscore(itemName)}
-          src={`${prefix}data/${rawName}.png`}
-          alt=''
-        />
-        {!main ? (
-          <span
-            className={
-              quantityOwned >= parseInt(itemQuantity * copies)
-                ? "material-value-done"
-                : ""
-            }>
-            {kFormatter(quantityOwned)}/{kFormatter(itemQuantity * copies)}
-          </span>
-        ) : (
-          ""
-        )}
-      </div>
-      {materials?.map((innerItem, index) => {
-        const materials = crafts?.[innerItem?.itemName]?.materials;
-        console.log(copies);
-        return (
-          <MaterialComponent
-            copies={copies}
-            className='materials'
-            key={innerItem?.rawName + index}
-            item={innerItem}
-            inventoryItems={inventoryItems}
-            showNestedCrafts={showNestedCrafts}
-            materials={showNestedCrafts ? materials : []}
-          />
-        );
-      })}
-    </div>
-  );
-};
-
 const CraftItStyled = styled.div`
   margin-top: 15px;
+  margin-bottom: 25px;
 
   .controls {
     display: flex;
     gap: 10px;
   }
 
-  .materials .materials {
-    display: flex;
-    flex-basis: 100%;
-    flex-wrap: wrap;
-    margin-left: 50px;
-  }
-
-  .item {
-    align-items: center;
-    display: flex;
-  }
-
-  .material-value-done {
-    color: #35d435;
-    font-weight: bold;
-    font-size: 18px;
+  .crafts-container {
+    margin-top: 10px;
   }
 `;
 
