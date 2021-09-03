@@ -15,6 +15,8 @@ const Prayers = ({ prayers }) => {
 
 const PrayersStyled = styled.div`
   justify-self: center;
+  display: flex;
+  gap: 10px;
 
   img {
     width: 60px;
