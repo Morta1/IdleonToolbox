@@ -135,7 +135,14 @@ const CraftIt = ({ userData }) => {
         </div>
       ) : null}
       {myItems && selectedListItem?.length && display === 'list' ?
-        <CraftItemsList itemsList={selectedListItem} copies={copies} inventoryItems={myItems}/> : null}
+        <div className={'crafts-container'}>
+          <img
+            src={`${prefix}data/${selectedTreeItem?.rawName}.png`}
+            alt=''
+          />
+          <CraftItemsList itemsList={selectedListItem} copies={copies} inventoryItems={myItems}/>
+        </div>
+        : null}
     </CraftItStyled>
   );
 };
