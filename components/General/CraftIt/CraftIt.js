@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import crafts from "../../../data/crafts.json";
-import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
+import { Checkbox, FormControlLabel, MenuItem, TextField } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
-import { prefix, } from "../../../Utilities";
+import { flattenCraftObject, prefix } from "../../../Utilities";
 import RequiredItems from "./RequiredItems";
+import CraftItemsList from "./CraftItemsList";
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -14,23 +15,39 @@ const filterOptions = createFilterOptions({
 const CraftIt = ({ userData }) => {
   const [labels] = useState(Object.keys(crafts));
   const [value, setValue] = useState("");
-  const [selectedItem, setSelectedItem] = useState({});
+  const [selectedTreeItem, setSelectedTreeItem] = useState({});
+  const [selectedListItem, setSelectedListItem] = useState({});
   const [showNestedCrafts, setShowNestedCrafts] = useState(false);
   const [myItems, setMyItems] = useState();
   const [copies, setCopies] = useState(1);
+  const [display, setDisplay] = useState('tree');
 
   useEffect(() => {
-    const charItems = userData?.characters.reduce(
-      (res, { inventory }) => [...res, ...inventory],
-      []
-    );
+    const charItems = userData?.characters.reduce((res, { inventory }) => [...res, ...inventory], []);
     const totalItems = [...charItems, ...userData?.account?.inventory];
     setMyItems(totalItems);
   }, []);
 
+  useEffect(() => {
+    if (display === 'list') {
+      const result = Array.isArray(selectedListItem) ? selectedListItem : flattenCraftObject(selectedListItem);
+      setSelectedListItem(result);
+    } else {
+      setSelectedTreeItem(selectedTreeItem)
+    }
+  }, [display])
+
+  useEffect(() => {
+    if (selectedListItem) {
+      const result = Array.isArray(selectedListItem) ? selectedListItem : flattenCraftObject(selectedListItem);
+      setSelectedListItem(result);
+    }
+  }, [selectedListItem]);
+
   const onItemChange = (newValue) => {
     setValue(newValue);
-    setSelectedItem(crafts[newValue]);
+    setSelectedListItem(crafts[newValue]);
+    setSelectedTreeItem(crafts[newValue]);
   }
 
   return (
@@ -64,9 +81,7 @@ const CraftIt = ({ userData }) => {
                 />
                 {option?.replace(/_/g, " ")}
               </div>
-            ) : (
-              <></>
-            );
+            ) : <></>;
           }}
           style={{ width: 300 }}
           renderInput={(params) => (
@@ -81,7 +96,18 @@ const CraftIt = ({ userData }) => {
           inputProps={{ min: 1 }}
           onChange={({ target }) => setCopies(target?.value)}
         />
-        <FormControlLabel
+        <StyledTextField
+          select
+          variant={'outlined'}
+          id="demo-simple-select-outlined"
+          value={display}
+          onChange={(e) => setDisplay(e?.target?.value)}
+          label="Display"
+        >
+          <MenuItem value={'tree'}>Tree</MenuItem>
+          <MenuItem value={'list'}>List</MenuItem>
+        </StyledTextField>
+        {display === 'tree' ? <FormControlLabel
           control={
             <StyledCheckbox
               checked={showNestedCrafts}
@@ -91,22 +117,25 @@ const CraftIt = ({ userData }) => {
             />
           }
           label='Show Nested Crafts'
-        />
+        /> : null}
       </div>
-      {myItems && selectedItem?.rawName ? (
+      {myItems && selectedTreeItem?.rawName && display === 'tree' ? (
         <div className={'crafts-container'}>
           <img
-            src={`${prefix}data/${selectedItem?.rawName}.png`}
+            src={`${prefix}data/${selectedTreeItem?.rawName}.png`}
             alt=''
           />
           <RequiredItems
+            displa={display}
             copies={copies}
             inventoryItems={myItems}
-            materials={selectedItem?.materials}
+            materials={selectedTreeItem?.materials}
             showNestedCrafts={showNestedCrafts}
           />
         </div>
       ) : null}
+      {myItems && selectedListItem?.length && display === 'list' ?
+        <CraftItemsList itemsList={selectedListItem} copies={copies} inventoryItems={myItems}/> : null}
     </CraftItStyled>
   );
 };
@@ -118,10 +147,14 @@ const CraftItStyled = styled.div`
   .controls {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    @media (max-width: 800px) {
+      padding: 10px;
+    }
   }
 
   .crafts-container {
-    margin-top: 10px;
+    margin-top: 15px;
   }
 `;
 

@@ -1,22 +1,26 @@
-import { cleanUnderscore, findItemInInventory, kFormatter, prefix } from "../../../Utilities";
-import crafts from "../../../data/crafts.json";
+import { cleanUnderscore, findQuantityOwned, kFormatter, prefix } from "../../../Utilities";
 import React from "react";
 import styled from 'styled-components';
 
-const RequiredItems = ({ item, materials, inventoryItems, showNestedCrafts, copies }) => {
-  const { itemName, itemQuantity, rawName } = item || {};
+const RequiredItems = ({
+                         itemName,
+                         itemQuantity,
+                         rawName,
+                         materials,
+                         inventoryItems,
+                         showNestedCrafts,
+                         copies,
+                         display
+                       }) => {
   let quantityOwned;
 
-  if (item?.itemName) {
-    const inventoryItem = findItemInInventory(inventoryItems, item?.itemName);
-    quantityOwned = Object.values(inventoryItem)?.reduce((res, { amount }) => {
-      return res + amount;
-    }, 0);
+  if (itemName) {
+    quantityOwned = findQuantityOwned(inventoryItems, itemName);
   }
 
   return (
-    <RequiredItemsStyle className={'materials'}>
-      {item?.itemQuantity ? <div className='item'>
+    <RequiredItemsStyle className={'materials'} display={display}>
+      {itemQuantity ? <div className='item' title={rawName}>
         <img
           title={cleanUnderscore(itemName)}
           src={`${prefix}data/${rawName}.png`}
@@ -28,21 +32,15 @@ const RequiredItems = ({ item, materials, inventoryItems, showNestedCrafts, copi
       </div> : null}
 
       {materials?.map((innerItem, index) => {
-        let materials = crafts?.[innerItem?.itemName]?.materials;
-        if (innerItem?.itemQuantity && materials) {
-          materials = materials?.map((temp) => ({
-            ...temp,
-            itemQuantity: temp?.itemQuantity * innerItem?.itemQuantity
-          }))
-        }
         return (
           <RequiredItems
+            display={display}
             copies={copies}
             key={innerItem?.rawName + index}
-            item={innerItem}
+            {...innerItem}
             inventoryItems={inventoryItems}
             showNestedCrafts={showNestedCrafts}
-            materials={showNestedCrafts ? materials : []}
+            materials={showNestedCrafts ? innerItem?.materials : []}
           />
         );
       })}
@@ -51,6 +49,7 @@ const RequiredItems = ({ item, materials, inventoryItems, showNestedCrafts, copi
 };
 
 const RequiredItemsStyle = styled.div`
+  margin-top: 15px;
   .materials .materials {
     display: flex;
     flex-basis: 100%;

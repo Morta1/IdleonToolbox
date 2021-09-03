@@ -960,6 +960,7 @@ export const fields = [
 ];
 
 export const findItemInInventory = (arr, itemName) => {
+  if (!itemName) return {};
   return arr.reduce((res, { name, owner, amount }) => {
     if (name?.includes(itemName)) {
       if (res?.[owner]) {
@@ -971,3 +972,36 @@ export const findItemInInventory = (arr, itemName) => {
     return res;
   }, {});
 };
+
+
+export const flattenCraftObject = (craft) => {
+  const uniques = {};
+  const tempCraft = JSON.parse(JSON.stringify(craft));
+
+  const flatten = (innerCraft, unique) => {
+    return innerCraft?.reduce((result, nextCraft) => {
+      result.push(nextCraft);
+      if (nextCraft.materials) {
+        result = result.concat(flatten(nextCraft?.materials, unique));
+        nextCraft.materials = [];
+      }
+      if (uniques[nextCraft?.itemName]) {
+        uniques[nextCraft?.itemName].itemQuantity += nextCraft?.itemQuantity;
+      } else {
+        uniques[nextCraft?.itemName] = nextCraft;
+      }
+      return result;
+    }, []);
+  }
+
+  flatten(tempCraft?.materials, uniques);
+  return Object.values(uniques);
+};
+
+export const findQuantityOwned = (items, itemName) => {
+  const inventoryItem = findItemInInventory(items, itemName);
+  return Object.values(inventoryItem)?.reduce((res, { amount }) => {
+    return res + amount;
+  }, 0);
+
+}
