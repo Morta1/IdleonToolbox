@@ -2,17 +2,29 @@ import React from 'react';
 import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
-const PrinterProducts = ({ products }) => {
+const PrinterProducts = ({ selected, stored }) => {
   return (
     <PrinterProductsStyled>
-      {products?.map(({ item, value }, index) => {
-        return <div className={'product-container'} key={item + index}>
-          <span className={'product-value'}>{kFormatter(value)}/hr</span>
-          <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
-          <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
-        </div>
-
-      })}
+      <div className="printing">
+        <h3>Printing</h3>
+        {selected?.map(({ item, value }, index) => {
+          return <div className={'product-container'} key={item + index}>
+            <span className={'product-value'}>{kFormatter(value)}/hr</span>
+            <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
+            <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
+          </div>
+        })}
+      </div>
+      <div className="stored">
+        <h3>Samples</h3>
+        {stored?.map(({ item, value }, index) => {
+          return item !== 'None' ? <div className={'product-container'} key={item + index}>
+            <span className={'product-value'}>{kFormatter(value)}/hr</span>
+            <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
+            <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
+          </div> : null
+        })}
+      </div>
     </PrinterProductsStyled>
   );
 };
@@ -20,6 +32,14 @@ const PrinterProducts = ({ products }) => {
 const PrinterProductsStyled = styled.div`
   justify-self: center;
 
+  & h3 {
+    margin: 0 0 20px 0;
+  }
+
+  .printing{
+    margin-bottom: 15px;
+  }
+  
   .product-container {
     position: relative;
     display: inline-block;
@@ -39,13 +59,6 @@ const PrinterProductsStyled = styled.div`
       text-align: center;
       right: 0;
       top: -10px;
-    }
-  }
-
-  @media (max-width: 750px) {
-    img {
-      width: 48px;
-      height: 48px;
     }
   }
 

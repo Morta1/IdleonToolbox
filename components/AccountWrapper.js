@@ -29,6 +29,7 @@ const AccountWrapper = ({ account }) => {
       <GeneralInfo silverPens={account?.silverPens}
                    money={account?.money}
                    keys={account?.keys}
+                   gems={account?.gems}
                    colosseumTickets={account?.colosseumTickets} teleports={account?.worldTeleports}
                    obolFragments={account?.obolFragments}/>
       <Statues statues={account?.statues}/>

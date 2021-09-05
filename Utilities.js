@@ -839,9 +839,9 @@ export const cardsObject = {
 
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/IdleonToolbox/" : "";
-// Totally_Normal_and_not_fake_Bag
-// Totally_Normal_and_not_fake_Bag.png
+
 export const constantBags = [
+  "InvBag0",
   "InvBag1",
   "InvBag2",
   "InvBag3",
@@ -849,14 +849,12 @@ export const constantBags = [
   "InvBag5",
   "InvBag6",
   "InvBag7",
-  "InvBag8",
-  "InvBag9",
+  "InvBag20",
   "InvBag21",
   "InvBag22",
   "InvBag23",
   "InvBag24",
   "InvBag25",
-  "InvBag26",
   "InvBag100",
   "InvBag101",
   "InvBag102",

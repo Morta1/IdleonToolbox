@@ -49,7 +49,8 @@ const Character = ({
         </div>
         <div className={'activity'}>
           <h4>Activity</h4>
-          <img title={cleanUnderscore(afkTarget)} width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`} alt=""/>
+          <img title={cleanUnderscore(afkTarget)} width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`}
+               alt=""/>
         </div>
       </div>
       {!fields || fields?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
@@ -58,14 +59,14 @@ const Character = ({
       {!fields || fields?.Bags ? <Bags bags={invBagsUsed} capBags={carryCapBags}/> : null}
       {!fields || fields?.Obols ? <Obols obols={obols} type={'character'}/> : null}
       {!fields || fields?.Cards ? <EquippedCards cards={cards}/> : null}
+      {!fields || fields?.['Printer Products'] ?
+        <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
       {!fields || fields?.['Star Sign'] ||
       fields?.['Anvil Products'] ||
-      fields?.['Printer Products'] ||
       fields?.['Equipped Bubbles'] ||
       fields?.['Prayers'] ? <div className="small">
         {!fields || fields?.['Star Sign'] ? <StarSigns signs={starSigns}/> : null}
         {!fields || fields?.['Anvil Products'] ? <AnvilProducts products={anvil?.selected}/> : null}
-        {!fields || fields?.['Printer Products'] ? <PrinterProducts products={printer?.selected}/> : null}
         {!fields || fields?.['Equipped Bubbles'] ? <EquippedBubbles bubbles={equippedBubbles}/> : null}
         {!fields || fields?.['Prayers'] ? <Prayers prayers={prayers}/> : null}
       </div> : null}

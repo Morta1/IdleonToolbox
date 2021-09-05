@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { prefix } from "../../Utilities";
 
-const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverPens, money }) => {
+const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverPens, money, gems }) => {
   return (
     <GeneralInfoStyle>
       <div className="box coins">
@@ -27,6 +27,10 @@ const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverP
       <div className="box">
         <img src={`${prefix}/data/SilverPen.png`} alt=""/>
         <span className={'value'}>{silverPens}</span>
+      </div>
+      <div className="box">
+        <img src={`${prefix}/data/PremiumGem.png`} alt=""/>
+        <span className={'value'}>{gems}</span>
       </div>
       {keys?.map(({ name, rawName, amount }, index) => {
         return <div key={name + index} className="box">
