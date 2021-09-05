@@ -47,6 +47,7 @@ const PrinterProductsStyled = styled.div`
   .cont {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
   }
 
   .product-container {
