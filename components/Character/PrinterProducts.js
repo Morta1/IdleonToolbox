@@ -7,23 +7,27 @@ const PrinterProducts = ({ selected, stored }) => {
     <PrinterProductsStyled>
       <div className="printing">
         <h3>Printing</h3>
-        {selected?.map(({ item, value }, index) => {
-          return <div className={'product-container'} key={item + index}>
-            <span className={'product-value'}>{kFormatter(value)}/hr</span>
-            <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
-            <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
-          </div>
-        })}
+        <div className="cont">
+          {selected?.map(({ item, value }, index) => {
+            return <div className={'product-container'} key={item + index}>
+              <span className={'product-value'}>{kFormatter(value)}/hr</span>
+              <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
+              <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
+            </div>
+          })}
+        </div>
       </div>
-      <div className="stored">
+      <div className="samples">
         <h3>Samples</h3>
-        {stored?.map(({ item, value }, index) => {
-          return item !== 'None' ? <div className={'product-container'} key={item + index}>
-            <span className={'product-value'}>{kFormatter(value)}/hr</span>
-            <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
-            <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
-          </div> : null
-        })}
+        <div className="cont">
+          {stored?.map(({ item, value }, index) => {
+            return item !== 'None' ? <div className={'product-container'} key={item + index}>
+              <span className={'product-value'}>{kFormatter(value)}/hr</span>
+              <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
+              <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
+            </div> : null
+          })}
+        </div>
       </div>
     </PrinterProductsStyled>
   );
@@ -36,13 +40,17 @@ const PrinterProductsStyled = styled.div`
     margin: 0 0 20px 0;
   }
 
-  .printing{
+  .printing {
     margin-bottom: 15px;
   }
   
+  .cont {
+    display: flex;
+    gap: 15px;
+  }
+
   .product-container {
     position: relative;
-    display: inline-block;
 
     .print-slot {
       position: absolute;
@@ -57,7 +65,8 @@ const PrinterProductsStyled = styled.div`
       font-size: 13px;
       padding: 0 5px;
       text-align: center;
-      right: 0;
+      left: 50%;
+      transform: translateX(-50%);
       top: -10px;
     }
   }
