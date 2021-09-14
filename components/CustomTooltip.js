@@ -10,41 +10,44 @@ const CustomTooltip = ({ header, base, children }) => {
       enterTouchDelay={100}
       placement={"top-start"}
       title={
-        <div className="tooltip-body">
-          <div className="tooltip-header">{header}</div>
-          <div className="stars">
+        <div className='tooltip-body'>
+          <div className='tooltip-header'>{header}</div>
+          <div className='stars'>
             {base
               ? [1, 2, 3, 4]?.map((_, index) => {
-                return (
-                  <div className="star-line" key={base + " " + index}>
-                    <div className="image-wrapper">
-                      {index === 0 ? (
-                        <span style={{ fontWeight: "bold" }}>Base</span>
-                      ) : (
-                        <img src={`${prefix}etc/Star${index}.png`} alt=""/>
-                      )}
+                  return (
+                    <div className='star-line' key={base + " " + index}>
+                      <div className='image-wrapper'>
+                        {index === 0 ? (
+                          <span style={{ fontWeight: "bold" }}>Base</span>
+                        ) : (
+                          <img src={`${prefix}etc/Star${index}.png`} alt='' />
+                        )}
+                      </div>
+                      <div className='stat'>{base * (index + 1)}</div>
                     </div>
-                    <div className="stat">{base * (index + 1)}</div>
-                  </div>
-                );
-              })
+                  );
+                })
               : null}
           </div>
         </div>
-      }
-    >
+      }>
       {children}
     </StyledTooltip>
   );
 };
 
-const StyledTooltip = styled(((props) =>
-  <Tooltip {...props} classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }}  />
+const StyledTooltip = styled((props) => (
+  <Tooltip
+    {...props}
+    classes={{ popper: props.className, tooltip: "tooltip", touch: "touch" }}
+  />
 ))`
   & .tooltip {
     font-size: 16px;
-    background-color: rebeccapurple;
-    box-shadow: rgba(0, 0, 0, 0.24) 0 3px 8px;
+    background-color: #393e46;
+    box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
+      0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
     max-width: 300px;
     @media only screen and (max-width: 600px) {
       max-width: 200px;
