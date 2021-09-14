@@ -2,6 +2,8 @@ import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { createTheme, ThemeProvider as MuiThemeProvider } from "@material-ui/core/styles";
 import Head from 'next/head'
 import '../polyfills';
+import { useEffect, useState } from "react";
+import { AppContext } from '../components/context';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -22,6 +24,24 @@ const muiTheme = createTheme({
 });
 
 export default function App({ Component, pageProps }) {
+  const [initialData, setData] = useState(null)
+  useEffect(() => {
+    try {
+      const charData = localStorage.getItem('characterData');
+      if (charData) {
+        const parsedData = JSON.parse(localStorage.getItem('characterData'));
+        setData(parsedData);
+      }
+    } catch (e) {
+      console.log('Error during app init data parsing');
+    }
+  }, []);
+
+  const setUserData = (userData) => {
+    setData(userData);
+    localStorage.setItem('characterData', JSON.stringify(userData));
+  }
+
   return (
     <>
       <Head>
@@ -34,7 +54,9 @@ export default function App({ Component, pageProps }) {
       <GlobalStyle/>
       <MuiThemeProvider theme={muiTheme}>
         <ThemeProvider theme={theme}>
-          <Component {...pageProps} />
+          <AppContext.Provider value={{ userData: initialData, setUserData }}>
+            <Component {...pageProps} />
+          </AppContext.Provider>
         </ThemeProvider>
       </MuiThemeProvider>
     </>

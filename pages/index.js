@@ -44,86 +44,89 @@ export default function Home() {
   }, [value]);
 
   return (
-    <Wrapper>
+    <>
       <NavBar/>
-      <Main style={{ padding: 10 }}>
-        <h1>Search Cards by Stats</h1>
 
-        <StyledTextField
-          InputProps={{
-            endAdornment: (
-              <StyledInputAdornment onClick={() => setValue("")} position="end">
-                <ClearIcon/>
-              </StyledInputAdornment>
-            ),
-          }}
-          label="Enter Card stat.."
-          type="text"
-          value={value}
-          onChange={({ target }) => setValue(target?.value)}
-        />
+      <Wrapper>
+        <Main style={{ padding: 10 }}>
+          <h1>Search Cards by Stats</h1>
 
-        <div className="chips">
-          {preConfiguredStats.map((stat, index) => (
-            <Chip
-              key={stat + "" + index}
-              className="chip"
-              size="small"
-              variant="outlined"
-              label={stat}
-              onClick={() => {
-                setValue(stat === "Show All" ? "" : stat);
-              }}
-            />
-          ))}
-        </div>
+          <StyledTextField
+            InputProps={{
+              endAdornment: (
+                <StyledInputAdornment onClick={() => setValue("")} position="end">
+                  <ClearIcon/>
+                </StyledInputAdornment>
+              ),
+            }}
+            label="Enter Card stat.."
+            type="text"
+            value={value}
+            onChange={({ target }) => setValue(target?.value)}
+          />
 
-        <div className="cards">
-          {Object.keys(localCardObject)?.length > 0 ? (
-            Object.keys(localCardObject).map((cardSet, cardSetIndex) => {
-              const cardsArr = localCardObject[cardSet];
-              if (!cardsArr || cardsArr?.length === 0) return null;
-              return (
-                <React.Fragment key={cardSet + "" + cardSetIndex}>
-                  <img
-                    className="card-banner"
-                    src={`${prefix}banners/${cardSet}_Cardbanner.png`}
-                    alt=""
-                  />
-                  <div>
-                    {cardsArr.map(({ img, effect, base }, index) => {
-                      return (
-                        <React.Fragment key={effect + "" + index}>
-                          <CustomTooltip
-                            header={
-                              img.replace(/_/g, " ").replace(/Card.png/, "") +
-                              " - " +
-                              effect
-                            }
-                            base={base}
-                          >
-                            <img
-                              className="card"
-                              src={`${prefix}cards/${img}`}
-                              alt={effect}
-                              height={72}
-                              width={52}
-                            />
-                          </CustomTooltip>
-                          {index === 7 ? <br/> : null}
-                        </React.Fragment>
-                      );
-                    })}
-                  </div>
-                </React.Fragment>
-              );
-            })
-          ) : (
-            <div className="not-found">Please try another phrase</div>
-          )}
-        </div>
-      </Main>
-    </Wrapper>
+          <div className="chips">
+            {preConfiguredStats.map((stat, index) => (
+              <Chip
+                key={stat + "" + index}
+                className="chip"
+                size="small"
+                variant="outlined"
+                label={stat}
+                onClick={() => {
+                  setValue(stat === "Show All" ? "" : stat);
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="cards">
+            {Object.keys(localCardObject)?.length > 0 ? (
+              Object.keys(localCardObject).map((cardSet, cardSetIndex) => {
+                const cardsArr = localCardObject[cardSet];
+                if (!cardsArr || cardsArr?.length === 0) return null;
+                return (
+                  <React.Fragment key={cardSet + "" + cardSetIndex}>
+                    <img
+                      className="card-banner"
+                      src={`${prefix}banners/${cardSet}_Cardbanner.png`}
+                      alt=""
+                    />
+                    <div>
+                      {cardsArr.map(({ img, effect, base }, index) => {
+                        return (
+                          <React.Fragment key={effect + "" + index}>
+                            <CustomTooltip
+                              header={
+                                img.replace(/_/g, " ").replace(/Card.png/, "") +
+                                " - " +
+                                effect
+                              }
+                              base={base}
+                            >
+                              <img
+                                className="card"
+                                src={`${prefix}cards/${img}`}
+                                alt={effect}
+                                height={72}
+                                width={52}
+                              />
+                            </CustomTooltip>
+                            {index === 7 ? <br/> : null}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <div className="not-found">Please try another phrase</div>
+            )}
+          </div>
+        </Main>
+      </Wrapper>
+    </>
   );
 }
 

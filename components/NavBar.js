@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { prefix } from "../Utilities";
+import JsonImport from "./JsonImport";
 
 const NavBar = () => {
   const router = useRouter();
@@ -17,32 +18,40 @@ const NavBar = () => {
   };
 
   return (
-    <List>
-      {names.map(({ label, path }, index) => {
-        return (
-          <React.Fragment key={label + "-" + index}>
-            <ListItem
-              active={router?.pathname.endsWith(path)}
-              onClick={(e) => handleClick(e, path)}
-            >
-              {label}
-            </ListItem>
-            {index !== names.length - 1 ? <span>|</span> : null}
-          </React.Fragment>
-        );
-      })}
-    </List>
+    <ListWrapper>
+      <List>
+        {names.map(({ label, path }, index) => {
+          return (
+            <React.Fragment key={label + "-" + index}>
+              <ListItem
+                active={router?.pathname.endsWith(path)}
+                onClick={(e) => handleClick(e, path)}
+              >
+                {label}
+              </ListItem>
+              {index !== names.length - 1 ? <span>|</span> : null}
+            </React.Fragment>
+          );
+        })}
+        {router?.pathname.endsWith(`${prefix}family`) ? <JsonImport/> : null}
+      </List>
+    </ListWrapper>
   );
 };
+
+const ListWrapper = styled.div`
+  background-color: #5454547a;
+`;
 
 const List = styled.ul`
   display: flex;
   align-items: center;
   list-style-type: none;
-  margin: 0;
-  padding: 10px;
-  background-color: #5454547a;
-  border-radius: 5px;
+  margin: 0 auto;
+  padding: 10px 0;
+  width: 95%;
+  min-height: 40px;
+  flex-wrap: wrap;
 
   > span {
     color: white;
@@ -51,7 +60,6 @@ const List = styled.ul`
 `;
 
 const ListItem = styled.li`
-  //margin-right: 15px;
   cursor: pointer;
   position: relative;
   display: block;
