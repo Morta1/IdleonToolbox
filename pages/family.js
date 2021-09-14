@@ -89,8 +89,6 @@ const Main = styled.main`
   .page-header {
     display: flex;
     justify-content: center;
-    //display: inline-flex;
-    //flex-wrap: wrap;
     margin: 15px 0;
   }
 
