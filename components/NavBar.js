@@ -32,7 +32,7 @@ const NavBar = () => {
             </React.Fragment>
           );
         })}
-        {router?.pathname.endsWith(`${prefix}family`) ? <JsonImport /> : null}
+        {router?.pathname.endsWith(`family`) ? <JsonImport /> : null}
       </List>
     </ListWrapper>
   );
