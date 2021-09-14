@@ -17,11 +17,11 @@ const Wrapper = styled.div`
 
 const StyledTabs = styled(Tabs)`
   && {
-    background-color: #545456;
+    background-color: #393E46;
   }
 
   & .MuiTabs-indicator {
-    background-color: #50ff00;
+    background-color: #00ADB5;
   }
 `;
 

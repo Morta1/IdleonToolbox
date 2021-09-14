@@ -8,7 +8,7 @@ const NavBar = () => {
   const router = useRouter();
 
   const names = [
-    { label: "Card Search", path: prefix ? prefix : '/' },
+    { label: "Card Search", path: prefix ? prefix : "/" },
     { label: "Family", path: `${prefix}family` },
   ];
 
@@ -25,22 +25,23 @@ const NavBar = () => {
             <React.Fragment key={label + "-" + index}>
               <ListItem
                 active={router?.pathname.endsWith(path)}
-                onClick={(e) => handleClick(e, path)}
-              >
+                onClick={(e) => handleClick(e, path)}>
                 {label}
               </ListItem>
               {index !== names.length - 1 ? <span>|</span> : null}
             </React.Fragment>
           );
         })}
-        {router?.pathname.endsWith(`${prefix}family`) ? <JsonImport/> : null}
+        {router?.pathname.endsWith(`${prefix}family`) ? <JsonImport /> : null}
       </List>
     </ListWrapper>
   );
 };
 
 const ListWrapper = styled.div`
-  background-color: #5454547a;
+  background-color: #393e46;
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
+    0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
 `;
 
 const List = styled.ul`

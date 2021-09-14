@@ -11,7 +11,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0;
     box-sizing: border-box;
     font-family: 'JetBrains Mono', monospace;
-    background-color: #212121;
+    background-color: #222831;
   }
 `;
 
