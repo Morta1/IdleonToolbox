@@ -70,7 +70,7 @@ const StyledTooltip = styled((props) => (
     }
 
     .stars {
-      border-top: 1px solid #51325a;
+      border-top: 1px solid white;
       padding: 10px 0;
       display: flex;
       justify-content: space-around;
