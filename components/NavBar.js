@@ -10,8 +10,8 @@ const NavBar = () => {
   const router = useRouter();
 
   const appRoutes = [
-    { label: "Card Search", path: prefix ? prefix : "/" },
-    { label: "Family", path: `${prefix}family` },
+    { label: "Card Search", path: prefix ? prefix : "/", name: '/' },
+    { label: "Family", path: `${prefix}family`, name: 'family' },
   ];
 
   const familyRoutes = ['Characters', 'Account', 'Craft It', 'Item Locator', 'Guild'];
@@ -24,12 +24,12 @@ const NavBar = () => {
   return (
     <ListWrapper>
       <CustomList>
-        {appRoutes.map(({ label, path }, index) => {
+        {appRoutes.map(({ label, path, name }, index) => {
           return (
             <React.Fragment key={label + "-" + index}>
               <ListItem
                 inner={false}
-                active={router?.pathname.endsWith(path)}
+                active={router?.pathname.endsWith(name)}
                 onClick={(e) => handleClick(e, path)}>
                 {label}
               </ListItem>
@@ -39,7 +39,8 @@ const NavBar = () => {
         })}
         {router?.pathname.endsWith(`family`) ? <ul className={'family-navigation'}>
           {familyRoutes.map((route, index) => (
-            <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true} key={route + index}>{route}</ListItem>))}
+            <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
+                      key={route + index}>{route}</ListItem>))}
         </ul> : null}
         {router?.pathname.endsWith(`family`) ? <JsonImport/> : null}
       </CustomList>
