@@ -60,6 +60,7 @@ export default function App({ Component, pageProps }) {
       setLoader(false);
     } catch (e) {
       console.log('Error during app init data parsing');
+      setLoader(false);
     }
   }, []);
 
