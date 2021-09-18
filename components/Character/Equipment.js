@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from "styled-components";
-import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
+import { kFormatter, prefix } from "../../Utilities";
+import ItemInfoTooltip from "../Common/ItemInfoTooltip";
 
 const Equipment = ({ equipment, tools, foods }) => {
   const [items, setItems] = useState(equipment);
@@ -38,11 +39,17 @@ const Equipment = ({ equipment, tools, foods }) => {
                src={`${prefix}data/UIinventoryEquipTabs3.png`}
                alt=""/> : null}
       </div>
-      {items?.map(({ name: equipName, rawName, amount }, equipIndex) => {
+      {items?.map((item, equipIndex) => {
+        const { name: equipName, rawName, amount } = item;
         if (equipIndex > 7) return null;
+        if (rawName === 'Blank' || active === 'tab3')
+          return <Box aria-label={equipName} role="img" img={rawName}>{amount > 0 ?
+            <span>{kFormatter(amount)}</span> : null}</Box>;
         return (
-          <Box aria-label={equipName} role="img" title={cleanUnderscore(equipName)} key={equipName + equipIndex}
-               img={rawName}>{amount > 0 ? <span>{kFormatter(amount)}</span> : null}</Box>
+          <ItemInfoTooltip key={equipName + equipIndex} {...item}>
+            <Box aria-label={equipName} role="img" img={rawName}>{amount > 0 ?
+              <span>{kFormatter(amount)}</span> : null}</Box>
+          </ItemInfoTooltip>
         );
       })}
       {active === 'tab1' ? <div className={'equips-arrows'}>

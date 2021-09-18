@@ -8,7 +8,7 @@ import { AppContext } from './context';
 
 const getDate = () => {
   try {
-    return format(new Date(), 'MM/dd/yyyy HH:mm:ss');
+    return format(new Date(), 'dd/MM/yyyy HH:mm:ss');
   } catch (err) {
     console.log('Failed parsing date')
     return new Date();
@@ -16,7 +16,7 @@ const getDate = () => {
 }
 
 const JsonImport = () => {
-  const { userData, setUserData } = useContext(AppContext);
+  const { userData, setUserData, setUserLastUpdated } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [loadIframe, setLoadIframe] = useState(false);
   const [result, setResult] = useState(null);
@@ -39,7 +39,7 @@ const JsonImport = () => {
     setHasData(success);
     setLoading(false);
     setLoadIframe(false);
-    setResult({ success, date: getDate() });
+    setResult({ success });
     setTimeoutCount(0);
     clearInterval(interval);
   }
@@ -49,17 +49,21 @@ const JsonImport = () => {
       if (!loading) {
         setLoading(true);
         setLoadIframe(true)
-        localStorage.clear();
+        const oldParsedData = JSON.parse(localStorage.getItem('characterData'));
+        localStorage.removeItem('characterData');
         const fetchData = setInterval(() => {
           if (countRef.current > 50) {
-            console.log('Please make sure idleon-data-extractor is installed and you\'re logged in and try again.');
+            console.log('Please make sure the latest version of idleon-data-extractor is installed and you\'re logged in and try again.');
+            setUserData(oldParsedData);
             endInterval(fetchData, false);
+            return;
           }
           setTimeoutCount(countRef.current + 1);
           const charData = localStorage.getItem('characterData');
           if (charData) {
             const parsedData = JSON.parse(localStorage.getItem('characterData'));
             setUserData(parsedData);
+            setUserLastUpdated(getDate());
             endInterval(fetchData, true);
           }
         }, 1000);
@@ -74,14 +78,14 @@ const JsonImport = () => {
   return (
     <JsonImportStyled>
       {result ? result?.success ?
-        <CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
-                         titleAccess={`Updated at: ${result?.date}`}/> :
+        <CheckCircleIcon className={'updated-info'} style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
+                         titleAccess={'Updated'}/> :
         <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
-                   titleAccess={'Please make sure idleon-data-extractor is installed and try again.'}/> : null}
-      {result?.success ? <div style={{ marginRight: 10, color: 'white' }}>Updated at: {result?.date}</div> : null}
+                   titleAccess={'Please make sure the latest version of idleon-data-extractor is installed and try again.'}/> : null}
+      {result?.success ?
+        <div className={'updated-info'} style={{ marginRight: 10, color: 'white' }}>Updated</div> : null}
       <StyledButton variant="contained" color="primary" onClick={onImport}>{loading ?
         <StyledLoader size={24}/> : hasData ? 'Update' : 'Fetch Data'}</StyledButton>
-
       {loadIframe ? <iframe height='1px' width={'1px'} src={'https://legendsofidleon.com'}/> : null}
     </JsonImportStyled>
   );
@@ -110,6 +114,34 @@ const JsonImportStyled = styled.div`
     position: absolute;
     top: -5000px;
     left: -5000px;
+  }
+
+  .updated-info {
+    -webkit-animation: cssAnimation 5s forwards;
+    animation: cssAnimation 5s forwards;
+  }
+
+  @keyframes cssAnimation {
+    0% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @-webkit-keyframes cssAnimation {
+    0% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 `;
 

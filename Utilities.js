@@ -841,7 +841,6 @@ const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/IdleonToolbox/" : "";
 
 export const constantBags = [
-  "InvBag0",
   "InvBag1",
   "InvBag2",
   "InvBag3",
@@ -849,7 +848,7 @@ export const constantBags = [
   "InvBag5",
   "InvBag6",
   "InvBag7",
-  "InvBag20",
+  "InvBag8",
   "InvBag21",
   "InvBag22",
   "InvBag23",
@@ -906,8 +905,12 @@ export const kFormatter = (num, digits = 1) => {
 };
 
 export const cleanUnderscore = (str) => {
-  if (!str) return "";
-  return str?.replace(/_/g, " ");
+  try {
+    if (!str) return "";
+    return String(str)?.replace(/_/g, " ");
+  } catch (err) {
+    console.log(`Error in cleanUnderscore for ${str}`, err);
+  }
 };
 
 export const fields = [
@@ -948,13 +951,13 @@ export const fields = [
     selected: true,
   },
   {
-    name: "Equipped Bubbles",
-    selected: true,
-  },
-  {
     name: "Prayers",
     selected: true,
   },
+  {
+    name: "Equipped Bubbles",
+    selected: true,
+  }
 ];
 
 export const findItemInInventory = (arr, itemName) => {
@@ -1003,3 +1006,5 @@ export const findQuantityOwned = (items, itemName) => {
   }, 0);
 
 }
+
+export const extVersion = '0.0.0.2';

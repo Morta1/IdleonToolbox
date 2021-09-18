@@ -32,7 +32,7 @@ const Character = ({
                      talents,
                      afkTarget,
                      prayers,
-                     fields
+                     dataFilters
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -53,23 +53,23 @@ const Character = ({
                alt=""/>
         </div>
       </div>
-      {!fields || fields?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
-      {!fields || fields?.Talents ? <Talents talents={talents}/> : null}
-      {!fields || fields?.Skills ? <SkillsInfo skills={skillsInfo}/> : null}
-      {!fields || fields?.Bags ? <Bags bags={invBagsUsed} capBags={carryCapBags}/> : null}
-      {!fields || fields?.Obols ? <Obols obols={obols} type={'character'}/> : null}
-      {!fields || fields?.Cards ? <EquippedCards cards={cards}/> : null}
-      {!fields || fields?.['Printer Products'] ?
+      {!dataFilters || dataFilters?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
+      {!dataFilters || dataFilters?.Talents ? <Talents talents={talents}/> : null}
+      {!dataFilters || dataFilters?.Skills ? <SkillsInfo skills={skillsInfo}/> : null}
+      {!dataFilters || dataFilters?.['Star Sign'] ? <StarSigns signs={starSigns}/> : null}
+      {!dataFilters || dataFilters?.Cards ? <EquippedCards cards={cards}/> : null}
+      {!dataFilters || dataFilters?.['Printer Products'] ?
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
-      {!fields || fields?.['Star Sign'] ||
-      fields?.['Anvil Products'] ||
-      fields?.['Equipped Bubbles'] ||
-      fields?.['Prayers'] ? <div className="small">
-        {!fields || fields?.['Star Sign'] ? <StarSigns signs={starSigns}/> : null}
-        {!fields || fields?.['Anvil Products'] ? <AnvilProducts products={anvil?.selected}/> : null}
-        {!fields || fields?.['Equipped Bubbles'] ? <EquippedBubbles bubbles={equippedBubbles}/> : null}
-        {!fields || fields?.['Prayers'] ? <Prayers prayers={prayers}/> : null}
+      {!dataFilters ||
+      dataFilters?.['Anvil Products'] ||
+      dataFilters?.['Equipped Bubbles'] ||
+      dataFilters?.['Prayers'] ? <div className="small">
+        {!dataFilters || dataFilters?.['Anvil Products'] ? <AnvilProducts products={anvil?.selected}/> : null}
+        {!dataFilters || dataFilters?.['Equipped Bubbles'] ? <EquippedBubbles bubbles={equippedBubbles}/> : null}
+        {!dataFilters || dataFilters?.['Prayers'] ? <Prayers prayers={prayers}/> : null}
       </div> : null}
+      {!dataFilters || dataFilters?.Obols ? <Obols obols={obols} type={'character'}/> : null}
+      {!dataFilters || dataFilters?.Bags ? <Bags bags={invBagsUsed} capBags={carryCapBags}/> : null}
     </div>
   </CharacterStyle>
 };
@@ -103,7 +103,6 @@ const CharacterStyle = styled.div`
       justify-content: center;
     }
   }
-
 
   .name {
     font-weight: bold;

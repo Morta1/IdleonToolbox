@@ -632,7 +632,7 @@
         "rawName": "IronBar"
       },
       {
-        "itemName": "Goblin_Ear",
+        "itemName": "Glublin_Ear",
         "itemQuantity": 300,
         "rawName": "Forest1"
       }
@@ -928,7 +928,7 @@
     "itemQuantity": 1,
     "materials": [
       {
-        "itemName": "Goblin_Ear",
+        "itemName": "Glublin_Ear",
         "itemQuantity": 500,
         "rawName": "Forest1"
       },
@@ -2853,7 +2853,7 @@
             "rawName": "IronBar"
           },
           {
-            "itemName": "Goblin_Ear",
+            "itemName": "Glublin_Ear",
             "itemQuantity": 1200,
             "rawName": "Forest1"
           }
@@ -4061,7 +4061,7 @@
         "rawName": "EquipmentShirts10",
         "materials": [
           {
-            "itemName": "Goblin_Ear",
+            "itemName": "Glublin_Ear",
             "itemQuantity": 2000,
             "rawName": "Forest1"
           },
@@ -5104,7 +5104,7 @@
                 "rawName": "IronBar"
               },
               {
-                "itemName": "Goblin_Ear",
+                "itemName": "Glublin_Ear",
                 "itemQuantity": 2400,
                 "rawName": "Forest1"
               }
@@ -6479,7 +6479,7 @@
                     "rawName": "IronBar"
                   },
                   {
-                    "itemName": "Goblin_Ear",
+                    "itemName": "Glublin_Ear",
                     "itemQuantity": 4800,
                     "rawName": "Forest1"
                   }
@@ -6759,8 +6759,9 @@
       }
     ]
   },
-  "undefined": {
+  "Eclectic_Ordeal": {
     "rawName": "EquipmentPunching5",
+    "itemName": "Eclectic_Ordeal",
     "itemQuantity": 1,
     "materials": [
       {
@@ -6813,7 +6814,7 @@
         "rawName": "SnowC4a"
       },
       {
-        "itemName": "Eternal_Lord_of_The_Undying_Ember",
+        "itemName": "Eternal_Lord_of__The_Undying_Ember",
         "itemQuantity": 15,
         "rawName": "Critter6A"
       },
@@ -7741,7 +7742,7 @@
     "itemQuantity": 1,
     "materials": [
       {
-        "itemName": "Eternal_Lord_of_The_Undying_Ember",
+        "itemName": "Eternal_Lord_of__The_Undying_Ember",
         "itemQuantity": 6,
         "rawName": "Critter6A"
       },
@@ -8207,7 +8208,7 @@
         "rawName": "Soul4"
       },
       {
-        "itemName": "Eternal_Lord_of_The_Undying_Ember",
+        "itemName": "Eternal_Lord_of__The_Undying_Ember",
         "itemQuantity": 1,
         "rawName": "Critter6A"
       },
@@ -8269,7 +8270,7 @@
                         "rawName": "IronBar"
                       },
                       {
-                        "itemName": "Goblin_Ear",
+                        "itemName": "Glublin_Ear",
                         "itemQuantity": 4800,
                         "rawName": "Forest1"
                       }
@@ -8359,7 +8360,7 @@
                         "rawName": "IronBar"
                       },
                       {
-                        "itemName": "Goblin_Ear",
+                        "itemName": "Glublin_Ear",
                         "itemQuantity": 4800,
                         "rawName": "Forest1"
                       }
@@ -8444,7 +8445,7 @@
                         "rawName": "IronBar"
                       },
                       {
-                        "itemName": "Goblin_Ear",
+                        "itemName": "Glublin_Ear",
                         "itemQuantity": 4800,
                         "rawName": "Forest1"
                       }
@@ -8529,7 +8530,7 @@
                         "rawName": "IronBar"
                       },
                       {
-                        "itemName": "Goblin_Ear",
+                        "itemName": "Glublin_Ear",
                         "itemQuantity": 4800,
                         "rawName": "Forest1"
                       }

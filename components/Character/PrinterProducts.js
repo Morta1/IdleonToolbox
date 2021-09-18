@@ -21,7 +21,7 @@ const PrinterProducts = ({ selected, stored }) => {
         <h3>Samples</h3>
         <div className="cont">
           {stored?.map(({ item, value }, index) => {
-            return item !== 'None' ? <div className={'product-container'} key={item + index}>
+            return item !== 'None' && item !== 'Blank' ? <div className={'product-container'} key={item + index}>
               <span className={'product-value'}>{kFormatter(value)}/hr</span>
               <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
               <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>

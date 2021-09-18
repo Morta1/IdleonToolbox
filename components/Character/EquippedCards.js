@@ -5,14 +5,14 @@ import styled from 'styled-components';
 const EquippedCards = ({ cards }) => {
   return (
     <EquippedCardsStyled>
-      <div className={'card-set'}>
+      {cards?.cardSet?.rawName ? <div className={'card-set'}>
         {cards?.cardSet?.stars > 0 ?
           <img className='border' title={cleanUnderscore(cards?.cardSet?.name)}
                src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
         <img className={'card'} title={cleanUnderscore(cards?.cardSet?.name)}
              src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
              alt=""/>
-      </div>
+      </div> : null}
       {cards?.equippedCards?.map(({ cardName, stars }, index) => {
         const cleanCardName = cardName.split("(", 2)[0].trim().replace(/ /, '_');
         return cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>

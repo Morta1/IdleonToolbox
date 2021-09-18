@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { Tooltip } from "@material-ui/core";
 import { prefix } from "../Utilities";
-import InfoTooltip from "./InfoTooltip";
 
 const CustomTooltip = ({ header, base, children }) => {
   return (
@@ -15,19 +14,19 @@ const CustomTooltip = ({ header, base, children }) => {
           <div className='stars'>
             {base
               ? [1, 2, 3, 4]?.map((_, index) => {
-                  return (
-                    <div className='star-line' key={base + " " + index}>
-                      <div className='image-wrapper'>
-                        {index === 0 ? (
-                          <span style={{ fontWeight: "bold" }}>Base</span>
-                        ) : (
-                          <img src={`${prefix}etc/Star${index}.png`} alt='' />
-                        )}
-                      </div>
-                      <div className='stat'>{base * (index + 1)}</div>
+                return (
+                  <div className='star-line' key={base + " " + index}>
+                    <div className='image-wrapper'>
+                      {index === 0 ? (
+                        <span style={{ fontWeight: "bold" }}>Base</span>
+                      ) : (
+                        <img src={`${prefix}etc/Star${index}.png`} alt=''/>
+                      )}
                     </div>
-                  );
-                })
+                    <div className='stat'>{base * (index + 1)}</div>
+                  </div>
+                );
+              })
               : null}
           </div>
         </div>
@@ -44,10 +43,11 @@ const StyledTooltip = styled((props) => (
   />
 ))`
   & .tooltip {
+    will-change: contents;
     font-size: 16px;
     background-color: #393e46;
-    box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
-      0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+    box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%),
+    0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
     max-width: 300px;
     @media only screen and (max-width: 600px) {
       max-width: 200px;

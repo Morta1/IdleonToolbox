@@ -6,6 +6,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 import CustomTooltip from "../components/CustomTooltip";
 import NavBar from "../components/NavBar";
 import { Wrapper } from "../components/common-styles";
+import Head from "next/head";
 
 export default function Home() {
   const [value, setValue] = useState("");
@@ -45,8 +46,10 @@ export default function Home() {
 
   return (
     <>
+      <Head>
+        <title>Idleon Toolbox - Card Search Helper</title>
+      </Head>
       <NavBar/>
-
       <Wrapper>
         <Main style={{ padding: 10 }}>
           <h1>Search Cards by Stats</h1>
