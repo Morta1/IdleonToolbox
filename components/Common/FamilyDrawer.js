@@ -71,9 +71,10 @@ const FamilyDrawer = () => {
         </AppBar>
         <Toolbar/>
         {userData && display?.view === 0 && userData?.version === extVersion ? <>
-          <List >
+          <List>
             <ListItem button onClick={handleClick}>
-              <ListItemText primary="Characters"/>
+              <ListItemText
+                primary={`Characters (Lv. ${userData?.characters?.reduce((totalLv, { level }) => totalLv + level, 0)})`}/>
               {open ? <ExpandLess/> : <ExpandMore/>}
             </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
@@ -87,7 +88,7 @@ const FamilyDrawer = () => {
                   </ListItemIcon>
                   <ListItemText primary={viewAll ? 'View All' : 'View Less'}/>
                 </ListItem>
-                {userData?.characters?.map(({ name, class: charClassName }, charIndex) => {
+                {userData?.characters?.map(({ name, class: charClassName, level }, charIndex) => {
                   return <ListItem
                     dense
                     onClick={() => handleCharacterClick(charIndex)}
