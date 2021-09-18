@@ -71,7 +71,7 @@ const FamilyDrawer = () => {
         </AppBar>
         <Toolbar/>
         {userData && display?.view === 0 && userData?.version === extVersion ? <>
-          <List>
+          <List >
             <ListItem button onClick={handleClick}>
               <ListItemText primary="Characters"/>
               {open ? <ExpandLess/> : <ExpandMore/>}
@@ -89,6 +89,7 @@ const FamilyDrawer = () => {
                 </ListItem>
                 {userData?.characters?.map(({ name, class: charClassName }, charIndex) => {
                   return <ListItem
+                    dense
                     onClick={() => handleCharacterClick(charIndex)}
                     selected={displayedCharactersIndices[charIndex]}
                     key={name + charIndex} button
