@@ -1,7 +1,12 @@
 import styled from 'styled-components'
 import { prefix } from "../../Utilities";
+import { useEffect } from "react";
 
 const OutdatedData = ({ extVersion }) => {
+  useEffect(() => {
+    localStorage.removeItem('characterData');
+  }, []);
+
   return (
     <OutdatedDataStyle>
       <div className={'info'}>
