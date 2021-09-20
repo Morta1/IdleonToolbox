@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
-import { prefix } from "../Utilities";
+import { extVersion, prefix, screens } from "../Utilities";
 import JsonImport from "./JsonImport";
 import { AppContext } from "./context";
 
 const NavBar = () => {
-  const { display, setUserDisplay } = useContext(AppContext);
+  const { display, setUserDisplay, userData } = useContext(AppContext);
   const router = useRouter();
 
   const appRoutes = [
@@ -14,7 +14,7 @@ const NavBar = () => {
     { label: "Family", path: `${prefix}family`, name: 'family' },
   ];
 
-  const familyRoutes = ['Characters', 'Account', 'Craft It', 'Item Locator', 'Guild'];
+  const familyRoutes = Object.keys(screens).map((word) => word.replace(/([A-Z])/g, " $1"));
 
   const handleClick = (e, path) => {
     e.preventDefault();
@@ -37,7 +37,7 @@ const NavBar = () => {
             </React.Fragment>
           );
         })}
-        {router?.pathname.endsWith(`family`) ? <ul className={'family-navigation'}>
+        {router?.pathname.endsWith(`family`) && userData?.version === extVersion ? <ul className={'family-navigation'}>
           {familyRoutes.map((route, index) => (
             <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
                       key={route + index}>{route}</ListItem>))}

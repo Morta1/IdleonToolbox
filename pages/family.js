@@ -10,8 +10,9 @@ import MissingData from "../components/General/MissingData";
 import OutdatedData from "../components/General/OutdatedData";
 import { Toolbar } from "@material-ui/core";
 import FamilyDrawer from "../components/Common/FamilyDrawer";
-import { extVersion } from "../Utilities";
+import { extVersion, screens } from "../Utilities";
 import Head from 'next/head'
+import ShopStock from "../components/ShopStock";
 
 const Family = () => {
   const { userData, display } = useContext(AppContext);
@@ -21,19 +22,21 @@ const Family = () => {
         <title>Idleon Toolbox - Family Progression</title>
       </Head>
       <FamilyDrawer/>
-      <FamilyWrapper isCharacterDisplay={userData && display?.view === 0 && userData?.version === extVersion}>
+      <FamilyWrapper
+        isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}>
         <Toolbar/>
         <Main>
           {!userData ? <MissingData/> :
             userData?.version !== extVersion ?
               <OutdatedData extVersion={extVersion}/> :
-              <div style={{ padding: 10 }}>
-                {display?.view === 0 ? <CharacterWrapper characters={userData?.characters}/> : null}
-                {display?.view === 1 ? <AccountWrapper account={userData?.account}/> : null}
-                {display?.view === 2 ? <CraftIt userData={userData}/> : null}
-                {display?.view === 3 ? <ItemLocator userData={userData}/> : null}
-                {display?.view === 4 ? <GuildWrapper guild={userData?.guild}/> : null}
-              </div>}
+              <>
+                {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
+                {display?.view === screens.account ? <AccountWrapper account={userData?.account}/> : null}
+                {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
+                {display?.view === screens.itemLocator ? <ItemLocator userData={userData}/> : null}
+                {display?.view === screens.guild ? <GuildWrapper guild={userData?.guild}/> : null}
+                {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
+              </>}
         </Main>
       </FamilyWrapper>
     </>

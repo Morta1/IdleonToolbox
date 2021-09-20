@@ -9,6 +9,9 @@ const Looty = ({ items }) => {
 };
 
 const LootyWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+
   img {
     margin: 0 auto;
     object-fit: contain;

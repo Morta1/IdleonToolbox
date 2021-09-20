@@ -3,7 +3,7 @@ import AppBar from "@material-ui/core/AppBar";
 import NavBar from "../NavBar";
 import { Chip, Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { extVersion, prefix } from "../../Utilities";
+import { extVersion, prefix, screens } from "../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
@@ -64,7 +64,7 @@ const FamilyDrawer = () => {
 
   return (
     <FamilyDrawerStyle>
-      <StyledDrawer isCharacterDisplay={userData && display?.view === 0 && userData?.version === extVersion}
+      <StyledDrawer isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}
                     anchor={'left'} variant={'permanent'}>
         <AppBar position={"fixed"}>
           <NavBar/>
@@ -110,9 +110,8 @@ const FamilyDrawer = () => {
             <Collapse in={filtersOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding className={'chips'}>
                 {dataFilters?.map(({ name, selected }, index) => {
-                  return <Chip
+                  return <StyledChip
                     key={name + "" + index}
-                    className="chip"
                     size="small"
                     clickable
                     color={selected ? 'primary' : 'default'}
@@ -149,6 +148,12 @@ const FamilyDrawerStyle = styled.div`
     }
   }
 `;
+
+const StyledChip = styled(Chip)`
+  && {
+    height: 24px;
+  }
+`
 
 const StyledDrawer = styled(({ isCharacterDisplay, ...other }) => (
   <Drawer {...other}/>

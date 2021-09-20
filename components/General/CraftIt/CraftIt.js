@@ -148,6 +148,7 @@ const CraftIt = ({ userData }) => {
 };
 
 const CraftItStyled = styled.div`
+  padding: 10px;
   margin-top: 15px;
   margin-bottom: 25px;
 

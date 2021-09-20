@@ -4,7 +4,7 @@ import Head from 'next/head'
 import '../polyfills';
 import { useEffect, useState } from "react";
 import { AppContext } from '../components/context';
-import { fields } from "../Utilities";
+import { fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 
 const GlobalStyle = createGlobalStyle`
@@ -26,7 +26,7 @@ const muiTheme = createTheme({
   },
 });
 
-const initialDisplay = { view: 0, subView: '' };
+const initialDisplay = { view: screens.characters, subView: '' };
 
 export default function App({ Component, pageProps }) {
   const [initialData, setData] = useState(null);

@@ -837,9 +837,6 @@ export const cardsObject = {
   ],
 };
 
-const isProd = process.env.NODE_ENV === "production";
-export const prefix = isProd ? "/IdleonToolbox/" : "";
-
 export const constantBags = [
   "InvBag1",
   "InvBag2",
@@ -881,6 +878,10 @@ export const classColors = {
   Journeyman: "yellow",
   Maestro: "yellow",
 };
+
+export const numberWithCommas = (num) => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 export const kFormatter = (num, digits = 1) => {
   const lookup = [
@@ -927,6 +928,10 @@ export const fields = [
     selected: true,
   },
   {
+    name: "Anvil Products",
+    selected: true,
+  },
+  {
     name: "Bags",
     selected: true,
   },
@@ -939,19 +944,19 @@ export const fields = [
     selected: true,
   },
   {
-    name: "Star Sign",
-    selected: true,
-  },
-  {
-    name: "Anvil Products",
-    selected: true,
-  },
-  {
-    name: "Printer Products",
+    name: "Traps",
     selected: true,
   },
   {
     name: "Prayers",
+    selected: true,
+  },
+  {
+    name: "Star Sign",
+    selected: true,
+  },
+  {
+    name: "Printer Products",
     selected: true,
   },
   {
@@ -973,7 +978,6 @@ export const findItemInInventory = (arr, itemName) => {
     return res;
   }, {});
 };
-
 
 export const flattenCraftObject = (craft) => {
   const uniques = {};
@@ -1007,4 +1011,15 @@ export const findQuantityOwned = (items, itemName) => {
 
 }
 
-export const extVersion = '0.0.0.2';
+export const screens = {
+  characters: 0,
+  account: 1,
+  craftIt: 2,
+  itemLocator: 3,
+  guild: 4,
+  shopStock: 5
+}
+
+const isProd = process.env.NODE_ENV === "production";
+export const extVersion = '0.0.0.3';
+export const prefix = isProd ? "/IdleonToolbox/" : "";

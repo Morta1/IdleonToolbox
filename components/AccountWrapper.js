@@ -7,6 +7,9 @@ import Stamps from "./General/Stamps";
 import { useRef } from "react";
 import Statues from "./General/Statues";
 import GeneralInfo from "./General/GeneralInfo";
+import Shrines from "./General/Shrines";
+import ColosseumHighscores from "./General/ColosseumHighscores";
+import MinigameHighscores from "./General/MinigameHighscores";
 
 const AccountWrapper = ({ account }) => {
   const accordionRef = useRef();
@@ -32,21 +35,29 @@ const AccountWrapper = ({ account }) => {
                    gems={account?.gems}
                    colosseumTickets={account?.colosseumTickets} teleports={account?.worldTeleports}
                    obolFragments={account?.obolFragments}/>
+      <ColosseumHighscores scores={account?.colosseumHighscores}/>
+      <MinigameHighscores scores={account?.minigameHighscores}/>
+      <Shrines shrines={account?.shrines}/>
       <Statues statues={account?.statues}/>
       <Stamps stamps={account?.stamps?.combat}/>
       <Stamps stamps={account?.stamps?.skills}/>
       <Stamps stamps={account?.stamps?.misc}/>
     </div>
 
-    <StyledAccordion ref={accordionRef} onChange={(e, expanded) => {expanded && scrollToAccordion()}}
-    >
-      <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-        Looty Shooty Missing Items ({account?.missingLootyItems.length})
-      </AccordionSummary>
-      <AccordionDetails>
-        <Looty items={account?.missingLootyItems}/>
-      </AccordionDetails>
-    </StyledAccordion>
+    <div className="looty-row">
+      <StyledAccordion
+        className={'looty'}
+        ref={accordionRef}
+        onChange={(e, expanded) => {expanded && scrollToAccordion()}}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+          Looty Shooty Missing Items ({account?.missingLootyItems.length})
+        </AccordionSummary>
+        <AccordionDetails>
+          <Looty items={account?.missingLootyItems}/>
+        </AccordionDetails>
+      </StyledAccordion>
+    </div>
+
   </AccountWrapperStyle>;
 }
 
@@ -57,13 +68,18 @@ const StyledAccordion = styled(Accordion)`
 `;
 
 const AccountWrapperStyle = styled.div`
-  margin-top: 25px;
+  .looty-row {
+    width: 90%;
+    margin: 0 auto;
+  }
 
   .row {
-    margin: 15px 0;
     display: grid;
+    justify-content: center;
+    margin: 25px 0;
     gap: 1.5rem;
     grid-template-columns: repeat(1, 450px) repeat(auto-fit, minmax(200px, 300px));
+
     @media (max-width: 750px) {
       grid-template-columns: 1fr;
     }

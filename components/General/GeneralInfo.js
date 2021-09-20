@@ -45,7 +45,7 @@ const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverP
 const GeneralInfoStyle = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 74px);
-  grid-template-rows: repeat(4, 74px);
+  grid-template-rows: repeat(1, 50px) repeat(4, 80px);
   justify-content: center;
 
   .box {

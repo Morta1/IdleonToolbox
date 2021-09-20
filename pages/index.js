@@ -52,7 +52,7 @@ export default function Home() {
       <NavBar/>
       <Wrapper>
         <Main style={{ padding: 10 }}>
-          <h1>Search Cards by Stats</h1>
+          <h1 style={{ marginTop: 0 }}>Search Cards by Stats</h1>
 
           <StyledTextField
             InputProps={{

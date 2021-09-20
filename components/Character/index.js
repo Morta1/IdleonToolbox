@@ -11,6 +11,7 @@ import EquippedCards from "./EquippedCards";
 import Obols from "./Obols";
 import Talents from "./Talents";
 import Prayers from "./Prayers";
+import Traps from "./Traps";
 
 const Character = ({
                      name: charName,
@@ -32,6 +33,8 @@ const Character = ({
                      talents,
                      afkTarget,
                      prayers,
+                     traps,
+                     worshipCharge,
                      dataFilters
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
@@ -46,6 +49,7 @@ const Character = ({
           <div>Agi: {agility}</div>
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
+          <div>Worship Charge: {worshipCharge}</div>
         </div>
         <div className={'activity'}>
           <h4>Activity</h4>
@@ -60,6 +64,8 @@ const Character = ({
       {!dataFilters || dataFilters?.Cards ? <EquippedCards cards={cards}/> : null}
       {!dataFilters || dataFilters?.['Printer Products'] ?
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
+      {!dataFilters || dataFilters?.['Traps'] ?
+        <Traps traps={traps}/> : null}
       {!dataFilters ||
       dataFilters?.['Anvil Products'] ||
       dataFilters?.['Equipped Bubbles'] ||
@@ -78,11 +84,9 @@ const CharacterStyle = styled.div`
   margin-bottom: 15px;
 
   .character-profile {
-    display: grid;
-    grid-auto-columns: min-content;
-    grid-template-columns: repeat(2, 180px);
+    display: flex;
+    justify-content: space-around;
     margin: 15px 0;
-    padding: 0 50px;
 
     > div {
       justify-self: center;

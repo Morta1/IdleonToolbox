@@ -95,9 +95,10 @@ const StyledHeaderCell = styled(TableCell)`
     color: white;
     font-weight: bold;
   }
-`
+`;
 
 const GuildWrapperStyle = styled.div`
+  padding: 10px;
   margin-top: 15px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
