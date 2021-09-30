@@ -3,7 +3,7 @@ import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const Obols = ({ obols, type }) => {
-  const getImgName = (name, shape) => {
+  const getImgName = (name, rawName, shape) => {
     switch (name) {
       case 'Locked': {
         return `Obol_Locked_${shape}`;
@@ -12,23 +12,25 @@ const Obols = ({ obols, type }) => {
         return `Obol_Empty_${shape}`;
       }
       default: {
-        return name;
+        return rawName;
       }
     }
   };
 
   return (
     <ObolsStyled>
-      {/*The array is temporary hard coded just for Character - will change when I add family Obols*/}
       {(type === 'character' ? [5, 9, 12, 16, 23] : [5, 10, 14, 19, 24]).map((endInd, rowNumber, array) => {
         const startInd = rowNumber === 0 ? 0 : array[rowNumber - 1];
         const relevantArray = obols?.slice(startInd, endInd);
         return <div className={'obol-row'} key={startInd + rowNumber}>
-      {relevantArray?.map(({name, shape}, index) => {
-        const imgName = getImgName(name, shape);
-        return <img title={cleanUnderscore(name)} key={name + index} src={`${prefix}materials/${imgName}.png`}
-        alt=""/>;
-      })}
+          {relevantArray?.map(({ name, rawName, lvReq, shape }, index) => {
+            const imgName = getImgName(name, rawName, shape);
+            return <div className={'obol-wrapper'} key={name + index}>
+              {lvReq && name === 'Locked' ? <span className={'lv-req'}>{lvReq}</span> : null}
+              <img title={cleanUnderscore(name)} src={`${prefix}data/${imgName}.png`}
+                   alt=""/>
+            </div>;
+          })}
         </div>;
       })}
     </ObolsStyled>
@@ -39,6 +41,22 @@ const ObolsStyled = styled.div`
   .obol-row {
     text-align: center;
   }
+
+  .obol-wrapper {
+    position: relative;
+    display: inline;
+
+    .lv-req {
+      position: absolute;
+      font-size: 14px;
+      font-weight: bold;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 20px;
+      text-shadow: 2px 2px 2px black;
+    }
+  }
+
 
   @media (max-width: 750px) {
     img {

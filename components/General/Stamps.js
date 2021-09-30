@@ -6,10 +6,10 @@ const Stamps = ({ stamps }) => {
     <StampsWrapper>
       <div className={'stamp-group'}>
         {stamps?.map(({ name, rawName, level }, index) => {
-          return name !== 'FILLER' && name !== 'Blank' && level > 0 ?
+          return name !== 'FILLER' && name !== 'Blank' ?
             <div key={name + index} className={'stamp-wrapper'}>
-              <span className={'level'}>{level}</span>
-              <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
+              {level !== '0' ? <span className={'level'}>{level}</span> : null}
+              <img className={`${level === '0' && 'missing'}`} title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
             </div> : null;
         })}
       </div>
@@ -25,10 +25,15 @@ const StampsWrapper = styled.div`
     grid-template-rows: repeat(auto-fit, minmax(48px, 72px));
   }
 
+  .missing {
+    filter: ${({ exists }) => exists ? 'grayscale(0)' : 'grayscale(1)'};
+    opacity: ${({ exists }) => exists ? '1' : '0.3'};
+  }
+  
   .stamp-wrapper {
     display: inline-block;
     position: relative;
-
+    
     .level {
       position: absolute;
       top: -10px;

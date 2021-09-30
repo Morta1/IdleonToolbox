@@ -780,7 +780,7 @@ export const cardsObject = {
       base: 5,
     },
     {
-      img: "Choco_Box_Card.png",
+      img: "Chocco_Box_Card.png",
       effect: effects.BoostFoodEffect,
       category: cardCategory.Events,
       base: 4,
@@ -928,10 +928,6 @@ export const fields = [
     selected: true,
   },
   {
-    name: "Anvil Products",
-    selected: true,
-  },
-  {
     name: "Bags",
     selected: true,
   },
@@ -962,7 +958,11 @@ export const fields = [
   {
     name: "Equipped Bubbles",
     selected: true,
-  }
+  },
+  {
+    name: "Anvil Products",
+    selected: true,
+  },
 ];
 
 export const findItemInInventory = (arr, itemName) => {
@@ -1014,12 +1014,13 @@ export const findQuantityOwned = (items, itemName) => {
 export const screens = {
   characters: 0,
   account: 1,
-  craftIt: 2,
-  itemLocator: 3,
-  guild: 4,
-  shopStock: 5
+  alchemy: 2,
+  craftIt: 3,
+  itemLocator: 4,
+  guild: 5,
+  shopStock: 6
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '0.0.0.3';
+export const extVersion = '0.0.0.4';
 export const prefix = isProd ? "/IdleonToolbox/" : "";

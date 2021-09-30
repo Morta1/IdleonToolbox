@@ -8,14 +8,17 @@ import CraftIt from "../components/General/CraftIt/CraftIt";
 import { AppContext } from '../components/context';
 import MissingData from "../components/General/MissingData";
 import OutdatedData from "../components/General/OutdatedData";
-import { Toolbar } from "@material-ui/core";
+import { Toolbar, useMediaQuery } from "@material-ui/core";
 import FamilyDrawer from "../components/Common/FamilyDrawer";
 import { extVersion, screens } from "../Utilities";
 import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
+import Cauldrons from "../components/General/Cauldrons/Alchemy";
 
 const Family = () => {
   const { userData, display } = useContext(AppContext);
+  const matches = useMediaQuery('(max-width:1220px)');
+
   return (
     <>
       <Head>
@@ -25,6 +28,7 @@ const Family = () => {
       <FamilyWrapper
         isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}>
         <Toolbar/>
+        {matches && <Toolbar/>}
         <Main>
           {!userData ? <MissingData/> :
             userData?.version !== extVersion ?
@@ -32,6 +36,8 @@ const Family = () => {
               <>
                 {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
                 {display?.view === screens.account ? <AccountWrapper account={userData?.account}/> : null}
+                {display?.view === screens.alchemy ?
+                  <Cauldrons cauldrons={userData?.account?.cauldronsMap} vials={userData?.account?.vialsMap}/> : null}
                 {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
                 {display?.view === screens.itemLocator ? <ItemLocator userData={userData}/> : null}
                 {display?.view === screens.guild ? <GuildWrapper guild={userData?.guild}/> : null}
@@ -45,7 +51,7 @@ const Family = () => {
 
 const FamilyWrapper = styled.div`
   flex-grow: 1;
-  ${({ isCharacterDisplay }) => isCharacterDisplay ? 'padding-left: 230px;' : ''}
+  ${({ isCharacterDisplay }) => isCharacterDisplay ? 'padding-left: 240px;' : ''}
 `;
 
 const Main = styled.main`

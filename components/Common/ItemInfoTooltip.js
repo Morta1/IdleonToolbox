@@ -20,6 +20,7 @@ const ItemInfoTooltip = ({
                            UQ1val,
                            UQ2txt,
                            UQ2val,
+                           Upgrade_Slots_Left,
                            children
                          }) => {
   return (
@@ -47,6 +48,7 @@ const ItemInfoTooltip = ({
           <span className={'item-reach'}>Reach: <span className={'item-value'}>{cleanUnderscore(Reach)}</span></span>}
           {UQ1txt && UQ1val && <span className={'item-misc'}>Misc: <span
             className={'item-value'}>{cleanUnderscore(`${UQ1val}${UQ1txt}`)}</span></span>}
+          {Upgrade_Slots_Left >= 0 ? <span className={'item-upgrade-slots'}>Upgrade Slots Left: <span className={'item-value'}>{Upgrade_Slots_Left}</span></span> : null}
         </div>
       </div>}>
       {children}
@@ -102,6 +104,9 @@ const ItemInfoTooltipStyle = styled((props) => (
 
       .item-value {
         text-shadow: 1px 1px 1px black;
+      }
+      .item-upgrade-slots{
+        margin-top: 10px;
       }
     }
 

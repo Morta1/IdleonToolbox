@@ -83,7 +83,7 @@ const JsonImport = () => {
         <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
                    titleAccess={'Please make sure the latest version of idleon-data-extractor is installed and try again.'}/> : null}
       {result?.success ?
-        <div className={'updated-info'} style={{ marginRight: 10, color: 'white' }}>Updated</div> : null}
+        <div className={'updated-info'} style={{ marginRight: 10, color: 'white' }}/> : null}
       <StyledButton variant="contained" color="primary" onClick={onImport}>{loading ?
         <StyledLoader size={24}/> : hasData ? 'Update' : 'Fetch Data'}</StyledButton>
       {loadIframe ? <iframe height='1px' width={'1px'} src={'https://legendsofidleon.com'}/> : null}

@@ -9,11 +9,36 @@ const OutdatedData = ({ extVersion }) => {
   return (
     <OutdatedDataStyle>
       <div className={'info'}>
-        <span>Please update your extension to the latest version ({extVersion}) and refresh</span>
+        <span>Please update your extension to the <a className={'extractor'}
+                                                     href="https://github.com/Morta1/idleon-data-extractor">latest version</a> ({extVersion}) and refresh</span>
         <span className={'small-text'}>If your extension is up-to-date please contact Morojo#2331 in discord</span>
       </div>
       <div className={'new-features'}>
-        <span className={'title'}>New Features - {extVersion}</span>
+        <span className={'new-title'}>Version {extVersion}</span>
+        <ol>
+          <li>
+            Alchemy
+            <ul>
+              <li>
+                Showing all owned bubbles and their levels
+              </li>
+              <li>
+                Showing all owned vials
+              </li>
+            </ul>
+          </li>
+          <li>
+            Bug Fixes
+            <ul>
+              <li>
+                Obols displayed in wrong order.
+              </li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+      <div className={'new-features'}>
+        <span className={'title'}>Version 0.0.0.3</span>
         <ol>
           <li>
             Shop Stock
@@ -45,12 +70,17 @@ const OutdatedData = ({ extVersion }) => {
 };
 
 const OutdatedDataStyle = styled.div`
-  margin-top: 25px;
+  margin: 25px auto;
   padding: 10px;
   display: flex;
+  width: 800px;
   flex-direction: column;
-  align-items: center;
 
+  .extractor {
+    &:visited, &:active {
+      color: white;
+    }
+  }
 
   .info {
     > span {
@@ -66,12 +96,14 @@ const OutdatedDataStyle = styled.div`
   .new-features {
     margin-top: 4rem;
 
-    > .title {
+    > .title, .new-title {
       font-size: 18px;
       font-weight: bold;
       padding-bottom: 2px;
       border-bottom: 1px solid white;
+    }
 
+    > .new-title {
       &:before {
         content: "✅";
         display: inline-block;

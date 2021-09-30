@@ -42,6 +42,12 @@ const AccountWrapper = ({ account }) => {
       <Stamps stamps={account?.stamps?.combat}/>
       <Stamps stamps={account?.stamps?.skills}/>
       <Stamps stamps={account?.stamps?.misc}/>
+      {/*<div>*/}
+        {/*<img src={`${prefix}/data/looty.png`} alt=""/>*/}
+        {/*<img src={`${prefix}/data/Town_Marble.gif`} alt=""/>*/}
+        {/*<img src={`${prefix}/data/Stamps.gif`} alt=""/>*/}
+        {/*<img src={`${prefix}/data/Obols.gif`} alt=""/>*/}
+      {/*</div>*/}
     </div>
 
     <div className="looty-row">
@@ -58,7 +64,8 @@ const AccountWrapper = ({ account }) => {
       </StyledAccordion>
     </div>
 
-  </AccountWrapperStyle>;
+  </AccountWrapperStyle>
+    ;
 }
 
 const StyledAccordion = styled(Accordion)`

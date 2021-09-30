@@ -1,7 +1,17 @@
 import styled from 'styled-components'
 import AppBar from "@material-ui/core/AppBar";
 import NavBar from "../NavBar";
-import { Chip, Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar } from "@material-ui/core";
+import {
+  Chip,
+  Collapse,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  useMediaQuery
+} from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import { extVersion, prefix, screens } from "../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
@@ -20,9 +30,11 @@ const FamilyDrawer = () => {
     setUserDisplayedCharactersIndices,
     lastUpdated
   } = useContext(AppContext);
+  const matches = useMediaQuery('(max-width:1220px)');
   const [open, setOpen] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [viewAll, setViewAll] = useState(!Object.values(displayedCharactersIndices).every((value) => value));
+  const [viewAllFilter, setViewAllFilter] = useState(dataFilters?.every(({ selected }) => selected));
 
   const handleClick = () => {
     setOpen(!open);
@@ -33,10 +45,18 @@ const FamilyDrawer = () => {
   };
 
   const onChipClick = (clickedIndex) => {
-    const updatedArr = dataFilters?.map((field, index) => index === clickedIndex ? {
-      ...field,
-      selected: !field.selected
-    } : field);
+    let updatedArr;
+    if (clickedIndex === 'all' && !viewAllFilter) {
+      updatedArr = dataFilters?.map((field) => ({ ...field, selected: true }));
+    } else if (clickedIndex === 'all' && viewAllFilter) {
+      updatedArr = dataFilters?.map((field) => ({ ...field, selected: false }));
+    } else {
+      updatedArr = dataFilters?.map((field, index) => index === clickedIndex ? {
+        ...field,
+        selected: !field.selected
+      } : field);
+    }
+    setViewAllFilter(!viewAllFilter);
     setUserDataFilters(updatedArr);
   }
 
@@ -64,12 +84,14 @@ const FamilyDrawer = () => {
 
   return (
     <FamilyDrawerStyle>
-      <StyledDrawer isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}
-                    anchor={'left'} variant={'permanent'}>
+      <StyledDrawer
+        isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}
+        anchor={'left'} variant={'permanent'}>
         <AppBar position={"fixed"}>
           <NavBar/>
         </AppBar>
         <Toolbar/>
+        {matches && <Toolbar/>}
         {userData && display?.view === 0 && userData?.version === extVersion ? <>
           <List>
             <ListItem button onClick={handleClick}>
@@ -108,6 +130,17 @@ const FamilyDrawer = () => {
               {filtersOpen ? <ExpandLess/> : <ExpandMore/>}
             </ListItem>
             <Collapse in={filtersOpen} timeout="auto" unmountOnExit>
+              <div className={'toggle-all'}>
+                <StyledChip
+                  key={'view-all'}
+                  size="small"
+                  clickable
+                  color={'default'}
+                  variant={'outlined'}
+                  label={'Toggle All'}
+                  onClick={() => onChipClick('all')}
+                />
+              </div>
               <List component="div" disablePadding className={'chips'}>
                 {dataFilters?.map(({ name, selected }, index) => {
                   return <StyledChip
@@ -137,12 +170,15 @@ const FamilyDrawer = () => {
 };
 
 const FamilyDrawerStyle = styled.div`
-  .chips {
-    margin-top: 10px;
+  .toggle-all, .chips {
     display: flex;
     padding-left: 10px;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  .chips {
+    margin-top: 10px;
     @media (max-width: 1041px) {
       margin-top: 15px;
     }
@@ -152,6 +188,8 @@ const FamilyDrawerStyle = styled.div`
 const StyledChip = styled(Chip)`
   && {
     height: 24px;
+    min-width: 60px;
+    max-width: 150px;
   }
 `
 
@@ -165,8 +203,8 @@ const StyledDrawer = styled(({ isCharacterDisplay, ...other }) => (
   & .MuiPaper-root.MuiDrawer-paper {
     background-color: #393e46;
     ${({ isCharacterDisplay }) => isCharacterDisplay ? `
-      max-width: 230px;
-      min-width: 230px;
+      max-width: 240px;
+      min-width: 240px;
       height: 100%;
     ` : ''}
     width: 0;
