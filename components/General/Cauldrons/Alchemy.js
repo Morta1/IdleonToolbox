@@ -52,7 +52,7 @@ const AlchemyStyle = styled.div`
       font-weight: bold;
       background: #000000eb;
       font-size: 13px;
-      padding: 0 5px;
+      padding: 5px 8px;
       top: 3px;
       right: 5px;
       border-radius: 50%;
