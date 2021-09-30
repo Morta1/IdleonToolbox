@@ -14,6 +14,7 @@ const Alchemy = ({ cauldrons, vials }) => {
       <div className="vials">
         {vials?.map(({ name, level, item }, index) => {
           return item ? <div key={`${name}${index}`} className={`vial-wrapper${level === '0' ? ' missing' : ''}`}>
+            {level !== '0' ? <span className={'level'}>{level}</span> : null}
             <img className={'vial-item'} title={cleanUnderscore(item)} src={`${prefix}/data/${item}.png`}
                  alt={''}/>
             <img key={`${name}${index}`} title={cleanUnderscore(name)}
@@ -42,10 +43,21 @@ const AlchemyStyle = styled.div`
     filter: grayscale(1);
     opacity: 0.3;
   }
+
   .vial-wrapper {
     position: relative;
-
-
+    
+    .level{
+      position: absolute;
+      font-weight: bold;
+      background: #000000eb;
+      font-size: 13px;
+      padding: 0 5px;
+      top: 3px;
+      right: 5px;
+      border-radius: 50%;
+    }
+    
     .vial-item {
       position: absolute;
       width: 56px;
