@@ -26,8 +26,8 @@ const StampsWrapper = styled.div`
   }
 
   .missing {
-    filter: ${({ exists }) => exists ? 'grayscale(0)' : 'grayscale(1)'};
-    opacity: ${({ exists }) => exists ? '1' : '0.3'};
+    filter: grayscale(1);
+    opacity: 0.3;
   }
   
   .stamp-wrapper {
