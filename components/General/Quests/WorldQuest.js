@@ -62,7 +62,7 @@ const WorldQuest = ({ quests, characters, worldName }) => {
                         >
                           <Avatar title={characters?.[charIndex]?.name}
                                   alt=""
-                                  src={`${prefix}icons/${characters[charIndex]?.class}_icon.png`}/>
+                                  src={`${prefix}icons/${characters[charIndex]?.class}_Icon.png`}/>
                         </Badge>
                       })}
                     </StyledListItem>
