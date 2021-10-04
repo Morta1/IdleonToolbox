@@ -2,6 +2,50 @@ import styled from 'styled-components'
 import { useEffect } from "react";
 
 const OutdatedData = ({ extVersion }) => {
+  const updates = [
+    {
+      latest: true,
+      version: '0.0.0.5',
+      changes: [
+        {
+          title: 'Quest Tracker',
+          desc: ['Follow your quests account-wide, including quests\' description and required items']
+        },
+        {
+          title: 'Looty Shooty',
+          desc: ['Removed more unobtainable items from the list (probably still need some work).']
+        }
+      ]
+    },
+    {
+      version: '0.0.0.4',
+      changes: [
+        {
+          title: 'Alchemy',
+          desc: ['Showing all owned bubbles and their levels', 'Showing all owned vials']
+        }, {
+          title: 'Bug Fixes',
+          desc: ['Obols displayed in wrong order.']
+        }
+      ]
+    },
+    {
+      version: '0.0.0.3',
+      changes: [
+        {
+          title: 'Shop Stock',
+          desc: ['see which items are still in stock (an item will disappear from the list when reaches 0)']
+        }, {
+          title: 'Characters',
+          desc: ['Traps Overview', 'Current Worship Charge']
+        }, {
+          title: 'Account',
+          desc: ['Colosseum Highscores', 'Minigame Highscores', 'Shrines']
+        }
+      ]
+    }
+  ]
+
   useEffect(() => {
     localStorage.clear();
   }, []);
@@ -13,58 +57,25 @@ const OutdatedData = ({ extVersion }) => {
                                                      href="https://github.com/Morta1/idleon-data-extractor">latest version</a> ({extVersion}) and refresh</span>
         <span className={'small-text'}>If your extension is up-to-date please contact Morojo#2331 in discord</span>
       </div>
-      <div className={'new-features'}>
-        <span className={'new-title'}>Version {extVersion}</span>
-        <ol>
-          <li>
-            Alchemy
-            <ul>
-              <li>
-                Showing all owned bubbles and their levels
+      {updates?.map(({ version, changes }, index) => {
+        return <div key={version + index} className={'new-features'}>
+          <span className={index === 0 ? 'new-title' : 'title'}>Version {version}</span>
+          <ol>
+            {changes?.map(({ title, desc }, changesIndex) => {
+              return <li key={title + changesIndex}>
+                {title}
+                <ul>
+                  {desc?.map((item, descIndex) => {
+                    return <li key={descIndex}>
+                      {item}
+                    </li>
+                  })}
+                </ul>
               </li>
-              <li>
-                Showing all owned vials
-              </li>
-            </ul>
-          </li>
-          <li>
-            Bug Fixes
-            <ul>
-              <li>
-                Obols displayed in wrong order.
-              </li>
-            </ul>
-          </li>
-        </ol>
-      </div>
-      <div className={'new-features'}>
-        <span className={'title'}>Version 0.0.0.3</span>
-        <ol>
-          <li>
-            Shop Stock
-            <ul>
-              <li>
-                see which items are still in stock (an item will disappear from the list when reaches 0)
-              </li>
-            </ul>
-          </li>
-          <li>
-            Characters
-            <ul>
-              <li>Traps Overview</li>
-              <li>Current Worship Charge</li>
-            </ul>
-          </li>
-          <li>
-            Account
-            <ul>
-              <li>Colosseum Highscores</li>
-              <li>Minigame Highscores</li>
-              <li>Shrines</li>
-            </ul>
-          </li>
-        </ol>
-      </div>
+            })}
+          </ol>
+        </div>
+      })}
     </OutdatedDataStyle>
   );
 };

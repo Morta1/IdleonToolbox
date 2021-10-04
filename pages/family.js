@@ -14,6 +14,7 @@ import { extVersion, screens } from "../Utilities";
 import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Cauldrons from "../components/General/Cauldrons/Alchemy";
+import Quests from "../components/General/Quests/Quests";
 
 const Family = () => {
   const { userData, display } = useContext(AppContext);
@@ -42,6 +43,7 @@ const Family = () => {
                 {display?.view === screens.itemLocator ? <ItemLocator userData={userData}/> : null}
                 {display?.view === screens.guild ? <GuildWrapper guild={userData?.guild}/> : null}
                 {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
+                {display?.view === screens.quests ? <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
               </>}
         </Main>
       </FamilyWrapper>

@@ -880,7 +880,7 @@ export const classColors = {
 };
 
 export const numberWithCommas = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export const kFormatter = (num, digits = 1) => {
@@ -1018,9 +1018,10 @@ export const screens = {
   craftIt: 3,
   itemLocator: 4,
   guild: 5,
-  shopStock: 6
+  shopStock: 6,
+  quests: 7
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '0.0.0.4';
+export const extVersion = '0.0.0.5';
 export const prefix = isProd ? "/IdleonToolbox/" : "";

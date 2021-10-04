@@ -5,5 +5,5 @@ module.exports = {
   assetPrefix: isProd ? "/IdleonToolbox/" : "",
   eslint: {
     ignoreDuringBuilds: true,
-  },
+  }
 };
