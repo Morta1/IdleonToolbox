@@ -21,11 +21,11 @@ import QuestInfoTooltip from "../../Common/QuestInfoTooltip";
 const WorldQuest = ({ quests, characters, worldName }) => {
   return (
     <WorldQuestsStyle>
-      <img src={`${prefix}/npcs/${worldName}.png`} alt=""/>
+      <img src={`${prefix}npcs/${worldName}.png`} alt=""/>
       {quests?.[worldName].map((npc, index) => {
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-            <img width={50} height={50} src={`${prefix}/npcs/${npc?.name}.gif`} alt=""/>
+            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt=""/>
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
           </AccordionSummary>
           <StyledAccordionDetails>

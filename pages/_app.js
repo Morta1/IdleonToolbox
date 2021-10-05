@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { AppContext } from '../components/context';
 import { fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
+import { useRouter } from "next/router";
+import demo from '../data/demo.json';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -29,6 +31,7 @@ const muiTheme = createTheme({
 const initialDisplay = { view: screens.characters, subView: '' };
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
   const [initialData, setData] = useState(null);
   const [dataFilters, setDataFilters] = useState();
   const [display, setDisplay] = useState();
@@ -38,10 +41,16 @@ export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     try {
-      const charData = localStorage.getItem('characterData');
-      if (charData) {
-        const parsedData = JSON.parse(localStorage.getItem('characterData'));
-        setData(parsedData);
+      if (router?.asPath === '/family/demo') {
+        setData(demo);
+      } else {
+        const charData = localStorage.getItem('characterData');
+        if (charData) {
+          const parsedData = JSON.parse(localStorage.getItem('characterData'));
+          setData(parsedData);
+        } else {
+          setData(null);
+        }
       }
 
       const characterIndices = JSON.parse(localStorage.getItem('characterIndices'));
@@ -62,7 +71,7 @@ export default function App({ Component, pageProps }) {
       console.log('Error during app init data parsing');
       setLoader(false);
     }
-  }, []);
+  }, [router]);
 
   const setUserData = (userData) => {
     setData(userData);

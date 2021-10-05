@@ -30,7 +30,7 @@ const ItemInfoTooltip = ({
       placement={"top-start"}
       title={<div className='tooltip-body'>
         <div className={'item-icon-container'}>
-          <img className={'item-icon'} src={`${prefix}/data/${rawName}.png`} alt=""/>
+          <img className={'item-icon'} src={`${prefix}data/${rawName}.png`} alt=""/>
           <span className={'item-name'}>{cleanUnderscore(displayName)}</span>
         </div>
         <div className="stats">
