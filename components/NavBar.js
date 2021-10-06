@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { extVersion, prefix, screens } from "../Utilities";
@@ -8,6 +8,9 @@ import { AppContext } from "./context";
 const NavBar = () => {
   const { display, setUserDisplay, userData } = useContext(AppContext);
   const router = useRouter();
+  useEffect(() => {
+    console.log(router)
+  }, [router]);
 
   const appRoutes = [
     { label: "Card Search", path: prefix ? prefix : "/", name: '/' },
@@ -26,6 +29,10 @@ const NavBar = () => {
     return page.endsWith(name);
   }
 
+  const isDemo = () => {
+    return router?.query?.hasOwnProperty('demo');
+  }
+
   return (
     <ListWrapper>
       <CustomList>
@@ -42,13 +49,13 @@ const NavBar = () => {
             </React.Fragment>
           );
         })}
-        {(getPageName('family') || getPageName('family/demo')) && userData?.version === extVersion ?
+        {(getPageName('family') || isDemo()) && userData?.version === extVersion ?
           <ul className={'family-navigation'}>
             {familyRoutes.map((route, index) => (
               <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
                         key={route + index}>{route}</ListItem>))}
           </ul> : null}
-        {getPageName('family') ? <JsonImport/> : null}
+        {getPageName('family') && !isDemo() ? <JsonImport/> : null}
       </CustomList>
     </ListWrapper>
   );

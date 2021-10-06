@@ -16,7 +16,7 @@ import ShopStock from "../../components/ShopStock";
 import Cauldrons from "../../components/General/Cauldrons/Alchemy";
 import Quests from "../../components/General/Quests/Quests";
 
-const Family = () => {
+const Index = () => {
   const { userData, display } = useContext(AppContext);
   const matches = useMediaQuery('(max-width:1220px)');
 
@@ -59,4 +59,4 @@ const FamilyWrapper = styled.div`
 const Main = styled.main`
   color: white;
 `;
-export default Family;
+export default Index;
