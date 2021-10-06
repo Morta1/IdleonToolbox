@@ -26,6 +26,10 @@ const NavBar = () => {
     return page.endsWith(name);
   }
 
+  const isDemo = () => {
+    return router?.query?.hasOwnProperty('demo');
+  }
+
   return (
     <ListWrapper>
       <CustomList>
@@ -42,13 +46,13 @@ const NavBar = () => {
             </React.Fragment>
           );
         })}
-        {(getPageName('family') || getPageName('family/demo')) && userData?.version === extVersion ?
+        {(getPageName('family') || isDemo()) && userData?.version === extVersion ?
           <ul className={'family-navigation'}>
             {familyRoutes.map((route, index) => (
               <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
                         key={route + index}>{route}</ListItem>))}
           </ul> : null}
-        {getPageName('family') ? <JsonImport/> : null}
+        {getPageName('family') && !isDemo() ? <JsonImport/> : null}
       </CustomList>
     </ListWrapper>
   );

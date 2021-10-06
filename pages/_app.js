@@ -42,7 +42,7 @@ export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     try {
-      if (router?.asPath === '/family/demo') {
+      if (router?.query?.hasOwnProperty('demo')) {
         setData(demo);
       } else {
         const charData = localStorage.getItem('characterData');
