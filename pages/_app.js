@@ -38,6 +38,7 @@ export default function App({ Component, pageProps }) {
   const [displayedCharactersIndices, setDisplayedCharactersIndices] = useState();
   const [loader, setLoader] = useState(true);
   const [lastUpdated, setLastUpdated] = useState();
+  const [questCharacters, setQuestCharacters] = useState([0]);
 
   useEffect(() => {
     try {
@@ -65,6 +66,9 @@ export default function App({ Component, pageProps }) {
 
       const displayObj = JSON.parse(localStorage.getItem('display')) || initialDisplay;
       setDisplay(displayObj);
+
+      const questCharactersObj = JSON.parse(localStorage.getItem('questCharacters')) || [0];
+      setQuestCharacters(questCharactersObj);
 
       setLoader(false);
     } catch (e) {
@@ -105,6 +109,11 @@ export default function App({ Component, pageProps }) {
     setLastUpdated(userLastUpdate);
   }
 
+  const setUserQuestCharacters = (characters) => {
+    localStorage.setItem('questCharacters', JSON.stringify(characters));
+    setQuestCharacters(characters);
+  }
+
   return (
     <>
       <Head>
@@ -123,7 +132,8 @@ export default function App({ Component, pageProps }) {
             dataFilters, setUserDataFilters,
             display, setUserDisplay,
             displayedCharactersIndices, setUserDisplayedCharactersIndices,
-            lastUpdated, setUserLastUpdated
+            lastUpdated, setUserLastUpdated,
+            questCharacters, setUserQuestCharacters
           }}>
             {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
                 <CircularProgress size={60} style={{ color: 'white' }}/>
