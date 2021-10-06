@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { AppContext } from '../components/context';
 import { fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
+import { useRouter } from "next/router";
+import demo from '../data/demo.json';
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -29,19 +31,27 @@ const muiTheme = createTheme({
 const initialDisplay = { view: screens.characters, subView: '' };
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
   const [initialData, setData] = useState(null);
   const [dataFilters, setDataFilters] = useState();
   const [display, setDisplay] = useState();
   const [displayedCharactersIndices, setDisplayedCharactersIndices] = useState();
   const [loader, setLoader] = useState(true);
   const [lastUpdated, setLastUpdated] = useState();
+  const [questCharacters, setQuestCharacters] = useState([0]);
 
   useEffect(() => {
     try {
-      const charData = localStorage.getItem('characterData');
-      if (charData) {
-        const parsedData = JSON.parse(localStorage.getItem('characterData'));
-        setData(parsedData);
+      if (router?.asPath === '/family/demo') {
+        setData(demo);
+      } else {
+        const charData = localStorage.getItem('characterData');
+        if (charData) {
+          const parsedData = JSON.parse(localStorage.getItem('characterData'));
+          setData(parsedData);
+        } else {
+          setData(null);
+        }
       }
 
       const characterIndices = JSON.parse(localStorage.getItem('characterIndices'));
@@ -57,12 +67,15 @@ export default function App({ Component, pageProps }) {
       const displayObj = JSON.parse(localStorage.getItem('display')) || initialDisplay;
       setDisplay(displayObj);
 
+      const questCharactersObj = JSON.parse(localStorage.getItem('questCharacters')) || [0];
+      setQuestCharacters(questCharactersObj);
+
       setLoader(false);
     } catch (e) {
       console.log('Error during app init data parsing');
       setLoader(false);
     }
-  }, []);
+  }, [router]);
 
   const setUserData = (userData) => {
     setData(userData);
@@ -96,6 +109,11 @@ export default function App({ Component, pageProps }) {
     setLastUpdated(userLastUpdate);
   }
 
+  const setUserQuestCharacters = (characters) => {
+    localStorage.setItem('questCharacters', JSON.stringify(characters));
+    setQuestCharacters(characters);
+  }
+
   return (
     <>
       <Head>
@@ -114,7 +132,8 @@ export default function App({ Component, pageProps }) {
             dataFilters, setUserDataFilters,
             display, setUserDisplay,
             displayedCharactersIndices, setUserDisplayedCharactersIndices,
-            lastUpdated, setUserLastUpdated
+            lastUpdated, setUserLastUpdated,
+            questCharacters, setUserQuestCharacters
           }}>
             {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
                 <CircularProgress size={60} style={{ color: 'white' }}/>

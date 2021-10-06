@@ -7,34 +7,34 @@ const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverP
       <div className="box coins">
         {[...money]?.reverse()?.map((coin, index) => {
           return <div className={'coin'} key={name + coin}>
-            <img src={`${prefix}/data/Coins${index + 1}.png`} alt=""/>
+            <img src={`${prefix}data/Coins${index + 1}.png`} alt=""/>
             <span className={'coin-value'}>{coin}</span>
           </div>
         })}
       </div>
       <div className="box">
-        <img src={`${prefix}/data/rtt0.png`} alt=""/>
+        <img src={`${prefix}data/rtt0.png`} alt=""/>
         <span className={'value'}>{teleports}</span>
       </div>
       <div className="box">
-        <img src={`${prefix}/data/ObolFrag.png`} alt=""/>
+        <img src={`${prefix}data/ObolFrag.png`} alt=""/>
         <span className={'value'}>{obolFragments}</span>
       </div>
       <div className="box">
-        <img src={`${prefix}/data/TixCol.png`} alt=""/>
+        <img src={`${prefix}data/TixCol.png`} alt=""/>
         <span className={'value'}>{colosseumTickets}</span>
       </div>
       <div className="box">
-        <img src={`${prefix}/data/SilverPen.png`} alt=""/>
+        <img src={`${prefix}data/SilverPen.png`} alt=""/>
         <span className={'value'}>{silverPens}</span>
       </div>
       <div className="box">
-        <img src={`${prefix}/data/PremiumGem.png`} alt=""/>
+        <img src={`${prefix}data/PremiumGem.png`} alt=""/>
         <span className={'value'}>{gems}</span>
       </div>
       {keys?.map(({ name, rawName, amount }, index) => {
         return <div key={name + index} className="box">
-          <img src={`${prefix}/data/${rawName}.png`} alt=""/>
+          <img src={`${prefix}data/${rawName}.png`} alt=""/>
           <span className={'value'}>{amount}</span>
         </div>
       })}

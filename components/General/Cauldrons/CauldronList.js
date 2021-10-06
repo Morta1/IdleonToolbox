@@ -7,7 +7,7 @@ const CauldronList = ({ cauldron }) => {
       {cauldron?.map(({ level, rawName, name }, index) => {
         return <div key={`${name}${index}`} className={'bubble-wrapper'}>
           <span className={'level'}>{level}</span>
-          <img title={cleanUnderscore(name)} src={`${prefix}/data/${rawName}.png`}
+          <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`}
                alt={''}/>
         </div>
       })}

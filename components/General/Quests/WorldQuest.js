@@ -18,27 +18,45 @@ import Badge from '@material-ui/core/Badge';
 import RadioButtonUncheckedOutlinedIcon from '@material-ui/icons/RadioButtonUncheckedOutlined';
 import QuestInfoTooltip from "../../Common/QuestInfoTooltip";
 
-const WorldQuest = ({ quests, characters, worldName }) => {
+const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
+  const getQuestIndicator = (status) => {
+    switch(status) {
+      case 1: 
+        return <CheckCircleIcon style={{ marginLeft: 'auto', fontSize: 24, color: '#23bb23' }}/>;
+      case 0:
+        return <RadioButtonCheckedIcon alt={''} style={{marginLeft: 'auto', width: 24, height: 24, fill: '#ff8d00' }}/>;
+      case -1:
+        return <RadioButtonUncheckedOutlinedIcon style={{marginLeft: 'auto', color: '#868484' }}/>;
+      default:
+        return null;
+    }
+  }
+
   return (
     <WorldQuestsStyle>
-      <img src={`${prefix}/npcs/${worldName}.png`} alt=""/>
+      <img src={`${prefix}npcs/${worldName}.png`} alt=""/>
       {quests?.[worldName].map((npc, index) => {
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-            <img width={50} height={50} src={`${prefix}/npcs/${npc?.name}.gif`} alt=""/>
+            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt=""/>
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
+            {getQuestIndicator(npc?.questsStatus)}
           </AccordionSummary>
           <StyledAccordionDetails>
             {npc?.npcQuests?.map((npcQuest, innerIndex) => {
               const { questTitle, completed = [], progress = [], ...questInfo } = npcQuest;
+              // if(npc?.name === 'Glumlee'){
+              //   console.log('completed',completed);
+              //   console.log('progress',progress);
+              // }
               return <List key={npc?.name + "" + index + "" + innerIndex} component="div" disablePadding>
                 <StyledListItem {...(progress?.length > 0 ? {} : {})}
                                 style={{ paddingLeft: 10, background: '#424242' }}>
                   <QuestInfoTooltip {...questInfo}>
                     <StyledListItemIcon> {/*Add Quest description */}
-                      {completed?.length === 9 ?
+                      {completed?.length === totalCharacters ?
                         <CheckCircleIcon style={{ fontSize: 24, color: '#23bb23' }}/> :
-                        completed?.length === 0 && progress?.length === 0 ?
+                        completed?.length === 0 && progress.length === 0 ?
                           <RadioButtonUncheckedOutlinedIcon style={{ color: '#868484' }}/> :
                           <RadioButtonCheckedIcon alt={''} style={{ width: 24, height: 24, fill: '#ff8d00' }}/>}
                     </StyledListItemIcon>
@@ -52,7 +70,7 @@ const WorldQuest = ({ quests, characters, worldName }) => {
                       {progress?.map(({ charIndex, status }) => {
                         return <Badge key={charIndex + '' + innerIndex}
                                       overlap="circular"
-                                      title={status === 1 ? 'Completed' : status === -1 ? 'Not opened' : 'In progress'}
+                                      title={status === 1 ? 'Completed' : status === -1 ? 'Not started' : 'In progress'}
                                       anchorOrigin={{
                                         vertical: 'bottom',
                                         horizontal: 'right',

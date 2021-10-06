@@ -15,10 +15,10 @@ const Alchemy = ({ cauldrons, vials }) => {
         {vials?.map(({ name, level, item }, index) => {
           return item ? <div key={`${name}${index}`} className={`vial-wrapper${level === '0' ? ' missing' : ''}`}>
             {level !== '0' ? <span className={'level'}>{level}</span> : null}
-            <img className={'vial-item'} title={cleanUnderscore(item)} src={`${prefix}/data/${item}.png`}
+            <img className={'vial-item'} title={cleanUnderscore(item)} src={`${prefix}data/${item}.png`}
                  alt={''}/>
             <img key={`${name}${index}`} title={cleanUnderscore(name)}
-                 src={`${prefix}/data/aVials${level === '0' ? '1' : level}.png`}
+                 src={`${prefix}data/aVials${level === '0' ? '1' : level}.png`}
                  alt={''}/>
           </div> : null
         })}

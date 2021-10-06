@@ -21,6 +21,11 @@ const NavBar = () => {
     router.push(path);
   };
 
+  const getPageName = (name) => {
+    const page = router.asPath;
+    return page.endsWith(name);
+  }
+
   return (
     <ListWrapper>
       <CustomList>
@@ -29,7 +34,7 @@ const NavBar = () => {
             <React.Fragment key={label + "-" + index}>
               <ListItem
                 inner={false}
-                active={router?.pathname.endsWith(name)}
+                active={getPageName(name)}
                 onClick={(e) => handleClick(e, path)}>
                 {label}
               </ListItem>
@@ -37,12 +42,13 @@ const NavBar = () => {
             </React.Fragment>
           );
         })}
-        {router?.pathname.endsWith(`family`) && userData?.version === extVersion ? <ul className={'family-navigation'}>
-          {familyRoutes.map((route, index) => (
-            <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
-                      key={route + index}>{route}</ListItem>))}
-        </ul> : null}
-        {router?.pathname.endsWith(`family`) ? <JsonImport/> : null}
+        {(getPageName('family') || getPageName('family/demo')) && userData?.version === extVersion ?
+          <ul className={'family-navigation'}>
+            {familyRoutes.map((route, index) => (
+              <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
+                        key={route + index}>{route}</ListItem>))}
+          </ul> : null}
+        {getPageName('family') ? <JsonImport/> : null}
       </CustomList>
     </ListWrapper>
   );

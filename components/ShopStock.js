@@ -17,7 +17,7 @@ const ShopStock = ({ stock }) => {
           <span className={'shop-name'}>{cleanUnderscore(shopMapping?.[shopIndex])}</span>
           {shop?.map(({ name, rawName, amount }, itemIndex) => {
             return <div className={'shop-items-container'} key={`${name}${itemIndex}`}>
-              <img src={`${prefix}/data/${rawName}.png`} alt=""/>
+              <img src={`${prefix}data/${rawName}.png`} alt=""/>
               <div className="content">
                 <div className={'item-name'}>{cleanUnderscore(name)}</div>
                 <div className={'amount'}>Quantity: {amount}</div>

@@ -20,7 +20,7 @@ const QuestInfoTooltip = ({
           {itemReq?.map(({ name, rawName, amount }, index) => {
             return <div className={'item-wrapper'} title={cleanUnderscore(name)} key={name + '' + index}>
               <span className={'amount'}>{numberWithCommas(amount)}</span>
-              <img className={'item-img'} src={`${prefix}/data/${rawName}.png`} alt=""/>
+              <img className={'item-img'} src={`${prefix}data/${rawName}.png`} alt=""/>
             </div>
           })}
         </div>
