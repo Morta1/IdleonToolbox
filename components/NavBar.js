@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { extVersion, prefix, screens } from "../Utilities";
@@ -8,9 +8,6 @@ import { AppContext } from "./context";
 const NavBar = () => {
   const { display, setUserDisplay, userData } = useContext(AppContext);
   const router = useRouter();
-  useEffect(() => {
-    console.log(router)
-  }, [router]);
 
   const appRoutes = [
     { label: "Card Search", path: prefix ? prefix : "/", name: '/' },
