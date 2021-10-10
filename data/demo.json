@@ -1,5 +1,3237 @@
 {
   "account": {
+    "alchemy": {
+      "bubbles": {
+        "high-iq": [
+          {
+            "bubbleName": "STABLE_JENIUS",
+            "desc": "+{_Total_WIS._Honesty_the_greatest_bonus_in_any_Idle_Game,_believe_me._Absolutely_incredible,_everyone_says_so!",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 10,
+                "name": "Thread",
+                "rawName": "CraftMat1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 47,
+            "rawName": "aUpgradesP0",
+            "stat": "TotalWIS",
+            "x1": 1,
+            "x2": 0
+          },
+          {
+            "bubbleName": "MAGE_IS_BEST",
+            "desc": "All_Purple_Passive_Bonuses,_which_are_the_smaller_sized_ones,_give_{x_more_bonuses_to_your_mage-based_characters.",
+            "func": "decayMulti",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Spore_Cap",
+                "rawName": "Grasslands1"
+              },
+              {
+                "baseCost": 13,
+                "name": "Copper_Bar",
+                "rawName": "CopperBar"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 37,
+            "rawName": "aUpgradesP1",
+            "stat": "Ppassz",
+            "x1": 2,
+            "x2": 50
+          },
+          {
+            "bubbleName": "HOCUS_CHOPPUS",
+            "desc": "+{%_choppin_efficiency_per_power_of_10_max_MP_that_your_character_has._Super_diaper!_Err,_duper.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 22,
+                "name": "Trusty_Nails",
+                "rawName": "CraftMat5"
+              },
+              {
+                "baseCost": 40,
+                "name": "Forest_Fibres",
+                "rawName": "ForestTree"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 27,
+            "rawName": "aUpgradesP2",
+            "stat": "ChopEff",
+            "x1": 50,
+            "x2": 100
+          },
+          {
+            "bubbleName": "MOLTO_LOGGO",
+            "desc": "Multi-Log_chop_chance_is_increased_by_+{%,_and_your_max_Multi-Log_chance_is_now_300%_instead_of_100%.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 21,
+                "name": "Iron_Bar",
+                "rawName": "IronBar"
+              },
+              {
+                "baseCost": 30,
+                "name": "Megalodon_Tooth",
+                "rawName": "DesertA2"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 16,
+            "rawName": "aUpgradesP3",
+            "stat": "MultiLogACTIVE",
+            "x1": 23.5,
+            "x2": 1.5
+          },
+          {
+            "bubbleName": "NOODUBBLE",
+            "desc": "+{%_Choppin'_and_Alchemy_EXP_gain._Y'know_what,_I'll_even..._actually,_never_mind.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 20,
+                "name": "Chain_Link",
+                "rawName": "CraftMat7"
+              },
+              {
+                "baseCost": 30,
+                "name": "Hermit_Can",
+                "rawName": "Fish2"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 16,
+            "rawName": "aUpgradesP4",
+            "stat": "ChopAlchEXP",
+            "x1": 100,
+            "x2": 60
+          },
+          {
+            "bubbleName": "NAME_I_GUESS",
+            "desc": "Increases_base_damage_by_+$._This_bonus_increases_based_on_how_much_Max_MP_you_have_above_150.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 110,
+                "name": "Snake_Skin",
+                "rawName": "Jungle2"
+              },
+              {
+                "baseCost": 40,
+                "name": "Gold_Ore",
+                "rawName": "Gold"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 3,
+            "rawName": "aUpgradesP5",
+            "stat": "bdmgMP",
+            "x1": 1,
+            "x2": 0.02
+          },
+          {
+            "bubbleName": "LE_BRAIN_TOOLS",
+            "desc": "The_following_tools_give_+{%_more_skilling_Power_than_normal:_$",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 250,
+                "name": "Bleach_Logs",
+                "rawName": "BirchTree"
+              },
+              {
+                "baseCost": 55,
+                "name": "Sentient_Cereal",
+                "rawName": "Bug3"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 12,
+            "rawName": "aUpgradesP6",
+            "stat": "ToolM",
+            "x1": 65,
+            "x2": 70
+          },
+          {
+            "bubbleName": "COOKIN_ROADKILL",
+            "desc": "Cranium_Cooking_lasts_{%_longer,_gives_{%_more_progress_per_kill,_and_has_a_{%_lower_cooldown._Also_+{%_Alchemy_EXP!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 75,
+                "name": "Potty_Rolls",
+                "rawName": "ToiletTree"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 25,
+            "rawName": "aUpgradesP7",
+            "stat": "AlchemyACTIVE",
+            "x1": 120,
+            "x2": 70
+          },
+          {
+            "bubbleName": "BREWSTACHIO",
+            "desc": "+{%_Brew_Speed._This_a_multiplicative_bonus,_which_means_its_ultra_powerful,_all_the_time!_Even_on_Mondays,_the_worst_day!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 150,
+                "name": "High_Steaks",
+                "rawName": "DesertC1"
+              },
+              {
+                "baseCost": 50,
+                "name": "Bloach",
+                "rawName": "Fish4"
+              },
+              {
+                "baseCost": 5,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              }
+            ],
+            "level": 17,
+            "rawName": "aUpgradesP8",
+            "stat": "BrewSpd",
+            "x1": 50,
+            "x2": 100
+          },
+          {
+            "bubbleName": "ALL_FOR_KILL",
+            "desc": "Attack_Talents_give_+{%_higher_bonuses_to_Offline_Gains_than_they_normally_do._So_you_might_as_well_just_AFK_forever,_bye!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 100,
+                "name": "Veiny_Logs",
+                "rawName": "StumpTree"
+              },
+              {
+                "baseCost": 5,
+                "name": "Platinum_Bar",
+                "rawName": "PlatBar"
+              },
+              {
+                "baseCost": 5,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              }
+            ],
+            "level": 22,
+            "rawName": "aUpgradesP9",
+            "stat": "AttackAfk",
+            "x1": 40,
+            "x2": 100
+          },
+          {
+            "bubbleName": "MATTY_STAFFORD",
+            "desc": "+{%_Total_damage._This_multiplies_with_other_damage_bonuses,_but_adds_with_the_other_'+%_Total_Damage'_bubbles.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 3,
+                "name": "Redox_Salts",
+                "rawName": "Refinery1"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 14,
+            "rawName": "aUpgradesP10",
+            "stat": "pctDmg3",
+            "x1": 40,
+            "x2": 50
+          },
+          {
+            "bubbleName": "CALL_ME_POPE",
+            "desc": "{x_Worship_Charge_rate_per_hour._Also,_{x_Max_Worship_Charge!_You_bouta_go_super_with_all_that_charge..._just_sayin'",
+            "func": "decayMulti",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Crabbo",
+                "rawName": "Critter2"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 19,
+            "rawName": "aUpgradesP11",
+            "stat": "worshipACTIVE",
+            "x1": 2.4,
+            "x2": 70
+          },
+          {
+            "bubbleName": "GOSPEL_LEADER",
+            "desc": "+{%_Max_Charge_per_10_Worship_levels._I_guess_you_could_say_this_upgrade_doesn't_come_Free_of_Charge!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 150,
+                "name": "Mosquisnow",
+                "rawName": "Bug5"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 11,
+            "rawName": "aUpgradesP12",
+            "stat": "maxCharge",
+            "x1": 60,
+            "x2": 30
+          },
+          {
+            "bubbleName": "SMART_BOI_TALENT",
+            "desc": "Sorry,_mages_don't_get_anything_because_you're_lame...._Ok_fine,_you_can_have_+{_Talent_Points_for_each_tab,_but_I'm_not_happy_about_it.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 150,
+                "name": "Sippy_Straw",
+                "rawName": "SnowC1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 21,
+            "rawName": "aUpgradesP13",
+            "stat": "TalWiz",
+            "x1": 5,
+            "x2": 1
+          },
+          {
+            "bubbleName": "PURPLE_BARGAIN",
+            "desc": "The_material_costs_of_ALL_purple_bubbles_are_{%_lower",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 800,
+                "name": "Forest_Soul",
+                "rawName": "Soul1"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 13,
+            "rawName": "aUpgradesP14",
+            "stat": "BubbleCostPu",
+            "x1": 40,
+            "x2": 12
+          }
+        ],
+        "kazam": [
+          {
+            "bubbleName": "LOTTO_SKILLS",
+            "desc": "+{_LUK._Also,_this_will_increase_your_chances_ofwinning_the_lottery_in_real_life_from_0.0%_to_0.000%!_I'm_not_even_joking,_it's_true!!",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 11,
+                "name": "Copper_Ore",
+                "rawName": "Copper"
+              },
+              {
+                "baseCost": 15,
+                "name": "Oak_Logs",
+                "rawName": "OakTree"
+              },
+              {
+                "baseCost": 8,
+                "name": "Thread",
+                "rawName": "CraftMat1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              }
+            ],
+            "level": 35,
+            "rawName": "aUpgradesY0",
+            "stat": "TotalLUK",
+            "x1": 1,
+            "x2": 0
+          },
+          {
+            "bubbleName": "DROPPIN_LOADS",
+            "desc": "+{%_Drop_Rate._Thanks_to_this_upgrade,_you_can_get_even_MORE_angry_when_you_keep_not_getting_that_rare_pet_drop_from_the_boss!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 20,
+                "name": "Goldfish",
+                "rawName": "Fish1"
+              },
+              {
+                "baseCost": 30,
+                "name": "Fly",
+                "rawName": "Bug1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 31,
+            "rawName": "aUpgradesY1",
+            "stat": "DropRate",
+            "x1": 40,
+            "x2": 70
+          },
+          {
+            "bubbleName": "STARTUE_EXP",
+            "desc": "Leveling_up_a_statue_resets_it's_exp_bar_down_to_{%,_instead_of_0%._Staturrific!_Yea..._the_jokes_are_only_gonna_go_downhill_from_here_lol",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 30,
+                "name": "Pocket_Sand",
+                "rawName": "DesertA1"
+              },
+              {
+                "baseCost": 40,
+                "name": "Plank",
+                "rawName": "Forest2"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 10,
+            "rawName": "aUpgradesY2",
+            "stat": "StatueStartEXP",
+            "x1": 25,
+            "x2": 60
+          },
+          {
+            "bubbleName": "LEVEL_UP_GIFT",
+            "desc": "Whenever_you_level_up_anything,_{%_chance_to_drop_a_gift!_It_could_be_an_EXP_balloon,_a_Gem_for_the_gem_shop,_or_something_crazy_weird!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 35,
+                "name": "Iron_Ore",
+                "rawName": "Iron"
+              },
+              {
+                "baseCost": 70,
+                "name": "Jungle_Logs",
+                "rawName": "JungleTree"
+              },
+              {
+                "baseCost": 30,
+                "name": "Trusty_Nails",
+                "rawName": "CraftMat5"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              }
+            ],
+            "level": 25,
+            "rawName": "aUpgradesY3",
+            "stat": "LevelUpACTIVE",
+            "x1": 100,
+            "x2": 30
+          },
+          {
+            "bubbleName": "PROWESESSARY",
+            "desc": "The_Prowess_Bonus_for_every_skill_is_multiplied_by_{._Prowess_lowers_the_Efficiency_needed_to_get_multiple_QTY_per_drop_from_resources.",
+            "func": "decayMulti",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Gold_Bar",
+                "rawName": "GoldBar"
+              },
+              {
+                "baseCost": 50,
+                "name": "Potty_Rolls",
+                "rawName": "ToiletTree"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 51,
+            "rawName": "aUpgradesY4",
+            "stat": "ProwessMulti",
+            "x1": 1.5,
+            "x2": 60
+          },
+          {
+            "bubbleName": "STAMP_TRAMP",
+            "desc": "Increases_the_Max_Lv_of_the_'Toilet_Paper_Postage'_Talent_to_{._You_can_unlock_this_talent_by_typing_'More_like_Poopy_Pete'_near_Pete.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 65,
+                "name": "Butterfly",
+                "rawName": "Bug2"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 20,
+            "rawName": "aUpgradesY5",
+            "stat": "TPpostage",
+            "x1": 1,
+            "x2": 0
+          },
+          {
+            "bubbleName": "UNDEVELOPED_COSTS",
+            "desc": "Reduces_the_material_costs_of_all_Alchemy_Bubbles_by_{%._They_are_just_bubbles_though,_how_much_could_they_even_cost?_10_dollars?",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 75,
+                "name": "Jellyfish",
+                "rawName": "Fish3"
+              },
+              {
+                "baseCost": 6,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 31,
+            "rawName": "aUpgradesY6",
+            "stat": "BubbleCost",
+            "x1": 40,
+            "x2": 70
+          },
+          {
+            "bubbleName": "DA_DAILY_DRIP",
+            "desc": "Increases_the_Max_Cap_for_every_liquid_by_+$._This_bonus_increases_based_on_the_combined_Alchemy_LV_of_all_your_characters!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 125,
+                "name": "Leather_Hide",
+                "rawName": "CraftMat9"
+              },
+              {
+                "baseCost": 8,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 18,
+            "rawName": "aUpgradesY7",
+            "stat": "LqdCap",
+            "x1": 30,
+            "x2": 100
+          },
+          {
+            "bubbleName": "GRIND_TIME",
+            "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 50,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 25,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 26,
+            "rawName": "aUpgradesY8",
+            "stat": "expACTIVE",
+            "x1": 9.7,
+            "x2": 0.3
+          },
+          {
+            "bubbleName": "LAAARRRRYYYY",
+            "desc": "Every_time_you_upgrade_an_Alchemy_bubble,_there's_a_{%_chance_it'll_upgrade_2_times,_for_no_extra_cost!_Two_fer_one,_getter_dun!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 50,
+                "name": "Dementia_Ore",
+                "rawName": "Dementia"
+              },
+              {
+                "baseCost": 130,
+                "name": "Shrapshell",
+                "rawName": "DesertC4"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 9,
+            "rawName": "aUpgradesY9",
+            "stat": "DoubleBubbleUpg",
+            "x1": 120,
+            "x2": 100
+          },
+          {
+            "bubbleName": "COGS_FOR_HANDS",
+            "desc": "+{%_Cog_Production_speed._Cogs_are_great._I_really_really_like_cogs._I_guess_you_could_say_I_think_they're_pretty_Coggers...",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 50,
+                "name": "Melty_Cube",
+                "rawName": "SnowA2"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 28,
+            "rawName": "aUpgradesY10",
+            "stat": "CogMakeSpd",
+            "x1": 4,
+            "x2": 0
+          },
+          {
+            "bubbleName": "SAMPLE_IT",
+            "desc": "+{%_Sample_Size_when_taking_samples_for_the_3d_printer._Finally,_your_statisitcal_analysis_will_be_accurate!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 15,
+                "name": "Dune_Soul",
+                "rawName": "Soul2"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 45,
+            "rawName": "aUpgradesY11",
+            "stat": "SampleSize",
+            "x1": 12,
+            "x2": 40
+          },
+          {
+            "bubbleName": "BIG_GAME_HUNTER",
+            "desc": "Each_time_a_Giant_Monster_spawns,_the_chance_for_another_Giant_Monster_in_that_same_week_goes_down_by_{%_less_than_normal.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 40,
+                "name": "Scorpie",
+                "rawName": "Critter3"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 1,
+            "rawName": "aUpgradesY12",
+            "stat": "GiantsACTIVE",
+            "x1": 70,
+            "x2": 50
+          },
+          {
+            "bubbleName": "IGNORE_OVERDUES",
+            "desc": "+{%_Book_Checkout_speed,_thanks_to_this_one_little_bubble_that_librarians_do_NOT_want_you_to_know_about!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 120,
+                "name": "Wispy_Lumber",
+                "rawName": "Tree7"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 1,
+            "rawName": "aUpgradesY13",
+            "stat": "booksSpeed",
+            "x1": 100,
+            "x2": 60
+          },
+          {
+            "bubbleName": "YELLOW_BARGAIN",
+            "desc": "The_material_costs_of_ALL_yellow_bubbles_are_{%_lower.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 250,
+                "name": "Pingy",
+                "rawName": "Critter6"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 8,
+            "rawName": "aUpgradesY14",
+            "stat": "BubbleCostYe",
+            "x1": 40,
+            "x2": 12
+          }
+        ],
+        "power": [
+          {
+            "bubbleName": "ROID_RAGIN",
+            "desc": "+{_Total_STR._'Total'_here_means_that,_for_example,_a_+10%_STR_bonus_from_something_else_wouldn't_affect_this_bonus.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Oak_Logs",
+                "rawName": "OakTree"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 48,
+            "rawName": "aUpgradesO0",
+            "stat": "TotalSTR",
+            "x1": 1,
+            "x2": 0
+          },
+          {
+            "bubbleName": "WARRIORS_RULE",
+            "desc": "All_Orange_Passive_Bubbles,_which_are_the_smaller_sized_ones,_give_a_{x_higher_bonus_to_your_warrior-based_classes.",
+            "func": "decayMulti",
+            "itemReq": [
+              {
+                "baseCost": 20,
+                "name": "Spore_Cap",
+                "rawName": "Grasslands1"
+              },
+              {
+                "baseCost": 3,
+                "name": "Thread",
+                "rawName": "CraftMat1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 50,
+            "rawName": "aUpgradesO1",
+            "stat": "Opassz",
+            "x1": 2,
+            "x2": 50
+          },
+          {
+            "bubbleName": "HEARTY_DIGGY",
+            "desc": "+{%_mining_efficiency_per_power_of_10_max_HP_that_your_character_has._The_perfect_bonus_for_miners_with_infinite_HP!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 40,
+                "name": "Jungle_Logs",
+                "rawName": "JungleTree"
+              },
+              {
+                "baseCost": 18,
+                "name": "Copper_Bar",
+                "rawName": "CopperBar"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 39,
+            "rawName": "aUpgradesO2",
+            "stat": "MinEff",
+            "x1": 50,
+            "x2": 100
+          },
+          {
+            "bubbleName": "WYOMING_BLOOD",
+            "desc": "Multi-Ore_mining_chance_is_increased_by_+{%,_and_your_max_Multi-Ore_chance_is_300%_instead_of_100%.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 30,
+                "name": "Fly",
+                "rawName": "Bug1"
+              },
+              {
+                "baseCost": 50,
+                "name": "Glublin_Ear",
+                "rawName": "Forest1"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 18,
+            "rawName": "aUpgradesO3",
+            "stat": "MiningACTIVE",
+            "x1": 23.5,
+            "x2": 1.5
+          },
+          {
+            "bubbleName": "REELY_SMART",
+            "desc": "+{%_Mining_and_Fishing_EXP_gain._Y'know_what,_I'll_even_DOUBLE_that_bonus_for_whichever_skill_has_the_lower_level!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Boring_Brick",
+                "rawName": "CraftMat6"
+              },
+              {
+                "baseCost": 40,
+                "name": "Crabby_Cakey",
+                "rawName": "DesertA3"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 25,
+            "rawName": "aUpgradesO4",
+            "stat": "MinFishEXP",
+            "x1": 100,
+            "x2": 80
+          },
+          {
+            "bubbleName": "BIG_MEATY_CLAWS",
+            "desc": "Increases_base_damage_by_+$._This_bonus_increases_based_on_how_much_Max_HP_you_have_above_250.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 200,
+                "name": "Bleach_Logs",
+                "rawName": "BirchTree"
+              },
+              {
+                "baseCost": 75,
+                "name": "Furled_Flag",
+                "rawName": "DesertB2"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 13,
+            "rawName": "aUpgradesO5",
+            "stat": "bdmgHP",
+            "x1": 1,
+            "x2": 0.02
+          },
+          {
+            "bubbleName": "SPLOOSH_SPLOOSH",
+            "desc": "Multi-Fish_fishing_chance_is_increased_by_+{%,_and_your_max_Multi-Fish_chance_is_300%_instead_of_100%.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 100,
+                "name": "Hermit_Can",
+                "rawName": "Fish2"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 12,
+            "rawName": "aUpgradesO6",
+            "stat": "FishingACTIVE",
+            "x1": 23.5,
+            "x2": 1.5
+          },
+          {
+            "bubbleName": "STRONK_TOOLS",
+            "desc": "The_following_tools_give_+{%_more_skilling_Power_than_normal:_$",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 60,
+                "name": "Platinum_Ore",
+                "rawName": "Plat"
+              },
+              {
+                "baseCost": 200,
+                "name": "Frog_Leg",
+                "rawName": "Grasslands2"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 23,
+            "rawName": "aUpgradesO7",
+            "stat": "ToolW",
+            "x1": 65,
+            "x2": 70
+          },
+          {
+            "bubbleName": "FMJ",
+            "desc": "+{%_more_defence_from_Equipment._Also,_+1_base_Def_per_Class_LV,_up_to_+{.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 50,
+                "name": "Fruitfly",
+                "rawName": "Bug4"
+              },
+              {
+                "baseCost": 140,
+                "name": "Wakka_Cherry",
+                "rawName": "DesertC2"
+              },
+              {
+                "baseCost": 5,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              }
+            ],
+            "level": 17,
+            "rawName": "aUpgradesO8",
+            "stat": "DefPct",
+            "x1": 0.5,
+            "x2": 0
+          },
+          {
+            "bubbleName": "BAPPITY_BOOPITY",
+            "desc": "+{%_critical_Damage._Badabing,_badaboom!_Or_in_Italian,_Babadabinga,_babadaboomahh!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 100,
+                "name": "Pinion_Spur",
+                "rawName": "CraftMat8"
+              },
+              {
+                "baseCost": 700,
+                "name": "Jungle_Logs",
+                "rawName": "JungleTree"
+              },
+              {
+                "baseCost": 5,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              }
+            ],
+            "level": 10,
+            "rawName": "aUpgradesO9",
+            "stat": "critDMG",
+            "x1": 35,
+            "x2": 100
+          },
+          {
+            "bubbleName": "BRITTLEY_SPEARS",
+            "desc": "+{%_Total_damage._This_multiplies_with_other_damage_bonuses,_but_adds_with_the_other_'+%_Total_Damage'_bubbles.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 10,
+                "name": "Froge",
+                "rawName": "Critter1"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 34,
+            "rawName": "aUpgradesO10",
+            "stat": "pctDmg1",
+            "x1": 40,
+            "x2": 50
+          },
+          {
+            "bubbleName": "CALL_ME_BOB",
+            "desc": "+{%_Construction_EXP_Gain._Also_gives_+50%_Bug-Fixing_speed_if_your_username_is_LavaFlame2._Actually,_better_make_that_+500%...",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 120,
+                "name": "Moustache_Comb",
+                "rawName": "SnowA3"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 25,
+            "rawName": "aUpgradesO11",
+            "stat": "conEXPACTIVE",
+            "x1": 25,
+            "x2": 2.5
+          },
+          {
+            "bubbleName": "CARPENTER",
+            "desc": "+{%_Build_Speed_per_Construction_Level.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 3,
+                "name": "Explosive_Salts",
+                "rawName": "Refinery2"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 10,
+            "rawName": "aUpgradesO12",
+            "stat": "Construction",
+            "x1": 2,
+            "x2": 50
+          },
+          {
+            "bubbleName": "BUFF_BOI_TALENT",
+            "desc": "+{_Talent_Points_for_EACH_tab!_Yea,_it's_amazing_right?_But_it's_just_for_warriors,_don't_tell_the_other_classes!!",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 50,
+                "name": "Mousey",
+                "rawName": "Critter4"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 17,
+            "rawName": "aUpgradesO13",
+            "stat": "TalWarrior",
+            "x1": 5,
+            "x2": 1
+          },
+          {
+            "bubbleName": "ORANGE_BARGAIN",
+            "desc": "The_material_costs_of_ALL_orange_bubbles_are_{%_lower",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 30,
+                "name": "Frigid_Soul",
+                "rawName": "Soul4"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 8,
+            "rawName": "aUpgradesO14",
+            "stat": "BubbleCostOr",
+            "x1": 40,
+            "x2": 12
+          }
+        ],
+        "quicc": [
+          {
+            "bubbleName": "SWIFT_STEPPIN",
+            "desc": "+{_Total_AGI._Probably_the_lamest_of_the_five_stats..._err,_I_mean_four,_hehe.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 15,
+                "name": "Copper_Ore",
+                "rawName": "Copper"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 50,
+            "rawName": "aUpgradesG0",
+            "stat": "TotalAGI",
+            "x1": 1,
+            "x2": 0
+          },
+          {
+            "bubbleName": "ARCHER_OR_BUST",
+            "desc": "All_Green_Passive_Bonuses,_which_are_the_smaller_sized_ones,_give_{x_more_bonuses_to_your_archer-based_characters.",
+            "func": "decayMulti",
+            "itemReq": [
+              {
+                "baseCost": 20,
+                "name": "Spore_Cap",
+                "rawName": "Grasslands1"
+              },
+              {
+                "baseCost": 30,
+                "name": "Bleach_Logs",
+                "rawName": "BirchTree"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 50,
+            "rawName": "aUpgradesG1",
+            "stat": "Gpassz",
+            "x1": 2,
+            "x2": 50
+          },
+          {
+            "bubbleName": "HAMMER_HAMMER",
+            "desc": "You_can_now_produce_+1_more_items_at_once_in_the_anvil,_and_your_production_speed_is_increased_by_{%.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 30,
+                "name": "Iron_Ore",
+                "rawName": "Iron"
+              },
+              {
+                "baseCost": 30,
+                "name": "Bean_Slices",
+                "rawName": "Grasslands3"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 25,
+            "rawName": "aUpgradesG2",
+            "stat": "AnvilACTIVE",
+            "x1": 23,
+            "x2": 2
+          },
+          {
+            "bubbleName": "LIL_BIG_DAMAGE",
+            "desc": "+{%_Mastery._Mastery_is_your_stat_that_boosts_minimum_damage._Just_like_in_Maplest..._err,_just_like_how_I_thought_it_up_myself!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Goldfish",
+                "rawName": "Fish1"
+              },
+              {
+                "baseCost": 40,
+                "name": "Carrot_Cube",
+                "rawName": "Jungle3"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 34,
+            "rawName": "aUpgradesG3",
+            "stat": "Mastery",
+            "x1": 20,
+            "x2": 100
+          },
+          {
+            "bubbleName": "ANVILNOMICS",
+            "desc": "Costs_for_buying_Anvil_Production_Points_is_reduced_by_{%._This_is_just_like_a_tax_cut,_so_remember_me_as_a_hero!",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 50,
+                "name": "Forest_Fibres",
+                "rawName": "ForestTree"
+              },
+              {
+                "baseCost": 40,
+                "name": "Gold_Ore",
+                "rawName": "Gold"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 27,
+            "rawName": "aUpgradesG4",
+            "stat": "AnvilProdCost",
+            "x1": 40,
+            "x2": 100
+          },
+          {
+            "bubbleName": "QUICK_SLAP",
+            "desc": "Increases_base_damage_by_+$._This_bonus_increases_based_on_how_much_Movement_Speed_you_have_above_110%.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 90,
+                "name": "Coconotnotto",
+                "rawName": "DesertB1"
+              },
+              {
+                "baseCost": 200,
+                "name": "Boring_Brick",
+                "rawName": "CraftMat6"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 16,
+            "rawName": "aUpgradesG5",
+            "stat": "bdmgSPD",
+            "x1": 1,
+            "x2": 0.02
+          },
+          {
+            "bubbleName": "SANIC_TOOLS",
+            "desc": "The_following_tools_give_+{%_more_skilling_Power_than_normal:_$",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 130,
+                "name": "Slime_Sludge",
+                "rawName": "Jungle1"
+              },
+              {
+                "baseCost": 6,
+                "name": "Gold_Bar",
+                "rawName": "GoldBar"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 23,
+            "rawName": "aUpgradesG6",
+            "stat": "ToolA",
+            "x1": 65,
+            "x2": 70
+          },
+          {
+            "bubbleName": "BUG]",
+            "desc": "Multi-Bug_catching_chance_is_increased_by_+{%,_and_your_max_Multi-Bug_chance_is_300%_instead_of_100%.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 70,
+                "name": "Sentient_Cereal",
+                "rawName": "Bug3"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 4,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 14,
+            "rawName": "aUpgradesG7",
+            "stat": "CatchingACTIVE",
+            "x1": 23.5,
+            "x2": 1.5
+          },
+          {
+            "bubbleName": "SHAQURACY",
+            "desc": "Your_secondary_stat_(WIS_for_warrior,_STR_for_archer,_AGI_for_mage)_gives_+{%_more_Accuracy_than_normal.",
+            "func": "add",
+            "itemReq": [
+              {
+                "baseCost": 65,
+                "name": "Bloach",
+                "rawName": "Fish4"
+              },
+              {
+                "baseCost": 250,
+                "name": "Tropilogs",
+                "rawName": "PalmTree"
+              },
+              {
+                "baseCost": 5,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              }
+            ],
+            "level": 38,
+            "rawName": "aUpgradesG8",
+            "stat": "AccPct",
+            "x1": 1,
+            "x2": 0
+          },
+          {
+            "bubbleName": "CHEAP_SHOT",
+            "desc": "+{%_critical_Chance,_as_it_increases_the_chance_for_your_attack_to_hit_the_monster's_privates,_and_for_the_monster_to_be_male.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 35,
+                "name": "Mosquisnow",
+                "rawName": "Bug5"
+              },
+              {
+                "baseCost": 150,
+                "name": "Singlecle",
+                "rawName": "DesertC3"
+              },
+              {
+                "baseCost": 5,
+                "name": "Liquid1",
+                "rawName": "Liquid1"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              }
+            ],
+            "level": 18,
+            "rawName": "aUpgradesG9",
+            "stat": "CritChance",
+            "x1": 7,
+            "x2": 100
+          },
+          {
+            "bubbleName": "BOW_JACK",
+            "desc": "+{%_Total_damage._This_multiplies_with_other_damage_bonuses,_but_adds_with_the_other_'+%_Total_Damage'_bubbles.",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 5,
+                "name": "Forest_Soul",
+                "rawName": "Soul1"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 43,
+            "rawName": "aUpgradesG10",
+            "stat": "pctDmg2",
+            "x1": 40,
+            "x2": 50
+          },
+          {
+            "bubbleName": "CALL_ME_ASH",
+            "desc": "+1_Placeable_Trap,_and_+{%_Trapping_Efficiency.",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 100,
+                "name": "Tundra_Logs",
+                "rawName": "SaharanFoal"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 23,
+            "rawName": "aUpgradesG11",
+            "stat": "TrapACTIVE",
+            "x1": 25,
+            "x2": 2
+          },
+          {
+            "bubbleName": "CUZ_I_CATCH_EM_ALL",
+            "desc": "{x_more_likely_to_catch_shiny_critters_when_opening_a_trap.",
+            "func": "decayMulti",
+            "itemReq": [
+              {
+                "baseCost": 25,
+                "name": "Rooted_Soul",
+                "rawName": "Soul3"
+              },
+              {
+                "baseCost": 4,
+                "name": "Liquid2",
+                "rawName": "Liquid2"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 9,
+            "rawName": "aUpgradesG12",
+            "stat": "CritShiny",
+            "x1": 3,
+            "x2": 100
+          },
+          {
+            "bubbleName": "FAST_BOI_TALENT",
+            "desc": "+{_Talent_Points_for_EACH_tab,_but_just_for_Archers!_Well,_and_'that'_class,_you_know_who_you_are!",
+            "func": "bigBase",
+            "itemReq": [
+              {
+                "baseCost": 120,
+                "name": "Flycicle",
+                "rawName": "Bug6"
+              },
+              {
+                "baseCost": 2,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 21,
+            "rawName": "aUpgradesG13",
+            "stat": "TalArchers",
+            "x1": 5,
+            "x2": 1
+          },
+          {
+            "bubbleName": "GREEN_BARGAIN",
+            "desc": "The_material_costs_of_ALL_green_bubbles_are_{%_lower",
+            "func": "decay",
+            "itemReq": [
+              {
+                "baseCost": 200,
+                "name": "Owlio",
+                "rawName": "Critter5"
+              },
+              {
+                "baseCost": 3,
+                "name": "Liquid3",
+                "rawName": "Liquid3"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              },
+              {
+                "baseCost": 0,
+                "name": "Blank",
+                "rawName": "Blank"
+              }
+            ],
+            "level": 15,
+            "rawName": "aUpgradesG14",
+            "stat": "BubbleCostGr",
+            "x1": 40,
+            "x2": 12
+          }
+        ]
+      },
+      "cauldrons": {
+        "high-iq": {
+          "cost": 82,
+          "extra": 76,
+          "luck": 79,
+          "speed": 81
+        },
+        "kazam": {
+          "cost": 83,
+          "extra": 75,
+          "luck": 77,
+          "speed": 81
+        },
+        "power": {
+          "cost": 83,
+          "extra": 74,
+          "luck": 75,
+          "speed": 81
+        },
+        "quicc": {
+          "cost": 85,
+          "extra": 80,
+          "luck": 81,
+          "speed": 94
+        }
+      },
+      "vials": [
+        {
+          "desc": "Orange_bubble_cauldron_brew_speed_is_increased_by_+{%",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 7,
+          "mainItem": "Copper",
+          "name": "COPPER_CORONA",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "Green_bubble_cauldron_brew_speed_is_increased_by_+{%",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Oak_Logs",
+              "rawName": "OakTree"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 7,
+          "mainItem": "OakTree",
+          "name": "SIPPY_SPLINTERS",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "Yellow_cauldron_brew_speed_is_increased_by_+{%",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Spore_Cap",
+              "rawName": "Grasslands1"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Grasslands1",
+          "name": "MUSHROOM_SOUP",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "Purple_cauldron_brew_speed_is_increased_by_+{%",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Thread",
+              "rawName": "CraftMat1"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 7,
+          "mainItem": "CraftMat1",
+          "name": "SPOOL_SPRITE",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Water_Droplet_max_capacity._Thats_the_1st_liquid_type_in_Alchemy,_btw.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Bar",
+              "rawName": "CopperBar"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "CopperBar",
+          "name": "BARIUM_MIXTURE",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "Monsters_drop_+{%_more_money.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bean_Slices",
+              "rawName": "Grasslands3"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Grasslands3",
+          "name": "DIETER_DRINK",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_chance_to_get_double_points_when_depositing_statues._So_like..._if_you_deposit_one_statue,_it_might_count_as_one!_Or_two.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Snake_Skin",
+              "rawName": "Jungle2"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Jungle2",
+          "name": "SKINNY_0_CAL",
+          "x1": 2.5,
+          "x2": 0
+        },
+        {
+          "desc": "When_converting_Skill_EXP_into_Class_EXP_using_the_'EXP_CONVERTER'_star_talent,_you'll_get_{%_more_Class_EXP_than_you_usually_do.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Trusty_Nails",
+              "rawName": "CraftMat5"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 4,
+          "mainItem": "CraftMat5",
+          "name": "THUMB_POW",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_liquid_regen_rate_for_all_liquid_cauldrons._Yes,_even_the_secret_one!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Jungle_Logs",
+              "rawName": "JungleTree"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "JungleTree",
+          "name": "JUNGLE_JUICE",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "Alchemy_bubble_upgrade_costs_are_{%_lower_for_all_bubbles!_Even_the_giraffe_bubbles_that_look_strangely_like_elephants!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Iron_Bar",
+              "rawName": "IronBar"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "IronBar",
+          "name": "BARLEY_BREW",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Card_drop_rate._Even_works_offline,_just_like_it_always_has!_What_do_you_mean_this_used_to_say_something_different...?",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Glublin_Ear",
+              "rawName": "Forest1"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Forest1",
+          "name": "ANEARFUL",
+          "x1": 2,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Liquid_Nitrogen_max_capacity._Thats_the_2nd_liquid_type_in_Alchemy,_btw.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Potty_Rolls",
+              "rawName": "ToiletTree"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "ToiletTree",
+          "name": "TEA_WITH_PEA",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Shop_sell_price.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Gold_Ore",
+              "rawName": "Gold"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Gold",
+          "name": "GOLD_GUZZLE",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Talent_Points_for_Tab_1._Shout_out_to_that_1_person_who'll_make_it_this_far_without_knowing_what_talents_are,_you're_my_hero!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bullfrog_Horn",
+              "rawName": "Forest3"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Forest3",
+          "name": "RAMIFICOCTION",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_chance_for_1_kill_to_count_for_2_when_trying_to_open_new_portals,_but_only_while_actively_playing._One,_two,_buckle_my_shoe.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Goldfish",
+              "rawName": "Fish1"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 7,
+          "mainItem": "Fish1",
+          "name": "SEAWATER",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Weapon_Power._This_is_gonna_be_OP_in_later_worlds_I_can_already_tell.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Rats_Tail",
+              "rawName": "Sewers2"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Sewers2",
+          "name": "TAIL_TIME",
+          "x1": 0.5,
+          "x2": 0
+        },
+        {
+          "desc": "Eww_go_get_me_another_one,_I_can't_drink_this!_...what,_why_are_you_looking_at_me_like_that?_OH_right,_uh,_this_gives_+{_base_Accuracy.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Fly",
+              "rawName": "Bug1"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Bug1",
+          "name": "FLY_IN_MY_DRINK",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_EXP_from_monsters._Sorry,_I_know_this_is_a_lame_bonus._Send_me_an_email_if_you_want_me_change_it_to_+{%_NPC_dialogue_talking_speed.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Megalodon_Tooth",
+              "rawName": "DesertA2"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "DesertA2",
+          "name": "MIMICRAUGHT",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "-{%_material_cost_for_stamps._You_know_how_it's_hard_to_increase_stamps_max_levels?_Well_this_kinda_makes_that_a_bit_less_factual!",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Platinum_Ore",
+              "rawName": "Plat"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Plat",
+          "name": "BLUE_FLAV",
+          "x1": 30,
+          "x2": 7
+        },
+        {
+          "desc": "+{_Post_Office_Box_Points_for_every_character,_and_easily_the_best_bonus_in_the_game._A_box_will_never_abandon_you!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Hermit_Can",
+              "rawName": "Fish2"
+            },
+            {
+              "name": "Liquid1",
+              "rawName": "Liquid1"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Fish2",
+          "name": "SLUG_SLURP",
+          "x1": 2,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Nothing._Absolutely_nothing,_now_and_forever._It's_a_darn_pickle,_what_were_you_expecting?",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "BobJoePickle",
+              "rawName": "BobJoePickle"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 0,
+          "mainItem": "BobJoePickle",
+          "name": "PICKLE_JAR",
+          "x1": 50,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_higher_Shiny_Critter_chance._This_is_a_multiplier,_so_+1%_from_this_vial_means_1.01x,_so_5%_shiny_chance_would_go_to_5.05%.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Floof_Ploof",
+              "rawName": "SnowA1"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "SnowA1",
+          "name": "FUR_REFRESHER",
+          "x1": 2,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Talent_Points_for_Tab_2.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Forest_Soul",
+              "rawName": "Soul1"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Soul1",
+          "name": "SIPPY_SOUL",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Starting_points_in_Worship_Tower_Defence._Of_course,_a_true_balloon_monkey_wouldn't_accept_handouts_like_this.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Crabbo",
+              "rawName": "Critter2"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Critter2",
+          "name": "CRAB_JUICE",
+          "x1": 4,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Mining_Efficiency.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Void_Ore",
+              "rawName": "Void"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 4,
+          "mainItem": "Void",
+          "name": "VOID_VIAL",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Refinery_Cycle_Speed._I_just_want_to_see_you_squirm_a_bit_more_as_you_decide_where_to_spend_your_precious_salts_hahahaha!!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Redox_Salts",
+              "rawName": "Refinery1"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 2,
+          "mainItem": "Refinery1",
+          "name": "RED_MALT",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Catching_Efficiency.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Mosquisnow",
+              "rawName": "Bug5"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "Bug5",
+          "name": "EW_GROSS_GROSS",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Choppin_Efficiency.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Tundra_Logs",
+              "rawName": "SaharanFoal"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "SaharanFoal",
+          "name": "THE_SPANISH_SAHARA",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "Eagle_Eye_Trap-O-Vision_gives_+{%_more_critters._It_will_always_give_less_than_if_you_manually_collected_the_traps_though.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Poison_Froge",
+              "rawName": "Critter1A"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 2,
+          "mainItem": "Critter1A",
+          "name": "POISON_TINCTURE",
+          "x1": 3,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Fishing_Efficiency.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Mamooth_Tusk",
+              "rawName": "SnowB2"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "SnowB2",
+          "name": "ETRUSCAN_LAGER",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Talent_Book_Library_checkout_speed._",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Dune_Soul",
+              "rawName": "Soul2"
+            },
+            {
+              "name": "Liquid2",
+              "rawName": "Liquid2"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 4,
+          "mainItem": "Soul2",
+          "name": "CHONKER_CHUG",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Cog_Inventory_spaces._DONT_PANIC!!!_I_KNOW_HOW_ALARMING_IT_IS_THAT_A_VIAL_FINALLY_GIVES_A_USEFUL_BONUS_FOR_ONCE,_BUT_STAY_CALM!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Mousey",
+              "rawName": "Critter4"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 4,
+          "mainItem": "Critter4",
+          "name": "BUBONIC_BURP",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Construction_Exp_gain.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Pen",
+              "rawName": "SnowB3"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "SnowB3",
+          "name": "VISIBLE_INK",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_higher_Shiny_Critter_chance._This_stacks_with_the_shiny_chance_from_the_Fur_Refresher_vial._You_see,_they_have_the_same_shaped_vial.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Explosive_Salts",
+              "rawName": "Refinery2"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 2,
+          "mainItem": "Refinery2",
+          "name": "ORANGE_MALT",
+          "x1": 5,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Printer_sample_size._My_my_there_are_a_lot_of_these_'sample_size'_bonuses_in_the_game..._too_many...",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Snow_Ball",
+              "rawName": "SnowB5"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 7,
+          "mainItem": "SnowB5",
+          "name": "SNOW_SLURRY",
+          "x1": 0.5,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Base_Multikill_per_Multikill_Tier_for_all_worlds._Stack_them_skulls!",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Frigid_Soul",
+              "rawName": "Soul4"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 2,
+          "mainItem": "Soul4",
+          "name": "SLOWERGY_DRINK",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_Cog_production_speed.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Sippy_Straw",
+              "rawName": "SnowC1"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 5,
+          "mainItem": "SnowC1",
+          "name": "SIPPY_CUP",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Talent_Points_for_Tab_3.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bunny",
+              "rawName": "Critter7"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 4,
+          "mainItem": "Critter7",
+          "name": "BUNNY_BREW",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{_Liquid_Mercury_max_capacity._Thats_the_3rd_liquid_type_in_Alchemy,_btw.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Contact_Lense",
+              "rawName": "SnowC4"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 3,
+          "mainItem": "SnowC4",
+          "name": "40-40_PURITY",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "+{%_base_Giant_Monster_spawn_rate.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Cryo_Soul",
+              "rawName": "Soul6"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 0,
+          "mainItem": "Soul6",
+          "name": "SPOOK_PINT",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "desc": "You_know,_I_was_talking_to_the_goose_in_that_vial,_and_they_just_aren't_ready_to_give_you_a_bonus.",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Honker",
+              "rawName": "Critter9"
+            },
+            {
+              "name": "Liquid3",
+              "rawName": "Liquid3"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            },
+            {
+              "name": "Blank",
+              "rawName": "Blank"
+            }
+          ],
+          "level": 0,
+          "mainItem": "Critter9",
+          "name": "GOOSEY_GLUG",
+          "x1": 1,
+          "x2": 0
+        },
+        {
+          "level": 0
+        }
+      ]
+    },
+    "bribes": [
+      {
+        "desc": "All_stamps_cost_5%_less_coins_to_upgrade.",
+        "done": true,
+        "effectName": "StampCostPct",
+        "name": "Insider_Trading",
+        "price": 750,
+        "value": 8
+      },
+      {
+        "desc": "Stamps_drop_+15%_more_often_from_monsters_and_resources_that_drop_stamps.",
+        "done": true,
+        "effectName": "StampDrop",
+        "name": "Tracking_Chips",
+        "price": 1800,
+        "value": 15
+      },
+      {
+        "desc": "All_shop_items_cost_7%_less_coins.",
+        "done": true,
+        "effectName": "ShopCostPct",
+        "name": "Mandatory_Fire_Sale",
+        "price": 3200,
+        "value": 7
+      },
+      {
+        "desc": "Boosts_fighting_AFK_Gains_Rate_by_+5%",
+        "done": true,
+        "effectName": "FightAfkRate",
+        "name": "Sleeping_on_the_Job",
+        "price": 6000,
+        "value": 5
+      },
+      {
+        "desc": "Items_sell_to_shops_for_+10%_more_than_their_normal_value.",
+        "done": true,
+        "effectName": "ShopSellPct",
+        "name": "Artificial_Demand",
+        "price": 9000,
+        "value": 10
+      },
+      {
+        "desc": "Unlocks_the_next_set_of_7_Bribes_to_be_purchased.",
+        "done": true,
+        "effectName": "BribeExpansion",
+        "name": "The_Art_of_the_Deal",
+        "price": 15000,
+        "value": 6
+      },
+      {
+        "desc": "Item_Quantity_in_all_shops_increased_by_+20%._Takes_effect_only_after_Shops_restock.",
+        "done": true,
+        "effectName": "ShopQtyPct",
+        "name": "Overstock_Regulations",
+        "price": 20000,
+        "value": 20
+      },
+      {
+        "desc": "Whenever_you_claim_AFK_rewards,_there_is_a_2.2%_chance_to_get_x2_EXP.",
+        "done": true,
+        "effectName": "AfkDoubleEXP",
+        "name": "Double_Exp_Scheme",
+        "price": 222222,
+        "value": 2.2
+      },
+      {
+        "desc": "Stamps_drop_+20%_more_often._Stacks_with_previous_bribe_of_this_type.",
+        "done": true,
+        "effectName": "StampDrop",
+        "name": "Tagged_Indicators",
+        "price": 30000,
+        "value": 20
+      },
+      {
+        "desc": "Oil_Barrel_consumption_chance_is_reduced_to_80%_of_the_original_chance.",
+        "done": true,
+        "effectName": "OilConsume",
+        "name": "Fossil_Fuel_Legislation",
+        "price": 55000,
+        "value": 0.2
+      },
+      {
+        "desc": "Card_drop_rate_boosted_by_1.20x_for_all_areas_of_the_game.",
+        "done": true,
+        "effectName": "CardDropPct",
+        "name": "Five_Aces_in_the_Deck",
+        "price": 70000,
+        "value": 20
+      },
+      {
+        "desc": "Get_+2_Map_Teleport_every_24_hours._Caps_at_6,_so_being_gone_for_4_days_only_gives_6_tele.",
+        "done": true,
+        "effectName": "FreeTeleport",
+        "name": "Fake_Teleport_Tickets",
+        "price": 99000,
+        "value": 3
+      },
+      {
+        "desc": "Unlocks_the_next_set_of_7_Bribes_to_be_purchased.",
+        "done": true,
+        "effectName": "BribeExpansion",
+        "name": "The_Art_of_the_Steal",
+        "price": 200000,
+        "value": 13
+      },
+      {
+        "desc": "You_now_get_+4_Map_Teleports_every_24_hours,_and_caps_at_12_before_you_need_to_login.",
+        "done": true,
+        "effectName": "FreeTeleport2",
+        "name": "Counterfeit_Telepassports",
+        "price": 300000,
+        "value": 2
+      },
+      {
+        "desc": "+2_daily_pachinko_balls_for_the_Arcade._It's_not_open_yet,_consider_this_a_preorder.",
+        "done": true,
+        "effectName": "ArcadeBallz",
+        "name": "Weighted_Marbles",
+        "price": 725000,
+        "value": 2
+      },
+      {
+        "desc": "Unlock_the_2nd_Alchemy_Bubble_slot_for_ALL_players._Don't_go_tellin'_Lava_'bout_this_one...",
+        "done": true,
+        "effectName": "BubbleSlot",
+        "name": "Changing_the_Code",
+        "price": 1500000,
+        "value": 1
+      },
+      {
+        "desc": "+4_Cog_Inventory_slots.",
+        "done": true,
+        "effectName": "CogInve",
+        "name": "Taxidermied_Cog_Pouches",
+        "price": 750000,
+        "value": 4
+      },
+      {
+        "desc": "Logging_in_each_day_now_contributes_20_GP_to_your_guild,_instead_of_the_normal_10.",
+        "done": true,
+        "effectName": "BonusType",
+        "name": "Guild_VIP_Fraud",
+        "price": 400000,
+        "value": 10
+      },
+      {
+        "desc": "+4_minimum_Lv_for_all_Talent_Books_from_the_library,_so_you_get_more_of_the_goood_stuff.",
+        "done": true,
+        "effectName": "BonusType",
+        "name": "Library_Double_Agent",
+        "price": 9156348,
+        "value": 4
+      },
+      {
+        "desc": "Look,_I'm_in_a_bit_of_a_situation_right_now_and_need_time_to_clean_it_up..._come_back_later.",
+        "done": false,
+        "effectName": "BribeExpansion",
+        "name": "The_Art_of_the_Fail",
+        "price": 99999999,
+        "value": 20
+      }
+    ],
     "cards": {
       "Amarok (+% Skill AFK gain rate)": {
         "amount": 114,
@@ -30,11 +3262,11 @@
         "stars": 2
       },
       "Bloque (+ Base AGI)": {
-        "amount": 42,
+        "amount": 49,
         "stars": 1
       },
       "Boop (+% Fighting AFK gain rate)": {
-        "amount": 6,
+        "amount": 7,
         "stars": 2
       },
       "Bop Box (+% Total Drop Rate)": {
@@ -46,7 +3278,7 @@
         "stars": 2
       },
       "Bunny (+% Skill AFK gain rate)": {
-        "amount": 73,
+        "amount": 78,
         "stars": 3
       },
       "Butterfly (+% Total Catching Efficiency)": {
@@ -62,8 +3294,8 @@
         "stars": 3
       },
       "Chaotic Efaunt (+% Skill EXP)": {
-        "amount": 3,
-        "stars": 1
+        "amount": 6,
+        "stars": 2
       },
       "Chizoar (+% Cog Build Spd (Passive))": {
         "amount": 3,
@@ -85,7 +3317,7 @@
         "stars": 3
       },
       "Crabbo (+% Trapping Efficiency)": {
-        "amount": 101,
+        "amount": 106,
         "stars": 3
       },
       "Crabcake (+% To not consume Food)": {
@@ -101,7 +3333,7 @@
         "stars": 0
       },
       "Crystal Cattle (+% EXP from monsters)": {
-        "amount": 49,
+        "amount": 54,
         "stars": 2
       },
       "Crystal Crabal (+% EXP from monsters)": {
@@ -109,7 +3341,7 @@
         "stars": 1
       },
       "Dedotated Ram (+ Weapon Power)": {
-        "amount": 458,
+        "amount": 777,
         "stars": 3
       },
       "Dementia Ore (+% Mining Speed)": {
@@ -121,19 +3353,19 @@
         "stars": 1
       },
       "Dr Defecaus (+% Total Damage)": {
-        "amount": 16,
+        "amount": 17,
         "stars": 3
       },
       "Dune Soul (+% Max Charge)": {
-        "amount": 11,
-        "stars": 1
+        "amount": 12,
+        "stars": 2
       },
       "Efaunt (+% EXP from monsters)": {
         "amount": 19,
         "stars": 3
       },
       "Fire Forge (+% Smithing EXP)": {
-        "amount": 438,
+        "amount": 452,
         "stars": 3
       },
       "Floofie (+% MP regen rate)": {
@@ -145,15 +3377,15 @@
         "stars": 3
       },
       "Flycicle (+% Catching Away Gains)": {
-        "amount": 68,
-        "stars": 2
+        "amount": 110,
+        "stars": 3
       },
       "Forest Fibres (+% EXP Conversion from Talent)": {
         "amount": 36,
         "stars": 1
       },
       "Forest Soul (+% Defence from Equipment)": {
-        "amount": 55,
+        "amount": 57,
         "stars": 3
       },
       "Frog (+ Base MP)": {
@@ -161,11 +3393,11 @@
         "stars": 1
       },
       "Froge (+% Shiny Critter Chance)": {
-        "amount": 202,
+        "amount": 223,
         "stars": 3
       },
       "Frost Flake (+ Base STR)": {
-        "amount": 329,
+        "amount": 340,
         "stars": 3
       },
       "Fruitfly (+% Catching Away Gains)": {
@@ -253,7 +3485,7 @@
         "stars": 2
       },
       "Mousey (+% Shiny Critter Chance)": {
-        "amount": 120,
+        "amount": 126,
         "stars": 3
       },
       "Mr Blueberry (+% Total Drop Rate)": {
@@ -272,7 +3504,7 @@
         "stars": 1
       },
       "Owlio (+% EXP from monsters)": {
-        "amount": 98,
+        "amount": 101,
         "stars": 3
       },
       "Penguin (+ Base WIS)": {
@@ -284,7 +3516,7 @@
         "stars": 1
       },
       "Pingy (+% Shiny Critter Chance)": {
-        "amount": 92,
+        "amount": 99,
         "stars": 3
       },
       "Plasti Doug (+ Base Defence)": {
@@ -327,11 +3559,11 @@
         "stars": 3
       },
       "Sandy Pot (+% EXP Conversion from Talent)": {
-        "amount": 83,
-        "stars": 2
+        "amount": 112,
+        "stars": 3
       },
       "Scorpie (+% Trapping EXP)": {
-        "amount": 164,
+        "amount": 180,
         "stars": 3
       },
       "Sentient Cereal (+% Catching EXP)": {
@@ -339,15 +3571,15 @@
         "stars": 2
       },
       "Sheepie (+% Defence from Equipment)": {
-        "amount": 90,
-        "stars": 2
+        "amount": 119,
+        "stars": 3
       },
       "Shell Snake (+ Base LUK)": {
         "amount": 10,
         "stars": 1
       },
       "Sir Stache (+% Card Drop Chance)": {
-        "amount": 180,
+        "amount": 192,
         "stars": 3
       },
       "Slime (+ Base WIS)": {
@@ -394,8 +3626,8 @@
         "stars": 0
       },
       "Void Ore (+% Card Drop Chance)": {
-        "amount": 7,
-        "stars": 0
+        "amount": 14,
+        "stars": 1
       },
       "Walking Stick (+ Base WIS)": {
         "amount": 136,
@@ -422,411 +3654,101 @@
         "stars": 3
       }
     },
-    "cauldronsMap": {
-      "high-iq": [
-        {
-          "level": "47",
-          "name": "STABLE_JENIUS",
-          "rawName": "aUpgradesP0"
-        },
-        {
-          "level": "37",
-          "name": "MAGE_IS_BEST",
-          "rawName": "aUpgradesP1"
-        },
-        {
-          "level": "27",
-          "name": "HOCUS_CHOPPUS",
-          "rawName": "aUpgradesP2"
-        },
-        {
-          "level": "16",
-          "name": "MOLTO_LOGGO",
-          "rawName": "aUpgradesP3"
-        },
-        {
-          "level": "16",
-          "name": "NOODUBBLE",
-          "rawName": "aUpgradesP4"
-        },
-        {
-          "level": "3",
-          "name": "NAME_I_GUESS",
-          "rawName": "aUpgradesP5"
-        },
-        {
-          "level": "12",
-          "name": "LE_BRAIN_TOOLS",
-          "rawName": "aUpgradesP6"
-        },
-        {
-          "level": "24",
-          "name": "COOKIN_ROADKILL",
-          "rawName": "aUpgradesP7"
-        },
-        {
-          "level": "17",
-          "name": "BREWSTACHIO",
-          "rawName": "aUpgradesP8"
-        },
-        {
-          "level": "22",
-          "name": "ALL_FOR_KILL",
-          "rawName": "aUpgradesP9"
-        },
-        {
-          "level": "14",
-          "name": "MATTY_STAFFORD",
-          "rawName": "aUpgradesP10"
-        },
-        {
-          "level": "19",
-          "name": "CALL_ME_POPE",
-          "rawName": "aUpgradesP11"
-        },
-        {
-          "level": "11",
-          "name": "GOSPEL_LEADER",
-          "rawName": "aUpgradesP12"
-        },
-        {
-          "level": "21",
-          "name": "SMART_BOI_TALENT",
-          "rawName": "aUpgradesP13"
-        },
-        {
-          "level": "13",
-          "name": "PURPLE_BARGAIN",
-          "rawName": "aUpgradesP14"
-        }
-      ],
-      "kazam": [
-        {
-          "level": "35",
-          "name": "LOTTO_SKILLS",
-          "rawName": "aUpgradesY0"
-        },
-        {
-          "level": "31",
-          "name": "DROPPIN_LOADS",
-          "rawName": "aUpgradesY1"
-        },
-        {
-          "level": "10",
-          "name": "STARTUE_EXP",
-          "rawName": "aUpgradesY2"
-        },
-        {
-          "level": "25",
-          "name": "LEVEL_UP_GIFT",
-          "rawName": "aUpgradesY3"
-        },
-        {
-          "level": "49",
-          "name": "PROWESESSARY",
-          "rawName": "aUpgradesY4"
-        },
-        {
-          "level": "20",
-          "name": "STAMP_TRAMP",
-          "rawName": "aUpgradesY5"
-        },
-        {
-          "level": "24",
-          "name": "UNDEVELOPED_COSTS",
-          "rawName": "aUpgradesY6"
-        },
-        {
-          "level": "18",
-          "name": "DA_DAILY_DRIP",
-          "rawName": "aUpgradesY7"
-        },
-        {
-          "level": "20",
-          "name": "GRIND_TIME",
-          "rawName": "aUpgradesY8"
-        },
-        {
-          "level": "9",
-          "name": "LAAARRRRYYYY",
-          "rawName": "aUpgradesY9"
-        },
-        {
-          "level": "28",
-          "name": "COGS_FOR_HANDS",
-          "rawName": "aUpgradesY10"
-        },
-        {
-          "level": "42",
-          "name": "SAMPLE_IT",
-          "rawName": "aUpgradesY11"
-        },
-        {
-          "level": "1",
-          "name": "BIG_GAME_HUNTER",
-          "rawName": "aUpgradesY12"
-        },
-        {
-          "level": "1",
-          "name": "IGNORE_OVERDUES",
-          "rawName": "aUpgradesY13"
-        },
-        {
-          "level": "8",
-          "name": "YELLOW_BARGAIN",
-          "rawName": "aUpgradesY14"
-        }
-      ],
-      "power": [
-        {
-          "level": "47",
-          "name": "ROID_RAGIN",
-          "rawName": "aUpgradesO0"
-        },
-        {
-          "level": "50",
-          "name": "WARRIORS_RULE",
-          "rawName": "aUpgradesO1"
-        },
-        {
-          "level": "39",
-          "name": "HEARTY_DIGGY",
-          "rawName": "aUpgradesO2"
-        },
-        {
-          "level": "18",
-          "name": "WYOMING_BLOOD",
-          "rawName": "aUpgradesO3"
-        },
-        {
-          "level": "25",
-          "name": "REELY_SMART",
-          "rawName": "aUpgradesO4"
-        },
-        {
-          "level": "13",
-          "name": "BIG_MEATY_CLAWS",
-          "rawName": "aUpgradesO5"
-        },
-        {
-          "level": "12",
-          "name": "SPLOOSH_SPLOOSH",
-          "rawName": "aUpgradesO6"
-        },
-        {
-          "level": "23",
-          "name": "STRONK_TOOLS",
-          "rawName": "aUpgradesO7"
-        },
-        {
-          "level": "17",
-          "name": "FMJ",
-          "rawName": "aUpgradesO8"
-        },
-        {
-          "level": "10",
-          "name": "BAPPITY_BOOPITY",
-          "rawName": "aUpgradesO9"
-        },
-        {
-          "level": "34",
-          "name": "BRITTLEY_SPEARS",
-          "rawName": "aUpgradesO10"
-        },
-        {
-          "level": "25",
-          "name": "CALL_ME_BOB",
-          "rawName": "aUpgradesO11"
-        },
-        {
-          "level": "10",
-          "name": "CARPENTER",
-          "rawName": "aUpgradesO12"
-        },
-        {
-          "level": "17",
-          "name": "BUFF_BOI_TALENT",
-          "rawName": "aUpgradesO13"
-        },
-        {
-          "level": "8",
-          "name": "ORANGE_BARGAIN",
-          "rawName": "aUpgradesO14"
-        }
-      ],
-      "quicc": [
-        {
-          "level": "50",
-          "name": "SWIFT_STEPPIN",
-          "rawName": "aUpgradesG0"
-        },
-        {
-          "level": "50",
-          "name": "ARCHER_OR_BUST",
-          "rawName": "aUpgradesG1"
-        },
-        {
-          "level": "25",
-          "name": "HAMMER_HAMMER",
-          "rawName": "aUpgradesG2"
-        },
-        {
-          "level": "34",
-          "name": "LIL_BIG_DAMAGE",
-          "rawName": "aUpgradesG3"
-        },
-        {
-          "level": "27",
-          "name": "ANVILNOMICS",
-          "rawName": "aUpgradesG4"
-        },
-        {
-          "level": "16",
-          "name": "QUICK_SLAP",
-          "rawName": "aUpgradesG5"
-        },
-        {
-          "level": "23",
-          "name": "SANIC_TOOLS",
-          "rawName": "aUpgradesG6"
-        },
-        {
-          "level": "13",
-          "name": "BUG",
-          "rawName": "aUpgradesG7"
-        },
-        {
-          "level": "38",
-          "name": "SHAQURACY",
-          "rawName": "aUpgradesG8"
-        },
-        {
-          "level": "18",
-          "name": "CHEAP_SHOT",
-          "rawName": "aUpgradesG9"
-        },
-        {
-          "level": "43",
-          "name": "BOW_JACK",
-          "rawName": "aUpgradesG10"
-        },
-        {
-          "level": "23",
-          "name": "CALL_ME_ASH",
-          "rawName": "aUpgradesG11"
-        },
-        {
-          "level": "9",
-          "name": "CUZ_I_CATCH_EM_ALL",
-          "rawName": "aUpgradesG12"
-        },
-        {
-          "level": "20",
-          "name": "FAST_BOI_TALENT",
-          "rawName": "aUpgradesG13"
-        },
-        {
-          "level": "15",
-          "name": "GREEN_BARGAIN",
-          "rawName": "aUpgradesG14"
-        }
-      ]
-    },
     "colosseumHighscores": [
       174764,
       574881,
       1240134
     ],
-    "colosseumTickets": "126",
-    "gems": "9999",
+    "colosseumTickets": "144",
+    "gems": "96",
     "goldPens": "0",
     "inventory": [
       {
-        "amount": 4160909,
+        "amount": 4766049,
         "name": "Copper_Ore",
         "owner": "storage",
         "rawName": "Copper"
       },
       {
-        "amount": 286382,
+        "amount": 257286,
         "name": "Iron_Ore",
         "owner": "storage",
         "rawName": "Iron"
       },
       {
-        "amount": 396807,
+        "amount": 263607,
         "name": "Gold_Ore",
         "owner": "storage",
         "rawName": "Gold"
       },
       {
-        "amount": 169585,
+        "amount": 141465,
         "name": "Platinum_Ore",
         "owner": "storage",
         "rawName": "Plat"
       },
       {
-        "amount": 16,
-        "name": "Feasty_Statue",
+        "amount": 930,
+        "name": "Distilled_Water",
         "owner": "storage",
-        "rawName": "EquipmentStatues4"
+        "rawName": "PureWater"
       },
       {
-        "amount": 8,
-        "name": "Beholder_Statue",
+        "amount": 223,
+        "name": "Dense_Water",
         "owner": "storage",
-        "rawName": "EquipmentStatues14"
+        "rawName": "PureWater2"
       },
       {
-        "amount": 25458,
+        "amount": 23158,
         "name": "Copper_Bar",
         "owner": "storage",
         "rawName": "CopperBar"
       },
       {
-        "amount": 24520,
+        "amount": 32213,
         "name": "Iron_Bar",
         "owner": "storage",
         "rawName": "IronBar"
       },
       {
-        "amount": 18853,
+        "amount": 25675,
         "name": "Gold_Bar",
         "owner": "storage",
         "rawName": "GoldBar"
       },
       {
-        "amount": 29091,
+        "amount": 32868,
         "name": "Platinum_Bar",
         "owner": "storage",
         "rawName": "PlatBar"
       },
       {
-        "amount": 18280,
+        "amount": 18335,
         "name": "Dementia_Bar",
         "owner": "storage",
         "rawName": "DementiaBar"
       },
       {
-        "amount": 1006,
+        "amount": 3227,
         "name": "Void_Bar",
         "owner": "storage",
         "rawName": "VoidBar"
       },
       {
-        "amount": 11809140,
+        "amount": 14811478,
         "name": "Oak_Logs",
         "owner": "storage",
         "rawName": "OakTree"
       },
       {
-        "amount": 2473514,
+        "amount": 2470514,
         "name": "Bleach_Logs",
         "owner": "storage",
         "rawName": "BirchTree"
       },
       {
-        "amount": 315625,
+        "amount": 314625,
         "name": "Jungle_Logs",
         "owner": "storage",
         "rawName": "JungleTree"
@@ -838,19 +3760,19 @@
         "rawName": "StumpTree"
       },
       {
-        "amount": 49940,
+        "amount": 41460,
         "name": "Forest_Fibres",
         "owner": "storage",
         "rawName": "ForestTree"
       },
       {
-        "amount": 378160,
+        "amount": 371160,
         "name": "Tropilogs",
         "owner": "storage",
         "rawName": "PalmTree"
       },
       {
-        "amount": 203769,
+        "amount": 150115,
         "name": "Potty_Rolls",
         "owner": "storage",
         "rawName": "ToiletTree"
@@ -880,13 +3802,13 @@
         "rawName": "Leaf2"
       },
       {
-        "amount": 6092,
+        "amount": 6269,
         "name": "Arctic_Leaf",
         "owner": "storage",
         "rawName": "Leaf3"
       },
       {
-        "amount": 244402,
+        "amount": 354002,
         "name": "Spore_Cap",
         "owner": "storage",
         "rawName": "Grasslands1"
@@ -904,31 +3826,31 @@
         "rawName": "Grasslands2"
       },
       {
-        "amount": 27925,
+        "amount": 22397,
         "name": "Bean_Slices",
         "owner": "storage",
         "rawName": "Grasslands3"
       },
       {
-        "amount": 80132,
+        "amount": 78257,
         "name": "Slime_Sludge",
         "owner": "storage",
         "rawName": "Jungle1"
       },
       {
-        "amount": 17532,
+        "amount": 12390,
         "name": "Snake_Skin",
         "owner": "storage",
         "rawName": "Jungle2"
       },
       {
-        "amount": 32737,
+        "amount": 27941,
         "name": "Carrot_Cube",
         "owner": "storage",
         "rawName": "Jungle3"
       },
       {
-        "amount": 76636,
+        "amount": 100804,
         "name": "Glublin_Ear",
         "owner": "storage",
         "rawName": "Forest1"
@@ -940,13 +3862,13 @@
         "rawName": "Forest2"
       },
       {
-        "amount": 72082,
+        "amount": 86865,
         "name": "Bullfrog_Horn",
         "owner": "storage",
         "rawName": "Forest3"
       },
       {
-        "amount": 327522,
+        "amount": 328442,
         "name": "Corn_Kernels",
         "owner": "storage",
         "rawName": "Sewers1"
@@ -970,16 +3892,16 @@
         "rawName": "TreeInterior2"
       },
       {
-        "amount": 9815,
+        "amount": 117542,
         "name": "Pocket_Sand",
         "owner": "storage",
         "rawName": "DesertA1"
       },
       {
-        "amount": 12385,
-        "name": "Megalodon_Tooth",
+        "amount": 1884,
+        "name": "Void_Ore",
         "owner": "storage",
-        "rawName": "DesertA2"
+        "rawName": "Void"
       },
       {
         "amount": 480178,
@@ -994,13 +3916,13 @@
         "rawName": "DesertB1"
       },
       {
-        "amount": 124563,
+        "amount": 119744,
         "name": "Furled_Flag",
         "owner": "storage",
         "rawName": "DesertB2"
       },
       {
-        "amount": 38860,
+        "amount": 54516,
         "name": "Pincer_Arm",
         "owner": "storage",
         "rawName": "DesertB3"
@@ -1024,43 +3946,43 @@
         "rawName": "DesertC2"
       },
       {
-        "amount": 135306,
+        "amount": 132853,
         "name": "Singlecle",
         "owner": "storage",
         "rawName": "DesertC3"
       },
       {
-        "amount": 24346,
+        "amount": 28563,
         "name": "Shrapshell",
         "owner": "storage",
         "rawName": "DesertC4"
       },
       {
-        "amount": 137747,
+        "amount": 198142,
         "name": "Floof_Ploof",
         "owner": "storage",
         "rawName": "SnowA1"
       },
       {
-        "amount": 128693,
+        "amount": 152425,
         "name": "Melty_Cube",
         "owner": "storage",
         "rawName": "SnowA2"
       },
       {
-        "amount": 90117,
+        "amount": 119469,
         "name": "Moustache_Comb",
         "owner": "storage",
         "rawName": "SnowA3"
       },
       {
-        "amount": 329178,
+        "amount": 585513,
         "name": "Ram_Wool",
         "owner": "storage",
         "rawName": "SnowA4"
       },
       {
-        "amount": 40890,
+        "amount": 58157,
         "name": "Sticky_Stick",
         "owner": "storage",
         "rawName": "SnowB1"
@@ -1120,28 +4042,28 @@
         "rawName": "Quest19"
       },
       {
-        "amount": 7,
-        "name": "Speed_Statue",
+        "amount": 12385,
+        "name": "Megalodon_Tooth",
         "owner": "storage",
-        "rawName": "EquipmentStatues2"
+        "rawName": "DesertA2"
       },
       {
-        "amount": 7,
+        "amount": 8,
         "name": "Purbunni",
         "owner": "storage",
         "rawName": "Critter7A"
       },
       {
-        "amount": 11531,
+        "amount": 12691,
         "name": "Bunny",
         "owner": "storage",
         "rawName": "Critter7"
       },
       {
-        "amount": 1,
-        "name": "Yellow_Headband",
+        "amount": 309,
+        "name": "Dementia_Ore",
         "owner": "storage",
-        "rawName": "EquipmentHats9"
+        "rawName": "Dementia"
       },
       {
         "amount": 1,
@@ -1162,25 +4084,19 @@
         "rawName": "rtt0"
       },
       {
-        "amount": 635,
+        "amount": 662,
         "name": "Talent_Point_Reset_Fragment",
         "owner": "storage",
         "rawName": "ResetFrag"
       },
       {
-        "amount": 784,
-        "name": "Distilled_Water",
-        "owner": "storage",
-        "rawName": "PureWater"
-      },
-      {
-        "amount": 115861,
+        "amount": 111282,
         "name": "Forest_Soul",
         "owner": "storage",
         "rawName": "Soul1"
       },
       {
-        "amount": 51865,
+        "amount": 62023,
         "name": "Dune_Soul",
         "owner": "storage",
         "rawName": "Soul2"
@@ -1198,157 +4114,157 @@
         "rawName": "Soul4"
       },
       {
-        "amount": 14,
+        "amount": 18,
         "name": "Eternal_Lord_of__The_Undying_Ember",
         "owner": "storage",
         "rawName": "Critter6A"
       },
       {
-        "amount": 10417,
+        "amount": 13987,
         "name": "Pingy",
         "owner": "storage",
         "rawName": "Critter6"
       },
       {
-        "amount": 173597,
+        "amount": 157997,
         "name": "Fly",
         "owner": "storage",
         "rawName": "Bug1"
       },
       {
-        "amount": 334434,
+        "amount": 473463,
         "name": "Butterfly",
         "owner": "storage",
         "rawName": "Bug2"
       },
       {
-        "amount": 90155,
+        "amount": 84445,
         "name": "Sentient_Cereal",
         "owner": "storage",
         "rawName": "Bug3"
       },
       {
-        "amount": 273101,
+        "amount": 306085,
         "name": "Fruitfly",
         "owner": "storage",
         "rawName": "Bug4"
       },
       {
-        "amount": 18474,
+        "amount": 19664,
         "name": "Owlio",
         "owner": "storage",
         "rawName": "Critter5"
       },
       {
-        "amount": 107,
+        "amount": 110,
         "name": "Minervowl",
         "owner": "storage",
         "rawName": "Critter5A"
       },
       {
-        "amount": 72594,
+        "amount": 80924,
         "name": "Scorpie",
         "owner": "storage",
         "rawName": "Critter3"
       },
       {
-        "amount": 30810,
+        "amount": 36760,
         "name": "Mousey",
         "owner": "storage",
         "rawName": "Critter4"
       },
       {
-        "amount": 101734,
+        "amount": 133836,
         "name": "Froge",
         "owner": "storage",
         "rawName": "Critter1"
       },
       {
-        "amount": 25261,
+        "amount": 30021,
         "name": "Crabbo",
         "owner": "storage",
         "rawName": "Critter2"
       },
       {
-        "amount": 212,
+        "amount": 239,
         "name": "Mutant_Crabbo",
         "owner": "storage",
         "rawName": "Critter2A"
       },
       {
-        "amount": 376,
+        "amount": 425,
         "name": "Poison_Froge",
         "owner": "storage",
         "rawName": "Critter1A"
       },
       {
-        "amount": 27595,
+        "amount": 21471,
         "name": "Bloach",
         "owner": "storage",
         "rawName": "Fish4"
       },
       {
-        "amount": 137261,
+        "amount": 126979,
         "name": "Hermit_Can",
         "owner": "storage",
         "rawName": "Fish2"
       },
       {
-        "amount": 43107,
+        "amount": 31407,
         "name": "Goldfish",
         "owner": "storage",
         "rawName": "Fish1"
       },
       {
-        "amount": 55331,
+        "amount": 77155,
         "name": "Jellyfish",
         "owner": "storage",
         "rawName": "Fish3"
       },
       {
-        "amount": 76,
+        "amount": 83,
         "name": "Nakeo_Moleo",
         "owner": "storage",
         "rawName": "Critter4A"
       },
       {
-        "amount": 229,
+        "amount": 244,
         "name": "Crescent_Scorpie",
         "owner": "storage",
         "rawName": "Critter3A"
       },
       {
-        "amount": 1811274,
+        "amount": 2034760,
         "name": "Thread",
         "owner": "storage",
         "rawName": "CraftMat1"
       },
       {
-        "amount": 58467,
+        "amount": 55267,
         "name": "Trusty_Nails",
         "owner": "storage",
         "rawName": "CraftMat5"
       },
       {
-        "amount": 80750,
+        "amount": 89840,
         "name": "Boring_Brick",
         "owner": "storage",
         "rawName": "CraftMat6"
       },
       {
-        "amount": 44979,
+        "amount": 54917,
         "name": "Chain_Link",
         "owner": "storage",
         "rawName": "CraftMat7"
       },
       {
-        "amount": 17126,
+        "amount": 23182,
         "name": "Leather_Hide",
         "owner": "storage",
         "rawName": "CraftMat9"
       },
       {
-        "amount": 558,
+        "amount": 941,
         "name": "Pinion_Spur",
         "owner": "storage",
         "rawName": "CraftMat8"
@@ -1366,22 +4282,16 @@
         "rawName": "Pearl1"
       },
       {
-        "amount": 768,
+        "amount": 818,
         "name": "Peanut",
         "owner": "storage",
         "rawName": "Peanut"
       },
       {
-        "amount": 220,
+        "amount": 373,
         "name": "Lugi_Bracket",
         "owner": "storage",
         "rawName": "CraftMat10"
-      },
-      {
-        "amount": 2,
-        "name": "Explosive_Salts",
-        "owner": "storage",
-        "rawName": "Refinery2"
       },
       {
         "amount": 10,
@@ -1402,7 +4312,7 @@
         "rawName": "Timecandy4"
       },
       {
-        "amount": 4,
+        "amount": 5,
         "name": "1_HR_Time_Candy",
         "owner": "storage",
         "rawName": "Timecandy1"
@@ -1414,7 +4324,7 @@
         "rawName": "FoodFish1"
       },
       {
-        "amount": 3403,
+        "amount": 11,
         "name": "Redox_Salts",
         "owner": "storage",
         "rawName": "Refinery1"
@@ -1432,25 +4342,19 @@
         "rawName": "Timecandy2"
       },
       {
-        "amount": 202,
-        "name": "Dense_Water",
-        "owner": "storage",
-        "rawName": "PureWater2"
-      },
-      {
-        "amount": 50,
+        "amount": 56,
         "name": "Small_Experience_Balloon",
         "owner": "storage",
         "rawName": "ExpBalloon1"
       },
       {
-        "amount": 6,
+        "amount": 8,
         "name": "Large_Experience_Balloon",
         "owner": "storage",
         "rawName": "ExpBalloon3"
       },
       {
-        "amount": 33,
+        "amount": 34,
         "name": "Medium_Experience_Balloon",
         "owner": "storage",
         "rawName": "ExpBalloon2"
@@ -1462,37 +4366,37 @@
         "rawName": "Pearl4"
       },
       {
-        "amount": 113,
+        "amount": 130,
         "name": "Armor_Upgrade_Stone_III",
         "owner": "storage",
         "rawName": "StoneA3"
       },
       {
-        "amount": 132,
+        "amount": 156,
         "name": "Tool_Upgrade_Stone_III",
         "owner": "storage",
         "rawName": "StoneT3"
       },
       {
-        "amount": 138,
+        "amount": 153,
         "name": "Weapon_Upgrade_Stone_III",
         "owner": "storage",
         "rawName": "StoneW3"
       },
       {
-        "amount": 54,
+        "amount": 60,
         "name": "Armor_Upgrade_Stone_II",
         "owner": "storage",
         "rawName": "StoneA2"
       },
       {
-        "amount": 52,
+        "amount": 55,
         "name": "Weapon_Upgrade_Stone_II",
         "owner": "storage",
         "rawName": "StoneW2"
       },
       {
-        "amount": 18,
+        "amount": 19,
         "name": "Armor_Upgrade_Stone_B",
         "owner": "storage",
         "rawName": "StoneA2b"
@@ -1516,19 +4420,19 @@
         "rawName": "StoneHelm6"
       },
       {
-        "amount": 976,
+        "amount": 1009,
         "name": "Mystery_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneZ1"
       },
       {
-        "amount": 666,
+        "amount": 762,
         "name": "Mystery_Upgrade_Stone_II",
         "owner": "storage",
         "rawName": "StoneZ2"
       },
       {
-        "amount": 1054,
+        "amount": 1098,
         "name": "Tool_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneT1"
@@ -1552,13 +4456,13 @@
         "rawName": "StoneWeb"
       },
       {
-        "amount": 206,
+        "amount": 209,
         "name": "Weapon_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneW1"
       },
       {
-        "amount": 415,
+        "amount": 455,
         "name": "Armor_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneA1"
@@ -1570,7 +4474,7 @@
         "rawName": "StoneHelm1"
       },
       {
-        "amount": 245,
+        "amount": 246,
         "name": "Tool_Upgrade_Stone_II",
         "owner": "storage",
         "rawName": "StoneT2"
@@ -1618,7 +4522,7 @@
         "rawName": "SnowB2a"
       },
       {
-        "amount": 12,
+        "amount": 13,
         "name": "Silver_Antique",
         "owner": "storage",
         "rawName": "Quest37"
@@ -1630,19 +4534,19 @@
         "rawName": "DesertA3b"
       },
       {
-        "amount": 18,
+        "amount": 19,
         "name": "Midnight_Cookie",
         "owner": "storage",
         "rawName": "MidnightCookie"
       },
       {
-        "amount": 11,
+        "amount": 17,
         "name": "Glass_Shard",
         "owner": "storage",
         "rawName": "DesertA1b"
       },
       {
-        "amount": 27,
+        "amount": 33,
         "name": "Job_Application",
         "owner": "storage",
         "rawName": "JobApplication"
@@ -1654,13 +4558,13 @@
         "rawName": "Cutter"
       },
       {
-        "amount": 14,
+        "amount": 15,
         "name": "Golden_Plop",
         "owner": "storage",
         "rawName": "Sewers1b"
       },
       {
-        "amount": 52,
+        "amount": 46,
         "name": "Woodular_Circle",
         "owner": "storage",
         "rawName": "TreeInterior1b"
@@ -1672,7 +4576,7 @@
         "rawName": "Quest41"
       },
       {
-        "amount": 62,
+        "amount": 66,
         "name": "Yellow_Snowflake",
         "owner": "storage",
         "rawName": "SnowA2a"
@@ -1682,12 +4586,6 @@
         "name": "Black_Lense",
         "owner": "storage",
         "rawName": "SnowC4a"
-      },
-      {
-        "amount": 2,
-        "name": "EhExPee_Statue",
-        "owner": "storage",
-        "rawName": "EquipmentStatues18"
       },
       {
         "amount": 1077,
@@ -1726,19 +4624,19 @@
         "rawName": "Crystal1"
       },
       {
-        "amount": 2,
+        "amount": 1,
         "name": "Ribbed_Tunic",
         "owner": "storage",
         "rawName": "EfauntDrop2"
       },
       {
-        "amount": 45,
+        "amount": 63,
         "name": "Ripped_Tunic",
         "owner": "storage",
         "rawName": "EfauntDrop1"
       },
       {
-        "amount": 44,
+        "amount": 50,
         "name": "Glacier_Quartz",
         "owner": "storage",
         "rawName": "Crystal2"
@@ -1780,7 +4678,7 @@
         "rawName": "EquipmentHats63"
       },
       {
-        "amount": 390,
+        "amount": 624,
         "name": "Bonemeal",
         "owner": "storage",
         "rawName": "Sewers3"
@@ -1870,7 +4768,7 @@
         "rawName": "Bug5"
       },
       {
-        "amount": 165426,
+        "amount": 264946,
         "name": "Flycicle",
         "owner": "storage",
         "rawName": "Bug6"
@@ -1888,37 +4786,37 @@
         "rawName": "InvBag101"
       },
       {
-        "amount": 173865,
+        "amount": 175665,
         "name": "Small_Mana_Potion",
         "owner": "storage",
         "rawName": "FoodPotMana1"
       },
       {
-        "amount": 9478,
+        "amount": 9518,
         "name": "Average_Mana_Potion",
         "owner": "storage",
         "rawName": "FoodPotMana2"
       },
       {
-        "amount": 678,
+        "amount": 778,
         "name": "Decent_Mana_Potion",
         "owner": "storage",
         "rawName": "FoodPotMana3"
       },
       {
-        "amount": 24166,
+        "amount": 5783,
         "name": "Yeti_Ham",
         "owner": "storage",
         "rawName": "FoodHealth9"
       },
       {
-        "amount": 91758,
-        "name": "Hot_Dog",
+        "amount": 12188,
+        "name": "Sheepie_Dairy",
         "owner": "storage",
-        "rawName": "FoodHealth3"
+        "rawName": "FoodHealth11"
       },
       {
-        "amount": 51755,
+        "amount": 30692,
         "name": "Mountain_Bread",
         "owner": "storage",
         "rawName": "FoodHealth10"
@@ -1930,13 +4828,13 @@
         "rawName": "FoodPotYe1"
       },
       {
-        "amount": 4376,
+        "amount": 8297,
         "name": "Average_EXP_Potion",
         "owner": "storage",
         "rawName": "FoodPotYe2"
       },
       {
-        "amount": 423,
+        "amount": 425,
         "name": "Decent_EXP_Potion",
         "owner": "storage",
         "rawName": "FoodPotYe3"
@@ -1954,61 +4852,55 @@
         "rawName": "FoodPotOr2"
       },
       {
-        "amount": 17085,
+        "amount": 19065,
         "name": "Decent_Strength_Potion",
         "owner": "storage",
         "rawName": "FoodPotOr3"
       },
       {
-        "amount": 153030,
+        "amount": 154470,
         "name": "Small_Life_Potion",
         "owner": "storage",
         "rawName": "FoodPotRe1"
       },
       {
-        "amount": 3,
-        "name": "Box_Statue",
-        "owner": "storage",
-        "rawName": "EquipmentStatues16"
-      },
-      {
-        "amount": 16331,
+        "amount": 15986,
         "name": "Decent_Life_Potion",
         "owner": "storage",
         "rawName": "FoodPotRe3"
       },
       {
-        "amount": 15,
-        "name": "Golden_Ham",
+        "amount": 94758,
+        "name": "Hot_Dog",
         "owner": "storage",
-        "rawName": "FoodG5"
+        "rawName": "FoodHealth3"
       },
       {
-        "amount": 6442,
+        "amount": 6862,
         "name": "Meat_Pie",
         "owner": "storage",
         "rawName": "FoodHealth7"
       },
       {
-        "amount": 51507,
+        "amount": 48035,
         "name": "Kebab_Sticks",
         "owner": "storage",
         "rawName": "FoodHealth6"
       },
       {
-        "amount": 14508,
+        "amount": 15713,
         "name": "Small_Speed_Potion",
         "owner": "storage",
         "rawName": "FoodPotGr1"
       },
       {
-        "amount": 29275,
+        "amount": 33130,
         "name": "Average_Speed_Potion",
         "owner": "storage",
         "rawName": "FoodPotGr2"
       },
       {
-        "amount": 1410,
+        "amount": 1547,
         "name": "Decent_Speed_Potion",
         "owner": "storage",
         "rawName": "FoodPotGr3"
@@ -2020,7 +4912,7 @@
         "rawName": "Meatloaf"
       },
       {
-        "amount": 53244,
+        "amount": 53304,
         "name": "Cheezy_Pizza",
         "owner": "storage",
         "rawName": "FoodHealth2"
@@ -2044,16 +4936,16 @@
         "rawName": "EquipmentPants10"
       },
       {
-        "amount": 7,
-        "name": "Golden_Nomwich",
+        "amount": 65,
+        "name": "Monster_Rating",
         "owner": "storage",
-        "rawName": "FoodG4"
+        "rawName": "Quest32"
       },
       {
-        "amount": 1,
-        "name": "Golden_Meat_Pie",
+        "amount": 8000,
+        "name": "Cue_Tape",
         "owner": "storage",
-        "rawName": "FoodG3"
+        "rawName": "CraftMat3"
       },
       {
         "amount": 1,
@@ -2063,24 +4955,36 @@
       },
       {
         "amount": 1,
+        "name": "Stinky_Axe",
+        "owner": "storage",
+        "rawName": "EquipmentToolsHatchet2b"
+      },
+      {
+        "amount": 39,
+        "name": "Golden_Ham",
+        "owner": "storage",
+        "rawName": "FoodG5"
+      },
+      {
+        "amount": 1,
         "name": "Sesame_Seed",
         "owner": "storage",
         "rawName": "Quest45"
       },
       {
-        "amount": 13407,
+        "amount": 13983,
         "name": "Instablab_Follower",
         "owner": "storage",
         "rawName": "Quest23"
       },
       {
-        "amount": 11158,
+        "amount": 14331,
         "name": "Corporatube_Sub",
         "owner": "storage",
         "rawName": "Quest22"
       },
       {
-        "amount": 5486,
+        "amount": 33673,
         "name": "Cloudsound_Follower",
         "owner": "storage",
         "rawName": "Quest24"
@@ -2088,12 +4992,12 @@
     ],
     "keys": [
       {
-        "amount": "11",
+        "amount": "65",
         "name": "Forest_Villa_Key",
         "rawName": "Key1"
       },
       {
-        "amount": "52",
+        "amount": "55",
         "name": "Efaunt's_Tomb_Key",
         "rawName": "Key2"
       },
@@ -2407,10 +5311,6 @@
         "rawName": "EquipmentTools10"
       },
       {
-        "name": "Stinky_Axe",
-        "rawName": "EquipmentToolsHatchet2b"
-      },
-      {
         "name": "Plat_Hatchet",
         "rawName": "EquipmentToolsHatchet4"
       },
@@ -2549,10 +5449,6 @@
       {
         "name": "Pre_Crime_Box",
         "rawName": "Quest26"
-      },
-      {
-        "name": "Monster_Rating",
-        "rawName": "Quest32"
       },
       {
         "name": "Player_Rating_With_Letter_P",
@@ -2871,10 +5767,6 @@
         "rawName": "ObolPink2"
       },
       {
-        "name": "Dementia_LUK_Obol",
-        "rawName": "ObolPink3"
-      },
-      {
         "name": "Bronze_Obol_of_Puny_Damage",
         "rawName": "ObolBronzeDamage"
       },
@@ -2901,10 +5793,6 @@
       {
         "name": "Silver_Obol_of_Moderate_Mining",
         "rawName": "ObolSilverMining"
-      },
-      {
-        "name": "Golden_Obol_of_Diligent_Digging",
-        "rawName": "ObolGoldMining"
       },
       {
         "name": "Platinum_Obol_of_Dwarven_Delving",
@@ -3392,13 +6280,13 @@
       }
     ],
     "money": [
-      "2",
-      "52",
-      "22",
-      "88",
-      "63"
+      "3",
+      "96",
+      "53",
+      "44",
+      "23"
     ],
-    "obolFragments": "4",
+    "obolFragments": "2",
     "obols": [
       {
         "lvReq": 60,
@@ -3510,8 +6398,8 @@
       },
       {
         "lvReq": 400,
-        "name": "Silver_Obol_of_Megakill",
-        "rawName": "ObolSilverKill",
+        "name": "Silver_Obol_of_Little_Damage",
+        "rawName": "ObolSilverDamage",
         "shape": "Circle"
       },
       {
@@ -3534,8 +6422,8 @@
       },
       {
         "lvReq": 470,
-        "name": "Gold_AGI_Obol",
-        "rawName": "ObolGold1",
+        "name": "Silver_Obol_of_Little_Damage",
+        "rawName": "ObolSilverDamage",
         "shape": "Circle"
       },
       {
@@ -4571,14 +7459,10 @@
               "dialogText": "Find_some_more_followers,_probably_from_the_Sewers_again_since_his_beatboxing_still_sucks.",
               "itemReq": [
                 {
-                  "amount": 5000,
-                  "name": "Corporatube_Sub",
-                  "rawName": "Quest22"
-                },
-                {
-                  "amount": 1000,
-                  "name": "Instablab_Follower",
-                  "rawName": "Quest23"
+                  "rawName": [
+                    "Quest22",
+                    "Quest23"
+                  ]
                 }
               ],
               "progress": [
@@ -4758,7 +7642,7 @@
               "dialogText": "Bring_1000_logs..._you_should_come_back_to_this_quest_later,_once_you_have_a_higher_Log_Carry_Capacity!",
               "itemReq": [
                 {
-                  "amount": 1,
+                  "amount": 1000,
                   "name": "Oak_Logs",
                   "rawName": "OakTree"
                 }
@@ -5937,7 +8821,7 @@
               "dialogText": "Get_toilet_paper_to_help_clean.",
               "itemReq": [
                 {
-                  "amount": 1,
+                  "amount": 10000,
                   "name": "Potty_Rolls",
                   "rawName": "ToiletTree"
                 }
@@ -9260,7 +12144,7 @@
           "rawName": "FoodHealth4"
         },
         {
-          "amount": "11999",
+          "amount": "12000",
           "name": "Golden_Dubloon",
           "rawName": "Quest19"
         },
@@ -9319,9 +12203,24 @@
           "rawName": "FoodHealth9"
         },
         {
-          "amount": "28489",
+          "amount": "30000",
           "name": "Sheepie_Dairy",
           "rawName": "FoodHealth11"
+        },
+        {
+          "amount": "5",
+          "name": "Weapon_Upgrade_Stone_III",
+          "rawName": "StoneW3"
+        },
+        {
+          "amount": "12",
+          "name": "Armor_Upgrade_Stone_III",
+          "rawName": "StoneA3"
+        },
+        {
+          "amount": "8",
+          "name": "Tool_Upgrade_Stone_III",
+          "rawName": "StoneT3"
         },
         {
           "amount": "24000",
@@ -9342,6 +12241,16 @@
           "amount": "1",
           "name": "Prosperous_Pouch",
           "rawName": "InvBag107"
+        },
+        {
+          "amount": "24",
+          "name": "Bottled_Town_Teleport",
+          "rawName": "rtt0"
+        },
+        {
+          "amount": "4",
+          "name": "Talent_Point_Reset_Fragment",
+          "rawName": "ResetFrag"
         }
       ]
     ],
@@ -9349,496 +12258,1816 @@
       {
         "name": "Woodular_Shrine",
         "rawName": "ConTowerB18",
-        "shrineLevel": 10
+        "shrineLevel": 11
       },
       {
         "name": "Isaccian_Shrine",
         "rawName": "ConTowerB19",
-        "shrineLevel": 9
+        "shrineLevel": 10
       },
       {
         "name": "Crystal_Shrine",
         "rawName": "ConTowerB20",
-        "shrineLevel": 9
+        "shrineLevel": 10
       },
       {
         "name": "Pantheon_Shrine",
         "rawName": "ConTowerB21",
-        "shrineLevel": 8
+        "shrineLevel": 9
       },
       {
         "name": "Clover_Shrine",
         "rawName": "ConTowerB22",
-        "shrineLevel": 7
+        "shrineLevel": 8
       },
       {
         "name": "Summereading_Shrine",
         "rawName": "ConTowerB23",
-        "shrineLevel": 7
+        "shrineLevel": 8
       },
       {
         "name": "Crescent_Shrine",
         "rawName": "ConTowerB24",
-        "shrineLevel": 5
+        "shrineLevel": 7
       }
     ],
-    "silverPens": "21",
+    "silverPens": "14",
     "stamps": {
       "combat": [
         {
-          "level": "38",
-          "name": "Sword_Stamp",
-          "rawName": "StampA1"
+          "baseCoinCost": 50,
+          "baseMatCost": 20,
+          "displayName": "Sword_Stamp",
+          "effect": "{}_Base_Damage",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Spore_Cap",
+              "rawName": "Grasslands1"
+            }
+          ],
+          "level": 40,
+          "powCoinBase": 1.3,
+          "powMatBase": 5,
+          "rawName": "StampA1",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "30",
-          "name": "Heart_Stamp",
-          "rawName": "StampA2"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Heart_Stamp",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Oak_Logs",
+              "rawName": "OakTree"
+            }
+          ],
+          "level": 30,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampA2",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "30",
-          "name": "Mana_Stamp",
-          "rawName": "StampA3"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Mana_Stamp",
+          "effect": "{}_Base_MP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 30,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampA3",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Tomahawk_Stamp",
-          "rawName": "StampA4"
+          "baseCoinCost": 50,
+          "baseMatCost": 15,
+          "displayName": "Tomahawk_Stamp",
+          "effect": "{}%_Total_Damage",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Copper_Bar",
+              "rawName": "CopperBar"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA4",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 6,
+          "x2": 40
         },
         {
-          "level": "30",
-          "name": "Target_Stamp",
-          "rawName": "StampA5"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Target_Stamp",
+          "effect": "{}_Base_Accuracy",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Thread",
+              "rawName": "CraftMat1"
+            }
+          ],
+          "level": 30,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA5",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "25",
-          "name": "Shield_Stamp",
-          "rawName": "StampA6"
+          "baseCoinCost": 50,
+          "baseMatCost": 50,
+          "displayName": "Shield_Stamp",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Iron_Ore",
+              "rawName": "Iron"
+            }
+          ],
+          "level": 25,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampA6",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "24",
-          "name": "Longsword_Stamp",
-          "rawName": "StampA7"
+          "baseCoinCost": 50,
+          "baseMatCost": 50,
+          "displayName": "Longsword_Stamp",
+          "effect": "{}_Base_Damage",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bean_Slices",
+              "rawName": "Grasslands3"
+            }
+          ],
+          "level": 24,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA7",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "15",
-          "name": "Kapow_Stamp",
-          "rawName": "StampA8"
+          "baseCoinCost": 50,
+          "baseMatCost": 50,
+          "displayName": "Kapow_Stamp",
+          "effect": "{}%_Critical_Damage",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Trusty_Nails",
+              "rawName": "CraftMat5"
+            }
+          ],
+          "level": 15,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA8",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 8,
+          "x2": 40
         },
         {
-          "level": "8",
-          "name": "Fist_Stamp",
-          "rawName": "StampA9"
+          "baseCoinCost": 50,
+          "baseMatCost": 50,
+          "displayName": "Fist_Stamp",
+          "effect": "{}_STR",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bleach_Logs",
+              "rawName": "BirchTree"
+            }
+          ],
+          "level": 8,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampA9",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Battleaxe_Stamp",
-          "rawName": "StampA10"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Battleaxe_Stamp",
+          "effect": "{}%_Total_Damage",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Grass_Leaf",
+              "rawName": "Leaf1"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.3,
+          "powMatBase": 4,
+          "rawName": "StampA10",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 10,
+          "x2": 40
         },
         {
-          "level": "10",
-          "name": "Agile_Stamp",
-          "rawName": "StampA11"
+          "baseCoinCost": 50,
+          "baseMatCost": 1,
+          "displayName": "Agile_Stamp",
+          "effect": "{}_AGI",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Chopper",
+              "rawName": "EquipmentToolsHatchet3"
+            }
+          ],
+          "level": 10,
+          "powCoinBase": 1.3,
+          "powMatBase": 4,
+          "rawName": "StampA11",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Vitality_Stamp",
-          "rawName": "StampA12"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Vitality_Stamp",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Snake_Skin",
+              "rawName": "Jungle2"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA12",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "10",
-          "name": "Book_Stamp",
-          "rawName": "StampA13"
+          "baseCoinCost": 50,
+          "baseMatCost": 20,
+          "displayName": "Book_Stamp",
+          "effect": "{}_WIS",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Iron_Bar",
+              "rawName": "IronBar"
+            }
+          ],
+          "level": 10,
+          "powCoinBase": 1.35,
+          "powMatBase": 5,
+          "rawName": "StampA13",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "15",
-          "name": "Manamoar_Stamp",
-          "rawName": "StampA14"
+          "baseCoinCost": 75,
+          "baseMatCost": 25,
+          "displayName": "Manamoar_Stamp",
+          "effect": "{}_Base_MP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Glublin_Ear",
+              "rawName": "Forest1"
+            }
+          ],
+          "level": 15,
+          "powCoinBase": 1.32,
+          "powMatBase": 6,
+          "rawName": "StampA14",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "6",
-          "name": "Clover_Stamp",
-          "rawName": "StampA15"
+          "baseCoinCost": 300,
+          "baseMatCost": 1,
+          "displayName": "Clover_Stamp",
+          "effect": "{}_LUK",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Iron_Platebody",
+              "rawName": "EquipmentShirts12"
+            }
+          ],
+          "level": 6,
+          "powCoinBase": 1.38,
+          "powMatBase": 2,
+          "rawName": "StampA15",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Scimitar_Stamp",
-          "rawName": "StampA16"
+          "baseCoinCost": 2000,
+          "baseMatCost": 75,
+          "displayName": "Scimitar_Stamp",
+          "effect": "{}_Base_Damage",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Goldfish",
+              "rawName": "Fish1"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.33,
+          "powMatBase": 7,
+          "rawName": "StampA16",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 3,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Bullseye_Stamp",
-          "rawName": "StampA17"
+          "baseCoinCost": 5000,
+          "baseMatCost": 100,
+          "displayName": "Bullseye_Stamp",
+          "effect": "{}_Base_Accuracy",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Sentient_Cereal",
+              "rawName": "Bug3"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.36,
+          "powMatBase": 10,
+          "rawName": "StampA17",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Feather_Stamp",
-          "rawName": "StampA18"
+          "baseCoinCost": 2500,
+          "baseMatCost": 25,
+          "displayName": "Feather_Stamp",
+          "effect": "{}_Base_Move_Speed",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Coconotnotto",
+              "rawName": "DesertB1"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA18",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 5,
+          "x2": 50
         },
         {
-          "level": "0",
-          "name": "Polearm_Stamp",
-          "rawName": "StampA19"
+          "baseCoinCost": 3000,
+          "baseMatCost": 1,
+          "displayName": "Polearm_Stamp",
+          "effect": "{}%_Total_Damage",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Steel_Axe",
+              "rawName": "TestObj7"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 2,
+          "rawName": "StampA19",
+          "reqItemMultiplicationLevel": 6,
+          "x1": 16,
+          "x2": 40
         },
         {
-          "level": "9",
-          "name": "Violence_Stamp",
-          "rawName": "StampA20"
+          "baseCoinCost": 10000,
+          "baseMatCost": 10,
+          "displayName": "Violence_Stamp",
+          "effect": "{}_STR",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Dementia_Ore",
+              "rawName": "Dementia"
+            }
+          ],
+          "level": 9,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampA20",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "21",
-          "name": "Buckler_Stamp",
-          "rawName": "StampA21"
+          "baseCoinCost": 2200,
+          "baseMatCost": 25,
+          "displayName": "Buckler_Stamp",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Platinum_Bar",
+              "rawName": "PlatBar"
+            }
+          ],
+          "level": 21,
+          "powCoinBase": 1.305,
+          "powMatBase": 6,
+          "rawName": "StampA21",
+          "reqItemMultiplicationLevel": 7,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "FILLER",
-          "rawName": "StampA22"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "FILLER",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA22",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "10",
-          "name": "Sukka_Foo",
-          "rawName": "StampA23"
+          "baseCoinCost": 10000,
+          "baseMatCost": 3,
+          "displayName": "Sukka_Foo",
+          "effect": "{}%_Boss_Damage",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Amarok_Slab",
+              "rawName": "Quest17"
+            }
+          ],
+          "level": 10,
+          "powCoinBase": 1.34,
+          "powMatBase": 5,
+          "rawName": "StampA23",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 24,
+          "x2": 60
         },
         {
-          "level": "12",
-          "name": "Arcane_Stamp",
-          "rawName": "StampA24"
+          "baseCoinCost": 1550,
+          "baseMatCost": 50,
+          "displayName": "Arcane_Stamp",
+          "effect": "{}_Base_WIS",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Gold_Bar",
+              "rawName": "GoldBar"
+            }
+          ],
+          "level": 12,
+          "powCoinBase": 1.36,
+          "powMatBase": 7,
+          "rawName": "StampA24",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "FILLER",
-          "rawName": "StampA25"
+          "baseCoinCost": 5000,
+          "baseMatCost": 25,
+          "displayName": "FILLER",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA25",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Steve_Sword",
-          "rawName": "StampA26"
+          "baseCoinCost": 10000,
+          "baseMatCost": 150,
+          "displayName": "Steve_Sword",
+          "effect": "{}%_Total_Damage",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Fruitfly",
+              "rawName": "Bug4"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.32,
+          "powMatBase": 5,
+          "rawName": "StampA26",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 20,
+          "x2": 60
         },
         {
-          "level": "12",
-          "name": "Blover_Stamp",
-          "rawName": "StampA27"
+          "baseCoinCost": 25000,
+          "baseMatCost": 100,
+          "displayName": "Blover_Stamp",
+          "effect": "{}_Base_LUK",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Jellyfish",
+              "rawName": "Fish3"
+            }
+          ],
+          "level": 12,
+          "powCoinBase": 1.39,
+          "powMatBase": 7,
+          "rawName": "StampA27",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Stat_Graph_Stamp",
-          "rawName": "StampA28"
+          "baseCoinCost": 2000,
+          "baseMatCost": 2,
+          "displayName": "Stat_Graph_Stamp",
+          "effect": "{}_All_Stats",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Mystery_Upgrade_Stone_I",
+              "rawName": "StoneZ1"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.36,
+          "powMatBase": 2,
+          "rawName": "StampA28",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "FILLER",
-          "rawName": "StampA29"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "FILLER",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA29",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "FILLER",
-          "rawName": "StampA30"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "FILLER",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA30",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "FILLER",
-          "rawName": "StampA31"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "FILLER",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA31",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "FILLER",
-          "rawName": "StampA32"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "FILLER",
+          "effect": "{}_Base_Defence",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampA32",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         }
       ],
       "misc": [
         {
-          "level": "20",
-          "name": "Questin_Stamp",
-          "rawName": "StampC1"
+          "baseCoinCost": 500,
+          "baseMatCost": 30,
+          "displayName": "Questin_Stamp",
+          "effect": "{}%_Quest_EXP",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Slime_Sludge",
+              "rawName": "Jungle1"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.32,
+          "powMatBase": 6,
+          "rawName": "StampC1",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 70,
+          "x2": 50
         },
         {
-          "level": "12",
-          "name": "Mason_Jar_Stamp",
-          "rawName": "StampC2"
+          "baseCoinCost": 4000,
+          "baseMatCost": 1,
+          "displayName": "Mason_Jar_Stamp",
+          "effect": "{}%_All_Carry_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Glass_Shard",
+              "rawName": "DesertA1b"
+            }
+          ],
+          "level": 12,
+          "powCoinBase": 1.28,
+          "powMatBase": 3,
+          "rawName": "StampC2",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Crystallin",
-          "rawName": "StampC3"
+          "baseCoinCost": 800,
+          "baseMatCost": 35,
+          "displayName": "Crystallin",
+          "effect": "{}%_Spawn_Chance",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Boring_Brick",
+              "rawName": "CraftMat6"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.31,
+          "powMatBase": 8,
+          "rawName": "StampC3",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 110,
+          "x2": 50
         },
         {
-          "level": "0",
-          "name": "Blank",
-          "rawName": "StampC4"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Blank",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC4",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Apple_Stamp",
-          "rawName": "StampC5"
+          "baseCoinCost": 200,
+          "baseMatCost": 50,
+          "displayName": "Apple_Stamp",
+          "effect": "{}%_HP_Food_Effect",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Meat_Pie",
+              "rawName": "FoodHealth7"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 5.5,
+          "rawName": "StampC5",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Potion_Stamp",
-          "rawName": "StampC6"
+          "baseCoinCost": 1500,
+          "baseMatCost": 50,
+          "displayName": "Potion_Stamp",
+          "effect": "{}%_Boost_Food_Effect",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Icing_Ironbite",
+              "rawName": "FoodMining1"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.305,
+          "powMatBase": 8,
+          "rawName": "StampC6",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Golden_Apple_Stamp",
-          "rawName": "StampC7"
+          "baseCoinCost": 3000,
+          "baseMatCost": 2,
+          "displayName": "Golden_Apple_Stamp",
+          "effect": "{}%_Gold_Food_Effect",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Golden_Nomwich",
+              "rawName": "FoodG4"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 4,
+          "rawName": "StampC7",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Blank",
-          "rawName": "StampC8"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Blank",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC8",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Card_Stamp",
-          "rawName": "StampC9"
+          "baseCoinCost": 1200,
+          "baseMatCost": 25,
+          "displayName": "Card_Stamp",
+          "effect": "{}%_Card_Drop_Rate",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Furled_Flag",
+              "rawName": "DesertB2"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.31,
+          "powMatBase": 6,
+          "rawName": "StampC9",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Blank",
-          "rawName": "StampC10"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Blank",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC10",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Blank",
-          "rawName": "StampC11"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Blank",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC11",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Blank",
-          "rawName": "StampC12"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Blank",
+          "effect": "{}_Base_HP",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC12",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 30,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Talent_I_Stamp",
-          "rawName": "StampC13"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Talent_I_Stamp",
+          "effect": "{}_Talent_1_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Frog_Leg",
+              "rawName": "Grasslands2"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC13",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Talent_II_Stamp",
-          "rawName": "StampC14"
+          "baseCoinCost": 4000,
+          "baseMatCost": 200,
+          "displayName": "Talent_II_Stamp",
+          "effect": "{}_Talent_2_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Pincer_Arm",
+              "rawName": "DesertB3"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.35,
+          "powMatBase": 8,
+          "rawName": "StampC14",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Talent_III_Stamp",
-          "rawName": "StampC15"
+          "baseCoinCost": 40000,
+          "baseMatCost": 20,
+          "displayName": "Talent_III_Stamp",
+          "effect": "{}_Talent_3_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Arctic_Leaf",
+              "rawName": "Leaf3"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.35,
+          "powMatBase": 4,
+          "rawName": "StampC15",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Talent_IV_Stamp",
-          "rawName": "StampC16"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Talent_IV_Stamp",
+          "effect": "{}_Talent_4_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC16",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Talent_V_Stamp",
-          "rawName": "StampC17"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Talent_V_Stamp",
+          "effect": "{}_Talent_5_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampC17",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "10",
-          "name": "Talent_S_Stamp",
-          "rawName": "StampC18"
+          "baseCoinCost": 50,
+          "baseMatCost": 20,
+          "displayName": "Talent_S_Stamp",
+          "effect": "{}_Star_Talent_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Twisty_Leaf",
+              "rawName": "Leaf2"
+            }
+          ],
+          "level": 10,
+          "powCoinBase": 1.3,
+          "powMatBase": 4,
+          "rawName": "StampC18",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "11",
-          "name": "Multikill_Stamp",
-          "rawName": "StampC19"
+          "baseCoinCost": 10000,
+          "baseMatCost": 100,
+          "displayName": "Multikill_Stamp",
+          "effect": "{}%_Base_Overkill",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Spore_Cap",
+              "rawName": "Grasslands1"
+            }
+          ],
+          "level": 11,
+          "powCoinBase": 1.3,
+          "powMatBase": 3,
+          "rawName": "StampC19",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Biblio_Stamp",
-          "rawName": "StampC20"
+          "baseCoinCost": 12500,
+          "baseMatCost": 125,
+          "displayName": "Biblio_Stamp",
+          "effect": "{}%_Faster_Books",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Tundra_Logs",
+              "rawName": "SaharanFoal"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 5,
+          "rawName": "StampC20",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         }
       ],
       "skills": [
         {
-          "level": "65",
-          "name": "Pickaxe_Stamp",
-          "rawName": "StampB1"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Pickaxe_Stamp",
+          "effect": "{}_Mining_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Oak_Logs",
+              "rawName": "OakTree"
+            }
+          ],
+          "level": 65,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampB1",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "55",
-          "name": "Hatchet_Stamp",
-          "rawName": "StampB2"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Hatchet_Stamp",
+          "effect": "{}_Choppin_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Thread",
+              "rawName": "CraftMat1"
+            }
+          ],
+          "level": 55,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB2",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "35",
-          "name": "Anvil_Zoomer_Stamp",
-          "rawName": "StampB3"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Anvil_Zoomer_Stamp",
+          "effect": "{}%_Anvil_Production_Spd",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Ore",
+              "rawName": "Copper"
+            }
+          ],
+          "level": 35,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB3",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "10",
-          "name": "Lil' Mining_Baggy_Stamp",
-          "rawName": "StampB4"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Lil'_Mining_Baggy_Stamp",
+          "effect": "{}_Mining_Carry_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Jungle_Logs",
+              "rawName": "JungleTree"
+            }
+          ],
+          "level": 10,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB4",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Twin_Ores_Stamp",
-          "rawName": "StampB5"
+          "baseCoinCost": 10000,
+          "baseMatCost": 1,
+          "displayName": "Twin_Ores_Stamp",
+          "effect": "{}%_Multi_Ore_Chance",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Thief_Hood",
+              "rawName": "EquipmentHats3"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.3,
+          "powMatBase": 3,
+          "rawName": "StampB5",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 15,
+          "x2": 40
         },
         {
-          "level": "50",
-          "name": "Choppin' Bag_Stamp",
-          "rawName": "StampB6"
+          "baseCoinCost": 50,
+          "baseMatCost": 25,
+          "displayName": "Choppin'_Bag_Stamp",
+          "effect": "{}_Choppin_Carry_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Carrot_Cube",
+              "rawName": "Jungle3"
+            }
+          ],
+          "level": 50,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB6",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "15",
-          "name": "Duplogs_Stamp",
-          "rawName": "StampB7"
+          "baseCoinCost": 20000,
+          "baseMatCost": 1,
+          "displayName": "Duplogs_Stamp",
+          "effect": "{}%_Multi_Log_Chance",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Militia_Helm",
+              "rawName": "EquipmentHats20"
+            }
+          ],
+          "level": 15,
+          "powCoinBase": 1.3,
+          "powMatBase": 3,
+          "rawName": "StampB7",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 15,
+          "x2": 40
         },
         {
-          "level": "50",
-          "name": "Matty_Bag_Stamp",
-          "rawName": "StampB8"
+          "baseCoinCost": 50,
+          "baseMatCost": 1,
+          "displayName": "Matty_Bag_Stamp",
+          "effect": "{}_Material_Carry_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Cramped_Material_Pouch",
+              "rawName": "MaxCapBagM2"
+            }
+          ],
+          "level": 50,
+          "powCoinBase": 1.3,
+          "powMatBase": 2,
+          "rawName": "StampB8",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "25",
-          "name": "Smart_Dirt_Stamp",
-          "rawName": "StampB9"
+          "baseCoinCost": 80,
+          "baseMatCost": 25,
+          "displayName": "Smart_Dirt_Stamp",
+          "effect": "{}%_Mining_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Plank",
+              "rawName": "Forest2"
+            }
+          ],
+          "level": 25,
+          "powCoinBase": 1.35,
+          "powMatBase": 6,
+          "rawName": "StampB9",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "26",
-          "name": "Cool_Diggy_Tool_Stamp",
-          "rawName": "StampB10"
+          "baseCoinCost": 35000,
+          "baseMatCost": 1,
+          "displayName": "Cool_Diggy_Tool_Stamp",
+          "effect": "{}_Mining_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Iron_Hatchet",
+              "rawName": "EquipmentToolsHatchet1"
+            }
+          ],
+          "level": 26,
+          "powCoinBase": 1.4,
+          "powMatBase": 2,
+          "rawName": "StampB10",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "High_IQ_Lumber_Stamp",
-          "rawName": "StampB11"
+          "baseCoinCost": 80,
+          "baseMatCost": 25,
+          "displayName": "High_IQ_Lumber_Stamp",
+          "effect": "{}%_Choppin_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bullfrog_Horn",
+              "rawName": "Forest3"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.35,
+          "powMatBase": 6,
+          "rawName": "StampB11",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "15",
-          "name": "Swag_Swingy_Tool_Stamp",
-          "rawName": "StampB12"
+          "baseCoinCost": 50000,
+          "baseMatCost": 1,
+          "displayName": "Swag_Swingy_Tool_Stamp",
+          "effect": "{}_Choppin_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Copper_Pickaxe",
+              "rawName": "EquipmentTools2"
+            }
+          ],
+          "level": 15,
+          "powCoinBase": 1.36,
+          "powMatBase": 2,
+          "rawName": "StampB12",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "24",
-          "name": "Alch_Go_Brrr_Stamp",
-          "rawName": "StampB13"
+          "baseCoinCost": 800,
+          "baseMatCost": 40,
+          "displayName": "Alch_Go_Brrr_Stamp",
+          "effect": "{}%_Alch_Speed",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Forest_Fibres",
+              "rawName": "ForestTree"
+            }
+          ],
+          "level": 24,
+          "powCoinBase": 1.29,
+          "powMatBase": 6,
+          "rawName": "StampB13",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "25",
-          "name": "Brainstew_Stamps",
-          "rawName": "StampB14"
+          "baseCoinCost": 1250,
+          "baseMatCost": 40,
+          "displayName": "Brainstew_Stamps",
+          "effect": "{}%_Alch_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Gold_Ore",
+              "rawName": "Gold"
+            }
+          ],
+          "level": 30,
+          "powCoinBase": 1.28,
+          "powMatBase": 6,
+          "rawName": "StampB14",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Drippy_Drop_Stamp",
-          "rawName": "StampB15"
+          "baseCoinCost": 1000,
+          "baseMatCost": 60,
+          "displayName": "Drippy_Drop_Stamp",
+          "effect": "{}%_Liquid_Spd",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Pocket_Sand",
+              "rawName": "DesertA1"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB15",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "11",
-          "name": "Droplots_Stamp",
-          "rawName": "StampB16"
+          "baseCoinCost": 2500,
+          "baseMatCost": 25,
+          "displayName": "Droplots_Stamp",
+          "effect": "{}_Liquid_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Bloach",
+              "rawName": "Fish4"
+            }
+          ],
+          "level": 12,
+          "powCoinBase": 1.3,
+          "powMatBase": 4,
+          "rawName": "StampB16",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Fishing_Rod_Stamp",
-          "rawName": "StampB17"
+          "baseCoinCost": 1000,
+          "baseMatCost": 50,
+          "displayName": "Fishing_Rod_Stamp",
+          "effect": "{}_Fishing_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Fly",
+              "rawName": "Bug1"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.32,
+          "powMatBase": 6,
+          "rawName": "StampB17",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "20",
-          "name": "Fishhead_Stamp",
-          "rawName": "StampB18"
+          "baseCoinCost": 1500,
+          "baseMatCost": 55,
+          "displayName": "Fishhead_Stamp",
+          "effect": "{}%_Fishing_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Megalodon_Tooth",
+              "rawName": "DesertA2"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.33,
+          "powMatBase": 9,
+          "rawName": "StampB18",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "25",
-          "name": "Catch_Net_Stamp",
-          "rawName": "StampB19"
+          "baseCoinCost": 1000,
+          "baseMatCost": 50,
+          "displayName": "Catch_Net_Stamp",
+          "effect": "{}_Catching_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Goldfish",
+              "rawName": "Fish1"
+            }
+          ],
+          "level": 25,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB19",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Fly_Intel_Stamp",
-          "rawName": "StampB20"
+          "baseCoinCost": 1500,
+          "baseMatCost": 40,
+          "displayName": "Fly_Intel_Stamp",
+          "effect": "{}%_Catching_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Crabby_Cakey",
+              "rawName": "DesertA3"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.33,
+          "powMatBase": 10,
+          "rawName": "StampB20",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Bag_o_Heads_Stamp",
-          "rawName": "StampB21"
+          "baseCoinCost": 1000,
+          "baseMatCost": 35,
+          "displayName": "Bag_o_Heads_Stamp",
+          "effect": "{}%_Fish_Carry_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Butterfly",
+              "rawName": "Bug2"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampB21",
+          "reqItemMultiplicationLevel": 8,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Holy_Mackerel_Stamp",
-          "rawName": "StampB22"
+          "baseCoinCost": 1500,
+          "baseMatCost": 30,
+          "displayName": "Holy_Mackerel_Stamp",
+          "effect": "{}%_Multifish_Chance",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Platinum_Ore",
+              "rawName": "Plat"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB22",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 20,
+          "x2": 40
         },
         {
-          "level": "24",
-          "name": "Bugsack_Stamp",
-          "rawName": "StampB23"
+          "baseCoinCost": 1000,
+          "baseMatCost": 35,
+          "displayName": "Bugsack_Stamp",
+          "effect": "{}%_Bug_Carry_Cap",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Hermit_Can",
+              "rawName": "Fish2"
+            }
+          ],
+          "level": 24,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampB23",
+          "reqItemMultiplicationLevel": 8,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "25",
-          "name": "Buzz_Buzz_Stamp",
-          "rawName": "StampB24"
+          "baseCoinCost": 1500,
+          "baseMatCost": 45,
+          "displayName": "Buzz_Buzz_Stamp",
+          "effect": "{}%_Multibug_Chance",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Potty_Rolls",
+              "rawName": "ToiletTree"
+            }
+          ],
+          "level": 25,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB24",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 20,
+          "x2": 40
         },
         {
-          "level": "20",
-          "name": "Hidey_Box_Stamp",
-          "rawName": "StampB25"
+          "baseCoinCost": 7500,
+          "baseMatCost": 100,
+          "displayName": "Hidey_Box_Stamp",
+          "effect": "{}_Trapping_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Crabbo",
+              "rawName": "Critter2"
+            }
+          ],
+          "level": 20,
+          "powCoinBase": 1.3,
+          "powMatBase": 5,
+          "rawName": "StampB25",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "5",
-          "name": "Purp_Froge_Stamp",
-          "rawName": "StampB26"
+          "baseCoinCost": 10000,
+          "baseMatCost": 125,
+          "displayName": "Purp_Froge_Stamp",
+          "effect": "{}%_Shiny_Chance",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Scorpie",
+              "rawName": "Critter3"
+            }
+          ],
+          "level": 5,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB26",
+          "reqItemMultiplicationLevel": 5,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "9",
-          "name": "Spikemouth_Stamp",
-          "rawName": "StampB27"
+          "baseCoinCost": 12500,
+          "baseMatCost": 150,
+          "displayName": "Spikemouth_Stamp",
+          "effect": "{}%_Trapping_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Mousey",
+              "rawName": "Critter4"
+            }
+          ],
+          "level": 9,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB27",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Shiny_Crab_Stamp",
-          "rawName": "StampB28"
+          "baseCoinCost": 15000,
+          "baseMatCost": 200,
+          "displayName": "Shiny_Crab_Stamp",
+          "effect": "{}%_Shiny_Chance",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Owlio",
+              "rawName": "Critter5"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 7,
+          "rawName": "StampB28",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Gear_Stamp",
-          "rawName": "StampB29"
+          "baseCoinCost": 10000,
+          "baseMatCost": 100,
+          "displayName": "Gear_Stamp",
+          "effect": "{}%_Building_Spd",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Sticky_Stick",
+              "rawName": "SnowB1"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 5,
+          "rawName": "StampB29",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "16",
-          "name": "Sample_Stamp",
-          "rawName": "StampB30"
+          "baseCoinCost": 10000,
+          "baseMatCost": 100,
+          "displayName": "Stample_Stamp",
+          "effect": "{}%_Sample_Size",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Floof_Ploof",
+              "rawName": "SnowA1"
+            }
+          ],
+          "level": 16,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB30",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 4,
+          "x2": 30
         },
         {
-          "level": "12",
-          "name": "Saw_Stamp",
-          "rawName": "StampB31"
+          "baseCoinCost": 15000,
+          "baseMatCost": 20,
+          "displayName": "Saw_Stamp",
+          "effect": "{}%_Construction_Exp",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Dementia_Bar",
+              "rawName": "DementiaBar"
+            }
+          ],
+          "level": 12,
+          "powCoinBase": 1.3,
+          "powMatBase": 5,
+          "rawName": "StampB31",
+          "reqItemMultiplicationLevel": 3,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Amplesample_Stamp",
-          "rawName": "StampB32"
+          "baseCoinCost": 25000,
+          "baseMatCost": 200,
+          "displayName": "Amplestample_Stamp",
+          "effect": "{}%_Sample_Size",
+          "func": "decay",
+          "itemReq": [
+            {
+              "name": "Mosquisnow",
+              "rawName": "Bug5"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 11,
+          "rawName": "StampB32",
+          "reqItemMultiplicationLevel": 4,
+          "x1": 5,
+          "x2": 30
         },
         {
-          "level": "0",
-          "name": "SpoOoky_Stamp",
-          "rawName": "StampB33"
+          "baseCoinCost": 7500,
+          "baseMatCost": 45,
+          "displayName": "SpoOoky_Stamp",
+          "effect": "{}_Worship_Efficiency",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Forest_Soul",
+              "rawName": "Soul1"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB33",
+          "reqItemMultiplicationLevel": 10,
+          "x1": 2,
+          "x2": 0
         },
         {
-          "level": "6",
-          "name": "Flowin_Stamp",
-          "rawName": "StampB34"
+          "baseCoinCost": 15000,
+          "baseMatCost": 2,
+          "displayName": "Flowin_Stamp",
+          "effect": "{}%_Charging_Speed",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Redox_Salts",
+              "rawName": "Refinery1"
+            }
+          ],
+          "level": 6,
+          "powCoinBase": 1.3,
+          "powMatBase": 5,
+          "rawName": "StampB34",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "0",
-          "name": "Prayday_Stamp",
-          "rawName": "StampB35"
+          "baseCoinCost": 10000,
+          "baseMatCost": 150,
+          "displayName": "Prayday_Stamp",
+          "effect": "{}%_Max_Charge",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Cracked_Glass",
+              "rawName": "SnowB4"
+            }
+          ],
+          "level": 0,
+          "powCoinBase": 1.3,
+          "powMatBase": 6,
+          "rawName": "StampB35",
+          "reqItemMultiplicationLevel": 2,
+          "x1": 1,
+          "x2": 0
         },
         {
-          "level": "24",
-          "name": "Banked_Pts_Stamp",
-          "rawName": "StampB36"
+          "baseCoinCost": 6000,
+          "baseMatCost": 100,
+          "displayName": "Banked_Pts_Stamp",
+          "effect": "{}_Starting_TD_Pts",
+          "func": "add",
+          "itemReq": [
+            {
+              "name": "Dune_Soul",
+              "rawName": "Soul2"
+            }
+          ],
+          "level": 24,
+          "powCoinBase": 1.3,
+          "powMatBase": 3,
+          "rawName": "StampB36",
+          "reqItemMultiplicationLevel": 6,
+          "x1": 1,
+          "x2": 0
         }
       ]
     },
     "statues": [
       {
-        "level": 27,
+        "level": 28,
         "name": "Power_Statue",
         "rawName": "StatueG1"
       },
       {
-        "level": 23,
+        "level": 24,
         "name": "Speed_Statue",
         "rawName": "StatueG2"
       },
@@ -9848,12 +14077,12 @@
         "rawName": "StatueG3"
       },
       {
-        "level": 28,
+        "level": 30,
         "name": "Feasty_Statue",
         "rawName": "StatueG4"
       },
       {
-        "level": 36,
+        "level": 37,
         "name": "Health_Statue",
         "rawName": "StatueG5"
       },
@@ -9863,7 +14092,7 @@
         "rawName": "StatueG6"
       },
       {
-        "level": 42,
+        "level": 43,
         "name": "Lumberbob_Statue",
         "rawName": "StatueG7"
       },
@@ -9898,7 +14127,7 @@
         "rawName": "StatueG13"
       },
       {
-        "level": 19,
+        "level": 20,
         "name": "Beholder_Statue",
         "rawName": "StatueG14"
       },
@@ -9908,222 +14137,17 @@
         "rawName": "StatueG15"
       },
       {
-        "level": 16,
+        "level": 17,
         "name": "Box_Statue",
         "rawName": "StatueG16"
+      },
+      {
+        "level": 17,
+        "name": "Twosoul_Statue",
+        "rawName": "StatueG17"
       }
     ],
-    "vialsMap": [
-      {
-        "item": "Copper",
-        "level": "5",
-        "name": "COPPER_CORONA"
-      },
-      {
-        "item": "OakTree",
-        "level": "5",
-        "name": "SIPPY_SPLINTERS"
-      },
-      {
-        "item": "Grasslands1",
-        "level": "5",
-        "name": "MUSHROOM_SOUP"
-      },
-      {
-        "item": "CraftMat1",
-        "level": "5",
-        "name": "SPOOL_SPRITE"
-      },
-      {
-        "item": "CopperBar",
-        "level": "5",
-        "name": "BARIUM_MIXTURE"
-      },
-      {
-        "item": "Grasslands3",
-        "level": "5",
-        "name": "DIETER_DRINK"
-      },
-      {
-        "item": "Jungle2",
-        "level": "5",
-        "name": "SKINNY_0_CAL"
-      },
-      {
-        "item": "CraftMat5",
-        "level": "4",
-        "name": "THUMB_POW"
-      },
-      {
-        "item": "JungleTree",
-        "level": "5",
-        "name": "JUNGLE_JUICE"
-      },
-      {
-        "item": "IronBar",
-        "level": "5",
-        "name": "BARLEY_BREW"
-      },
-      {
-        "item": "Forest1",
-        "level": "5",
-        "name": "ANEARFUL"
-      },
-      {
-        "item": "ToiletTree",
-        "level": "5",
-        "name": "TEA_WITH_PEA"
-      },
-      {
-        "item": "Gold",
-        "level": "5",
-        "name": "GOLD_GUZZLE"
-      },
-      {
-        "item": "Forest3",
-        "level": "5",
-        "name": "RAMIFICOCTION"
-      },
-      {
-        "item": "Fish1",
-        "level": "7",
-        "name": "SEAWATER"
-      },
-      {
-        "item": "Sewers2",
-        "level": "5",
-        "name": "TAIL_TIME"
-      },
-      {
-        "item": "Bug1",
-        "level": "5",
-        "name": "FLY_IN_MY_DRINK"
-      },
-      {
-        "item": "DesertA2",
-        "level": "5",
-        "name": "MIMICRAUGHT"
-      },
-      {
-        "item": "Plat",
-        "level": "5",
-        "name": "BLUE_FLAV"
-      },
-      {
-        "item": "Fish2",
-        "level": "5",
-        "name": "SLUG_SLURP"
-      },
-      {
-        "item": "BobJoePickle",
-        "level": "0",
-        "name": "PICKLE_JAR"
-      },
-      {
-        "item": "SnowA1",
-        "level": "5",
-        "name": "FUR_REFRESHER"
-      },
-      {
-        "item": "Soul1",
-        "level": "5",
-        "name": "SIPPY_SOUL"
-      },
-      {
-        "item": "Critter2",
-        "level": "5",
-        "name": "CRAB_JUICE"
-      },
-      {
-        "item": "Void",
-        "level": "2",
-        "name": "VOID_VIAL"
-      },
-      {
-        "item": "Refinery1",
-        "level": "2",
-        "name": "RED_MALT"
-      },
-      {
-        "item": "Bug5",
-        "level": "5",
-        "name": "EW_GROSS_GROSS"
-      },
-      {
-        "item": "SaharanFoal",
-        "level": "5",
-        "name": "THE_SPANISH_SAHARA"
-      },
-      {
-        "item": "Critter1A",
-        "level": "2",
-        "name": "POISON_TINCTURE"
-      },
-      {
-        "item": "SnowB2",
-        "level": "5",
-        "name": "ETRUSCAN_LAGER"
-      },
-      {
-        "item": "Soul2",
-        "level": "4",
-        "name": "CHONKER_CHUG"
-      },
-      {
-        "item": "Critter4",
-        "level": "4",
-        "name": "BUBONIC_BURP"
-      },
-      {
-        "item": "SnowB3",
-        "level": "5",
-        "name": "VISIBLE_INK"
-      },
-      {
-        "item": "Refinery2",
-        "level": "2",
-        "name": "ORANGE_MALT"
-      },
-      {
-        "item": "SnowB5",
-        "level": "7",
-        "name": "SNOW_SLURRY"
-      },
-      {
-        "item": "Soul4",
-        "level": "2",
-        "name": "SLOWERGY_DRINK"
-      },
-      {
-        "item": "SnowC1",
-        "level": "5",
-        "name": "SIPPY_CUP"
-      },
-      {
-        "item": "Critter7",
-        "level": "0",
-        "name": "BUNNY_BREW"
-      },
-      {
-        "item": "SnowC4",
-        "level": "3",
-        "name": "40-40_PURITY"
-      },
-      {
-        "item": "Soul6",
-        "level": "0",
-        "name": "SPOOK_PINT"
-      },
-      {
-        "item": "Critter9",
-        "level": "0",
-        "name": "GOOSEY_GLUG"
-      },
-      {
-        "level": "0"
-      }
-    ],
-    "worldTeleports": "61"
+    "worldTeleports": "117"
   },
   "characters": [
     {
@@ -21976,5 +26000,5 @@
     ],
     "name": "Hello"
   },
-  "version": "0.0.0.5"
+  "version": "1.0.0"
 }
