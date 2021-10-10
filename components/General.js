@@ -3,7 +3,6 @@ import { Accordion, AccordionDetails, AccordionSummary } from "@material-ui/core
 import Obols from "./Character/Obols";
 import Looty from "./General/Looty";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Stamps from "./General/Stamps";
 import { useRef } from "react";
 import Statues from "./General/Statues";
 import GeneralInfo from "./General/GeneralInfo";
@@ -11,7 +10,7 @@ import Shrines from "./General/Shrines";
 import ColosseumHighscores from "./General/ColosseumHighscores";
 import MinigameHighscores from "./General/MinigameHighscores";
 
-const AccountWrapper = ({ account }) => {
+const General = ({ account }) => {
   const accordionRef = useRef();
 
   const scrollToAccordion = () => {
@@ -39,15 +38,6 @@ const AccountWrapper = ({ account }) => {
       <MinigameHighscores scores={account?.minigameHighscores}/>
       <Shrines shrines={account?.shrines}/>
       <Statues statues={account?.statues}/>
-      <Stamps stamps={account?.stamps?.combat}/>
-      <Stamps stamps={account?.stamps?.skills}/>
-      <Stamps stamps={account?.stamps?.misc}/>
-      {/*<div>*/}
-        {/*<img src={`${prefix}/data/looty.png`} alt=""/>*/}
-        {/*<img src={`${prefix}/data/Town_Marble.gif`} alt=""/>*/}
-        {/*<img src={`${prefix}/data/Stamps.gif`} alt=""/>*/}
-        {/*<img src={`${prefix}/data/Obols.gif`} alt=""/>*/}
-      {/*</div>*/}
     </div>
 
     <div className="looty-row">
@@ -63,9 +53,7 @@ const AccountWrapper = ({ account }) => {
         </AccordionDetails>
       </StyledAccordion>
     </div>
-
-  </AccountWrapperStyle>
-    ;
+  </AccountWrapperStyle>;
 }
 
 const StyledAccordion = styled(Accordion)`
@@ -83,7 +71,7 @@ const AccountWrapperStyle = styled.div`
   .row {
     display: grid;
     justify-content: center;
-    margin: 25px 0;
+    margin: 0 0 25px 0;
     gap: 1.5rem;
     grid-template-columns: repeat(1, 450px) repeat(auto-fit, minmax(200px, 300px));
 
@@ -96,4 +84,4 @@ const AccountWrapperStyle = styled.div`
   }
 `;
 
-export default AccountWrapper;
+export default General;

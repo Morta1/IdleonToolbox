@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import WorldQuest from "./WorldQuest";
-import { prefix } from "../../../Utilities";
+import { prefix } from "../../Utilities";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import FormatAlignCenterIcon from "@material-ui/icons/FormatAlignCenter";
-import { AppContext } from "../../../components/context";
+import { AppContext } from "../Common/context";
 
 const Quests = ({ quests, characters }) => {
   const { questCharacters, setUserQuestCharacters } = useContext(AppContext);

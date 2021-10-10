@@ -1014,14 +1014,13 @@ export const findQuantityOwned = (items, itemName) => {
 export const screens = {
   characters: 0,
   account: 1,
-  alchemy: 2,
-  craftIt: 3,
-  itemLocator: 4,
-  guild: 5,
-  shopStock: 6,
-  quests: 7
+  craftIt: 2,
+  itemLocator: 3,
+  guild: 4,
+  shopStock: 5,
+  quests: 6
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '0.0.0.5';
+export const extVersion = '1.0.0';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

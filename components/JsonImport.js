@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import ErrorIcon from "@material-ui/icons/Error";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { format } from 'date-fns'
-import { AppContext } from './context';
+import { AppContext } from './Common/context';
 
 const getDate = () => {
   try {

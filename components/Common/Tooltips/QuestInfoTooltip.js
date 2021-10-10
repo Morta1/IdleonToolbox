@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Tooltip } from "@material-ui/core";
-import { cleanUnderscore, numberWithCommas, prefix } from "../../Utilities";
+import { cleanUnderscore, numberWithCommas, prefix } from "../../../Utilities";
 
 const QuestInfoTooltip = ({
                             dialogText,

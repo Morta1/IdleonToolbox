@@ -1,4 +1,4 @@
-import { cleanUnderscore, findQuantityOwned, kFormatter, prefix } from "../../../Utilities";
+import { cleanUnderscore, findQuantityOwned, kFormatter, prefix } from "../../Utilities";
 import React from "react";
 import styled from 'styled-components';
 

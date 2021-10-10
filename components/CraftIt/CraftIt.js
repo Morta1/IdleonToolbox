@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import crafts from "../../../data/crafts.json";
+import crafts from "../../data/crafts.json";
 import { Checkbox, FormControlLabel, MenuItem, TextField } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
-import { flattenCraftObject, prefix } from "../../../Utilities";
+import { flattenCraftObject, prefix } from "../../Utilities";
 import RequiredItems from "./RequiredItems";
 import CraftItemsList from "./CraftItemsList";
 

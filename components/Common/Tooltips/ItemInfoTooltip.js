@@ -1,16 +1,19 @@
 import styled from 'styled-components'
 import { Tooltip } from "@material-ui/core";
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { cleanUnderscore, prefix } from "../../../Utilities";
+
+//Power,
+//lvReqToEquip,
+//Class,
+//UQ2txt,
+//UQ2val,
 
 const ItemInfoTooltip = ({
                            rawName,
                            displayName,
-                           Power,
                            Defence,
                            Speed,
                            Weapon_Power,
-                           lvReqToEquip,
-                           Class,
                            Reach,
                            STR,
                            AGI,
@@ -18,8 +21,6 @@ const ItemInfoTooltip = ({
                            LUK,
                            UQ1txt,
                            UQ1val,
-                           UQ2txt,
-                           UQ2val,
                            Upgrade_Slots_Left,
                            children
                          }) => {
@@ -48,7 +49,8 @@ const ItemInfoTooltip = ({
           <span className={'item-reach'}>Reach: <span className={'item-value'}>{cleanUnderscore(Reach)}</span></span>}
           {UQ1txt && UQ1val && <span className={'item-misc'}>Misc: <span
             className={'item-value'}>{cleanUnderscore(`${UQ1val}${UQ1txt}`)}</span></span>}
-          {Upgrade_Slots_Left >= 0 ? <span className={'item-upgrade-slots'}>Upgrade Slots Left: <span className={'item-value'}>{Upgrade_Slots_Left}</span></span> : null}
+          {Upgrade_Slots_Left >= 0 ? <span className={'item-upgrade-slots'}>Upgrade Slots Left: <span
+            className={'item-value'}>{Upgrade_Slots_Left}</span></span> : null}
         </div>
       </div>}>
       {children}
@@ -105,7 +107,8 @@ const ItemInfoTooltipStyle = styled((props) => (
       .item-value {
         text-shadow: 1px 1px 1px black;
       }
-      .item-upgrade-slots{
+
+      .item-upgrade-slots {
         margin-top: 10px;
       }
     }

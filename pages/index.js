@@ -3,9 +3,9 @@ import styled from "styled-components";
 import { cardsObject, prefix } from "../Utilities";
 import { Chip, InputAdornment, TextField } from "@material-ui/core";
 import ClearIcon from "@material-ui/icons/Clear";
-import CustomTooltip from "../components/CustomTooltip";
+import CustomTooltip from "../components/Common/Tooltips/CustomTooltip";
 import NavBar from "../components/NavBar";
-import { Wrapper } from "../components/common-styles";
+import { Wrapper } from "../components/Common/commonStyles";
 import Head from "next/head";
 
 export default function Home() {

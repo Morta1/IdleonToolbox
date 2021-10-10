@@ -5,6 +5,27 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.0',
+      changes: [
+        {
+          title: 'General',
+          desc: ['Re-arranged some UI elements', 'Moved Stamps, Bubbles and Vials into Account tab']
+        },
+        {
+          title: 'Account',
+          desc: [
+            'Added a feature to calculate a future goal for Bubbles and Stamps',
+            'Added a tooltip to view effect of Bubbles, Stamps and vials',
+            'Added a simple bribes tracker'
+          ]
+        },
+        {
+          title: 'Etc.',
+          desc: ['Changed version to 1.0.0 for easier tracking (for me)']
+        }
+      ]
+    },
+    {
       version: '0.0.0.5',
       changes: [
         {

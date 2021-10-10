@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { TextField } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "@material-ui/lab";
-import { kFormatter, prefix, findItemInInventory } from "../../Utilities";
+import { kFormatter, prefix, findItemInInventory } from "../Utilities";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
 
 const filterOptions = createFilterOptions({

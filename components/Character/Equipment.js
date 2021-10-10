@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from "styled-components";
 import { kFormatter, prefix } from "../../Utilities";
-import ItemInfoTooltip from "../Common/ItemInfoTooltip";
+import ItemInfoTooltip from "../Common/Tooltips/ItemInfoTooltip";
 
 const Equipment = ({ equipment, tools, foods }) => {
   const [items, setItems] = useState(equipment);
