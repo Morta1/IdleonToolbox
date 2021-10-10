@@ -1,7 +1,7 @@
 import Character from "./Character";
 import React, { useContext } from "react";
 import styled from 'styled-components';
-import { AppContext } from "./context";
+import { AppContext } from "./Common/context";
 
 const CharacterWrapper = ({ characters }) => {
   const { dataFilters, displayedCharactersIndices } = useContext(AppContext);

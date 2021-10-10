@@ -1,17 +1,11 @@
 import styled from 'styled-components'
 import { prefix } from "../../Utilities";
+import CoinDisplay from "./CoinDisplay";
 
 const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverPens, money, gems }) => {
   return (
     <GeneralInfoStyle>
-      <div className="box coins">
-        {[...money]?.reverse()?.map((coin, index) => {
-          return <div className={'coin'} key={name + coin}>
-            <img src={`${prefix}data/Coins${index + 1}.png`} alt=""/>
-            <span className={'coin-value'}>{coin}</span>
-          </div>
-        })}
-      </div>
+      <CoinDisplay className={'box'} money={money}/>
       <div className="box">
         <img src={`${prefix}data/rtt0.png`} alt=""/>
         <span className={'value'}>{teleports}</span>
@@ -62,33 +56,6 @@ const GeneralInfoStyle = styled.div`
       right: 0;
       bottom: 0;
     }
-  }
-
-  .coins {
-    margin-top: 10px;
-    grid-column: span 4;
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-around;
-    position: relative;
-
-    .coin {
-      position: relative;
-      margin-right: 6px;
-
-      .coin-value {
-        position: absolute;
-        left: 50%;
-        bottom: -10px;
-        transform: translateX(-50%);
-        font-weight: bold;
-        background: #000000eb;
-        font-size: 13px;
-        padding: 0 5px;
-        text-align: center;
-      }
-    }
-
   }
 `;
 

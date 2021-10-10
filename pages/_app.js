@@ -3,7 +3,7 @@ import { createTheme, ThemeProvider as MuiThemeProvider } from "@material-ui/cor
 import Head from 'next/head'
 import '../polyfills';
 import { useEffect, useState } from "react";
-import { AppContext } from '../components/context';
+import { AppContext } from '../components/Common/context';
 import { fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
@@ -29,6 +29,7 @@ const muiTheme = createTheme({
 });
 
 const initialDisplay = { view: screens.characters, subView: '' };
+const initialAccountDisplay = { view: 'general', subView: '' }
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -39,6 +40,9 @@ export default function App({ Component, pageProps }) {
   const [loader, setLoader] = useState(true);
   const [lastUpdated, setLastUpdated] = useState();
   const [questCharacters, setQuestCharacters] = useState([0]);
+  const [accountDisplay, setAccountDisplay] = useState(initialAccountDisplay);
+  const [alchemyGoals, setAlchemyGoals] = useState();
+  const [stampsGoals, setStampsGoals] = useState();
 
   useEffect(() => {
     try {
@@ -69,6 +73,15 @@ export default function App({ Component, pageProps }) {
 
       const questCharactersObj = JSON.parse(localStorage.getItem('questCharacters')) || [0];
       setQuestCharacters(questCharactersObj);
+
+      const alchemyGoals = JSON.parse(localStorage.getItem('alchemyGoals')) || null;
+      setAlchemyGoals(alchemyGoals);
+
+      const stampsGoals = JSON.parse(localStorage.getItem('stampsGoals')) || null;
+      setStampsGoals(stampsGoals);
+
+      const accountDisplay = JSON.parse(localStorage.getItem('accountDisplay')) || initialAccountDisplay;
+      setAccountDisplay(accountDisplay);
 
       setLoader(false);
     } catch (e) {
@@ -114,6 +127,42 @@ export default function App({ Component, pageProps }) {
     setQuestCharacters(characters);
   }
 
+  const setUserAlchemyGoals = (cauldronName, levels) => {
+    try {
+      const userAlchemyGoals = JSON.parse(localStorage.getItem('alchemyGoals')) || {};
+      if (userAlchemyGoals?.[cauldronName]) {
+        userAlchemyGoals[cauldronName] = { ...userAlchemyGoals[cauldronName], ...levels };
+      } else {
+        userAlchemyGoals[cauldronName] = levels;
+      }
+      localStorage.setItem('alchemyGoals', JSON.stringify(userAlchemyGoals));
+      setAlchemyGoals(userAlchemyGoals);
+    } catch (err) {
+      console.error('Error while saving user alchemy goals');
+    }
+  }
+
+  const setUserStampsGoals = (categoryName, levels) => {
+    try {
+      const userStampsGoals = JSON.parse(localStorage.getItem('stampsGoals')) || {};
+      if (userStampsGoals?.[categoryName]) {
+        userStampsGoals[categoryName] = { ...userStampsGoals[categoryName], ...levels };
+      } else {
+        userStampsGoals[categoryName] = levels;
+      }
+      localStorage.setItem('stampsGoals', JSON.stringify(userStampsGoals));
+      setStampsGoals(userStampsGoals);
+    } catch (err) {
+      console.error('Error while saving user alchemy goals');
+    }
+  }
+
+  const setUserAccountDisplay = ({ view, subView }) => {
+    const display = { view, subView };
+    setAccountDisplay(display);
+    localStorage.setItem('accountDisplay', JSON.stringify(display));
+  }
+
   return (
     <>
       <Head>
@@ -133,7 +182,10 @@ export default function App({ Component, pageProps }) {
             display, setUserDisplay,
             displayedCharactersIndices, setUserDisplayedCharactersIndices,
             lastUpdated, setUserLastUpdated,
-            questCharacters, setUserQuestCharacters
+            questCharacters, setUserQuestCharacters,
+            accountDisplay, setUserAccountDisplay,
+            alchemyGoals, setUserAlchemyGoals,
+            stampsGoals, setUserStampsGoals,
           }}>
             {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
                 <CircularProgress size={60} style={{ color: 'white' }}/>

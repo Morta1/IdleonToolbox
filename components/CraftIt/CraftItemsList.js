@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { cleanUnderscore, findQuantityOwned, kFormatter, prefix } from "../../../Utilities";
+import { cleanUnderscore, findQuantityOwned, kFormatter, prefix } from "../../Utilities";
 import React from "react";
 
 const CraftItemsList = ({ inventoryItems, itemsList = [], copies }) => {

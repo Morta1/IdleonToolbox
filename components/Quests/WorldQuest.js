@@ -10,13 +10,13 @@ import {
   ListItemText
 } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { cleanUnderscore, prefix } from "../../../Utilities";
+import { cleanUnderscore, prefix } from "../../Utilities";
 import React from "react";
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import Badge from '@material-ui/core/Badge';
 import RadioButtonUncheckedOutlinedIcon from '@material-ui/icons/RadioButtonUncheckedOutlined';
-import QuestInfoTooltip from "../../Common/QuestInfoTooltip";
+import QuestInfoTooltip from "../Common/Tooltips/QuestInfoTooltip";
 
 const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
   const getQuestIndicator = (status) => {
@@ -45,10 +45,6 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
           <StyledAccordionDetails>
             {npc?.npcQuests?.map((npcQuest, innerIndex) => {
               const { questTitle, completed = [], progress = [], ...questInfo } = npcQuest;
-              // if(npc?.name === 'Glumlee'){
-              //   console.log('completed',completed);
-              //   console.log('progress',progress);
-              // }
               return <List key={npc?.name + "" + index + "" + innerIndex} component="div" disablePadding>
                 <StyledListItem {...(progress?.length > 0 ? {} : {})}
                                 style={{ paddingLeft: 10, background: '#424242' }}>

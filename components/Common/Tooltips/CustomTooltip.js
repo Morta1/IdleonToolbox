@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Tooltip } from "@material-ui/core";
-import { prefix } from "../Utilities";
+import { prefix } from "../../../Utilities";
 
 const CustomTooltip = ({ header, base, children }) => {
   return (

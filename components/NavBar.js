@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useRouter } from "next/router";
 import { extVersion, prefix, screens } from "../Utilities";
 import JsonImport from "./JsonImport";
-import { AppContext } from "./context";
+import { AppContext } from "./Common/context";
 
 const NavBar = () => {
   const { display, setUserDisplay, userData } = useContext(AppContext);

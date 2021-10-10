@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import AppBar from "@material-ui/core/AppBar";
-import NavBar from "../NavBar";
+import NavBar from "../../NavBar";
 import {
   Chip,
   Collapse,
@@ -13,14 +13,14 @@ import {
   useMediaQuery
 } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { extVersion, prefix, screens } from "../../Utilities";
+import { extVersion, prefix, screens } from "../../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
 
 const nestedOptionPadding = 35;
 
-const FamilyDrawer = () => {
+const CharactersDrawer = () => {
   const {
     userData,
     display,
@@ -83,7 +83,7 @@ const FamilyDrawer = () => {
   }
 
   return (
-    <FamilyDrawerStyle>
+    <CharactersDrawerStyle>
       <StyledDrawer
         isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}
         anchor={'left'} variant={'permanent'}>
@@ -92,7 +92,7 @@ const FamilyDrawer = () => {
         </AppBar>
         <Toolbar/>
         {matches && <Toolbar/>}
-        {userData && display?.view === 0 && userData?.version === extVersion ? <>
+        {userData && display?.view === screens.characters && userData?.version === extVersion ? <>
           <List>
             <ListItem button onClick={handleClick}>
               <ListItemText
@@ -165,11 +165,11 @@ const FamilyDrawer = () => {
           </List>
         </> : null}
       </StyledDrawer>
-    </FamilyDrawerStyle>
+    </CharactersDrawerStyle>
   );
 };
 
-const FamilyDrawerStyle = styled.div`
+const CharactersDrawerStyle = styled.div`
   .toggle-all, .chips {
     display: flex;
     padding-left: 10px;
@@ -212,4 +212,4 @@ const StyledDrawer = styled(({ isCharacterDisplay, ...other }) => (
   }
 `;
 
-export default FamilyDrawer;
+export default CharactersDrawer;
