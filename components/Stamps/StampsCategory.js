@@ -76,7 +76,7 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
                 <EffectTooltip {...{ name: displayName, desc: effect, ...stamp }}
                                type={'stamp'}
                                effect={growth(func, level, x1, x2)}>
-                  <img className={`${level === 0 && 'missing'}`}
+                  <img width={48} height={48} className={`${level === 0 && 'missing'}`}
                        src={`${prefix}data/${rawName}.png`}
                        alt=""/>
                 </EffectTooltip>

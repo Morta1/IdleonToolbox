@@ -56,7 +56,7 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
               <span className={'level'}>{level}</span>
               <EffectTooltip type={'bubble'} {...{ name: bubbleName, ...bubble }}
                              effect={calculateEffect(func, level, x1, x2)}>
-                <img src={`${prefix}data/${rawName}.png`}
+                <img width={48} height={48} src={`${prefix}data/${rawName}.png`}
                      alt={''}/>
               </EffectTooltip>
             </div>
@@ -111,6 +111,11 @@ const BubblesStyle = styled.div`
     grid-auto-flow: column;
     row-gap: 20px;
     column-gap: 100px;
+
+    @media (max-width: 1300px){
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   .bubble-row {
