@@ -50,14 +50,14 @@ const Brewing = ({ alchemy }) => {
               max: 8
             }} label="Bargain Tag Level"/>
         </Grid>
-        <Grid item style={{ marginLeft: 10 }}>
+        {accountDisplay?.subView !== 'kazam' ? <Grid item style={{ marginLeft: 10 }}>
           <FormControlLabel
             control={<StyledCheckbox color='default'
                                      checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}
                                      name="classDiscount"/>}
             label="Class Discount (Bubble II)"
           />
-        </Grid>
+        </Grid> : null}
       </Grid>
       {cauldrons?.map((cauldronName, index) => {
         return accountDisplay?.subView === cauldronName ?
