@@ -6,12 +6,11 @@ const EffectTooltip = ({
                          type,
                          name,
                          desc,
-                         level,
                          effect,
                          children
                        }) => {
   return (
-    level === 0 ? children : <EffectTooltipStyle
+    <EffectTooltipStyle
       interactive
       enterTouchDelay={100}
       placement={"top-start"}

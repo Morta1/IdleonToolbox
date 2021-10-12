@@ -15,7 +15,7 @@ const Account = () => {
   const matches = useMediaQuery('(max-width:1260px)');
 
   return (
-    <AlchemyStyle
+    <AccountStyle
       isCharacterDisplay={userData && display?.view === screens.account && userData?.version === extVersion}>
       <AccountDrawer/>
       {matches && <Toolbar/>}
@@ -26,13 +26,13 @@ const Account = () => {
       {accountDisplay?.view === 'brewing' ? <Brewing alchemy={userData?.account?.alchemy}/> : null}
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
-    </AlchemyStyle>
+    </AccountStyle>
   );
 };
 
-const AlchemyStyle = styled.div`
+const AccountStyle = styled.div`
   ${({ isCharacterDisplay }) => isCharacterDisplay ? 'padding-left: 240px;' : ''}
-  margin-top: 25px;
+  margin-top: 15px;
 `;
 
 export default Account;
