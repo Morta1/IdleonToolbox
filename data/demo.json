@@ -639,7 +639,7 @@
                 "rawName": "Blank"
               }
             ],
-            "level": 51,
+            "level": 52,
             "rawName": "aUpgradesY4",
             "stat": "ProwessMulti",
             "x1": 1.5,
@@ -767,7 +767,7 @@
                 "rawName": "Blank"
               }
             ],
-            "level": 26,
+            "level": 27,
             "rawName": "aUpgradesY8",
             "stat": "expACTIVE",
             "x1": 9.7,
@@ -863,7 +863,7 @@
                 "rawName": "Blank"
               }
             ],
-            "level": 45,
+            "level": 47,
             "rawName": "aUpgradesY11",
             "stat": "SampleSize",
             "x1": 12,
@@ -3258,7 +3258,7 @@
         "stars": 1
       },
       "Bloach (+% Fishing Away Gains)": {
-        "amount": 66,
+        "amount": 67,
         "stars": 2
       },
       "Bloque (+ Base AGI)": {
@@ -3278,7 +3278,7 @@
         "stars": 2
       },
       "Bunny (+% Skill AFK gain rate)": {
-        "amount": 78,
+        "amount": 83,
         "stars": 3
       },
       "Butterfly (+% Total Catching Efficiency)": {
@@ -3306,7 +3306,7 @@
         "stars": 1
       },
       "Cinder Forge (+% Smithing EXP)": {
-        "amount": 140,
+        "amount": 146,
         "stars": 3
       },
       "Coastiolyte (+% Fishing Away Gains)": {
@@ -3317,7 +3317,7 @@
         "stars": 3
       },
       "Crabbo (+% Trapping Efficiency)": {
-        "amount": 106,
+        "amount": 108,
         "stars": 3
       },
       "Crabcake (+% To not consume Food)": {
@@ -3333,7 +3333,7 @@
         "stars": 0
       },
       "Crystal Cattle (+% EXP from monsters)": {
-        "amount": 54,
+        "amount": 55,
         "stars": 2
       },
       "Crystal Crabal (+% EXP from monsters)": {
@@ -3341,7 +3341,7 @@
         "stars": 1
       },
       "Dedotated Ram (+ Weapon Power)": {
-        "amount": 777,
+        "amount": 849,
         "stars": 3
       },
       "Dementia Ore (+% Mining Speed)": {
@@ -3357,7 +3357,7 @@
         "stars": 3
       },
       "Dune Soul (+% Max Charge)": {
-        "amount": 12,
+        "amount": 19,
         "stars": 2
       },
       "Efaunt (+% EXP from monsters)": {
@@ -3365,7 +3365,7 @@
         "stars": 3
       },
       "Fire Forge (+% Smithing EXP)": {
-        "amount": 452,
+        "amount": 458,
         "stars": 3
       },
       "Floofie (+% MP regen rate)": {
@@ -3377,7 +3377,7 @@
         "stars": 3
       },
       "Flycicle (+% Catching Away Gains)": {
-        "amount": 110,
+        "amount": 128,
         "stars": 3
       },
       "Forest Fibres (+% EXP Conversion from Talent)": {
@@ -3385,7 +3385,7 @@
         "stars": 1
       },
       "Forest Soul (+% Defence from Equipment)": {
-        "amount": 57,
+        "amount": 60,
         "stars": 3
       },
       "Frog (+ Base MP)": {
@@ -3393,7 +3393,7 @@
         "stars": 1
       },
       "Froge (+% Shiny Critter Chance)": {
-        "amount": 223,
+        "amount": 228,
         "stars": 3
       },
       "Frost Flake (+ Base STR)": {
@@ -3413,7 +3413,7 @@
         "stars": 0
       },
       "Gigafrog (+% Card Drop Chance)": {
-        "amount": 51,
+        "amount": 54,
         "stars": 2
       },
       "Glublin (+% Total HP)": {
@@ -3425,7 +3425,7 @@
         "stars": 3
       },
       "Goldfish (+% Total MP)": {
-        "amount": 578,
+        "amount": 586,
         "stars": 3
       },
       "Green Mushroom (+ Base HP)": {
@@ -3433,7 +3433,7 @@
         "stars": 3
       },
       "Hermit Can (+% Total Fishing Efficiency)": {
-        "amount": 282,
+        "amount": 286,
         "stars": 3
       },
       "Iron Ore (+% Total Mining Efficiency)": {
@@ -3441,7 +3441,7 @@
         "stars": 2
       },
       "Jellyfish (+% Fishing EXP)": {
-        "amount": 141,
+        "amount": 143,
         "stars": 3
       },
       "Jungle Logs (+% Choppin EXP)": {
@@ -3461,7 +3461,7 @@
         "stars": 1
       },
       "Mamooth (+% Total HP)": {
-        "amount": 240,
+        "amount": 253,
         "stars": 3
       },
       "Mashed Potato (+% Critical Damage)": {
@@ -3477,7 +3477,7 @@
         "stars": 2
       },
       "Moonmoon (+% Monster EXP While Active)": {
-        "amount": 59,
+        "amount": 62,
         "stars": 2
       },
       "Mosquisnow (+% Total Catching Efficiency)": {
@@ -3485,7 +3485,7 @@
         "stars": 2
       },
       "Mousey (+% Shiny Critter Chance)": {
-        "amount": 126,
+        "amount": 128,
         "stars": 3
       },
       "Mr Blueberry (+% Total Drop Rate)": {
@@ -3516,7 +3516,7 @@
         "stars": 1
       },
       "Pingy (+% Shiny Critter Chance)": {
-        "amount": 99,
+        "amount": 100,
         "stars": 3
       },
       "Plasti Doug (+ Base Defence)": {
@@ -3559,11 +3559,11 @@
         "stars": 3
       },
       "Sandy Pot (+% EXP Conversion from Talent)": {
-        "amount": 112,
+        "amount": 139,
         "stars": 3
       },
       "Scorpie (+% Trapping EXP)": {
-        "amount": 180,
+        "amount": 183,
         "stars": 3
       },
       "Sentient Cereal (+% Catching EXP)": {
@@ -3591,7 +3591,7 @@
         "stars": 1
       },
       "Snowman (+% Total Damage)": {
-        "amount": 316,
+        "amount": 319,
         "stars": 3
       },
       "Squiddy Soul (+% Charge Rate)": {
@@ -3626,7 +3626,7 @@
         "stars": 0
       },
       "Void Ore (+% Card Drop Chance)": {
-        "amount": 14,
+        "amount": 19,
         "stars": 1
       },
       "Walking Stick (+ Base WIS)": {
@@ -3659,84 +3659,266 @@
       574881,
       1240134
     ],
-    "colosseumTickets": "144",
-    "gems": "96",
+    "colosseumTickets": "150",
+    "constellations": [
+      {
+        "completedChars": "dec_",
+        "done": true,
+        "location": "Blunder_Hills",
+        "mapIndex": 0,
+        "name": "A-1",
+        "points": 3,
+        "requiredPlayers": 4,
+        "requirement": "Reach_Lv_30_on_four_players"
+      },
+      {
+        "completedChars": "d",
+        "done": true,
+        "location": "Where_the_Branches_End",
+        "mapIndex": 31,
+        "name": "A-2",
+        "points": 3,
+        "requiredPlayers": 1,
+        "requirement": "AFK_here_for_1+_hours."
+      },
+      {
+        "completedChars": "dfa_",
+        "done": true,
+        "location": "Valley_Of_The_Beans",
+        "mapIndex": 14,
+        "name": "A-3",
+        "points": 3,
+        "requiredPlayers": 4,
+        "requirement": "Reach_this_star_on_4_players"
+      },
+      {
+        "completedChars": "dfc",
+        "done": true,
+        "location": "Tucked_Away",
+        "mapIndex": 28,
+        "name": "A-4",
+        "points": 4,
+        "requiredPlayers": 3,
+        "requirement": "Reach_this_star_on_3_players"
+      },
+      {
+        "completedChars": "de",
+        "done": false,
+        "location": "The_Office",
+        "mapIndex": 9,
+        "name": "A-5",
+        "points": 5,
+        "requiredPlayers": 3,
+        "requirement": "Defeat_Dr._Defecaus_on_3_players"
+      },
+      {
+        "completedChars": "e",
+        "done": true,
+        "location": "Freefall_Caverns",
+        "mapIndex": 7,
+        "name": "A-6",
+        "points": 3,
+        "requiredPlayers": 1,
+        "requirement": "Reach_this_star_as_any_Archer_Class"
+      },
+      {
+        "completedChars": "",
+        "done": false,
+        "location": "Winding_Willows",
+        "mapIndex": 19,
+        "name": "A-7",
+        "points": 3,
+        "requiredPlayers": 2,
+        "requirement": "AFK_here_for_24+_hours_on_2_players"
+      },
+      {
+        "completedChars": "e",
+        "done": false,
+        "location": "Dewdrop_Colosseum",
+        "mapIndex": 36,
+        "name": "A-8",
+        "points": 4,
+        "requiredPlayers": 3,
+        "requirement": "Clear_the_colosseum_on_3_players"
+      },
+      {
+        "completedChars": "ace_bh",
+        "done": false,
+        "location": "End_Of_The_Road",
+        "mapIndex": 29,
+        "name": "A-9",
+        "points": 5,
+        "requiredPlayers": 3,
+        "requirement": "Defeat_Amarok_in_under_20_seconds_on_3_players"
+      },
+      {
+        "completedChars": "",
+        "done": false,
+        "location": "Echoing_Egress",
+        "mapIndex": 11,
+        "name": "A-10",
+        "points": 4,
+        "requiredPlayers": 1,
+        "requirement": "Reach_this_star_as_any_Mage_Class"
+      },
+      {
+        "completedChars": "fge",
+        "done": true,
+        "location": "The_Mimic_Hole",
+        "mapIndex": 52,
+        "name": "B-1",
+        "points": 4,
+        "requiredPlayers": 3,
+        "requirement": "Reach_this_star_on_3_players"
+      },
+      {
+        "completedChars": "",
+        "done": false,
+        "location": "Faraway_Piers",
+        "mapIndex": 55,
+        "name": "B-2",
+        "points": 4,
+        "requiredPlayers": 1,
+        "requirement": "Reach_this_star_as_any_Mage_Class"
+      },
+      {
+        "completedChars": "",
+        "done": false,
+        "location": "The_Grandioso_Canyon",
+        "mapIndex": 57,
+        "name": "B-3",
+        "points": 4,
+        "requiredPlayers": 3,
+        "requirement": "AFK_here_for_36+_hours_on_3_players"
+      },
+      {
+        "completedChars": "ec_a",
+        "done": true,
+        "location": "Slamabam_Straightaway",
+        "mapIndex": 60,
+        "name": "B-4",
+        "points": 5,
+        "requiredPlayers": 4,
+        "requirement": "Reach_this_star_on_4_players"
+      },
+      {
+        "completedChars": "e",
+        "done": false,
+        "location": "Sandstone_Colosseum",
+        "mapIndex": 68,
+        "name": "B-5",
+        "points": 3,
+        "requiredPlayers": 4,
+        "requirement": "Clear_the_colosseum_on_4_players"
+      },
+      {
+        "completedChars": "",
+        "done": false,
+        "location": "Efaunt's_Tomb",
+        "mapIndex": 66,
+        "name": "B-6",
+        "points": 5,
+        "requiredPlayers": 1,
+        "requirement": "Defeat_Efaunt_as_any_Beginner_Class"
+      },
+      {
+        "completedChars": "",
+        "done": false,
+        "location": "Up_Up_Down_Down",
+        "mapIndex": 63,
+        "name": "B-7",
+        "points": 3,
+        "requiredPlayers": 3,
+        "requirement": "AFK_here_for_48+_hours_on_3_players"
+      },
+      {
+        "completedChars": "e_bd",
+        "done": true,
+        "location": "YumYum_Grotto",
+        "mapIndex": 50,
+        "name": "B-8",
+        "points": 4,
+        "requiredPlayers": 4,
+        "requirement": "Reach_Lv_65_on_four_players"
+      }
+    ],
+    "gems": "99",
     "goldPens": "0",
     "inventory": [
       {
-        "amount": 4766049,
+        "amount": 5070059,
         "name": "Copper_Ore",
         "owner": "storage",
         "rawName": "Copper"
       },
       {
-        "amount": 257286,
+        "amount": 244836,
         "name": "Iron_Ore",
         "owner": "storage",
         "rawName": "Iron"
       },
       {
-        "amount": 263607,
+        "amount": 202927,
         "name": "Gold_Ore",
         "owner": "storage",
         "rawName": "Gold"
       },
       {
-        "amount": 141465,
+        "amount": 131105,
         "name": "Platinum_Ore",
         "owner": "storage",
         "rawName": "Plat"
       },
       {
-        "amount": 930,
-        "name": "Distilled_Water",
+        "amount": 155,
+        "name": "Average_Life_Potion",
         "owner": "storage",
-        "rawName": "PureWater"
+        "rawName": "FoodPotRe2"
       },
       {
-        "amount": 223,
-        "name": "Dense_Water",
+        "amount": 9,
+        "name": "Average_Strength_Potion",
         "owner": "storage",
-        "rawName": "PureWater2"
+        "rawName": "FoodPotOr2"
       },
       {
-        "amount": 23158,
+        "amount": 22218,
         "name": "Copper_Bar",
         "owner": "storage",
         "rawName": "CopperBar"
       },
       {
-        "amount": 32213,
+        "amount": 37221,
         "name": "Iron_Bar",
         "owner": "storage",
         "rawName": "IronBar"
       },
       {
-        "amount": 25675,
+        "amount": 23110,
         "name": "Gold_Bar",
         "owner": "storage",
         "rawName": "GoldBar"
       },
       {
-        "amount": 32868,
+        "amount": 32569,
         "name": "Platinum_Bar",
         "owner": "storage",
         "rawName": "PlatBar"
       },
       {
-        "amount": 18335,
+        "amount": 18664,
         "name": "Dementia_Bar",
         "owner": "storage",
         "rawName": "DementiaBar"
       },
       {
-        "amount": 3227,
+        "amount": 5150,
         "name": "Void_Bar",
         "owner": "storage",
         "rawName": "VoidBar"
       },
       {
-        "amount": 14811478,
+        "amount": 16085203,
         "name": "Oak_Logs",
         "owner": "storage",
         "rawName": "OakTree"
@@ -3748,7 +3930,7 @@
         "rawName": "BirchTree"
       },
       {
-        "amount": 314625,
+        "amount": 313125,
         "name": "Jungle_Logs",
         "owner": "storage",
         "rawName": "JungleTree"
@@ -3766,13 +3948,13 @@
         "rawName": "ForestTree"
       },
       {
-        "amount": 371160,
+        "amount": 364660,
         "name": "Tropilogs",
         "owner": "storage",
         "rawName": "PalmTree"
       },
       {
-        "amount": 150115,
+        "amount": 112585,
         "name": "Potty_Rolls",
         "owner": "storage",
         "rawName": "ToiletTree"
@@ -3790,7 +3972,7 @@
         "rawName": "Tree7"
       },
       {
-        "amount": 10982,
+        "amount": 10942,
         "name": "Grass_Leaf",
         "owner": "storage",
         "rawName": "Leaf1"
@@ -3802,13 +3984,13 @@
         "rawName": "Leaf2"
       },
       {
-        "amount": 6269,
+        "amount": 6347,
         "name": "Arctic_Leaf",
         "owner": "storage",
         "rawName": "Leaf3"
       },
       {
-        "amount": 354002,
+        "amount": 409385,
         "name": "Spore_Cap",
         "owner": "storage",
         "rawName": "Grasslands1"
@@ -3820,13 +4002,13 @@
         "rawName": "Grasslands4"
       },
       {
-        "amount": 18606,
+        "amount": 8713,
         "name": "Frog_Leg",
         "owner": "storage",
         "rawName": "Grasslands2"
       },
       {
-        "amount": 22397,
+        "amount": 22337,
         "name": "Bean_Slices",
         "owner": "storage",
         "rawName": "Grasslands3"
@@ -3838,19 +4020,19 @@
         "rawName": "Jungle1"
       },
       {
-        "amount": 12390,
+        "amount": 7316,
         "name": "Snake_Skin",
         "owner": "storage",
         "rawName": "Jungle2"
       },
       {
-        "amount": 27941,
+        "amount": 27341,
         "name": "Carrot_Cube",
         "owner": "storage",
         "rawName": "Jungle3"
       },
       {
-        "amount": 100804,
+        "amount": 110821,
         "name": "Glublin_Ear",
         "owner": "storage",
         "rawName": "Forest1"
@@ -3862,13 +4044,13 @@
         "rawName": "Forest2"
       },
       {
-        "amount": 86865,
+        "amount": 120900,
         "name": "Bullfrog_Horn",
         "owner": "storage",
         "rawName": "Forest3"
       },
       {
-        "amount": 328442,
+        "amount": 328750,
         "name": "Corn_Kernels",
         "owner": "storage",
         "rawName": "Sewers1"
@@ -3880,7 +4062,7 @@
         "rawName": "Sewers2"
       },
       {
-        "amount": 790924,
+        "amount": 787671,
         "name": "Stick",
         "owner": "storage",
         "rawName": "TreeInterior1"
@@ -3892,19 +4074,19 @@
         "rawName": "TreeInterior2"
       },
       {
-        "amount": 117542,
+        "amount": 242156,
         "name": "Pocket_Sand",
         "owner": "storage",
         "rawName": "DesertA1"
       },
       {
-        "amount": 1884,
-        "name": "Void_Ore",
+        "amount": 5,
+        "name": "Cauldron_Statue",
         "owner": "storage",
-        "rawName": "Void"
+        "rawName": "EquipmentStatues13"
       },
       {
-        "amount": 480178,
+        "amount": 476178,
         "name": "Crabby_Cakey",
         "owner": "storage",
         "rawName": "DesertA3"
@@ -3922,7 +4104,7 @@
         "rawName": "DesertB2"
       },
       {
-        "amount": 54516,
+        "amount": 54890,
         "name": "Pincer_Arm",
         "owner": "storage",
         "rawName": "DesertB3"
@@ -3940,7 +4122,7 @@
         "rawName": "DesertB4"
       },
       {
-        "amount": 63770,
+        "amount": 70370,
         "name": "Wakka_Cherry",
         "owner": "storage",
         "rawName": "DesertC2"
@@ -3976,25 +4158,25 @@
         "rawName": "SnowA3"
       },
       {
-        "amount": 585513,
+        "amount": 640021,
         "name": "Ram_Wool",
         "owner": "storage",
         "rawName": "SnowA4"
       },
       {
-        "amount": 58157,
+        "amount": 60586,
         "name": "Sticky_Stick",
         "owner": "storage",
         "rawName": "SnowB1"
       },
       {
-        "amount": 179877,
+        "amount": 205554,
         "name": "Mamooth_Tusk",
         "owner": "storage",
         "rawName": "SnowB2"
       },
       {
-        "amount": 129522,
+        "amount": 135695,
         "name": "Snow_Ball",
         "owner": "storage",
         "rawName": "SnowB5"
@@ -4036,40 +4218,40 @@
         "rawName": "SnowC4"
       },
       {
-        "amount": 157,
+        "amount": 147,
         "name": "Golden_Dubloon",
         "owner": "storage",
         "rawName": "Quest19"
       },
       {
-        "amount": 12385,
+        "amount": 9885,
         "name": "Megalodon_Tooth",
         "owner": "storage",
         "rawName": "DesertA2"
       },
       {
-        "amount": 8,
+        "amount": 9,
         "name": "Purbunni",
         "owner": "storage",
         "rawName": "Critter7A"
       },
       {
-        "amount": 12691,
+        "amount": 14051,
         "name": "Bunny",
         "owner": "storage",
         "rawName": "Critter7"
       },
       {
-        "amount": 309,
-        "name": "Dementia_Ore",
+        "amount": 957,
+        "name": "Distilled_Water",
         "owner": "storage",
-        "rawName": "Dementia"
+        "rawName": "PureWater"
       },
       {
-        "amount": 1,
-        "name": "Carrot_Launcher",
+        "amount": 231,
+        "name": "Dense_Water",
         "owner": "storage",
-        "rawName": "EquipmentBows4"
+        "rawName": "PureWater2"
       },
       {
         "amount": 1,
@@ -4084,19 +4266,25 @@
         "rawName": "rtt0"
       },
       {
-        "amount": 662,
+        "amount": 656,
         "name": "Talent_Point_Reset_Fragment",
         "owner": "storage",
         "rawName": "ResetFrag"
       },
       {
-        "amount": 111282,
+        "amount": 1,
+        "name": "Carrot_Launcher",
+        "owner": "storage",
+        "rawName": "EquipmentBows4"
+      },
+      {
+        "amount": 151566,
         "name": "Forest_Soul",
         "owner": "storage",
         "rawName": "Soul1"
       },
       {
-        "amount": 62023,
+        "amount": 92306,
         "name": "Dune_Soul",
         "owner": "storage",
         "rawName": "Soul2"
@@ -4114,13 +4302,13 @@
         "rawName": "Soul4"
       },
       {
-        "amount": 18,
+        "amount": 19,
         "name": "Eternal_Lord_of__The_Undying_Ember",
         "owner": "storage",
         "rawName": "Critter6A"
       },
       {
-        "amount": 13987,
+        "amount": 15007,
         "name": "Pingy",
         "owner": "storage",
         "rawName": "Critter6"
@@ -4132,109 +4320,109 @@
         "rawName": "Bug1"
       },
       {
-        "amount": 473463,
+        "amount": 544779,
         "name": "Butterfly",
         "owner": "storage",
         "rawName": "Bug2"
       },
       {
-        "amount": 84445,
+        "amount": 78466,
         "name": "Sentient_Cereal",
         "owner": "storage",
         "rawName": "Bug3"
       },
       {
-        "amount": 306085,
+        "amount": 319756,
         "name": "Fruitfly",
         "owner": "storage",
         "rawName": "Bug4"
       },
       {
-        "amount": 19664,
+        "amount": 20004,
         "name": "Owlio",
         "owner": "storage",
         "rawName": "Critter5"
       },
       {
-        "amount": 110,
+        "amount": 112,
         "name": "Minervowl",
         "owner": "storage",
         "rawName": "Critter5A"
       },
       {
-        "amount": 80924,
+        "amount": 83304,
         "name": "Scorpie",
         "owner": "storage",
         "rawName": "Critter3"
       },
       {
-        "amount": 36760,
+        "amount": 38460,
         "name": "Mousey",
         "owner": "storage",
         "rawName": "Critter4"
       },
       {
-        "amount": 133836,
+        "amount": 143008,
         "name": "Froge",
         "owner": "storage",
         "rawName": "Critter1"
       },
       {
-        "amount": 30021,
+        "amount": 31381,
         "name": "Crabbo",
         "owner": "storage",
         "rawName": "Critter2"
       },
       {
-        "amount": 239,
+        "amount": 247,
         "name": "Mutant_Crabbo",
         "owner": "storage",
         "rawName": "Critter2A"
       },
       {
-        "amount": 425,
+        "amount": 438,
         "name": "Poison_Froge",
         "owner": "storage",
         "rawName": "Critter1A"
       },
       {
-        "amount": 21471,
+        "amount": 19748,
         "name": "Bloach",
         "owner": "storage",
         "rawName": "Fish4"
       },
       {
-        "amount": 126979,
+        "amount": 115014,
         "name": "Hermit_Can",
         "owner": "storage",
         "rawName": "Fish2"
       },
       {
-        "amount": 31407,
+        "amount": 34744,
         "name": "Goldfish",
         "owner": "storage",
         "rawName": "Fish1"
       },
       {
-        "amount": 77155,
+        "amount": 100680,
         "name": "Jellyfish",
         "owner": "storage",
         "rawName": "Fish3"
       },
       {
-        "amount": 83,
+        "amount": 86,
         "name": "Nakeo_Moleo",
         "owner": "storage",
         "rawName": "Critter4A"
       },
       {
-        "amount": 244,
+        "amount": 248,
         "name": "Crescent_Scorpie",
         "owner": "storage",
         "rawName": "Critter3A"
       },
       {
-        "amount": 2034760,
+        "amount": 2166157,
         "name": "Thread",
         "owner": "storage",
         "rawName": "CraftMat1"
@@ -4246,25 +4434,25 @@
         "rawName": "CraftMat5"
       },
       {
-        "amount": 89840,
+        "amount": 93026,
         "name": "Boring_Brick",
         "owner": "storage",
         "rawName": "CraftMat6"
       },
       {
-        "amount": 54917,
+        "amount": 54087,
         "name": "Chain_Link",
         "owner": "storage",
         "rawName": "CraftMat7"
       },
       {
-        "amount": 23182,
+        "amount": 24413,
         "name": "Leather_Hide",
         "owner": "storage",
         "rawName": "CraftMat9"
       },
       {
-        "amount": 941,
+        "amount": 1091,
         "name": "Pinion_Spur",
         "owner": "storage",
         "rawName": "CraftMat8"
@@ -4288,10 +4476,16 @@
         "rawName": "Peanut"
       },
       {
-        "amount": 373,
+        "amount": 433,
         "name": "Lugi_Bracket",
         "owner": "storage",
         "rawName": "CraftMat10"
+      },
+      {
+        "amount": 1884,
+        "name": "Void_Ore",
+        "owner": "storage",
+        "rawName": "Void"
       },
       {
         "amount": 10,
@@ -4318,12 +4512,6 @@
         "rawName": "Timecandy1"
       },
       {
-        "amount": 99,
-        "name": "Slurpin_Herm",
-        "owner": "storage",
-        "rawName": "FoodFish1"
-      },
-      {
         "amount": 11,
         "name": "Redox_Salts",
         "owner": "storage",
@@ -4342,7 +4530,13 @@
         "rawName": "Timecandy2"
       },
       {
-        "amount": 56,
+        "amount": 2781,
+        "name": "Dementia_Ore",
+        "owner": "storage",
+        "rawName": "Dementia"
+      },
+      {
+        "amount": 57,
         "name": "Small_Experience_Balloon",
         "owner": "storage",
         "rawName": "ExpBalloon1"
@@ -4366,13 +4560,13 @@
         "rawName": "Pearl4"
       },
       {
-        "amount": 130,
+        "amount": 120,
         "name": "Armor_Upgrade_Stone_III",
         "owner": "storage",
         "rawName": "StoneA3"
       },
       {
-        "amount": 156,
+        "amount": 137,
         "name": "Tool_Upgrade_Stone_III",
         "owner": "storage",
         "rawName": "StoneT3"
@@ -4420,19 +4614,19 @@
         "rawName": "StoneHelm6"
       },
       {
-        "amount": 1009,
+        "amount": 1023,
         "name": "Mystery_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneZ1"
       },
       {
-        "amount": 762,
+        "amount": 798,
         "name": "Mystery_Upgrade_Stone_II",
         "owner": "storage",
         "rawName": "StoneZ2"
       },
       {
-        "amount": 1098,
+        "amount": 1107,
         "name": "Tool_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneT1"
@@ -4456,13 +4650,13 @@
         "rawName": "StoneWeb"
       },
       {
-        "amount": 209,
+        "amount": 219,
         "name": "Weapon_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneW1"
       },
       {
-        "amount": 455,
+        "amount": 466,
         "name": "Armor_Upgrade_Stone_I",
         "owner": "storage",
         "rawName": "StoneA1"
@@ -4474,7 +4668,7 @@
         "rawName": "StoneHelm1"
       },
       {
-        "amount": 246,
+        "amount": 250,
         "name": "Tool_Upgrade_Stone_II",
         "owner": "storage",
         "rawName": "StoneT2"
@@ -4510,13 +4704,13 @@
         "rawName": "StampA3"
       },
       {
-        "amount": 14,
+        "amount": 15,
         "name": "Ghost",
         "owner": "storage",
         "rawName": "DesertC2b"
       },
       {
-        "amount": 56,
+        "amount": 58,
         "name": "Ice_Age_3",
         "owner": "storage",
         "rawName": "SnowB2a"
@@ -4540,13 +4734,13 @@
         "rawName": "MidnightCookie"
       },
       {
-        "amount": 17,
+        "amount": 23,
         "name": "Glass_Shard",
         "owner": "storage",
         "rawName": "DesertA1b"
       },
       {
-        "amount": 33,
+        "amount": 35,
         "name": "Job_Application",
         "owner": "storage",
         "rawName": "JobApplication"
@@ -4558,7 +4752,7 @@
         "rawName": "Cutter"
       },
       {
-        "amount": 15,
+        "amount": 16,
         "name": "Golden_Plop",
         "owner": "storage",
         "rawName": "Sewers1b"
@@ -4588,6 +4782,12 @@
         "rawName": "SnowC4a"
       },
       {
+        "amount": 1,
+        "name": "Golden_Nomwich",
+        "owner": "storage",
+        "rawName": "FoodG4"
+      },
+      {
         "amount": 1077,
         "name": "Amarok_Slab",
         "owner": "storage",
@@ -4600,7 +4800,7 @@
         "rawName": "Quest29"
       },
       {
-        "amount": 53,
+        "amount": 54,
         "name": "Birthday_Card",
         "owner": "storage",
         "rawName": "Quest25"
@@ -4678,7 +4878,7 @@
         "rawName": "EquipmentHats63"
       },
       {
-        "amount": 624,
+        "amount": 714,
         "name": "Bonemeal",
         "owner": "storage",
         "rawName": "Sewers3"
@@ -4703,9 +4903,9 @@
       },
       {
         "amount": 1,
-        "name": "Platinet",
+        "name": "Gilded_Net",
         "owner": "storage",
-        "rawName": "CatchingNet5"
+        "rawName": "CatchingNet4"
       },
       {
         "amount": 1,
@@ -4768,7 +4968,7 @@
         "rawName": "Bug5"
       },
       {
-        "amount": 264946,
+        "amount": 334512,
         "name": "Flycicle",
         "owner": "storage",
         "rawName": "Bug6"
@@ -4792,31 +4992,31 @@
         "rawName": "FoodPotMana1"
       },
       {
-        "amount": 9518,
+        "amount": 9928,
         "name": "Average_Mana_Potion",
         "owner": "storage",
         "rawName": "FoodPotMana2"
       },
       {
-        "amount": 778,
+        "amount": 792,
         "name": "Decent_Mana_Potion",
         "owner": "storage",
         "rawName": "FoodPotMana3"
       },
       {
-        "amount": 5783,
+        "amount": 1283,
         "name": "Yeti_Ham",
         "owner": "storage",
         "rawName": "FoodHealth9"
       },
       {
-        "amount": 12188,
+        "amount": 10155,
         "name": "Sheepie_Dairy",
         "owner": "storage",
         "rawName": "FoodHealth11"
       },
       {
-        "amount": 30692,
+        "amount": 29166,
         "name": "Mountain_Bread",
         "owner": "storage",
         "rawName": "FoodHealth10"
@@ -4828,13 +5028,13 @@
         "rawName": "FoodPotYe1"
       },
       {
-        "amount": 8297,
+        "amount": 3572,
         "name": "Average_EXP_Potion",
         "owner": "storage",
         "rawName": "FoodPotYe2"
       },
       {
-        "amount": 425,
+        "amount": 426,
         "name": "Decent_EXP_Potion",
         "owner": "storage",
         "rawName": "FoodPotYe3"
@@ -4846,25 +5046,19 @@
         "rawName": "FoodPotOr1"
       },
       {
-        "amount": 1801,
-        "name": "Average_Strength_Potion",
-        "owner": "storage",
-        "rawName": "FoodPotOr2"
-      },
-      {
-        "amount": 19065,
+        "amount": 18020,
         "name": "Decent_Strength_Potion",
         "owner": "storage",
         "rawName": "FoodPotOr3"
       },
       {
-        "amount": 154470,
+        "amount": 153125,
         "name": "Small_Life_Potion",
         "owner": "storage",
         "rawName": "FoodPotRe1"
       },
       {
-        "amount": 15986,
+        "amount": 12626,
         "name": "Decent_Life_Potion",
         "owner": "storage",
         "rawName": "FoodPotRe3"
@@ -4882,19 +5076,19 @@
         "rawName": "FoodHealth7"
       },
       {
-        "amount": 48035,
+        "amount": 51125,
         "name": "Kebab_Sticks",
         "owner": "storage",
         "rawName": "FoodHealth6"
       },
       {
-        "amount": 15713,
+        "amount": 16073,
         "name": "Small_Speed_Potion",
         "owner": "storage",
         "rawName": "FoodPotGr1"
       },
       {
-        "amount": 33130,
+        "amount": 35415,
         "name": "Average_Speed_Potion",
         "owner": "storage",
         "rawName": "FoodPotGr2"
@@ -4912,7 +5106,7 @@
         "rawName": "Meatloaf"
       },
       {
-        "amount": 53304,
+        "amount": 54279,
         "name": "Cheezy_Pizza",
         "owner": "storage",
         "rawName": "FoodHealth2"
@@ -4942,6 +5136,12 @@
         "rawName": "Quest32"
       },
       {
+        "amount": 1,
+        "name": "Golden_Jam",
+        "owner": "storage",
+        "rawName": "FoodG1"
+      },
+      {
         "amount": 8000,
         "name": "Cue_Tape",
         "owner": "storage",
@@ -4960,7 +5160,7 @@
         "rawName": "EquipmentToolsHatchet2b"
       },
       {
-        "amount": 39,
+        "amount": 46,
         "name": "Golden_Ham",
         "owner": "storage",
         "rawName": "FoodG5"
@@ -4972,19 +5172,19 @@
         "rawName": "Quest45"
       },
       {
-        "amount": 13983,
+        "amount": 14381,
         "name": "Instablab_Follower",
         "owner": "storage",
         "rawName": "Quest23"
       },
       {
-        "amount": 14331,
+        "amount": 14862,
         "name": "Corporatube_Sub",
         "owner": "storage",
         "rawName": "Quest22"
       },
       {
-        "amount": 33673,
+        "amount": 40234,
         "name": "Cloudsound_Follower",
         "owner": "storage",
         "rawName": "Quest24"
@@ -4992,12 +5192,12 @@
     ],
     "keys": [
       {
-        "amount": "65",
+        "amount": "84",
         "name": "Forest_Villa_Key",
         "rawName": "Key1"
       },
       {
-        "amount": "55",
+        "amount": "65",
         "name": "Efaunt's_Tomb_Key",
         "rawName": "Key2"
       },
@@ -5529,10 +5729,6 @@
       {
         "name": "Krunk_Token",
         "rawName": "NPCtoken10"
-      },
-      {
-        "name": "Tiki_Chief_Token",
-        "rawName": "NPCtoken11"
       },
       {
         "name": "Papua_Piggea_Token",
@@ -6280,13 +6476,13 @@
       }
     ],
     "money": [
-      "3",
-      "96",
-      "53",
-      "44",
-      "23"
+      "5",
+      "14",
+      "92",
+      "19",
+      "51"
     ],
-    "obolFragments": "2",
+    "obolFragments": "0",
     "obols": [
       {
         "lvReq": 60,
@@ -8915,12 +9111,18 @@
               "questTitle": "Blame_it_on_the_Glublins"
             },
             {
+              "completed": [
+                {
+                  "charIndex": 0,
+                  "status": 1
+                }
+              ],
               "dialogText": "Defeat_the_boss_5_times,_and_1_time_in_under_30_seconds.",
               "itemReq": [],
               "progress": [
                 {
                   "charIndex": 0,
-                  "status": 0
+                  "status": 1
                 }
               ],
               "questTitle": "Hotel?_Tikivago._Sorry,_couldn't_Help_It!"
@@ -9049,6 +9251,10 @@
             {
               "completed": [
                 {
+                  "charIndex": 0,
+                  "status": 1
+                },
+                {
                   "charIndex": 2,
                   "status": 1
                 },
@@ -9070,10 +9276,6 @@
                 }
               ],
               "progress": [
-                {
-                  "charIndex": 0,
-                  "status": 0
-                },
                 {
                   "charIndex": 1,
                   "status": -1
@@ -9107,6 +9309,10 @@
                 }
               ],
               "progress": [
+                {
+                  "charIndex": 0,
+                  "status": 0
+                },
                 {
                   "charIndex": 2,
                   "status": 0
@@ -12278,7 +12484,7 @@
       {
         "name": "Clover_Shrine",
         "rawName": "ConTowerB22",
-        "shrineLevel": 8
+        "shrineLevel": 9
       },
       {
         "name": "Summereading_Shrine",
@@ -12291,7 +12497,7 @@
         "shrineLevel": 7
       }
     ],
-    "silverPens": "14",
+    "silverPens": "15",
     "stamps": {
       "combat": [
         {
@@ -14060,6 +14266,308 @@
         }
       ]
     },
+    "starSigns": [
+      {
+        "bonuses": [
+          "+1%_Class_EXP_Gain",
+          "+3_WIS"
+        ],
+        "cost": 0,
+        "starName": "1 - The_Book_Worm",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+1%_Total_Damage",
+          "+3_STR"
+        ],
+        "cost": 0,
+        "starName": "1a - The_Buff_Guy",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+3_Talent_Points",
+          "+3_LUK"
+        ],
+        "cost": 0,
+        "starName": "1b - The_Fuzzy_Dice",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+2%_Movement_Speed",
+          "+3_AGI"
+        ],
+        "cost": 0,
+        "starName": "2 - Flexo_Bendo",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+5%_Mining_Efficency",
+          "+20%_Multi-Ore_Chance"
+        ],
+        "cost": 2,
+        "starName": "3 - Dwarfo_Beardus",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+5%_Chop_Efficiency",
+          "+20%_Multi-Log_Chance"
+        ],
+        "cost": 2,
+        "starName": "4 - Hipster_Logger",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+5%_Fishin_Efficency",
+          "+20%_Multi-Fish_Odds"
+        ],
+        "cost": 2,
+        "starName": "4a - Pie_Seas",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+30%_minigame_reward"
+        ],
+        "cost": 3,
+        "starName": "4b - Miniature_Game",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+5%_Catch_Efficiency",
+          "+20%_Multi-Bug_Chance"
+        ],
+        "cost": 2,
+        "starName": "4c - Shoe_Fly",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+10%_Carry_Cap"
+        ],
+        "cost": 2,
+        "starName": "5 - Pack_Mule",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+5%_Drop_Rate"
+        ],
+        "cost": 1,
+        "starName": "6 - Pirate_Booty",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+4_All_Stats"
+        ],
+        "cost": 4,
+        "starName": "7 - All_Rounder",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+8_STR"
+        ],
+        "cost": 1,
+        "starName": "7a - Muscle_Man",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+8_AGI"
+        ],
+        "cost": 2,
+        "starName": "7b - Fast_Frog",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+8_WIS"
+        ],
+        "cost": 2,
+        "starName": "7c - Smart_Stooge",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+8_LUK"
+        ],
+        "cost": 3,
+        "starName": "7d - Lucky_Larry",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "-3%_Movement_Speed",
+          "+5%_Defence",
+          "+2%_Total_Damage"
+        ],
+        "cost": 4,
+        "starName": "8 - Fatty_Doodoo",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+4%_Accuracy",
+          "+2%_Movement_Speed",
+          "+1_Cant_Trade_GME"
+        ],
+        "cost": 1,
+        "starName": "9 - Robinhood",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+4%_Movement_Speed",
+          "+0.0001%_Ring_Drop"
+        ],
+        "cost": 2,
+        "starName": "9a - Blue_Hedgehog",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+6%_Defence",
+          "+2_Weapon_Power"
+        ],
+        "cost": 1,
+        "starName": "10 - Ned_Kelly",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+3%_Boss_Damage",
+          "+4%_Crit_Chance"
+        ],
+        "cost": 3,
+        "starName": "10a - The_Fallen_Titan",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "All_characters_can",
+          "now_align_with_2",
+          "Star_Signs_at_once"
+        ],
+        "cost": 4,
+        "starName": "CR - Chronus_Cosmos",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+15%_Class_EXP_when",
+          "fighting_actively"
+        ],
+        "cost": 2,
+        "starName": "11 - Activelius",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+15%_to_get_a_Time",
+          "Candy_when_claiming",
+          "8+_Hour_AFK_gains"
+        ],
+        "cost": 2,
+        "starName": "11a - Gum_Drop",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+10%_chance_to_not",
+          "consume_food",
+          "+15%_All_Food_Effect"
+        ],
+        "cost": 2,
+        "starName": "12 - Mount_Eaterest",
+        "unlocked": true
+      },
+      {
+        "bonuses": [
+          "+10%_Speed_in_Town",
+          "Skills"
+        ],
+        "cost": 2,
+        "starName": "13 - Bob_Build_Guy",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+2%_Skill_AFK_Gain"
+        ],
+        "cost": 2,
+        "starName": "14 - The_Big_Comatose",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+3%_Skill_EXP_gain"
+        ],
+        "cost": 4,
+        "starName": "14a - Sir_Savvy",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+2%_Fight_AFK_Gain"
+        ],
+        "cost": 2,
+        "starName": "15 - Silly_Snoozer",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+3%_Class_EXP_gain"
+        ],
+        "cost": 2,
+        "starName": "15a - The_Big_Brain",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+2%_Mob_Respawn_rate"
+        ],
+        "cost": 3,
+        "starName": "16 - Grim_Reaper",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "-80%_Total_HP",
+          "-50%_Defence",
+          "+6%_Fight_AFK_Gain"
+        ],
+        "cost": 3,
+        "starName": "16a - The_Forsaken",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "+5%_Carry_Cap",
+          "+1%_Skill_AFK_gain",
+          "+2%_All_Skill_Prowess"
+        ],
+        "cost": 3,
+        "starName": "17 - The_OG_Skiller",
+        "unlocked": false
+      },
+      {
+        "bonuses": [
+          "-6%_AFK_Gain",
+          "+30%_Carry_Cap"
+        ],
+        "cost": 3,
+        "starName": "18 - Mr_No_Sleep",
+        "unlocked": false
+      }
+    ],
     "statues": [
       {
         "level": 28,
@@ -14092,7 +14600,7 @@
         "rawName": "StatueG6"
       },
       {
-        "level": 43,
+        "level": 44,
         "name": "Lumberbob_Statue",
         "rawName": "StatueG7"
       },
@@ -14117,7 +14625,7 @@
         "rawName": "StatueG11"
       },
       {
-        "level": 20,
+        "level": 21,
         "name": "Anvil_Statue",
         "rawName": "StatueG12"
       },
@@ -14147,7 +14655,7 @@
         "rawName": "StatueG17"
       }
     ],
-    "worldTeleports": "117"
+    "worldTeleports": "136"
   },
   "characters": [
     {
@@ -26000,5 +26508,5 @@
     ],
     "name": "Hello"
   },
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

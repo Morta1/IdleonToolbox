@@ -93,6 +93,12 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={'Vials'}/>
             </ListItem>
+            <ListItem selected={selected?.view === 'constellations'} button onClick={() => handleClick('constellations', '')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/StarTitle1.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Constellations'}/>
+            </ListItem>
             <ListItem selected={selected?.view === 'bribes'} button onClick={() => handleClick('bribes', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/BribeW.png`} alt=""/>
               <ListItemText

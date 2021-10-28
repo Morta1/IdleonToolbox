@@ -5,6 +5,25 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.1',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added all new items\' data',
+            'New item\'s images might be missing, please let me know if you find these items :)',
+            'Added an option to load your json from the extension (requires few extra steps)'
+          ]
+        },
+        {
+          title: 'Account',
+          desc: [
+            'Added a constellation and star signs tracker',
+          ]
+        },
+      ]
+    },
+    {
       version: '1.0.0',
       changes: [
         {

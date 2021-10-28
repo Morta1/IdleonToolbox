@@ -32,7 +32,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-read-files.js
 newCards.js
 cards.json
 morta.json

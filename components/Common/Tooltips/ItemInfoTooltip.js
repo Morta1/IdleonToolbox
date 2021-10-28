@@ -21,6 +21,8 @@ const ItemInfoTooltip = ({
                            LUK,
                            UQ1txt,
                            UQ1val,
+                           UQ2txt,
+                           UQ2val,
                            Upgrade_Slots_Left,
                            children
                          }) => {
@@ -48,7 +50,9 @@ const ItemInfoTooltip = ({
           {Reach &&
           <span className={'item-reach'}>Reach: <span className={'item-value'}>{cleanUnderscore(Reach)}</span></span>}
           {UQ1txt && UQ1val && <span className={'item-misc'}>Misc: <span
-            className={'item-value'}>{cleanUnderscore(`${UQ1val}${UQ1txt}`)}</span></span>}
+            className={'item-value'}>{cleanUnderscore(`+${UQ1val}${UQ1txt}`)}</span></span>}
+          {UQ2txt && UQ2val && <span className={'item-misc'}>Misc: <span
+            className={'item-value'}>{cleanUnderscore(`+${UQ2val}${UQ2txt}`)}</span></span>}
           {Upgrade_Slots_Left >= 0 ? <span className={'item-upgrade-slots'}>Upgrade Slots Left: <span
             className={'item-value'}>{Upgrade_Slots_Left}</span></span> : null}
         </div>

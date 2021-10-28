@@ -9,6 +9,7 @@ import General from "./General";
 import Brewing from "./Alchemy/Brewing/Brewing";
 import Stamps from "./Stamps/Stamps";
 import Bribes from "./General/Bribes";
+import Constellations from "./Constellations";
 
 const Account = () => {
   const { userData, display, accountDisplay } = useContext(AppContext);
@@ -26,6 +27,7 @@ const Account = () => {
       {accountDisplay?.view === 'brewing' ? <Brewing alchemy={userData?.account?.alchemy}/> : null}
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
+      {accountDisplay?.view === 'constellations' ? <Constellations starSigns={userData?.account?.starSigns} constellations={userData?.account?.constellations}/> : null}
     </AccountStyle>
   );
 };

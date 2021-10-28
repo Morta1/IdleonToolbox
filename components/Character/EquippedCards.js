@@ -13,13 +13,13 @@ const EquippedCards = ({ cards }) => {
              src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
              alt=""/>
       </div> : null}
-      {cards?.equippedCards?.map(({ cardName, stars }, index) => {
+      {cards?.equippedCards?.map(({ cardName, cardIndex, stars }, index) => {
         const cleanCardName = cardName?.split("(", 2)[0].trim().replace(/ /, '_') || '';
         return cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
           {stars > 0 ?
             <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
           <img className='card' title={cardName}
-               src={`${prefix}cards/${cleanCardName}_Card.png`} alt=""/>
+               src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>
         </CardWrapper> : null;
       })}
     </EquippedCardsStyled>
@@ -66,7 +66,8 @@ const CardWrapper = styled.div`
     justify-self: center;
     position: absolute;
     left: 5px;
-    top: 5px;
+    top: 4px;
+    object-fit: contain;
   }
 `
 
