@@ -27,6 +27,7 @@ const CoinDisplayStyle = styled.div`
     margin-right: 5px;
 
     .coin-value {
+      color: white;
       position: absolute;
       left: 50%;
       bottom: -10px;

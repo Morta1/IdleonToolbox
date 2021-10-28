@@ -968,7 +968,7 @@ export const fields = [
 export const findItemInInventory = (arr, itemName) => {
   if (!itemName) return {};
   return arr.reduce((res, { name, owner, amount }) => {
-    if (name?.includes(itemName)) {
+    if (name === itemName) {
       if (res?.[owner]) {
         return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
       } else {
@@ -1022,5 +1022,5 @@ export const screens = {
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.0';
+export const extVersion = '1.0.1';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

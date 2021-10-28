@@ -18,7 +18,7 @@ const Bribes = ({ bribes }) => {
         <tbody>
         {bribes?.map((bribe, index) => {
           const { name, desc, price, done, value } = bribe;
-          return <tr key={name + ' ' + index} className={'bribe-row'}>
+          return <tr key={name + ' ' + index} className={`bribe-row${done ? ' done' : ''}`}>
             <td><StyledCheckbox color={'default'} disabled={done} checked={done}/></td>
             <td>{cleanUnderscore(name)}</td>
             <td
@@ -56,6 +56,9 @@ const BribesStyle = styled.div`
     padding: 5px 15px;
   }
 
+  .done {
+    color: #9de060;
+  }
 `;
 
 export default Bribes;

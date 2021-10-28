@@ -13,7 +13,6 @@ const RequiredItems = ({
                          display
                        }) => {
   let quantityOwned;
-
   if (itemName) {
     quantityOwned = findQuantityOwned(inventoryItems, itemName);
   }

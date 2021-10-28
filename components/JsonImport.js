@@ -1,10 +1,13 @@
-import { Button, CircularProgress } from "@material-ui/core";
+import { Button, CircularProgress, IconButton } from "@material-ui/core";
 import { useContext, useEffect, useRef, useState } from "react";
 import styled from 'styled-components';
 import ErrorIcon from "@material-ui/icons/Error";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { format } from 'date-fns'
 import { AppContext } from './Common/context';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import { extVersion } from "../Utilities";
+import { useRouter } from "next/router";
 
 const getDate = () => {
   try {
@@ -15,8 +18,12 @@ const getDate = () => {
   }
 }
 
+const extensionError = 'Please make sure the latest version of idleon-data-extractor is installed and try again.';
+const jsonError = 'An error occurred while parsing data';
+
 const JsonImport = () => {
   const { userData, setUserData, setUserLastUpdated } = useContext(AppContext);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadIframe, setLoadIframe] = useState(false);
   const [result, setResult] = useState(null);
@@ -24,6 +31,7 @@ const JsonImport = () => {
   const [timeoutCount, setTimeoutCount] = useState(0)
   const countRef = useRef(0);
   const [hasData, setHasData] = useState(false);
+  const [errorText, setErrorText] = useState('');
   countRef.current = timeoutCount;
 
   useEffect(() => {
@@ -41,6 +49,7 @@ const JsonImport = () => {
     setLoadIframe(false);
     setResult({ success });
     setTimeoutCount(0);
+    setErrorText(extensionError);
     clearInterval(interval);
   }
 
@@ -75,15 +84,35 @@ const JsonImport = () => {
     }
   };
 
+  const handleManualImport = async () => {
+    try {
+      const data = JSON.parse(await navigator.clipboard.readText());
+      if (data?.version === extVersion) {
+        setUserData(data);
+        setUserLastUpdated(getDate());
+        setResult({ success: true });
+        router.reload();
+      }
+    } catch (err) {
+      console.log('Error parsing data');
+      setResult({ success: false });
+      setErrorText(jsonError);
+    }
+  }
+
   return (
     <JsonImportStyled>
       {result ? result?.success ?
         <CheckCircleIcon className={'updated-info'} style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
                          titleAccess={'Updated'}/> :
         <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
-                   titleAccess={'Please make sure the latest version of idleon-data-extractor is installed and try again.'}/> : null}
+                   titleAccess={errorText}/> : null}
       {result?.success ?
         <div className={'updated-info'} style={{ marginRight: 10, color: 'white' }}/> : null}
+      <IconButton title={'Paste JSON'} onClick={handleManualImport}>
+        <FileCopyIcon/>
+      </IconButton>
+      <span style={{ marginRight: 12 }}>OR</span>
       <StyledButton variant="contained" color="primary" onClick={onImport}>{loading ?
         <StyledLoader size={24}/> : hasData ? 'Update' : 'Fetch Data'}</StyledButton>
       {loadIframe ? <iframe height='1px' width={'1px'} src={'https://legendsofidleon.com'}/> : null}

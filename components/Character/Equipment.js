@@ -43,7 +43,8 @@ const Equipment = ({ equipment, tools, foods }) => {
         const { name: equipName, rawName, amount } = item;
         if (equipIndex > 7) return null;
         if (rawName === 'Blank' || active === 'tab3')
-          return <Box aria-label={equipName} role="img" img={rawName}>{amount > 0 ?
+          return <Box key={equipName + amount + equipIndex} aria-label={equipName} role="img"
+                      img={rawName}>{amount > 0 ?
             <span>{kFormatter(amount)}</span> : null}</Box>;
         return (
           <ItemInfoTooltip key={equipName + equipIndex} {...item}>
