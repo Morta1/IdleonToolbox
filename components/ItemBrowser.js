@@ -2,14 +2,16 @@ import styled from "styled-components";
 import { TextField } from "@material-ui/core";
 import { useEffect, useState } from "react";
 import { Autocomplete } from "@material-ui/lab";
-import { kFormatter, prefix, findItemInInventory } from "../Utilities";
+import { findItemInInventory, kFormatter, prefix } from "../Utilities";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
+import ItemDisplay from "./Common/ItemDisplay";
+import allItems from '../data/items-array.json';
 
 const filterOptions = createFilterOptions({
   trim: true,
 });
 
-const ItemLocator = ({ userData }) => {
+const ItemBrowser = ({ userData }) => {
   const [value, setValue] = useState("");
   const [items, setItems] = useState();
   const [labels, setLabels] = useState();
@@ -34,13 +36,14 @@ const ItemLocator = ({ userData }) => {
       const nameB = b?.["name"]?.replace(/_/g, " ").toUpperCase() || ""; // ignore upper and lowercase
       return nameA.localeCompare(nameB);
     });
-    setLabels(sorted);
+    console.log(allItems);
+    setLabels(allItems);
     setItems(totalItems);
   }, []);
 
   useEffect(() => {
     if (value) {
-      const findings = findItemInInventory(items, value?.name);
+      const findings = findItemInInventory(items, value?.displayName);
       setResult(findings);
     } else {
       setResult([]);
@@ -48,13 +51,14 @@ const ItemLocator = ({ userData }) => {
   }, [value]);
 
   return (
-    <ItemLocatorStyle>
+    <ItemBrowserStyle>
       <h3>Find an item somewhere in your account!</h3>
       {labels?.length > 0 ? (
         <Autocomplete
           id='item-locator'
           value={value}
           onChange={(event, newValue) => {
+            console.log('newValue', newValue)
             setValue(newValue);
           }}
           autoComplete
@@ -62,9 +66,9 @@ const ItemLocator = ({ userData }) => {
           filterSelectedOptions
           filterOptions={filterOptions}
           getOptionLabel={(option) => {
-            return option?.name ? option?.name?.replace(/_/g, " ") : "";
+            return option?.displayName ? option?.displayName?.replace(/_/g, " ") : "";
           }}
-          getOptionSelected={(option, value) => option.name === value.name}
+          getOptionSelected={(option, value) => option.displayName === value.displayName}
           renderOption={(option) =>
             option ? (
               <div
@@ -79,7 +83,7 @@ const ItemLocator = ({ userData }) => {
                   src={`${prefix}data/${option?.rawName}.png`}
                   alt=''
                 />
-                {option?.name?.replace(/_/g, " ")}
+                {option?.displayName?.replace(/_/g, " ")}
               </div>
             ) : (
               <></>
@@ -87,12 +91,14 @@ const ItemLocator = ({ userData }) => {
           }
           style={{ width: 300 }}
           renderInput={(params) => (
-            <StyledTextField {...params} label='Item Name' variant='outlined' />
+            <StyledTextField {...params} label='Item Name' variant='outlined'/>
           )}
         />
       ) : null}
+      {value ? <ItemDisplay style={{ marginTop: 15 }} {...value}/> : null}
       {result && Object.keys(result)?.length > 0 ? (
         <div className={"results"}>
+
           {Object.keys(result)?.map((ownerName, index) => (
             <div key={ownerName + index}>
               <span className={"owner-name"}>{ownerName}</span>
@@ -107,11 +113,11 @@ const ItemLocator = ({ userData }) => {
           ))}
         </div>
       ) : null}
-    </ItemLocatorStyle>
+    </ItemBrowserStyle>
   );
 };
 
-const ItemLocatorStyle = styled.div`
+const ItemBrowserStyle = styled.div`
   padding-left: 10px;
   margin-top: 25px;
 
@@ -142,4 +148,4 @@ const StyledTextField = styled(TextField)`
   }
 `;
 
-export default ItemLocator;
+export default ItemBrowser;

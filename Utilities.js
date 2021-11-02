@@ -967,7 +967,8 @@ export const fields = [
 
 export const findItemInInventory = (arr, itemName) => {
   if (!itemName) return {};
-  return arr.reduce((res, { name, owner, amount }) => {
+  return arr.reduce((res, item) => {
+    const { name, owner, amount } = item;
     if (name === itemName) {
       if (res?.[owner]) {
         return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
@@ -1015,7 +1016,7 @@ export const screens = {
   characters: 0,
   account: 1,
   craftIt: 2,
-  itemLocator: 3,
+  itemBrowser: 3,
   guild: 4,
   shopStock: 5,
   quests: 6
