@@ -9,6 +9,7 @@ import allItems from '../data/items-array.json';
 
 const filterOptions = createFilterOptions({
   trim: true,
+  limit: 250
 });
 
 const ItemBrowser = ({ userData }) => {
@@ -18,25 +19,8 @@ const ItemBrowser = ({ userData }) => {
   const [result, setResult] = useState();
 
   useEffect(() => {
-    const charItems = userData?.characters.reduce(
-      (res, { inventory }) => [...res, ...inventory],
-      []
-    );
+    const charItems = userData?.characters.reduce((res, { inventory }) => [...res, ...inventory], []);
     const totalItems = [...charItems, ...userData?.account?.inventory];
-    const labelsObj = totalItems.reduce(
-      (res, item) => (res[item?.name] ? res : { ...res, [item?.name]: item }),
-      {}
-    );
-    const tempLabels = Object.keys(labelsObj).reduce(
-      (res, item) => [...res, labelsObj[item]],
-      []
-    );
-    const sorted = tempLabels.sort((a, b) => {
-      const nameA = a?.["name"]?.replace(/_/g, " ").toUpperCase() || ""; // ignore upper and lowercase
-      const nameB = b?.["name"]?.replace(/_/g, " ").toUpperCase() || ""; // ignore upper and lowercase
-      return nameA.localeCompare(nameB);
-    });
-    console.log(allItems);
     setLabels(allItems);
     setItems(totalItems);
   }, []);
@@ -52,13 +36,13 @@ const ItemBrowser = ({ userData }) => {
 
   return (
     <ItemBrowserStyle>
-      <h3>Find an item somewhere in your account!</h3>
+      <div className={'main-header'}>Browse all items in the game!</div>
+      <div className={'sub-header'}>The amount of items you own will be displayed below the item&apos;s display</div>
       {labels?.length > 0 ? (
         <Autocomplete
           id='item-locator'
           value={value}
           onChange={(event, newValue) => {
-            console.log('newValue', newValue)
             setValue(newValue);
           }}
           autoComplete
@@ -91,7 +75,8 @@ const ItemBrowser = ({ userData }) => {
           }
           style={{ width: 300 }}
           renderInput={(params) => (
-            <StyledTextField {...params} label='Item Name' variant='outlined'/>
+            <StyledTextField {...params} label='Item Name' variant='outlined'
+                             helperText={'Start to write to narrow down the results (max of 250 items)'}/>
           )}
         />
       ) : null}
@@ -121,7 +106,13 @@ const ItemBrowserStyle = styled.div`
   padding-left: 10px;
   margin-top: 25px;
 
-  > h3 {
+  .main-header {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .sub-header {
+    margin-top: 15px;
     margin-bottom: 2em;
   }
 
