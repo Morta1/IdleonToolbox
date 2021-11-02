@@ -87,6 +87,7 @@ const JsonImport = () => {
   const handleManualImport = async () => {
     try {
       const data = JSON.parse(await navigator.clipboard.readText());
+      console.log(data);
       if (data?.version === extVersion) {
         setUserData(data);
         setUserLastUpdated(getDate());

@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import styled from "styled-components";
 import CharacterWrapper from "../components/CharacterWrapper";
 import GuildWrapper from "../components/GuildWrapper";
-import ItemLocator from "../components/ItemLocator";
+import ItemBrowser from "../components/ItemBrowser";
 import CraftIt from "../components/CraftIt/CraftIt";
 import { AppContext } from '../components/Common/context';
 import MissingData from "../components/General/MissingData";
@@ -37,7 +37,7 @@ const Family = () => {
                 {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
                 {display?.view === screens.account ? <Account/> : null}
                 {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
-                {display?.view === screens.itemLocator ? <ItemLocator userData={userData}/> : null}
+                {display?.view === screens.itemBrowser ? <ItemBrowser userData={userData}/> : null}
                 {display?.view === screens.guild ? <GuildWrapper guild={userData?.guild}/> : null}
                 {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
                 {display?.view === screens.quests ?

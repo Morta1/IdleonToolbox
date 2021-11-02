@@ -34,7 +34,7 @@ const Account = () => {
 
 const AccountStyle = styled.div`
   ${({ isCharacterDisplay }) => isCharacterDisplay ? 'padding-left: 240px;' : ''}
-  margin-top: 15px;
+  margin-top: 30px;
 `;
 
 export default Account;

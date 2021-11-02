@@ -46,45 +46,47 @@ const GuildWrapper = ({ guild }) => {
   }
   return (
     <GuildWrapperStyle>
-      <div className="members">
-        <Table size={'small'}>
-          <TableHead>
-            <TableRow>
-              {tableHeader.map(({ displayName, value, sort, type }, index) => (
-                <StyledHeaderCell key={value + index}>
-                  {sort ? <TableSortLabel active={orderBy === value}
-                                          direction={orderBy === value ? order : 'asc'}
-                                          onClick={() => handleClick(value, type)}>
-                    {displayName}
-                  </TableSortLabel> : displayName}
-                </StyledHeaderCell>))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {
-              tableRows?.map((member) => (<TableRow key={member.name}>
-                <TableCell component="th" scope="row">
-                  {cleanUnderscore(member.name)}
-                </TableCell>
-                <TableCell>{member.level}</TableCell>
-                <TableCell>{member.guildPoints}</TableCell>
-                <TableCell>{cleanUnderscore(member.wantedPerk) || 'None'}</TableCell>
-                <TableCell>{member.className}</TableCell>
-                <TableCell>{member.rank}</TableCell>
-              </TableRow>))
-            }
-          </TableBody>
-        </Table>
-      </div>
+      {!guild ? <div>Missing Guild Information !</div> : <>
+        <div className="members">
+          <Table size={'small'}>
+            <TableHead>
+              <TableRow>
+                {tableHeader.map(({ displayName, value, sort, type }, index) => (
+                  <StyledHeaderCell key={value + index}>
+                    {sort ? <TableSortLabel active={orderBy === value}
+                                            direction={orderBy === value ? order : 'asc'}
+                                            onClick={() => handleClick(value, type)}>
+                      {displayName}
+                    </TableSortLabel> : displayName}
+                  </StyledHeaderCell>))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                tableRows?.map((member) => (<TableRow key={member.name}>
+                  <TableCell component="th" scope="row">
+                    {cleanUnderscore(member.name)}
+                  </TableCell>
+                  <TableCell>{member.level}</TableCell>
+                  <TableCell>{member.guildPoints}</TableCell>
+                  <TableCell>{cleanUnderscore(member.wantedPerk) || 'None'}</TableCell>
+                  <TableCell>{member.className}</TableCell>
+                  <TableCell>{member.rank}</TableCell>
+                </TableRow>))
+              }
+            </TableBody>
+          </Table>
+        </div>
 
-      <div className={'bonuses'}>
-        {guild?.bonuses.map(({ name, rawName, level }, index) => {
-          return <div className={'bonus-wrapper'} key={name + index}>
-            <span className={'level'}>{level}</span>
-            <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
-          </div>;
-        })}
-      </div>
+        <div className={'bonuses'}>
+          {guild?.bonuses.map(({ name, rawName, level }, index) => {
+            return <div className={'bonus-wrapper'} key={name + index}>
+              <span className={'level'}>{level}</span>
+              <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
+            </div>;
+          })}
+        </div>
+      </>}
     </GuildWrapperStyle>
   );
 };
