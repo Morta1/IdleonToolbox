@@ -60,8 +60,7 @@ const ItemDisplay = ({
 };
 
 const ItemDisplayStyle = styled.div`
-  width: max-content;
-  max-width: 400px;
+  max-width: 300px;
   background-color: #000142a8;
   padding: 10px;
 
