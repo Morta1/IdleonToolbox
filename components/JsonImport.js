@@ -116,7 +116,7 @@ const JsonImport = () => {
       <span style={{ marginRight: 12 }}>OR</span>
       <StyledButton variant="contained" color="primary" onClick={onImport}>{loading ?
         <StyledLoader size={24}/> : hasData ? 'Update' : 'Fetch Data'}</StyledButton>
-      {loadIframe ? <iframe height='1px' width={'1px'} src={'https://legendsofidleon.com'}/> : null}
+      {loadIframe ? <iframe height='1px' width={'1px'} src={'https://www.legendsofidleon.com/ytGl5oc/'}/> : null}
     </JsonImportStyled>
   );
 };
