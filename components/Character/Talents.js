@@ -8,15 +8,25 @@ const Talents = ({ talents }) => {
   const [specialsTab, setSpecialTabs] = useState(1);
 
   useEffect(() => {
-    setActiveTalents(talents[activeTab]);
+    const tempTalents = activeTab === 3 ? handleStarTalents(talents[activeTab], specialsTab) : talents[activeTab];
+    setActiveTalents(tempTalents);
     setSpecialTabs(1);
   }, [activeTab]);
 
   const switchSpecials = (tab) => {
     setSpecialTabs(tab);
-    const temp = { ...talents?.[activeTab] };
-    temp.orderedTalents = tab === 1 ? temp?.orderedTalents?.slice(0, 15) : temp?.orderedTalents?.slice(15, temp.length);
-    setActiveTalents(temp);
+    setActiveTalents(handleStarTalents(talents?.[activeTab], tab));
+  }
+
+  const handleStarTalents = (tab, tabIndex) => {
+    const clonedTalents = JSON.parse(JSON.stringify(tab?.orderedTalents));
+    const tempTalents = tabIndex === 1 ? clonedTalents?.slice(0, 13) : clonedTalents?.slice(13, clonedTalents.length);
+    tempTalents?.splice(10, 0, { talentId: 'arrow' });
+    tempTalents?.splice(14, 0, { talentId: 'arrow' });
+    return {
+      ...tab,
+      orderedTalents: tempTalents
+    };
   }
 
   return (
@@ -35,8 +45,9 @@ const Talents = ({ talents }) => {
       <div className="talents-wrapper">
         {activeTalents?.orderedTalents?.map(({ talentId, level, maxLevel }, index) => {
           if (index >= 15) return null;
-          return (talentId === 'Blank' || talentId === '84') ?
+          return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
             <div key={talentId + index} className={`blank ${(index === 10 || index === 14) && 'arrow'}`}>
+              {(index !== 10 && index !== 14) && <img src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
               {index === 10 && specialsTab > 1 ?
                 <img onClick={() => switchSpecials(specialsTab - 1)} className={'arrow'}
                      src={`${prefix}data/UIAnvilArrowsG2.png`}
