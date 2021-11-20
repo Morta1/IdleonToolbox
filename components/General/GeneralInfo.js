@@ -12,7 +12,7 @@ const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverP
       </div>
       <div className="box">
         <img src={`${prefix}data/ObolFrag.png`} alt=""/>
-        <span className={'value'}>{obolFragments}</span>
+        <span className={'value'}>{parseInt(obolFragments)}</span>
       </div>
       <div className="box">
         <img src={`${prefix}data/TixCol.png`} alt=""/>
