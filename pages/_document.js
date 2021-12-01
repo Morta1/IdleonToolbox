@@ -51,6 +51,18 @@ export default class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap"
             rel="stylesheet"
           />
+          {/*Global site tag (gtag.js) - Google Analytics */}
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-YER8JY07QK" />
+          <script dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-YER8JY07QK');          
+          `
+          }}>
+          </script>
         </Head>
         <body>
         <Main/>
