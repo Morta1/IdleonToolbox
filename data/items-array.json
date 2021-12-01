@@ -148,12 +148,12 @@
     "rawName": "OilBarrel2"
   },
   {
-    "description": "Increases_chance_to_Not_Use_Up Ores_by_3%_for_the_Slot_it's_in. 60%_chance_to_be_consumed_when a_bar_is_forged.",
+    "description": "Increases_Forging_Speed_by_30% for_the_Forge_Slot_it's_in. 30%_chance_to_be_consumed_when a_bar_is_forged.",
     "displayName": "Radioactive_Waste",
     "Type": "BARREL",
     "lvReqToCraft": 10,
-    "Amount": 3,
-    "Cooldown": 60,
+    "Amount": 30,
+    "Cooldown": 30,
     "rawName": "OilBarrel3"
   },
   {
@@ -623,11 +623,12 @@
     "lvReqToCraft": 1,
     "lvReqToEquip": 15,
     "Class": "ALL",
-    "Power": 50,
-    "Weapon_Power": 50,
-    "STR": 3,
-    "AGI": 3,
-    "LUK": 3,
+    "Power": 2000,
+    "Weapon_Power": 2000,
+    "STR": 30000,
+    "AGI": 30000,
+    "WIS": 30000,
+    "LUK": 30000,
     "Defence": 10000,
     "Upgrade_Slots_Left": 2,
     "rawName": "TestObj16"
@@ -1380,8 +1381,8 @@
     "Class": "WARRIOR",
     "Speed": 9,
     "Reach": 78,
-    "Power": 25,
-    "Weapon_Power": 25,
+    "Power": 32,
+    "Weapon_Power": 32,
     "STR": 3,
     "LUK": 1,
     "Upgrade_Slots_Left": 2,
@@ -1681,20 +1682,6 @@
     "LUK": 3,
     "Upgrade_Slots_Left": 2,
     "rawName": "EquipmentShirts4"
-  },
-  {
-    "displayName": "Paralax_Chest",
-    "Type": "SHIRT",
-    "lvReqToCraft": 55,
-    "lvReqToEquip": 15,
-    "Class": "WARRIOR",
-    "Power": 5,
-    "Weapon_Power": 5,
-    "STR": 3,
-    "AGI": 3,
-    "LUK": 3,
-    "Upgrade_Slots_Left": 2,
-    "rawName": "EquipmentShirts6"
   },
   {
     "displayName": "Molten_Chest",
@@ -2167,20 +2154,6 @@
     "rawName": "EquipmentPants8"
   },
   {
-    "displayName": "Crystallax_Shins",
-    "Type": "PANTS",
-    "lvReqToCraft": 55,
-    "lvReqToEquip": 15,
-    "Class": "WARRIOR",
-    "Power": 5,
-    "Weapon_Power": 5,
-    "STR": 3,
-    "AGI": 3,
-    "LUK": 3,
-    "Upgrade_Slots_Left": 2,
-    "rawName": "EquipmentPants9"
-  },
-  {
     "displayName": "Give_Up_On_Life_Pants",
     "Type": "PANTS",
     "lvReqToCraft": 55,
@@ -2410,7 +2383,7 @@
     "displayName": "Efaunts_Broken_Ankles",
     "Type": "SHOES",
     "lvReqToCraft": 55,
-    "lvReqToEquip": 75,
+    "lvReqToEquip": 70,
     "Class": "ALL",
     "STR": 2,
     "AGI": 2,
@@ -2894,6 +2867,8 @@
     "AGI": 1,
     "WIS": 1,
     "LUK": 3,
+    "UQ1txt": "_ACCURACY",
+    "UQ1val": 13,
     "Upgrade_Slots_Left": 1,
     "rawName": "EquipmentPendant19"
   },
@@ -3205,7 +3180,7 @@
     "displayName": "Efaunt_Trunculus",
     "Type": "RING",
     "lvReqToCraft": 55,
-    "lvReqToEquip": 85,
+    "lvReqToEquip": 80,
     "Class": "ALL",
     "Power": 3,
     "Weapon_Power": 3,
@@ -3945,7 +3920,7 @@
     "displayName": "Silkskin_Traps",
     "Type": "TRAP_BOX_SET",
     "lvReqToCraft": 1,
-    "lvReqToEquip": 10,
+    "lvReqToEquip": 5,
     "Class": "ALL",
     "Speed": 4,
     "Power": 8,
@@ -3958,7 +3933,7 @@
     "displayName": "Wooden_Traps",
     "Type": "TRAP_BOX_SET",
     "lvReqToCraft": 1,
-    "lvReqToEquip": 20,
+    "lvReqToEquip": 15,
     "Class": "ALL",
     "Speed": 4,
     "Power": 13,
@@ -6846,6 +6821,21 @@
     "rawName": "ObolPinkPop"
   },
   {
+    "displayName": "Granite_Obol_of_Amarok's_Stare",
+    "Type": "HEXAGON_OBOL",
+    "lvReqToCraft": 1,
+    "lvReqToEquip": 1,
+    "Class": "ALL",
+    "STR": 2,
+    "AGI": 2,
+    "WIS": 2,
+    "LUK": 2,
+    "Defence": 5,
+    "UQ1txt": "%_DEFENCE",
+    "UQ1val": 4,
+    "rawName": "ObolAmarokA"
+  },
+  {
     "displayName": "Skeletal_Obol_of_Efaunt's_Gaze",
     "Type": "HEXAGON_OBOL",
     "lvReqToCraft": 1,
@@ -6862,19 +6852,17 @@
     "rawName": "ObolEfauntA"
   },
   {
-    "displayName": "Granite_Obol_of_Amarok's_Stare",
+    "displayName": "Frozen_Obol_of_Chizoar's_Rage",
     "Type": "HEXAGON_OBOL",
     "lvReqToCraft": 1,
     "lvReqToEquip": 1,
     "Class": "ALL",
-    "STR": 2,
-    "AGI": 2,
-    "WIS": 2,
-    "LUK": 2,
-    "Defence": 5,
-    "UQ1txt": "%_DEFENCE",
+    "Power": 4,
+    "Weapon_Power": 4,
+    "Defence": 2,
+    "UQ1txt": "%_TOTAL_DAMAGE",
     "UQ1val": 4,
-    "rawName": "ObolAmarokA"
+    "rawName": "ObolChizoarA"
   },
   {
     "displayName": "Bronze_Obol_of_Multikill",
@@ -7275,487 +7263,568 @@
     "rawName": "ExpSmith1"
   },
   {
-    "description": "_Base_Damage",
+    "description": "BaseDmg,add,1,0,5,Grasslands1,20,5,50,1.3,0,{}_Base_Damage,3",
     "displayName": "Sword_Stamp",
     "Type": "STAMP",
     "rawName": "StampA1"
   },
   {
-    "description": "_Base_HP",
+    "description": "BaseHP,add,1,0,5,OakTree,25,7,50,1.3,0,{}_Base_HP,3",
     "displayName": "Heart_Stamp",
     "Type": "STAMP",
     "rawName": "StampA2"
   },
   {
-    "description": "_Base_MP",
+    "description": "BaseMP,add,1,0,5,Copper,25,7,50,1.3,0,{}_Base_MP,0",
     "displayName": "Mana_Stamp",
     "Type": "STAMP",
     "rawName": "StampA3"
   },
   {
-    "description": "%_Total_Damage",
+    "description": "PctDmg,decay,6,40,4,CopperBar,15,6,50,1.3,0,{}%_Total_Damage,3",
     "displayName": "Tomahawk_Stamp",
     "Type": "STAMP",
     "rawName": "StampA4"
   },
   {
-    "description": "_Base_Accuracy",
+    "description": "BaseAcc,add,1,0,5,CraftMat1,25,6,50,1.3,0,{}_Base_Accuracy,3",
     "displayName": "Target_Stamp",
     "Type": "STAMP",
     "rawName": "StampA5"
   },
   {
-    "description": "_Base_Defence",
+    "description": "BaseDef,add,1,0,5,Iron,50,7,50,1.3,0,{}_Base_Defence,3",
     "displayName": "Shield_Stamp",
     "Type": "STAMP",
     "Defence": 1,
     "rawName": "StampA6"
   },
   {
-    "description": "_Base_Damage",
+    "description": "BaseDmg,add,2,0,4,Grasslands3,50,6,50,1.3,0,{}_Base_Damage,6",
     "displayName": "Longsword_Stamp",
     "Type": "STAMP",
     "rawName": "StampA7"
   },
   {
-    "description": "%_Critical_Damage",
+    "description": "CritDmg,decay,8,40,3,CraftMat5,50,6,50,1.3,0,{}%_Critical_Damage,6",
     "displayName": "Kapow_Stamp",
     "Type": "STAMP",
     "rawName": "StampA8"
   },
   {
-    "description": "_STR",
+    "description": "BaseSTR,add,1,0,2,BirchTree,50,7,50,1.3,0,{}_STR,3",
     "displayName": "Fist_Stamp",
     "Type": "STAMP",
     "STR": 1,
     "rawName": "StampA9"
   },
   {
-    "description": "%_Total_Damage",
+    "description": "PctDmg,decay,10,40,4,Leaf1,25,4,50,1.3,0,{}%_Total_Damage,5",
     "displayName": "Battleaxe_Stamp",
     "Type": "STAMP",
     "rawName": "StampA10"
   },
   {
-    "description": "_AGI",
+    "description": "BaseAGI,add,1,0,2,EquipmentToolsHatchet3,1,4,50,1.3,0,{}_AGI,0",
     "displayName": "Agile_Stamp",
     "Type": "STAMP",
     "AGI": 1,
     "rawName": "StampA11"
   },
   {
-    "description": "_Base_HP",
+    "description": "BaseHP,add,2,0,4,Jungle2,25,6,50,1.3,0,{}_Base_HP,6",
     "displayName": "Vitality_Stamp",
     "Type": "STAMP",
     "rawName": "StampA12"
   },
   {
-    "description": "_WIS",
+    "description": "BaseWIS,add,1,0,2,IronBar,20,5,50,1.35,0,{}_WIS,3",
     "displayName": "Book_Stamp",
     "Type": "STAMP",
     "WIS": 1,
     "rawName": "StampA13"
   },
   {
-    "description": "_Base_MP",
+    "description": "BaseMP,add,2,0,3,Forest1,25,6,75,1.32,0,{}_Base_MP,2",
     "displayName": "Manamoar_Stamp",
     "Type": "STAMP",
     "rawName": "StampA14"
   },
   {
-    "description": "_LUK",
+    "description": "BaseLUK,add,1,0,2,EquipmentShirts12,1,2,300,1.38,0,{}_LUK,6",
     "displayName": "Clover_Stamp",
     "Type": "STAMP",
     "LUK": 1,
     "rawName": "StampA15"
   },
   {
-    "description": "_Base_Damage",
+    "description": "BaseDmg,add,3,0,4,Fish1,75,7,2000,1.33,0,{}_Base_Damage,0",
     "displayName": "Scimitar_Stamp",
     "Type": "STAMP",
     "rawName": "StampA16"
   },
   {
-    "description": "_Base_Accuracy",
+    "description": "BaseAcc,add,2,0,5,Bug3,100,10,5000,1.36,0,{}_Base_Accuracy,0",
     "displayName": "Bullseye_Stamp",
     "Type": "STAMP",
     "rawName": "StampA17"
   },
   {
-    "description": "_Base_Move_Speed",
+    "description": "PctMoveSpd,decay,5,50,5,DesertB1,25,6,2500,1.3,0,{}_Base_Move_Speed,0",
     "displayName": "Feather_Stamp",
     "Type": "STAMP",
     "Speed": 5,
     "rawName": "StampA18"
   },
   {
-    "description": "%_Total_Damage",
+    "description": "PctDmg,decay,16,40,6,TestObj7,1,2,3000,1.3,0,{}%_Total_Damage,0",
     "displayName": "Polearm_Stamp",
     "Type": "STAMP",
     "rawName": "StampA19"
   },
   {
-    "description": "_STR",
+    "description": "BaseSTR,add,1,0,3,Dementia,10,7,10000,1.3,0,{}_STR,0",
     "displayName": "Violence_Stamp",
     "Type": "STAMP",
     "STR": 1,
     "rawName": "StampA20"
   },
   {
-    "description": "_Base_Defence",
+    "description": "BaseDef,add,1,0,7,PlatBar,25,6,2200,1.305,0,{}_Base_Defence,0",
     "displayName": "Buckler_Stamp",
     "Type": "STAMP",
     "Defence": 1,
     "rawName": "StampA21"
   },
   {
-    "description": "%_Boss_Damage",
+    "description": "BaseAGI,add,1,0,3,Soul3,30,7,10000,1.3,0,{}_STR,0",
+    "displayName": "Hermes_Stamp",
+    "Type": "STAMP",
+    "STR": 1,
+    "AGI": 1,
+    "rawName": "StampA22"
+  },
+  {
+    "description": "BossDmg,decay,24,60,10,Quest17,3,5,10000,1.34,0,{}%_Boss_Damage,0",
     "displayName": "Sukka_Foo",
     "Type": "STAMP",
     "rawName": "StampA23"
   },
   {
-    "description": "_Base_WIS",
+    "description": "BaseWIS,add,1,0,3,GoldBar,50,7,1550,1.36,0,{}_Base_WIS,0",
     "displayName": "Arcane_Stamp",
     "Type": "STAMP",
     "WIS": 1,
     "rawName": "StampA24"
   },
   {
-    "description": "%_Total_Damage",
+    "description": "BaseDmg,add,6,0,5,Critter7,75,7,15000,1.33,0,{}_Base_Damage,0",
+    "displayName": "Avast_Yar_Stamp",
+    "Type": "STAMP",
+    "rawName": "StampA25"
+  },
+  {
+    "description": "PctDmg,decay,20,60,10,Bug4,150,5,10000,1.32,0,{}%_Total_Damage,0",
     "displayName": "Steve_Sword",
     "Type": "STAMP",
     "rawName": "StampA26"
   },
   {
-    "description": "_Base_LUK",
+    "description": "BaseLUK,add,1,0,4,Fish3,100,7,25000,1.39,0,{}_Base_LUK,0",
     "displayName": "Blover_Stamp",
     "Type": "STAMP",
     "LUK": 1,
     "rawName": "StampA27"
   },
   {
-    "description": "_All_Stats",
+    "description": "BaseAllStat,add,1,0,2,StoneZ1,2,2,2000,1.36,0,{}_All_Stats,0",
     "displayName": "Stat_Graph_Stamp",
     "Type": "STAMP",
     "rawName": "StampA28"
   },
   {
-    "description": "_Mining_Efficiency",
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA29"
+  },
+  {
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA30"
+  },
+  {
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA31"
+  },
+  {
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA32"
+  },
+  {
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA33"
+  },
+  {
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA34"
+  },
+  {
+    "description": "BaseDef,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_Defence,0",
+    "displayName": "FILLER",
+    "Type": "STAMP",
+    "Defence": 30,
+    "rawName": "StampA35"
+  },
+  {
+    "description": "BaseMinEff,add,1,0,10,OakTree,25,7,50,1.3,1,{}_Mining_Efficiency,0",
     "displayName": "Pickaxe_Stamp",
     "Type": "STAMP",
     "rawName": "StampB1"
   },
   {
-    "description": "_Choppin_Efficiency",
+    "description": "BaseChopEff,add,1,0,10,CraftMat1,25,6,50,1.3,3,{}_Choppin_Efficiency,0",
     "displayName": "Hatchet_Stamp",
     "Type": "STAMP",
     "rawName": "StampB2"
   },
   {
-    "description": "%_Anvil_Production_Spd",
+    "description": "AnvilPAspd,add,1,0,5,Copper,25,6,50,1.3,2,{}%_Anvil_Production_Spd,0",
     "displayName": "Anvil_Zoomer_Stamp",
     "Type": "STAMP",
     "rawName": "StampB3"
   },
   {
-    "description": "_Mining_Carry_Cap",
+    "description": "MinCap,add,1,0,10,JungleTree,25,6,50,1.3,1,{}_Mining_Carry_Cap,0",
     "displayName": "Lil'_Mining_Baggy_Stamp",
     "Type": "STAMP",
     "rawName": "StampB4"
   },
   {
-    "description": "%_Multi_Ore_Chance",
+    "description": "DoubleMin,decay,15,40,5,EquipmentHats3,1,3,10000,1.3,1,{}%_Multi_Ore_Chance,0",
     "displayName": "Twin_Ores_Stamp",
     "Type": "STAMP",
     "rawName": "StampB5"
   },
   {
-    "description": "_Choppin_Carry_Cap",
+    "description": "ChopCap,add,1,0,10,Jungle3,25,6,50,1.3,3,{}_Choppin_Carry_Cap,0",
     "displayName": "Choppin'_Bag_Stamp",
     "Type": "STAMP",
     "rawName": "StampB6"
   },
   {
-    "description": "%_Multi_Log_Chance",
+    "description": "DoubleChop,decay,15,40,5,EquipmentHats20,1,3,20000,1.3,3,{}%_Multi_Log_Chance,0",
     "displayName": "Duplogs_Stamp",
     "Type": "STAMP",
     "rawName": "StampB7"
   },
   {
-    "description": "_Material_Carry_Cap",
+    "description": "MatCap,add,1,0,10,MaxCapBagM2,1,2,50,1.3,2,{}_Material_Carry_Cap,0",
     "displayName": "Matty_Bag_Stamp",
     "Type": "STAMP",
     "rawName": "StampB8"
   },
   {
-    "description": "%_Mining_Exp",
+    "description": "MinExp,add,1,0,5,Forest2,25,6,80,1.35,1,{}%_Mining_Exp,0",
     "displayName": "Smart_Dirt_Stamp",
     "Type": "STAMP",
     "rawName": "StampB9"
   },
   {
-    "description": "_Mining_Efficiency",
+    "description": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\\t1,{}_Mining_Efficiency,0",
     "displayName": "Cool_Diggy_Tool_Stamp",
     "Type": "STAMP",
     "rawName": "StampB10"
   },
   {
-    "description": "%_Choppin_Exp",
+    "description": "ChopExp,add,1,0,5,Forest3,25,6,80,1.35,3,{}%_Choppin_Exp,0",
     "displayName": "High_IQ_Lumber_Stamp",
     "Type": "STAMP",
     "rawName": "StampB11"
   },
   {
-    "description": "_Choppin_Efficiency",
+    "description": "BaseChopEff,add,2,0,10,EquipmentTools2,1,2,50000,1.36,3,{}_Choppin_Efficiency,0",
     "displayName": "Swag_Swingy_Tool_Stamp",
     "Type": "STAMP",
     "rawName": "StampB12"
   },
   {
-    "description": "%_Alch_Speed",
+    "description": "AlchSpd,add,1,0,4,ForestTree,40,6,800,1.29,-1,{}%_Alch_Speed,0",
     "displayName": "Alch_Go_Brrr_Stamp",
     "Type": "STAMP",
     "Speed": 1,
     "rawName": "StampB13"
   },
   {
-    "description": "%_Alch_Exp",
+    "description": "AlchExp,add,1,0,5,Gold,40,6,1250,1.28,5,{}%_Alch_Exp,0",
     "displayName": "Brainstew_Stamps",
     "Type": "STAMP",
     "rawName": "StampB14"
   },
   {
-    "description": "%_Liquid_Spd",
+    "description": "LiquidSpd,add,1,0,5,DesertA1,60,6,1000,1.3,-1,{}%_Liquid_Spd,0",
     "displayName": "Drippy_Drop_Stamp",
     "Type": "STAMP",
     "rawName": "StampB15"
   },
   {
-    "description": "_Liquid_Cap",
+    "description": "LiquidCap,add,1,0,2,Fish4,25,4,2500,1.3,-1,{}_Liquid_Cap,0",
     "displayName": "Droplots_Stamp",
     "Type": "STAMP",
     "rawName": "StampB16"
   },
   {
-    "description": "_Fishing_Efficiency",
+    "description": "BaseFishEff,add,2,0,5,Bug1,50,6,1000,1.32,4,{}_Fishing_Efficiency,0",
     "displayName": "Fishing_Rod_Stamp",
     "Type": "STAMP",
     "rawName": "StampB17"
   },
   {
-    "description": "%_Fishing_Exp",
+    "description": "FishExp,add,1,0,5,DesertA2,55,9,1500,1.33,4,{}%_Fishing_Exp,0",
     "displayName": "Fishhead_Stamp",
     "Type": "STAMP",
     "rawName": "StampB18"
   },
   {
-    "description": "_Catching_Efficiency",
+    "description": "BaseCatchEff,add,2,0,5,Fish1,50,6,1000,1.3,6,{}_Catching_Efficiency,0",
     "displayName": "Catch_Net_Stamp",
     "Type": "STAMP",
     "rawName": "StampB19"
   },
   {
-    "description": "%_Catching_Exp",
+    "description": "CatchExp,add,1,0,5,DesertA3,40,10,1500,1.33,6,{}%_Catching_Exp,0",
     "displayName": "Fly_Intel_Stamp",
     "Type": "STAMP",
     "rawName": "StampB20"
   },
   {
-    "description": "%_Fish_Carry_Cap",
+    "description": "FishCap,add,1,0,8,Bug2,35,7,1000,1.3,4,{}%_Fish_Carry_Cap,0",
     "displayName": "Bag_o_Heads_Stamp",
     "Type": "STAMP",
     "rawName": "StampB21"
   },
   {
-    "description": "%_Multifish_Chance",
+    "description": "DoubleFish,decay,20,40,5,Plat,30,6,1500,1.3,4,{}%_Multifish_Chance,0",
     "displayName": "Holy_Mackerel_Stamp",
     "Type": "STAMP",
     "rawName": "StampB22"
   },
   {
-    "description": "%_Bug_Carry_Cap",
+    "description": "CatchCap,add,1,0,8,Fish2,35,7,1000,1.3,6,{}%_Bug_Carry_Cap,0",
     "displayName": "Bugsack_Stamp",
     "Type": "STAMP",
     "rawName": "StampB23"
   },
   {
-    "description": "%_Multibug_Chance",
+    "description": "DoubleCatch,decay,20,40,5,ToiletTree,45,6,1500,1.3,6,{}%_Multibug_Chance,0",
     "displayName": "Buzz_Buzz_Stamp",
     "Type": "STAMP",
     "rawName": "StampB24"
   },
   {
-    "description": "_Trapping_Efficiency",
+    "description": "TrappingEff,add,2,0,10,Critter2,100,5,7500,1.3,7,{}_Trapping_Efficiency,0",
     "displayName": "Hidey_Box_Stamp",
     "Type": "STAMP",
     "rawName": "StampB25"
   },
   {
-    "description": "%_Shiny_Chance",
+    "description": "ShinyChance,add,1,0,5,Critter3,125,6,10000,1.3,7,{}%_Shiny_Chance,0",
     "displayName": "Purp_Froge_Stamp",
     "Type": "STAMP",
     "rawName": "StampB26"
   },
   {
-    "description": "%_Trapping_Exp",
+    "description": "TrappingExp,add,1,0,3,Critter4,150,6,12500,1.3,7,{}%_Trapping_Exp,0",
     "displayName": "Spikemouth_Stamp",
     "Type": "STAMP",
     "rawName": "StampB27"
   },
   {
-    "description": "%_Shiny_Chance",
+    "description": "ShinyChance,add,2,0,3,Critter5,200,7,15000,1.3,7,{}%_Shiny_Chance,0",
     "displayName": "Shiny_Crab_Stamp",
     "Type": "STAMP",
     "rawName": "StampB28"
   },
   {
-    "description": "%_Building_Spd",
+    "description": "BuildProd,add,1,0,3,SnowB1,100,5,10000,1.3,8,{}%_Building_Spd,0",
     "displayName": "Gear_Stamp",
     "Type": "STAMP",
     "rawName": "StampB29"
   },
   {
-    "description": "%_Sample_Size",
+    "description": "SampleRate,decay,4,30,4,SnowA1,100,6,10000,1.3,0,{}%_Sample_Size,0",
     "displayName": "Stample_Stamp",
     "Type": "STAMP",
     "rawName": "StampB30"
   },
   {
-    "description": "%_Construction_Exp",
+    "description": "ConstructionExp,add,1,0,3,DementiaBar,20,5,15000,1.3,8,{}%_Construction_Exp,0",
     "displayName": "Saw_Stamp",
     "Type": "STAMP",
     "rawName": "StampB31"
   },
   {
-    "description": "%_Sample_Size",
+    "description": "SampleRate,decay,5,30,4,Bug5,200,11,25000,1.3,0,{}%_Sample_Size,0",
     "displayName": "Amplestample_Stamp",
     "Type": "STAMP",
     "rawName": "StampB32"
   },
   {
-    "description": "_Worship_Efficiency",
+    "description": "WorshipEff,add,2,0,10,Soul1,45,6,7500,1.3,9,{}_Worship_Efficiency,0",
     "displayName": "SpoOoky_Stamp",
     "Type": "STAMP",
     "rawName": "StampB33"
   },
   {
-    "description": "%_Charging_Speed",
+    "description": "WorshipCharge,add,1,0,2,Refinery1,2,5,15000,1.3,9,{}%_Charging_Speed,0",
     "displayName": "Flowin_Stamp",
     "Type": "STAMP",
     "Speed": 1,
     "rawName": "StampB34"
   },
   {
-    "description": "%_Max_Charge",
+    "description": "WorshipMax,add,1,0,2,SnowB4,150,6,10000,1.3,9,{}%_Max_Charge,0",
     "displayName": "Prayday_Stamp",
     "Type": "STAMP",
     "rawName": "StampB35"
   },
   {
-    "description": "_Starting_TD_Pts",
+    "description": "WorshipPTS,add,1,0,6,Soul2,100,3,6000,1.3,9,{}_Starting_TD_Pts,0",
     "displayName": "Banked_Pts_Stamp",
     "Type": "STAMP",
     "rawName": "StampB36"
   },
   {
-    "description": "%_Quest_EXP",
+    "description": "QuestExp,decay,70,50,10,Jungle1,30,6,500,1.32,0,{}%_Quest_EXP,3",
     "displayName": "Questin_Stamp",
     "Type": "STAMP",
     "rawName": "StampC1"
   },
   {
-    "description": "%_All_Carry_Cap",
+    "description": "AllCarryCap,add,1,0,4,DesertA1b,1,3,4000,1.28,0,{}%_All_Carry_Cap,3",
     "displayName": "Mason_Jar_Stamp",
     "Type": "STAMP",
     "rawName": "StampC2"
   },
   {
-    "description": "%_Spawn_Chance",
+    "description": "CrySpawn,decay,110,50,10,CraftMat6,35,8,800,1.31,0,{}%_Spawn_Chance,3",
     "displayName": "Crystallin",
     "Type": "STAMP",
     "rawName": "StampC3"
   },
   {
-    "description": "_Base_HP",
+    "description": "ArcadeBallz,decay,50,100,10,Copper,30,6,1500,1.33,0,{}%_ball_gain_rate,3",
     "displayName": "Arcade_Ball_Stamp",
     "Type": "STAMP",
     "rawName": "StampC4"
   },
   {
-    "description": "%_HP_Food_Effect",
+    "description": "GoldBallz,decay,40,100,10,Fish1,50,6.5,1000,1.33,0,{}%_HP_Food_Effect,3",
     "displayName": "Gold_Ball_Stamp",
     "Type": "STAMP",
     "rawName": "StampC5"
   },
   {
-    "description": "%_Boost_Food_Effect",
+    "description": "BFood,add,1,0,5,FoodMining1,50,8,1500,1.305,0,{}%_Boost_Food_Effect,3",
     "displayName": "Potion_Stamp",
     "Type": "STAMP",
     "rawName": "StampC6"
   },
   {
-    "description": "%_Gold_Food_Effect",
+    "description": "GFood,add,1,0,4,FoodG4,2,4,3000,1.30,0,{}%_Gold_Food_Effect,3",
     "displayName": "Golden_Apple_Stamp",
     "Type": "STAMP",
     "rawName": "StampC7"
   },
   {
-    "description": "hr_Max_Claim_Time",
+    "description": "ArcadeTimeMax,decay,12,30,5,OakTree,100,15,1000,1.32,0,{}hr_Max_Claim_Time,3",
     "displayName": "Ball_Timer_Stamp",
     "Type": "STAMP",
     "rawName": "StampC8"
   },
   {
-    "description": "%_Card_Drop_Rate",
+    "description": "CardDrop,add,1,0,10,DesertB2,25,6,1200,1.31,0,{}%_Card_Drop_Rate,3",
     "displayName": "Card_Stamp",
     "Type": "STAMP",
     "rawName": "StampC9"
   },
   {
-    "description": "_Talent_1_Pts",
+    "description": "BaseDmg,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_HP,3",
+    "displayName": "Blank",
+    "Type": "STAMP",
+    "rawName": "StampC10"
+  },
+  {
+    "description": "BaseDmg,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_HP,3",
+    "displayName": "Blank",
+    "Type": "STAMP",
+    "rawName": "StampC11"
+  },
+  {
+    "description": "BaseDmg,add,30,0,10,Copper,25,6,50,1.3,0,{}_Base_HP,3",
+    "displayName": "Blank",
+    "Type": "STAMP",
+    "rawName": "StampC12"
+  },
+  {
+    "description": "Talent1,add,1,0,2,Grasslands2,50,10,2000,1.4,0,{}_Talent_1_Pts,3",
     "displayName": "Talent_I_Stamp",
     "Type": "STAMP",
     "rawName": "StampC13"
   },
   {
-    "description": "_Talent_2_Pts",
+    "description": "Talent2,add,1,0,2,DesertB3,200,8,4000,1.35,0,{}_Talent_2_Pts,3",
     "displayName": "Talent_II_Stamp",
     "Type": "STAMP",
     "rawName": "StampC14"
   },
   {
-    "description": "_Talent_3_Pts",
+    "description": "Talent3,add,1,0,2,Leaf3,20,4,40000,1.35,0,{}_Talent_3_Pts,3",
     "displayName": "Talent_III_Stamp",
     "Type": "STAMP",
     "rawName": "StampC15"
   },
   {
-    "description": "_Talent_4_Pts",
+    "description": "Talent4,add,1,0,2,Copper,25,6,50,1.3,0,{}_Talent_4_Pts,3",
     "displayName": "Talent_IV_Stamp",
     "Type": "STAMP",
     "rawName": "StampC16"
   },
   {
-    "description": "_Talent_5_Pts",
+    "description": "Talent5,add,1,0,2,Copper,25,6,50,1.3,0,{}_Talent_5_Pts,3",
     "displayName": "Talent_V_Stamp",
     "Type": "STAMP",
     "rawName": "StampC17"
   },
   {
-    "description": "_Star_Talent_Pts",
+    "description": "TalentS,add,1,0,2,Leaf2,20,4,50,1.3,0,{}_Star_Talent_Pts,3",
     "displayName": "Talent_S_Stamp",
     "Type": "STAMP",
     "rawName": "StampC18"
   },
   {
-    "description": "%_Base_Overkill",
+    "description": "Overkill,add,1,0,2,Grasslands1,100,3,10000,1.3,0,{}%_Base_Overkill,3",
     "displayName": "Multikill_Stamp",
     "Type": "STAMP",
     "rawName": "StampC19"
   },
   {
-    "description": "%_Faster_Books",
+    "description": "BookSpd,add,1,0,2,SaharanFoal,125,5,12500,1.3,0,{}%_Faster_Books,3",
     "displayName": "Biblio_Stamp",
     "Type": "STAMP",
     "rawName": "StampC20"
@@ -8051,13 +8120,13 @@
     "rawName": "Refinery4"
   },
   {
-    "description": "It's_red,_and_boring.",
+    "description": "It's_purple,_and_confusing.",
     "displayName": "Purple_Salt",
     "Type": "REFINERY_SALTS",
     "rawName": "Refinery5"
   },
   {
-    "description": "It's_red,_and_boring.",
+    "description": "It's_grey,_and_doesn't_exist.",
     "displayName": "Nullo_Salt",
     "Type": "REFINERY_SALTS",
     "rawName": "Refinery6"
@@ -8630,7 +8699,7 @@
     "LUK": 8,
     "Defence": 25,
     "UQ1txt": "%_BOSS_DAMAGE",
-    "UQ1val": 8,
+    "UQ1val": 12,
     "rawName": "Trophy11"
   },
   {
@@ -8676,6 +8745,23 @@
     "UQ1txt": "%_MONEY",
     "UQ1val": 50,
     "rawName": "Trophy14"
+  },
+  {
+    "displayName": "Frost_Prince",
+    "Type": "TROPHY",
+    "lvReqToCraft": 1,
+    "lvReqToEquip": 1,
+    "Class": "ALL",
+    "Power": 2,
+    "Weapon_Power": 2,
+    "STR": 10,
+    "AGI": 10,
+    "WIS": 10,
+    "LUK": 10,
+    "Defence": 50,
+    "UQ1txt": "%_TOTAL_DAMAGE",
+    "UQ1val": 8,
+    "rawName": "Trophy15"
   },
   {
     "description": "These_ores_cannot_be_smelted_into into_bars_due_to_the_'Keep_Tutorials Simple'_Act_passed_in_2008.",
@@ -8764,6 +8850,12 @@
     "Type": "TIME_CANDY",
     "lvReqToCraft": 88,
     "rawName": "Timecandy8"
+  },
+  {
+    "displayName": "Cosmic_Time_Candy",
+    "Type": "TIME_CANDY",
+    "lvReqToCraft": 88,
+    "rawName": "Timecandy9"
   },
   {
     "displayName": "Inventory_Bag_A",
@@ -9874,12 +9966,12 @@
     "lvReqToCraft": 5,
     "lvReqToEquip": 1,
     "Class": "ALL",
-    "Power": 1,
-    "Weapon_Power": 1,
-    "STR": 6,
-    "AGI": 6,
-    "WIS": 6,
-    "LUK": 6,
+    "Power": 2,
+    "Weapon_Power": 2,
+    "STR": 1,
+    "AGI": 1,
+    "WIS": 1,
+    "LUK": 1,
     "UQ1txt": "%_XP_FROM_MONSTERS",
     "UQ1val": 15,
     "Upgrade_Slots_Left": 5,
@@ -9966,6 +10058,292 @@
     "Type": "QUEST_ITEM",
     "lvReqToCraft": 15,
     "rawName": "Quest56"
+  },
+  {
+    "description": "Hold_down_on_this_cog_to_turn_it_into_a_Refurbished_Cog,_IF_you_have_a_construction_LV_of_75{.",
+    "displayName": "Damaged_Cog",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Quest57"
+  },
+  {
+    "description": "Made_from_a_Damaged_Cog,_which_you_can_buy_at_the_Town_Shop!",
+    "displayName": "Refurbished_Cog",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Quest58"
+  },
+  {
+    "description": "A_slip_of_paper_indicating_that_a_Ms._Shuvelle_La_Deuge_intends_to_vote_for_Mayor_Hoggindaz",
+    "displayName": "Shuvelle's_Vote",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Quest59"
+  },
+  {
+    "description": "A_slip_of_paper_indicating_that_a_Sir_Yondergreen_Von_Timberbottom_intends_to_vote_for_Mayor_Hoggindaz",
+    "displayName": "Yondergreens_Vote",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Quest60"
+  },
+  {
+    "displayName": "Bill_Brr's_Vote",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Quest61"
+  },
+  {
+    "displayName": "Signed_Contract",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Quest62"
+  },
+  {
+    "description": "You_shouldnt_be_seeing_this...",
+    "displayName": "Shovel",
+    "Type": "DUNGEON_EVAPORATE",
+    "lvReqToCraft": 15,
+    "rawName": "Quest63"
+  },
+  {
+    "description": "You_shouldnt_be_seeing_this...",
+    "displayName": "Wispy_Tree_Log",
+    "Type": "DUNGEON_EVAPORATE",
+    "lvReqToCraft": 15,
+    "rawName": "Tree7D"
+  },
+  {
+    "description": "You_shouldnt_be_seeing_this...",
+    "displayName": "Platinum_Ore",
+    "Type": "DUNGEON_EVAPORATE",
+    "lvReqToCraft": 15,
+    "rawName": "PlatD"
+  },
+  {
+    "description": "You_shouldnt_be_seeing_this...",
+    "displayName": "Goldfish",
+    "Type": "DUNGEON_EVAPORATE",
+    "lvReqToCraft": 15,
+    "rawName": "Fish1D"
+  },
+  {
+    "description": "You_shouldnt_be_seeing_this...",
+    "displayName": "Jellyfish",
+    "Type": "DUNGEON_EVAPORATE",
+    "lvReqToCraft": 15,
+    "rawName": "Fish3D"
+  },
+  {
+    "description": "Cool!",
+    "displayName": "Ice_Dollar",
+    "Type": "DUNGEON_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "Cashb"
+  },
+  {
+    "description": "A_spike_from_Chizoar's_neck._It's_ice_cold,_and_sharp_as_a_tack.",
+    "displayName": "Chizoar_Spike",
+    "Type": "MONSTER_DROP",
+    "lvReqToCraft": 15,
+    "rawName": "Chiz0"
+  },
+  {
+    "displayName": "Chizoar_Stalagmite",
+    "Type": "MONSTER_DROP",
+    "lvReqToCraft": 15,
+    "rawName": "Chiz1"
+  },
+  {
+    "displayName": "Chizoar_Helmet",
+    "Type": "HELMET",
+    "lvReqToCraft": 5,
+    "lvReqToEquip": 110,
+    "Class": "ALL",
+    "Power": 3,
+    "Weapon_Power": 3,
+    "STR": 20,
+    "AGI": 20,
+    "WIS": 20,
+    "Defence": 60,
+    "UQ1txt": "%_TOTAL_DAMAGE",
+    "UQ1val": 15,
+    "Upgrade_Slots_Left": 7,
+    "rawName": "EquipmentHats68"
+  },
+  {
+    "displayName": "Chizoar_Chestplate",
+    "Type": "SHIRT",
+    "lvReqToCraft": 55,
+    "lvReqToEquip": 105,
+    "Class": "ALL",
+    "STR": 15,
+    "AGI": 15,
+    "WIS": 15,
+    "Defence": 55,
+    "UQ1txt": "%_MASTERY",
+    "UQ1val": 7,
+    "UQ2txt": "%_TOTAL_DAMAGE",
+    "UQ2val": 3,
+    "Upgrade_Slots_Left": 6,
+    "rawName": "EquipmentShirts6"
+  },
+  {
+    "displayName": "Chizoar_Scaled_Leggings",
+    "Type": "PANTS",
+    "lvReqToCraft": 55,
+    "lvReqToEquip": 100,
+    "Class": "ALL",
+    "STR": 13,
+    "AGI": 13,
+    "WIS": 13,
+    "Defence": 52,
+    "UQ1txt": "%_DEFENCE",
+    "UQ1val": 11,
+    "Upgrade_Slots_Left": 6,
+    "rawName": "EquipmentPants9"
+  },
+  {
+    "displayName": "Chizoar_Walkers",
+    "Type": "SHOES",
+    "lvReqToCraft": 55,
+    "lvReqToEquip": 95,
+    "Class": "ALL",
+    "STR": 12,
+    "AGI": 12,
+    "WIS": 12,
+    "LUK": 12,
+    "Defence": 48,
+    "UQ1txt": "%_DEFENCE",
+    "UQ1val": 10,
+    "Upgrade_Slots_Left": 5,
+    "rawName": "EquipmentShoes23"
+  },
+  {
+    "displayName": "Chizoars_Blankie",
+    "Type": "PENDANT",
+    "lvReqToCraft": 17,
+    "lvReqToEquip": 100,
+    "Class": "ALL",
+    "Power": 5,
+    "Weapon_Power": 5,
+    "UQ1txt": "%_TOTAL_DAMAGE",
+    "UQ1val": 15,
+    "UQ2txt": "%_MOB_RESPAWN",
+    "UQ2val": 3,
+    "Upgrade_Slots_Left": 3,
+    "rawName": "EquipmentPendant24"
+  },
+  {
+    "displayName": "Chizoars_Caustic_Scarf",
+    "Type": "PENDANT",
+    "lvReqToCraft": 17,
+    "lvReqToEquip": 120,
+    "Class": "ALL",
+    "Power": 7,
+    "Weapon_Power": 7,
+    "UQ1txt": "%_TOTAL_DAMAGE",
+    "UQ1val": 20,
+    "UQ2txt": "%_MOB_RESPAWN",
+    "UQ2val": 5,
+    "Upgrade_Slots_Left": 4,
+    "rawName": "EquipmentPendant25"
+  },
+  {
+    "displayName": "Neutron_Ice_Ring",
+    "Type": "RING",
+    "lvReqToCraft": 55,
+    "lvReqToEquip": 95,
+    "Class": "ALL",
+    "Power": 3,
+    "Weapon_Power": 3,
+    "Defence": 11,
+    "UQ1txt": "%_TOTAL_DAMAGE",
+    "UQ1val": 4,
+    "Upgrade_Slots_Left": 2,
+    "rawName": "EquipmentRings23"
+  },
+  {
+    "displayName": "Lonely_Hunter_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken31"
+  },
+  {
+    "displayName": "Hoggi_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken32"
+  },
+  {
+    "displayName": "Bellows_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken33"
+  },
+  {
+    "displayName": "Snouts_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken34"
+  },
+  {
+    "displayName": "Shuvelle_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken35"
+  },
+  {
+    "displayName": "Yondergreen_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken36"
+  },
+  {
+    "displayName": "Bill_Brr_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken37"
+  },
+  {
+    "displayName": "Crystalswine_Token",
+    "Type": "QUEST_ITEM",
+    "rawName": "NPCtoken38"
+  },
+  {
+    "description": "Made_up_of_the_tokens_from all_of_the_Tundra_NPCs_whose quests_are_easiest_to_complete.",
+    "displayName": "Easy_FB_Tundra_NPC_Token",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 15,
+    "rawName": "NPCtoken39"
+  },
+  {
+    "description": "Made_up_of_the_tokens_from all_of_the_Tundra_NPCs_whose quests_are_tough_to_complete.",
+    "displayName": "Med_FB_Tundra_NPC_Token",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 30,
+    "rawName": "NPCtoken40"
+  },
+  {
+    "description": "Made_up_of_the_tokens_from all_of_the_Tundra_NPCs_whose quests_are_hardest_to_complete.",
+    "displayName": "Hard_FB_Tundra_NPC_Token",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 45,
+    "rawName": "NPCtoken41"
+  },
+  {
+    "description": "Made_up_of_all_the_tokens_that_you collected_after_completing_an NPC's_entire_questline.",
+    "displayName": "Tundra_NPC_Completion_Token",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 50,
+    "rawName": "BadgeI1"
+  },
+  {
+    "description": "Proof_that_you_mastered_the_art of_the_Trapping,_Construction, and_Worship_skills.",
+    "displayName": "Tundra_Skills_Completion_Token",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 50,
+    "rawName": "BadgeI2"
+  },
+  {
+    "description": "Proof_that_you_collected_all the_coolest_and_rarest_items_that Frostbite_Tundra_has_to_offer!",
+    "displayName": "Tundra_Misc_Completion_Token",
+    "Type": "QUEST_ITEM",
+    "lvReqToCraft": 50,
+    "rawName": "BadgeI3"
   },
   {
     "displayName": "Simple_Key_Chain",

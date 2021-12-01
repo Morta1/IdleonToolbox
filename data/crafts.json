@@ -23,12 +23,12 @@
     "materials": [
       {
         "itemName": "Spore_Cap",
-        "itemQuantity": 25,
+        "itemQuantity": 10,
         "rawName": "Grasslands1"
       },
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 10,
+        "itemQuantity": 5,
         "rawName": "CopperBar"
       }
     ]
@@ -40,12 +40,12 @@
     "materials": [
       {
         "itemName": "Spore_Cap",
-        "itemQuantity": 25,
+        "itemQuantity": 10,
         "rawName": "Grasslands1"
       },
       {
         "itemName": "Thread",
-        "itemQuantity": 30,
+        "itemQuantity": 15,
         "rawName": "CraftMat1"
       }
     ]
@@ -57,12 +57,12 @@
     "materials": [
       {
         "itemName": "Spore_Cap",
-        "itemQuantity": 25,
+        "itemQuantity": 10,
         "rawName": "Grasslands1"
       },
       {
         "itemName": "Oak_Logs",
-        "itemQuantity": 30,
+        "itemQuantity": 15,
         "rawName": "OakTree"
       }
     ]
@@ -79,7 +79,7 @@
       },
       {
         "itemName": "Copper_Ore",
-        "itemQuantity": 15,
+        "itemQuantity": 12,
         "rawName": "Copper"
       }
     ]
@@ -91,7 +91,7 @@
     "materials": [
       {
         "itemName": "Spore_Cap",
-        "itemQuantity": 10,
+        "itemQuantity": 8,
         "rawName": "Grasslands1"
       },
       {
@@ -108,18 +108,13 @@
     "materials": [
       {
         "itemName": "Frog_Leg",
-        "itemQuantity": 20,
+        "itemQuantity": 10,
         "rawName": "Grasslands2"
       },
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 8,
+        "itemQuantity": 5,
         "rawName": "CopperBar"
-      },
-      {
-        "itemName": "Thread",
-        "itemQuantity": 15,
-        "rawName": "CraftMat1"
       }
     ]
   },
@@ -130,17 +125,12 @@
     "materials": [
       {
         "itemName": "Bean_Slices",
-        "itemQuantity": 30,
+        "itemQuantity": 12,
         "rawName": "Grasslands3"
       },
       {
-        "itemName": "Copper_Bar",
-        "itemQuantity": 20,
-        "rawName": "CopperBar"
-      },
-      {
         "itemName": "Grass_Leaf",
-        "itemQuantity": 20,
+        "itemQuantity": 5,
         "rawName": "Leaf1"
       }
     ]
@@ -152,12 +142,12 @@
     "materials": [
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 13,
+        "itemQuantity": 10,
         "rawName": "CopperBar"
       },
       {
         "itemName": "Frog_Leg",
-        "itemQuantity": 30,
+        "itemQuantity": 15,
         "rawName": "Grasslands2"
       }
     ]
@@ -181,7 +171,7 @@
     "materials": [
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 13,
+        "itemQuantity": 12,
         "rawName": "CopperBar"
       },
       {
@@ -220,17 +210,17 @@
     "materials": [
       {
         "itemName": "Frog_Leg",
-        "itemQuantity": 25,
+        "itemQuantity": 15,
         "rawName": "Grasslands2"
       },
       {
         "itemName": "Oak_Logs",
-        "itemQuantity": 45,
+        "itemQuantity": 30,
         "rawName": "OakTree"
       },
       {
         "itemName": "Thread",
-        "itemQuantity": 13,
+        "itemQuantity": 10,
         "rawName": "CraftMat1"
       }
     ]
@@ -313,12 +303,12 @@
     "materials": [
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 30,
+        "itemQuantity": 20,
         "rawName": "CopperBar"
       },
       {
         "itemName": "Bean_Slices",
-        "itemQuantity": 50,
+        "itemQuantity": 40,
         "rawName": "Grasslands3"
       }
     ]
@@ -330,7 +320,7 @@
     "materials": [
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 45,
+        "itemQuantity": 25,
         "rawName": "CopperBar"
       },
       {
@@ -347,7 +337,7 @@
     "materials": [
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 60,
+        "itemQuantity": 30,
         "rawName": "CopperBar"
       },
       {
@@ -364,7 +354,7 @@
     "materials": [
       {
         "itemName": "Copper_Bar",
-        "itemQuantity": 125,
+        "itemQuantity": 75,
         "rawName": "CopperBar"
       }
     ]
@@ -376,12 +366,12 @@
     "materials": [
       {
         "itemName": "Iron_Bar",
-        "itemQuantity": 25,
+        "itemQuantity": 15,
         "rawName": "IronBar"
       },
       {
         "itemName": "Copper_Ore",
-        "itemQuantity": 150,
+        "itemQuantity": 80,
         "rawName": "Copper"
       },
       {
@@ -391,12 +381,12 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 60,
+            "itemQuantity": 40,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Bean_Slices",
-            "itemQuantity": 100,
+            "itemQuantity": 80,
             "rawName": "Grasslands3"
           }
         ]
@@ -410,12 +400,12 @@
     "materials": [
       {
         "itemName": "Iron_Bar",
-        "itemQuantity": 25,
+        "itemQuantity": 15,
         "rawName": "IronBar"
       },
       {
         "itemName": "Thread",
-        "itemQuantity": 150,
+        "itemQuantity": 40,
         "rawName": "CraftMat1"
       },
       {
@@ -425,12 +415,12 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 60,
+            "itemQuantity": 40,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Bean_Slices",
-            "itemQuantity": 100,
+            "itemQuantity": 80,
             "rawName": "Grasslands3"
           }
         ]
@@ -444,12 +434,12 @@
     "materials": [
       {
         "itemName": "Iron_Bar",
-        "itemQuantity": 25,
+        "itemQuantity": 15,
         "rawName": "IronBar"
       },
       {
         "itemName": "Oak_Logs",
-        "itemQuantity": 200,
+        "itemQuantity": 150,
         "rawName": "OakTree"
       },
       {
@@ -459,12 +449,12 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 60,
+            "itemQuantity": 40,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Bean_Slices",
-            "itemQuantity": 100,
+            "itemQuantity": 80,
             "rawName": "Grasslands3"
           }
         ]
@@ -478,7 +468,7 @@
     "materials": [
       {
         "itemName": "Iron_Bar",
-        "itemQuantity": 200,
+        "itemQuantity": 150,
         "rawName": "IronBar"
       },
       {
@@ -488,12 +478,12 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 120,
+            "itemQuantity": 80,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Bean_Slices",
-            "itemQuantity": 200,
+            "itemQuantity": 160,
             "rawName": "Grasslands3"
           }
         ]
@@ -570,12 +560,12 @@
     "materials": [
       {
         "itemName": "Iron_Bar",
-        "itemQuantity": 100,
+        "itemQuantity": 70,
         "rawName": "IronBar"
       },
       {
         "itemName": "Carrot_Cube",
-        "itemQuantity": 200,
+        "itemQuantity": 150,
         "rawName": "Jungle3"
       }
     ]
@@ -599,12 +589,12 @@
     "materials": [
       {
         "itemName": "Jungle_Logs",
-        "itemQuantity": 250,
+        "itemQuantity": 200,
         "rawName": "JungleTree"
       },
       {
         "itemName": "Boring_Brick",
-        "itemQuantity": 125,
+        "itemQuantity": 100,
         "rawName": "CraftMat6"
       }
     ]
@@ -721,7 +711,7 @@
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 20,
+            "itemQuantity": 16,
             "rawName": "Grasslands1"
           },
           {
@@ -745,51 +735,51 @@
       },
       {
         "itemName": "Wooden_Spear",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "TestObj1",
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 75,
+            "itemQuantity": 20,
             "rawName": "Grasslands1"
           },
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 30,
+            "itemQuantity": 10,
             "rawName": "CopperBar"
           }
         ]
       },
       {
         "itemName": "Wooden_Bow",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "EquipmentBows1",
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 75,
+            "itemQuantity": 20,
             "rawName": "Grasslands1"
           },
           {
             "itemName": "Thread",
-            "itemQuantity": 90,
+            "itemQuantity": 30,
             "rawName": "CraftMat1"
           }
         ]
       },
       {
         "itemName": "Gnarled_Wand",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "EquipmentWands1",
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 75,
+            "itemQuantity": 20,
             "rawName": "Grasslands1"
           },
           {
             "itemName": "Oak_Logs",
-            "itemQuantity": 90,
+            "itemQuantity": 30,
             "rawName": "OakTree"
           }
         ]
@@ -818,7 +808,7 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 250,
+            "itemQuantity": 150,
             "rawName": "CopperBar"
           }
         ]
@@ -915,7 +905,7 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 250,
+            "itemQuantity": 150,
             "rawName": "CopperBar"
           }
         ]
@@ -956,7 +946,7 @@
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 90,
+            "itemQuantity": 50,
             "rawName": "CopperBar"
           },
           {
@@ -1050,18 +1040,13 @@
         "materials": [
           {
             "itemName": "Frog_Leg",
-            "itemQuantity": 200,
+            "itemQuantity": 100,
             "rawName": "Grasslands2"
           },
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 80,
+            "itemQuantity": 50,
             "rawName": "CopperBar"
-          },
-          {
-            "itemName": "Thread",
-            "itemQuantity": 150,
-            "rawName": "CraftMat1"
           }
         ]
       },
@@ -1089,18 +1074,13 @@
         "materials": [
           {
             "itemName": "Frog_Leg",
-            "itemQuantity": 160,
+            "itemQuantity": 80,
             "rawName": "Grasslands2"
           },
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 64,
+            "itemQuantity": 40,
             "rawName": "CopperBar"
-          },
-          {
-            "itemName": "Thread",
-            "itemQuantity": 120,
-            "rawName": "CraftMat1"
           }
         ]
       },
@@ -1211,7 +1191,7 @@
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 30,
+            "itemQuantity": 24,
             "rawName": "Grasslands1"
           },
           {
@@ -1245,7 +1225,7 @@
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 30,
+            "itemQuantity": 24,
             "rawName": "Grasslands1"
           },
           {
@@ -1269,7 +1249,7 @@
         "materials": [
           {
             "itemName": "Spore_Cap",
-            "itemQuantity": 50,
+            "itemQuantity": 40,
             "rawName": "Grasslands1"
           },
           {
@@ -1301,7 +1281,7 @@
             "materials": [
               {
                 "itemName": "Spore_Cap",
-                "itemQuantity": 60,
+                "itemQuantity": 48,
                 "rawName": "Grasslands1"
               },
               {
@@ -1335,7 +1315,7 @@
             "materials": [
               {
                 "itemName": "Spore_Cap",
-                "itemQuantity": 90,
+                "itemQuantity": 72,
                 "rawName": "Grasslands1"
               },
               {
@@ -1369,7 +1349,7 @@
             "materials": [
               {
                 "itemName": "Spore_Cap",
-                "itemQuantity": 90,
+                "itemQuantity": 72,
                 "rawName": "Grasslands1"
               },
               {
@@ -1503,7 +1483,7 @@
           },
           {
             "itemName": "Woodular_Circle",
-            "itemQuantity": 8,
+            "itemQuantity": 5,
             "rawName": "TreeInterior1b"
           }
         ]
@@ -1563,6 +1543,23 @@
         "itemName": "Carrot_Launcher",
         "itemQuantity": 2,
         "rawName": "EquipmentBows4"
+      }
+    ]
+  },
+  "Acorn_Topper": {
+    "rawName": "EquipmentHats67",
+    "itemName": "Acorn_Topper",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Acorn",
+        "itemQuantity": 25000,
+        "rawName": "TreeInterior2"
+      },
+      {
+        "itemName": "Woodular_Circle",
+        "itemQuantity": 15,
+        "rawName": "TreeInterior1b"
       }
     ]
   },
@@ -1647,6 +1644,22 @@
       }
     ]
   },
+  "undefined": {
+    "rawName": "FillerMaterial",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Copper_Ore",
+        "itemQuantity": 69,
+        "rawName": "Copper"
+      },
+      {
+        "itemName": "Iron_Ore",
+        "itemQuantity": 69,
+        "rawName": "Iron"
+      }
+    ]
+  },
   "Amarok_Helmet": {
     "rawName": "EquipmentHats22",
     "itemName": "Amarok_Helmet",
@@ -1664,7 +1677,7 @@
       },
       {
         "itemName": "Woodular_Circle",
-        "itemQuantity": 8,
+        "itemQuantity": 5,
         "rawName": "TreeInterior1b"
       }
     ]
@@ -1681,12 +1694,12 @@
       },
       {
         "itemName": "Iron_Bar",
-        "itemQuantity": 400,
+        "itemQuantity": 300,
         "rawName": "IronBar"
       },
       {
         "itemName": "Corn_Kernels",
-        "itemQuantity": 900,
+        "itemQuantity": 600,
         "rawName": "Sewers1"
       }
     ]
@@ -1703,12 +1716,12 @@
       },
       {
         "itemName": "Chain_Link",
-        "itemQuantity": 400,
+        "itemQuantity": 300,
         "rawName": "CraftMat7"
       },
       {
         "itemName": "Bullfrog_Horn",
-        "itemQuantity": 700,
+        "itemQuantity": 500,
         "rawName": "Forest3"
       }
     ]
@@ -1750,7 +1763,7 @@
             "materials": [
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 250,
+                "itemQuantity": 150,
                 "rawName": "CopperBar"
               }
             ]
@@ -1776,18 +1789,13 @@
             "materials": [
               {
                 "itemName": "Frog_Leg",
-                "itemQuantity": 600,
+                "itemQuantity": 300,
                 "rawName": "Grasslands2"
               },
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 240,
+                "itemQuantity": 150,
                 "rawName": "CopperBar"
-              },
-              {
-                "itemName": "Thread",
-                "itemQuantity": 450,
-                "rawName": "CraftMat1"
               }
             ]
           },
@@ -1827,18 +1835,13 @@
             "materials": [
               {
                 "itemName": "Frog_Leg",
-                "itemQuantity": 480,
+                "itemQuantity": 240,
                 "rawName": "Grasslands2"
               },
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 192,
+                "itemQuantity": 120,
                 "rawName": "CopperBar"
-              },
-              {
-                "itemName": "Thread",
-                "itemQuantity": 360,
-                "rawName": "CraftMat1"
               }
             ]
           },
@@ -2094,17 +2097,17 @@
       },
       {
         "itemName": "Copper_Helmet",
-        "itemQuantity": 4,
+        "itemQuantity": 3,
         "rawName": "EquipmentHats17",
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 120,
+            "itemQuantity": 60,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Bean_Slices",
-            "itemQuantity": 200,
+            "itemQuantity": 120,
             "rawName": "Grasslands3"
           }
         ]
@@ -2128,17 +2131,17 @@
       },
       {
         "itemName": "Copper_Platebody",
-        "itemQuantity": 5,
+        "itemQuantity": 4,
         "rawName": "EquipmentShirts11",
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 225,
+            "itemQuantity": 100,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Trusty_Nails",
-            "itemQuantity": 600,
+            "itemQuantity": 480,
             "rawName": "CraftMat5"
           }
         ]
@@ -2162,17 +2165,17 @@
       },
       {
         "itemName": "Copper_Platelegs",
-        "itemQuantity": 6,
+        "itemQuantity": 5,
         "rawName": "EquipmentPants2",
         "materials": [
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 360,
+            "itemQuantity": 150,
             "rawName": "CopperBar"
           },
           {
             "itemName": "Bleach_Logs",
-            "itemQuantity": 900,
+            "itemQuantity": 750,
             "rawName": "BirchTree"
           }
         ]
@@ -2216,7 +2219,7 @@
             "materials": [
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 500,
+                "itemQuantity": 300,
                 "rawName": "CopperBar"
               }
             ]
@@ -2281,17 +2284,17 @@
       },
       {
         "itemName": "Steel_Axe",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "TestObj7",
         "materials": [
           {
             "itemName": "Slime_Sludge",
-            "itemQuantity": 375,
+            "itemQuantity": 250,
             "rawName": "Jungle1"
           },
           {
             "itemName": "Boring_Brick",
-            "itemQuantity": 375,
+            "itemQuantity": 250,
             "rawName": "CraftMat6"
           }
         ]
@@ -2315,17 +2318,17 @@
       },
       {
         "itemName": "Birch_Longbow",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "EquipmentBows3",
         "materials": [
           {
             "itemName": "Slime_Sludge",
-            "itemQuantity": 375,
+            "itemQuantity": 250,
             "rawName": "Jungle1"
           },
           {
             "itemName": "Bleach_Logs",
-            "itemQuantity": 750,
+            "itemQuantity": 500,
             "rawName": "BirchTree"
           }
         ]
@@ -2349,17 +2352,17 @@
       },
       {
         "itemName": "Quarterstaff",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "EquipmentWands2",
         "materials": [
           {
             "itemName": "Slime_Sludge",
-            "itemQuantity": 375,
+            "itemQuantity": 250,
             "rawName": "Jungle1"
           },
           {
             "itemName": "Copper_Bar",
-            "itemQuantity": 300,
+            "itemQuantity": 200,
             "rawName": "CopperBar"
           }
         ]
@@ -2388,17 +2391,17 @@
       },
       {
         "itemName": "Iron_Pickaxe",
-        "itemQuantity": 3,
+        "itemQuantity": 1,
         "rawName": "EquipmentTools3",
         "materials": [
           {
             "itemName": "Iron_Bar",
-            "itemQuantity": 300,
+            "itemQuantity": 70,
             "rawName": "IronBar"
           },
           {
             "itemName": "Carrot_Cube",
-            "itemQuantity": 600,
+            "itemQuantity": 150,
             "rawName": "Jungle3"
           }
         ]
@@ -2424,12 +2427,12 @@
       },
       {
         "itemName": "Small_Mining_Pouch",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "MaxCapBag2",
         "materials": [
           {
             "itemName": "Iron_Ore",
-            "itemQuantity": 2100,
+            "itemQuantity": 1400,
             "rawName": "Iron"
           }
         ]
@@ -2458,17 +2461,17 @@
       },
       {
         "itemName": "Iron_Hatchet",
-        "itemQuantity": 3,
+        "itemQuantity": 1,
         "rawName": "EquipmentToolsHatchet1",
         "materials": [
           {
             "itemName": "Jungle_Logs",
-            "itemQuantity": 750,
+            "itemQuantity": 200,
             "rawName": "JungleTree"
           },
           {
             "itemName": "Boring_Brick",
-            "itemQuantity": 375,
+            "itemQuantity": 100,
             "rawName": "CraftMat6"
           }
         ]
@@ -2499,12 +2502,12 @@
       },
       {
         "itemName": "Small_Choppin_Pouch",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "MaxCapBag9",
         "materials": [
           {
             "itemName": "Bleach_Logs",
-            "itemQuantity": 2400,
+            "itemQuantity": 1600,
             "rawName": "BirchTree"
           }
         ]
@@ -2533,22 +2536,22 @@
       },
       {
         "itemName": "Iron_Fishing_Rod",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "FishingRod3",
         "materials": [
           {
             "itemName": "Iron_Bar",
-            "itemQuantity": 900,
+            "itemQuantity": 600,
             "rawName": "IronBar"
           },
           {
             "itemName": "Hermit_Can",
-            "itemQuantity": 1950,
+            "itemQuantity": 1300,
             "rawName": "Fish2"
           },
           {
             "itemName": "Distilled_Water",
-            "itemQuantity": 9,
+            "itemQuantity": 6,
             "rawName": "PureWater"
           }
         ]
@@ -2574,17 +2577,17 @@
       },
       {
         "itemName": "Small_Fish_Pouch",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "MaxCapBagFi2",
         "materials": [
           {
             "itemName": "Hermit_Can",
-            "itemQuantity": 1275,
+            "itemQuantity": 850,
             "rawName": "Fish2"
           },
           {
             "itemName": "Distilled_Water",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "PureWater"
           }
         ]
@@ -2596,9 +2599,9 @@
       }
     ]
   },
-  "Gilded_Net": {
+  "Golden_Net": {
     "rawName": "CatchingNet4",
-    "itemName": "Gilded_Net",
+    "itemName": "Golden_Net",
     "itemQuantity": 1,
     "materials": [
       {
@@ -2613,22 +2616,22 @@
       },
       {
         "itemName": "Reinforced_Net",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "CatchingNet3",
         "materials": [
           {
             "itemName": "Forest_Fibres",
-            "itemQuantity": 2400,
+            "itemQuantity": 1600,
             "rawName": "ForestTree"
           },
           {
             "itemName": "Butterfly",
-            "itemQuantity": 2550,
+            "itemQuantity": 1700,
             "rawName": "Bug2"
           },
           {
             "itemName": "Distilled_Water",
-            "itemQuantity": 9,
+            "itemQuantity": 6,
             "rawName": "PureWater"
           }
         ]
@@ -2654,17 +2657,17 @@
       },
       {
         "itemName": "Small_Bug_Pouch",
-        "itemQuantity": 3,
+        "itemQuantity": 2,
         "rawName": "MaxCapBagB2",
         "materials": [
           {
             "itemName": "Butterfly",
-            "itemQuantity": 1275,
+            "itemQuantity": 850,
             "rawName": "Bug2"
           },
           {
             "itemName": "Distilled_Water",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "PureWater"
           }
         ]
@@ -2981,7 +2984,7 @@
                 "materials": [
                   {
                     "itemName": "Copper_Bar",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 900,
                     "rawName": "CopperBar"
                   }
                 ]
@@ -3024,17 +3027,17 @@
           },
           {
             "itemName": "Steel_Axe",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "TestObj7",
             "materials": [
               {
                 "itemName": "Slime_Sludge",
-                "itemQuantity": 750,
+                "itemQuantity": 500,
                 "rawName": "Jungle1"
               },
               {
                 "itemName": "Boring_Brick",
-                "itemQuantity": 750,
+                "itemQuantity": 500,
                 "rawName": "CraftMat6"
               }
             ]
@@ -3075,17 +3078,17 @@
           },
           {
             "itemName": "Birch_Longbow",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "EquipmentBows3",
             "materials": [
               {
                 "itemName": "Slime_Sludge",
-                "itemQuantity": 750,
+                "itemQuantity": 500,
                 "rawName": "Jungle1"
               },
               {
                 "itemName": "Bleach_Logs",
-                "itemQuantity": 1500,
+                "itemQuantity": 1000,
                 "rawName": "BirchTree"
               }
             ]
@@ -3126,17 +3129,17 @@
           },
           {
             "itemName": "Quarterstaff",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "EquipmentWands2",
             "materials": [
               {
                 "itemName": "Slime_Sludge",
-                "itemQuantity": 750,
+                "itemQuantity": 500,
                 "rawName": "Jungle1"
               },
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 600,
+                "itemQuantity": 400,
                 "rawName": "CopperBar"
               }
             ]
@@ -3182,17 +3185,17 @@
           },
           {
             "itemName": "Iron_Pickaxe",
-            "itemQuantity": 6,
+            "itemQuantity": 2,
             "rawName": "EquipmentTools3",
             "materials": [
               {
                 "itemName": "Iron_Bar",
-                "itemQuantity": 600,
+                "itemQuantity": 140,
                 "rawName": "IronBar"
               },
               {
                 "itemName": "Carrot_Cube",
-                "itemQuantity": 1200,
+                "itemQuantity": 300,
                 "rawName": "Jungle3"
               }
             ]
@@ -3230,12 +3233,12 @@
           },
           {
             "itemName": "Small_Mining_Pouch",
-            "itemQuantity": 9,
+            "itemQuantity": 6,
             "rawName": "MaxCapBag2",
             "materials": [
               {
                 "itemName": "Iron_Ore",
-                "itemQuantity": 6300,
+                "itemQuantity": 4200,
                 "rawName": "Iron"
               }
             ]
@@ -3281,17 +3284,17 @@
           },
           {
             "itemName": "Iron_Hatchet",
-            "itemQuantity": 6,
+            "itemQuantity": 2,
             "rawName": "EquipmentToolsHatchet1",
             "materials": [
               {
                 "itemName": "Jungle_Logs",
-                "itemQuantity": 1500,
+                "itemQuantity": 400,
                 "rawName": "JungleTree"
               },
               {
                 "itemName": "Boring_Brick",
-                "itemQuantity": 750,
+                "itemQuantity": 200,
                 "rawName": "CraftMat6"
               }
             ]
@@ -3334,12 +3337,12 @@
           },
           {
             "itemName": "Small_Choppin_Pouch",
-            "itemQuantity": 9,
+            "itemQuantity": 6,
             "rawName": "MaxCapBag9",
             "materials": [
               {
                 "itemName": "Bleach_Logs",
-                "itemQuantity": 7200,
+                "itemQuantity": 4800,
                 "rawName": "BirchTree"
               }
             ]
@@ -3385,22 +3388,22 @@
           },
           {
             "itemName": "Iron_Fishing_Rod",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "FishingRod3",
             "materials": [
               {
                 "itemName": "Iron_Bar",
-                "itemQuantity": 1800,
+                "itemQuantity": 1200,
                 "rawName": "IronBar"
               },
               {
                 "itemName": "Hermit_Can",
-                "itemQuantity": 3900,
+                "itemQuantity": 2600,
                 "rawName": "Fish2"
               },
               {
                 "itemName": "Distilled_Water",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "PureWater"
               }
             ]
@@ -3438,17 +3441,17 @@
           },
           {
             "itemName": "Small_Fish_Pouch",
-            "itemQuantity": 9,
+            "itemQuantity": 6,
             "rawName": "MaxCapBagFi2",
             "materials": [
               {
                 "itemName": "Hermit_Can",
-                "itemQuantity": 3825,
+                "itemQuantity": 2550,
                 "rawName": "Fish2"
               },
               {
                 "itemName": "Distilled_Water",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "PureWater"
               }
             ]
@@ -3478,7 +3481,7 @@
         "rawName": "Plat"
       },
       {
-        "itemName": "Gilded_Net",
+        "itemName": "Golden_Net",
         "itemQuantity": 2,
         "rawName": "CatchingNet4",
         "materials": [
@@ -3494,22 +3497,22 @@
           },
           {
             "itemName": "Reinforced_Net",
-            "itemQuantity": 6,
+            "itemQuantity": 4,
             "rawName": "CatchingNet3",
             "materials": [
               {
                 "itemName": "Forest_Fibres",
-                "itemQuantity": 4800,
+                "itemQuantity": 3200,
                 "rawName": "ForestTree"
               },
               {
                 "itemName": "Butterfly",
-                "itemQuantity": 5100,
+                "itemQuantity": 3400,
                 "rawName": "Bug2"
               },
               {
                 "itemName": "Distilled_Water",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "PureWater"
               }
             ]
@@ -3547,17 +3550,17 @@
           },
           {
             "itemName": "Small_Bug_Pouch",
-            "itemQuantity": 9,
+            "itemQuantity": 6,
             "rawName": "MaxCapBagB2",
             "materials": [
               {
                 "itemName": "Butterfly",
-                "itemQuantity": 3825,
+                "itemQuantity": 2550,
                 "rawName": "Bug2"
               },
               {
                 "itemName": "Distilled_Water",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "PureWater"
               }
             ]
@@ -3834,6 +3837,45 @@
       }
     ]
   },
+  "Nuget_Cake_Fedora": {
+    "rawName": "EquipmentHats64",
+    "itemName": "Nuget_Cake_Fedora",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Nuget_Cake",
+        "itemQuantity": 5,
+        "rawName": "DesertA3b"
+      },
+      {
+        "itemName": "Distilled_Water",
+        "itemQuantity": 20,
+        "rawName": "PureWater"
+      },
+      {
+        "itemName": "Googley_Eyes",
+        "itemQuantity": 1,
+        "rawName": "Quest35",
+        "materials": [
+          {
+            "itemName": "Woodular_Circle",
+            "itemQuantity": 2,
+            "rawName": "TreeInterior1b"
+          },
+          {
+            "itemName": "Distilled_Water",
+            "itemQuantity": 5,
+            "rawName": "PureWater"
+          },
+          {
+            "itemName": "Capitalist_Case",
+            "itemQuantity": 1,
+            "rawName": "InvBag105"
+          }
+        ]
+      }
+    ]
+  },
   "Viking_Cap": {
     "rawName": "TestObj13",
     "itemName": "Viking_Cap",
@@ -3846,12 +3888,12 @@
         "materials": [
           {
             "itemName": "Iron_Bar",
-            "itemQuantity": 125,
+            "itemQuantity": 75,
             "rawName": "IronBar"
           },
           {
             "itemName": "Copper_Ore",
-            "itemQuantity": 750,
+            "itemQuantity": 400,
             "rawName": "Copper"
           },
           {
@@ -3861,12 +3903,12 @@
             "materials": [
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 300,
+                "itemQuantity": 200,
                 "rawName": "CopperBar"
               },
               {
                 "itemName": "Bean_Slices",
-                "itemQuantity": 500,
+                "itemQuantity": 400,
                 "rawName": "Grasslands3"
               }
             ]
@@ -3897,12 +3939,12 @@
         "materials": [
           {
             "itemName": "Iron_Bar",
-            "itemQuantity": 125,
+            "itemQuantity": 75,
             "rawName": "IronBar"
           },
           {
             "itemName": "Thread",
-            "itemQuantity": 750,
+            "itemQuantity": 200,
             "rawName": "CraftMat1"
           },
           {
@@ -3912,12 +3954,12 @@
             "materials": [
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 300,
+                "itemQuantity": 200,
                 "rawName": "CopperBar"
               },
               {
                 "itemName": "Bean_Slices",
-                "itemQuantity": 500,
+                "itemQuantity": 400,
                 "rawName": "Grasslands3"
               }
             ]
@@ -3948,12 +3990,12 @@
         "materials": [
           {
             "itemName": "Iron_Bar",
-            "itemQuantity": 125,
+            "itemQuantity": 75,
             "rawName": "IronBar"
           },
           {
             "itemName": "Oak_Logs",
-            "itemQuantity": 1000,
+            "itemQuantity": 750,
             "rawName": "OakTree"
           },
           {
@@ -3963,12 +4005,12 @@
             "materials": [
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 300,
+                "itemQuantity": 200,
                 "rawName": "CopperBar"
               },
               {
                 "itemName": "Bean_Slices",
-                "itemQuantity": 500,
+                "itemQuantity": 400,
                 "rawName": "Grasslands3"
               }
             ]
@@ -4009,7 +4051,7 @@
             "materials": [
               {
                 "itemName": "Copper_Bar",
-                "itemQuantity": 360,
+                "itemQuantity": 200,
                 "rawName": "CopperBar"
               },
               {
@@ -4143,7 +4185,7 @@
                 "materials": [
                   {
                     "itemName": "Copper_Bar",
-                    "itemQuantity": 500,
+                    "itemQuantity": 300,
                     "rawName": "CopperBar"
                   }
                 ]
@@ -4211,7 +4253,7 @@
                 "materials": [
                   {
                     "itemName": "Copper_Bar",
-                    "itemQuantity": 500,
+                    "itemQuantity": 300,
                     "rawName": "CopperBar"
                   }
                 ]
@@ -4279,7 +4321,7 @@
                 "materials": [
                   {
                     "itemName": "Copper_Bar",
-                    "itemQuantity": 500,
+                    "itemQuantity": 300,
                     "rawName": "CopperBar"
                   }
                 ]
@@ -4347,7 +4389,7 @@
                 "materials": [
                   {
                     "itemName": "Copper_Bar",
-                    "itemQuantity": 500,
+                    "itemQuantity": 300,
                     "rawName": "CopperBar"
                   }
                 ]
@@ -4606,7 +4648,7 @@
                     "materials": [
                       {
                         "itemName": "Copper_Bar",
-                        "itemQuantity": 1500,
+                        "itemQuantity": 900,
                         "rawName": "CopperBar"
                       }
                     ]
@@ -4705,17 +4747,17 @@
               },
               {
                 "itemName": "Birch_Longbow",
-                "itemQuantity": 6,
+                "itemQuantity": 4,
                 "rawName": "EquipmentBows3",
                 "materials": [
                   {
                     "itemName": "Slime_Sludge",
-                    "itemQuantity": 750,
+                    "itemQuantity": 500,
                     "rawName": "Jungle1"
                   },
                   {
                     "itemName": "Bleach_Logs",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 1000,
                     "rawName": "BirchTree"
                   }
                 ]
@@ -5283,7 +5325,7 @@
                     "materials": [
                       {
                         "itemName": "Copper_Bar",
-                        "itemQuantity": 1500,
+                        "itemQuantity": 900,
                         "rawName": "CopperBar"
                       }
                     ]
@@ -5394,17 +5436,17 @@
               },
               {
                 "itemName": "Steel_Axe",
-                "itemQuantity": 12,
+                "itemQuantity": 8,
                 "rawName": "TestObj7",
                 "materials": [
                   {
                     "itemName": "Slime_Sludge",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 1000,
                     "rawName": "Jungle1"
                   },
                   {
                     "itemName": "Boring_Brick",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 1000,
                     "rawName": "CraftMat6"
                   }
                 ]
@@ -5462,17 +5504,17 @@
               },
               {
                 "itemName": "Birch_Longbow",
-                "itemQuantity": 12,
+                "itemQuantity": 8,
                 "rawName": "EquipmentBows3",
                 "materials": [
                   {
                     "itemName": "Slime_Sludge",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 1000,
                     "rawName": "Jungle1"
                   },
                   {
                     "itemName": "Bleach_Logs",
-                    "itemQuantity": 3000,
+                    "itemQuantity": 2000,
                     "rawName": "BirchTree"
                   }
                 ]
@@ -5530,17 +5572,17 @@
               },
               {
                 "itemName": "Quarterstaff",
-                "itemQuantity": 12,
+                "itemQuantity": 8,
                 "rawName": "EquipmentWands2",
                 "materials": [
                   {
                     "itemName": "Slime_Sludge",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 1000,
                     "rawName": "Jungle1"
                   },
                   {
                     "itemName": "Copper_Bar",
-                    "itemQuantity": 1200,
+                    "itemQuantity": 800,
                     "rawName": "CopperBar"
                   }
                 ]
@@ -5608,17 +5650,17 @@
               },
               {
                 "itemName": "Iron_Pickaxe",
-                "itemQuantity": 12,
+                "itemQuantity": 4,
                 "rawName": "EquipmentTools3",
                 "materials": [
                   {
                     "itemName": "Iron_Bar",
-                    "itemQuantity": 1200,
+                    "itemQuantity": 280,
                     "rawName": "IronBar"
                   },
                   {
                     "itemName": "Carrot_Cube",
-                    "itemQuantity": 2400,
+                    "itemQuantity": 600,
                     "rawName": "Jungle3"
                   }
                 ]
@@ -5668,12 +5710,12 @@
               },
               {
                 "itemName": "Small_Mining_Pouch",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "MaxCapBag2",
                 "materials": [
                   {
                     "itemName": "Iron_Ore",
-                    "itemQuantity": 12600,
+                    "itemQuantity": 8400,
                     "rawName": "Iron"
                   }
                 ]
@@ -5736,17 +5778,17 @@
               },
               {
                 "itemName": "Iron_Hatchet",
-                "itemQuantity": 12,
+                "itemQuantity": 4,
                 "rawName": "EquipmentToolsHatchet1",
                 "materials": [
                   {
                     "itemName": "Jungle_Logs",
-                    "itemQuantity": 3000,
+                    "itemQuantity": 800,
                     "rawName": "JungleTree"
                   },
                   {
                     "itemName": "Boring_Brick",
-                    "itemQuantity": 1500,
+                    "itemQuantity": 400,
                     "rawName": "CraftMat6"
                   }
                 ]
@@ -5801,12 +5843,12 @@
               },
               {
                 "itemName": "Small_Choppin_Pouch",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "MaxCapBag9",
                 "materials": [
                   {
                     "itemName": "Bleach_Logs",
-                    "itemQuantity": 14400,
+                    "itemQuantity": 9600,
                     "rawName": "BirchTree"
                   }
                 ]
@@ -5869,22 +5911,22 @@
               },
               {
                 "itemName": "Iron_Fishing_Rod",
-                "itemQuantity": 12,
+                "itemQuantity": 8,
                 "rawName": "FishingRod3",
                 "materials": [
                   {
                     "itemName": "Iron_Bar",
-                    "itemQuantity": 3600,
+                    "itemQuantity": 2400,
                     "rawName": "IronBar"
                   },
                   {
                     "itemName": "Hermit_Can",
-                    "itemQuantity": 7800,
+                    "itemQuantity": 5200,
                     "rawName": "Fish2"
                   },
                   {
                     "itemName": "Distilled_Water",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "PureWater"
                   }
                 ]
@@ -5939,17 +5981,17 @@
               },
               {
                 "itemName": "Small_Fish_Pouch",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "MaxCapBagFi2",
                 "materials": [
                   {
                     "itemName": "Hermit_Can",
-                    "itemQuantity": 7650,
+                    "itemQuantity": 5100,
                     "rawName": "Fish2"
                   },
                   {
                     "itemName": "Distilled_Water",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "PureWater"
                   }
                 ]
@@ -5996,7 +6038,7 @@
             "rawName": "Plat"
           },
           {
-            "itemName": "Gilded_Net",
+            "itemName": "Golden_Net",
             "itemQuantity": 4,
             "rawName": "CatchingNet4",
             "materials": [
@@ -6012,22 +6054,22 @@
               },
               {
                 "itemName": "Reinforced_Net",
-                "itemQuantity": 12,
+                "itemQuantity": 8,
                 "rawName": "CatchingNet3",
                 "materials": [
                   {
                     "itemName": "Forest_Fibres",
-                    "itemQuantity": 9600,
+                    "itemQuantity": 6400,
                     "rawName": "ForestTree"
                   },
                   {
                     "itemName": "Butterfly",
-                    "itemQuantity": 10200,
+                    "itemQuantity": 6800,
                     "rawName": "Bug2"
                   },
                   {
                     "itemName": "Distilled_Water",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "PureWater"
                   }
                 ]
@@ -6077,17 +6119,17 @@
               },
               {
                 "itemName": "Small_Bug_Pouch",
-                "itemQuantity": 18,
+                "itemQuantity": 12,
                 "rawName": "MaxCapBagB2",
                 "materials": [
                   {
                     "itemName": "Butterfly",
-                    "itemQuantity": 7650,
+                    "itemQuantity": 5100,
                     "rawName": "Bug2"
                   },
                   {
                     "itemName": "Distilled_Water",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "PureWater"
                   }
                 ]
@@ -6724,7 +6766,7 @@
                         "materials": [
                           {
                             "itemName": "Copper_Bar",
-                            "itemQuantity": 3000,
+                            "itemQuantity": 1800,
                             "rawName": "CopperBar"
                           }
                         ]
@@ -6855,17 +6897,17 @@
                   },
                   {
                     "itemName": "Steel_Axe",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "TestObj7",
                     "materials": [
                       {
                         "itemName": "Slime_Sludge",
-                        "itemQuantity": 4500,
+                        "itemQuantity": 3000,
                         "rawName": "Jungle1"
                       },
                       {
                         "itemName": "Boring_Brick",
-                        "itemQuantity": 4500,
+                        "itemQuantity": 3000,
                         "rawName": "CraftMat6"
                       }
                     ]
@@ -6945,17 +6987,17 @@
                   },
                   {
                     "itemName": "Birch_Longbow",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "EquipmentBows3",
                     "materials": [
                       {
                         "itemName": "Slime_Sludge",
-                        "itemQuantity": 4500,
+                        "itemQuantity": 3000,
                         "rawName": "Jungle1"
                       },
                       {
                         "itemName": "Bleach_Logs",
-                        "itemQuantity": 9000,
+                        "itemQuantity": 6000,
                         "rawName": "BirchTree"
                       }
                     ]
@@ -7035,17 +7077,17 @@
                   },
                   {
                     "itemName": "Quarterstaff",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "EquipmentWands2",
                     "materials": [
                       {
                         "itemName": "Slime_Sludge",
-                        "itemQuantity": 4500,
+                        "itemQuantity": 3000,
                         "rawName": "Jungle1"
                       },
                       {
                         "itemName": "Copper_Bar",
-                        "itemQuantity": 3600,
+                        "itemQuantity": 2400,
                         "rawName": "CopperBar"
                       }
                     ]
@@ -7130,17 +7172,17 @@
                   },
                   {
                     "itemName": "Iron_Pickaxe",
-                    "itemQuantity": 24,
+                    "itemQuantity": 8,
                     "rawName": "EquipmentTools3",
                     "materials": [
                       {
                         "itemName": "Iron_Bar",
-                        "itemQuantity": 2400,
+                        "itemQuantity": 560,
                         "rawName": "IronBar"
                       },
                       {
                         "itemName": "Carrot_Cube",
-                        "itemQuantity": 4800,
+                        "itemQuantity": 1200,
                         "rawName": "Jungle3"
                       }
                     ]
@@ -7207,12 +7249,12 @@
                   },
                   {
                     "itemName": "Small_Mining_Pouch",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "MaxCapBag2",
                     "materials": [
                       {
                         "itemName": "Iron_Ore",
-                        "itemQuantity": 25200,
+                        "itemQuantity": 16800,
                         "rawName": "Iron"
                       }
                     ]
@@ -7287,17 +7329,17 @@
                   },
                   {
                     "itemName": "Iron_Hatchet",
-                    "itemQuantity": 24,
+                    "itemQuantity": 8,
                     "rawName": "EquipmentToolsHatchet1",
                     "materials": [
                       {
                         "itemName": "Jungle_Logs",
-                        "itemQuantity": 6000,
+                        "itemQuantity": 1600,
                         "rawName": "JungleTree"
                       },
                       {
                         "itemName": "Boring_Brick",
-                        "itemQuantity": 3000,
+                        "itemQuantity": 800,
                         "rawName": "CraftMat6"
                       }
                     ]
@@ -7369,12 +7411,12 @@
                   },
                   {
                     "itemName": "Small_Choppin_Pouch",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "MaxCapBag9",
                     "materials": [
                       {
                         "itemName": "Bleach_Logs",
-                        "itemQuantity": 28800,
+                        "itemQuantity": 19200,
                         "rawName": "BirchTree"
                       }
                     ]
@@ -7454,22 +7496,22 @@
                   },
                   {
                     "itemName": "Iron_Fishing_Rod",
-                    "itemQuantity": 24,
+                    "itemQuantity": 16,
                     "rawName": "FishingRod3",
                     "materials": [
                       {
                         "itemName": "Iron_Bar",
-                        "itemQuantity": 7200,
+                        "itemQuantity": 4800,
                         "rawName": "IronBar"
                       },
                       {
                         "itemName": "Hermit_Can",
-                        "itemQuantity": 15600,
+                        "itemQuantity": 10400,
                         "rawName": "Fish2"
                       },
                       {
                         "itemName": "Distilled_Water",
-                        "itemQuantity": 72,
+                        "itemQuantity": 48,
                         "rawName": "PureWater"
                       }
                     ]
@@ -7541,17 +7583,17 @@
                   },
                   {
                     "itemName": "Small_Fish_Pouch",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "MaxCapBagFi2",
                     "materials": [
                       {
                         "itemName": "Hermit_Can",
-                        "itemQuantity": 15300,
+                        "itemQuantity": 10200,
                         "rawName": "Fish2"
                       },
                       {
                         "itemName": "Distilled_Water",
-                        "itemQuantity": 72,
+                        "itemQuantity": 48,
                         "rawName": "PureWater"
                       }
                     ]
@@ -7610,7 +7652,7 @@
                 "rawName": "Plat"
               },
               {
-                "itemName": "Gilded_Net",
+                "itemName": "Golden_Net",
                 "itemQuantity": 8,
                 "rawName": "CatchingNet4",
                 "materials": [
@@ -7626,22 +7668,22 @@
                   },
                   {
                     "itemName": "Reinforced_Net",
-                    "itemQuantity": 24,
+                    "itemQuantity": 16,
                     "rawName": "CatchingNet3",
                     "materials": [
                       {
                         "itemName": "Forest_Fibres",
-                        "itemQuantity": 19200,
+                        "itemQuantity": 12800,
                         "rawName": "ForestTree"
                       },
                       {
                         "itemName": "Butterfly",
-                        "itemQuantity": 20400,
+                        "itemQuantity": 13600,
                         "rawName": "Bug2"
                       },
                       {
                         "itemName": "Distilled_Water",
-                        "itemQuantity": 72,
+                        "itemQuantity": 48,
                         "rawName": "PureWater"
                       }
                     ]
@@ -7708,17 +7750,17 @@
                   },
                   {
                     "itemName": "Small_Bug_Pouch",
-                    "itemQuantity": 36,
+                    "itemQuantity": 24,
                     "rawName": "MaxCapBagB2",
                     "materials": [
                       {
                         "itemName": "Butterfly",
-                        "itemQuantity": 15300,
+                        "itemQuantity": 10200,
                         "rawName": "Bug2"
                       },
                       {
                         "itemName": "Distilled_Water",
-                        "itemQuantity": 72,
+                        "itemQuantity": 48,
                         "rawName": "PureWater"
                       }
                     ]
@@ -8109,7 +8151,7 @@
     "materials": [
       {
         "itemName": "Audio_Cord",
-        "itemQuantity": 70000,
+        "itemQuantity": 60000,
         "rawName": "SnowC3"
       },
       {
@@ -8198,9 +8240,20 @@
     "itemQuantity": 1,
     "materials": [
       {
-        "itemName": "Not_Yet",
         "itemQuantity": 6,
-        "rawName": "FillerMaterial"
+        "rawName": "FillerMaterial",
+        "materials": [
+          {
+            "itemName": "Copper_Ore",
+            "itemQuantity": 414,
+            "rawName": "Copper"
+          },
+          {
+            "itemName": "Iron_Ore",
+            "itemQuantity": 414,
+            "rawName": "Iron"
+          }
+        ]
       },
       {
         "itemName": "Frigid_Soul",
@@ -8304,7 +8357,7 @@
       },
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 400,
         "rawName": "Refinery4"
       }
     ]
@@ -8316,7 +8369,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 150,
         "rawName": "Refinery4"
       },
       {
@@ -8401,7 +8454,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 150,
         "rawName": "Refinery4"
       },
       {
@@ -8486,7 +8539,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 150,
         "rawName": "Refinery4"
       },
       {
@@ -8571,7 +8624,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 400,
         "rawName": "Refinery4"
       },
       {
@@ -8707,7 +8760,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 250,
         "rawName": "Refinery4"
       },
       {
@@ -8792,7 +8845,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 250,
         "rawName": "Refinery4"
       },
       {
@@ -8877,7 +8930,7 @@
     "materials": [
       {
         "itemName": "Dioxide_Synthesis",
-        "itemQuantity": 500,
+        "itemQuantity": 250,
         "rawName": "Refinery4"
       },
       {
@@ -9008,6 +9061,727 @@
         "itemName": "Yellow_Snowflake",
         "itemQuantity": 3,
         "rawName": "SnowA2a"
+      }
+    ]
+  },
+  "Honker_Hat": {
+    "rawName": "EquipmentHats66",
+    "itemName": "Honker_Hat",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Honker",
+        "itemQuantity": 1000000,
+        "rawName": "Critter9"
+      },
+      {
+        "itemName": "Diamond_Duck",
+        "itemQuantity": 1,
+        "rawName": "Critter9A"
+      },
+      {
+        "itemName": "Dense_Water",
+        "itemQuantity": 25,
+        "rawName": "PureWater2"
+      }
+    ]
+  },
+  "Tundra_NPC_Completion_Token": {
+    "rawName": "BadgeI1",
+    "itemName": "Tundra_NPC_Completion_Token",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Easy_FB_Tundra_NPC_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken39",
+        "materials": [
+          {
+            "itemName": "Lonely_Hunter_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken31"
+          },
+          {
+            "itemName": "Hoggi_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken32"
+          },
+          {
+            "itemName": "Snouts_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken34"
+          }
+        ]
+      },
+      {
+        "itemName": "Med_FB_Tundra_NPC_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken40",
+        "materials": [
+          {
+            "itemName": "Shuvelle_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken35"
+          },
+          {
+            "itemName": "Yondergreen_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken36"
+          },
+          {
+            "itemName": "Crystalswine_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken38"
+          }
+        ]
+      },
+      {
+        "itemName": "Hard_FB_Tundra_NPC_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken41",
+        "materials": [
+          {
+            "itemName": "Bellows_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken33"
+          },
+          {
+            "itemName": "Bill_Brr_Token",
+            "itemQuantity": 1,
+            "rawName": "NPCtoken37"
+          }
+        ]
+      }
+    ]
+  },
+  "Tundra_Skills_Completion_Token": {
+    "rawName": "BadgeI2",
+    "itemName": "Tundra_Skills_Completion_Token",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Frigid_Soul",
+        "itemQuantity": 15000,
+        "rawName": "Soul4"
+      },
+      {
+        "itemName": "Jade_Scarab",
+        "itemQuantity": 4,
+        "rawName": "Critter8A"
+      },
+      {
+        "itemName": "Refurbished_Cog",
+        "itemQuantity": 1,
+        "rawName": "Quest58"
+      }
+    ]
+  },
+  "Tundra_Misc_Completion_Token": {
+    "rawName": "BadgeI3",
+    "itemName": "Tundra_Misc_Completion_Token",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Nullo_Salt",
+        "itemQuantity": 10,
+        "rawName": "Refinery6"
+      },
+      {
+        "itemName": "Black_Lense",
+        "itemQuantity": 60,
+        "rawName": "SnowC4a"
+      },
+      {
+        "itemName": "Chizoar_Helmet",
+        "itemQuantity": 1,
+        "rawName": "EquipmentHats68",
+        "materials": [
+          {
+            "itemName": "Chizoar_Spike",
+            "itemQuantity": 25,
+            "rawName": "Chiz0"
+          },
+          {
+            "itemName": "Blood_Bone",
+            "itemQuantity": 1000,
+            "rawName": "SnowC5"
+          },
+          {
+            "itemName": "Void_Imperium_Helmet",
+            "itemQuantity": 1,
+            "rawName": "EquipmentHats54",
+            "materials": [
+              {
+                "itemName": "Spontaneity_Salts",
+                "itemQuantity": 500,
+                "rawName": "Refinery3"
+              },
+              {
+                "itemName": "Dementia_Helmet",
+                "itemQuantity": 2,
+                "rawName": "EquipmentHats53",
+                "materials": [
+                  {
+                    "itemName": "Froge",
+                    "itemQuantity": 10000,
+                    "rawName": "Critter1"
+                  },
+                  {
+                    "itemName": "Platinum_Helmet",
+                    "itemQuantity": 4,
+                    "rawName": "EquipmentHats19",
+                    "materials": [
+                      {
+                        "itemName": "Jellyfish",
+                        "itemQuantity": 9000,
+                        "rawName": "Fish3"
+                      },
+                      {
+                        "itemName": "Iron_Helmet",
+                        "itemQuantity": 16,
+                        "rawName": "EquipmentHats18",
+                        "materials": [
+                          {
+                            "itemName": "Iron_Bar",
+                            "itemQuantity": 2000,
+                            "rawName": "IronBar"
+                          },
+                          {
+                            "itemName": "Glublin_Ear",
+                            "itemQuantity": 4800,
+                            "rawName": "Forest1"
+                          }
+                        ]
+                      },
+                      {
+                        "itemName": "Platinum_Bar",
+                        "itemQuantity": 3000,
+                        "rawName": "PlatBar"
+                      }
+                    ]
+                  },
+                  {
+                    "itemName": "Dementia_Bar",
+                    "itemQuantity": 600,
+                    "rawName": "DementiaBar"
+                  }
+                ]
+              },
+              {
+                "itemName": "Void_Bar",
+                "itemQuantity": 1000,
+                "rawName": "VoidBar"
+              },
+              {
+                "itemName": "Dense_Water",
+                "itemQuantity": 5,
+                "rawName": "PureWater2"
+              }
+            ]
+          },
+          {
+            "itemName": "Purple_Salt",
+            "itemQuantity": 100,
+            "rawName": "Refinery5"
+          }
+        ]
+      },
+      {
+        "itemName": "Neutron_Ice_Ring",
+        "itemQuantity": 1,
+        "rawName": "EquipmentRings23"
+      }
+    ]
+  },
+  "Easy_FB_Tundra_NPC_Token": {
+    "rawName": "NPCtoken39",
+    "itemName": "Easy_FB_Tundra_NPC_Token",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Lonely_Hunter_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken31"
+      },
+      {
+        "itemName": "Hoggi_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken32"
+      },
+      {
+        "itemName": "Snouts_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken34"
+      }
+    ]
+  },
+  "Med_FB_Tundra_NPC_Token": {
+    "rawName": "NPCtoken40",
+    "itemName": "Med_FB_Tundra_NPC_Token",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Shuvelle_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken35"
+      },
+      {
+        "itemName": "Yondergreen_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken36"
+      },
+      {
+        "itemName": "Crystalswine_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken38"
+      }
+    ]
+  },
+  "Hard_FB_Tundra_NPC_Token": {
+    "rawName": "NPCtoken41",
+    "itemName": "Hard_FB_Tundra_NPC_Token",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Bellows_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken33"
+      },
+      {
+        "itemName": "Bill_Brr_Token",
+        "itemQuantity": 1,
+        "rawName": "NPCtoken37"
+      }
+    ]
+  },
+  "Chizoars_Caustic_Scarf": {
+    "rawName": "EquipmentPendant25",
+    "itemName": "Chizoars_Caustic_Scarf",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Chizoar_Stalagmite",
+        "itemQuantity": 15,
+        "rawName": "Chiz1"
+      },
+      {
+        "itemName": "Chizoar_Spike",
+        "itemQuantity": 30,
+        "rawName": "Chiz0"
+      },
+      {
+        "itemName": "Chizoars_Blankie",
+        "itemQuantity": 1,
+        "rawName": "EquipmentPendant24"
+      }
+    ]
+  },
+  "Chizoar_Helmet": {
+    "rawName": "EquipmentHats68",
+    "itemName": "Chizoar_Helmet",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Chizoar_Spike",
+        "itemQuantity": 25,
+        "rawName": "Chiz0"
+      },
+      {
+        "itemName": "Blood_Bone",
+        "itemQuantity": 1000,
+        "rawName": "SnowC5"
+      },
+      {
+        "itemName": "Void_Imperium_Helmet",
+        "itemQuantity": 1,
+        "rawName": "EquipmentHats54",
+        "materials": [
+          {
+            "itemName": "Spontaneity_Salts",
+            "itemQuantity": 500,
+            "rawName": "Refinery3"
+          },
+          {
+            "itemName": "Dementia_Helmet",
+            "itemQuantity": 2,
+            "rawName": "EquipmentHats53",
+            "materials": [
+              {
+                "itemName": "Froge",
+                "itemQuantity": 10000,
+                "rawName": "Critter1"
+              },
+              {
+                "itemName": "Platinum_Helmet",
+                "itemQuantity": 4,
+                "rawName": "EquipmentHats19",
+                "materials": [
+                  {
+                    "itemName": "Jellyfish",
+                    "itemQuantity": 9000,
+                    "rawName": "Fish3"
+                  },
+                  {
+                    "itemName": "Iron_Helmet",
+                    "itemQuantity": 16,
+                    "rawName": "EquipmentHats18",
+                    "materials": [
+                      {
+                        "itemName": "Iron_Bar",
+                        "itemQuantity": 2000,
+                        "rawName": "IronBar"
+                      },
+                      {
+                        "itemName": "Glublin_Ear",
+                        "itemQuantity": 4800,
+                        "rawName": "Forest1"
+                      }
+                    ]
+                  },
+                  {
+                    "itemName": "Platinum_Bar",
+                    "itemQuantity": 3000,
+                    "rawName": "PlatBar"
+                  }
+                ]
+              },
+              {
+                "itemName": "Dementia_Bar",
+                "itemQuantity": 600,
+                "rawName": "DementiaBar"
+              }
+            ]
+          },
+          {
+            "itemName": "Void_Bar",
+            "itemQuantity": 1000,
+            "rawName": "VoidBar"
+          },
+          {
+            "itemName": "Dense_Water",
+            "itemQuantity": 5,
+            "rawName": "PureWater2"
+          }
+        ]
+      },
+      {
+        "itemName": "Purple_Salt",
+        "itemQuantity": 100,
+        "rawName": "Refinery5"
+      }
+    ]
+  },
+  "Chizoar_Chestplate": {
+    "rawName": "EquipmentShirts6",
+    "itemName": "Chizoar_Chestplate",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Chizoar_Spike",
+        "itemQuantity": 18,
+        "rawName": "Chiz0"
+      },
+      {
+        "itemName": "Ram_Wool",
+        "itemQuantity": 100000,
+        "rawName": "SnowA4"
+      },
+      {
+        "itemName": "Void_Imperium_Platebody",
+        "itemQuantity": 1,
+        "rawName": "EquipmentShirts27",
+        "materials": [
+          {
+            "itemName": "Audio_Cord",
+            "itemQuantity": 75000,
+            "rawName": "SnowC3"
+          },
+          {
+            "itemName": "Dementia_Body",
+            "itemQuantity": 2,
+            "rawName": "EquipmentShirts15",
+            "materials": [
+              {
+                "itemName": "Forest_Soul",
+                "itemQuantity": 2000,
+                "rawName": "Soul1"
+              },
+              {
+                "itemName": "Platinum_Platbody",
+                "itemQuantity": 4,
+                "rawName": "EquipmentShirts14",
+                "materials": [
+                  {
+                    "itemName": "Potato_Remains",
+                    "itemQuantity": 20000,
+                    "rawName": "DesertB4"
+                  },
+                  {
+                    "itemName": "Iron_Platebody",
+                    "itemQuantity": 20,
+                    "rawName": "EquipmentShirts12",
+                    "materials": [
+                      {
+                        "itemName": "Iron_Bar",
+                        "itemQuantity": 3000,
+                        "rawName": "IronBar"
+                      },
+                      {
+                        "itemName": "Jungle_Logs",
+                        "itemQuantity": 12000,
+                        "rawName": "JungleTree"
+                      }
+                    ]
+                  },
+                  {
+                    "itemName": "Platinum_Bar",
+                    "itemQuantity": 4000,
+                    "rawName": "PlatBar"
+                  }
+                ]
+              },
+              {
+                "itemName": "Dementia_Bar",
+                "itemQuantity": 700,
+                "rawName": "DementiaBar"
+              }
+            ]
+          },
+          {
+            "itemName": "Void_Bar",
+            "itemQuantity": 500,
+            "rawName": "VoidBar"
+          },
+          {
+            "itemName": "Dense_Water",
+            "itemQuantity": 4,
+            "rawName": "PureWater2"
+          }
+        ]
+      },
+      {
+        "itemName": "Purple_Salt",
+        "itemQuantity": 50,
+        "rawName": "Refinery5"
+      }
+    ]
+  },
+  "Chizoar_Scaled_Leggings": {
+    "rawName": "EquipmentPants9",
+    "itemName": "Chizoar_Scaled_Leggings",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Chizoar_Spike",
+        "itemQuantity": 10,
+        "rawName": "Chiz0"
+      },
+      {
+        "itemName": "Black_Lense",
+        "itemQuantity": 8,
+        "rawName": "SnowC4a"
+      },
+      {
+        "itemName": "Void_Imperium_Shardshins",
+        "itemQuantity": 1,
+        "rawName": "EquipmentPants21",
+        "materials": [
+          {
+            "itemName": "Wispy_Lumber",
+            "itemQuantity": 75000,
+            "rawName": "Tree7"
+          },
+          {
+            "itemName": "Dementia_Shins",
+            "itemQuantity": 2,
+            "rawName": "EquipmentPants6",
+            "materials": [
+              {
+                "itemName": "Floof_Ploof",
+                "itemQuantity": 16000,
+                "rawName": "SnowA1"
+              },
+              {
+                "itemName": "Platinum_Shins",
+                "itemQuantity": 4,
+                "rawName": "EquipmentPants5",
+                "materials": [
+                  {
+                    "itemName": "Sentient_Cereal",
+                    "itemQuantity": 20000,
+                    "rawName": "Bug3"
+                  },
+                  {
+                    "itemName": "Iron_Platelegs",
+                    "itemQuantity": 24,
+                    "rawName": "EquipmentPants3",
+                    "materials": [
+                      {
+                        "itemName": "Iron_Bar",
+                        "itemQuantity": 4080,
+                        "rawName": "IronBar"
+                      },
+                      {
+                        "itemName": "Boring_Brick",
+                        "itemQuantity": 5400,
+                        "rawName": "CraftMat6"
+                      }
+                    ]
+                  },
+                  {
+                    "itemName": "Platinum_Bar",
+                    "itemQuantity": 5000,
+                    "rawName": "PlatBar"
+                  }
+                ]
+              },
+              {
+                "itemName": "Dementia_Bar",
+                "itemQuantity": 800,
+                "rawName": "DementiaBar"
+              }
+            ]
+          },
+          {
+            "itemName": "Void_Bar",
+            "itemQuantity": 650,
+            "rawName": "VoidBar"
+          },
+          {
+            "itemName": "Dense_Water",
+            "itemQuantity": 4,
+            "rawName": "PureWater2"
+          }
+        ]
+      },
+      {
+        "itemName": "Dioxide_Synthesis",
+        "itemQuantity": 250,
+        "rawName": "Refinery4"
+      }
+    ]
+  },
+  "Chizoar_Walkers": {
+    "rawName": "EquipmentShoes23",
+    "itemName": "Chizoar_Walkers",
+    "itemQuantity": 1,
+    "materials": [
+      {
+        "itemName": "Chizoar_Spike",
+        "itemQuantity": 6,
+        "rawName": "Chiz0"
+      },
+      {
+        "itemName": "Ice_Age_3",
+        "itemQuantity": 10,
+        "rawName": "SnowB2a"
+      },
+      {
+        "itemName": "Void_Imperium_Kicks",
+        "itemQuantity": 1,
+        "rawName": "EquipmentShoes22",
+        "materials": [
+          {
+            "itemName": "Flycicle",
+            "itemQuantity": 60000,
+            "rawName": "Bug6"
+          },
+          {
+            "itemName": "Dementia_Boots",
+            "itemQuantity": 2,
+            "rawName": "EquipmentShoes5",
+            "materials": [
+              {
+                "itemName": "Poison_Froge",
+                "itemQuantity": 6,
+                "rawName": "Critter1A"
+              },
+              {
+                "itemName": "Platinum_Boots",
+                "itemQuantity": 2,
+                "rawName": "EquipmentShoes4",
+                "materials": [
+                  {
+                    "itemName": "Tropilogs",
+                    "itemQuantity": 14000,
+                    "rawName": "PalmTree"
+                  },
+                  {
+                    "itemName": "Jellyfish",
+                    "itemQuantity": 6000,
+                    "rawName": "Fish3"
+                  },
+                  {
+                    "itemName": "Gold_Boots",
+                    "itemQuantity": 6,
+                    "rawName": "EquipmentShoes3",
+                    "materials": [
+                      {
+                        "itemName": "Gold_Bar",
+                        "itemQuantity": 3600,
+                        "rawName": "GoldBar"
+                      },
+                      {
+                        "itemName": "Iron_Boots",
+                        "itemQuantity": 12,
+                        "rawName": "EquipmentShoes15",
+                        "materials": [
+                          {
+                            "itemName": "Trusty_Nails",
+                            "itemQuantity": 6000,
+                            "rawName": "CraftMat5"
+                          },
+                          {
+                            "itemName": "Iron_Bar",
+                            "itemQuantity": 1500,
+                            "rawName": "IronBar"
+                          },
+                          {
+                            "itemName": "Copper_Boots",
+                            "itemQuantity": 24,
+                            "rawName": "EquipmentShoes1",
+                            "materials": [
+                              {
+                                "itemName": "Copper_Bar",
+                                "itemQuantity": 1800,
+                                "rawName": "CopperBar"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "itemName": "Distilled_Water",
+                        "itemQuantity": 24,
+                        "rawName": "PureWater"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "itemName": "Dementia_Bar",
+                "itemQuantity": 1000,
+                "rawName": "DementiaBar"
+              }
+            ]
+          },
+          {
+            "itemName": "Void_Bar",
+            "itemQuantity": 725,
+            "rawName": "VoidBar"
+          },
+          {
+            "itemName": "Dense_Water",
+            "itemQuantity": 4,
+            "rawName": "PureWater2"
+          }
+        ]
+      },
+      {
+        "itemName": "Dioxide_Synthesis",
+        "itemQuantity": 100,
+        "rawName": "Refinery4"
       }
     ]
   }

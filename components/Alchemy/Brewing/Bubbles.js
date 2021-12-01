@@ -70,7 +70,7 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
             <div className={'cost'}>
               {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
                 const cost = accumulateBubbleCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
-                return name !== 'Blank' ? <div key={`${name}${itemIndex}`}>
+                return rawName !== 'Blank' ? <div key={`${name}${itemIndex}`}>
                   <div><img className={'req-item'} src={`${prefix}data/${rawName}.png`} title={cleanUnderscore(name)}
                             alt=""/></div>
                   <NumberTooltip title={numberWithCommas(cost)}>

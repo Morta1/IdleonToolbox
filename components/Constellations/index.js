@@ -63,7 +63,7 @@ const Constellations = ({ constellations, starSigns }) => {
         <tbody>
         {starSigns?.map((starSign, index) => {
           const { starName, cost, unlocked } = starSign;
-          return <tr key={starName + ' ' + index} className={`row${unlocked ? ' done' : ''}`}>
+          return (!starName.includes('Filler') && !starName.includes('Unknown')) && <tr key={starName + ' ' + index} className={`row${unlocked ? ' done' : ''}`}>
             <td className={'text-align-center'}><StyledCheckbox color={'default'} disabled={unlocked}
                                                                 checked={unlocked}/></td>
             <td className={'star-name'}>
