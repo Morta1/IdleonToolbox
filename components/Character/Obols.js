@@ -2,14 +2,21 @@ import React from 'react';
 import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
+const shapes = {
+  'Circle': "1",
+  'Square': '2',
+  'Hexagon': '3',
+  'Sparkle': '4'
+};
+
 const Obols = ({ obols, type }) => {
   const getImgName = (name, rawName, shape) => {
     switch (name) {
       case 'Locked': {
-        return `Obol_Locked_${shape}`;
+        return `ObolLocked${shapes[shape]}`;
       }
       case 'Empty': {
-        return `Obol_Empty_${shape}`;
+        return `ObolEmpty${shapes[shape]}`;
       }
       default: {
         return rawName;
