@@ -7,10 +7,10 @@ const StarSigns = ({ signs }) => {
     <StarSignsStyled>
       <span className={'title'}>Star Signs</span>
       <div className={'star-signs-wrapper'}>
-        {signs?.map(({ name, description }, index) => {
+        {signs?.map(({ starName, bonuses }, index) => {
           return name !== "None" ? <div key={name + index}>
             <span>{cleanUnderscore(name)}</span>
-            <span>{cleanUnderscore(description)}</span>
+            <span>{cleanUnderscore(bonuses?.join(','))}</span>
           </div> : null;
         })}
       </div>
@@ -35,6 +35,7 @@ const StarSignsStyled = styled.div`
     > div {
       text-align: center;
       max-width: 250px;
+
       > span {
         margin: 0 5px;
         display: block;
