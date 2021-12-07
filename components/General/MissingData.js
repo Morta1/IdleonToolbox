@@ -7,20 +7,25 @@ const MissingData = () => {
       <div className={'missing-text'}>
         <div className={'instructions'}>
           <h1>Welcome!</h1>
-          <div>1. Head over to <a href="https://github.com/Morta1/idleon-data-extractor"
-                                  rel={'noreferrer'}
-                                  target={'_blank'}>idleon-data-extractor</a> and download the extension.
+          <div>1. Download my steam data extractor <a
+            href="https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing"
+            rel={'noreferrer'}
+            target={'_blank'}>idleon-steam-data-extractor</a>
           </div>
-          <div>2. Make sure you&apos;re logged-in in <a href="https://legendsofidleon.com/"
-                                                        rel={'noreferrer'}
-                                                        target={'_blank'}>Legends Of Idleon</a> (This is a
-            one-time process)
+          <div>
+            <div style={{ marginBottom: 10 }}> 2. Open the extractor and click Run (you can also change the destination
+              if you&apos;d like)
+            </div>
+            <img src={`${prefix}extractor-image.png`} alt=""/>
           </div>
-          <div>3. Click Fetch Data and wait (The process can take roughly 20-45 seconds, depends on the network)
+          <div>
+            <div style={{ marginBottom: 10 }}> 3. Copy the result json and click here</div>
+            <img src={`${prefix}copy.png`} alt=""/>
+          </div>
+          <div className={'contact'}>For any question, suggestion or bug report, please contact me in discord Morojo#2331
           </div>
         </div>
       </div>
-      <img src={`${prefix}etc/Dr_Defecaus_Walking.gif`} alt=""/>
     </MissingDataStyle>
   );
 };
@@ -28,6 +33,14 @@ const MissingData = () => {
 const MissingDataStyle = styled.div`
   margin-top: 15px;
   display: grid;
+
+  .discord {
+    margin-left: 10px;
+  }
+
+  .contact {
+    margin: 10px 0;
+  }
 
   .instructions {
     > div {
