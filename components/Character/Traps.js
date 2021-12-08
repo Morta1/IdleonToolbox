@@ -5,16 +5,26 @@ import styled from 'styled-components';
 const Traps = ({ traps }) => {
   return (
     <TrapsStyled>
-      {[...traps]?.map(({ name, rawName }, index) => {
-        return <img title={cleanUnderscore(name)} key={name + index}
-                    src={`${prefix}data/${rawName}.png`} alt=""/>;
+      {[...traps]?.map(({ name, timeLeft, rawName }, index) => {
+        return <div className={'trap'} key={name + index}>
+          <span>{timeLeft}</span>
+          <img title={cleanUnderscore(name)}
+               src={`${prefix}data/${rawName}.png`} alt=""/>
+        </div>;
       })}
     </TrapsStyled>
   );
 };
 
 const TrapsStyled = styled.div`
-  justify-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .trap {
+    text-align: center;
+  }
+
   @media (max-width: 750px) {
     img {
       width: 48px;

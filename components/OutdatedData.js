@@ -5,6 +5,18 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.2',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Updated shrines with more data',
+            'Moved looty to a different tab in Account',
+            'Added traps timers (just displaying time left)'
+          ]
+        },
+      ]
+    }, {
       version: '1.0.1',
       changes: [
         {
@@ -87,14 +99,14 @@ const OutdatedData = ({ extVersion }) => {
   ]
 
   useEffect(() => {
-    localStorage.clear();
+    // localStorage.clear();
   }, []);
 
   return (
     <OutdatedDataStyle>
       <div className={'info'}>
-        <span>Please update your extension to the <a className={'extractor'}
-                                                     href="https://github.com/Morta1/idleon-data-extractor">latest version</a> ({extVersion}) and refresh</span>
+        <span>Please update your steam data extractor to the <a className={'extractor'}
+                                                                href="https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing">latest version</a> ({extVersion}) and refresh</span>
         <span className={'small-text'}>If your extension is up-to-date please contact Morojo#2331 in discord</span>
       </div>
       {updates?.map(({ version, changes }, index) => {

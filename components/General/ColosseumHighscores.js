@@ -7,7 +7,7 @@ const ColosseumHighscores = ({ scores }) => {
       <span className={'title'}>Colosseum Highscores</span>
       {scores?.map((score, index) => {
         return <div className={'colo-container'} key={score + "" + index}>
-          <img title={`Colo${index}`} src={`${prefix}data/Colo${index}.png`} alt={''}/>
+          <img title={`Colo${index + 1}`} src={`${prefix}data/Colo${index + 1}.png`} alt={''}/>
           <span className={'colo-score'}>{numberWithCommas(score)}</span>
         </div>
       })}

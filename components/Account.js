@@ -10,6 +10,7 @@ import Brewing from "./Alchemy/Brewing/Brewing";
 import Stamps from "./Stamps/Stamps";
 import Bribes from "./General/Bribes";
 import Constellations from "./Constellations";
+import Looty from "./General/Looty";
 
 const Account = () => {
   const { userData, display, accountDisplay } = useContext(AppContext);
@@ -21,6 +22,7 @@ const Account = () => {
       <AccountDrawer/>
       {matches && <Toolbar/>}
       {accountDisplay?.view === 'general' ? <General account={userData?.account}/> : null}
+      {accountDisplay?.view === 'looty' ? <Looty items={userData?.account?.missingLootyItems}/> : null}
       {accountDisplay?.view === 'stamps' ?
         <Stamps stamps={userData?.account?.stamps} alchemy={userData?.account?.alchemy}
                 bribes={userData?.account?.bribes}/> : null}
