@@ -49,7 +49,7 @@ const NavBar = () => {
         {(getPageName('family') || isDemo()) && userData?.version === extVersion ?
           <ul className={'family-navigation'}>
             {familyRoutes.map((route, index) => (
-              <ListItem onClick={() => setUserDisplay(index)} active={display?.view === index} inner={true}
+              <ListItem onClick={() => setUserDisplay(index, route)} active={display?.view === index} inner={true}
                         key={route + index}>{route}</ListItem>))}
           </ul> : null}
         {getPageName('family') && !isDemo() ? <JsonImport/> : null}

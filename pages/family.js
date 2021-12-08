@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
 import CharacterWrapper from "../components/CharacterWrapper";
 import GuildWrapper from "../components/GuildWrapper";
@@ -14,10 +14,18 @@ import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Account from "../components/Account";
 import Quests from "../components/Quests/Quests";
+import ReactGA from "react-ga";
 
 const Family = () => {
   const { userData, display } = useContext(AppContext);
   const matches = useMediaQuery('(max-width:1220px)');
+  useEffect(() => {
+    ReactGA.event({
+      category: 'Test',
+      action: 'Test',
+      label: 'Test'
+    });
+  }, []);
 
   return (
     <>
