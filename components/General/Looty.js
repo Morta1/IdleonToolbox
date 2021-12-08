@@ -11,7 +11,9 @@ const Looty = ({ items }) => {
 const LootyWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-
+  padding: 15px;
+  gap: 10px;
+  
   img {
     margin: 0 auto;
     object-fit: contain;

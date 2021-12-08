@@ -1,13 +1,17 @@
 import styled from 'styled-components'
 import { cleanUnderscore, prefix } from "../../Utilities";
+import ShrineTooltip from "../Common/Tooltips/ShrineTooltip";
 
 const Shrines = ({ shrines }) => {
   return (
     <ShrinesStyle>
-      {shrines.map(({ name, rawName, shrineLevel }, index) => {
+      {shrines.map(({ name, rawName, shrineLevel, desc, bonus }, index) => {
+        const description = cleanUnderscore(desc?.replace('{', bonus));
         return <div className={'shrine-container'} key={name + index}>
           <span className={'level'}>{shrineLevel}</span>
-          <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
+          <ShrineTooltip name={name} level={shrineLevel} desc={description}>
+            <img src={`${prefix}data/${rawName}.png`} alt=""/>
+          </ShrineTooltip>
         </div>
       })}
     </ShrinesStyle>

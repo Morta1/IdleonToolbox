@@ -45,6 +45,12 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={'General'}/>
             </ListItem>
+            <ListItem button selected={selected?.view === 'looty'} onClick={() => handleClick('looty')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/UISkillIcon305.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Looty'}/>
+            </ListItem>
             <ListItem button onClick={() => setStampsOpen(!stampsOpen)}>
               <img className={'list-img'} width={32} src={`${prefix}data/StampA34.png`} alt=""/>
               <ListItemText

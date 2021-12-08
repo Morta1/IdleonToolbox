@@ -1,9 +1,5 @@
 import styled from 'styled-components';
-import { Accordion, AccordionDetails, AccordionSummary } from "@material-ui/core";
 import Obols from "./Character/Obols";
-import Looty from "./General/Looty";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { useRef } from "react";
 import Statues from "./General/Statues";
 import GeneralInfo from "./General/GeneralInfo";
 import Shrines from "./General/Shrines";
@@ -11,20 +7,6 @@ import ColosseumHighscores from "./General/ColosseumHighscores";
 import MinigameHighscores from "./General/MinigameHighscores";
 
 const General = ({ account }) => {
-  const accordionRef = useRef();
-
-  const scrollToAccordion = () => {
-    if (accordionRef.current) {
-      setTimeout(() => {
-        accordionRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-          inline: "nearest"
-        })
-      }, 300);
-    }
-  }
-
   return <AccountWrapperStyle>
     <div className="row">
       <Obols obols={account?.obols} type={'account'}/>
@@ -39,28 +21,9 @@ const General = ({ account }) => {
       <Shrines shrines={account?.shrines}/>
       <Statues statues={account?.statues}/>
     </div>
-
-    <div className="looty-row">
-      <StyledAccordion
-        className={'looty'}
-        ref={accordionRef}
-        onChange={(e, expanded) => {expanded && scrollToAccordion()}}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-          Looty Shooty Missing Items ({account?.missingLootyItems.length})
-        </AccordionSummary>
-        <AccordionDetails>
-          <Looty items={account?.missingLootyItems}/>
-        </AccordionDetails>
-      </StyledAccordion>
-    </div>
   </AccountWrapperStyle>;
 }
 
-const StyledAccordion = styled(Accordion)`
-  && {
-    background-color: #352633;
-  }
-`;
 
 const AccountWrapperStyle = styled.div`
   .looty-row {

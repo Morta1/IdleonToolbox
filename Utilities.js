@@ -1023,5 +1023,5 @@ export const screens = {
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.1';
+export const extVersion = '1.0.2';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

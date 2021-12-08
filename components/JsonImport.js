@@ -88,10 +88,10 @@ const JsonImport = () => {
     try {
       const data = JSON.parse(await navigator.clipboard.readText());
       console.log(data);
+      setUserData(data);
+      setUserLastUpdated(getDate());
+      setResult({ success: true });
       if (data?.version === extVersion) {
-        setUserData(data);
-        setUserLastUpdated(getDate());
-        setResult({ success: true });
         router.reload();
       }
     } catch (err) {
