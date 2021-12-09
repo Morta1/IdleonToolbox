@@ -55,7 +55,7 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
             <div className={'bubble-wrapper'}>
               <span className={'level'}>{level}</span>
               <EffectTooltip type={'bubble'} {...{ name: bubbleName, ...bubble }}
-                             effect={calculateEffect(func, level, x1, x2)}>
+                             effect={calculateEffect(func, bubbleGoal?.[index] ? bubbleGoal?.[index] < level ? level : bubbleGoal?.[index] : 0, x1, x2)}>
                 <img width={48} height={48} src={`${prefix}data/${rawName}.png`}
                      alt={''}/>
               </EffectTooltip>
