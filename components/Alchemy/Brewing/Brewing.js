@@ -6,7 +6,8 @@ import { calcBubbleMatCost, cauldrons } from "../../General/calculationHelper";
 import { AppContext } from "../../Common/context";
 import Bubbles from "./Bubbles";
 
-const Brewing = ({ alchemy }) => {
+const Brewing = ({ account }) => {
+  const { alchemy, achievements } = account;
   const { accountDisplay, alchemyGoals, setUserAlchemyGoals } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
 
@@ -19,9 +20,10 @@ const Brewing = ({ alchemy }) => {
     const lastBubbleLvl = alchemy?.bubbles?.[cauldronName]?.[14].level || 0;
     const classMultiplierLvl = classDiscount ? (alchemy?.bubbles?.[cauldronName]?.[1].level || 0) : 0;
     const shopBargainBought = bargainTag || 0;
+    const smrtAchievement = achievements[108].completed;
     return calcBubbleMatCost(bubbleLv, baseCost, isLiquid, cauldronCostLvl,
       undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
-      shopBargainBought);
+      shopBargainBought, smrtAchievement);
   }
 
   const handleGoalUpdate = (cauldronName, levels) => {

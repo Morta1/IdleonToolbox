@@ -5,7 +5,7 @@ import { Autocomplete } from "@material-ui/lab";
 import { findItemInInventory, kFormatter, prefix } from "../Utilities";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
 import ItemDisplay from "./Common/ItemDisplay";
-import allItems from '../data/items-array.json';
+import { itemsArray } from '../data/website-data';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -21,7 +21,7 @@ const ItemBrowser = ({ userData }) => {
   useEffect(() => {
     const charItems = userData?.characters.reduce((res, { inventory }) => [...res, ...inventory], []);
     const totalItems = [...charItems, ...userData?.account?.inventory];
-    setLabels(allItems);
+    setLabels(itemsArray);
     setItems(totalItems);
   }, []);
 

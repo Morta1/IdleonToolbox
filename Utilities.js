@@ -1009,7 +1009,6 @@ export const findQuantityOwned = (items, itemName) => {
   return Object.values(inventoryItem)?.reduce((res, { amount }) => {
     return res + amount;
   }, 0);
-
 }
 
 export const screens = {
@@ -1017,11 +1016,12 @@ export const screens = {
   account: 1,
   craftIt: 2,
   itemBrowser: 3,
-  guild: 4,
+  achievements: 4,
   shopStock: 5,
-  quests: 6
+  quests: 6,
+  cardSearch: 7
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.2';
+export const extVersion = '1.0.3';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

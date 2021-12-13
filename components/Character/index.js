@@ -53,8 +53,13 @@ const Character = ({
         </div>
         <div className={'activity'}>
           <h4>Activity</h4>
-          <img title={cleanUnderscore(afkTarget)} width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`}
-               alt=""/>
+          {afkTarget && afkTarget !== '_' ?
+            <img title={cleanUnderscore(afkTarget)} width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`}
+                 alt=""/> : <div>
+              <img title={'Nothing'} width={64} height={64} src={`${prefix}data/Afkz5.png`}
+                   alt=""/>
+              <div>Nothing</div>
+            </div>}
         </div>
       </div>
       {!dataFilters || dataFilters?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}

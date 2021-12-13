@@ -1,6 +1,6 @@
 const calcBubbleMatCost = (bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
                            undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
-                           shopBargainBought) => {
+                           shopBargainBought, smrtAchievement) => {
   if (isLiquid) {
     return baseCost + Math.floor(bubbleLvl / 20);
   } else {
@@ -9,8 +9,9 @@ const calcBubbleMatCost = (bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
     const bubbleCostBubbleBoost = Math.max(0.05, 1 - (growth("decay", undevelopedBubbleLv, 40, 70) + growth("add", barleyBrewLvl, 1, 0)) / 100);
     const bubbleBargainBoost = Math.max(0.05, 1 - (growth("decay", lastBubbleLvl, 40, 12) / 100) * growth("decayMulti", classMultiplierLvl, 2, 50));
     const shopBargainBoost = Math.max(0.1, Math.pow(0.75, shopBargainBought));
+    const smrtBoost = smrtAchievement ? Math.max(0.9, 1 - 0.1) : 1;
     // for any material besides liquid
-    return Math.round(first * cauldronCostReduxBoost * bubbleBargainBoost * bubbleCostBubbleBoost * shopBargainBoost);
+    return Math.round(first * cauldronCostReduxBoost * bubbleBargainBoost * bubbleCostBubbleBoost * shopBargainBoost * smrtBoost);
   }
 };
 

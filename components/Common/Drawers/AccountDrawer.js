@@ -1,12 +1,12 @@
 import styled from 'styled-components'
-import AppBar from "@material-ui/core/AppBar";
-import NavBar from "../../NavBar";
-import { capitalize, Collapse, Drawer, List, ListItem, ListItemText, Toolbar, useMediaQuery } from "@material-ui/core";
+import { capitalize, Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import { extVersion, prefix, screens } from "../../../Utilities";
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { cauldrons, stamps } from "../../General/calculationHelper";
+import Navigation from "../Navigation";
+import useMediaQuery from "../useMediaQuery";
 
 const nestedOptionPadding = 35;
 
@@ -17,7 +17,7 @@ const AccountDrawer = () => {
     accountDisplay,
     setUserAccountDisplay
   } = useContext(AppContext);
-  const matches = useMediaQuery('(max-width:1260px)');
+  const matches = useMediaQuery(980);
   const [bubblesOpen, setBubblesOpen] = useState(true);
   const [stampsOpen, setStampsOpen] = useState(true);
   const [selected, setSelected] = useState(accountDisplay);
@@ -32,9 +32,11 @@ const AccountDrawer = () => {
       <StyledDrawer
         shouldDisplay={userData && display?.view === screens.account && userData?.version === extVersion}
         anchor={'left'} variant={'permanent'}>
-        <AppBar position={"fixed"}>
-          <NavBar/>
-        </AppBar>
+        {/*<AppBar position={"fixed"}>*/}
+        {/*  <NavBar/>*/}
+        {/*</AppBar>*/}
+        {/*<Toolbar/>*/}
+        <Navigation/>
         <Toolbar/>
         {matches && <Toolbar/>}
         {userData && display?.view === screens.account && userData?.version === extVersion ? <>
@@ -99,7 +101,8 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={'Vials'}/>
             </ListItem>
-            <ListItem selected={selected?.view === 'constellations'} button onClick={() => handleClick('constellations', '')}>
+            <ListItem selected={selected?.view === 'constellations'} button
+                      onClick={() => handleClick('constellations', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/StarTitle1.png`} alt=""/>
               <ListItemText
                 style={{ marginLeft: 10 }}
