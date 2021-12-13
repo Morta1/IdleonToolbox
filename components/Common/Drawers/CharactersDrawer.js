@@ -1,6 +1,4 @@
 import styled from 'styled-components'
-import AppBar from "@material-ui/core/AppBar";
-import NavBar from "../../NavBar";
 import {
   Chip,
   Collapse,
@@ -9,14 +7,15 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Toolbar,
-  useMediaQuery
+  Toolbar
 } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import { extVersion, prefix, screens } from "../../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
+import Navigation from "../Navigation";
+import useMediaQuery from "../useMediaQuery";
 
 const nestedOptionPadding = 35;
 
@@ -30,7 +29,7 @@ const CharactersDrawer = () => {
     setUserDisplayedCharactersIndices,
     lastUpdated
   } = useContext(AppContext);
-  const matches = useMediaQuery('(max-width:1220px)');
+  const matches = useMediaQuery(980);
   const [open, setOpen] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [viewAll, setViewAll] = useState(!Object.values(displayedCharactersIndices).every((value) => value));
@@ -87,9 +86,11 @@ const CharactersDrawer = () => {
       <StyledDrawer
         isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}
         anchor={'left'} variant={'permanent'}>
-        <AppBar position={"fixed"}>
-          <NavBar/>
-        </AppBar>
+        {/*<AppBar position={"fixed"}>*/}
+        {/*  <NavBar/>*/}
+        {/*</AppBar>*/}
+        {/*<Toolbar/>*/}
+        <Navigation/>
         <Toolbar/>
         {matches && <Toolbar/>}
         {userData && display?.view === screens.characters && userData?.version === extVersion ? <>

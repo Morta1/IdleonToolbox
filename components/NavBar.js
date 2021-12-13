@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
-import { extVersion, prefix, screens } from "../Utilities";
+import { extVersion, screens } from "../Utilities";
 import JsonImport from "./JsonImport";
 import { AppContext } from "./Common/context";
 
@@ -9,22 +9,7 @@ const NavBar = () => {
   const { display, setUserDisplay, userData } = useContext(AppContext);
   const router = useRouter();
 
-  const appRoutes = [
-    { label: "Card Search", path: prefix ? prefix : "/", name: '/' },
-    { label: "Family", path: `${prefix}family`, name: 'family' },
-  ];
-
   const familyRoutes = Object.keys(screens).map((word) => word.replace(/([A-Z])/g, " $1"));
-
-  const handleClick = (e, path) => {
-    e.preventDefault();
-    router.push(path);
-  };
-
-  const getPageName = (name) => {
-    const page = router.asPath;
-    return page.endsWith(name);
-  }
 
   const isDemo = () => {
     return router?.query?.hasOwnProperty('demo');
@@ -33,26 +18,13 @@ const NavBar = () => {
   return (
     <ListWrapper>
       <CustomList>
-        {appRoutes.map(({ label, path, name }, index) => {
-          return (
-            <React.Fragment key={label + "-" + index}>
-              <ListItem
-                inner={false}
-                active={getPageName(name)}
-                onClick={(e) => handleClick(e, path)}>
-                {label}
-              </ListItem>
-              {index !== appRoutes.length - 1 ? <span>|</span> : null}
-            </React.Fragment>
-          );
-        })}
-        {(getPageName('family') || isDemo()) && userData?.version === extVersion ?
+        {userData?.version === extVersion ?
           <ul className={'family-navigation'}>
             {familyRoutes.map((route, index) => (
               <ListItem onClick={() => setUserDisplay(index, route)} active={display?.view === index} inner={true}
                         key={route + index}>{route}</ListItem>))}
           </ul> : null}
-        {getPageName('family') && !isDemo() ? <JsonImport/> : null}
+        {!isDemo() ? <JsonImport/> : null}
       </CustomList>
     </ListWrapper>
   );
@@ -63,11 +35,11 @@ const ListWrapper = styled.div`
 
   .family-navigation {
     list-style-type: none;
-    margin-left: 30px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 20px;
+    padding-left: 0;
 
     > li {
       cursor: pointer;

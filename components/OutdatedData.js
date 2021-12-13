@@ -5,6 +5,22 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.3',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Updated with the new patch 1.40b',
+            'Added achievement screen with progress',
+            'A small redesign for the navigation bar (removed /family)',
+            'Card search is now showing your stars',
+            'Now displaying an AFK image when your character is doing NOTHING',
+            'Basic carry capacity bags tooltip'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.0.2',
       changes: [
         {

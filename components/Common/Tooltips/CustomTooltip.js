@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Tooltip } from "@material-ui/core";
 import { prefix } from "../../../Utilities";
 
-const CustomTooltip = ({ header, base, children }) => {
+const CustomTooltip = ({ bonus, cardName, effect, children }) => {
   return (
     <StyledTooltip
       interactive
@@ -10,12 +10,15 @@ const CustomTooltip = ({ header, base, children }) => {
       placement={"top-start"}
       title={
         <div className='tooltip-body'>
-          <div className='tooltip-header'>{header}</div>
+          <div className='tooltip-header'>
+            <div className={'title'}>{cardName}</div>
+            <div>{effect}</div>
+          </div>
           <div className='stars'>
-            {base
+            {bonus
               ? [1, 2, 3, 4]?.map((_, index) => {
                 return (
-                  <div className='star-line' key={base + " " + index}>
+                  <div className='star-line' key={bonus + " " + index}>
                     <div className='image-wrapper'>
                       {index === 0 ? (
                         <span style={{ fontWeight: "bold" }}>Base</span>
@@ -23,7 +26,7 @@ const CustomTooltip = ({ header, base, children }) => {
                         <img src={`${prefix}etc/Star${index}.png`} alt=''/>
                       )}
                     </div>
-                    <div className='stat'>{base * (index + 1)}</div>
+                    <div className='stat'>{bonus * (index + 1)}</div>
                   </div>
                 );
               })
@@ -63,10 +66,15 @@ const StyledTooltip = styled((props) => (
   }
 
   .tooltip-body {
+    padding: 10px;
     .tooltip-header {
-      text-align: center;
-      font-weight: bold;
       padding: 10px 0;
+      
+      .title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
     }
 
     .stars {

@@ -1,192 +1,71 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import styled from "styled-components";
-import { cardsObject, prefix } from "../Utilities";
-import { Chip, InputAdornment, TextField } from "@material-ui/core";
-import ClearIcon from "@material-ui/icons/Clear";
-import CustomTooltip from "../components/Common/Tooltips/CustomTooltip";
-import NavBar from "../components/NavBar";
-import { Wrapper } from "../components/Common/commonStyles";
-import Head from "next/head";
+import CharacterWrapper from "../components/CharacterWrapper";
+import ItemBrowser from "../components/ItemBrowser";
+import CraftIt from "../components/CraftIt/CraftIt";
+import { AppContext } from '../components/Common/context';
+import MissingData from "../components/General/MissingData";
+import OutdatedData from "../components/OutdatedData";
+import { Toolbar } from "@material-ui/core";
+import CharactersDrawer from "../components/Common/Drawers/CharactersDrawer";
+import { extVersion, screens } from "../Utilities";
+import Head from 'next/head'
+import ShopStock from "../components/ShopStock";
+import Account from "../components/Account";
+import Quests from "../components/Quests/Quests";
+import ReactGA from "react-ga";
+import Achievements from "../components/Achievements";
+import CardSearch from "../components/CardSearch";
+import useMediaQuery from "../components/Common/useMediaQuery";
 
-export default function Home() {
-  const [value, setValue] = useState("");
-  const [localCardObject, setCardObject] = useState(cardsObject);
-  const preConfiguredStats = [
-    "Show All",
-    "Choppin",
-    "Mining",
-    "Fishing",
-    "Catching",
-    "Trapping",
-    "Accuracy",
-    "Card Drop",
-    "Monster Exp",
-    "Skill Exp",
-    "Damage",
-    "Drop Rate",
-    "STR",
-    "AGI",
-    "WIS",
-    "LUK",
-  ];
+const Index = () => {
+  const { userData, display } = useContext(AppContext);
+  const matches = useMediaQuery(980);
   useEffect(() => {
-    const newCards = Object.keys(cardsObject).reduce((res, cardSet) => {
-      const cardsArr = cardsObject[cardSet];
-      const sortedCardArr = cardsArr.filter(({ effect, alsoEffect }) => {
-        const isEffect = effect?.toLowerCase()?.includes(value.toLowerCase());
-        const isAlsoEffect = alsoEffect?.some((anotherEffect) =>
-          anotherEffect?.toLowerCase()?.includes(value.toLowerCase())
-        );
-        return isEffect || isAlsoEffect;
-      });
-      return { ...res, [cardSet]: sortedCardArr };
-    }, {});
-    setCardObject(newCards);
-  }, [value]);
+    ReactGA.event({
+      category: 'Test',
+      action: 'Test',
+      label: 'Test'
+    });
+  }, []);
 
   return (
     <>
       <Head>
-        <title>Idleon Toolbox - Card Search Helper</title>
+        <title>Idleon Toolbox - Family Progression</title>
       </Head>
-      <NavBar/>
-      <Wrapper>
-        <Main style={{ padding: 10 }}>
-          <h1 style={{ marginTop: 0 }}>Search Cards by Stats</h1>
-
-          <StyledTextField
-            InputProps={{
-              endAdornment: (
-                <StyledInputAdornment onClick={() => setValue("")} position="end">
-                  <ClearIcon/>
-                </StyledInputAdornment>
-              ),
-            }}
-            label="Enter Card stat.."
-            type="text"
-            value={value}
-            onChange={({ target }) => setValue(target?.value)}
-          />
-
-          <div className="chips">
-            {preConfiguredStats.map((stat, index) => (
-              <Chip
-                key={stat + "" + index}
-                className="chip"
-                size="small"
-                variant="outlined"
-                label={stat}
-                onClick={() => {
-                  setValue(stat === "Show All" ? "" : stat);
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="cards">
-            {Object.keys(localCardObject)?.length > 0 ? (
-              Object.keys(localCardObject).map((cardSet, cardSetIndex) => {
-                const cardsArr = localCardObject[cardSet];
-                if (!cardsArr || cardsArr?.length === 0) return null;
-                return (
-                  <React.Fragment key={cardSet + "" + cardSetIndex}>
-                    <img
-                      className="card-banner"
-                      src={`${prefix}banners/${cardSet}_Cardbanner.png`}
-                      alt=""
-                    />
-                    <div>
-                      {cardsArr.map(({ img, effect, base }, index) => {
-                        return (
-                          <React.Fragment key={effect + "" + index}>
-                            <CustomTooltip
-                              header={
-                                img.replace(/_/g, " ").replace(/Card.png/, "") +
-                                " - " +
-                                effect
-                              }
-                              base={base}
-                            >
-                              <img
-                                className="card"
-                                src={`${prefix}cards/${img}`}
-                                alt={effect}
-                                height={72}
-                                width={52}
-                              />
-                            </CustomTooltip>
-                            {index === 7 ? <br/> : null}
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <div className="not-found">Please try another phrase</div>
-            )}
-          </div>
+      <CharactersDrawer/>
+      <FamilyWrapper
+        isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}>
+        <Toolbar/>
+        {matches && <Toolbar/>}
+        <Main>
+          {!userData ? <MissingData/> :
+            userData?.version !== extVersion ?
+              <OutdatedData extVersion={extVersion}/> :
+              <>
+                {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
+                {display?.view === screens.account ? <Account/> : null}
+                {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
+                {display?.view === screens.itemBrowser ? <ItemBrowser userData={userData}/> : null}
+                {display?.view === screens.achievements ? <Achievements userData={userData}/> : null}
+                {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
+                {display?.view === screens.quests ?
+                  <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
+                {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
+              </>}
         </Main>
-      </Wrapper>
+      </FamilyWrapper>
     </>
   );
-}
+};
 
-const StyledTextField = styled(TextField)`
-  && label.Mui-focused {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  & .MuiInput-underline:after {
-    border-bottom-color: green;
-  }
-`;
-
-const StyledInputAdornment = styled(InputAdornment)`
-  cursor: pointer;
+const FamilyWrapper = styled.div`
+  flex-grow: 1;
+  ${({ isCharacterDisplay }) => isCharacterDisplay ? 'padding-left: 240px;' : ''}
 `;
 
 const Main = styled.main`
   color: white;
-
-  .chips {
-    margin: 20px 0;
-
-    .chip {
-      margin-right: 10px;
-      margin-top: 8px;
-    }
-  }
-
-  .cards {
-    min-height: 600px;
-
-    .card {
-      margin: 5px 10px;
-      @media only screen and (max-width: 600px) {
-        margin: 5px 5px;
-      }
-    }
-
-    .card-banner {
-      margin: 10px;
-      display: block;
-    }
-
-    .not-found {
-      margin: 20px;
-      font-size: 30px;
-    }
-
-    .image-wrapper {
-      display: inline-block;
-    }
-  }
-
-  h1 {
-    color: white;
-  }
-
-
 `;
+export default Index;

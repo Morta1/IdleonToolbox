@@ -32,10 +32,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-newCards.js
-cards.json
-morta.json
-morta1.json
 /out
 raw.json
 fb.js

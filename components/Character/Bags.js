@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { cleanUnderscore, constantBags, prefix } from "../../Utilities";
+import { cleanUnderscore, constantBags, numberWithCommas, prefix } from "../../Utilities";
 import styled from 'styled-components';
+import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 
 const Bags = ({ bags, capBags }) => {
   const [invBags, setInvBags] = useState();
-
   useEffect(() => {
     setInvBags(bags.reduce((res, { rawName, ...rest }) => ({ ...res, [rawName]: { ...rest } }), {}));
   }, []);
@@ -15,10 +15,12 @@ const Bags = ({ bags, capBags }) => {
                     key={bagName + index}
                     src={`${prefix}data/${bagName}.png`} alt=""/>;
       })}
-      {capBags?.map(({ name, rawName }, index) => {
-        return <Bag exists={true} title={cleanUnderscore(name)}
-                    key={name + index}
-                    src={`${prefix}data/${rawName}.png`} alt=""/>;
+      {capBags?.map(({ displayName, rawName, capacity }, index) => {
+        return <NumberTooltip title={numberWithCommas(capacity)} key={displayName + index}>
+          <Bag exists={true}
+               src={`${prefix}data/${rawName}.png`}
+               alt=""/>
+        </NumberTooltip>;
       })}
     </BagsStyled>
   );
