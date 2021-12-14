@@ -5,6 +5,17 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.4',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added ranking for character\'s skills'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.0.3',
       changes: [
         {
