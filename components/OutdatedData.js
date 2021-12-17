@@ -5,6 +5,19 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.5',
+      changes: [
+        {
+          title: 'Account',
+          desc: [
+            'Added refinery tab',
+            'Added Gem Shop bundles tab',
+            'Fixed some quests\' positions'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.0.4',
       changes: [
         {

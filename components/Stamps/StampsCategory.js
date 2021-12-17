@@ -36,10 +36,19 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
       const cost = costFunc(level, stamp);
       return type === 'material' ? Math.floor(cost) : cost;
     }
-    const array = new Array(levelDiff || 0).fill(1);
-    const totalCost = array.reduce((res, _, levelInd) => {
-        const cost = costFunc(level + (levelInd === 0 ? 1 : levelInd), stamp);
-        return res + cost;
+    const array = Array(levelDiff || 0).fill(1).map((_, ind) => ind + 1);
+    const totalCost = array.reduce((res, levelInd) => {
+        if ((type === 'material' && (level + (levelInd)) % stamp?.reqItemMultiplicationLevel === 0) || type === 'gold') {
+          if (stamp?.displayName === 'Crystallin' && type === 'material') {
+            console.log('#########');
+            console.log('type: ', type);
+            console.log('level: ', (level + (levelInd)));
+            console.log('shouldUpgrade: ', (level + (levelInd)) % stamp?.reqItemMultiplicationLevel === 0);
+          }
+          const cost = costFunc(level + (levelInd), stamp);
+          return res + cost;
+        }
+        return res;
       },
       costFunc(level, stamp)
     );
@@ -92,10 +101,10 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
               <div className={'cost'}>
                 {itemReq?.map(({ rawName, name }, itemIndex) => {
                   const goldCost = accumulateCost(index, level, 'gold', stamp);
-                  const materialCost = accumulateCost(index, level, 'material', stamp);
                   const isMaterialCost = stampGoal?.[index] % reqItemMultiplicationLevel === 0;
+                  const materialCost = accumulateCost(index, level, 'material', stamp);
                   return name !== 'Blank' ? <React.Fragment key={`${rawName}-${name}-${itemIndex}`}>
-                    <div className={'materials'}>
+                    <div className={`materials${!isMaterialCost ? ' semi-hide' : ''}`}>
                       <img className={'req-item'} src={`${prefix}data/${rawName}.png`}
                            title={cleanUnderscore(name)}
                            alt=""/>
@@ -180,6 +189,10 @@ const StampsWrapper = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .semi-hide {
+      filter: grayscale(1);
     }
 
     .req-item {

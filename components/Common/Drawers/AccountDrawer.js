@@ -101,6 +101,12 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={'Vials'}/>
             </ListItem>
+            <ListItem selected={selected?.view === 'refinery'} button onClick={() => handleClick('refinery', '')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/TaskSc6.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Refinery'}/>
+            </ListItem>
             <ListItem selected={selected?.view === 'constellations'} button
                       onClick={() => handleClick('constellations', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/StarTitle1.png`} alt=""/>
@@ -113,6 +119,12 @@ const AccountDrawer = () => {
               <ListItemText
                 style={{ marginLeft: 10 }}
                 primary={'Bribes'}/>
+            </ListItem>
+            <ListItem selected={selected?.view === 'bundles'} button onClick={() => handleClick('bundles', '')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/TaskSa4.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Gem Shop Bundles'} secondary={'If you\'re brave enough'}/>
             </ListItem>
           </List>
         </> : null}
@@ -144,6 +156,12 @@ const StyledDrawer = styled(({ shouldDisplay, ...other }) => (
 
   .list-img {
     object-fit: contain;
+  }
+
+  .sub-title {
+    font-size: 12px;
+    display: block;
+    flex-basis: 100%;
   }
 `;
 

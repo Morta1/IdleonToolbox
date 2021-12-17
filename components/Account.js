@@ -10,6 +10,8 @@ import Stamps from "./Stamps/Stamps";
 import Bribes from "./General/Bribes";
 import Constellations from "./Constellations";
 import Looty from "./General/Looty";
+import Refinery from "./Refinery";
+import GemShopBundles from "./GemShopBundles";
 
 const Account = () => {
   const { userData, display, accountDisplay } = useContext(AppContext);
@@ -25,8 +27,13 @@ const Account = () => {
                 bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'brewing' ? <Brewing account={userData?.account}/> : null}
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
+      {accountDisplay?.view === 'refinery' ?
+        <Refinery refinery={userData?.account?.refinery} saltLicks={userData?.account?.saltLicks}
+                  vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
-      {accountDisplay?.view === 'constellations' ? <Constellations starSigns={userData?.account?.starSigns} constellations={userData?.account?.constellations}/> : null}
+      {accountDisplay?.view === 'bundles' ? <GemShopBundles bundles={userData?.account?.bundles}/> : null}
+      {accountDisplay?.view === 'constellations' ? <Constellations starSigns={userData?.account?.starSigns}
+                                                                   constellations={userData?.account?.constellations}/> : null}
     </AccountStyle>
   );
 };
