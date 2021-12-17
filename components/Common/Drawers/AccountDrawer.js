@@ -51,7 +51,7 @@ const AccountDrawer = () => {
               <img className={'list-img'} width={32} src={`${prefix}data/UISkillIcon305.png`} alt=""/>
               <ListItemText
                 style={{ marginLeft: 10 }}
-                primary={'Looty'}/>
+                primary={`Looty (Missing ${userData?.account?.missingLootyItems.length})`}/>
             </ListItem>
             <ListItem button onClick={() => setStampsOpen(!stampsOpen)}>
               <img className={'list-img'} width={32} src={`${prefix}data/StampA34.png`} alt=""/>
