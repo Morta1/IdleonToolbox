@@ -37,7 +37,7 @@ const JsonImport = () => {
         router.reload();
       }
     } catch (err) {
-      console.log('Error parsing data');
+      console.log('Error parsing data', err);
       setResult({ success: false });
       setErrorText(jsonError);
     }
