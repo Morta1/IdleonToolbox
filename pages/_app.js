@@ -8,7 +8,6 @@ import { fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
 import demo from '../data/demo.json';
-import ReactGA from "react-ga";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -47,7 +46,6 @@ export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     try {
-      ReactGA.initialize('G-YER8JY07QK');
       if (router?.query?.hasOwnProperty('demo')) {
         setData(demo);
       } else {
@@ -97,7 +95,7 @@ export default function App({ Component, pageProps }) {
     localStorage.setItem('characterData', JSON.stringify(userData));
   }
 
-  const setUserDisplay = (newTabIndex, route) => {
+  const setUserDisplay = (newTabIndex) => {
     const storageObj = JSON.parse(localStorage.getItem('display'));
     let displayObj;
     if (storageObj) {
@@ -105,11 +103,6 @@ export default function App({ Component, pageProps }) {
     } else {
       displayObj = { view: newTabIndex, subView: '' };
     }
-    ReactGA.event({
-      category: 'Navigation',
-      action: 'change',
-      label: route
-    });
     localStorage.setItem('display', JSON.stringify(displayObj));
     setDisplay(displayObj);
   }
