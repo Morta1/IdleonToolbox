@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import CharacterWrapper from "../components/CharacterWrapper";
 import ItemBrowser from "../components/ItemBrowser";
@@ -13,7 +13,6 @@ import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Account from "../components/Account";
 import Quests from "../components/Quests/Quests";
-import ReactGA from "react-ga";
 import Achievements from "../components/Achievements";
 import CardSearch from "../components/CardSearch";
 import useMediaQuery from "../components/Common/useMediaQuery";
@@ -21,13 +20,6 @@ import useMediaQuery from "../components/Common/useMediaQuery";
 const Index = () => {
   const { userData, display } = useContext(AppContext);
   const matches = useMediaQuery(980);
-  useEffect(() => {
-    ReactGA.event({
-      category: 'Test',
-      action: 'Test',
-      label: 'Test'
-    });
-  }, []);
 
   return (
     <>
