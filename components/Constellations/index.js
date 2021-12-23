@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { cleanUnderscore } from "../../Utilities";
+import { cleanUnderscore, constellationIndexes } from "../../Utilities";
 import { Checkbox } from "@material-ui/core";
 import StarSignTooltip from "../Common/Tooltips/StarSignTooltip";
 
@@ -27,6 +27,7 @@ const Constellations = ({ constellations, starSigns }) => {
             <th>Progress</th>
             <th>Location</th>
             <th>Requirement</th>
+            <th>Completed Characters</th>
             <th>Points</th>
           </tr>
           </thead>
@@ -41,6 +42,10 @@ const Constellations = ({ constellations, starSigns }) => {
               <td className={'text-align-center'}>{`${completedChars.length}/${requiredPlayers}`}</td>
               <td>{(location === 'End_Of_The_Road') ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}</td>
               <td>{cleanUnderscore(requirement)}</td>
+              <td style={{
+                wordBreak: "break-word",
+                padding: "0 30px"
+              }}>{constellationIndexes(completedChars)}</td>
               <td className={'text-align-center'}>{points}</td>
             </tr>
           })}
@@ -109,6 +114,7 @@ const ConstellationsStyle = styled.div`
     margin: 0 15px 10px 15px;
     font-weight: bold;
   }
+
   .sub-title {
     display: inline-block;
     margin: 0 15px 5px 15px;

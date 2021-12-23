@@ -1,21 +1,22 @@
 import styled from 'styled-components';
 import { prefix } from "../../Utilities";
 import React, { useEffect, useState } from "react";
+import TalentTooltip from "../Common/Tooltips/TalentTooltip";
 
-const Talents = ({ talents }) => {
+const Talents = ({ talents, starTalents }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(1);
 
   useEffect(() => {
-    const tempTalents = activeTab === 3 ? handleStarTalents(talents[activeTab], specialsTab) : talents[activeTab];
+    const tempTalents = activeTab === 3 ? handleStarTalents(starTalents, specialsTab) : talents[activeTab];
     setActiveTalents(tempTalents);
     setSpecialTabs(1);
   }, [activeTab]);
 
   const switchSpecials = (tab) => {
     setSpecialTabs(tab);
-    setActiveTalents(handleStarTalents(talents?.[activeTab], tab));
+    setActiveTalents(handleStarTalents(starTalents, tab));
   }
 
   const handleStarTalents = (tab, tabIndex) => {
@@ -36,17 +37,22 @@ const Talents = ({ talents }) => {
           const tabName = talents?.[index]?.name;
           const tabIndex = parseInt(index);
           return <img
-            className={`${activeTab === tabIndex ? 'active' : ''} ${tabName.includes('Star') ? 'star' : ''}`}
-            key={talents?.[index]?.name + index}
+            className={`${activeTab === tabIndex ? 'active' : ''} ${tabName.includes('Special') ? 'star' : ''}`}
+            key={talents?.[index]?.name + '' + index}
             onClick={() => setActiveTab(tabIndex)}
             src={`${prefix}data/${talents?.[index]?.name.replace(' ', '_')}_Tab.png`} alt=""/>
         })}
+        <img
+          className={`${activeTab === 3 ? 'active' : ''} star`}
+          onClick={() => setActiveTab(3)}
+          src={`${prefix}data/Star_Talents_Tab.png`} alt=""/>
       </div>
       <div className="talents-wrapper">
-        {activeTalents?.orderedTalents?.map(({ talentId, level, maxLevel }, index) => {
+        {activeTalents?.orderedTalents?.map((talentDetails, index) => {
+          const { talentId, level, maxLevel } = talentDetails;
           if (index >= 15) return null;
           return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
-            <div key={talentId + index} className={`blank ${(index === 10 || index === 14) && 'arrow'}`}>
+            <div key={talentId + '' + index} className={`blank ${(index === 10 || index === 14) && 'arrow'}`}>
               {(index !== 10 && index !== 14) && <img src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
               {index === 10 && specialsTab > 1 ?
                 <img onClick={() => switchSpecials(specialsTab - 1)} className={'arrow'}
@@ -57,11 +63,13 @@ const Talents = ({ talents }) => {
                      src={`${prefix}data/UIAnvilArrowsG1.png`}
                      alt=""/> : null}
             </div> :
-            <div key={talentId + index} className={'talent-wrapper'}>
+            <TalentTooltip key={talentId + '' + index} {...talentDetails}>
+              <div className={'talent-wrapper'}>
               <span
                 className={'talent-level'}>{!level && !maxLevel ? '' : !level ? `0/${maxLevel}` : `${level}/${maxLevel}`}</span>
-              <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
-            </div>;
+                <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
+              </div>
+            </TalentTooltip>;
         })}
       </div>
       {activeTab === 3 ? <div className="star-talents-arrows">

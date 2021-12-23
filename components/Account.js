@@ -29,10 +29,10 @@ const Account = () => {
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'refinery' ?
         <Refinery refinery={userData?.account?.refinery} saltLicks={userData?.account?.saltLicks}
-                  vials={userData?.account?.alchemy?.vials}/> : null}
+                  vials={userData?.account?.alchemy?.vials} characters={userData?.characters}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bundles' ? <GemShopBundles bundles={userData?.account?.bundles}/> : null}
-      {accountDisplay?.view === 'constellations' ? <Constellations starSigns={userData?.account?.starSigns}
+      {accountDisplay?.view === 'constellations' ? <Constellations userData={userData?.characters} starSigns={userData?.account?.starSigns}
                                                                    constellations={userData?.account?.constellations}/> : null}
     </AccountStyle>
   );

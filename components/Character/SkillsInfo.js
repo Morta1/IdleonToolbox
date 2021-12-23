@@ -1,15 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import { prefix } from "../../Utilities";
+import SkillTooltip from "../Common/Tooltips/SkillTooltip";
 
-const SkillsInfo = ({ skills }) => {
+const SkillsInfo = ({ skills, charName }) => {
   return (
     <SkillsInfoStyled>
       {Object.keys(skills)?.map((skillName, index) => {
         const { level, rank } = skills[skillName];
         if (skillName === 'character') return null;
         return <Skill key={index} highest={rank}>
-          <img title={skillName.capitalize()} src={`${prefix}icons/${skillName.capitalize()}_Icon.png`} alt=""/>
+          <SkillTooltip {...skills?.[skillName]} charName={charName} name={skillName}>
+            <img src={`${prefix}icons/${skillName.capitalize()}_Icon.png`} alt=""/>
+          </SkillTooltip>
           <div>LV {level}</div>
           <div className={'rank'}>Rank: {rank}</div>
         </Skill>;

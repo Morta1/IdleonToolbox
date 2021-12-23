@@ -1,9 +1,10 @@
 import React from 'react';
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { prefix } from "../../Utilities";
 import styled from 'styled-components';
+import ItemInfoTooltip from "../Common/Tooltips/ItemInfoTooltip";
 
 const shapes = {
-  'Circle': "1",
+  'Circle': '1',
   'Square': '2',
   'Hexagon': '3',
   'Sparkle': '4'
@@ -30,12 +31,15 @@ const Obols = ({ obols, type }) => {
         const startInd = rowNumber === 0 ? 0 : array[rowNumber - 1];
         const relevantArray = obols?.slice(startInd, endInd);
         return <div className={'obol-row'} key={startInd + rowNumber}>
-          {relevantArray?.map(({ name, rawName, lvReq, shape }, index) => {
-            const imgName = getImgName(name, rawName, shape);
-            return <div className={'obol-wrapper'} key={name + index}>
-              {lvReq && name === 'Locked' ? <span className={'lv-req'}>{lvReq}</span> : null}
-              <img title={cleanUnderscore(name)} src={`${prefix}data/${imgName}.png`}
-                   alt=""/>
+          {relevantArray?.map((item, index) => {
+            const { displayName, rawName, lvReq, shape } = item;
+            const imgName = getImgName(displayName, rawName, shape);
+            return <div className={'obol-wrapper'} key={rawName + '' + index}>
+              {lvReq && displayName === 'Locked' ? <span className={'lv-req'}>{lvReq}</span> : null}
+              <ItemInfoTooltip key={displayName + "" + index} {...item}>
+                <img src={`${prefix}data/${imgName}.png`}
+                     alt=""/>
+              </ItemInfoTooltip>
             </div>;
           })}
         </div>;

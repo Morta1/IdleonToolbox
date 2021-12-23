@@ -16,6 +16,7 @@
     "date-fns": "^2.23.0",
     "next": "^11.1.1",
     "react": "^17.0.2",
+    "react-countdown-circle-timer": "^2.5.4",
     "react-dom": "17.0.2",
     "react-ga": "^3.3.0",
     "styled-components": "^5.3.1"

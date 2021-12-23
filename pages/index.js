@@ -16,6 +16,7 @@ import Quests from "../components/Quests/Quests";
 import Achievements from "../components/Achievements";
 import CardSearch from "../components/CardSearch";
 import useMediaQuery from "../components/Common/useMediaQuery";
+import ActiveXpCalculator from "../components/General/ActiveXpCalculator";
 
 const Index = () => {
   const { userData, display } = useContext(AppContext);
@@ -45,6 +46,7 @@ const Index = () => {
                 {display?.view === screens.quests ?
                   <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
                 {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
+                {display?.view === screens.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
               </>}
         </Main>
       </FamilyWrapper>

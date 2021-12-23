@@ -41,6 +41,7 @@ const Equipment = ({ equipment, tools, foods }) => {
       </div>
       {items?.map((item, equipIndex) => {
         const { name: equipName, rawName, amount } = item;
+        console.log(item)
         if (equipIndex > 7) return null;
         if (rawName === 'Blank' || active === 'tab3')
           return <Box key={equipName + "" + amount + equipIndex} aria-label={equipName} role="img"

@@ -20,13 +20,14 @@ import QuestInfoTooltip from "../Common/Tooltips/QuestInfoTooltip";
 
 const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
   const getQuestIndicator = (status) => {
-    switch(status) {
-      case 1: 
+    switch (status) {
+      case 1:
         return <CheckCircleIcon style={{ marginLeft: 'auto', fontSize: 24, color: '#23bb23' }}/>;
       case 0:
-        return <RadioButtonCheckedIcon alt={''} style={{marginLeft: 'auto', width: 24, height: 24, fill: '#ff8d00' }}/>;
+        return <RadioButtonCheckedIcon alt={''}
+                                       style={{ marginLeft: 'auto', width: 24, height: 24, fill: '#ff8d00' }}/>;
       case -1:
-        return <RadioButtonUncheckedOutlinedIcon style={{marginLeft: 'auto', color: '#868484' }}/>;
+        return <RadioButtonUncheckedOutlinedIcon style={{ marginLeft: 'auto', color: '#868484' }}/>;
       default:
         return null;
     }
@@ -44,12 +45,12 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
           </AccordionSummary>
           <StyledAccordionDetails>
             {npc?.npcQuests?.map((npcQuest, innerIndex) => {
-              const { questTitle, completed = [], progress = [], ...questInfo } = npcQuest;
+              const { Name, completed = [], progress = [] } = npcQuest;
               return <List key={npc?.name + "" + index + "" + innerIndex} component="div" disablePadding>
                 <StyledListItem {...(progress?.length > 0 ? {} : {})}
                                 style={{ paddingLeft: 10, background: '#424242' }}>
-                  <QuestInfoTooltip {...questInfo}>
-                    <StyledListItemIcon> {/*Add Quest description */}
+                  <QuestInfoTooltip {...npcQuest} npcName={npc?.name}>
+                    <StyledListItemIcon>
                       {completed?.length === totalCharacters ?
                         <CheckCircleIcon style={{ fontSize: 24, color: '#23bb23' }}/> :
                         completed?.length === 0 && progress.length === 0 ?
@@ -57,7 +58,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                           <RadioButtonCheckedIcon alt={''} style={{ width: 24, height: 24, fill: '#ff8d00' }}/>}
                     </StyledListItemIcon>
                   </QuestInfoTooltip>
-                  <ListItemText primary={cleanUnderscore(questTitle)}/>
+                  <ListItemText primary={cleanUnderscore(Name)}/>
                 </StyledListItem>
                 {progress?.length > 0 ?
                   <List component="div" disablePadding>

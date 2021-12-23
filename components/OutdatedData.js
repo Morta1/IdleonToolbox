@@ -5,6 +5,21 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.6',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added \'Active Exp Calculator\' tab',
+            'Added post office to \'Account\' tab',
+            'Added tooltip for skills, talents and obols',
+            'Added \'character completed\' column to constellations',
+            'Upgraded the quests tab with more information: quest requirement, item requirements and rewards'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.0.5',
       changes: [
         {
@@ -208,9 +223,10 @@ const OutdatedDataStyle = styled.div`
 
     > .new-title {
       &:before {
-        content: "✅";
+        content: "\u2713  ";
         display: inline-block;
         margin-right: 5px;
+        color: #33d033;
       }
     }
 

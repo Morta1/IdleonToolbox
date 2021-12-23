@@ -1,11 +1,11 @@
 import styled from 'styled-components'
 import { prefix } from "../../Utilities";
 
-const CoinDisplay = ({ money }) => {
+const CoinDisplay = ({ money, labelPosition = 'bottom' }) => {
   return (
-    <CoinDisplayStyle>
+    <CoinDisplayStyle labelPosition={labelPosition}>
       {[...money]?.reverse()?.map((coin, index) => {
-        return index < 6 ? <div className={'coin'} key={coin + '' + index}>
+        return index < 6 && Number(coin) > 0 ? <div className={'coin'} key={coin + '' + index}>
           <img src={`${prefix}data/Coins${index + 1}.png`} alt=""/>
           <span className={'coin-value'}>{Number(coin)}</span>
         </div> : null
@@ -15,6 +15,7 @@ const CoinDisplay = ({ money }) => {
 };
 
 const CoinDisplayStyle = styled.div`
+  ${({ labelPosition }) => `${labelPosition === 'top' ? 'margin-top: 15px;' : ''}`}
   height: max-content;
   grid-column: span 4;
   display: flex;
@@ -30,7 +31,7 @@ const CoinDisplayStyle = styled.div`
       color: white;
       position: absolute;
       left: 50%;
-      bottom: -10px;
+      ${({ labelPosition }) => `${labelPosition === 'bottom' ? 'bottom: -10px;' : 'top: -20px;'}`}
       transform: translateX(-50%);
       font-weight: bold;
       background: #000000eb;

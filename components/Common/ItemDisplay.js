@@ -23,7 +23,21 @@ const ItemDisplay = ({
                        UQ2val,
                        Upgrade_Slots_Left
                      }) => {
-  return displayName ? <ItemDisplayStyle style={style}>
+  const getPowerType = (type) => {
+    let fixedType = type.toLowerCase();
+    if (!fixedType) return "Weapon Power";
+    if (fixedType.includes('mining')) {
+      return 'Mining Power';
+    } else if (fixedType.includes('fishin')) {
+      return 'Fishing Power';
+    } else if (fixedType.includes('choppin')) {
+      return 'Choppin Power';
+    } else if (fixedType.includes('catch')) {
+      return 'Catching Power';
+    }
+    return "Weapon Power"
+  }
+  return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <ItemDisplayStyle style={style}>
     <div className={'top'}>
       <div className='item-image'>
         {rawName ? <img src={`${prefix}data/${rawName}.png`} alt=""/> : null}
@@ -45,16 +59,16 @@ const ItemDisplay = ({
       {Type ? <span>Type: {cleanUnderscore(Type)}</span> : null}
       {description ? <span>{cleanUnderscore(description)}</span> : null}
       {Speed ? <span>Speed: {Speed}</span> : null}
-      {Weapon_Power ? <span>Weapon Power: {Weapon_Power}</span> : null}
+      {Weapon_Power ? <span>{getPowerType(UQ1txt || rawName)}: {Weapon_Power}</span> : null}
       {STR ? <span>STR: {STR}</span> : null}
       {AGI ? <span>AGI: {AGI}</span> : null}
       {WIS ? <span>WIS: {WIS}</span> : null}
       {LUK ? <span>LUK: {LUK}</span> : null}
       {Defence ? <span>Defence: {Defence}</span> : null}
       {Reach ? <span>Reach: {Reach}</span> : null}
-      {UQ1txt && UQ1val && <span>Misc: {cleanUnderscore(`+${UQ1val}${UQ1txt}`)}</span>}
-      {UQ2txt && UQ2val && <span>Misc: {cleanUnderscore(`+${UQ2val}${UQ2txt}`)}</span>}
-      {Upgrade_Slots_Left >= 0 ? <span>Upgrade Slots Left: <span>{Upgrade_Slots_Left}</span></span> : null}
+      {UQ1txt && UQ1val ? <span>Misc: {cleanUnderscore(`+${UQ1val}${UQ1txt}`)}</span> : null}
+      {UQ2txt && UQ2val ? <span>Misc: {cleanUnderscore(`+${UQ2val}${UQ2txt}`)}</span> : null}
+      {Upgrade_Slots_Left > 0 ? <span>Upgrade Slots Left: <span>{Upgrade_Slots_Left}</span></span> : null}
     </div>
   </ItemDisplayStyle> : null;
 };
