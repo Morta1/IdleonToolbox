@@ -39,12 +39,6 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
     const array = Array(levelDiff || 0).fill(1).map((_, ind) => ind + 1);
     const totalCost = array.reduce((res, levelInd) => {
         if ((type === 'material' && (level + (levelInd)) % stamp?.reqItemMultiplicationLevel === 0) || type === 'gold') {
-          if (stamp?.displayName === 'Crystallin' && type === 'material') {
-            console.log('#########');
-            console.log('type: ', type);
-            console.log('level: ', (level + (levelInd)));
-            console.log('shouldUpgrade: ', (level + (levelInd)) % stamp?.reqItemMultiplicationLevel === 0);
-          }
           const cost = costFunc(level + (levelInd), stamp);
           return res + cost;
         }

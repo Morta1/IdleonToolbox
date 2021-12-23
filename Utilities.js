@@ -201,6 +201,10 @@ export const constellationIndexes = (str) => {
   return str?.split('')?.map((char) => indexes?.[char]).sort((a, b) => a - b).join(',');
 }
 
+export const pascalCase = (str) => {
+  return str?.split(/_/g).map((word) => word.toLowerCase().charAt(0).toUpperCase() + word.substr(1).toLowerCase()).join('_');
+}
+
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.6';
+export const extVersion = '1.0.7';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

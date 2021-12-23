@@ -32,7 +32,6 @@ const ActiveXpCalculator = ({ userData }) => {
   }, [selectedChar]);
 
   const calcTimeToLevelUp = (endPercentage) => {
-    console.log(endPercentage)
     const { exp, expReq } = selectedChar;
     const currentExp = expReq * (parseInt(parseFloat(endPercentage).toFixed(2).replace('.', '')) / 10000);
     const expNeeded = expReq - exp;

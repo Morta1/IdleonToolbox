@@ -12,7 +12,6 @@ const ItemInfoTooltip = ({
                            children,
                            ...item
                          }) => {
-  console.log(item)
   return (
     <ItemInfoTooltipStyle
       interactive
