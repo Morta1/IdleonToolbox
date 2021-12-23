@@ -166,7 +166,7 @@ const OutdatedData = ({ extVersion }) => {
   ]
 
   useEffect(() => {
-    // localStorage.clear();
+    localStorage.clear();
   }, []);
 
   return (
