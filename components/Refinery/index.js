@@ -1,23 +1,45 @@
 import styled from 'styled-components'
 import { cleanUnderscore, kFormatter, numberWithCommas, prefix } from "../../Utilities";
 import { growth } from "../General/calculationHelper";
+import { Checkbox, FormControlLabel } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
 
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
-const Refinery = ({ refinery, saltLicks, vials }) => {
+const Refinery = ({ refinery, saltLicks, vials, characters }) => {
   const { salts, refinerySaltTaskLevel } = refinery || {};
+  const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
+  const [squireCycles, setSquireCycles] = useState(0);
+
+  useEffect(() => {
+    const cycles = characters.reduce((res, character) => {
+      let cycles = 0;
+      if (character?.class === 'Squire') {
+        cycles = character.talents?.[2]?.orderedTalents?.reduce((res, talent) => res + (talent?.name === 'REFINERY_THROTTLE' ? growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2) : 0), 0);
+      }
+      return res + cycles;
+    }, 0);
+    setSquireCycles(cycles);
+  }, []);
+
 
   const calcTimeToRankUp = (rank, powerCap, refined) => {
-    // (24 * 60 * 60 / (900 / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
+    // Cycles per day = (24 * 60 * 60 / (900 / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const redMaltVial = vials?.[25] ? (growth(vials?.[25]?.func, vials?.[25]?.level, vials?.[25]?.x1, vials?.[25]?.x2) / 100) : 0;
     const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level / 100) : 0;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade)));
+    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? squireCycles : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
-    const hours = parseInt(timeLeft);
-    const minutes = parseInt(timeLeft % 60);
-    return `${hours}h ${minutes > 0 ? minutes + 'm' : ''}`;
+    return splitTime(timeLeft);
   };
+
+  const splitTime = (numberOfHours) => {
+    const days = Math.floor(numberOfHours / 24);
+    const remainder = numberOfHours % 24;
+    const hours = Math.floor(remainder);
+    const minutes = Math.floor(60 * (remainder - hours));
+    return `${days}d:${hours}h:${minutes}m`
+  }
 
   const calcCost = (rank, quantity, item, index) => {
     const isSalt = item?.includes('Refinery');
@@ -27,6 +49,18 @@ const Refinery = ({ refinery, saltLicks, vials }) => {
   return (
     <RefineryStyle>
       <div className="wrapper">
+        <div className={'cycles'}><FormControlLabel
+          control={
+            <StyledCheckbox
+              disabled={squireCycles === 0}
+              checked={includeSquireCycles}
+              onChange={() => setIncludeSquireCycles(!includeSquireCycles)}
+              name='Include Squire Cycles'
+              color='default'
+            />
+          }
+          label={`Include Squire Cycles (${squireCycles})`}
+        /></div>
         {salts?.map(({ saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage }, saltIndex) => {
           const rankUp = powerCap === refined;
           const progressPercentage = refined / powerCap * 100;
@@ -42,7 +76,7 @@ const Refinery = ({ refinery, saltLicks, vials }) => {
               <div><span className={'bold'}>Power:</span> {numberWithCommas(refined)} / {numberWithCommas(powerCap)}
               </div>
               <div><span className={'bold'}>Rank:</span> {rank}</div>
-              <div><span className={'bold'}>Rank Up: </span>{calcTimeToRankUp(rank, powerCap, refined)}</div>
+              <div><span className={'bold'}>Rank Up In: </span>{calcTimeToRankUp(rank, powerCap, refined)}</div>
               <div><span className={'bold'}>Auto Refine:</span> {autoRefinePercentage}%</div>
               <Progress value={progressPercentage} color={saltColor[saltIndex]}>
                 <div className="progress-bar2"/>
@@ -79,6 +113,13 @@ const RefineryStyle = styled.div`
 
   .bold {
     font-weight: bold;
+  }
+
+  .cycles {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
   }
 
   .salt {
@@ -160,6 +201,7 @@ const Progress = styled.div`
   border-radius: 30px;
   background: rgba(0, 0, 0, 0.25);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px rgba(255, 255, 255, 0.08);
+
   .percentage {
     position: absolute;
     top: 6px;
@@ -168,6 +210,7 @@ const Progress = styled.div`
     color: white;
     background: black;
   }
+
   .progress-bar {
     height: 18px;
     background-color: #ee303c;
@@ -195,6 +238,12 @@ const Progress = styled.div`
       width: 85%;
       background-color: #EF476F;
     }
+  }
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+  && {
+    color: white;
   }
 `;
 

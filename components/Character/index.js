@@ -12,6 +12,7 @@ import Obols from "./Obols";
 import Talents from "./Talents";
 import Prayers from "./Prayers";
 import Traps from "./Traps";
+import PostOffice from "./PostOffice";
 
 const Character = ({
                      name: charName,
@@ -31,10 +32,12 @@ const Character = ({
                      stats,
                      obols,
                      talents,
+                     starTalents,
                      afkTarget,
                      prayers,
                      traps,
                      worshipCharge,
+                     postOffice,
                      dataFilters
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
@@ -63,8 +66,8 @@ const Character = ({
         </div>
       </div>
       {!dataFilters || dataFilters?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
-      {!dataFilters || dataFilters?.Talents ? <Talents talents={talents}/> : null}
-      {!dataFilters || dataFilters?.Skills ? <SkillsInfo skills={skillsInfo}/> : null}
+      {!dataFilters || dataFilters?.Talents ? <Talents talents={talents} starTalents={starTalents}/> : null}
+      {!dataFilters || dataFilters?.Skills ? <SkillsInfo skills={skillsInfo} charName={charName}/> : null}
       {!dataFilters || dataFilters?.['Star Sign'] ? <StarSigns signs={starSigns}/> : null}
       {!dataFilters || dataFilters?.Cards ? <EquippedCards cards={cards}/> : null}
       {!dataFilters || dataFilters?.['Printer Products'] ?
@@ -81,6 +84,7 @@ const Character = ({
       </div> : null}
       {!dataFilters || dataFilters?.Obols ? <Obols obols={obols} type={'character'}/> : null}
       {!dataFilters || dataFilters?.Bags ? <Bags bags={invBagsUsed} capBags={carryCapBags}/> : null}
+      {!dataFilters || dataFilters?.['Post Office'] ? <PostOffice boxes={postOffice}/> : null}
     </div>
   </CharacterStyle>
 };

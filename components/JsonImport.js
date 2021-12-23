@@ -29,15 +29,19 @@ const JsonImport = () => {
   const handleManualImport = async () => {
     try {
       const data = JSON.parse(await navigator.clipboard.readText());
-      console.log(data);
-      setUserData(data);
-      setUserLastUpdated(getDate());
-      setResult({ success: true });
-      if (data?.version === extVersion) {
-        router.reload();
+      if (data?.account && data?.characters) {
+        setUserData(data);
+        setUserLastUpdated(getDate());
+        setResult({ success: true });
+        if (data?.version === extVersion) {
+          router.reload();
+        }
+      } else {
+        setResult({ success: false });
+        console.error('Pasted json is not in the right format', data);
       }
     } catch (err) {
-      console.log('Error parsing data', err);
+      console.error('Error parsing data', err);
       setResult({ success: false });
       setErrorText(jsonError);
     }

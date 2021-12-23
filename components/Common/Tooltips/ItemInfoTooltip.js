@@ -11,8 +11,8 @@ import ItemDisplay from "../ItemDisplay";
 const ItemInfoTooltip = ({
                            children,
                            ...item
-
                          }) => {
+  console.log(item)
   return (
     <ItemInfoTooltipStyle
       interactive

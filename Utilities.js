@@ -124,6 +124,10 @@ export const fields = [
     name: "Anvil Products",
     selected: true,
   },
+  {
+    name: "Post Office",
+    selected: true,
+  },
 ];
 
 export const findItemInInventory = (arr, itemName) => {
@@ -180,9 +184,23 @@ export const screens = {
   achievements: 4,
   shopStock: 5,
   quests: 6,
-  cardSearch: 7
+  cardSearch: 7,
+  activeExpCalculator: 8
+}
+
+export const splitTime = (numberOfHours) => {
+  const days = Math.floor(numberOfHours / 24);
+  const remainder = numberOfHours % 24;
+  const hours = Math.floor(remainder);
+  const minutes = Math.floor(60 * (remainder - hours));
+  return `${days}d:${hours}h:${minutes}m`;
+}
+
+export const constellationIndexes = (str) => {
+  const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8 }
+  return str?.split('')?.map((char) => indexes?.[char]).sort((a, b) => a - b).join(',');
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.5';
+export const extVersion = '1.0.6';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";
