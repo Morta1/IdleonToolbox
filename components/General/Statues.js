@@ -1,14 +1,18 @@
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { prefix } from "../../Utilities";
 import styled from 'styled-components';
+import StatueTooltip from "../Common/Tooltips/StatueTooltip";
 
 const Statues = ({ statues }) => {
   return (
     <StatuesWrapper>
       <div className={'statue-group'}>
-        {statues?.map(({ name, rawName, level }, index) => {
+        {statues?.map((statue, index) => {
+          const { name, rawName, level } = statue;
           return <div key={name + index} className={'statue-wrapper'}>
             <span className={'level'}>{level}</span>
-            <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt=""/>
+            <StatueTooltip {...statue}>
+              <img  src={`${prefix}data/${rawName}.png`} alt=""/>
+            </StatueTooltip>
           </div>;
         })}
       </div>
