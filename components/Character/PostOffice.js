@@ -2,28 +2,37 @@ import styled from 'styled-components'
 import { prefix } from "../../Utilities";
 import PostOfficeTooltip from "../Common/Tooltips/PostOfficeTooltip";
 
-const PostOffice = ({ boxes }) => {
+const PostOffice = ({ postOffice }) => {
+  const { boxes, unspentPoints } = postOffice;
   return (
     <PostOfficeStyle>
-      {boxes?.map((box, index) => {
-        const fixedIndex = index >= 15 ? index + 1 : index;
-        return <div className={'box-wrapper'} key={box?.name + ' ' + index}>
-          {box?.level > 0 ? <span className={'level'}>{box?.level}</span> : null}
-          <PostOfficeTooltip {...box}>
-            <img className={'box'} src={`${prefix}data/UIboxUpg${fixedIndex}.png`} alt=""/>
-          </PostOfficeTooltip>
-        </div>
-      })}
+      <div className={'unspent'}> Unspent points: {unspentPoints}</div>
+      <div className="boxes">
+        {boxes?.map((box, index) => {
+          return <div className={'box-wrapper'} key={box?.name + ' ' + index}>
+            {box?.level > 0 ? <span className={'level'}>{box?.level}</span> : null}
+            <PostOfficeTooltip {...box}>
+              <img className={'box'} src={`${prefix}data/UIboxUpg${index}.png`} alt=""/>
+            </PostOfficeTooltip>
+          </div>
+        })}
+      </div>
     </PostOfficeStyle>
   );
 };
 
 const PostOfficeStyle = styled.div`
   margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(45px, 100px));
-  gap: 15px;
 
+  .unspent {
+    margin: 20px 0;
+  }
+  
+  .boxes {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(45px, 100px));
+    gap: 15px;
+  }
 
   .box-wrapper {
     position: relative;

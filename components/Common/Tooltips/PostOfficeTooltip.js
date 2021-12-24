@@ -4,6 +4,7 @@ import { cleanUnderscore } from "../../../Utilities";
 import { growth } from "../../General/calculationHelper";
 
 const PostOfficeTooltip = ({ level, name, upgrades, children }) => {
+  if (name === 'Filler') return children;
   return (
     <PostOfficeTooltipStyle
       interactive

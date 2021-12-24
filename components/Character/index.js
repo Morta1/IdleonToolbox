@@ -84,7 +84,7 @@ const Character = ({
       </div> : null}
       {!dataFilters || dataFilters?.Obols ? <Obols obols={obols} type={'character'}/> : null}
       {!dataFilters || dataFilters?.Bags ? <Bags bags={invBagsUsed} capBags={carryCapBags}/> : null}
-      {!dataFilters || dataFilters?.['Post Office'] ? <PostOffice boxes={postOffice}/> : null}
+      {!dataFilters || dataFilters?.['Post Office'] ? <PostOffice postOffice={postOffice}/> : null}
     </div>
   </CharacterStyle>
 };

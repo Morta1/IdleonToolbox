@@ -206,5 +206,5 @@ export const pascalCase = (str) => {
 }
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.7';
+export const extVersion = '1.0.8';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";
