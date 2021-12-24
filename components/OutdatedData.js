@@ -5,6 +5,16 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.0.8',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Fixed post office boxes bug',
+          ]
+        },
+      ]
+    },{
       version: '1.0.7',
       changes: [
         {
