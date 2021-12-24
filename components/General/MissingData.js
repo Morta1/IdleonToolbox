@@ -19,10 +19,12 @@ const MissingData = () => {
             <img src={`${prefix}extractor-image.png`} alt=""/>
           </div>
           <div>
-            <div style={{ marginBottom: 10 }}> 3. Copy the result json and click here</div>
-            <img src={`${prefix}copy.png`} alt=""/>
+            <div style={{ marginBottom: 10 }}> 3. Copy the result json and click the icon on the top right of the
+              website
+            </div>
           </div>
-          <div className={'contact'}>For any question, suggestion or bug report, please contact me in discord Morojo#2331
+          <div className={'contact'}>For any question, suggestion or bug report, please contact me in discord
+            Morojo#2331
           </div>
         </div>
       </div>
