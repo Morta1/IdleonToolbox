@@ -22,7 +22,7 @@ const CharacterWrapperStyle = styled.div`
   position: relative;
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
 
 `;
 
