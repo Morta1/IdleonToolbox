@@ -9,5 +9,6 @@
         "ssr": true
       }
     ]
-  ]
+  ],
+  "ignore": ["/data/"]
 }

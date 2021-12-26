@@ -17,7 +17,7 @@ const AccountDrawer = () => {
     accountDisplay,
     setUserAccountDisplay
   } = useContext(AppContext);
-  const matches = useMediaQuery(980);
+  const matches = useMediaQuery(1250);
   const [bubblesOpen, setBubblesOpen] = useState(true);
   const [stampsOpen, setStampsOpen] = useState(true);
   const [selected, setSelected] = useState(accountDisplay);
@@ -100,6 +100,18 @@ const AccountDrawer = () => {
               <ListItemText
                 style={{ marginLeft: 10 }}
                 primary={'Vials'}/>
+            </ListItem>
+            <ListItem selected={selected?.view === 'deathNote'} button onClick={() => handleClick('deathNote', '')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/ConTower2.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Death Note'}/>
+            </ListItem>
+            <ListItem selected={selected?.view === 'saltLick'} button onClick={() => handleClick('saltLick', '')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/ConTower3.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Salt Lick'}/>
             </ListItem>
             <ListItem selected={selected?.view === 'refinery'} button onClick={() => handleClick('refinery', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/TaskSc6.png`} alt=""/>

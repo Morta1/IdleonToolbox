@@ -9,17 +9,26 @@ const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9c
 const Refinery = ({ refinery, saltLicks, vials, characters }) => {
   const { salts, refinerySaltTaskLevel } = refinery || {};
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
-  const [squireCycles, setSquireCycles] = useState(0);
+  const [squiresData, setSquiresData] = useState({ cycles: 0, cooldowns: [] });
 
   useEffect(() => {
-    const cycles = characters.reduce((res, character) => {
-      let cycles = 0;
-      if (character?.class === 'Squire') {
-        cycles = character.talents?.[2]?.orderedTalents?.reduce((res, talent) => res + (talent?.name === 'REFINERY_THROTTLE' ? growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2) : 0), 0);
-      }
-      return res + cycles;
-    }, 0);
-    setSquireCycles(cycles);
+    const squires = characters?.filter((character) => character?.class === 'Squire');
+    const squiresDataTemp = squires.reduce((res, character) => {
+      const { name, talents, cooldowns, postOffice } = character;
+      const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
+      const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
+      const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
+      let cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.level, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
+      // const calculatedCooldown = (1 - cdReduction / 100) * (refineryThrottle?.cooldown);
+      return {
+        cycles: res?.cycles + cyclesNum,
+        // cooldowns: [...res?.cooldowns, {
+        //   name,
+        //   cooldown: calculatedCooldown - cooldowns?.[refineryThrottle?.talentId]
+        // }]
+      };
+    }, { cycles: 0, cooldowns: [] });
+    setSquiresData(squiresDataTemp);
   }, []);
 
 
@@ -28,7 +37,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const redMaltVial = vials?.[25] ? (growth(vials?.[25]?.func, vials?.[25]?.level, vials?.[25]?.x1, vials?.[25]?.x2) / 100) : 0;
     const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level / 100) : 0;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? squireCycles : 0);
+    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresData?.cycles ?? 0) : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
     return splitTime(timeLeft);
   };
@@ -49,18 +58,27 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
   return (
     <RefineryStyle>
       <div className="wrapper">
-        <div className={'cycles'}><FormControlLabel
-          control={
-            <StyledCheckbox
-              disabled={squireCycles === 0}
-              checked={includeSquireCycles}
-              onChange={() => setIncludeSquireCycles(!includeSquireCycles)}
-              name='Include Squire Cycles'
-              color='default'
-            />
-          }
-          label={`Include Squire Cycles (${squireCycles})`}
-        /></div>
+        <div className={'cycles'}>
+          <div>
+            {squiresData?.cooldowns?.map(({ name, cooldown, talentId }, index) => {
+              return <div key={name + ' ' + index}>
+                {name}
+              </div>
+            })}
+          </div>
+          <FormControlLabel
+            control={
+              <StyledCheckbox
+                disabled={squiresData?.cycles === 0}
+                checked={includeSquireCycles}
+                onChange={() => setIncludeSquireCycles(!includeSquireCycles)}
+                name='Include Squire Cycles'
+                color='default'
+              />
+            }
+            label={`Include Squire Cycles (${squiresData?.cycles})`}
+          />
+        </div>
         {salts?.map(({ saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage }, saltIndex) => {
           const rankUp = powerCap === refined;
           const progressPercentage = refined / powerCap * 100;

@@ -12,11 +12,11 @@ const shapes = {
 
 const Obols = ({ obols, type }) => {
   const getImgName = (name, rawName, shape) => {
-    switch (name) {
-      case 'Locked': {
+    switch (true) {
+      case rawName.includes('Locked'): {
         return `ObolLocked${shapes[shape]}`;
       }
-      case 'Empty': {
+      case rawName.includes('Blank'): {
         return `ObolEmpty${shapes[shape]}`;
       }
       default: {
@@ -32,10 +32,10 @@ const Obols = ({ obols, type }) => {
         const relevantArray = obols?.slice(startInd, endInd);
         return <div className={'obol-row'} key={startInd + rowNumber}>
           {relevantArray?.map((item, index) => {
-            const { displayName, rawName, lvReq, shape } = item;
+            const { displayName, rawName, levelReq, shape } = item;
             const imgName = getImgName(displayName, rawName, shape);
             return <div className={'obol-wrapper'} key={rawName + '' + index}>
-              {lvReq && displayName === 'Locked' ? <span className={'lv-req'}>{lvReq}</span> : null}
+              {levelReq && rawName.includes('Locked') ? <span className={'lv-req'}>{levelReq}</span> : null}
               <ItemInfoTooltip key={displayName + "" + index} {...item}>
                 <img src={`${prefix}data/${imgName}.png`}
                      alt=""/>

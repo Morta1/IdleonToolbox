@@ -5,6 +5,18 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.1.0',
+      changes: [
+        {
+          title: 'Account',
+          desc: [
+            'Added death note',
+            'Added salt lick'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.0.8',
       changes: [
         {
@@ -14,7 +26,7 @@ const OutdatedData = ({ extVersion }) => {
           ]
         },
       ]
-    },{
+    }, {
       version: '1.0.7',
       changes: [
         {

@@ -12,6 +12,8 @@ import Constellations from "./Constellations";
 import Looty from "./General/Looty";
 import Refinery from "./Refinery";
 import GemShopBundles from "./GemShopBundles";
+import DeathNote from "./DeathNote";
+import SaltLick from "./SaltLick";
 
 const Account = () => {
   const { userData, display, accountDisplay } = useContext(AppContext);
@@ -27,13 +29,16 @@ const Account = () => {
                 bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'brewing' ? <Brewing account={userData?.account}/> : null}
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
+      {accountDisplay?.view === 'deathNote' ? <DeathNote deathNote={userData?.account?.deathNote}/> : null}
+      {accountDisplay?.view === 'saltLick' ? <SaltLick saltLick={userData?.account?.saltLicks}/> : null}
       {accountDisplay?.view === 'refinery' ?
         <Refinery refinery={userData?.account?.refinery} saltLicks={userData?.account?.saltLicks}
                   vials={userData?.account?.alchemy?.vials} characters={userData?.characters}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bundles' ? <GemShopBundles bundles={userData?.account?.bundles}/> : null}
-      {accountDisplay?.view === 'constellations' ? <Constellations userData={userData?.characters} starSigns={userData?.account?.starSigns}
-                                                                   constellations={userData?.account?.constellations}/> : null}
+      {accountDisplay?.view === 'constellations' ?
+        <Constellations userData={userData?.characters} starSigns={userData?.account?.starSigns}
+                        constellations={userData?.account?.constellations}/> : null}
     </AccountStyle>
   );
 };
