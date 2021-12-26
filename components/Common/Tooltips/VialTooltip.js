@@ -28,7 +28,7 @@ const VialTooltip = ({
             {cleanUnderscore(desc).replace(/{|\$/g, growth(func, level, x1, x2))}
           </div>
           {itemReq?.map(({ name, rawName }, index) => {
-            return name && name !== 'Blank' ? <div className={'item-wrapper'} key={name + '' + index}>
+            return name && name !== 'Blank' && name !== 'ERROR' ? <div className={'item-wrapper'} key={name + '' + index}>
               <span
                 className={'amount'}>{name?.includes('Liquid') ? 3 * level : kFormatter(vialCost[parseFloat(level)])}</span>
               <img className={'item-img'} src={`${prefix}data/${rawName}.png`} alt=""/>

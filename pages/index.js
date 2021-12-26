@@ -20,8 +20,7 @@ import ActiveXpCalculator from "../components/General/ActiveXpCalculator";
 
 const Index = () => {
   const { userData, display } = useContext(AppContext);
-  const matches = useMediaQuery(980);
-
+  const matches = useMediaQuery(1250);
   return (
     <>
       <Head>

@@ -29,7 +29,7 @@ const CharactersDrawer = () => {
     setUserDisplayedCharactersIndices,
     lastUpdated
   } = useContext(AppContext);
-  const matches = useMediaQuery(980);
+  const matches = useMediaQuery(1250);
   const [open, setOpen] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [viewAll, setViewAll] = useState(!Object.values(displayedCharactersIndices).every((value) => value));

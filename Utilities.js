@@ -12,6 +12,7 @@ export const constantBags = [
   "InvBag23",
   "InvBag24",
   "InvBag25",
+  "InvBag26",
   "InvBag100",
   "InvBag101",
   "InvBag102",
@@ -24,26 +25,12 @@ export const constantBags = [
   "InvBag109",
   "InvBag110",
 ];
-
-export const classColors = {
-  Archer: "#51e406",
-  Hunter: "#51e406",
-  Bowman: "#51e406",
-  Mage: "#dc3cdc",
-  Shaman: "#dc3cdc",
-  Wizard: "#dc3cdc",
-  Warrior: "#ff9900",
-  Barbarian: "#ff9900",
-  Squire: "#ff9900",
-  Beginner: "yellow",
-  Journeyman: "yellow",
-  Maestro: "yellow",
-};
-
+export const round = (num) => {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
 export const numberWithCommas = (num) => {
   return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
 export const kFormatter = (num, digits = 1) => {
   const lookup = [
     { value: 1, symbol: "" },
@@ -65,7 +52,6 @@ export const kFormatter = (num, digits = 1) => {
     ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol
     : "0";
 };
-
 export const cleanUnderscore = (str) => {
   try {
     if (!str) return "";
@@ -74,6 +60,66 @@ export const cleanUnderscore = (str) => {
     console.log(`Error in cleanUnderscore for ${str}`, err);
   }
 };
+export const findItemInInventory = (arr, itemName) => {
+  if (!itemName) return {};
+  return arr.reduce((res, item) => {
+    const { name, owner, amount } = item;
+    if (name === itemName) {
+      if (res?.[owner]) {
+        return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
+      } else {
+        return { ...res, [owner]: { amount } };
+      }
+    }
+    return res;
+  }, {});
+};
+export const flattenCraftObject = (craft) => {
+  const uniques = {};
+  const tempCraft = JSON.parse(JSON.stringify(craft));
+
+  const flatten = (innerCraft, unique) => {
+    return innerCraft?.reduce((result, nextCraft) => {
+      result.push(nextCraft);
+      if (nextCraft.materials) {
+        result = result.concat(flatten(nextCraft?.materials, unique));
+        nextCraft.materials = [];
+      }
+      if (uniques[nextCraft?.itemName]) {
+        uniques[nextCraft?.itemName].itemQuantity += nextCraft?.itemQuantity;
+      } else {
+        uniques[nextCraft?.itemName] = nextCraft;
+      }
+      return result;
+    }, []);
+  }
+
+  flatten(tempCraft?.materials, uniques);
+  return Object.values(uniques);
+};
+export const findQuantityOwned = (items, itemName) => {
+  const inventoryItem = findItemInInventory(items, itemName);
+  return Object.values(inventoryItem)?.reduce((res, { amount }) => {
+    return res + amount;
+  }, 0);
+}
+export const splitTime = (numberOfHours) => {
+  const days = Math.floor(numberOfHours / 24);
+  const remainder = numberOfHours % 24;
+  const hours = Math.floor(remainder);
+  const minutes = Math.floor(60 * (remainder - hours));
+  return `${days}d:${hours}h:${minutes}m`;
+}
+export const constellationIndexes = (str) => {
+  const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8 }
+  return str?.split('')?.map((char) => indexes?.[char]).sort((a, b) => a - b).join(',');
+}
+export const pascalCase = (str) => {
+  return str?.split(/_/g).map((word) => word.toLowerCase().charAt(0).toUpperCase() + word.substr(1).toLowerCase()).join('_');
+}
+export const getDeathNoteRank = (kills) => {
+  return 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills ? 5 : 1e8 > kills ? 7 : 10;
+}
 
 export const fields = [
   {
@@ -129,53 +175,6 @@ export const fields = [
     selected: true,
   },
 ];
-
-export const findItemInInventory = (arr, itemName) => {
-  if (!itemName) return {};
-  return arr.reduce((res, item) => {
-    const { name, owner, amount } = item;
-    if (name === itemName) {
-      if (res?.[owner]) {
-        return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
-      } else {
-        return { ...res, [owner]: { amount } };
-      }
-    }
-    return res;
-  }, {});
-};
-
-export const flattenCraftObject = (craft) => {
-  const uniques = {};
-  const tempCraft = JSON.parse(JSON.stringify(craft));
-
-  const flatten = (innerCraft, unique) => {
-    return innerCraft?.reduce((result, nextCraft) => {
-      result.push(nextCraft);
-      if (nextCraft.materials) {
-        result = result.concat(flatten(nextCraft?.materials, unique));
-        nextCraft.materials = [];
-      }
-      if (uniques[nextCraft?.itemName]) {
-        uniques[nextCraft?.itemName].itemQuantity += nextCraft?.itemQuantity;
-      } else {
-        uniques[nextCraft?.itemName] = nextCraft;
-      }
-      return result;
-    }, []);
-  }
-
-  flatten(tempCraft?.materials, uniques);
-  return Object.values(uniques);
-};
-
-export const findQuantityOwned = (items, itemName) => {
-  const inventoryItem = findItemInInventory(items, itemName);
-  return Object.values(inventoryItem)?.reduce((res, { amount }) => {
-    return res + amount;
-  }, 0);
-}
-
 export const screens = {
   characters: 0,
   account: 1,
@@ -187,24 +186,26 @@ export const screens = {
   cardSearch: 7,
   activeExpCalculator: 8
 }
-
-export const splitTime = (numberOfHours) => {
-  const days = Math.floor(numberOfHours / 24);
-  const remainder = numberOfHours % 24;
-  const hours = Math.floor(remainder);
-  const minutes = Math.floor(60 * (remainder - hours));
-  return `${days}d:${hours}h:${minutes}m`;
+export const worlds = {
+  0: 'Blunder Hills',
+  1: 'Yum Yum Desert',
+  2: 'Frostbite Tundra'
 }
-
-export const constellationIndexes = (str) => {
-  const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8 }
-  return str?.split('')?.map((char) => indexes?.[char]).sort((a, b) => a - b).join(',');
-}
-
-export const pascalCase = (str) => {
-  return str?.split(/_/g).map((word) => word.toLowerCase().charAt(0).toUpperCase() + word.substr(1).toLowerCase()).join('_');
-}
+export const classColors = {
+  Archer: "#51e406",
+  Hunter: "#51e406",
+  Bowman: "#51e406",
+  Mage: "#dc3cdc",
+  Shaman: "#dc3cdc",
+  Wizard: "#dc3cdc",
+  Warrior: "#ff9900",
+  Barbarian: "#ff9900",
+  Squire: "#ff9900",
+  Beginner: "yellow",
+  Journeyman: "yellow",
+  Maestro: "yellow",
+};
 
 const isProd = process.env.NODE_ENV === "production";
-export const extVersion = '1.0.8';
+export const extVersion = '1.1.0';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

@@ -6,8 +6,8 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { format } from 'date-fns'
 import { AppContext } from './Common/context';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
-import { extVersion } from "../Utilities";
 import { useRouter } from "next/router";
+import parseIdleonData from "../parser";
 
 const getDate = () => {
   try {
@@ -29,17 +29,17 @@ const JsonImport = () => {
   const handleManualImport = async () => {
     try {
       const data = JSON.parse(await navigator.clipboard.readText());
-      if (data?.account && data?.characters) {
-        setUserData(data);
-        setUserLastUpdated(getDate());
-        setResult({ success: true });
-        if (data?.version === extVersion) {
-          router.reload();
-        }
-      } else {
-        setResult({ success: false });
-        console.error('Pasted json is not in the right format', data);
-      }
+      const parsedData = parseIdleonData(data);
+      setUserData(parsedData);
+      setUserLastUpdated(getDate());
+      setResult({ success: true });
+      router.reload();
+      // if (data?.version === extVersion) {
+      //   router.reload();
+      // } else {
+      //   setResult({ success: false });
+      //   console.error('Pasted json is not in the right format', data);
+      // }
     } catch (err) {
       console.error('Error parsing data', err);
       setResult({ success: false });
