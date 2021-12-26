@@ -540,9 +540,8 @@ const createCharactersData = (idleonData, characters, account) => {
     const quests = char?.[`QuestComplete_${charIndex}`];
     character.quests = Object.keys(quests).reduce((res, key) => {
       let [npcName, questIndex] = key.split(/([0-9]+)/);
-      if (npcName === 'Fishpaste') {
-        npcName = 'Fishpaste97'
-        questIndex = questIndex?.split('97')?.[1];
+      if (key.includes('Fishpaste')) {
+        npcName = 'Fishpaste97';
       }
       return { ...res, [npcName]: { ...(res?.[npcName] || {}), [questIndex]: quests[key] } }
     }, {});
