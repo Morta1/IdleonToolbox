@@ -7,7 +7,7 @@ import { AppContext } from '../components/Common/context';
 import MissingData from "../components/General/MissingData";
 import { Toolbar } from "@material-ui/core";
 import CharactersDrawer from "../components/Common/Drawers/CharactersDrawer";
-import { breakpoint, extVersion, screens } from "../Utilities";
+import { breakpoint, screens } from "../Utilities";
 import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Account from "../components/Account";
@@ -28,7 +28,7 @@ const Index = () => {
       </Head>
       <CharactersDrawer/>
       <FamilyWrapper
-        isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}>
+        isCharacterDisplay={userData && display?.view === screens.characters}>
         <Toolbar/>
         {matches && <Toolbar/>}
         <Main>

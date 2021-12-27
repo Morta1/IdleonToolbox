@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Chip, Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { breakpoint, extVersion, prefix, screens } from "../../../Utilities";
+import { breakpoint, prefix, screens } from "../../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
@@ -75,12 +75,12 @@ const CharactersDrawer = () => {
   return (
     <CharactersDrawerStyle>
       <StyledDrawer
-        isCharacterDisplay={userData && display?.view === screens.characters && userData?.version === extVersion}
+        isCharacterDisplay={userData && display?.view === screens.characters}
         anchor={'left'} variant={'permanent'}>
         <Navigation/>
         <Toolbar/>
         {matches && <Toolbar/>}
-        {userData && display?.view === screens.characters && userData?.version === extVersion ? <>
+        {userData && display?.view === screens.characters ? <>
           <List>
             <ListItem button onClick={handleClick}>
               <ListItemText

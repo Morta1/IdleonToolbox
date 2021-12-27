@@ -51,11 +51,13 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
       <div className="wrapper">
         {bubbleGoal ? cauldron?.map((bubble, index) => {
           const { level, itemReq, rawName, bubbleName, func, x1, x2 } = bubble;
+          const goalEffect = calculateEffect(func, bubbleGoal?.[index] ? bubbleGoal?.[index] < level ? level : bubbleGoal?.[index] : 0, x1, x2);
+          const effect = calculateEffect(func, level, x1, x2);
           return <div className={'bubble-row'} key={`${bubbleName}${index}`}>
             <div className={'bubble-wrapper'}>
               <span className={'level'}>{level}</span>
               <EffectTooltip type={'bubble'} {...{ name: bubbleName, ...bubble }}
-                             effect={calculateEffect(func, bubbleGoal?.[index] ? bubbleGoal?.[index] < level ? level : bubbleGoal?.[index] : 0, x1, x2)}>
+                             effect={effect}>
                 <img width={48} height={48} src={`${prefix}data/${rawName}.png`}
                      alt={''}/>
               </EffectTooltip>
@@ -67,6 +69,11 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
               type={'number'}
               onChange={(e) => handleChange(e, index)}
               label={'Goal'}/>
+            <div className={'effect'}>
+              <div><img className={'req-item'} src={`${prefix}data/SignStar3b.png`} title={cleanUnderscore(name)}
+                        alt=""/></div>
+              <span>{goalEffect}</span>
+            </div>
             <div className={'cost'}>
               {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
                 const cost = accumulateBubbleCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
@@ -112,7 +119,7 @@ const BubblesStyle = styled.div`
     row-gap: 20px;
     column-gap: 100px;
 
-    @media (max-width: 1300px){
+    @media (max-width: 1300px) {
       display: flex;
       flex-direction: column;
     }
@@ -141,6 +148,10 @@ const BubblesStyle = styled.div`
         font-size: 13px;
         padding: 0 5px;
       }
+    }
+
+    .effect {
+      min-width: 70px;
     }
 
     .cost {

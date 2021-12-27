@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { capitalize, Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { breakpoint, extVersion, prefix, screens } from "../../../Utilities";
+import { breakpoint, prefix, screens } from "../../../Utilities";
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { cauldrons, stamps } from "../../General/calculationHelper";
@@ -30,12 +30,12 @@ const AccountDrawer = () => {
   return (
     <AlchemyDrawerStyle>
       <StyledDrawer
-        shouldDisplay={userData && display?.view === screens.account && userData?.version === extVersion}
+        shouldDisplay={userData && display?.view === screens.account}
         anchor={'left'} variant={'permanent'}>
         <Navigation/>
         <Toolbar/>
         {matches && <Toolbar/>}
-        {userData && display?.view === screens.account && userData?.version === extVersion ? <>
+        {userData && display?.view === screens.account ? <>
           <List>
             <ListItem button selected={selected?.view === 'general'} onClick={() => handleClick('general')}>
               <img className={'list-img'} width={32} src={`${prefix}data/ClassIcons1.png`} alt=""/>

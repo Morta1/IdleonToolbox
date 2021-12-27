@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { extVersion, screens } from "../Utilities";
+import { screens } from "../Utilities";
 import React, { useContext } from "react";
 import { AppContext } from "./Common/context";
 import AccountDrawer from "./Common/Drawers/AccountDrawer";
@@ -20,7 +20,7 @@ const Account = () => {
 
   return (
     <AccountStyle
-      isCharacterDisplay={userData && display?.view === screens.account && userData?.version === extVersion}>
+      isCharacterDisplay={userData && display?.view === screens.account}>
       <AccountDrawer/>
       {accountDisplay?.view === 'general' ? <General account={userData?.account}/> : null}
       {accountDisplay?.view === 'looty' ? <Looty items={userData?.account?.missingLootyItems}/> : null}
