@@ -188,7 +188,11 @@ const OutdatedData = ({ extVersion }) => {
   ]
 
   useEffect(() => {
-    localStorage.clear();
+    localStorage.removeItem('characterData');
+    localStorage.removeItem('characterIndices');
+    localStorage.removeItem('dataFilters');
+    localStorage.removeItem('lastUpdated');
+    localStorage.removeItem('display');
   }, []);
 
   return (

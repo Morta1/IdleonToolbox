@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { capitalize, Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { extVersion, prefix, screens } from "../../../Utilities";
+import { breakpoint, extVersion, prefix, screens } from "../../../Utilities";
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { cauldrons, stamps } from "../../General/calculationHelper";
@@ -17,7 +17,7 @@ const AccountDrawer = () => {
     accountDisplay,
     setUserAccountDisplay
   } = useContext(AppContext);
-  const matches = useMediaQuery(1250);
+  const matches = useMediaQuery(breakpoint);
   const [bubblesOpen, setBubblesOpen] = useState(true);
   const [stampsOpen, setStampsOpen] = useState(true);
   const [selected, setSelected] = useState(accountDisplay);
@@ -32,10 +32,6 @@ const AccountDrawer = () => {
       <StyledDrawer
         shouldDisplay={userData && display?.view === screens.account && userData?.version === extVersion}
         anchor={'left'} variant={'permanent'}>
-        {/*<AppBar position={"fixed"}>*/}
-        {/*  <NavBar/>*/}
-        {/*</AppBar>*/}
-        {/*<Toolbar/>*/}
         <Navigation/>
         <Toolbar/>
         {matches && <Toolbar/>}

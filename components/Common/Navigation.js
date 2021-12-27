@@ -3,11 +3,11 @@ import { AppBar, Toolbar } from "@material-ui/core";
 import { useRouter } from "next/router";
 import React, { useContext } from "react";
 import { AppContext } from "./context";
-import { extVersion, screens } from "../../Utilities";
+import { screens } from "../../Utilities";
 import JsonImport from "../JsonImport";
 
 const Navigation = () => {
-  const { display, setUserDisplay, userData } = useContext(AppContext);
+  const { display, setUserDisplay } = useContext(AppContext);
   const router = useRouter();
   const familyRoutes = Object.keys(screens).map((word) => word.replace(/([A-Z])/g, " $1"));
 
@@ -18,12 +18,11 @@ const Navigation = () => {
     <NavigationStyle>
       <StyledAppbar position="fixed" color={'default'}>
         <Toolbar>
-          {userData?.version === extVersion ?
-            <ul className={'family-navigation'}>
-              {familyRoutes.map((route, index) => (
-                <ListItem onClick={() => setUserDisplay(index, route)} active={display?.view === index} inner={true}
-                          key={route + index}>{route}</ListItem>))}
-            </ul> : null}
+          <ul className={'family-navigation'}>
+            {familyRoutes.map((route, index) => (
+              <ListItem onClick={() => setUserDisplay(index, route)} active={display?.view === index} inner={true}
+                        key={route + index}>{route}</ListItem>))}
+          </ul>
           {!isDemo() ? <JsonImport/> : null}
         </Toolbar>
       </StyledAppbar>
