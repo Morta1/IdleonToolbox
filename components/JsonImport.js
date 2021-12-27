@@ -34,12 +34,6 @@ const JsonImport = () => {
       setUserLastUpdated(getDate());
       setResult({ success: true });
       router.reload();
-      // if (data?.version === extVersion) {
-      //   router.reload();
-      // } else {
-      //   setResult({ success: false });
-      //   console.error('Pasted json is not in the right format', data);
-      // }
     } catch (err) {
       console.error('Error parsing data', err);
       setResult({ success: false });
