@@ -14,6 +14,7 @@ const Navigation = () => {
   const isDemo = () => {
     return router?.query?.hasOwnProperty('demo');
   }
+
   return (
     <NavigationStyle>
       <StyledAppbar position="fixed" color={'default'}>
