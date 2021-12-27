@@ -33,8 +33,6 @@ const Index = () => {
         {matches && <Toolbar/>}
         <Main>
           {!userData ? <MissingData/> :
-            // userData?.version !== extVersion ?
-            //   <OutdatedData extVersion={extVersion}/> :
               <>
                 {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
                 {display?.view === screens.account ? <Account/> : null}
