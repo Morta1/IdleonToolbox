@@ -180,11 +180,12 @@ export const screens = {
   account: 1,
   craftIt: 2,
   itemBrowser: 3,
-  achievements: 4,
-  shopStock: 5,
-  quests: 6,
-  cardSearch: 7,
-  activeExpCalculator: 8
+  itemPlanner: 4,
+  achievements: 5,
+  shopStock: 6,
+  quests: 7,
+  cardSearch: 8,
+  activeExpCalculator: 9
 }
 export const worlds = {
   0: 'Blunder Hills',
@@ -207,5 +208,6 @@ export const classColors = {
 };
 
 const isProd = process.env.NODE_ENV === "production";
+export const breakpoint = 1350;
 export const extVersion = '1.1.0';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

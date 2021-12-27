@@ -5,10 +5,9 @@ import ItemBrowser from "../components/ItemBrowser";
 import CraftIt from "../components/CraftIt/CraftIt";
 import { AppContext } from '../components/Common/context';
 import MissingData from "../components/General/MissingData";
-import OutdatedData from "../components/OutdatedData";
 import { Toolbar } from "@material-ui/core";
 import CharactersDrawer from "../components/Common/Drawers/CharactersDrawer";
-import { extVersion, screens } from "../Utilities";
+import { breakpoint, extVersion, screens } from "../Utilities";
 import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Account from "../components/Account";
@@ -17,10 +16,11 @@ import Achievements from "../components/Achievements";
 import CardSearch from "../components/CardSearch";
 import useMediaQuery from "../components/Common/useMediaQuery";
 import ActiveXpCalculator from "../components/General/ActiveXpCalculator";
+import Todo from "../components/Todo";
 
 const Index = () => {
   const { userData, display } = useContext(AppContext);
-  const matches = useMediaQuery(1250);
+  const matches = useMediaQuery(breakpoint);
   return (
     <>
       <Head>
@@ -33,8 +33,8 @@ const Index = () => {
         {matches && <Toolbar/>}
         <Main>
           {!userData ? <MissingData/> :
-            userData?.version !== extVersion ?
-              <OutdatedData extVersion={extVersion}/> :
+            // userData?.version !== extVersion ?
+            //   <OutdatedData extVersion={extVersion}/> :
               <>
                 {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
                 {display?.view === screens.account ? <Account/> : null}
@@ -46,6 +46,7 @@ const Index = () => {
                   <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
                 {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
                 {display?.view === screens.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
+                {display?.view === screens.itemPlanner ? <Todo userData={userData}/> : null}
               </>}
         </Main>
       </FamilyWrapper>

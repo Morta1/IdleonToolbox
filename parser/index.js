@@ -59,7 +59,7 @@ const parseIdleonData = (idleonData) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, version: idleonData?.version }
+    return { account, characters: charactersData }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};

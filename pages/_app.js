@@ -43,6 +43,7 @@ export default function App({ Component, pageProps }) {
   const [accountDisplay, setAccountDisplay] = useState(initialAccountDisplay);
   const [alchemyGoals, setAlchemyGoals] = useState();
   const [stampsGoals, setStampsGoals] = useState();
+  const [userTodoList, setTodoList] = useState();
 
   useEffect(() => {
     try {
@@ -82,6 +83,9 @@ export default function App({ Component, pageProps }) {
 
       const accountDisplay = JSON.parse(localStorage.getItem('accountDisplay')) || initialAccountDisplay;
       setAccountDisplay(accountDisplay);
+
+      const todoListObject = JSON.parse(localStorage.getItem('todoList')) || null;
+      setTodoList(todoListObject);
 
       setLoader(false);
     } catch (e) {
@@ -163,6 +167,12 @@ export default function App({ Component, pageProps }) {
     localStorage.setItem('accountDisplay', JSON.stringify(display));
   }
 
+  const setUserTodoList = (todoList, materialList) => {
+    const list = { todoList, materialList };
+    setTodoList(list);
+    localStorage.setItem('todoList', JSON.stringify(list));
+  }
+
   return (
     <>
       <Head>
@@ -186,6 +196,7 @@ export default function App({ Component, pageProps }) {
             accountDisplay, setUserAccountDisplay,
             alchemyGoals, setUserAlchemyGoals,
             stampsGoals, setUserStampsGoals,
+            userTodoList, setUserTodoList
           }}>
             {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
                 <CircularProgress size={60} style={{ color: 'white' }}/>
