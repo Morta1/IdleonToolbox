@@ -21,6 +21,7 @@ import Todo from "../components/Todo";
 const Index = () => {
   const { userData, display } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
+
   return (
     <>
       <Head>
@@ -33,19 +34,19 @@ const Index = () => {
         {matches && <Toolbar/>}
         <Main>
           {!userData ? <MissingData/> :
-              <>
-                {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
-                {display?.view === screens.account ? <Account/> : null}
-                {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
-                {display?.view === screens.itemBrowser ? <ItemBrowser userData={userData}/> : null}
-                {display?.view === screens.achievements ? <Achievements userData={userData}/> : null}
-                {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
-                {display?.view === screens.quests ?
-                  <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
-                {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
-                {display?.view === screens.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
-                {display?.view === screens.itemPlanner ? <Todo userData={userData}/> : null}
-              </>}
+            <>
+              {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
+              {display?.view === screens.account ? <Account/> : null}
+              {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
+              {display?.view === screens.itemBrowser ? <ItemBrowser userData={userData}/> : null}
+              {display?.view === screens.achievements ? <Achievements userData={userData}/> : null}
+              {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
+              {display?.view === screens.quests ?
+                <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
+              {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
+              {display?.view === screens.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
+              {display?.view === screens.itemPlanner ? <Todo userData={userData}/> : null}
+            </>}
         </Main>
       </FamilyWrapper>
     </>

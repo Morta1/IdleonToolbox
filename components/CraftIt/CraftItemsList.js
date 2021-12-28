@@ -2,11 +2,19 @@ import styled from 'styled-components'
 import { cleanUnderscore, findQuantityOwned, kFormatter, prefix } from "../../Utilities";
 import React from "react";
 
-const CraftItemsList = ({ inventoryItems, itemsList = [], copies = 1 }) => {
+const CraftItemsList = ({
+                          inventoryItems,
+                          itemsList = [],
+                          copies = 1,
+                          showEquips = true,
+                          showFinishedItems = true
+                        }) => {
   return (
     <CraftItemsListStyle>
-      {itemsList?.map(({ itemName, itemQuantity, rawName }, index) => {
+      {itemsList?.map(({ itemName, itemQuantity, rawName, type }, index) => {
+        if (!showEquips && type === 'Equip') return null;
         const quantityOwned = findQuantityOwned(inventoryItems, itemName);
+        if (!showFinishedItems && quantityOwned >= itemQuantity) return null;
         return <div key={itemName + index} className='item' title={rawName}>
           <img
             title={cleanUnderscore(itemName)}
