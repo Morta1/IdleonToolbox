@@ -59,7 +59,7 @@ const parseIdleonData = (idleonData) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData }
+    return { account, characters: charactersData, version: '1.1.1' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
@@ -137,9 +137,9 @@ const createAccountData = (idleonData, characters) => {
     ...(statues?.[statueIndex] || {})
   }));
 
-  const moneyArr = ['MoneyBANK', Array(characters?.length).fill(0).map((_, index) => `Money_${index}`)];
-  const money = moneyArr.reduce((res, moneyInd) =>
-    (res + (idleonData?.[moneyInd] ? parseInt(idleonData?.[moneyInd]) : 0)), 0);
+  const bankMoney = parseInt(idleonData?.MoneyBANK);
+  const playersMoney = characters?.reduce((res, char, index) => res + parseInt(char?.[`Money_${index}`]), 0);
+  const money = bankMoney + playersMoney;
   account.money = String(money).split(/(?=(?:..)*$)/);
 
   const inventoryArr = idleonData?.ChestOrder;

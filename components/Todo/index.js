@@ -4,14 +4,14 @@ import { breakpoint, flattenCraftObject, prefix } from "../../Utilities";
 import { crafts } from "../../data/website-data";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
-import { IconButton, TextField, Toolbar } from "@material-ui/core";
-import CraftItemsList from "../CraftIt/CraftItemsList";
+import { Checkbox, FormControlLabel, IconButton, TextField, Toolbar } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import Badge from "@material-ui/core/Badge";
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import { AppContext } from "../Common/context";
 import MaterialsTooltip from "../Common/Tooltips/MaterialsTooltip";
 import useMediaQuery from "../Common/useMediaQuery";
+import ItemsList from "./ItemsList";
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -26,6 +26,8 @@ const Todo = ({ userData }) => {
   const [item, setItem] = useState();
   const [materialList, setMaterialList] = useState([]);
   const [todoList, setTodoList] = useState([]);
+  const [showEquips, setShowEquips] = useState(false);
+  const [showFinishedItems, setShowFinishedItems] = useState(false);
   const itemsRef = useRef([]);
 
   useEffect(() => {
@@ -148,16 +150,40 @@ const Todo = ({ userData }) => {
         <IconButton onClick={onAddItem} title={'Add Item'}>
           <AddIcon/>
         </IconButton>
+        <div className="preview">
+          {item ? <img
+            src={`${prefix}data/${item?.rawName}.png`}
+            alt=''
+          /> : null}
+        </div>
       </div>
-      <div className="preview">
-        {item ? <img
-          src={`${prefix}data/${item?.rawName}.png`}
-          alt=''
-        /> : null}
+      <div>
+        <FormControlLabel
+          control={
+            <StyledCheckbox
+              checked={showEquips}
+              onChange={() => setShowEquips(!showEquips)}
+              name='Show equips'
+              color='default'
+            />
+          }
+          label={'Show equips'}
+        />
+        <FormControlLabel
+          control={
+            <StyledCheckbox
+              checked={showFinishedItems}
+              onChange={() => setShowFinishedItems(!showFinishedItems)}
+              name='Show Finished Items'
+              color='default'
+            />
+          }
+          label={'Show Finished Items'}
+        />
       </div>
       {todoList?.length ? <div className={'content'}>
         <div className={'items-wrapper'}>
-          <span className={'title'}>Items</span>
+          <span className={'title'}>Tracked Items</span>
           <div className={'items'}>
             {todoList?.map((item, index) => {
               return <div key={item?.itemName + '' + index} onMouseEnter={() => onMouseEnter(index)}
@@ -184,7 +210,8 @@ const Todo = ({ userData }) => {
         </div>
         <div className={'crafts-container'}>
           <span className={'title'}>Required Materials</span>
-          <CraftItemsList itemsList={materialList} inventoryItems={myItems}/>
+          <ItemsList itemsList={materialList} inventoryItems={myItems} showEquips={showEquips}
+                     showFinishedItems={showFinishedItems}/>
         </div>
       </div> : null}
 
@@ -221,6 +248,7 @@ const TodoStyle = styled.div`
 
   .controls {
     display: flex;
+    align-items: center;
     gap: 10px;
     flex-wrap: wrap;
     @media (max-width: 800px) {
@@ -243,7 +271,7 @@ const TodoStyle = styled.div`
     margin-top: 25px;
     display: grid;
     grid-template-columns: 1fr 3fr;
-    column-gap: 10px;
+    column-gap: 50px;
   }
 
   .crafts-container {
@@ -254,6 +282,12 @@ const TodoStyle = styled.div`
 const StyledTextField = styled(TextField)`
   && label.Mui-focused {
     color: rgba(255, 255, 255, 0.7);
+  }
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+  && {
+    color: white;
   }
 `;
 
