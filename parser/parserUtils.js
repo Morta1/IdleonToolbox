@@ -1,6 +1,163 @@
 import { deathNote, items, mapEnemies, monsters, quests, talents } from "../data/website-data";
 import { getDeathNoteRank } from "../Utilities";
 
+export const createSerializedData = (data, charNames) => {
+  const PlayerDATABASE = charNames?.map((charName, index) => {
+    const characterDetails = Object.entries(data)?.reduce((res, [key, details]) => {
+      const reg = new RegExp(`_${index}`, 'g');
+      if (reg.test(key)) {
+        let updatedDetails = tryToParse(details);
+        let updatedKey = key;
+        let arr = [];
+        switch (true) {
+          case key.includes('EquipOrder'): {
+            updatedKey = `EquipmentOrder_${index}`;
+            details = createArrayOfArrays(details);
+            break;
+          }
+          case key.includes('EquipQTY'): {
+            updatedKey = `EquipmentQuantity_${index}`;
+            details = createArrayOfArrays(details);
+            break;
+          }
+          case key.includes('EMm0'): {
+            updatedKey = `EquipmentMap_${index}`;
+            arr = [...(res?.[updatedKey] || []), createIndexedArray(updatedDetails)];
+            break;
+          }
+          case key.includes('EMm1'): {
+            updatedKey = `EquipmentMap_${index}`;
+            arr = [...(res?.[updatedKey] || []), createIndexedArray(updatedDetails)];
+            break;
+          }
+          case key.includes('ItemQTY'): {
+            updatedKey = `ItemQuantity_${index}`;
+            break;
+          }
+          case key.includes('PVStatList'): {
+            updatedKey = `PersonalValuesMap_${index}`;
+            updatedDetails = { ...(res?.[updatedKey] || {}), StatList: tryToParse(details) };
+            break;
+          }
+          case key.includes('PVtStarSign'): {
+            updatedKey = `PersonalValuesMap_${index}`;
+            updatedDetails = { ...(res?.[updatedKey] || {}), StarSign: tryToParse(details) };
+            break;
+          }
+          case key.includes('ObolEqO0'): {
+            updatedKey = `ObolEquippedOrder_${index}`;
+            break;
+          }
+          case key.includes('ObolEqMAP'): {
+            updatedKey = `ObolEquippedMap_${index}`;
+            break;
+          }
+          case key.includes('SL_'): {
+            updatedKey = `SkillLevels_${index}`;
+            break;
+          }
+          case key.includes('SM_'): {
+            updatedKey = `SkillLevelsMAX_${index}`;
+            break;
+          }
+          case key.includes('KLA_'): {
+            updatedKey = `KillsLeft2Advance_${index}`;
+            break;
+          }
+          case key.includes('AtkCD_'): {
+            updatedKey = `AttackCooldowns_${index}`;
+            break;
+          }
+          case key.includes('POu_'): {
+            updatedKey = `PostOfficeInfo_${index}`;
+            break;
+          }
+        }
+        return { ...res, [updatedKey]: arr?.length ? arr : updatedDetails }
+      }
+      return res;
+    }, {});
+    return {
+      name: charName,
+      ...characterDetails
+    }
+  });
+  const serialized = {
+    Cards: [tryToParse(data?.Cards0), tryToParse(data?.Cards1)],
+    ObolEquippedOrder: [null, tryToParse(data?.ObolEqO1)],
+    ObolEquippedMap: [null, tryToParse(data?.ObolEqMAPz1)],
+    StampLevel: tryToParse(data?.StampLv),
+    StatueG: tryToParse(data?.StuG),
+    MoneyBANK: data?.MoneyBANK,
+    ChestOrder: tryToParse(data?.ChestOrder),
+    ChestQuantity: tryToParse(data?.ChestQuantity),
+    ShrineInfo: tryToParse(data?.Shrine),
+    FamilyValuesMap: {
+      ColosseumHighscores: data?.FamValColosseumHighscores,
+      MinigameHiscores: data?.FamValColosseumHighscores
+    },
+    ShopStock: tryToParse(data?.ShopStock),
+    CauldronInfo: createArrayOfArrays(data?.CauldronInfo),
+    BribeStatus: tryToParse(data?.BribeStatus),
+    StarSignProg: tryToParse(data?.SSprog),
+    StarSignsUnlocked: tryToParse(data?.StarSg),
+    AchieveReg: tryToParse(data?.AchieveReg),
+    SteamAchieve: tryToParse(data?.SteamAchieve),
+    Refinery: tryToParse(data?.Refinery),
+    Printer: tryToParse(data?.Print),
+    Tasks: [
+      tryToParse(data?.TaskZZ0),
+      tryToParse(data?.TaskZZ1),
+      tryToParse(data?.TaskZZ2),
+      tryToParse(data?.TaskZZ3),
+      tryToParse(data?.TaskZZ4),
+      tryToParse(data?.TaskZZ5),
+    ],
+    BundlesReceived: tryToParse(data?.BundlesReceived),
+    SaltLick: tryToParse(data?.SaltLick),
+    CurrenciesOwned: {
+      WorldTeleports: data?.CYWorldTeleports,
+      KeysAll: data?.CYKeysAll,
+      ColosseumTickets: data?.CYColosseumTickets,
+      ObolFragments: data?.CYObolFragments,
+      SilverPens: data?.CYSilverPens,
+      GoldPens: data?.CYGoldPens,
+      DeliveryBoxComplete: data?.CYDeliveryBoxComplete,
+      DeliveryBoxStreak: data?.CYDeliveryBoxStreak,
+      DeliveryBoxMisc: data?.CYDeliveryBoxMisc,
+    },
+  };
+  return { serializedData: serialized, chars: PlayerDATABASE };
+}
+
+const createIndexedArray = (object) => {
+  const highest = Math.max(...Object.keys(object));
+  let result = [];
+  for (let i = 0; i <= highest; i++) {
+    if (object?.[i]) {
+      result[i] = object?.[i];
+    } else {
+      result[i] = {};
+    }
+  }
+  return result;
+}
+
+const createArrayOfArrays = (array) => {
+  return array?.map((object) => {
+    delete object?.length;
+    return Object.values(object);
+  });
+}
+
+const tryToParse = (str) => {
+  try {
+    return JSON.parse(str);
+  } catch (err) {
+    return str;
+  }
+}
+
 export const mapAccountQuests = (characters) => {
   const questsKeys = Object.keys(quests);
   let mappedQuests = questsKeys?.reduce((res, npcName) => {

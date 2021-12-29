@@ -15,12 +15,14 @@ const EquippedCards = ({ cards }) => {
       </div> : null}
       {cards?.equippedCards?.map(({ cardName, cardIndex, stars }, index) => {
         const cleanCardName = cardName?.split("(", 2)[0].trim().replace(/ /, '_') || '';
-        return cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
-          {stars > 0 ?
-            <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
-          <img className='card' title={cardName}
-               src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>
-        </CardWrapper> : null;
+        return cardName && cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
+            {stars > 0 ?
+              <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
+            <img className='card' title={cardName}
+                 src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>
+          </CardWrapper> :
+          <CardWrapper key={cleanCardName + index}><img src={`${prefix}data/EmptyCard.png`}
+                                                        alt=""/></CardWrapper>;
       })}
     </EquippedCardsStyled>
   );

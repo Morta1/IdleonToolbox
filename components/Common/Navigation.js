@@ -7,7 +7,7 @@ import { screens } from "../../Utilities";
 import JsonImport from "../JsonImport";
 
 const Navigation = () => {
-  const { display, setUserDisplay } = useContext(AppContext);
+  const { userData, display, setUserDisplay } = useContext(AppContext);
   const router = useRouter();
   const familyRoutes = Object.keys(screens).map((word) => word.replace(/([A-Z])/g, " $1"));
 
@@ -19,11 +19,11 @@ const Navigation = () => {
     <NavigationStyle>
       <StyledAppbar position="fixed" color={'default'}>
         <Toolbar>
-          <ul className={'family-navigation'}>
+          {userData ? <ul className={'family-navigation'}>
             {familyRoutes.map((route, index) => (
               <ListItem onClick={() => setUserDisplay(index, route)} active={display?.view === index} inner={true}
                         key={route + index}>{route}</ListItem>))}
-          </ul>
+          </ul> : null}
           {!isDemo() ? <JsonImport/> : null}
         </Toolbar>
       </StyledAppbar>
