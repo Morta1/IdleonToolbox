@@ -8,6 +8,7 @@ import {
   calculateWeirdObolIndex,
   cardSetMap,
   createItemsWithUpgrades,
+  createSerializedData,
   createTalentPage,
   getInventory,
   keysMap,
@@ -42,13 +43,21 @@ import {
 const { cards, items, obols, stamps, statues } = require("../data/website-data");
 const { calculateStars, createObolsWithUpgrades, filteredLootyItems } = require("./parserUtils");
 
-const parseIdleonData = (idleonData) => {
+const parseIdleonData = (idleonData, charNames) => {
   try {
-    const characterNames = Object.entries(idleonData?.PlayerDATABASE);
-    let characters = characterNames.map(([charName, charData], index) => ({
-      name: charName,
-      ...(Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {}))
-    }));
+    let characterNames, characters;
+    if (idleonData?.PlayerDATABASE) {
+      characterNames = Object.entries(idleonData?.PlayerDATABASE);
+      characters = characterNames.map(([charName, charData], index) => ({
+        name: charName,
+        ...(Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {}))
+      }));
+    } else {
+      const { serializedData, chars } = createSerializedData(idleonData, charNames);
+      idleonData = serializedData;
+      characters = chars;
+    }
+
     let account = createAccountData(idleonData, characters);
     let charactersData = createCharactersData(idleonData, characters, account);
     let skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
@@ -549,7 +558,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const postOfficeObject = char?.[`PostOfficeInfo_${charIndex}`];
     let totalPointsSpent = 0;
     const boxes = postOffice?.map((box, index) => {
-      const points = postOfficeObject?.[index]?.[0];
+      const points = postOfficeObject?.[index]?.[0] ?? postOfficeObject?.[index];
       totalPointsSpent += points;
       return { ...box, level: points || 0 }
     });
