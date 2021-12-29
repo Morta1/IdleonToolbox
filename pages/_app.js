@@ -44,6 +44,7 @@ export default function App({ Component, pageProps }) {
   const [alchemyGoals, setAlchemyGoals] = useState();
   const [stampsGoals, setStampsGoals] = useState();
   const [userTodoList, setTodoList] = useState();
+  const [connected, setConnected] = useState();
 
   useEffect(() => {
     try {
@@ -173,6 +174,10 @@ export default function App({ Component, pageProps }) {
     localStorage.setItem('todoList', JSON.stringify(list));
   }
 
+  const setUserConnected = (isConnected) => {
+    setConnected(isConnected);
+  }
+
   return (
     <>
       <Head>
@@ -196,7 +201,8 @@ export default function App({ Component, pageProps }) {
             accountDisplay, setUserAccountDisplay,
             alchemyGoals, setUserAlchemyGoals,
             stampsGoals, setUserStampsGoals,
-            userTodoList, setUserTodoList
+            userTodoList, setUserTodoList,
+            connected, setUserConnected
           }}>
             {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
                 <CircularProgress size={60} style={{ color: 'white' }}/>

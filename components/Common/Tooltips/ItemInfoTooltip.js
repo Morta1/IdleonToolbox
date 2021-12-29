@@ -12,14 +12,14 @@ const ItemInfoTooltip = ({
                            children,
                            ...item
                          }) => {
-  return (
+  return item?.rawName !== 'Blank' ? (
     <ItemInfoTooltipStyle
       interactive
       enterTouchDelay={100}
       title={<ItemDisplay {...item}/>}>
       {children}
     </ItemInfoTooltipStyle>
-  );
+  ) : children;
 };
 
 const ItemInfoTooltipStyle = styled((props) => (

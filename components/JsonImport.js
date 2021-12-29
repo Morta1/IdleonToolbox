@@ -21,7 +21,7 @@ const getDate = () => {
 const jsonError = 'An error occurred while parsing data';
 
 const JsonImport = () => {
-  const { setUserData, setUserLastUpdated } = useContext(AppContext);
+  const { setUserData, setUserLastUpdated, connected, setUserConnected } = useContext(AppContext);
 
   const [errorText, setErrorText] = useState('');
   const [loadIframe, setLoadIframe] = useState(false);
@@ -37,6 +37,9 @@ const JsonImport = () => {
   const countRef = useRef(0);
   countRef.current = timeoutCount;
 
+  useEffect(() => {
+    setResult(connected ? { success: true } : null);
+  }, [connected]);
   useEffect(() => {
     // autoUpdate();
     return () => {
@@ -66,10 +69,12 @@ const JsonImport = () => {
       setUserData(parseIdleonData(parsed?.serializedData, parsed?.usernameList));
       setLoading(false);
       setResult({ success: true });
+      setUserConnected(true);
       setFetching(true);
     }
     if (countRef.current > 4 && !charData) {
       console.log('Please make sure idleon-data-extractor is installed and you\'re logged in and try again.')
+      setUserConnected(false);
       endInterval(fetchDataInterval, false);
     }
     setTimeoutCount(countRef.current + 1);
@@ -80,6 +85,7 @@ const JsonImport = () => {
     setFetching(false);
     setLoading(false);
     setResult(null);
+    setUserConnected(false);
     setTimeoutCount(0);
     clearInterval(interval);
   }
@@ -111,14 +117,11 @@ const JsonImport = () => {
                            titleAccess={'Updated'}/> :
           <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
                      titleAccess={errorText}/> : null}
-        {/*{result ? !result?.success ? <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}*/}
-        {/*                                        titleAccess={'Please make sure idleon-data-extractor is installed and try again.'}/> : null*/}
-        {/*  : null}*/}
         {result ? result?.success ? <CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
                                                      titleAccess={'Connected'}/> :
           <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
                      titleAccess={errorText}/> : null}
-        {!loading ? !fetching ? <NumberTooltip
+        {!loading ? !fetching && !connected ? <NumberTooltip
             title={'Please make sure you\'ve connected to idleon website and downloaded idleon-data-extractor extension'}>
             <StyledButton onClick={() => autoUpdate()}>Connect</StyledButton></NumberTooltip> : null :
           <StyledLoader size={24}/>

@@ -94,7 +94,7 @@ export const createSerializedData = (data, charNames) => {
     ShrineInfo: tryToParse(data?.Shrine),
     FamilyValuesMap: {
       ColosseumHighscores: data?.FamValColosseumHighscores,
-      MinigameHiscores: data?.FamValColosseumHighscores
+      MinigameHiscores: data?.FamValMinigameHiscores
     },
     ShopStock: tryToParse(data?.ShopStock),
     CauldronInfo: createArrayOfArrays(data?.CauldronInfo),
@@ -105,6 +105,7 @@ export const createSerializedData = (data, charNames) => {
     SteamAchieve: tryToParse(data?.SteamAchieve),
     Refinery: tryToParse(data?.Refinery),
     Printer: tryToParse(data?.Print),
+    CauldronBubbles: tryToParse(data?.CauldronBubbles),
     Tasks: [
       tryToParse(data?.TaskZZ0),
       tryToParse(data?.TaskZZ1),
