@@ -373,6 +373,7 @@ const createCharactersData = (idleonData, characters, account) => {
     character.afkTime = parseFloat(char?.[`PlayerAwayTime_${charIndex}`]);
     character.afkTarget = monsters?.[char?.[`AFKtarget_${charIndex}`]]?.Name;
     character.currentMap = mapNames?.[char?.[`CurrentMap_${charIndex}`]];
+    character.money = String(parseInt(char?.[`Money_${charIndex}`])).split(/(?=(?:..)*$)/);
     const statMap = { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' };
     character.stats = personalValuesMap?.StatList?.reduce((res, statValue, index) => ({
       ...res,

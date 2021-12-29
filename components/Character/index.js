@@ -13,6 +13,7 @@ import Talents from "./Talents";
 import Prayers from "./Prayers";
 import Traps from "./Traps";
 import PostOffice from "./PostOffice";
+import CoinDisplay from "../General/CoinDisplay";
 
 const Character = ({
                      name: charName,
@@ -38,7 +39,8 @@ const Character = ({
                      traps,
                      worshipCharge,
                      postOffice,
-                     dataFilters
+                     dataFilters,
+                     money
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -53,6 +55,7 @@ const Character = ({
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
           <div>Worship Charge: {worshipCharge}</div>
+          <div style={{ margin: '10px 0' }}><CoinDisplay money={money}/></div>
         </div>
         <div className={'activity'}>
           <h4>Activity</h4>
