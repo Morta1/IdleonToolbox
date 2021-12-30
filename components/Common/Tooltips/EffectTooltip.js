@@ -50,6 +50,8 @@ const EffectTooltipStyle = styled((props) => (
     padding: 10px;
 
     .info {
+      font-size: 22px;
+      font-weight: bold;
       margin-bottom: 15px;
     }
   }

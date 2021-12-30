@@ -526,7 +526,7 @@
         "bonus": 3,
         "perTier": 10,
         "category": "Frostbite_Tundra",
-        "amount": 326,
+        "amount": 335,
         "stars": 3
       },
       "Efaunt": {
@@ -586,7 +586,7 @@
         "bonus": 2,
         "perTier": 20,
         "category": "Frostbite_Tundra",
-        "amount": 4858,
+        "amount": 4874,
         "stars": 3
       },
       "Meaning_of_Giftmas": {
@@ -946,7 +946,7 @@
         "bonus": 6,
         "perTier": 10,
         "category": "Medium_Resources",
-        "amount": 231,
+        "amount": 238,
         "stars": 3
       },
       "Grumblo": {
@@ -1126,7 +1126,7 @@
         "bonus": 3,
         "perTier": 4,
         "category": "Medium_Resources",
-        "amount": 595,
+        "amount": 599,
         "stars": 3
       },
       "Forest_Tree": {
@@ -1162,7 +1162,7 @@
         "bonus": 5,
         "perTier": 4,
         "category": "Medium_Resources",
-        "amount": 213,
+        "amount": 214,
         "stars": 3
       },
       "Chizoar": {
@@ -1270,7 +1270,7 @@
         "bonus": 5,
         "perTier": 4,
         "category": "Hard_Resources",
-        "amount": 259,
+        "amount": 260,
         "stars": 3
       },
       "Rat": {
@@ -1282,7 +1282,7 @@
         "bonus": 1,
         "perTier": 10,
         "category": "Blunder_Hills",
-        "amount": 221,
+        "amount": 233,
         "stars": 3
       },
       "Lustre": {
@@ -1587,32 +1587,32 @@
         "SuperFunItemDisplayType": 0
       },
       {
-        "displayName": "Silver_Obol_of_Megakill",
-        "rawName": "ObolSilverKill",
+        "displayName": "Golden_Obol_of_Big_Boy_Damage",
+        "rawName": "ObolGoldDamage",
         "shape": "Circle",
         "levelReq": 100,
-        "sellPrice": 3,
+        "sellPrice": 8,
         "typeGen": "aObolCircle",
-        "ID": 1,
+        "ID": 2,
         "Type": "CIRCLE_OBOL",
         "lvReqToCraft": 1,
-        "common": "QB",
+        "common": "MM",
         "lvReqToEquip": 1,
         "Class": "ALL",
         "Speed": 0,
         "Reach": 0,
-        "Weapon_Power": 0,
-        "STR": 0,
-        "AGI": -1,
-        "WIS": 0,
+        "Weapon_Power": 1,
+        "STR": 1,
+        "AGI": 1,
+        "WIS": 1,
         "LUK": 0,
         "Defence": 0,
-        "UQ1txt": "%_MULTIKILL",
-        "UQ1val": 2,
+        "UQ1txt": "_BASE_DAMAGE",
+        "UQ1val": 20,
         "UQ2txt": 0,
         "UQ2val": 0,
         "Upgrade_Slots_Left": 0,
-        "equip": "XB",
+        "equip": "VM",
         "itemType": "Equip",
         "SuperFunItemDisplayType": 0
       },
@@ -5443,17 +5443,17 @@
     ],
     "money": [
       "11",
-      "64",
-      "27",
-      "77",
-      "23"
+      "99",
+      "06",
+      "67",
+      "08"
     ],
     "inventory": [
       {
         "owner": "storage",
         "name": "Copper_Ore",
         "rawName": "Copper",
-        "amount": 75144235
+        "amount": 76672465
       },
       {
         "owner": "storage",
@@ -5477,13 +5477,13 @@
         "owner": "storage",
         "name": "Dementia_Ore",
         "rawName": "Dementia",
-        "amount": 878397
+        "amount": 813783
       },
       {
         "owner": "storage",
         "name": "Void_Ore",
         "rawName": "Void",
-        "amount": 969336
+        "amount": 1065562
       },
       {
         "owner": "storage",
@@ -5537,7 +5537,7 @@
         "owner": "storage",
         "name": "Jungle_Logs",
         "rawName": "JungleTree",
-        "amount": 503111
+        "amount": 502911
       },
       {
         "owner": "storage",
@@ -5549,7 +5549,7 @@
         "owner": "storage",
         "name": "Forest_Fibres",
         "rawName": "ForestTree",
-        "amount": 663111
+        "amount": 655011
       },
       {
         "owner": "storage",
@@ -5591,13 +5591,13 @@
         "owner": "storage",
         "name": "Arctic_Leaf",
         "rawName": "Leaf3",
-        "amount": 19950
+        "amount": 20373
       },
       {
         "owner": "storage",
         "name": "Spore_Cap",
         "rawName": "Grasslands1",
-        "amount": 1532136
+        "amount": 1510415
       },
       {
         "owner": "storage",
@@ -5651,7 +5651,7 @@
         "owner": "storage",
         "name": "Bullfrog_Horn",
         "rawName": "Forest3",
-        "amount": 147519
+        "amount": 140367
       },
       {
         "owner": "storage",
@@ -5663,7 +5663,7 @@
         "owner": "storage",
         "name": "Rats_Tail",
         "rawName": "Sewers2",
-        "amount": 1548106
+        "amount": 1643381
       },
       {
         "owner": "storage",
@@ -5681,7 +5681,7 @@
         "owner": "storage",
         "name": "Pocket_Sand",
         "rawName": "DesertA1",
-        "amount": 531012
+        "amount": 532560
       },
       {
         "owner": "storage",
@@ -5741,13 +5741,13 @@
         "owner": "storage",
         "name": "Shrapshell",
         "rawName": "DesertC4",
-        "amount": 166366
+        "amount": 4748
       },
       {
         "owner": "storage",
         "name": "Floof_Ploof",
         "rawName": "SnowA1",
-        "amount": 63380
+        "amount": 62944
       },
       {
         "owner": "storage",
@@ -5765,7 +5765,7 @@
         "owner": "storage",
         "name": "Ram_Wool",
         "rawName": "SnowA4",
-        "amount": 3457763
+        "amount": 3467106
       },
       {
         "owner": "storage",
@@ -5813,7 +5813,7 @@
         "owner": "storage",
         "name": "Audio_Cord",
         "rawName": "SnowC3",
-        "amount": 433217
+        "amount": 437189
       },
       {
         "owner": "storage",
@@ -5843,7 +5843,7 @@
         "owner": "storage",
         "name": "Bunny",
         "rawName": "Critter7",
-        "amount": 20585
+        "amount": 20671
       },
       {
         "owner": "storage",
@@ -5855,7 +5855,7 @@
         "owner": "storage",
         "name": "Distilled_Water",
         "rawName": "PureWater",
-        "amount": 2708
+        "amount": 2736
       },
       {
         "owner": "storage",
@@ -5873,13 +5873,13 @@
         "owner": "storage",
         "name": "Talent_Point_Reset_Fragment",
         "rawName": "ResetFrag",
-        "amount": 752
+        "amount": 757
       },
       {
         "owner": "storage",
         "name": "Health_Statue",
         "rawName": "EquipmentStatues5",
-        "amount": 216
+        "amount": 266
       },
       {
         "owner": "storage",
@@ -5909,19 +5909,19 @@
         "owner": "storage",
         "name": "Eternal_Lord_of__The_Undying_Ember",
         "rawName": "Critter6A",
-        "amount": 64
+        "amount": 65
       },
       {
         "owner": "storage",
         "name": "Pingy",
         "rawName": "Critter6",
-        "amount": 29512
+        "amount": 30114
       },
       {
         "owner": "storage",
         "name": "Fly",
         "rawName": "Bug1",
-        "amount": 1223598
+        "amount": 1205598
       },
       {
         "owner": "storage",
@@ -5939,13 +5939,13 @@
         "owner": "storage",
         "name": "Fruitfly",
         "rawName": "Bug4",
-        "amount": 910630
+        "amount": 906684
       },
       {
         "owner": "storage",
         "name": "Owlio",
         "rawName": "Critter5",
-        "amount": 19091
+        "amount": 19177
       },
       {
         "owner": "storage",
@@ -5957,43 +5957,43 @@
         "owner": "storage",
         "name": "Scorpie",
         "rawName": "Critter3",
-        "amount": 95921
+        "amount": 96437
       },
       {
         "owner": "storage",
         "name": "Mousey",
         "rawName": "Critter4",
-        "amount": 37867
+        "amount": 38211
       },
       {
         "owner": "storage",
         "name": "Froge",
         "rawName": "Critter1",
-        "amount": 37264
+        "amount": 39431
       },
       {
         "owner": "storage",
         "name": "Crabbo",
         "rawName": "Critter2",
-        "amount": 72591
+        "amount": 72935
       },
       {
         "owner": "storage",
         "name": "Mutant_Crabbo",
         "rawName": "Critter2A",
-        "amount": 501
+        "amount": 502
       },
       {
         "owner": "storage",
         "name": "Poison_Froge",
         "rawName": "Critter1A",
-        "amount": 1059
+        "amount": 1061
       },
       {
         "owner": "storage",
         "name": "Bloach",
         "rawName": "Fish4",
-        "amount": 54509
+        "amount": 55493
       },
       {
         "owner": "storage",
@@ -6005,7 +6005,7 @@
         "owner": "storage",
         "name": "Goldfish",
         "rawName": "Fish1",
-        "amount": 234835
+        "amount": 211610
       },
       {
         "owner": "storage",
@@ -6023,13 +6023,13 @@
         "owner": "storage",
         "name": "Crescent_Scorpie",
         "rawName": "Critter3A",
-        "amount": 441
+        "amount": 442
       },
       {
         "owner": "storage",
         "name": "Thread",
         "rawName": "CraftMat1",
-        "amount": 2488617
+        "amount": 2508684
       },
       {
         "owner": "storage",
@@ -6041,7 +6041,7 @@
         "owner": "storage",
         "name": "Boring_Brick",
         "rawName": "CraftMat6",
-        "amount": 104051
+        "amount": 104693
       },
       {
         "owner": "storage",
@@ -6053,19 +6053,19 @@
         "owner": "storage",
         "name": "Leather_Hide",
         "rawName": "CraftMat9",
-        "amount": 145392
+        "amount": 145578
       },
       {
         "owner": "storage",
         "name": "Pinion_Spur",
         "rawName": "CraftMat8",
-        "amount": 7976
+        "amount": 8064
       },
       {
         "owner": "storage",
         "name": "Lugi_Bracket",
         "rawName": "CraftMat10",
-        "amount": 18063
+        "amount": 18099
       },
       {
         "owner": "storage",
@@ -6095,7 +6095,7 @@
         "owner": "storage",
         "name": "Feasty_Statue",
         "rawName": "EquipmentStatues4",
-        "amount": 122
+        "amount": 149
       },
       {
         "owner": "storage",
@@ -6215,7 +6215,7 @@
         "owner": "storage",
         "name": "Mystery_Upgrade_Stone_II",
         "rawName": "StoneZ2",
-        "amount": 2204
+        "amount": 2240
       },
       {
         "owner": "storage",
@@ -6227,7 +6227,7 @@
         "owner": "storage",
         "name": "Mystery_Upgrade_Stone_I",
         "rawName": "StoneZ1",
-        "amount": 2139
+        "amount": 2157
       },
       {
         "owner": "storage",
@@ -6239,7 +6239,7 @@
         "owner": "storage",
         "name": "Tool_Upgrade_Stone_I",
         "rawName": "StoneT1",
-        "amount": 3102
+        "amount": 3127
       },
       {
         "owner": "storage",
@@ -6269,7 +6269,7 @@
         "owner": "storage",
         "name": "Armor_Upgrade_Stone_I",
         "rawName": "StoneA1",
-        "amount": 1925
+        "amount": 1950
       },
       {
         "owner": "storage",
@@ -6377,7 +6377,7 @@
         "owner": "storage",
         "name": "Ice_Age_3",
         "rawName": "SnowB2a",
-        "amount": 55
+        "amount": 53
       },
       {
         "owner": "storage",
@@ -6389,7 +6389,7 @@
         "owner": "storage",
         "name": "Dung_Beat",
         "rawName": "Critter8",
-        "amount": 36237
+        "amount": 36839
       },
       {
         "owner": "storage",
@@ -6479,7 +6479,7 @@
         "owner": "storage",
         "name": "Golden_Bread",
         "rawName": "FoodG6",
-        "amount": 29
+        "amount": 30
       },
       {
         "owner": "storage",
@@ -6533,7 +6533,7 @@
         "owner": "storage",
         "name": "Dioxide_Synthesis",
         "rawName": "Refinery4",
-        "amount": 150
+        "amount": 124
       },
       {
         "owner": "storage",
@@ -6561,9 +6561,9 @@
       },
       {
         "owner": "storage",
-        "name": "Average_EXP_Potion",
-        "rawName": "FoodPotYe2",
-        "amount": 200
+        "name": "Lumberbob_Statue",
+        "rawName": "EquipmentStatues7",
+        "amount": 228
       },
       {
         "owner": "storage",
@@ -6573,15 +6573,15 @@
       },
       {
         "owner": "storage",
-        "name": "Golden_Nomwich",
-        "rawName": "FoodG4",
-        "amount": 7
+        "name": "Special_Talent_Book",
+        "rawName": "TalentBook1",
+        "amount": 1
       },
       {
         "owner": "storage",
         "name": "Mosquisnow",
         "rawName": "Bug5",
-        "amount": 637435
+        "amount": 649291
       },
       {
         "owner": "storage",
@@ -6605,7 +6605,7 @@
         "owner": "storage",
         "name": "Small_Mana_Potion",
         "rawName": "FoodPotMana1",
-        "amount": 365579
+        "amount": 371154
       },
       {
         "owner": "storage",
@@ -6629,7 +6629,7 @@
         "owner": "storage",
         "name": "Mountain_Bread",
         "rawName": "FoodHealth10",
-        "amount": 26629
+        "amount": 27379
       },
       {
         "owner": "storage",
@@ -6657,6 +6657,12 @@
       },
       {
         "owner": "storage",
+        "name": "Golden_Nomwich",
+        "rawName": "FoodG4",
+        "amount": 5
+      },
+      {
+        "owner": "storage",
         "name": "Small_Strength_Potion",
         "rawName": "FoodPotOr1",
         "amount": 12891
@@ -6671,7 +6677,7 @@
         "owner": "storage",
         "name": "Small_Life_Potion",
         "rawName": "FoodPotRe1",
-        "amount": 360291
+        "amount": 365866
       },
       {
         "owner": "storage",
@@ -6707,7 +6713,7 @@
         "owner": "storage",
         "name": "Small_Speed_Potion",
         "rawName": "FoodPotGr1",
-        "amount": 46153
+        "amount": 46998
       },
       {
         "owner": "storage",
@@ -6809,19 +6815,19 @@
         "owner": "storage",
         "name": "Instablab_Follower",
         "rawName": "Quest23",
-        "amount": 235268
+        "amount": 250107
       },
       {
         "owner": "storage",
         "name": "Corporatube_Sub",
         "rawName": "Quest22",
-        "amount": 283488
+        "amount": 284001
       },
       {
         "owner": "storage",
         "name": "Cloudsound_Follower",
         "rawName": "Quest24",
-        "amount": 409033
+        "amount": 413959
       },
       {
         "owner": "storage",
@@ -6984,6 +6990,24 @@
         "name": "Golden_Meat_Pie",
         "rawName": "FoodG3",
         "amount": 17
+      },
+      {
+        "rawName": "Refinery2",
+        "name": "Explosive_Salts",
+        "amount": 4383,
+        "owner": "refinery"
+      },
+      {
+        "rawName": "Refinery1",
+        "name": "Redox_Salts",
+        "amount": 16358,
+        "owner": "refinery"
+      },
+      {
+        "rawName": "Refinery3",
+        "name": "Spontaneity_Salts",
+        "amount": 1245,
+        "owner": "refinery"
       }
     ],
     "shrines": [
@@ -7285,6 +7309,7 @@
           {
             "level": 80,
             "rawName": "aUpgradesO0",
+            "bubbleIndex": "_0",
             "bubbleName": "ROID_RAGIN",
             "x1": 1,
             "x2": 0,
@@ -7317,6 +7342,7 @@
           {
             "level": 69,
             "rawName": "aUpgradesO1",
+            "bubbleIndex": "_1",
             "bubbleName": "WARRIORS_RULE",
             "x1": 2,
             "x2": 50,
@@ -7349,6 +7375,7 @@
           {
             "level": 48,
             "rawName": "aUpgradesO2",
+            "bubbleIndex": "_2",
             "bubbleName": "HEARTY_DIGGY",
             "x1": 50,
             "x2": 100,
@@ -7381,6 +7408,7 @@
           {
             "level": 33,
             "rawName": "aUpgradesO3",
+            "bubbleIndex": "_3",
             "bubbleName": "WYOMING_BLOOD",
             "x1": 23.5,
             "x2": 1.5,
@@ -7413,6 +7441,7 @@
           {
             "level": 28,
             "rawName": "aUpgradesO4",
+            "bubbleIndex": "_4",
             "bubbleName": "REELY_SMART",
             "x1": 100,
             "x2": 80,
@@ -7445,6 +7474,7 @@
           {
             "level": 27,
             "rawName": "aUpgradesO5",
+            "bubbleIndex": "_5",
             "bubbleName": "BIG_MEATY_CLAWS",
             "x1": 1,
             "x2": 0.02,
@@ -7477,6 +7507,7 @@
           {
             "level": 13,
             "rawName": "aUpgradesO6",
+            "bubbleIndex": "_6",
             "bubbleName": "SPLOOSH_SPLOOSH",
             "x1": 23.5,
             "x2": 1.5,
@@ -7509,6 +7540,7 @@
           {
             "level": 33,
             "rawName": "aUpgradesO7",
+            "bubbleIndex": "_7",
             "bubbleName": "STRONK_TOOLS",
             "x1": 65,
             "x2": 70,
@@ -7541,6 +7573,7 @@
           {
             "level": 38,
             "rawName": "aUpgradesO8",
+            "bubbleIndex": "_8",
             "bubbleName": "FMJ",
             "x1": 0.5,
             "x2": 0,
@@ -7573,6 +7606,7 @@
           {
             "level": 14,
             "rawName": "aUpgradesO9",
+            "bubbleIndex": "_9",
             "bubbleName": "BAPPITY_BOOPITY",
             "x1": 35,
             "x2": 100,
@@ -7605,6 +7639,7 @@
           {
             "level": 48,
             "rawName": "aUpgradesO10",
+            "bubbleIndex": "_10",
             "bubbleName": "BRITTLEY_SPEARS",
             "x1": 40,
             "x2": 50,
@@ -7637,6 +7672,7 @@
           {
             "level": 30,
             "rawName": "aUpgradesO11",
+            "bubbleIndex": "_11",
             "bubbleName": "CALL_ME_BOB",
             "x1": 25,
             "x2": 2.5,
@@ -7669,6 +7705,7 @@
           {
             "level": 25,
             "rawName": "aUpgradesO12",
+            "bubbleIndex": "_12",
             "bubbleName": "CARPENTER",
             "x1": 2,
             "x2": 50,
@@ -7701,6 +7738,7 @@
           {
             "level": 29,
             "rawName": "aUpgradesO13",
+            "bubbleIndex": "_13",
             "bubbleName": "BUFF_BOI_TALENT",
             "x1": 5,
             "x2": 1,
@@ -7733,6 +7771,7 @@
           {
             "level": 20,
             "rawName": "aUpgradesO14",
+            "bubbleIndex": "_14",
             "bubbleName": "ORANGE_BARGAIN",
             "x1": 40,
             "x2": 12,
@@ -7767,6 +7806,7 @@
           {
             "level": 61,
             "rawName": "aUpgradesG0",
+            "bubbleIndex": "a0",
             "bubbleName": "SWIFT_STEPPIN",
             "x1": 1,
             "x2": 0,
@@ -7799,6 +7839,7 @@
           {
             "level": 61,
             "rawName": "aUpgradesG1",
+            "bubbleIndex": "a1",
             "bubbleName": "ARCHER_OR_BUST",
             "x1": 2,
             "x2": 50,
@@ -7831,6 +7872,7 @@
           {
             "level": 40,
             "rawName": "aUpgradesG2",
+            "bubbleIndex": "a2",
             "bubbleName": "HAMMER_HAMMER",
             "x1": 23,
             "x2": 2,
@@ -7863,6 +7905,7 @@
           {
             "level": 43,
             "rawName": "aUpgradesG3",
+            "bubbleIndex": "a3",
             "bubbleName": "LIL_BIG_DAMAGE",
             "x1": 20,
             "x2": 100,
@@ -7895,6 +7938,7 @@
           {
             "level": 34,
             "rawName": "aUpgradesG4",
+            "bubbleIndex": "a4",
             "bubbleName": "ANVILNOMICS",
             "x1": 40,
             "x2": 100,
@@ -7927,6 +7971,7 @@
           {
             "level": 26,
             "rawName": "aUpgradesG5",
+            "bubbleIndex": "a5",
             "bubbleName": "QUICK_SLAP",
             "x1": 1,
             "x2": 0.02,
@@ -7959,6 +8004,7 @@
           {
             "level": 31,
             "rawName": "aUpgradesG6",
+            "bubbleIndex": "a6",
             "bubbleName": "SANIC_TOOLS",
             "x1": 65,
             "x2": 70,
@@ -7991,6 +8037,7 @@
           {
             "level": 15,
             "rawName": "aUpgradesG7",
+            "bubbleIndex": "a7",
             "bubbleName": "BUG]",
             "x1": 23.5,
             "x2": 1.5,
@@ -8023,6 +8070,7 @@
           {
             "level": 38,
             "rawName": "aUpgradesG8",
+            "bubbleIndex": "a8",
             "bubbleName": "SHAQURACY",
             "x1": 1,
             "x2": 0,
@@ -8055,6 +8103,7 @@
           {
             "level": 18,
             "rawName": "aUpgradesG9",
+            "bubbleIndex": "a9",
             "bubbleName": "CHEAP_SHOT",
             "x1": 7,
             "x2": 100,
@@ -8087,6 +8136,7 @@
           {
             "level": 62,
             "rawName": "aUpgradesG10",
+            "bubbleIndex": "a10",
             "bubbleName": "BOW_JACK",
             "x1": 40,
             "x2": 50,
@@ -8119,6 +8169,7 @@
           {
             "level": 23,
             "rawName": "aUpgradesG11",
+            "bubbleIndex": "a11",
             "bubbleName": "CALL_ME_ASH",
             "x1": 25,
             "x2": 2,
@@ -8151,6 +8202,7 @@
           {
             "level": 25,
             "rawName": "aUpgradesG12",
+            "bubbleIndex": "a12",
             "bubbleName": "CUZ_I_CATCH_EM_ALL",
             "x1": 3,
             "x2": 100,
@@ -8183,6 +8235,7 @@
           {
             "level": 35,
             "rawName": "aUpgradesG13",
+            "bubbleIndex": "a13",
             "bubbleName": "FAST_BOI_TALENT",
             "x1": 5,
             "x2": 1,
@@ -8215,6 +8268,7 @@
           {
             "level": 25,
             "rawName": "aUpgradesG14",
+            "bubbleIndex": "a14",
             "bubbleName": "GREEN_BARGAIN",
             "x1": 40,
             "x2": 12,
@@ -8249,6 +8303,7 @@
           {
             "level": 60,
             "rawName": "aUpgradesP0",
+            "bubbleIndex": "b0",
             "bubbleName": "STABLE_JENIUS",
             "x1": 1,
             "x2": 0,
@@ -8281,6 +8336,7 @@
           {
             "level": 37,
             "rawName": "aUpgradesP1",
+            "bubbleIndex": "b1",
             "bubbleName": "MAGE_IS_BEST",
             "x1": 2,
             "x2": 50,
@@ -8313,6 +8369,7 @@
           {
             "level": 35,
             "rawName": "aUpgradesP2",
+            "bubbleIndex": "b2",
             "bubbleName": "HOCUS_CHOPPUS",
             "x1": 50,
             "x2": 100,
@@ -8345,6 +8402,7 @@
           {
             "level": 23,
             "rawName": "aUpgradesP3",
+            "bubbleIndex": "b3",
             "bubbleName": "MOLTO_LOGGO",
             "x1": 23.5,
             "x2": 1.5,
@@ -8377,6 +8435,7 @@
           {
             "level": 20,
             "rawName": "aUpgradesP4",
+            "bubbleIndex": "b4",
             "bubbleName": "NOODUBBLE",
             "x1": 100,
             "x2": 60,
@@ -8409,6 +8468,7 @@
           {
             "level": 15,
             "rawName": "aUpgradesP5",
+            "bubbleIndex": "b5",
             "bubbleName": "NAME_I_GUESS",
             "x1": 1,
             "x2": 0.02,
@@ -8441,6 +8501,7 @@
           {
             "level": 12,
             "rawName": "aUpgradesP6",
+            "bubbleIndex": "b6",
             "bubbleName": "LE_BRAIN_TOOLS",
             "x1": 65,
             "x2": 70,
@@ -8473,6 +8534,7 @@
           {
             "level": 43,
             "rawName": "aUpgradesP7",
+            "bubbleIndex": "b7",
             "bubbleName": "COOKIN_ROADKILL",
             "x1": 120,
             "x2": 70,
@@ -8505,6 +8567,7 @@
           {
             "level": 17,
             "rawName": "aUpgradesP8",
+            "bubbleIndex": "b8",
             "bubbleName": "BREWSTACHIO",
             "x1": 50,
             "x2": 100,
@@ -8537,6 +8600,7 @@
           {
             "level": 28,
             "rawName": "aUpgradesP9",
+            "bubbleIndex": "b9",
             "bubbleName": "ALL_FOR_KILL",
             "x1": 40,
             "x2": 100,
@@ -8569,6 +8633,7 @@
           {
             "level": 40,
             "rawName": "aUpgradesP10",
+            "bubbleIndex": "b10",
             "bubbleName": "MATTY_STAFFORD",
             "x1": 40,
             "x2": 50,
@@ -8601,6 +8666,7 @@
           {
             "level": 24,
             "rawName": "aUpgradesP11",
+            "bubbleIndex": "b11",
             "bubbleName": "CALL_ME_POPE",
             "x1": 2.4,
             "x2": 70,
@@ -8633,6 +8699,7 @@
           {
             "level": 18,
             "rawName": "aUpgradesP12",
+            "bubbleIndex": "b12",
             "bubbleName": "GOSPEL_LEADER",
             "x1": 60,
             "x2": 30,
@@ -8665,6 +8732,7 @@
           {
             "level": 50,
             "rawName": "aUpgradesP13",
+            "bubbleIndex": "b13",
             "bubbleName": "SMART_BOI_TALENT",
             "x1": 5,
             "x2": 1,
@@ -8697,6 +8765,7 @@
           {
             "level": 20,
             "rawName": "aUpgradesP14",
+            "bubbleIndex": "b14",
             "bubbleName": "PURPLE_BARGAIN",
             "x1": 40,
             "x2": 12,
@@ -8731,6 +8800,7 @@
           {
             "level": 73,
             "rawName": "aUpgradesY0",
+            "bubbleIndex": "c0",
             "bubbleName": "LOTTO_SKILLS",
             "x1": 1,
             "x2": 0,
@@ -8763,6 +8833,7 @@
           {
             "level": 40,
             "rawName": "aUpgradesY1",
+            "bubbleIndex": "c1",
             "bubbleName": "DROPPIN_LOADS",
             "x1": 40,
             "x2": 70,
@@ -8795,6 +8866,7 @@
           {
             "level": 28,
             "rawName": "aUpgradesY2",
+            "bubbleIndex": "c2",
             "bubbleName": "STARTUE_EXP",
             "x1": 25,
             "x2": 60,
@@ -8827,6 +8899,7 @@
           {
             "level": 28,
             "rawName": "aUpgradesY3",
+            "bubbleIndex": "c3",
             "bubbleName": "LEVEL_UP_GIFT",
             "x1": 100,
             "x2": 30,
@@ -8859,6 +8932,7 @@
           {
             "level": 58,
             "rawName": "aUpgradesY4",
+            "bubbleIndex": "c4",
             "bubbleName": "PROWESESSARY",
             "x1": 1.5,
             "x2": 60,
@@ -8891,6 +8965,7 @@
           {
             "level": 35,
             "rawName": "aUpgradesY5",
+            "bubbleIndex": "c5",
             "bubbleName": "STAMP_TRAMP",
             "x1": 1,
             "x2": 0,
@@ -8923,6 +8998,7 @@
           {
             "level": 49,
             "rawName": "aUpgradesY6",
+            "bubbleIndex": "c6",
             "bubbleName": "UNDEVELOPED_COSTS",
             "x1": 40,
             "x2": 70,
@@ -8955,6 +9031,7 @@
           {
             "level": 25,
             "rawName": "aUpgradesY7",
+            "bubbleIndex": "c7",
             "bubbleName": "DA_DAILY_DRIP",
             "x1": 30,
             "x2": 100,
@@ -8987,6 +9064,7 @@
           {
             "level": 84,
             "rawName": "aUpgradesY8",
+            "bubbleIndex": "c8",
             "bubbleName": "GRIND_TIME",
             "x1": 9.7,
             "x2": 0.3,
@@ -9017,8 +9095,9 @@
             ]
           },
           {
-            "level": 57,
+            "level": 61,
             "rawName": "aUpgradesY9",
+            "bubbleIndex": "c9",
             "bubbleName": "LAAARRRRYYYY",
             "x1": 120,
             "x2": 100,
@@ -9051,6 +9130,7 @@
           {
             "level": 30,
             "rawName": "aUpgradesY10",
+            "bubbleIndex": "c10",
             "bubbleName": "COGS_FOR_HANDS",
             "x1": 4,
             "x2": 0,
@@ -9083,6 +9163,7 @@
           {
             "level": 52,
             "rawName": "aUpgradesY11",
+            "bubbleIndex": "c11",
             "bubbleName": "SAMPLE_IT",
             "x1": 12,
             "x2": 40,
@@ -9115,6 +9196,7 @@
           {
             "level": 1,
             "rawName": "aUpgradesY12",
+            "bubbleIndex": "c12",
             "bubbleName": "BIG_GAME_HUNTER",
             "x1": 70,
             "x2": 50,
@@ -9147,6 +9229,7 @@
           {
             "level": 45,
             "rawName": "aUpgradesY13",
+            "bubbleIndex": "c13",
             "bubbleName": "IGNORE_OVERDUES",
             "x1": 100,
             "x2": 60,
@@ -9179,6 +9262,7 @@
           {
             "level": 25,
             "rawName": "aUpgradesY14",
+            "bubbleIndex": "c14",
             "bubbleName": "YELLOW_BARGAIN",
             "x1": 40,
             "x2": 12,
@@ -10372,28 +10456,28 @@
       ],
       "cauldrons": {
         "power": {
-          "speed": 2498,
-          "luck": 132109,
-          "cost": 140045,
-          "extra": 219365
+          "speed": 105,
+          "luck": 101,
+          "cost": 101,
+          "extra": 112
         },
         "quicc": {
-          "speed": 72969,
-          "luck": 90471,
-          "cost": 8622,
-          "extra": 189916
+          "speed": 110,
+          "luck": 101,
+          "cost": 111,
+          "extra": 114
         },
         "high-iq": {
-          "speed": 50083,
-          "luck": 3489849,
-          "cost": 170862,
-          "extra": 153785
+          "speed": 101,
+          "luck": 96,
+          "cost": 102,
+          "extra": 112
         },
         "kazam": {
-          "speed": 75057,
-          "luck": 32547,
-          "cost": 67497,
-          "extra": 248592
+          "speed": 101,
+          "luck": 94,
+          "cost": 100,
+          "extra": 108
         }
       }
     },
@@ -14372,18 +14456,18 @@
               "rawName": "Grasslands1",
               "name": "Spore_Cap",
               "quantity": 10,
-              "totalAmount": 1532136
+              "totalAmount": 1510415
             },
             {
               "rawName": "Copper",
               "name": "Copper_Ore",
               "quantity": 5,
-              "totalAmount": 75144235
+              "totalAmount": 76672465
             }
           ],
           "rawName": "Refinery1",
           "powerCap": 80000,
-          "refined": 48200,
+          "refined": 50450,
           "rank": 12,
           "active": 1,
           "autoRefinePercentage": 0
@@ -14395,24 +14479,24 @@
               "rawName": "Forest3",
               "name": "Bullfrog_Horn",
               "quantity": 10,
-              "totalAmount": 147519
+              "totalAmount": 140367
             },
             {
               "rawName": "ForestTree",
               "name": "Forest_Fibres",
               "quantity": 5,
-              "totalAmount": 663111
+              "totalAmount": 655011
             },
             {
               "rawName": "Refinery1",
               "name": "Redox_Salts",
               "quantity": 2,
-              "totalAmount": 3803
+              "totalAmount": 20161
             }
           ],
           "rawName": "Refinery2",
           "powerCap": 20000,
-          "refined": 7668,
+          "refined": 8748,
           "rank": 7,
           "active": 1,
           "autoRefinePercentage": 0
@@ -14424,30 +14508,30 @@
               "rawName": "DesertA1",
               "name": "Pocket_Sand",
               "quantity": 50,
-              "totalAmount": 531012
+              "totalAmount": 532560
             },
             {
               "rawName": "Fish1",
               "name": "Goldfish",
               "quantity": 30,
-              "totalAmount": 234835
+              "totalAmount": 211610
             },
             {
               "rawName": "Bug1",
               "name": "Fly",
               "quantity": 40,
-              "totalAmount": 1223598
+              "totalAmount": 1205598
             },
             {
               "rawName": "Refinery2",
               "name": "Explosive_Salts",
               "quantity": 3,
-              "totalAmount": 0
+              "totalAmount": 4383
             }
           ],
           "rawName": "Refinery3",
           "powerCap": 800,
-          "refined": 64,
+          "refined": 76,
           "rank": 3,
           "active": 1,
           "autoRefinePercentage": 10
@@ -14459,7 +14543,7 @@
               "rawName": "SnowA1",
               "name": "Floof_Ploof",
               "quantity": 10,
-              "totalAmount": 63380
+              "totalAmount": 62944
             },
             {
               "rawName": "Soul2",
@@ -14471,13 +14555,13 @@
               "rawName": "Critter3",
               "name": "Scorpie",
               "quantity": 1,
-              "totalAmount": 95921
+              "totalAmount": 96437
             },
             {
               "rawName": "Refinery3",
               "name": "Spontaneity_Salts",
               "quantity": 1,
-              "totalAmount": 44
+              "totalAmount": 1289
             }
           ],
           "rawName": "Refinery4",
@@ -14500,7 +14584,7 @@
               "rawName": "Fish4",
               "name": "Bloach",
               "quantity": 5,
-              "totalAmount": 54509
+              "totalAmount": 55493
             },
             {
               "rawName": "Bug3",
@@ -14512,13 +14596,13 @@
               "rawName": "Critter4",
               "name": "Mousey",
               "quantity": 5,
-              "totalAmount": 37867
+              "totalAmount": 38211
             },
             {
               "rawName": "Refinery4",
               "name": "Dioxide_Synthesis",
               "quantity": 2,
-              "totalAmount": 150
+              "totalAmount": 124
             }
           ],
           "rawName": "Refinery5",
@@ -14578,7 +14662,7 @@
         "increment": 1.5,
         "baseBonus": 0.5,
         "maxLevel": 20,
-        "totalAmount": 22376,
+        "totalAmount": 20161,
         "level": 18
       },
       {
@@ -14589,7 +14673,7 @@
         "increment": 1.92,
         "baseBonus": 1,
         "maxLevel": 8,
-        "totalAmount": 37264,
+        "totalAmount": 39431,
         "level": 8
       },
       {
@@ -14600,7 +14684,7 @@
         "increment": 2.2,
         "baseBonus": 2,
         "maxLevel": 10,
-        "totalAmount": 5463,
+        "totalAmount": 4383,
         "level": 7
       },
       {
@@ -14622,7 +14706,7 @@
         "increment": 2.2,
         "baseBonus": 2,
         "maxLevel": 10,
-        "totalAmount": 1306,
+        "totalAmount": 1289,
         "level": 7
       },
       {
@@ -14633,7 +14717,7 @@
         "increment": 1.2,
         "baseBonus": 1,
         "maxLevel": 100,
-        "totalAmount": 37867,
+        "totalAmount": 38211,
         "level": 23
       },
       {
@@ -14644,7 +14728,7 @@
         "increment": 2,
         "baseBonus": 5,
         "maxLevel": 10,
-        "totalAmount": 150,
+        "totalAmount": 124,
         "level": 4
       },
       {
@@ -14677,11 +14761,11 @@
         "increment": 1.1,
         "baseBonus": 0.1,
         "maxLevel": 250,
-        "totalAmount": 29512,
+        "totalAmount": 30114,
         "level": 25
       }
     ],
-    "worldTeleports": 143,
+    "worldTeleports": 137,
     "keys": [
       {
         "amount": 613,
@@ -14700,12 +14784,12 @@
       }
     ],
     "colosseumTickets": 296,
-    "obolFragments": 4,
-    "silverPens": 20,
+    "obolFragments": 1,
+    "silverPens": 22,
     "goldPens": 0,
-    "gems": 3648,
-    "deliveryBoxComplete": 565,
-    "deliveryBoxStreak": 183,
+    "gems": 3657,
+    "deliveryBoxComplete": 570,
+    "deliveryBoxStreak": 184,
     "deliveryBoxMisc": 10,
     "quests": {
       "Blunder_Hills": [
@@ -27152,7 +27236,7 @@
           {
             "rawName": "ratB",
             "displayName": "Rat",
-            "kills": 3559026.1200000006
+            "kills": 3777060.1200000006
           },
           {
             "rawName": "branch",
@@ -27297,7 +27381,7 @@
           {
             "rawName": "ram",
             "displayName": "Dedotated_Ram",
-            "kills": 14591834.943179373
+            "kills": 14614630.223180762
           },
           {
             "rawName": "skele2",
@@ -28320,8 +28404,72 @@
         }
       ],
       "equippedBubbles": [
-        "Hammer_Hammer",
-        "Grind_Time"
+        {
+          "level": 40,
+          "rawName": "aUpgradesG2",
+          "bubbleIndex": "a2",
+          "bubbleName": "HAMMER_HAMMER",
+          "x1": 23,
+          "x2": 2,
+          "func": "bigBase",
+          "desc": "You_can_now_produce_+1_more_items_at_once_in_the_anvil,_and_your_production_speed_is_increased_by_{%.",
+          "stat": "AnvilACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Iron",
+              "name": "Iron_Ore",
+              "baseCost": 30
+            },
+            {
+              "rawName": "Grasslands3",
+              "name": "Bean_Slices",
+              "baseCost": 30
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 2
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -28363,7 +28511,7 @@
         },
         "alchemy": {
           "level": 54,
-          "exp": 3439179.5097502936,
+          "exp": 4114913.499595278,
           "expReq": 8921973.770698749,
           "rank": 7
         },
@@ -28375,13 +28523,13 @@
         },
         "trapping": {
           "level": 37,
-          "exp": 547414,
+          "exp": 561623,
           "expReq": 598752.6064899282,
           "rank": 3
         },
         "construction": {
           "level": 99,
-          "exp": 2418948.507606934,
+          "exp": 2663248.002607499,
           "expReq": 2327584.854047832,
           "rank": 9
         },
@@ -30174,30 +30322,42 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         }
       ],
-      "worshipCharge": 345,
+      "worship": {
+        "maxCharge": 512,
+        "chargeRate": 2.05,
+        "currentCharge": 344
+      },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -30779,8 +30939,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 159
+        "unspentPoints": 165
       },
+      "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
         1,
         4085,
@@ -31970,8 +32131,72 @@
         }
       ],
       "equippedBubbles": [
-        "Grind_Time",
-        "Call_Me_Bob"
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 30,
+          "rawName": "aUpgradesO11",
+          "bubbleIndex": "_11",
+          "bubbleName": "CALL_ME_BOB",
+          "x1": 25,
+          "x2": 2.5,
+          "func": "bigBase",
+          "desc": "+{%_Construction_EXP_Gain._Also_gives_+50%_Bug-Fixing_speed_if_your_username_is_LavaFlame2._Actually,_better_make_that_+500%...",
+          "stat": "conEXPACTIVE",
+          "itemReq": [
+            {
+              "rawName": "SnowA3",
+              "name": "Moustache_Comb",
+              "baseCost": 120
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 3
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -32012,7 +32237,7 @@
         },
         "alchemy": {
           "level": 54,
-          "exp": 5741185.973785707,
+          "exp": 6439849.535517728,
           "expReq": 8921973.770698749,
           "rank": 6
         },
@@ -32024,13 +32249,13 @@
         },
         "trapping": {
           "level": 34,
-          "exp": 99542,
+          "exp": 118059,
           "expReq": 353473.4485144897,
           "rank": 5
         },
         "construction": {
           "level": 118,
-          "exp": 2631707.457061519,
+          "exp": 4513858.558728186,
           "expReq": 5314486.108631088,
           "rank": 4
         },
@@ -33879,32 +34104,36 @@
         ]
       },
       "prayers": [],
-      "worshipCharge": 297,
+      "worship": {
+        "maxCharge": 512,
+        "chargeRate": 1.81,
+        "currentCharge": 296
+      },
       "traps": [
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -34486,8 +34715,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 127
+        "unspentPoints": 133
       },
+      "crystalSpawnChance": 0.0016998161800000004,
       "kills": [
         1,
         132666,
@@ -35683,8 +35913,72 @@
         }
       ],
       "equippedBubbles": [
-        "Call_Me_Pope",
-        "Grind_Time"
+        {
+          "level": 24,
+          "rawName": "aUpgradesP11",
+          "bubbleIndex": "b11",
+          "bubbleName": "CALL_ME_POPE",
+          "x1": 2.4,
+          "x2": 70,
+          "func": "decayMulti",
+          "desc": "{x_Worship_Charge_rate_per_hour._Also,_{x_Max_Worship_Charge!_You_bouta_go_super_with_all_that_charge..._just_sayin'",
+          "stat": "worshipACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Critter2",
+              "name": "Crabbo",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 3
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -35725,7 +36019,7 @@
         },
         "alchemy": {
           "level": 54,
-          "exp": 8648128.951308671,
+          "exp": 9392557.860182064,
           "expReq": 8921973.770698749,
           "rank": 8
         },
@@ -35737,13 +36031,13 @@
         },
         "trapping": {
           "level": 28,
-          "exp": 75761,
+          "exp": 77803,
           "expReq": 115574.65394369129,
           "rank": 8
         },
         "construction": {
           "level": 101,
-          "exp": 886034.392578449,
+          "exp": 1135718.6209118115,
           "expReq": 2554893.1830500867,
           "rank": 8
         },
@@ -37553,30 +37847,42 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         }
       ],
-      "worshipCharge": 970,
+      "worship": {
+        "maxCharge": 1540,
+        "chargeRate": 3.82,
+        "currentCharge": 970
+      },
       "traps": [
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -38158,8 +38464,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 240
+        "unspentPoints": 246
       },
+      "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
         1,
         286617.76,
@@ -38339,7 +38646,7 @@
     {
       "name": "MortaStir",
       "class": "Squire",
-      "afkTime": 1640803933.7989986,
+      "afkTime": 1640878237.5049977,
       "afkTarget": "Void",
       "currentMap": "Echoing_Egress",
       "money": [
@@ -39318,30 +39625,6 @@
           "name": "Steel_Band",
           "rawName": "EquipmentRings3",
           "amount": 1
-        },
-        {
-          "owner": "MortaStir",
-          "name": "Golden_Nomwich",
-          "rawName": "FoodG4",
-          "amount": 2
-        },
-        {
-          "owner": "MortaStir",
-          "name": "Mystery_Upgrade_Stone_I",
-          "rawName": "StoneZ1",
-          "amount": 8
-        },
-        {
-          "owner": "MortaStir",
-          "name": "Void_Ore",
-          "rawName": "Void",
-          "amount": 18953
-        },
-        {
-          "owner": "MortaStir",
-          "name": "Void_Ore",
-          "rawName": "Void",
-          "amount": 12695
         }
       ],
       "starSigns": [
@@ -39372,8 +39655,72 @@
         }
       ],
       "equippedBubbles": [
-        "Call_Me_Bob",
-        "Wyoming_Blood"
+        {
+          "level": 30,
+          "rawName": "aUpgradesO11",
+          "bubbleIndex": "_11",
+          "bubbleName": "CALL_ME_BOB",
+          "x1": 25,
+          "x2": 2.5,
+          "func": "bigBase",
+          "desc": "+{%_Construction_EXP_Gain._Also_gives_+50%_Bug-Fixing_speed_if_your_username_is_LavaFlame2._Actually,_better_make_that_+500%...",
+          "stat": "conEXPACTIVE",
+          "itemReq": [
+            {
+              "rawName": "SnowA3",
+              "name": "Moustache_Comb",
+              "baseCost": 120
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 3
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 33,
+          "rawName": "aUpgradesO3",
+          "bubbleIndex": "_3",
+          "bubbleName": "WYOMING_BLOOD",
+          "x1": 23.5,
+          "x2": 1.5,
+          "func": "bigBase",
+          "desc": "Multi-Ore_mining_chance_is_increased_by_+{%,_and_your_max_Multi-Ore_chance_is_300%_instead_of_100%.",
+          "stat": "MiningACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Bug1",
+              "name": "Fly",
+              "baseCost": 30
+            },
+            {
+              "rawName": "Forest1",
+              "name": "Glublin_Ear",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 3
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -39390,13 +39737,13 @@
         },
         "mining": {
           "level": 70,
-          "exp": 54260094.569211006,
+          "exp": 65767888.569211006,
           "expReq": 84171429.06103657,
           "rank": 1
         },
         "smithing": {
           "level": 41,
-          "exp": 446940.5826722379,
+          "exp": 451771.5826722379,
           "expReq": 1134649.5476912775,
           "rank": 9
         },
@@ -39414,7 +39761,7 @@
         },
         "alchemy": {
           "level": 54,
-          "exp": 2359984.563184821,
+          "exp": 3029943.5427755676,
           "expReq": 8921973.770698749,
           "rank": 5
         },
@@ -39426,14 +39773,14 @@
         },
         "trapping": {
           "level": 34,
-          "exp": 251989,
+          "exp": 262207,
           "expReq": 353473.4485144897,
           "rank": 4
         },
         "construction": {
-          "level": 130,
-          "exp": 8745081.693721673,
-          "expReq": 8442741.248767259,
+          "level": 131,
+          "exp": 1493023.8588427426,
+          "expReq": 8759662.161265621,
           "rank": 2
         },
         "worship": {
@@ -40025,7 +40372,7 @@
               "funcY": "txt",
               "lvlUpText": "+1_Star_Talent_Point",
               "skillIndex": 8,
-              "level": 55,
+              "level": 56,
               "maxLevel": 100
             },
             {
@@ -41208,43 +41555,71 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         },
         {
           "name": "The_Royal_Sampler",
-          "rawName": "Prayer9"
+          "effect": "+{%_3d_Printer_Sample_Size",
+          "curse": "-{%_All_Exp_Gain._Remove_all_samples_to_Unequip.",
+          "id": 3,
+          "x1": 15,
+          "x2": 30,
+          "soul": "Soul3",
+          "costMulti": 100,
+          "unlockWave": 21,
+          "level": 7
         },
         {
           "name": "Skilled_Dimwit",
-          "rawName": "Prayer1"
+          "effect": "+{%_Skill_Efficiency",
+          "curse": "-{%_Skill_EXP_Gain",
+          "id": 1,
+          "x1": 30,
+          "x2": 30,
+          "soul": "Soul1",
+          "costMulti": 300,
+          "unlockWave": 25,
+          "level": 25
         }
       ],
-      "worshipCharge": 280,
+      "worship": {
+        "maxCharge": 490,
+        "chargeRate": 1.8,
+        "currentCharge": 316
+      },
       "traps": [
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Bunny",
           "rawName": "Critter7",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -41826,8 +42201,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 32
+        "unspentPoints": 38
       },
+      "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
         1,
         1377.8400000000008,
@@ -41960,7 +42336,7 @@
         "40": 0,
         "90": 0,
         "91": 0,
-        "94": 0,
+        "94": 14,
         "100": 0,
         "105": 0,
         "106": 0,
@@ -41971,7 +42347,7 @@
         "121": 0,
         "122": 0,
         "124": 0,
-        "130": 71907,
+        "130": 71983,
         "270": 0,
         "271": 0,
         "273": 0,
@@ -41997,9 +42373,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 108,
+        "623": 186,
         "626": 0,
-        "634": 0,
+        "634": 1786,
         "635": 0,
         "639": 0
       }
@@ -43042,8 +43418,72 @@
         }
       ],
       "equippedBubbles": [
-        "Cookin_Roadkill",
-        "Grind_Time"
+        {
+          "level": 43,
+          "rawName": "aUpgradesP7",
+          "bubbleIndex": "b7",
+          "bubbleName": "COOKIN_ROADKILL",
+          "x1": 120,
+          "x2": 70,
+          "func": "decay",
+          "desc": "Cranium_Cooking_lasts_{%_longer,_gives_{%_more_progress_per_kill,_and_has_a_{%_lower_cooldown._Also_+{%_Alchemy_EXP!",
+          "stat": "AlchemyACTIVE",
+          "itemReq": [
+            {
+              "rawName": "ToiletTree",
+              "name": "Potty_Rolls",
+              "baseCost": 75
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 4
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -43084,9 +43524,9 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 10511131.736096585,
+          "exp": 11304083.650989568,
           "expReq": 11963137.757027596,
-          "rank": 2
+          "rank": 3
         },
         "catching": {
           "level": 3,
@@ -43096,13 +43536,13 @@
         },
         "trapping": {
           "level": 30,
-          "exp": 117753,
+          "exp": 120958,
           "expReq": 169535.1407505769,
           "rank": 6
         },
         "construction": {
           "level": 102,
-          "exp": 1496130.8814773555,
+          "exp": 1748630.7875884294,
           "expReq": 2675117.636677426,
           "rank": 7
         },
@@ -44892,30 +45332,42 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         }
       ],
-      "worshipCharge": 323,
+      "worship": {
+        "maxCharge": 608,
+        "chargeRate": 2.06,
+        "currentCharge": 322
+      },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -45497,8 +45949,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 240
+        "unspentPoints": 246
       },
+      "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
         1,
         77450.16,
@@ -45678,16 +46131,17 @@
     {
       "name": "IAmTheHunterrr",
       "class": "Hunter",
-      "afkTime": 1640834121.9299989,
+      "afkTime": 1640878246.5049977,
       "afkTarget": "Rat",
       "currentMap": "Rats_Nest",
       "money": [
-        "2",
-        "62"
+        "96",
+        "67",
+        "13"
       ],
       "stats": {
         "strength": 422,
-        "agility": 990,
+        "agility": 991,
         "wisdom": 261,
         "luck": 249,
         "level": 181
@@ -46691,7 +47145,7 @@
           "owner": "IAmTheHunterrr",
           "name": "Bottled_Town_Teleport",
           "rawName": "rtt0",
-          "amount": 117
+          "amount": 116
         },
         {
           "owner": "IAmTheHunterrr",
@@ -46704,6 +47158,54 @@
           "name": "Grandma_Disguise",
           "rawName": "EquipmentHats39",
           "amount": 1
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Rats_Tail",
+          "rawName": "Sewers2",
+          "amount": 4459
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Instablab_Follower",
+          "rawName": "Quest23",
+          "amount": 631
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Small_Life_Potion",
+          "rawName": "FoodPotRe1",
+          "amount": 250
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Small_Mana_Potion",
+          "rawName": "FoodPotMana1",
+          "amount": 250
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Health_Statue",
+          "rawName": "EquipmentStatues5",
+          "amount": 2
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Feasty_Statue",
+          "rawName": "EquipmentStatues4",
+          "amount": 2
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Cloudsound_Follower",
+          "rawName": "Quest24",
+          "amount": 36
+        },
+        {
+          "owner": "IAmTheHunterrr",
+          "name": "Rats_Tail",
+          "rawName": "Sewers2",
+          "amount": 57
         },
         {
           "owner": "IAmTheHunterrr",
@@ -46745,8 +47247,72 @@
         }
       ],
       "equippedBubbles": [
-        "Hammer_Hammer",
-        "Grind_Time"
+        {
+          "level": 40,
+          "rawName": "aUpgradesG2",
+          "bubbleIndex": "a2",
+          "bubbleName": "HAMMER_HAMMER",
+          "x1": 23,
+          "x2": 2,
+          "func": "bigBase",
+          "desc": "You_can_now_produce_+1_more_items_at_once_in_the_anvil,_and_your_production_speed_is_increased_by_{%.",
+          "stat": "AnvilACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Iron",
+              "name": "Iron_Ore",
+              "baseCost": 30
+            },
+            {
+              "rawName": "Grasslands3",
+              "name": "Bean_Slices",
+              "baseCost": 30
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 2
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -46758,7 +47324,7 @@
       "skillsInfo": {
         "character": {
           "level": 181,
-          "exp": 962868630.080234,
+          "exp": 975335546.080234,
           "expReq": 4119022213.947503,
           "rank": 1
         },
@@ -46770,7 +47336,7 @@
         },
         "smithing": {
           "level": 65,
-          "exp": 17301525.516290203,
+          "exp": 18219715.516290203,
           "expReq": 41649923.5049226,
           "rank": 1
         },
@@ -46787,10 +47353,10 @@
           "rank": 3
         },
         "alchemy": {
-          "level": 55,
-          "exp": 10122183.487869538,
-          "expReq": 10336675.428060886,
-          "rank": 3
+          "level": 56,
+          "exp": 504982.72920714185,
+          "expReq": 11963137.757027596,
+          "rank": 2
         },
         "catching": {
           "level": 18,
@@ -46800,13 +47366,13 @@
         },
         "trapping": {
           "level": 44,
-          "exp": 973936.7159983809,
+          "exp": 1004183.0007441439,
           "expReq": 1917434.0315261378,
           "rank": 2
         },
         "construction": {
           "level": 108,
-          "exp": 699481.8313094372,
+          "exp": 967913.4121425707,
           "expReq": 3496781.069657261,
           "rank": 5
         },
@@ -48749,40 +49315,52 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         }
       ],
-      "worshipCharge": 54,
+      "worship": {
+        "maxCharge": 512,
+        "chargeRate": 2.06,
+        "currentCharge": 78
+      },
       "traps": [
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Owlio",
           "rawName": "Critter5",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -49364,8 +49942,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 163
+        "unspentPoints": 169
       },
+      "crystalSpawnChance": 0.001581695865,
       "kills": [
         1,
         2938.52,
@@ -49382,7 +49961,7 @@
         0,
         52430.10000000012,
         17319,
-        645017.3200000002,
+        741461.3200000002,
         25375.48,
         777.5299999999994,
         5673.449999999954,
@@ -49545,24 +50124,24 @@
     {
       "name": "MortaMan",
       "class": "Maestro",
-      "afkTime": 1640834781.208999,
+      "afkTime": 1640880838.4289978,
       "afkTarget": "Dedotated_Ram",
       "currentMap": "Wam_Wonderland",
       "money": [
         "3",
-        "26",
-        "94",
-        "98",
-        "40"
+        "57",
+        "88",
+        "64",
+        "29"
       ],
       "stats": {
-        "strength": 339,
-        "agility": 297,
-        "wisdom": 287,
-        "luck": 949,
-        "level": 155
+        "strength": 340,
+        "agility": 298,
+        "wisdom": 288,
+        "luck": 952,
+        "level": 156
       },
-      "level": 155,
+      "level": 156,
       "invBagsUsed": [
         {
           "id": "0",
@@ -50480,7 +51059,7 @@
         {
           "name": "Golden_Ham",
           "rawName": "FoodG5",
-          "amount": 543
+          "amount": 547
         },
         {
           "name": "Golden_Kebabs",
@@ -50490,17 +51069,17 @@
         {
           "name": "Golden_Nomwich",
           "rawName": "FoodG4",
-          "amount": 401
+          "amount": 408
         },
         {
           "name": "Average_EXP_Potion",
           "rawName": "FoodPotYe2",
-          "amount": 617
+          "amount": 201
         },
         {
           "name": "Decent_Strength_Potion",
           "rawName": "FoodPotOr3",
-          "amount": 224
+          "amount": 53
         },
         {
           "name": "ERROR",
@@ -50558,7 +51137,7 @@
           "owner": "MortaMan",
           "name": "Bottled_Town_Teleport",
           "rawName": "rtt0",
-          "amount": 115
+          "amount": 112
         },
         {
           "owner": "MortaMan",
@@ -50678,7 +51257,7 @@
           "owner": "MortaMan",
           "name": "EhExPee_Statue",
           "rawName": "EquipmentStatues18",
-          "amount": 91
+          "amount": 110
         },
         {
           "owner": "MortaMan",
@@ -50690,19 +51269,19 @@
           "owner": "MortaMan",
           "name": "Feasty_Statue",
           "rawName": "EquipmentStatues4",
-          "amount": 613
+          "amount": 687
         },
         {
           "owner": "MortaMan",
           "name": "Beholder_Statue",
           "rawName": "EquipmentStatues14",
-          "amount": 288
+          "amount": 351
         },
         {
           "owner": "MortaMan",
           "name": "Speed_Statue",
           "rawName": "EquipmentStatues2",
-          "amount": 448
+          "amount": 551
         },
         {
           "owner": "MortaMan",
@@ -50720,49 +51299,49 @@
           "owner": "MortaMan",
           "name": "Ram_Wool",
           "rawName": "SnowA4",
-          "amount": 2925
+          "amount": 2943
         },
         {
           "owner": "MortaMan",
           "name": "Cloudsound_Follower",
           "rawName": "Quest24",
-          "amount": 2360
+          "amount": 1829
         },
         {
           "owner": "MortaMan",
           "name": "Corporatube_Sub",
           "rawName": "Quest22",
-          "amount": 315
+          "amount": 231
         },
         {
           "owner": "MortaMan",
           "name": "Mountain_Bread",
           "rawName": "FoodHealth10",
-          "amount": 60
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Average_EXP_Potion",
-          "rawName": "FoodPotYe2",
-          "amount": 25
+          "amount": 930
         },
         {
           "owner": "MortaMan",
           "name": "Arctic_Leaf",
           "rawName": "Leaf3",
-          "amount": 249
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Distilled_Water",
-          "rawName": "PureWater",
-          "amount": 15
+          "amount": 156
         },
         {
           "owner": "MortaMan",
           "name": "Ram_Wool",
           "rawName": "SnowA4",
-          "amount": 2721
+          "amount": 1071
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Tool_Upgrade_Stone_I",
+          "rawName": "StoneT1",
+          "amount": 2
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Distilled_Water",
+          "rawName": "PureWater",
+          "amount": 5
         },
         {
           "owner": "MortaMan",
@@ -50772,15 +51351,69 @@
         },
         {
           "owner": "MortaMan",
-          "name": "Talent_Point_Reset_Fragment",
-          "rawName": "ResetFrag",
+          "name": "Small_Experience_Balloon",
+          "rawName": "ExpBalloon1",
+          "amount": 4
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Armor_Upgrade_Stone_I",
+          "rawName": "StoneA1",
+          "amount": 6
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Armor_Upgrade_Stone_II",
+          "rawName": "StoneA2",
+          "amount": 4
+        },
+        {
+          "owner": "MortaMan",
+          "name": "1_HR_Time_Candy",
+          "rawName": "Timecandy1",
           "amount": 2
         },
         {
           "owner": "MortaMan",
           "name": "Mystery_Upgrade_Stone_II",
           "rawName": "StoneZ2",
-          "amount": 15
+          "amount": 6
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Talent_Point_Reset_Fragment",
+          "rawName": "ResetFrag",
+          "amount": 1
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Golden_Nomwich",
+          "rawName": "FoodG4",
+          "amount": 1
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Weapon_Upgrade_Stone_I",
+          "rawName": "StoneW1",
+          "amount": 2
+        },
+        {
+          "owner": "MortaMan",
+          "name": "4_HR_Time_Candy",
+          "rawName": "Timecandy3",
+          "amount": 1
+        },
+        {
+          "owner": "MortaMan",
+          "name": "2_HR_Time_Candy",
+          "rawName": "Timecandy2",
+          "amount": 1
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Average_EXP_Potion",
+          "rawName": "FoodPotYe2",
+          "amount": 25
         }
       ],
       "starSigns": [
@@ -50809,8 +51442,72 @@
         }
       ],
       "equippedBubbles": [
-        "Grind_Time",
-        "Cookin_Roadkill"
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 43,
+          "rawName": "aUpgradesP7",
+          "bubbleIndex": "b7",
+          "bubbleName": "COOKIN_ROADKILL",
+          "x1": 120,
+          "x2": 70,
+          "func": "decay",
+          "desc": "Cranium_Cooking_lasts_{%_longer,_gives_{%_more_progress_per_kill,_and_has_a_{%_lower_cooldown._Also_+{%_Alchemy_EXP!",
+          "stat": "AlchemyACTIVE",
+          "itemReq": [
+            {
+              "rawName": "ToiletTree",
+              "name": "Potty_Rolls",
+              "baseCost": 75
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 4
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -50820,9 +51517,9 @@
       },
       "skillsInfo": {
         "character": {
-          "level": 155,
-          "exp": 1486580713.7272348,
-          "expReq": 1672342342.5737731,
+          "level": 156,
+          "exp": 614209883.5524211,
+          "expReq": 1737762031.8043208,
           "rank": 2
         },
         "mining": {
@@ -50832,51 +51529,51 @@
           "rank": 3
         },
         "smithing": {
-          "level": 56,
-          "exp": 995612.7784568245,
-          "expReq": 1116112.7100720087,
+          "level": 57,
+          "exp": 128347.1005352645,
+          "expReq": 7336016.17585493,
           "rank": 2
         },
         "chopping": {
           "level": 47,
           "exp": 7871.003415759416,
-          "expReq": 1056732.6053216208,
+          "expReq": 705483.111326244,
           "rank": 3
         },
         "fishing": {
           "level": 43,
           "exp": 2871.0292094963515,
-          "expReq": 281419.4221645612,
+          "expReq": 163101.55840724782,
           "rank": 1
         },
         "alchemy": {
           "level": 60,
-          "exp": 873560.8810318206,
-          "expReq": 11133766.318449445,
+          "exp": 1687410.4525536802,
+          "expReq": 7584684.846791039,
           "rank": 1
         },
         "catching": {
           "level": 40,
           "exp": 4055.761632955051,
-          "expReq": 124360.78780721784,
+          "expReq": 86447.57737801163,
           "rank": 3
         },
         "trapping": {
           "level": 47,
-          "exp": 224731,
-          "expReq": 1681765.2201856582,
+          "exp": 334318,
+          "expReq": 955202.5786068593,
           "rank": 1
         },
         "construction": {
           "level": 124,
-          "exp": 1133129.923954831,
-          "expReq": 4145173.4801668245,
+          "exp": 1772699.9767326436,
+          "expReq": 2307272.5862764567,
           "rank": 3
         },
         "worship": {
           "level": 66,
           "exp": 64043.13673743961,
-          "expReq": 170993.30515091438,
+          "expReq": 103188.42868689695,
           "rank": 2
         }
       },
@@ -51705,8 +52402,8 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Exp_Gain",
               "skillIndex": 75,
-              "level": 182,
-              "maxLevel": 382
+              "level": 186,
+              "maxLevel": 388
             },
             {
               "talentId": 76,
@@ -51935,8 +52632,8 @@
               "funcY": "txt",
               "lvlUpText": "+{_LUK",
               "skillIndex": 23,
-              "level": 241,
-              "maxLevel": 241
+              "level": 244,
+              "maxLevel": 244
             },
             {
               "talentId": 24,
@@ -52195,7 +52892,7 @@
               "funcY": "add",
               "lvlUpText": "+{_Max_LV_&_+}_Max_LV",
               "skillIndex": 38,
-              "level": 141,
+              "level": 144,
               "maxLevel": 146
             },
             {
@@ -52545,7 +53242,7 @@
             "funcY": "txt",
             "lvlUpText": "+{%_Boost_Food_Effect",
             "skillIndex": 631,
-            "level": 34,
+            "level": 40,
             "maxLevel": 88
           },
           {
@@ -52670,7 +53367,7 @@
             "funcY": "txt",
             "lvlUpText": "_",
             "skillIndex": 636,
-            "level": 50,
+            "level": 53,
             "maxLevel": 72
           },
           {
@@ -52748,44 +53445,64 @@
       "prayers": [
         {
           "name": "Unending_Energy",
-          "rawName": "Prayer2"
+          "effect": "+{%_Class_and_Skill_EXP",
+          "curse": "Max_AFK_time_is_now_10_hours._Use_with_caution",
+          "id": 1,
+          "x1": 25,
+          "x2": 10,
+          "soul": "Soul1",
+          "costMulti": 600,
+          "unlockWave": 51,
+          "level": 20
         },
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         }
       ],
-      "worshipCharge": 85,
+      "worship": {
+        "maxCharge": 535,
+        "chargeRate": 1.83,
+        "currentCharge": 108
+      },
       "traps": [
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h12m"
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h12m"
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h12m"
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h12m"
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h12m"
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h12m"
         }
       ],
       "postOffice": {
@@ -53100,7 +53817,7 @@
                 "func": "decay"
               }
             ],
-            "level": 144
+            "level": 150
           },
           {
             "name": "Utilitarian_Capsule",
@@ -53369,6 +54086,7 @@
         ],
         "unspentPoints": 0
       },
+      "crystalSpawnChance": 0.009559133879148002,
       "kills": [
         1,
         177276.95,
@@ -53486,16 +54204,16 @@
         100772.71999999988,
         999,
         0,
-        1705829.6900047255,
+        1728624.9700061143,
         1.07,
         0,
         0
       ],
       "cooldowns": {
-        "15": 8,
-        "16": 1346,
-        "19": 48,
-        "25": 11058,
+        "15": 9,
+        "16": 410,
+        "19": 84,
+        "25": 51015,
         "30": 0,
         "32": 0,
         "40": 0,
@@ -53538,7 +54256,7 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 145,
+        "623": 75,
         "626": 0,
         "634": 0,
         "635": 0,
@@ -54487,8 +55205,72 @@
         }
       ],
       "equippedBubbles": [
-        "Level_Up_Gift",
-        "Sanic_Tools"
+        {
+          "level": 28,
+          "rawName": "aUpgradesY3",
+          "bubbleIndex": "c3",
+          "bubbleName": "LEVEL_UP_GIFT",
+          "x1": 100,
+          "x2": 30,
+          "func": "decay",
+          "desc": "Whenever_you_level_up_anything,_{%_chance_to_drop_a_gift!_It_could_be_an_EXP_balloon,_a_Gem_for_the_gem_shop,_or_something_crazy_weird!",
+          "stat": "LevelUpACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Iron",
+              "name": "Iron_Ore",
+              "baseCost": 35
+            },
+            {
+              "rawName": "JungleTree",
+              "name": "Jungle_Logs",
+              "baseCost": 70
+            },
+            {
+              "rawName": "CraftMat5",
+              "name": "Trusty_Nails",
+              "baseCost": 30
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 2
+            }
+          ]
+        },
+        {
+          "level": 15,
+          "rawName": "aUpgradesG7",
+          "bubbleIndex": "a7",
+          "bubbleName": "BUG]",
+          "x1": 23.5,
+          "x2": 1.5,
+          "func": "bigBase",
+          "desc": "Multi-Bug_catching_chance_is_increased_by_+{%,_and_your_max_Multi-Bug_chance_is_300%_instead_of_100%.",
+          "stat": "CatchingACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Bug3",
+              "name": "Sentient_Cereal",
+              "baseCost": 70
+            },
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 4
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 4
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -54529,7 +55311,7 @@
         },
         "alchemy": {
           "level": 54,
-          "exp": 4435207.520686114,
+          "exp": 5127875.354933219,
           "expReq": 8921973.770698749,
           "rank": 4
         },
@@ -54541,13 +55323,13 @@
         },
         "trapping": {
           "level": 29,
-          "exp": 8107,
+          "exp": 10494,
           "expReq": 140177.83892477932,
           "rank": 7
         },
         "construction": {
           "level": 103,
-          "exp": 1812566.9759630281,
+          "exp": 2067635.6154079284,
           "expReq": 2799894.0699325697,
           "rank": 6
         },
@@ -56265,34 +57047,54 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         },
         {
           "name": "Skilled_Dimwit",
-          "rawName": "Prayer1"
+          "effect": "+{%_Skill_Efficiency",
+          "curse": "-{%_Skill_EXP_Gain",
+          "id": 1,
+          "x1": 30,
+          "x2": 30,
+          "soul": "Soul1",
+          "costMulti": 300,
+          "unlockWave": 25,
+          "level": 25
         }
       ],
-      "worshipCharge": 327,
+      "worship": {
+        "maxCharge": 490,
+        "chargeRate": 1.8,
+        "currentCharge": 326
+      },
       "traps": [
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -56874,8 +57676,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 240
+        "unspentPoints": 246
       },
+      "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
         1,
         6982.55999999996,
@@ -57055,11 +57858,14 @@
     {
       "name": "MortasNinth",
       "class": "Squire",
-      "afkTime": 1640804150.7989986,
+      "afkTime": 1640878278.5049977,
       "afkTarget": "Rat",
       "currentMap": "Rats_Nest",
       "money": [
-        "0"
+        "2",
+        "88",
+        "59",
+        "45"
       ],
       "stats": {
         "strength": 621,
@@ -57963,8 +58769,72 @@
         }
       ],
       "equippedBubbles": [
-        "Grind_Time",
-        "Call_Me_Bob"
+        {
+          "level": 84,
+          "rawName": "aUpgradesY8",
+          "bubbleIndex": "c8",
+          "bubbleName": "GRIND_TIME",
+          "x1": 9.7,
+          "x2": 0.3,
+          "func": "bigBase",
+          "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+          "stat": "expACTIVE",
+          "itemReq": [
+            {
+              "rawName": "Liquid1",
+              "name": "Liquid1",
+              "baseCost": 50
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 25
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        },
+        {
+          "level": 30,
+          "rawName": "aUpgradesO11",
+          "bubbleIndex": "_11",
+          "bubbleName": "CALL_ME_BOB",
+          "x1": 25,
+          "x2": 2.5,
+          "func": "bigBase",
+          "desc": "+{%_Construction_EXP_Gain._Also_gives_+50%_Bug-Fixing_speed_if_your_username_is_LavaFlame2._Actually,_better_make_that_+500%...",
+          "stat": "conEXPACTIVE",
+          "itemReq": [
+            {
+              "rawName": "SnowA3",
+              "name": "Moustache_Comb",
+              "baseCost": 120
+            },
+            {
+              "rawName": "Liquid2",
+              "name": "Liquid2",
+              "baseCost": 3
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            },
+            {
+              "rawName": "Blank",
+              "name": "ERROR",
+              "baseCost": 0
+            }
+          ]
+        }
       ],
       "anvil": {
         "selected": [
@@ -57975,7 +58845,7 @@
       "skillsInfo": {
         "character": {
           "level": 142,
-          "exp": 358343443.61301863,
+          "exp": 395507815.61301863,
           "expReq": 984288161.8942494,
           "rank": 4
         },
@@ -58005,7 +58875,7 @@
         },
         "alchemy": {
           "level": 54,
-          "exp": 2041518.0123364232,
+          "exp": 2737499.873789481,
           "expReq": 8921973.770698749,
           "rank": 9
         },
@@ -58017,13 +58887,13 @@
         },
         "trapping": {
           "level": 28,
-          "exp": 43187,
+          "exp": 45251,
           "expReq": 115574.65394369129,
           "rank": 9
         },
         "construction": {
           "level": 135,
-          "exp": 6589032.54451617,
+          "exp": 9173728.028683186,
           "expReq": 10126169.021416616,
           "rank": 1
         },
@@ -59824,30 +60694,42 @@
       "prayers": [
         {
           "name": "Tachion_of_the_Titans",
-          "rawName": "Prayer5"
+          "effect": "Giant_Monsters_can_now_spawn_on_Monster_Kill",
+          "curse": "Giant_Monsters_can_now_spawn...",
+          "id": 2,
+          "x1": 10,
+          "x2": 10,
+          "soul": "Soul2",
+          "costMulti": 100,
+          "unlockWave": 11,
+          "level": 6
         }
       ],
-      "worshipCharge": 348,
+      "worship": {
+        "maxCharge": 512,
+        "chargeRate": 2.05,
+        "currentCharge": 389
+      },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": "7h10m"
+          "timeLeft": "5h16m"
         }
       ],
       "postOffice": {
@@ -60429,8 +61311,9 @@
             "level": 0
           }
         ],
-        "unspentPoints": 335
+        "unspentPoints": 341
       },
+      "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
         1,
         22.25999999999997,
@@ -60447,7 +61330,7 @@
         0,
         4574.25,
         358535.41000000003,
-        421216.08,
+        542806.0800000001,
         102226.65000000001,
         0,
         7860.580000000002,
@@ -60563,7 +61446,7 @@
         "40": 0,
         "90": 0,
         "91": 0,
-        "94": 0,
+        "94": 10,
         "100": 0,
         "105": 0,
         "106": 0,
@@ -60574,7 +61457,7 @@
         "121": 0,
         "122": 0,
         "124": 0,
-        "130": 0,
+        "130": 71979,
         "270": 0,
         "271": 0,
         "273": 0,
@@ -60600,9 +61483,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 0,
+        "623": 178,
         "626": 0,
-        "634": 0,
+        "634": 1786,
         "635": 0,
         "639": 0
       }

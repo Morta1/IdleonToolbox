@@ -15,7 +15,6 @@ import {
   getMaxCharge,
   keysMap,
   mapAccountQuests,
-  prayersMap,
   shopMapping,
   skillIndexMap,
   starSignsIndicesMap,
@@ -32,6 +31,7 @@ import {
   mapPortals,
   monsters,
   postOffice,
+  prayers,
   randomList,
   refinery,
   saltLicks,
@@ -314,9 +314,6 @@ const createAccountData = (idleonData, characters) => {
     const { saltName, cost } = refinery?.[name];
     const componentsWithTotalAmount = cost?.map((item) => {
       let amount = calculateItemTotalAmount(account?.inventory, item?.name, true);
-      if (item?.rawName?.includes('Refinery')) {
-        amount += calculateItemTotalAmount(refineryStorage, 'Refinery', false);
-      }
       return {
         ...item,
         totalAmount: amount
@@ -349,7 +346,7 @@ const createAccountData = (idleonData, characters) => {
 
   account.saltLicks = idleonData?.SaltLick?.map((level, index) => {
     const bonus = saltLicks[index];
-    const totalAmount = calculateItemTotalAmount([...account?.inventory, ...refineryStorage], bonus?.name, true);
+    const totalAmount = calculateItemTotalAmount(account?.inventory, bonus?.name, true);
     return {
       ...bonus,
       totalAmount,
@@ -448,7 +445,7 @@ const createCharactersData = (idleonData, characters, account) => {
         if (!bubbleIndStr) return res;
         const cauldronIndex = bigBubblesIndices[bubbleIndStr[0]];
         const bubbleIndex = bubbleIndStr.substring(1);
-        return [...res, cauldrons?.[cauldronIndex][bubbleIndex]];
+        return [...res, account?.alchemy?.bubbles?.[cauldronIndex][bubbleIndex]];
       }, []);
 
     // crafting material in production
@@ -539,7 +536,11 @@ const createCharactersData = (idleonData, characters, account) => {
     character.starTalents = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
 
     const prayersArray = char?.[`Prayers_${charIndex}`];
-    character.prayers = prayersArray.reduce((res, prayerIndex) => (prayerIndex >= 0 ? [...res, { ...prayersMap?.[prayerIndex] }] : res), []);
+    const PrayersUnlocked = idleonData?.PrayersUnlocked;
+    character.prayers = prayersArray.reduce((res, prayerIndex) => (prayerIndex >= 0 ? [...res, {
+      ...prayers?.[prayerIndex],
+      level: PrayersUnlocked?.[prayerIndex]
+    }] : res), []);
 
     // 0 - current worship charge rate
     const playerStuffArray = char?.[`PlayerStuff_${charIndex}`];
