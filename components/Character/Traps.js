@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const Traps = ({ traps }) => {
   return (
-    <TrapsStyled>
+    <TrapsStyled length={traps?.length}>
       {[...traps]?.map(({ name, timeLeft, rawName }, index) => {
         return <div className={'trap'} key={name + index}>
           <span>{timeLeft}</span>
@@ -17,12 +17,17 @@ const Traps = ({ traps }) => {
 };
 
 const TrapsStyled = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(${({ length }) => length >= 3 ? 3 : length}, auto);
   justify-content: center;
-  align-items: center;
+  gap: 10px;
 
   .trap {
-    text-align: center;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   }
 
   @media (max-width: 750px) {

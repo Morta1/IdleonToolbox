@@ -5,7 +5,7 @@ import CurseTooltip from "../Common/Tooltips/CurseTooltip";
 
 const Prayers = ({ prayers }) => {
   return (
-    <PrayersStyled>
+    <PrayersStyled length={prayers?.length}>
       {prayers?.map((prayer, index) => {
         const { name, x1, x2, level, costMulti, id, prayerIndex } = prayer
         const multiplier = name === 'The_Royal_Sampler' ? 1.25 : 1.5;
@@ -21,7 +21,7 @@ const Prayers = ({ prayers }) => {
 
 const PrayersStyled = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(${({ length }) => length >= 3 ? 3 : length}, auto);
   justify-content: center;
   gap: 10px;
 
