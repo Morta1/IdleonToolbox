@@ -20,8 +20,9 @@ const Prayers = ({ prayers }) => {
 };
 
 const PrayersStyled = styled.div`
-  justify-self: center;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: center;
   gap: 10px;
 
   img {
