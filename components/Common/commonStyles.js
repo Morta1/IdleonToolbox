@@ -45,10 +45,12 @@ const LinearProgressWithLabel = (props) => {
 const StyledLinearProgress = styled(LinearProgress)`
   && {
     width: 100%;
-    background-color: ${({ barBgColor }) => barBgColor || 'black'};
+    background-color: ${({ barbgcolor }) => barbgcolor || 'black'};
 
     .MuiLinearProgress-barColorPrimary {
-      background-color: ${({ barColor }) => barColor || 'white'};
+      background-color: ${({
+                             barcolor
+                           }) => barcolor || 'white'};
     }
   }
 `;

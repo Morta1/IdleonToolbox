@@ -238,10 +238,10 @@ const createAccountData = (idleonData, characters) => {
   for (let i = 0, j = cauldronsLevels.length; i < j; i += chunk) {
     const [speed, luck, cost, extra] = cauldronsLevels.slice(i, i + chunk);
     cauldronsObject[cauldronsLevelsMapping[i]] = {
-      speed: parseInt(speed) || 0,
-      luck: parseInt(luck) || 0,
-      cost: parseInt(cost) || 0,
-      extra: parseInt(extra) || 0
+      speed: parseInt(speed?.[1]) || 0,
+      luck: parseInt(luck?.[1]) || 0,
+      cost: parseInt(cost?.[1]) || 0,
+      extra: parseInt(extra?.[1]) || 0
     };
   }
   account.alchemy.cauldrons = cauldronsObject;
@@ -610,6 +610,22 @@ const createCharactersData = (idleonData, characters, account) => {
       boxes,
       unspentPoints: (account?.deliveryBoxComplete + account?.deliveryBoxStreak + account?.deliveryBoxMisc - totalPointsSpent) || 0
     }
+
+    const crystallinStamp = account?.stamps?.misc?.find(({ rawName }) => rawName === 'StampC3');
+    const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
+    const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
+    const poopCardBonus = calcCardBonus(poopCard);
+    const crystals4DaysTalent = character?.starTalents?.orderedTalents?.find(({ name }) => name === 'CRYSTALS_4_DAYYS');
+    const crystals4DaysBonus = growth(crystals4DaysTalent?.funcX, crystals4DaysTalent?.level, crystals4DaysTalent?.x1, crystals4DaysTalent?.x2);
+    const cmonOutCrystalsTalent = character?.talents?.[1]?.orderedTalents?.find(({ name }) => name === 'CMON_OUT_CRYSTALS');
+    const cmonOutCrystalsBonus = growth(cmonOutCrystalsTalent?.funcX, cmonOutCrystalsTalent?.level, cmonOutCrystalsTalent?.x1, cmonOutCrystalsTalent?.x2);
+    const nonPredatoryBox = character?.postOffice?.boxes?.find(({ name }) => name === 'Non_Predatory_Loot_Box');
+    const nonPredatoryBoxCrystalUpgrade = nonPredatoryBox?.upgrades?.[2]
+    const nonPredatoryBoxBonus = growth(nonPredatoryBoxCrystalUpgrade?.func, nonPredatoryBox?.level > 0 ? nonPredatoryBox?.level - 100 : 0, nonPredatoryBoxCrystalUpgrade?.x1, nonPredatoryBoxCrystalUpgrade?.x2);
+
+    character.crystalSpawnChance = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + nonPredatoryBoxBonus / 100) * (1 + crystals4DaysBonus / 100)
+      * (1 + crystallinStampBonus / 100) * (1 + poopCardBonus / 100);
+
 
     const kills = char?.[`KillsLeft2Advance_${charIndex}`];
     character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);

@@ -16,7 +16,7 @@ const SkillTooltip = ({ name, level, exp, expReq, children, charName }) => {
           {cleanUnderscore(name.capitalize())} Lv.{level}
         </div>
         {kFormatter(exp)} / {kFormatter(expReq)}
-        <LinearProgressWithLabel barColor={'#e1e131'} barBgColor={'#2a2828'} value={percent > 100 ? 100 : percent}/>
+        <LinearProgressWithLabel barcolor={'#e1e131'} barbgcolor={'#2a2828'} value={percent > 100 ? 100 : percent}/>
       </div>}>
       {children}
     </SkillTooltipStyle>

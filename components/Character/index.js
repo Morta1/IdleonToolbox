@@ -41,7 +41,8 @@ const Character = ({
                      worship,
                      postOffice,
                      dataFilters,
-                     money
+                     money,
+                     crystalSpawnChance
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -55,10 +56,12 @@ const Character = ({
           <div>Agi: {agility}</div>
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
+          <div style={{ marginTop: 10 }}>Crystal Spawn Chance:</div>
+          <div style={{ marginBottom: 10 }}> 1 in {Math.floor(1 / crystalSpawnChance)}</div>
           <div>Worship Charge: {Math.round(worship?.chargeRate * 24)}%/day</div>
           <div>Current Charge: {worship?.currentCharge}</div>
           <div>Max Charge: {worship?.maxCharge}</div>
-          <LinearProgressWithLabel barColor={'#903dd3'} barBgColor={'#dddddd'}
+          <LinearProgressWithLabel barcolor={'#903dd3'} barbgcolor={'#dddddd'}
                                    value={worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100}/>
           <div style={{ margin: '10px 0' }}><CoinDisplay money={money}/></div>
         </div>
