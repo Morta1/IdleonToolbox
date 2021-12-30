@@ -238,10 +238,10 @@ const createAccountData = (idleonData, characters) => {
   for (let i = 0, j = cauldronsLevels.length; i < j; i += chunk) {
     const [speed, luck, cost, extra] = cauldronsLevels.slice(i, i + chunk);
     cauldronsObject[cauldronsLevelsMapping[i]] = {
-      speed: parseInt(speed) || 0,
-      luck: parseInt(luck) || 0,
-      cost: parseInt(cost) || 0,
-      extra: parseInt(extra) || 0
+      speed: parseInt(speed?.[1]) || 0,
+      luck: parseInt(luck?.[1]) || 0,
+      cost: parseInt(cost?.[1]) || 0,
+      extra: parseInt(extra?.[1]) || 0
     };
   }
   account.alchemy.cauldrons = cauldronsObject;
