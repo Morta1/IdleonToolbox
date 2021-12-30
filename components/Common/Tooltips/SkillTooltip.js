@@ -1,6 +1,7 @@
 import styled from 'styled-components'
-import { Box, LinearProgress, Tooltip, Typography } from "@material-ui/core";
+import { Tooltip } from "@material-ui/core";
 import { cleanUnderscore, kFormatter } from "../../../Utilities";
+import { LinearProgressWithLabel } from "../commonStyles";
 
 const SkillTooltip = ({ name, level, exp, expReq, children, charName }) => {
   const percent = exp / expReq * 100;
@@ -15,38 +16,12 @@ const SkillTooltip = ({ name, level, exp, expReq, children, charName }) => {
           {cleanUnderscore(name.capitalize())} Lv.{level}
         </div>
         {kFormatter(exp)} / {kFormatter(expReq)}
-        <LinearProgressWithLabel value={percent > 100 ? 100 : percent}/>
+        <LinearProgressWithLabel barColor={'#e1e131'} barBgColor={'#2a2828'} value={percent > 100 ? 100 : percent}/>
       </div>}>
       {children}
     </SkillTooltipStyle>
   );
 };
-
-const LinearProgressWithLabel = (props) => {
-  return (
-    <Box display="flex" alignItems="center">
-      <Box width="100%" mr={1}>
-        <StyledLinearProgress variant="determinate" {...props} />
-      </Box>
-      <Box minWidth={38}>
-        <Typography variant="body2">{`${Math.round(
-          props.value,
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
-
-const StyledLinearProgress = styled(LinearProgress)`
-  && {
-    width: 100%;
-    background-color: #2a2828;
-
-    .MuiLinearProgress-barColorPrimary {
-      background-color: #e1e131;
-    }
-  }
-`;
 
 const SkillTooltipStyle = styled((props) => (
   <Tooltip

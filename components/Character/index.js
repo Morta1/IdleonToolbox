@@ -14,6 +14,7 @@ import Prayers from "./Prayers";
 import Traps from "./Traps";
 import PostOffice from "./PostOffice";
 import CoinDisplay from "../General/CoinDisplay";
+import { LinearProgressWithLabel } from "../Common/commonStyles";
 
 const Character = ({
                      name: charName,
@@ -37,7 +38,7 @@ const Character = ({
                      afkTarget,
                      prayers,
                      traps,
-                     worshipCharge,
+                     worship,
                      postOffice,
                      dataFilters,
                      money
@@ -54,7 +55,11 @@ const Character = ({
           <div>Agi: {agility}</div>
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
-          <div>Worship Charge: {worshipCharge}</div>
+          <div>Worship Charge: {Math.round(worship?.chargeRate * 24)}%/day</div>
+          <div>Current Charge: {worship?.currentCharge}</div>
+          <div>Max Charge: {worship?.maxCharge}</div>
+          <LinearProgressWithLabel barColor={'#903dd3'} barBgColor={'#dddddd'}
+                                   value={worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100}/>
           <div style={{ margin: '10px 0' }}><CoinDisplay money={money}/></div>
         </div>
         <div className={'activity'}>
