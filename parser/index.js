@@ -1,6 +1,6 @@
 import {
   anvilProductionItems,
-  bubblesMap,
+  calcCardBonus,
   calculateCardSetStars,
   calculateDeathNote,
   calculateItemTotalAmount,
@@ -10,7 +10,9 @@ import {
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
+  getChargeRate,
   getInventory,
+  getMaxCharge,
   keysMap,
   mapAccountQuests,
   prayersMap,
@@ -39,6 +41,8 @@ import {
   starSigns,
   vials
 } from "../data/website-data";
+import { growth } from "../components/General/calculationHelper";
+import { round } from "../Utilities";
 
 const { cards, items, obols, stamps, statues } = require("../data/website-data");
 const { calculateStars, createObolsWithUpgrades, filteredLootyItems } = require("./parserUtils");
@@ -435,8 +439,14 @@ const createCharactersData = (idleonData, characters, account) => {
 
     // equipped bubbles
     const cauldronBubbles = idleonData?.CauldronBubbles;
+    const bigBubblesIndices = { '_': 'power', 'a': 'quicc', 'b': 'high-iq', 'c': 'kazam' };
     character.equippedBubbles = cauldronBubbles?.[charIndex].reduce(
-      (res, bubbleInd) => (bubbleInd ? [...res, bubblesMap?.[bubbleInd]] : res), []);
+      (res, bubbleIndStr) => {
+        if (!bubbleIndStr) return res;
+        const cauldronIndex = bigBubblesIndices[bubbleIndStr[0]];
+        const bubbleIndex = bubbleIndStr.substring(1);
+        return [...res, cauldrons?.[cauldronIndex][bubbleIndex]];
+      }, []);
 
     // crafting material in production
     const anvilCraftsMapping = char?.[`AnvilPAselect_${charIndex}`];
@@ -527,10 +537,39 @@ const createCharactersData = (idleonData, characters, account) => {
 
     const prayersArray = char?.[`Prayers_${charIndex}`];
     character.prayers = prayersArray.reduce((res, prayerIndex) => (prayerIndex >= 0 ? [...res, { ...prayersMap?.[prayerIndex] }] : res), []);
+
     // 0 - current worship charge rate
     const playerStuffArray = char?.[`PlayerStuff_${charIndex}`];
+    const worshipLevel = character?.skillsInfo?.worship?.level;
+    const prayDayStamp = account?.stamps?.skills?.find(({ rawName }) => rawName === 'StampB35');
+    const prayDayBonus = growth(prayDayStamp?.func, prayDayStamp?.level, prayDayStamp?.x1, prayDayStamp?.x2);
+    const gospelLeaderBubble = account?.alchemy?.bubbles?.['high-iq']?.find(({ rawName }) => rawName === 'aUpgradesP12');
+    let gospelBonus = growth(gospelLeaderBubble?.func, gospelLeaderBubble?.level, gospelLeaderBubble?.x1, gospelLeaderBubble?.x2) ?? 0;
+    const multiBubble = account?.alchemy?.bubbles?.['high-iq']?.find(({ rawName }) => rawName === 'aUpgradesP1');
+    const multiBonus = growth(multiBubble?.func, multiBubble?.level, multiBubble?.x1, multiBubble?.x2) ?? 0;
+    const popeBubble = account?.alchemy?.bubbles?.['high-iq']?.find(({ rawName }) => rawName === 'aUpgradesP11');
+    const popeBonus = character?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'CALL_ME_POPE') ? growth(popeBubble?.func, popeBubble?.level, popeBubble?.x1, popeBubble?.x2) : 0;
+    const maxChargeCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'F10');
+    const maxChargeCardBonus = calcCardBonus(maxChargeCard);
+    let nearbyOutletBonus = 0;
+    if (pages?.includes('Mage')) {
+      gospelBonus = gospelBonus * multiBonus;
+      const nearbyOutletTalent = character?.talents?.[2]?.orderedTalents?.find(({ name }) => name === 'NEARBY_OUTLET');
+      nearbyOutletBonus = growth(nearbyOutletTalent?.func, nearbyOutletTalent?.level, nearbyOutletTalent?.x1, nearbyOutletTalent?.x2);
+    }
+    const chargeCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'F11');
+    const chargeCardBonus = calcCardBonus(chargeCard);
+    const flowinStamp = account?.stamps?.skills?.find(({ rawName }) => rawName === 'StampB34');
+    const flowinStampBonus = growth(flowinStamp?.func, flowinStamp?.level, flowinStamp?.x1, flowinStamp?.x2);
+    const hasSkull = character?.tools?.[5]?.rawName !== 'Blank';
+    const maxCharge = hasSkull ? getMaxCharge(character?.tools?.[5], maxChargeCardBonus, prayDayBonus, gospelBonus, worshipLevel, popeBonus) : 0;
+    const chargeRate = hasSkull ? getChargeRate(character?.tools?.[5], worshipLevel, popeBonus, chargeCardBonus, flowinStampBonus, nearbyOutletBonus) : 0;
 
-    character.worshipCharge = Math.round(playerStuffArray?.[0]);
+    character.worship = {
+      maxCharge: round(maxCharge),
+      chargeRate: round(chargeRate),
+      currentCharge: round(parseInt(playerStuffArray[0]))
+    }
 
     // 3 - critter name
     const trapsArray = char[`PldTraps_${charIndex}`];

@@ -159,6 +159,26 @@ const tryToParse = (str) => {
   }
 }
 
+export const calcCardBonus = (card) => {
+  if (!card) return 0;
+  return card?.bonus * ((card?.stars ?? 0) + 1);
+}
+
+export const getMaxCharge = (skull, cardBonus, prayDayStamp, gospelBonus, worshipLevel, popeBonus) => {
+  const skullSpeed = skull?.lvReqToCraft;
+  const base = prayDayStamp + gospelBonus * Math.floor(worshipLevel / 10);
+  return Math.floor(Math.max(50, cardBonus + (base + skullSpeed * Math.max(popeBonus, 1))))
+}
+
+export const getChargeRate = (skull, worshipLevel, popeBonus, cardBonus, stampBonus, talentBonus) => {
+  const skullSpeed = skull?.Speed ?? 0;
+  const speedMath = 0.2 * Math.pow(skullSpeed, 1.3);
+  const levelMath = (0.9 * Math.pow(worshipLevel, 0.5)) / (Math.pow(worshipLevel, 0.5) + 250);
+  const base = 6 / Math.max(5.7 - (speedMath + (levelMath + (0.6 * worshipLevel) / (worshipLevel + 40))), 0.57);
+  return base * Math.max(1, popeBonus) * (1 + (cardBonus + stampBonus) / 100) * Math.max(talentBonus, 1)
+}
+
+
 export const mapAccountQuests = (characters) => {
   const questsKeys = Object.keys(quests);
   let mappedQuests = questsKeys?.reduce((res, npcName) => {
@@ -488,22 +508,6 @@ export const anvilProductionItems = {
   5: "Pinion_Spur",
   6: "Lugi_Bracket"
 }
-
-// TODO: check if able to pull from Z.js
-export const bubblesMap = {
-  _11: "Call_Me_Bob",
-  _6: "Sploosh_Sploosh",
-  _3: "Wyoming_Blood",
-  a11: "Call_Me_Ash",
-  a7: "Sanic_Tools",
-  a2: "Hammer_Hammer",
-  b11: "Call_Me_Pope",
-  b7: "Cookin_Roadkill",
-  b3: "Molto_Loggo",
-  c12: "Big_Game_Hunter",
-  c8: "Grind_Time",
-  c3: "Level_Up_Gift",
-};
 
 // TODO: check if able to pull from Z.js
 export const shopMapping = {

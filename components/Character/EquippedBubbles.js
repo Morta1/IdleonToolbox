@@ -1,14 +1,14 @@
 import React from 'react';
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { cleanUnderscore, pascalCase, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
 const EquippedBubbles = ({ bubbles }) => {
   return (
     <EquippedBubblesStyled>
-      {bubbles?.map((bubbleName, index) => {
-        const alteredBubbleName = bubbleName === 'Sanic_Tools' ? 'Bug2' : bubbleName;
-        return <img title={cleanUnderscore(alteredBubbleName)} key={bubbleName + index}
-                    src={`${prefix}alchemy/${alteredBubbleName}.png`} alt=""/>;
+      {bubbles?.map(({ bubbleName }, index) => {
+        const alteredBubbleName = bubbleName === 'BUG]' ? 'Bug2' : bubbleName;
+        return <img title={cleanUnderscore(alteredBubbleName)} key={alteredBubbleName + index}
+                    src={`${prefix}alchemy/${pascalCase(alteredBubbleName)}.png`} alt=""/>;
       })}
     </EquippedBubblesStyled>
   );
