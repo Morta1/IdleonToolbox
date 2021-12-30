@@ -300,8 +300,11 @@ const createAccountData = (idleonData, characters) => {
   const refineryStorage = idleonData?.Refinery?.[1]?.reduce((res, saltName, index) => saltName !== 'Blank' ? [...res, {
     rawName: saltName,
     name: items[saltName]?.displayName,
-    amount: idleonData?.Refinery?.[2]?.[index]
+    amount: idleonData?.Refinery?.[2]?.[index],
+    owner: 'refinery'
   }] : res, []);
+
+  account.inventory = [...account.inventory, ...refineryStorage];
   const powerCap = randomList[18]?.split(' ');
   const refinerySaltTaskLevel = idleonData?.Tasks?.[2]?.[2]?.[6];
   const salts = refineryObject?.slice(3, 3 + idleonData?.Refinery?.[0]?.[0]);
