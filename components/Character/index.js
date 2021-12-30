@@ -84,7 +84,7 @@ const Character = ({
       {!dataFilters || dataFilters?.['Printer Products'] ?
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
       {!dataFilters || dataFilters?.['Traps'] ?
-        <Traps traps={traps}/> : null}
+        <Traps trap={tools?.[4]} traps={traps}/> : null}
       {!dataFilters ||
       dataFilters?.['Anvil Products'] ||
       dataFilters?.['Equipped Bubbles'] ||

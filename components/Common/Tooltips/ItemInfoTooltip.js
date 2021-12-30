@@ -12,7 +12,7 @@ const ItemInfoTooltip = ({
                            children,
                            ...item
                          }) => {
-  return item?.rawName !== 'Blank' ? (
+  return item && item?.rawName !== 'Blank' ? (
     <ItemInfoTooltipStyle
       interactive
       enterTouchDelay={100}
@@ -32,9 +32,6 @@ const ItemInfoTooltipStyle = styled((props) => (
   & .tooltip {
     will-change: contents;
     padding: 0;
-    //background-color: #393e46;
-    //box-shadow: 0 2px 4px -1px rgb(0 0 0 / 20%),
-    //0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
     font-size: 16px;
     min-width: 200px;
   }
