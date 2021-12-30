@@ -539,6 +539,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const PrayersUnlocked = idleonData?.PrayersUnlocked;
     character.prayers = prayersArray.reduce((res, prayerIndex) => (prayerIndex >= 0 ? [...res, {
       ...prayers?.[prayerIndex],
+      prayerIndex,
       level: PrayersUnlocked?.[prayerIndex]
     }] : res), []);
 
