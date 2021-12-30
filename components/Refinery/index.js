@@ -18,15 +18,19 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
       const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
       const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
       const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
-      let cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.level, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
-      // const calculatedCooldown = (1 - cdReduction / 100) * (refineryThrottle?.cooldown);
-      return {
-        cycles: res?.cycles + cyclesNum,
-        // cooldowns: [...res?.cooldowns, {
-        //   name,
-        //   cooldown: calculatedCooldown - cooldowns?.[refineryThrottle?.talentId]
-        // }]
-      };
+      if (refineryThrottle?.level > 0) {
+        let cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.level, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
+        return { cycles: res?.cycles + cyclesNum };
+      }
+      return res;
+      // // const calculatedCooldown = (1 - cdReduction / 100) * (refineryThrottle?.cooldown);
+      // return {
+      //   cycles: res?.cycles + cyclesNum,
+      //   // cooldowns: [...res?.cooldowns, {
+      //   //   name,
+      //   //   cooldown: calculatedCooldown - cooldowns?.[refineryThrottle?.talentId]
+      //   // }]
+      // };
     }, { cycles: 0, cooldowns: [] });
     setSquiresData(squiresDataTemp);
   }, []);

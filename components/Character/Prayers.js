@@ -1,13 +1,19 @@
 import React from 'react';
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { prefix } from "../../Utilities";
 import styled from 'styled-components';
+import CurseTooltip from "../Common/Tooltips/CurseTooltip";
 
 const Prayers = ({ prayers }) => {
   return (
     <PrayersStyled>
-      {prayers?.map(({ name, rawName }, index) => {
-        return <img title={cleanUnderscore(name)} key={name + index}
-                    src={`${prefix}data/${rawName}.png`} alt=""/>;
+      {prayers?.map((prayer, index) => {
+        const { name, x1, x2, level, costMulti, id } = prayer
+        const multiplier = name === 'The_Royal_Sampler' ? 1.25 : 1.5;
+        const calculatedBonus = x1 + (x1 * (level - 1)) / 10;
+        const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
+        const cost = Math.min(2e9, costMulti * (1 + (4 + (id / 25))) * level) * Math.pow(multiplier, level - 5);
+        return <CurseTooltip key={name + index} {...{ ...prayer, x1: calculatedBonus, x2: calculatedCurse, cost }}><img
+          src={`${prefix}data/Prayer${index}.png`} alt=""/></CurseTooltip>;
       })}
     </PrayersStyled>
   );
