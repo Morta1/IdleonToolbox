@@ -40,6 +40,7 @@ export default function CardSearch({ userData }) {
     "Fishing",
     "Catching",
     "Trapping",
+    "Worship",
     "Accuracy",
     "Card Drop",
     "Monster Exp",

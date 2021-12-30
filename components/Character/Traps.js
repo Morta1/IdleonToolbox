@@ -1,12 +1,20 @@
 import React from 'react';
-import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
+import { cleanUnderscore, prefix } from "../../Utilities";
+import ItemInfoTooltip from "../Common/Tooltips/ItemInfoTooltip";
 
-const Traps = ({ traps }) => {
+const Traps = ({ traps, trap }) => {
   return (
-    <TrapsStyled>
-      {[...traps]?.map(({ name, timeLeft, rawName }, index) => {
-        return <div className={'trap'} key={name + index}>
+    <TrapsStyled length={traps?.length}>
+      {[trap, ...traps]?.map((item, index) => {
+        if (!item) return null;
+        const { name, timeLeft, rawName } = item;
+        return rawName?.includes('TrapBox') ? <div className={'trap'} key={name + index}>
+          <ItemInfoTooltip {...item}>
+            <img title={cleanUnderscore(name)}
+                 src={`${prefix}data/${rawName}.png`} alt=""/>
+          </ItemInfoTooltip>
+        </div> : <div className={'trap'} key={name + index}>
           <span>{timeLeft}</span>
           <img title={cleanUnderscore(name)}
                src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -17,12 +25,17 @@ const Traps = ({ traps }) => {
 };
 
 const TrapsStyled = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(${({ length }) => length >= 3 ? 3 : length}, auto);
   justify-content: center;
-  align-items: center;
+  gap: 10px;
 
   .trap {
-    text-align: center;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   }
 
   @media (max-width: 750px) {
