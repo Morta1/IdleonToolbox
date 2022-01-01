@@ -4,10 +4,11 @@ import Head from 'next/head'
 import '../polyfills';
 import { useEffect, useState } from "react";
 import { AppContext } from '../components/Common/context';
-import { fields, screens } from "../Utilities";
+import { extVersion, fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
 import demo from '../data/demo.json';
+import ErrorBoundary from "../components/Common/ErrorBoundary";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -30,6 +31,15 @@ const muiTheme = createTheme({
 
 const initialDisplay = { view: screens.characters, subView: '' };
 const initialAccountDisplay = { view: 'general', subView: '' }
+const noOverlayWorkaroundScript = `
+  window.addEventListener('error', event => {
+    event.stopImmediatePropagation()
+  })
+
+  window.addEventListener('unhandledrejection', event => {
+    event.stopImmediatePropagation()
+  })
+`
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -45,15 +55,20 @@ export default function App({ Component, pageProps }) {
   const [stampsGoals, setStampsGoals] = useState();
   const [userTodoList, setTodoList] = useState();
   const [connected, setConnected] = useState();
+  const [outdated, setOutdated] = useState();
 
   useEffect(() => {
     try {
+      const version = localStorage.getItem('version');
       if (router?.query?.hasOwnProperty('demo')) {
         setData(demo);
+        setOutdated(false);
       } else {
         const charData = localStorage.getItem('characterData');
         if (charData) {
           const parsedData = JSON.parse(localStorage.getItem('characterData'));
+          console.log(version, extVersion)
+          setOutdated(version !== extVersion);
           setData(parsedData);
         } else {
           setData(null);
@@ -97,6 +112,8 @@ export default function App({ Component, pageProps }) {
 
   const setUserData = (userData) => {
     setData(userData);
+    setOutdated(userData?.version !== extVersion);
+    localStorage.setItem('version', userData.version);
     localStorage.setItem('characterData', JSON.stringify(userData));
   }
 
@@ -187,28 +204,32 @@ export default function App({ Component, pageProps }) {
           content="Follow your Legends of Idleon progression with ease with the help of account and characters' overview, craft calculator and more!"
         />
         <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator"/>
+        {process.env.NODE_ENV !== 'production' &&
+        <script dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
       </Head>
       <GlobalStyle/>
       <MuiThemeProvider theme={muiTheme}>
         <ThemeProvider theme={theme}>
-          <AppContext.Provider value={{
-            userData: initialData, setUserData,
-            dataFilters, setUserDataFilters,
-            display, setUserDisplay,
-            displayedCharactersIndices, setUserDisplayedCharactersIndices,
-            lastUpdated, setUserLastUpdated,
-            questCharacters, setUserQuestCharacters,
-            accountDisplay, setUserAccountDisplay,
-            alchemyGoals, setUserAlchemyGoals,
-            stampsGoals, setUserStampsGoals,
-            userTodoList, setUserTodoList,
-            connected, setUserConnected
-          }}>
-            {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
-                <CircularProgress size={60} style={{ color: 'white' }}/>
-              </div>
-              : <Component {...pageProps} />}
-          </AppContext.Provider>
+          <ErrorBoundary>
+            <AppContext.Provider value={{
+              userData: initialData, setUserData,
+              outdated, setOutdated,
+              dataFilters, setUserDataFilters,
+              display, setUserDisplay,
+              displayedCharactersIndices, setUserDisplayedCharactersIndices,
+              lastUpdated, setUserLastUpdated,
+              questCharacters, setUserQuestCharacters,
+              accountDisplay, setUserAccountDisplay,
+              alchemyGoals, setUserAlchemyGoals,
+              stampsGoals, setUserStampsGoals,
+              userTodoList, setUserTodoList,
+              connected, setUserConnected
+            }}>
+              {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
+                  <CircularProgress size={60} style={{ color: 'white' }}/>
+                </div>
+                : <Component {...pageProps} />}
+            </AppContext.Provider></ErrorBoundary>
         </ThemeProvider>
       </MuiThemeProvider>
     </>

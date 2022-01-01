@@ -1,8 +1,9 @@
 import styled from 'styled-components'
 import { cleanUnderscore, kFormatter, numberWithCommas, prefix } from "../../Utilities";
 import { growth } from "../General/calculationHelper";
-import { Checkbox, FormControlLabel } from "@material-ui/core";
+import { Checkbox, FormControlLabel, Tooltip } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
+import InfoIcon from '@material-ui/icons/Info';
 
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
@@ -18,8 +19,8 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
       const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
       const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
       const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
-      if (refineryThrottle?.level > 0) {
-        let cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.level, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
+      if (refineryThrottle?.maxLevel > 0) {
+        let cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.maxLevel, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
         return { cycles: res?.cycles + cyclesNum };
       }
       return res;
@@ -51,7 +52,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
     const remainder = numberOfHours % 24;
     const hours = Math.floor(remainder);
     const minutes = Math.floor(60 * (remainder - hours));
-    return `${days}d:${hours}h:${minutes}m`
+    return `${days}d:${hours}h:${minutes}m`;
   }
 
   const calcCost = (rank, quantity, item, index) => {
@@ -82,6 +83,9 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
             }
             label={`Include Squire Cycles (${squiresData?.cycles})`}
           />
+          <Tooltip title={"Based on max level of the skill "}>
+            <InfoIcon/>
+          </Tooltip>
         </div>
         {salts?.map(({ saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage }, saltIndex) => {
           const rankUp = powerCap === refined;

@@ -11,7 +11,7 @@ const Statues = ({ statues }) => {
           return <div key={name + index} className={'statue-wrapper'}>
             <span className={'level'}>{level}</span>
             <StatueTooltip {...statue}>
-              <img  src={`${prefix}data/${rawName}.png`} alt=""/>
+              <img width={41} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
             </StatueTooltip>
           </div>;
         })}

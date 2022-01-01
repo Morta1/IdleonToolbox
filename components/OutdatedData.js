@@ -5,6 +5,33 @@ const OutdatedData = ({ extVersion }) => {
   const updates = [
     {
       latest: true,
+      version: '1.1.2',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added afk time',
+            'Afk time is marked red when Unending energy is equipped and 10h passed',
+            'Traps are now marked red when they are ready to be picked up',
+            'Added worship tag to card search',
+            "Refinery's squire cycles are not calculated based on the skills' max level"
+          ]
+        },
+      ]
+    },
+    {
+      version: '1.1.1',
+      changes: [
+        {
+          title: 'Characters',
+          desc: [
+            'Added worship max charge and rate',
+            'Added crystal spawn chance'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.1.0',
       changes: [
         {
@@ -190,9 +217,9 @@ const OutdatedData = ({ extVersion }) => {
   useEffect(() => {
     // localStorage.removeItem('characterData');
     // localStorage.removeItem('characterIndices');
-    // localStorage.removeItem('dataFilters');
-    // localStorage.removeItem('lastUpdated');
-    // localStorage.removeItem('display');
+    localStorage.removeItem('dataFilters');
+    localStorage.removeItem('lastUpdated');
+    localStorage.removeItem('display');
   }, []);
 
   return (

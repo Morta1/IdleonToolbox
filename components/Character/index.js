@@ -42,9 +42,17 @@ const Character = ({
                      postOffice,
                      dataFilters,
                      money,
-                     crystalSpawnChance
+                     crystalSpawnChance,
+                     afkTime
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
+
+  const isOvertime = () => {
+    const hasUnendingEnergy = prayers?.find(({ name }) => name === 'Unending_Energy');
+    const hours = afkTime?.match(/([0-9]+)h:/g)?.[0].match(/[0-9]+/)[0];
+    return hasUnendingEnergy && parseInt(hours) > 10;
+  }
+
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-information-container'}>
       <div className={'character-profile'}>
@@ -56,6 +64,7 @@ const Character = ({
           <div>Agi: {agility}</div>
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
+          <div className={isOvertime() ? 'overtime' : ''}>Afk Time: {afkTime ? afkTime : 'Active'}</div>
           <div style={{ marginTop: 10 }}>Crystal Spawn Chance:</div>
           <div style={{ marginBottom: 10 }}> 1 in {Math.floor(1 / crystalSpawnChance)}</div>
           <div>Worship Charge: {Math.round(worship?.chargeRate * 24)}%/day</div>
@@ -65,7 +74,7 @@ const Character = ({
                                    value={worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100}/>
           <div style={{ margin: '10px 0' }}><CoinDisplay money={money}/></div>
         </div>
-        <div className={'activity'}>
+        {!dataFilters || dataFilters?.Activity ? <div className={'activity'}>
           <h4>Activity</h4>
           {afkTarget && afkTarget !== '_' ?
             <img title={cleanUnderscore(afkTarget)} width={64} height={64} src={`${prefix}afk_targets/${afkTarget}.png`}
@@ -74,7 +83,7 @@ const Character = ({
                    alt=""/>
               <div>Nothing</div>
             </div>}
-        </div>
+        </div> : null}
       </div>
       {!dataFilters || dataFilters?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
       {!dataFilters || dataFilters?.Talents ? <Talents talents={talents} starTalents={starTalents}/> : null}
@@ -131,6 +140,11 @@ const CharacterStyle = styled.div`
   .name {
     font-weight: bold;
     color: ${({ classColor }) => classColor || 'white'};
+  }
+
+  .overtime {
+    font-weight: bold;
+    color: #f91d1d;
   }
 
   .character-information-container {

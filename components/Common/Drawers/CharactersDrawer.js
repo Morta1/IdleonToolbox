@@ -14,6 +14,7 @@ const CharactersDrawer = () => {
   const {
     userData,
     display,
+    outdated,
     dataFilters,
     setUserDataFilters,
     displayedCharactersIndices,
@@ -75,7 +76,7 @@ const CharactersDrawer = () => {
   return (
     <CharactersDrawerStyle>
       <StyledDrawer
-        isCharacterDisplay={userData && display?.view === screens.characters}
+        isCharacterDisplay={userData && display?.view === screens.characters && !outdated}
         anchor={'left'} variant={'permanent'}>
         <Navigation/>
         <Toolbar/>

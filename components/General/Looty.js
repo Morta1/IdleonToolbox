@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const Looty = ({ items }) => {
   return <LootyWrapper>
     {items?.map(({ name, rawName }, index) => (
-      <img title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt={''} key={rawName + index}/>))}
+      <img height={50} width={50} title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt={''} key={rawName + index}/>))}
   </LootyWrapper>;
 };
 
