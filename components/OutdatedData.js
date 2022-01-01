@@ -14,7 +14,7 @@ const OutdatedData = ({ extVersion }) => {
             'Afk time is marked red when Unending energy is equipped and 10h passed',
             'Traps are now marked red when they are ready to be picked up',
             'Added worship tag to card search',
-            "Refinery's squire cycles are not calculated based on the skills' max level"
+            "Refinery's squire cycles are now calculated based on the skills' max level"
           ]
         },
       ]
