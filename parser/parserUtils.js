@@ -1,5 +1,6 @@
 import { deathNote, items, mapEnemies, monsters, quests, talents } from "../data/website-data";
 import { getDeathNoteRank } from "../Utilities";
+import { formatDuration, fromUnixTime, intervalToDuration } from 'date-fns';
 
 export const createSerializedData = (data, charNames) => {
   const PlayerDATABASE = charNames?.map((charName, index) => {
@@ -72,6 +73,11 @@ export const createSerializedData = (data, charNames) => {
             updatedKey = `PostOfficeInfo_${index}`;
             break;
           }
+          case key.includes('PTimeAway'): {
+            updatedKey = `PlayerAwayTime_${index}`;
+            updatedDetails = updatedDetails * 1e3;
+            break;
+          }
         }
         return { ...res, [updatedKey]: arr?.length ? arr : updatedDetails }
       }
@@ -107,6 +113,7 @@ export const createSerializedData = (data, charNames) => {
     Printer: tryToParse(data?.Print),
     CauldronBubbles: tryToParse(data?.CauldronBubbles),
     PrayersUnlocked: tryToParse(data?.PrayOwned),
+    TimeAway: tryToParse(data?.TimeAway),
     Tasks: [
       tryToParse(data?.TaskZZ0),
       tryToParse(data?.TaskZZ1),
@@ -129,6 +136,7 @@ export const createSerializedData = (data, charNames) => {
       DeliveryBoxMisc: data?.CYDeliveryBoxMisc,
     },
   };
+
   return { serializedData: serialized, chars: PlayerDATABASE };
 }
 
@@ -158,6 +166,33 @@ const tryToParse = (str) => {
   } catch (err) {
     return str;
   }
+}
+
+export const calculateAfkTime = (playerTime, globalTime) => {
+  const parsedPlayerTime = convertUnixToDate(playerTime);
+  const parsedGlobalTime = convertUnixToDate(globalTime);
+  let duration = intervalToDuration({ start: parsedPlayerTime, end: parsedGlobalTime });
+  const formatDistanceLocale = { xSeconds: '{{count}}s', xMinutes: '{{count}}m', xHours: '{{count}}h' }
+  const shortEnLocale = { formatDistance: (token, count) => formatDistanceLocale[token].replace('{{count}}', count) }
+  if (duration?.days) {
+    duration.hours += duration?.days * 24;
+  }
+  if (duration?.weeks) {
+    duration.hours += duration?.weeks * 168;
+  }
+  if (duration?.months) {
+    duration.hours += duration?.months * 672;
+  }
+  return formatDuration(duration, {
+    format: ['hours', 'minutes', 'seconds'],
+    locale: shortEnLocale,
+    delimiter: ':'
+  });
+}
+
+const convertUnixToDate = (unixTime) => {
+  if (!unixTime) return '';
+  return fromUnixTime(unixTime);
 }
 
 export const calcCardBonus = (card) => {
@@ -395,8 +430,8 @@ export const createTalentPage = (className, pages, talentsObject, maxTalentsObje
       return {
         talentId: talentDetails.skillIndex,
         ...talentDetails,
-        level: talentsObject[talentDetails.skillIndex],
-        maxLevel: maxTalentsObject[talentDetails.skillIndex],
+        level: talentsObject[talentDetails.skillIndex] || 0,
+        maxLevel: maxTalentsObject[talentDetails.skillIndex] || -1,
       }
     });
     if (mergeArray) {

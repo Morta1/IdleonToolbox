@@ -20,7 +20,8 @@ const additionalEffects = {
   'drop rate': [stats.BaseLUK],
   'card drop': [stats.BaseLUK, stats.TotalDropRate],
   'monster exp': [stats.EXPfrommonsters],
-  dungeon: [stats.BlockChance, stats.RNGitemrarity, stats.tostartwithRNGitem]
+  dungeon: [stats.BlockChance, stats.RNGitemrarity, stats.tostartwithRNGitem],
+  worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP]
 }
 
 export default function CardSearch({ userData }) {

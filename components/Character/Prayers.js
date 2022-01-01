@@ -12,8 +12,9 @@ const Prayers = ({ prayers }) => {
         const calculatedBonus = x1 + (x1 * (level - 1)) / 10;
         const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
         const cost = Math.min(2e9, costMulti * (1 + (4 + (id / 25))) * level) * Math.pow(multiplier, level - 5);
-        return <CurseTooltip key={name + index} {...{ ...prayer, x1: calculatedBonus, x2: calculatedCurse, cost }}><img
-          src={`${prefix}data/Prayer${prayerIndex}.png`} alt=""/></CurseTooltip>;
+        return <CurseTooltip key={name + index} {...{ ...prayer, x1: calculatedBonus, x2: calculatedCurse, cost }}>
+          <img src={`${prefix}data/Prayer${prayerIndex}.png`} alt=""/>
+        </CurseTooltip>;
       })}
     </PrayersStyled>
   );

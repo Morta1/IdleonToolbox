@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { prefix } from "../../Utilities";
 import ItemInfoTooltip from "../Common/Tooltips/ItemInfoTooltip";
 
 const Traps = ({ traps, trap }) => {
@@ -9,15 +9,14 @@ const Traps = ({ traps, trap }) => {
       {[trap, ...traps]?.map((item, index) => {
         if (!item) return null;
         const { name, timeLeft, rawName } = item;
+        const hours = parseInt(timeLeft?.match(/([0-9]+)h/g)?.[0].match(/[0-9]+/)[0]);
         return rawName?.includes('TrapBox') ? <div className={'trap'} key={name + index}>
           <ItemInfoTooltip {...item}>
-            <img title={cleanUnderscore(name)}
-                 src={`${prefix}data/${rawName}.png`} alt=""/>
+            <img src={`${prefix}data/${rawName}.png`} alt=""/>
           </ItemInfoTooltip>
         </div> : <div className={'trap'} key={name + index}>
-          <span>{timeLeft}</span>
-          <img title={cleanUnderscore(name)}
-               src={`${prefix}data/${rawName}.png`} alt=""/>
+          <span className={hours === 0 ? 'overtime' : ''}>{timeLeft}</span>
+          <img src={`${prefix}data/${rawName}.png`} alt=""/>
         </div>;
       })}
     </TrapsStyled>
@@ -36,6 +35,11 @@ const TrapsStyled = styled.div`
     align-items: center;
     justify-content: center;
     flex-direction: column;
+  }
+
+  .overtime {
+    font-weight: bold;
+    color: #f91d1d;
   }
 
   @media (max-width: 750px) {

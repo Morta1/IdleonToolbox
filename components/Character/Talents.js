@@ -30,6 +30,13 @@ const Talents = ({ talents, starTalents }) => {
     };
   }
 
+  const getLevelAndMaxLevel = (level, maxLevel) => {
+    if ((!level || level === -1) || (!maxLevel || maxLevel === -1)) {
+      return '';
+    }
+    return `${level}/${maxLevel}`;
+  }
+
   return (
     <StyledTalents active={activeTab}>
       <div className="tabs">
@@ -66,7 +73,7 @@ const Talents = ({ talents, starTalents }) => {
             <TalentTooltip key={talentId + '' + index} {...talentDetails}>
               <div className={'talent-wrapper'}>
               <span
-                className={'talent-level'}>{!level && !maxLevel ? '' : !level ? `0/${maxLevel}` : `${level}/${maxLevel}`}</span>
+                className={'talent-level'}>{getLevelAndMaxLevel(level, maxLevel)}</span>
                 <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
               </div>
             </TalentTooltip>;

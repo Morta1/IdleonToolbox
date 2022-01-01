@@ -1,6 +1,7 @@
 import {
   anvilProductionItems,
   calcCardBonus,
+  calculateAfkTime,
   calculateCardSetStars,
   calculateDeathNote,
   calculateItemTotalAmount,
@@ -72,7 +73,7 @@ const parseIdleonData = (idleonData, charNames) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, version: '1.1.1' }
+    return { account, characters: charactersData, version: '1.1.2' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
@@ -374,7 +375,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const personalValuesMap = char?.[`PersonalValuesMap_${charIndex}`];
     character.name = char?.name;
     character.class = classes?.[char?.[`CharacterClass_${charIndex}`]];
-    character.afkTime = parseFloat(char?.[`PlayerAwayTime_${charIndex}`]);
+    character.afkTime = calculateAfkTime(char?.[`PlayerAwayTime_${charIndex}`], idleonData?.TimeAway?.GlobalTime);
     character.afkTarget = monsters?.[char?.[`AFKtarget_${charIndex}`]]?.Name;
     character.currentMap = mapNames?.[char?.[`CurrentMap_${charIndex}`]];
     character.money = String(parseInt(char?.[`Money_${charIndex}`])).split(/(?=(?:..)*$)/);
@@ -587,7 +588,7 @@ const createCharactersData = (idleonData, characters, account) => {
       return critterName ? [...res, {
         name: items[critterName]?.displayName,
         rawName: critterName,
-        timeLeft: `${hours}h${minutes > 0 ? minutes + 'm' : ''}`
+        timeLeft: `${hours}h:${minutes > 0 ? minutes + 'm' : ''}`
       }] : res;
     }, []);
 
@@ -616,11 +617,11 @@ const createCharactersData = (idleonData, characters, account) => {
     const crystallinStamp = account?.stamps?.misc?.find(({ rawName }) => rawName === 'StampC3');
     const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
     const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
-    const poopCardBonus = calcCardBonus(poopCard);
-    const crystals4DaysTalent = character?.starTalents?.orderedTalents?.find(({ name }) => name === 'CRYSTALS_4_DAYYS');
-    const crystals4DaysBonus = growth(crystals4DaysTalent?.funcX, crystals4DaysTalent?.level, crystals4DaysTalent?.x1, crystals4DaysTalent?.x2);
+    const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
+    const crystals4DaysTalent = character?.starTalents?.orderedTalents?.find(({ name }) => name === 'CRYSTALS_4_DAYYS') ;
+    const crystals4DaysBonus = crystals4DaysTalent ? growth(crystals4DaysTalent?.funcX, crystals4DaysTalent?.level, crystals4DaysTalent?.x1, crystals4DaysTalent?.x2) : 0;
     const cmonOutCrystalsTalent = character?.talents?.[1]?.orderedTalents?.find(({ name }) => name === 'CMON_OUT_CRYSTALS');
-    const cmonOutCrystalsBonus = growth(cmonOutCrystalsTalent?.funcX, cmonOutCrystalsTalent?.level, cmonOutCrystalsTalent?.x1, cmonOutCrystalsTalent?.x2);
+    const cmonOutCrystalsBonus = cmonOutCrystalsTalent ? growth(cmonOutCrystalsTalent?.funcX, cmonOutCrystalsTalent?.level, cmonOutCrystalsTalent?.x1, cmonOutCrystalsTalent?.x2) : 0;
     const nonPredatoryBox = character?.postOffice?.boxes?.find(({ name }) => name === 'Non_Predatory_Loot_Box');
     const nonPredatoryBoxCrystalUpgrade = nonPredatoryBox?.upgrades?.[2]
     const nonPredatoryBoxBonus = growth(nonPredatoryBoxCrystalUpgrade?.func, nonPredatoryBox?.level > 0 ? nonPredatoryBox?.level - 100 : 0, nonPredatoryBoxCrystalUpgrade?.x1, nonPredatoryBoxCrystalUpgrade?.x2);
