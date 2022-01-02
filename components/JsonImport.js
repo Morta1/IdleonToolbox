@@ -19,11 +19,11 @@ const getDate = () => {
 }
 
 const jsonError = 'An error occurred while parsing data';
+const connectError = 'Please make sure you\'ve downloaded the latest idleon-data-extractor extension and that you\'re connected to idleon website';
 
 const JsonImport = () => {
   const { setUserData, setUserLastUpdated, connected, setUserConnected } = useContext(AppContext);
 
-  const [errorText, setErrorText] = useState('');
   const [loadIframe, setLoadIframe] = useState(false);
   const [fetchDataInterval, setFetchDataInterval] = useState();
   const [timeoutCount, setTimeoutCount] = useState(0);
@@ -52,6 +52,7 @@ const JsonImport = () => {
       localStorage.removeItem('globalData');
       setLoading(true);
       setLoadIframe(true);
+      setResult(null);
       const fetchData = setInterval(fetchFromWeb, 10000);
       setFetchDataInterval(fetchData);
     } catch (e) {
@@ -72,19 +73,19 @@ const JsonImport = () => {
       setUserConnected(true);
       setFetching(true);
     }
-    if (countRef.current > 4 && !charData) {
+    if (countRef.current > 1 && !charData) {
       console.log('Please make sure idleon-data-extractor is installed and you\'re logged in and try again.')
       setUserConnected(false);
-      endInterval(fetchDataInterval, false);
+      endInterval(fetchDataInterval, { success: false });
     }
     setTimeoutCount(countRef.current + 1);
   }
 
-  const endInterval = (interval) => {
+  const endInterval = (interval, result) => {
     setLoadIframe(false);
     setFetching(false);
     setLoading(false);
-    setResult(null);
+    setResult(result ? result : null);
     setUserConnected(false);
     setTimeoutCount(0);
     clearInterval(interval);
@@ -103,7 +104,6 @@ const JsonImport = () => {
       setManualImport(true);
       setManualResult(false);
       console.error('Error parsing data', err);
-      setErrorText(jsonError);
       endInterval(fetchDataInterval);
     }
   }
@@ -113,14 +113,15 @@ const JsonImport = () => {
     <JsonImportStyled>
       <div className={'controls'}>
         {manualImport ? manualResult ?
-          <CheckCircleIcon className={'updated-info'} style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
-                           titleAccess={'Updated'}/> :
-          <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
-                     titleAccess={errorText}/> : null}
+          <NumberTooltip title={'Updated'}><CheckCircleIcon className={'updated-info'}
+                                                            style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
+          /></NumberTooltip> :
+          <NumberTooltip title={jsonError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
+          /></NumberTooltip> : null}
         {result ? result?.success ? <CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
                                                      titleAccess={'Connected'}/> :
-          <ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
-                     titleAccess={errorText}/> : null}
+          <NumberTooltip title={connectError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
+          /></NumberTooltip> : null}
         {!loading ? !fetching && !connected ? <NumberTooltip
             title={'Please make sure you\'ve connected to idleon website and downloaded idleon-data-extractor extension'}>
             <StyledButton onClick={() => autoUpdate()}>Connect</StyledButton></NumberTooltip> : null :
