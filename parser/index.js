@@ -450,7 +450,10 @@ const createCharactersData = (idleonData, characters, account) => {
       }, []);
 
     // crafting material in production
-    const anvilCraftsMapping = char?.[`AnvilPAselect_${charIndex}`];
+    let anvilCraftsMapping = char?.[`AnvilPAselect_${charIndex}`];
+    if (!Array.isArray(anvilCraftsMapping)) {
+      anvilCraftsMapping = [anvilCraftsMapping];
+    }
     const selectedProducts = anvilCraftsMapping
       .sort((a, b) => a - b)
       .map((item) => anvilProductionItems[item]);
@@ -618,7 +621,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
     const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
     const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
-    const crystals4DaysTalent = character?.starTalents?.orderedTalents?.find(({ name }) => name === 'CRYSTALS_4_DAYYS') ;
+    const crystals4DaysTalent = character?.starTalents?.orderedTalents?.find(({ name }) => name === 'CRYSTALS_4_DAYYS');
     const crystals4DaysBonus = crystals4DaysTalent ? growth(crystals4DaysTalent?.funcX, crystals4DaysTalent?.level, crystals4DaysTalent?.x1, crystals4DaysTalent?.x2) : 0;
     const cmonOutCrystalsTalent = character?.talents?.[1]?.orderedTalents?.find(({ name }) => name === 'CMON_OUT_CRYSTALS');
     const cmonOutCrystalsBonus = cmonOutCrystalsTalent ? growth(cmonOutCrystalsTalent?.funcX, cmonOutCrystalsTalent?.level, cmonOutCrystalsTalent?.x1, cmonOutCrystalsTalent?.x2) : 0;

@@ -11,7 +11,7 @@ const SaltLick = ({ saltLick }) => {
     return round(bonus.baseBonus * (bonus.level ?? 0));
   }
 
-  return saltLick ? (
+  return saltLick?.length ? (
     <SaltLickStyle>
       <div className={'wrapper'}>
         {saltLick?.map((bonus, index) => {

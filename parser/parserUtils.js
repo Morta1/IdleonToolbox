@@ -868,6 +868,8 @@ export const filteredLootyItems = {
   'DungWeaponSword1': true,
   'FishingRod1': true,
   'CatchingNet1': true,
+  'DungRNG4': true,
+  'DungRNG3': true
 };
 
 export const worldNpcMap = {

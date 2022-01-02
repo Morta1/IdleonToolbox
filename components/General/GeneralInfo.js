@@ -24,7 +24,7 @@ const GeneralInfo = ({ teleports, keys, colosseumTickets, obolFragments, silverP
       </div>
       <div className="box">
         <img src={`${prefix}data/PremiumGem.png`} alt=""/>
-        <span className={'value'}>{gems}</span>
+        <span className={'value'}>{gems ?? 0}</span>
       </div>
       {keys?.map(({ name, rawName, amount }, index) => {
         return <div key={name + index} className="box">
