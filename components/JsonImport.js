@@ -73,7 +73,7 @@ const JsonImport = () => {
       setUserConnected(true);
       setFetching(true);
     }
-    if (countRef.current > 1 && !charData) {
+    if (countRef.current > 4 && !charData) {
       console.log('Please make sure idleon-data-extractor is installed and you\'re logged in and try again.')
       setUserConnected(false);
       endInterval(fetchDataInterval, { success: false });
