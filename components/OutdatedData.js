@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { useEffect } from "react";
+import Timer from '../components/Common/Timer';
 
 const OutdatedData = ({ extVersion }) => {
   const updates = [
@@ -224,9 +225,12 @@ const OutdatedData = ({ extVersion }) => {
 
   return (
     <OutdatedDataStyle>
+      {/* <Timer date={new Date('2022/01/04')} />
+      <br />
+      <Timer date={new Date(2022, 1, 14, 14, 0, 0)} type='countdown' /> */}
       <div className={'info'}>
         <span>Please re-import the data by clicking 'Connect' or import your json from <a className={'extractor'}
-                                                                                          href="https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing">steam data extractor</a> and refresh</span>
+          href="https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing">steam data extractor</a> and refresh</span>
         <span className={'small-text'}>If your extension is up-to-date please contact Morojo#2331 in discord</span>
       </div>
       {updates?.map(({ version, changes }, index) => {
