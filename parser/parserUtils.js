@@ -336,16 +336,14 @@ export const getInventory = (inventoryArr, inventoryQuantityArr, owner) => {
 };
 
 export const calculateStars = (tierReq, amountOfCards) => {
-  if (amountOfCards < tierReq) {
-    return 0;
-  } else if (amountOfCards > Math.ceil(tierReq * Math.pow(3, 2))) {
+  if (amountOfCards > tierReq * 9) {
     return 3;
-  } else if (amountOfCards > Math.ceil(tierReq * Math.pow(2, 2))) {
+  } else if (amountOfCards > tierReq * 4) {
     return 2;
-  } else if (amountOfCards >= Math.ceil(tierReq * Math.pow(1, 2))) {
+  } else if (amountOfCards > tierReq) {
     return 1;
   }
-  return null;
+  return 0;
 };
 
 export const createItemsWithUpgrades = (charItems, stoneData) => {
