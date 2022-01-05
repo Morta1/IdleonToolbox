@@ -1,11 +1,23 @@
 import styled from 'styled-components'
 import { useEffect } from "react";
-import Timer from '../components/Common/Timer';
 
-const OutdatedData = ({ extVersion }) => {
+const OutdatedData = () => {
   const updates = [
     {
       latest: true,
+      version: '1.1.3',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added running timers to count down/up for afk time, traps and salts (This is experimental and might be not accurate)',
+            'Added cooldown timer for squires\' refinery throttle',
+            'Added tooltips for equipped cards and card set',
+            'Added an option of item count in the Item Planner'
+          ]
+        },
+      ]
+    }, {
       version: '1.1.2',
       changes: [
         {
@@ -225,11 +237,9 @@ const OutdatedData = ({ extVersion }) => {
 
   return (
     <OutdatedDataStyle>
-      {/* <Timer date={new Date('2022/01/04')} />
-      <br />
-      <Timer date={new Date(2022, 1, 14, 14, 0, 0)} type='countdown' /> */}
       <div className={'info'}>
-        <span>Please re-import the data by clicking 'Connect' or import your json from <a className={'extractor'}
+        <span>Please re-import the data by clicking &apos;Connect&apos; or import your json from <a
+          className={'extractor'}
           href="https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing">steam data extractor</a> and refresh</span>
         <span className={'small-text'}>If your extension is up-to-date please contact Morojo#2331 in discord</span>
       </div>

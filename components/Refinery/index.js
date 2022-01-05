@@ -4,36 +4,43 @@ import { growth } from "../General/calculationHelper";
 import { Checkbox, FormControlLabel, Tooltip } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import InfoIcon from '@material-ui/icons/Info';
+import Timer from "../Common/Timer";
 
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
-const Refinery = ({ refinery, saltLicks, vials, characters }) => {
+const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
   const { salts, refinerySaltTaskLevel } = refinery || {};
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
-  const [squiresData, setSquiresData] = useState({ cycles: 0, cooldowns: [] });
+  const [squiresCycles, setSquiresCycles] = useState(0);
+  const [squiresCooldown, setSquiresCooldown] = useState([]);
 
   useEffect(() => {
     const squires = characters?.filter((character) => character?.class === 'Squire');
     const squiresDataTemp = squires.reduce((res, character) => {
-      const { name, talents, cooldowns, postOffice } = character;
-      const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
-      const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
+      const { name, talents, cooldowns, postOffice, afkTime } = character;
+      // const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
+      // const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
       const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
+      let cyclesNum = 0;
       if (refineryThrottle?.maxLevel > 0) {
-        let cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.maxLevel, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
-        return { cycles: res?.cycles + cyclesNum };
+        cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.maxLevel, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
+        // return { cycles: res?.cycles + cyclesNum };
       }
-      return res;
-      // // const calculatedCooldown = (1 - cdReduction / 100) * (refineryThrottle?.cooldown);
-      // return {
-      //   cycles: res?.cycles + cyclesNum,
-      //   // cooldowns: [...res?.cooldowns, {
-      //   //   name,
-      //   //   cooldown: calculatedCooldown - cooldowns?.[refineryThrottle?.talentId]
-      //   // }]
-      // };
+      // return res;
+      // 72000 (s) - cooldowns?.[refineryThrottle?.talentId] (s) - timePassed
+      const timePassed = (new Date().getTime() - afkTime) / 1000;
+      // const calculatedCooldown = (1 - cdReduction / 100) * (refineryThrottle?.cooldown);
+      const actualCd = cooldowns?.[refineryThrottle?.talentId] - timePassed;
+      return {
+        cycles: res?.cycles + cyclesNum,
+        cooldowns: [...res?.cooldowns, {
+          name,
+          cooldown: actualCd < 0 ? actualCd : new Date().getTime() + (actualCd * 1000)
+        }]
+      };
     }, { cycles: 0, cooldowns: [] });
-    setSquiresData(squiresDataTemp);
+    setSquiresCycles(squiresDataTemp?.cycles);
+    setSquiresCooldown(squiresDataTemp?.cooldowns);
   }, []);
 
 
@@ -42,18 +49,10 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const redMaltVial = vials?.[25] ? (growth(vials?.[25]?.func, vials?.[25]?.level, vials?.[25]?.x1, vials?.[25]?.x2) / 100) : 0;
     const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level / 100) : 0;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresData?.cycles ?? 0) : 0);
+    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
-    return splitTime(timeLeft);
+    return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
-
-  const splitTime = (numberOfHours) => {
-    const days = Math.floor(numberOfHours / 24);
-    const remainder = numberOfHours % 24;
-    const hours = Math.floor(remainder);
-    const minutes = Math.floor(60 * (remainder - hours));
-    return `${days}d:${hours}h:${minutes}m`;
-  }
 
   const calcCost = (rank, quantity, item, index) => {
     const isSalt = item?.includes('Refinery');
@@ -64,28 +63,35 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
     <RefineryStyle>
       <div className="wrapper">
         <div className={'cycles'}>
-          <div>
-            {squiresData?.cooldowns?.map(({ name, cooldown, talentId }, index) => {
-              return <div key={name + ' ' + index}>
-                {name}
+          <div className={'squires'}>
+            {squiresCooldown?.map(({ name, cooldown, talentId }, index) => {
+              return <div className={'squire'} key={name + ' ' + index}>
+                <img src={`${prefix}data/UISkillIcon130.png`} alt=""/>
+                <div className={'details'}>
+                  <span>{name}</span>
+                  <Timer placeholder={<span style={{ color: '#51e406', fontWeight: 'bold' }}>Ready</span>}
+                         type={'countdown'} date={cooldown} lastUpdated={lastUpdated}/>
+                </div>
               </div>
             })}
           </div>
-          <FormControlLabel
-            control={
-              <StyledCheckbox
-                disabled={squiresData?.cycles === 0}
-                checked={includeSquireCycles}
-                onChange={() => setIncludeSquireCycles(!includeSquireCycles)}
-                name='Include Squire Cycles'
-                color='default'
-              />
-            }
-            label={`Include Squire Cycles (${squiresData?.cycles})`}
-          />
-          <Tooltip title={"Based on max level of the skill "}>
-            <InfoIcon/>
-          </Tooltip>
+          <div className={'squire-cycles'}>
+            <FormControlLabel
+              control={
+                <StyledCheckbox
+                  disabled={squiresCycles === 0}
+                  checked={includeSquireCycles}
+                  onChange={() => setIncludeSquireCycles(!includeSquireCycles)}
+                  name='Include Squire Cycles'
+                  color='default'
+                />
+              }
+              label={`Include Squire Cycles (${squiresCycles})`}
+            />
+            <Tooltip title={"Based on max level of the skill "}>
+              <InfoIcon/>
+            </Tooltip>
+          </div>
         </div>
         {salts?.map(({ saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage }, saltIndex) => {
           const rankUp = powerCap === refined;
@@ -102,7 +108,11 @@ const Refinery = ({ refinery, saltLicks, vials, characters }) => {
               <div><span className={'bold'}>Power:</span> {numberWithCommas(refined)} / {numberWithCommas(powerCap)}
               </div>
               <div><span className={'bold'}>Rank:</span> {rank}</div>
-              <div><span className={'bold'}>Rank Up In: </span>{calcTimeToRankUp(rank, powerCap, refined)}</div>
+              <div><span className={'bold'}>Rank Up In: </span> <Timer
+                type={'countdown'}
+                lastUpdated={lastUpdated}
+                pause={!active}
+                date={calcTimeToRankUp(rank, powerCap, refined)}/></div>
               <div><span className={'bold'}>Auto Refine:</span> {autoRefinePercentage}%</div>
               <Progress value={progressPercentage} color={saltColor[saltIndex]}>
                 <div className="progress-bar2"/>
@@ -141,8 +151,31 @@ const RefineryStyle = styled.div`
     font-weight: bold;
   }
 
+  .squires {
+    display: flex;
+    gap: 15px;
+
+    .squire {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+
+      .details {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+
+  .squire-cycles {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+  }
+
   .cycles {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;

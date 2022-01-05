@@ -15,6 +15,9 @@ import Traps from "./Traps";
 import PostOffice from "./PostOffice";
 import CoinDisplay from "../General/CoinDisplay";
 import { LinearProgressWithLabel } from "../Common/commonStyles";
+import Timer from "../Common/Timer";
+import React from "react";
+import { differenceInHours, differenceInMinutes } from "date-fns";
 
 const Character = ({
                      name: charName,
@@ -43,14 +46,21 @@ const Character = ({
                      dataFilters,
                      money,
                      crystalSpawnChance,
-                     afkTime
+                     afkTime,
+                     lastUpdated
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
 
   const isOvertime = () => {
     const hasUnendingEnergy = prayers?.find(({ name }) => name === 'Unending_Energy');
-    const hours = afkTime?.match(/([0-9]+)h:/g)?.[0].match(/[0-9]+/)[0];
-    return hasUnendingEnergy && parseInt(hours) > 10;
+    const timePassed = new Date().getTime() + (afkTime - lastUpdated);
+    const hours = differenceInHours(new Date(), new Date(timePassed));
+    return hasUnendingEnergy && hours > 10;
+  }
+  const isAfk = () => {
+    const timePassed = new Date().getTime() + (afkTime - lastUpdated);
+    const minutes = differenceInMinutes(new Date(), new Date(timePassed));
+    return minutes <= 5;
   }
 
   return <CharacterStyle classColor={classColors?.[charClassName]}>
@@ -64,7 +74,9 @@ const Character = ({
           <div>Agi: {agility}</div>
           <div>Wis: {wisdom}</div>
           <div>Luk: {luck}</div>
-          <div className={isOvertime() ? 'overtime' : ''}>Afk Time: {afkTime ? afkTime : 'Active'}</div>
+          <div className={isOvertime() ? 'overtime' : ''}>Afk Time: {!isAfk() ?
+            <Timer date={afkTime} lastUpdated={lastUpdated}/> :
+            <span style={{ color: '#51e406', fontWeight: 'bold' }}>Active</span>}</div>
           <div style={{ marginTop: 10 }}>Crystal Spawn Chance:</div>
           <div style={{ marginBottom: 10 }}> 1 in {Math.floor(1 / crystalSpawnChance)}</div>
           <div>Worship Charge: {Math.round(worship?.chargeRate * 24)}%/day</div>
@@ -93,7 +105,7 @@ const Character = ({
       {!dataFilters || dataFilters?.['Printer Products'] ?
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
       {!dataFilters || dataFilters?.['Traps'] ?
-        <Traps trap={tools?.[4]} traps={traps}/> : null}
+        <Traps trap={tools?.[4]} traps={traps} lastUpdated={lastUpdated}/> : null}
       {!dataFilters ||
       dataFilters?.['Anvil Products'] ||
       dataFilters?.['Equipped Bubbles'] ||

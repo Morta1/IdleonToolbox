@@ -16,7 +16,7 @@ import DeathNote from "./DeathNote";
 import SaltLick from "./SaltLick";
 
 const Account = () => {
-  const { userData, display, accountDisplay } = useContext(AppContext);
+  const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
 
   return (
     <AccountStyle
@@ -33,7 +33,8 @@ const Account = () => {
       {accountDisplay?.view === 'saltLick' ? <SaltLick saltLick={userData?.account?.saltLicks}/> : null}
       {accountDisplay?.view === 'refinery' ?
         <Refinery refinery={userData?.account?.refinery} saltLicks={userData?.account?.saltLicks}
-                  vials={userData?.account?.alchemy?.vials} characters={userData?.characters}/> : null}
+                  vials={userData?.account?.alchemy?.vials} characters={userData?.characters}
+                  lastUpdated={lastUpdated}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bundles' ? <GemShopBundles bundles={userData?.account?.bundles}/> : null}
       {accountDisplay?.view === 'constellations' ?

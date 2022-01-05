@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }) {
         const charData = localStorage.getItem('characterData');
         if (charData) {
           const parsedData = JSON.parse(localStorage.getItem('characterData'));
-          console.log(version, extVersion)
+          console.log(version, extVersion);
           setOutdated(version !== extVersion);
           setData(parsedData);
         } else {
@@ -140,6 +140,7 @@ export default function App({ Component, pageProps }) {
   }
 
   const setUserLastUpdated = (userLastUpdate) => {
+    console.log('userLastUpdate', userLastUpdate)
     localStorage.setItem('lastUpdated', JSON.stringify(userLastUpdate));
     setLastUpdated(userLastUpdate);
   }

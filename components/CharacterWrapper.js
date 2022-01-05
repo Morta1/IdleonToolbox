@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { AppContext } from "./Common/context";
 
 const CharacterWrapper = ({ characters }) => {
-  const { dataFilters, displayedCharactersIndices } = useContext(AppContext);
+  const { dataFilters, displayedCharactersIndices, lastUpdated } = useContext(AppContext);
 
   const getFilters = () => {
     return dataFilters?.reduce((res, field) => ({ ...res, ...(field?.selected ? { [field?.name]: true } : {}) }), {});
@@ -13,7 +13,7 @@ const CharacterWrapper = ({ characters }) => {
   return <CharacterWrapperStyle>
     {characters?.map((characterData, tabPanelIndex) => {
       return displayedCharactersIndices[tabPanelIndex] ?
-        <Character dataFilters={getFilters()} {...characterData} key={tabPanelIndex}/> : null;
+        <Character dataFilters={getFilters()} {...characterData} lastUpdated={lastUpdated} key={tabPanelIndex}/> : null;
     })}
   </CharacterWrapperStyle>
 }

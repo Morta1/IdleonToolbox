@@ -7,7 +7,6 @@ import {
   calculateItemTotalAmount,
   calculateLeaderboard,
   calculateWeirdObolIndex,
-  cardSetMap,
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
@@ -23,7 +22,7 @@ import {
 } from "./parserUtils";
 import {
   achievements,
-  bribes,
+  bribes, cardSets,
   carryBags,
   cauldrons,
   classes,
@@ -73,7 +72,7 @@ const parseIdleonData = (idleonData, charNames) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, version: '1.1.2' }
+    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.3' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
@@ -83,7 +82,7 @@ const parseIdleonData = (idleonData, charNames) => {
 const createAccountData = (idleonData, characters) => {
   let account = {};
   const cardsObject = idleonData?.Cards?.[0];
-
+  account.TimeAway = idleonData?.TimeAway;
   account.cards = Object.keys(cardsObject)?.reduce(
     (res, card) => {
       const cardDetails = cards?.[card];
@@ -482,7 +481,7 @@ const createCharactersData = (idleonData, characters, account) => {
         ...cards?.[card]
       }))
       .filter((_, ind) => ind < 8); //cardEquipMap
-    const cardsSetObject = cardSetMap[Object.keys(cardSet)?.[0]] || {};
+    const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
     character.cards = {
       cardSet: {
         ...cardsSetObject,
@@ -586,12 +585,10 @@ const createCharactersData = (idleonData, characters, account) => {
       const [critterId, , timeElapsed, critterName, , , trapTime] = critterInfo;
       if (critterId === -1 && critterId === '-1') return res;
       const timeLeft = trapTime - timeElapsed;
-      const hours = parseInt(timeLeft / 3600);
-      const minutes = parseInt(timeLeft % 60);
       return critterName ? [...res, {
         name: items[critterName]?.displayName,
         rawName: critterName,
-        timeLeft: `${hours}h:${minutes > 0 ? minutes + 'm' : ''}`
+        timeLeft: new Date().getTime() + (timeLeft * 1000)
       }] : res;
     }, []);
 

@@ -2,21 +2,24 @@ import React from 'react';
 import styled from 'styled-components';
 import { prefix } from "../../Utilities";
 import ItemInfoTooltip from "../Common/Tooltips/ItemInfoTooltip";
+import Timer from "../Common/Timer";
 
-const Traps = ({ traps, trap }) => {
+const Traps = ({ traps, trap, lastUpdated }) => {
   return (
     <TrapsStyled length={traps?.length}>
       {[trap, ...traps]?.map((item, index) => {
         if (!item) return null;
-        const { name, timeLeft, rawName } = item;
-        const hours = parseInt(timeLeft?.match(/([0-9]+)h/g)?.[0].match(/[0-9]+/)[0]);
+        let { name, timeLeft, rawName } = item;
         return rawName?.includes('TrapBox') ? <div className={'trap'} key={name + index}>
           <ItemInfoTooltip {...item}>
             <img src={`${prefix}data/${rawName}.png`} alt=""/>
           </ItemInfoTooltip>
         </div> : <div className={'trap'} key={name + index}>
-          <span className={hours === 0 ? 'overtime' : ''}>{timeLeft}</span>
           <img src={`${prefix}data/${rawName}.png`} alt=""/>
+          <span>
+            <Timer type={'countdown'} date={timeLeft}
+                   lastUpdated={lastUpdated}/>
+          </span>
         </div>;
       })}
     </TrapsStyled>

@@ -1,13 +1,13 @@
 import styled from 'styled-components'
 import { Autocomplete } from "@material-ui/lab";
-import { breakpoint, flattenCraftObject, prefix } from "../../Utilities";
+import { breakpoint, flattenCraftObject, numberWithCommas, prefix } from "../../Utilities";
 import { crafts } from "../../data/website-data";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
 import { Checkbox, FormControlLabel, IconButton, TextField, Toolbar } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import Badge from "@material-ui/core/Badge";
-import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { AppContext } from "../Common/context";
 import MaterialsTooltip from "../Common/Tooltips/MaterialsTooltip";
 import useMediaQuery from "../Common/useMediaQuery";
@@ -28,6 +28,7 @@ const Todo = ({ userData }) => {
   const [todoList, setTodoList] = useState([]);
   const [showEquips, setShowEquips] = useState(false);
   const [showFinishedItems, setShowFinishedItems] = useState(false);
+  const [itemCount, setItemCount] = useState(1);
   const itemsRef = useRef([]);
 
   useEffect(() => {
@@ -71,41 +72,34 @@ const Todo = ({ userData }) => {
   const onAddItem = () => {
     if (item) {
       let accumulatedTodos, accumulatedMaterials;
-      if (todoList?.length === 0) {
-        accumulatedTodos = [item];
-      } else {
-        accumulatedTodos = calculateItemsQuantity(todoList, item, false);
-      }
+      accumulatedTodos = calculateItemsQuantity(todoList, item, false, true, itemCount);
       const list = Array.isArray(crafts[item?.itemName]) ? crafts[item?.itemName] : flattenCraftObject(crafts[item?.itemName]);
-      if (materialList?.length === 0) {
-        accumulatedMaterials = list;
-      } else {
-        accumulatedMaterials = list?.reduce((res, itemObject) => {
-          return calculateItemsQuantity(res, itemObject, true);
-        }, materialList);
-      }
+      accumulatedMaterials = list?.reduce((res, itemObject) => {
+        return calculateItemsQuantity(res, itemObject, true, true, itemCount);
+      }, materialList);
       setMaterialList(accumulatedMaterials);
       setTodoList(accumulatedTodos);
       setUserTodoList(accumulatedTodos, accumulatedMaterials);
+      setItemCount(1);
     }
   }
 
-  const calculateItemsQuantity = (array, itemObject, isMaterial, add = true) => {
+  const calculateItemsQuantity = (array, itemObject, isMaterial, add = true, amount) => {
     const updatedItem = array?.find((innerItem) => itemObject?.itemName === innerItem?.itemName);
     if (updatedItem) {
       return array?.reduce((res, innerItem) => {
-        const quantity = isMaterial ? itemObject?.itemQuantity : 1;
+        const quantity = isMaterial && !add ? innerItem?.itemQuantity : itemObject?.itemQuantity;
         if (itemObject?.itemName !== innerItem?.itemName) return [...res, innerItem];
         if (!add && updatedItem?.itemQuantity - quantity <= 0) {
           return res;
         }
         return [...res, {
           ...updatedItem,
-          itemQuantity: add ? updatedItem?.itemQuantity + quantity : updatedItem?.itemQuantity - quantity
+          itemQuantity: add ? updatedItem?.itemQuantity + (quantity * amount) : updatedItem?.itemQuantity - (quantity * amount)
         }]
       }, [])
     }
-    return add ? [...array, itemObject] : array;
+    return add ? [...array, { ...itemObject, itemQuantity: itemObject?.itemQuantity * amount }] : array;
   }
 
   return (
@@ -147,6 +141,14 @@ const Todo = ({ userData }) => {
             <StyledTextField {...params} label='Item Name' variant='outlined'/>
           )}
         />
+        <StyledTextField
+          value={itemCount}
+          width={'100px'}
+          inputProps={{ min: 1 }}
+          onChange={(e) => setItemCount(e?.target?.value)}
+          type={'number'}
+          label={'Item Count'}
+          variant={'outlined'}/>
         <IconButton onClick={onAddItem} title={'Add Item'}>
           <AddIcon/>
         </IconButton>
@@ -157,6 +159,7 @@ const Todo = ({ userData }) => {
           /> : null}
         </div>
       </div>
+
       <div>
         <FormControlLabel
           control={
@@ -188,7 +191,8 @@ const Todo = ({ userData }) => {
             {todoList?.map((item, index) => {
               return <div key={item?.itemName + '' + index} onMouseEnter={() => onMouseEnter(index)}
                           onMouseLeave={() => onMouseExit(index)}>
-                <Badge badgeContent={item?.itemQuantity}
+                <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
+                       max={10000}
                        anchorOrigin={{
                          vertical: 'bottom',
                          horizontal: 'right',
@@ -196,7 +200,7 @@ const Todo = ({ userData }) => {
                        color="primary">
                   <StyledIconButton size={"small"} onClick={() => onRemoveItem(item)}
                                     ref={el => itemsRef.current[index] = el}>
-                    <RemoveCircleIcon/>
+                    <HighlightOffIcon/>
                   </StyledIconButton>
                   <MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}>
                     <img key={item?.rawName + ' ' + index}
@@ -280,6 +284,7 @@ const TodoStyle = styled.div`
 `;
 
 const StyledTextField = styled(TextField)`
+  ${({ width }) => width ? `width:${width};` : ''}
   && label.Mui-focused {
     color: rgba(255, 255, 255, 0.7);
   }
