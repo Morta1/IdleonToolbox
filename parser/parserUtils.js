@@ -1,6 +1,6 @@
 import { deathNote, items, mapEnemies, monsters, quests, talents } from "../data/website-data";
 import { getDeathNoteRank } from "../Utilities";
-import { formatDuration, fromUnixTime, intervalToDuration } from 'date-fns';
+import { intervalToDuration } from 'date-fns';
 
 export const createSerializedData = (data, charNames) => {
   const PlayerDATABASE = charNames?.map((charName, index) => {
@@ -140,6 +140,11 @@ export const createSerializedData = (data, charNames) => {
   return { serializedData: serialized, chars: PlayerDATABASE };
 }
 
+export const getGlobalTime = (data) => {
+  const timeAway = tryToParse(data?.TimeAway);
+  return timeAway?.GlobalTime;
+}
+
 const createIndexedArray = (object) => {
   const highest = Math.max(...Object.keys(object));
   let result = [];
@@ -168,31 +173,14 @@ const tryToParse = (str) => {
   }
 }
 
-export const calculateAfkTime = (playerTime, globalTime) => {
-  const parsedPlayerTime = convertUnixToDate(playerTime);
-  const parsedGlobalTime = convertUnixToDate(globalTime);
-  let duration = intervalToDuration({ start: parsedPlayerTime, end: parsedGlobalTime });
-  const formatDistanceLocale = { xSeconds: '{{count}}s', xMinutes: '{{count}}m', xHours: '{{count}}h' }
-  const shortEnLocale = { formatDistance: (token, count) => formatDistanceLocale[token].replace('{{count}}', count) }
-  if (duration?.days) {
-    duration.hours += duration?.days * 24;
-  }
-  if (duration?.weeks) {
-    duration.hours += duration?.weeks * 168;
-  }
-  if (duration?.months) {
-    duration.hours += duration?.months * 672;
-  }
-  return formatDuration(duration, {
-    format: ['hours', 'minutes', 'seconds'],
-    locale: shortEnLocale,
-    delimiter: ':'
-  });
+export const calculateAfkTime = (playerTime) => {
+  return parseFloat(playerTime) * 1e3;
 }
 
-const convertUnixToDate = (unixTime) => {
-  if (!unixTime) return '';
-  return fromUnixTime(unixTime);
+export const getDuration = (start, end) => {
+  const parsedStartTime = new Date(start);
+  const parsedEndTime = new Date(end);
+  return intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
 }
 
 export const calcCardBonus = (card) => {
@@ -298,7 +286,7 @@ export const calculateLeaderboard = (characters) => {
 }
 
 export const calculateDeathNote = (characters) => {
-  const allKills = characters?.reduce((res, character, index) => {
+  const allKills = characters?.reduce((res, character) => {
     const { kills } = character;
     if (res?.length === 0) return kills;
     return kills?.map((mapKills, innerInd) => mapKills + res[innerInd]);
@@ -476,35 +464,6 @@ export const talentPagesMap = {
 };
 
 // TODO: check if able to pull from Z.js
-export const prayersMap = {
-  0: { name: 'Big_Brain_Time', rawName: 'Prayer0' },
-  1: { name: 'Skilled_Dimwit', rawName: 'Prayer1' },
-  2: { name: 'Unending_Energy', rawName: 'Prayer2' },
-  3: { name: 'Shiny_Snitch', rawName: 'Prayer3' },
-  4: { name: 'Zerg_Rushogen', rawName: 'Prayer4' },
-  5: { name: 'Tachion_of_the_Titans', rawName: 'Prayer5' },
-  6: { name: 'Balance_of_Precision', rawName: 'Prayer6' },
-  7: { name: 'Midas_Minded', rawName: 'Prayer7' },
-  8: { name: 'Jawbreaker', rawName: 'Prayer8' },
-  9: { name: 'The_Royal_Sampler', rawName: 'Prayer9' },
-  10: { name: 'Antifun_Spirit', rawName: 'Prayer10' },
-  11: { name: 'Distillarge', rawName: 'Prayer11' },
-  12: { name: 'Ruck_Sack', rawName: 'Prayer12' },
-  13: { name: 'Balance_of_Pain', rawName: 'Prayer13' },
-  14: { name: 'Balance_of_Aggression', rawName: 'Prayer14' },
-  15: { name: 'Unknown', rawName: 'Prayer15' },
-  16: { name: 'Unknown', rawName: 'Prayer16' },
-  17: { name: 'Unknown', rawName: 'Prayer17' },
-  18: { name: 'Unknown', rawName: 'Prayer18' },
-  19: { name: 'Unknown', rawName: 'Prayer19' },
-  20: { name: 'Unknown', rawName: 'Prayer20' },
-  21: { name: 'Unknown', rawName: 'Prayer21' },
-  22: { name: 'Unknown', rawName: 'Prayer22' },
-  23: { name: 'Unknown', rawName: 'Prayer23' },
-  24: { name: 'Unknown', rawName: 'Prayer24' },
-}
-
-// TODO: check if able to pull from Z.js
 export const skillIndexMap = {
   0: "character",
   1: "mining",
@@ -516,20 +475,6 @@ export const skillIndexMap = {
   7: "trapping",
   8: "construction",
   9: "worship",
-};
-
-// TODO: check if able to pull from Z.js
-export const cardSetMap = {
-  None: "None",
-  "{%_EXP_if_below_Lv_50": { name: "Blunder_Hills", rawName: 'CardSet0', base: 8 },
-  "{%_All_Food_Effect": { name: "Yum-Yum_Desert", rawName: 'CardSet1', base: 10 },
-  "{%_Skill_Efficiency": { name: "Easy_Resources", rawName: 'CardSet2', base: 8 },
-  "{%_Skill_EXP_Gain": { name: "Medium_Resources", rawName: 'CardSet3', base: 5 },
-  "{%_DEF_and_ACC": { name: "Frostbite_Tundra", rawName: 'CardSet4', base: 5 },
-  "{%_Skill_AFK_Gain_Rate": { name: "Hard_Resources", rawName: 'CardSet5', base: 4 },
-  "{%_more_Dungeon_Credits": { name: "Dungeons", rawName: 'CardSet6', base: 5 },
-  "{%_Dmg,_Drop,_and_EXP": { name: "Bosses_n_Nightmares", rawName: 'CardSet26', base: 6 },
-  "{%_Drop_Rate": { name: "Events", rawName: 'CardSet25', base: 5 },
 };
 
 // TODO: check if able to pull from Z.js

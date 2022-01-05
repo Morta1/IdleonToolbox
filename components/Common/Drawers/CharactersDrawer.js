@@ -7,6 +7,7 @@ import { AppContext } from "../context";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
 import Navigation from "../Navigation";
 import useMediaQuery from "../useMediaQuery";
+import { format } from "date-fns";
 
 const nestedOptionPadding = 35;
 
@@ -148,7 +149,7 @@ const CharactersDrawer = () => {
           <List style={{ marginTop: 'auto' }}>
             <ListItem>
               <ListItemText>
-                Last Updated <div>{lastUpdated}</div>
+                Last Updated <div>{lastUpdated ? format(lastUpdated, 'dd/MM/yyyy HH:mm:ss') : ''}</div>
               </ListItemText>
             </ListItem>
           </List>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
+import CardTooltip from "../Common/Tooltips/CardTooltip";
 
 const EquippedCards = ({ cards }) => {
   return (
@@ -9,20 +10,27 @@ const EquippedCards = ({ cards }) => {
         {cards?.cardSet?.stars > 0 ?
           <img className='border' title={cleanUnderscore(cards?.cardSet?.name)}
                src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
-        <img className={'card'} title={cleanUnderscore(cards?.cardSet?.name)}
-             src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
-             alt=""/>
+        <CardTooltip cardName={cards?.cardSet?.name} effect={cards?.cardSet.effect} bonus={cards?.cardSet?.base}
+                     stars={cards?.cardSet?.stars}>
+          <img className={'card'}
+               src={`${prefix}data/${cards?.cardSet?.rawName}`}
+               alt=""/>
+        </CardTooltip>
       </div> : null}
-      {cards?.equippedCards?.map(({ cardName, cardIndex, stars }, index) => {
+      {cards?.equippedCards?.map((card, index) => {
+        const { cardName, cardIndex, stars } = card;
         const cleanCardName = cardName?.split("(", 2)[0].trim().replace(/ /, '_') || '';
         return cardName && cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
             {stars > 0 ?
               <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
-            <img className='card' title={cardName}
-                 src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>
+            <CardTooltip {...card}>
+              <img className='card'
+                   src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>
+            </CardTooltip>
           </CardWrapper> :
-          <CardWrapper key={cleanCardName + index}><img src={`${prefix}data/EmptyCard.png`}
-                                                        alt=""/></CardWrapper>;
+          <CardWrapper key={cleanCardName + index}>
+            <img src={`${prefix}data/EmptyCard.png`} alt=""/>
+          </CardWrapper>;
       })}
     </EquippedCardsStyled>
   );
@@ -41,6 +49,7 @@ const EquippedCardsStyled = styled.div`
     justify-self: center;
 
     .border {
+      pointer-events: none;
       position: absolute;
       z-index: 1;
       height: 88px;
@@ -58,6 +67,7 @@ const CardWrapper = styled.div`
   position: relative;
 
   .border {
+    pointer-events: none;
     position: absolute;
     z-index: 1;
   }

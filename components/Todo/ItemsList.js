@@ -24,7 +24,6 @@ const ItemsList = ({
 
   const categorize = useMemo(() => mapItems(itemsList, showEquips, showFinishedItems), [itemsList, showEquips, showFinishedItems]);
 
-
   return (
     <ItemsListStyle>
       {Object.entries(categorize)?.map(([categoryName, items], index) => {

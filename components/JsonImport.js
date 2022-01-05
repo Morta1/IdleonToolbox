@@ -3,18 +3,19 @@ import { useContext, useEffect, useRef, useState } from "react";
 import styled from 'styled-components';
 import ErrorIcon from "@material-ui/icons/Error";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { format } from 'date-fns'
 import { AppContext } from './Common/context';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import parseIdleonData from "../parser";
 import NumberTooltip from "./Common/Tooltips/NumberTooltip";
+import { getGlobalTime } from "../parser/parserUtils";
+import useInterval from "./Common/Timer/useInterval";
 
 const getDate = () => {
   try {
-    return format(new Date(), 'dd/MM/yyyy HH:mm:ss');
+    return new Date()?.getTime();
   } catch (err) {
     console.log('Failed parsing date')
-    return new Date();
+    return new Date()?.getTime();
   }
 }
 
@@ -22,11 +23,19 @@ const jsonError = 'An error occurred while parsing data';
 const connectError = 'Please make sure you\'ve downloaded the latest idleon-data-extractor extension and that you\'re connected to idleon website';
 
 const JsonImport = () => {
-  const { setUserData, setUserLastUpdated, connected, setUserConnected } = useContext(AppContext);
+  const {
+    setUserData,
+    userData,
+    setUserLastUpdated,
+    connected,
+    setUserConnected,
+    lastUpdated
+  } = useContext(AppContext);
 
   const [loadIframe, setLoadIframe] = useState(false);
   const [fetchDataInterval, setFetchDataInterval] = useState();
   const [timeoutCount, setTimeoutCount] = useState(0);
+  const [firstTime, setFirstTime] = useState(true);
 
   const [fetching, setFetching] = useState(false);
   const [result, setResult] = useState(null);
@@ -34,8 +43,6 @@ const JsonImport = () => {
 
   const [manualImport, setManualImport] = useState(false);
   const [manualResult, setManualResult] = useState(null);
-  const countRef = useRef(0);
-  countRef.current = timeoutCount;
 
   useEffect(() => {
     setResult(connected ? { success: true } : null);
@@ -53,8 +60,8 @@ const JsonImport = () => {
       setLoading(true);
       setLoadIframe(true);
       setResult(null);
-      const fetchData = setInterval(fetchFromWeb, 10000);
-      setFetchDataInterval(fetchData);
+      // const fetchData = setInterval(fetchFromWeb, 10000);
+      setFetchDataInterval(true);
     } catch (e) {
       console.log('Failed to load JSON from idleon', e);
       setFetching(false);
@@ -62,24 +69,37 @@ const JsonImport = () => {
     }
   };
 
-  const fetchFromWeb = () => {
+  useInterval(() => {
     const charData = localStorage.getItem('globalData');
     if (charData) {
-      const parsed = JSON.parse(localStorage.getItem('globalData'));
-      setUserLastUpdated(getDate());
-      setUserData(parseIdleonData(parsed?.serializedData, parsed?.usernameList));
-      setLoading(false);
-      setResult({ success: true });
-      setUserConnected(true);
-      setFetching(true);
+      const globalData = JSON.parse(localStorage.getItem('globalData'));
+      const globalTime = (getGlobalTime(globalData?.serializedData) ?? 0) * 1000;
+      const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
+      if (globalTime > lastUpdated) {
+        console.debug(`Global Time ${globalTime} is higher than lastUpdated: ${lastUpdated}`);
+      }
+      if (timePassed > 60 * 5) {
+        console.debug(`Five minutes has passed, updating`);
+      }
+      if (firstTime) {
+        console.debug(`First Connection, updating`);
+      }
+      if (firstTime || !userData || globalTime > lastUpdated || timePassed > 60 * 5) {
+        setUserData(parseIdleonData(globalData?.serializedData, globalData?.usernameList));
+        setUserConnected(true);
+        setUserLastUpdated(new Date().getTime());
+        setResult({ success: true });
+        setLoading(false);
+        setFetching(true);
+        setFirstTime(false);
+      }
     }
-    if (countRef.current > 4 && !charData) {
-      console.log('Please make sure idleon-data-extractor is installed and you\'re logged in and try again.')
+    if (timeoutCount > 4 && !userData) {
       setUserConnected(false);
       endInterval(fetchDataInterval, { success: false });
     }
-    setTimeoutCount(countRef.current + 1);
-  }
+    setTimeoutCount((i) => i + 1);
+  }, fetchDataInterval ? 10000 : null);
 
   const endInterval = (interval, result) => {
     setLoadIframe(false);
@@ -88,7 +108,8 @@ const JsonImport = () => {
     setResult(result ? result : null);
     setUserConnected(false);
     setTimeoutCount(0);
-    clearInterval(interval);
+    setFirstTime(true);
+    setFetchDataInterval(false)
   }
 
   const handleManualImport = async () => {
@@ -118,8 +139,9 @@ const JsonImport = () => {
           /></NumberTooltip> :
           <NumberTooltip title={jsonError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
           /></NumberTooltip> : null}
-        {result ? result?.success ? <CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
-                                                     titleAccess={'Connected'}/> :
+        {result ? result?.success ?
+          <NumberTooltip title={'Connected'}><CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
+          /></NumberTooltip> :
           <NumberTooltip title={connectError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
           /></NumberTooltip> : null}
         {!loading ? !fetching && !connected ? <NumberTooltip
