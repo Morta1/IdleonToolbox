@@ -5,6 +5,8 @@ import { Checkbox, FormControlLabel, Tooltip } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import InfoIcon from '@material-ui/icons/Info';
 import Timer from "../Common/Timer";
+import WarningIcon from '@material-ui/icons/Warning';
+import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
@@ -17,7 +19,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
   useEffect(() => {
     const squires = characters?.filter((character) => character?.class === 'Squire');
     const squiresDataTemp = squires.reduce((res, character) => {
-      const { name, talents, cooldowns, postOffice, afkTime } = character;
+      const { name, talents, cooldowns,  afkTime } = character;
       // const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
       // const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
       const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
@@ -122,15 +124,25 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
             <div className={'requirements'}>
               <div>Components:</div>
               <div className={'items'}>{cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
+                const cost = calcCost(rank, quantity, rawName, saltIndex);
                 return <div className={'item'} key={`${rawName}-${index}`}>
                   <img src={`${prefix}data/${rawName}.png`} alt=""/>
                   <div className={'item-numbers'}>
-                    <span>{kFormatter(totalAmount)}</span>
+                    <div className={'total-amount'}>
+                      <span>{kFormatter(totalAmount)}</span>
+                      {active && cost > totalAmount ?
+                        <NumberTooltip title={`Missing ${cleanUnderscore(name)}`}>
+                          <WarningIcon color={'error'} fontSize={'small'}/>
+                        </NumberTooltip> : null}
+                    </div>
                     <div>
-                      <img className={'arrow-down'} style={{ width: 15, height: 15, objectFit: 'contain' }}
-                           src={`${prefix}data/UpgArrowG.png`}
-                           alt=""/>
-                      {calcCost(rank, quantity, rawName, saltIndex)}
+                      <ArrowImage
+                        status={active && cost > totalAmount}
+                        className={'arrow-down'}
+                        style={{ width: 15, height: 15, objectFit: 'contain' }}
+                        src={`${prefix}data/UpgArrowG.png`}
+                        alt=""/>
+                      {cost}
                     </div>
                   </div>
                 </div>
@@ -221,6 +233,12 @@ const RefineryStyle = styled.div`
           display: flex;
           flex-direction: column;
 
+          .total-amount {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
           .arrow-down {
             width: 15px;
             height: 15px;
@@ -248,9 +266,13 @@ const RefineryStyle = styled.div`
   }
 `;
 
+const ArrowImage = styled.img`
+  filter: hue-rotate(${({ status }) => status ? '230deg' : '0'});
+`;
+
 const StatusImage = styled.img`
   filter: hue-rotate(${({ status }) => status ? '136deg' : '0'});
-`
+`;
 
 const Progress = styled.div`
   position: relative;
