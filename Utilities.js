@@ -99,9 +99,12 @@ export const flattenCraftObject = (craft) => {
 };
 export const findQuantityOwned = (items, itemName) => {
   const inventoryItem = findItemInInventory(items, itemName);
-  return Object.values(inventoryItem)?.reduce((res, { amount }) => {
-    return res + amount;
-  }, 0);
+  return Object.entries(inventoryItem)?.reduce((res, [owner, { amount }]) => {
+    return {
+      amount: res?.amount + amount,
+      owner: [...res?.owner, owner]
+    };
+  }, { amount: 0, owner: [] });
 }
 export const splitTime = (numberOfHours) => {
   const days = Math.floor(numberOfHours / 24);
@@ -213,5 +216,5 @@ export const classColors = {
 
 const isProd = process.env.NODE_ENV === "production";
 export const breakpoint = 1350;
-export const extVersion = '1.1.3';
+export const extVersion = '1.1.4';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

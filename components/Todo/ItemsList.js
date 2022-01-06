@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { cleanUnderscore, findQuantityOwned, kFormatter, pascalCase, prefix } from "../../Utilities";
 import React, { useMemo } from "react";
+import OwnerTooltip from "../Common/Tooltips/OwnerTooltip";
 
 const ItemsList = ({
                      inventoryItems,
@@ -13,11 +14,11 @@ const ItemsList = ({
   const mapItems = (items, showEquips, showFinishedItems) => {
     return items?.reduce((res, item) => {
       if (!showEquips && item?.type === 'Equip') return res;
-      const quantityOwned = findQuantityOwned(inventoryItems, item?.itemName);
+      const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
       if (!showFinishedItems && quantityOwned >= item?.itemQuantity) return res;
       return {
         ...res,
-        [item?.subType]: [...(res?.[item?.subType] || []), { ...item, quantityOwned }]
+        [item?.subType]: [...(res?.[item?.subType] || []), { ...item, quantityOwned, owner }]
       };
     }, {})
   };
@@ -32,14 +33,15 @@ const ItemsList = ({
           <div className={'category-items'}>
             {items?.map(({ itemName, itemQuantity, rawName, type }, innerIndex) => {
               if (!showEquips && type === 'Equip') return null;
-              const quantityOwned = findQuantityOwned(inventoryItems, itemName);
+              const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, itemName);
               if (!showFinishedItems && quantityOwned >= itemQuantity) return null;
               return <div key={itemName + '' + innerIndex} className='item' title={rawName}>
-                <img
-                  title={cleanUnderscore(itemName)}
-                  src={`${prefix}data/${rawName}.png`}
-                  alt=''
-                />
+                <OwnerTooltip itemName={itemName} owners={owner}>
+                  <img
+                    src={`${prefix}data/${rawName}.png`}
+                    alt=''
+                  />
+                </OwnerTooltip>
                 <span className={quantityOwned >= (parseInt(itemQuantity) * copies) ? "material-value-done" : ""}>
             {kFormatter(quantityOwned, 2)}/{kFormatter(parseInt(itemQuantity) * copies, 2)}
         </span>

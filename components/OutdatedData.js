@@ -5,6 +5,19 @@ const OutdatedData = () => {
   const updates = [
     {
       latest: true,
+      version: '1.1.4',
+      changes: [
+        {
+          title: 'Item Planner',
+          desc: [
+            'Added back the option to remove 1 item from item planner',
+            'Added a checkbox to include equipped items in the item planner calculations',
+            'Added a tooltip on the required items to see who has it (like the item browser)'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.1.3',
       changes: [
         {

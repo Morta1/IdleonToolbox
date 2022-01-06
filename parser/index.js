@@ -22,7 +22,8 @@ import {
 } from "./parserUtils";
 import {
   achievements,
-  bribes, cardSets,
+  bribes,
+  cardSets,
   carryBags,
   cauldrons,
   classes,
@@ -72,7 +73,7 @@ const parseIdleonData = (idleonData, charNames) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.3' }
+    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.4' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
@@ -413,14 +414,15 @@ const createCharactersData = (idleonData, characters, account) => {
     }), {});
 
     const equipmentStoneData = char[`EquipmentMap_${charIndex}`]?.[0];
-    character.equipment = createItemsWithUpgrades(equippableNames.armor, equipmentStoneData);
+    character.equipment = createItemsWithUpgrades(equippableNames.armor, equipmentStoneData, character.name);
     const toolsStoneData = char[`EquipmentMap_${charIndex}`]?.[1];
-    character.tools = createItemsWithUpgrades(equippableNames.tools, toolsStoneData);
+    character.tools = createItemsWithUpgrades(equippableNames.tools, toolsStoneData, character.name);
     character.food = Array.from(Object.values(equippableNames.food)).reduce((res, item, index) =>
       item
         ? [...res, {
           name: items?.[item]?.displayName,
           rawName: item,
+          owner: character.name,
           amount: parseInt(equipapbleAmount.food[index] || equipapbleAmount.food[index]),
         }] : res, []);
 
