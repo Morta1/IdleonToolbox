@@ -2,12 +2,13 @@ import styled from 'styled-components'
 import { Autocomplete } from "@material-ui/lab";
 import { breakpoint, flattenCraftObject, numberWithCommas, prefix } from "../../Utilities";
 import { crafts } from "../../data/website-data";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
 import { Checkbox, FormControlLabel, IconButton, TextField, Toolbar } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import Badge from "@material-ui/core/Badge";
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import { AppContext } from "../Common/context";
 import MaterialsTooltip from "../Common/Tooltips/MaterialsTooltip";
 import useMediaQuery from "../Common/useMediaQuery";
@@ -22,17 +23,20 @@ const Todo = ({ userData }) => {
   const matches = useMediaQuery(breakpoint);
   const [labels] = useState(Object.keys(crafts));
   const [value, setValue] = useState("");
-  const [myItems, setMyItems] = useState();
+  const [defaultItems, setDefaultItems] = useState([]);
+  const [myItems, setMyItems] = useState([]);
   const [item, setItem] = useState();
   const [materialList, setMaterialList] = useState([]);
   const [todoList, setTodoList] = useState([]);
   const [showEquips, setShowEquips] = useState(false);
   const [showFinishedItems, setShowFinishedItems] = useState(false);
+  const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const [itemCount, setItemCount] = useState(1);
-  const itemsRef = useRef([]);
+  const itemsRef = useRef({ removeAll: [], removeOne: [] });
 
   useEffect(() => {
-    itemsRef.current = itemsRef.current.slice(0, todoList?.length);
+    itemsRef.current.removeAll = itemsRef.current.removeAll.slice(0, todoList?.length);
+    itemsRef.current.removeOne = itemsRef.current.removeOne.slice(0, todoList?.length);
   }, [todoList]);
 
   useEffect(() => {
@@ -43,30 +47,54 @@ const Todo = ({ userData }) => {
       setTodoList(userTodoList?.todoList);
     }
     setMyItems(totalItems);
+    setDefaultItems(totalItems);
   }, []);
+
+  useEffect(() => {
+    if (defaultItems?.length) {
+      setMyItems(includeEquippedItems ? [...defaultItems, ...equippedItems] : defaultItems);
+    }
+  }, [includeEquippedItems])
+
+  const addEquippedItems = (shouldInclude) => {
+    return shouldInclude ? userData?.characters.reduce((res, {
+      tools,
+      equipment,
+      food
+    }) => [...res, ...tools, ...equipment, ...food], [])
+      .filter(({ rawName }) => rawName !== 'Blank')
+      .map((item) => item?.amount ? item : { ...item, amount: 1 }) : [];
+  };
+
+  const equippedItems = useMemo(() => addEquippedItems(includeEquippedItems), [includeEquippedItems]);
 
   const onItemChange = (newValue) => {
     setValue(newValue);
     setItem(crafts[newValue]);
   }
   const onMouseEnter = (index) => {
-    itemsRef.current[index].style.display = 'block';
+    itemsRef.current.removeOne[index].style.display = 'block';
+    itemsRef.current.removeAll[index].style.display = 'block';
   }
 
   const onMouseExit = (index) => {
-    itemsRef.current[index].style.display = 'none';
+    itemsRef.current.removeOne[index].style.display = 'none';
+    itemsRef.current.removeAll[index].style.display = 'none';
   }
 
-  const onRemoveItem = (itemObject) => {
+  const onRemoveItem = (itemObject, amount) => {
     let accumulatedTodos, accumulatedMaterials;
-    accumulatedTodos = calculateItemsQuantity(todoList, itemObject, false, false);
-    const list = Array.isArray(itemObject) ? itemObject : flattenCraftObject(itemObject);
-    accumulatedMaterials = list?.reduce((res, itemObject) => {
-      return calculateItemsQuantity(res, itemObject, true, false);
-    }, materialList);
-    setMaterialList(accumulatedMaterials);
-    setTodoList(accumulatedTodos);
-    setUserTodoList(accumulatedTodos, accumulatedMaterials);
+    const originalItem = crafts[itemObject?.itemName];
+    if (originalItem) {
+      accumulatedTodos = calculateItemsQuantity(todoList, originalItem, false, false, amount);
+      const list = Array.isArray(itemObject) ? itemObject : flattenCraftObject(itemObject);
+      accumulatedMaterials = list?.reduce((res, itemObject) => {
+        return calculateItemsQuantity(res, itemObject, true, false, amount);
+      }, materialList);
+      setMaterialList(accumulatedMaterials);
+      setTodoList(accumulatedTodos);
+      setUserTodoList(accumulatedTodos, accumulatedMaterials);
+    }
   }
 
   const onAddItem = () => {
@@ -88,14 +116,14 @@ const Todo = ({ userData }) => {
     const updatedItem = array?.find((innerItem) => itemObject?.itemName === innerItem?.itemName);
     if (updatedItem) {
       return array?.reduce((res, innerItem) => {
-        const quantity = isMaterial && !add ? innerItem?.itemQuantity : itemObject?.itemQuantity;
         if (itemObject?.itemName !== innerItem?.itemName) return [...res, innerItem];
+        const quantity = amount ? amount * itemObject?.itemQuantity : innerItem?.itemQuantity;
         if (!add && updatedItem?.itemQuantity - quantity <= 0) {
           return res;
         }
         return [...res, {
           ...updatedItem,
-          itemQuantity: add ? updatedItem?.itemQuantity + (quantity * amount) : updatedItem?.itemQuantity - (quantity * amount)
+          itemQuantity: add ? updatedItem?.itemQuantity + quantity : updatedItem?.itemQuantity - quantity
         }]
       }, [])
     }
@@ -183,14 +211,25 @@ const Todo = ({ userData }) => {
           }
           label={'Show Finished Items'}
         />
+        <FormControlLabel
+          control={
+            <StyledCheckbox
+              checked={includeEquippedItems}
+              onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
+              name='Include Equipped Items'
+              color='default'
+            />
+          }
+          label={'Include Equipped Items'}
+        />
       </div>
       {todoList?.length ? <div className={'content'}>
         <div className={'items-wrapper'}>
           <span className={'title'}>Tracked Items</span>
           <div className={'items'}>
             {todoList?.map((item, index) => {
-              return <div key={item?.itemName + '' + index} onMouseEnter={() => onMouseEnter(index)}
-                          onMouseLeave={() => onMouseExit(index)}>
+              return <div key={item?.itemName + '' + index} onMouseEnter={() => onMouseEnter(index, 'removeAll')}
+                          onMouseLeave={() => onMouseExit(index, 'removeAll')}>
                 <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
                        max={10000}
                        anchorOrigin={{
@@ -199,8 +238,12 @@ const Todo = ({ userData }) => {
                        }}
                        color="primary">
                   <StyledIconButton size={"small"} onClick={() => onRemoveItem(item)}
-                                    ref={el => itemsRef.current[index] = el}>
+                                    ref={el => itemsRef.current.removeAll[index] = el}>
                     <HighlightOffIcon/>
+                  </StyledIconButton>
+                  <StyledIconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(item, 1)}
+                                    ref={el => itemsRef.current.removeOne[index] = el}>
+                    <RemoveCircleIcon/>
                   </StyledIconButton>
                   <MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}>
                     <img key={item?.rawName + ' ' + index}
@@ -228,9 +271,9 @@ const StyledIconButton = styled(IconButton)`
     display: none;
     position: absolute;
     top: 0;
-    left: 0;
     color: white;
-    transform: scale(1) translate(-25%, -35%);
+    ${({ type }) => type === 'bottom' ? `right:0;` : 'left: 0'}
+    ${({ type }) => type === 'bottom' ? `transform: scale(1) translate(25%, 0);` : 'transform: scale(1) translate(-25%, -35%);'}
   }
 `
 

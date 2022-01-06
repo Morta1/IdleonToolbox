@@ -334,11 +334,12 @@ export const calculateStars = (tierReq, amountOfCards) => {
   return 0;
 };
 
-export const createItemsWithUpgrades = (charItems, stoneData) => {
+export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData[itemIndex]);
     return item ? [...res, {
       name: items?.[item]?.displayName, rawName: item,
+      owner,
       ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult })
     }] : res
   }, []);
