@@ -13,7 +13,7 @@ const CraftItemsList = ({
     <CraftItemsListStyle>
       {itemsList?.map(({ itemName, itemQuantity, rawName, type }, index) => {
         if (!showEquips && type === 'Equip') return null;
-        const quantityOwned = findQuantityOwned(inventoryItems, itemName);
+        const { amount:quantityOwned } = findQuantityOwned(inventoryItems, itemName);
         if (!showFinishedItems && quantityOwned >= itemQuantity) return null;
         return <div key={itemName + index} className='item' title={rawName}>
           <img

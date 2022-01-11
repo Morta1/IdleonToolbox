@@ -1,5 +1,4 @@
 import {
-  anvilProductionItems,
   calcCardBonus,
   calculateAfkTime,
   calculateCardSetStars,
@@ -10,24 +9,53 @@ import {
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
+  getActiveBubbleBonus,
+  getAllCapsBonus,
+  getAllSkillExp,
+  getAnvilExp,
+  getAnvilSpeed,
+  getAnvilUpgradeCostItem,
+  getBubbleBonus,
   getChargeRate,
+  getCoinCost,
+  getDungeonStatBonus,
+  getEquippedCardBonus,
+  getGoldenFoodBonus,
+  getGuildBonusBonus,
   getInventory,
   getMaxCharge,
+  getMonsterMatCost,
+  getPlayerCapacity,
+  getPostOfficeBonus,
+  getPrayerBonusAndCurse,
+  getSaltLickBonus,
+  getShrineBonus,
+  getSmithingExpMutli,
+  getStampBonus,
+  getStarSignBonus,
+  getStatFromEquipment,
+  getStatueBonus,
+  getTalentBonus,
+  getTotalCoinCost,
+  getTotalMonsterMatCost,
   keysMap,
   mapAccountQuests,
   shopMapping,
   skillIndexMap,
   starSignsIndicesMap,
-  talentPagesMap
+  talentPagesMap,
 } from "./parserUtils";
 import {
   achievements,
+  anvilProducts,
   bribes,
   cardSets,
   carryBags,
   cauldrons,
   classes,
   constellations,
+  dungeonStats,
+  guildBonuses,
   mapNames,
   mapPortals,
   monsters,
@@ -48,7 +76,7 @@ import { round } from "../Utilities";
 const { cards, items, obols, stamps, statues } = require("../data/website-data");
 const { calculateStars, createObolsWithUpgrades, filteredLootyItems } = require("./parserUtils");
 
-const parseIdleonData = (idleonData, charNames) => {
+const parseIdleonData = (idleonData, charNames, guildData) => {
   try {
     let characterNames, characters;
     if (idleonData?.PlayerDATABASE) {
@@ -64,6 +92,7 @@ const parseIdleonData = (idleonData, charNames) => {
     }
 
     let account = createAccountData(idleonData, characters);
+    account.guild = createGuildData(guildData);
     let charactersData = createCharactersData(idleonData, characters, account);
     let skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
     let leaderboard = calculateLeaderboard(skills);
@@ -73,10 +102,28 @@ const parseIdleonData = (idleonData, charNames) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.4' }
+    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.5' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
+  }
+}
+
+const createGuildData = (guildData) => {
+  if (!guildData) return {
+    guildIconIndex: '',
+    guildName: '',
+    guildBonuses: []
+  }
+
+  const updatedGuildBonuses = guildBonuses?.map((guildBonus, index) => ({
+    ...guildBonus,
+    level: guildData?.stats?.[index] ?? 0
+  }))
+  return {
+    guildIconIndex: guildData?.i ?? '',
+    guildName: guildData?.n ?? '',
+    guildBonuses: updatedGuildBonuses
   }
 }
 
@@ -84,6 +131,9 @@ const createAccountData = (idleonData, characters) => {
   let account = {};
   const cardsObject = idleonData?.Cards?.[0];
   account.TimeAway = idleonData?.TimeAway;
+  account.gemItemsPurchased = idleonData?.GemItemsPurchased;
+  account.dungeonUpgrades = idleonData?.DungUpg?.[5]?.map((level, index) => ({ ...dungeonStats[index], level }));
+
   account.cards = Object.keys(cardsObject)?.reduce(
     (res, card) => {
       const cardDetails = cards?.[card];
@@ -165,9 +215,10 @@ const createAccountData = (idleonData, characters) => {
   const startingIndex = 18;
   account.shrines = shrinesArray.reduce((res, item, localIndex) => {
     const index = startingIndex + localIndex;
-    const [shrineId, , , shrineLevel] = item;
+    const [mapId, , , shrineLevel] = item;
     const { shrineName, desc, baseBonus, bonusPerLevel } = shrines[index];
-    return shrineId !== 0 && shrineName !== 'Unknown' ? [...res, {
+    return mapId !== 0 && shrineName !== 'Unknown' ? [...res, {
+      mapId,
       shrineLevel,
       name: shrineName,
       rawName: `ConTowerB${index}`,
@@ -424,6 +475,7 @@ const createCharactersData = (idleonData, characters, account) => {
           rawName: item,
           owner: character.name,
           amount: parseInt(equipapbleAmount.food[index] || equipapbleAmount.food[index]),
+          ...(items?.[item] || {})
         }] : res, []);
 
 
@@ -450,19 +502,6 @@ const createCharactersData = (idleonData, characters, account) => {
         return [...res, account?.alchemy?.bubbles?.[cauldronIndex][bubbleIndex]];
       }, []);
 
-    // crafting material in production
-    let anvilCraftsMapping = char?.[`AnvilPAselect_${charIndex}`];
-    if (!Array.isArray(anvilCraftsMapping)) {
-      anvilCraftsMapping = [anvilCraftsMapping];
-    }
-    const selectedProducts = anvilCraftsMapping
-      .sort((a, b) => a - b)
-      .map((item) => anvilProductionItems[item]);
-
-    character.anvil = {
-      selected: selectedProducts,
-    };
-
     const levelsRaw = char?.[`Exp0_${charIndex}`];
     const levelsReqRaw = char?.[`ExpReq0_${charIndex}`];
     const skillsInfoObject = char?.[`Lv0_${charIndex}`];
@@ -474,6 +513,170 @@ const createCharactersData = (idleonData, characters, account) => {
           [skillIndexMap[index]]: { level, exp: parseFloat(levelsRaw[index]), expReq: parseFloat(levelsReqRaw[index]) },
         } : res, {});
 
+    const talentsObject = char?.[`SkillLevels_${charIndex}`];
+    const maxTalentsObject = char?.[`SkillLevelsMAX_${charIndex}`];
+    const pages = talentPagesMap?.[character?.class];
+    character.talents = createTalentPage(character?.class, pages, talentsObject, maxTalentsObject);
+    character.starTalents = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
+
+
+    const prayersArray = char?.[`Prayers_${charIndex}`];
+    const PrayersUnlocked = idleonData?.PrayersUnlocked;
+    character.prayers = prayersArray.reduce((res, prayerIndex) => (prayerIndex >= 0 ? [...res, {
+      ...prayers?.[prayerIndex],
+      prayerIndex,
+      level: PrayersUnlocked?.[prayerIndex]
+    }] : res), []);
+
+    // crafting material in production
+    // AnvilPA - production
+    // AnvilPAstats - stats
+    // AnvilPAselect - selected
+
+    let anvilProduction = char?.[`AnvilPA_${charIndex}`];
+    let [availablePoints,
+      pointsFromCoins,
+      pointsFromMats,
+      xpPoints,
+      speedPoints,
+      capPoints] = char?.[`AnvilPAstats_${charIndex}`];
+
+    let anvilSelected = char?.[`AnvilPAselect_${charIndex}`];
+    if (!Array.isArray(anvilSelected)) {
+      anvilSelected = [anvilSelected];
+    }
+
+    const production = anvilProduction?.reduce((res, item, index) => {
+      const [currentAmount, currentXP, currentProgress, totalProduced] = item;
+      return [
+        ...res,
+        {
+          currentAmount,
+          currentXP,
+          currentProgress: parseFloat(currentProgress),
+          totalProduced,
+          ...(anvilProducts[index] || {}),
+          hammers: anvilSelected?.filter((item) => item === index)?.length
+        }
+      ]
+    }, []);
+
+    const stats = {
+      availablePoints,
+      pointsFromCoins,
+      pointsFromMats,
+      xpPoints,
+      speedPoints,
+      capPoints
+    };
+
+    const anvilnomicsBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'aUpgradesG4');
+    const isArcher = talentPagesMap[character.class].includes('Archer');
+    const archerMultiBubble = isArcher ? getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'aUpgradesG1') : 1;
+    const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
+    const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);
+    stats.anvilCost = {
+      ...anvilCost,
+      totalMats: getTotalMonsterMatCost(anvilCost, pointsFromMats, anvilCostReduction),
+      nextMatUpgrade: getMonsterMatCost(pointsFromMats, anvilCostReduction),
+      totalCoins: getTotalCoinCost(pointsFromCoins, anvilCostReduction),
+      nextCoinUpgrade: getCoinCost(pointsFromCoins, anvilCostReduction, true),
+    };
+
+    // // ANVIL EXP
+    // const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
+    // const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
+    // const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
+    // const goldenHamBonus = getGoldenFoodBonus(goldenHam?.Amount, goldenHam?.amount);
+    // const skillExpCardSetBonus = calcCardBonus(character?.cards?.cardSet);
+    // const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap_${charIndex}`], account?.cards, 'Z9');
+    // const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
+    // const unendingEnergyBonus = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
+    // const skilledDimwitCurse = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.curse;
+    // const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.prayers, 'The_Royal_Sampler')?.curse;
+    // const equipmentBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, '%_SKILL_EXP'), 0);
+    // const maestroTransfusionTalentBonus = getTalentBonus(character?.talents, 2, 'MAESTRO_TRANSFUSION');
+    // const duneSoulLickBonus = getSaltLickBonus(account?.saltLicks, 'Soul2');
+    // const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeonUpgrades, 'Skilling_Exp');
+    // const allSkillExp = getAllSkillExp(
+    //   sirSavvyStarSign,
+    //   cEfauntCardBonus,
+    //   goldenHamBonus,
+    //   skillExpCardSetBonus,
+    //   summereadingShrineBonus,
+    //   ehexpeeStatueBonus,
+    //   unendingEnergyBonus,
+    //   skilledDimwitCurse,
+    //   theRoyalSamplerCurse,
+    //   equipmentBonus,
+    //   maestroTransfusionTalentBonus,
+    //   duneSoulLickBonus,
+    //   dungeonSkillExpBonus,
+    // );
+    //
+    // const focusedSoulTalentBonus = getTalentBonus(character?.talents, 0, 'FOCUSED_SOUL');
+    // const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
+    // const fireForgeCardBonus = getEquippedCardBonus(character?.cards, 'C16');
+    // const cinderForgeCardBonus = getEquippedCardBonus(character?.cards, 'D16');
+    // const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
+    // const leftHandOfLearningTalentBonus = getTalentBonus(character?.talents, 2, 'LEFT_HAND_OF_LEARNING');
+    // const smithingExp = getSmithingExpMutli(
+    //   focusedSoulTalentBonus,
+    //   happyDudeTalentBonus,
+    //   fireForgeCardBonus,
+    //   cinderForgeCardBonus,
+    //   blackSmithBoxBonus0,
+    //   allSkillExp,
+    //   leftHandOfLearningTalentBonus);
+    // stats.anvilExp = getAnvilExp(xpPoints, smithingExp);
+
+    // ANVIL SPEED MATH;
+    const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);
+    const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
+    const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'aUpgradesG2');
+    const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
+    const bobBuildGuyStarSign = getStarSignBonus(character?.starSigns, 'Bob_Build_Guy', 'Speed_in_Town');
+    const talentTownSpeedBonus = getTalentBonus(character?.talents, 0, 'BROKEN_TIME');
+    stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus);
+
+    let guildCarryBonus = 0;
+    let zergPrayerBonus = getPrayerBonusAndCurse(character?.prayers, 'Zerg_Rushogen')?.curse;
+    let ruckSackPrayerBonus = getPrayerBonusAndCurse(character?.prayers, 'Ruck_Sack')?.bonus;
+
+    if (account?.guild) {
+      guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
+    }
+    const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
+    const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap_${charIndex}`], account?.cards, 'Z9');
+    const allCapacity = getAllCapsBonus(guildCarryBonus, telekineticStorageBonus, carryCapShrineBonus, zergPrayerBonus, ruckSackPrayerBonus);
+
+    const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character?.skillsInfo?.smithing?.level);
+    const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character?.skillsInfo?.smithing?.level);
+    const gemShopCarryBonus = account?.gemItemsPurchased?.find((value, index) => index === 58) ?? 0;
+    const extraBagsTalentBonus = getTalentBonus(character?.talents, 1, 'EXTRA_BAGS');
+    const starSignExtraCap = getStarSignBonus(character?.starSigns, 'Pack_Mule', 'Carry_Cap');
+
+    const charMaterialBag = character?.carryCapBags?.find(({ Class }) => Class === 'bCraft');
+    const playerCapacity = getPlayerCapacity(charMaterialBag, {
+      allCapacity,
+      mattyBagStampBonus,
+      masonJarStampBonus,
+      gemShopCarryBonus,
+      extraBagsTalentBonus,
+      starSignExtraCap
+    })
+
+    stats.anvilCapacity = Math.round(playerCapacity * (2 + 0.1 * capPoints));
+    const selectedProducts = anvilSelected
+      .sort((a, b) => a - b)
+      .map((item) => anvilProducts[item]);
+
+    character.anvil = {
+      guild: !!account?.guild,
+      stats,
+      production,
+      selected: selectedProducts,
+    };
 
     const cardSet = char?.[`CSetEq_${charIndex}`];
     const equippedCards = char?.[`CardEquip_${charIndex}`]
@@ -532,21 +735,6 @@ const createCharactersData = (idleonData, characters, account) => {
     const obolUpgradesObject = char?.[`ObolEquippedMap_${charIndex}`];
     const sortedObols = obolsMap.sort((a, b) => a.index - b.index)
     character.obols = createObolsWithUpgrades(sortedObols, obolUpgradesObject);
-
-
-    const talentsObject = char?.[`SkillLevels_${charIndex}`];
-    const maxTalentsObject = char?.[`SkillLevelsMAX_${charIndex}`];
-    const pages = talentPagesMap?.[character?.class];
-    character.talents = createTalentPage(character?.class, pages, talentsObject, maxTalentsObject);
-    character.starTalents = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
-
-    const prayersArray = char?.[`Prayers_${charIndex}`];
-    const PrayersUnlocked = idleonData?.PrayersUnlocked;
-    character.prayers = prayersArray.reduce((res, prayerIndex) => (prayerIndex >= 0 ? [...res, {
-      ...prayers?.[prayerIndex],
-      prayerIndex,
-      level: PrayersUnlocked?.[prayerIndex]
-    }] : res), []);
 
     // 0 - current worship charge rate
     const playerStuffArray = char?.[`PlayerStuff_${charIndex}`];

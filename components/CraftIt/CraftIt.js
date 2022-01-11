@@ -25,6 +25,7 @@ const CraftIt = ({ userData }) => {
   useEffect(() => {
     const charItems = userData?.characters.reduce((res, { inventory }) => [...res, ...inventory], []);
     const totalItems = [...charItems, ...userData?.account?.inventory];
+    console.log(totalItems)
     setMyItems(totalItems);
   }, []);
 

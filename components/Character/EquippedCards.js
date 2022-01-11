@@ -13,7 +13,7 @@ const EquippedCards = ({ cards }) => {
         <CardTooltip cardName={cards?.cardSet?.name} effect={cards?.cardSet.effect} bonus={cards?.cardSet?.base}
                      stars={cards?.cardSet?.stars}>
           <img className={'card'}
-               src={`${prefix}data/${cards?.cardSet?.rawName}`}
+               src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
                alt=""/>
         </CardTooltip>
       </div> : null}

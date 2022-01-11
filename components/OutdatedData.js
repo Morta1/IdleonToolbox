@@ -5,6 +5,19 @@ const OutdatedData = () => {
   const updates = [
     {
       latest: true,
+      version: '1.1.5',
+      changes: [
+        {
+          title: 'Characters',
+          desc: [
+            'Anvil is most accurate when using the \'connect\' button because the steam-extractor is missing guild data and bonuses',
+            'Added material and coins cost calculations',
+            'Added anvil speed and capacity'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.1.4',
       changes: [
         {

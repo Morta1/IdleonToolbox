@@ -1,5 +1,5 @@
 import { Button, CircularProgress, IconButton } from "@material-ui/core";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from 'styled-components';
 import ErrorIcon from "@material-ui/icons/Error";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -47,6 +47,7 @@ const JsonImport = () => {
   useEffect(() => {
     setResult(connected ? { success: true } : null);
   }, [connected]);
+
   useEffect(() => {
     // autoUpdate();
     return () => {
@@ -85,7 +86,7 @@ const JsonImport = () => {
         console.debug(`First Connection, updating`);
       }
       if (firstTime || !userData || globalTime > lastUpdated || timePassed > 60 * 5) {
-        setUserData(parseIdleonData(globalData?.serializedData, globalData?.usernameList));
+        setUserData(parseIdleonData(globalData?.serializedData, globalData?.usernameList, globalData.serializedGuildData));
         setUserConnected(true);
         setUserLastUpdated(new Date().getTime());
         setResult({ success: true });

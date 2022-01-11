@@ -1,6 +1,7 @@
-import { deathNote, items, mapEnemies, monsters, quests, talents } from "../data/website-data";
-import { getDeathNoteRank } from "../Utilities";
-import { intervalToDuration } from 'date-fns';
+import { anvilUpgradeCost, deathNote, items, mapEnemies, monsters, quests, talents } from "../data/website-data";
+import { getDeathNoteRank, round } from "../Utilities";
+import { getDaysInMonth, intervalToDuration } from 'date-fns';
+import { growth } from "../components/General/calculationHelper";
 
 export const createSerializedData = (data, charNames) => {
   const PlayerDATABASE = charNames?.map((charName, index) => {
@@ -19,6 +20,10 @@ export const createSerializedData = (data, charNames) => {
           case key.includes('EquipQTY'): {
             updatedKey = `EquipmentQuantity_${index}`;
             details = createArrayOfArrays(details);
+            break;
+          }
+          case key.includes('AnvilPA_'): {
+            updatedDetails = createArrayOfArrays(details);
             break;
           }
           case key.includes('EMm0'): {
@@ -102,6 +107,7 @@ export const createSerializedData = (data, charNames) => {
       ColosseumHighscores: data?.FamValColosseumHighscores,
       MinigameHiscores: data?.FamValMinigameHiscores
     },
+    GemItemsPurchased: tryToParse(data?.GemItemsPurchased),
     ShopStock: tryToParse(data?.ShopStock),
     CauldronInfo: createArrayOfArrays(data?.CauldronInfo),
     BribeStatus: tryToParse(data?.BribeStatus),
@@ -124,6 +130,7 @@ export const createSerializedData = (data, charNames) => {
     ],
     BundlesReceived: tryToParse(data?.BundlesReceived),
     SaltLick: tryToParse(data?.SaltLick),
+    DungUpg: tryToParse(data?.DungUpg),
     CurrenciesOwned: {
       WorldTeleports: data?.CYWorldTeleports,
       KeysAll: data?.CYKeysAll,
@@ -180,12 +187,273 @@ export const calculateAfkTime = (playerTime) => {
 export const getDuration = (start, end) => {
   const parsedStartTime = new Date(start);
   const parsedEndTime = new Date(end);
-  return intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
+  let duration = intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
+  if (duration?.months) {
+    const daysInMonth = getDaysInMonth(new Date())
+    duration.days = duration.days + daysInMonth;
+  }
+  return duration;
+}
+
+export const getEquippedCardBonus = (cards, cardInd) => {
+  const card = cards?.equippedCards?.find(({ cardIndex }) => cardIndex === cardInd);
+  if (!card) return 0;
+  return calcCardBonus(card);
 }
 
 export const calcCardBonus = (card) => {
   if (!card) return 0;
-  return card?.bonus * ((card?.stars ?? 0) + 1);
+  return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
+}
+
+export const getStampBonus = (stamps, stampTree, stampName, skillLevel) => {
+  const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
+  if (!stamp) return 0;
+  const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;
+  const lvlDiff = 3 + (normalLevel - 3) * Math.pow(skillLevel / (normalLevel - 3), 0.75)
+  const reducedLevel = lvlDiff * stamp?.reqItemMultiplicationLevel / 10
+  if (skillLevel > 0 && reducedLevel < stamp?.level && stampTree === 'skills') {
+    return growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2) ?? 0;
+  }
+  return growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2) ?? 0;
+}
+
+export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
+  const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
+  const talent = talentsObj?.find(({ name }) => name === talentName);
+  if (!talent) return 0;
+  if (yBonus) {
+    return growth(talent?.funcY, talent?.level, talent?.y1, talent?.y2) ?? 0
+  }
+  return growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2) ?? 0;
+}
+
+export const getSaltLickBonus = (saltLicks, saltIndex) => {
+  const saltLick = saltLicks?.find(({ rawName }) => rawName === saltIndex);
+  if (saltLick === 0) return 0;
+  return round(saltLick.baseBonus * (saltLick.level ?? 0)) ?? 0;
+}
+
+export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex) => {
+  const shrine = shrines?.[shrineIndex];
+  if (shrine?.level === 0 || playerMapId !== shrine?.mapId) {
+    return 0;
+  }
+  const cardBonus = getEquippedCardBonus(cards, cardIndex) ?? 0;
+  return shrine?.bonus * (1 + cardBonus / 100);
+}
+
+export const getPrayerBonusAndCurse = (prayers, prayerName) => {
+  const prayer = prayers?.find(({ name }) => name === prayerName);
+  if (!prayer) return { bonus: 0, curse: 0 };
+  const bonus = prayer.x1 + (prayer.x1 * (prayer.level - 1)) / 10;
+  const curse = prayer.x2 + (prayer.x2 * (prayer.level - 1)) / 10;
+  return { bonus, curse }
+}
+
+export const getActiveBubbleBonus = (equippedBubbles, bubbleName) => {
+  const bubble = equippedBubbles?.find(({ rawName }) => rawName === bubbleName);
+  if (!bubble) return 0;
+  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2) ?? 0;
+}
+
+export const getBubbleBonus = (cauldrons, cauldronName, bubbleName) => {
+  const bubble = cauldrons?.[cauldronName]?.find(({ rawName }) => rawName === bubbleName);
+  if (!bubble) return 0;
+  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2) ?? 0;
+}
+
+export const getDungeonStatBonus = (dungeonStats, statName) => {
+  const stat = dungeonStats?.find(({ effect }) => effect === statName);
+  if (!stat) return 0;
+  return growth(stat?.func, stat?.level, stat?.x1, stat?.x2) ?? 0;
+}
+
+export const getAllCapsBonus = (guildBonus, telekineticStorageBonus, shrineBonus, zergPrayer, ruckSackPrayer) => {
+  return (
+    (1 + (guildBonus + telekineticStorageBonus) / 100) *
+    (1 + (shrineBonus / 100)) *
+    Math.max(1 - zergPrayer / 100, 0.4) *
+    (1 + ruckSackPrayer / 100)
+  );
+}
+
+
+export const getAllSkillExp = (
+  sirSavvyStarSign,
+  cEfauntCardBonus,
+  goldenHamBonus,
+  skillExpCardSetBonus,
+  summereadingShrineBonus,
+  ehexpeeStatueBonus,
+  unendingEnergyBonus,
+  skilledDimwitCurse,
+  theRoyalSamplerCurse,
+  equipmentBonus,
+  maestroTransfusionTalentBonus,
+  duneSoulLickBonus,
+  dungeonSkillExpBonus,
+) => {
+  return sirSavvyStarSign + cEfauntCardBonus + goldenHamBonus +
+    skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus +
+    unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + equipmentBonus +
+    maestroTransfusionTalentBonus + duneSoulLickBonus + dungeonSkillExpBonus;
+}
+
+export const getSmithingExpMutli = (focusedSoulTalentBonus, happyDudeTalentBonus, fireForgeCardBonus, cinderForgeCardBonus, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
+  const talentsBonus = 1 + (focusedSoulTalentBonus + happyDudeTalentBonus) / 100;
+  const cardsBonus = 1 + (fireForgeCardBonus + cinderForgeCardBonus) / 100;
+  return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus / 100));
+}
+
+export const getAnvilExp = (xpPoints, smithingExp) => {
+  const baseExp = 1 + (3 * xpPoints / 100) * smithingExp;
+  if (baseExp > 20) return baseExp;
+  return Math.min(20 + ((baseExp - 20) / baseExp - 20 + 70) * 50, 75);
+}
+
+export const getPlayerCapacity = (bag, capacities) => {
+  if (bag) {
+    return getMaterialCapacity(bag, capacities);
+  }
+  return bag?.capacity;
+}
+
+const getMaterialCapacity = (bag, capacities) => {
+  const {
+    allCapacity,
+    mattyBagStampBonus,
+    gemShopCarryBonus,
+    masonJarStampBonus,
+    extraBagsTalentBonus,
+    starSignExtraCap
+  } = capacities;
+  const stampMatCapMath = (1 + mattyBagStampBonus / 100);
+  const gemPurchaseMath = (1 + (25 * gemShopCarryBonus) / 100);
+  const additionalCapMath = (1 + (masonJarStampBonus + starSignExtraCap) / 100); // ignoring star sign
+  const talentBonusMath = (1 + extraBagsTalentBonus / 100);
+  const bCraftCap = bag?.capacity;
+  return Math.floor(bCraftCap * stampMatCapMath * gemPurchaseMath * additionalCapMath * talentBonusMath * allCapacity);
+}
+
+export const getAnvilUpgradeCostItem = (pointsFromMats) => {
+  const costIndex = anvilUpgradeCost.findIndex(({ costThreshold }, index) => (pointsFromMats < costThreshold) || (index === anvilUpgradeCost?.length - 1)) || {};
+  const costObject = anvilUpgradeCost?.[costIndex];
+  const startingIndex = costIndex === 0 ? 1 : pointsFromMats < costObject?.costThreshold ? anvilUpgradeCost?.[costIndex - 1]?.costThreshold : costObject?.costThreshold;
+  return costObject ? {
+    ...costObject,
+    startingIndex: startingIndex
+  } : { costThreshold: null, itemName: null };
+}
+
+export const getTotalMonsterMatCost = ({ costThreshold, startingIndex } = {}, pointsFromMats, anvilCostReduction) => {
+  if (!costThreshold) return 0;
+  let totalMaterials = 0;
+  for (let point = startingIndex; point < pointsFromMats; point++) {
+    totalMaterials += getMonsterMatCost(point, anvilCostReduction);
+  }
+  return totalMaterials;
+}
+
+export const getTotalCoinCost = (pointsFromMats, anvilCostReduction) => {
+  let totalMaterials = 0;
+  for (let point = 0; point < pointsFromMats; point++) {
+    totalMaterials += getCoinCost(point, anvilCostReduction);
+  }
+  return String(totalMaterials).split(/(?=(?:..)*$)/);
+}
+
+export const getCoinCost = (pointsFromCoins, anvilCostReduction, format) => {
+  const baseCost = Math.pow(pointsFromCoins, 3) + 50;
+  const cost = Math.round(baseCost * (1 + pointsFromCoins / 100) * Math.max(0.1, 1 - anvilCostReduction / 100));
+  return format ? String(cost).split(/(?=(?:..)*$)/) : cost;
+}
+
+export const getMonsterMatCost = (pointsFromMats, anvilCostReduction) => {
+  return Math.round((Math.pow(pointsFromMats + 1, 1.5) + pointsFromMats) * Math.max(0.1, 1 - anvilCostReduction / 100))
+}
+
+export const getGoldenFoodBonus = (amount, stack) => {
+  if (!amount || !stack) return 0;
+  return round(amount * 0.05 * lavaLog(1 + stack) * (1 + lavaLog(1 + stack) / 2.14));
+}
+
+export const getGuildBonusBonus = (guildBonuses, bonusIndex) => {
+  const guildBonus = guildBonuses?.[bonusIndex];
+  if (!guildBonus) return 0;
+  return growth(guildBonus.func, guildBonus.level, guildBonus.x1, guildBonus.x2) ?? 0;
+}
+
+export const getStatueBonus = (statues, statueName, talents) => {
+  const statue = statues?.find(({ rawName }) => rawName === statueName);
+  if (!statue) return 0;
+  let talentBonus = 1;
+
+  switch (statue?.name) {
+    case "POWER":
+    case "MINING":
+    case "DEFENSE":
+    case "OCEANMAN":
+      talentBonus += (getTalentBonus(talents, 2, 'SHIELDIEST_STATUES')
+        || getTalentBonus(talents, 2, 'STRONGEST_STATUES')) / 100;
+      break;
+    case "SPEED":
+    case "ANVIL":
+    case "BULLSEYE":
+    case "OL_RELIABLE":
+      talentBonus += (getTalentBonus(talents, 2, 'STRAIGHTSHOT_STATUES')
+        || getTalentBonus(talents, 2, 'SHWIFTY_STATUES')) / 100;
+      break;
+    case "EXP":
+    case "LUMBERBOB":
+    case "BEHOLDER":
+    case "CAULDRON":
+      talentBonus += (getTalentBonus(talents, 2, 'STARING_STATUES')
+        || getTalentBonus(talents, 2, 'STUPENDOUS_STATUES')) / 100;
+      break;
+    case "EHEXPEE":
+    case "KACHOW":
+    case "FEASTY":
+      talentBonus += getTalentBonus(talents, 2, 'SKILLIEST_STATUE') / 100;
+      break;
+    default:
+      talentBonus = 1;
+  }
+  return statue?.level * statue?.bonus * talentBonus;
+}
+
+export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect) => {
+  const starSign = equippedStarSigns?.find(({ name }) => name === starSignName);
+  if (!starSign) return 0;
+  return starSign?.find(({ effect }) => effect === starEffect)?.bonus ?? 0;
+}
+
+export const getPostOfficeBonus = (postOffice, boxName, bonusIndex) => {
+  const box = postOffice?.boxes?.find(({ name }) => name === boxName);
+  if (!box) return 0;
+  const updatedLevel = bonusIndex === 0 ? box?.level : index === 1 ? box?.level - 25 : box?.level - 100;
+  return growth(box?.func, updatedLevel > 0 ? updatedLevel : 0, box?.x1, box?.x2) ?? 0;
+}
+
+export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0) => {
+  const boxAndStatueMath = 1 + ((poBoxBonus + statueBonus) / 100);
+  const agilityBonus = getSpeedBonusFromAgility(agility);
+  return (1 + (stampBonus + (2 * speedPoints)) / 100) * boxAndStatueMath * (1 + (hammerHammerBonus / 100)) * agilityBonus * (1 + (starSignTownSpeed + talentTownSpeed) / 100);
+}
+
+export const getSpeedBonusFromAgility = (agility = 0) => {
+  let base = (Math.pow(agility + 1, 0.37) - 1) / 40;
+  if (agility > 1000) {
+    base = ((agility - 1000) / (agility + 2500)) * 0.5 + 0.255;
+  }
+  return (base * 2) + 1;
+}
+
+export const getStatFromEquipment = (item, statName) => {
+  // %_SKILL_EXP
+  const misc1 = item?.UQ1txt === statName ? item?.UQ1val : 0;
+  const misc2 = item?.UQ2txt === statName ? item?.UQ2val : 0;
+  return misc1 + misc2;
 }
 
 export const getMaxCharge = (skull, cardBonus, prayDayStamp, gospelBonus, worshipLevel, popeBonus) => {
@@ -312,11 +580,14 @@ export const keysMap = {
   2: { name: "Chizoar's_Cavern_Key", rawName: 'Key3' }
 };
 
+
 export const getInventory = (inventoryArr, inventoryQuantityArr, owner) => {
   return inventoryArr.reduce((res, itemName, index) => (itemName !== 'LockedInvSpace' && itemName !== 'Blank' ? [
     ...res, {
       owner,
       name: items?.[itemName]?.displayName,
+      type: items?.[itemName]?.itemType,
+      subType: items?.[itemName]?.Type,
       rawName: itemName,
       amount: parseInt(inventoryQuantityArr?.[index]),
     }
@@ -477,17 +748,6 @@ export const skillIndexMap = {
   8: "construction",
   9: "worship",
 };
-
-// TODO: check if able to pull from Z.js
-export const anvilProductionItems = {
-  0: "Thread",
-  1: "Trusty_Nails",
-  2: "Boring_Brick",
-  3: "Chain_Link",
-  4: "Leather_Hide",
-  5: "Pinion_Spur",
-  6: "Lugi_Bracket"
-}
 
 // TODO: check if able to pull from Z.js
 export const shopMapping = {
@@ -1044,6 +1304,10 @@ export const worldNpcMap = {
   "Coastiolyte": {
     "world": ""
   },
+};
+
+const lavaLog = (num) => {
+  return Math.log(Math.max(num, 1)) / 2.303;
 };
 
 const cloneObject = (data) => {
