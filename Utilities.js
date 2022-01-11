@@ -174,7 +174,7 @@ export const fields = [
     selected: true,
   },
   {
-    name: "Anvil Products",
+    name: "Anvil",
     selected: true,
   },
   {
@@ -216,5 +216,5 @@ export const classColors = {
 
 const isProd = process.env.NODE_ENV === "production";
 export const breakpoint = 1350;
-export const extVersion = '1.1.4';
+export const extVersion = '1.1.5';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

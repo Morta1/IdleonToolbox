@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 import { prefix } from "../../Utilities";
 
-const CoinDisplay = ({ money, labelPosition = 'bottom' }) => {
+const CoinDisplay = ({ money, labelPosition = 'bottom', style = {} }) => {
   return (
-    <CoinDisplayStyle labelPosition={labelPosition}>
+    <CoinDisplayStyle style={style} labelPosition={labelPosition}>
       {[...money]?.reverse()?.map((coin, index) => {
         return index < 6 && Number(coin) > 0 ? <div className={'coin'} key={coin + '' + index}>
           <img src={`${prefix}data/Coins${index + 1}.png`} alt=""/>

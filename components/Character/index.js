@@ -4,7 +4,6 @@ import styled from "styled-components";
 import EquippedBubbles from "./EquippedBubbles";
 import SkillsInfo from "./SkillsInfo";
 import Bags from "./Bags";
-import AnvilProducts from "./AnvilProducts";
 import PrinterProducts from "./PrinterProducts";
 import StarSigns from "./StarSign";
 import EquippedCards from "./EquippedCards";
@@ -18,6 +17,7 @@ import { LinearProgressWithLabel } from "../Common/commonStyles";
 import Timer from "../Common/Timer";
 import React from "react";
 import { differenceInHours, differenceInMinutes } from "date-fns";
+import Anvil from "./Anvil/Anvil";
 
 const Character = ({
                      name: charName,
@@ -106,11 +106,10 @@ const Character = ({
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
       {!dataFilters || dataFilters?.['Traps'] ?
         <Traps trap={tools?.[4]} traps={traps} lastUpdated={lastUpdated}/> : null}
+      {!dataFilters || dataFilters?.['Anvil'] ? <Anvil afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated}/> : null}
       {!dataFilters ||
-      dataFilters?.['Anvil Products'] ||
       dataFilters?.['Equipped Bubbles'] ||
       dataFilters?.['Prayers'] ? <div className="small">
-        {!dataFilters || dataFilters?.['Anvil Products'] ? <AnvilProducts products={anvil?.selected}/> : null}
         {!dataFilters || dataFilters?.['Equipped Bubbles'] ? <EquippedBubbles bubbles={equippedBubbles}/> : null}
         {!dataFilters || dataFilters?.['Prayers'] ? <Prayers prayers={prayers}/> : null}
       </div> : null}

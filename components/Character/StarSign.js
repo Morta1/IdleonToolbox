@@ -10,7 +10,7 @@ const StarSigns = ({ signs }) => {
         {signs?.map(({ starName, bonuses }, index) => {
           return name !== "None" ? <div key={name + index}>
             <span>{cleanUnderscore(name)}</span>
-            <span>{cleanUnderscore(bonuses?.join(','))}</span>
+            <span>{bonuses?.map(({ rawName }) => cleanUnderscore(rawName))}</span>
           </div> : null;
         })}
       </div>
