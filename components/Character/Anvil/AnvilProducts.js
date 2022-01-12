@@ -45,7 +45,7 @@ const AnvilProducts = ({ anvil, afkTime, lastUpdated }) => {
             <span style={{ marginRight: 10 }}>Time To Cap:</span>
             <Timer date={new Date().getTime() + (timeTillCap * 1000)} type={'countdown'} placeholder={'Full'}
                    lastUpdated={lastUpdated}/>
-          </div>AGro
+          </div>
         </div> : null;
       })}
     </AnvilProductsStyled>

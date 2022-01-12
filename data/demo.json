@@ -1,18 +1,18 @@
 {
   "account": {
     "TimeAway": {
-      "GlobalTime": "1641922913.3999999",
+      "GlobalTime": "1642010693.6019995",
       "Arcade": "1641918006.0209994",
-      "Player": "1641922913.3999999",
-      "Construction": "1641922913.3999999",
-      "Cauldron": "1641922913.3999999",
-      "Printer": "1641921677.004",
-      "DailyRewards": "15979433.394602036",
-      "BookLib": "254598.15397622506",
-      "ShopRestock": "12621.605397939406",
-      "PostOfficeRefresh": "12621.706000089645",
-      "Forge": "1641922913.3999999",
-      "Cooking": "1641922913.3999999"
+      "Player": "1642010693.6019995",
+      "Construction": "1642010693.6019995",
+      "Cauldron": "1642010693.6019995",
+      "Printer": "1642008077.004",
+      "DailyRewards": "15979438.5966017",
+      "BookLib": "342378.35597588937",
+      "ShopRestock": "11241.403398275099",
+      "PostOfficeRefresh": "11241.614000558853",
+      "Forge": "1642010693.6019995",
+      "Cooking": "1642010693.6019995"
     },
     "gemItemsPurchased": [
       0,
@@ -688,7 +688,7 @@
         "bonus": 6,
         "perTier": 3,
         "category": "Hard_Resources",
-        "amount": 71,
+        "amount": 73,
         "stars": 3
       },
       "Palm_Tree": {
@@ -916,7 +916,7 @@
         "bonus": 3,
         "perTier": 10,
         "category": "Frostbite_Tundra",
-        "amount": 503,
+        "amount": 524,
         "stars": 3
       },
       "Efaunt": {
@@ -976,7 +976,7 @@
         "bonus": 2,
         "perTier": 20,
         "category": "Frostbite_Tundra",
-        "amount": 5182,
+        "amount": 5225,
         "stars": 3
       },
       "Meaning_of_Giftmas": {
@@ -1072,7 +1072,7 @@
         "bonus": 5,
         "perTier": 10,
         "category": "Blunder_Hills",
-        "amount": 577,
+        "amount": 633,
         "stars": 3
       },
       "Wode_Board": {
@@ -1516,7 +1516,7 @@
         "bonus": 3,
         "perTier": 4,
         "category": "Medium_Resources",
-        "amount": 649,
+        "amount": 651,
         "stars": 3
       },
       "Forest_Tree": {
@@ -1636,7 +1636,7 @@
         "bonus": 5,
         "perTier": 4,
         "category": "Medium_Resources",
-        "amount": 393,
+        "amount": 394,
         "stars": 3
       },
       "Bloque": {
@@ -1684,7 +1684,7 @@
         "bonus": 4,
         "perTier": 10,
         "category": "Hard_Resources",
-        "amount": 12,
+        "amount": 15,
         "stars": 1
       },
       "Owlio": {
@@ -5796,7 +5796,7 @@
       },
       {
         "rawName": "StatueG15",
-        "level": 31,
+        "level": 33,
         "name": "BULLSEYE",
         "effect": "%@ACCURACY",
         "dk": 110,
@@ -5837,10 +5837,10 @@
     ],
     "money": [
       "3",
-      "01",
-      "69",
-      "97",
-      "90"
+      "83",
+      "78",
+      "59",
+      "73"
     ],
     "inventory": [
       {
@@ -5849,7 +5849,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Copper",
-        "amount": 114263222
+        "amount": 117546676
       },
       {
         "owner": "storage",
@@ -5857,7 +5857,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Iron",
-        "amount": 826946
+        "amount": 816286
       },
       {
         "owner": "storage",
@@ -5865,7 +5865,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Gold",
-        "amount": 770262
+        "amount": 710566
       },
       {
         "owner": "storage",
@@ -5881,7 +5881,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Dementia",
-        "amount": 627800
+        "amount": 619272
       },
       {
         "owner": "storage",
@@ -5889,7 +5889,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Void",
-        "amount": 1361898
+        "amount": 1344842
       },
       {
         "owner": "storage",
@@ -5913,7 +5913,7 @@
         "type": "Item",
         "subType": "BAR",
         "rawName": "GoldBar",
-        "amount": 272020
+        "amount": 271764
       },
       {
         "owner": "storage",
@@ -5961,7 +5961,7 @@
         "type": "Item",
         "subType": "LOG",
         "rawName": "JungleTree",
-        "amount": 499582
+        "amount": 496390
       },
       {
         "owner": "storage",
@@ -5977,7 +5977,7 @@
         "type": "Item",
         "subType": "LOG",
         "rawName": "ForestTree",
-        "amount": 531981
+        "amount": 515811
       },
       {
         "owner": "storage",
@@ -6041,7 +6041,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Grasslands1",
-        "amount": 2071724
+        "amount": 2096552
       },
       {
         "owner": "storage",
@@ -6081,7 +6081,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Jungle2",
-        "amount": 814551
+        "amount": 887967
       },
       {
         "owner": "storage",
@@ -6113,7 +6113,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Forest3",
-        "amount": 173287
+        "amount": 159043
       },
       {
         "owner": "storage",
@@ -6137,7 +6137,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "TreeInterior1",
-        "amount": 4578663
+        "amount": 5233136
       },
       {
         "owner": "storage",
@@ -6153,7 +6153,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertA1",
-        "amount": 448277
+        "amount": 411527
       },
       {
         "owner": "storage",
@@ -6217,7 +6217,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertC2",
-        "amount": 126400
+        "amount": 147688
       },
       {
         "owner": "storage",
@@ -6265,7 +6265,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowA4",
-        "amount": 3657396
+        "amount": 3665140
       },
       {
         "owner": "storage",
@@ -6329,7 +6329,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowC3",
-        "amount": 595340
+        "amount": 614492
       },
       {
         "owner": "storage",
@@ -6369,7 +6369,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter7",
-        "amount": 22649
+        "amount": 22735
       },
       {
         "owner": "storage",
@@ -6409,7 +6409,7 @@
         "type": "Quest",
         "subType": "FRAGMENT",
         "rawName": "ResetFrag",
-        "amount": 801
+        "amount": 803
       },
       {
         "owner": "storage",
@@ -6425,7 +6425,7 @@
         "type": "Consumable",
         "subType": "SOUL",
         "rawName": "Soul1",
-        "amount": 31646
+        "amount": 10831
       },
       {
         "owner": "storage",
@@ -6441,7 +6441,7 @@
         "type": "Consumable",
         "subType": "SOUL",
         "rawName": "Soul3",
-        "amount": 178560
+        "amount": 190967
       },
       {
         "owner": "storage",
@@ -6449,7 +6449,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "PureWater",
-        "amount": 3102
+        "amount": 3106
       },
       {
         "owner": "storage",
@@ -6457,7 +6457,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter6A",
-        "amount": 82
+        "amount": 83
       },
       {
         "owner": "storage",
@@ -6465,7 +6465,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter6",
-        "amount": 27667
+        "amount": 28183
       },
       {
         "owner": "storage",
@@ -6473,7 +6473,7 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug1",
-        "amount": 1052839
+        "amount": 1023439
       },
       {
         "owner": "storage",
@@ -6497,7 +6497,7 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug4",
-        "amount": 790632
+        "amount": 784973
       },
       {
         "owner": "storage",
@@ -6505,7 +6505,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter5",
-        "amount": 21155
+        "amount": 21241
       },
       {
         "owner": "storage",
@@ -6521,7 +6521,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter3",
-        "amount": 101015
+        "amount": 101531
       },
       {
         "owner": "storage",
@@ -6529,7 +6529,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter4",
-        "amount": 46123
+        "amount": 46467
       },
       {
         "owner": "storage",
@@ -6537,7 +6537,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter1",
-        "amount": 40245
+        "amount": 42412
       },
       {
         "owner": "storage",
@@ -6545,7 +6545,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter2",
-        "amount": 80847
+        "amount": 81191
       },
       {
         "owner": "storage",
@@ -6553,7 +6553,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter2A",
-        "amount": 547
+        "amount": 548
       },
       {
         "owner": "storage",
@@ -6561,7 +6561,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter1A",
-        "amount": 1152
+        "amount": 1155
       },
       {
         "owner": "storage",
@@ -6569,7 +6569,7 @@
         "type": "Consumable",
         "subType": "FISH",
         "rawName": "Fish4",
-        "amount": 211578
+        "amount": 223698
       },
       {
         "owner": "storage",
@@ -6585,7 +6585,7 @@
         "type": "Consumable",
         "subType": "FISH",
         "rawName": "Fish1",
-        "amount": 1132367
+        "amount": 1187285
       },
       {
         "owner": "storage",
@@ -6601,7 +6601,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter4A",
-        "amount": 145
+        "amount": 146
       },
       {
         "owner": "storage",
@@ -6609,7 +6609,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter3A",
-        "amount": 477
+        "amount": 479
       },
       {
         "owner": "storage",
@@ -6617,7 +6617,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat1",
-        "amount": 1859489
+        "amount": 1879562
       },
       {
         "owner": "storage",
@@ -6625,7 +6625,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat5",
-        "amount": 365527
+        "amount": 368718
       },
       {
         "owner": "storage",
@@ -6633,7 +6633,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat6",
-        "amount": 160384
+        "amount": 165691
       },
       {
         "owner": "storage",
@@ -6641,7 +6641,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat7",
-        "amount": 153398
+        "amount": 154755
       },
       {
         "owner": "storage",
@@ -6649,7 +6649,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat9",
-        "amount": 172290
+        "amount": 173466
       },
       {
         "owner": "storage",
@@ -6665,7 +6665,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat10",
-        "amount": 22881
+        "amount": 23189
       },
       {
         "owner": "storage",
@@ -6881,7 +6881,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneZ1",
-        "amount": 2484
+        "amount": 2506
       },
       {
         "owner": "storage",
@@ -6897,7 +6897,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneT1",
-        "amount": 3413
+        "amount": 3424
       },
       {
         "owner": "storage",
@@ -6937,7 +6937,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneA1",
-        "amount": 2254
+        "amount": 2265
       },
       {
         "owner": "storage",
@@ -7009,7 +7009,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "TreeInterior1b",
-        "amount": 131
+        "amount": 152
       },
       {
         "owner": "storage",
@@ -7097,7 +7097,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter8",
-        "amount": 34585
+        "amount": 34757
       },
       {
         "owner": "storage",
@@ -7273,7 +7273,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Lustre",
-        "amount": 124290
+        "amount": 149925
       },
       {
         "owner": "storage",
@@ -7337,7 +7337,7 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug5",
-        "amount": 1008069
+        "amount": 1031781
       },
       {
         "owner": "storage",
@@ -7385,7 +7385,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotMana1",
-        "amount": 522803
+        "amount": 542161
       },
       {
         "owner": "storage",
@@ -7402,14 +7402,6 @@
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotMana3",
         "amount": 1975
-      },
-      {
-        "owner": "storage",
-        "name": "Health_Statue",
-        "type": "Quest",
-        "subType": "STATUE",
-        "rawName": "EquipmentStatues5",
-        "amount": 256
       },
       {
         "owner": "storage",
@@ -7473,7 +7465,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotRe1",
-        "amount": 523081
+        "amount": 542439
       },
       {
         "owner": "storage",
@@ -7490,14 +7482,6 @@
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotRe2",
         "amount": 401
-      },
-      {
-        "owner": "storage",
-        "name": "Bullseye_Statue",
-        "type": "Quest",
-        "subType": "STATUE",
-        "rawName": "EquipmentStatues15",
-        "amount": 140
       },
       {
         "owner": "storage",
@@ -7521,7 +7505,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotGr1",
-        "amount": 56198
+        "amount": 56553
       },
       {
         "owner": "storage",
@@ -7569,7 +7553,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter9",
-        "amount": 6204
+        "amount": 6720
       },
       {
         "owner": "storage",
@@ -7585,15 +7569,7 @@
         "type": "Consumable",
         "subType": "GOLDEN_FOOD",
         "rawName": "FoodG4",
-        "amount": 9
-      },
-      {
-        "owner": "storage",
-        "name": "Lumberbob_Statue",
-        "type": "Quest",
-        "subType": "STATUE",
-        "rawName": "EquipmentStatues7",
-        "amount": 117
+        "amount": 12
       },
       {
         "owner": "storage",
@@ -7665,7 +7641,7 @@
         "type": "Quest",
         "subType": "QUEST_ITEM",
         "rawName": "Quest24",
-        "amount": 24325
+        "amount": 28617
       },
       {
         "owner": "storage",
@@ -7673,7 +7649,7 @@
         "type": "Quest",
         "subType": "QUEST_ITEM",
         "rawName": "Quest22",
-        "amount": 90889
+        "amount": 90988
       },
       {
         "owner": "storage",
@@ -7722,14 +7698,6 @@
         "subType": "KEYCHAIN",
         "rawName": "EquipmentKeychain12",
         "amount": 1
-      },
-      {
-        "owner": "storage",
-        "name": "Feasty_Statue",
-        "type": "Quest",
-        "subType": "STATUE",
-        "rawName": "EquipmentStatues4",
-        "amount": 7
       },
       {
         "owner": "storage",
@@ -7878,19 +7846,19 @@
       {
         "rawName": "Refinery2",
         "name": "Explosive_Salts",
-        "amount": 18435,
+        "amount": 18012,
         "owner": "refinery"
       },
       {
         "rawName": "Refinery1",
         "name": "Redox_Salts",
-        "amount": 48340,
+        "amount": 44224,
         "owner": "refinery"
       },
       {
         "rawName": "Refinery3",
         "name": "Spontaneity_Salts",
-        "amount": 1448,
+        "amount": 1523,
         "owner": "refinery"
       }
     ],
@@ -15752,18 +15720,18 @@
               "rawName": "Grasslands1",
               "name": "Spore_Cap",
               "quantity": 10,
-              "totalAmount": 2071724
+              "totalAmount": 2096552
             },
             {
               "rawName": "Copper",
               "name": "Copper_Ore",
               "quantity": 5,
-              "totalAmount": 114263222
+              "totalAmount": 117546676
             }
           ],
           "rawName": "Refinery1",
           "powerCap": 100000,
-          "refined": 13636,
+          "refined": 17752,
           "rank": 13,
           "active": 1,
           "autoRefinePercentage": 0
@@ -15775,24 +15743,24 @@
               "rawName": "Forest3",
               "name": "Bullfrog_Horn",
               "quantity": 10,
-              "totalAmount": 173287
+              "totalAmount": 159043
             },
             {
               "rawName": "ForestTree",
               "name": "Forest_Fibres",
               "quantity": 5,
-              "totalAmount": 531981
+              "totalAmount": 515811
             },
             {
               "rawName": "Refinery1",
               "name": "Redox_Salts",
               "quantity": 2,
-              "totalAmount": 48356
+              "totalAmount": 44240
             }
           ],
           "rawName": "Refinery2",
           "powerCap": 30000,
-          "refined": 1904,
+          "refined": 952,
           "rank": 8,
           "active": 1,
           "autoRefinePercentage": 10
@@ -15804,30 +15772,30 @@
               "rawName": "DesertA1",
               "name": "Pocket_Sand",
               "quantity": 50,
-              "totalAmount": 448277
+              "totalAmount": 411527
             },
             {
               "rawName": "Fish1",
               "name": "Goldfish",
               "quantity": 30,
-              "totalAmount": 1132367
+              "totalAmount": 1187285
             },
             {
               "rawName": "Bug1",
               "name": "Fly",
               "quantity": 40,
-              "totalAmount": 1052839
+              "totalAmount": 1023439
             },
             {
               "rawName": "Refinery2",
               "name": "Explosive_Salts",
               "quantity": 3,
-              "totalAmount": 18435
+              "totalAmount": 18012
             }
           ],
           "rawName": "Refinery3",
           "powerCap": 800,
-          "refined": 24,
+          "refined": 76,
           "rank": 3,
           "active": 1,
           "autoRefinePercentage": 10
@@ -15851,13 +15819,13 @@
               "rawName": "Critter3",
               "name": "Scorpie",
               "quantity": 1,
-              "totalAmount": 101015
+              "totalAmount": 101531
             },
             {
               "rawName": "Refinery3",
               "name": "Spontaneity_Salts",
               "quantity": 1,
-              "totalAmount": 1478
+              "totalAmount": 1553
             }
           ],
           "rawName": "Refinery4",
@@ -15880,7 +15848,7 @@
               "rawName": "Fish4",
               "name": "Bloach",
               "quantity": 5,
-              "totalAmount": 211578
+              "totalAmount": 223698
             },
             {
               "rawName": "Bug3",
@@ -15892,7 +15860,7 @@
               "rawName": "Critter4",
               "name": "Mousey",
               "quantity": 5,
-              "totalAmount": 46123
+              "totalAmount": 46467
             },
             {
               "rawName": "Refinery4",
@@ -15958,7 +15926,7 @@
         "increment": 1.5,
         "baseBonus": 0.5,
         "maxLevel": 20,
-        "totalAmount": 48356,
+        "totalAmount": 44240,
         "level": 20
       },
       {
@@ -15969,7 +15937,7 @@
         "increment": 1.92,
         "baseBonus": 1,
         "maxLevel": 8,
-        "totalAmount": 40245,
+        "totalAmount": 42412,
         "level": 8
       },
       {
@@ -15980,8 +15948,8 @@
         "increment": 2.2,
         "baseBonus": 2,
         "maxLevel": 10,
-        "totalAmount": 18435,
-        "level": 7
+        "totalAmount": 18012,
+        "level": 8
       },
       {
         "name": "Dune_Soul",
@@ -16002,7 +15970,7 @@
         "increment": 2.2,
         "baseBonus": 2,
         "maxLevel": 10,
-        "totalAmount": 1478,
+        "totalAmount": 1553,
         "level": 7
       },
       {
@@ -16013,7 +15981,7 @@
         "increment": 1.2,
         "baseBonus": 1,
         "maxLevel": 100,
-        "totalAmount": 46123,
+        "totalAmount": 46467,
         "level": 23
       },
       {
@@ -16057,33 +16025,33 @@
         "increment": 1.1,
         "baseBonus": 0.1,
         "maxLevel": 250,
-        "totalAmount": 27667,
+        "totalAmount": 28183,
         "level": 25
       }
     ],
-    "worldTeleports": 136,
+    "worldTeleports": 143,
     "keys": [
       {
-        "amount": 723,
+        "amount": 733,
         "name": "Forest_Villa_Key",
         "rawName": "Key1"
       },
       {
-        "amount": 460,
+        "amount": 466,
         "name": "Efaunt's_Tomb_Key",
         "rawName": "Key2"
       },
       {
-        "amount": 327,
+        "amount": 336,
         "name": "Chizoar's_Cavern_Key",
         "rawName": "Key3"
       }
     ],
-    "colosseumTickets": 320,
-    "obolFragments": 0,
-    "silverPens": 40,
+    "colosseumTickets": 322,
+    "obolFragments": 3,
+    "silverPens": 41,
     "goldPens": 0,
-    "gems": 3994,
+    "gems": 3995,
     "deliveryBoxComplete": 625,
     "deliveryBoxStreak": 202,
     "deliveryBoxMisc": 10,
@@ -28592,7 +28560,7 @@
           {
             "rawName": "branch",
             "displayName": "Walking_Stick",
-            "kills": 12578384.930000003
+            "kills": 14071683.930000003
           },
           {
             "rawName": "acorn",
@@ -28732,7 +28700,7 @@
           {
             "rawName": "ram",
             "displayName": "Dedotated_Ram",
-            "kills": 15207879.383209825
+            "kills": 15282361.833212584
           },
           {
             "rawName": "skele2",
@@ -28747,18 +28715,18 @@
     {
       "name": "morta11",
       "class": "Bowman",
-      "afkTime": 1641918053020.9995,
+      "afkTime": 1641992332932.0002,
       "afkTarget": "Walking_Stick",
       "currentMap": "The_Base_Of_The_Bark",
       "money": [
-        "10",
-        "07",
-        "21",
-        "95"
+        "13",
+        "18",
+        "55",
+        "82"
       ],
       "stats": {
         "strength": 374,
-        "agility": 783,
+        "agility": 787,
         "wisdom": 268,
         "luck": 200,
         "level": 139
@@ -30277,7 +30245,7 @@
       "skillsInfo": {
         "character": {
           "level": 139,
-          "exp": 425690414.8134966,
+          "exp": 432753532.8134966,
           "expReq": 863322651.7776896,
           "rank": 5
         },
@@ -30289,7 +30257,7 @@
         },
         "smithing": {
           "level": 55,
-          "exp": 404504.06115640886,
+          "exp": 676209.0611564089,
           "expReq": 10042491.175257083,
           "rank": 3
         },
@@ -30307,7 +30275,7 @@
         },
         "alchemy": {
           "level": 55,
-          "exp": 9260092.266366098,
+          "exp": 10578443.184711462,
           "expReq": 10336675.428060886,
           "rank": 8
         },
@@ -30319,13 +30287,13 @@
         },
         "trapping": {
           "level": 38,
-          "exp": 289677,
+          "exp": 303886,
           "expReq": 710849.2900426668,
           "rank": 3
         },
         "construction": {
           "level": 102,
-          "exp": 809774.2047031613,
+          "exp": 1257871.0460921254,
           "expReq": 2675117.636677426,
           "rank": 9
         },
@@ -31547,8 +31515,115 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Bosses",
+          "effect": "{%_Dmg,_Drop,_and_EXP",
+          "bonus": 12,
+          "rawName": "CardSet26",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Dedotated_Ram",
+            "stars": 3,
+            "rawName": "ram",
+            "displayName": "Dedotated_Ram",
+            "cardIndex": "E14",
+            "visualIndex": 12,
+            "effect": "+_Weapon_Power",
+            "bonus": 2,
+            "perTier": 20,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Boop",
+            "stars": 3,
+            "rawName": "poopD",
+            "displayName": "Boop",
+            "cardIndex": "A15",
+            "visualIndex": 2,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 1,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Baby_Boa",
+            "stars": 3,
+            "rawName": "snakeG",
+            "displayName": "Baby_Boa",
+            "cardIndex": "A5",
+            "visualIndex": 5,
+            "effect": "+_Move_Spd",
+            "bonus": 1,
+            "perTier": 9,
+            "category": "Blunder_Hills"
+          },
+          {
+            "cardName": "Squiddy_Soul",
+            "stars": 2,
+            "rawName": "SoulCard5",
+            "displayName": "Squiddy_Soul",
+            "cardIndex": "F11",
+            "visualIndex": 3,
+            "effect": "+%_Charge_Rate",
+            "bonus": 5,
+            "perTier": 5,
+            "category": "Hard_Resources"
+          },
+          {
+            "cardName": "Chaotic_Amarok",
+            "stars": 3,
+            "rawName": "wolfB",
+            "displayName": "Chaotic_Amarok",
+            "cardIndex": "Z4",
+            "visualIndex": 4,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": -72,
           "pointsFromCoins": 77,
@@ -31575,7 +31650,8 @@
               "94"
             ]
           },
-          "anvilSpeed": 62284.65869332798,
+          "anvilExp": 451.3451,
+          "anvilSpeed": 62329.56977300905,
           "anvilCapacity": 5922
         },
         "production": [
@@ -31646,10 +31722,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 0,
-            "currentXP": 0,
-            "currentProgress": 11437.207607723336,
-            "totalProduced": 19211,
+            "currentAmount": 1,
+            "currentXP": "882.1594181818182",
+            "currentProgress": 646.7957244855962,
+            "totalProduced": 19520,
             "rawName": "CraftMat10",
             "time": 12500,
             "levelReq": 40,
@@ -31752,113 +31828,6 @@
             "time": 12500,
             "levelReq": 40,
             "exp": 160
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 6,
-          "rawName": "CardSet26",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Dr_Defecaus",
-            "stars": 3,
-            "rawName": "poopBig",
-            "displayName": "Dr_Defecaus",
-            "cardIndex": "Z1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Damage",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Dedotated_Ram",
-            "stars": 3,
-            "rawName": "ram",
-            "displayName": "Dedotated_Ram",
-            "cardIndex": "E14",
-            "visualIndex": 12,
-            "effect": "+_Weapon_Power",
-            "bonus": 2,
-            "perTier": 20,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Snowman",
-            "stars": 3,
-            "rawName": "snowball",
-            "displayName": "Snowman",
-            "cardIndex": "E5",
-            "visualIndex": 5,
-            "effect": "+%_Total_Damage",
-            "bonus": 3,
-            "perTier": 15,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Boop",
-            "stars": 3,
-            "rawName": "poopD",
-            "displayName": "Boop",
-            "cardIndex": "A15",
-            "visualIndex": 2,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 1,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Efaunt",
-            "stars": 3,
-            "rawName": "Boss2A",
-            "displayName": "Efaunt",
-            "cardIndex": "Z3",
-            "visualIndex": 7,
-            "effect": "+%_EXP_from_monsters",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Baby_Boa",
-            "stars": 3,
-            "rawName": "snakeG",
-            "displayName": "Baby_Boa",
-            "cardIndex": "A5",
-            "visualIndex": 5,
-            "effect": "+_Move_Spd",
-            "bonus": 1,
-            "perTier": 9,
-            "category": "Blunder_Hills"
-          },
-          {
-            "cardName": "Squiddy_Soul",
-            "stars": 2,
-            "rawName": "SoulCard5",
-            "displayName": "Squiddy_Soul",
-            "cardIndex": "F11",
-            "visualIndex": 3,
-            "effect": "+%_Charge_Rate",
-            "bonus": 5,
-            "perTier": 5,
-            "category": "Hard_Resources"
-          },
-          {
-            "cardName": "Chaotic_Amarok",
-            "stars": 3,
-            "rawName": "wolfB",
-            "displayName": "Chaotic_Amarok",
-            "cardIndex": "Z4",
-            "visualIndex": 4,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
           }
         ]
       },
@@ -32342,28 +32311,28 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 2.06,
-        "currentCharge": 493
+        "currentCharge": 512
       },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537619.9995
+          "timeLeft": 1642028059603.0007
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1641948537619.9995
+          "timeLeft": 1642028059603.0007
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1641948537619.9995
+          "timeLeft": 1642028059603.0007
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1641948537619.9995
+          "timeLeft": 1642028059603.0007
         }
       ],
       "postOffice": {
@@ -32962,7 +32931,7 @@
         0,
         0,
         0,
-        3136628.2800000003,
+        3354445.2800000003,
         336615,
         1046754,
         95831,
@@ -33197,9 +33166,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 196,
+        "623": 156,
         "626": 0,
-        "634": 1795,
+        "634": 1756,
         "635": 0,
         "639": 0
       }
@@ -33207,14 +33176,14 @@
     {
       "name": "mortastr",
       "class": "Barbarian",
-      "afkTime": 1641918066020.9995,
+      "afkTime": 1641992347932.0002,
       "afkTarget": "Walking_Stick",
       "currentMap": "The_Base_Of_The_Bark",
       "money": [
-        "12",
-        "03",
-        "19",
-        "21"
+        "14",
+        "88",
+        "88",
+        "34"
       ],
       "stats": {
         "strength": 677,
@@ -34759,7 +34728,7 @@
       "skillsInfo": {
         "character": {
           "level": 151,
-          "exp": 1350209960.3189797,
+          "exp": 1357582806.3189797,
           "expReq": 1429642578.611451,
           "rank": 3
         },
@@ -34771,7 +34740,7 @@
         },
         "smithing": {
           "level": 46,
-          "exp": 1598260.3884310059,
+          "exp": 1673374.3884310059,
           "expReq": 2549457.451598625,
           "rank": 5
         },
@@ -34789,7 +34758,7 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 1816527.7221131807,
+          "exp": 3189648.56693379,
           "expReq": 11963137.757027596,
           "rank": 5
         },
@@ -34801,14 +34770,14 @@
         },
         "trapping": {
           "level": 35,
-          "exp": 190477,
+          "exp": 208994,
           "expReq": 422255.1055190243,
           "rank": 5
         },
         "construction": {
-          "level": 125,
-          "exp": 4138765.0563301668,
-          "expReq": 6995176.319208325,
+          "level": 126,
+          "exp": 759628.8690679976,
+          "expReq": 7267134.628859797,
           "rank": 4
         },
         "worship": {
@@ -36045,8 +36014,115 @@
         ]
       },
       "prayers": [],
+      "cards": {
+        "cardSet": {
+          "name": "Bosses",
+          "effect": "{%_Dmg,_Drop,_and_EXP",
+          "bonus": 12,
+          "rawName": "CardSet26",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Dedotated_Ram",
+            "stars": 3,
+            "rawName": "ram",
+            "displayName": "Dedotated_Ram",
+            "cardIndex": "E14",
+            "visualIndex": 12,
+            "effect": "+_Weapon_Power",
+            "bonus": 2,
+            "perTier": 20,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Boop",
+            "stars": 3,
+            "rawName": "poopD",
+            "displayName": "Boop",
+            "cardIndex": "A15",
+            "visualIndex": 2,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 1,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Baby_Boa",
+            "stars": 3,
+            "rawName": "snakeG",
+            "displayName": "Baby_Boa",
+            "cardIndex": "A5",
+            "visualIndex": 5,
+            "effect": "+_Move_Spd",
+            "bonus": 1,
+            "perTier": 9,
+            "category": "Blunder_Hills"
+          },
+          {
+            "cardName": "Sand_Giant",
+            "stars": 3,
+            "rawName": "sandgiant",
+            "displayName": "Sand_Giant",
+            "cardIndex": "B10",
+            "visualIndex": 9,
+            "effect": "+%_Minimum_Damage",
+            "bonus": 2,
+            "perTier": 10,
+            "category": "Yum_Yum_Desert"
+          },
+          {
+            "cardName": "Chaotic_Amarok",
+            "stars": 3,
+            "rawName": "wolfB",
+            "displayName": "Chaotic_Amarok",
+            "cardIndex": "Z4",
+            "visualIndex": 4,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": 0,
           "pointsFromCoins": 99,
@@ -36074,6 +36150,7 @@
               "99"
             ]
           },
+          "anvilExp": 126.50449999999998,
           "anvilSpeed": 33554.36913216122,
           "anvilCapacity": 5506
         },
@@ -36103,8 +36180,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 26.0553499546838,
-            "totalProduced": 159493,
+            "currentProgress": 11.252724756208012,
+            "totalProduced": 160876,
             "rawName": "CraftMat6",
             "time": 500,
             "levelReq": 12,
@@ -36125,8 +36202,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 65.27391143776521,
-            "totalProduced": 41069,
+            "currentProgress": 1550.4712862392892,
+            "totalProduced": 41414,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -36245,113 +36322,6 @@
             "time": 2000,
             "levelReq": 25,
             "exp": 40
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 6,
-          "rawName": "CardSet26",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Dedotated_Ram",
-            "stars": 3,
-            "rawName": "ram",
-            "displayName": "Dedotated_Ram",
-            "cardIndex": "E14",
-            "visualIndex": 12,
-            "effect": "+_Weapon_Power",
-            "bonus": 2,
-            "perTier": 20,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Efaunt",
-            "stars": 3,
-            "rawName": "Boss2A",
-            "displayName": "Efaunt",
-            "cardIndex": "Z3",
-            "visualIndex": 7,
-            "effect": "+%_EXP_from_monsters",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Boop",
-            "stars": 3,
-            "rawName": "poopD",
-            "displayName": "Boop",
-            "cardIndex": "A15",
-            "visualIndex": 2,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 1,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Baby_Boa",
-            "stars": 3,
-            "rawName": "snakeG",
-            "displayName": "Baby_Boa",
-            "cardIndex": "A5",
-            "visualIndex": 5,
-            "effect": "+_Move_Spd",
-            "bonus": 1,
-            "perTier": 9,
-            "category": "Blunder_Hills"
-          },
-          {
-            "cardName": "Sand_Giant",
-            "stars": 3,
-            "rawName": "sandgiant",
-            "displayName": "Sand_Giant",
-            "cardIndex": "B10",
-            "visualIndex": 9,
-            "effect": "+%_Minimum_Damage",
-            "bonus": 2,
-            "perTier": 10,
-            "category": "Yum_Yum_Desert"
-          },
-          {
-            "cardName": "Chaotic_Amarok",
-            "stars": 3,
-            "rawName": "wolfB",
-            "displayName": "Chaotic_Amarok",
-            "cardIndex": "Z4",
-            "visualIndex": 4,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Dr_Defecaus",
-            "stars": 3,
-            "rawName": "poopBig",
-            "displayName": "Dr_Defecaus",
-            "cardIndex": "Z1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Damage",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Snowman",
-            "stars": 3,
-            "rawName": "snowball",
-            "displayName": "Snowman",
-            "cardIndex": "E5",
-            "visualIndex": 5,
-            "effect": "+%_Total_Damage",
-            "bonus": 3,
-            "perTier": 15,
-            "category": "Frostbite_Tundra"
           }
         ]
       },
@@ -36883,33 +36853,33 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 1.81,
-        "currentCharge": 434
+        "currentCharge": 471
       },
       "traps": [
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1641948537628.9995
+          "timeLeft": 1642028059612.0007
         },
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1641948537628.9995
+          "timeLeft": 1642028059612.0007
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1641948537628.9995
+          "timeLeft": 1642028059612.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537628.9995
+          "timeLeft": 1642028059612.0007
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1641948537628.9995
+          "timeLeft": 1642028059612.0007
         }
       ],
       "postOffice": {
@@ -37508,7 +37478,7 @@
         0,
         0,
         0,
-        1196494,
+        1435182,
         126549,
         1051098,
         114041,
@@ -37711,7 +37681,7 @@
         "105": 0,
         "106": 0,
         "107": 0,
-        "108": 23,
+        "108": 0,
         "115": 0,
         "120": 0,
         "121": 0,
@@ -37743,9 +37713,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 0,
+        "623": 195,
         "626": 0,
-        "634": 1795,
+        "634": 1794,
         "635": 0,
         "639": 0
       }
@@ -37753,14 +37723,11 @@
     {
       "name": "MortaWiz",
       "class": "Wizard",
-      "afkTime": 1641918076020.9995,
+      "afkTime": 1641992398932.0002,
       "afkTarget": "Walking_Stick",
       "currentMap": "The_Base_Of_The_Bark",
       "money": [
-        "12",
-        "50",
-        "59",
-        "73"
+        "0"
       ],
       "stats": {
         "strength": 277,
@@ -39166,7 +39133,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 20
+          "amount": 19
         }
       ],
       "starSigns": [
@@ -39290,7 +39257,7 @@
       "skillsInfo": {
         "character": {
           "level": 133,
-          "exp": 607900165.9204075,
+          "exp": 616725970.9204075,
           "expReq": 657007758.0458068,
           "rank": 7
         },
@@ -39320,7 +39287,7 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 6066081.410256064,
+          "exp": 7539202.43090251,
           "expReq": 11963137.757027596,
           "rank": 6
         },
@@ -39332,19 +39299,19 @@
         },
         "trapping": {
           "level": 29,
-          "exp": 9194,
+          "exp": 11236,
           "expReq": 140177.83892477932,
           "rank": 8
         },
         "construction": {
           "level": 103,
-          "exp": 1447457.7534960008,
+          "exp": 1900145.6532184426,
           "expReq": 2799894.0699325697,
           "rank": 8
         },
         "worship": {
           "level": 82,
-          "exp": 12420.04452062468,
+          "exp": 1220656.0445206247,
           "expReq": 2018962.726293973,
           "rank": 1
         }
@@ -40600,8 +40567,115 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Bosses",
+          "effect": "{%_Dmg,_Drop,_and_EXP",
+          "bonus": 12,
+          "rawName": "CardSet26",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Chaotic_Amarok",
+            "stars": 3,
+            "rawName": "wolfB",
+            "displayName": "Chaotic_Amarok",
+            "cardIndex": "Z4",
+            "visualIndex": 4,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Dedotated_Ram",
+            "stars": 3,
+            "rawName": "ram",
+            "displayName": "Dedotated_Ram",
+            "cardIndex": "E14",
+            "visualIndex": 12,
+            "effect": "+_Weapon_Power",
+            "bonus": 2,
+            "perTier": 20,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Boop",
+            "stars": 3,
+            "rawName": "poopD",
+            "displayName": "Boop",
+            "cardIndex": "A15",
+            "visualIndex": 2,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 1,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Squiddy_Soul",
+            "stars": 2,
+            "rawName": "SoulCard5",
+            "displayName": "Squiddy_Soul",
+            "cardIndex": "F11",
+            "visualIndex": 3,
+            "effect": "+%_Charge_Rate",
+            "bonus": 5,
+            "perTier": 5,
+            "category": "Hard_Resources"
+          },
+          {
+            "cardName": "Baby_Boa",
+            "stars": 3,
+            "rawName": "snakeG",
+            "displayName": "Baby_Boa",
+            "cardIndex": "A5",
+            "visualIndex": 5,
+            "effect": "+_Move_Spd",
+            "bonus": 1,
+            "perTier": 9,
+            "category": "Blunder_Hills"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": 0,
           "pointsFromCoins": 85,
@@ -40629,6 +40703,7 @@
               "97"
             ]
           },
+          "anvilExp": 156.3368,
           "anvilSpeed": 21883.33381098956,
           "anvilCapacity": 7199
         },
@@ -40678,10 +40753,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 0,
-            "currentXP": 0,
-            "currentProgress": 626.7852225841611,
-            "totalProduced": 72231,
+            "currentAmount": 451,
+            "currentXP": "46243.5392",
+            "currentProgress": 1153.7170482958863,
+            "totalProduced": 72682,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -40800,113 +40875,6 @@
             "time": 2000,
             "levelReq": 25,
             "exp": 40
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 6,
-          "rawName": "CardSet26",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Chaotic_Amarok",
-            "stars": 3,
-            "rawName": "wolfB",
-            "displayName": "Chaotic_Amarok",
-            "cardIndex": "Z4",
-            "visualIndex": 4,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Efaunt",
-            "stars": 3,
-            "rawName": "Boss2A",
-            "displayName": "Efaunt",
-            "cardIndex": "Z3",
-            "visualIndex": 7,
-            "effect": "+%_EXP_from_monsters",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Dr_Defecaus",
-            "stars": 3,
-            "rawName": "poopBig",
-            "displayName": "Dr_Defecaus",
-            "cardIndex": "Z1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Damage",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Dedotated_Ram",
-            "stars": 3,
-            "rawName": "ram",
-            "displayName": "Dedotated_Ram",
-            "cardIndex": "E14",
-            "visualIndex": 12,
-            "effect": "+_Weapon_Power",
-            "bonus": 2,
-            "perTier": 20,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Boop",
-            "stars": 3,
-            "rawName": "poopD",
-            "displayName": "Boop",
-            "cardIndex": "A15",
-            "visualIndex": 2,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 1,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Squiddy_Soul",
-            "stars": 2,
-            "rawName": "SoulCard5",
-            "displayName": "Squiddy_Soul",
-            "cardIndex": "F11",
-            "visualIndex": 3,
-            "effect": "+%_Charge_Rate",
-            "bonus": 5,
-            "perTier": 5,
-            "category": "Hard_Resources"
-          },
-          {
-            "cardName": "Baby_Boa",
-            "stars": 3,
-            "rawName": "snakeG",
-            "displayName": "Baby_Boa",
-            "cardIndex": "A5",
-            "visualIndex": 5,
-            "effect": "+_Move_Spd",
-            "bonus": 1,
-            "perTier": 9,
-            "category": "Blunder_Hills"
-          },
-          {
-            "cardName": "Snowman",
-            "stars": 3,
-            "rawName": "snowball",
-            "displayName": "Snowman",
-            "cardIndex": "E5",
-            "visualIndex": 5,
-            "effect": "+%_Total_Damage",
-            "bonus": 3,
-            "perTier": 15,
-            "category": "Frostbite_Tundra"
           }
         ]
       },
@@ -41367,28 +41335,28 @@
       "worship": {
         "maxCharge": 1567,
         "chargeRate": 3.82,
-        "currentCharge": 1306
+        "currentCharge": 45
       },
       "traps": [
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1641948537633.9995
+          "timeLeft": 1642028059615.0007
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1641948537633.9995
+          "timeLeft": 1642028059615.0007
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1641948537633.9995
+          "timeLeft": 1642028059615.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537633.9995
+          "timeLeft": 1642028059615.0007
         }
       ],
       "postOffice": {
@@ -41987,7 +41955,7 @@
         0,
         0,
         0,
-        3602964,
+        3905060,
         77093,
         1496885,
         221010,
@@ -42222,9 +42190,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 196,
+        "623": 155,
         "626": 0,
-        "634": 1796,
+        "634": 1755,
         "635": 0,
         "639": 0
       }
@@ -42232,7 +42200,7 @@
     {
       "name": "MortaStir",
       "class": "Squire",
-      "afkTime": 1641918092020.9995,
+      "afkTime": 1641992411932.0002,
       "afkTarget": "Lustre",
       "currentMap": "Echoing_Egress",
       "money": [
@@ -43781,13 +43749,13 @@
         },
         "mining": {
           "level": 72,
-          "exp": 37873962.76712138,
+          "exp": 44064109.76712138,
           "expReq": 109859598.57391706,
           "rank": 1
         },
         "smithing": {
           "level": 41,
-          "exp": 519758.5826722379,
+          "exp": 524653.5826722379,
           "expReq": 1134649.5476912775,
           "rank": 9
         },
@@ -43805,7 +43773,7 @@
         },
         "alchemy": {
           "level": 55,
-          "exp": 8024614.648961602,
+          "exp": 9331048.115869578,
           "expReq": 10336675.428060886,
           "rank": 7
         },
@@ -43817,13 +43785,13 @@
         },
         "trapping": {
           "level": 35,
-          "exp": 143748,
+          "exp": 153966,
           "expReq": 422255.1055190243,
           "rank": 4
         },
         "construction": {
           "level": 134,
-          "exp": 490822.8076928727,
+          "exp": 2856077.88435931,
           "expReq": 9769253.229928635,
           "rank": 2
         },
@@ -45101,8 +45069,115 @@
           "level": 25
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Easy_Resources",
+          "effect": "{%_Skill_Efficiency",
+          "bonus": 32,
+          "rawName": "CardSet2",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Iron",
+            "stars": 3,
+            "rawName": "Iron",
+            "displayName": "Iron",
+            "cardIndex": "C2",
+            "visualIndex": 1,
+            "effect": "+%_Total_Mining_Efficiency",
+            "bonus": 5,
+            "perTier": 10,
+            "category": "Easy_Resources"
+          },
+          {
+            "cardName": "Chaotic_Efaunt",
+            "stars": 3,
+            "rawName": "Boss2B",
+            "displayName": "Chaotic_Efaunt",
+            "cardIndex": "Z7",
+            "visualIndex": 8,
+            "effect": "+%_Skill_EXP",
+            "bonus": 3.75,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Gold",
+            "stars": 3,
+            "rawName": "Gold",
+            "displayName": "Gold",
+            "cardIndex": "C3",
+            "visualIndex": 2,
+            "effect": "+%_Mining_EXP",
+            "bonus": 5,
+            "perTier": 10,
+            "category": "Easy_Resources"
+          },
+          {
+            "cardName": "Chocco_Box",
+            "stars": 1,
+            "rawName": "loveEvent2",
+            "displayName": "Chocco_Box",
+            "cardIndex": "Y5",
+            "visualIndex": 5,
+            "effect": "+%_Boost_Food_Effect",
+            "bonus": 4,
+            "perTier": 1.5,
+            "category": "Events"
+          },
+          {
+            "cardName": "Plat",
+            "stars": 3,
+            "rawName": "Plat",
+            "displayName": "Plat",
+            "cardIndex": "D2",
+            "visualIndex": 0,
+            "effect": "+%_Mining_Away_Gains",
+            "bonus": 2,
+            "perTier": 10,
+            "category": "Medium_Resources"
+          },
+          {
+            "cardName": "Amarok",
+            "stars": 3,
+            "rawName": "wolfA",
+            "displayName": "Amarok",
+            "cardIndex": "Z2",
+            "visualIndex": 3,
+            "effect": "+%_Skill_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Bunny",
+            "stars": 3,
+            "rawName": "CritterCard7",
+            "displayName": "Bunny",
+            "cardIndex": "F7",
+            "visualIndex": 7,
+            "effect": "+%_Skill_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 6,
+            "category": "Hard_Resources"
+          },
+          {
+            "cardName": "Dementia",
+            "stars": 3,
+            "rawName": "Dementia",
+            "displayName": "Dementia",
+            "cardIndex": "D1",
+            "visualIndex": 1,
+            "effect": "+%_Mining_Speed",
+            "bonus": 4,
+            "perTier": 10,
+            "category": "Medium_Resources"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": 0,
           "pointsFromCoins": 65,
@@ -45129,6 +45204,7 @@
               "13"
             ]
           },
+          "anvilExp": -72.89999999999999,
           "anvilSpeed": 18267.532689505675,
           "anvilCapacity": 5052
         },
@@ -45158,8 +45234,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 310.25843561004854,
-            "totalProduced": 132895,
+            "currentProgress": 313.3688391572525,
+            "totalProduced": 133648,
             "rawName": "CraftMat6",
             "time": 500,
             "levelReq": 12,
@@ -45180,8 +45256,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 1413.503702197405,
-            "totalProduced": 32761,
+            "currentProgress": 1916.6141057446084,
+            "totalProduced": 32949,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -45300,113 +45376,6 @@
             "time": 2000,
             "levelReq": 25,
             "exp": 40
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Easy_Resources",
-          "effect": "{%_Skill_Efficiency",
-          "bonus": 8,
-          "rawName": "CardSet2",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Iron",
-            "stars": 3,
-            "rawName": "Iron",
-            "displayName": "Iron",
-            "cardIndex": "C2",
-            "visualIndex": 1,
-            "effect": "+%_Total_Mining_Efficiency",
-            "bonus": 5,
-            "perTier": 10,
-            "category": "Easy_Resources"
-          },
-          {
-            "cardName": "Chaotic_Efaunt",
-            "stars": 3,
-            "rawName": "Boss2B",
-            "displayName": "Chaotic_Efaunt",
-            "cardIndex": "Z7",
-            "visualIndex": 8,
-            "effect": "+%_Skill_EXP",
-            "bonus": 3.75,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Gold",
-            "stars": 3,
-            "rawName": "Gold",
-            "displayName": "Gold",
-            "cardIndex": "C3",
-            "visualIndex": 2,
-            "effect": "+%_Mining_EXP",
-            "bonus": 5,
-            "perTier": 10,
-            "category": "Easy_Resources"
-          },
-          {
-            "cardName": "Chocco_Box",
-            "stars": 1,
-            "rawName": "loveEvent2",
-            "displayName": "Chocco_Box",
-            "cardIndex": "Y5",
-            "visualIndex": 5,
-            "effect": "+%_Boost_Food_Effect",
-            "bonus": 4,
-            "perTier": 1.5,
-            "category": "Events"
-          },
-          {
-            "cardName": "Plat",
-            "stars": 3,
-            "rawName": "Plat",
-            "displayName": "Plat",
-            "cardIndex": "D2",
-            "visualIndex": 0,
-            "effect": "+%_Mining_Away_Gains",
-            "bonus": 2,
-            "perTier": 10,
-            "category": "Medium_Resources"
-          },
-          {
-            "cardName": "Amarok",
-            "stars": 3,
-            "rawName": "wolfA",
-            "displayName": "Amarok",
-            "cardIndex": "Z2",
-            "visualIndex": 3,
-            "effect": "+%_Skill_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Bunny",
-            "stars": 3,
-            "rawName": "CritterCard7",
-            "displayName": "Bunny",
-            "cardIndex": "F7",
-            "visualIndex": 7,
-            "effect": "+%_Skill_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 6,
-            "category": "Hard_Resources"
-          },
-          {
-            "cardName": "Dementia",
-            "stars": 3,
-            "rawName": "Dementia",
-            "displayName": "Dementia",
-            "cardIndex": "D1",
-            "visualIndex": 1,
-            "effect": "+%_Mining_Speed",
-            "bonus": 4,
-            "perTier": 10,
-            "category": "Medium_Resources"
           }
         ]
       },
@@ -45843,33 +45812,33 @@
       "worship": {
         "maxCharge": 490,
         "chargeRate": 1.8,
-        "currentCharge": 407
+        "currentCharge": 444
       },
       "traps": [
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1641948537638.9995
+          "timeLeft": 1642028059619.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537638.9995
+          "timeLeft": 1642028059619.0007
         },
         {
           "name": "Bunny",
           "rawName": "Critter7",
-          "timeLeft": 1641948537638.9995
+          "timeLeft": 1642028059619.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537638.9995
+          "timeLeft": 1642028059619.0007
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1641948537638.9995
+          "timeLeft": 1642028059619.0007
         }
       ],
       "postOffice": {
@@ -46666,8 +46635,8 @@
         "40": 0,
         "90": 0,
         "91": 0,
-        "94": 24,
-        "100": 0,
+        "94": 0,
+        "100": 7,
         "105": 0,
         "106": 0,
         "107": 0,
@@ -46677,7 +46646,7 @@
         "121": 0,
         "122": 0,
         "124": 0,
-        "130": 71993,
+        "130": 71992,
         "270": 0,
         "271": 0,
         "273": 0,
@@ -46703,9 +46672,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 192,
+        "623": 193,
         "626": 0,
-        "634": 1792,
+        "634": 1793,
         "635": 0,
         "639": 0
       }
@@ -46713,14 +46682,14 @@
     {
       "name": "MortaWiiz",
       "class": "Shaman",
-      "afkTime": 1641918104020.9995,
+      "afkTime": 1641992426932.0002,
       "afkTarget": "Walking_Stick",
       "currentMap": "The_Base_Of_The_Bark",
       "money": [
-        "19",
-        "48",
-        "04",
-        "30"
+        "22",
+        "70",
+        "23",
+        "76"
       ],
       "stats": {
         "strength": 281,
@@ -48288,7 +48257,7 @@
       "skillsInfo": {
         "character": {
           "level": 137,
-          "exp": 220363997.32093668,
+          "exp": 229008947.32093668,
           "expReq": 789496878.9511915,
           "rank": 6
         },
@@ -48300,7 +48269,7 @@
         },
         "smithing": {
           "level": 45,
-          "exp": 387475.9718747528,
+          "exp": 441004.9718747528,
           "expReq": 2175003.389172716,
           "rank": 7
         },
@@ -48318,7 +48287,7 @@
         },
         "alchemy": {
           "level": 58,
-          "exp": 1936105.095833287,
+          "exp": 3518703.5579280006,
           "expReq": 15975707.158295264,
           "rank": 2
         },
@@ -48330,13 +48299,13 @@
         },
         "trapping": {
           "level": 31,
-          "exp": 25138,
+          "exp": 28343,
           "expReq": 204486.17060426337,
           "rank": 6
         },
         "construction": {
           "level": 104,
-          "exp": 1885558.6767272572,
+          "exp": 2342791.619226697,
           "expReq": 2929354.7097018524,
           "rank": 7
         },
@@ -49578,8 +49547,115 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Bosses",
+          "effect": "{%_Dmg,_Drop,_and_EXP",
+          "bonus": 12,
+          "rawName": "CardSet26",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Chaotic_Amarok",
+            "stars": 3,
+            "rawName": "wolfB",
+            "displayName": "Chaotic_Amarok",
+            "cardIndex": "Z4",
+            "visualIndex": 4,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Boop",
+            "stars": 3,
+            "rawName": "poopD",
+            "displayName": "Boop",
+            "cardIndex": "A15",
+            "visualIndex": 2,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 1,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Dedotated_Ram",
+            "stars": 3,
+            "rawName": "ram",
+            "displayName": "Dedotated_Ram",
+            "cardIndex": "E14",
+            "visualIndex": 12,
+            "effect": "+_Weapon_Power",
+            "bonus": 2,
+            "perTier": 20,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Baby_Boa",
+            "stars": 3,
+            "rawName": "snakeG",
+            "displayName": "Baby_Boa",
+            "cardIndex": "A5",
+            "visualIndex": 5,
+            "effect": "+_Move_Spd",
+            "bonus": 1,
+            "perTier": 9,
+            "category": "Blunder_Hills"
+          },
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Squiddy_Soul",
+            "stars": 2,
+            "rawName": "SoulCard5",
+            "displayName": "Squiddy_Soul",
+            "cardIndex": "F11",
+            "visualIndex": 3,
+            "effect": "+%_Charge_Rate",
+            "bonus": 5,
+            "perTier": 5,
+            "category": "Hard_Resources"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": 0,
           "pointsFromCoins": 67,
@@ -49606,6 +49682,7 @@
               "68"
             ]
           },
+          "anvilExp": 146.3927,
           "anvilSpeed": 21062.532453499516,
           "anvilCapacity": 6260
         },
@@ -49646,8 +49723,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 701.3055387420807,
-            "totalProduced": 128185,
+            "currentProgress": 678.4719528903474,
+            "totalProduced": 129054,
             "rawName": "CraftMat7",
             "time": 1000,
             "levelReq": 18,
@@ -49777,113 +49854,6 @@
             "time": 1000,
             "levelReq": 18,
             "exp": 25
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 6,
-          "rawName": "CardSet26",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Chaotic_Amarok",
-            "stars": 3,
-            "rawName": "wolfB",
-            "displayName": "Chaotic_Amarok",
-            "cardIndex": "Z4",
-            "visualIndex": 4,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Boop",
-            "stars": 3,
-            "rawName": "poopD",
-            "displayName": "Boop",
-            "cardIndex": "A15",
-            "visualIndex": 2,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 1,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Dedotated_Ram",
-            "stars": 3,
-            "rawName": "ram",
-            "displayName": "Dedotated_Ram",
-            "cardIndex": "E14",
-            "visualIndex": 12,
-            "effect": "+_Weapon_Power",
-            "bonus": 2,
-            "perTier": 20,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Snowman",
-            "stars": 3,
-            "rawName": "snowball",
-            "displayName": "Snowman",
-            "cardIndex": "E5",
-            "visualIndex": 5,
-            "effect": "+%_Total_Damage",
-            "bonus": 3,
-            "perTier": 15,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Dr_Defecaus",
-            "stars": 3,
-            "rawName": "poopBig",
-            "displayName": "Dr_Defecaus",
-            "cardIndex": "Z1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Damage",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Baby_Boa",
-            "stars": 3,
-            "rawName": "snakeG",
-            "displayName": "Baby_Boa",
-            "cardIndex": "A5",
-            "visualIndex": 5,
-            "effect": "+_Move_Spd",
-            "bonus": 1,
-            "perTier": 9,
-            "category": "Blunder_Hills"
-          },
-          {
-            "cardName": "Efaunt",
-            "stars": 3,
-            "rawName": "Boss2A",
-            "displayName": "Efaunt",
-            "cardIndex": "Z3",
-            "visualIndex": 7,
-            "effect": "+%_EXP_from_monsters",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Squiddy_Soul",
-            "stars": 2,
-            "rawName": "SoulCard5",
-            "displayName": "Squiddy_Soul",
-            "cardIndex": "F11",
-            "visualIndex": 3,
-            "effect": "+%_Charge_Rate",
-            "bonus": 5,
-            "perTier": 5,
-            "category": "Hard_Resources"
           }
         ]
       },
@@ -50367,28 +50337,28 @@
       "worship": {
         "maxCharge": 625,
         "chargeRate": 2.06,
-        "currentCharge": 479
+        "currentCharge": 522
       },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537642.9995
+          "timeLeft": 1642028059622.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537642.9995
+          "timeLeft": 1642028059622.0007
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1641948537642.9995
+          "timeLeft": 1642028059622.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537642.9995
+          "timeLeft": 1642028059622.0007
         }
       ],
       "postOffice": {
@@ -50987,7 +50957,7 @@
         0,
         0,
         0,
-        1623323.1,
+        1909660.1,
         11262,
         1466882.48,
         28667,
@@ -51224,7 +51194,7 @@
         "490": 0,
         "623": 0,
         "626": 0,
-        "634": 1793,
+        "634": 1794,
         "635": 0,
         "639": 0
       }
@@ -51232,14 +51202,14 @@
     {
       "name": "IAmTheHunterrr",
       "class": "Hunter",
-      "afkTime": 1641918110020.9995,
+      "afkTime": 1641992282751.0002,
       "afkTarget": "Walking_Stick",
       "currentMap": "The_Base_Of_The_Bark",
       "money": [
-        "10",
-        "75",
-        "52",
-        "98"
+        "13",
+        "89",
+        "37",
+        "53"
       ],
       "stats": {
         "strength": 425,
@@ -52666,7 +52636,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 86
+          "amount": 85
         },
         {
           "owner": "IAmTheHunterrr",
@@ -52822,7 +52792,7 @@
       "skillsInfo": {
         "character": {
           "level": 181,
-          "exp": 1289167481.6479242,
+          "exp": 1297645516.6479242,
           "expReq": 4119022213.947503,
           "rank": 1
         },
@@ -52833,9 +52803,9 @@
           "rank": 5
         },
         "smithing": {
-          "level": 65,
-          "exp": 41444129.37474476,
-          "expReq": 41649923.5049226,
+          "level": 66,
+          "exp": 1985661.8698221594,
+          "expReq": 47787902.0935842,
           "rank": 1
         },
         "chopping": {
@@ -52852,7 +52822,7 @@
         },
         "alchemy": {
           "level": 57,
-          "exp": 3269023.5877033165,
+          "exp": 4633354.2348361695,
           "expReq": 13831433.042600418,
           "rank": 3
         },
@@ -52864,14 +52834,14 @@
         },
         "trapping": {
           "level": 44,
-          "exp": 1699847.5498966842,
+          "exp": 1730093.8346424468,
           "expReq": 1917434.0315261378,
           "rank": 2
         },
         "construction": {
-          "level": 109,
-          "exp": 3401369.319207092,
-          "expReq": 3651743.877848808,
+          "level": 110,
+          "exp": 231851.78413699826,
+          "expReq": 3812243.4308570684,
           "rank": 5
         },
         "worship": {
@@ -52987,8 +52957,8 @@
               "funcY": "txt",
               "lvlUpText": "+{_AGI",
               "skillIndex": 11,
-              "level": 111,
-              "maxLevel": 111
+              "level": 113,
+              "maxLevel": 113
             },
             {
               "talentId": 12,
@@ -53217,7 +53187,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Chance",
               "skillIndex": 274,
-              "level": 67,
+              "level": 69,
               "maxLevel": 100
             },
             {
@@ -53547,7 +53517,7 @@
               "funcY": "txt",
               "lvlUpText": "+{_Max_Lv",
               "skillIndex": 293,
-              "level": 11,
+              "level": 13,
               "maxLevel": 128
             },
             {
@@ -54112,10 +54082,117 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Bosses",
+          "effect": "{%_Dmg,_Drop,_and_EXP",
+          "bonus": 12,
+          "rawName": "CardSet26",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Dedotated_Ram",
+            "stars": 3,
+            "rawName": "ram",
+            "displayName": "Dedotated_Ram",
+            "cardIndex": "E14",
+            "visualIndex": 12,
+            "effect": "+_Weapon_Power",
+            "bonus": 2,
+            "perTier": 20,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Sand_Giant",
+            "stars": 3,
+            "rawName": "sandgiant",
+            "displayName": "Sand_Giant",
+            "cardIndex": "B10",
+            "visualIndex": 9,
+            "effect": "+%_Minimum_Damage",
+            "bonus": 2,
+            "perTier": 10,
+            "category": "Yum_Yum_Desert"
+          },
+          {
+            "cardName": "Boop",
+            "stars": 3,
+            "rawName": "poopD",
+            "displayName": "Boop",
+            "cardIndex": "A15",
+            "visualIndex": 2,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 1,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Squiddy_Soul",
+            "stars": 2,
+            "rawName": "SoulCard5",
+            "displayName": "Squiddy_Soul",
+            "cardIndex": "F11",
+            "visualIndex": 3,
+            "effect": "+%_Charge_Rate",
+            "bonus": 5,
+            "perTier": 5,
+            "category": "Hard_Resources"
+          },
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Chaotic_Amarok",
+            "stars": 3,
+            "rawName": "wolfB",
+            "displayName": "Chaotic_Amarok",
+            "cardIndex": "Z4",
+            "visualIndex": 4,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
-          "availablePoints": -61,
+          "availablePoints": -60,
           "pointsFromCoins": 93,
           "pointsFromMats": 227,
           "xpPoints": 244,
@@ -54141,15 +54218,16 @@
               "89"
             ]
           },
-          "anvilSpeed": 106479.6782768776,
+          "anvilExp": 819.2768000000001,
+          "anvilSpeed": 106564.52957645869,
           "anvilCapacity": 14954
         },
         "production": [
           {
-            "currentAmount": 0,
-            "currentXP": 0,
-            "currentProgress": 70.92875874247032,
-            "totalProduced": 5323630,
+            "currentAmount": 17,
+            "currentXP": "812.591709090909",
+            "currentProgress": 63.68296565817904,
+            "totalProduced": 5343720,
             "rawName": "CraftMat1",
             "time": 100,
             "levelReq": 1,
@@ -54318,113 +54396,6 @@
             "time": 100,
             "levelReq": 1,
             "exp": 5
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 6,
-          "rawName": "CardSet26",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Dr_Defecaus",
-            "stars": 3,
-            "rawName": "poopBig",
-            "displayName": "Dr_Defecaus",
-            "cardIndex": "Z1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Damage",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Dedotated_Ram",
-            "stars": 3,
-            "rawName": "ram",
-            "displayName": "Dedotated_Ram",
-            "cardIndex": "E14",
-            "visualIndex": 12,
-            "effect": "+_Weapon_Power",
-            "bonus": 2,
-            "perTier": 20,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Snowman",
-            "stars": 3,
-            "rawName": "snowball",
-            "displayName": "Snowman",
-            "cardIndex": "E5",
-            "visualIndex": 5,
-            "effect": "+%_Total_Damage",
-            "bonus": 3,
-            "perTier": 15,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Sand_Giant",
-            "stars": 3,
-            "rawName": "sandgiant",
-            "displayName": "Sand_Giant",
-            "cardIndex": "B10",
-            "visualIndex": 9,
-            "effect": "+%_Minimum_Damage",
-            "bonus": 2,
-            "perTier": 10,
-            "category": "Yum_Yum_Desert"
-          },
-          {
-            "cardName": "Boop",
-            "stars": 3,
-            "rawName": "poopD",
-            "displayName": "Boop",
-            "cardIndex": "A15",
-            "visualIndex": 2,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 1,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Squiddy_Soul",
-            "stars": 2,
-            "rawName": "SoulCard5",
-            "displayName": "Squiddy_Soul",
-            "cardIndex": "F11",
-            "visualIndex": 3,
-            "effect": "+%_Charge_Rate",
-            "bonus": 5,
-            "perTier": 5,
-            "category": "Hard_Resources"
-          },
-          {
-            "cardName": "Efaunt",
-            "stars": 3,
-            "rawName": "Boss2A",
-            "displayName": "Efaunt",
-            "cardIndex": "Z3",
-            "visualIndex": 7,
-            "effect": "+%_EXP_from_monsters",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Chaotic_Amarok",
-            "stars": 3,
-            "rawName": "wolfB",
-            "displayName": "Chaotic_Amarok",
-            "cardIndex": "Z4",
-            "visualIndex": 4,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
           }
         ]
       },
@@ -55038,38 +55009,38 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 2.06,
-        "currentCharge": 192
+        "currentCharge": 234
       },
       "traps": [
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": 1641948535646.9995
+          "timeLeft": 1642028059626.0007
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1641948535646.9995
+          "timeLeft": 1642028059626.0007
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1641948535646.9995
+          "timeLeft": 1642028059626.0007
         },
         {
           "name": "Owlio",
           "rawName": "Critter5",
-          "timeLeft": 1641948535646.9995
+          "timeLeft": 1642028059626.0007
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1641948535646.9995
+          "timeLeft": 1642028059626.0007
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": 1641948535646.9995
+          "timeLeft": 1642028059626.0007
         }
       ],
       "postOffice": {
@@ -55668,7 +55639,7 @@
         0,
         0,
         0,
-        1271664.1,
+        1542800.1,
         17319,
         1172848.3200000003,
         25375.48,
@@ -55905,7 +55876,7 @@
         "490": 0,
         "623": 0,
         "626": 0,
-        "634": 0,
+        "634": 1744,
         "635": 0,
         "639": 0
       }
@@ -55913,21 +55884,21 @@
     {
       "name": "MortaMan",
       "class": "Maestro",
-      "afkTime": 1641922913399.9998,
+      "afkTime": 1642010693601.9995,
       "afkTarget": "Dedotated_Ram",
       "currentMap": "Wam_Wonderland",
       "money": [
-        "1",
-        "85",
-        "66",
-        "45",
-        "88"
+        "2",
+        "37",
+        "24",
+        "88",
+        "85"
       ],
       "stats": {
         "strength": 342,
         "agility": 329,
         "wisdom": 300,
-        "luck": 1075,
+        "luck": 1044,
         "level": 164
       },
       "level": 164,
@@ -56981,37 +56952,40 @@
           "itemType": "Consumable"
         },
         {
-          "name": "Average_EXP_Potion",
-          "rawName": "FoodPotYe2",
+          "name": "ERROR",
+          "rawName": "Blank",
           "owner": "MortaMan",
-          "amount": 994,
-          "displayName": "Average_EXP_Potion",
-          "sellPrice": 250,
-          "typeGen": "cFood",
+          "amount": 0,
+          "displayName": "ERROR",
+          "sellPrice": 0,
+          "typeGen": "NothingERROR",
           "ID": 0,
-          "Type": "BOOST_FOOD",
-          "lvReqToCraft": 10,
-          "common": "yy",
-          "desc_line1": "Increases_Exp_Gain_by_",
-          "desc_line2": 0,
-          "desc_line3": "time_you_defeat_a_monster.",
-          "desc_line4": "Must_be_equipped_in_a_Food_Slot_to",
-          "desc_line5": "give_its_bonus.",
-          "desc_line6": "Filler",
-          "desc_line7": "Filler",
-          "desc_line8": "Filler",
-          "Effect": "ClassEXP",
-          "Amount": 10,
-          "Trigger": 0,
-          "Cooldown": 8,
-          "consumable": "vy",
-          "itemType": "Consumable"
+          "Type": "FISTICUFF",
+          "lvReqToCraft": 0,
+          "common": "t",
+          "lvReqToEquip": 0,
+          "Class": "ALL",
+          "Speed": 3,
+          "Reach": 55,
+          "Weapon_Power": 2,
+          "STR": 0,
+          "AGI": 0,
+          "WIS": 0,
+          "LUK": 0,
+          "Defence": 0,
+          "UQ1txt": 0,
+          "UQ1val": 0,
+          "UQ2txt": 0,
+          "UQ2val": 0,
+          "Upgrade_Slots_Left": 0,
+          "equip": "n",
+          "itemType": "Equip"
         },
         {
           "name": "Average_Speed_Potion",
           "rawName": "FoodPotGr2",
           "owner": "MortaMan",
-          "amount": 9919,
+          "amount": 8591,
           "displayName": "Average_Speed_Potion",
           "sellPrice": 60,
           "typeGen": "cFood",
@@ -57342,7 +57316,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 155
+          "amount": 154
         },
         {
           "owner": "MortaMan",
@@ -57538,11 +57512,11 @@
         },
         {
           "owner": "MortaMan",
-          "name": "Forest_Villa_Key",
-          "type": "Quest",
-          "subType": "BOSS_KEY",
-          "rawName": "Key1",
-          "amount": 1
+          "name": "Average_EXP_Potion",
+          "type": "Consumable",
+          "subType": "BOOST_FOOD",
+          "rawName": "FoodPotYe2",
+          "amount": 1350
         },
         {
           "owner": "MortaMan",
@@ -57558,7 +57532,7 @@
           "type": "Consumable",
           "subType": "GOLDEN_FOOD",
           "rawName": "FoodG5",
-          "amount": 1
+          "amount": 6
         },
         {
           "owner": "MortaMan",
@@ -57582,7 +57556,7 @@
           "type": "Quest",
           "subType": "MONSTER_DROP",
           "rawName": "SnowA4",
-          "amount": 1071
+          "amount": 2229
         },
         {
           "owner": "MortaMan",
@@ -57590,7 +57564,7 @@
           "type": "Quest",
           "subType": "STATUE",
           "rawName": "EquipmentStatues14",
-          "amount": 10
+          "amount": 124
         },
         {
           "owner": "MortaMan",
@@ -57598,15 +57572,15 @@
           "type": "Quest",
           "subType": "STATUE",
           "rawName": "EquipmentStatues2",
-          "amount": 9
+          "amount": 183
         },
         {
           "owner": "MortaMan",
-          "name": "Average_EXP_Potion",
-          "type": "Consumable",
-          "subType": "BOOST_FOOD",
-          "rawName": "FoodPotYe2",
-          "amount": 125
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
         },
         {
           "owner": "MortaMan",
@@ -57614,7 +57588,7 @@
           "type": "Item",
           "subType": "LEAF",
           "rawName": "Leaf3",
-          "amount": 21
+          "amount": 495
         },
         {
           "owner": "MortaMan",
@@ -57622,7 +57596,7 @@
           "type": "Quest",
           "subType": "STATUE",
           "rawName": "EquipmentStatues4",
-          "amount": 9
+          "amount": 158
         },
         {
           "owner": "MortaMan",
@@ -57630,7 +57604,7 @@
           "type": "Consumable",
           "subType": "BOOST_FOOD",
           "rawName": "FoodPotOr3",
-          "amount": 100
+          "amount": 1075
         },
         {
           "owner": "MortaMan",
@@ -57638,15 +57612,15 @@
           "type": "Consumable",
           "subType": "HEALTH_FOOD",
           "rawName": "FoodHealth10",
-          "amount": 75
+          "amount": 2310
         },
         {
           "owner": "MortaMan",
-          "name": "Spikemouth_Stamp",
+          "name": "Ram_Wool",
           "type": "Quest",
-          "subType": "STAMP",
-          "rawName": "StampB27",
-          "amount": 1
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
         },
         {
           "owner": "MortaMan",
@@ -57654,7 +57628,79 @@
           "type": "Quest",
           "subType": "STATUE",
           "rawName": "EquipmentStatues18",
-          "amount": 1
+          "amount": 40
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Distilled_Water",
+          "type": "Quest",
+          "subType": "MATERIAL",
+          "rawName": "PureWater",
+          "amount": 33
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Mystery_Upgrade_Stone_II",
+          "type": "Consumable",
+          "subType": "UPGRADE",
+          "rawName": "StoneZ2",
+          "amount": 24
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 383
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Ram_Wool",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowA4",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Talent_Point_Reset_Fragment",
+          "type": "Quest",
+          "subType": "FRAGMENT",
+          "rawName": "ResetFrag",
+          "amount": 3
         }
       ],
       "starSigns": [
@@ -57773,62 +57819,62 @@
       "skillsInfo": {
         "character": {
           "level": 164,
-          "exp": 1239369883.7543106,
+          "exp": 2223993839.617061,
           "expReq": 2335538227.1507764,
           "rank": 2
         },
         "mining": {
           "level": 45,
           "exp": 2156.213454650184,
-          "expReq": 2160488.7810881557,
+          "expReq": 1202564.0329441458,
           "rank": 3
         },
         "smithing": {
           "level": 61,
-          "exp": 305568.21547711105,
-          "expReq": 17604873.042781767,
+          "exp": 971941.215477111,
+          "expReq": 9603182.189556021,
           "rank": 2
         },
         "chopping": {
           "level": 49,
           "exp": 3432.8075088166515,
-          "expReq": 4118430.8443649453,
+          "expReq": 1835586.2909775109,
           "rank": 3
         },
         "fishing": {
           "level": 45,
           "exp": 2041.1759865886415,
-          "expReq": 2204580.388865465,
+          "expReq": 1043976.5423629627,
           "rank": 1
         },
         "alchemy": {
           "level": 65,
-          "exp": 481689.38426903787,
-          "expReq": 37838506.286965705,
+          "exp": 2218054.2621923955,
+          "expReq": 20227505.611425675,
           "rank": 1
         },
         "catching": {
           "level": 42,
           "exp": 4548.028566584693,
-          "expReq": 1305115.5096946426,
+          "expReq": 771839.354820362,
           "rank": 2
         },
         "trapping": {
           "level": 53,
-          "exp": 278830,
-          "expReq": 6036483.565356379,
+          "exp": 539562,
+          "expReq": 2583920.8222471173,
           "rank": 1
         },
         "construction": {
           "level": 132,
-          "exp": 342619.68540778174,
-          "expReq": 6987517.84729687,
+          "exp": 1527092.910685949,
+          "expReq": 3811581.4171053637,
           "rank": 3
         },
         "worship": {
           "level": 72,
           "exp": 117807.24682569472,
-          "expReq": 661820.0758454165,
+          "expReq": 361012.4736261698,
           "rank": 2
         }
       },
@@ -59066,8 +59112,115 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Medium_Resources",
+          "effect": "{%_Skill_EXP_Gain",
+          "bonus": 15,
+          "rawName": "CardSet3",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Flies",
+            "stars": 3,
+            "rawName": "Bug1",
+            "displayName": "Flies",
+            "cardIndex": "C11",
+            "visualIndex": 11,
+            "effect": "+%_Monster_EXP_While_Active",
+            "bonus": 4,
+            "perTier": 10,
+            "category": "Easy_Resources"
+          },
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Crystal_Cattle",
+            "stars": 3,
+            "rawName": "Crystal2",
+            "displayName": "Crystal_Cattle",
+            "cardIndex": "E15",
+            "visualIndex": 15,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 3,
+            "perTier": 10,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Ghost",
+            "stars": 3,
+            "rawName": "ghost",
+            "displayName": "Ghost",
+            "cardIndex": "Y0",
+            "visualIndex": 0,
+            "effect": "+%_Monster_EXP_While_Active",
+            "bonus": 3,
+            "perTier": 2,
+            "category": "Events"
+          },
+          {
+            "cardName": "Moonmoon",
+            "stars": 3,
+            "rawName": "moonman",
+            "displayName": "Moonmoon",
+            "cardIndex": "B9",
+            "visualIndex": 8,
+            "effect": "+%_Monster_EXP_While_Active",
+            "bonus": 8,
+            "perTier": 10,
+            "category": "Yum_Yum_Desert"
+          },
+          {
+            "cardName": "Poop",
+            "stars": 3,
+            "rawName": "poopSmall",
+            "displayName": "Poop",
+            "cardIndex": "A10",
+            "visualIndex": 10,
+            "effect": "+%_Crystal_Mob_Spawn_Chance",
+            "bonus": 10,
+            "perTier": 10,
+            "category": "Blunder_Hills"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": 0,
           "pointsFromCoins": 104,
@@ -59095,6 +59248,7 @@
               "00"
             ]
           },
+          "anvilExp": 1401.1474283435784,
           "anvilSpeed": 36533.37737701733,
           "anvilCapacity": 8305
         },
@@ -59122,10 +59276,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 157,
-            "currentXP": "32994.35535779491",
-            "currentProgress": 7.501165738633972,
-            "totalProduced": 32839,
+            "currentAmount": 552,
+            "currentXP": "116005.63157645152",
+            "currentProgress": 358.9988543987587,
+            "totalProduced": 36405,
             "rawName": "CraftMat6",
             "time": 500,
             "levelReq": 12,
@@ -59266,113 +59420,6 @@
             "time": 500,
             "levelReq": 12,
             "exp": 14
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Medium_Resources",
-          "effect": "{%_Skill_EXP_Gain",
-          "bonus": 5,
-          "rawName": "CardSet3",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Crystal_Carrot",
-            "stars": 1,
-            "rawName": "Crystal0",
-            "displayName": "Crystal_Carrot",
-            "cardIndex": "A14",
-            "visualIndex": 14,
-            "effect": "+%_Total_Drop_Rate",
-            "bonus": 5,
-            "perTier": 3,
-            "category": "Blunder_Hills"
-          },
-          {
-            "cardName": "Mimic",
-            "stars": 2,
-            "rawName": "mimicA",
-            "displayName": "Mimic",
-            "cardIndex": "B2",
-            "visualIndex": 1,
-            "effect": "+%_Total_Drop_Rate",
-            "bonus": 3,
-            "perTier": 10,
-            "category": "Yum_Yum_Desert"
-          },
-          {
-            "cardName": "Bop_Box",
-            "stars": 3,
-            "rawName": "speaker",
-            "displayName": "Bop_Box",
-            "cardIndex": "E10",
-            "visualIndex": 10,
-            "effect": "+%_Total_Drop_Rate",
-            "bonus": 3,
-            "perTier": 17,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "King_Doot",
-            "stars": 2,
-            "rawName": "babaMummy",
-            "displayName": "King_Doot",
-            "cardIndex": "Z6",
-            "visualIndex": 6,
-            "effect": "+%_Total_Drop_Rate",
-            "bonus": 6,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Mr_Blueberry",
-            "stars": 2,
-            "rawName": "crabcakeB",
-            "displayName": "Mr_Blueberry",
-            "cardIndex": "Y10",
-            "visualIndex": 11,
-            "effect": "+%_Total_Drop_Rate",
-            "bonus": 3,
-            "perTier": 4,
-            "category": "Events"
-          },
-          {
-            "cardName": "Giftmas_Blobulyte",
-            "stars": 3,
-            "rawName": "xmasEvent",
-            "displayName": "Giftmas_Blobulyte",
-            "cardIndex": "Y1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Drop_Rate",
-            "bonus": 3,
-            "perTier": 1.5,
-            "category": "Events"
-          },
-          {
-            "cardName": "Quenchie",
-            "stars": 3,
-            "rawName": "glass",
-            "displayName": "Quenchie",
-            "cardIndex": "E8",
-            "visualIndex": 8,
-            "effect": "+_Base_LUK",
-            "bonus": 7,
-            "perTier": 17,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Biggie_Hours",
-            "stars": 1,
-            "rawName": "babaHour",
-            "displayName": "Biggie_Hours",
-            "cardIndex": "Z5",
-            "visualIndex": 5,
-            "effect": "+%_Double_AFK_claim_chance",
-            "bonus": 3,
-            "perTier": 1.5,
-            "category": "Bosses"
           }
         ]
       },
@@ -59933,38 +59980,38 @@
       "worship": {
         "maxCharge": 557,
         "chargeRate": 1.83,
-        "currentCharge": 53
+        "currentCharge": 98
       },
       "traps": [
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1641948537650.9995
+          "timeLeft": 1642028073202.0007
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1641948537650.9995
+          "timeLeft": 1642028073202.0007
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1641948537650.9995
+          "timeLeft": 1642028073202.0007
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1641948537650.9995
+          "timeLeft": 1642028073202.0007
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1641948537650.9995
+          "timeLeft": 1642028073202.0007
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1641948537650.9995
+          "timeLeft": 1642028073202.0007
         }
       ],
       "postOffice": {
@@ -60548,7 +60595,7 @@
         ],
         "unspentPoints": 0
       },
-      "crystalSpawnChance": 0.0068279527708200016,
+      "crystalSpawnChance": 0.009559133879148002,
       "kills": [
         1,
         177276.95,
@@ -60666,7 +60713,7 @@
         100772.71999999988,
         999,
         0,
-        2226902.1300351764,
+        2272297.5800379366,
         1.07,
         0,
         0,
@@ -60752,10 +60799,10 @@
         0
       ],
       "cooldowns": {
-        "15": 2,
-        "16": 1387,
-        "19": 31,
-        "25": 57499,
+        "15": 4,
+        "16": 1861,
+        "19": 82,
+        "25": 55724,
         "30": 0,
         "32": 0,
         "40": 0,
@@ -60798,7 +60845,7 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 67,
+        "623": 60,
         "626": 0,
         "634": 0,
         "635": 0,
@@ -60808,11 +60855,14 @@
     {
       "name": "MortaCatch",
       "class": "Bowman",
-      "afkTime": 1641918160020.9995,
+      "afkTime": 1641992441932.0002,
       "afkTarget": "Dedotated_Ram",
       "currentMap": "Wam_Wonderland",
       "money": [
-        "0"
+        "14",
+        "64",
+        "84",
+        "58"
       ],
       "stats": {
         "strength": 385,
@@ -61654,7 +61704,7 @@
           "name": "Sheepie_Dairy",
           "rawName": "FoodHealth11",
           "owner": "MortaCatch",
-          "amount": 1138,
+          "amount": 779,
           "displayName": "Sheepie_Dairy",
           "sellPrice": 310,
           "typeGen": "cFood",
@@ -61681,7 +61731,7 @@
           "name": "Average_EXP_Potion",
           "rawName": "FoodPotYe2",
           "owner": "MortaCatch",
-          "amount": 500,
+          "amount": 425,
           "displayName": "Average_EXP_Potion",
           "sellPrice": 250,
           "typeGen": "cFood",
@@ -61735,7 +61785,7 @@
           "name": "Mountain_Bread",
           "rawName": "FoodHealth10",
           "owner": "MortaCatch",
-          "amount": 1393,
+          "amount": 964,
           "displayName": "Mountain_Bread",
           "sellPrice": 140,
           "typeGen": "cFood",
@@ -61762,7 +61812,7 @@
           "name": "Saucy_Weiner",
           "rawName": "FoodHealth4",
           "owner": "MortaCatch",
-          "amount": 1393,
+          "amount": 934,
           "displayName": "Saucy_Weiner",
           "sellPrice": 120,
           "typeGen": "cFood",
@@ -61786,31 +61836,34 @@
           "itemType": "Consumable"
         },
         {
-          "name": "Average_Speed_Potion",
-          "rawName": "FoodPotGr2",
+          "name": "ERROR",
+          "rawName": "Blank",
           "owner": "MortaCatch",
-          "amount": 1393,
-          "displayName": "Average_Speed_Potion",
-          "sellPrice": 60,
-          "typeGen": "cFood",
+          "amount": 0,
+          "displayName": "ERROR",
+          "sellPrice": 0,
+          "typeGen": "NothingERROR",
           "ID": 0,
-          "Type": "BOOST_FOOD",
-          "lvReqToCraft": 10,
-          "common": 0,
-          "desc_line1": "Increases_Move_Spd_by_",
-          "desc_line2": 0,
-          "desc_line3": "every_10_meters_walked.",
-          "desc_line4": "Must_be_equipped_in_a_Food_Slot_to",
-          "desc_line5": "give_its_bonus.",
-          "desc_line6": "Filler",
-          "desc_line7": "Filler",
-          "desc_line8": "Filler",
-          "Effect": "MoveSpdBoosts",
-          "Amount": 10,
-          "Trigger": 0,
-          "Cooldown": 13,
-          "consumable": "ey",
-          "itemType": "Consumable"
+          "Type": "FISTICUFF",
+          "lvReqToCraft": 0,
+          "common": "t",
+          "lvReqToEquip": 0,
+          "Class": "ALL",
+          "Speed": 3,
+          "Reach": 55,
+          "Weapon_Power": 2,
+          "STR": 0,
+          "AGI": 0,
+          "WIS": 0,
+          "LUK": 0,
+          "Defence": 0,
+          "UQ1txt": 0,
+          "UQ1val": 0,
+          "UQ2txt": 0,
+          "UQ2val": 0,
+          "Upgrade_Slots_Left": 0,
+          "equip": "n",
+          "itemType": "Equip"
         },
         {
           "name": "ERROR",
@@ -62302,9 +62355,9 @@
       ],
       "skillsInfo": {
         "character": {
-          "level": 108,
-          "exp": 60478681.24424192,
-          "expReq": 175752969.62004524,
+          "level": 109,
+          "exp": 57001695.62419668,
+          "expReq": 186461628.96856815,
           "rank": 8
         },
         "mining": {
@@ -62315,7 +62368,7 @@
         },
         "smithing": {
           "level": 52,
-          "exp": 3117305.9181148717,
+          "exp": 3313050.9181148717,
           "expReq": 6428247.868645385,
           "rank": 4
         },
@@ -62333,7 +62386,7 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 1027267.0674176789,
+          "exp": 2353791.9609619174,
           "expReq": 11963137.757027596,
           "rank": 4
         },
@@ -62345,13 +62398,13 @@
         },
         "trapping": {
           "level": 29,
-          "exp": 65395,
+          "exp": 67782,
           "expReq": 140177.83892477932,
           "rank": 7
         },
         "construction": {
           "level": 105,
-          "exp": 2483948.404261468,
+          "exp": 2946142.962318416,
           "expReq": 3063634.5371859935,
           "rank": 6
         },
@@ -63573,8 +63626,115 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Easy_Resources",
+          "effect": "{%_Skill_Efficiency",
+          "bonus": 32,
+          "rawName": "CardSet2",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Butterflies",
+            "stars": 3,
+            "rawName": "Bug2",
+            "displayName": "Butterflies",
+            "cardIndex": "C12",
+            "visualIndex": 12,
+            "effect": "+%_Total_Catching_Efficiency",
+            "bonus": 5,
+            "perTier": 10,
+            "category": "Easy_Resources"
+          },
+          {
+            "cardName": "Sentient_Cereal",
+            "stars": 3,
+            "rawName": "Bug3",
+            "displayName": "Sentient_Cereal",
+            "cardIndex": "D10",
+            "visualIndex": 8,
+            "effect": "+%_Catching_EXP",
+            "bonus": 5,
+            "perTier": 10,
+            "category": "Medium_Resources"
+          },
+          {
+            "cardName": "Fruitflies",
+            "stars": 3,
+            "rawName": "Bug4",
+            "displayName": "Fruitflies",
+            "cardIndex": "D9",
+            "visualIndex": 9,
+            "effect": "+%_Catching_Away_Gains",
+            "bonus": 2,
+            "perTier": 10,
+            "category": "Medium_Resources"
+          },
+          {
+            "cardName": "Mosquisnow",
+            "stars": 3,
+            "rawName": "Bug5",
+            "displayName": "Mosquisnow",
+            "cardIndex": "F8",
+            "visualIndex": 10,
+            "effect": "+%_Total_Catching_Efficiency",
+            "bonus": 7,
+            "perTier": 10,
+            "category": "Hard_Resources"
+          },
+          {
+            "cardName": "Summer_Spirit",
+            "stars": 2,
+            "rawName": "SummerEvent2",
+            "displayName": "Summer_Spirit",
+            "cardIndex": "Y12",
+            "visualIndex": 13,
+            "effect": "+%_Catching_EXP",
+            "bonus": 4,
+            "perTier": 8,
+            "category": "Events"
+          },
+          {
+            "cardName": "Amarok",
+            "stars": 3,
+            "rawName": "wolfA",
+            "displayName": "Amarok",
+            "cardIndex": "Z2",
+            "visualIndex": 3,
+            "effect": "+%_Skill_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Bunny",
+            "stars": 3,
+            "rawName": "CritterCard7",
+            "displayName": "Bunny",
+            "cardIndex": "F7",
+            "visualIndex": 7,
+            "effect": "+%_Skill_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 6,
+            "category": "Hard_Resources"
+          },
+          {
+            "cardName": "Flycicle",
+            "stars": 3,
+            "rawName": "Bug6",
+            "displayName": "Flycicle",
+            "cardIndex": "F9",
+            "visualIndex": 11,
+            "effect": "+%_Catching_Away_Gains",
+            "bonus": 2.5,
+            "perTier": 10,
+            "category": "Hard_Resources"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": -117,
           "pointsFromCoins": 75,
@@ -63601,6 +63761,7 @@
               "85"
             ]
           },
+          "anvilExp": 371.8077,
           "anvilSpeed": 38540.03225065778,
           "anvilCapacity": 11516
         },
@@ -63619,8 +63780,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 235.66938375111255,
-            "totalProduced": 397151,
+            "currentProgress": 161.472200911307,
+            "totalProduced": 400342,
             "rawName": "CraftMat5",
             "time": 250,
             "levelReq": 5,
@@ -63652,8 +63813,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 773.6357203106172,
-            "totalProduced": 52012,
+            "currentProgress": 449.4385374708112,
+            "totalProduced": 52411,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -63772,113 +63933,6 @@
             "time": 2000,
             "levelReq": 25,
             "exp": 40
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Easy_Resources",
-          "effect": "{%_Skill_Efficiency",
-          "bonus": 8,
-          "rawName": "CardSet2",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Butterflies",
-            "stars": 3,
-            "rawName": "Bug2",
-            "displayName": "Butterflies",
-            "cardIndex": "C12",
-            "visualIndex": 12,
-            "effect": "+%_Total_Catching_Efficiency",
-            "bonus": 5,
-            "perTier": 10,
-            "category": "Easy_Resources"
-          },
-          {
-            "cardName": "Sentient_Cereal",
-            "stars": 3,
-            "rawName": "Bug3",
-            "displayName": "Sentient_Cereal",
-            "cardIndex": "D10",
-            "visualIndex": 8,
-            "effect": "+%_Catching_EXP",
-            "bonus": 5,
-            "perTier": 10,
-            "category": "Medium_Resources"
-          },
-          {
-            "cardName": "Fruitflies",
-            "stars": 3,
-            "rawName": "Bug4",
-            "displayName": "Fruitflies",
-            "cardIndex": "D9",
-            "visualIndex": 9,
-            "effect": "+%_Catching_Away_Gains",
-            "bonus": 2,
-            "perTier": 10,
-            "category": "Medium_Resources"
-          },
-          {
-            "cardName": "Mosquisnow",
-            "stars": 3,
-            "rawName": "Bug5",
-            "displayName": "Mosquisnow",
-            "cardIndex": "F8",
-            "visualIndex": 10,
-            "effect": "+%_Total_Catching_Efficiency",
-            "bonus": 7,
-            "perTier": 10,
-            "category": "Hard_Resources"
-          },
-          {
-            "cardName": "Summer_Spirit",
-            "stars": 2,
-            "rawName": "SummerEvent2",
-            "displayName": "Summer_Spirit",
-            "cardIndex": "Y12",
-            "visualIndex": 13,
-            "effect": "+%_Catching_EXP",
-            "bonus": 4,
-            "perTier": 8,
-            "category": "Events"
-          },
-          {
-            "cardName": "Amarok",
-            "stars": 3,
-            "rawName": "wolfA",
-            "displayName": "Amarok",
-            "cardIndex": "Z2",
-            "visualIndex": 3,
-            "effect": "+%_Skill_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Bunny",
-            "stars": 3,
-            "rawName": "CritterCard7",
-            "displayName": "Bunny",
-            "cardIndex": "F7",
-            "visualIndex": 7,
-            "effect": "+%_Skill_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 6,
-            "category": "Hard_Resources"
-          },
-          {
-            "cardName": "Flycicle",
-            "stars": 3,
-            "rawName": "Bug6",
-            "displayName": "Flycicle",
-            "cardIndex": "F9",
-            "visualIndex": 11,
-            "effect": "+%_Catching_Away_Gains",
-            "bonus": 2.5,
-            "perTier": 10,
-            "category": "Hard_Resources"
           }
         ]
       },
@@ -64294,22 +64348,22 @@
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1641948537654.9995
+          "timeLeft": 1642028073205.0007
         },
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1641948537654.9995
+          "timeLeft": 1642028073205.0007
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1641948537654.9995
+          "timeLeft": 1642028073205.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537654.9995
+          "timeLeft": 1642028073205.0007
         }
       ],
       "postOffice": {
@@ -65011,7 +65065,7 @@
         916.9900000059861,
         999,
         0,
-        94972,
+        124059,
         0,
         0,
         0,
@@ -65143,9 +65197,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 0,
+        "623": 195,
         "626": 0,
-        "634": 0,
+        "634": 1795,
         "635": 0,
         "639": 0
       }
@@ -65153,17 +65207,14 @@
     {
       "name": "MortasNinth",
       "class": "Squire",
-      "afkTime": 1641918172020.9995,
+      "afkTime": 1641992541932.0002,
       "afkTarget": "Walking_Stick",
       "currentMap": "The_Base_Of_The_Bark",
       "money": [
-        "10",
-        "41",
-        "12",
-        "62"
+        "0"
       ],
       "stats": {
-        "strength": 623,
+        "strength": 624,
         "agility": 291,
         "wisdom": 367,
         "luck": 199,
@@ -66429,7 +66480,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 3
+          "amount": 2
         },
         {
           "owner": "MortasNinth",
@@ -66585,7 +66636,7 @@
       "skillsInfo": {
         "character": {
           "level": 142,
-          "exp": 663748836.6130186,
+          "exp": 670691707.6130186,
           "expReq": 984288161.8942494,
           "rank": 4
         },
@@ -66597,7 +66648,7 @@
         },
         "smithing": {
           "level": 44,
-          "exp": 114046.7355301152,
+          "exp": 170338.7355301152,
           "expReq": 1852812.6639373596,
           "rank": 8
         },
@@ -66615,7 +66666,7 @@
         },
         "alchemy": {
           "level": 55,
-          "exp": 8263443.502659007,
+          "exp": 9619177.361506023,
           "expReq": 10336675.428060886,
           "rank": 9
         },
@@ -66627,14 +66678,14 @@
         },
         "trapping": {
           "level": 28,
-          "exp": 92723,
+          "exp": 94787,
           "expReq": 115574.65394369129,
           "rank": 9
         },
         "construction": {
-          "level": 140,
-          "exp": 12242632.502918612,
-          "expReq": 12074575.835679209,
+          "level": 141,
+          "exp": 5464606.791125423,
+          "expReq": 12498797.766764084,
           "rank": 1
         },
         "worship": {
@@ -66660,7 +66711,7 @@
               "funcY": "txt",
               "lvlUpText": "+{_HP",
               "skillIndex": 0,
-              "level": 43,
+              "level": 46,
               "maxLevel": 121
             },
             {
@@ -66940,7 +66991,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_HP",
               "skillIndex": 92,
-              "level": 76,
+              "level": 78,
               "maxLevel": 100
             },
             {
@@ -67375,7 +67426,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Build_Spd",
               "skillIndex": 131,
-              "level": 84,
+              "level": 87,
               "maxLevel": 100
             },
             {
@@ -67885,8 +67936,115 @@
           "level": 6
         }
       ],
+      "cards": {
+        "cardSet": {
+          "name": "Bosses",
+          "effect": "{%_Dmg,_Drop,_and_EXP",
+          "bonus": 12,
+          "rawName": "CardSet26",
+          "stars": null
+        },
+        "equippedCards": [
+          {
+            "cardName": "Efaunt",
+            "stars": 3,
+            "rawName": "Boss2A",
+            "displayName": "Efaunt",
+            "cardIndex": "Z3",
+            "visualIndex": 7,
+            "effect": "+%_EXP_from_monsters",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Baby_Boa",
+            "stars": 3,
+            "rawName": "snakeG",
+            "displayName": "Baby_Boa",
+            "cardIndex": "A5",
+            "visualIndex": 5,
+            "effect": "+_Move_Spd",
+            "bonus": 1,
+            "perTier": 9,
+            "category": "Blunder_Hills"
+          },
+          {
+            "cardName": "Dedotated_Ram",
+            "stars": 3,
+            "rawName": "ram",
+            "displayName": "Dedotated_Ram",
+            "cardIndex": "E14",
+            "visualIndex": 12,
+            "effect": "+_Weapon_Power",
+            "bonus": 2,
+            "perTier": 20,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Chaotic_Amarok",
+            "stars": 3,
+            "rawName": "wolfB",
+            "displayName": "Chaotic_Amarok",
+            "cardIndex": "Z4",
+            "visualIndex": 4,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 2.5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Boop",
+            "stars": 3,
+            "rawName": "poopD",
+            "displayName": "Boop",
+            "cardIndex": "A15",
+            "visualIndex": 2,
+            "effect": "+%_Fighting_AFK_gain_rate",
+            "bonus": 1,
+            "perTier": 1,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Snowman",
+            "stars": 3,
+            "rawName": "snowball",
+            "displayName": "Snowman",
+            "cardIndex": "E5",
+            "visualIndex": 5,
+            "effect": "+%_Total_Damage",
+            "bonus": 3,
+            "perTier": 15,
+            "category": "Frostbite_Tundra"
+          },
+          {
+            "cardName": "Dr_Defecaus",
+            "stars": 3,
+            "rawName": "poopBig",
+            "displayName": "Dr_Defecaus",
+            "cardIndex": "Z1",
+            "visualIndex": 1,
+            "effect": "+%_Total_Damage",
+            "bonus": 5,
+            "perTier": 1.5,
+            "category": "Bosses"
+          },
+          {
+            "cardName": "Squiddy_Soul",
+            "stars": 2,
+            "rawName": "SoulCard5",
+            "displayName": "Squiddy_Soul",
+            "cardIndex": "F11",
+            "visualIndex": 3,
+            "effect": "+%_Charge_Rate",
+            "bonus": 5,
+            "perTier": 5,
+            "category": "Hard_Resources"
+          }
+        ]
+      },
       "anvil": {
-        "guild": true,
+        "guild": false,
         "stats": {
           "availablePoints": 0,
           "pointsFromCoins": 85,
@@ -67914,6 +68072,7 @@
               "97"
             ]
           },
+          "anvilExp": 156.3368,
           "anvilSpeed": 23705.999822042602,
           "anvilCapacity": 5761
         },
@@ -67954,8 +68113,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 171.26981961696822,
-            "totalProduced": 55133,
+            "currentProgress": 873.5957766778937,
+            "totalProduced": 55621,
             "rawName": "CraftMat7",
             "time": 1000,
             "levelReq": 18,
@@ -67965,8 +68124,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 1190.9522712742198,
-            "totalProduced": 27566,
+            "currentProgress": 1893.2782283351348,
+            "totalProduced": 27810,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -68085,113 +68244,6 @@
             "time": 2000,
             "levelReq": 25,
             "exp": 40
-          }
-        ]
-      },
-      "cards": {
-        "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 6,
-          "rawName": "CardSet26",
-          "stars": null
-        },
-        "equippedCards": [
-          {
-            "cardName": "Efaunt",
-            "stars": 3,
-            "rawName": "Boss2A",
-            "displayName": "Efaunt",
-            "cardIndex": "Z3",
-            "visualIndex": 7,
-            "effect": "+%_EXP_from_monsters",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Baby_Boa",
-            "stars": 3,
-            "rawName": "snakeG",
-            "displayName": "Baby_Boa",
-            "cardIndex": "A5",
-            "visualIndex": 5,
-            "effect": "+_Move_Spd",
-            "bonus": 1,
-            "perTier": 9,
-            "category": "Blunder_Hills"
-          },
-          {
-            "cardName": "Dedotated_Ram",
-            "stars": 3,
-            "rawName": "ram",
-            "displayName": "Dedotated_Ram",
-            "cardIndex": "E14",
-            "visualIndex": 12,
-            "effect": "+_Weapon_Power",
-            "bonus": 2,
-            "perTier": 20,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Chaotic_Amarok",
-            "stars": 3,
-            "rawName": "wolfB",
-            "displayName": "Chaotic_Amarok",
-            "cardIndex": "Z4",
-            "visualIndex": 4,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 2.5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Boop",
-            "stars": 3,
-            "rawName": "poopD",
-            "displayName": "Boop",
-            "cardIndex": "A15",
-            "visualIndex": 2,
-            "effect": "+%_Fighting_AFK_gain_rate",
-            "bonus": 1,
-            "perTier": 1,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Snowman",
-            "stars": 3,
-            "rawName": "snowball",
-            "displayName": "Snowman",
-            "cardIndex": "E5",
-            "visualIndex": 5,
-            "effect": "+%_Total_Damage",
-            "bonus": 3,
-            "perTier": 15,
-            "category": "Frostbite_Tundra"
-          },
-          {
-            "cardName": "Dr_Defecaus",
-            "stars": 3,
-            "rawName": "poopBig",
-            "displayName": "Dr_Defecaus",
-            "cardIndex": "Z1",
-            "visualIndex": 1,
-            "effect": "+%_Total_Damage",
-            "bonus": 5,
-            "perTier": 1.5,
-            "category": "Bosses"
-          },
-          {
-            "cardName": "Squiddy_Soul",
-            "stars": 2,
-            "rawName": "SoulCard5",
-            "displayName": "Squiddy_Soul",
-            "cardIndex": "F11",
-            "visualIndex": 3,
-            "effect": "+%_Charge_Rate",
-            "bonus": 5,
-            "perTier": 5,
-            "category": "Hard_Resources"
           }
         ]
       },
@@ -68653,28 +68705,28 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 2.06,
-        "currentCharge": 493
+        "currentCharge": 512
       },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537658.9995
+          "timeLeft": 1642028073208.0007
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1641948537658.9995
+          "timeLeft": 1642028073208.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537658.9995
+          "timeLeft": 1642028073208.0007
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1641948537658.9995
+          "timeLeft": 1642028073208.0007
         }
       ],
       "postOffice": {
@@ -69273,7 +69325,7 @@
         40,
         0,
         0,
-        861451.25,
+        1038676.25,
         358535.41000000003,
         921643.0800000001,
         102226.65000000001,
@@ -69471,7 +69523,7 @@
         "40": 0,
         "90": 0,
         "91": 0,
-        "94": 21,
+        "94": 3,
         "100": 0,
         "105": 0,
         "106": 0,
@@ -69482,7 +69534,7 @@
         "121": 0,
         "122": 0,
         "124": 0,
-        "130": 71990,
+        "130": 71909,
         "270": 0,
         "271": 0,
         "273": 0,
@@ -69508,14 +69560,14 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 195,
+        "623": 0,
         "626": 0,
-        "634": 1794,
+        "634": 1707,
         "635": 0,
         "639": 0
       }
     }
   ],
-  "lastUpdated": "2022-01-11T18:10:20.049Z",
+  "lastUpdated": "2022-01-12T20:02:07.068Z",
   "version": "1.1.5"
 }
