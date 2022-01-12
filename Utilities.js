@@ -31,7 +31,7 @@ export const round = (num) => {
 export const numberWithCommas = (num) => {
   return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-export const kFormatter = (num, digits = 1) => {
+export const kFormatter = (num, digits = 1, percentage) => {
   const lookup = [
     { value: 1, symbol: "" },
     { value: 1e3, symbol: "k" },

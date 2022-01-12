@@ -206,7 +206,7 @@ export const calcCardBonus = (card) => {
   return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
 }
 
-export const getStampBonus = (stamps, stampTree, stampName, skillLevel) => {
+export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
   const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;
@@ -228,10 +228,12 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
   return growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2) ?? 0;
 }
 
-export const getSaltLickBonus = (saltLicks, saltIndex) => {
+export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
   const saltLick = saltLicks?.find(({ rawName }) => rawName === saltIndex);
   if (saltLick === 0) return 0;
-  return round(saltLick.baseBonus * (saltLick.level ?? 0)) ?? 0;
+  const bonus = saltLick.baseBonus * (saltLick.level ?? 0) ?? 0;
+  if (shouldRound) return round(bonus) ?? 0;
+  return bonus;
 }
 
 export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex) => {
@@ -248,7 +250,7 @@ export const getPrayerBonusAndCurse = (prayers, prayerName) => {
   if (!prayer) return { bonus: 0, curse: 0 };
   const bonus = prayer.x1 + (prayer.x1 * (prayer.level - 1)) / 10;
   const curse = prayer.x2 + (prayer.x2 * (prayer.level - 1)) / 10;
-  return { bonus, curse }
+  return { bonus: Math.round(bonus), curse: Math.round(curse) }
 }
 
 export const getActiveBubbleBonus = (equippedBubbles, bubbleName) => {
@@ -278,7 +280,6 @@ export const getAllCapsBonus = (guildBonus, telekineticStorageBonus, shrineBonus
   );
 }
 
-
 export const getAllSkillExp = (
   sirSavvyStarSign,
   cEfauntCardBonus,
@@ -294,21 +295,21 @@ export const getAllSkillExp = (
   duneSoulLickBonus,
   dungeonSkillExpBonus,
 ) => {
-  return sirSavvyStarSign + cEfauntCardBonus + goldenHamBonus +
-    skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus +
-    unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + equipmentBonus +
-    maestroTransfusionTalentBonus + duneSoulLickBonus + dungeonSkillExpBonus;
+  return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) +
+    (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus +
+      (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus +
+        (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus)))));
 }
 
-export const getSmithingExpMutli = (focusedSoulTalentBonus, happyDudeTalentBonus, fireForgeCardBonus, cinderForgeCardBonus, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
+export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus, fireForgeCardBonus, cinderForgeCardBonus, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
   const talentsBonus = 1 + (focusedSoulTalentBonus + happyDudeTalentBonus) / 100;
   const cardsBonus = 1 + (fireForgeCardBonus + cinderForgeCardBonus) / 100;
-  return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus / 100));
+  return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus) / 100);
 }
 
 export const getAnvilExp = (xpPoints, smithingExp) => {
-  const baseExp = 1 + (3 * xpPoints / 100) * smithingExp;
-  if (baseExp > 20) return baseExp;
+  const baseExp = (1 + (3 * xpPoints / 100)) * smithingExp;
+  if (baseExp < 20) return baseExp;
   return Math.min(20 + ((baseExp - 20) / baseExp - 20 + 70) * 50, 75);
 }
 
@@ -373,9 +374,62 @@ export const getMonsterMatCost = (pointsFromMats, anvilCostReduction) => {
   return Math.round((Math.pow(pointsFromMats + 1, 1.5) + pointsFromMats) * Math.max(0.1, 1 - anvilCostReduction / 100))
 }
 
-export const getGoldenFoodBonus = (amount, stack) => {
+export const getGoldenFoodMulti = (
+  familyBonus,
+  equipmentGoldFoodBonus,
+  hungryForGoldTalentBonus,
+  goldenAppleStamp,
+  goldenFoodAchievement
+) => {
+  return Math.max(familyBonus, 1)
+    + (equipmentGoldFoodBonus
+      + hungryForGoldTalentBonus
+      + goldenAppleStamp +
+      goldenFoodAchievement) / 100;
+}
+
+export const getFamilyBonusBonus = (bonuses, bonusName, level) => {
+  const bonus = bonuses?.find(({ name }) => name?.includes(bonusName));
+  if (!bonus) return 0;
+  return growth(bonus?.func, Math.max(0, Math.round(level - bonus?.x3)), bonus?.x1, bonus?.x2);
+}
+
+export const getGoldenFoodBonus = (goldenFoodMulti, amount, stack) => {
   if (!amount || !stack) return 0;
-  return round(amount * 0.05 * lavaLog(1 + stack) * (1 + lavaLog(1 + stack) / 2.14));
+  return amount * goldenFoodMulti * 0.05 * lavaLog(1 + stack) * (1 + lavaLog(1 + stack) / 2.14);
+}
+
+export const getHighestLevelOfClass = (characters, className) => {
+  const highest = characters?.reduce((res, { level, class: cName }) => {
+    if (res?.[cName]) {
+      res[cName] = Math.max(res?.[cName], level);
+    } else {
+      res[cName] = level;
+    }
+    return res;
+  }, {});
+  return highest?.[className];
+}
+
+export const getAchievementStatus = (achievements, achievementIndex) => {
+  if (!achievements?.[achievementIndex]) return 0;
+  switch (achievementIndex) {
+    case 27:
+    case 37:
+    case 44:
+    case 107:
+    case 109:
+    case 117:
+      return 5;
+    case 108:
+      return 10;
+    case 99:
+    case 104:
+    case 122:
+      return 20;
+    default:
+      return 1;
+  }
 }
 
 export const getGuildBonusBonus = (guildBonuses, bonusIndex) => {
@@ -469,7 +523,6 @@ export const getChargeRate = (skull, worshipLevel, popeBonus, cardBonus, stampBo
   const base = 6 / Math.max(5.7 - (speedMath + (levelMath + (0.6 * worshipLevel) / (worshipLevel + 40))), 0.57);
   return base * Math.max(1, popeBonus) * (1 + (cardBonus + stampBonus) / 100) * Math.max(talentBonus, 1)
 }
-
 
 export const mapAccountQuests = (characters) => {
   const questsKeys = Object.keys(quests);

@@ -15,7 +15,7 @@ const Anvil = ({ anvil, afkTime, lastUpdated }) => {
     anvilSpeed,
     anvilCapacity,
     anvilCost,
-    // anvilExp
+    anvilExp
   } = anvil?.stats;
 
   return (
@@ -32,7 +32,7 @@ const Anvil = ({ anvil, afkTime, lastUpdated }) => {
         </div>
         <div className={'mini-title'}>Bonus</div>
         <div className={'points'}>
-          <div><span>Exp</span> {kFormatter(0, 2)}</div>
+          <div><span>Exp</span> {kFormatter(anvilExp, 2)}%</div>
           <div><span>Speed</span> {kFormatter(anvilSpeed, 2)}</div>
           <div><span>Capacity</span> {kFormatter(anvilCapacity, 2)}</div>
         </div>

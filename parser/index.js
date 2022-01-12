@@ -9,6 +9,7 @@ import {
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
+  getAchievementStatus,
   getActiveBubbleBonus,
   getAllCapsBonus,
   getAllSkillExp,
@@ -20,8 +21,11 @@ import {
   getCoinCost,
   getDungeonStatBonus,
   getEquippedCardBonus,
+  getFamilyBonusBonus,
   getGoldenFoodBonus,
+  getGoldenFoodMulti,
   getGuildBonusBonus,
+  getHighestLevelOfClass,
   getInventory,
   getMaxCharge,
   getMonsterMatCost,
@@ -30,7 +34,7 @@ import {
   getPrayerBonusAndCurse,
   getSaltLickBonus,
   getShrineBonus,
-  getSmithingExpMutli,
+  getSmithingExpMulti,
   getStampBonus,
   getStarSignBonus,
   getStatFromEquipment,
@@ -53,6 +57,7 @@ import {
   carryBags,
   cauldrons,
   classes,
+  classFamilyBonuses,
   constellations,
   dungeonStats,
   guildBonuses,
@@ -86,7 +91,8 @@ const parseIdleonData = (idleonData, charNames, guildData) => {
         ...(Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {}))
       }));
     } else {
-      const { serializedData, chars } = createSerializedData(idleonData, charNames);
+      const c = charNames?.length > 0 ? charNames : ['1', '2', '3', '4', '5', '6', '7', '8'];
+      const { serializedData, chars } = createSerializedData(idleonData, c);
       idleonData = serializedData;
       characters = chars;
     }
@@ -421,6 +427,10 @@ const createAccountData = (idleonData, characters) => {
 }
 
 const createCharactersData = (idleonData, characters, account) => {
+  const charactersLevels = characters?.map((char, charIndex) => {
+    const personalValuesMap = char?.[`PersonalValuesMap_${charIndex}`];
+    return { level: personalValuesMap?.StatList?.[4], class: classes?.[char?.[`CharacterClass_${charIndex}`]] }
+  });
   return characters?.map((char, charIndex) => {
     const character = {};
     const personalValuesMap = char?.[`PersonalValuesMap_${charIndex}`];
@@ -528,6 +538,24 @@ const createCharactersData = (idleonData, characters, account) => {
       level: PrayersUnlocked?.[prayerIndex]
     }] : res), []);
 
+    const cardSet = char?.[`CSetEq_${charIndex}`];
+    const equippedCards = char?.[`CardEquip_${charIndex}`]
+      .map((card) => ({
+        cardName: cards?.[card]?.displayName,
+        stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
+        ...cards?.[card]
+      }))
+      .filter((_, ind) => ind < 8); //cardEquipMap
+    const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
+    character.cards = {
+      cardSet: {
+        ...cardsSetObject,
+        bonus: Object.values(cardSet)?.[0],
+        stars: calculateCardSetStars(cardsSetObject, Object.values(cardSet)?.[0])
+      },
+      equippedCards,
+    };
+
     // crafting material in production
     // AnvilPA - production
     // AnvilPAstats - stats
@@ -583,52 +611,68 @@ const createCharactersData = (idleonData, characters, account) => {
       nextCoinUpgrade: getCoinCost(pointsFromCoins, anvilCostReduction, true),
     };
 
-    // // ANVIL EXP
-    // const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
-    // const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
-    // const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
-    // const goldenHamBonus = getGoldenFoodBonus(goldenHam?.Amount, goldenHam?.amount);
-    // const skillExpCardSetBonus = calcCardBonus(character?.cards?.cardSet);
-    // const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap_${charIndex}`], account?.cards, 'Z9');
-    // const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
-    // const unendingEnergyBonus = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
-    // const skilledDimwitCurse = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.curse;
-    // const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.prayers, 'The_Royal_Sampler')?.curse;
-    // const equipmentBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, '%_SKILL_EXP'), 0);
-    // const maestroTransfusionTalentBonus = getTalentBonus(character?.talents, 2, 'MAESTRO_TRANSFUSION');
-    // const duneSoulLickBonus = getSaltLickBonus(account?.saltLicks, 'Soul2');
-    // const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeonUpgrades, 'Skilling_Exp');
-    // const allSkillExp = getAllSkillExp(
-    //   sirSavvyStarSign,
-    //   cEfauntCardBonus,
-    //   goldenHamBonus,
-    //   skillExpCardSetBonus,
-    //   summereadingShrineBonus,
-    //   ehexpeeStatueBonus,
-    //   unendingEnergyBonus,
-    //   skilledDimwitCurse,
-    //   theRoyalSamplerCurse,
-    //   equipmentBonus,
-    //   maestroTransfusionTalentBonus,
-    //   duneSoulLickBonus,
-    //   dungeonSkillExpBonus,
-    // );
-    //
-    // const focusedSoulTalentBonus = getTalentBonus(character?.talents, 0, 'FOCUSED_SOUL');
-    // const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
-    // const fireForgeCardBonus = getEquippedCardBonus(character?.cards, 'C16');
-    // const cinderForgeCardBonus = getEquippedCardBonus(character?.cards, 'D16');
-    // const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
-    // const leftHandOfLearningTalentBonus = getTalentBonus(character?.talents, 2, 'LEFT_HAND_OF_LEARNING');
-    // const smithingExp = getSmithingExpMutli(
-    //   focusedSoulTalentBonus,
-    //   happyDudeTalentBonus,
-    //   fireForgeCardBonus,
-    //   cinderForgeCardBonus,
-    //   blackSmithBoxBonus0,
-    //   allSkillExp,
-    //   leftHandOfLearningTalentBonus);
-    // stats.anvilExp = getAnvilExp(xpPoints, smithingExp);
+    // ANVIL EXP
+    const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
+    const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
+
+    const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
+    const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Shaman');
+    const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
+    const equipmentGoldFoodBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, '%_GOLD_FOOD_EFFECT'), 0);
+    const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
+    const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7');
+    const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
+    const goldenGoodMulti = getGoldenFoodMulti(
+      familyBonus,
+      equipmentGoldFoodBonus,
+      hungryForGoldTalentBonus,
+      goldenAppleStamp,
+      goldenFoodAchievement
+    );
+    const goldenFoodBonus = getGoldenFoodBonus(goldenGoodMulti, goldenHam?.Amount, goldenHam?.amount);
+
+    const skillExpCardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
+    const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap_${charIndex}`], account?.cards, 'Z9');
+    const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
+    const unendingEnergyBonus = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
+    const skilledDimwitCurse = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.curse;
+    const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.prayers, 'The_Royal_Sampler')?.curse;
+    const equipmentBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, '%_SKILL_EXP'), 0);
+    const maestroTransfusionTalentBonus = getTalentBonus(character?.talents, 2, 'MAESTRO_TRANSFUSION');
+    const duneSoulLickBonus = getSaltLickBonus(account?.saltLicks, 'Soul2');
+    const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeonUpgrades, 'Class_Exp');
+    const allSkillExp = getAllSkillExp(
+      sirSavvyStarSign,
+      cEfauntCardBonus,
+      goldenFoodBonus,
+      skillExpCardSetBonus,
+      summereadingShrineBonus,
+      ehexpeeStatueBonus,
+      unendingEnergyBonus,
+      skilledDimwitCurse,
+      theRoyalSamplerCurse,
+      equipmentBonus,
+      maestroTransfusionTalentBonus,
+      duneSoulLickBonus,
+      dungeonSkillExpBonus,
+    );
+
+    const focusedSoulTalentBonus = getTalentBonus(character?.talents, 0, 'FOCUSED_SOUL');
+    const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
+    const fireForgeCardBonus = getEquippedCardBonus(character?.cards, 'C16');
+    const cinderForgeCardBonus = getEquippedCardBonus(character?.cards, 'D16');
+    const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
+    const leftHandOfLearningTalentBonus = getTalentBonus(character?.talents, 2, 'LEFT_HAND_OF_LEARNING');
+    const smithingExp = getSmithingExpMulti(
+      focusedSoulTalentBonus,
+      happyDudeTalentBonus,
+      fireForgeCardBonus,
+      cinderForgeCardBonus,
+      blackSmithBoxBonus0,
+      allSkillExp,
+      leftHandOfLearningTalentBonus);
+    const anvilExp = getAnvilExp(xpPoints, smithingExp);
+    stats.anvilExp = 100 * (anvilExp - 1);
 
     // ANVIL SPEED MATH;
     const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);
@@ -643,7 +687,7 @@ const createCharactersData = (idleonData, characters, account) => {
     let zergPrayerBonus = getPrayerBonusAndCurse(character?.prayers, 'Zerg_Rushogen')?.curse;
     let ruckSackPrayerBonus = getPrayerBonusAndCurse(character?.prayers, 'Ruck_Sack')?.bonus;
 
-    if (account?.guild) {
+    if (account?.guild?.guildBonuses.length > 0) {
       guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
     }
     const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
@@ -672,27 +716,10 @@ const createCharactersData = (idleonData, characters, account) => {
       .map((item) => anvilProducts[item]);
 
     character.anvil = {
-      guild: !!account?.guild,
+      guild: account?.guild?.guildBonuses.length > 0,
       stats,
       production,
       selected: selectedProducts,
-    };
-
-    const cardSet = char?.[`CSetEq_${charIndex}`];
-    const equippedCards = char?.[`CardEquip_${charIndex}`]
-      .map((card) => ({
-        cardName: cards?.[card]?.displayName,
-        stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
-        ...cards?.[card]
-      }))
-      .filter((_, ind) => ind < 8); //cardEquipMap
-    const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
-    character.cards = {
-      cardSet: {
-        ...cardsSetObject,
-        stars: calculateCardSetStars(cardsSetObject, Object.values(cardSet)?.[0])
-      },
-      equippedCards,
     };
 
     // printer
