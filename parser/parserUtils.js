@@ -265,7 +265,7 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
   const saltLick = saltLicks?.find(({ rawName }) => rawName === saltIndex);
-  if (saltLick === 0) return 0;
+  if (!saltLick || saltLick === 0) return 0;
   const bonus = saltLick.baseBonus * (saltLick.level ?? 0) ?? 0;
   if (shouldRound) return round(bonus) ?? 0;
   return bonus;

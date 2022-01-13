@@ -15,14 +15,14 @@ const AnvilProducts = ({ anvil, afkTime, lastUpdated }) => {
         const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * anvil?.stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), anvil?.stats?.anvilCapacity);
         const percentOfCap = Math.round(futureProduction / anvil?.stats?.anvilCapacity * 100);
         const timeTillCap = ((anvil?.stats?.anvilCapacity - futureProduction) / (anvil?.stats?.anvilSpeed / 3600 / time * (hammers ?? 0)));
-        // console.log({
-        //   timePassed,
-        //   futureProduction,
-        //   percentOfCap,
-        //   timeTillCap,
-        //   capacity: anvil?.stats?.anvilCapacity,
-        //   hammers, currentAmount, currentProgress, time
-        // })
+        console.log({
+          timePassed,
+          futureProduction,
+          percentOfCap,
+          timeTillCap,
+          capacity: anvil?.stats?.anvilCapacity,
+          hammers, currentAmount, currentProgress, time
+        })
         return hammers > 0 ? <div key={rawName + index}>
           <div className={'item'}>
             <img title={cleanUnderscore(rawName)}
