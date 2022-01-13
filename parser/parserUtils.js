@@ -1,4 +1,13 @@
-import { anvilUpgradeCost, deathNote, items, mapEnemies, monsters, quests, talents } from "../data/website-data";
+import {
+  anvilUpgradeCost,
+  bonuses,
+  deathNote,
+  items,
+  mapEnemies,
+  monsters,
+  quests,
+  talents
+} from "../data/website-data";
 import { getDeathNoteRank, round } from "../Utilities";
 import { getDaysInMonth, intervalToDuration } from 'date-fns';
 import { growth } from "../components/General/calculationHelper";
@@ -34,6 +43,11 @@ export const createSerializedData = (data, charNames) => {
           case key.includes('EMm1'): {
             updatedKey = `EquipmentMap_${index}`;
             arr = [...(res?.[updatedKey] || []), createIndexedArray(updatedDetails)];
+            break;
+          }
+          case key.includes('BuffsActive'): {
+            updatedKey = `BuffsActive_${index}`;
+            arr = createArrayOfArrays(updatedDetails);
             break;
           }
           case key.includes('ItemQTY'): {
@@ -201,6 +215,10 @@ export const getEquippedCardBonus = (cards, cardInd) => {
   return calcCardBonus(card);
 }
 
+export const getTotalCardBonusById = (cards, bonusId) => {
+  return cards?.reduce((res, card) => card?.effect === bonuses?.cardBonuses?.[bonusId] ? res + calcCardBonus(card) : res, 0);
+}
+
 export const calcCardBonus = (card) => {
   if (!card) return 0;
   return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
@@ -226,6 +244,23 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
     return growth(talent?.funcY, talent?.level, talent?.y1, talent?.y2) ?? 0
   }
   return growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2) ?? 0;
+}
+
+export const createActiveBuffs = (activeBuffs, talents) => {
+  return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId));
+}
+
+export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
+  return activeBuffs?.reduce((res, {
+                              name,
+                              funcX,
+                              level,
+                              x1,
+                              x2,
+                              funcY,
+                              y1,
+                              y2
+                            }) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2) : growth(funcY, level, y1, y2) : 0, 0) ?? 0;
 }
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
@@ -301,16 +336,16 @@ export const getAllSkillExp = (
         (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus)))));
 }
 
-export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus, fireForgeCardBonus, cinderForgeCardBonus, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
+export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus, smithingCards, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
   const talentsBonus = 1 + (focusedSoulTalentBonus + happyDudeTalentBonus) / 100;
-  const cardsBonus = 1 + (fireForgeCardBonus + cinderForgeCardBonus) / 100;
+  const cardsBonus = 1 + (smithingCards) / 100;
   return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus) / 100);
 }
 
-export const getAnvilExp = (xpPoints, smithingExp) => {
-  const baseExp = (1 + (3 * xpPoints / 100)) * smithingExp;
-  if (baseExp < 20) return baseExp;
-  return Math.min(20 + ((baseExp - 20) / baseExp - 20 + 70) * 50, 75);
+export const getAnvilExp = (xpPoints, smithingExpMulti) => {
+  const baseMath = 1 + (3 * xpPoints / 100) * smithingExpMulti;
+  if (baseMath < 20) return baseMath;
+  return Math.min(20 + ((baseMath - 20) / (baseMath - 20 + 70)) * 50, 75);
 }
 
 export const getPlayerCapacity = (bag, capacities) => {
@@ -383,9 +418,9 @@ export const getGoldenFoodMulti = (
 ) => {
   return Math.max(familyBonus, 1)
     + (equipmentGoldFoodBonus
-      + hungryForGoldTalentBonus
+      + (hungryForGoldTalentBonus
       + goldenAppleStamp +
-      goldenFoodAchievement) / 100;
+      goldenFoodAchievement)) / 100;
 }
 
 export const getFamilyBonusBonus = (bonuses, bonusName, level) => {
@@ -739,14 +774,16 @@ export const createTalentPage = (className, pages, talentsObject, maxTalentsObje
     if (mergeArray) {
       return {
         ...res,
-        orderedTalents: [...(res?.orderedTalents || []), ...orderedTalents]
+        talents: { ...res?.talents, orderedTalents: [...(res?.talents?.orderedTalents || []), ...orderedTalents] },
+        flat: [...(res?.flat || []), ...orderedTalents]
       }
     }
     return {
       ...res,
-      [index]: { name: className, orderedTalents }
+      flat: [...(res?.flat || []), ...orderedTalents],
+      talents: { ...res?.talents, [index]: { name: className, orderedTalents } },
     }
-  }, {})
+  }, { flat: [], talents: {} })
 }
 
 export const calculateItemTotalAmount = (array, itemName, exact) => {

@@ -5,7 +5,7 @@ import {
   calculateDeathNote,
   calculateItemTotalAmount,
   calculateLeaderboard,
-  calculateWeirdObolIndex,
+  calculateWeirdObolIndex, createActiveBuffs,
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
@@ -39,7 +39,8 @@ import {
   getStarSignBonus,
   getStatFromEquipment,
   getStatueBonus,
-  getTalentBonus,
+  getTalentBonus, getTalentBonusIfActive,
+  getTotalCardBonusById,
   getTotalCoinCost,
   getTotalMonsterMatCost,
   keysMap,
@@ -52,6 +53,7 @@ import {
 import {
   achievements,
   anvilProducts,
+  bonuses,
   bribes,
   cardSets,
   carryBags,
@@ -526,9 +528,18 @@ const createCharactersData = (idleonData, characters, account) => {
     const talentsObject = char?.[`SkillLevels_${charIndex}`];
     const maxTalentsObject = char?.[`SkillLevelsMAX_${charIndex}`];
     const pages = talentPagesMap?.[character?.class];
-    character.talents = createTalentPage(character?.class, pages, talentsObject, maxTalentsObject);
-    character.starTalents = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
-
+    const {
+      flat: flatTalents,
+      talents
+    } = createTalentPage(character?.class, pages, talentsObject, maxTalentsObject);
+    character.talents = talents;
+    const {
+      flat: flatStarTalents,
+      talents: orderedStarTalents
+    } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
+    character.starTalents = orderedStarTalents;
+    const activeBuffs = char?.[`BuffsActive_${charIndex}`];
+    character.activeBuffs = createActiveBuffs(activeBuffs, [...flatTalents, ...flatStarTalents]);
 
     const prayersArray = char?.[`Prayers_${charIndex}`];
     const PrayersUnlocked = idleonData?.PrayersUnlocked;
@@ -618,7 +629,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
     const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Shaman');
     const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
-    const equipmentGoldFoodBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, '%_GOLD_FOOD_EFFECT'), 0);
+    const equipmentGoldFoodBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[8]), 0);
     const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
     const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7');
     const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
@@ -637,8 +648,8 @@ const createCharactersData = (idleonData, characters, account) => {
     const unendingEnergyBonus = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
     const skilledDimwitCurse = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.curse;
     const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.prayers, 'The_Royal_Sampler')?.curse;
-    const equipmentBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, '%_SKILL_EXP'), 0);
-    const maestroTransfusionTalentBonus = getTalentBonus(character?.talents, 2, 'MAESTRO_TRANSFUSION');
+    const equipmentBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses.etcBonuses?.[27]), 0);
+    const maestroTransfusionTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
     const duneSoulLickBonus = getSaltLickBonus(account?.saltLicks, 'Soul2');
     const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeonUpgrades, 'Class_Exp');
     const allSkillExp = getAllSkillExp(
@@ -659,20 +670,22 @@ const createCharactersData = (idleonData, characters, account) => {
 
     const focusedSoulTalentBonus = getTalentBonus(character?.talents, 0, 'FOCUSED_SOUL');
     const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
-    const fireForgeCardBonus = getEquippedCardBonus(character?.cards, 'C16');
-    const cinderForgeCardBonus = getEquippedCardBonus(character?.cards, 'D16');
+    const smithingCards = getTotalCardBonusById(character?.cards?.equippedCards, 49);
     const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
     const leftHandOfLearningTalentBonus = getTalentBonus(character?.talents, 2, 'LEFT_HAND_OF_LEARNING');
-    const smithingExp = getSmithingExpMulti(
+    const smithingExpMulti = getSmithingExpMulti(
       focusedSoulTalentBonus,
       happyDudeTalentBonus,
-      fireForgeCardBonus,
-      cinderForgeCardBonus,
+      smithingCards,
       blackSmithBoxBonus0,
       allSkillExp,
       leftHandOfLearningTalentBonus);
-    const anvilExp = getAnvilExp(xpPoints, smithingExp);
+    const anvilExp = getAnvilExp(xpPoints, smithingExpMulti);
     stats.anvilExp = 100 * (anvilExp - 1);
+
+    // if (charIndex === 6) {
+    //   console.log('hello')
+    // }
 
     // ANVIL SPEED MATH;
     const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);

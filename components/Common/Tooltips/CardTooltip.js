@@ -13,7 +13,7 @@ const CardTooltip = ({ cardName, effect, bonus, children }) => {
           {cleanUnderscore(cardName)}
         </div>
         <div>
-          {cleanUnderscore(effect).replace(/\+|{/g, bonus)}
+          {cleanUnderscore(effect).replace(/{/g, bonus)}
         </div>
       </div>}>
       {children}
