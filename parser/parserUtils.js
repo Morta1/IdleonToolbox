@@ -723,16 +723,7 @@ export const calculateWeirdObolIndex = (index) => {
 
 export const calculateCardSetStars = (card, bonus) => {
   if (!card || !bonus) return null;
-  if (card.base === bonus) {
-    return 0;
-  } else if (bonus >= card.base * 4) {
-    return 3;
-  } else if (bonus >= card.base * 3) {
-    return 2;
-  } else if (bonus >= card.base * 2) {
-    return 1;
-  }
-  return null;
+  return (bonus / card?.bonus) - 1;
 };
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {

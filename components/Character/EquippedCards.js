@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
 import CardTooltip from "../Common/Tooltips/CardTooltip";
+import { calcCardBonus } from "../../parser/parserUtils";
 
 const EquippedCards = ({ cards }) => {
   return (
@@ -10,7 +11,7 @@ const EquippedCards = ({ cards }) => {
         {cards?.cardSet?.stars > 0 ?
           <img className='border' title={cleanUnderscore(cards?.cardSet?.name)}
                src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
-        <CardTooltip cardName={cards?.cardSet?.name} effect={cards?.cardSet.effect} bonus={cards?.cardSet?.base}
+        <CardTooltip cardName={cards?.cardSet?.name} effect={cards?.cardSet.effect} bonus={cards?.cardSet?.bonus}
                      stars={cards?.cardSet?.stars}>
           <img className={'card'}
                src={`${prefix}data/${cards?.cardSet?.rawName}.png`}
@@ -20,10 +21,11 @@ const EquippedCards = ({ cards }) => {
       {cards?.equippedCards?.map((card, index) => {
         const { cardName, cardIndex, stars } = card;
         const cleanCardName = cardName?.split("(", 2)[0].trim().replace(/ /, '_') || '';
+        const bonus = calcCardBonus(card);
         return cardName && cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
             {stars > 0 ?
               <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
-            <CardTooltip {...card}>
+            <CardTooltip {...card} bonus={bonus}>
               <img className='card'
                    src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>
             </CardTooltip>

@@ -1,10 +1,8 @@
 import styled from 'styled-components'
 import { Tooltip } from "@material-ui/core";
 import { cleanUnderscore } from "../../../Utilities";
-import { calcCardBonus } from "../../../parser/parserUtils";
 
-const CardTooltip = ({ cardName, effect, bonus, stars, children }) => {
-  const cardEffect = calcCardBonus({ bonus, stars })
+const CardTooltip = ({ cardName, effect, bonus, children }) => {
   return (
     <CardTooltipStyle
       interactive
@@ -15,7 +13,7 @@ const CardTooltip = ({ cardName, effect, bonus, stars, children }) => {
           {cleanUnderscore(cardName)}
         </div>
         <div>
-          {cleanUnderscore(effect).replace(/\+|{/g, cardEffect)}
+          {cleanUnderscore(effect).replace(/\+|{/g, bonus)}
         </div>
       </div>}>
       {children}

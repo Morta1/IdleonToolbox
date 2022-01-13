@@ -1,18 +1,18 @@
 {
   "account": {
     "TimeAway": {
-      "GlobalTime": "1642010693.6019995",
-      "Arcade": "1641918006.0209994",
-      "Player": "1642010693.6019995",
-      "Construction": "1642010693.6019995",
-      "Cauldron": "1642010693.6019995",
-      "Printer": "1642008077.004",
-      "DailyRewards": "15979438.5966017",
-      "BookLib": "342378.35597588937",
-      "ShopRestock": "11241.403398275099",
-      "PostOfficeRefresh": "11241.614000558853",
-      "Forge": "1642010693.6019995",
-      "Cooking": "1642010693.6019995"
+      "GlobalTime": "1642048817.7229998",
+      "Arcade": "1642046206.2239995",
+      "Player": "1642048817.7229998",
+      "Construction": "1642048817.7229998",
+      "Cauldron": "1642048817.7229998",
+      "Printer": "1642047677.004",
+      "DailyRewards": "15979440.71760199",
+      "BookLib": "380502.4769761793",
+      "ShopRestock": "59517.28239798518",
+      "PostOfficeRefresh": "59518.03599977493",
+      "Forge": "1642048817.7229998",
+      "Cooking": "1642048817.7229998"
     },
     "gemItemsPurchased": [
       0,
@@ -688,7 +688,7 @@
         "bonus": 6,
         "perTier": 3,
         "category": "Hard_Resources",
-        "amount": 73,
+        "amount": 77,
         "stars": 3
       },
       "Palm_Tree": {
@@ -856,7 +856,7 @@
         "bonus": 4,
         "perTier": 10,
         "category": "Easy_Resources",
-        "amount": 590,
+        "amount": 599,
         "stars": 3
       },
       "Sheepie": {
@@ -880,7 +880,7 @@
         "bonus": 7,
         "perTier": 10,
         "category": "Medium_Resources",
-        "amount": 293,
+        "amount": 301,
         "stars": 3
       },
       "Crystal_Crabal": {
@@ -916,7 +916,7 @@
         "bonus": 3,
         "perTier": 10,
         "category": "Frostbite_Tundra",
-        "amount": 524,
+        "amount": 527,
         "stars": 3
       },
       "Efaunt": {
@@ -976,7 +976,7 @@
         "bonus": 2,
         "perTier": 20,
         "category": "Frostbite_Tundra",
-        "amount": 5225,
+        "amount": 5240,
         "stars": 3
       },
       "Meaning_of_Giftmas": {
@@ -1072,7 +1072,7 @@
         "bonus": 5,
         "perTier": 10,
         "category": "Blunder_Hills",
-        "amount": 633,
+        "amount": 677,
         "stars": 3
       },
       "Wode_Board": {
@@ -1108,7 +1108,7 @@
         "bonus": 1,
         "perTier": 1,
         "category": "Bosses",
-        "amount": 14,
+        "amount": 15,
         "stars": 3
       },
       "Mashed_Potato": {
@@ -1516,7 +1516,7 @@
         "bonus": 3,
         "perTier": 4,
         "category": "Medium_Resources",
-        "amount": 651,
+        "amount": 653,
         "stars": 3
       },
       "Forest_Tree": {
@@ -1636,7 +1636,7 @@
         "bonus": 5,
         "perTier": 4,
         "category": "Medium_Resources",
-        "amount": 394,
+        "amount": 396,
         "stars": 3
       },
       "Bloque": {
@@ -1660,7 +1660,7 @@
         "bonus": 5,
         "perTier": 4,
         "category": "Hard_Resources",
-        "amount": 278,
+        "amount": 279,
         "stars": 3
       },
       "Rat": {
@@ -1684,7 +1684,7 @@
         "bonus": 4,
         "perTier": 10,
         "category": "Hard_Resources",
-        "amount": 15,
+        "amount": 16,
         "stars": 1
       },
       "Owlio": {
@@ -1708,7 +1708,7 @@
         "bonus": 6,
         "perTier": 5,
         "category": "Hard_Resources",
-        "amount": 255,
+        "amount": 257,
         "stars": 3
       },
       "Sandy_Pot": {
@@ -2799,14 +2799,6 @@
       {
         "name": "Small_Material_Pouch",
         "rawName": "MaxCapBagM3"
-      },
-      {
-        "name": "Big_Materials_Pouch",
-        "rawName": "MaxCapBagM6"
-      },
-      {
-        "name": "Large_Materials_Pouch",
-        "rawName": "MaxCapBagM7"
       },
       {
         "name": "Miniature_Fish_Pouch",
@@ -4197,7 +4189,7 @@
               "rawName": "Forest1"
             }
           ],
-          "level": 15
+          "level": 21
         },
         {
           "displayName": "Clover_Stamp",
@@ -4277,7 +4269,7 @@
               "rawName": "DesertB1"
             }
           ],
-          "level": 25
+          "level": 30
         },
         {
           "displayName": "Polearm_Stamp",
@@ -5417,7 +5409,7 @@
               "rawName": "FoodG4"
             }
           ],
-          "level": 4
+          "level": 24
         },
         {
           "displayName": "Ball_Timer_Stamp",
@@ -5557,7 +5549,7 @@
               "rawName": "DesertB3"
             }
           ],
-          "level": 8
+          "level": 10
         },
         {
           "displayName": "Talent_III_Stamp",
@@ -5577,7 +5569,7 @@
               "rawName": "Leaf3"
             }
           ],
-          "level": 6
+          "level": 7
         },
         {
           "displayName": "Talent_IV_Stamp",
@@ -5692,7 +5684,7 @@
       },
       {
         "rawName": "StatueG2",
-        "level": 52,
+        "level": 53,
         "name": "SPEED",
         "effect": "%@MOVE_SPEED",
         "dk": 65,
@@ -5716,7 +5708,7 @@
       },
       {
         "rawName": "StatueG5",
-        "level": 50,
+        "level": 53,
         "name": "HEALTH",
         "effect": "@BASE_HEALTH",
         "dk": 0,
@@ -5732,7 +5724,7 @@
       },
       {
         "rawName": "StatueG7",
-        "level": 70,
+        "level": 71,
         "name": "LUMBERBOB",
         "effect": "@CHOPPIN_POWER",
         "dk": 90,
@@ -5788,7 +5780,7 @@
       },
       {
         "rawName": "StatueG14",
-        "level": 42,
+        "level": 43,
         "name": "BEHOLDER",
         "effect": "%@CRIT_CHANCE",
         "dk": 300,
@@ -5796,7 +5788,7 @@
       },
       {
         "rawName": "StatueG15",
-        "level": 33,
+        "level": 36,
         "name": "BULLSEYE",
         "effect": "%@ACCURACY",
         "dk": 110,
@@ -5836,11 +5828,11 @@
       }
     ],
     "money": [
-      "3",
-      "83",
-      "78",
+      "1",
+      "53",
       "59",
-      "73"
+      "50",
+      "24"
     ],
     "inventory": [
       {
@@ -5849,7 +5841,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Copper",
-        "amount": 117546676
+        "amount": 119054704
       },
       {
         "owner": "storage",
@@ -5857,7 +5849,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Iron",
-        "amount": 816286
+        "amount": 803578
       },
       {
         "owner": "storage",
@@ -5865,7 +5857,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Gold",
-        "amount": 710566
+        "amount": 663094
       },
       {
         "owner": "storage",
@@ -5881,7 +5873,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Dementia",
-        "amount": 619272
+        "amount": 617154
       },
       {
         "owner": "storage",
@@ -5889,7 +5881,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Void",
-        "amount": 1344842
+        "amount": 1332134
       },
       {
         "owner": "storage",
@@ -5897,7 +5889,7 @@
         "type": "Item",
         "subType": "BAR",
         "rawName": "CopperBar",
-        "amount": 298391
+        "amount": 328125
       },
       {
         "owner": "storage",
@@ -5905,7 +5897,7 @@
         "type": "Item",
         "subType": "BAR",
         "rawName": "IronBar",
-        "amount": 202446
+        "amount": 217952
       },
       {
         "owner": "storage",
@@ -5913,7 +5905,7 @@
         "type": "Item",
         "subType": "BAR",
         "rawName": "GoldBar",
-        "amount": 271764
+        "amount": 290605
       },
       {
         "owner": "storage",
@@ -5929,7 +5921,7 @@
         "type": "Item",
         "subType": "BAR",
         "rawName": "DementiaBar",
-        "amount": 19792
+        "amount": 20368
       },
       {
         "owner": "storage",
@@ -5937,7 +5929,7 @@
         "type": "Item",
         "subType": "BAR",
         "rawName": "VoidBar",
-        "amount": 44677
+        "amount": 45791
       },
       {
         "owner": "storage",
@@ -5953,7 +5945,7 @@
         "type": "Item",
         "subType": "LOG",
         "rawName": "BirchTree",
-        "amount": 2985890
+        "amount": 2977467
       },
       {
         "owner": "storage",
@@ -5977,7 +5969,7 @@
         "type": "Item",
         "subType": "LOG",
         "rawName": "ForestTree",
-        "amount": 515811
+        "amount": 510201
       },
       {
         "owner": "storage",
@@ -5993,7 +5985,7 @@
         "type": "Item",
         "subType": "LOG",
         "rawName": "ToiletTree",
-        "amount": 4582670
+        "amount": 4571623
       },
       {
         "owner": "storage",
@@ -6033,7 +6025,7 @@
         "type": "Item",
         "subType": "LEAF",
         "rawName": "Leaf3",
-        "amount": 26787
+        "amount": 27516
       },
       {
         "owner": "storage",
@@ -6041,7 +6033,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Grasslands1",
-        "amount": 2096552
+        "amount": 2052876
       },
       {
         "owner": "storage",
@@ -6057,7 +6049,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Grasslands2",
-        "amount": 594688
+        "amount": 591339
       },
       {
         "owner": "storage",
@@ -6065,7 +6057,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Grasslands3",
-        "amount": 3476
+        "amount": 1796
       },
       {
         "owner": "storage",
@@ -6081,7 +6073,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Jungle2",
-        "amount": 887967
+        "amount": 848837
       },
       {
         "owner": "storage",
@@ -6097,7 +6089,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Forest1",
-        "amount": 128120
+        "amount": 109450
       },
       {
         "owner": "storage",
@@ -6113,7 +6105,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Forest3",
-        "amount": 159043
+        "amount": 156117
       },
       {
         "owner": "storage",
@@ -6121,7 +6113,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Sewers1",
-        "amount": 1659537
+        "amount": 1659687
       },
       {
         "owner": "storage",
@@ -6137,7 +6129,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "TreeInterior1",
-        "amount": 5233136
+        "amount": 5770855
       },
       {
         "owner": "storage",
@@ -6153,7 +6145,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertA1",
-        "amount": 411527
+        "amount": 398777
       },
       {
         "owner": "storage",
@@ -6201,7 +6193,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertC1",
-        "amount": 10358
+        "amount": 7771
       },
       {
         "owner": "storage",
@@ -6217,7 +6209,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertC2",
-        "amount": 147688
+        "amount": 157445
       },
       {
         "owner": "storage",
@@ -6265,7 +6257,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowA4",
-        "amount": 3665140
+        "amount": 3694852
       },
       {
         "owner": "storage",
@@ -6273,7 +6265,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowB1",
-        "amount": 318863
+        "amount": 283199
       },
       {
         "owner": "storage",
@@ -6297,7 +6289,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowB3",
-        "amount": 55071
+        "amount": 54706
       },
       {
         "owner": "storage",
@@ -6329,7 +6321,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowC3",
-        "amount": 614492
+        "amount": 531881
       },
       {
         "owner": "storage",
@@ -6353,7 +6345,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowC4a",
-        "amount": 90
+        "amount": 87
       },
       {
         "owner": "storage",
@@ -6369,7 +6361,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter7",
-        "amount": 22735
+        "amount": 22821
       },
       {
         "owner": "storage",
@@ -6377,7 +6369,7 @@
         "type": "Consumable",
         "subType": "HEALTH_FOOD",
         "rawName": "Peanut",
-        "amount": 718
+        "amount": 768
       },
       {
         "owner": "storage",
@@ -6409,7 +6401,7 @@
         "type": "Quest",
         "subType": "FRAGMENT",
         "rawName": "ResetFrag",
-        "amount": 803
+        "amount": 808
       },
       {
         "owner": "storage",
@@ -6425,7 +6417,7 @@
         "type": "Consumable",
         "subType": "SOUL",
         "rawName": "Soul1",
-        "amount": 10831
+        "amount": 4381
       },
       {
         "owner": "storage",
@@ -6441,7 +6433,7 @@
         "type": "Consumable",
         "subType": "SOUL",
         "rawName": "Soul3",
-        "amount": 190967
+        "amount": 222643
       },
       {
         "owner": "storage",
@@ -6449,7 +6441,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "PureWater",
-        "amount": 3106
+        "amount": 3158
       },
       {
         "owner": "storage",
@@ -6457,7 +6449,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter6A",
-        "amount": 83
+        "amount": 84
       },
       {
         "owner": "storage",
@@ -6465,7 +6457,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter6",
-        "amount": 28183
+        "amount": 19735
       },
       {
         "owner": "storage",
@@ -6473,7 +6465,7 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug1",
-        "amount": 1023439
+        "amount": 1013239
       },
       {
         "owner": "storage",
@@ -6497,7 +6489,7 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug4",
-        "amount": 784973
+        "amount": 779035
       },
       {
         "owner": "storage",
@@ -6505,7 +6497,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter5",
-        "amount": 21241
+        "amount": 21327
       },
       {
         "owner": "storage",
@@ -6521,7 +6513,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter3",
-        "amount": 101531
+        "amount": 95102
       },
       {
         "owner": "storage",
@@ -6529,7 +6521,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter4",
-        "amount": 46467
+        "amount": 46811
       },
       {
         "owner": "storage",
@@ -6537,7 +6529,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter1",
-        "amount": 42412
+        "amount": 44579
       },
       {
         "owner": "storage",
@@ -6545,7 +6537,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter2",
-        "amount": 81191
+        "amount": 81535
       },
       {
         "owner": "storage",
@@ -6561,7 +6553,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter1A",
-        "amount": 1155
+        "amount": 1160
       },
       {
         "owner": "storage",
@@ -6569,7 +6561,7 @@
         "type": "Consumable",
         "subType": "FISH",
         "rawName": "Fish4",
-        "amount": 223698
+        "amount": 228391
       },
       {
         "owner": "storage",
@@ -6585,7 +6577,7 @@
         "type": "Consumable",
         "subType": "FISH",
         "rawName": "Fish1",
-        "amount": 1187285
+        "amount": 1214912
       },
       {
         "owner": "storage",
@@ -6609,7 +6601,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter3A",
-        "amount": 479
+        "amount": 480
       },
       {
         "owner": "storage",
@@ -6617,7 +6609,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat1",
-        "amount": 1879562
+        "amount": 1899629
       },
       {
         "owner": "storage",
@@ -6625,7 +6617,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat5",
-        "amount": 368718
+        "amount": 367286
       },
       {
         "owner": "storage",
@@ -6633,7 +6625,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat6",
-        "amount": 165691
+        "amount": 169280
       },
       {
         "owner": "storage",
@@ -6641,7 +6633,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat7",
-        "amount": 154755
+        "amount": 145757
       },
       {
         "owner": "storage",
@@ -6649,7 +6641,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat9",
-        "amount": 173466
+        "amount": 174452
       },
       {
         "owner": "storage",
@@ -6665,7 +6657,7 @@
         "type": "Quest",
         "subType": "MATERIAL",
         "rawName": "CraftMat10",
-        "amount": 23189
+        "amount": 23416
       },
       {
         "owner": "storage",
@@ -6701,11 +6693,11 @@
       },
       {
         "owner": "storage",
-        "name": "Golden_Ham",
+        "name": "Yeti_Ham",
         "type": "Consumable",
-        "subType": "GOLDEN_FOOD",
-        "rawName": "FoodG5",
-        "amount": 4
+        "subType": "HEALTH_FOOD",
+        "rawName": "FoodHealth9",
+        "amount": 30000
       },
       {
         "owner": "storage",
@@ -6729,7 +6721,7 @@
         "type": "Quest",
         "subType": "TIME_CANDY",
         "rawName": "Timecandy1",
-        "amount": 71
+        "amount": 73
       },
       {
         "owner": "storage",
@@ -6737,7 +6729,7 @@
         "type": "Quest",
         "subType": "TIME_CANDY",
         "rawName": "Timecandy2",
-        "amount": 42
+        "amount": 41
       },
       {
         "owner": "storage",
@@ -6761,7 +6753,7 @@
         "type": "Quest",
         "subType": "TIME_CANDY",
         "rawName": "Timecandy3",
-        "amount": 23
+        "amount": 24
       },
       {
         "owner": "storage",
@@ -6785,7 +6777,7 @@
         "type": "Quest",
         "subType": "EXP_BALLOON",
         "rawName": "ExpBalloon1",
-        "amount": 54
+        "amount": 58
       },
       {
         "owner": "storage",
@@ -6809,7 +6801,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneA3",
-        "amount": 129
+        "amount": 141
       },
       {
         "owner": "storage",
@@ -6817,7 +6809,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneT3",
-        "amount": 244
+        "amount": 252
       },
       {
         "owner": "storage",
@@ -6825,7 +6817,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneW3",
-        "amount": 234
+        "amount": 239
       },
       {
         "owner": "storage",
@@ -6833,7 +6825,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneA2",
-        "amount": 139
+        "amount": 142
       },
       {
         "owner": "storage",
@@ -6841,7 +6833,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneW2",
-        "amount": 105
+        "amount": 111
       },
       {
         "owner": "storage",
@@ -6865,7 +6857,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneZ2",
-        "amount": 2586
+        "amount": 2625
       },
       {
         "owner": "storage",
@@ -6881,7 +6873,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneZ1",
-        "amount": 2506
+        "amount": 2520
       },
       {
         "owner": "storage",
@@ -6897,7 +6889,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneT1",
-        "amount": 3424
+        "amount": 3432
       },
       {
         "owner": "storage",
@@ -6929,7 +6921,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneW1",
-        "amount": 563
+        "amount": 564
       },
       {
         "owner": "storage",
@@ -6937,7 +6929,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneA1",
-        "amount": 2265
+        "amount": 2279
       },
       {
         "owner": "storage",
@@ -6945,7 +6937,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneHelm1",
-        "amount": 36
+        "amount": 37
       },
       {
         "owner": "storage",
@@ -6953,7 +6945,7 @@
         "type": "Consumable",
         "subType": "UPGRADE",
         "rawName": "StoneT2",
-        "amount": 372
+        "amount": 373
       },
       {
         "owner": "storage",
@@ -6961,7 +6953,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertA3b",
-        "amount": 45
+        "amount": 43
       },
       {
         "owner": "storage",
@@ -7009,7 +7001,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "TreeInterior1b",
-        "amount": 152
+        "amount": 151
       },
       {
         "owner": "storage",
@@ -7017,7 +7009,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Sewers1b",
-        "amount": 34
+        "amount": 22
       },
       {
         "owner": "storage",
@@ -7041,7 +7033,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "DesertA1b",
-        "amount": 10
+        "amount": 2
       },
       {
         "owner": "storage",
@@ -7049,7 +7041,7 @@
         "type": "Quest",
         "subType": "QUEST_ITEM",
         "rawName": "JobApplication",
-        "amount": 87
+        "amount": 88
       },
       {
         "owner": "storage",
@@ -7065,7 +7057,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Quest17",
-        "amount": 1350
+        "amount": 1309
       },
       {
         "owner": "storage",
@@ -7081,7 +7073,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "SnowB2a",
-        "amount": 53
+        "amount": 47
       },
       {
         "owner": "storage",
@@ -7089,7 +7081,7 @@
         "type": "Quest",
         "subType": "HUNK_OF_JUNK",
         "rawName": "Quest37",
-        "amount": 38
+        "amount": 39
       },
       {
         "owner": "storage",
@@ -7097,7 +7089,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter8",
-        "amount": 34757
+        "amount": 34929
       },
       {
         "owner": "storage",
@@ -7109,11 +7101,11 @@
       },
       {
         "owner": "storage",
-        "name": "Yellow_Snowflake",
+        "name": "Health_Statue",
         "type": "Quest",
-        "subType": "MONSTER_DROP",
-        "rawName": "SnowA2a",
-        "amount": 1
+        "subType": "STATUE",
+        "rawName": "EquipmentStatues5",
+        "amount": 158
       },
       {
         "owner": "storage",
@@ -7217,7 +7209,7 @@
         "type": "Consumable",
         "subType": "GOLDEN_FOOD",
         "rawName": "FoodG6",
-        "amount": 35
+        "amount": 36
       },
       {
         "owner": "storage",
@@ -7233,7 +7225,7 @@
         "type": "Quest",
         "subType": "MONSTER_DROP",
         "rawName": "Sewers3",
-        "amount": 1881
+        "amount": 2016
       },
       {
         "owner": "storage",
@@ -7273,7 +7265,7 @@
         "type": "Consumable",
         "subType": "ORE",
         "rawName": "Lustre",
-        "amount": 149925
+        "amount": 169084
       },
       {
         "owner": "storage",
@@ -7337,7 +7329,7 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug5",
-        "amount": 1031781
+        "amount": 1039007
       },
       {
         "owner": "storage",
@@ -7345,15 +7337,15 @@
         "type": "Consumable",
         "subType": "BUG",
         "rawName": "Bug6",
-        "amount": 876390
+        "amount": 876202
       },
       {
         "owner": "storage",
-        "name": "Average_EXP_Potion",
-        "type": "Consumable",
-        "subType": "BOOST_FOOD",
-        "rawName": "FoodPotYe2",
-        "amount": 400
+        "name": "Bullseye_Statue",
+        "type": "Quest",
+        "subType": "STATUE",
+        "rawName": "EquipmentStatues15",
+        "amount": 88
       },
       {
         "owner": "storage",
@@ -7385,7 +7377,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotMana1",
-        "amount": 542161
+        "amount": 559711
       },
       {
         "owner": "storage",
@@ -7405,11 +7397,27 @@
       },
       {
         "owner": "storage",
+        "name": "Lumberbob_Statue",
+        "type": "Quest",
+        "subType": "STATUE",
+        "rawName": "EquipmentStatues7",
+        "amount": 71
+      },
+      {
+        "owner": "storage",
         "name": "Mountain_Bread",
         "type": "Consumable",
         "subType": "HEALTH_FOOD",
         "rawName": "FoodHealth10",
-        "amount": 57214
+        "amount": 59948
+      },
+      {
+        "owner": "storage",
+        "name": "Golden_Nomwich",
+        "type": "Consumable",
+        "subType": "GOLDEN_FOOD",
+        "rawName": "FoodG4",
+        "amount": 3
       },
       {
         "owner": "storage",
@@ -7425,7 +7433,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotYe3",
-        "amount": 430
+        "amount": 431
       },
       {
         "owner": "storage",
@@ -7437,11 +7445,11 @@
       },
       {
         "owner": "storage",
-        "name": "Radioactive_Waste",
-        "type": "Consumable",
-        "subType": "BARREL",
-        "rawName": "OilBarrel3",
-        "amount": 40
+        "name": "Feasty_Statue",
+        "type": "Quest",
+        "subType": "STATUE",
+        "rawName": "EquipmentStatues4",
+        "amount": 4
       },
       {
         "owner": "storage",
@@ -7457,7 +7465,7 @@
         "type": "Consumable",
         "subType": "HEALTH_FOOD",
         "rawName": "FoodHealth4",
-        "amount": 21790
+        "amount": 20991
       },
       {
         "owner": "storage",
@@ -7465,7 +7473,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotRe1",
-        "amount": 542439
+        "amount": 559989
       },
       {
         "owner": "storage",
@@ -7497,7 +7505,7 @@
         "type": "Consumable",
         "subType": "HEALTH_FOOD",
         "rawName": "FoodHealth6",
-        "amount": 64497
+        "amount": 63104
       },
       {
         "owner": "storage",
@@ -7505,7 +7513,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotGr1",
-        "amount": 56553
+        "amount": 55425
       },
       {
         "owner": "storage",
@@ -7529,7 +7537,7 @@
         "type": "Consumable",
         "subType": "HEALTH_FOOD",
         "rawName": "FoodHealth3",
-        "amount": 157665
+        "amount": 158565
       },
       {
         "owner": "storage",
@@ -7553,7 +7561,7 @@
         "type": "Consumable",
         "subType": "CRITTER",
         "rawName": "Critter9",
-        "amount": 6720
+        "amount": 7236
       },
       {
         "owner": "storage",
@@ -7562,14 +7570,6 @@
         "subType": "KEYCHAIN",
         "rawName": "EquipmentKeychain20",
         "amount": 1
-      },
-      {
-        "owner": "storage",
-        "name": "Golden_Nomwich",
-        "type": "Consumable",
-        "subType": "GOLDEN_FOOD",
-        "rawName": "FoodG4",
-        "amount": 12
       },
       {
         "owner": "storage",
@@ -7641,7 +7641,7 @@
         "type": "Quest",
         "subType": "QUEST_ITEM",
         "rawName": "Quest24",
-        "amount": 28617
+        "amount": 31864
       },
       {
         "owner": "storage",
@@ -7649,7 +7649,7 @@
         "type": "Quest",
         "subType": "QUEST_ITEM",
         "rawName": "Quest22",
-        "amount": 90988
+        "amount": 91060
       },
       {
         "owner": "storage",
@@ -7833,7 +7833,7 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotGr3",
-        "amount": 1009
+        "amount": 1309
       },
       {
         "owner": "storage",
@@ -7841,24 +7841,32 @@
         "type": "Consumable",
         "subType": "BOOST_FOOD",
         "rawName": "FoodPotOr3",
-        "amount": 2875
+        "amount": 4550
+      },
+      {
+        "owner": "storage",
+        "name": "Large_Materials_Pouch",
+        "type": "Equip",
+        "subType": "CARRY_BAG",
+        "rawName": "MaxCapBagM7",
+        "amount": 1
       },
       {
         "rawName": "Refinery2",
         "name": "Explosive_Salts",
-        "amount": 18012,
+        "amount": 17222,
         "owner": "refinery"
       },
       {
         "rawName": "Refinery1",
         "name": "Redox_Salts",
-        "amount": 44224,
+        "amount": 42548,
         "owner": "refinery"
       },
       {
         "rawName": "Refinery3",
         "name": "Spontaneity_Salts",
-        "amount": 1523,
+        "amount": 1041,
         "owner": "refinery"
       }
     ],
@@ -7896,7 +7904,7 @@
         "desc": "Boosts_Carry_Capacity_of_players_on_this_map_by_+{%."
       },
       {
-        "mapId": 13,
+        "mapId": 51,
         "shrineLevel": 12,
         "name": "Clover_Shrine",
         "rawName": "ConTowerB22",
@@ -7959,11 +7967,6 @@
           "rawName": "FoodHealth1"
         },
         {
-          "amount": 900,
-          "name": "Hot_Dog",
-          "rawName": "FoodHealth3"
-        },
-        {
           "amount": 600,
           "name": "Small_Mana_Potion",
           "rawName": "FoodPotMana1"
@@ -8016,19 +8019,9 @@
           "rawName": "FoodPotYe1"
         },
         {
-          "amount": 1,
-          "name": "Silver_Antique",
-          "rawName": "Quest37"
-        },
-        {
           "amount": 2,
           "name": "Capitalist_Case",
           "rawName": "InvBag105"
-        },
-        {
-          "amount": 18,
-          "name": "Bottled_Town_Teleport",
-          "rawName": "rtt0"
         },
         {
           "amount": 1,
@@ -9326,7 +9319,7 @@
             ]
           },
           {
-            "level": 47,
+            "level": 52,
             "rawName": "aUpgradesP5",
             "bubbleIndex": "b5",
             "bubbleName": "NAME_I_GUESS",
@@ -9425,7 +9418,7 @@
             ]
           },
           {
-            "level": 17,
+            "level": 18,
             "rawName": "aUpgradesP8",
             "bubbleIndex": "b8",
             "bubbleName": "BREWSTACHIO",
@@ -9922,7 +9915,7 @@
             ]
           },
           {
-            "level": 97,
+            "level": 105,
             "rawName": "aUpgradesY8",
             "bubbleIndex": "c8",
             "bubbleName": "GRIND_TIME",
@@ -11316,28 +11309,28 @@
       ],
       "cauldrons": {
         "power": {
-          "speed": 108,
+          "speed": 112,
           "luck": 101,
           "cost": 107,
           "extra": 112
         },
         "quicc": {
-          "speed": 113,
-          "luck": 101,
+          "speed": 116,
+          "luck": 105,
           "cost": 115,
           "extra": 117
         },
         "high-iq": {
           "speed": 107,
-          "luck": 103,
+          "luck": 106,
           "cost": 102,
           "extra": 112
         },
         "kazam": {
-          "speed": 104,
+          "speed": 107,
           "luck": 97,
           "cost": 100,
-          "extra": 108
+          "extra": 111
         }
       }
     },
@@ -15720,18 +15713,18 @@
               "rawName": "Grasslands1",
               "name": "Spore_Cap",
               "quantity": 10,
-              "totalAmount": 2096552
+              "totalAmount": 2052876
             },
             {
               "rawName": "Copper",
               "name": "Copper_Ore",
               "quantity": 5,
-              "totalAmount": 117546676
+              "totalAmount": 119054704
             }
           ],
           "rawName": "Refinery1",
           "powerCap": 100000,
-          "refined": 17752,
+          "refined": 19180,
           "rank": 13,
           "active": 1,
           "autoRefinePercentage": 0
@@ -15743,24 +15736,24 @@
               "rawName": "Forest3",
               "name": "Bullfrog_Horn",
               "quantity": 10,
-              "totalAmount": 159043
+              "totalAmount": 156117
             },
             {
               "rawName": "ForestTree",
               "name": "Forest_Fibres",
               "quantity": 5,
-              "totalAmount": 515811
+              "totalAmount": 510201
             },
             {
               "rawName": "Refinery1",
               "name": "Redox_Salts",
               "quantity": 2,
-              "totalAmount": 44240
+              "totalAmount": 42564
             }
           ],
           "rawName": "Refinery2",
           "powerCap": 30000,
-          "refined": 952,
+          "refined": 1666,
           "rank": 8,
           "active": 1,
           "autoRefinePercentage": 10
@@ -15772,30 +15765,30 @@
               "rawName": "DesertA1",
               "name": "Pocket_Sand",
               "quantity": 50,
-              "totalAmount": 411527
+              "totalAmount": 398777
             },
             {
               "rawName": "Fish1",
               "name": "Goldfish",
               "quantity": 30,
-              "totalAmount": 1187285
+              "totalAmount": 1214912
             },
             {
               "rawName": "Bug1",
               "name": "Fly",
               "quantity": 40,
-              "totalAmount": 1023439
+              "totalAmount": 1013239
             },
             {
               "rawName": "Refinery2",
               "name": "Explosive_Salts",
               "quantity": 3,
-              "totalAmount": 18012
+              "totalAmount": 17222
             }
           ],
           "rawName": "Refinery3",
           "powerCap": 800,
-          "refined": 76,
+          "refined": 40,
           "rank": 3,
           "active": 1,
           "autoRefinePercentage": 10
@@ -15819,13 +15812,13 @@
               "rawName": "Critter3",
               "name": "Scorpie",
               "quantity": 1,
-              "totalAmount": 101531
+              "totalAmount": 95102
             },
             {
               "rawName": "Refinery3",
               "name": "Spontaneity_Salts",
               "quantity": 1,
-              "totalAmount": 1553
+              "totalAmount": 1071
             }
           ],
           "rawName": "Refinery4",
@@ -15848,7 +15841,7 @@
               "rawName": "Fish4",
               "name": "Bloach",
               "quantity": 5,
-              "totalAmount": 223698
+              "totalAmount": 228391
             },
             {
               "rawName": "Bug3",
@@ -15860,7 +15853,7 @@
               "rawName": "Critter4",
               "name": "Mousey",
               "quantity": 5,
-              "totalAmount": 46467
+              "totalAmount": 46811
             },
             {
               "rawName": "Refinery4",
@@ -15926,7 +15919,7 @@
         "increment": 1.5,
         "baseBonus": 0.5,
         "maxLevel": 20,
-        "totalAmount": 44240,
+        "totalAmount": 42564,
         "level": 20
       },
       {
@@ -15937,7 +15930,7 @@
         "increment": 1.92,
         "baseBonus": 1,
         "maxLevel": 8,
-        "totalAmount": 42412,
+        "totalAmount": 44579,
         "level": 8
       },
       {
@@ -15948,7 +15941,7 @@
         "increment": 2.2,
         "baseBonus": 2,
         "maxLevel": 10,
-        "totalAmount": 18012,
+        "totalAmount": 17222,
         "level": 8
       },
       {
@@ -15970,7 +15963,7 @@
         "increment": 2.2,
         "baseBonus": 2,
         "maxLevel": 10,
-        "totalAmount": 1553,
+        "totalAmount": 1071,
         "level": 7
       },
       {
@@ -15981,7 +15974,7 @@
         "increment": 1.2,
         "baseBonus": 1,
         "maxLevel": 100,
-        "totalAmount": 46467,
+        "totalAmount": 46811,
         "level": 23
       },
       {
@@ -16025,34 +16018,34 @@
         "increment": 1.1,
         "baseBonus": 0.1,
         "maxLevel": 250,
-        "totalAmount": 28183,
-        "level": 25
+        "totalAmount": 19735,
+        "level": 28
       }
     ],
-    "worldTeleports": 143,
+    "worldTeleports": 129,
     "keys": [
       {
-        "amount": 733,
+        "amount": 742,
         "name": "Forest_Villa_Key",
         "rawName": "Key1"
       },
       {
-        "amount": 466,
+        "amount": 472,
         "name": "Efaunt's_Tomb_Key",
         "rawName": "Key2"
       },
       {
-        "amount": 336,
+        "amount": 345,
         "name": "Chizoar's_Cavern_Key",
         "rawName": "Key3"
       }
     ],
-    "colosseumTickets": 322,
-    "obolFragments": 3,
-    "silverPens": 41,
+    "colosseumTickets": 324,
+    "obolFragments": 6,
+    "silverPens": 35,
     "goldPens": 0,
-    "gems": 3995,
-    "deliveryBoxComplete": 625,
+    "gems": 4003,
+    "deliveryBoxComplete": 635,
     "deliveryBoxStreak": 202,
     "deliveryBoxMisc": 10,
     "guild": {
@@ -28560,7 +28553,7 @@
           {
             "rawName": "branch",
             "displayName": "Walking_Stick",
-            "kills": 14071683.930000003
+            "kills": 15217783.930000003
           },
           {
             "rawName": "acorn",
@@ -28700,7 +28693,7 @@
           {
             "rawName": "ram",
             "displayName": "Dedotated_Ram",
-            "kills": 15282361.833212584
+            "kills": 15322967.273213737
           },
           {
             "rawName": "skele2",
@@ -28715,14 +28708,14 @@
     {
       "name": "morta11",
       "class": "Bowman",
-      "afkTime": 1641992332932.0002,
-      "afkTarget": "Walking_Stick",
-      "currentMap": "The_Base_Of_The_Bark",
+      "afkTime": 1642047042151.9995,
+      "afkTarget": "Sandy_Pot",
+      "currentMap": "Jar_Bridge",
       "money": [
-        "13",
-        "18",
-        "55",
-        "82"
+        "15",
+        "15",
+        "67",
+        "47"
       ],
       "stats": {
         "strength": 374,
@@ -30097,7 +30090,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 32
+          "amount": 31
         },
         {
           "owner": "morta11",
@@ -30209,7 +30202,7 @@
           ]
         },
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -30245,7 +30238,7 @@
       "skillsInfo": {
         "character": {
           "level": 139,
-          "exp": 432753532.8134966,
+          "exp": 438144698.8134966,
           "expReq": 863322651.7776896,
           "rank": 5
         },
@@ -30257,7 +30250,7 @@
         },
         "smithing": {
           "level": 55,
-          "exp": 676209.0611564089,
+          "exp": 876459.0611564089,
           "expReq": 10042491.175257083,
           "rank": 3
         },
@@ -30274,10 +30267,10 @@
           "rank": 7
         },
         "alchemy": {
-          "level": 55,
-          "exp": 10578443.184711462,
-          "expReq": 10336675.428060886,
-          "rank": 8
+          "level": 56,
+          "exp": 810208.6838790828,
+          "expReq": 11963137.757027596,
+          "rank": 6
         },
         "catching": {
           "level": 41,
@@ -30287,20 +30280,20 @@
         },
         "trapping": {
           "level": 38,
-          "exp": 303886,
+          "exp": 318095,
           "expReq": 710849.2900426668,
           "rank": 3
         },
         "construction": {
           "level": 102,
-          "exp": 1257871.0460921254,
+          "exp": 1450586.4741477182,
           "expReq": 2675117.636677426,
           "rank": 9
         },
         "worship": {
-          "level": 55,
-          "exp": 63323.7365961826,
-          "expReq": 99798.85294418248,
+          "level": 57,
+          "exp": 27136.726317829176,
+          "expReq": 125497.00410422725,
           "rank": 6
         }
       },
@@ -31521,7 +31514,7 @@
           "effect": "{%_Dmg,_Drop,_and_EXP",
           "bonus": 12,
           "rawName": "CardSet26",
-          "stars": null
+          "stars": 1
         },
         "equippedCards": [
           {
@@ -31722,10 +31715,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 1,
-            "currentXP": "882.1594181818182",
-            "currentProgress": 646.7957244855962,
-            "totalProduced": 19520,
+            "currentAmount": 0,
+            "currentXP": 0,
+            "currentProgress": 11780.56770316582,
+            "totalProduced": 19746,
             "rawName": "CraftMat10",
             "time": 12500,
             "levelReq": 40,
@@ -32311,28 +32304,28 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 2.06,
-        "currentCharge": 512
+        "currentCharge": 32
       },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059603.0007
+          "timeLeft": 1642083474911.9998
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1642028059603.0007
+          "timeLeft": 1642083474911.9998
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1642028059603.0007
+          "timeLeft": 1642083474911.9998
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1642028059603.0007
+          "timeLeft": 1642083474911.9998
         }
       ],
       "postOffice": {
@@ -32914,7 +32907,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 238
+        "unspentPoints": 248
       },
       "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
@@ -32931,7 +32924,7 @@
         0,
         0,
         0,
-        3354445.2800000003,
+        3518882.2800000003,
         336615,
         1046754,
         95831,
@@ -33143,10 +33136,10 @@
         "130": 0,
         "270": 0,
         "271": 0,
-        "273": 0,
+        "273": 21,
         "285": 0,
         "286": 0,
-        "288": 0,
+        "288": 20,
         "300": 0,
         "301": 0,
         "302": 0,
@@ -33166,9 +33159,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 156,
+        "623": 168,
         "626": 0,
-        "634": 1756,
+        "634": 1767,
         "635": 0,
         "639": 0
       }
@@ -33176,14 +33169,11 @@
     {
       "name": "mortastr",
       "class": "Barbarian",
-      "afkTime": 1641992347932.0002,
-      "afkTarget": "Walking_Stick",
-      "currentMap": "The_Base_Of_The_Bark",
+      "afkTime": 1642047082151.9995,
+      "afkTarget": "Sandy_Pot",
+      "currentMap": "Jar_Bridge",
       "money": [
-        "14",
-        "88",
-        "88",
-        "34"
+        "0"
       ],
       "stats": {
         "strength": 677,
@@ -34609,7 +34599,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 111
+          "amount": 110
         }
       ],
       "starSigns": [
@@ -34659,7 +34649,7 @@
       ],
       "equippedBubbles": [
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -34728,7 +34718,7 @@
       "skillsInfo": {
         "character": {
           "level": 151,
-          "exp": 1357582806.3189797,
+          "exp": 1368559335.3189797,
           "expReq": 1429642578.611451,
           "rank": 3
         },
@@ -34740,7 +34730,7 @@
         },
         "smithing": {
           "level": 46,
-          "exp": 1673374.3884310059,
+          "exp": 1728760.3884310059,
           "expReq": 2549457.451598625,
           "rank": 5
         },
@@ -34758,7 +34748,7 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 3189648.56693379,
+          "exp": 3781410.6026882264,
           "expReq": 11963137.757027596,
           "rank": 5
         },
@@ -34770,20 +34760,20 @@
         },
         "trapping": {
           "level": 35,
-          "exp": 208994,
+          "exp": 227511,
           "expReq": 422255.1055190243,
           "rank": 5
         },
         "construction": {
           "level": 126,
-          "exp": 759628.8690679976,
+          "exp": 2325119.8793457546,
           "expReq": 7267134.628859797,
           "rank": 4
         },
         "worship": {
-          "level": 56,
-          "exp": 42808.577565377855,
-          "expReq": 111931.15733417094,
+          "level": 57,
+          "exp": 107465.42023120691,
+          "expReq": 125497.00410422725,
           "rank": 5
         }
       },
@@ -34983,7 +34973,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Critical_Damage",
               "skillIndex": 87,
-              "level": 38,
+              "level": 40,
               "maxLevel": 100
             },
             {
@@ -35153,7 +35143,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_more_STR_from_equips",
               "skillIndex": 96,
-              "level": 62,
+              "level": 65,
               "maxLevel": 139
             },
             {
@@ -35448,7 +35438,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_higher_bonuses",
               "skillIndex": 112,
-              "level": 28,
+              "level": 30,
               "maxLevel": 125
             },
             {
@@ -36020,7 +36010,7 @@
           "effect": "{%_Dmg,_Drop,_and_EXP",
           "bonus": 12,
           "rawName": "CardSet26",
-          "stars": null
+          "stars": 1
         },
         "equippedCards": [
           {
@@ -36180,8 +36170,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 11.252724756208012,
-            "totalProduced": 160876,
+            "currentProgress": 436.99731850569833,
+            "totalProduced": 161894,
             "rawName": "CraftMat6",
             "time": 500,
             "levelReq": 12,
@@ -36202,8 +36192,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 1550.4712862392892,
-            "totalProduced": 41414,
+            "currentProgress": 976.2158799887783,
+            "totalProduced": 41669,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -36852,34 +36842,34 @@
       ],
       "worship": {
         "maxCharge": 512,
-        "chargeRate": 1.81,
-        "currentCharge": 471
+        "chargeRate": 1.82,
+        "currentCharge": 19
       },
       "traps": [
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1642028059612.0007
+          "timeLeft": 1642083474916.9998
         },
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1642028059612.0007
+          "timeLeft": 1642083474916.9998
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1642028059612.0007
+          "timeLeft": 1642083474916.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059612.0007
+          "timeLeft": 1642083474916.9998
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1642028059612.0007
+          "timeLeft": 1642083474916.9998
         }
       ],
       "postOffice": {
@@ -37461,7 +37451,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 206
+        "unspentPoints": 216
       },
       "crystalSpawnChance": 0.0016998161800000004,
       "kills": [
@@ -37478,7 +37468,7 @@
         0,
         0,
         0,
-        1435182,
+        1610964,
         126549,
         1051098,
         114041,
@@ -37713,9 +37703,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 195,
+        "623": 0,
         "626": 0,
-        "634": 1794,
+        "634": 0,
         "635": 0,
         "639": 0
       }
@@ -37723,9 +37713,9 @@
     {
       "name": "MortaWiz",
       "class": "Wizard",
-      "afkTime": 1641992398932.0002,
-      "afkTarget": "Walking_Stick",
-      "currentMap": "The_Base_Of_The_Bark",
+      "afkTime": 1642047110151.9995,
+      "afkTarget": "Sandy_Pot",
+      "currentMap": "Jar_Bridge",
       "money": [
         "0"
       ],
@@ -39133,7 +39123,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 19
+          "amount": 18
         }
       ],
       "starSigns": [
@@ -39221,7 +39211,7 @@
           ]
         },
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -39257,7 +39247,7 @@
       "skillsInfo": {
         "character": {
           "level": 133,
-          "exp": 616725970.9204075,
+          "exp": 623296460.9204075,
           "expReq": 657007758.0458068,
           "rank": 7
         },
@@ -39287,9 +39277,9 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 7539202.43090251,
+          "exp": 8174067.16425744,
           "expReq": 11963137.757027596,
-          "rank": 6
+          "rank": 7
         },
         "catching": {
           "level": 2,
@@ -39299,19 +39289,19 @@
         },
         "trapping": {
           "level": 29,
-          "exp": 11236,
+          "exp": 13278,
           "expReq": 140177.83892477932,
           "rank": 8
         },
         "construction": {
           "level": 103,
-          "exp": 1900145.6532184426,
+          "exp": 2094809.4701630208,
           "expReq": 2799894.0699325697,
           "rank": 8
         },
         "worship": {
           "level": 82,
-          "exp": 1220656.0445206247,
+          "exp": 1325720.0445206247,
           "expReq": 2018962.726293973,
           "rank": 1
         }
@@ -40573,7 +40563,7 @@
           "effect": "{%_Dmg,_Drop,_and_EXP",
           "bonus": 12,
           "rawName": "CardSet26",
-          "stars": null
+          "stars": 1
         },
         "equippedCards": [
           {
@@ -40753,10 +40743,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 451,
-            "currentXP": "46243.5392",
-            "currentProgress": 1153.7170482958863,
-            "totalProduced": 72682,
+            "currentAmount": 783,
+            "currentXP": "80285.34632727274",
+            "currentProgress": 1650.0969643863536,
+            "totalProduced": 73014,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -41335,28 +41325,28 @@
       "worship": {
         "maxCharge": 1567,
         "chargeRate": 3.82,
-        "currentCharge": 45
+        "currentCharge": 12
       },
       "traps": [
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1642028059615.0007
+          "timeLeft": 1642083474919.9998
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1642028059615.0007
+          "timeLeft": 1642083474919.9998
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1642028059615.0007
+          "timeLeft": 1642083474919.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059615.0007
+          "timeLeft": 1642083474919.9998
         }
       ],
       "postOffice": {
@@ -41938,7 +41928,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 319
+        "unspentPoints": 329
       },
       "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
@@ -41955,7 +41945,7 @@
         0,
         0,
         0,
-        3905060,
+        4127479,
         77093,
         1496885,
         221010,
@@ -42190,9 +42180,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 155,
+        "623": 0,
         "626": 0,
-        "634": 1755,
+        "634": 0,
         "635": 0,
         "639": 0
       }
@@ -42200,7 +42190,7 @@
     {
       "name": "MortaStir",
       "class": "Squire",
-      "afkTime": 1641992411932.0002,
+      "afkTime": 1642047191151.9995,
       "afkTarget": "Lustre",
       "currentMap": "Echoing_Egress",
       "money": [
@@ -43606,7 +43596,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 17
+          "amount": 16
         },
         {
           "owner": "MortaStir",
@@ -43749,13 +43739,13 @@
         },
         "mining": {
           "level": 72,
-          "exp": 44064109.76712138,
+          "exp": 48688950.76712138,
           "expReq": 109859598.57391706,
           "rank": 1
         },
         "smithing": {
           "level": 41,
-          "exp": 524653.5826722379,
+          "exp": 528266.5826722379,
           "expReq": 1134649.5476912775,
           "rank": 9
         },
@@ -43773,9 +43763,9 @@
         },
         "alchemy": {
           "level": 55,
-          "exp": 9331048.115869578,
+          "exp": 9894066.143319827,
           "expReq": 10336675.428060886,
-          "rank": 7
+          "rank": 8
         },
         "catching": {
           "level": 3,
@@ -43785,20 +43775,20 @@
         },
         "trapping": {
           "level": 35,
-          "exp": 153966,
+          "exp": 164184,
           "expReq": 422255.1055190243,
           "rank": 4
         },
         "construction": {
           "level": 134,
-          "exp": 2856077.88435931,
+          "exp": 3868488.8126922566,
           "expReq": 9769253.229928635,
           "rank": 2
         },
         "worship": {
-          "level": 47,
-          "exp": 14594.44173181781,
-          "expReq": 47828.6202852788,
+          "level": 48,
+          "exp": 20012.821446539012,
+          "expReq": 52391.6737892305,
           "rank": 9
         }
       },
@@ -43848,7 +43838,7 @@
               "funcY": "txt",
               "lvlUpText": "+1_Star_Talent_Point",
               "skillIndex": 8,
-              "level": 63,
+              "level": 65,
               "maxLevel": 100
             },
             {
@@ -44253,7 +44243,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_efficiency",
               "skillIndex": 101,
-              "level": 135,
+              "level": 139,
               "maxLevel": 143
             },
             {
@@ -44533,7 +44523,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Build_Spd",
               "skillIndex": 131,
-              "level": 46,
+              "level": 50,
               "maxLevel": 100
             },
             {
@@ -45075,7 +45065,7 @@
           "effect": "{%_Skill_Efficiency",
           "bonus": 32,
           "rawName": "CardSet2",
-          "stars": null
+          "stars": 3
         },
         "equippedCards": [
           {
@@ -45234,8 +45224,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 313.3688391572525,
-            "totalProduced": 133648,
+            "currentProgress": 81.78295149608628,
+            "totalProduced": 134203,
             "rawName": "CraftMat6",
             "time": 500,
             "levelReq": 12,
@@ -45256,8 +45246,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 1916.6141057446084,
-            "totalProduced": 32949,
+            "currentProgress": 1185.0282180834392,
+            "totalProduced": 33088,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -45812,33 +45802,33 @@
       "worship": {
         "maxCharge": 490,
         "chargeRate": 1.8,
-        "currentCharge": 444
+        "currentCharge": 50
       },
       "traps": [
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1642028059619.0007
+          "timeLeft": 1642083474924.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059619.0007
+          "timeLeft": 1642083474924.9998
         },
         {
           "name": "Bunny",
           "rawName": "Critter7",
-          "timeLeft": 1642028059619.0007
+          "timeLeft": 1642083474924.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059619.0007
+          "timeLeft": 1642083474924.9998
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1642028059619.0007
+          "timeLeft": 1642083474924.9998
         }
       ],
       "postOffice": {
@@ -46420,7 +46410,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 111
+        "unspentPoints": 121
       },
       "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
@@ -46636,7 +46626,7 @@
         "90": 0,
         "91": 0,
         "94": 0,
-        "100": 7,
+        "100": 0,
         "105": 0,
         "106": 0,
         "107": 0,
@@ -46646,7 +46636,7 @@
         "121": 0,
         "122": 0,
         "124": 0,
-        "130": 71992,
+        "130": 17213,
         "270": 0,
         "271": 0,
         "273": 0,
@@ -46672,9 +46662,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 193,
+        "623": 0,
         "626": 0,
-        "634": 1793,
+        "634": 0,
         "635": 0,
         "639": 0
       }
@@ -46682,14 +46672,11 @@
     {
       "name": "MortaWiiz",
       "class": "Shaman",
-      "afkTime": 1641992426932.0002,
-      "afkTarget": "Walking_Stick",
-      "currentMap": "The_Base_Of_The_Bark",
+      "afkTime": 1642047236366.9995,
+      "afkTarget": "Sandy_Pot",
+      "currentMap": "Jar_Bridge",
       "money": [
-        "22",
-        "70",
-        "23",
-        "76"
+        "0"
       ],
       "stats": {
         "strength": 281,
@@ -48122,7 +48109,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 17
+          "amount": 15
         },
         {
           "owner": "MortaWiiz",
@@ -48221,7 +48208,7 @@
           ]
         },
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -48257,7 +48244,7 @@
       "skillsInfo": {
         "character": {
           "level": 137,
-          "exp": 229008947.32093668,
+          "exp": 235450258.32093668,
           "expReq": 789496878.9511915,
           "rank": 6
         },
@@ -48269,7 +48256,7 @@
         },
         "smithing": {
           "level": 45,
-          "exp": 441004.9718747528,
+          "exp": 480489.9718747528,
           "expReq": 2175003.389172716,
           "rank": 7
         },
@@ -48287,7 +48274,7 @@
         },
         "alchemy": {
           "level": 58,
-          "exp": 3518703.5579280006,
+          "exp": 4200752.125370193,
           "expReq": 15975707.158295264,
           "rank": 2
         },
@@ -48299,21 +48286,21 @@
         },
         "trapping": {
           "level": 31,
-          "exp": 28343,
+          "exp": 31548,
           "expReq": 204486.17060426337,
           "rank": 6
         },
         "construction": {
           "level": 104,
-          "exp": 2342791.619226697,
+          "exp": 2539469.4628372192,
           "expReq": 2929354.7097018524,
           "rank": 7
         },
         "worship": {
-          "level": 58,
-          "exp": 100780.72221360191,
-          "expReq": 140662.23949013167,
-          "rank": 4
+          "level": 60,
+          "exp": 117276.89797781903,
+          "expReq": 176550.75643026407,
+          "rank": 3
         }
       },
       "talents": {
@@ -49553,7 +49540,7 @@
           "effect": "{%_Dmg,_Drop,_and_EXP",
           "bonus": 12,
           "rawName": "CardSet26",
-          "stars": null
+          "stars": 1
         },
         "equippedCards": [
           {
@@ -49723,8 +49710,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 678.4719528903474,
-            "totalProduced": 129054,
+            "currentProgress": 333.93861931915166,
+            "totalProduced": 129695,
             "rawName": "CraftMat7",
             "time": 1000,
             "levelReq": 18,
@@ -50335,30 +50322,30 @@
         }
       ],
       "worship": {
-        "maxCharge": 625,
+        "maxCharge": 670,
         "chargeRate": 2.06,
-        "currentCharge": 522
+        "currentCharge": 13
       },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059622.0007
+          "timeLeft": 1642083474928.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059622.0007
+          "timeLeft": 1642083474928.9998
         },
         {
           "name": "Mousey",
           "rawName": "Critter4",
-          "timeLeft": 1642028059622.0007
+          "timeLeft": 1642083474928.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028059622.0007
+          "timeLeft": 1642083474928.9998
         }
       ],
       "postOffice": {
@@ -50940,7 +50927,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 73
+        "unspentPoints": 83
       },
       "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
@@ -50957,7 +50944,7 @@
         0,
         0,
         0,
-        1909660.1,
+        2120686.1,
         11262,
         1466882.48,
         28667,
@@ -51194,7 +51181,7 @@
         "490": 0,
         "623": 0,
         "626": 0,
-        "634": 1794,
+        "634": 0,
         "635": 0,
         "639": 0
       }
@@ -51202,18 +51189,15 @@
     {
       "name": "IAmTheHunterrr",
       "class": "Hunter",
-      "afkTime": 1641992282751.0002,
-      "afkTarget": "Walking_Stick",
-      "currentMap": "The_Base_Of_The_Bark",
+      "afkTime": 1642047354366.9995,
+      "afkTarget": "Sandy_Pot",
+      "currentMap": "Jar_Bridge",
       "money": [
-        "13",
-        "89",
-        "37",
-        "53"
+        "50"
       ],
       "stats": {
         "strength": 425,
-        "agility": 1029,
+        "agility": 1031,
         "wisdom": 274,
         "luck": 249,
         "level": 181
@@ -52636,7 +52620,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 85
+          "amount": 83
         },
         {
           "owner": "IAmTheHunterrr",
@@ -52756,7 +52740,7 @@
           ]
         },
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -52792,7 +52776,7 @@
       "skillsInfo": {
         "character": {
           "level": 181,
-          "exp": 1297645516.6479242,
+          "exp": 1310150296.669209,
           "expReq": 4119022213.947503,
           "rank": 1
         },
@@ -52804,7 +52788,7 @@
         },
         "smithing": {
           "level": 66,
-          "exp": 1985661.8698221594,
+          "exp": 3158461.8698221594,
           "expReq": 47787902.0935842,
           "rank": 1
         },
@@ -52822,7 +52806,7 @@
         },
         "alchemy": {
           "level": 57,
-          "exp": 4633354.2348361695,
+          "exp": 5221616.421480199,
           "expReq": 13831433.042600418,
           "rank": 3
         },
@@ -52834,21 +52818,21 @@
         },
         "trapping": {
           "level": 44,
-          "exp": 1730093.8346424468,
+          "exp": 1760340.1193882094,
           "expReq": 1917434.0315261378,
           "rank": 2
         },
         "construction": {
           "level": 110,
-          "exp": 231851.78413699826,
+          "exp": 440805.5660813642,
           "expReq": 3812243.4308570684,
           "rank": 5
         },
         "worship": {
           "level": 58,
-          "exp": 21631.365988275662,
+          "exp": 111179.36598827566,
           "expReq": 140662.23949013167,
-          "rank": 3
+          "rank": 4
         }
       },
       "talents": {
@@ -52958,7 +52942,7 @@
               "lvlUpText": "+{_AGI",
               "skillIndex": 11,
               "level": 113,
-              "maxLevel": 113
+              "maxLevel": 114
             },
             {
               "talentId": 12,
@@ -53187,7 +53171,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Chance",
               "skillIndex": 274,
-              "level": 69,
+              "level": 71,
               "maxLevel": 100
             },
             {
@@ -53517,7 +53501,7 @@
               "funcY": "txt",
               "lvlUpText": "+{_Max_Lv",
               "skillIndex": 293,
-              "level": 13,
+              "level": 14,
               "maxLevel": 128
             },
             {
@@ -54084,11 +54068,11 @@
       ],
       "cards": {
         "cardSet": {
-          "name": "Bosses",
-          "effect": "{%_Dmg,_Drop,_and_EXP",
-          "bonus": 12,
-          "rawName": "CardSet26",
-          "stars": null
+          "name": "Medium_Resources",
+          "effect": "{%_Skill_EXP_Gain",
+          "bonus": 15,
+          "rawName": "CardSet3",
+          "stars": 2
         },
         "equippedCards": [
           {
@@ -54218,16 +54202,16 @@
               "89"
             ]
           },
-          "anvilExp": 819.2768000000001,
-          "anvilSpeed": 106564.52957645869,
+          "anvilExp": 944.0768,
+          "anvilSpeed": 106603.95962459366,
           "anvilCapacity": 14954
         },
         "production": [
           {
             "currentAmount": 17,
-            "currentXP": "812.591709090909",
-            "currentProgress": 63.68296565817904,
-            "totalProduced": 5343720,
+            "currentXP": "899.9517090909092",
+            "currentProgress": 65.00570368980534,
+            "totalProduced": 5363787,
             "rawName": "CraftMat1",
             "time": 100,
             "levelReq": 1,
@@ -55009,38 +54993,38 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 2.06,
-        "currentCharge": 234
+        "currentCharge": 26
       },
       "traps": [
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": 1642028059626.0007
+          "timeLeft": 1642083474931.9998
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1642028059626.0007
+          "timeLeft": 1642083474931.9998
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1642028059626.0007
+          "timeLeft": 1642083474931.9998
         },
         {
           "name": "Owlio",
           "rawName": "Critter5",
-          "timeLeft": 1642028059626.0007
+          "timeLeft": 1642083474931.9998
         },
         {
           "name": "Pingy",
           "rawName": "Critter6",
-          "timeLeft": 1642028059626.0007
+          "timeLeft": 1642083474931.9998
         },
         {
           "name": "Dung_Beat",
           "rawName": "Critter8",
-          "timeLeft": 1642028059626.0007
+          "timeLeft": 1642083474931.9998
         }
       ],
       "postOffice": {
@@ -55622,7 +55606,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 116
+        "unspentPoints": 126
       },
       "crystalSpawnChance": 0.001581695865,
       "kills": [
@@ -55635,11 +55619,11 @@
         10,
         0,
         864179.6599999999,
-        617.3100000000001,
+        624.24,
         0,
         0,
         0,
-        1542800.1,
+        1738936.1,
         17319,
         1172848.3200000003,
         25375.48,
@@ -55664,7 +55648,7 @@
         0,
         0,
         0,
-        4081.439999999984,
+        4211.939999999993,
         0,
         0,
         0,
@@ -55858,7 +55842,7 @@
         "300": 0,
         "301": 0,
         "302": 0,
-        "303": 0,
+        "303": 44,
         "310": 0,
         "315": 0,
         "450": 0,
@@ -55874,9 +55858,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 0,
+        "623": 174,
         "626": 0,
-        "634": 1744,
+        "634": 0,
         "635": 0,
         "639": 0
       }
@@ -55884,24 +55868,23 @@
     {
       "name": "MortaMan",
       "class": "Maestro",
-      "afkTime": 1642010693601.9995,
+      "afkTime": 1642048817722.9998,
       "afkTarget": "Dedotated_Ram",
       "currentMap": "Wam_Wonderland",
       "money": [
-        "2",
-        "37",
-        "24",
-        "88",
-        "85"
+        "53",
+        "44",
+        "28",
+        "74"
       ],
       "stats": {
         "strength": 342,
         "agility": 329,
         "wisdom": 300,
-        "luck": 1044,
-        "level": 164
+        "luck": 1046,
+        "level": 165
       },
-      "level": 164,
+      "level": 165,
       "invBagsUsed": [
         {
           "id": "0",
@@ -56847,7 +56830,7 @@
           "name": "Mountain_Bread",
           "rawName": "FoodHealth10",
           "owner": "MortaMan",
-          "amount": 11149,
+          "amount": 11148,
           "displayName": "Mountain_Bread",
           "sellPrice": 140,
           "typeGen": "cFood",
@@ -56874,7 +56857,7 @@
           "name": "Golden_Ham",
           "rawName": "FoodG5",
           "owner": "MortaMan",
-          "amount": 629,
+          "amount": 641,
           "displayName": "Golden_Ham",
           "sellPrice": 100,
           "typeGen": "cFood",
@@ -56928,7 +56911,7 @@
           "name": "Golden_Nomwich",
           "rawName": "FoodG4",
           "owner": "MortaMan",
-          "amount": 478,
+          "amount": 307,
           "displayName": "Golden_Nomwich",
           "sellPrice": 100,
           "typeGen": "cFood",
@@ -56952,40 +56935,37 @@
           "itemType": "Consumable"
         },
         {
-          "name": "ERROR",
-          "rawName": "Blank",
+          "name": "Average_EXP_Potion",
+          "rawName": "FoodPotYe2",
           "owner": "MortaMan",
-          "amount": 0,
-          "displayName": "ERROR",
-          "sellPrice": 0,
-          "typeGen": "NothingERROR",
+          "amount": 829,
+          "displayName": "Average_EXP_Potion",
+          "sellPrice": 250,
+          "typeGen": "cFood",
           "ID": 0,
-          "Type": "FISTICUFF",
-          "lvReqToCraft": 0,
-          "common": "t",
-          "lvReqToEquip": 0,
-          "Class": "ALL",
-          "Speed": 3,
-          "Reach": 55,
-          "Weapon_Power": 2,
-          "STR": 0,
-          "AGI": 0,
-          "WIS": 0,
-          "LUK": 0,
-          "Defence": 0,
-          "UQ1txt": 0,
-          "UQ1val": 0,
-          "UQ2txt": 0,
-          "UQ2val": 0,
-          "Upgrade_Slots_Left": 0,
-          "equip": "n",
-          "itemType": "Equip"
+          "Type": "BOOST_FOOD",
+          "lvReqToCraft": 10,
+          "common": "yy",
+          "desc_line1": "Increases_Exp_Gain_by_",
+          "desc_line2": 0,
+          "desc_line3": "time_you_defeat_a_monster.",
+          "desc_line4": "Must_be_equipped_in_a_Food_Slot_to",
+          "desc_line5": "give_its_bonus.",
+          "desc_line6": "Filler",
+          "desc_line7": "Filler",
+          "desc_line8": "Filler",
+          "Effect": "ClassEXP",
+          "Amount": 10,
+          "Trigger": 0,
+          "Cooldown": 8,
+          "consumable": "vy",
+          "itemType": "Consumable"
         },
         {
           "name": "Average_Speed_Potion",
           "rawName": "FoodPotGr2",
           "owner": "MortaMan",
-          "amount": 8591,
+          "amount": 11122,
           "displayName": "Average_Speed_Potion",
           "sellPrice": 60,
           "typeGen": "cFood",
@@ -57316,7 +57296,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 154
+          "amount": 169
         },
         {
           "owner": "MortaMan",
@@ -57492,63 +57472,7 @@
           "type": "Consumable",
           "subType": "BOOST_FOOD",
           "rawName": "FoodPotGr2",
-          "amount": 8517
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Helmet_Upgrade_Stone_I",
-          "type": "Consumable",
-          "subType": "UPGRADE",
-          "rawName": "StoneHelm1",
-          "amount": 1
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Armor_Upgrade_Stone_I",
-          "type": "Consumable",
-          "subType": "UPGRADE",
-          "rawName": "StoneA1",
-          "amount": 2
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Average_EXP_Potion",
-          "type": "Consumable",
-          "subType": "BOOST_FOOD",
-          "rawName": "FoodPotYe2",
-          "amount": 1350
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Armor_Upgrade_Stone_II",
-          "type": "Consumable",
-          "subType": "UPGRADE",
-          "rawName": "StoneA2",
-          "amount": 1
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Golden_Ham",
-          "type": "Consumable",
-          "subType": "GOLDEN_FOOD",
-          "rawName": "FoodG5",
-          "amount": 6
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Weapon_Upgrade_Stone_II",
-          "type": "Consumable",
-          "subType": "UPGRADE",
-          "rawName": "StoneW2",
-          "amount": 2
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Decent_Speed_Potion",
-          "type": "Consumable",
-          "subType": "BOOST_FOOD",
-          "rawName": "FoodPotGr3",
-          "amount": 100
+          "amount": 5435
         },
         {
           "owner": "MortaMan",
@@ -57556,15 +57480,7 @@
           "type": "Quest",
           "subType": "MONSTER_DROP",
           "rawName": "SnowA4",
-          "amount": 2229
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Beholder_Statue",
-          "type": "Quest",
-          "subType": "STATUE",
-          "rawName": "EquipmentStatues14",
-          "amount": 124
+          "amount": 264
         },
         {
           "owner": "MortaMan",
@@ -57572,39 +57488,7 @@
           "type": "Quest",
           "subType": "STATUE",
           "rawName": "EquipmentStatues2",
-          "amount": 183
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Ram_Wool",
-          "type": "Quest",
-          "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
-          "amount": 2229
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Arctic_Leaf",
-          "type": "Item",
-          "subType": "LEAF",
-          "rawName": "Leaf3",
-          "amount": 495
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Feasty_Statue",
-          "type": "Quest",
-          "subType": "STATUE",
-          "rawName": "EquipmentStatues4",
-          "amount": 158
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Decent_Strength_Potion",
-          "type": "Consumable",
-          "subType": "BOOST_FOOD",
-          "rawName": "FoodPotOr3",
-          "amount": 1075
+          "amount": 2
         },
         {
           "owner": "MortaMan",
@@ -57612,95 +57496,167 @@
           "type": "Consumable",
           "subType": "HEALTH_FOOD",
           "rawName": "FoodHealth10",
-          "amount": 2310
+          "amount": 45
         },
         {
           "owner": "MortaMan",
-          "name": "Ram_Wool",
+          "name": "Arctic_Leaf",
+          "type": "Item",
+          "subType": "LEAF",
+          "rawName": "Leaf3",
+          "amount": 6
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Sticky_Stick",
           "type": "Quest",
           "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
+          "rawName": "SnowB1",
+          "amount": 1206
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Frog_Leg",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "Grasslands2",
+          "amount": 1109
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Sticky_Stick",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowB1",
           "amount": 2229
         },
         {
           "owner": "MortaMan",
-          "name": "EhExPee_Statue",
-          "type": "Quest",
-          "subType": "STATUE",
-          "rawName": "EquipmentStatues18",
-          "amount": 40
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Distilled_Water",
-          "type": "Quest",
-          "subType": "MATERIAL",
-          "rawName": "PureWater",
-          "amount": 33
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Ram_Wool",
+          "name": "Sticky_Stick",
           "type": "Quest",
           "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
+          "rawName": "SnowB1",
           "amount": 2229
         },
         {
           "owner": "MortaMan",
-          "name": "Mystery_Upgrade_Stone_II",
-          "type": "Consumable",
-          "subType": "UPGRADE",
-          "rawName": "StoneZ2",
-          "amount": 24
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 183
         },
         {
           "owner": "MortaMan",
-          "name": "Ram_Wool",
+          "name": "Audio_Cord",
           "type": "Quest",
           "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
-          "amount": 383
-        },
-        {
-          "owner": "MortaMan",
-          "name": "Ram_Wool",
-          "type": "Quest",
-          "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
+          "rawName": "SnowC3",
           "amount": 2229
         },
         {
           "owner": "MortaMan",
-          "name": "Ram_Wool",
+          "name": "Audio_Cord",
           "type": "Quest",
           "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
+          "rawName": "SnowC3",
           "amount": 2229
         },
         {
           "owner": "MortaMan",
-          "name": "Ram_Wool",
+          "name": "Audio_Cord",
           "type": "Quest",
           "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
+          "rawName": "SnowC3",
           "amount": 2229
         },
         {
           "owner": "MortaMan",
-          "name": "Ram_Wool",
+          "name": "Audio_Cord",
           "type": "Quest",
           "subType": "MONSTER_DROP",
-          "rawName": "SnowA4",
+          "rawName": "SnowC3",
           "amount": 2229
         },
         {
           "owner": "MortaMan",
-          "name": "Talent_Point_Reset_Fragment",
+          "name": "Audio_Cord",
           "type": "Quest",
-          "subType": "FRAGMENT",
-          "rawName": "ResetFrag",
-          "amount": 3
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
+        },
+        {
+          "owner": "MortaMan",
+          "name": "Audio_Cord",
+          "type": "Quest",
+          "subType": "MONSTER_DROP",
+          "rawName": "SnowC3",
+          "amount": 2229
         }
       ],
       "starSigns": [
@@ -57750,7 +57706,7 @@
       ],
       "equippedBubbles": [
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -57818,63 +57774,63 @@
       ],
       "skillsInfo": {
         "character": {
-          "level": 164,
-          "exp": 2223993839.617061,
-          "expReq": 2335538227.1507764,
+          "level": 165,
+          "exp": 516278664.6474844,
+          "expReq": 2420158253.6959205,
           "rank": 2
         },
         "mining": {
           "level": 45,
           "exp": 2156.213454650184,
-          "expReq": 1202564.0329441458,
+          "expReq": 943672.1080132382,
           "rank": 3
         },
         "smithing": {
           "level": 61,
-          "exp": 971941.215477111,
-          "expReq": 9603182.189556021,
+          "exp": 4302755.179592022,
+          "expReq": 7092613.652280716,
           "rank": 2
         },
         "chopping": {
           "level": 49,
           "exp": 3432.8075088166515,
-          "expReq": 1835586.2909775109,
+          "expReq": 1275980.8836952858,
           "rank": 3
         },
         "fishing": {
           "level": 45,
           "exp": 2041.1759865886415,
-          "expReq": 1043976.5423629627,
+          "expReq": 740515.2848800604,
           "rank": 1
         },
         "alchemy": {
           "level": 65,
-          "exp": 2218054.2621923955,
-          "expReq": 20227505.611425675,
+          "exp": 2966373.3139113304,
+          "expReq": 14939410.668185532,
           "rank": 1
         },
         "catching": {
           "level": 42,
           "exp": 4548.028566584693,
-          "expReq": 771839.354820362,
+          "expReq": 515286.1061923821,
           "rank": 2
         },
         "trapping": {
           "level": 53,
-          "exp": 539562,
-          "expReq": 2583920.8222471173,
+          "exp": 800294,
+          "expReq": 1760251.1625675035,
           "rank": 1
         },
         "construction": {
           "level": 132,
-          "exp": 1527092.910685949,
-          "expReq": 3811581.4171053637,
+          "exp": 2036241.459019477,
+          "expReq": 2649564.9094680552,
           "rank": 3
         },
         "worship": {
           "level": 72,
           "exp": 117807.24682569472,
-          "expReq": 361012.4736261698,
+          "expReq": 256074.00540575848,
           "rank": 2
         }
       },
@@ -58044,7 +58000,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Exp_Gain",
               "skillIndex": 75,
-              "level": 247,
+              "level": 250,
               "maxLevel": 392
             },
             {
@@ -58244,7 +58200,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_more_LUK_from_equips",
               "skillIndex": 21,
-              "level": 42,
+              "level": 47,
               "maxLevel": 100
             },
             {
@@ -58519,7 +58475,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_higher_bonuses",
               "skillIndex": 37,
-              "level": 41,
+              "level": 45,
               "maxLevel": 140
             },
             {
@@ -59118,7 +59074,7 @@
           "effect": "{%_Skill_EXP_Gain",
           "bonus": 15,
           "rawName": "CardSet3",
-          "stars": null
+          "stars": 2
         },
         "equippedCards": [
           {
@@ -59248,7 +59204,7 @@
               "00"
             ]
           },
-          "anvilExp": 1401.1474283435784,
+          "anvilExp": 1414.8057198586027,
           "anvilSpeed": 36533.37737701733,
           "anvilCapacity": 8305
         },
@@ -59276,10 +59232,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 552,
-            "currentXP": "116005.63157645152",
-            "currentProgress": 358.9988543987587,
-            "totalProduced": 36405,
+            "currentAmount": 75,
+            "currentXP": "15902.82779850058",
+            "currentProgress": 266.6254607814849,
+            "totalProduced": 37944,
             "rawName": "CraftMat6",
             "time": 500,
             "levelReq": 12,
@@ -59980,38 +59936,38 @@
       "worship": {
         "maxCharge": 557,
         "chargeRate": 1.83,
-        "currentCharge": 98
+        "currentCharge": 118
       },
       "traps": [
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1642028073202.0007
+          "timeLeft": 1642083474935.9998
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1642028073202.0007
+          "timeLeft": 1642083474935.9998
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1642028073202.0007
+          "timeLeft": 1642083474935.9998
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1642028073202.0007
+          "timeLeft": 1642083474935.9998
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1642028073202.0007
+          "timeLeft": 1642083474935.9998
         },
         {
           "name": "Honker",
           "rawName": "Critter9",
-          "timeLeft": 1642028073202.0007
+          "timeLeft": 1642083474935.9998
         }
       ],
       "postOffice": {
@@ -60326,7 +60282,7 @@
                 "func": "decay"
               }
             ],
-            "level": 223
+            "level": 233
           },
           {
             "name": "Utilitarian_Capsule",
@@ -60713,7 +60669,7 @@
         100772.71999999988,
         999,
         0,
-        2272297.5800379366,
+        2291396.02003909,
         1.07,
         0,
         0,
@@ -60799,10 +60755,10 @@
         0
       ],
       "cooldowns": {
-        "15": 4,
-        "16": 1861,
-        "19": 82,
-        "25": 55724,
+        "15": 9,
+        "16": 798,
+        "19": 0,
+        "25": 17602,
         "30": 0,
         "32": 0,
         "40": 0,
@@ -60845,7 +60801,7 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 60,
+        "623": 153,
         "626": 0,
         "634": 0,
         "635": 0,
@@ -60855,23 +60811,20 @@
     {
       "name": "MortaCatch",
       "class": "Bowman",
-      "afkTime": 1641992441932.0002,
+      "afkTime": 1642047557366.9995,
       "afkTarget": "Dedotated_Ram",
       "currentMap": "Wam_Wonderland",
       "money": [
-        "14",
-        "64",
-        "84",
-        "58"
+        "0"
       ],
       "stats": {
         "strength": 385,
-        "agility": 552,
+        "agility": 575,
         "wisdom": 238,
         "luck": 210,
-        "level": 106
+        "level": 109
       },
-      "level": 106,
+      "level": 109,
       "invBagsUsed": [
         {
           "id": "0",
@@ -61704,7 +61657,7 @@
           "name": "Sheepie_Dairy",
           "rawName": "FoodHealth11",
           "owner": "MortaCatch",
-          "amount": 779,
+          "amount": 514,
           "displayName": "Sheepie_Dairy",
           "sellPrice": 310,
           "typeGen": "cFood",
@@ -61728,30 +61681,30 @@
           "itemType": "Consumable"
         },
         {
-          "name": "Average_EXP_Potion",
-          "rawName": "FoodPotYe2",
+          "name": "Kebab_Sticks",
+          "rawName": "FoodHealth6",
           "owner": "MortaCatch",
-          "amount": 425,
-          "displayName": "Average_EXP_Potion",
-          "sellPrice": 250,
+          "amount": 1393,
+          "displayName": "Kebab_Sticks",
+          "sellPrice": 48,
           "typeGen": "cFood",
           "ID": 0,
-          "Type": "BOOST_FOOD",
+          "Type": "HEALTH_FOOD",
           "lvReqToCraft": 10,
-          "common": "yy",
-          "desc_line1": "Increases_Exp_Gain_by_",
-          "desc_line2": 0,
-          "desc_line3": "time_you_defeat_a_monster.",
-          "desc_line4": "Must_be_equipped_in_a_Food_Slot_to",
-          "desc_line5": "give_its_bonus.",
+          "common": "AR",
+          "desc_line1": "Auto",
+          "desc_line2": "below_50%.",
+          "desc_line3": "Restores_",
+          "desc_line4": "Has_a_",
+          "desc_line5": "Filler",
           "desc_line6": "Filler",
           "desc_line7": "Filler",
           "desc_line8": "Filler",
-          "Effect": "ClassEXP",
-          "Amount": 10,
-          "Trigger": 0,
-          "Cooldown": 8,
-          "consumable": "vy",
+          "Effect": "Health",
+          "Amount": 300,
+          "Trigger": 50,
+          "Cooldown": 30,
+          "consumable": "rR",
           "itemType": "Consumable"
         },
         {
@@ -61785,7 +61738,7 @@
           "name": "Mountain_Bread",
           "rawName": "FoodHealth10",
           "owner": "MortaCatch",
-          "amount": 964,
+          "amount": 1393,
           "displayName": "Mountain_Bread",
           "sellPrice": 140,
           "typeGen": "cFood",
@@ -61812,7 +61765,7 @@
           "name": "Saucy_Weiner",
           "rawName": "FoodHealth4",
           "owner": "MortaCatch",
-          "amount": 934,
+          "amount": 1393,
           "displayName": "Saucy_Weiner",
           "sellPrice": 120,
           "typeGen": "cFood",
@@ -61836,34 +61789,31 @@
           "itemType": "Consumable"
         },
         {
-          "name": "ERROR",
-          "rawName": "Blank",
+          "name": "Small_Speed_Potion",
+          "rawName": "FoodPotGr1",
           "owner": "MortaCatch",
-          "amount": 0,
-          "displayName": "ERROR",
-          "sellPrice": 0,
-          "typeGen": "NothingERROR",
+          "amount": 1393,
+          "displayName": "Small_Speed_Potion",
+          "sellPrice": 7,
+          "typeGen": "cFood",
           "ID": 0,
-          "Type": "FISTICUFF",
-          "lvReqToCraft": 0,
-          "common": "t",
-          "lvReqToEquip": 0,
-          "Class": "ALL",
-          "Speed": 3,
-          "Reach": 55,
-          "Weapon_Power": 2,
-          "STR": 0,
-          "AGI": 0,
-          "WIS": 0,
-          "LUK": 0,
-          "Defence": 0,
-          "UQ1txt": 0,
-          "UQ1val": 0,
-          "UQ2txt": 0,
-          "UQ2val": 0,
-          "Upgrade_Slots_Left": 0,
-          "equip": "n",
-          "itemType": "Equip"
+          "Type": "BOOST_FOOD",
+          "lvReqToCraft": 10,
+          "common": "jR",
+          "desc_line1": "Increases_Move_Spd_by_",
+          "desc_line2": 0,
+          "desc_line3": "every_10_meters_walked.",
+          "desc_line4": "Must_be_equipped_in_a_Food_Slot_to",
+          "desc_line5": "give_its_bonus.",
+          "desc_line6": "Filler",
+          "desc_line7": "Filler",
+          "desc_line8": "Filler",
+          "Effect": "MoveSpdBoosts",
+          "Amount": 5,
+          "Trigger": 0,
+          "Cooldown": 15,
+          "consumable": "qR",
+          "itemType": "Consumable"
         },
         {
           "name": "ERROR",
@@ -62213,7 +62163,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 11
+          "amount": 9
         },
         {
           "owner": "MortaCatch",
@@ -62356,7 +62306,7 @@
       "skillsInfo": {
         "character": {
           "level": 109,
-          "exp": 57001695.62419668,
+          "exp": 185921369.62419668,
           "expReq": 186461628.96856815,
           "rank": 8
         },
@@ -62368,7 +62318,7 @@
         },
         "smithing": {
           "level": 52,
-          "exp": 3313050.9181148717,
+          "exp": 3507517.9181148717,
           "expReq": 6428247.868645385,
           "rank": 4
         },
@@ -62386,7 +62336,7 @@
         },
         "alchemy": {
           "level": 56,
-          "exp": 2353791.9609619174,
+          "exp": 2925469.9200583473,
           "expReq": 11963137.757027596,
           "rank": 4
         },
@@ -62398,20 +62348,20 @@
         },
         "trapping": {
           "level": 29,
-          "exp": 67782,
+          "exp": 70169,
           "expReq": 140177.83892477932,
           "rank": 7
         },
         "construction": {
-          "level": 105,
-          "exp": 2946142.962318416,
-          "expReq": 3063634.5371859935,
+          "level": 106,
+          "exp": 81379.26457754262,
+          "expReq": 3202871.3257386032,
           "rank": 6
         },
         "worship": {
-          "level": 47,
-          "exp": 28166.44173181781,
-          "expReq": 47828.6202852788,
+          "level": 50,
+          "exp": 33831.8704008366,
+          "expReq": 62658.249933609965,
           "rank": 8
         }
       },
@@ -62596,7 +62546,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Move_Speed",
               "skillIndex": 266,
-              "level": 68,
+              "level": 75,
               "maxLevel": 100
             },
             {
@@ -62811,7 +62761,7 @@
               "funcY": "txt",
               "lvlUpText": "+{_AGI",
               "skillIndex": 278,
-              "level": 42,
+              "level": 50,
               "maxLevel": 141
             },
             {
@@ -63056,7 +63006,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_higher_bonuses",
               "skillIndex": 292,
-              "level": 17,
+              "level": 24,
               "maxLevel": 100
             },
             {
@@ -63632,7 +63582,7 @@
           "effect": "{%_Skill_Efficiency",
           "bonus": 32,
           "rawName": "CardSet2",
-          "stars": null
+          "stars": 3
         },
         "equippedCards": [
           {
@@ -63762,7 +63712,7 @@
             ]
           },
           "anvilExp": 371.8077,
-          "anvilSpeed": 38540.03225065778,
+          "anvilSpeed": 39031.790727423526,
           "anvilCapacity": 11516
         },
         "production": [
@@ -63778,10 +63728,10 @@
             "hammers": 0
           },
           {
-            "currentAmount": 0,
-            "currentXP": 0,
-            "currentProgress": 161.472200911307,
-            "totalProduced": 400342,
+            "currentAmount": 1,
+            "currentXP": "32.97048727272727",
+            "currentProgress": 240.91871053633022,
+            "totalProduced": 403631,
             "rawName": "CraftMat5",
             "time": 250,
             "levelReq": 5,
@@ -63813,8 +63763,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 449.4385374708112,
-            "totalProduced": 52411,
+            "currentProgress": 778.8850470958331,
+            "totalProduced": 52822,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -64340,30 +64290,30 @@
         }
       ],
       "worship": {
-        "maxCharge": 490,
-        "chargeRate": 1.8,
-        "currentCharge": 490
+        "maxCharge": 512,
+        "chargeRate": 1.81,
+        "currentCharge": 10
       },
       "traps": [
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1642028073205.0007
+          "timeLeft": 1642083472939.9998
         },
         {
           "name": "Crabbo",
           "rawName": "Critter2",
-          "timeLeft": 1642028073205.0007
+          "timeLeft": 1642083472939.9998
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1642028073205.0007
+          "timeLeft": 1642083472939.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028073205.0007
+          "timeLeft": 1642083472939.9998
         }
       ],
       "postOffice": {
@@ -64945,7 +64895,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 319
+        "unspentPoints": 329
       },
       "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
@@ -64962,7 +64912,7 @@
         0,
         0,
         0,
-        13450,
+        58906,
         179.3999999999999,
         0,
         3005.36,
@@ -65065,7 +65015,7 @@
         916.9900000059861,
         999,
         0,
-        124059,
+        145566,
         0,
         0,
         0,
@@ -65197,9 +65147,9 @@
         "481": 0,
         "482": 0,
         "490": 0,
-        "623": 195,
+        "623": 0,
         "626": 0,
-        "634": 1795,
+        "634": 0,
         "635": 0,
         "639": 0
       }
@@ -65207,9 +65157,9 @@
     {
       "name": "MortasNinth",
       "class": "Squire",
-      "afkTime": 1641992541932.0002,
-      "afkTarget": "Walking_Stick",
-      "currentMap": "The_Base_Of_The_Bark",
+      "afkTime": 1642047437366.9995,
+      "afkTarget": "Sandy_Pot",
+      "currentMap": "Jar_Bridge",
       "money": [
         "0"
       ],
@@ -66480,7 +66430,7 @@
           "type": "Quest",
           "subType": "TELEPORT",
           "rawName": "rtt0",
-          "amount": 2
+          "amount": 19
         },
         {
           "owner": "MortasNinth",
@@ -66567,7 +66517,7 @@
       ],
       "equippedBubbles": [
         {
-          "level": 97,
+          "level": 105,
           "rawName": "aUpgradesY8",
           "bubbleIndex": "c8",
           "bubbleName": "GRIND_TIME",
@@ -66636,7 +66586,7 @@
       "skillsInfo": {
         "character": {
           "level": 142,
-          "exp": 670691707.6130186,
+          "exp": 675873762.6130186,
           "expReq": 984288161.8942494,
           "rank": 4
         },
@@ -66648,7 +66598,7 @@
         },
         "smithing": {
           "level": 44,
-          "exp": 170338.7355301152,
+          "exp": 212032.7355301152,
           "expReq": 1852812.6639373596,
           "rank": 8
         },
@@ -66666,7 +66616,7 @@
         },
         "alchemy": {
           "level": 55,
-          "exp": 9619177.361506023,
+          "exp": 10203445.15045228,
           "expReq": 10336675.428060886,
           "rank": 9
         },
@@ -66678,20 +66628,20 @@
         },
         "trapping": {
           "level": 28,
-          "exp": 94787,
+          "exp": 96851,
           "expReq": 115574.65394369129,
           "rank": 9
         },
         "construction": {
           "level": 141,
-          "exp": 5464606.791125423,
+          "exp": 7747053.553624802,
           "expReq": 12498797.766764084,
           "rank": 1
         },
         "worship": {
-          "level": 55,
-          "exp": 45831.7365961826,
-          "expReq": 99798.85294418248,
+          "level": 57,
+          "exp": 9226.726317829176,
+          "expReq": 125497.00410422725,
           "rank": 7
         }
       },
@@ -66711,7 +66661,7 @@
               "funcY": "txt",
               "lvlUpText": "+{_HP",
               "skillIndex": 0,
-              "level": 46,
+              "level": 48,
               "maxLevel": 121
             },
             {
@@ -66991,7 +66941,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_HP",
               "skillIndex": 92,
-              "level": 78,
+              "level": 81,
               "maxLevel": 100
             },
             {
@@ -67426,7 +67376,7 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Build_Spd",
               "skillIndex": 131,
-              "level": 87,
+              "level": 89,
               "maxLevel": 100
             },
             {
@@ -67942,7 +67892,7 @@
           "effect": "{%_Dmg,_Drop,_and_EXP",
           "bonus": 12,
           "rawName": "CardSet26",
-          "stars": null
+          "stars": 1
         },
         "equippedCards": [
           {
@@ -68113,8 +68063,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 873.5957766778937,
-            "totalProduced": 55621,
+            "currentProgress": 478.89095247921784,
+            "totalProduced": 55982,
             "rawName": "CraftMat7",
             "time": 1000,
             "levelReq": 18,
@@ -68124,8 +68074,8 @@
           {
             "currentAmount": 0,
             "currentXP": 0,
-            "currentProgress": 1893.2782283351348,
-            "totalProduced": 27810,
+            "currentProgress": 498.57340413647023,
+            "totalProduced": 27991,
             "rawName": "CraftMat9",
             "time": 2000,
             "levelReq": 25,
@@ -68705,28 +68655,28 @@
       "worship": {
         "maxCharge": 512,
         "chargeRate": 2.06,
-        "currentCharge": 512
+        "currentCharge": 32
       },
       "traps": [
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028073208.0007
+          "timeLeft": 1642083474942.9998
         },
         {
           "name": "Scorpie",
           "rawName": "Critter3",
-          "timeLeft": 1642028073208.0007
+          "timeLeft": 1642083474942.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028073208.0007
+          "timeLeft": 1642083474942.9998
         },
         {
           "name": "Froge",
           "rawName": "Critter1",
-          "timeLeft": 1642028073208.0007
+          "timeLeft": 1642083474942.9998
         }
       ],
       "postOffice": {
@@ -69308,7 +69258,7 @@
             "level": 0
           }
         ],
-        "unspentPoints": 414
+        "unspentPoints": 424
       },
       "crystalSpawnChance": 0.0008208500000000001,
       "kills": [
@@ -69325,7 +69275,7 @@
         40,
         0,
         0,
-        1038676.25,
+        1169520.25,
         358535.41000000003,
         921643.0800000001,
         102226.65000000001,
@@ -69523,7 +69473,7 @@
         "40": 0,
         "90": 0,
         "91": 0,
-        "94": 3,
+        "94": 18,
         "100": 0,
         "105": 0,
         "106": 0,
@@ -69534,7 +69484,7 @@
         "121": 0,
         "122": 0,
         "124": 0,
-        "130": 71909,
+        "130": 17014,
         "270": 0,
         "271": 0,
         "273": 0,
@@ -69562,12 +69512,12 @@
         "490": 0,
         "623": 0,
         "626": 0,
-        "634": 1707,
+        "634": 0,
         "635": 0,
         "639": 0
       }
     }
   ],
-  "lastUpdated": "2022-01-12T20:02:07.068Z",
+  "lastUpdated": "2022-01-13T06:43:21.308Z",
   "version": "1.1.5"
 }

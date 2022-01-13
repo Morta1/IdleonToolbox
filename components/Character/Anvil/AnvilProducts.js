@@ -38,7 +38,8 @@ const AnvilProducts = ({ anvil, afkTime, lastUpdated }) => {
               <NumberTooltip
                 title={<div>
                   <div>Inaccurate!</div>
-                  If you want to get more accurate results, please use the connect button.
+                  If you want to get more accurate results, please update your extension to version 2.0.1 use the
+                  connect button.
                 </div>}>
                 <WarningIcon color={'error'} fontSize={'small'}/>
               </NumberTooltip> : null}

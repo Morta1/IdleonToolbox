@@ -4,8 +4,30 @@ A mini app to help you through your adventure in [Legends Of Idelon](https://leg
 
 ## Features
 
-- Follow your characters' (offline) progression by taking advantage of the parsed JSON provided
-  by [idleon-data-extractor](https://github.com/Morta1/idleon-data-extractor) extension.
-- Item Locator - find an item somewhere in your account.
-- Craft It - Track your missing crafting items.
-- Search cards by stat name.
+- Follow your characters' (offline) progression by taking advantage of the parsed JSON provided by either
+  using [idleon-data-extractor](https://github.com/Morta1/idleon-data-extractor) extension
+  or [steam-data-extractor](https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing).
+- **Character / Account** - Keep track of your
+    - Equipment
+    - Talents
+    - Skill Levels
+    - Equipped Cards
+    - Traps
+    - Prayers
+    - Star Signs
+    - Printer Products
+    - Equipped Bubbles
+    - Anvil Information
+    - Post Office
+    - Death Note
+    - Stamps
+    - Vials 
+    - Refinery
+  
+  And Much more!
+- **Item Locator** - Find an item somewhere in your account.
+- **Item Planner / Craft It** - Create a todo list of items you want to craft and track missing items.
+- **Card Search** - Search cards by stat name.
+- **Active Exp Calculator** 
+- **Achievements** 
+- **Shop Stock** 

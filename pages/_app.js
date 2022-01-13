@@ -3,7 +3,7 @@ import { createTheme, ThemeProvider as MuiThemeProvider } from "@material-ui/cor
 import Head from 'next/head'
 import '../polyfills';
 import { useEffect, useState } from "react";
-import { AppContext } from '../components/Common/context';
+import { AppContext } from "../components/Common/context";
 import { extVersion, fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
@@ -230,7 +230,8 @@ export default function App({ Component, pageProps }) {
                   <CircularProgress size={60} style={{ color: 'white' }}/>
                 </div>
                 : <Component {...pageProps} />}
-            </AppContext.Provider></ErrorBoundary>
+            </AppContext.Provider>
+          </ErrorBoundary>
         </ThemeProvider>
       </MuiThemeProvider>
     </>
