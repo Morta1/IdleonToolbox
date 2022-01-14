@@ -11,7 +11,7 @@ const MaterialsTooltip = ({
     <MaterialsTooltipStyle
       interactive
       enterTouchDelay={100}
-      placement={"top-start"}
+      placement={"right-start"}
       title={<div className='tooltip-body'>
         <div className="info">
           {cleanUnderscore(name)}

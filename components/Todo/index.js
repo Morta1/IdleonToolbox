@@ -4,11 +4,11 @@ import { breakpoint, flattenCraftObject, numberWithCommas, prefix } from "../../
 import { crafts } from "../../data/website-data";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createFilterOptions } from "@material-ui/lab/Autocomplete";
-import { Checkbox, FormControlLabel, IconButton, TextField, Toolbar } from "@material-ui/core";
+import { Button, Checkbox, FormControlLabel, IconButton, TextField, Toolbar } from "@material-ui/core";
 import AddIcon from '@material-ui/icons/Add';
 import Badge from "@material-ui/core/Badge";
-import HighlightOffIcon from '@material-ui/icons/HighlightOff';
-import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import RemoveIcon from '@material-ui/icons/Remove';
 import { AppContext } from "../Common/context";
 import MaterialsTooltip from "../Common/Tooltips/MaterialsTooltip";
 import useMediaQuery from "../Common/useMediaQuery";
@@ -18,6 +18,8 @@ const filterOptions = createFilterOptions({
   trim: true,
 });
 
+const defaultItem = { rawName: 'EquipmentTransparent108' };
+
 const Todo = ({ userData }) => {
   const { userTodoList, setUserTodoList } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
@@ -25,18 +27,17 @@ const Todo = ({ userData }) => {
   const [value, setValue] = useState("");
   const [defaultItems, setDefaultItems] = useState([]);
   const [myItems, setMyItems] = useState([]);
-  const [item, setItem] = useState();
+  const [item, setItem] = useState({ rawName: 'EquipmentTransparent108' });
   const [materialList, setMaterialList] = useState([]);
   const [todoList, setTodoList] = useState([]);
   const [showEquips, setShowEquips] = useState(false);
   const [showFinishedItems, setShowFinishedItems] = useState(false);
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const [itemCount, setItemCount] = useState(1);
-  const itemsRef = useRef({ removeAll: [], removeOne: [] });
+  const itemsRef = useRef({ buttons: [] });
 
   useEffect(() => {
-    itemsRef.current.removeAll = itemsRef.current.removeAll.slice(0, todoList?.length);
-    itemsRef.current.removeOne = itemsRef.current.removeOne.slice(0, todoList?.length);
+    itemsRef.current.buttons = itemsRef.current.buttons.slice(0, todoList?.length);
   }, [todoList]);
 
   useEffect(() => {
@@ -70,16 +71,14 @@ const Todo = ({ userData }) => {
 
   const onItemChange = (newValue) => {
     setValue(newValue);
-    setItem(crafts[newValue]);
+    setItem(newValue ? crafts[newValue] : defaultItem);
   }
   const onMouseEnter = (index) => {
-    itemsRef.current.removeOne[index].style.display = 'block';
-    itemsRef.current.removeAll[index].style.display = 'block';
+    itemsRef.current.buttons[index].style.display = 'block';
   }
 
   const onMouseExit = (index) => {
-    itemsRef.current.removeOne[index].style.display = 'none';
-    itemsRef.current.removeAll[index].style.display = 'none';
+    itemsRef.current.buttons[index].style.display = 'none';
   }
 
   const onRemoveItem = (itemObject, amount) => {
@@ -97,13 +96,13 @@ const Todo = ({ userData }) => {
     }
   }
 
-  const onAddItem = () => {
+  const onAddItem = (item, count) => {
     if (item) {
       let accumulatedTodos, accumulatedMaterials;
-      accumulatedTodos = calculateItemsQuantity(todoList, item, false, true, itemCount);
+      accumulatedTodos = calculateItemsQuantity(todoList, item, false, true, count);
       const list = Array.isArray(crafts[item?.itemName]) ? crafts[item?.itemName] : flattenCraftObject(crafts[item?.itemName]);
       accumulatedMaterials = list?.reduce((res, itemObject) => {
-        return calculateItemsQuantity(res, itemObject, true, true, itemCount);
+        return calculateItemsQuantity(res, itemObject, true, true, count);
       }, materialList);
       setMaterialList(accumulatedMaterials);
       setTodoList(accumulatedTodos);
@@ -134,6 +133,12 @@ const Todo = ({ userData }) => {
     <TodoStyle>
       {matches && <Toolbar/>}
       <div className={'controls'}>
+        <div className="preview">
+          {item ? <img
+            src={`${prefix}data/${item?.rawName}.png`}
+            alt=''
+          /> : null}
+        </div>
         <Autocomplete
           id='item-locator'
           value={value}
@@ -177,17 +182,10 @@ const Todo = ({ userData }) => {
           type={'number'}
           label={'Item Count'}
           variant={'outlined'}/>
-        <IconButton onClick={onAddItem} title={'Add Item'}>
-          <AddIcon/>
-        </IconButton>
-        <div className="preview">
-          {item ? <img
-            src={`${prefix}data/${item?.rawName}.png`}
-            alt=''
-          /> : null}
-        </div>
+        <Button color={'primary'} variant={'contained'} onClick={() => onAddItem(item, itemCount)} title={'Add Item'}>
+          Add
+        </Button>
       </div>
-
       <div>
         <FormControlLabel
           control={
@@ -228,29 +226,34 @@ const Todo = ({ userData }) => {
           <span className={'title'}>Tracked Items</span>
           <div className={'items'}>
             {todoList?.map((item, index) => {
-              return <div key={item?.itemName + '' + index} onMouseEnter={() => onMouseEnter(index, 'removeAll')}
+              return <div className={'item-wrapper'} key={item?.itemName + '' + index}
+                          onMouseEnter={() => onMouseEnter(index, 'removeAll')}
                           onMouseLeave={() => onMouseExit(index, 'removeAll')}>
                 <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
                        max={10000}
                        anchorOrigin={{
-                         vertical: 'bottom',
+                         vertical: 'top',
                          horizontal: 'right',
                        }}
                        color="primary">
-                  <StyledIconButton size={"small"} onClick={() => onRemoveItem(item)}
-                                    ref={el => itemsRef.current.removeAll[index] = el}>
-                    <HighlightOffIcon/>
-                  </StyledIconButton>
-                  <StyledIconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(item, 1)}
-                                    ref={el => itemsRef.current.removeOne[index] = el}>
-                    <RemoveCircleIcon/>
-                  </StyledIconButton>
                   <MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}>
                     <img key={item?.rawName + ' ' + index}
                          src={`${prefix}data/${item?.rawName}.png`}
                          alt=''/>
                   </MaterialsTooltip>
                 </Badge>
+                <div className={'buttons'} ref={el => itemsRef.current.buttons[index] = el}>
+                  <IconButton type={'bottom'} size={"small"}
+                                    onClick={() => onAddItem({ ...item, itemQuantity: 1 }, 1)}>
+                    <AddIcon/>
+                  </IconButton>
+                  <IconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(item, 1)}>
+                    <RemoveIcon/>
+                  </IconButton>
+                  <IconButton size={"small"} onClick={() => onRemoveItem(item)}>
+                    <DeleteForeverIcon/>
+                  </IconButton>
+                </div>
               </div>
             })}
           </div>
@@ -261,26 +264,27 @@ const Todo = ({ userData }) => {
                      showFinishedItems={showFinishedItems}/>
         </div>
       </div> : null}
-
     </TodoStyle>
   );
 };
-
-const StyledIconButton = styled(IconButton)`
-  && {
-    display: none;
-    position: absolute;
-    top: 0;
-    color: white;
-    ${({ type }) => type === 'bottom' ? `right:0;` : 'left: 0'}
-    ${({ type }) => type === 'bottom' ? `transform: scale(1) translate(25%, 0);` : 'transform: scale(1) translate(-25%, -35%);'}
-  }
-`
 
 const TodoStyle = styled.div`
   padding: 15px;
   margin-top: 15px;
   margin-bottom: 25px;
+
+  .item-wrapper {
+    width: 90px;
+    height: 102px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .buttons {
+    display: none;
+  }
 
   .title {
     font-size: 20px;
@@ -291,6 +295,7 @@ const TodoStyle = styled.div`
 
   .preview {
     min-height: 77px;
+    min-width: 77px;
   }
 
   .controls {
@@ -307,12 +312,12 @@ const TodoStyle = styled.div`
     margin-top: 15px;
 
     .items {
+      margin-top: 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 15px;
     }
   }
-
 
   .content {
     margin-top: 25px;
