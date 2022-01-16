@@ -5,7 +5,8 @@ import {
   calculateDeathNote,
   calculateItemTotalAmount,
   calculateLeaderboard,
-  calculateWeirdObolIndex, createActiveBuffs,
+  calculateWeirdObolIndex,
+  createActiveBuffs,
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
@@ -39,7 +40,8 @@ import {
   getStarSignBonus,
   getStatFromEquipment,
   getStatueBonus,
-  getTalentBonus, getTalentBonusIfActive,
+  getTalentBonus,
+  getTalentBonusIfActive,
   getTotalCardBonusById,
   getTotalCoinCost,
   getTotalMonsterMatCost,
@@ -413,6 +415,27 @@ const createAccountData = (idleonData, characters) => {
       level
     }
   }).filter(({ level }) => level > 0);
+
+  const forgeRowItems = 3;
+  let forge = [];
+  for (let row = 0; row < idleonData?.ForgeItemOrder?.length; row += 3) {
+    const [ore, barrel, bar] = idleonData?.ForgeItemOrder.slice(
+      row,
+      row + forgeRowItems
+    );
+    const [oreQuantity, barrelQuantity, barQuantity] = idleonData?.ForgeItemQuantity.slice(
+      row,
+      row + forgeRowItems
+    );
+    forge = [...forge, {
+      ore: { ...items?.[ore], rawName: ore, quantity: oreQuantity },
+      barrel: { ...items?.[barrel], rawName: barrel, quantity: barrelQuantity },
+      bar: { ...items?.[bar], rawName: bar, quantity: barQuantity }
+    }
+    ]
+  }
+
+  account.forge = forge;
 
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);

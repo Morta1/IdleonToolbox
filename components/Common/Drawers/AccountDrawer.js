@@ -97,6 +97,12 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={'Vials'}/>
             </ListItem>
+            <ListItem selected={selected?.view === 'forge'} button onClick={() => handleClick('forge', '')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/ForgeD.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Forge'}/>
+            </ListItem>
             <ListItem selected={selected?.view === 'deathNote'} button onClick={() => handleClick('deathNote', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/ConTower2.png`} alt=""/>
               <ListItemText

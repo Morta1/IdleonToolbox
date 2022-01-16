@@ -134,6 +134,9 @@ export const createSerializedData = (data, charNames) => {
     CauldronBubbles: tryToParse(data?.CauldronBubbles),
     PrayersUnlocked: tryToParse(data?.PrayOwned),
     TimeAway: tryToParse(data?.TimeAway),
+    GemsOwned: data?.GemsOwned,
+    ForgeItemOrder: data?.ForgeItemOrder,
+    ForgeItemQuantity: data?.ForgeItemQuantity,
     Tasks: [
       tryToParse(data?.TaskZZ0),
       tryToParse(data?.TaskZZ1),
@@ -252,15 +255,15 @@ export const createActiveBuffs = (activeBuffs, talents) => {
 
 export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
   return activeBuffs?.reduce((res, {
-                              name,
-                              funcX,
-                              level,
-                              x1,
-                              x2,
-                              funcY,
-                              y1,
-                              y2
-                            }) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2) : growth(funcY, level, y1, y2) : 0, 0) ?? 0;
+    name,
+    funcX,
+    level,
+    x1,
+    x2,
+    funcY,
+    y1,
+    y2
+  }) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2) : growth(funcY, level, y1, y2) : 0, 0) ?? 0;
 }
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
@@ -419,8 +422,8 @@ export const getGoldenFoodMulti = (
   return Math.max(familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
-      + goldenAppleStamp +
-      goldenFoodAchievement)) / 100;
+        + goldenAppleStamp +
+        goldenFoodAchievement)) / 100;
 }
 
 export const getFamilyBonusBonus = (bonuses, bonusName, level) => {
