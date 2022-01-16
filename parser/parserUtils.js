@@ -136,7 +136,7 @@ export const createSerializedData = (data, charNames) => {
     TimeAway: tryToParse(data?.TimeAway),
     GemsOwned: data?.GemsOwned,
     ForgeItemOrder: data?.ForgeItemOrder,
-    ForgeItemQuantity: data?.ForgeItemQuantity,
+    ForgeItemQuantity: data?.ForgeItemQty,
     Tasks: [
       tryToParse(data?.TaskZZ0),
       tryToParse(data?.TaskZZ1),

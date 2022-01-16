@@ -419,7 +419,7 @@ const createAccountData = (idleonData, characters) => {
   const forgeRowItems = 3;
   let forge = [];
   for (let row = 0; row < idleonData?.ForgeItemOrder?.length; row += 3) {
-    const [ore, barrel, bar] = idleonData?.ForgeItemOrder.slice(
+    const [ore, barrel, bar] = idleonData?.ForgeItemOrder?.slice(
       row,
       row + forgeRowItems
     );
