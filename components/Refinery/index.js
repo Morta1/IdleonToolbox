@@ -19,20 +19,19 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
   useEffect(() => {
     const squires = characters?.filter((character) => character?.class === 'Squire');
     const squiresDataTemp = squires.reduce((res, character) => {
-      const { name, talents, cooldowns,  afkTime } = character;
-      // const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
-      // const cdReduction = Math.max(0, growth(magicianBox?.func, magicianBox?.level - 100, magicianBox?.x1, magicianBox?.x2));
+      const { name, talents, cooldowns, postOffice, afkTime } = character;
+      const magicianBox = postOffice?.boxes?.find((box) => box.name === "Magician_Starterpack");
+      const cooldownBonus = magicianBox?.upgrades?.find(({ bonus }) => bonus === '%_Faster_Cooldowns');
+      const cdReduction = Math.max(0, growth(cooldownBonus?.func, magicianBox?.level - 100, cooldownBonus?.x1, cooldownBonus?.x2));
       const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
       let cyclesNum = 0;
       if (refineryThrottle?.maxLevel > 0) {
         cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.maxLevel, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
-        // return { cycles: res?.cycles + cyclesNum };
       }
-      // return res;
       // 72000 (s) - cooldowns?.[refineryThrottle?.talentId] (s) - timePassed
       const timePassed = (new Date().getTime() - afkTime) / 1000;
-      // const calculatedCooldown = (1 - cdReduction / 100) * (refineryThrottle?.cooldown);
-      const actualCd = cooldowns?.[refineryThrottle?.talentId] - timePassed;
+      const calculatedCooldown = (1 - cdReduction / 100) * (cooldowns?.[130]);
+      const actualCd = calculatedCooldown - timePassed;
       return {
         cycles: res?.cycles + cyclesNum,
         cooldowns: [...res?.cooldowns, {
