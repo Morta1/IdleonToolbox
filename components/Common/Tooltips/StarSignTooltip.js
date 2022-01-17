@@ -17,7 +17,7 @@ const StarSignTooltip = ({
           {cleanUnderscore(name)}
         </div>
         <div className="item-req">
-          {cleanUnderscore(bonuses.join(', '))}
+          {bonuses?.map(({ rawName }) => cleanUnderscore(rawName)).join(', ')}
         </div>
       </div>}>
       {children}
