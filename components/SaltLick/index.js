@@ -22,12 +22,12 @@ const SaltLick = ({ saltLick }) => {
             <div className={'text'}>
               <div>{cleanUnderscore(desc.replace('{', calculatedBonus))}</div>
               <div style={{ fontWeight: 'bold' }}
-                   className={level === maxLevel ? 'done' : ''}>Lv. {level}/{maxLevel}</div>
+                   className={level === maxLevel ? 'ok' : ''}>Lv. {level}/{maxLevel}</div>
             </div>
             <div className={'cost'}>
               <img className={'resource'} src={`${prefix}data/${rawName}.png`} alt=""/>
               <span
-                className={totalAmount < calculatedBonusCost ? 'missing' : 'ok'}>{kFormatter(totalAmount, 2)}</span>&nbsp;/ {kFormatter(calculatedBonusCost, 2)}
+                className={level >= maxLevel ? '' : totalAmount < calculatedBonusCost ? 'missing' : 'ok'}>{kFormatter(totalAmount, 2)}</span>&nbsp;/ {kFormatter(calculatedBonusCost, 2)}
             </div>
           </div>
         })}
