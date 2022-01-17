@@ -18,6 +18,7 @@ import Timer from "../Common/Timer";
 import React from "react";
 import { differenceInHours, differenceInMinutes } from "date-fns";
 import Anvil from "./Anvil/Anvil";
+import ActiveSkillsCD from "./ActiveSkillsCD";
 
 const Character = ({
                      name: charName,
@@ -38,6 +39,8 @@ const Character = ({
                      obols,
                      talents,
                      starTalents,
+                     flatTalents,
+                     flatStarTalents,
                      afkTarget,
                      prayers,
                      traps,
@@ -47,6 +50,7 @@ const Character = ({
                      money,
                      crystalSpawnChance,
                      afkTime,
+                     cooldowns,
                      lastUpdated
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
@@ -97,6 +101,11 @@ const Character = ({
             </div>}
         </div> : null}
       </div>
+      {!dataFilters || dataFilters?.['Active Skills CD'] ?
+        <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}
+                        talents={[...flatTalents, ...flatStarTalents]}
+                        relevantTalents={{ 32: true, 130: true }} // Printer go brr, refinery Throttle
+                        afkTime={afkTime}/> : null}
       {!dataFilters || dataFilters?.Equipment ? <Equipment equipment={equipment} tools={tools} foods={food}/> : null}
       {!dataFilters || dataFilters?.Talents ? <Talents talents={talents} starTalents={starTalents}/> : null}
       {!dataFilters || dataFilters?.Skills ? <SkillsInfo skills={skillsInfo} charName={charName}/> : null}
@@ -106,7 +115,8 @@ const Character = ({
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
       {!dataFilters || dataFilters?.['Traps'] ?
         <Traps trap={tools?.[4]} traps={traps} lastUpdated={lastUpdated}/> : null}
-      {!dataFilters || dataFilters?.['Anvil'] ? <Anvil afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated}/> : null}
+      {!dataFilters || dataFilters?.['Anvil'] ?
+        <Anvil afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated}/> : null}
       {!dataFilters ||
       dataFilters?.['Equipped Bubbles'] ||
       dataFilters?.['Prayers'] ? <div className="small">

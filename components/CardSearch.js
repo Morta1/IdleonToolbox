@@ -106,7 +106,6 @@ export default function CardSearch({ userData }) {
           {Object.keys(localCardObject)?.length > 0 ? (
             categoriesOrder.map((cardSet, cardSetIndex) => {
               const cardsArr = localCardObject[cardSet];
-              console.log(cardsArr)
               if (!cardsArr || cardsArr?.length === 0) return null;
               return (
                 <React.Fragment key={cardSet + "" + cardSetIndex}>

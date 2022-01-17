@@ -5,6 +5,18 @@ const OutdatedData = () => {
   const updates = [
     {
       latest: true,
+      version: '1.1.6',
+      changes: [
+        {
+          title: 'Characters',
+          desc: [
+            'Added active skills cooldown filter in characters',
+          ]
+        },
+      ]
+    },
+    {
+      latest: true,
       version: '1.1.5',
       changes: [
         {

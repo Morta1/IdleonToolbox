@@ -181,6 +181,10 @@ export const fields = [
     name: "Post Office",
     selected: true,
   },
+  {
+    name: "Active Skills CD",
+    selected: true,
+  },
 ];
 export const screens = {
   characters: 0,
@@ -216,5 +220,5 @@ export const classColors = {
 
 const isProd = process.env.NODE_ENV === "production";
 export const breakpoint = 1350;
-export const extVersion = '1.1.5';
+export const extVersion = '1.1.6';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

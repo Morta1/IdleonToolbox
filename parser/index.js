@@ -112,7 +112,7 @@ const parseIdleonData = (idleonData, charNames, guildData) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.5' }
+    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.6' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
@@ -556,11 +556,13 @@ const createCharactersData = (idleonData, characters, account) => {
       talents
     } = createTalentPage(character?.class, pages, talentsObject, maxTalentsObject);
     character.talents = talents;
+    character.flatTalents = flatTalents;
     const {
       flat: flatStarTalents,
       talents: orderedStarTalents
     } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
     character.starTalents = orderedStarTalents;
+    character.flatStarTalents = flatStarTalents;
     const activeBuffs = char?.[`BuffsActive_${charIndex}`];
     character.activeBuffs = createActiveBuffs(activeBuffs, [...flatTalents, ...flatStarTalents]);
 
