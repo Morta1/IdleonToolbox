@@ -16,7 +16,6 @@ const OutdatedData = () => {
       ]
     },
     {
-      latest: true,
       version: '1.1.5',
       changes: [
         {
