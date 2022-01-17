@@ -12,7 +12,7 @@ const CustomTooltip = ({ bonus, cardName, effect, children }) => {
         <div className='tooltip-body'>
           <div className='tooltip-header'>
             <div className={'title'}>{cardName}</div>
-            <div>{effect}</div>
+            <div>{effect.replace('{', bonus)}</div>
           </div>
           <div className='stars'>
             {bonus
@@ -67,9 +67,10 @@ const StyledTooltip = styled((props) => (
 
   .tooltip-body {
     padding: 10px;
+
     .tooltip-header {
       padding: 10px 0;
-      
+
       .title {
         font-size: 22px;
         font-weight: bold;

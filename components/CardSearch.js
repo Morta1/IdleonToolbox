@@ -6,6 +6,7 @@ import { cards, stats } from "../data/website-data";
 import { cleanUnderscore, prefix } from "../Utilities";
 import CustomTooltip from "../components/Common/Tooltips/CustomTooltip";
 import { Wrapper } from "./Common/commonStyles";
+import { calcCardBonus } from "../parser/parserUtils";
 
 const categoriesOrder = ["Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
   "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", "Dungeons", "Bosses", "Events"];
@@ -105,6 +106,7 @@ export default function CardSearch({ userData }) {
           {Object.keys(localCardObject)?.length > 0 ? (
             categoriesOrder.map((cardSet, cardSetIndex) => {
               const cardsArr = localCardObject[cardSet];
+              console.log(cardsArr)
               if (!cardsArr || cardsArr?.length === 0) return null;
               return (
                 <React.Fragment key={cardSet + "" + cardSetIndex}>
@@ -121,7 +123,7 @@ export default function CardSearch({ userData }) {
                           <CustomTooltip
                             cardName={cleanUnderscore(displayName)}
                             effect={cleanUnderscore(effect)}
-                            bonus={bonus}
+                            bonus={calcCardBonus({ bonus, stars })}
                           >
                             <div className={'card-wrapper'}>
                               {stars > 0 ?
