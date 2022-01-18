@@ -68,13 +68,16 @@ const FlagsStyle = styled.div`
   .toggle {
     display: flex;
     justify-content: center;
-    margin-bottom: 50px;
+    margin: 50px 0 80px 0;
   }
 
   .matrix {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(12, 36px);
     gap: 25px;
+    align-items: center;
+    justify-content: center;
+    transform: scale(1.1);
   }
 `;
 
@@ -99,7 +102,6 @@ const Slot = styled.div`
     font-weight: bold;
     background-color: #000000c7;
   }
-
 
   &:before {
     content: "";
