@@ -31,7 +31,8 @@ export const round = (num) => {
 export const numberWithCommas = (num) => {
   return num?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-export const kFormatter = (num, digits = 1, percentage) => {
+export const kFormatter = (num, digits = 1) => {
+  if (num === undefined) return null;
   const lookup = [
     { value: 1, symbol: "" },
     { value: 1e3, symbol: "k" },
@@ -174,7 +175,11 @@ export const fields = [
     selected: true,
   },
   {
-    name: "Anvil",
+    name: "Anvil Details",
+    selected: true,
+  },
+  {
+    name: "Anvil Products",
     selected: true,
   },
   {
@@ -220,5 +225,5 @@ export const classColors = {
 
 const isProd = process.env.NODE_ENV === "production";
 export const breakpoint = 1350;
-export const extVersion = '1.1.6';
+export const extVersion = '1.1.7';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";

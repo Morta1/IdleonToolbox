@@ -5,6 +5,18 @@ const OutdatedData = () => {
   const updates = [
     {
       latest: true,
+      version: '1.1.7',
+      changes: [
+        {
+          title: 'Account/Character',
+          desc: [
+            'Added flags page',
+            'Added separate anvil filters - 1 for details and 1 for products'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.1.6',
       changes: [
         {

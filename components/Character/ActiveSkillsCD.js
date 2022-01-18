@@ -31,7 +31,7 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated, 
   }
   const actualCooldowns = useMemo(() => getCooldowns(cooldowns), [cooldowns]);
 
-  return (
+  return actualCooldowns?.length ? (
     <ActiveSkillsCDStyle>
       {actualCooldowns?.map((skill, index) => {
         return <div className={'talent'} key={`${skill?.talentId}-${index}`}>
@@ -43,7 +43,7 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated, 
         </div>
       })}
     </ActiveSkillsCDStyle>
-  );
+  )  : null;
 };
 
 const ActiveSkillsCDStyle = styled.div`

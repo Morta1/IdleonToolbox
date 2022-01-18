@@ -15,6 +15,7 @@ import GemShopBundles from "./GemShopBundles";
 import DeathNote from "./DeathNote";
 import SaltLick from "./SaltLick";
 import Forge from "./Forge";
+import Flags from "./Flags";
 
 const Account = () => {
   const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
@@ -32,6 +33,8 @@ const Account = () => {
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'deathNote' ? <DeathNote deathNote={userData?.account?.deathNote}/> : null}
       {accountDisplay?.view === 'forge' ? <Forge forge={userData?.account?.forge}/> : null}
+      {accountDisplay?.view === 'construction' ?
+        <Flags flags={userData?.account?.flags} character={userData?.characters}/> : null}
       {accountDisplay?.view === 'saltLick' ? <SaltLick saltLick={userData?.account?.saltLicks}/> : null}
       {accountDisplay?.view === 'refinery' ?
         <Refinery refinery={userData?.account?.refinery} saltLicks={userData?.account?.saltLicks}

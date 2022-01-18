@@ -115,8 +115,9 @@ const Character = ({
         <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
       {!dataFilters || dataFilters?.['Traps'] ?
         <Traps trap={tools?.[4]} traps={traps} lastUpdated={lastUpdated}/> : null}
-      {!dataFilters || dataFilters?.['Anvil'] ?
-        <Anvil afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated}/> : null}
+      {!dataFilters || dataFilters?.['Anvil Details'] || dataFilters?.['Anvil Products'] ?
+        <Anvil afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated} showProducts={dataFilters?.['Anvil Products']}
+               showDetails={dataFilters?.['Anvil Details']}/> : null}
       {!dataFilters ||
       dataFilters?.['Equipped Bubbles'] ||
       dataFilters?.['Prayers'] ? <div className="small">

@@ -4,7 +4,7 @@ import AnvilProducts from "./AnvilProducts";
 import { kFormatter, prefix } from "../../../Utilities";
 import CoinDisplay from "../../General/CoinDisplay";
 
-const Anvil = ({ anvil, afkTime, lastUpdated }) => {
+const Anvil = ({ anvil, afkTime, lastUpdated, showProducts, showDetails }) => {
   const {
     availablePoints,
     pointsFromCoins,
@@ -20,7 +20,7 @@ const Anvil = ({ anvil, afkTime, lastUpdated }) => {
 
   return (
     <AnvilStyled>
-      <div>
+      {showDetails ? <div>
         <div>Available Points: {availablePoints}</div>
         <div>Points from materials: {pointsFromMats}</div>
         <div>Points from coins: {pointsFromCoins}</div>
@@ -50,8 +50,8 @@ const Anvil = ({ anvil, afkTime, lastUpdated }) => {
           <span>Total Coins Spent:</span>
           <CoinDisplay style={{ margin: '10px 0' }} money={anvilCost?.totalCoins}/>
         </div>
-      </div>
-      <AnvilProducts afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated}/>
+      </div> : null}
+      {showProducts ? <AnvilProducts afkTime={afkTime} anvil={anvil} lastUpdated={lastUpdated}/> : null}
     </AnvilStyled>
   );
 };

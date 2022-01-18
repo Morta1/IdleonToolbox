@@ -13,7 +13,7 @@ import { getDaysInMonth, intervalToDuration } from 'date-fns';
 import { growth } from "../components/General/calculationHelper";
 
 export const createSerializedData = (data, charNames) => {
-  const PlayerDATABASE = charNames?.map((charName, index) => {
+  let PlayerDATABASE = charNames?.map((charName, index) => {
     const characterDetails = Object.entries(data)?.reduce((res, [key, details]) => {
       const reg = new RegExp(`_${index}`, 'g');
       if (reg.test(key)) {
@@ -107,6 +107,8 @@ export const createSerializedData = (data, charNames) => {
       ...characterDetails
     }
   });
+  PlayerDATABASE = PlayerDATABASE?.filter((char, index) => char?.[`AFKtarget_${index}`]);
+  const cogOrder = tryToParse(data?.CogO);
   const serialized = {
     Cards: [tryToParse(data?.Cards0), tryToParse(data?.Cards1)],
     ObolEquippedOrder: [null, tryToParse(data?.ObolEqO1)],
@@ -137,6 +139,10 @@ export const createSerializedData = (data, charNames) => {
     GemsOwned: data?.GemsOwned,
     ForgeItemOrder: data?.ForgeItemOrder,
     ForgeItemQuantity: data?.ForgeItemQty,
+    FlagUnlock: tryToParse(data?.FlagU),
+    FlagsPlaced: tryToParse(data?.FlagP),
+    CogOrder: cogOrder,
+    CogMap: createCogMap(tryToParse(data?.CogM), cogOrder?.length),
     Tasks: [
       tryToParse(data?.TaskZZ0),
       tryToParse(data?.TaskZZ1),
@@ -195,6 +201,14 @@ const tryToParse = (str) => {
   } catch (err) {
     return str;
   }
+}
+
+const createCogMap = (cogMap, length) => {
+  let array = [];
+  for (let i = 0; i < length; i++) {
+    array[i] = cogMap?.[i] || {};
+  }
+  return array;
 }
 
 export const calculateAfkTime = (playerTime) => {
@@ -355,7 +369,7 @@ export const getPlayerCapacity = (bag, capacities) => {
   if (bag) {
     return getMaterialCapacity(bag, capacities);
   }
-  return bag?.capacity;
+  return 50; // TODO: check for better solution
 }
 
 const getMaterialCapacity = (bag, capacities) => {
@@ -1401,3 +1415,4 @@ const cloneObject = (data) => {
     return data;
   }
 }
+

@@ -62,8 +62,10 @@ import {
   cauldrons,
   classes,
   classFamilyBonuses,
+  cogKeyMap,
   constellations,
   dungeonStats,
+  flagsReqs,
   guildBonuses,
   mapNames,
   mapPortals,
@@ -112,7 +114,7 @@ const parseIdleonData = (idleonData, charNames, guildData) => {
     charactersData = charactersData.map(({ quests, ...rest }) => rest);
     const deathNote = calculateDeathNote(charactersData);
     account = { ...account, quests, deathNote };
-    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.6' }
+    return { account, characters: charactersData, lastUpdated: new Date(), version: '1.1.7' }
   } catch (err) {
     console.error('An error has occurred while parsing idleon data', err);
     return {};
@@ -437,6 +439,32 @@ const createAccountData = (idleonData, characters) => {
 
   account.forge = forge;
 
+  // Construction
+  const flagsUnlocked = idleonData?.FlagUnlock;
+  const flagsPlaced = idleonData?.FlagsPlaced;
+  const cogsOrder = idleonData?.CogOrder;
+  const cogsMap = idleonData?.CogMap?.map((cogObject) => {
+    return Object.entries(cogObject)?.reduce((res, [key, value]) => cogKeyMap?.[key] && cogKeyMap?.[key] !== '_' ? {
+      ...res,
+      [key]: { name: cogKeyMap?.[key], value }
+    } : { ...res, [key]: value }, {});
+    // return Object.entries(cogObject)?.reduce((res, [key, value]) => cogKeyMap?.[key] && cogKeyMap?.[key] !== '_' ? [
+    //   ...res,
+    //   `${value}${cogKeyMap?.[key]}`
+    // ] : res, []);
+  });
+  account.flags = flagsUnlocked?.reduce((res, flagSlot, index) => {
+    return [...res, {
+      currentAmount: flagSlot === -11 ? flagsReqs?.[index] : parseFloat(flagSlot),
+      requiredAmount: flagsReqs?.[index],
+      flagPlaced: flagsPlaced?.includes(index),
+      cog: {
+        name: cogsOrder?.[index],
+        stats: cogsMap?.[index]
+      }
+    }];
+  }, []);
+
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);
   account.colosseumTickets = idleonData?.CurrenciesOwned['ColosseumTickets'];
@@ -459,6 +487,7 @@ const createCharactersData = (idleonData, characters, account) => {
   return characters?.map((char, charIndex) => {
     const character = {};
     const personalValuesMap = char?.[`PersonalValuesMap_${charIndex}`];
+    if (!personalValuesMap) return;
     character.name = char?.name;
     character.class = classes?.[char?.[`CharacterClass_${charIndex}`]];
     character.afkTime = calculateAfkTime(char?.[`PlayerAwayTime_${charIndex}`], idleonData?.TimeAway?.GlobalTime);
