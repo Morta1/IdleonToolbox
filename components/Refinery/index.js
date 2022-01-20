@@ -115,7 +115,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
                 type={'countdown'}
                 lastUpdated={lastUpdated}
                 pause={!active}
-                date={calcTimeToRankUp(rank, powerCap, refined)}/></div>
+                date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/></div>
               <div><span className={'bold'}>Auto Refine:</span> {autoRefinePercentage}%</div>
               <Progress value={progressPercentage} color={saltColor[saltIndex]}>
                 <div className="progress-bar2"/>
