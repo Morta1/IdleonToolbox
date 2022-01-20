@@ -45,19 +45,21 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
   }, []);
 
 
-  const calcTimeToRankUp = (rank, powerCap, refined) => {
-    // Cycles per day = (24 * 60 * 60 / (900 / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
+  const calcTimeToRankUp = (rank, powerCap, refined, index) => {
+    // Cycles per day = (24 * 60 * 60 / ((900 || 3600) / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const redMaltVial = vials?.[25] ? (growth(vials?.[25]?.func, vials?.[25]?.level, vials?.[25]?.x1, vials?.[25]?.x2) / 100) : 0;
     const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level / 100) : 0;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (900 / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
+    const cycleByType = index <= 2 ? 900 : 3600;
+    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
 
   const calcCost = (rank, quantity, item, index) => {
     const isSalt = item?.includes('Refinery');
-    return Math.floor(Math.pow(rank, (isSalt && index <= refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
+    const cost = Math.floor(Math.pow(rank, (isSalt && index <= refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
+    return cost
   };
 
   return (
