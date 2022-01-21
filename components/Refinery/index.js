@@ -56,10 +56,15 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
 
+  const calcResourceToRankUp = (rank, refined, powerCap, itemCost) => {
+    const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
+    const remainingProgress = powerCap - refined;
+    return (remainingProgress / powerPerCycle) * itemCost;
+  }
+
   const calcCost = (rank, quantity, item, index) => {
     const isSalt = item?.includes('Refinery');
-    const cost = Math.floor(Math.pow(rank, (isSalt && index <= refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
-    return cost
+    return Math.floor(Math.pow(rank, (isSalt && index <= refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
   };
 
   return (
@@ -122,33 +127,47 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
                 {/*<span className={'percentage'}>{parseInt(progressPercentage)}%</span>*/}
               </Progress>
             </div>
-            <div className={'requirements'}>
-              <div>Components:</div>
-              <div className={'items'}>{cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
-                const cost = calcCost(rank, quantity, rawName, saltIndex);
-                return <div className={'item'} key={`${rawName}-${index}`}>
-                  <img src={`${prefix}data/${rawName}.png`} alt=""/>
-                  <div className={'item-numbers'}>
-                    <div className={'total-amount'}>
-                      <span>{kFormatter(totalAmount)}</span>
-                      {active && cost > totalAmount ?
-                        <NumberTooltip title={`Missing ${cleanUnderscore(name)}`}>
-                          <WarningIcon color={'error'} fontSize={'small'}/>
-                        </NumberTooltip> : null}
-                    </div>
-                    <div>
-                      <ArrowImage
-                        status={active && cost > totalAmount}
-                        className={'arrow-down'}
-                        style={{ width: 15, height: 15, objectFit: 'contain' }}
-                        src={`${prefix}data/UpgArrowG.png`}
-                        alt=""/>
-                      {cost}
+            <div className={'materials'}>
+              <div className={'requirements'}>
+                <div>Components Per Cycle:</div>
+                <div className={'items'}>{cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
+                  const cost = calcCost(rank, quantity, rawName, saltIndex);
+                  return <div className={'item'} key={`${rawName}-${index}`}>
+                    <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <div className={'item-numbers'}>
+                      <div className={'total-amount'}>
+                      </div>
+                      <div>
+                        {cost}
+                      </div>
                     </div>
                   </div>
+                })}
                 </div>
-              })}</div>
+              </div>
+              <div className={'requirements'}>
+                <div>Cost To Rank Up:</div>
+                <div className={'items'}>{cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
+                  let cost = calcCost(rank, quantity, rawName, saltIndex);
+                  cost = calcResourceToRankUp(rank, refined, powerCap, cost);
+                  return <div className={'item'} key={`${rawName}-${index}`}>
+                    {active && cost > totalAmount ?
+                      <NumberTooltip title={`Missing ${cleanUnderscore(name)}`}>
+                        <WarningIcon color={'error'} fontSize={'small'}/>
+                      </NumberTooltip> : null}
+                    <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <div className={'item-numbers'}>
+                      <div className={'total-amount'}>
+                        <span>{kFormatter(cost)}</span>
+                        <div className={cost > totalAmount && 'missing'}>({kFormatter(totalAmount)})</div>
+                      </div>
+                    </div>
+                  </div>
+                })}
+                </div>
+              </div>
             </div>
+
           </div>
         })}
       </div>
@@ -159,6 +178,10 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
 const RefineryStyle = styled.div`
   display: flex;
   justify-content: center;
+
+  .missing {
+    color: #fa4e4e;
+  }
 
   .bold {
     font-weight: bold;
@@ -220,24 +243,32 @@ const RefineryStyle = styled.div`
       width: 320px;
     }
 
+    .materials {
+      display: flex;
+      gap: 100px;
+    }
+
     .requirements {
       .items {
         display: flex;
+        flex-wrap: wrap;
+        max-height: 135px;
+        flex-direction: column;
+        gap: 15px;
       }
 
       .item {
         margin-top: 10px;
         position: relative;
         display: flex;
+        align-items: center;
 
         .item-numbers {
           display: flex;
           flex-direction: column;
+          justify-content: center;
 
           .total-amount {
-            display: flex;
-            align-items: center;
-            gap: 10px;
           }
 
           .arrow-down {
