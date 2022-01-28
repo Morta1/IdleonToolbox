@@ -250,7 +250,7 @@ const Todo = ({ userData }) => {
                   <IconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(item, 1)}>
                     <RemoveIcon/>
                   </IconButton>
-                  <IconButton size={"small"} onClick={() => onRemoveItem(item)}>
+                  <IconButton size={"small"} onClick={() => onRemoveItem(item, item?.itemQuantity)}>
                     <DeleteForeverIcon/>
                   </IconButton>
                 </div>
