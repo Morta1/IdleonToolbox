@@ -450,10 +450,6 @@ const createAccountData = (idleonData, characters) => {
       ...res,
       [key]: { name: cogKeyMap?.[key], value }
     } : { ...res, [key]: value }, {});
-    // return Object.entries(cogObject)?.reduce((res, [key, value]) => cogKeyMap?.[key] && cogKeyMap?.[key] !== '_' ? [
-    //   ...res,
-    //   `${value}${cogKeyMap?.[key]}`
-    // ] : res, []);
   });
   account.flags = flagsUnlocked?.reduce((res, flagSlot, index) => {
     return [...res, {

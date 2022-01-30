@@ -20,7 +20,7 @@ import Todo from "../components/Todo";
 import OutdatedData from "../components/OutdatedData";
 
 const Index = () => {
-  const { userData, display, outdated } = useContext(AppContext);
+  const { userData, display, outdated, lastUpdated } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
 
   return (
@@ -47,7 +47,7 @@ const Index = () => {
                   <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
                 {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
                 {display?.view === screens.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
-                {display?.view === screens.itemPlanner ? <Todo userData={userData}/> : null}
+                {display?.view === screens.itemPlanner ? <Todo lastUpdated={lastUpdated} userData={userData}/> : null}
               </>}
         </Main>
       </FamilyWrapper>

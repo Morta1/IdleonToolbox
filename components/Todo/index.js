@@ -20,7 +20,7 @@ const filterOptions = createFilterOptions({
 
 const defaultItem = { rawName: 'EquipmentTransparent108' };
 
-const Todo = ({ userData }) => {
+const Todo = ({ userData, lastUpdated }) => {
   const { userTodoList, setUserTodoList } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
   const [labels] = useState(Object.keys(crafts));
@@ -49,7 +49,7 @@ const Todo = ({ userData }) => {
     }
     setMyItems(totalItems);
     setDefaultItems(totalItems);
-  }, []);
+  }, [lastUpdated]);
 
   useEffect(() => {
     if (defaultItems?.length) {
@@ -244,7 +244,7 @@ const Todo = ({ userData }) => {
                 </Badge>
                 <div className={'buttons'} ref={el => itemsRef.current.buttons[index] = el}>
                   <IconButton type={'bottom'} size={"small"}
-                                    onClick={() => onAddItem({ ...item, itemQuantity: 1 }, 1)}>
+                              onClick={() => onAddItem({ ...item, itemQuantity: 1 }, 1)}>
                     <AddIcon/>
                   </IconButton>
                   <IconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(item, 1)}>
