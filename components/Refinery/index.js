@@ -42,7 +42,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
     }, { cycles: 0, cooldowns: [] });
     setSquiresCycles(squiresDataTemp?.cycles);
     setSquiresCooldown(squiresDataTemp?.cooldowns);
-  }, []);
+  }, [lastUpdated]);
 
 
   const calcTimeToRankUp = (rank, powerCap, refined, index) => {
@@ -159,7 +159,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
                     <div className={'item-numbers'}>
                       <div className={'total-amount'}>
                         <span>{kFormatter(cost)}</span>
-                        <div className={cost > totalAmount && 'missing'}>({kFormatter(totalAmount)})</div>
+                        <div className={cost > totalAmount ? 'missing' : ''}>({kFormatter(totalAmount)})</div>
                       </div>
                     </div>
                   </div>
@@ -298,9 +298,9 @@ const RefineryStyle = styled.div`
   }
 `;
 
-const ArrowImage = styled.img`
-  filter: hue-rotate(${({ status }) => status ? '230deg' : '0'});
-`;
+// const ArrowImage = styled.img`
+//   filter: hue-rotate(${({ status }) => status ? '230deg' : '0'});
+// `;
 
 const StatusImage = styled.img`
   filter: hue-rotate(${({ status }) => status ? '136deg' : '0'});

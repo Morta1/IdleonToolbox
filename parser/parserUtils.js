@@ -685,7 +685,6 @@ export const keysMap = {
   2: { name: "Chizoar's_Cavern_Key", rawName: 'Key3' }
 };
 
-
 export const getInventory = (inventoryArr, inventoryQuantityArr, owner) => {
   return inventoryArr.reduce((res, itemName, index) => (itemName !== 'LockedInvSpace' && itemName !== 'Blank' ? [
     ...res, {
@@ -780,7 +779,7 @@ export const calculateCardSetStars = (card, bonus) => {
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {
   return pages.reduce((res, className, index) => {
-    const orderedTalents = Object.entries(talents?.[className])?.map(([talentId, talentDetails]) => {
+    const orderedTalents = Object.entries(talents?.[className])?.map(([, talentDetails]) => {
       return {
         talentId: talentDetails.skillIndex,
         ...talentDetails,
@@ -941,6 +940,60 @@ export const starSignsIndicesMap = {
   // "Unknown":"21",
   // "Unknown":"22",
   // "Unknown":"23",
+}
+
+const getCogstructionCogType = (name) => {
+  const cogType = {
+    "ad": "Plus",
+    "di": "X",
+    "up": "Up",
+    "do": "Down",
+    "ri": "Right",
+    "le": "Left",
+    "ro": "Row",
+    "co": "Col",
+  }
+  if (name === 'Blank') return null;
+  else if (name.includes('Player_')) return 'Character';
+  else if (name === 'CogY') return 'Yang_Cog';
+  else if (name === 'CogZ') return 'Omni_Cog';
+
+  const directionalType = Object.entries(cogType).find(([key]) => name.endsWith(key));
+  if (directionalType) return `${directionalType[1]}_Cog`;
+
+  return 'Cog';
+}
+
+const getCogstructionMulti = (number) => {
+  return number > 0 && !isNaN(number / 100) ? number / 100 : '';
+}
+
+export const createCogstructionData = (cogMap, cogsOrder) => {
+  let dataCsv = 'cog type,name,build_rate,flaggy_rate,exp_mult,exp_rate,build_rate_boost,flaggy_rate_boost,flaggy_speed,exp_rate_boost';
+  const board = cogMap?.slice(0, 96);
+  const cogs = cogsOrder?.slice(0, 96);
+  const cogData = board?.reduce((res, cog, index) => {
+    const cogType = getCogstructionCogType(cogs[index]);
+    if (!cogType) return res;
+    const { a = '', c = '', d = '', b = '', e = '', g = '', k = '', f = '' } = cog || {};
+    const characterName = cogs[index].includes('Player_') ? cogs[index].split('_')[1] : '';
+    return `${res}
+${cogType},${characterName},${a},${c},${getCogstructionMulti(d)},${b},${getCogstructionMulti(e)},${getCogstructionMulti(g)},${k},${getCogstructionMulti(f)}`
+  }, dataCsv);
+  let empties = `empties_x,empties_y`;
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 12; x++) {
+      const index = y * 12 * x;
+      if (cogs[index] === 'Blank') {
+        empties = `${empties}
+${x},${y}`
+      }
+    }
+  }
+  return {
+    cogData,
+    empties
+  }
 }
 
 export const filteredLootyItems = {

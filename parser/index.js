@@ -7,6 +7,7 @@ import {
   calculateLeaderboard,
   calculateWeirdObolIndex,
   createActiveBuffs,
+  createCogstructionData,
   createItemsWithUpgrades,
   createSerializedData,
   createTalentPage,
@@ -443,6 +444,7 @@ const createAccountData = (idleonData, characters) => {
   const flagsUnlocked = idleonData?.FlagUnlock;
   const flagsPlaced = idleonData?.FlagsPlaced;
   const cogsOrder = idleonData?.CogOrder;
+  const cogstruction = createCogstructionData(idleonData?.CogMap, cogsOrder);
   const cogsMap = idleonData?.CogMap?.map((cogObject) => {
     return Object.entries(cogObject)?.reduce((res, [key, value]) => cogKeyMap?.[key] && cogKeyMap?.[key] !== '_' ? {
       ...res,
@@ -464,6 +466,7 @@ const createAccountData = (idleonData, characters) => {
       }
     }];
   }, []);
+  account.cogstruction = cogstruction;
 
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);

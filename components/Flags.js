@@ -4,10 +4,21 @@ import FlagTooltip from "./Common/Tooltips/FlagTooltip";
 import { useState } from "react";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import { ToggleButtonGroup } from "@material-ui/lab";
+import { Button } from "@material-ui/core";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
+import InfoIcon from "@material-ui/icons/Info";
+import NumberTooltip from '../components/Common/Tooltips/NumberTooltip'
 
-const headColor = { blue: 0, green: 300, orange: 220, purple: 130 };
-const Flags = ({ flags, characters }) => {
+// const headColor = { blue: 0, green: 300, orange: 220, purple: 130 };
+const Flags = ({ flags, cogstruction }) => {
   const [view, setView] = useState('build');
+  const handleCopy = async (data) => {
+    try {
+      await navigator.clipboard.writeText(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
   return (
     <FlagsStyle>
       <div className={'toggle'}>
@@ -31,11 +42,26 @@ const Flags = ({ flags, characters }) => {
           </ToggleButton>
         </ToggleButtonGroup>
       </div>
+      <div className={'cogstruction'}>
+        <NumberTooltip interactive={true}
+                       title={<div>
+                         You can export your data and use it in <a target={'_blank'}
+                                                                   href="https://github.com/automorphis/Cogstruction"
+                                                                   rel="noreferrer">Cogstruction</a>
+                       </div>}>
+          <InfoIcon/>
+        </NumberTooltip>
+        <StyledButton variant={'contained'} color={'primary'} onClick={() => handleCopy(cogstruction?.cogData)}
+                      startIcon={<FileCopyIcon/>}>Cogstruction
+          Data</StyledButton>
+        <StyledButton variant={'contained'} color={'primary'} onClick={() => handleCopy(cogstruction?.empties)}
+                      startIcon={<FileCopyIcon/>}>Cogstruction
+          Empties</StyledButton>
+      </div>
       <div className="matrix">
         {flags?.map((flag, index) => {
           const filled = flag?.currentAmount / flag?.requiredAmount * 100;
           const rest = 100 - filled;
-
           return <FlagTooltip {...flag} key={index}
                               character={flag?.cog?.name?.includes('Player') ? flag?.cog?.name?.split('_')[1] : ''}>
             <Slot filled={filled} rest={rest}>
@@ -61,6 +87,13 @@ const Flags = ({ flags, characters }) => {
   );
 };
 
+const StyledButton = styled(Button)`
+  && {
+    text-transform: capitalize;
+    margin: 5px 15px;
+  }
+`
+
 const FlagsStyle = styled.div`
   width: 55%;
   margin: 0 auto;
@@ -68,7 +101,24 @@ const FlagsStyle = styled.div`
   .toggle {
     display: flex;
     justify-content: center;
+    margin: 50px 0 30px 0;
+  }
+
+  .cogstruction {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
     margin: 50px 0 80px 0;
+    text-align: center;
+
+    & a {
+      color: white;
+
+      &:visited, &:active, &:link {
+        color: white;
+      }
+    }
   }
 
   .matrix {
@@ -109,8 +159,7 @@ const Slot = styled.div`
     position: absolute;
     z-index: -1;
     ${({
-         filled,
-         rest
+         filled
        }) => filled === 0 || filled === 100 ? '' : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`}
 
     width: 40px;
