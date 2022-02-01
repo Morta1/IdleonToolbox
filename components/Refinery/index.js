@@ -104,9 +104,15 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
         {salts?.map(({ saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage }, saltIndex) => {
           const rankUp = powerCap === refined;
           const progressPercentage = refined / powerCap * 100;
+          const hasMaterialsForCycle = cost?.every(({
+                                                      rawName,
+                                                      quantity,
+                                                      totalAmount
+                                                    }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex))
           return <div className={'salt'} key={`${saltName}-${saltIndex}`}>
             <div className="images">
-              <StatusImage status={active} src={`${prefix}data/UIoptionC.png`} title={active ? 'active' : 'inactive'}
+              <StatusImage status={active && hasMaterialsForCycle} src={`${prefix}data/UIoptionC.png`}
+                           title={active && hasMaterialsForCycle ? 'active' : 'inactive'}
                            alt="status"/>
               {rankUp ? <img className={'up'} src={`${prefix}data/up.png`} alt=""/> : null}
               <img src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -119,7 +125,8 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
               <div><span className={'bold'}>Rank Up In: </span> <Timer
                 type={'countdown'}
                 lastUpdated={lastUpdated}
-                pause={!active}
+                pause={!active || !hasMaterialsForCycle}
+                placeholder={<span style={{ color: '#fa4e4e' }}>Missing Mats</span>}
                 date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/></div>
               <div><span className={'bold'}>Auto Refine:</span> {autoRefinePercentage}%</div>
               <Progress value={progressPercentage} color={saltColor[saltIndex]}>
@@ -167,7 +174,6 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
                 </div>
               </div>
             </div>
-
           </div>
         })}
       </div>

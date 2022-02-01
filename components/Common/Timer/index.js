@@ -71,7 +71,7 @@ const Timer = ({ date, lastUpdated, type, pause, placeholder }) => {
 
   return time ? <TimerStyle
     className={`${time?.overtime ? 'overtime' : ''}`}>
-    {time?.overtime && placeholder ? placeholder : <span>
+    {(time?.overtime || pause) && placeholder ? placeholder : <span>
       {time?.days ? time?.days + 'd:' : ''}
       {wrapNumber(time?.hours) + 'h:'}
       {wrapNumber(time?.minutes) + `m`}
