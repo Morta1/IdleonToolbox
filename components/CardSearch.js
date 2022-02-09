@@ -37,6 +37,7 @@ export default function CardSearch({ userData }) {
   const [localCardObject, setLocalCardObject] = useState(cardsObject);
   const preConfiguredStats = [
     "Show All",
+    'Afk',
     "Choppin",
     "Mining",
     "Fishing",
