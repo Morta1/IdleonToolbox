@@ -970,8 +970,8 @@ const getCogstructionMulti = (number) => {
 
 export const createCogstructionData = (cogMap, cogsOrder) => {
   let dataCsv = 'cog type,name,build_rate,flaggy_rate,exp_mult,exp_rate,build_rate_boost,flaggy_rate_boost,flaggy_speed,exp_rate_boost';
-  const board = cogMap?.slice(0, 96);
-  const cogs = cogsOrder?.slice(0, 96);
+  const board = cogMap;
+  const cogs = cogsOrder;
   const cogData = board?.reduce((res, cog, index) => {
     const cogType = getCogstructionCogType(cogs[index]);
     if (!cogType) return res;
