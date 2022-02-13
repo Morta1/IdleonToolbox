@@ -16,8 +16,9 @@ const DeathNote = ({ deathNote }) => {
             {mobs?.map((mob, innerIndex) => {
               const mobRank = getDeathNoteRank(mob.kills);
               const iconNumber = mobRank - 1 - Math.floor(mobRank / 7) - 2 * Math.floor(mobRank / 10);
+              const skullName = iconNumber === -1 ? 'StatusSkull0' : `StatusSkull${iconNumber}`;
               return <div className={'mob'} key={mob?.rawName + ' ' + innerIndex}>
-                <img className={'skull'} src={`${prefix}data/StatusSkull${iconNumber}.png`} alt=""/>
+                <img className={'skull'} src={`${prefix}data/${skullName}.png`} alt=""/>
                 <div className={'text'}>
                   <span>{cleanUnderscore(mob.displayName)}</span>
                   <span>{numberWithCommas(parseInt(mob.kills))}</span>
@@ -62,6 +63,11 @@ const DeathNoteStyle = styled.div`
       height: 35px;
       gap: 10px;
       width: 400px;
+
+      .skull-placeholder {
+        height: 25px;
+        width: 20px;
+      }
     }
 
     .text {
