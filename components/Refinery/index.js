@@ -122,12 +122,12 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
               <div><span className={'bold'}>Power:</span> {numberWithCommas(refined)} / {numberWithCommas(powerCap)}
               </div>
               <div><span className={'bold'}>Rank:</span> {rank}</div>
-              <div><span className={'bold'}>Rank Up In: </span> <Timer
+              <div><span className={'bold'}>Rank Up In: </span> {active ? <Timer
                 type={'countdown'}
                 lastUpdated={lastUpdated}
                 pause={!active || !hasMaterialsForCycle}
                 placeholder={<span style={{ color: '#fa4e4e' }}>Missing Mats</span>}
-                date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/></div>
+                date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/> : 'Inactive'}</div>
               <div><span className={'bold'}>Auto Refine:</span> {autoRefinePercentage}%</div>
               <Progress value={progressPercentage} color={saltColor[saltIndex]}>
                 <div className="progress-bar2"/>
