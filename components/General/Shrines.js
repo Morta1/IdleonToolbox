@@ -22,7 +22,7 @@ const ShrinesStyle = styled.div`
   display: grid;
   flex-wrap: wrap;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: max-content;
+  grid-template-rows: repeat(10, max-content);
   justify-items: center;
   row-gap: 15px;
   column-gap: 10px;
