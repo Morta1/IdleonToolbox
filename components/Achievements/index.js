@@ -11,7 +11,7 @@ const Achievements = ({ userData }) => {
 
   useEffect(() => {
     setAchievements(getWorldAchievements(0, achievementsPerWorld));
-  }, [])
+  }, [userData])
 
   const handleWorldChange = (world) => {
     setAchievements(getWorldAchievements(world * achievementsPerWorld, world * achievementsPerWorld + achievementsPerWorld));
@@ -43,7 +43,7 @@ const Achievements = ({ userData }) => {
                 </AchievementTooltip>
               </div>
               {currentQuantity ? <div>
-                {currentQuantity} / {quantity}
+                {currentQuantity} {quantity > 1 ? <span> / {quantity}</span> : null}
               </div> : null}
             </div>
         })}
