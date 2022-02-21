@@ -38,11 +38,11 @@ const SaltLick = ({ saltLick }) => {
               <span
                 className={level >= maxLevel ? '' : totalAmount < calculatedBonusCost ? 'missing' : 'ok'}>{kFormatter(totalAmount, 2)}</span>&nbsp;/ {kFormatter(calculatedBonusCost, 2)}
             </div>
-            <div className={'cost'}>
+            {costToMax > 0 ? <div className={'cost'}>
               <img className={'resource'} src={`${prefix}data/${rawName}.png`} alt=""/>
               <span
                 className={level >= maxLevel ? '' : totalAmount < costToMax ? 'missing' : 'ok'}>{kFormatter(costToMax, 2)}</span>
-            </div>
+            </div> : <span className={'ok'} style={{alignSelf: 'center'}}>MAXED</span>}
           </div>
         })}
       </div>
