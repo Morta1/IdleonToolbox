@@ -55,6 +55,7 @@ const SaltLickStyle = styled.div`
   align-items: center;
   justify-content: center;
   padding-bottom: 25px;
+  margin-top: 25px;
 
   .wrapper {
     display: flex;
