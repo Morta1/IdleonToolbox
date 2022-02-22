@@ -1,10 +1,13 @@
 import { cleanUnderscore, prefix } from "../../Utilities";
 import styled from 'styled-components';
+import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 
 const Looty = ({ items }) => {
   return <LootyWrapper>
     {items?.map(({ name, rawName }, index) => (
-      <img height={50} width={50} title={cleanUnderscore(name)} src={`${prefix}data/${rawName}.png`} alt={''} key={rawName + index}/>))}
+      <NumberTooltip title={cleanUnderscore(name)} key={rawName + index}>
+        <img height={50} width={50}  src={`${prefix}data/${rawName}.png`} alt={''} />
+      </NumberTooltip>))}
   </LootyWrapper>;
 };
 
