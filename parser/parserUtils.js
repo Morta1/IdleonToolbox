@@ -1260,6 +1260,10 @@ export const worldNpcMap = {
     "world": "Blunder_Hills",
     index: 6
   },
+  "Promotheus": {
+    "world": "Blunder_Hills",
+    index: 6,
+  },
   "Typhoon": {
     "world": "Blunder_Hills",
     index: 7
@@ -1311,9 +1315,6 @@ export const worldNpcMap = {
     "world": ""
   },
   "Secretkeeper": {
-    "world": ""
-  },
-  "Promotheus": {
     "world": ""
   },
   "Bushlyte": {
