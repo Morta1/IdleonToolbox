@@ -474,7 +474,10 @@ const createAccountData = (idleonData, characters) => {
   account.deliveryBoxComplete = idleonData?.CurrenciesOwned['DeliveryBoxComplete'];
   account.deliveryBoxStreak = idleonData?.CurrenciesOwned['DeliveryBoxStreak'];
   account.deliveryBoxMisc = idleonData?.CurrenciesOwned['DeliveryBoxMisc'];
-
+  account.highestDamage = idleonData?.Tasks?.[0]?.[1]?.[0];
+  account.postOfficeOrders = idleonData?.Tasks?.[0]?.[1]?.[5];
+  account.monstersKilled = idleonData?.Tasks?.[0]?.[0]?.[0];
+  console.log('idleonData?.Tasks', idleonData?.Tasks)
   return account;
 }
 

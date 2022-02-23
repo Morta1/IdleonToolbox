@@ -5,6 +5,7 @@ import GeneralInfo from "./General/GeneralInfo";
 import Shrines from "./General/Shrines";
 import ColosseumHighscores from "./General/ColosseumHighscores";
 import MinigameHighscores from "./General/MinigameHighscores";
+import Totals from "./General/Totals";
 
 const General = ({ account }) => {
   return <AccountWrapperStyle>
@@ -20,6 +21,7 @@ const General = ({ account }) => {
       <MinigameHighscores scores={account?.minigameHighscores}/>
       <Shrines shrines={account?.shrines}/>
       <Statues statues={account?.statues}/>
+      <Totals account={account}/>
     </div>
   </AccountWrapperStyle>;
 }
@@ -29,6 +31,26 @@ const AccountWrapperStyle = styled.div`
   .looty-row {
     width: 90%;
     margin: 0 auto;
+  }
+
+  .totals {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 auto;
+  }
+
+  .total {
+    display: flex;
+    align-items: center;
+    //justify-content: center;
+    min-width: 150px;
+
+    img {
+      margin-right: 15px;
+      width: 40px;
+      height: 40px;
+    }
   }
 
   .row {

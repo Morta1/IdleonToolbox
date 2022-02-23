@@ -166,7 +166,6 @@ export const createSerializedData = (data, charNames) => {
       DeliveryBoxMisc: data?.CYDeliveryBoxMisc,
     },
   };
-
   return { serializedData: serialized, chars: PlayerDATABASE };
 }
 
