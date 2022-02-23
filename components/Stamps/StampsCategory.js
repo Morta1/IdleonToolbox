@@ -18,7 +18,7 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
       const levels = stamps?.reduce((res, { level }, index) => ({ ...res, [index]: level }), {})
       setStampGoal(levels);
     }
-  }, []);
+  }, [stamps]);
 
   useEffect(() => {
     onGoalUpdate(categoryName, stampGoal);
@@ -94,8 +94,9 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
                 label={'Goal'}/>
               <div className={'cost'}>
                 {itemReq?.map(({ rawName, name }, itemIndex) => {
+                  const goalValue = stampGoal?.[index] ? stampGoal?.[index] < level ? level : stampGoal?.[index] : 0;
                   const goldCost = accumulateCost(index, level, 'gold', stamp);
-                  const isMaterialCost = stampGoal?.[index] % reqItemMultiplicationLevel === 0;
+                  const isMaterialCost = goalValue % reqItemMultiplicationLevel === 0;
                   const materialCost = accumulateCost(index, level, 'material', stamp);
                   return name !== 'Blank' ? <React.Fragment key={`${rawName}-${name}-${itemIndex}`}>
                     <div className={`materials${!isMaterialCost ? ' semi-hide' : ''}`}>
