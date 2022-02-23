@@ -477,6 +477,7 @@ const createAccountData = (idleonData, characters) => {
   account.highestDamage = idleonData?.Tasks?.[0]?.[1]?.[0];
   account.postOfficeOrders = idleonData?.Tasks?.[0]?.[1]?.[5];
   account.monstersKilled = idleonData?.Tasks?.[0]?.[0]?.[0];
+  account.refinedSalts = idleonData?.Tasks?.[0]?.[2]?.[0];
   console.log('idleonData?.Tasks', idleonData?.Tasks)
   return account;
 }

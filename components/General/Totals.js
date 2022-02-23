@@ -59,6 +59,10 @@ const Totals = ({ account }) => {
         <img src={`${prefix}data/UISkillIcon110.png`} alt=""/>
         <div>Monsters Killed: {kFormatter(account?.monstersKilled ?? 0)}</div>
       </div>
+      <div className={'total'}>
+        <img src={`${prefix}data/TaskSc6.png`} alt=""/>
+        <div>Refined Salts: {kFormatter(account?.refinedSalts ?? 0)}</div>
+      </div>
     </TotalsStyle>
   );
 };
