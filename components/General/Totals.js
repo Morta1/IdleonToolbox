@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { kFormatter, prefix } from "../../Utilities";
+import { kFormatter, numberWithCommas, prefix } from "../../Utilities";
 import { useMemo } from "react";
 
 const Totals = ({ account }) => {
@@ -33,19 +33,19 @@ const Totals = ({ account }) => {
       <span className={'title'}>Totals</span>
       <div className={'total'}>
         <img src={`${prefix}data/aBrewOptionA0.png`} alt=""/>
-        <div>Total Bubbles: {totalBubbleLevels}</div>
+        <div>Total Bubbles: {numberWithCommas(totalBubbleLevels)}</div>
       </div>
       <div className={'total'}>
         <img src={`${prefix}data/StampA34.png`} alt=""/>
-        <div>Total Stamps: {totalStampLevels}</div>
+        <div>Total Stamps: {numberWithCommas(totalStampLevels)}</div>
       </div>
       <div className={'total'}>
         <img src={`${prefix}data/EquipmentStatues1.png`} alt=""/>
-        <div>Total Statues: {totalStatueLevels}</div>
+        <div>Total Statues: {numberWithCommas(totalStatueLevels)}</div>
       </div>
       <div className={'total'}>
         <img src={`${prefix}data/UISkillIcon639.png`} alt=""/>
-        <div>Total Shrines: {totalShrineLevels}</div>
+        <div>Total Shrines: {numberWithCommas(totalShrineLevels)}</div>
       </div>
       <div className={'total'}>
         <img src={`${prefix}data/StampA8.png`} alt=""/>
