@@ -130,7 +130,6 @@ const JsonImport = () => {
     }
   }
 
-
   return (
     <JsonImportStyled>
       <div className={'controls'}>
