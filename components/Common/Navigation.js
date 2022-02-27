@@ -15,13 +15,25 @@ const Navigation = () => {
     return router?.query?.hasOwnProperty('demo');
   }
 
+  const onNavLinkClick = (index, route, action, category) => {
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', action, {
+        event_category: category,
+        event_label: route,
+        value: 1,
+      })
+    }
+    setUserDisplay(index, route)
+  }
+
   return (
     <NavigationStyle>
       <StyledAppbar position="fixed" color={'default'}>
         <Toolbar>
           {userData && !outdated ? <ul className={'family-navigation'}>
             {familyRoutes.map((route, index) => (
-              <ListItem onClick={() => setUserDisplay(index, route)} active={display?.view === index} inner={true}
+              <ListItem onClick={() => onNavLinkClick(index, route, 'handle_nav', 'engagement', display?.view)}
+                        active={display?.view === index} inner={true}
                         key={route + index}>{route}</ListItem>))}
           </ul> : null}
           {!isDemo() ? <JsonImport/> : null}

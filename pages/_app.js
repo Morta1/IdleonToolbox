@@ -9,7 +9,7 @@ import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
 import demo from '../data/demo.json';
 import ErrorBoundary from "../components/Common/ErrorBoundary";
-
+import Script from 'next/script'
 const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
@@ -205,9 +205,21 @@ export default function App({ Component, pageProps }) {
           content="Follow your Legends of Idleon progression with ease with the help of account and characters' overview, craft calculator and more!"
         />
         <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator"/>
-        {process.env.NODE_ENV !== 'production' &&
-        <script dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
       </Head>
+      {process.env.NODE_ENV !== 'production' &&
+      <Script dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
+      {/*Global site tag (gtag.js) - Google Analytics */}
+      <Script strategy='afterInteractive'
+              src="https://www.googletagmanager.com/gtag/js?id=G-YER8JY07QK"/>
+      <Script id='ga-analytics'>
+        {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-YER8JY07QK');          
+          `}
+      </Script>
       <GlobalStyle/>
       <MuiThemeProvider theme={muiTheme}>
         <ThemeProvider theme={theme}>
