@@ -150,7 +150,7 @@ const AccountDrawer = () => {
           <List style={{ marginTop: 'auto' }}>
             <ListItem>
               <ListItemText>
-                <form action="https://www.paypal.com/donate" method="post" target="_top">
+                <form action="https://www.paypal.com/donate" method="post" target="_blank">
                   <input type="hidden" name="hosted_button_id" value="V7TZB6JHTVXR4"/>
                   <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"
                          name="submit" title="PayPal - The safer, easier way to pay online!"
