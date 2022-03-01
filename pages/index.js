@@ -18,6 +18,7 @@ import useMediaQuery from "../components/Common/useMediaQuery";
 import ActiveXpCalculator from "../components/General/ActiveXpCalculator";
 import Todo from "../components/Todo";
 import OutdatedData from "../components/OutdatedData";
+import Navigation from "../components/Common/Navigation";
 
 const Index = () => {
   const { userData, display, outdated, lastUpdated } = useContext(AppContext);
@@ -28,11 +29,12 @@ const Index = () => {
       <Head>
         <title>Idleon Toolbox - Family Progression</title>
       </Head>
+      <Navigation source={'main'}/>
+      {matches && <Toolbar/>}
       <CharactersDrawer/>
       <FamilyWrapper
         isCharacterDisplay={userData && display?.view === screens.characters && !outdated}>
         <Toolbar/>
-        {matches && <Toolbar/>}
         <Main>
           {!userData ? <MissingData/> :
             outdated ? <OutdatedData extVersion={extVersion}/> :

@@ -4,12 +4,13 @@ import Head from 'next/head'
 import '../polyfills';
 import { useEffect, useState } from "react";
 import { AppContext } from "../components/Common/context";
-import { extVersion, fields, screens } from "../Utilities";
+import { fields, screens } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
 import demo from '../data/demo.json';
 import ErrorBoundary from "../components/Common/ErrorBoundary";
 import Script from 'next/script'
+
 const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
@@ -31,6 +32,7 @@ const muiTheme = createTheme({
 
 const initialDisplay = { view: screens.characters, subView: '' };
 const initialAccountDisplay = { view: 'general', subView: '' }
+// remove overlay of error in dev mode.
 const noOverlayWorkaroundScript = `
   window.addEventListener('error', event => {
     event.stopImmediatePropagation()
@@ -56,20 +58,22 @@ export default function App({ Component, pageProps }) {
   const [userTodoList, setTodoList] = useState();
   const [connected, setConnected] = useState();
   const [outdated, setOutdated] = useState();
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     try {
-      const version = localStorage.getItem('version');
       if (router?.query?.hasOwnProperty('demo')) {
         setData(demo);
         setOutdated(false);
       } else {
         const charData = localStorage.getItem('characterData');
         if (charData) {
-          const parsedData = JSON.parse(localStorage.getItem('characterData'));
-          console.log(version, extVersion);
-          setOutdated(version !== extVersion);
-          setData(parsedData);
+          const parsedData = JSON.parse(charData);
+          if (Object.keys(parsedData).length > 0) {
+            setData(parsedData);
+          } else {
+            setData(null)
+          }
         } else {
           setData(null);
         }
@@ -111,9 +115,15 @@ export default function App({ Component, pageProps }) {
   }, [router]);
 
   const setUserData = (userData) => {
+    if (!userData) {
+      setData(null);
+      localStorage.removeItem('version')
+      localStorage.removeItem('characterData')
+      return;
+    }
     setData(userData);
-    setOutdated(userData?.version !== extVersion);
-    localStorage.setItem('version', userData.version);
+    // setOutdated(userData?.version !== extVersion);
+    // localStorage.setItem('version', userData.version);
     localStorage.setItem('characterData', JSON.stringify(userData));
   }
 
@@ -140,6 +150,10 @@ export default function App({ Component, pageProps }) {
   }
 
   const setUserLastUpdated = (userLastUpdate) => {
+    if (!userLastUpdate) {
+      localStorage.removeItem('lastUpdated');
+      return;
+    }
     console.log('userLastUpdate', userLastUpdate)
     localStorage.setItem('lastUpdated', JSON.stringify(userLastUpdate));
     setLastUpdated(userLastUpdate);
@@ -207,7 +221,7 @@ export default function App({ Component, pageProps }) {
         <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator"/>
       </Head>
       {process.env.NODE_ENV !== 'production' &&
-      <Script dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
+      <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
       {/*Global site tag (gtag.js) - Google Analytics */}
       <Script strategy='afterInteractive'
               src="https://www.googletagmanager.com/gtag/js?id=G-YER8JY07QK"/>
@@ -236,7 +250,8 @@ export default function App({ Component, pageProps }) {
               alchemyGoals, setUserAlchemyGoals,
               stampsGoals, setUserStampsGoals,
               userTodoList, setUserTodoList,
-              connected, setUserConnected
+              connected, setUserConnected,
+              signedIn, setSignedIn
             }}>
               {loader ? <div style={{ textAlign: 'center', margin: 55 }}>
                   <CircularProgress size={60} style={{ color: 'white' }}/>

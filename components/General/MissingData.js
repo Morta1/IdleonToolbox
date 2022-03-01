@@ -8,17 +8,15 @@ const MissingData = () => {
       <h2 style={{ textAlign: 'center' }}>There are 2 ways to use the website</h2>
       <div className={'missing-text'}>
         <div className={'instructions'}>
-          <h3>Extension</h3>
-          <div>1. Head over to <a href="https://github.com/Morta1/idleon-data-extractor"
-                                  rel={'noreferrer'}
-                                  target={'_blank'}>idleon-data-extractor</a> and download the extension.
-          </div>
-          <div>2. Make sure you&apos;re logged-in in <a href="https://legendsofidleon.com/"
-                                                        rel={'noreferrer'}
-                                                        target={'_blank'}>Legends Of Idleon</a> (This is a
-            one-time process)
-          </div>
-          <div>3. Click Connect and wait (The process can take roughly 20-45 seconds, depends on the network)
+          <h3>Google Login</h3>
+          <div>1. Click the google login icon.</div>
+          <div>2. Open the link and paste the provided code.</div>
+          <div>3. Select your idelon google account.</div>
+          <div>4. Done!</div>
+          <div>(Don&apos;t worry, I&apos;m not saving anything about your google account, you can see by yourself in
+            my
+            <a target={'_blank'}
+               href="https://github.com/Morta1/IdleonToolbox" rel="noreferrer">sourcecode</a>)
           </div>
         </div>
         <div className={'instructions'}>

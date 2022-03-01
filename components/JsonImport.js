@@ -1,5 +1,5 @@
-import { Button, CircularProgress, IconButton } from "@material-ui/core";
-import { useContext, useEffect, useState } from "react";
+import { CircularProgress, Dialog, DialogContent, DialogTitle, IconButton } from "@material-ui/core";
+import React, { useContext, useEffect, useState } from "react";
 import styled from 'styled-components';
 import ErrorIcon from "@material-ui/icons/Error";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -9,6 +9,11 @@ import parseIdleonData from "../parser";
 import NumberTooltip from "./Common/Tooltips/NumberTooltip";
 import { getGlobalTime } from "../parser/parserUtils";
 import useInterval from "./Common/Timer/useInterval";
+import { prefix } from "../Utilities";
+import { checkUserStatus, signInWithToken, subscribe, userSignOut } from "../firebase";
+import { getUserAndDeviceCode, getUserToken } from "../google/login";
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { format } from "date-fns";
 
 const getDate = () => {
   try {
@@ -29,7 +34,8 @@ const JsonImport = () => {
     setUserLastUpdated,
     connected,
     setUserConnected,
-    lastUpdated
+    lastUpdated,
+    signedIn, setSignedIn
   } = useContext(AppContext);
 
   const [loadIframe, setLoadIframe] = useState(false);
@@ -44,16 +50,28 @@ const JsonImport = () => {
   const [manualImport, setManualImport] = useState(false);
   const [manualResult, setManualResult] = useState(null);
 
+  const [dialog, setDialog] = useState({ open: false, waitingForAuth: false });
+  const [authCounter, setAuthCounter] = useState(0);
+
   useEffect(() => {
     setResult(connected ? { success: true } : null);
   }, [connected]);
 
   useEffect(() => {
-    // autoUpdate();
+
+    (async () => {
+      if (manualImport || signedIn) return;
+      const user = await checkUserStatus();
+      if (user) {
+        const unsubscribe = await subscribe(user?.uid, handleCloudUpdate)
+        setDialog({ ...dialog, listener: unsubscribe })
+      }
+    })()
     return () => {
       clearInterval(fetchDataInterval);
     }
-  }, [])
+  }, []);
+
 
   const autoUpdate = () => {
     try {
@@ -102,6 +120,41 @@ const JsonImport = () => {
     setTimeoutCount((i) => i + 1);
   }, fetchDataInterval ? 10000 : null);
 
+  useInterval(async () => {
+    let { id_token } = await getUserToken(dialog?.deviceCode) || {};
+    if (id_token) {
+      const userData = await signInWithToken(id_token);
+      const unsubscribe = await subscribe(userData?.uid, handleCloudUpdate);
+      setDialog({ ...dialog, listener: unsubscribe, open: false, waitingForAuth: false });
+      setAuthCounter(0);
+    } else if (authCounter > 5) {
+      setDialog({ ...dialog, waitingForAuth: false, error: true })
+    }
+    setAuthCounter((counter) => counter + 1);
+  }, dialog?.waitingForAuth ? 5000 : null);
+
+  const handleCloudUpdate = (data, charNames, guildData) => {
+    const parsedData = parseIdleonData(data, charNames, guildData);
+    setUserData(parsedData);
+    setUserLastUpdated(getDate());
+    setSignedIn(true);
+  }
+  const handleSignOut = (manual) => {
+    if (!manual) {
+      setUserData(null);
+      setUserLastUpdated(null);
+    }
+    setSignedIn(false);
+    typeof dialog?.listener === 'function' && dialog?.listener();
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'logout', {
+        action: "logout",
+        category: "engagement",
+        value: 1,
+      });
+    }
+  }
+
   const endInterval = (interval, result) => {
     setLoadIframe(false);
     setFetching(false);
@@ -114,6 +167,13 @@ const JsonImport = () => {
   }
 
   const handleManualImport = async () => {
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'paste', {
+        method: "JSON",
+        category: "engagement",
+        value: 1,
+      });
+    }
     try {
       const data = JSON.parse(await navigator.clipboard.readText());
       const parsedData = parseIdleonData(data);
@@ -122,54 +182,143 @@ const JsonImport = () => {
       setManualResult(true);
       setManualImport(true);
       endInterval(fetchDataInterval);
+      await userSignOut(handleSignOut, true)
     } catch (err) {
       setManualImport(true);
       setManualResult(false);
       console.error('Error parsing data', err);
       endInterval(fetchDataInterval);
+      await userSignOut(handleSignOut, true)
     }
+  }
+
+  const handleGoogleLogin = async () => {
+    const codeReqResponse = await getUserAndDeviceCode();
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'login', {
+        method: "TOKEN",
+        category: "engagement",
+        value: 1,
+      });
+    }
+    setDialog({
+      open: true,
+      loading: true,
+      userCode: codeReqResponse?.user_code,
+      deviceCode: codeReqResponse?.device_code,
+      waitingForAuth: true
+    });
+  }
+
+  const handleDialogClose = () => {
+    setDialog({ ...dialog, waitingForAuth: false, open: false });
+    setAuthCounter(0);
   }
 
   return (
     <JsonImportStyled>
       <div className={'controls'}>
+        {lastUpdated && signedIn ?
+          <div style={{ fontSize: 12 }}>Last
+            Updated <div>{lastUpdated ? format(lastUpdated, 'dd/MM/yyyy HH:mm:ss') : ''}</div></div> : null}
         {manualImport ? manualResult ?
           <NumberTooltip title={'Updated'}><CheckCircleIcon className={'updated-info'}
                                                             style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
           /></NumberTooltip> :
           <NumberTooltip title={jsonError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
           /></NumberTooltip> : null}
-        {result ? result?.success ?
-          <NumberTooltip title={'Connected'}><CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}
-          /></NumberTooltip> :
-          <NumberTooltip title={connectError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
-          /></NumberTooltip> : null}
-        {!loading ? !fetching && !connected ? <NumberTooltip
-            title={'Please make sure you\'ve connected to idleon website and downloaded idleon-data-extractor extension'}>
-            <StyledButton onClick={() => autoUpdate()}>Connect</StyledButton></NumberTooltip> : null :
-          <StyledLoader size={24}/>
-        }
+        {/*{result ? result?.success ?*/}
+        {/*  <NumberTooltip title={'Connected'}><CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}*/}
+        {/*  /></NumberTooltip> :*/}
+        {/*  <NumberTooltip title={connectError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}*/}
+        {/*  /></NumberTooltip> : null}*/}
+        {/*{!loading ? !fetching && !connected ? <NumberTooltip*/}
+        {/*    title={'Please make sure you\'ve connected to idleon website and downloaded idleon-data-extractor extension'}>*/}
+        {/*    <StyledButton onClick={() => autoUpdate()}>Connect</StyledButton></NumberTooltip> : null :*/}
+        {/*  <StyledLoader size={24}/>*/}
+        {/*}*/}
         <NumberTooltip title={'Paste raw JSON'}>
           <IconButton onClick={handleManualImport}>
             <FileCopyIcon/>
           </IconButton>
         </NumberTooltip>
+        {!signedIn ? <NumberTooltip title={'Google Sign-in'}>
+          <div className={'google-sign-in'}>
+            <img onClick={handleGoogleLogin} className={'google'} width={48} height={48}
+                 src={`${prefix}data/google.svg`} alt=""/>
+          </div>
+        </NumberTooltip> : <NumberTooltip title={'Sign out'}>
+          <IconButton onClick={() => userSignOut(handleSignOut)}>
+            <ExitToAppIcon/>
+          </IconButton>
+        </NumberTooltip>}
       </div>
+      <Dialog open={dialog?.open} onClose={handleDialogClose}>
+        <StyledDialogTitle disableTypography>
+          <img width={32} height={32}
+               style={{ marginRight: 10 }}
+               src={`${prefix}data/google.svg`} alt=""/>
+          Connect with Google</StyledDialogTitle>
+        <StyledDialogContent>Please go to <a target='_blank' className={'link'}
+                                             href="https://www.google.com/device"
+                                             rel="noreferrer">https://www.google.com/device</a> and
+          enter the following code: <div className={'code'}>{dialog?.userCode}</div>
+          {dialog?.error ?
+            <div className={'center'}>Failed to auth, please refresh and try
+              again.</div> :
+            <div className={'center'}>Trying to authenticate: <StyledLoader size={22}/>
+            </div>}
+        </StyledDialogContent>
+      </Dialog>
       {loadIframe ? <iframe height='0px' width='0px' src={'https://www.legendsofidleon.com/ytGl5oc/'}/> : null}
     </JsonImportStyled>
   );
 };
 
 
-const StyledButton = styled(Button)`
-  && {
-    text-transform: none;
+const StyledDialogTitle = styled(DialogTitle)`
+  & {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 22px;
   }
-`;
-
+`
 const StyledLoader = styled(CircularProgress)`
   && {
     color: white;
+  }
+`;
+
+const StyledDialogContent = styled(DialogContent)`
+  & {
+    padding: 24px;
+
+    a {
+      font-weight: bold;
+      color: white;
+
+      &:active, &:link, &:visited {
+        color: white;
+      }
+    }
+
+    .code {
+      width: max-content;
+      border: 1px solid white;
+      font-weight: bold;
+      padding: 15px;
+      margin: 0 auto;
+    }
+
+    .center {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      align-items: center;
+      margin: 15px 0;
+    }
+
   }
 `;
 
@@ -183,6 +332,20 @@ const JsonImportStyled = styled.div`
     display: flex;
     align-items: center;
     gap: 10px;
+
+    .google-sign-in {
+      height: 48px;
+      width: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .google {
+      cursor: pointer;
+      height: 24px;
+      width: 24px;
+    }
   }
 
   iframe {

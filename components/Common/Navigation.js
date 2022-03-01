@@ -94,6 +94,9 @@ const ListItem = styled.li`
 `;
 
 const NavigationStyle = styled.div`
+  z-index: 9999;
+  position: relative;
+
   .family-navigation {
     list-style-type: none;
     display: flex;
