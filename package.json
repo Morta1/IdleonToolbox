@@ -14,6 +14,7 @@
     "@material-ui/lab": "^4.0.0-alpha.60",
     "@svgr/webpack": "^6.1.1",
     "date-fns": "^2.23.0",
+    "firebase": "^9.6.7",
     "next": "^12.1.0",
     "react": "^17.0.2",
     "react-countdown-circle-timer": "^2.5.4",

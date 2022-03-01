@@ -52,6 +52,7 @@ import {
   skillIndexMap,
   starSignsIndicesMap,
   talentPagesMap,
+  tryToParse,
 } from "./parserUtils";
 import {
   achievements,
@@ -105,7 +106,7 @@ const parseIdleonData = (idleonData, charNames, guildData) => {
     }
 
     let account = createAccountData(idleonData, characters);
-    account.guild = createGuildData(guildData);
+    account.guild = createGuildData(tryToParse(guildData));
     let charactersData = createCharactersData(idleonData, characters, account);
     let skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
     let leaderboard = calculateLeaderboard(skills);
@@ -131,7 +132,7 @@ const createGuildData = (guildData) => {
 
   const updatedGuildBonuses = guildBonuses?.map((guildBonus, index) => ({
     ...guildBonus,
-    level: guildData?.stats?.[index] ?? 0
+    level: guildData?.stats?.[0]?.[index] ?? 0
   }))
   return {
     guildIconIndex: guildData?.i ?? '',
@@ -478,7 +479,6 @@ const createAccountData = (idleonData, characters) => {
   account.postOfficeOrders = idleonData?.Tasks?.[0]?.[1]?.[5];
   account.monstersKilled = idleonData?.Tasks?.[0]?.[0]?.[0];
   account.refinedSalts = idleonData?.Tasks?.[0]?.[2]?.[0];
-  console.log('idleonData?.Tasks', idleonData?.Tasks)
   return account;
 }
 

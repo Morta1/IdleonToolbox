@@ -32,7 +32,7 @@ const AccountDrawer = () => {
       <StyledDrawer
         shouldDisplay={userData && display?.view === screens.account}
         anchor={'left'} variant={'permanent'}>
-        <Navigation/>
+        {/*<Navigation source={'account'}/>*/}
         <Toolbar/>
         {matches && <Toolbar/>}
         {userData && display?.view === screens.account ? <>

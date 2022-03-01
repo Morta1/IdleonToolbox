@@ -5,9 +5,7 @@ import { breakpoint, prefix, screens } from "../../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import ViewModuleIcon from "@material-ui/icons/ViewModule";
-import Navigation from "../Navigation";
 import useMediaQuery from "../useMediaQuery";
-import { format } from "date-fns";
 
 const nestedOptionPadding = 35;
 
@@ -79,7 +77,7 @@ const CharactersDrawer = () => {
       <StyledDrawer
         isCharacterDisplay={userData && display?.view === screens.characters && !outdated}
         anchor={'left'} variant={'permanent'}>
-        <Navigation/>
+        {/*<Navigation source={'character'}/>*/}
         <Toolbar/>
         {matches && <Toolbar/>}
         {userData && display?.view === screens.characters ? <>
@@ -155,11 +153,6 @@ const CharactersDrawer = () => {
                          name="submit" title="PayPal - The safer, easier way to pay online!"
                          alt="Donate with PayPal button"/>
                 </form>
-              </ListItemText>
-            </ListItem>
-            <ListItem>
-              <ListItemText>
-                Last Updated <div>{lastUpdated ? format(lastUpdated, 'dd/MM/yyyy HH:mm:ss') : ''}</div>
               </ListItemText>
             </ListItem>
           </List>

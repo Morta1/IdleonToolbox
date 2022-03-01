@@ -194,7 +194,7 @@ const createArrayOfArrays = (array) => {
   });
 }
 
-const tryToParse = (str) => {
+export const tryToParse = (str) => {
   try {
     return JSON.parse(str);
   } catch (err) {
