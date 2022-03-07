@@ -1,7 +1,7 @@
 import styled from 'styled-components'
-import { Button, Dialog, DialogContent, Typography } from "@material-ui/core";
+import { Button, Dialog, DialogContent, ListItemText, Typography } from "@material-ui/core";
 import { getRandomNumber, prefix } from "../Utilities";
-import { useState } from "react";
+import React, { useState } from "react";
 import MissingData from "./General/MissingData";
 import InfoIcon from '@material-ui/icons/Info';
 import { useRouter } from "next/router";
@@ -330,11 +330,22 @@ const HomePage = () => {
       <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>For any question, suggestion or bug
         report, please contact me in
         discord Morojo#2331</Typography>
-      {!isDemo() ? <div className={'button'}>
-        <StyledButton startIcon={<InfoIcon/>} onClick={() => setOpen(true)} variant={'contained'} color={'primary'}>
-          Learn How to Connect
-        </StyledButton>
-      </div> : null}
+      <div className={'extra'} style={{ display: 'flex', alignItems: 'center', gap: 35 }}>
+        {!isDemo() ? <div className={'button'}>
+          <StyledButton startIcon={<InfoIcon/>} onClick={() => setOpen(true)} variant={'contained'} color={'primary'}>
+            Learn How to Connect
+          </StyledButton>
+        </div> : null}
+        <div><Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>Buy me a coffee</Typography>
+          <ListItemText>
+            <form action="https://www.paypal.com/donate" method="post" target="_blank">
+              <input type="hidden" name="hosted_button_id" value="V7TZB6JHTVXR4"/>
+              <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"
+                     name="submit" title="PayPal - The safer, easier way to pay online!"
+                     alt="Donate with PayPal button"/>
+            </form>
+          </ListItemText></div>
+      </div>
       <div className={'patch-notes'}>
         <Typography style={{ margin: '20px 0' }} variant={'h4'}>Patch Notes</Typography>
         {updates?.map(({ version, changes }, index) => {
@@ -380,8 +391,11 @@ const HomePageStyle = styled.div`
   max-width: 800px;
   flex-direction: column;
 
-  .button {
-    margin-top: 25px;
+  .extra {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    gap: 35px;
   }
 
   .extractor {
