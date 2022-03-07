@@ -17,6 +17,8 @@ const HomePage = () => {
           title: 'General',
           desc: [
             'Updated navigation arrangement (hopefully for the better)',
+            'Added \'Tools\' menu',
+            'Rearranged the \'Account\' page categories\' into worlds',
             'Added this home page screen (!)'
           ]
         }
@@ -325,7 +327,8 @@ const HomePage = () => {
       <div className={'desc'}>Idleon toolbox helps you track all of your account and characters&apos; progress with
         ease!
       </div>
-      <Typography style={{fontFamily:'JetBrains Mono'}} variant={'subtitle2'}>For any question, suggestion or bug report, please contact me in
+      <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>For any question, suggestion or bug
+        report, please contact me in
         discord Morojo#2331</Typography>
       {!isDemo() ? <div className={'button'}>
         <StyledButton startIcon={<InfoIcon/>} onClick={() => setOpen(true)} variant={'contained'} color={'primary'}>
