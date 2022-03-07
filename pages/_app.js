@@ -63,6 +63,13 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     try {
       if (router?.query?.hasOwnProperty('demo')) {
+        if (typeof window.gtag !== 'undefined') {
+          window.gtag('event', 'login', {
+            method: "DEMO",
+            category: "engagement",
+            value: 1,
+          });
+        }
         setData(demo);
         setOutdated(false);
       } else {
