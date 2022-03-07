@@ -4,7 +4,6 @@ import { prefix } from "../../Utilities";
 const MissingData = () => {
   return (
     <MissingDataStyle>
-      <h1 style={{ textAlign: 'center' }}>Welcome!</h1>
       <h2 style={{ textAlign: 'center' }}>There are 2 ways to use the website</h2>
       <div className={'missing-text'}>
         <div className={'instructions'}>
@@ -15,8 +14,10 @@ const MissingData = () => {
           <div>4. Done!</div>
           <div>(Don&apos;t worry, I&apos;m not saving anything about your google account, you can see by yourself in
             my
-            <a target={'_blank'}
-               href="https://github.com/Morta1/IdleonToolbox" rel="noreferrer">sourcecode</a>)
+            <a
+              className={'sourcecode'}
+              target={'_blank'}
+              href="https://github.com/Morta1/IdleonToolbox" rel="noreferrer">sourcecode</a>)
           </div>
         </div>
         <div className={'instructions'}>
@@ -30,15 +31,12 @@ const MissingData = () => {
             <div style={{ marginBottom: 10 }}> 2. Open the extractor and click Run (you can also change the destination
               if you&apos;d like)
             </div>
-            <img src={`${prefix}extractor-image.png`} alt=""/>
+            <img width={500} src={`${prefix}extractor-image.png`} alt=""/>
           </div>
           <div>
             <div style={{ marginBottom: 10 }}> 3. Copy the result json and click the icon on the top right of the
               website
             </div>
-          </div>
-          <div className={'contact'}>For any question, suggestion or bug report, please contact me in discord
-            <span>Morojo#2331</span>
           </div>
         </div>
       </div>
@@ -50,6 +48,10 @@ const MissingDataStyle = styled.div`
   margin-top: 15px;
   display: grid;
   padding-bottom: 25px;
+
+  .sourcecode {
+    margin-left: 5px;
+  }
 
   .discord {
     margin-left: 10px;

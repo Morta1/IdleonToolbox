@@ -8,8 +8,10 @@ import Bubbles from "./Bubbles";
 
 const Brewing = ({ account }) => {
   const { alchemy, achievements } = account;
-  const { accountDisplay, alchemyGoals, setUserAlchemyGoals } = useContext(AppContext);
+  const { accountDisplay, alchemyGoals, setUserAlchemyGoals, setUserAccountDisplay } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
+  console.log('accountDisplay?.subView', accountDisplay?.subView || 'power')
+  const [bubble, setBubble] = useState(accountDisplay?.subView || 'power');
 
   const [bargainTag, setBargainTag] = useState(0);
 
@@ -34,8 +36,22 @@ const Brewing = ({ account }) => {
     return parseFloat((25 * (Math.pow(0.75, bargainTag) - 1) / (0.75 - 1)).toFixed(1));
   }
 
+  const handleBubbleChange = (clickedBubble) => {
+    setUserAccountDisplay({ view: 'bubbles', subView: clickedBubble });
+    setBubble(clickedBubble);
+  }
+
   return (
     <BubblesStyle>
+      <div className={'tabs'}>
+        <div className={`${bubble === 'power' ? 'active' : ''}`} onClick={() => handleBubbleChange('power')}>Power
+        </div>
+        <div className={`${bubble === 'quicc' ? 'active' : ''}`} onClick={() => handleBubbleChange('quicc')}>Quicc</div>
+        <div className={`${bubble === 'high-iq' ? 'active' : ''}`} onClick={() => handleBubbleChange('high-iq')}>High-IQ
+        </div>
+        <div className={`${bubble === 'kazam' ? 'active' : ''}`} onClick={() => handleBubbleChange('kazam')}>Kazam
+        </div>
+      </div>
       <Grid className={'header'} container spacing={1} alignItems="center" justifyContent={'center'}>
         <Grid item>
           <img width={48} height={48} src={`${prefix}data/aShopItems10.png`} alt=""/>
@@ -62,7 +78,7 @@ const Brewing = ({ account }) => {
         </Grid> : null}
       </Grid>
       {cauldrons?.map((cauldronName, index) => {
-        return accountDisplay?.subView === cauldronName ?
+        return bubble === cauldronName ?
           <Bubbles
             onGoalUpdate={handleGoalUpdate} key={'alchemy-calc-' + cauldronName + index}
             goals={alchemyGoals?.[cauldronName]}
@@ -91,6 +107,28 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 
 const BubblesStyle = styled.div`
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+
+    > div {
+      cursor: pointer;
+    }
+
+    .active {
+      font-weight: bold;
+      border-bottom: 2px solid white;
+    }
+
+    & img {
+      height: 100px;
+      width: 100px;
+      object-fit: contain;
+    }
+  }
+
   .header {
     display: flex;
     justify-content: center;

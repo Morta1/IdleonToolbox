@@ -1,15 +1,40 @@
 import styled from 'styled-components'
-import { capitalize, Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
+import { Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { breakpoint, prefix, screens } from "../../../Utilities";
+import { breakpoint, prefix, screensMap } from "../../../Utilities";
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context";
-import { cauldrons, stamps } from "../../General/calculationHelper";
-import Navigation from "../Navigation";
+import { stamps } from "../../General/calculationHelper";
 import useMediaQuery from "../useMediaQuery";
 
 const nestedOptionPadding = 35;
-
+const worldsData = {
+  'World 1': {
+    icon: 'BadgeG2',
+    categories: [
+      { label: 'forge', icon: 'forgeD' },
+      { label: 'bribes', icon: 'BribeW' },
+      { label: 'constellations', icon: 'StarTitle1' },
+      { label: 'stamps', icon: 'StampA34' },
+    ]
+  },
+  'World 2': {
+    icon: 'BadgeD2',
+    categories: [
+      { label: 'bubbles', icon: 'aBrewOptionA0' },
+      { label: 'vials', icon: 'aVials1' },
+    ]
+  },
+  'World 3': {
+    icon: 'BadgeI2',
+    categories: [
+      { label: 'construction', icon: 'ClassIcons49' },
+      { label: 'deathNote', icon: 'ConTower2' },
+      { label: 'saltLick', icon: 'ConTower3' },
+      { label: 'refinery', icon: 'TaskSc6' },
+    ]
+  }
+}
 const AccountDrawer = () => {
   const {
     userData,
@@ -18,8 +43,7 @@ const AccountDrawer = () => {
     setUserAccountDisplay
   } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
-  const [bubblesOpen, setBubblesOpen] = useState(true);
-  const [stampsOpen, setStampsOpen] = useState(true);
+  const [worlds, setWorlds] = useState({ 'World 1': true, 'World 2': true, 'World 3': true });
   const [selected, setSelected] = useState(accountDisplay);
 
   const handleClick = (view, subView) => {
@@ -30,12 +54,12 @@ const AccountDrawer = () => {
   return (
     <AlchemyDrawerStyle>
       <StyledDrawer
-        shouldDisplay={userData && display?.view === screens.account}
+        shouldDisplay={userData && display?.view === screensMap.account}
         anchor={'left'} variant={'permanent'}>
         {/*<Navigation source={'account'}/>*/}
         <Toolbar/>
         {matches && <Toolbar/>}
-        {userData && display?.view === screens.account ? <>
+        {userData && display?.view === screensMap.account ? <>
           <List>
             <ListItem button selected={selected?.view === 'general'} onClick={() => handleClick('general')}>
               <img className={'list-img'} width={32} src={`${prefix}data/ClassIcons1.png`} alt=""/>
@@ -49,97 +73,31 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={`Looty (Missing ${userData?.account?.missingLootyItems.length})`}/>
             </ListItem>
-            <ListItem button onClick={() => setStampsOpen(!stampsOpen)}>
-              <img className={'list-img'} width={32} src={`${prefix}data/StampA34.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Stamps'}/>
-              {stampsOpen ? <ExpandLess/> : <ExpandMore/>}
-            </ListItem>
-            <Collapse in={stampsOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {stamps?.map((cauldronName, index) => {
-                  return <ListItem selected={selected?.view === 'stamps' && selected?.subView === stamps[index]}
-                                   onClick={() => handleClick('stamps', stamps[index])}
-                                   style={{ paddingLeft: nestedOptionPadding }} button
-                                   key={cauldronName + index}>
-                    <img className={'list-img'} width={32}
-                         src={`${prefix}data/Stamp${index === 0 ? 'A' : index === 1 ? 'B' : 'C'}${1}.png`}
-                         alt=""/>
-                    <ListItemText style={{ marginLeft: 10 }} primary={capitalize(cauldronName)}/>
-                  </ListItem>
-                })}
-              </List>
-            </Collapse>
-            <ListItem button onClick={() => setBubblesOpen(!bubblesOpen)}>
-              <img className={'list-img'} width={32} src={`${prefix}data/aBrewOptionA0.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Bubbles'}/>
-              {bubblesOpen ? <ExpandLess/> : <ExpandMore/>}
-            </ListItem>
-            <Collapse in={bubblesOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {cauldrons?.map((cauldronName, index) => {
-                  return <ListItem selected={selected?.view === 'brewing' && selected?.subView === cauldrons[index]}
-                                   onClick={() => handleClick('brewing', cauldrons[index])}
-                                   style={{ paddingLeft: nestedOptionPadding }} button
-                                   key={cauldronName + index}>
-                    <img className={'list-img'} src={`${prefix}data/aBrewBarCircle${index}.png`} alt=""/>
-                    <ListItemText style={{ marginLeft: 10 }} primary={capitalize(cauldronName)}/>
-                  </ListItem>
-                })}
-              </List>
-            </Collapse>
-            <ListItem selected={selected?.view === 'vials'} button onClick={() => handleClick('vials', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/aVials1.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Vials'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'construction'} button onClick={() => handleClick('construction', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/ClassIcons49.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Construction'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'forge'} button onClick={() => handleClick('forge', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/ForgeD.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Forge'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'deathNote'} button onClick={() => handleClick('deathNote', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/ConTower2.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Death Note'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'saltLick'} button onClick={() => handleClick('saltLick', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/ConTower3.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Salt Lick'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'refinery'} button onClick={() => handleClick('refinery', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/TaskSc6.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Refinery'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'constellations'} button
-                      onClick={() => handleClick('constellations', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/StarTitle1.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Constellations'}/>
-            </ListItem>
-            <ListItem selected={selected?.view === 'bribes'} button onClick={() => handleClick('bribes', '')}>
-              <img className={'list-img'} width={32} src={`${prefix}data/BribeW.png`} alt=""/>
-              <ListItemText
-                style={{ marginLeft: 10 }}
-                primary={'Bribes'}/>
-            </ListItem>
+            {Object.entries(worldsData).map(([worldName, { icon, categories }], worldIndex) => {
+              return <>
+                <ListItem key={worldName + worldIndex}
+                          button
+                          onClick={() => setWorlds({ ...worlds, [worldName]: !worlds?.[worldName] })}>
+                  <img className={'list-img'} width={32} src={`${prefix}data/${icon}.png`} alt=""/>
+                  <ListItemText
+                    style={{ marginLeft: 10 }}
+                    primary={worldName}/>
+                  {worlds?.[worldName] ? <ExpandLess/> : <ExpandMore/>}
+                </ListItem>
+                <Collapse in={worlds?.[worldName]} timeout="auto" unmountOnExit>
+                  {categories?.map((category, categoryIndex) => {
+                    return <ListItem key={category + categoryIndex} style={{ paddingLeft: nestedOptionPadding }}
+                                     selected={selected?.view === category?.label} button
+                                     onClick={() => handleClick(category?.label, '')}>
+                      <img className={'list-img'} width={32} src={`${prefix}data/${category.icon}.png`} alt=""/>
+                      <ListItemText
+                        style={{ marginLeft: 10 }}
+                        primary={category?.label.capitalize()}/>
+                    </ListItem>
+                  })}
+                </Collapse>
+              </>
+            })}
             <ListItem selected={selected?.view === 'bundles'} button onClick={() => handleClick('bundles', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/TaskSa4.png`} alt=""/>
               <ListItemText

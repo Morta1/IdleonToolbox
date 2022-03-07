@@ -4,10 +4,9 @@ import CharacterWrapper from "../components/CharacterWrapper";
 import ItemBrowser from "../components/ItemBrowser";
 import CraftIt from "../components/CraftIt/CraftIt";
 import { AppContext } from '../components/Common/context';
-import MissingData from "../components/General/MissingData";
 import { Toolbar } from "@material-ui/core";
 import CharactersDrawer from "../components/Common/Drawers/CharactersDrawer";
-import { breakpoint, extVersion, screens } from "../Utilities";
+import { breakpoint, screensMap } from "../Utilities";
 import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Account from "../components/Account";
@@ -17,11 +16,11 @@ import CardSearch from "../components/CardSearch";
 import useMediaQuery from "../components/Common/useMediaQuery";
 import ActiveXpCalculator from "../components/General/ActiveXpCalculator";
 import Todo from "../components/Todo";
-import OutdatedData from "../components/OutdatedData";
+import HomePage from "../components/HomePage";
 import Navigation from "../components/Common/Navigation";
 
 const Index = () => {
-  const { userData, display, outdated, lastUpdated } = useContext(AppContext);
+  const { userData, display, lastUpdated } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
 
   return (
@@ -33,24 +32,25 @@ const Index = () => {
       {matches && <Toolbar/>}
       <CharactersDrawer/>
       <FamilyWrapper
-        isCharacterDisplay={userData && display?.view === screens.characters && !outdated}>
+        isCharacterDisplay={userData && display?.view === screensMap.characters}>
         <Toolbar/>
         <Main>
-          {!userData ? <MissingData/> :
-            outdated ? <OutdatedData extVersion={extVersion}/> :
-              <>
-                {display?.view === screens.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
-                {display?.view === screens.account ? <Account/> : null}
-                {display?.view === screens.craftIt ? <CraftIt userData={userData}/> : null}
-                {display?.view === screens.itemBrowser ? <ItemBrowser userData={userData}/> : null}
-                {display?.view === screens.achievements ? <Achievements userData={userData}/> : null}
-                {display?.view === screens.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
-                {display?.view === screens.quests ?
-                  <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
-                {display?.view === screens.cardSearch ? <CardSearch userData={userData}/> : null}
-                {display?.view === screens.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
-                {display?.view === screens.itemPlanner ? <Todo lastUpdated={lastUpdated} userData={userData}/> : null}
-              </>}
+          {!userData ? <HomePage/> :
+            <>
+              {display?.view === screensMap.homePage ? <HomePage/> : null}
+              {display?.view === screensMap.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
+              {display?.view === screensMap.account ? <Account/> : null}
+              {display?.view === screensMap.craftIt ? <CraftIt userData={userData}/> : null}
+              {display?.view === screensMap.itemBrowser ? <ItemBrowser userData={userData}/> : null}
+              {display?.view === screensMap.achievements ? <Achievements userData={userData}/> : null}
+              {display?.view === screensMap.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
+              {display?.view === screensMap.quests ?
+                <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
+              {display?.view === screensMap.cardSearch ? <CardSearch userData={userData}/> : null}
+              {display?.view === screensMap.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
+              {display?.view === screensMap.itemPlanner ?
+                <Todo lastUpdated={lastUpdated} userData={userData}/> : null}
+            </>}
         </Main>
       </FamilyWrapper>
     </>

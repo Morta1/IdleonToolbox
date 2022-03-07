@@ -1,41 +1,71 @@
 import styled from 'styled-components'
-import { AppBar, Toolbar } from "@material-ui/core";
+import { AppBar, Menu, MenuItem, Toolbar } from "@material-ui/core";
 import { useRouter } from "next/router";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "./context";
 import { screens } from "../../Utilities";
 import JsonImport from "../JsonImport";
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const Navigation = () => {
-  const { userData, display, setUserDisplay, outdated } = useContext(AppContext);
+  const { userData, display, setUserDisplay } = useContext(AppContext);
   const router = useRouter();
-  const familyRoutes = Object.keys(screens).map((word) => word.replace(/([A-Z])/g, " $1"));
+  const routes = Object.entries(screens).map(([, value]) => value);
+  const [menu, setMenu] = useState();
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const isDemo = () => {
     return router?.query?.hasOwnProperty('demo');
   }
 
-  const onNavLinkClick = (index, route, action, category) => {
-    if (typeof window.gtag !== 'undefined') {
-      window.gtag('event', action, {
-        event_category: category,
-        event_label: route,
-        value: 1,
-      })
+  const onNavLinkClick = (e, index, route, action, category) => {
+    if (route.menu) {
+      setAnchorEl(e.currentTarget);
+      setMenu(route.menu)
+    } else {
+      if (typeof window.gtag !== 'undefined') {
+        window.gtag('event', action, {
+          event_category: category,
+          event_label: route.label,
+          value: 1,
+        })
+      }
+      setAnchorEl(null);
+      setUserDisplay(index, route.index);
     }
-    setUserDisplay(index, route)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null);
   }
 
   return (
     <NavigationStyle>
       <StyledAppbar position="fixed" color={'default'}>
         <Toolbar>
-          {userData && !outdated ? <ul className={'family-navigation'}>
-            {familyRoutes.map((route, index) => (
-              <ListItem onClick={() => onNavLinkClick(index, route, 'handle_nav', 'engagement', display?.view)}
-                        active={display?.view === index} inner={true}
-                        key={route + index}>{route}</ListItem>))}
-          </ul> : null}
+          <ul className={'family-navigation'}>
+            {routes.map((route, index) => (
+              !userData && route.main || userData ?
+                <ListItem onClick={(e) => onNavLinkClick(e, index, route, 'handle_nav', 'engagement', display?.view)}
+                          active={display?.view === index} inner={true}
+                          alignItems={'center'}
+                          key={route + index}>
+                  {route.label}
+                  {route?.menu ? <ArrowDropDownIcon/> : null}
+                </ListItem> : null))}
+          </ul>
+          {menu ? <StyledMenu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            {menu?.map((menuItem, menuItemIndex) => <MenuItem key={menuItemIndex + menuItem}
+                                                              onClick={(e) => onNavLinkClick(e, menuItem?.index, menuItem, 'handle_nav', 'engagement', display?.view)}>
+              {menuItem?.label.capitalize().replace(/([A-Z])/g, " $1")}
+            </MenuItem>)}
+          </StyledMenu> : null}
           {!isDemo() ? <JsonImport/> : null}
         </Toolbar>
       </StyledAppbar>
@@ -49,11 +79,17 @@ const StyledAppbar = styled(AppBar)`
   }
 `;
 
+const StyledMenu = styled(Menu)`
+  && .MuiMenu-list {
+    background-color: #393e46;
+  }
+`;
 
 const ListItem = styled.li`
   cursor: pointer;
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 4px 0;
   color: white;
   text-decoration: none;
