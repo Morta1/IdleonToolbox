@@ -25,14 +25,12 @@ const getDate = () => {
 }
 
 const jsonError = 'An error occurred while parsing data';
-const connectError = 'Please make sure you\'ve downloaded the latest idleon-data-extractor extension and that you\'re connected to idleon website';
 
 const JsonImport = () => {
   const {
     setUserData,
     userData,
     setUserLastUpdated,
-    connected,
     setUserConnected,
     lastUpdated,
     signedIn, setSignedIn
@@ -43,10 +41,6 @@ const JsonImport = () => {
   const [timeoutCount, setTimeoutCount] = useState(0);
   const [firstTime, setFirstTime] = useState(true);
 
-  const [fetching, setFetching] = useState(false);
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-
   const [manualImport, setManualImport] = useState(false);
   const [manualResult, setManualResult] = useState(null);
 
@@ -54,11 +48,6 @@ const JsonImport = () => {
   const [authCounter, setAuthCounter] = useState(0);
 
   useEffect(() => {
-    setResult(connected ? { success: true } : null);
-  }, [connected]);
-
-  useEffect(() => {
-
     (async () => {
       if (manualImport || signedIn) return;
       const user = await checkUserStatus();
@@ -71,22 +60,6 @@ const JsonImport = () => {
       clearInterval(fetchDataInterval);
     }
   }, []);
-
-
-  const autoUpdate = () => {
-    try {
-      localStorage.removeItem('globalData');
-      setLoading(true);
-      setLoadIframe(true);
-      setResult(null);
-      // const fetchData = setInterval(fetchFromWeb, 10000);
-      setFetchDataInterval(true);
-    } catch (e) {
-      console.log('Failed to load JSON from idleon', e);
-      setFetching(false);
-      setLoading(false);
-    }
-  };
 
   useInterval(() => {
     const charData = localStorage.getItem('globalData');
@@ -107,9 +80,6 @@ const JsonImport = () => {
         setUserData(parseIdleonData(globalData?.serializedData, globalData?.usernameList, globalData.serializedGuildData));
         setUserConnected(true);
         setUserLastUpdated(new Date().getTime());
-        setResult({ success: true });
-        setLoading(false);
-        setFetching(true);
         setFirstTime(false);
       }
     }
@@ -155,11 +125,8 @@ const JsonImport = () => {
     }
   }
 
-  const endInterval = (interval, result) => {
+  const endInterval = () => {
     setLoadIframe(false);
-    setFetching(false);
-    setLoading(false);
-    setResult(result ? result : null);
     setUserConnected(false);
     setTimeoutCount(0);
     setFirstTime(true);
@@ -227,16 +194,6 @@ const JsonImport = () => {
           /></NumberTooltip> :
           <NumberTooltip title={jsonError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}
           /></NumberTooltip> : null}
-        {/*{result ? result?.success ?*/}
-        {/*  <NumberTooltip title={'Connected'}><CheckCircleIcon style={{ marginRight: 5, color: 'rgb(76, 175, 80)' }}*/}
-        {/*  /></NumberTooltip> :*/}
-        {/*  <NumberTooltip title={connectError}><ErrorIcon style={{ marginRight: 5, color: '#f48fb1' }}*/}
-        {/*  /></NumberTooltip> : null}*/}
-        {/*{!loading ? !fetching && !connected ? <NumberTooltip*/}
-        {/*    title={'Please make sure you\'ve connected to idleon website and downloaded idleon-data-extractor extension'}>*/}
-        {/*    <StyledButton onClick={() => autoUpdate()}>Connect</StyledButton></NumberTooltip> : null :*/}
-        {/*  <StyledLoader size={24}/>*/}
-        {/*}*/}
         <NumberTooltip title={'Paste raw JSON'}>
           <IconButton onClick={handleManualImport}>
             <FileCopyIcon/>

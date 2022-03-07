@@ -4,7 +4,7 @@ import Head from 'next/head'
 import '../polyfills';
 import { useEffect, useState } from "react";
 import { AppContext } from "../components/Common/context";
-import { fields, screens } from "../Utilities";
+import { fields, screensMap } from "../Utilities";
 import { CircularProgress } from "@material-ui/core";
 import { useRouter } from "next/router";
 import demo from '../data/demo.json';
@@ -30,7 +30,7 @@ const muiTheme = createTheme({
   },
 });
 
-const initialDisplay = { view: screens.characters, subView: '' };
+const initialDisplay = { view: screensMap.characters, subView: '' };
 const initialAccountDisplay = { view: 'general', subView: '' }
 // remove overlay of error in dev mode.
 const noOverlayWorkaroundScript = `

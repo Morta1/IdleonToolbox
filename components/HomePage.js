@@ -1,10 +1,47 @@
 import styled from 'styled-components'
-import { useEffect } from "react";
+import { Button, Dialog, DialogContent, Typography } from "@material-ui/core";
+import { getRandomNumber, prefix } from "../Utilities";
+import { useState } from "react";
+import MissingData from "./General/MissingData";
+import InfoIcon from '@material-ui/icons/Info';
+import { useRouter } from "next/router";
 
-const OutdatedData = () => {
+const icons = ['I', 'G', 'D'];
+const HomePage = () => {
   const updates = [
     {
       latest: true,
+      version: '1.1.9',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Updated navigation arrangement (hopefully for the better)',
+            'Added \'Tools\' menu',
+            'Rearranged the \'Account\' page categories\' into worlds',
+            'Added this home page screen (!)'
+          ]
+        }
+      ]
+    },
+    {
+      version: '1.1.8',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added \'Totals\' to Account -> General to keep track of some aggregated milestones']
+        },
+        {
+          title: 'Characters',
+          desc: [
+            'Added Active Skill CD filter to character screen',
+            'Added anvil progress calculation'
+          ]
+        },
+      ]
+    },
+    {
       version: '1.1.7',
       changes: [
         {
@@ -275,52 +312,77 @@ const OutdatedData = () => {
       ]
     }
   ]
+  const [icon] = useState(icons[getRandomNumber(0, 2)]);
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    // localStorage.removeItem('characterData');
-    // localStorage.removeItem('characterIndices');
-    localStorage.removeItem('dataFilters');
-    localStorage.removeItem('lastUpdated');
-    localStorage.removeItem('display');
-  }, []);
+  const isDemo = () => {
+    return router?.query?.hasOwnProperty('demo');
+  }
 
   return (
-    <OutdatedDataStyle>
-      <div className={'info'}>
-        <span>Please re-import the data by clicking &apos;Connect&apos; or import your json from <a
-          className={'extractor'}
-          href="https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing">steam data extractor</a> and refresh</span>
-        <span className={'small-text'}>If your extension is up-to-date please contact Morojo#2331 in discord</span>
+    <HomePageStyle>
+      <Typography variant={'h1'}><img src={`${prefix}data/Badge${icon}2.png`} alt=""/>Idleon
+        Toolbox</Typography>
+      <div className={'desc'}>Idleon toolbox helps you track all of your account and characters&apos; progress with
+        ease!
       </div>
-      {updates?.map(({ version, changes }, index) => {
-        return <div key={version + index} className={'new-features'}>
-          <span className={index === 0 ? 'new-title' : 'title'}>Version {version}</span>
-          <ol>
-            {changes?.map(({ title, desc }, changesIndex) => {
-              return <li key={title + changesIndex}>
-                {title}
-                <ul>
-                  {desc?.map((item, descIndex) => {
-                    return <li key={descIndex}>
-                      {item}
-                    </li>
-                  })}
-                </ul>
-              </li>
-            })}
-          </ol>
-        </div>
-      })}
-    </OutdatedDataStyle>
+      <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>For any question, suggestion or bug
+        report, please contact me in
+        discord Morojo#2331</Typography>
+      {!isDemo() ? <div className={'button'}>
+        <StyledButton startIcon={<InfoIcon/>} onClick={() => setOpen(true)} variant={'contained'} color={'primary'}>
+          Learn How to Connect
+        </StyledButton>
+      </div> : null}
+      <div className={'patch-notes'}>
+        <Typography style={{ margin: '20px 0' }} variant={'h4'}>Patch Notes</Typography>
+        {updates?.map(({ version, changes }, index) => {
+          return <div key={version + index} className={'new-features'}>
+            <span className={index === 0 ? 'new-title' : 'title'}>Version {version}</span>
+            <ol>
+              {changes?.map(({ title, desc }, changesIndex) => {
+                return <li key={title + changesIndex}>
+                  {title}
+                  <ul>
+                    {desc?.map((item, descIndex) => {
+                      return <li key={descIndex}>
+                        {item}
+                      </li>
+                    })}
+                  </ul>
+                </li>
+              })}
+            </ol>
+          </div>
+        })}
+      </div>
+
+      <Dialog onClose={() => setOpen(false)} open={open}>
+        <DialogContent>
+          <MissingData/>
+        </DialogContent>
+      </Dialog>
+    </HomePageStyle>
   );
 };
 
-const OutdatedDataStyle = styled.div`
+const StyledButton = styled(Button)`
+  && {
+    text-transform: capitalize;
+  }
+`
+
+const HomePageStyle = styled.div`
   margin: 25px auto;
   padding: 10px;
   display: flex;
-  width: 800px;
+  max-width: 800px;
   flex-direction: column;
+
+  .button {
+    margin-top: 25px;
+  }
 
   .extractor {
     &:visited, &:active {
@@ -328,50 +390,47 @@ const OutdatedDataStyle = styled.div`
     }
   }
 
-  .info {
-    > span {
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .small-text {
-      font-size: 14px;
-    }
+  .desc {
+    font-size: 20px;
   }
 
-  .new-features {
-    margin-top: 4rem;
+  .patch-notes {
+    margin-top: 30px;
 
-    > .title, .new-title {
-      font-size: 18px;
-      font-weight: bold;
-      padding-bottom: 2px;
-      border-bottom: 1px solid white;
-    }
+    .new-features {
+      font-size: 16px;
 
-    > .new-title {
-      &:before {
-        content: "\u2713  ";
-        display: inline-block;
-        margin-right: 5px;
-        color: #33d033;
+      > .title, .new-title {
+        font-size: 18px;
+        font-weight: bold;
+        padding-bottom: 2px;
+        border-bottom: 1px solid white;
       }
-    }
 
-    ol {
-      > li {
-        margin-top: 10px;
+      > .new-title {
+        &:before {
+          content: "\u2713  ";
+          display: inline-block;
+          margin-right: 5px;
+          color: #33d033;
+        }
       }
-    }
 
-    ul {
-      list-style-type: "-> ";
+      ol {
+        > li {
+          margin-top: 10px;
+        }
+      }
 
-      > li {
-        margin-top: 5px;
+      ul {
+        list-style-type: "-> ";
+
+        > li {
+          margin-top: 5px;
+        }
       }
     }
   }
 `;
 
-export default OutdatedData;
+export default HomePage;

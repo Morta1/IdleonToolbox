@@ -125,6 +125,10 @@ export const getDeathNoteRank = (kills) => {
   return 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills ? 5 : 1e8 > kills ? 7 : 10;
 }
 
+export const getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 export const fields = [
   {
     name: "Activity",
@@ -191,18 +195,41 @@ export const fields = [
     selected: true,
   },
 ];
-export const screens = {
-  characters: 0,
-  account: 1,
-  craftIt: 2,
-  itemBrowser: 3,
-  itemPlanner: 4,
-  achievements: 5,
-  shopStock: 6,
-  quests: 7,
-  cardSearch: 8,
-  activeExpCalculator: 9
+
+
+export const screensMap = {
+  homePage: 0,
+  characters: 1,
+  account: 2,
+  achievements: 3,
+  shopStock: 4,
+  quests: 5,
+  craftIt: 6,
+  itemBrowser: 7,
+  itemPlanner: 8,
+  cardSearch: 9,
+  activeExpCalculator: 10
 }
+
+export const screens = {
+  homePage: { main: true, index: screensMap.homePage, label: 'Idleon Toolbox' },
+  characters: { index: screensMap.characters, label: 'Characters', },
+  account: { index: screensMap.account, label: 'Account', },
+  achievements: { index: screensMap.achievements, label: 'Achievements' },
+  shopStock: { index: screensMap.shopStock, label: 'Shop Stock' },
+  quests: { index: screensMap.quests, label: 'Quests' },
+  tools: {
+    label: 'Tools',
+    menu: [
+      { index: screensMap.craftIt, label: 'craftIt' },
+      { index: screensMap.itemBrowser, label: 'itemBrowser' },
+      { index: screensMap.itemPlanner, label: 'itemPlanner' },
+      { index: screensMap.cardSearch, label: 'cardSearch' },
+      { index: screensMap.activeExpCalculator, label: 'activeExpCalculator' }
+    ]
+  }
+}
+
 export const worlds = {
   0: 'Blunder Hills',
   1: 'Yum Yum Desert',
@@ -224,6 +251,6 @@ export const classColors = {
 };
 
 const isProd = process.env.NODE_ENV === "production";
-export const breakpoint = 1540;
+export const breakpoint = 1080;
 export const extVersion = '1.1.7';
 export const prefix = isProd ? "/IdleonToolbox/" : "/";
