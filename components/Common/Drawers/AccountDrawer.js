@@ -12,7 +12,7 @@ const worldsData = {
   'World 1': {
     icon: 'BadgeG2',
     categories: [
-      { label: 'forge', icon: 'forgeD' },
+      { label: 'forge', icon: 'ForgeD' },
       { label: 'bribes', icon: 'BribeW' },
       { label: 'constellations', icon: 'StarTitle1' },
       { label: 'stamps', icon: 'StampA34' },
