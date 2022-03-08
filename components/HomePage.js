@@ -1,10 +1,12 @@
 import styled from 'styled-components'
 import { Button, Dialog, DialogContent, Typography } from "@material-ui/core";
 import { getRandomNumber, prefix } from "../Utilities";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import MissingData from "./General/MissingData";
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import InfoIcon from '@material-ui/icons/Info';
 import { useRouter } from "next/router";
+import { AppContext } from './Common/context';
 
 const icons = ['I', 'G', 'D'];
 const HomePage = () => {
@@ -312,12 +314,21 @@ const HomePage = () => {
       ]
     }
   ]
+  const { userData } = useContext(AppContext);
   const [icon] = useState(icons[getRandomNumber(0, 2)]);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
   const isDemo = () => {
     return router?.query?.hasOwnProperty('demo');
+  }
+
+  const handleCopyRaw = async () => {
+    try {
+      await navigator.clipboard.writeText(localStorage.getItem('rawJson'));
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
@@ -337,7 +348,8 @@ const HomePage = () => {
           </StyledButton>
         </div> : null}
         <div>
-          <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
+          <a style={{ height: 0, display: 'flex', alignItems: 'center' }} href='https://ko-fi.com/S6S7BHLQ4'
+             target='_blank'
              rel="noreferrer">
             <img height='36'
                  style={{ border: 0, height: 36 }}
@@ -346,6 +358,11 @@ const HomePage = () => {
           </a>
         </div>
       </div>
+      {userData ? <div style={{ marginTop: 25 }}>
+        <StyledButton startIcon={<FileCopyIcon/>} onClick={handleCopyRaw} variant={'contained'} color={'primary'}>
+          Copy Raw JSON
+        </StyledButton>
+      </div> : null}
       <div className={'patch-notes'}>
         <Typography style={{ margin: '20px 0' }} variant={'h4'}>Patch Notes</Typography>
         {updates?.map(({ version, changes }, index) => {
