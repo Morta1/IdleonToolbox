@@ -143,8 +143,8 @@ const JsonImport = () => {
       });
     }
     try {
-      const { data, userNames, guildData } = JSON.parse(await navigator.clipboard.readText());
-      const parsedData = parseIdleonData(data, userNames, guildData);
+      const data = JSON.parse(await navigator.clipboard.readText());
+      const parsedData = parseIdleonData(data);
       setUserData(parsedData);
       setUserLastUpdated(getDate());
       setManualResult(true);
