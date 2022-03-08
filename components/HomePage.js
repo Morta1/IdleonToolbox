@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Button, Dialog, DialogContent, ListItemText, Typography } from "@material-ui/core";
+import { Button, Dialog, DialogContent, Typography } from "@material-ui/core";
 import { getRandomNumber, prefix } from "../Utilities";
 import React, { useState } from "react";
 import MissingData from "./General/MissingData";
@@ -336,15 +336,15 @@ const HomePage = () => {
             Learn How to Connect
           </StyledButton>
         </div> : null}
-        <div><Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>Buy me a coffee</Typography>
-          <ListItemText>
-            <form action="https://www.paypal.com/donate" method="post" target="_blank">
-              <input type="hidden" name="hosted_button_id" value="V7TZB6JHTVXR4"/>
-              <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"
-                     name="submit" title="PayPal - The safer, easier way to pay online!"
-                     alt="Donate with PayPal button"/>
-            </form>
-          </ListItemText></div>
+        <div>
+          <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
+             rel="noreferrer">
+            <img height='36'
+                 style={{ border: 0, height: 36 }}
+                 src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
+                 alt='Buy Me a Coffee at ko-fi.com'/>
+          </a>
+        </div>
       </div>
       <div className={'patch-notes'}>
         <Typography style={{ margin: '20px 0' }} variant={'h4'}>Patch Notes</Typography>

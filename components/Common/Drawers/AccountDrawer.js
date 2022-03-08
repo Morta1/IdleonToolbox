@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Collapse, Drawer, List, ListItem, ListItemText, Toolbar, Typography } from "@material-ui/core";
+import { Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import { breakpoint, prefix, screensMap } from "../../../Utilities";
 import React, { useContext, useState } from "react";
@@ -108,13 +108,13 @@ const AccountDrawer = () => {
           <List style={{ marginTop: 'auto' }}>
             <ListItem>
               <ListItemText>
-                <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>Buy me a coffee</Typography>
-                <form action="https://www.paypal.com/donate" method="post" target="_blank">
-                  <input type="hidden" name="hosted_button_id" value="V7TZB6JHTVXR4"/>
-                  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"
-                         name="submit" title="PayPal - The safer, easier way to pay online!"
-                         alt="Donate with PayPal button"/>
-                </form>
+                <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
+                   rel="noreferrer">
+                  <img height='36'
+                       style={{ border: 0, height: 36 }}
+                       src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
+                       alt='Buy Me a Coffee at ko-fi.com'/>
+                </a>
               </ListItemText>
             </ListItem>
           </List>
