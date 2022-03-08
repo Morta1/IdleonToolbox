@@ -14,6 +14,10 @@ const Vials = ({ vials }) => {
             <img className={'vial-item'} title={cleanUnderscore(mainItem)} src={`${prefix}data/${mainItem}.png`}
                  alt={mainItem}/>
             <img key={`${name}${index}`}
+                 onError={(e) => {
+                   e.target.src = `${prefix}data/aVials12.png`;
+                   e.target.style = 'opacity: 0;'
+                 }}
                  src={`${prefix}data/aVials${level === 0 ? '1' : level}.png`}
                  alt={'vial image missing'}/>
           </div>
