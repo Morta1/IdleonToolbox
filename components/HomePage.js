@@ -337,7 +337,8 @@ const HomePage = () => {
           </StyledButton>
         </div> : null}
         <div>
-          <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
+          <a style={{ height: 0, display: 'flex', alignItems: 'center' }} href='https://ko-fi.com/S6S7BHLQ4'
+             target='_blank'
              rel="noreferrer">
             <img height='36'
                  style={{ border: 0, height: 36 }}
