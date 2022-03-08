@@ -50,10 +50,10 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
     <BubblesStyle>
       <div className="wrapper">
         {bubbleGoal ? cauldron?.map((bubble, index) => {
-          const { level, itemReq, rawName, bubbleName, func, x1, x2 } = bubble;
+          const { level, itemReq, rawName, bubbleName, func, x1, x2, bubbleIndex } = bubble;
           const goalEffect = calculateEffect(func, bubbleGoal?.[index] ? bubbleGoal?.[index] < level ? level : bubbleGoal?.[index] : 0, x1, x2);
           const effect = calculateEffect(func, level, x1, x2);
-          return <div className={'bubble-row'} key={`${bubbleName}${index}`}>
+          return bubbleIndex ? <div className={'bubble-row'} key={`${bubbleName}${index}`}>
             <div className={'bubble-wrapper'}>
               <span className={'level'}>{level}</span>
               <EffectTooltip type={'bubble'} {...{ name: bubbleName, ...bubble }}
@@ -76,6 +76,7 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
             </div>
             <div className={'cost'}>
               {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
+                if (rawName === 'Blank' || rawName === 'ERROR') return;
                 const cost = accumulateBubbleCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
                 return rawName !== 'Blank' ? <div key={`${name}${itemIndex}`}>
                   <div><img className={'req-item'} src={`${prefix}data/${rawName}.png`} title={cleanUnderscore(name)}
@@ -86,7 +87,7 @@ const Bubbles = ({ bubbleCost, cauldron, cauldronName, goals, onGoalUpdate }) =>
                 </div> : null
               })}
             </div>
-          </div>
+          </div> : null
         }) : null}
       </div>
     </BubblesStyle>

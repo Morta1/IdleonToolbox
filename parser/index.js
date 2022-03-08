@@ -296,7 +296,7 @@ const createAccountData = (idleonData, characters) => {
 
   // first 16 elements belong to cauldrons' levels
   // 4 * 4
-  const rawCauldronsLevelsArray = idleonData?.CauldronInfo?.[8]?.reduce((res, array) => [...res, ...array], []);
+  const rawCauldronsLevelsArray = idleonData?.CauldronStats ? idleonData?.CauldronStats : idleonData?.CauldronInfo?.[8]?.reduce((res, array) => [...res, ...array], []);
   const cauldronsLevels = rawCauldronsLevelsArray.slice(0, 16);
   const cauldronsLevelsMapping = { 0: "power", 4: "quicc", 8: "high-iq", 12: 'kazam' };
   let cauldronsObject = {};

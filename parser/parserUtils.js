@@ -166,7 +166,14 @@ export const createSerializedData = (data, charNames) => {
       DeliveryBoxMisc: data?.CYDeliveryBoxMisc,
     },
   };
+  if (data?.CauldUpgLVs && data?.CauldUpgXPs) {
+    serialized.CauldronStats = createCauldronStats(data?.CauldUpgLVs, data?.CauldUpgXPs);
+  }
   return { serializedData: serialized, chars: PlayerDATABASE };
+}
+
+const createCauldronStats = (lvlArr, xpArr) => {
+  return lvlArr?.map((lvl, index) => [xpArr[index], lvl]);
 }
 
 export const getGlobalTime = (data) => {

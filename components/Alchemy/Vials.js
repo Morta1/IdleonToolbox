@@ -12,10 +12,10 @@ const Vials = ({ vials }) => {
           <div className={`vial-wrapper${level === 0 ? ' missing' : ''}`}>
             {level !== '0' ? <span className={'level'}>{level}</span> : null}
             <img className={'vial-item'} title={cleanUnderscore(mainItem)} src={`${prefix}data/${mainItem}.png`}
-                 alt={''}/>
+                 alt={mainItem}/>
             <img key={`${name}${index}`}
                  src={`${prefix}data/aVials${level === 0 ? '1' : level}.png`}
-                 alt={''}/>
+                 alt={'vial image missing'}/>
           </div>
         </VialTooltip> : null
       })}

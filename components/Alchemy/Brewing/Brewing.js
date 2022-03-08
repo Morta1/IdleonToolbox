@@ -10,7 +10,6 @@ const Brewing = ({ account }) => {
   const { alchemy, achievements } = account;
   const { accountDisplay, alchemyGoals, setUserAlchemyGoals, setUserAccountDisplay } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
-  console.log('accountDisplay?.subView', accountDisplay?.subView || 'power')
   const [bubble, setBubble] = useState(accountDisplay?.subView || 'power');
 
   const [bargainTag, setBargainTag] = useState(0);
