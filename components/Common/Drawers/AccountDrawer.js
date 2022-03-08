@@ -74,10 +74,10 @@ const AccountDrawer = () => {
                 primary={`Looty (Missing ${userData?.account?.missingLootyItems.length})`}/>
             </ListItem>
             {Object.entries(worldsData).map(([worldName, { icon, categories }], worldIndex) => {
-              return <>
-                <ListItem key={worldName + worldIndex}
-                          button
-                          onClick={() => setWorlds({ ...worlds, [worldName]: !worlds?.[worldName] })}>
+              return <React.Fragment key={worldName + ' ' + worldIndex}>
+                <ListItem
+                  button
+                  onClick={() => setWorlds({ ...worlds, [worldName]: !worlds?.[worldName] })}>
                   <img className={'list-img'} width={32} src={`${prefix}data/${icon}.png`} alt=""/>
                   <ListItemText
                     style={{ marginLeft: 10 }}
@@ -86,7 +86,7 @@ const AccountDrawer = () => {
                 </ListItem>
                 <Collapse in={worlds?.[worldName]} timeout="auto" unmountOnExit>
                   {categories?.map((category, categoryIndex) => {
-                    return <ListItem key={category + categoryIndex} style={{ paddingLeft: nestedOptionPadding }}
+                    return <ListItem key={category + ' ' + categoryIndex} style={{ paddingLeft: nestedOptionPadding }}
                                      selected={selected?.view === category?.label} button
                                      onClick={() => handleClick(category?.label, '')}>
                       <img className={'list-img'} width={32} src={`${prefix}data/${category.icon}.png`} alt=""/>
@@ -96,7 +96,7 @@ const AccountDrawer = () => {
                     </ListItem>
                   })}
                 </Collapse>
-              </>
+              </React.Fragment>
             })}
             <ListItem selected={selected?.view === 'bundles'} button onClick={() => handleClick('bundles', '')}>
               <img className={'list-img'} width={32} src={`${prefix}data/TaskSa4.png`} alt=""/>
