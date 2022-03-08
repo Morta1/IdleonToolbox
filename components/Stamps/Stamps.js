@@ -21,9 +21,9 @@ const Stamps = ({ stamps, alchemy, bribes }) => {
       <div className={'tabs'}>
         <div className={`${stamp === 'combat' ? 'active' : ''}`} onClick={() => handleStampChange('combat')}>Combat
         </div>
-        <div className={`${stamp === 'misc' ? 'active' : ''}`} onClick={() => handleStampChange('misc')}>Misc</div>
         <div className={`${stamp === 'skills' ? 'active' : ''}`} onClick={() => handleStampChange('skills')}>Skills
         </div>
+        <div className={`${stamp === 'misc' ? 'active' : ''}`} onClick={() => handleStampChange('misc')}>Misc</div>
       </div>
       {Object.keys(stamps)?.map((stampCategoryName, categoryIndex) => {
         const stampCategory = stamps[stampCategoryName];

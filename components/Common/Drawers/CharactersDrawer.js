@@ -1,5 +1,15 @@
 import styled from 'styled-components'
-import { Chip, Collapse, Drawer, List, ListItem, ListItemIcon, ListItemText, Toolbar } from "@material-ui/core";
+import {
+  Chip,
+  Collapse,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography
+} from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import { breakpoint, prefix, screensMap } from "../../../Utilities";
 import React, { useContext, useEffect, useState } from "react";
@@ -146,6 +156,7 @@ const CharactersDrawer = () => {
           <List style={{ marginTop: 'auto' }}>
             <ListItem>
               <ListItemText>
+                <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>Buy me a coffee</Typography>
                 <form action="https://www.paypal.com/donate" method="post" target="_blank">
                   <input type="hidden" name="hosted_button_id" value="V7TZB6JHTVXR4"/>
                   <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"

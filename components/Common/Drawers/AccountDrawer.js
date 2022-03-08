@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
+import { Collapse, Drawer, List, ListItem, ListItemText, Toolbar, Typography } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
 import { breakpoint, prefix, screensMap } from "../../../Utilities";
 import React, { useContext, useState } from "react";
@@ -92,7 +92,7 @@ const AccountDrawer = () => {
                       <img className={'list-img'} width={32} src={`${prefix}data/${category.icon}.png`} alt=""/>
                       <ListItemText
                         style={{ marginLeft: 10 }}
-                        primary={category?.label.capitalize()}/>
+                        primary={category?.label.split(/(?=[A-Z])/).join(' ').capitalize()}/>
                     </ListItem>
                   })}
                 </Collapse>
@@ -108,6 +108,7 @@ const AccountDrawer = () => {
           <List style={{ marginTop: 'auto' }}>
             <ListItem>
               <ListItemText>
+                <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>Buy me a coffee</Typography>
                 <form action="https://www.paypal.com/donate" method="post" target="_blank">
                   <input type="hidden" name="hosted_button_id" value="V7TZB6JHTVXR4"/>
                   <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif"
