@@ -283,7 +283,7 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
     funcY,
     y1,
     y2
-  }) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2) : growth(funcY, level, y1, y2) : 0, 0) ?? 0;
+  } = {}) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2) : growth(funcY, level, y1, y2) : 0, 0) ?? 0;
 }
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
