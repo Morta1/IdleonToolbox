@@ -33,6 +33,14 @@ const worldsData = {
       { label: 'saltLick', icon: 'ConTower3' },
       { label: 'refinery', icon: 'TaskSc6' },
     ]
+  },
+  'World 4': {
+    icon: 'Ladle',
+    categories: [
+      { label: 'Cooking', icon: 'Ladle' },
+      { label: 'Breeding', icon: 'Ladle' },
+      { label: 'Laboratory', icon: 'Ladle' }
+    ]
   }
 }
 const AccountDrawer = () => {
