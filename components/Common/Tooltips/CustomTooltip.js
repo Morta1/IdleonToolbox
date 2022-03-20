@@ -2,7 +2,8 @@ import styled from "styled-components";
 import { Tooltip } from "@material-ui/core";
 import { prefix } from "../../../Utilities";
 
-const CustomTooltip = ({ bonus, cardName, effect, children }) => {
+const CustomTooltip = ({ bonus, baseBonus, cardName, effect, children }) => {
+  console.log('bonus', bonus)
   return (
     <StyledTooltip
       interactive
@@ -16,17 +17,17 @@ const CustomTooltip = ({ bonus, cardName, effect, children }) => {
           </div>
           <div className='stars'>
             {bonus
-              ? [1, 2, 3, 4]?.map((_, index) => {
+              ? [1, 2, 3, 4, 5]?.map((_, index) => {
                 return (
                   <div className='star-line' key={bonus + " " + index}>
                     <div className='image-wrapper'>
                       {index === 0 ? (
                         <span style={{ fontWeight: "bold" }}>Base</span>
                       ) : (
-                        <img src={`${prefix}etc/Star${index}.png`} alt=''/>
+                        <img className={'star'} src={`${prefix}etc/Star${index}.png`} alt=''/>
                       )}
                     </div>
-                    <div className='stat'>{bonus * (index + 1)}</div>
+                    <div className='stat'>{baseBonus * (index + 1)}</div>
                   </div>
                 );
               })
@@ -83,7 +84,13 @@ const StyledTooltip = styled((props) => (
       padding: 10px 0;
       display: flex;
       justify-content: space-around;
-
+      
+      .star {
+        object-fit: contain;
+        width: 32px;
+        height: 16px;
+      }
+      
       .star-line {
         display: flex;
         align-items: center;

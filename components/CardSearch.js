@@ -123,6 +123,7 @@ export default function CardSearch({ userData }) {
                           <CustomTooltip
                             cardName={cleanUnderscore(displayName)}
                             effect={cleanUnderscore(effect)}
+                            baseBonus={bonus}
                             bonus={calcCardBonus({ bonus, stars })}
                           >
                             <div className={'card-wrapper'}>
