@@ -474,7 +474,7 @@ const createAccountData = (idleonData, characters) => {
   });
 
   account.kitchens = idleonData?.Cooking?.map((table) => {
-    const [status, foodIndex, spice1, spice2, spice3, spice4, luckLv, fireLv, speedLv] = table;
+    const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv] = table;
     if (status <= 0) return null;
     return {
       status,
