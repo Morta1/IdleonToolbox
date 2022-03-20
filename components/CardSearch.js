@@ -9,7 +9,7 @@ import { Wrapper } from "./Common/commonStyles";
 import { calcCardBonus } from "../parser/parserUtils";
 
 const categoriesOrder = ["Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
-  "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", "Dungeons", "Bosses", "Events"];
+  "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Dungeons", "Bosses", "Events"];
 
 const additionalEffects = {
   choppin: [stats.BaseWIS, stats.SkillAFKgainrate],
@@ -127,7 +127,7 @@ export default function CardSearch({ userData }) {
                           >
                             <div className={'card-wrapper'}>
                               {stars > 0 ?
-                                <img className="border" src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
+                                <img className="border" src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
                               <img
                                 className="card"
                                 src={`${prefix}data/2Cards${cardIndex}.png`}

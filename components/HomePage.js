@@ -13,6 +13,20 @@ const HomePage = () => {
   const updates = [
     {
       latest: true,
+      version: '2.0.0',
+      changes: [
+        {
+          title: 'World 4',
+          desc: [
+            'Uploaded all W4 new data and images',
+            'Added a World 4 in Account tab, at the moment cooking only (kitchens and cooking menu).',
+            'Added W4 afk targets (let me know if I missed anything please)',
+            'Fixed a bug caused by W4 new skills',
+          ]
+        }
+      ]
+    },
+    {
       version: '1.1.9',
       changes: [
         {

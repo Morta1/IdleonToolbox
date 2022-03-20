@@ -134,6 +134,12 @@ const Quests = ({ quests, characters }) => {
               characters={characters}
               worldName={"Frostbite_Tundra"}
             />
+            <WorldQuest
+              quests={worldQuests}
+              totalCharacters={filteredCharacters.length}
+              characters={characters}
+              worldName={"Hyperion_Nebula"}
+            />
           </div>
         </>
       ) : null}

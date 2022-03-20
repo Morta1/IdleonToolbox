@@ -21,7 +21,12 @@ const Talents = ({ talents, starTalents }) => {
 
   const handleStarTalents = (tab, tabIndex) => {
     const clonedTalents = JSON.parse(JSON.stringify(tab?.orderedTalents));
-    const tempTalents = tabIndex === 1 ? clonedTalents?.slice(0, 13) : clonedTalents?.slice(13, clonedTalents.length);
+    let tempTalents = tabIndex === 1 ? clonedTalents?.slice(0, 13) : tabIndex === 2 ? clonedTalents?.slice(13, 26) : clonedTalents?.slice(26, clonedTalents.length);
+    // fill for a full talent page
+    if (tempTalents.length < 13) {
+      tempTalents = new Array(13).fill(1).map((_, ind) => tempTalents[ind] ?? {});
+    }
+    // insert arrows
     tempTalents?.splice(10, 0, { talentId: 'arrow' });
     tempTalents?.splice(14, 0, { talentId: 'arrow' });
     return {
@@ -65,7 +70,7 @@ const Talents = ({ talents, starTalents }) => {
                 <img onClick={() => switchSpecials(specialsTab - 1)} className={'arrow'}
                      src={`${prefix}data/UIAnvilArrowsG2.png`}
                      alt=""/> : null}
-              {index === 14 && specialsTab < 2 ?
+              {(index === 14 || index === 26) && specialsTab < 3 ?
                 <img onClick={() => switchSpecials(specialsTab + 1)} className={'arrow'}
                      src={`${prefix}data/UIAnvilArrowsG1.png`}
                      alt=""/> : null}
@@ -74,7 +79,8 @@ const Talents = ({ talents, starTalents }) => {
               <div className={'talent-wrapper'}>
               <span
                 className={'talent-level'}>{getLevelAndMaxLevel(level, maxLevel)}</span>
-                <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
+                {talentId ? <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/> :
+                  <img src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
               </div>
             </TalentTooltip>;
         })}

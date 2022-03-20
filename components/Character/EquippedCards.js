@@ -10,7 +10,7 @@ const EquippedCards = ({ cards }) => {
       {cards?.cardSet?.rawName ? <div className={'card-set'}>
         {cards?.cardSet?.stars > 0 ?
           <img className='border' title={cleanUnderscore(cards?.cardSet?.name)}
-               src={`${prefix}data/CardsBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
+               src={`${prefix}data/CardEquipBorder${cards?.cardSet?.stars + 1}.png`} alt=""/> : null}
         <CardTooltip cardName={cards?.cardSet?.name} effect={cards?.cardSet.effect} bonus={cards?.cardSet?.bonus}
                      stars={cards?.cardSet?.stars}>
           <img className={'card'}
@@ -24,7 +24,7 @@ const EquippedCards = ({ cards }) => {
         const bonus = calcCardBonus(card);
         return cardName && cardName !== 'None' ? <CardWrapper stars={stars} key={cleanCardName + index}>
             {stars > 0 ?
-              <img title={cardName} className='border' src={`${prefix}cards/Tier${stars}_Border.png`} alt=""/> : null}
+              <img title={cardName} className='border' src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
             <CardTooltip {...card} bonus={bonus}>
               <img className='card'
                    src={`${prefix}data/2Cards${cardIndex}.png`} alt=""/>

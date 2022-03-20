@@ -37,9 +37,9 @@ const worldsData = {
   'World 4': {
     icon: 'Ladle',
     categories: [
-      { label: 'Cooking', icon: 'Ladle' },
-      { label: 'Breeding', icon: 'Ladle' },
-      { label: 'Laboratory', icon: 'Ladle' }
+      { label: 'cooking', icon: 'ClassIcons51' },
+      { label: 'breeding', icon: 'ClassIcons52' },
+      { label: 'laboratory', icon: 'ClassIcons53' }
     ]
   }
 }
@@ -51,7 +51,7 @@ const AccountDrawer = () => {
     setUserAccountDisplay
   } = useContext(AppContext);
   const matches = useMediaQuery(breakpoint);
-  const [worlds, setWorlds] = useState({ 'World 1': true, 'World 2': true, 'World 3': true });
+  const [worlds, setWorlds] = useState({ 'World 1': true, 'World 2': true, 'World 3': true, 'World 4': true });
   const [selected, setSelected] = useState(accountDisplay);
 
   const handleClick = (view, subView) => {
