@@ -8,7 +8,7 @@ const ColosseumHighscores = ({ scores }) => {
       {scores?.map((score, index) => {
         return <div className={'colo-container'} key={score + "" + index}>
           <img title={`Colo${index + 1}`} src={`${prefix}data/Colo${index + 1}.png`} alt={''}/>
-          <span className={'colo-score'}>{numberWithCommas(score)}</span>
+          <span className={'colo-score'}>{numberWithCommas(parseInt(score))}</span>
         </div>
       })}
     </ColosseumHighscoresStyle>

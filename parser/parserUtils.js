@@ -154,6 +154,8 @@ export const createSerializedData = (data, charNames) => {
     BundlesReceived: tryToParse(data?.BundlesReceived),
     SaltLick: tryToParse(data?.SaltLick),
     DungUpg: tryToParse(data?.DungUpg),
+    Cooking: tryToParse(data?.Cooking),
+    Meals: tryToParse(data?.Meals),
     CurrenciesOwned: {
       WorldTeleports: data?.CYWorldTeleports,
       KeysAll: data?.CYKeysAll,
@@ -166,6 +168,7 @@ export const createSerializedData = (data, charNames) => {
       DeliveryBoxMisc: data?.CYDeliveryBoxMisc,
     },
   };
+  console.log('serialized', serialized)
   if (data?.CauldUpgLVs && data?.CauldUpgXPs) {
     serialized.CauldronStats = createCauldronStats(data?.CauldUpgLVs, data?.CauldUpgXPs);
   }
@@ -705,7 +708,9 @@ export const getInventory = (inventoryArr, inventoryQuantityArr, owner) => {
 };
 
 export const calculateStars = (tierReq, amountOfCards) => {
-  if (amountOfCards > tierReq * 9) {
+  if (amountOfCards > tierReq * 25) {
+    return 4;
+  } else if (amountOfCards > tierReq * 9) {
     return 3;
   } else if (amountOfCards > tierReq * 4) {
     return 2;
@@ -840,16 +845,19 @@ export const talentPagesMap = {
 
 // TODO: check if able to pull from Z.js
 export const skillIndexMap = {
-  0: "character",
-  1: "mining",
-  2: "smithing",
-  3: "chopping",
-  4: "fishing",
-  5: "alchemy",
-  6: "catching",
-  7: "trapping",
-  8: "construction",
-  9: "worship",
+  0: { name: "character", icon: '' },
+  1: { name: "mining", icon: 'ClassIcons42' },
+  2: { name: "smithing", icon: 'ClassIcons43' },
+  3: { name: "chopping", icon: 'ClassIcons44' },
+  4: { name: "fishing", icon: 'ClassIcons45' },
+  5: { name: "alchemy", icon: 'ClassIcons46' },
+  6: { name: "catching", icon: 'ClassIcons47' },
+  7: { name: "trapping", icon: 'ClassIcons48' },
+  8: { name: "construction", icon: 'ClassIcons49' },
+  9: { name: "worship", icon: 'ClassIcons50' },
+  10: { name: 'cooking', icon: 'ClassIcons51' },
+  11: { name: 'breeding', icon: 'ClassIcons52' },
+  12: { name: 'laboratory', icon: 'ClassIcons53' }
 };
 
 // TODO: check if able to pull from Z.js
@@ -1462,6 +1470,22 @@ export const worldNpcMap = {
   "Coastiolyte": {
     "world": ""
   },
+  "Gobo": {
+    world: "Hyperion_Nebula",
+    index: 0
+  },
+  "Oinkin": {
+    world: "Hyperion_Nebula",
+    index: 1
+  },
+  "Capital_P": {
+    world: "Hyperion_Nebula",
+    index: 2
+  },
+  "Blobbo": {
+    world: "Hyperion_Nebula",
+    index: 3
+  }
 };
 
 const lavaLog = (num) => {

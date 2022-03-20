@@ -66,6 +66,7 @@ import {
   classFamilyBonuses,
   cogKeyMap,
   constellations,
+  cookingMenu,
   dungeonStats,
   flagsReqs,
   guildBonuses,
@@ -241,11 +242,11 @@ const createAccountData = (idleonData, characters) => {
     }] : res;
   }, []);
 
-  const colosseumIndexMapping = { 1: true, 2: true, 3: true };
+  const colosseumIndexMapping = { 1: true, 2: true, 3: true, 4: true };
   const colosseumHighscoresArray = idleonData?.FamilyValuesMap?.ColosseumHighscores;
   account.colosseumHighscores = colosseumHighscoresArray
     .filter((_, index) => colosseumIndexMapping[index])
-    .map((score) => parseInt(score));
+    .map((score) => parseFloat(score));
 
   const minigameIndexMapping = { 0: 'chopping', 1: 'fishing', 2: 'catching', 3: 'mining' };
   const minigameHighscoresArray = idleonData?.FamilyValuesMap?.MinigameHiscores;
@@ -464,6 +465,26 @@ const createAccountData = (idleonData, characters) => {
     }];
   }, []);
   account.cogstruction = cogstruction;
+  account.meals = idleonData?.Meals?.[0]?.map((mealLevel, index) => {
+    if (index > 48) return null;
+    return {
+      level: mealLevel,
+      ...(cookingMenu?.[index] || {})
+    }
+  });
+
+  account.kitchens = idleonData?.Cooking?.map((table) => {
+    const [status, foodIndex, spice1, spice2, spice3, spice4, luckLv, fireLv, speedLv] = table;
+    if (status <= 0) return null;
+    return {
+      status,
+      ...(cookingMenu?.[foodIndex] || {}),
+      luckLv,
+      fireLv,
+      speedLv,
+      spices: [spice1, spice2, spice3, spice4]
+    }
+  });
 
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);
@@ -575,9 +596,14 @@ const createCharactersData = (idleonData, characters, account) => {
 
     character.skillsInfo = skillsInfoObject.reduce(
       (res, level, index) =>
-        level !== "-1" && level !== -1 ? {
+        index < 13 ? {
           ...res,
-          [skillIndexMap[index]]: { level, exp: parseFloat(levelsRaw[index]), expReq: parseFloat(levelsReqRaw[index]) },
+          [skillIndexMap[index]?.name]: {
+            level: level !== -1 ? level : 0,
+            exp: parseFloat(levelsRaw[index]),
+            expReq: parseFloat(levelsReqRaw[index]),
+            icon: skillIndexMap[index]?.icon
+          },
         } : res, {});
 
     const talentsObject = char?.[`SkillLevels_${charIndex}`];
@@ -592,7 +618,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const {
       flat: flatStarTalents,
       talents: orderedStarTalents
-    } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2"], talentsObject, maxTalentsObject, true);
+    } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2", "Special Talent 3"], talentsObject, maxTalentsObject, true);
     character.starTalents = orderedStarTalents;
     character.flatStarTalents = flatStarTalents;
     const activeBuffs = char?.[`BuffsActive_${charIndex}`];

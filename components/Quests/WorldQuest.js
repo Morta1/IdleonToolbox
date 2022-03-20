@@ -35,7 +35,12 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
 
   return (
     <WorldQuestsStyle>
-      <img src={`${prefix}npcs/${worldName}.png`} alt=""/>
+      <img src={`${prefix}npcs/${worldName}.png`}
+           onError={(e) => {
+             e.target.src = `${prefix}data/Wb4.png`;
+             e.target.style.width = 'auto';
+           }}
+           alt=""/>
       {quests?.[worldName].map((npc, index) => {
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
