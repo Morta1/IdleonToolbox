@@ -17,7 +17,7 @@ const Kitchens = ({ kitchens }) => {
                   return <img src={`${prefix}data/CookingSpice${spice}.png`} key={`${spice}-${index}`} alt={''}/>
                 })}</div>
               </div> : <img className={'food'} src={`${prefix}data/${kitchen?.rawName}.png`} alt=""/>}
-            <div>
+            <div className={'kitchen-stats-wrapper'}>
               <div>Kitchen Stats</div>
               <div className={'kitchen-stats'}>
                 <span className={'green'}>Speed Lv.{kitchen?.speedLv}</span>
@@ -34,17 +34,27 @@ const Kitchens = ({ kitchens }) => {
 
 const KitchensStyle = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 25px;
 
   .kitchen {
+    min-width: 360px;
+
     .kitchen-name {
       margin: 10px 0;
     }
 
     .box {
+      position: relative;
+      min-height: 135px;
       border: 1px solid white;
       padding: 15px;
+
+      .kitchen-stats-wrapper {
+        position: absolute;
+        bottom: 15px;
+      }
     }
 
     .cooking-with {
