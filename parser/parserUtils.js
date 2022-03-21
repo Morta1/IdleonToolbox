@@ -237,7 +237,6 @@ export const getDuration = (start, end) => {
 
 export const getEquippedCardBonus = (cards, cardInd) => {
   const card = cards?.equippedCards?.find(({ cardIndex }) => cardIndex === cardInd);
-  console.log('card', card)
   if (!card) return 0;
   return calcCardBonus(card);
 }
@@ -304,10 +303,6 @@ export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardInd
     return 0;
   }
   const cardBonus = getEquippedCardBonus(cards, cardIndex) ?? 0;
-  if (cardIndex === 'Z9'){
-    console.log('Shrine', shrine);
-    console.log('Shrine Bonus', cardBonus);
-  }
   return shrine?.bonus * (1 + cardBonus / 100);
 }
 
