@@ -3,7 +3,6 @@ import { Tooltip } from "@material-ui/core";
 import { prefix } from "../../../Utilities";
 
 const CustomTooltip = ({ bonus, baseBonus, cardName, effect, children }) => {
-  console.log('bonus', bonus)
   return (
     <StyledTooltip
       interactive

@@ -927,6 +927,7 @@ const createCharactersData = (idleonData, characters, account) => {
       unspentPoints: (account?.deliveryBoxComplete + account?.deliveryBoxStreak + account?.deliveryBoxMisc - totalPointsSpent) || 0
     }
 
+    const crystalShrineBonus = getShrineBonus(account?.shrines, 6, char?.[`CurrentMap_${charIndex}`], account?.cards, 'Z9');
     const crystallinStamp = account?.stamps?.misc?.find(({ rawName }) => rawName === 'StampC3');
     const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
     const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
@@ -939,7 +940,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const nonPredatoryBoxCrystalUpgrade = nonPredatoryBox?.upgrades?.[2]
     const nonPredatoryBoxBonus = growth(nonPredatoryBoxCrystalUpgrade?.func, nonPredatoryBox?.level > 0 ? nonPredatoryBox?.level - 100 : 0, nonPredatoryBoxCrystalUpgrade?.x1, nonPredatoryBoxCrystalUpgrade?.x2);
 
-    character.crystalSpawnChance = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + nonPredatoryBoxBonus / 100) * (1 + crystals4DaysBonus / 100)
+    character.crystalSpawnChance = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
       * (1 + crystallinStampBonus / 100) * (1 + poopCardBonus / 100);
 
 
