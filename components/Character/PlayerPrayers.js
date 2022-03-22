@@ -3,15 +3,21 @@ import { prefix } from "../../Utilities";
 import styled from 'styled-components';
 import CurseTooltip from "../Common/Tooltips/CurseTooltip";
 
-const Prayers = ({ prayers }) => {
+const PlayerPrayers = ({ prayers }) => {
+  const calcCost = (prayer) => {
+    const { level, costMulti, prayerIndex } = prayer
+    if (level < 6) {
+      return Math.round(costMulti * (1 + (4 + prayerIndex / 25) * level));
+    }
+    return Math.round(Math.min(2e9, costMulti * (1 + (1 + prayerIndex / 20) * level) * Math.pow(prayerIndex === 9 ? 1.3 : 1.12, level - 5)))
+  }
   return (
     <PrayersStyled length={prayers?.length}>
       {prayers?.map((prayer, index) => {
-        const { name, x1, x2, level, costMulti, id, prayerIndex } = prayer
-        const multiplier = name === 'The_Royal_Sampler' ? 1.25 : 1.5;
+        const { name, x1, x2, level, prayerIndex } = prayer
         const calculatedBonus = x1 + (x1 * (level - 1)) / 10;
         const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
-        const cost = Math.min(2e9, costMulti * (1 + (4 + (id / 25))) * level) * Math.pow(multiplier, level - 5);
+        const cost = calcCost(prayer);
         return <CurseTooltip key={name + index} {...{ ...prayer, x1: calculatedBonus, x2: calculatedCurse, cost }}>
           <img src={`${prefix}data/Prayer${prayerIndex}.png`} alt=""/>
         </CurseTooltip>;
@@ -46,4 +52,4 @@ const PrayersStyled = styled.div`
   }
 `;
 
-export default Prayers;
+export default PlayerPrayers;

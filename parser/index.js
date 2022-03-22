@@ -93,6 +93,7 @@ const { calculateStars, createObolsWithUpgrades, filteredLootyItems } = require(
 const parseIdleonData = (idleonData, charNames, guildData) => {
   try {
     let characterNames, characters;
+    // PlayerDATABASE is from Steam Data Extractor
     if (idleonData?.PlayerDATABASE) {
       characterNames = Object.entries(idleonData?.PlayerDATABASE);
       characters = characterNames.map(([charName, charData], index) => ({
@@ -485,6 +486,17 @@ const createAccountData = (idleonData, characters) => {
       spices: [spice1, spice2, spice3, spice4]
     }
   });
+
+  account.prayers = idleonData?.PrayersUnlocked.reduce((res, prayerLevel, prayerIndex) => {
+    const reqItem = prayers?.[prayerIndex]?.soul;
+    const totalAmount = calculateItemTotalAmount(account?.inventory, items?.[reqItem]?.displayName, true);
+    return prayerIndex < 19 ? [...res, {
+      ...prayers?.[prayerIndex],
+      prayerIndex,
+      totalAmount,
+      level: prayerLevel
+    }] : res
+  }, []);
 
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);

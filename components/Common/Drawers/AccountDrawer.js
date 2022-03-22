@@ -32,6 +32,7 @@ const worldsData = {
       { label: 'deathNote', icon: 'ConTower2' },
       { label: 'saltLick', icon: 'ConTower3' },
       { label: 'refinery', icon: 'TaskSc6' },
+      { label: 'prayers', icon: `PrayerSel` },
     ]
   },
   'World 4': {

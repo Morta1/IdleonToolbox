@@ -9,6 +9,8 @@ const CurseTooltip = ({
                         children,
                         x1,
                         x2,
+                        level,
+                        maxLevel,
                         cost, soul
                       }) => {
   return (
@@ -26,10 +28,10 @@ const CurseTooltip = ({
         <div className="item-req">
           <span className={'curse'}>Curse:</span> {cleanUnderscore(curse).replace('{', x2)}
         </div>
-        <div className="cost">
+        {maxLevel === level ? <span className={'maxed'}>MAXED</span> : <div className="cost">
           <img src={`${prefix}data/${soul}.png`} alt=""/>
-          <span className={'cost-span'}>Cost:</span> {kFormatter(round(cost))}
-        </div>
+          <span className={'cost-span'}>Cost:</span> {kFormatter(round(cost), 2)}
+        </div>}
       </div>}>
       {children}
     </CurseTooltipStyle>
@@ -88,6 +90,12 @@ const CurseTooltipStyle = styled((props) => (
     & img {
       width: 36px;
       height: 36px;
+    }
+
+    .maxed {
+      color: #6cdf6c;
+      display: flex;
+      align-items: center;
     }
   }
 `;

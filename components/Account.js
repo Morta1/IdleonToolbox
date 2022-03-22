@@ -17,6 +17,7 @@ import SaltLick from "./SaltLick";
 import Forge from "./Forge";
 import Flags from "./Flags";
 import Cooking from "./Cooking";
+import Prayers from "./Prayers";
 
 const Account = () => {
   const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
@@ -35,7 +36,9 @@ const Account = () => {
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'deathNote' ? <DeathNote deathNote={userData?.account?.deathNote}/> : null}
       {accountDisplay?.view === 'forge' ? <Forge forge={userData?.account?.forge}/> : null}
-      {accountDisplay?.view === 'cooking' ? <Cooking meals={userData?.account?.meals} kitchens={userData?.account?.kitchens}/> : null}
+      {accountDisplay?.view === 'cooking' ?
+        <Cooking meals={userData?.account?.meals} kitchens={userData?.account?.kitchens}/> : null}
+      {accountDisplay?.view === 'prayers' ? <Prayers prayers={userData?.account?.prayers}/> : null}
       {accountDisplay?.view === 'construction' ?
         <Flags flags={userData?.account?.flags} cogstruction={userData?.account?.cogstruction}
                character={userData?.characters}/> : null}
