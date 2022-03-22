@@ -8,7 +8,10 @@ const Meals = ({ meals }) => {
         if (!meal) return null;
         const { name, rawName, effect, level, baseStat } = meal;
         return <div className={'meal'} key={`${name}-${index}`}>
-          <img className={level <= 0 ? 'missing' : ''} src={`${prefix}data/${rawName}.png`} alt=""/>
+          <div className={'images'}>
+            <img className={`food${level <= 0 ? ' missing' : ''}`} src={`${prefix}data/${rawName}.png`} alt=""/>
+            {level > 0 ? <img className='plate' src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
+          </div>
           <div className={'meal-desc'}>
             <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
             <div className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
@@ -28,9 +31,11 @@ const MealsStyle = styled.div`
     display: flex;
     align-items: center;
 
-    > img {
-      object-fit: cover;
-      object-position: 0px -15px;
+    .images {
+      width: 82px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .meal-desc {
