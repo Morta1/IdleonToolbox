@@ -9,7 +9,7 @@ import StarSigns from "./StarSign";
 import EquippedCards from "./EquippedCards";
 import Obols from "./Obols";
 import Talents from "./Talents";
-import Prayers from "./Prayers";
+import PlayerPrayers from "./PlayerPrayers";
 import Traps from "./Traps";
 import PostOffice from "./PostOffice";
 import CoinDisplay from "../General/CoinDisplay";
@@ -122,7 +122,7 @@ const Character = ({
       dataFilters?.['Equipped Bubbles'] ||
       dataFilters?.['Prayers'] ? <div className="small">
         {!dataFilters || dataFilters?.['Equipped Bubbles'] ? <EquippedBubbles bubbles={equippedBubbles}/> : null}
-        {!dataFilters || dataFilters?.['Prayers'] ? <Prayers prayers={prayers}/> : null}
+        {!dataFilters || dataFilters?.['Prayers'] ? <PlayerPrayers prayers={prayers}/> : null}
       </div> : null}
       {!dataFilters || dataFilters?.Obols ? <Obols obols={obols} type={'character'}/> : null}
       {!dataFilters || dataFilters?.Bags ? <Bags bags={invBagsUsed} capBags={carryCapBags}/> : null}
