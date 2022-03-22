@@ -30,7 +30,7 @@ const MealsStyle = styled.div`
 
     > img {
       object-fit: cover;
-      object-position: 0px -20px;
+      object-position: 0px -15px;
     }
 
     .meal-desc {
