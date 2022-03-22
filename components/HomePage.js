@@ -13,6 +13,17 @@ const HomePage = () => {
   const updates = [
     {
       latest: true,
+      version: '2.0.1',
+      changes: [
+        {
+          title: 'Account',
+          desc: [
+            'Added a prayer page'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.0',
       changes: [
         {
