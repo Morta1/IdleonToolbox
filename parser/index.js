@@ -486,7 +486,7 @@ const createAccountData = (idleonData, characters) => {
       spices: [spice1, spice2, spice3, spice4]
     }
   });
-
+  // breeding [2] - upgrades
   account.spices = idleonData?.Territory?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
     if (amount <= 0) return res;

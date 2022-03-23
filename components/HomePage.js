@@ -370,6 +370,7 @@ const HomePage = () => {
 
   return (
     <HomePageStyle>
+      <div className={'sprite'}/>
       <Typography variant={'h1'}><img src={`${prefix}data/Badge${icon}2.png`} alt=""/>Idleon
         Toolbox</Typography>
       <div className={'desc'}>Idleon toolbox helps you track all of your account and characters&apos; progress with
@@ -439,6 +440,13 @@ const StyledButton = styled(Button)`
 `
 
 const HomePageStyle = styled.div`
+
+  .sprite {
+    width: 50px;
+    height: 50px;
+    background: url(${prefix}carrot.png) 0 0;
+  }
+
   margin: 25px auto;
   padding: 10px;
   display: flex;
