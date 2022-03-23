@@ -28,7 +28,7 @@ const Prayers = ({ prayers }) => {
         const cost = calcCost(prayer);
         return <div className={'prayer'} key={name + index}>
           <div className={'image-wrapper'}>
-            <img src={`${prefix}data/Prayer${prayerIndex}.png`} alt=""/>
+            <img className={level === 0 ? 'not-acquired' : ''} src={`${prefix}data/Prayer${prayerIndex}.png`} alt=""/>
             <div>Lv.{level}</div>
           </div>
           <div className={'bonus-curse'}>
@@ -42,7 +42,7 @@ const Prayers = ({ prayers }) => {
             </div>
             {maxLevel === level ? <span className={'maxed'}>MAXED</span> : <div>
               <div>Cost: <span
-                className={cost <= totalAmount ? 'ok' : 'missing'}>{kFormatter(round(cost), 2)}</span> ({kFormatter(totalAmount, 2)})
+                className={level === 0 ? '' : cost <= totalAmount ? 'ok' : 'missing'}>{kFormatter(round(cost), 2)}</span> ({kFormatter(totalAmount, 2)})
               </div>
               <div>Cost To Max: {kFormatter(round(calcCostToMax(prayer)))}</div>
             </div>}
@@ -116,6 +116,9 @@ const PrayersStyle = styled.div`
       color: #fa4e4e;
     }
 
+    .not-acquired {
+      filter: grayscale(1);
+    }
   }
 `;
 

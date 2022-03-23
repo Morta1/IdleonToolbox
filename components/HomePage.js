@@ -370,7 +370,7 @@ const HomePage = () => {
 
   return (
     <HomePageStyle>
-      <div className={'sprite'}/>
+      {/*<div className={'sprite'}/>*/}
       <Typography variant={'h1'}><img src={`${prefix}data/Badge${icon}2.png`} alt=""/>Idleon
         Toolbox</Typography>
       <div className={'desc'}>Idleon toolbox helps you track all of your account and characters&apos; progress with
