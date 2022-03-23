@@ -1,7 +1,14 @@
 import styled from 'styled-components'
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 
 const PetUpgrades = ({ petUpgrades }) => {
+  const calcFoodCost = (upgrade) => {
+    return upgrade?.baseCost * (1 + upgrade?.level) * Math.pow(upgrade?.costScale, upgrade?.level);
+  }
+  const calcCellCost = (upgrade) => {
+    return upgrade?.baseMatCost * (1 + upgrade?.level) * Math.pow(upgrade?.costMatScale, upgrade?.level);
+  }
+
   return (
     <PetUpgradesStyle>
       {petUpgrades?.map((upgrade, index) => {
@@ -17,10 +24,14 @@ const PetUpgrades = ({ petUpgrades }) => {
               <div className={'desc'}>{cleanUnderscore(upgrade?.description)}</div>
             </div>
             <div className="cost">
-              <img src={`${prefix}data/${upgrade?.material}.png`} alt=""/>
+              <div className={'cell-image'}>
+                <img src={`${prefix}data/${upgrade?.material}.png`} alt=""/>
+                {kFormatter(calcCellCost(upgrade))}
+              </div>
               {index > 0 ? <div className={'food-image'}>
                 <img src={`${prefix}data/CookingMB${upgrade?.foodIndex}.png`} alt=""/>
                 <img src={`${prefix}data/CookingPlate0.png`} alt=""/>
+                {kFormatter(calcFoodCost(upgrade))}
               </div> : null}
             </div>
           </div>
@@ -58,8 +69,19 @@ const PetUpgradesStyle = styled.div`
       display: flex;
       align-items: center;
 
-      > img {
-        object-fit: contain;
+      //> img {
+      //  object-fit: contain;
+      //}
+
+      .cell-image {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        > img {
+          height: 74px;
+          object-fit: none;
+        }
       }
 
       .food-image {
