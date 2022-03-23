@@ -12,6 +12,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.3',
+      changes: [
+        {
+          title: 'Account',
+          desc: [
+            'Added simple info for pet upgrades to the Breeding page'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.2',
       changes: [
         {

@@ -155,6 +155,7 @@ export const createSerializedData = (data, charNames) => {
     SaltLick: tryToParse(data?.SaltLick),
     DungUpg: tryToParse(data?.DungUpg),
     Cooking: tryToParse(data?.Cooking),
+    Breeding: tryToParse(data?.Breeding),
     Meals: tryToParse(data?.Meals),
     Territory: tryToParse(data?.Territory),
     CurrenciesOwned: {

@@ -73,6 +73,7 @@ import {
   mapNames,
   mapPortals,
   monsters,
+  petUpgrades,
   postOffice,
   prayers,
   randomList,
@@ -486,7 +487,7 @@ const createAccountData = (idleonData, characters) => {
       spices: [spice1, spice2, spice3, spice4]
     }
   });
-  // breeding [2] - upgrades
+
   account.spices = idleonData?.Territory?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
     if (amount <= 0) return res;
@@ -499,6 +500,14 @@ const createAccountData = (idleonData, characters) => {
       }
     ]
   }, []);
+
+  // breeding [2] - upgrades
+  account.petUpgrades = idleonData?.Breeding[2]?.map((upgradeLevel, index) => {
+    return {
+      ...(petUpgrades[index] || []),
+      level: upgradeLevel
+    }
+  });
 
   account.prayers = idleonData?.PrayersUnlocked.reduce((res, prayerLevel, prayerIndex) => {
     const reqItem = prayers?.[prayerIndex]?.soul;
