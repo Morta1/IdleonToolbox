@@ -50,6 +50,7 @@ const PetUpgradesStyle = styled.div`
     display: flex;
     align-items: center;
     margin: 25px 0;
+    gap: 10px;
 
     .image {
       display: flex;
