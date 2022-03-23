@@ -28,13 +28,14 @@ const StyledTabs = styled(Tabs)`
 
 
 const LinearProgressWithLabel = (props) => {
+  const { overcharge, ...other } = props;
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
-        <StyledLinearProgress variant="determinate" {...props} />
+        <StyledLinearProgress variant="determinate" {...other} />
       </Box>
       <Box minWidth={38}>
-        <Typography variant="body2">{`${Math.round(
+        <Typography color={props?.overcharge ? 'error' : 'initial'} variant="body2">{`${Math.round(
           props.value,
         )}%`}</Typography>
       </Box>

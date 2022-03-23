@@ -24,7 +24,7 @@ const PrinterProducts = ({ selected, stored }) => {
             return <div className={'product-container'} key={item + index}>
               <span className={'product-value'}>{kFormatter(value)}/hr</span>
               <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
-              <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
+              <img title={cleanUnderscore(item)} src={`${prefix}data/${item}.png`} alt=""/>
             </div>
           })}
         </div>
@@ -37,7 +37,7 @@ const PrinterProducts = ({ selected, stored }) => {
               <div className={'product-container'} key={item + index}>
                 <span className={'product-value'}>{kFormatter(value)}/hr</span>
                 <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
-                <img title={cleanUnderscore(item)} src={`${prefix}materials/${item}.png`} alt=""/>
+                <img title={cleanUnderscore(item)} src={`${prefix}data/${item}.png`} alt=""/>
               </div> : null
           })}
         </div>

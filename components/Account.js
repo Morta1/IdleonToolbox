@@ -37,7 +37,7 @@ const Account = () => {
       {accountDisplay?.view === 'deathNote' ? <DeathNote deathNote={userData?.account?.deathNote}/> : null}
       {accountDisplay?.view === 'forge' ? <Forge forge={userData?.account?.forge}/> : null}
       {accountDisplay?.view === 'cooking' ?
-        <Cooking meals={userData?.account?.meals} kitchens={userData?.account?.kitchens}/> : null}
+        <Cooking spices={userData?.account?.spices} meals={userData?.account?.meals} kitchens={userData?.account?.kitchens}/> : null}
       {accountDisplay?.view === 'prayers' ? <Prayers prayers={userData?.account?.prayers}/> : null}
       {accountDisplay?.view === 'construction' ?
         <Flags flags={userData?.account?.flags} cogstruction={userData?.account?.cogstruction}

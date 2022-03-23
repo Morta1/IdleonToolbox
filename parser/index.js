@@ -487,6 +487,19 @@ const createAccountData = (idleonData, characters) => {
     }
   });
 
+  account.spices = idleonData?.Territory?.reduce((res, territory) => {
+    const [progress, amount, , spiceName] = territory;
+    if (progress <= 0) return res;
+    return [
+      ...res,
+      {
+        progress,
+        amount,
+        spiceName
+      }
+    ]
+  }, []);
+
   account.prayers = idleonData?.PrayersUnlocked.reduce((res, prayerLevel, prayerIndex) => {
     const reqItem = prayers?.[prayerIndex]?.soul;
     const totalAmount = calculateItemTotalAmount(account?.inventory, items?.[reqItem]?.displayName, true);
@@ -847,7 +860,7 @@ const createCharactersData = (idleonData, characters, account) => {
         if (sampleIndex % 2 === 0) {
           const sample = array
             .slice(sampleIndex, sampleIndex + 2)
-            .map((item, sampleIndex) => sampleIndex === 0 ? items?.[item]?.displayName : item);
+            .map((item, sampleIndex) => sampleIndex === 0 ? item : item);
           if (sampleIndex < 10) {
             result.stored.push({ item: sample[0], value: sample[1] });
           } else {

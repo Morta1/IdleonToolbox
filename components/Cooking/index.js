@@ -5,7 +5,7 @@ import { AppContext } from "../Common/context";
 import Meals from "./Meals";
 import Kitchens from "./Kitchens";
 
-const Cooking = ({ meals, kitchens }) => {
+const Cooking = ({ meals, kitchens, spices }) => {
   const { accountDisplay, setUserAccountDisplay } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(accountDisplay?.subView || 'kitchens');
   const tabs = [
@@ -23,7 +23,7 @@ const Cooking = ({ meals, kitchens }) => {
     <CookingStyle>
       <Tabs subView={selectedTab} tabs={tabs} onTabChange={handleTabChange}/>
       {selectedTab === 'meals' && <Meals meals={meals}/>}
-      {selectedTab === 'kitchens' && <Kitchens kitchens={kitchens}/>}
+      {selectedTab === 'kitchens' && <Kitchens spices={spices} kitchens={kitchens}/>}
     </CookingStyle>
   );
 };

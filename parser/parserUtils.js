@@ -156,6 +156,7 @@ export const createSerializedData = (data, charNames) => {
     DungUpg: tryToParse(data?.DungUpg),
     Cooking: tryToParse(data?.Cooking),
     Meals: tryToParse(data?.Meals),
+    Territory: tryToParse(data?.Territory),
     CurrenciesOwned: {
       WorldTeleports: data?.CYWorldTeleports,
       KeysAll: data?.CYKeysAll,

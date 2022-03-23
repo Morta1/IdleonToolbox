@@ -67,6 +67,8 @@ const Character = ({
     return minutes <= 5;
   }
 
+  const worshipProgress = worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100;
+
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-information-container'}>
       <div className={'character-profile'}>
@@ -87,7 +89,8 @@ const Character = ({
           <div>Current Charge: {worship?.currentCharge}</div>
           <div>Max Charge: {worship?.maxCharge}</div>
           <LinearProgressWithLabel barcolor={'#903dd3'} barbgcolor={'#dddddd'}
-                                   value={worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100}/>
+                                   overcharge={worshipProgress > 100}
+                                   value={worshipProgress > 100 ? 100 : worshipProgress}/>
           <div style={{ margin: '10px 0' }}><CoinDisplay money={money}/></div>
         </div>
         {!dataFilters || dataFilters?.Activity ? <div className={'activity'}>

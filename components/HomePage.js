@@ -12,7 +12,19 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
-      latest: true,
+      version: '2.0.2',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added spices produced by territory to Cooking page',
+            'Fixed worship overcharge display',
+            'Fixed missing Printer Products'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.1',
       changes: [
         {
