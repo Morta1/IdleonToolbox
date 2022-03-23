@@ -489,7 +489,7 @@ const createAccountData = (idleonData, characters) => {
 
   account.spices = idleonData?.Territory?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
-    if (progress <= 0) return res;
+    if (amount <= 0) return res;
     return [
       ...res,
       {

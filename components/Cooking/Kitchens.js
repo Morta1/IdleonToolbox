@@ -4,13 +4,16 @@ import { prefix } from "../../Utilities";
 const Kitchens = ({ spices, kitchens }) => {
   return (
     <KitchensStyle>
-      {spices ? <div className="spices">
-        {spices?.map((spice, index) => {
-          return spice ? <div className={'spice'} key={`${spice?.spiceName}-${index}`}>
-            <img src={`${prefix}data/${spice?.spiceName}.png`} alt=""/>
-            <span className={'amount'}>{spice?.amount}</span>
-          </div> : null;
-        })}
+      {spices ? <div className={'spices-wrapper'}>
+        <div>Spices to claim</div>
+        <div className="spices">
+          {spices?.map((spice, index) => {
+            return spice ? <div className={'spice'} key={`${spice?.spiceName}-${index}`}>
+              <img src={`${prefix}data/${spice?.spiceName}.png`} alt=""/>
+              <span className={'amount'}>{spice?.amount}</span>
+            </div> : null;
+          })}
+        </div>
       </div> : null}
       <div className="kitchens">
         {kitchens?.map((kitchen, index) => {
@@ -43,6 +46,12 @@ const Kitchens = ({ spices, kitchens }) => {
 };
 
 const KitchensStyle = styled.div`
+  .spices-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .spices {
     margin-bottom: 25px;
     display: flex;
