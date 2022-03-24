@@ -38,8 +38,7 @@ const AnvilProducts = ({ anvil, afkTime, lastUpdated }) => {
               <NumberTooltip
                 title={<div>
                   <div>Inaccurate!</div>
-                  If you want to get more accurate results, please update your extension to version 2.0.1 use the
-                  connect button.
+                  Steam Data extractor is missing guild data, please use Google Login for more accurate results!
                 </div>}>
                 <WarningIcon color={'error'} fontSize={'small'}/>
               </NumberTooltip> : null}

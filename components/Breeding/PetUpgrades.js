@@ -90,8 +90,8 @@ const PetUpgrades = ({ meals, petUpgrades }) => {
                 <img src={`${prefix}data/CookingPlate0.png`} alt=""/>
                 <div style={{ textAlign: 'center' }}>
                   <span
-                    className={upgrade?.level === 0 ? '' : foodAmount >= foodUpgradeCost ? 'ok' : 'missing'}>{kFormatter(foodAmount)}</span> /&nbsp;
-                  <span>{kFormatter(foodUpgradeCost)}</span>
+                    className={upgrade?.level === 0 ? '' : foodAmount >= foodUpgradeCost ? 'ok' : 'missing'}>{kFormatter(foodAmount, 2)}</span> /&nbsp;
+                  <span>{kFormatter(foodUpgradeCost, 2)}</span>
                   <div>({foodCostToMax})</div>
                 </div>
               </div> : null}
