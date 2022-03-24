@@ -19,7 +19,7 @@ const Bribes = ({ bribes }) => {
         {bribes?.map((bribe, index) => {
           const { name, desc, price, done, value } = bribe;
           return <tr key={name + ' ' + index} className={`bribe-row${done ? ' done' : ''}`}>
-            <td><StyledCheckbox color={'default'} disabled={done} checked={done}/></td>
+            <td><StyledCheckbox color={'default'} disabled={true} checked={done}/></td>
             <td>{cleanUnderscore(name)}</td>
             <td
               className={'desc'}>{index === 0 ? cleanUnderscore(desc).replace('5%', `${value}%`) : cleanUnderscore(desc)}</td>

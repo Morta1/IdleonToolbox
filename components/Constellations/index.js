@@ -35,7 +35,7 @@ const Constellations = ({ constellations, starSigns }) => {
           {constellations?.map((constellation, index) => {
             const { name, points, done, requirement, completedChars, requiredPlayers, location } = constellation;
             return <tr key={name + ' ' + index} className={`row${done ? ' done' : ''}`}>
-              <td className={'text-align-center'}><StyledCheckbox color={'default'} disabled={done} checked={done}/>
+              <td className={'text-align-center'}><StyledCheckbox color={'default'} disabled={true} checked={done}/>
               </td>
               <td
                 className={'text-align-center'}>{cleanUnderscore(name)}</td>
