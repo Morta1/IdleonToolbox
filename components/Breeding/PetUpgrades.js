@@ -54,10 +54,12 @@ const PetUpgrades = ({ meals, petUpgrades }) => {
     <PetUpgradesStyle>
       {petUpgrades?.map((upgrade, index) => {
         if (upgrade?.name === 'Filler') return null;
-        const foodAmount = kFormatter(meals?.[upgrade?.foodIndex]?.amount);
-        const foodUpgradeCost = kFormatter(calcFoodCost(upgrade));
+        const foodAmount = meals?.[upgrade?.foodIndex]?.amount;
+        const foodUpgradeCost = calcFoodCost(upgrade);
         const foodCostToMax = kFormatter(calcCostToMax(upgrade, true));
         const cellCostToMax = kFormatter(calcCostToMax(upgrade));
+        console.log(`foodAmount >= foodUpgradeCost ${upgrade?.name}`, foodAmount)
+        console.log(`foodAmount >= foodUpgradeCost ${upgrade?.name}`, foodUpgradeCost)
         return <div className={'upgrade'} key={upgrade?.name + '' + index}>
           <div className={'image'}>
             <img
@@ -88,8 +90,8 @@ const PetUpgrades = ({ meals, petUpgrades }) => {
                 <img src={`${prefix}data/CookingPlate0.png`} alt=""/>
                 <div style={{ textAlign: 'center' }}>
                   <span
-                    className={upgrade?.level === 0 ? '' : foodAmount >= foodUpgradeCost ? 'ok' : 'missing'}>{foodAmount}</span> /&nbsp;
-                  <span>{foodUpgradeCost}</span>
+                    className={upgrade?.level === 0 ? '' : foodAmount >= foodUpgradeCost ? 'ok' : 'missing'}>{kFormatter(foodAmount)}</span> /&nbsp;
+                  <span>{kFormatter(foodUpgradeCost)}</span>
                   <div>({foodCostToMax})</div>
                 </div>
               </div> : null}
