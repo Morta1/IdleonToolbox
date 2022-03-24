@@ -52,6 +52,7 @@ const PetUpgrades = ({ petUpgrades }) => {
   return (
     <PetUpgradesStyle>
       {petUpgrades?.map((upgrade, index) => {
+        if (upgrade?.name === 'Filler') return null;
         return <div className={'upgrade'} key={upgrade?.name + '' + index}>
           <div className={'image'}>
             <img
@@ -69,7 +70,7 @@ const PetUpgrades = ({ petUpgrades }) => {
             </div>
             <div className={'bonus'}>
               <div className={'name'}>Effect</div>
-              <div>{calcBonus(upgrade, index)}</div>
+              <div>{upgrade?.boostEffect === '_' ? 'NOTHING' : cleanUnderscore(upgrade?.boostEffect.replace('}', calcBonus(upgrade, index)))}</div>
             </div>
             <div className="cost">
               <div className={'cell-image'}>
@@ -119,6 +120,8 @@ const PetUpgradesStyle = styled.div`
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        width: 100px;
+        text-align: center;
         gap: 5px;
       }
 
