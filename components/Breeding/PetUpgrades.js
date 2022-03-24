@@ -9,19 +9,67 @@ const PetUpgrades = ({ petUpgrades }) => {
     return upgrade?.baseMatCost * (1 + upgrade?.level) * Math.pow(upgrade?.costMatScale, upgrade?.level);
   }
 
+  const calcBonus = (upgrade, upgradeIndex) => {
+    if (0 === upgradeIndex) {
+      return upgrade?.level;
+    }
+    if (1 === upgradeIndex) {
+      return 4 * upgrade?.level;
+    }
+    if (2 === upgradeIndex) {
+      return upgrade?.level;
+    }
+    if (3 === upgradeIndex) {
+      return 25 * upgrade?.level;
+    }
+    if (4 === upgradeIndex) {
+      return upgrade?.level;
+    }
+    if (5 === upgradeIndex) {
+      return 1 + 0.25 * upgrade?.level;
+    }
+    if (6 === upgradeIndex) {
+      return 6 * upgrade?.level;
+    }
+    if (7 === upgradeIndex) {
+      return 1 + 0.3 * upgrade?.level;
+    }
+    if (8 === upgradeIndex) {
+      return 1 + 2 * upgrade?.level;
+    }
+    if (9 === upgradeIndex) {
+      return 1 + 0.05 * upgrade?.level;
+    }
+    if (10 === upgradeIndex) {
+      return 10 * upgrade?.level;
+    }
+    if (11 === upgradeIndex) {
+      return Math.ceil(12 * Math.pow(upgrade?.level, 0.698));
+    }
+    return 0;
+  }
+  console.log('petUpgrades', petUpgrades)
   return (
     <PetUpgradesStyle>
       {petUpgrades?.map((upgrade, index) => {
-        if (upgrade?.name === 'Filler') return null;
         return <div className={'upgrade'} key={upgrade?.name + '' + index}>
           <div className={'image'}>
-            <img className={upgrade?.level === 0 ? 'offline' : ''} src={`${prefix}data/PetUpg${index}.png`} alt=""/>
+            <img
+              onError={(e) => {
+                e.target.src = `${prefix}data/PetUpg0.png`;
+                e.target.style = 'opacity: 0;'
+              }}
+              className={upgrade?.level === 0 ? 'offline' : ''} src={`${prefix}data/PetUpg${index - 1}.png`} alt=""/>
             <div>Lv.{upgrade?.level} ({upgrade?.maxLevel})</div>
           </div>
           <div className={'info'}>
             <div className="header">
               <div className={'name'}>{cleanUnderscore(upgrade?.name)}</div>
               <div className={'desc'}>{cleanUnderscore(upgrade?.description)}</div>
+            </div>
+            <div className={'bonus'}>
+              <div className={'name'}>Effect</div>
+              <div>{calcBonus(upgrade, index)}</div>
             </div>
             <div className="cost">
               <div className={'cell-image'}>
@@ -60,36 +108,41 @@ const PetUpgradesStyle = styled.div`
 
     .info {
       display: flex;
+      gap: 15px;
 
       .header {
         max-width: 650px;
       }
-    }
 
-    .cost {
-      display: flex;
-      align-items: center;
-
-      //> img {
-      //  object-fit: contain;
-      //}
-
-      .cell-image {
+      .bonus {
         display: flex;
         flex-direction: column;
         align-items: center;
-
-        > img {
-          height: 74px;
-          object-fit: none;
-        }
+        justify-content: center;
+        gap: 5px;
       }
 
-      .food-image {
-        width: 82px;
+      .cost {
         display: flex;
-        flex-direction: column;
         align-items: center;
+
+        .cell-image {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          > img {
+            height: 74px;
+            object-fit: none;
+          }
+        }
+
+        .food-image {
+          width: 82px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
       }
     }
 
