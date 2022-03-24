@@ -471,6 +471,7 @@ const createAccountData = (idleonData, characters) => {
     if (index > 48) return null;
     return {
       level: mealLevel,
+      amount: idleonData?.Meals?.[2]?.[index],
       ...(cookingMenu?.[index] || {})
     }
   });

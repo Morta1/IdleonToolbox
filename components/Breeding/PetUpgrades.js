@@ -1,29 +1,30 @@
 import styled from 'styled-components'
 import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 
-const PetUpgrades = ({ petUpgrades }) => {
+const PetUpgrades = ({ meals, petUpgrades }) => {
   const calcFoodCost = (upgrade) => {
     return upgrade?.baseCost * (1 + upgrade?.level) * Math.pow(upgrade?.costScale, upgrade?.level);
   }
   const calcCellCost = (upgrade) => {
     return upgrade?.baseMatCost * (1 + upgrade?.level) * Math.pow(upgrade?.costMatScale, upgrade?.level);
   }
+  const calcCostToMax = (upgrade, food) => {
+    let costToMax = 0;
+    for (let i = upgrade?.level; i < upgrade?.maxLevel; i++) {
+      costToMax += food ? calcFoodCost({ ...upgrade, level: i }) : calcCellCost({ ...upgrade, level: i });
+    }
+    return costToMax ?? 0;
+  }
 
   const calcBonus = (upgrade, upgradeIndex) => {
-    if (0 === upgradeIndex) {
+    if (0 === upgradeIndex || 2 === upgradeIndex || 4 === upgradeIndex) {
       return upgrade?.level;
     }
     if (1 === upgradeIndex) {
       return 4 * upgrade?.level;
     }
-    if (2 === upgradeIndex) {
-      return upgrade?.level;
-    }
     if (3 === upgradeIndex) {
       return 25 * upgrade?.level;
-    }
-    if (4 === upgradeIndex) {
-      return upgrade?.level;
     }
     if (5 === upgradeIndex) {
       return 1 + 0.25 * upgrade?.level;
@@ -48,11 +49,15 @@ const PetUpgrades = ({ petUpgrades }) => {
     }
     return 0;
   }
-  console.log('petUpgrades', petUpgrades)
+
   return (
     <PetUpgradesStyle>
       {petUpgrades?.map((upgrade, index) => {
         if (upgrade?.name === 'Filler') return null;
+        const foodAmount = kFormatter(meals?.[upgrade?.foodIndex]?.amount);
+        const foodUpgradeCost = kFormatter(calcFoodCost(upgrade));
+        const foodCostToMax = kFormatter(calcCostToMax(upgrade, true));
+        const cellCostToMax = kFormatter(calcCostToMax(upgrade));
         return <div className={'upgrade'} key={upgrade?.name + '' + index}>
           <div className={'image'}>
             <img
@@ -76,11 +81,17 @@ const PetUpgrades = ({ petUpgrades }) => {
               <div className={'cell-image'}>
                 <img src={`${prefix}data/${upgrade?.material}.png`} alt=""/>
                 {kFormatter(calcCellCost(upgrade))}
+                <div>({cellCostToMax})</div>
               </div>
               {index > 0 ? <div className={'food-image'}>
                 <img src={`${prefix}data/CookingMB${upgrade?.foodIndex}.png`} alt=""/>
                 <img src={`${prefix}data/CookingPlate0.png`} alt=""/>
-                {kFormatter(calcFoodCost(upgrade))}
+                <div style={{ textAlign: 'center' }}>
+                  <span
+                    className={upgrade?.level === 0 ? '' : foodAmount >= foodUpgradeCost ? 'ok' : 'missing'}>{foodAmount}</span> /&nbsp;
+                  <span>{foodUpgradeCost}</span>
+                  <div>({foodCostToMax})</div>
+                </div>
               </div> : null}
             </div>
           </div>
@@ -112,7 +123,7 @@ const PetUpgradesStyle = styled.div`
       gap: 15px;
 
       .header {
-        max-width: 650px;
+        max-width: 450px;
       }
 
       .bonus {
@@ -141,7 +152,7 @@ const PetUpgradesStyle = styled.div`
         }
 
         .food-image {
-          width: 82px;
+          width: 150px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -151,6 +162,15 @@ const PetUpgradesStyle = styled.div`
 
     .name {
       font-weight: bold;
+    }
+
+
+    .missing {
+      color: #f91d1d;
+    }
+
+    .ok {
+      color: #6cdf6c;
     }
   }
 `;

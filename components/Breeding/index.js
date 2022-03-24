@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { AppContext } from "../Common/context";
 import PetUpgrades from "./PetUpgrades";
 
-const Breeding = ({ petUpgrades }) => {
+const Breeding = ({ meals, petUpgrades }) => {
   const { accountDisplay, setUserAccountDisplay } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(accountDisplay?.subView || 'pet upgrades');
   const tabs = [
@@ -20,7 +20,7 @@ const Breeding = ({ petUpgrades }) => {
   return (
     <BreedingStyle>
       <Tabs subView={selectedTab} tabs={tabs} onTabChange={handleTabChange}/>
-      {selectedTab === 'pet upgrades' ? <PetUpgrades petUpgrades={petUpgrades}/> : null}
+      {selectedTab === 'pet upgrades' ? <PetUpgrades meals={meals} petUpgrades={petUpgrades}/> : null}
     </BreedingStyle>
   );
 };
