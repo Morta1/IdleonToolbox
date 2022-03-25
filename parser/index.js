@@ -503,14 +503,14 @@ const createAccountData = (idleonData, characters) => {
   }, []);
 
   // breeding [2] - upgrades
-  account.petUpgrades = idleonData?.Breeding[2]?.map((upgradeLevel, index) => {
+  account.petUpgrades = idleonData?.Breeding?.[2]?.map((upgradeLevel, index) => {
     return {
       ...(petUpgrades[index] || []),
       level: upgradeLevel
     }
   });
 
-  account.prayers = idleonData?.PrayersUnlocked.reduce((res, prayerLevel, prayerIndex) => {
+  account.prayers = idleonData?.PrayersUnlocked?.reduce((res, prayerLevel, prayerIndex) => {
     const reqItem = prayers?.[prayerIndex]?.soul;
     const totalAmount = calculateItemTotalAmount(account?.inventory, items?.[reqItem]?.displayName, true);
     return prayerIndex < 19 ? [...res, {

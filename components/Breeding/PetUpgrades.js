@@ -58,8 +58,6 @@ const PetUpgrades = ({ meals, petUpgrades }) => {
         const foodUpgradeCost = calcFoodCost(upgrade);
         const foodCostToMax = kFormatter(calcCostToMax(upgrade, true));
         const cellCostToMax = kFormatter(calcCostToMax(upgrade));
-        console.log(`foodAmount >= foodUpgradeCost ${upgrade?.name}`, foodAmount)
-        console.log(`foodAmount >= foodUpgradeCost ${upgrade?.name}`, foodUpgradeCost)
         return <div className={'upgrade'} key={upgrade?.name + '' + index}>
           <div className={'image'}>
             <img
