@@ -213,7 +213,14 @@ const KitchensStyle = styled.div`
         }
       }
 
-      .progress, .food-per-hour {
+      .food-per-hour {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 120px;
+      }
+
+      .progress {
         margin-bottom: 120px;
       }
 
