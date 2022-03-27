@@ -12,6 +12,18 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.4',
+      changes: [
+        {
+          title: 'Characters',
+          desc: [
+            'Added requirement for next portal',
+            'Some adjustments for cooking'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.3',
       changes: [
         {

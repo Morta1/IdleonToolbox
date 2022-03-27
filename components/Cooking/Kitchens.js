@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { kFormatter, prefix } from "../../Utilities";
 
-const Kitchens = ({ spices, kitchens }) => {
+const Kitchens = ({ meals, spices, kitchens }) => {
   return (
     <KitchensStyle>
       {spices?.spicesAvailable ? <div className={'spices-wrapper'}>
@@ -43,11 +43,13 @@ const Kitchens = ({ spices, kitchens }) => {
               {kitchen?.possibleMeals?.length > 0 ? <div>
                 <div>Possible Meals</div>
                 <div
-                  className={'possible-meals'}>{kitchen?.possibleMeals?.map((foodName, index) =>
+                  className={'possible-meals'}>{kitchen?.possibleMeals?.map((food, index) =>
                   <img
-                    key={`possible-${foodName}-${index}`} className={'possible-food'}
-                    src={`${prefix}data/${foodName}.png`}
-                    alt=""/>)}</div>
+                    key={`possible-${food?.rawName}-${index}`}
+                    className={`possible-food${meals?.[food?.index]?.level === 0 ? ' hidden' : ''}`}
+                    src={`${prefix}data/${food?.rawName}.png`}
+                    alt=""/>)}
+                </div>
               </div> : null}
               <div className={'kitchen-stats-wrapper'}>
                 <div>Kitchen Stats</div>
@@ -159,6 +161,10 @@ const KitchensStyle = styled.div`
 
       object-fit: cover;
       object-position: -15px -15px;
+    }
+
+    .hidden {
+      filter: grayscale(1);
     }
   }
 `;

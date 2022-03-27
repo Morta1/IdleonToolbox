@@ -1,4 +1,4 @@
-import { classColors, cleanUnderscore, prefix } from "../../Utilities";
+import { classColors, cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 import Equipment from "./Equipment";
 import styled from "styled-components";
 import EquippedBubbles from "./EquippedBubbles";
@@ -50,6 +50,7 @@ const Character = ({
                      money,
                      crystalSpawnChance,
                      afkTime,
+                     nextPortal,
                      cooldowns,
                      lastUpdated
                    }) => {
@@ -85,6 +86,8 @@ const Character = ({
             <span style={{ color: '#51e406', fontWeight: 'bold' }}>Active</span>}</div>
           <div style={{ marginTop: 10 }}>Crystal Spawn Chance:</div>
           <div style={{ marginBottom: 10 }}> 1 in {Math.floor(1 / crystalSpawnChance)}</div>
+          {nextPortal?.goal > 10 ? <div style={{ marginBottom: 10 }}>Next
+            Portal: {`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</div> : null}
           <div>Worship Charge: {Math.round(worship?.chargeRate * 24)}%/day</div>
           <div>Current Charge: {worship?.currentCharge}</div>
           <div>Max Charge: {worship?.maxCharge}</div>

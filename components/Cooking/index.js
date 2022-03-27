@@ -23,7 +23,7 @@ const Cooking = ({ meals, kitchens, spices }) => {
     <CookingStyle>
       <Tabs subView={selectedTab} tabs={tabs} onTabChange={handleTabChange}/>
       {selectedTab === 'meals' && <Meals meals={meals}/>}
-      {selectedTab === 'kitchens' && <Kitchens spices={spices} kitchens={kitchens}/>}
+      {selectedTab === 'kitchens' && <Kitchens meals={meals} spices={spices} kitchens={kitchens}/>}
     </CookingStyle>
   );
 };

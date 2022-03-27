@@ -475,14 +475,17 @@ const createAccountData = (idleonData, characters) => {
       amount: idleonData?.Meals?.[2]?.[index],
       ...(cookingMenu?.[index] || {})
     }
-  });
+  }).filter(meal => meal);
 
   account.kitchens = idleonData?.Cooking?.map((table) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv] = table;
     if (status <= 0) return null;
     const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
     const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
-    const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => cookingMenu?.[foodIndex]?.rawName)
+    const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
+      index: foodIndex,
+      rawName: cookingMenu?.[foodIndex]?.rawName
+    }));
     // .filter((foodIndex) => foodIndex > 0).map((foodIndex) => cookingMenu?.[foodIndex]?.rawName);
     return {
       status,
@@ -567,7 +570,8 @@ const createCharactersData = (idleonData, characters, account) => {
     character.class = classes?.[char?.[`CharacterClass_${charIndex}`]];
     character.afkTime = calculateAfkTime(char?.[`PlayerAwayTime_${charIndex}`], idleonData?.TimeAway?.GlobalTime);
     character.afkTarget = monsters?.[char?.[`AFKtarget_${charIndex}`]]?.Name;
-    character.currentMap = mapNames?.[char?.[`CurrentMap_${charIndex}`]];
+    const currentMapIndex = char?.[`CurrentMap_${charIndex}`];
+    character.currentMap = mapNames?.[currentMapIndex];
     character.money = String(parseInt(char?.[`Money_${charIndex}`])).split(/(?=(?:..)*$)/);
     const statMap = { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' };
     character.stats = personalValuesMap?.StatList?.reduce((res, statValue, index) => ({
@@ -999,6 +1003,10 @@ const createCharactersData = (idleonData, characters, account) => {
 
     const kills = char?.[`KillsLeft2Advance_${charIndex}`];
     character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
+    character.nextPortal = {
+      goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
+      current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
+    };
 
     character.cooldowns = char?.[`AttackCooldowns_${charIndex}`];
     return character;
