@@ -999,11 +999,11 @@ export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
   });
 
   // if we have 3 or more spices, add sum - 1.
-  if (valueOfSpices.length > 2) {
+  if (valueOfSpices.length > 2 && !possibleMeals.includes(sum - 1)) {
     possibleMeals.push(sum - 1);
   }
   // if we have more than one spice, add sum + 1.
-  if (valueOfSpices.length > 1) {
+  if (valueOfSpices.length > 1 && !possibleMeals.includes(sum + 1)) {
     possibleMeals.push(sum + 1);
   }
 
