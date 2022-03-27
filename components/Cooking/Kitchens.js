@@ -1,7 +1,17 @@
 import styled from 'styled-components'
 import { kFormatter, prefix } from "../../Utilities";
+import { LinearProgressWithLabel } from "../Common/commonStyles";
 
 const Kitchens = ({ meals, spices, kitchens }) => {
+
+  const getRecipeTime = (possibleMeals) => {
+    if (!possibleMeals) return 0;
+    const lastMeal = possibleMeals[possibleMeals.length - 1];
+    if (lastMeal?.index < meals.length) {
+      return 2 * lastMeal?.cookReq
+    }
+    return 2 * 5000000000;
+  }
   return (
     <KitchensStyle>
       {spices?.spicesAvailable ? <div className={'spices-wrapper'}>
@@ -29,10 +39,13 @@ const Kitchens = ({ meals, spices, kitchens }) => {
       <div className="kitchens">
         {kitchens?.map((kitchen, index) => {
           if (!kitchen) return null;
+          const isRecipe = kitchen?.status >= 3;
+          const recipeTime = getRecipeTime(kitchen?.possibleMeals);
+          const percentOfCap = Math.round(kitchen?.currentProgress / recipeTime * 100);
           return <div className={'kitchen'} key={`kitchen-${index}`}>
             <div className={'kitchen-name'}>Table #{index + 1}</div>
             <div className={'box'}>
-              {kitchen?.status >= 3 ?
+              {isRecipe ?
                 <div className={'cooking-with'}>
                   <div>Cooking With Spices</div>
                   <div>{kitchen?.spices?.map((spice, index) => {
@@ -51,10 +64,18 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                     alt=""/>)}
                 </div>
               </div> : null}
+              {isRecipe ? <div className={'progress'}>
+                <div>Progress:</div>
+                <LinearProgressWithLabel barcolor={'#3196e1'} barbgcolor={'#ffffff'} value={percentOfCap}/>
+                {kFormatter(kitchen?.currentProgress)} / {kFormatter(recipeTime)}
+              </div> : null}
               <div className={'kitchen-stats-wrapper'}>
                 <div>Kitchen Stats</div>
                 <div className={'kitchen-stats'}>
-                  <span className={'green'}>Speed Lv.{kitchen?.speedLv}</span>
+                  <div className={'green'}>
+                    <span>Speed Lv.{kitchen?.speedLv}</span>
+                    <div>{kFormatter(kitchen?.mealSpeed) ?? 0}/hr</div>
+                  </div>
                   <span className={'red'}>Fire Lv.{kitchen?.fireLv}</span>
                   <span className={'blue'}>Luck Lv.{kitchen?.luckLv}</span>
                 </div>
@@ -129,8 +150,12 @@ const KitchensStyle = styled.div`
         }
       }
 
+      .progress {
+        margin-bottom: 80px;
+      }
+
       .possible-meals {
-        margin-bottom: 40px;
+        margin-bottom: 20px;
       }
 
       .kitchen-stats {

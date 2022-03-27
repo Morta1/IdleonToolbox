@@ -252,6 +252,34 @@ export const calcCardBonus = (card) => {
   return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
 }
 
+export const getMealsBonusByEffectOrStat = (vials, effectName, statName) => {
+  return vials?.reduce((sum, meal) => {
+    const { level, baseStat, effect, stat } = meal;
+    if (effectName) {
+      if (!effect.includes(effectName)) return sum;
+    } else {
+      if (!stat.includes(statName)) return sum;
+    }
+    return sum + (level * baseStat ?? 0);
+  }, 0);
+}
+
+export const getVialsBonusByEffect = (vials, effectName) => {
+  return vials?.reduce((sum, vial) => {
+    const { func, level, x1, x2, desc } = vial;
+    if (!desc.includes(effectName)) return sum;
+    return sum + (growth(func, level, x1, x2) ?? 0);
+  }, 0);
+}
+
+export const getStampsBonusByEffect = (stamps, effectName) => {
+  return Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
+    const foundStamps = stampTree?.filter(({ effect }) => effect.includes(effectName));
+    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName), 0);
+    return final + sum;
+  }, 0);
+}
+
 export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;

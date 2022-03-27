@@ -92,7 +92,6 @@ const Character = ({
           <div>Current Charge: {worship?.currentCharge}</div>
           <div>Max Charge: {worship?.maxCharge}</div>
           <LinearProgressWithLabel barcolor={'#903dd3'} barbgcolor={'#dddddd'}
-                                   overcharge={worshipProgress > 100}
                                    value={worshipProgress > 100 ? 100 : worshipProgress}/>
           <div style={{ margin: '10px 0' }}><CoinDisplay money={money}/></div>
         </div>

@@ -30,6 +30,7 @@ import {
   getHighestLevelOfClass,
   getInventory,
   getMaxCharge,
+  getMealsBonusByEffectOrStat,
   getMealsFromSpiceValues,
   getMonsterMatCost,
   getPlayerCapacity,
@@ -39,6 +40,7 @@ import {
   getShrineBonus,
   getSmithingExpMulti,
   getStampBonus,
+  getStampsBonusByEffect,
   getStarSignBonus,
   getStatFromEquipment,
   getStatueBonus,
@@ -47,6 +49,7 @@ import {
   getTotalCardBonusById,
   getTotalCoinCost,
   getTotalMonsterMatCost,
+  getVialsBonusByEffect,
   keysMap,
   mapAccountQuests,
   shopMapping,
@@ -296,7 +299,7 @@ const createAccountData = (idleonData, characters) => {
       level: parseInt(vialsObject?.[key]) || 0,
       ...vial
     }] : res;
-  }, []);
+  }, []).filter(({ name }) => name);
 
   // first 16 elements belong to cauldrons' levels
   // 4 * 4
@@ -477,22 +480,43 @@ const createAccountData = (idleonData, characters) => {
     }
   }).filter(meal => meal);
 
-  account.kitchens = idleonData?.Cooking?.map((table) => {
-    const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv] = table;
+  account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
+    const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
+    // Meal Speed
+    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
+    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed');
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed');
+    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
+    const trollCard = account?.cards?.Troll;
+    const trollCardBonus = calcCardBonus(trollCard);
+    const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
+
+    const bonusMath = (1 + cookingSpeedStamps / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, 1);
+    const cardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
+    const mealSpeed = 10 *
+      (1 + (isRichelin ? 2 : 0)) *
+      (1 + speedLv / 10) *
+      (1 + cookingSpeedVials / 100) *
+      bonusMath *
+      cardImpact *
+      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
+
     const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
     const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
     const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
       index: foodIndex,
-      rawName: cookingMenu?.[foodIndex]?.rawName
+      rawName: cookingMenu?.[foodIndex]?.rawName,
+      cookReq: cookingMenu?.[foodIndex]?.cookReq
     }));
-    // .filter((foodIndex) => foodIndex > 0).map((foodIndex) => cookingMenu?.[foodIndex]?.rawName);
     return {
       status,
       ...(cookingMenu?.[foodIndex] || {}),
       luckLv,
       fireLv,
       speedLv,
+      currentProgress,
+      mealSpeed,
       ...(status === 3 ? { spices } : {}),
       ...(status === 3 ? { possibleMeals } : {})
     }

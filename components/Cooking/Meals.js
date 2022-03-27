@@ -1,12 +1,19 @@
 import styled from 'styled-components'
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { cleanUnderscore, numberWithCommas, prefix } from "../../Utilities";
 
 const Meals = ({ meals }) => {
+
+  const getMealLevelCost = (level) => {
+    const baseMath = 10 + (level + Math.pow(level, 2));
+    return baseMath * Math.pow(1.2 + 0.05 * level, level);
+  }
+
   return (
     <MealsStyle>
       {meals?.map((meal, index) => {
         if (!meal) return null;
-        const { name, rawName, effect, level, baseStat } = meal;
+        const { name, amount, rawName, effect, level, baseStat } = meal;
+        const levelCost = getMealLevelCost(level);
         return <div className={'meal'} key={`${name}-${index}`}>
           <div className={'images'}>
             <img className={`food${level <= 0 ? ' missing' : ''}`} src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -15,7 +22,11 @@ const Meals = ({ meals }) => {
           <div className={'meal-desc'}>
             <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
             <div className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
+            <div>
+              {numberWithCommas(parseInt(amount))} / {numberWithCommas(parseInt(levelCost))}
+            </div>
           </div>
+
         </div>
       })}
     </MealsStyle>
