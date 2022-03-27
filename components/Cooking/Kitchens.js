@@ -1,9 +1,22 @@
 import styled from 'styled-components'
 import { kFormatter, prefix } from "../../Utilities";
 import { LinearProgressWithLabel } from "../Common/commonStyles";
+import { useMemo } from "react";
 
 const Kitchens = ({ meals, spices, kitchens }) => {
+  const calcTotals = (kitchens) => {
+    return kitchens?.reduce((res, kitchen) => {
+      const isCooking = kitchen?.status === 2;
+      if (!isCooking) return res;
+      const { rawName } = kitchen;
+      return {
+        ...res,
+        [rawName]: (res[rawName] ?? 0) + Math.floor(kitchen?.mealSpeed / kitchen?.cookReq)
 
+      }
+    }, {})
+  }
+  const totals = useMemo(() => calcTotals(kitchens), [kitchens]);
   const getRecipeTime = (possibleMeals) => {
     if (!possibleMeals) return 0;
     const lastMeal = possibleMeals[possibleMeals.length - 1];
@@ -12,6 +25,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
     }
     return 2 * 5000000000;
   }
+  console.log('totals', totals)
   return (
     <KitchensStyle>
       {spices?.spicesAvailable ? <div className={'spices-wrapper'}>
@@ -36,6 +50,15 @@ const Kitchens = ({ meals, spices, kitchens }) => {
           })}
         </div>
       </div> : null}
+      <div className="totals">
+        <div>Totals Cooking</div>
+        {Object.entries(totals)?.map(([foodName, amount], index) => {
+          return <div className={'total-food'} key={`${foodName}-${index}-${amount}`}>
+            <img className={'food'} src={`${prefix}data/${foodName}.png`} alt=""/>
+            <div>{amount}/hr</div>
+          </div>
+        })}
+      </div>
       <div className="kitchens">
         {kitchens?.map((kitchen, index) => {
           if (!kitchen) return null;
@@ -52,7 +75,10 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                     if (spice === -1) return null;
                     return <img src={`${prefix}data/CookingSpice${spice}.png`} key={`${spice}-${index}`} alt={''}/>
                   })}</div>
-                </div> : <img className={'food'} src={`${prefix}data/${kitchen?.rawName}.png`} alt=""/>}
+                </div> : <div className={'food-per-hour'}>
+                  <img className={'food'} src={`${prefix}data/${kitchen?.rawName}.png`} alt=""/>
+                  <div>{kFormatter(Math.floor(kitchen?.mealSpeed / kitchen?.cookReq))}/hr</div>
+                </div>}
               {kitchen?.possibleMeals?.length > 0 ? <div>
                 <div>Possible Meals</div>
                 <div
@@ -93,6 +119,21 @@ const KitchensStyle = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+  }
+
+  .totals {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .total-food {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   .spices {
@@ -150,7 +191,7 @@ const KitchensStyle = styled.div`
         }
       }
 
-      .progress {
+      .progress, .food-per-hour {
         margin-bottom: 80px;
       }
 
