@@ -25,7 +25,11 @@ const Kitchens = ({ meals, spices, kitchens }) => {
     }
     return 2 * 5000000000;
   }
-  console.log('totals', totals)
+
+  const getSpiceForUpgrade = (kitchenIndex, upgradeType) => {
+    return Math.floor(2 * kitchenIndex + upgradeType);
+  }
+
   return (
     <KitchensStyle>
       {spices?.spicesAvailable ? <div className={'spices-wrapper'}>
@@ -60,13 +64,13 @@ const Kitchens = ({ meals, spices, kitchens }) => {
         })}
       </div>
       <div className="kitchens">
-        {kitchens?.map((kitchen, index) => {
+        {kitchens?.map((kitchen, kitchenIndex) => {
           if (!kitchen) return null;
           const isRecipe = kitchen?.status >= 3;
           const recipeTime = getRecipeTime(kitchen?.possibleMeals);
           const percentOfCap = Math.round(kitchen?.currentProgress / recipeTime * 100);
-          return <div className={'kitchen'} key={`kitchen-${index}`}>
-            <div className={'kitchen-name'}>Table #{index + 1}</div>
+          return <div className={'kitchen'} key={`kitchen-${kitchenIndex}`}>
+            <div className={'kitchen-name'}>Table #{kitchenIndex + 1}</div>
             <div className={'box'}>
               {isRecipe ?
                 <div className={'cooking-with'}>
@@ -101,9 +105,27 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                   <div className={'green'}>
                     <span>Speed Lv.{kitchen?.speedLv}</span>
                     <div>{kFormatter(kitchen?.mealSpeed) ?? 0}/hr</div>
+                    <div className={'spice-upgrade-cost'}>
+                      <span>{kFormatter(kitchen?.speedCost)}</span>
+                      <img src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 0)}.png`} alt={''}/>
+                    </div>
                   </div>
-                  <span className={'red'}>Fire Lv.{kitchen?.fireLv}</span>
-                  <span className={'blue'}>Luck Lv.{kitchen?.luckLv}</span>
+                  <div className={'red'}>
+                    <span className={'red'}>Fire Lv.{kitchen?.fireLv}</span>
+                    <div>{kFormatter(kitchen?.fireSpeed) ?? 0}/hr</div>
+                    <div className={'spice-upgrade-cost'}>
+                      <span>{kFormatter(kitchen?.fireCost)}</span>
+                      <img src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 1)}.png`} alt={''}/>
+                    </div>
+                  </div>
+                  <div className={'blue'}>
+                    <span>Luck Lv.{kitchen?.luckLv}</span>
+                    <div>{kFormatter(kitchen?.mealLuck, 1) ?? 0}x</div>
+                    <div className={'spice-upgrade-cost'}>
+                      <span>{kFormatter(kitchen?.luckCost)}</span>
+                      <img src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 2)}.png`} alt={''}/>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,7 +214,7 @@ const KitchensStyle = styled.div`
       }
 
       .progress, .food-per-hour {
-        margin-bottom: 80px;
+        margin-bottom: 120px;
       }
 
       .possible-meals {
@@ -202,6 +224,12 @@ const KitchensStyle = styled.div`
       .kitchen-stats {
         display: flex;
         gap: 15px;
+
+        .spice-upgrade-cost {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
 
         .green {
           color: #6cdf6c;

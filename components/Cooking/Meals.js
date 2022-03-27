@@ -23,7 +23,8 @@ const Meals = ({ meals }) => {
             <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
             <div className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
             <div>
-              {numberWithCommas(parseInt(amount))} / {numberWithCommas(parseInt(levelCost))}
+              <span
+                className={level === 0 ? '' : amount >= levelCost ? 'ok' : 'missing-mat'}>{numberWithCommas(parseInt(amount))}</span> / {numberWithCommas(parseInt(levelCost))}
             </div>
           </div>
 
@@ -69,6 +70,14 @@ const MealsStyle = styled.div`
 
   .missing {
     filter: grayscale(1);
+  }
+
+  .missing-mat {
+    color: #f91d1d;
+  }
+
+  .ok {
+    color: #6cdf6c;
   }
 `;
 

@@ -142,6 +142,7 @@ export const createSerializedData = (data, charNames) => {
     FlagUnlock: tryToParse(data?.FlagU),
     FlagsPlaced: tryToParse(data?.FlagP),
     CogOrder: cogOrder,
+    OptLacc: tryToParse(data?.OptLacc),
     CogMap: createCogMap(tryToParse(data?.CogM), cogOrder?.length),
     Tasks: [
       tryToParse(data?.TaskZZ0),
@@ -669,6 +670,21 @@ export const mapAccountQuests = (characters) => {
   }
   return mappedQuests;
 };
+
+export const isArenaBonusActive = (optionList, waveReq, bonusNumber) => {
+  const waveReqArray = waveReq.split(' ');
+  if (bonusNumber > waveReqArray.length) {
+    return false;
+  }
+  const arenaWave = optionList?.[89];
+  return arenaWave >= waveReqArray[bonusNumber];
+}
+
+export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
+  let upgradeMath = upgradeLevel + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2);
+  upgradeMath = upgradeMath + Math.pow(Math.max(0, upgradeLevel - 30), 1.2);
+  return Math.floor(1 + baseMath * upgradeMath * Math.pow(1.02, Math.max(0, upgradeLevel - 60)));
+}
 
 export const calculateLeaderboard = (characters) => {
   const leaderboardObject = characters.reduce((res, { name, skillsInfo }) => {

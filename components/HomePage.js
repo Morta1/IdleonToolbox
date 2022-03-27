@@ -12,6 +12,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.5',
+      changes: [
+        {
+          title: 'Characters',
+          desc: [
+            'More Cooking updates'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.4',
       changes: [
         {
