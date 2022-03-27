@@ -30,6 +30,7 @@ import {
   getHighestLevelOfClass,
   getInventory,
   getMaxCharge,
+  getMealsFromSpiceValues,
   getMonsterMatCost,
   getPlayerCapacity,
   getPostOfficeBonus,
@@ -479,17 +480,22 @@ const createAccountData = (idleonData, characters) => {
   account.kitchens = idleonData?.Cooking?.map((table) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv] = table;
     if (status <= 0) return null;
+    const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
+    const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
+    const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => cookingMenu?.[foodIndex]?.rawName)
+    // .filter((foodIndex) => foodIndex > 0).map((foodIndex) => cookingMenu?.[foodIndex]?.rawName);
     return {
       status,
       ...(cookingMenu?.[foodIndex] || {}),
       luckLv,
       fireLv,
       speedLv,
-      spices: [spice1, spice2, spice3, spice4]
+      ...(status === 3 ? { spices } : {}),
+      ...(status === 3 ? { possibleMeals } : {})
     }
-  });
+  }).filter((kitchen) => kitchen);
 
-  account.spices = idleonData?.Territory?.reduce((res, territory) => {
+  const spicesToClaim = idleonData?.Territory?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
     if (amount <= 0) return res;
     return [
@@ -501,6 +507,16 @@ const createAccountData = (idleonData, characters) => {
       }
     ]
   }, []);
+
+  const spicesAvailable = idleonData?.Meals[3]?.filter((spiceAmount) => spiceAmount > 0).map((amount, index) => ({
+    amount,
+    rawName: `CookingSpice${index}`
+  }));
+
+  account.spices = {
+    spicesToClaim,
+    spicesAvailable
+  }
 
   // breeding [2] - upgrades
   account.petUpgrades = idleonData?.Breeding?.[2]?.map((upgradeLevel, index) => {

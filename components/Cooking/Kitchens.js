@@ -1,13 +1,24 @@
 import styled from 'styled-components'
-import { prefix } from "../../Utilities";
+import { kFormatter, prefix } from "../../Utilities";
 
 const Kitchens = ({ spices, kitchens }) => {
   return (
     <KitchensStyle>
-      {spices ? <div className={'spices-wrapper'}>
+      {spices?.spicesAvailable ? <div className={'spices-wrapper'}>
+        <div>Spices Available</div>
+        <div className="spices">
+          {spices?.spicesAvailable?.map((spice, index) => {
+            return spice ? <div className={'spice'} key={`${spice?.spiceName}-${index}`}>
+              <img src={`${prefix}data/${spice?.rawName}.png`} alt=""/>
+              <span className={'amount'}>{kFormatter(parseInt(spice?.amount))}</span>
+            </div> : null;
+          })}
+        </div>
+      </div> : null}
+      {spices?.spicesToClaim ? <div className={'spices-wrapper'}>
         <div>Spices to claim</div>
         <div className="spices">
-          {spices?.map((spice, index) => {
+          {spices?.spicesToClaim?.map((spice, index) => {
             return spice ? <div className={'spice'} key={`${spice?.spiceName}-${index}`}>
               <img src={`${prefix}data/${spice?.spiceName}.png`} alt=""/>
               <span className={'amount'}>{spice?.amount}</span>
@@ -29,6 +40,15 @@ const Kitchens = ({ spices, kitchens }) => {
                     return <img src={`${prefix}data/CookingSpice${spice}.png`} key={`${spice}-${index}`} alt={''}/>
                   })}</div>
                 </div> : <img className={'food'} src={`${prefix}data/${kitchen?.rawName}.png`} alt=""/>}
+              {kitchen?.possibleMeals?.length > 0 ? <div>
+                <div>Possible Meals</div>
+                <div
+                  className={'possible-meals'}>{kitchen?.possibleMeals?.map((foodName, index) =>
+                  <img
+                    key={`possible-${foodName}-${index}`} className={'possible-food'}
+                    src={`${prefix}data/${foodName}.png`}
+                    alt=""/>)}</div>
+              </div> : null}
               <div className={'kitchen-stats-wrapper'}>
                 <div>Kitchen Stats</div>
                 <div className={'kitchen-stats'}>
@@ -83,7 +103,7 @@ const KitchensStyle = styled.div`
     gap: 25px;
 
     .kitchen {
-      min-width: 360px;
+      width: 360px;
 
       .kitchen-name {
         margin: 10px 0;
@@ -105,6 +125,10 @@ const KitchensStyle = styled.div`
         > div {
           margin: 10px 0;
         }
+      }
+
+      .possible-meals {
+        margin-bottom: 40px;
       }
 
       .kitchen-stats {
@@ -129,6 +153,12 @@ const KitchensStyle = styled.div`
     .food {
       object-fit: cover;
       object-position: 0px -15px;
+    }
+
+    .possible-food {
+
+      object-fit: cover;
+      object-position: -15px -15px;
     }
   }
 `;
