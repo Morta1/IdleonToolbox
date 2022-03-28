@@ -19,6 +19,7 @@ import Flags from "./Flags";
 import Cooking from "./Cooking";
 import Prayers from "./Prayers";
 import Breeding from "./Breeding";
+import Lab from "./Lab";
 
 const Account = () => {
   const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
@@ -37,6 +38,8 @@ const Account = () => {
       {accountDisplay?.view === 'vials' ? <Vials vials={userData?.account?.alchemy?.vials}/> : null}
       {accountDisplay?.view === 'deathNote' ? <DeathNote deathNote={userData?.account?.deathNote}/> : null}
       {accountDisplay?.view === 'forge' ? <Forge forge={userData?.account?.forge}/> : null}
+      {accountDisplay?.view === 'laboratory' ?
+        <Lab characters={userData?.characters} lab={userData?.account?.lab}/> : null}
       {accountDisplay?.view === 'cooking' ?
         <Cooking spices={userData?.account?.spices} meals={userData?.account?.meals}
                  kitchens={userData?.account?.kitchens}/> : null}

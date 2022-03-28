@@ -76,6 +76,8 @@ import {
   dungeonStats,
   flagsReqs,
   guildBonuses,
+  jewels,
+  labBonuses,
   mapNames,
   mapPortals,
   monsters,
@@ -592,6 +594,27 @@ const createAccountData = (idleonData, characters) => {
       level: upgradeLevel
     }
   });
+
+  const [cords] = idleonData?.Lab;
+  const [jewelsRaw] = idleonData?.Lab.splice(14);
+  let playerCordsChunk = 2, playersCords = [];
+  for (let i = 0; i < cords.length; i += playerCordsChunk) {
+    const [x, y] = cords.slice(i, i + playerCordsChunk);
+    playersCords = [...playersCords, { x, y }];
+  }
+  const jewelsList = jewelsRaw?.map((jewel, index) => {
+    return {
+      ...(jewels?.[index] || {}),
+      acquired: jewel === 1,
+      rawName: `ConsoleJwl${index}`
+    }
+  }).filter(({ name }) => name);
+
+  account.lab = {
+    playersCords,
+    jewels: jewelsList,
+    labBonuses
+  };
 
   account.prayers = idleonData?.PrayersUnlocked?.reduce((res, prayerLevel, prayerIndex) => {
     const reqItem = prayers?.[prayerIndex]?.soul;

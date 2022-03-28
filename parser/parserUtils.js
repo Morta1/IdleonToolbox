@@ -159,6 +159,7 @@ export const createSerializedData = (data, charNames) => {
     Breeding: tryToParse(data?.Breeding),
     Meals: tryToParse(data?.Meals),
     Territory: tryToParse(data?.Territory),
+    Lab: tryToParse(data?.Lab),
     CurrenciesOwned: {
       WorldTeleports: data?.CYWorldTeleports,
       KeysAll: data?.CYKeysAll,
