@@ -44,7 +44,7 @@ const Account = () => {
         <Cooking spices={userData?.account?.spices} meals={userData?.account?.meals}
                  kitchens={userData?.account?.kitchens}/> : null}
       {accountDisplay?.view === 'breeding' ?
-        <Breeding meals={userData?.account?.meals} petUpgrades={userData?.account?.petUpgrades}/> : null}
+        <Breeding meals={userData?.account?.meals} breeding={userData?.account?.breeding}/> : null}
       {accountDisplay?.view === 'prayers' ? <Prayers prayers={userData?.account?.prayers}/> : null}
       {accountDisplay?.view === 'construction' ?
         <Flags flags={userData?.account?.flags} cogstruction={userData?.account?.cogstruction}

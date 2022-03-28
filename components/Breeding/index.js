@@ -3,12 +3,14 @@ import Tabs from "../Common/Tabs";
 import { useContext, useState } from "react";
 import { AppContext } from "../Common/context";
 import PetUpgrades from "./PetUpgrades";
+import ArenaBonuses from "./ArenaBonuses";
 
-const Breeding = ({ meals, petUpgrades }) => {
+const Breeding = ({ meals, breeding }) => {
   const { accountDisplay, setUserAccountDisplay } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(accountDisplay?.subView || 'pet upgrades');
   const tabs = [
-    { name: 'pet upgrades' }
+    { name: 'pet upgrades' },
+    { name: 'arena bonuses' }
   ];
 
 
@@ -20,7 +22,9 @@ const Breeding = ({ meals, petUpgrades }) => {
   return (
     <BreedingStyle>
       <Tabs subView={selectedTab} tabs={tabs} onTabChange={handleTabChange}/>
-      {selectedTab === 'pet upgrades' ? <PetUpgrades meals={meals} petUpgrades={petUpgrades}/> : null}
+      {selectedTab === 'pet upgrades' ? <PetUpgrades meals={meals} petUpgrades={breeding?.petUpgrades}/> : null}
+      {selectedTab === 'arena bonuses' ?
+        <ArenaBonuses maxArenaLevel={breeding?.maxArenaLevel} bonuses={breeding?.arenaBonuses}/> : null}
     </BreedingStyle>
   );
 };

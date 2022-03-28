@@ -63,11 +63,13 @@ import {
 import {
   achievements,
   anvilProducts,
+  arenaBonuses,
   bonuses,
   bribes,
   cardSets,
   carryBags,
   cauldrons,
+  chips,
   classes,
   classFamilyBonuses,
   cogKeyMap,
@@ -588,15 +590,23 @@ const createAccountData = (idleonData, characters) => {
   }
 
   // breeding [2] - upgrades
-  account.petUpgrades = idleonData?.Breeding?.[2]?.map((upgradeLevel, index) => {
+  const petUpgradesList = idleonData?.Breeding?.[2]?.map((upgradeLevel, index) => {
     return {
       ...(petUpgrades[index] || []),
       level: upgradeLevel
     }
-  });
+  })
+
+  account.breeding = {
+    maxArenaLevel: idleonData?.OptLacc?.[89],
+    petUpgrades: petUpgradesList,
+    arenaBonuses
+  };
+
 
   const [cords] = idleonData?.Lab;
   const [jewelsRaw] = idleonData?.Lab.splice(14);
+  const playerChipsRaw = idleonData?.Lab.slice(1, 10);
   let playerCordsChunk = 2, playersCords = [];
   for (let i = 0; i < cords.length; i += playerCordsChunk) {
     const [x, y] = cords.slice(i, i + playerCordsChunk);
@@ -610,9 +620,15 @@ const createAccountData = (idleonData, characters) => {
     }
   }).filter(({ name }) => name);
 
+  const playersChips = playerChipsRaw?.map((pChips) => {
+    return pChips.filter?.((chip) => chip !== -1).map((chip) => chips?.[chip]);
+  });
+
   account.lab = {
     playersCords,
+    playersChips,
     jewels: jewelsList,
+    chips,
     labBonuses
   };
 

@@ -4,6 +4,7 @@ import JewelTooltip from "../Common/Tooltips/JewelTooltip";
 import LabBonusTooltip from "../Common/Tooltips/LabBonusTooltip";
 import "../Common/Tooltips/NumberTooltip";
 import NumberTooltip from "../Common/Tooltips/NumberTooltip";
+import ChipTooltip from "../Common/Tooltips/ChipTooltip";
 
 const Lab = ({ lab, characters }) => {
   return (
@@ -57,6 +58,13 @@ const Lab = ({ lab, characters }) => {
           return <JewelTooltip {...jewel} key={`${jewel?.name}-${index}`}>
             <img className={jewel.acquired ? '' : 'unacquired'} src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
           </JewelTooltip>
+        })}
+      </div>
+      <div className={'chips'}>
+        {lab?.chips?.map((chip, index) => {
+          return <ChipTooltip {...chip} key={`${chip?.name}-${index}`}>
+            <img src={`${prefix}data/ConsoleChip${index}.png`} alt=""/>
+          </ChipTooltip>
         })}
       </div>
     </LabStyle>
@@ -117,10 +125,20 @@ const LabStyle = styled.div`
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
+    margin-bottom: 50px;
 
     .unacquired {
       filter: grayscale(.9);
     }
+  }
+
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 50px;
   }
 `;
 
