@@ -24,9 +24,8 @@ const Lab = ({ lab, characters }) => {
         {lab?.jewels?.map((jewel, index) => {
           return <JewelTooltip key={`${jewel?.name}-${index}`} {...jewel} >
             <img
-              className={'jewel'}
+              className={`jewel${jewel.acquired ? '' : ' unacquired'}`}
               style={{ position: 'absolute', top: `calc(${jewel.y}vw / 20)`, left: `calc(${jewel.x}vw / 20)` }}
-
               src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
           </JewelTooltip>;
         })}
@@ -56,7 +55,7 @@ const Lab = ({ lab, characters }) => {
       <div className={'jewels'}>
         {lab?.jewels?.map((jewel, index) => {
           return <JewelTooltip {...jewel} key={`${jewel?.name}-${index}`}>
-            <img className={jewel.acquired ? '' : 'unacquired'} src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
+            <img src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
           </JewelTooltip>
         })}
       </div>
@@ -99,6 +98,10 @@ const LabStyle = styled.div`
       width: 35px;
       height: 35px;
     }
+    
+    .unacquired {
+      filter: grayscale(1);
+    }
 
     .lab-bonus {
       width: 35px;
@@ -126,11 +129,8 @@ const LabStyle = styled.div`
     justify-content: center;
     gap: 10px;
     margin-bottom: 50px;
-
-    .unacquired {
-      filter: grayscale(.9);
-    }
   }
+  
 
 
   .chips {
