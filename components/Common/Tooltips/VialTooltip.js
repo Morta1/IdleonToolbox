@@ -62,6 +62,7 @@ const VialTooltipStyle = styled((props) => (
     padding: 10px;
 
     .info {
+      font-weight: bold;
       margin-bottom: 15px;
     }
 

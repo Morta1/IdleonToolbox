@@ -12,6 +12,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.7',
+      changes: [
+        {
+          title: 'Laboratory',
+          desc: [
+            'Separated Laboratory into Main Frame and Console'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.6',
       changes: [
         {

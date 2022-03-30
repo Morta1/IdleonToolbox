@@ -489,7 +489,7 @@ const createAccountData = (idleonData, characters) => {
   account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
-
+    //
     // Meal Speed
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
     const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed');
@@ -497,6 +497,8 @@ const createAccountData = (idleonData, characters) => {
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
     const trollCard = account?.cards?.Troll; // Kitchen Eff
     const trollCardBonus = calcCardBonus(trollCard);
+    // const jewelBonus = mainframe.jewels[0].active ? mainframe.jewels[0].getBonus() : 1;
+    // TODO: add jewel bonus
     const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
 
     const mealSpeedBonusMath = (1 + cookingSpeedStamps / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, 1);
@@ -605,6 +607,7 @@ const createAccountData = (idleonData, characters) => {
 
 
   const [cords] = idleonData?.Lab;
+  const [chipRepo] = idleonData?.Lab.splice(15);
   const [jewelsRaw] = idleonData?.Lab.splice(14);
   const playerChipsRaw = idleonData?.Lab.slice(1, 10);
   let playerCordsChunk = 2, playersCords = [];
@@ -621,14 +624,27 @@ const createAccountData = (idleonData, characters) => {
   }).filter(({ name }) => name);
 
   const playersChips = playerChipsRaw?.map((pChips) => {
-    return pChips.filter?.((chip) => chip !== -1).map((chip) => chips?.[chip]);
+    return pChips.map((chip) => {
+      if (chips?.[chip]) return { ...chips?.[chip], chipIndex: chip }
+      return chip;
+    });
+  });
+
+  const chipList = JSON.parse(JSON.stringify(chips));
+
+  const chipRepository = chipRepo?.map((chipCount, chipIndex) => {
+    if (chipIndex < chips.length) {
+      const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index ? 1 : 0), 0);
+      chipList[chipIndex].amount = chipCount - playerUsedCount;
+    }
   });
 
   account.lab = {
     playersCords,
     playersChips,
+    chipRepository,
     jewels: jewelsList,
-    chips,
+    chips: chipList,
     labBonuses
   };
 

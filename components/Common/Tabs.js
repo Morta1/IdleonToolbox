@@ -1,12 +1,13 @@
 import styled from 'styled-components'
 import React from "react";
+import { capitalize } from "@material-ui/core";
 
 const Tabs = ({ tabs, onTabChange, subView }) => {
   return (
     <TabsStyle>
       {tabs?.map((tab, index) => {
         return <div key={`${tab?.name}${index}`} className={`${subView === tab?.name ? 'active' : ''}`}
-                    onClick={() => onTabChange(tab?.name)}>{tab?.name}</div>
+                    onClick={() => onTabChange(tab?.name)}>{capitalize(tab?.name)}</div>
       })}
     </TabsStyle>
   );
