@@ -11,8 +11,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
       const { rawName } = kitchen;
       return {
         ...res,
-        [rawName]: (res[rawName] ?? 0) + Math.floor(kitchen?.mealSpeed / kitchen?.cookReq)
-
+        [rawName]: (res[rawName] ?? 0) + (kitchen?.mealSpeed / kitchen?.cookReq)
       }
     }, {})
   }
@@ -59,7 +58,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
         {Object.entries(totals)?.map(([foodName, amount], index) => {
           return <div className={'total-food'} key={`${foodName}-${index}-${amount}`}>
             <img className={'food'} src={`${prefix}data/${foodName}.png`} alt=""/>
-            <div>{amount}/hr</div>
+            <div>{kFormatter(amount)}/hr</div>
           </div>
         })}
       </div>
@@ -81,7 +80,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                   })}</div>
                 </div> : <div className={'food-per-hour'}>
                   <img className={'food'} src={`${prefix}data/${kitchen?.rawName}.png`} alt=""/>
-                  <div>{kFormatter(Math.floor(kitchen?.mealSpeed / kitchen?.cookReq))}/hr</div>
+                  <div>{kFormatter(kitchen?.mealSpeed / kitchen?.cookReq)}/hr</div>
                 </div>}
               {kitchen?.possibleMeals?.length > 0 ? <div>
                 <div>Possible Meals</div>
