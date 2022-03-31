@@ -20,6 +20,9 @@ import Cooking from "./Cooking";
 import Prayers from "./Prayers";
 import Breeding from "./Breeding";
 import Lab from "./Lab";
+import Achievements from "./Achievements";
+import Quests from "./Quests/Quests";
+import ShopStock from "./ShopStock";
 
 const Account = () => {
   const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
@@ -30,6 +33,11 @@ const Account = () => {
       <AccountDrawer/>
       {accountDisplay?.view === 'general' ? <General account={userData?.account}/> : null}
       {accountDisplay?.view === 'looty' ? <Looty items={userData?.account?.missingLootyItems}/> : null}
+      {accountDisplay?.view === 'achievements' ? <Achievements userData={userData}/> : null}
+      {accountDisplay?.view === 'shopStock' ? <ShopStock stock={userData?.account?.shopStock}/> : null}
+      {accountDisplay?.view === 'quests' ?
+        <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
+
       {accountDisplay?.view === 'stamps' ?
         <Stamps stamps={userData?.account?.stamps}
                 alchemy={userData?.account?.alchemy}

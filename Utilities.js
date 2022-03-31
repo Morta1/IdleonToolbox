@@ -201,23 +201,17 @@ export const screensMap = {
   homePage: 0,
   characters: 1,
   account: 2,
-  achievements: 3,
-  shopStock: 4,
-  quests: 5,
-  craftIt: 6,
-  itemBrowser: 7,
-  itemPlanner: 8,
-  cardSearch: 9,
-  activeExpCalculator: 10
+  craftIt: 3,
+  itemBrowser: 4,
+  itemPlanner: 5,
+  cardSearch: 6,
+  activeExpCalculator: 7
 }
 
 export const screens = {
   homePage: { main: true, index: screensMap.homePage, label: 'Idleon Toolbox' },
   characters: { index: screensMap.characters, label: 'Characters', },
   account: { index: screensMap.account, label: 'Account', },
-  achievements: { index: screensMap.achievements, label: 'Achievements' },
-  shopStock: { index: screensMap.shopStock, label: 'Shop Stock' },
-  quests: { index: screensMap.quests, label: 'Quests' },
   tools: {
     label: 'Tools',
     menu: [

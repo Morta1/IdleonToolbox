@@ -191,7 +191,7 @@ const createAccountData = (idleonData, characters) => {
     }
   });
 
-  account.missingLootyItems = Object.keys(allItems).reduce((res, key) => (!filteredLootyItems[key] ? [
+  account.missingLootyItems = Object.keys(allItems).reduce((res, key) => ((!filteredLootyItems[key] && !key.includes('DungWeapon')) ? [
     ...res,
     {
       name: allItems?.[key]?.displayName,

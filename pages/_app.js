@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }) {
   const [stampsGoals, setStampsGoals] = useState();
   const [userTodoList, setTodoList] = useState();
   const [connected, setConnected] = useState();
-  const [outdated, setOutdated] = useState();
+  const [notifications, setNotifications] = useState();
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
@@ -71,7 +71,6 @@ export default function App({ Component, pageProps }) {
           });
         }
         setData(demo);
-        setOutdated(false);
       } else {
         const charData = localStorage.getItem('characterData');
         if (charData) {
@@ -113,6 +112,9 @@ export default function App({ Component, pageProps }) {
 
       const todoListObject = JSON.parse(localStorage.getItem('todoList')) || null;
       setTodoList(todoListObject);
+
+      const notificationBool = JSON.parse(localStorage.getItem('notifications')) || false;
+      setNotifications(notificationBool);
 
       setLoader(false);
     } catch (e) {
@@ -217,6 +219,11 @@ export default function App({ Component, pageProps }) {
     setConnected(isConnected);
   }
 
+  const setUserNotifications = (shouldNotify) => {
+    setNotifications(shouldNotify);
+    localStorage.setItem('notifications', shouldNotify);
+  }
+
   return (
     <>
       <Head>
@@ -247,9 +254,9 @@ export default function App({ Component, pageProps }) {
           <ErrorBoundary>
             <AppContext.Provider value={{
               userData: initialData, setUserData,
-              outdated, setOutdated,
               dataFilters, setUserDataFilters,
               display, setUserDisplay,
+              notifications, setUserNotifications,
               displayedCharactersIndices, setUserDisplayedCharactersIndices,
               lastUpdated, setUserLastUpdated,
               questCharacters, setUserQuestCharacters,

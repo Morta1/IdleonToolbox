@@ -10,8 +10,6 @@ import { breakpoint, screensMap } from "../Utilities";
 import Head from 'next/head'
 import ShopStock from "../components/ShopStock";
 import Account from "../components/Account";
-import Quests from "../components/Quests/Quests";
-import Achievements from "../components/Achievements";
 import CardSearch from "../components/CardSearch";
 import useMediaQuery from "../components/Common/useMediaQuery";
 import ActiveXpCalculator from "../components/General/ActiveXpCalculator";
@@ -42,10 +40,7 @@ const Index = () => {
               {display?.view === screensMap.account ? <Account/> : null}
               {display?.view === screensMap.craftIt ? <CraftIt userData={userData}/> : null}
               {display?.view === screensMap.itemBrowser ? <ItemBrowser userData={userData}/> : null}
-              {display?.view === screensMap.achievements ? <Achievements userData={userData}/> : null}
               {display?.view === screensMap.shopStock ? <ShopStock stock={userData?.account?.shopStock}/> : null}
-              {display?.view === screensMap.quests ?
-                <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
               {display?.view === screensMap.cardSearch ? <CardSearch userData={userData}/> : null}
               {display?.view === screensMap.activeExpCalculator ? <ActiveXpCalculator userData={userData}/> : null}
               {display?.view === screensMap.itemPlanner ?

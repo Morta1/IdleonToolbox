@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Collapse, Drawer, List, ListItem, ListItemText, Toolbar } from "@material-ui/core";
 import { ExpandLess, ExpandMore } from "@material-ui/icons";
-import { breakpoint, prefix, screensMap } from "../../../Utilities";
+import { breakpoint, getRandomNumber, prefix, screensMap } from "../../../Utilities";
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { stamps } from "../../General/calculationHelper";
@@ -76,11 +76,30 @@ const AccountDrawer = () => {
                 style={{ marginLeft: 10 }}
                 primary={'General'}/>
             </ListItem>
+            <ListItem button selected={selected?.view === 'achievements'} onClick={() => handleClick('achievements')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/TaskAchBorder${getRandomNumber(1, 4)}.png`}
+                   alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Achievements'}/>
+            </ListItem>
+            <ListItem button selected={selected?.view === 'quests'} onClick={() => handleClick('quests')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/Quest62.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Quests'}/>
+            </ListItem>
             <ListItem button selected={selected?.view === 'looty'} onClick={() => handleClick('looty')}>
               <img className={'list-img'} width={32} src={`${prefix}data/UISkillIcon305.png`} alt=""/>
               <ListItemText
                 style={{ marginLeft: 10 }}
                 primary={`Looty (Missing ${userData?.account?.missingLootyItems.length})`}/>
+            </ListItem>
+            <ListItem button selected={selected?.view === 'shopStock'} onClick={() => handleClick('shopStock')}>
+              <img className={'list-img'} width={32} src={`${prefix}data/ShopEZ${getRandomNumber(0, 5)}.png`} alt=""/>
+              <ListItemText
+                style={{ marginLeft: 10 }}
+                primary={'Shop Stock'}/>
             </ListItem>
             {Object.entries(worldsData).map(([worldName, { icon, categories }], worldIndex) => {
               return <React.Fragment key={worldName + ' ' + worldIndex}>

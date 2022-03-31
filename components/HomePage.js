@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Button, Dialog, DialogContent, Typography } from "@material-ui/core";
+import { Button, Dialog, DialogContent, FormControlLabel, Switch, Typography } from "@material-ui/core";
 import { getRandomNumber, prefix } from "../Utilities";
 import React, { useContext, useState } from "react";
 import MissingData from "./General/MissingData";
@@ -7,10 +7,25 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 import InfoIcon from '@material-ui/icons/Info';
 import { useRouter } from "next/router";
 import { AppContext } from './Common/context';
+import { subscribe } from "../notifications";
+
 
 const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
+    {
+      version: '2.0.8',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added 1.52 assets and items',
+            'Removed Dungeon Weapons from looty shooty',
+            'Moved pages from the top navigation into Account tab'
+          ]
+        }
+      ]
+    },
     {
       version: '2.0.7',
       changes: [
@@ -407,7 +422,7 @@ const HomePage = () => {
       ]
     }
   ]
-  const { userData } = useContext(AppContext);
+  const { userData, notifications, setUserNotifications } = useContext(AppContext);
   const [icon] = useState(icons[getRandomNumber(0, 2)]);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -424,6 +439,14 @@ const HomePage = () => {
     }
   }
 
+  const handleNotifications = (e) => {
+    const value = e?.target?.checked;
+    if (value) {
+      subscribe();
+    }
+    setUserNotifications(e?.target?.checked);
+  }
+
   return (
     <HomePageStyle>
       {/*<div className={'sprite'}/>*/}
@@ -432,9 +455,22 @@ const HomePage = () => {
       <div className={'desc'}>Idleon toolbox helps you track all of your account and characters&apos; progress with
         ease!
       </div>
-      <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'subtitle2'}>For any question, suggestion or bug
+      <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'sub title2'}>For any question, suggestion or bug
         report, please contact me in
         discord Morojo#2331</Typography>
+      {/*<div style={{ marginTop: 10 }}>*/}
+      {/*  <FormControlLabel*/}
+      {/*    control={*/}
+      {/*      <StyledSwitch*/}
+      {/*        checked={notifications}*/}
+      {/*        onChange={handleNotifications}*/}
+      {/*        color="primary"*/}
+      {/*      />*/}
+      {/*    }*/}
+      {/*    label="Notify me!"*/}
+      {/*  />*/}
+      {/*  <Typography variant={'body2'} style={{ fontSize: 14 }}>(experimental)</Typography>*/}
+      {/*</div>*/}
       <div className={'extra'} style={{ display: 'flex', alignItems: 'center', gap: 35 }}>
         {!isDemo() ? <div className={'button'}>
           <StyledButton startIcon={<InfoIcon/>} onClick={() => setOpen(true)} variant={'contained'} color={'primary'}>
@@ -488,6 +524,16 @@ const HomePage = () => {
     </HomePageStyle>
   );
 };
+
+const StyledSwitch = styled(Switch)`
+  && .MuiSwitch-colorPrimary.Mui-checked + .MuiSwitch-track {
+    color: #5771ff;
+  }
+
+  && .MuiSwitch-thumb {
+    color: #5771ff;
+  }
+`
 
 const StyledButton = styled(Button)`
   && {

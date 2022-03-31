@@ -14,6 +14,7 @@ import { checkUserStatus, signInWithToken, subscribe, userSignOut } from "../fir
 import { getUserAndDeviceCode, getUserToken } from "../google/login";
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { format } from "date-fns";
+import Notifications from "./Notifications";
 
 const getDate = () => {
   try {
@@ -186,6 +187,7 @@ const JsonImport = () => {
   return (
     <JsonImportStyled>
       <div className={'controls'}>
+        {/*<Notifications/>*/}
         {lastUpdated && signedIn ?
           <div style={{ fontSize: 12 }}>Last
             Updated <div>{lastUpdated ? format(lastUpdated, 'dd/MM/yyyy HH:mm:ss') : ''}</div></div> : null}
