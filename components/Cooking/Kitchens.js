@@ -58,7 +58,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
         {Object.entries(totals)?.map(([foodName, amount], index) => {
           return <div className={'total-food'} key={`${foodName}-${index}-${amount}`}>
             <img className={'food'} src={`${prefix}data/${foodName}.png`} alt=""/>
-            <div>{kFormatter(amount)}/hr</div>
+            <div>{kFormatter(amount, 2)}/hr</div>
           </div>
         })}
       </div>
@@ -80,7 +80,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                   })}</div>
                 </div> : <div className={'food-per-hour'}>
                   <img className={'food'} src={`${prefix}data/${kitchen?.rawName}.png`} alt=""/>
-                  <div>{kFormatter(kitchen?.mealSpeed / kitchen?.cookReq)}/hr</div>
+                  <div>{kFormatter(kitchen?.mealSpeed / kitchen?.cookReq, 2)}/hr</div>
                 </div>}
               {kitchen?.possibleMeals?.length > 0 ? <div>
                 <div>Possible Meals</div>
