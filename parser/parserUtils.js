@@ -1088,10 +1088,11 @@ export const createCogstructionData = (cogMap, cogsOrder) => {
 ${cogType},${characterName},${a},${c},${getCogstructionMulti(d)},${b},${getCogstructionMulti(e)},${getCogstructionMulti(g)},${k},${getCogstructionMulti(f)}`
   }, dataCsv);
   let empties = `empties_x,empties_y`;
+  const cogsForEmpties = cogsOrder?.slice(0, 96);
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 12; x++) {
-      const index = y * 12 * x;
-      if (cogs[index] === 'Blank') {
+      const index = y * 12 + x;
+      if (cogsForEmpties[index] === 'Blank') {
         empties = `${empties}
 ${x},${y}`
       }
