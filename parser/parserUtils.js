@@ -249,6 +249,13 @@ export const getTotalCardBonusById = (cards, bonusId) => {
   return cards?.reduce((res, card) => card?.effect === bonuses?.cardBonuses?.[bonusId] ? res + calcCardBonus(card) : res, 0);
 }
 
+export const getCardBonusByEffect = (cards, effectName) => {
+  return Object.values(cards)?.reduce((sum, card) => {
+    if (!card?.effect?.includes(effectName)) return sum;
+    return sum + calcCardBonus(card);
+  }, 0);
+}
+
 export const calcCardBonus = (card) => {
   if (!card) return 0;
   return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
