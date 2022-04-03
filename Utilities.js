@@ -203,7 +203,8 @@ export const screensMap = {
   itemBrowser: 4,
   itemPlanner: 5,
   cardSearch: 6,
-  activeExpCalculator: 7
+  activeExpCalculator: 7,
+  dropList: 8
 }
 
 export const screens = {
@@ -217,7 +218,8 @@ export const screens = {
       { index: screensMap.itemBrowser, label: 'itemBrowser' },
       { index: screensMap.itemPlanner, label: 'itemPlanner' },
       { index: screensMap.cardSearch, label: 'cardSearch' },
-      { index: screensMap.activeExpCalculator, label: 'activeExpCalculator' }
+      { index: screensMap.activeExpCalculator, label: 'activeExpCalculator' },
+      { index: screensMap.dropList, label: 'dropList' }
     ]
   }
 }
