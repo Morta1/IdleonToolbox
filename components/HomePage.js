@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Button, Dialog, DialogContent, FormControlLabel, Switch, Typography } from "@material-ui/core";
+import { Button, Dialog, DialogContent, Switch, Typography } from "@material-ui/core";
 import { getRandomNumber, prefix } from "../Utilities";
 import React, { useContext, useState } from "react";
 import MissingData from "./General/MissingData";
@@ -13,6 +13,17 @@ import { subscribe } from "../notifications";
 const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
+    {
+      version: '2.0.9',
+      changes: [
+        {
+          title: 'Tools',
+          desc: [
+            'Added Drop List (from monsters atm) page under tools that can be filtered by monster name and item name'
+          ]
+        }
+      ]
+    },
     {
       version: '2.0.8',
       changes: [
