@@ -104,6 +104,7 @@ export const createSerializedData = (data, charNames) => {
     }, {});
     return {
       name: charName,
+      playerId: index,
       ...characterDetails
     }
   });
@@ -261,44 +262,45 @@ export const calcCardBonus = (card) => {
   return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
 }
 
-export const getMealsBonusByEffectOrStat = (vials, effectName, statName) => {
-  return vials?.reduce((sum, meal) => {
+export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonus = 1) => {
+  return meals?.reduce((sum, meal) => {
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
     } else {
       if (!stat.includes(statName)) return sum;
     }
-    return sum + (level * baseStat ?? 0);
+    return sum + ((1 + labBonus / 100) * level * baseStat ?? 0);
   }, 0);
 }
 
-export const getVialsBonusByEffect = (vials, effectName) => {
+export const getVialsBonusByEffect = (vials, effectName, multiplier = 1) => {
   return vials?.reduce((sum, vial) => {
     const { func, level, x1, x2, desc } = vial;
     if (!desc.includes(effectName)) return sum;
-    return sum + (growth(func, level, x1, x2) ?? 0);
+    return sum + ((growth(func, level, x1, x2) ?? 0) * multiplier);
   }, 0);
 }
 
-export const getStampsBonusByEffect = (stamps, effectName) => {
+export const getStampsBonusByEffect = (stamps, effectName, skillLevel = 0, multiplier) => {
   return Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
     const foundStamps = stampTree?.filter(({ effect }) => effect.includes(effectName));
-    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName), 0);
+    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, skillLevel, multiplier), 0);
     return final + sum;
   }, 0);
 }
 
-export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0) => {
+export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0, multiplier) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
   const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;
   const lvlDiff = 3 + (normalLevel - 3) * Math.pow(skillLevel / (normalLevel - 3), 0.75)
   const reducedLevel = lvlDiff * stamp?.reqItemMultiplicationLevel / 10
+  const multi = stampTree === 'misc' ? 1 : multiplier;
   if (skillLevel > 0 && reducedLevel < stamp?.level && stampTree === 'skills') {
-    return growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2) ?? 0;
+    return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2) ?? 0) * multi;
   }
-  return growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2) ?? 0;
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2) ?? 0) * multi;
 }
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
@@ -336,9 +338,14 @@ export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
   return bonus;
 }
 
-export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex) => {
+export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex, worldTour) => {
   const shrine = shrines?.[shrineIndex];
   if (shrine?.level === 0 || playerMapId !== shrine?.mapId) {
+    return 0;
+  }
+  const playerWorld = Math.floor(playerMapId / 50);
+  const shrineWorld = Math.floor(shrine / 50);
+  if (worldTour && playerWorld !== shrineWorld) {
     return 0;
   }
   const cardBonus = getEquippedCardBonus(cards, cardIndex) ?? 0;

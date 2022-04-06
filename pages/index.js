@@ -37,7 +37,8 @@ const Index = () => {
           {!userData ? <HomePage/> :
             <>
               {display?.view === screensMap.homePage ? <HomePage/> : null}
-              {display?.view === screensMap.characters ? <CharacterWrapper characters={userData?.characters}/> : null}
+              {display?.view === screensMap.characters ?
+                <CharacterWrapper lab={userData?.account?.lab} characters={userData?.characters}/> : null}
               {display?.view === screensMap.account ? <Account/> : null}
               {display?.view === screensMap.craftIt ? <CraftIt userData={userData}/> : null}
               {display?.view === screensMap.itemBrowser ? <ItemBrowser userData={userData}/> : null}

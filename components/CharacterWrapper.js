@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import styled from 'styled-components';
 import { AppContext } from "./Common/context";
 
-const CharacterWrapper = ({ characters }) => {
+const CharacterWrapper = ({ characters, lab }) => {
   const { dataFilters, displayedCharactersIndices, lastUpdated } = useContext(AppContext);
 
   const getFilters = () => {
@@ -13,7 +13,7 @@ const CharacterWrapper = ({ characters }) => {
   return <CharacterWrapperStyle>
     {characters?.map((characterData, tabPanelIndex) => {
       return displayedCharactersIndices[tabPanelIndex] ?
-        <Character dataFilters={getFilters()} {...characterData} lastUpdated={lastUpdated} key={tabPanelIndex}/> : null;
+        <Character lab={lab} dataFilters={getFilters()} {...characterData} lastUpdated={lastUpdated} key={tabPanelIndex}/> : null;
     })}
   </CharacterWrapperStyle>
 }

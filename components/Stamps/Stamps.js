@@ -3,7 +3,7 @@ import StampsCategory from "./StampsCategory";
 import { useContext, useState } from "react";
 import { AppContext } from "../Common/context";
 
-const Stamps = ({ stamps, alchemy, bribes }) => {
+const Stamps = ({ stamps, alchemy, bribes, lab }) => {
   const { accountDisplay, stampsGoals, setUserStampsGoals, setUserAccountDisplay } = useContext(AppContext);
   const [stamp, setStamp] = useState(accountDisplay?.subView || 'combat');
 
@@ -30,6 +30,7 @@ const Stamps = ({ stamps, alchemy, bribes }) => {
         return accountDisplay?.view === 'stamps' && stamp === stampCategoryName ?
           <StampsCategory reductionVial={alchemy?.vials[18]} // BLUE_FLAV
                           reductionBribe={bribes?.[0]}
+                          labBonuses={lab?.labBonuses}
                           goals={stampsGoals?.[stampCategoryName]}
                           categoryName={stampCategoryName}
                           stamps={stampCategory}

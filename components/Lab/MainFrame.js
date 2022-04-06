@@ -3,6 +3,7 @@ import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 import { prefix } from "../../Utilities";
 import JewelTooltip from "../Common/Tooltips/JewelTooltip";
 import LabBonusTooltip from "../Common/Tooltips/LabBonusTooltip";
+import CloseIcon from '@material-ui/icons/Close';
 
 const MainFrame = ({ lab, characters }) => {
   return (
@@ -10,26 +11,31 @@ const MainFrame = ({ lab, characters }) => {
       <div className={'map'}>
         {lab?.playersCords?.map((playerCord, index) => {
           if (index > 8) return null;
-          return <NumberTooltip key={`${playerCord.x}${playerCord.y}-${index}`} title={characters?.[index]?.name}>
-            <img className={'user'} src={`${prefix}data/head.png`}
-
-                 style={{
-                   position: 'absolute',
-                   top: `calc(${playerCord.y}vw / 20)`,
-                   left: `calc(${playerCord.x}vw / 20)`
-                 }} alt={''}/></NumberTooltip>;
+          const isUploaded = characters?.[index]?.afkTarget === 'Laboratory';
+          return <div className={'user-wrapper'} key={`${playerCord.x}${playerCord.y}-${index}`}>
+            {!isUploaded ?
+              <NotUploaded x={playerCord.x} y={playerCord.y}>
+                <CloseIcon style={{ position: 'absolute', left: -5, top: -5 }} color='error'
+                           fontSize={'large'}/></NotUploaded> : null}
+            <NumberTooltip title={`${characters?.[index]?.name} - ${playerCord?.lineWidth}px`}>
+              <UserImage x={playerCord.x} y={playerCord.y} src={`${prefix}data/head.png`} alt={''}/>
+            </NumberTooltip>
+          </div>;
         })}
         {lab?.jewels?.map((jewel, index) => {
           return <JewelTooltip key={`${jewel?.name}-${index}`} {...jewel} >
             <img
-              className={`jewel${jewel.acquired ? '' : ' unacquired'}`}
-              style={{ position: 'absolute', top: `calc(${jewel.y}vw / 20)`, left: `calc(${jewel.x}vw / 20)` }}
+              className={`jewel${jewel.acquired ? '' : ' unacquired'}${jewel.active ? ' active' : ''}`}
+              style={{
+                borderRadius: '50%',
+                position: 'absolute', top: `calc(${jewel.y}vw / 20)`, left: `calc(${jewel.x}vw / 20)`
+              }}
               src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
           </JewelTooltip>;
         })}
         {lab?.labBonuses?.map((labBonus, index) => {
           return <div key={`${labBonus?.name}-${index}`}>
-            <img className={'lab-bonus-border'}
+            <img className={`lab-bonus-border${labBonus.active ? ' active' : ''}`}
                  style={{
                    position: 'absolute',
                    top: `calc(${labBonus.y - 3}vw / 20)`,
@@ -38,7 +44,11 @@ const MainFrame = ({ lab, characters }) => {
                  src={`${prefix}data/LabBonusB1.png`} alt=""/>
             <LabBonusTooltip {...labBonus}><img
               className={'lab-bonus'}
-              style={{ position: 'absolute', top: `calc(${labBonus.y}vw / 20)`, left: `calc(${labBonus.x}vw / 20)` }}
+              style={{
+                position: 'absolute',
+                top: `calc(${labBonus.y}vw / 20)`,
+                left: `calc(${labBonus.x}vw / 20)`
+              }}
               src={`${prefix}data/LabBonus${labBonus?.index}.png`} alt=""/></LabBonusTooltip>
           </div>;
         })}
@@ -46,20 +56,39 @@ const MainFrame = ({ lab, characters }) => {
       <div className={'lab-bonuses'}>
         {lab?.labBonuses?.map((labBonus, index) => {
           return <LabBonusTooltip {...labBonus} key={`bonus-${labBonus?.name}-${index}`}>
-            <img src={`${prefix}data/LabBonus${labBonus?.index}.png`} alt=""/>
+            <img className={`${labBonus.active ? 'active' : ''}`} src={`${prefix}data/LabBonus${labBonus?.index}.png`}
+                 alt=""/>
           </LabBonusTooltip>
         })}
       </div>
       <div className={'jewels'}>
         {lab?.jewels?.map((jewel, index) => {
           return <JewelTooltip {...jewel} key={`${jewel?.name}-${index}`}>
-            <img src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
+            <img className={jewel.active ? 'active' : ''} style={{ borderRadius: "50%" }}
+                 src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
           </JewelTooltip>
         })}
       </div>
     </MainFrameStyle>
   );
 };
+
+const NotUploaded = styled.div`
+  z-index: 2;
+  position: absolute;
+  top: calc(${({ y }) => y}vw / 20);
+  left: calc(${({ x }) => x}vw / 20);
+  height: 25px;
+  width: 25px;
+  pointer-events: none;
+`;
+const UserImage = styled.img`
+  position: absolute;
+  top: calc(${({ y }) => y}vw / 20);
+  left: calc(${({ x }) => x}vw / 20);
+  height: 25px;
+  width: 25px;
+`;
 
 const MainFrameStyle = styled.div`
   display: flex;
@@ -72,18 +101,6 @@ const MainFrameStyle = styled.div`
     height: 30vw;
     width: 80vw;
     margin: 0 auto;
-
-    .circle {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background-color: red;
-    }
-
-    .user {
-      width: 25px;
-      height: 25px;
-    }
 
     .jewel {
       width: 35px;
@@ -102,9 +119,9 @@ const MainFrameStyle = styled.div`
     .lab-bonus-border {
       width: 40px;
       height: 40px;
+      border-radius: 10px;
     }
   }
-
 
   .lab-bonuses {
     display: flex;
@@ -119,6 +136,11 @@ const MainFrameStyle = styled.div`
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
+  }
+
+  .active {
+    box-shadow: 0 0 10px 0 #93df59;
+    border-radius: 10px;
   }
 `;
 

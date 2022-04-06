@@ -1,12 +1,12 @@
 import styled from 'styled-components'
-import { cleanUnderscore, prefix } from "../../Utilities";
+import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 import ShrineTooltip from "../Common/Tooltips/ShrineTooltip";
 
 const Shrines = ({ shrines }) => {
   return (
     <ShrinesStyle>
       {shrines.map(({ name, rawName, shrineLevel, desc, bonus }, index) => {
-        const description = cleanUnderscore(desc?.replace('{', bonus));
+        const description = cleanUnderscore(desc?.replace('{', kFormatter(bonus, 2)));
         return <div className={'shrine-container'} key={name + index}>
           <span className={'level'}>{shrineLevel}</span>
           <ShrineTooltip name={name} level={shrineLevel} desc={description}>

@@ -10,7 +10,7 @@ import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 
 const saltColor = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 
-const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
+const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated, lab }) => {
   const { salts, refinerySaltTaskLevel } = refinery || {};
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
@@ -28,6 +28,7 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
       if (refineryThrottle?.maxLevel > 0) {
         cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.maxLevel, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
       }
+
       // 72000 (s) - cooldowns?.[refineryThrottle?.talentId] (s) - timePassed
       const timePassed = (new Date().getTime() - afkTime) / 1000;
       const calculatedCooldown = (1 - cdReduction / 100) * (cooldowns?.[130]);
@@ -51,8 +52,9 @@ const Refinery = ({ refinery, saltLicks, vials, characters, lastUpdated }) => {
     const redMaltVial = vials?.[25] ? (growth(vials?.[25]?.func, vials?.[25]?.level, vials?.[25]?.x1, vials?.[25]?.x2) / 100) : 0;
     const saltLickUpgrade = saltLicks?.[2] ? (saltLicks?.[2]?.baseBonus * saltLicks?.[2]?.level / 100) : 0;
     const cycleByType = index <= 2 ? 900 : 3600;
+    const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
     const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + redMaltVial + saltLickUpgrade))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
-    const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
+    const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
 

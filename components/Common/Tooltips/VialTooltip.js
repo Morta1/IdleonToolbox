@@ -11,9 +11,11 @@ const VialTooltip = ({
                        x1,
                        x2,
                        func,
+                       vialMultiplier = 1,
                        children
                      }) => {
   const vialCost = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5E6, 25E6, 1E8, 1E9, 5E10];
+  const bonus = growth(func, level, x1, x2) * vialMultiplier;
   return (
     <VialTooltipStyle
       interactive
@@ -23,8 +25,8 @@ const VialTooltip = ({
         <div className="info">
           {cleanUnderscore(name)}
         </div>
-        <div>
-          {cleanUnderscore(desc).replace(/{|\$/g, growth(func, level, x1, x2))}
+        <div className={vialMultiplier !== 1 ? 'lab-bonus-active' : ''}>
+          {cleanUnderscore(desc).replace(/{|\$/g, bonus)}
         </div>
         {itemReq?.map(({ name, rawName }, index) => {
           return name && name !== 'Blank' && name !== 'ERROR' ? <div className={'item-wrapper'} key={name + '' + index}>
@@ -60,6 +62,11 @@ const VialTooltipStyle = styled((props) => (
 
   .tooltip-body {
     padding: 10px;
+
+
+    .lab-bonus-active {
+      color: #66c7f5;
+    }
 
     .info {
       font-weight: bold;

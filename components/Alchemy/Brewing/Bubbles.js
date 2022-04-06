@@ -120,7 +120,7 @@ const BubblesStyle = styled.div`
     row-gap: 20px;
     column-gap: 100px;
 
-    @media (max-width: 1300px) {
+    @media (max-width: 1890px) {
       display: flex;
       flex-direction: column;
     }

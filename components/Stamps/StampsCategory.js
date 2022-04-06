@@ -7,7 +7,7 @@ import { growth } from "../General/calculationHelper";
 import NumberTooltip from "../Common/Tooltips/NumberTooltip";
 import CoinDisplay from "../General/CoinDisplay";
 
-const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, reductionBribe }) => {
+const Stamps = ({ stamps, onGoalUpdate, labBonuses, categoryName, goals, reductionVial, reductionBribe }) => {
   // BLUE_FLAV - growth(name, func, level, x1, x2)
   const [stampGoal, setStampGoal] = useState();
 
@@ -65,6 +65,9 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
     const reductionVal = getMaterialReductionValue();
     return (baseMatCost * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8))) * Math.max(0.1, 1 - (reductionVal / 100)) || 0;
   }
+
+  const multiplier = (categoryName !== 'misc' && labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active) ? 2 : 1;
+
   return (
     <StampsWrapper>
       <div className={'stamp-wrapper'}>
@@ -76,7 +79,7 @@ const Stamps = ({ stamps, onGoalUpdate, categoryName, goals, reductionVial, redu
             <div className={'stamp-row'} key={rawName + '' + displayName + '' + index}>
               <div className={'stamp-icon-wrapper'}>
                 {level !== 0 ? <span className={'level'}>{level}</span> : null}
-                <EffectTooltip {...{ name: displayName, desc: effect, ...stamp }}
+                <EffectTooltip multiplier={multiplier} {...{ name: displayName, desc: effect, ...stamp }}
                                type={'stamp'}
                                effect={growth(func, level, x1, x2)}>
                   <img width={48} height={48} className={`${level === 0 && 'missing'}`}

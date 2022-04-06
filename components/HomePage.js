@@ -14,6 +14,18 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.10',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added lab logic (might be inaccuracies, please let me know)',
+            'Updated samples, refinery, stamps, vials'
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.9',
       changes: [
         {
@@ -466,7 +478,7 @@ const HomePage = () => {
       <div className={'desc'}>Idleon toolbox helps you track all of your account and characters&apos; progress with
         ease!
       </div>
-      <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'sub title2'}>For any question, suggestion or bug
+      <Typography style={{ fontFamily: 'JetBrains Mono' }} variant={'body1'}>For any question, suggestion or bug
         report, please contact me in
         discord Morojo#2331</Typography>
       {/*<div style={{ marginTop: 10 }}>*/}

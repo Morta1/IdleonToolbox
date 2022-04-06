@@ -1,10 +1,12 @@
 import styled from 'styled-components'
 import { Checkbox, FormControlLabel, Grid, TextField } from "@material-ui/core";
-import { prefix } from "../../../Utilities";
-import React, { useContext, useState } from "react";
+import { cleanUnderscore, pascalCase, prefix } from "../../../Utilities";
+import React, { useContext, useMemo, useState } from "react";
 import { calcBubbleMatCost, cauldrons } from "../../General/calculationHelper";
 import { AppContext } from "../../Common/context";
 import Bubbles from "./Bubbles";
+import "../../Common/Tooltips/NumberTooltip";
+import NumberTooltip from "../../Common/Tooltips/NumberTooltip";
 
 const Brewing = ({ account }) => {
   const { alchemy, achievements } = account;
@@ -40,8 +42,29 @@ const Brewing = ({ account }) => {
     setBubble(clickedBubble);
   }
 
+  const getUpgradeableBubbles = (acc) => {
+    const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
+    if (!noBubbleLeftBehind) return null;
+    const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles) => bubbles);
+    const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15).sort((a, b) => a.level - b.level);
+    const upgradeableBubblesAmount = acc?.lab?.jewels?.find(jewel => jewel.name === "Pyrite_Rhinestone")?.active ? 4 : 3;
+    return found.slice(0, upgradeableBubblesAmount);
+  }
+  const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(account), [account]);
+
   return (
     <BubblesStyle>
+      {upgradeableBubbles ? <div className={'upgradeable-bubbles'}>
+        <div>Next Bubble Upgrades:</div>
+        <div>
+          {upgradeableBubbles?.map(({ rawName, bubbleName }, index) => {
+            return <NumberTooltip title={pascalCase(cleanUnderscore(bubbleName))} key={`${rawName}-${index}`}>
+              <img width={48} height={48} src={`${prefix}data/${rawName}.png`}
+                   alt={''}/>
+            </NumberTooltip>
+          })}
+        </div>
+      </div> : null}
       <div className={'tabs'}>
         <div className={`${bubble === 'power' ? 'active' : ''}`} onClick={() => handleBubbleChange('power')}>Power
         </div>
@@ -106,6 +129,14 @@ const StyledCheckbox = styled(Checkbox)`
 `;
 
 const BubblesStyle = styled.div`
+  .upgradeable-bubbles {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0;
+  }
+
   .tabs {
     display: flex;
     justify-content: center;

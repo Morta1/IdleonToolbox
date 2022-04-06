@@ -1,14 +1,16 @@
 import styled from 'styled-components'
 import VialTooltip from "../Common/Tooltips/VialTooltip";
 import { cleanUnderscore, prefix } from "../../Utilities";
-import React from "react";
+import React, { useMemo } from "react";
 
-const Vials = ({ vials }) => {
+const Vials = ({ vials, lab }) => {
+  const myFirstChemSet = useMemo(() => lab?.labBonuses.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active, [lab.vials]);
+
   return (
     <VialsStyle>
       {vials?.map((vial, index) => {
         const { name, level, mainItem } = vial;
-        return mainItem ? <VialTooltip {...vial} key={`${name}${index}`}>
+        return mainItem ? <VialTooltip {...vial} vialMultiplier={myFirstChemSet ? 2 : 1} key={`${name}${index}`}>
           <div className={`vial-wrapper${level === 0 ? ' missing' : ''}`}>
             {level !== '0' ? <span className={'level'}>{level}</span> : null}
             <img className={'vial-item'} title={cleanUnderscore(mainItem)} src={`${prefix}data/${mainItem}.png`}

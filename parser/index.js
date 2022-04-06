@@ -97,6 +97,7 @@ import {
 } from "../data/website-data";
 import { growth } from "../components/General/calculationHelper";
 import { round } from "../Utilities";
+import { calcPlayerLineWidth, checkConnection, checkPlayerConnection, getPrismPlayerConnection } from "./lab";
 
 const { cards, items, obols, stamps, statues } = require("../data/website-data");
 const { calculateStars, createObolsWithUpgrades, filteredLootyItems } = require("./parserUtils");
@@ -109,6 +110,7 @@ const parseIdleonData = (idleonData, charNames, guildData) => {
       characterNames = Object.entries(idleonData?.PlayerDATABASE);
       characters = characterNames.map(([charName, charData], index) => ({
         name: charName,
+        playerId: index,
         ...(Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {}))
       }));
     } else {
@@ -292,6 +294,7 @@ const createAccountData = (idleonData, characters) => {
         ...res,
         {
           level: parseInt(array?.[key]) || 0,
+          index: bubbleIndex,
           rawName: `aUpgrades${cauldronsTextMapping[index]}${bubbleIndex}`,
           ...cauldrons[cauldronsIndexMapping?.[index]][key],
         }] : res), [])
@@ -477,6 +480,10 @@ const createAccountData = (idleonData, characters) => {
     }];
   }, []);
   account.cogstruction = cogstruction;
+
+  const arenaWave = idleonData?.OptLacc?.[89];
+  const waveReqs = randomList?.[53];
+
   account.meals = idleonData?.Meals?.[0]?.map((mealLevel, index) => {
     if (index > 48) return null;
     return {
@@ -485,88 +492,6 @@ const createAccountData = (idleonData, characters) => {
       ...(cookingMenu?.[index] || {})
     }
   }).filter(meal => meal);
-
-  account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
-    const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
-    if (status <= 0) return null;
-    //
-    // Meal Speed
-    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
-    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed');
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed');
-    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
-    const trollCard = account?.cards?.Troll; // Kitchen Eff
-    const trollCardBonus = calcCardBonus(trollCard);
-    // const jewelBonus = mainframe.jewels[0].active ? mainframe.jewels[0].getBonus() : 1;
-    // TODO: add jewel bonus
-    const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
-
-    const mealSpeedBonusMath = (1 + cookingSpeedStamps / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, 1);
-    const mealSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
-    const mealSpeed = 10 *
-      (1 + (isRichelin ? 2 : 0)) *
-      (1 + speedLv / 10) *
-      (1 + cookingSpeedVials / 100) *
-      mealSpeedBonusMath *
-      mealSpeedCardImpact *
-      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
-
-    // Fire Speed
-    const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
-    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
-    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
-    const recipeSpeedBonusMath = (1 + recipeSpeedStamps / 100) * (1 + recipeSpeedMeals / 100);
-    const recipeSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
-    const fireSpeed = 5 *
-      (1 + (isRichelin ? 1 : 0)) *
-      (1 + fireLv / 10) *
-      (1 + recipeSpeedVials / 100) *
-      recipeSpeedBonusMath *
-      recipeSpeedCardImpact *
-      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
-
-    // New Recipe Luck
-    const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
-
-    // Spices Cost
-    const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
-    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchC');
-    const arenaBonusActive = isArenaBonusActive(idleonData?.OptLacc, randomList?.[53], 7);
-    const baseMath = 1 /
-      ((1 + kitchenCostVials / 100) *
-        (1 + kitchenCostMeals / 100) *
-        (1 + (isRichelin ? 40 : 0) / 100) *
-        (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
-
-    const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
-    const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
-    const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
-
-    const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
-    const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
-    const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
-      index: foodIndex,
-      rawName: cookingMenu?.[foodIndex]?.rawName,
-      cookReq: cookingMenu?.[foodIndex]?.cookReq
-    }));
-
-    return {
-      status,
-      ...(cookingMenu?.[foodIndex] || {}),
-      luckLv,
-      fireLv,
-      speedLv,
-      currentProgress,
-      mealSpeed,
-      mealLuck,
-      fireSpeed,
-      speedCost,
-      fireCost,
-      luckCost,
-      ...(status === 3 ? { spices } : {}),
-      ...(status === 3 ? { possibleMeals } : {})
-    }
-  }).filter((kitchen) => kitchen);
 
   const spicesToClaim = idleonData?.Territory?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
@@ -605,7 +530,6 @@ const createAccountData = (idleonData, characters) => {
     arenaBonuses
   };
 
-
   const [cords] = idleonData?.Lab;
   const [chipRepo] = idleonData?.Lab.splice(15);
   const [jewelsRaw] = idleonData?.Lab.splice(14);
@@ -615,7 +539,7 @@ const createAccountData = (idleonData, characters) => {
     const [x, y] = cords.slice(i, i + playerCordsChunk);
     playersCords = [...playersCords, { x, y }];
   }
-  const jewelsList = jewelsRaw?.map((jewel, index) => {
+  let jewelsList = jewelsRaw?.map((jewel, index) => {
     return {
       ...(jewels?.[index] || {}),
       acquired: jewel === 1,
@@ -639,14 +563,156 @@ const createAccountData = (idleonData, characters) => {
     }
   });
 
+  let playersInTubes = [...characters].filter((character, index) => character?.[`AFKtarget_${index}`] === "Laboratory")
+    .sort((player1, player2) => player1.playerId > player2.playerId ? 1 : -1)
+    .map(character => ({
+      ...character,
+      x: playersCords?.[character?.playerId]?.x,
+      y: playersCords?.[character?.playerId]?.y
+    }));
+
+  let foundNewConnection = true;
+  let labBonusesList = labBonuses;
+  const connectedPlayers = [];
+  while (foundNewConnection) {
+    foundNewConnection = false;
+
+    playersInTubes = calcPlayerLineWidth(playersInTubes, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
+
+    if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
+      const prismPlayer = getPrismPlayerConnection(playersInTubes);
+      if (prismPlayer) {
+        connectedPlayers.push(prismPlayer);
+      }
+    }
+
+    for (let i = 0; i < playersInTubes.length; i++) {
+      let newPlayer, newPlayerConnection;
+      if (i < connectedPlayers.length) {
+        newPlayer = checkPlayerConnection(playersInTubes, playersInTubes?.[i]);
+        if (newPlayer && !connectedPlayers.includes(newPlayer)) {
+          connectedPlayers.push(newPlayer);
+        }
+      }
+      const jewelMultiplier = (labBonuses.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+      const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.index === 9).reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
+      const {
+        resArr: bonuses,
+        newConnection: newBonusConnection
+      } = checkConnection(labBonusesList, connectionRangeBonus, playersInTubes?.[i], false);
+      labBonusesList = bonuses;
+      const {
+        resArr: jewels,
+        newConnection: newJewelConnection
+      } = checkConnection(jewelsList, connectionRangeBonus, playersInTubes?.[i], true);
+      jewelsList = jewels;
+      foundNewConnection = newBonusConnection || newJewelConnection || newPlayerConnection;
+    }
+  }
+
+  playersCords = playersCords?.map((player, index) => {
+    const p = playersInTubes?.find(({ playerId }) => playerId === index);
+    return {
+      ...player,
+      lineWidth: p?.lineWidth ?? 0
+    }
+  })
+
+  account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
+    const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
+    if (status <= 0) return null;
+
+    // Meal Speed
+    const multiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 1;
+    const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
+    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd', 0, multiplier);
+    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed', vialMultiplier);
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed');
+    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
+    const trollCard = account?.cards?.Troll; // Kitchen Eff
+    const trollCardBonus = calcCardBonus(trollCard);
+    // TODO: add jewel bonus
+    const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
+    let jewelBonus = jewel?.active ? jewel.bonus : 1;
+    // const jewelBonus = mainframe.jewels[0].active ? mainframe.jewels[0].getBonus() : 1;
+    const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
+
+    const mealSpeedBonusMath = (1 + cookingSpeedStamps / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, jewelBonus);
+    const mealSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
+    const mealSpeed = 10 *
+      (1 + (isRichelin ? 2 : 0)) *
+      (1 + speedLv / 10) *
+      (1 + cookingSpeedVials / 100) *
+      mealSpeedBonusMath *
+      mealSpeedCardImpact *
+      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
+
+    // Fire Speed
+    const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed', vialMultiplier);
+    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0, multiplier);
+    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
+    const recipeSpeedBonusMath = (1 + recipeSpeedStamps / 100) * (1 + recipeSpeedMeals / 100);
+    const recipeSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
+    const fireSpeed = 5 *
+      (1 + (isRichelin ? 1 : 0)) *
+      (1 + fireLv / 10) *
+      (1 + recipeSpeedVials / 100) *
+      recipeSpeedBonusMath *
+      recipeSpeedCardImpact *
+      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
+
+    // New Recipe Luck
+    const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
+
+    // Spices Cost
+    const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost', vialMultiplier);
+    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchC');
+    const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
+    const baseMath = 1 /
+      ((1 + kitchenCostVials / 100) *
+        (1 + kitchenCostMeals / 100) *
+        (1 + (isRichelin ? 40 : 0) / 100) *
+        (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
+
+    const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
+    const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
+    const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
+
+    const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
+    const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));
+    const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
+      index: foodIndex,
+      rawName: cookingMenu?.[foodIndex]?.rawName,
+      cookReq: cookingMenu?.[foodIndex]?.cookReq
+    }));
+
+    return {
+      status,
+      ...(cookingMenu?.[foodIndex] || {}),
+      luckLv,
+      fireLv,
+      speedLv,
+      currentProgress,
+      mealSpeed,
+      mealLuck,
+      fireSpeed,
+      speedCost,
+      fireCost,
+      luckCost,
+      ...(status === 3 ? { spices } : {}),
+      ...(status === 3 ? { possibleMeals } : {})
+    }
+  }).filter((kitchen) => kitchen);
+
   account.lab = {
     playersCords,
     playersChips,
     chipRepository,
     jewels: jewelsList,
     chips: chipList,
-    labBonuses
+    labBonuses: labBonusesList
   };
+
 
   account.prayers = idleonData?.PrayersUnlocked?.reduce((res, prayerLevel, prayerIndex) => {
     const reqItem = prayers?.[prayerIndex]?.soul;
@@ -879,6 +945,9 @@ const createCharactersData = (idleonData, characters, account) => {
       nextCoinUpgrade: getCoinCost(pointsFromCoins, anvilCostReduction, true),
     };
 
+    const stampMultiplier = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 1;
+    const worldTour = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'World_Tour')?.active
+
     // ANVIL EXP
     const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
     const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
@@ -888,7 +957,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
     const equipmentGoldFoodBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[8]), 0);
     const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
-    const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7');
+    const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7', 0, stampMultiplier);
     const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
     const goldenGoodMulti = getGoldenFoodMulti(
       familyBonus,
@@ -900,7 +969,7 @@ const createCharactersData = (idleonData, characters, account) => {
     const goldenFoodBonus = getGoldenFoodBonus(goldenGoodMulti, goldenHam?.Amount, goldenHam?.amount);
 
     const skillExpCardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
-    const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9');
+    const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9', worldTour);
     const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
     const unendingEnergyBonus = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
     const skilledDimwitCurse = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.curse;
@@ -945,7 +1014,7 @@ const createCharactersData = (idleonData, characters, account) => {
     // }
 
     // ANVIL SPEED MATH;
-    const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);
+    const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level, stampMultiplier);
     const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
     const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'aUpgradesG2');
     const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
@@ -961,11 +1030,11 @@ const createCharactersData = (idleonData, characters, account) => {
       guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
     }
     const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
-    const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9');
+    const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9', worldTour);
     const allCapacity = getAllCapsBonus(guildCarryBonus, telekineticStorageBonus, carryCapShrineBonus, zergPrayerBonus, ruckSackPrayerBonus);
 
-    const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character?.skillsInfo?.smithing?.level);
-    const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character?.skillsInfo?.smithing?.level);
+    const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character?.skillsInfo?.smithing?.level, stampMultiplier);
+    const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character?.skillsInfo?.smithing?.level, stampMultiplier);
     const gemShopCarryBonus = account?.gemItemsPurchased?.find((value, index) => index === 58) ?? 0;
     const extraBagsTalentBonus = getTalentBonus(character?.talents, 1, 'EXTRA_BAGS');
     const starSignExtraCap = getStarSignBonus(character?.starSigns, 'Pack_Mule', 'Carry_Cap');
@@ -1036,8 +1105,9 @@ const createCharactersData = (idleonData, characters, account) => {
     // 0 - current worship charge rate
     const playerStuffArray = char?.[`PlayerStuff_${charIndex}`];
     const worshipLevel = character?.skillsInfo?.worship?.level;
-    const prayDayStamp = account?.stamps?.skills?.find(({ rawName }) => rawName === 'StampB35');
-    const prayDayBonus = growth(prayDayStamp?.func, prayDayStamp?.level, prayDayStamp?.x1, prayDayStamp?.x2);
+    // const prayDayStamp = account?.stamps?.skills?.find(({ rawName }) => rawName === 'StampB35');
+    // const prayDayBonus = growth(prayDayStamp?.func, prayDayStamp?.level, prayDayStamp?.x1, prayDayStamp?.x2);
+    const prayDayBonus = getStampBonus(account?.stamps, 'misc', 'StampB35', 0, stampMultiplier);
     const gospelLeaderBubble = account?.alchemy?.bubbles?.['high-iq']?.find(({ rawName }) => rawName === 'aUpgradesP12');
     let gospelBonus = growth(gospelLeaderBubble?.func, gospelLeaderBubble?.level, gospelLeaderBubble?.x1, gospelLeaderBubble?.x2) ?? 0;
     const multiBubble = account?.alchemy?.bubbles?.['high-iq']?.find(({ rawName }) => rawName === 'aUpgradesP1');
@@ -1054,8 +1124,9 @@ const createCharactersData = (idleonData, characters, account) => {
     }
     const chargeCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'F11');
     const chargeCardBonus = calcCardBonus(chargeCard);
-    const flowinStamp = account?.stamps?.skills?.find(({ rawName }) => rawName === 'StampB34');
-    const flowinStampBonus = growth(flowinStamp?.func, flowinStamp?.level, flowinStamp?.x1, flowinStamp?.x2);
+    // const flowinStamp = account?.stamps?.skills?.find(({ rawName }) => rawName === 'StampB34');
+    // const flowinStampBonus = growth(flowinStamp?.func, flowinStamp?.level, flowinStamp?.x1, flowinStamp?.x2);
+    const flowinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampB34', 0, stampMultiplier);
     const hasSkull = character?.tools?.[5]?.rawName !== 'Blank';
     const maxCharge = hasSkull ? getMaxCharge(character?.tools?.[5], maxChargeCardBonus, prayDayBonus, gospelBonus, worshipLevel, popeBonus) : 0;
     const chargeRate = hasSkull ? getChargeRate(character?.tools?.[5], worshipLevel, popeBonus, chargeCardBonus, flowinStampBonus, nearbyOutletBonus) : 0;
@@ -1101,9 +1172,10 @@ const createCharactersData = (idleonData, characters, account) => {
       unspentPoints: (account?.deliveryBoxComplete + account?.deliveryBoxStreak + account?.deliveryBoxMisc - totalPointsSpent) || 0
     }
 
-    const crystalShrineBonus = getShrineBonus(account?.shrines, 6, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9');
-    const crystallinStamp = account?.stamps?.misc?.find(({ rawName }) => rawName === 'StampC3');
-    const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
+    const crystalShrineBonus = getShrineBonus(account?.shrines, 6, char?.[`CurrentMap_${charIndex}`], character.cards, 'Z9', worldTour);
+    // const crystallinStamp = account?.stamps?.misc?.find(({ rawName }) => rawName === 'StampC3');
+    // const crystallinStampBonus = growth(crystallinStamp?.func, crystallinStamp?.level, crystallinStamp?.x1, crystallinStamp?.x2) ?? 0;
+    const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0, stampMultiplier);
     const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
     const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
     const demonGenie = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'G4');

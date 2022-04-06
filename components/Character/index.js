@@ -52,6 +52,7 @@ const Character = ({
                      afkTime,
                      nextPortal,
                      cooldowns,
+                     lab,
                      lastUpdated
                    }) => {
   const { strength, agility, wisdom, luck } = stats || {};
@@ -69,7 +70,8 @@ const Character = ({
   }
 
   const worshipProgress = worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge) * 100;
-
+  const wiredInBonus = lab.labBonuses.find((bonus) => bonus.name === 'Wired_In')?.active;
+  const labBonusActive = afkTarget === 'Laboratory' && wiredInBonus;
   return <CharacterStyle classColor={classColors?.[charClassName]}>
     <div className={'character-information-container'}>
       <div className={'character-profile'}>
@@ -117,7 +119,8 @@ const Character = ({
       {!dataFilters || dataFilters?.['Star Sign'] ? <StarSigns signs={starSigns}/> : null}
       {!dataFilters || dataFilters?.Cards ? <EquippedCards cards={cards}/> : null}
       {!dataFilters || dataFilters?.['Printer Products'] ?
-        <PrinterProducts selected={printer?.selected} stored={printer?.stored}/> : null}
+        <PrinterProducts labBonus={labBonusActive} selected={printer?.selected}
+                         stored={printer?.stored}/> : null}
       {!dataFilters || dataFilters?.['Traps'] ?
         <Traps trap={tools?.[4]} traps={traps} lastUpdated={lastUpdated}/> : null}
       {!dataFilters || dataFilters?.['Anvil Details'] || dataFilters?.['Anvil Products'] ?

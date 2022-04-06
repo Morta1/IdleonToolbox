@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { cleanUnderscore, kFormatter, prefix } from "../../Utilities";
 import styled from 'styled-components';
 
-const PrinterProducts = ({ selected, stored }) => {
+const PrinterProducts = ({ selected, stored, labBonus }) => {
   const isEmpty = (array) => {
     return array?.every(({ item }) => item === 'ERROR');
   }
@@ -22,7 +22,7 @@ const PrinterProducts = ({ selected, stored }) => {
         <div className="cont">
           {selected?.map(({ item, value }, index) => {
             return <div className={'product-container'} key={item + index}>
-              <span className={'product-value'}>{kFormatter(value)}/hr</span>
+              <span className={`product-value${labBonus ? ' lab-bonus-active' : ''}`}>{kFormatter(value)}/hr</span>
               <img className={'print-slot'} title={cleanUnderscore(item)} src={`${prefix}data/PrintSlot.png`} alt=""/>
               <img title={cleanUnderscore(item)} src={`${prefix}data/${item}.png`} alt=""/>
             </div>
@@ -51,6 +51,10 @@ const PrinterProductsStyled = styled.div`
 
   & h3 {
     margin: 0 0 20px 0;
+  }
+
+  .lab-bonus-active {
+    color: #66c7f5;
   }
 
   .printing {

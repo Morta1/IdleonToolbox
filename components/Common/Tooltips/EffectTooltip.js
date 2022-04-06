@@ -7,6 +7,7 @@ const EffectTooltip = ({
                          name,
                          desc,
                          effect,
+                         multiplier = 1,
                          children
                        }) => {
   return (
@@ -18,8 +19,8 @@ const EffectTooltip = ({
         <div className="info">
           {cleanUnderscore(name)}
         </div>
-        <div className="item-req">
-          {cleanUnderscore(desc).replace(/({}?)|\$/g, type === 'bubble' ? effect : `+${effect}`)}
+        <div className={`item-req${multiplier !== 1 ? ' lab-bonus-active' : ''}`}>
+          {cleanUnderscore(desc).replace(/({}?)|\$/g, type === 'bubble' ? effect * multiplier : `+${effect * multiplier}`)}
         </div>
       </div>}>
       {children}
@@ -53,6 +54,10 @@ const EffectTooltipStyle = styled((props) => (
       font-size: 22px;
       font-weight: bold;
       margin-bottom: 15px;
+    }
+
+    .lab-bonus-active {
+      color: #66c7f5;
     }
   }
 `;
