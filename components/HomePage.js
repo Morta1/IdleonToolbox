@@ -445,7 +445,7 @@ const HomePage = () => {
       ]
     }
   ]
-  const { userData, notifications, setUserNotifications } = useContext(AppContext);
+  const { userData, setUserNotifications } = useContext(AppContext);
   const [icon] = useState(icons[getRandomNumber(0, 2)]);
   const [open, setOpen] = useState(false);
   const router = useRouter();
