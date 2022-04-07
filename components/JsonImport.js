@@ -143,10 +143,10 @@ const JsonImport = () => {
       });
     }
     try {
-      // const data = JSON.parse(await navigator.clipboard.readText());
-      // const parsedData = parseIdleonData(data);
-      const { data, charNames, guildData } = JSON.parse(await navigator.clipboard.readText());
-      const parsedData = parseIdleonData(data, charNames, guildData);
+      const data = JSON.parse(await navigator.clipboard.readText());
+      const parsedData = parseIdleonData(data);
+      // const { data, charNames, guildData } = JSON.parse(await navigator.clipboard.readText());
+      // const parsedData = parseIdleonData(data, charNames, guildData);
       setUserData(parsedData);
       setUserLastUpdated(getDate());
       setManualResult(true);
