@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.11',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Fixed a bug crashing the website when calculating lab. (Lab is still not accurate, I\'m working on it)',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.10',
       changes: [
         {

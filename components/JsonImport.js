@@ -14,7 +14,6 @@ import { checkUserStatus, signInWithToken, subscribe, userSignOut } from "../fir
 import { getUserAndDeviceCode, getUserToken } from "../google/login";
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { format } from "date-fns";
-import Notifications from "./Notifications";
 
 const getDate = () => {
   try {
@@ -144,8 +143,10 @@ const JsonImport = () => {
       });
     }
     try {
-      const data = JSON.parse(await navigator.clipboard.readText());
-      const parsedData = parseIdleonData(data);
+      // const data = JSON.parse(await navigator.clipboard.readText());
+      // const parsedData = parseIdleonData(data);
+      const { data, charNames, guildData } = JSON.parse(await navigator.clipboard.readText());
+      const parsedData = parseIdleonData(data, charNames, guildData);
       setUserData(parsedData);
       setUserLastUpdated(getDate());
       setManualResult(true);

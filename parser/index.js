@@ -491,7 +491,7 @@ const createAccountData = (idleonData, characters) => {
       amount: idleonData?.Meals?.[2]?.[index],
       ...(cookingMenu?.[index] || {})
     }
-  }).filter(meal => meal);
+  }).filter(meal => meal)
 
   const spicesToClaim = idleonData?.Territory?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
@@ -542,6 +542,7 @@ const createAccountData = (idleonData, characters) => {
   let jewelsList = jewelsRaw?.map((jewel, index) => {
     return {
       ...(jewels?.[index] || {}),
+      active: index === 16,
       acquired: jewel === 1,
       rawName: `ConsoleJwl${index}`
     }
@@ -564,7 +565,7 @@ const createAccountData = (idleonData, characters) => {
   });
 
   let playersInTubes = [...characters].filter((character, index) => character?.[`AFKtarget_${index}`] === "Laboratory")
-    .sort((player1, player2) => player1.playerId > player2.playerId ? 1 : -1)
+    // .sort((player1, player2) => player1.playerId > player2.playerId ? 1 : -1)
     .map(character => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
@@ -572,8 +573,8 @@ const createAccountData = (idleonData, characters) => {
     }));
 
   let foundNewConnection = true;
-  let labBonusesList = labBonuses;
-  const connectedPlayers = [];
+  let labBonusesList = [...labBonuses];
+  let connectedPlayers = [];
   while (foundNewConnection) {
     foundNewConnection = false;
 
@@ -589,24 +590,25 @@ const createAccountData = (idleonData, characters) => {
     for (let i = 0; i < playersInTubes.length; i++) {
       let newPlayer, newPlayerConnection;
       if (i < connectedPlayers.length) {
-        newPlayer = checkPlayerConnection(playersInTubes, playersInTubes?.[i]);
-        if (newPlayer && !connectedPlayers.includes(newPlayer)) {
-          connectedPlayers.push(newPlayer);
+        newPlayer = checkPlayerConnection(playersInTubes, connectedPlayers, connectedPlayers?.[i]);
+        if (newPlayer && !connectedPlayers.find((player) => player.playerId === newPlayer.playerId)) {
+          newPlayerConnection = true;
+          connectedPlayers = [...connectedPlayers, newPlayer];
         }
+        const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+        const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.index === 9).reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
+        const {
+          resArr: bonuses,
+          newConnection: newBonusConnection
+        } = checkConnection(labBonusesList, connectionRangeBonus, playersInTubes?.[i], false);
+        labBonusesList = bonuses;
+        const {
+          resArr: jewels,
+          newConnection: newJewelConnection
+        } = checkConnection(jewelsList, connectionRangeBonus, playersInTubes?.[i], true);
+        jewelsList = jewels;
+        foundNewConnection = newPlayerConnection || newBonusConnection || newJewelConnection;
       }
-      const jewelMultiplier = (labBonuses.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
-      const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.index === 9).reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
-      const {
-        resArr: bonuses,
-        newConnection: newBonusConnection
-      } = checkConnection(labBonusesList, connectionRangeBonus, playersInTubes?.[i], false);
-      labBonusesList = bonuses;
-      const {
-        resArr: jewels,
-        newConnection: newJewelConnection
-      } = checkConnection(jewelsList, connectionRangeBonus, playersInTubes?.[i], true);
-      jewelsList = jewels;
-      foundNewConnection = newBonusConnection || newJewelConnection || newPlayerConnection;
     }
   }
 

@@ -8,8 +8,8 @@ export const getDistance = (x1, y1, x2, y2) => {
   return 0.9604339 * Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) + 0.397824735 * Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }
 
-export const getRange = (connectionBonus, index) => {
-  if (index === 9) {
+export const getRange = (connectionBonus, index, isJewel) => {
+  if (isJewel && index === 9) {
     return 80;
   }
   return 80 * (1 + connectionBonus / 100);
@@ -64,11 +64,11 @@ export const getPrismPlayerConnection = (playersInTubes) => {
   return null;
 }
 
-export const checkPlayerConnection = (playersInTubes, playerCords) => {
+export const checkPlayerConnection = (playersInTubes, connectedPlayers, playerCords) => {
   for (let i = 0; i < playersInTubes.length; i++) {
     const { x, y, lineWidth } = playersInTubes[i];
-    const dist = getDistance(playerCords.x, playerCords.y, x, y) < lineWidth;
-    if (dist < lineWidth) {
+    const inRange = getDistance(playerCords.x, playerCords.y, x, y) < lineWidth;
+    if (!connectedPlayers.find((player) => player.playerId === playersInTubes[i].playerId) && inRange) {
       return playersInTubes[i];
     }
   }
@@ -81,8 +81,10 @@ export const checkConnection = (array, connectionRangeBonus, playerCords, acquir
   return array?.reduce((res, object, index) => {
     // if (object.active || (acquirable && (object.active || !object.acquired))) return res;
     let newConnection = false;
-    const inRange = getDistance(playerCords.x, playerCords.y, object.x, object.y) < getRange(connectionRangeBonus, index);
-    if (inRange && (!acquirable || acquirable && object.acquired)) {
+    const range = getRange(connectionRangeBonus, index, acquirable);
+    const distance = getDistance(playerCords.x, playerCords.y, object.x, object.y);
+    const inRange = distance < range;
+    if (inRange && !object.active && (!acquirable || acquirable && object.acquired)) {
       object.active = true;
       newConnection = true;
     }
