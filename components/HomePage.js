@@ -530,11 +530,11 @@ const HomePage = () => {
       <div className={'patch-notes'}>
         <Typography style={{ margin: '20px 0' }} variant={'h4'}>Patch Notes</Typography>
         {updates?.map(({ version, changes }, index) => {
-          return <div key={version + index} className={'new-features'}>
+          return <div key={`${version}-${index}`} className={'new-features'}>
             <span className={index === 0 ? 'new-title' : 'title'}>Version {version}</span>
             <ol>
               {changes?.map(({ title, desc }, changesIndex) => {
-                return <li key={title + changesIndex}>
+                return <li key={title + changesIndex + index}>
                   {title}
                   <ul>
                     {desc?.map((item, descIndex) => {

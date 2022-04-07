@@ -634,6 +634,7 @@ const createAccountData = (idleonData, characters) => {
     const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
     const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
     const mealMultiplier = jewels.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
+    const cookingSpeedJewelMultiplier = jewels.filter(jewel => jewel.active && jewel.name === 'Emerald_Pyramite').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
 
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd', 0, stampMultiplier);
     const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed', vialMultiplier);
@@ -646,29 +647,28 @@ const createAccountData = (idleonData, characters) => {
     let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
     const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
 
-    const mealSpeedBonusMath = (1 + cookingSpeedStamps / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, jewelBonus);
-    const mealSpeedCardImpact = 1 + Math.min(6 * trollCardBonus, 50) / 100;
+    const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedJewelMultiplier)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, jewelBonus);
+    const cardImpact = 1 + Math.min(6 * trollCardBonus, 50) / 100;
     const mealSpeed = 10 *
       (1 + (isRichelin ? 2 : 0)) *
       Math.max(1, diamondChef) *
       (1 + speedLv / 10) *
       (1 + cookingSpeedVials / 100) *
       mealSpeedBonusMath *
-      mealSpeedCardImpact *
+      cardImpact *
       (1 + (kitchenEffMeals * Math.floor((speedLv + (fireLv + (luckLv))) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed', vialMultiplier);
-    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0, stampMultiplier);
-    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
+    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0);
+    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook', mealMultiplier);
     const recipeSpeedBonusMath = (1 + recipeSpeedStamps / 100) * (1 + recipeSpeedMeals / 100);
-    const recipeSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
     const fireSpeed = 5 *
       (1 + (isRichelin ? 1 : 0)) *
       (1 + fireLv / 10) *
       (1 + recipeSpeedVials / 100) *
       recipeSpeedBonusMath *
-      recipeSpeedCardImpact *
+      cardImpact *
       (1 + (kitchenEffMeals * Math.floor((speedLv + (fireLv + (luckLv))) / 10)) / 100);
 
     // New Recipe Luck
@@ -676,7 +676,7 @@ const createAccountData = (idleonData, characters) => {
 
     // Spices Cost
     const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost', vialMultiplier);
-    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchC');
+    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchC', mealMultiplier);
     const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
     const baseMath = 1 /
       ((1 + kitchenCostVials / 100) *
