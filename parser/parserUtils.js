@@ -274,6 +274,8 @@ export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonu
   }, 0);
 }
 
+// export const twice
+
 export const getVialsBonusByEffect = (vials, effectName, multiplier = 1) => {
   return vials?.reduce((sum, vial) => {
     const { func, level, x1, x2, desc } = vial;

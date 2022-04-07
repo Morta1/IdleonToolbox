@@ -17,7 +17,8 @@ const MainFrame = ({ lab, characters }) => {
               <NotUploaded x={playerCord.x} y={playerCord.y}>
                 <CloseIcon style={{ position: 'absolute', left: -5, top: -5 }} color='error'
                            fontSize={'large'}/></NotUploaded> : null}
-            <NumberTooltip title={`${characters?.[index]?.name} - ${playerCord?.lineWidth}px (${playerCord.x}, ${playerCord.y})`}>
+            <NumberTooltip
+              title={`${characters?.[index]?.name} - ${playerCord?.lineWidth}px (${playerCord.x}, ${playerCord.y})`}>
               <UserImage x={playerCord.x} y={playerCord.y} src={`${prefix}data/head.png`} alt={''}/>
             </NumberTooltip>
           </div>;
