@@ -290,7 +290,7 @@ export const getStampsBonusByEffect = (stamps, effectName, skillLevel = 0, multi
   }, 0);
 }
 
-export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0, multiplier) => {
+export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0, multiplier = 1) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
   const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;

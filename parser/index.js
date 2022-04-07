@@ -542,7 +542,6 @@ const createAccountData = (idleonData, characters) => {
   let jewelsList = jewelsRaw?.map((jewel, index) => {
     return {
       ...(jewels?.[index] || {}),
-      active: index === 16,
       acquired: jewel === 1,
       rawName: `ConsoleJwl${index}`
     }
@@ -573,12 +572,13 @@ const createAccountData = (idleonData, characters) => {
     }));
 
   let foundNewConnection = true;
-  let labBonusesList = [...labBonuses];
+  let counter = 0;
+  let labBonusesList = JSON.parse(JSON.stringify(labBonuses));
   let connectedPlayers = [];
   while (foundNewConnection) {
     foundNewConnection = false;
-
-    playersInTubes = calcPlayerLineWidth(playersInTubes, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
+    counter += 1;
+    playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
 
     if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
       const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -596,7 +596,7 @@ const createAccountData = (idleonData, characters) => {
           connectedPlayers = [...connectedPlayers, newPlayer];
         }
         const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
-        const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.index === 9).reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
+        const connectionRangeBonus = jewelsList.filter(jewel => jewel.active && jewel.name === 'Pyrite_Rhombol').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
         const {
           resArr: bonuses,
           newConnection: newBonusConnection
@@ -607,10 +607,15 @@ const createAccountData = (idleonData, characters) => {
           newConnection: newJewelConnection
         } = checkConnection(jewelsList, connectionRangeBonus, playersInTubes?.[i], true);
         jewelsList = jewels;
-        foundNewConnection = newPlayerConnection || newBonusConnection || newJewelConnection;
+        foundNewConnection = !foundNewConnection ? newPlayerConnection || newBonusConnection || newJewelConnection : foundNewConnection;
       }
     }
+
+    playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList, playersChips, account.meals, account.cards, account.gemItemsPurchased, arenaWave, waveReqs);
   }
+
+  const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+  jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: jewelMultiplier }));
 
   playersCords = playersCords?.map((player, index) => {
     const p = playersInTubes?.find(({ playerId }) => playerId === index);
@@ -625,33 +630,36 @@ const createAccountData = (idleonData, characters) => {
     if (status <= 0) return null;
 
     // Meal Speed
-    const multiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 1;
+    const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
     const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
-    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd', 0, multiplier);
+    const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
+    const mealMultiplier = jewels.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
+
+    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd', 0, stampMultiplier);
     const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed', vialMultiplier);
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed');
-    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff');
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed', mealMultiplier ?? 1);
+    const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'aUpgradesY17');
+    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff', mealMultiplier ?? 1);
     const trollCard = account?.cards?.Troll; // Kitchen Eff
     const trollCardBonus = calcCardBonus(trollCard);
-    // TODO: add jewel bonus
     const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
-    let jewelBonus = jewel?.active ? jewel.bonus : 1;
-    // const jewelBonus = mainframe.jewels[0].active ? mainframe.jewels[0].getBonus() : 1;
+    let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
     const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
 
     const mealSpeedBonusMath = (1 + cookingSpeedStamps / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, jewelBonus);
-    const mealSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
+    const mealSpeedCardImpact = 1 + Math.min(6 * trollCardBonus, 50) / 100;
     const mealSpeed = 10 *
       (1 + (isRichelin ? 2 : 0)) *
+      Math.max(1, diamondChef) *
       (1 + speedLv / 10) *
       (1 + cookingSpeedVials / 100) *
       mealSpeedBonusMath *
       mealSpeedCardImpact *
-      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
+      (1 + (kitchenEffMeals * Math.floor((speedLv + (fireLv + (luckLv))) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed', vialMultiplier);
-    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0, multiplier);
+    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0, stampMultiplier);
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook');
     const recipeSpeedBonusMath = (1 + recipeSpeedStamps / 100) * (1 + recipeSpeedMeals / 100);
     const recipeSpeedCardImpact = 1 + Math.min(trollCardBonus, 50) / 100;
@@ -661,7 +669,7 @@ const createAccountData = (idleonData, characters) => {
       (1 + recipeSpeedVials / 100) *
       recipeSpeedBonusMath *
       recipeSpeedCardImpact *
-      (1 + (kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10)) / 100);
+      (1 + (kitchenEffMeals * Math.floor((speedLv + (fireLv + (luckLv))) / 10)) / 100);
 
     // New Recipe Luck
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;

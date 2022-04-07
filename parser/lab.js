@@ -15,13 +15,14 @@ export const getRange = (connectionBonus, index, isJewel) => {
   return 80 * (1 + connectionBonus / 100);
 }
 
-export const calcPlayerLineWidth = (playersInTubes, jewels, chips, meals, cards, gemItemsPurchased, arenaWave, waveReqs) => {
+export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, meals, cards, gemItemsPurchased, arenaWave, waveReqs) => {
   return playersInTubes?.map((character, index) => {
     const soupedTubes = (gemItemsPurchased?.find((value, index) => index === 123) ?? 0) * 2;
     const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 20 : 0;
     const lineWidth = getPlayerLineWidth(character,
       character?.[`Lv0_${character?.playerId}`]?.[12], // lab skill
       index < soupedTubes,
+      labBonuses,
       jewels,
       chips?.[character?.playerId],
       meals,
@@ -35,19 +36,21 @@ export const calcPlayerLineWidth = (playersInTubes, jewels, chips, meals, cards,
   })
 }
 
-export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, jewels, chips, meals, cards, petArenaBonus) => {
+export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses, jewels, chips, meals, cards, petArenaBonus) => {
+  const jewelMultiplier = (labBonuses.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
   const labSkillLevel = labLevel ?? 0;
   let baseLineWidth = 50 + 2 * labSkillLevel;
   const { acquired, x, y, bonus } = jewels[5];
   if (acquired) {
     if (getDistance(x, y, playerCords.x, playerCords.y) < 150) {
-      baseLineWidth *= 1 + (bonus / 100);
+      baseLineWidth *= 1 + (bonus * jewelMultiplier / 100);
     }
   }
   const bonusLineWidth = soupedTube ? 30 : 0;
   const conductiveMotherboardBonus = chips.find(chip => chip.index === 6)?.baseVal ?? 0;
-  const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine');
-  const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct');
+  const blackDiamondRhinstone = jewels.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
+  const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
+  const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
   const lineWidthCards = getCardBonusByEffect(cards, 'Line_Width_(Passive)');
   return Math.floor((baseLineWidth + (mealPxBonus + Math.min(lineWidthCards, 50)))
     * (1 + ((mealLinePctBonus + conductiveMotherboardBonus + (20 * petArenaBonus) + bonusLineWidth) / 100)));
@@ -79,7 +82,6 @@ export const checkPlayerConnection = (playersInTubes, connectedPlayers, playerCo
 // Check connection for jewels / bonuses
 export const checkConnection = (array, connectionRangeBonus, playerCords, acquirable) => {
   return array?.reduce((res, object, index) => {
-    // if (object.active || (acquirable && (object.active || !object.acquired))) return res;
     let newConnection = false;
     const range = getRange(connectionRangeBonus, index, acquirable);
     const distance = getDistance(playerCords.x, playerCords.y, object.x, object.y);

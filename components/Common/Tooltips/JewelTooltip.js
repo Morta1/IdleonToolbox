@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Tooltip } from "@material-ui/core";
 import { cleanUnderscore } from "../../../Utilities";
 
-const JewelTooltip = ({ effect, bonus, name, children }) => {
+const JewelTooltip = ({ effect, bonus, name, multiplier = 1 , children }) => {
   return (
     <JewelTooltipStyle
       interactive
@@ -12,7 +12,7 @@ const JewelTooltip = ({ effect, bonus, name, children }) => {
         <div className={'title'}>
           {cleanUnderscore(name.toLowerCase().capitalize())}
         </div>
-        <div>{cleanUnderscore(effect?.replace(/}/g, bonus)).split('@')[0]}</div>
+        <div>{cleanUnderscore(effect?.replace(/}/g, bonus * multiplier)).split('@')[0]}</div>
       </div>}>
       {children}
     </JewelTooltipStyle>
