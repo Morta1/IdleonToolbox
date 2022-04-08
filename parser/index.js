@@ -602,12 +602,12 @@ const createAccountData = (idleonData, characters, serverVars) => {
         const {
           resArr: bonuses,
           newConnection: newBonusConnection
-        } = checkConnection(labBonusesList, connectionRangeBonus, playersInTubes?.[i], false);
+        } = checkConnection(labBonusesList, connectionRangeBonus, connectedPlayers?.[i], false);
         labBonusesList = bonuses;
         const {
           resArr: jewels,
           newConnection: newJewelConnection
-        } = checkConnection(jewelsList, connectionRangeBonus, playersInTubes?.[i], true);
+        } = checkConnection(jewelsList, connectionRangeBonus, connectedPlayers?.[i], true);
         jewelsList = jewels;
         foundNewConnection = !foundNewConnection ? newPlayerConnection || newBonusConnection || newJewelConnection : foundNewConnection;
       }
@@ -618,14 +618,6 @@ const createAccountData = (idleonData, characters, serverVars) => {
 
   const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
   jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: jewelMultiplier }));
-
-  playersCords = playersCords?.map((player, index) => {
-    const p = playersInTubes?.find(({ playerId }) => playerId === index);
-    return {
-      ...player,
-      lineWidth: p?.lineWidth ?? 0
-    }
-  })
 
   const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
   const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
@@ -735,6 +727,13 @@ const createAccountData = (idleonData, characters, serverVars) => {
   }).filter((kitchen) => kitchen);
 
   account.meals = account.meals.map(meal => ({ ...meal, multiplier: mealMultiplier || 1 }));
+  playersCords = playersCords?.map((player, index) => {
+    const p = connectedPlayers?.find(({ playerId }) => playerId === index);
+    return {
+      ...player,
+      lineWidth: p?.lineWidth ?? 0
+    }
+  })
   account.lab = {
     playersCords,
     playersChips,
@@ -1002,7 +1001,7 @@ const createCharactersData = (idleonData, characters, account) => {
     // ANVIL EXP
     const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
     const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
-    if (charIndex === 6){
+    if (charIndex === 6) {
       console.log('character?.food', character?.food)
       const speedFromPots = getTotalStatFromEquipment(character?.food, 'Effect', 'MoveSpdBoosts');
       console.log('speedFromPots', speedFromPots)

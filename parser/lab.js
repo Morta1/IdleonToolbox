@@ -47,13 +47,17 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     }
   }
   const bonusLineWidth = soupedTube ? 30 : 0;
-  const conductiveMotherboardBonus = chips.find(chip => chip.index === 6)?.baseVal ?? 0;
+  const conductiveMotherboardBonus = chips.reduce((res, chip) => chip.index === 6 ? res + chip.baseVal : res, 0) ?? null;
   const blackDiamondRhinstone = jewels.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
   const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
   const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
   const lineWidthCards = getCardBonusByEffect(cards, 'Line_Width_(Passive)');
-  return Math.floor((baseLineWidth + (mealPxBonus + Math.min(lineWidthCards, 50)))
-    * (1 + ((mealLinePctBonus + conductiveMotherboardBonus + (20 * petArenaBonus) + bonusLineWidth) / 100)));
+  if (conductiveMotherboardBonus) {
+    return Math.floor((baseLineWidth + 12) * (1 + (mealLinePctBonus + (conductiveMotherboardBonus) + (20 * petArenaBonus + bonusLineWidth)) / 100));
+  } else {
+    return Math.floor((baseLineWidth + (mealPxBonus + Math.min(lineWidthCards, 50)))
+      * (1 + ((mealLinePctBonus + 0 + (20 * petArenaBonus) + bonusLineWidth) / 100)));
+  }
 }
 
 export const getPrismPlayerConnection = (playersInTubes) => {
