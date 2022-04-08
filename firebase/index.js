@@ -1,6 +1,6 @@
 import { getAuth, GoogleAuthProvider, signInWithCredential, signOut } from 'firebase/auth';
 import { child, get, getDatabase, goOnline, ref } from "firebase/database";
-import { doc, initializeFirestore, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, initializeFirestore, onSnapshot } from "firebase/firestore";
 import { getApp } from 'firebase/app';
 import app from "./config";
 import { tryToParse } from "../parser/parserUtils";
@@ -51,6 +51,13 @@ const subscribe = async (uid, callback) => {
   } catch (error) {
     console.log('Error while fetching charNames: ', error);
   }
+  let serverVars;
+  if (firestore?.type === "firestore") {
+    const res = await getDoc(doc(firestore, "_vars", "_vars"));
+    if (res.exists()) {
+      serverVars = res.data();
+    }
+  }
   if (charNames?.length > 0) {
     // console.log('Character Names', charNames)
     return onSnapshot(doc(firestore, "_data", uid),
@@ -58,7 +65,7 @@ const subscribe = async (uid, callback) => {
         if (doc.exists()) {
           const cloudsave = doc.data();
           console.log('cloudsave', cloudsave);
-          callback(cloudsave, charNames, { stats: tryToParse(cloudsave?.Guild) });
+          callback(cloudsave, charNames, { stats: tryToParse(cloudsave?.Guild) }, serverVars);
         }
       }, (err) => {
         console.log('Error has occurred on subscribe', err);

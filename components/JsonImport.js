@@ -103,9 +103,9 @@ const JsonImport = () => {
     setAuthCounter((counter) => counter + 1);
   }, dialog?.waitingForAuth ? 5000 : null);
 
-  const handleCloudUpdate = (data, charNames, guildData) => {
-    localStorage.setItem('rawJson', JSON.stringify({ data, charNames, guildData }));
-    const parsedData = parseIdleonData(data, charNames, guildData);
+  const handleCloudUpdate = (data, charNames, guildData, serverVars) => {
+    localStorage.setItem('rawJson', JSON.stringify({ data, charNames, guildData, serverVars }));
+    const parsedData = parseIdleonData(data, charNames, guildData, serverVars);
     setUserData(parsedData);
     setUserLastUpdated(getDate());
     setSignedIn(true);

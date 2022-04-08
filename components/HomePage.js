@@ -14,6 +14,17 @@ const icons = ['I', 'G', 'D'];
 const HomePage = () => {
   const updates = [
     {
+      version: '2.0.12',
+      changes: [
+        {
+          title: 'General',
+          desc: [
+            'Added arcade shop upgrades',
+          ]
+        }
+      ]
+    },
+    {
       version: '2.0.11',
       changes: [
         {

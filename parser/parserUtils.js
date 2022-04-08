@@ -145,6 +145,7 @@ export const createSerializedData = (data, charNames) => {
     CogOrder: cogOrder,
     OptLacc: tryToParse(data?.OptLacc),
     CogMap: createCogMap(tryToParse(data?.CogM), cogOrder?.length),
+    ArcadeUpg: tryToParse(data?.ArcadeUpg),
     Tasks: [
       tryToParse(data?.TaskZZ0),
       tryToParse(data?.TaskZZ1),

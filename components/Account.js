@@ -23,6 +23,7 @@ import Lab from "./Lab";
 import Achievements from "./Achievements";
 import Quests from "./Quests/Quests";
 import ShopStock from "./ShopStock";
+import ArcadeShop from "./World2/ArcadeShop";
 
 const Account = () => {
   const { userData, display, accountDisplay, lastUpdated } = useContext(AppContext);
@@ -37,14 +38,17 @@ const Account = () => {
       {accountDisplay?.view === 'shopStock' ? <ShopStock stock={userData?.account?.shopStock}/> : null}
       {accountDisplay?.view === 'quests' ?
         <Quests characters={userData?.characters} quests={userData?.account?.quests}/> : null}
-
       {accountDisplay?.view === 'stamps' ?
         <Stamps stamps={userData?.account?.stamps}
                 lab={userData?.account?.lab}
                 alchemy={userData?.account?.alchemy}
                 bribes={userData?.account?.bribes}/> : null}
       {accountDisplay?.view === 'bubbles' ? <Brewing account={userData?.account}/> : null}
-      {accountDisplay?.view === 'vials' ? <Vials lab={userData?.account?.lab} vials={userData?.account?.alchemy?.vials}/> : null}
+      {accountDisplay?.view === 'vials' ?
+        <Vials lab={userData?.account?.lab} vials={userData?.account?.alchemy?.vials}/> : null}
+      {accountDisplay?.view === 'arcadeShop' ?
+        <ArcadeShop stamps={userData?.account?.stamps} labBonuses={userData?.account?.lab?.labBonuses}
+                    arcade={userData?.account?.arcade}/> : null}
       {accountDisplay?.view === 'deathNote' ? <DeathNote deathNote={userData?.account?.deathNote}/> : null}
       {accountDisplay?.view === 'forge' ? <Forge forge={userData?.account?.forge}/> : null}
       {accountDisplay?.view === 'laboratory' ?
@@ -60,7 +64,8 @@ const Account = () => {
                character={userData?.characters}/> : null}
       {accountDisplay?.view === 'saltLick' ? <SaltLick saltLick={userData?.account?.saltLicks}/> : null}
       {accountDisplay?.view === 'refinery' ?
-        <Refinery lab={userData?.account?.lab} refinery={userData?.account?.refinery} saltLicks={userData?.account?.saltLicks}
+        <Refinery lab={userData?.account?.lab} refinery={userData?.account?.refinery}
+                  saltLicks={userData?.account?.saltLicks}
                   vials={userData?.account?.alchemy?.vials} characters={userData?.characters}
                   lastUpdated={lastUpdated}/> : null}
       {accountDisplay?.view === 'bribes' ? <Bribes bribes={userData?.account?.bribes}/> : null}

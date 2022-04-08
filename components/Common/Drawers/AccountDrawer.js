@@ -23,6 +23,7 @@ const worldsData = {
     categories: [
       { label: 'bubbles', icon: 'aBrewOptionA0' },
       { label: 'vials', icon: 'aVials1' },
+      { label: 'arcadeShop', icon: 'PachiBall1' },
     ]
   },
   'World 3': {

@@ -63,6 +63,7 @@ import {
 import {
   achievements,
   anvilProducts,
+  arcadeShop,
   arenaBonuses,
   bonuses,
   bribes,
@@ -102,7 +103,7 @@ import { calcPlayerLineWidth, checkConnection, checkPlayerConnection, getPrismPl
 const { cards, items, obols, stamps, statues } = require("../data/website-data");
 const { calculateStars, createObolsWithUpgrades, filteredLootyItems } = require("./parserUtils");
 
-const parseIdleonData = (idleonData, charNames, guildData) => {
+const parseIdleonData = (idleonData, charNames, guildData, serverVars) => {
   try {
     let characterNames, characters;
     // PlayerDATABASE is from Steam Data Extractor
@@ -120,7 +121,7 @@ const parseIdleonData = (idleonData, charNames, guildData) => {
       characters = chars;
     }
 
-    let account = createAccountData(idleonData, characters);
+    let account = createAccountData(idleonData, characters, serverVars);
     account.guild = createGuildData(tryToParse(guildData));
     let charactersData = createCharactersData(idleonData, characters, account);
     let skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
@@ -156,7 +157,7 @@ const createGuildData = (guildData) => {
   }
 }
 
-const createAccountData = (idleonData, characters) => {
+const createAccountData = (idleonData, characters, serverVars) => {
   let account = {};
   const cardsObject = idleonData?.Cards?.[0];
   account.TimeAway = idleonData?.TimeAway;
@@ -626,6 +627,7 @@ const createAccountData = (idleonData, characters) => {
   })
 
   const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
+  const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
 
   account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
@@ -647,7 +649,6 @@ const createAccountData = (idleonData, characters) => {
     // troll card
 
     const totalKitchenUpgrades = speedLv + fireLv + luckLv;
-    const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
     const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
     const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
     const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
@@ -754,6 +755,26 @@ const createAccountData = (idleonData, characters) => {
       level: prayerLevel
     }] : res
   }, []);
+
+  const arcaneUpgradesRaw = idleonData?.ArcadeUpg;
+  const balls = idleonData?.OptLacc[74];
+  const goldBalls = idleonData?.OptLacc[75];
+  const arcadeShopList = arcadeShop?.map((upgrade, index) => {
+    const { x1, x2, func } = upgrade;
+    const level = arcaneUpgradesRaw?.[index];
+    return {
+      ...upgrade,
+      level,
+      active: serverVars?.ArcadeBonuses?.includes(index),
+      bonus: growth(func, level, x1, x2),
+      iconName: `PachiShopICON${index}`
+    }
+  })
+  account.arcade = {
+    shop: arcadeShopList,
+    balls,
+    goldBalls
+  }
 
   account.worldTeleports = idleonData?.CurrenciesOwned['WorldTeleports'];
   account.keys = idleonData?.CurrenciesOwned['KeysAll'].reduce((res, keyAmount, index) => keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res, []);
@@ -1220,7 +1241,6 @@ const createCharactersData = (idleonData, characters, account) => {
 
     character.crystalSpawnChance = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
       * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100);
-
 
     const kills = char?.[`KillsLeft2Advance_${charIndex}`];
     character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
