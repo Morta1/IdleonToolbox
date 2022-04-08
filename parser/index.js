@@ -733,7 +733,7 @@ const createAccountData = (idleonData, characters) => {
     }
   }).filter((kitchen) => kitchen);
   const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
-  account.meals = account.meals.map(meal => ({ ...meal, multiplier: mealMultiplier ?? 1 }));
+  account.meals = account.meals.map(meal => ({ ...meal, multiplier: mealMultiplier || 1 }));
   account.lab = {
     playersCords,
     playersChips,
