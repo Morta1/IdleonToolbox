@@ -368,10 +368,10 @@ export const getActiveBubbleBonus = (equippedBubbles, bubbleName) => {
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2) ?? 0;
 }
 
-export const getBubbleBonus = (cauldrons, cauldronName, bubbleName) => {
+export const getBubbleBonus = (cauldrons, cauldronName, bubbleName, round) => {
   const bubble = cauldrons?.[cauldronName]?.find(({ rawName }) => rawName === bubbleName);
   if (!bubble) return 0;
-  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2) ?? 0;
+  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) ?? 0;
 }
 
 export const getDungeonStatBonus = (dungeonStats, statName) => {

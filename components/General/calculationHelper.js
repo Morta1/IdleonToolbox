@@ -15,7 +15,7 @@ const calcBubbleMatCost = (bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
   }
 };
 
-const growth = (func, level, x1, x2) => {
+const growth = (func, level, x1, x2, shouldRound = true) => {
   let result;
   switch (func) {
     case 'add':
@@ -43,7 +43,7 @@ const growth = (func, level, x1, x2) => {
     default:
       result = 0;
   }
-  return round(result);
+  return shouldRound ? round(result) : result;
 }
 
 const round = (num) => {

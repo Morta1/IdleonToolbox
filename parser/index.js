@@ -625,7 +625,7 @@ const createAccountData = (idleonData, characters) => {
     }
   })
 
-  // const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
+  const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
 
   account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
@@ -655,22 +655,21 @@ const createAccountData = (idleonData, characters) => {
     const cookingSpeedFromJewel = Math.floor(totalKitchenUpgrades / 25) * cookingSpeedJewelMultiplier;
 
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd', 0, stampMultiplier);
-    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed', vialMultiplier);
+    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed', vialMultiplier); // doesnt use vial multi
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed', mealMultiplier ?? 1);
-    const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'aUpgradesY17');
+    const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'aUpgradesY17', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff', mealMultiplier ?? 1);
     const trollCard = account?.cards?.Troll; // Kitchen Eff card
-    const trollCardBonus = calcCardBonus(trollCard);
     const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
     const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
     let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
     const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
-
+    //diamond cheff suppose to be 1.3773630401234565
     const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
-    const cardImpact = 1 + Math.min(6 * trollCardBonus, 50) / 100;
+    const cardImpact = 1 + Math.min(6 * (trollCard?.stars + 1), 50) / 100;
     const mealSpeed = 10 *
       (1 + (isRichelin ? 2 : 0)) *
-      Math.max(1, diamondChef) *
+      Math.max(1, Math.pow(diamondChef, diamondMeals)) *
       (1 + speedLv / 10) *
       (1 + cookingSpeedVials / 100) *
       mealSpeedBonusMath *
@@ -679,11 +678,12 @@ const createAccountData = (idleonData, characters) => {
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed', vialMultiplier);
-    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0);
+    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd', 0, stampMultiplier);
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'Rcook', mealMultiplier);
     const recipeSpeedBonusMath = (1 + recipeSpeedStamps / 100) * (1 + recipeSpeedMeals / 100);
     const fireSpeed = 5 *
       (1 + (isRichelin ? 1 : 0)) *
+      Math.max(1, Math.pow(diamondChef, diamondMeals)) *
       (1 + fireLv / 10) *
       (1 + recipeSpeedVials / 100) *
       recipeSpeedBonusMath *
