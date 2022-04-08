@@ -628,6 +628,8 @@ const createAccountData = (idleonData, characters, serverVars) => {
 
   const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
   const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
+  const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
+  const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
 
   account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
@@ -649,9 +651,6 @@ const createAccountData = (idleonData, characters, serverVars) => {
     // troll card
 
     const totalKitchenUpgrades = speedLv + fireLv + luckLv;
-    const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
-    const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
-    const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
     const cookingSpeedJewelMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Emerald_Pyramite').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0)
     const cookingSpeedFromJewel = Math.floor(totalKitchenUpgrades / 25) * cookingSpeedJewelMultiplier;
 
@@ -703,6 +702,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
         (1 + kitchenCostMeals / 100) *
         (1 + (isRichelin ? 40 : 0) / 100) *
         (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
+
     const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
     const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
     const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
@@ -732,7 +732,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
       ...(status === 3 ? { possibleMeals } : {})
     }
   }).filter((kitchen) => kitchen);
-  const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
+
   account.meals = account.meals.map(meal => ({ ...meal, multiplier: mealMultiplier || 1 }));
   account.lab = {
     playersCords,

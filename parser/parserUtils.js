@@ -689,12 +689,11 @@ export const mapAccountQuests = (characters) => {
   return mappedQuests;
 };
 
-export const isArenaBonusActive = (optionList, waveReq, bonusNumber) => {
+export const isArenaBonusActive = (arenaWave, waveReq, bonusNumber) => {
   const waveReqArray = waveReq.split(' ');
   if (bonusNumber > waveReqArray.length) {
     return false;
   }
-  const arenaWave = optionList?.[89];
   return arenaWave >= waveReqArray[bonusNumber];
 }
 

@@ -55,12 +55,14 @@ const Kitchens = ({ meals, spices, kitchens }) => {
       </div> : null}
       <div className="totals">
         <div>Totals Cooking</div>
-        {Object.entries(totals)?.map(([foodName, amount], index) => {
-          return <div className={'total-food'} key={`${foodName}-${index}-${amount}`}>
-            <img className={'food'} src={`${prefix}data/${foodName}.png`} alt=""/>
-            <div>{kFormatter(amount, 2)}/hr</div>
-          </div>
-        })}
+        <div className={'meals'}>
+          {Object.entries(totals)?.map(([foodName, amount], index) => {
+            return <div className={'total-food'} key={`${foodName}-${index}-${amount}`}>
+              <img className={'food'} src={`${prefix}data/${foodName}.png`} alt=""/>
+              <div>{kFormatter(amount, 2)}/hr</div>
+            </div>
+          })}
+        </div>
       </div>
       <div className="kitchens">
         {kitchens?.map((kitchen, kitchenIndex) => {
@@ -148,6 +150,11 @@ const KitchensStyle = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    .meals {
+      display: flex;
+      gap: 25px;
+    }
 
     .total-food {
       display: flex;
