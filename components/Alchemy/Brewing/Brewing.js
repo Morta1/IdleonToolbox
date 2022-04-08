@@ -50,18 +50,22 @@ const Brewing = ({ account }) => {
     const upgradeableBubblesAmount = acc?.lab?.jewels?.find(jewel => jewel.name === "Pyrite_Rhinestone")?.active ? 4 : 3;
     return found.slice(0, upgradeableBubblesAmount);
   }
+
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(account), [account]);
 
   return (
     <BubblesStyle>
       {upgradeableBubbles ? <div className={'upgradeable-bubbles'}>
         <div>Next Bubble Upgrades:</div>
-        <div>
-          {upgradeableBubbles?.map(({ rawName, bubbleName }, index) => {
-            return <NumberTooltip title={pascalCase(cleanUnderscore(bubbleName))} key={`${rawName}-${index}`}>
-              <img width={48} height={48} src={`${prefix}data/${rawName}.png`}
-                   alt={''}/>
-            </NumberTooltip>
+        <div className={'wrapper'}>
+          {upgradeableBubbles?.map(({ rawName, bubbleName, level }, index) => {
+            return <div className={'bubble'} key={`${rawName}-${index}`}>
+              <NumberTooltip title={pascalCase(cleanUnderscore(bubbleName))}>
+                <img width={48} height={48} src={`${prefix}data/${rawName}.png`}
+                     alt={''}/>
+              </NumberTooltip>
+              <div className="level">{level}</div>
+            </div>
           })}
         </div>
       </div> : null}
@@ -135,6 +139,26 @@ const BubblesStyle = styled.div`
     flex-direction: column;
     align-items: center;
     margin: 15px 0;
+
+    .wrapper {
+      position: relative;
+      display: flex;
+
+      .bubble {
+        position: relative;
+
+        .level {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          font-weight: bold;
+          background: #000000eb;
+          font-size: 13px;
+          padding: 0 5px;
+        }
+      }
+    }
   }
 
   .tabs {
