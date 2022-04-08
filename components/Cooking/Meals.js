@@ -12,7 +12,7 @@ const Meals = ({ meals }) => {
     <MealsStyle>
       {meals?.map((meal, index) => {
         if (!meal) return null;
-        const { name, amount, rawName, effect, level, baseStat } = meal;
+        const { name, amount, rawName, effect, level, baseStat, multiplier = 1 } = meal;
         const levelCost = getMealLevelCost(level);
         return <div className={'meal'} key={`${name}-${index}`}>
           <div className={'images'}>
@@ -21,7 +21,7 @@ const Meals = ({ meals }) => {
           </div>
           <div className={'meal-desc'}>
             <div className={'name'}>{cleanUnderscore(name)}(Lv. {level})</div>
-            <div className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat))}</div>
+            <div className={level > 0 ? 'acquired' : ''}>{cleanUnderscore(effect?.replace('{', level * baseStat * multiplier))}</div>
             <div>
               <span
                 className={level === 0 ? '' : amount >= levelCost ? 'ok' : 'missing-mat'}>{numberWithCommas(parseInt(amount))}</span> / {numberWithCommas(parseInt(levelCost))}

@@ -624,16 +624,29 @@ const createAccountData = (idleonData, characters) => {
       lineWidth: p?.lineWidth ?? 0
     }
   })
-  const totalKitchenUpgrades = idleonData?.Cooking?.reduce((res, table) => {
-    const [speedLv, fireLv, luckLv] = [table[6], table[7], table[8]];
-    return res + speedLv + fireLv + luckLv;
-  }, 0);
+
+  // const diamondMeals = account?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
 
   account.kitchens = idleonData?.Cooking?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
 
-    // Meal Speed
+    // Multipliers
+    // X2 from stamps (Certified stamp book) - Cooked_Meal_Stamp
+    // X2 from vials (My 1st chemistry set) - LONG_ISLAND_TEA
+    // jewel multiplier X1.5 (Spelunker Obol)
+
+    // jewel meal multiplier X1.24 (* jewel multiplier) (Black diamond rhinestone)
+    // jewel cooking multiplier X1.5 per 25 kitchen levels (* jewel multiplier) (Emerald Pyramite)
+    // jewel cooking speed - X2.25 (Amethyst_Rhinestone)
+    // all purple jewels active - X2.25
+    // diamond chef - cooking speed per diamond meal
+    // cabbage - cooking speed per 10 kitchen levels
+    // Cooking Speed meals - Egg, Corndog, Soda
+    // kitchen upgrade from gemshop X2
+    // troll card
+
+    const totalKitchenUpgrades = speedLv + fireLv + luckLv;
     const stampMultiplier = labBonusesList?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active ? 2 : 0;
     const vialMultiplier = labBonusesList.find(bonus => bonus.name === "My_1st_Chemistry_Set")?.active ? 2 : 1;
     const jewelMultiplier = (labBonusesList.find(bonus => bonus.index === 8)?.active ?? false) ? 1.5 : 1;
@@ -646,7 +659,7 @@ const createAccountData = (idleonData, characters) => {
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed', mealMultiplier ?? 1);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'aUpgradesY17');
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff', mealMultiplier ?? 1);
-    const trollCard = account?.cards?.Troll; // Kitchen Eff
+    const trollCard = account?.cards?.Troll; // Kitchen Eff card
     const trollCardBonus = calcCardBonus(trollCard);
     const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
     const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
@@ -662,7 +675,7 @@ const createAccountData = (idleonData, characters) => {
       (1 + cookingSpeedVials / 100) *
       mealSpeedBonusMath *
       cardImpact *
-      (1 + (kitchenEffMeals * Math.floor((speedLv + (fireLv + (luckLv))) / 10)) / 100);
+      (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed', vialMultiplier);
@@ -675,7 +688,7 @@ const createAccountData = (idleonData, characters) => {
       (1 + recipeSpeedVials / 100) *
       recipeSpeedBonusMath *
       cardImpact *
-      (1 + (kitchenEffMeals * Math.floor((speedLv + (fireLv + (luckLv))) / 10)) / 100);
+      (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // New Recipe Luck
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
@@ -719,7 +732,8 @@ const createAccountData = (idleonData, characters) => {
       ...(status === 3 ? { possibleMeals } : {})
     }
   }).filter((kitchen) => kitchen);
-
+  const mealMultiplier = jewelsList.filter(jewel => jewel.active && jewel.name === 'Black_Diamond_Rhinestone').reduce((sum, jewel) => sum += (jewel.bonus * jewelMultiplier), 0);
+  account.meals = account.meals.map(meal => ({ ...meal, multiplier: mealMultiplier ?? 1 }));
   account.lab = {
     playersCords,
     playersChips,
