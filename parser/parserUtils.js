@@ -701,7 +701,7 @@ export const isArenaBonusActive = (optionList, waveReq, bonusNumber) => {
 export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
   let upgradeMath = upgradeLevel + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2);
   upgradeMath = upgradeMath + Math.pow(Math.max(0, upgradeLevel - 30), 1.2);
-  return Math.floor(1 + baseMath * upgradeMath * Math.pow(1.02, Math.max(0, upgradeLevel - 60)));
+  return 1 + baseMath * upgradeMath * Math.pow(1.02, Math.max(0, (upgradeLevel) - 60))
 }
 
 export const calculateLeaderboard = (characters) => {

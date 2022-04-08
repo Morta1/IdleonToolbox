@@ -703,7 +703,6 @@ const createAccountData = (idleonData, characters, serverVars) => {
         (1 + kitchenCostMeals / 100) *
         (1 + (isRichelin ? 40 : 0) / 100) *
         (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
-
     const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
     const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
     const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
