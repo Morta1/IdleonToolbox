@@ -642,7 +642,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
     // jewel multiplier X1.5 (Spelunker Obol)
 
     // jewel meal multiplier X1.24 (* jewel multiplier) (Black diamond rhinestone)
-    // jewel cooking multiplier X1.5 per 25 kitchen levels (* jewel multiplier) (Emerald Pyramite)
+    // jewel cooking multiplier X1 per 25 kitchen levels (* jewel multiplier) (Emerald Pyramite)
     // jewel cooking speed - X2.25 (Amethyst_Rhinestone)
     // all purple jewels active - X2.25
     // diamond chef - cooking speed per diamond meal
@@ -665,9 +665,9 @@ const createAccountData = (idleonData, characters, serverVars) => {
     const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
     let jewelBonus = jewel?.active ? jewel.bonus * jewelMultiplier : 1;
     const isRichelin = kitchenIndex <= account?.gemItemsPurchased?.find((value, index) => index === 120);
-    //diamond cheff suppose to be 1.3773630401234565
+
     const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (jewelBonus * allPurpleActive));
-    const cardImpact = 1 + Math.min(6 * (trollCard?.stars + 1), 50) / 100;
+    const cardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
     const mealSpeed = 10 *
       (1 + (isRichelin ? 2 : 0)) *
       Math.max(1, Math.pow(diamondChef, diamondMeals)) *
@@ -1002,7 +1002,11 @@ const createCharactersData = (idleonData, characters, account) => {
     // ANVIL EXP
     const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
     const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
-
+    if (charIndex === 6){
+      console.log('character?.food', character?.food)
+      const speedFromPots = getTotalStatFromEquipment(character?.food, 'Effect', 'MoveSpdBoosts');
+      console.log('speedFromPots', speedFromPots)
+    }
     const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
     const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Shaman');
     const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
