@@ -143,7 +143,7 @@ export const createSerializedData = (data, charNames) => {
     FlagUnlock: tryToParse(data?.FlagU),
     FlagsPlaced: tryToParse(data?.FlagP),
     CogOrder: cogOrder,
-    OptLacc: tryToParse(data?.OptLacc),
+    OptionsListAccount: tryToParse(data?.OptLacc),
     CogMap: createCogMap(tryToParse(data?.CogM), cogOrder?.length),
     ArcadeUpg: tryToParse(data?.ArcadeUpg),
     Tasks: [
@@ -618,6 +618,15 @@ export const getStatFromEquipment = (item, statName) => {
   const misc1 = item?.UQ1txt === statName ? item?.UQ1val : 0;
   const misc2 = item?.UQ2txt === statName ? item?.UQ2val : 0;
   return misc1 + misc2;
+}
+
+export const getTotalStatFromEquipment = (arr, statKey, statName) => {
+  return arr?.reduce((sum, item) => {
+    if (item?.[statKey] && item?.[statKey] === statName) {
+      return sum + item?.Amount;
+    }
+    return sum;
+  }, 0);
 }
 
 export const getMaxCharge = (skull, cardBonus, prayDayStamp, gospelBonus, worshipLevel, popeBonus) => {

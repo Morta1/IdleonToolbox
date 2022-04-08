@@ -50,6 +50,7 @@ import {
   getTotalCardBonusById,
   getTotalCoinCost,
   getTotalMonsterMatCost,
+  getTotalStatFromEquipment,
   getVialsBonusByEffect,
   isArenaBonusActive,
   keysMap,
@@ -482,7 +483,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
   }, []);
   account.cogstruction = cogstruction;
 
-  const arenaWave = idleonData?.OptLacc?.[89];
+  const arenaWave = idleonData?.OptionsListAccount?.[89];
   const waveReqs = randomList?.[53];
 
   account.meals = idleonData?.Meals?.[0]?.map((mealLevel, index) => {
@@ -526,7 +527,7 @@ const createAccountData = (idleonData, characters, serverVars) => {
   })
 
   account.breeding = {
-    maxArenaLevel: idleonData?.OptLacc?.[89],
+    maxArenaLevel: idleonData?.OptionsListAccount?.[89],
     petUpgrades: petUpgradesList,
     arenaBonuses
   };
@@ -756,8 +757,8 @@ const createAccountData = (idleonData, characters, serverVars) => {
   }, []);
 
   const arcaneUpgradesRaw = idleonData?.ArcadeUpg;
-  const balls = idleonData?.OptLacc[74];
-  const goldBalls = idleonData?.OptLacc[75];
+  const balls = idleonData?.OptionsListAccount?.[74];
+  const goldBalls = idleonData?.OptionsListAccount?.[75];
   const arcadeShopList = arcadeShop?.map((upgrade, index) => {
     const { x1, x2, func } = upgrade;
     const level = arcaneUpgradesRaw?.[index];
