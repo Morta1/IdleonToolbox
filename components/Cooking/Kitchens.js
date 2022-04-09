@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { kFormatter, prefix } from "../../Utilities";
 import { LinearProgressWithLabel } from "../Common/commonStyles";
 import { useMemo } from "react";
+import { notateNumber } from "../../parser/parserUtils";
 
 const Kitchens = ({ meals, spices, kitchens }) => {
   const calcTotals = (kitchens) => {
@@ -105,17 +106,17 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                 <div className={'kitchen-stats'}>
                   <div className={'green'}>
                     <span>Speed Lv.{kitchen?.speedLv}</span>
-                    <div>{kFormatter(kitchen?.mealSpeed, 2) ?? 0}/hr</div>
+                    <div>{notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr</div>
                     <div className={'spice-upgrade-cost'}>
-                      <span>{kFormatter(kitchen?.speedCost)}</span>
+                      <span>{notateNumber(kitchen?.speedCost, "Big")}</span>
                       <img src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 0)}.png`} alt={''}/>
                     </div>
                   </div>
                   <div className={'red'}>
                     <span className={'red'}>Fire Lv.{kitchen?.fireLv}</span>
-                    <div>{kFormatter(kitchen?.fireSpeed, 2) ?? 0}/hr</div>
+                    <div>{notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr</div>
                     <div className={'spice-upgrade-cost'}>
-                      <span>{kFormatter(kitchen?.fireCost)}</span>
+                      <span>{notateNumber(kitchen?.fireCost, "Big")}</span>
                       <img src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 1)}.png`} alt={''}/>
                     </div>
                   </div>
@@ -123,7 +124,7 @@ const Kitchens = ({ meals, spices, kitchens }) => {
                     <span>Luck Lv.{kitchen?.luckLv}</span>
                     <div>{kFormatter(kitchen?.mealLuck, 2) ?? 0}x</div>
                     <div className={'spice-upgrade-cost'}>
-                      <span>{kFormatter(kitchen?.luckCost)}</span>
+                      <span>{notateNumber(kitchen?.luckCost, "Big")}</span>
                       <img src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 2)}.png`} alt={''}/>
                     </div>
                   </div>

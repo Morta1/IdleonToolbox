@@ -709,7 +709,7 @@ export const isArenaBonusActive = (arenaWave, waveReq, bonusNumber) => {
 export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
   let upgradeMath = upgradeLevel + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2);
   upgradeMath = upgradeMath + Math.pow(Math.max(0, upgradeLevel - 30), 1.2);
-  return 1 + baseMath * upgradeMath * Math.pow(1.02, Math.max(0, (upgradeLevel) - 60))
+  return Math.ceil(1 + baseMath * upgradeMath * Math.pow(1.02, Math.max(0, (upgradeLevel) - 60)))
 }
 
 export const calculateLeaderboard = (characters) => {
@@ -1071,6 +1071,40 @@ const getCogstructionCogType = (name) => {
 
 const getCogstructionMulti = (number) => {
   return number > 0 && !isNaN(number / 100) ? number / 100 : '';
+}
+
+export const notateNumber = (e, t) => {
+  return "Whole" === t ? (1e4 > e ?
+    "" + Math.floor(e) : 1e6 > e ?
+      Math.floor(e / 1e3) + "K" : 1e7 > e ?
+        Math.floor(e / 1e5) / 10 + "M" : 1e9 > e ?
+          Math.floor(e / 1e6) + "M" : 1e10 > e ?
+            Math.floor(e / 1e8) / 10 + "B" : Math.floor(e / 1e9) + "B") : "MultiplierInfo" === t ?
+    (0 === (10 * e) % 10 ?
+      Math.round(e) + ".00#" : 0 === (100 * e) % 10 ?
+        Math.round(10 * e) / 10 + "0#" : Math.round(100 * e) / 100 + "#") : "Micro" === t ?
+      (10 < e ?
+        "" + Math.round(e) / 1 : 0.1 < e ?
+          "" + Math.round(10 * e) / 10 : 0.01 < e ?
+            "" + Math.round(100 * e) / 100 : "" + Math.round(1e3 * e) / 1e3) : 100 > e ?
+        ("Small" === t ?
+          (1 > e ?
+            "" + Math.round(100 * e) / 100 : "" + Math.round(10 * e) / 10) : "Smallish" === t ?
+            (10 > e ?
+              "" + Math.round(10 * e) / 10 : "" + Math.round(e)) : "Smaller" === t ?
+              (10 > e ?
+                "" + Math.round(100 * e) / 100 : "" + Math.round(10 * e) / 10) : "" + Math.floor(e)) : 1e3 > e ?
+          "" + Math.floor(e) : 1e4 > e ?
+            ("Bigish" === t ?
+              "" + Math.floor(e) : Math.ceil(e / 10) / 100 + "K") : 1e5 > e ?
+              Math.ceil(e / 100) / 10 + "K" : 1e6 > e ?
+                Math.ceil(e / 1e3) / 1 + "K" : 1e7 > e ?
+                  Math.ceil(e / 1e4) / 100 + "M" : 1e8 > e ?
+                    Math.ceil(e / 1e5) / 10 + "M" : 1e10 > e ?
+                      Math.ceil(e / 1e6) / 1 + "M" : 1e13 > e ?
+                        Math.ceil(e / 1e9) + "B" : 1e16 > e ?
+                          Math.ceil(e / 1e12) + "T" : 1e19 > e ?
+                            Math.ceil(e / 1e15) + "Q" : Math.ceil(e / 1e18) + "QQ";
 }
 
 export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
