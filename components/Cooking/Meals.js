@@ -1,7 +1,9 @@
 import styled from 'styled-components'
-import { cleanUnderscore, numberWithCommas, prefix } from "../../Utilities";
+import { cleanUnderscore, numberWithCommas, kFormatter, prefix } from "../../Utilities";
+import { useMemo } from "react";
 
-const Meals = ({ meals }) => {
+const Meals = ({ meals, kitchens }) => {
+  const totalMealSpeed = useMemo(() => kitchens?.reduce((sum, kitchen) => sum + kitchen.mealSpeed, 0))
 
   const getMealLevelCost = (level) => {
     const baseMath = 10 + (level + Math.pow(level, 2));
@@ -12,10 +14,15 @@ const Meals = ({ meals }) => {
     <MealsStyle>
       {meals?.map((meal, index) => {
         if (!meal) return null;
-        const { name, amount, rawName, effect, level, baseStat } = meal;
+        const { name, amount, rawName, effect, level, baseStat, cookReq} = meal;
         const levelCost = getMealLevelCost(level);
+        const timeTillNextLevel = amount >= levelCost ? '0' : ((levelCost - amount) * cookReq / totalMealSpeed);
+
+        const divStyle = {
+          height: '100%',
+        };
         return <div className={'meal'} key={`${name}-${index}`}>
-          <div className={'images'}>
+          <div className={'images'} style={divStyle}>
             <img className={`food${level <= 0 ? ' missing' : ''}`} src={`${prefix}data/${rawName}.png`} alt=""/>
             {level > 0 ? <img className='plate' src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
           </div>
@@ -25,6 +32,9 @@ const Meals = ({ meals }) => {
             <div>
               <span
                 className={level === 0 ? '' : amount >= levelCost ? 'ok' : 'missing-mat'}>{numberWithCommas(parseInt(amount))}</span> / {numberWithCommas(parseInt(levelCost))}
+            </div>
+            <div>
+              Time till next level {kFormatter(timeTillNextLevel, 2)}hr
             </div>
           </div>
 
