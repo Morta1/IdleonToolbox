@@ -263,7 +263,7 @@ export const calcCardBonus = (card) => {
   return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
 }
 
-export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonus = 1) => {
+export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonus = 0) => {
   return meals?.reduce((sum, meal) => {
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {

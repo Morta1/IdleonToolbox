@@ -649,9 +649,9 @@ const createAccountData = (idleonData, characters, serverVars) => {
 
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd', 0, stampMultiplier);
     const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed', vialMultiplier); // doesnt use vial multi
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed', mealMultiplier ?? 1);
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.meals, 'Meal_Cooking_Speed', mealMultiplier);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'aUpgradesY17', false);
-    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff', mealMultiplier ?? 1);
+    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.meals, null, 'KitchenEff', mealMultiplier);
     const trollCard = account?.cards?.Troll; // Kitchen Eff card
     const allPurpleActive = jewelsList?.slice(0, 3)?.every(({ active }) => active) ? 2.25 : 1;
     const jewel = jewelsList?.find((jewel) => jewel.name === 'Amethyst_Rhinestone');
