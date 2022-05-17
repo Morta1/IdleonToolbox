@@ -9,7 +9,8 @@ import { getPostOfficeBonus } from "parsers/postoffice";
 const relevantTalents = {
   32: true, // Printer_Go_Brr
   130: true, // Refinery_Throttle
-  490: true // Cranium
+  490: true, // Cranium,
+  25: true // ITS_YOUR_BIRTHDAY!
 };
 
 const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }) => {
