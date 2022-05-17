@@ -18,7 +18,7 @@ const Sigils = () => {
           if (index > 20) return null;
           const { name, progress, effect, unlocked, unlockCost, boostBonus, boostCost, unlockBonus, characters } = sigil;
           return (
-            <Tooltip title={characters?.length > 0 ? <SigilTooltip characters={state?.characters} sigilChars={characters} /> : ''}>
+            <Tooltip key={`sigil-${index}`} title={characters?.length > 0 ? <SigilTooltip characters={state?.characters} sigilChars={characters} /> : ''}>
               <Card
                 sx={{
                   border: characters?.length > 0 ? "2px solid lightblue" : "",

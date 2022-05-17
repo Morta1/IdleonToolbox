@@ -22,7 +22,7 @@ const Worship = () => {
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300 }}>
               <CardContent>
-                <img src={`${prefix}icons/${charClassName}_Icon.png`} />
+                <img src={`${prefix}icons/${charClassName}_Icon.png`} alt='' />
                 <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>{name}</Typography>
                 <ProgressBar percent={worshipProgress > 100 ? 100 : worshipProgress} bgColor={"secondary.dark"} />
                 <Box my={2}>
