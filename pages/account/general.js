@@ -1,10 +1,10 @@
 import { Divider, Grid, Stack } from "@mui/material";
 import ObolsView from "components/account/Worlds/World2/ObolsView";
-import Currencies from "components/Account/Misc/Currencies";
-import Shrines from "components/Account/Worlds/World3/Shrines";
-import Statues from "components/Account/Worlds/World1/Statues";
-import Highscores from "components/Account/Misc/Highscores";
-import Totals from "components/Account/Misc/Totals";
+import Currencies from "components/account/Misc/Currencies";
+import Shrines from "components/account/Worlds/World3/Shrines";
+import Statues from "components/account/Worlds/World1/Statues";
+import Highscores from "components/account/Misc/Highscores";
+import Totals from "components/account/Misc/Totals";
 import { AppContext } from "components/common/context/AppProvider";
 import { useContext } from "react";
 

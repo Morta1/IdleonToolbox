@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
 import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import WorldQuest from "components/Account/Misc/WorldQuest";
+import WorldQuest from "components/account/Misc/WorldQuest";
 import { prefix } from "utility/helpers";
 import { AppContext } from "components/common/context/AppProvider";
 

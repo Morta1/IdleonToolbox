@@ -1,8 +1,8 @@
 import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
 import React, { useContext, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
-import Mainframe from "components/Account/Worlds/World4/Mainframe";
-import Console from "components/Account/Worlds/World4/Console";
+import Mainframe from "components/account/Worlds/World4/Mainframe";
+import Console from "components/account/Worlds/World4/Console";
 
 const Laboratory = () => {
   const { state } = useContext(AppContext);
