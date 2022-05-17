@@ -5,7 +5,7 @@ import { Stack, TextField } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import IconButton from "@mui/material/IconButton";
-import { AppContext } from "../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 const countdown = 10;

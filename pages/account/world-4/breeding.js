@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import BreedingUpgrades from "../../../components/Account/Worlds/World4/BreedingUpgrades";
-import BreedingArena from "../../../components/Account/Worlds/World4/BreedingArena";
-import { prefix } from "../../../utility/helpers";
+import BreedingUpgrades from "components/Account/Worlds/World4/BreedingUpgrades";
+import BreedingArena from "components/Account/Worlds/World4/BreedingArena";
+import { prefix } from "utility/helpers";
 
 const Breeding = () => {
   const { state } = useContext(AppContext);

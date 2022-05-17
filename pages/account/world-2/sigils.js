@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import Tooltip from "components/Tooltip";

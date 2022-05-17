@@ -1,9 +1,9 @@
-import { AppContext } from "../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { useContext } from "react";
 import { Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../utility/helpers";
+import { cleanUnderscore, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
-import HtmlTooltip from "../../components/Tooltip";
+import HtmlTooltip from "components/Tooltip";
 
 const Looty = () => {
   const { state } = useContext(AppContext);

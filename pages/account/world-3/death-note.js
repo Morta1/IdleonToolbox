@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { getDeathNoteRank } from "../../../parsers/deathNote";
-import { cleanUnderscore, notateNumber, prefix, worlds } from "../../../utility/helpers";
+import { getDeathNoteRank } from "parsers/deathNote";
+import { cleanUnderscore, notateNumber, prefix, worlds } from "utility/helpers";
 import Box from "@mui/material/Box";
 
 const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede'];

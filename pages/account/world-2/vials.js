@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Box, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "../../../utility/helpers";
+import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
-import Tooltip from "../../../components/Tooltip";
+import Tooltip from "components/Tooltip";
 
 const Vials = () => {
   const { state } = useContext(AppContext);

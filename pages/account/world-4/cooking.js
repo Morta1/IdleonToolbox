@@ -1,8 +1,8 @@
 import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
 import React, { useContext, useMemo, useState } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
-import Kitchens from "../../../components/Account/Worlds/World4/Kitchens";
-import Meals from "../../../components/Account/Worlds/World4/Meals";
+import { AppContext } from "components/common/context/AppProvider";
+import Kitchens from "components/Account/Worlds/World4/Kitchens";
+import Meals from "components/Account/Worlds/World4/Meals";
 
 const Cooking = () => {
   const { state } = useContext(AppContext);

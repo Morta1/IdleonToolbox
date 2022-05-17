@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 import { Card, CardContent, Stack, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import { cleanUnderscore, growth, prefix } from "utility/helpers";
-import { AppContext } from "../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
 import { isPast, previousThursday, startOfToday } from "date-fns";
 import Timer from "components/common/Timer";

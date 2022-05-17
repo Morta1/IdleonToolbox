@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { cleanUnderscore, kFormatter, prefix, round } from "../../../utility/helpers";
+import { AppContext } from "components/common/context/AppProvider";
+import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 

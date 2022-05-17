@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Chip, InputAdornment, Stack, TextField, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../utility/helpers";
-import { cards, cardSets, stats } from "../../data/website-data";
+import { cleanUnderscore, prefix } from "utility/helpers";
+import { cards, cardSets, stats } from "data/website-data";
 import ClearIcon from '@mui/icons-material/Clear';
 import styled from "@emotion/styled";
-import { AppContext } from "../../components/common/context/AppProvider";
-import { CardAndBorder } from "../../components/common/styles";
+import { AppContext } from "components/common/context/AppProvider";
+import { CardAndBorder } from "components/common/styles";
 
 const categoriesOrder = ["Card Sets", "Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
   "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Dungeons", "Bosses", "Events"];

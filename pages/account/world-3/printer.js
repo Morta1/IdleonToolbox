@@ -1,7 +1,7 @@
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { notateNumber, prefix } from "../../../utility/helpers";
+import { AppContext } from "components/common/context/AppProvider";
+import { notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 
 const Printer = () => {

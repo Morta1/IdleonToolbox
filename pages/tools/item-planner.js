@@ -1,4 +1,4 @@
-import { crafts } from "../../data/website-data";
+import { crafts } from "data/website-data";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   Autocomplete,
@@ -10,17 +10,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { AppContext } from "../../components/common/context/AppProvider";
-import { cleanUnderscore, numberWithCommas, prefix } from "../../utility/helpers";
+import { AppContext } from "components/common/context/AppProvider";
+import { cleanUnderscore, numberWithCommas, prefix } from "utility/helpers";
 import Button from "@mui/material/Button";
-import { flattenCraftObject } from "../../parsers/items";
+import { flattenCraftObject } from "parsers/items";
 import IconButton from "@mui/material/IconButton";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from "@mui/icons-material/Add";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import styled from "@emotion/styled";
-import ItemsList from "../../components/tools/item-planner/ItemsList";
-import Tooltip from "../../components/Tooltip";
+import ItemsList from "components/tools/item-planner/ItemsList";
+import Tooltip from "components/Tooltip";
 
 const filterOptions = createFilterOptions({
   trim: true,

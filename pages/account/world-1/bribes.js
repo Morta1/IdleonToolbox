@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Divider, Grid, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, getCoinsArray } from "../../../utility/helpers";
-import CoinDisplay from "../../../components/common/CoinDisplay";
+import { cleanUnderscore, getCoinsArray } from "utility/helpers";
+import CoinDisplay from "components/common/CoinDisplay";
 import CheckIcon from '@mui/icons-material/Check';
 
 const Bribes = () => {

@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Badge, Card, CardContent, Stack, Typography } from "@mui/material";
-import { fillArrayToLength, prefix } from "../../../utility/helpers";
-import Timer from "../../../components/common/Timer";
+import { fillArrayToLength, prefix } from "utility/helpers";
+import Timer from "components/common/Timer";
 import styled from "@emotion/styled";
-import ProgressBar from "../../../components/common/ProgressBar";
+import ProgressBar from "components/common/ProgressBar";
 
 const Anvil = () => {
   const { state } = useContext(AppContext);

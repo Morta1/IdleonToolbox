@@ -1,8 +1,8 @@
 import { Tab, Tabs, useMediaQuery } from "@mui/material";
 import React, { useContext, useState } from "react";
-import { AppContext } from "../../components/common/context/AppProvider";
-import ConstellationsComp from "../../components/Account/Misc/Constellations";
-import StarSigns from "../../components/Account/Misc/StarSigns";
+import { AppContext } from "components/common/context/AppProvider";
+import ConstellationsComp from "components/Account/Misc/Constellations";
+import StarSigns from "components/Account/Misc/StarSigns";
 
 const tabs = ['Constellations', 'Star Signs'];
 

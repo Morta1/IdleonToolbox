@@ -1,11 +1,11 @@
 import { Card, CardContent, Stack, Tab, Tabs, TextField, Typography, useMediaQuery } from "@mui/material";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from "../../../utility/helpers";
 import styled from "@emotion/styled";
 import { getSigilBonus, getVialsBonusByEffect } from "../../../parsers/alchemy";
-import CoinDisplay from "../../../components/common/CoinDisplay";
-import HtmlTooltip from "../../../components/Tooltip";
+import CoinDisplay from "components/common/CoinDisplay";
+import HtmlTooltip from "components/Tooltip";
 import debounce from 'lodash.debounce';
 
 const Stamps = () => {

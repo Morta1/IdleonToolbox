@@ -1,9 +1,9 @@
 import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
-import { cleanUnderscore, kFormatter, prefix } from "../../../utility/helpers";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { cleanUnderscore, kFormatter, prefix } from "utility/helpers";
+import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
-import Tooltip from "../../../components/Tooltip";
+import Tooltip from "components/Tooltip";
 import Button from "@mui/material/Button";
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import InfoIcon from '@mui/icons-material/Info';

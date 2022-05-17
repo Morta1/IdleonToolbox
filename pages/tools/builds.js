@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent, FormControl, Grid, InputLabel, Select, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, growth, prefix } from "../../utility/helpers";
-import Tooltip from "../../components/Tooltip";
-import { talents } from "../../data/website-data";
+import { cleanUnderscore, growth, prefix } from "utility/helpers";
+import Tooltip from "components/Tooltip";
+import { talents } from "data/website-data";
 import MenuItem from "@mui/material/MenuItem";
-import { talentPagesMap } from "../../parsers/talents";
+import { talentPagesMap } from "parsers/talents";
 
 const mg = {
   "title": "Shaman / AFK (~150)",

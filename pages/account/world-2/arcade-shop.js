@@ -1,9 +1,9 @@
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from "../../../utility/helpers";
+import { AppContext } from "components/common/context/AppProvider";
+import { cleanUnderscore, kFormatter, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
-import { getStampBonus } from "../../../parsers/stamps";
+import { getStampBonus } from "parsers/stamps";
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);

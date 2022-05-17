@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
+import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, prefix, round } from "../../../utility/helpers";
+import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
 import styled from "@emotion/styled";
 
 const Prayers = () => {
