@@ -3,16 +3,21 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { getCoinsArray, kFormatter, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import CoinDisplay from "../common/CoinDisplay";
+import Tooltip from "../Tooltip";
+import {TitleAndValue} from "../common/styles";
 import { AppContext } from "components/common/context/AppProvider";
 import { calcAnvilExp } from "parsers/anvil";
+import InfoIcon from "@mui/icons-material/Info";
 
 const AnvilDetails = ({ character, anvil }) => {
   const { state } = useContext(AppContext);
-  const { xpPoints, speedPoints, capPoints, anvilSpeed, anvilCapacity, anvilCost, anvilExp } = anvil?.stats;
+  const { pointsFromCoins, pointsFromMats, xpPoints, speedPoints, capPoints, anvilSpeed, anvilCapacity, anvilCost, anvilExp } = anvil?.stats;
 
   return (
     <Stack>
-      <Typography variant={"h5"}>Anvil Details</Typography>
+      <Typography variant={"h5"}>
+        Anvil Details
+      </Typography>
       <Stack>
         <Section title={<PointsTitle {...anvil?.stats} />}>
           <PointsCard title={"Exp"} value={xpPoints} />
@@ -46,14 +51,29 @@ const MaterialIcon = styled.img`
 const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats }) => {
   const color = availablePoints === 0 ? "" : availablePoints > 0 ? "error.light" : "secondary";
   return (
-    <Typography my={1} variant={"h6"}>
-      Points (
-      <Typography variant={"h6"} component={"span"} color={color}>
-        {pointsFromCoins + pointsFromMats - availablePoints}
-      </Typography>{" "}
-      / {pointsFromCoins + pointsFromMats})
-    </Typography>
+    <Stack mb={1}>
+      <Typography my={1} variant={"h6"}>
+        Points (
+        <Typography variant={"h6"} component={"span"} color={color}>
+          {pointsFromCoins + pointsFromMats - availablePoints}
+        </Typography>{" "}
+        / {pointsFromCoins + pointsFromMats})
+      </Typography>
+      <Typography variant='caption'>Points from mats: {pointsFromMats}</Typography>
+      <Typography variant='caption'>Points from coins: {pointsFromCoins}</Typography>
+      
+      {/* <Tooltip title={<PointsTooltip {...{ pointsFromCoins, pointsFromMats }} />}>
+        <InfoIcon />
+      </Tooltip> */}
+    </Stack>
   );
+};
+
+const PointsTooltip = ({ pointsFromCoins, pointsFromMats }) => {
+  return <>
+    <TitleAndValue title={'Points from coins'} value={pointsFromCoins} />
+    <TitleAndValue title={'Points from materials'} value={pointsFromMats} />
+  </>;
 };
 
 const PointsCard = ({ title, value, money, sx }) => {
