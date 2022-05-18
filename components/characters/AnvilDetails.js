@@ -61,19 +61,8 @@ const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats }) => {
       </Typography>
       <Typography variant='caption'>Points from mats: {pointsFromMats}</Typography>
       <Typography variant='caption'>Points from coins: {pointsFromCoins}</Typography>
-      
-      {/* <Tooltip title={<PointsTooltip {...{ pointsFromCoins, pointsFromMats }} />}>
-        <InfoIcon />
-      </Tooltip> */}
     </Stack>
   );
-};
-
-const PointsTooltip = ({ pointsFromCoins, pointsFromMats }) => {
-  return <>
-    <TitleAndValue title={'Points from coins'} value={pointsFromCoins} />
-    <TitleAndValue title={'Points from materials'} value={pointsFromMats} />
-  </>;
 };
 
 const PointsCard = ({ title, value, money, sx }) => {

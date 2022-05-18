@@ -240,7 +240,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
   const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character?.skillsInfo?.smithing?.level);
   const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character?.skillsInfo?.smithing?.level);
   const gemShopCarryBonus = account?.gemShopPurchases?.find((value, index) => index === 58) ?? 0;
-  const extraBagsTalentBonus = getTalentBonus(character?.talents, 1, 'EXTRA_BAGS');
+  const extraBagsTalentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const starSignExtraCap = getStarSignByEffect(character?.starSigns, 'Carry_Cap');
 
   const charMaterialBag = character?.carryCapBags?.find(({ Class }) => Class === 'bCraft');
