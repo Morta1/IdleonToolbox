@@ -19,7 +19,7 @@ import Activity from "./Activity";
 
 const Character = ({ character, account, lastUpdated, filters, cols }) => {
   const { name, class: charClassName, level, cards, skillsInfo, activePrayers, starSigns, anvil, postOffice, obols, equippedBubbles, equipment, tools, food, invBagsUsed, carryCapBags, talents, starTalents, flatTalents, flatStarTalents, cooldowns, afkTime } = character;
-  console.log("filters", filters?.["Activity"]);
+
   const views = [
     // { component: <Activity afkTarget={character?.afkTarget} />, filter: 'Activity' },
     { component: <Stats activityFilter={filters?.["Activity"]} statsFilter={filters?.["Stats"]} character={character} account={account} lastUpdated={lastUpdated} />, filter: ["Stats", "Activity"] },

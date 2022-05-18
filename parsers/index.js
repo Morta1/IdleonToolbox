@@ -86,6 +86,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.shrines = getShrines(idleonData, accountData);
   accountData.statues = getStatues(idleonData, serializedCharactersData);
+  accountData.achievements = getAchievements(idleonData);
 
   // Update values for meals, stamps, vials
   const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7); // stamp multi
@@ -115,7 +116,6 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.constellations = getConstellations(idleonData);
   accountData.forge = getForge(idleonData, accountData);
   accountData.construction = getConstruction(idleonData);
-  accountData.achievements = getAchievements(idleonData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
   accountData.arcade = getArcade(idleonData, accountData.accountOptions, serverVars);
   accountData.printer = getPrinter(idleonData, charactersData);

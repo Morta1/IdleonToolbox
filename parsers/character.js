@@ -412,7 +412,6 @@ export const getAllBaseSkillEff = (character, playerChips, jewels) => {
 }
 
 export const getAllEff = (character, meals, playerChips, cards, guildBonuses, charactersLevels) => {
-  // family bonus - 19.655172413793103
   const highestLevelHunter = getHighestLevelOfClass(charactersLevels, 'Hunter');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   const equipmentEffEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[48]), 0);
@@ -443,8 +442,9 @@ export const getPlayerCapacity = (bag, capacities) => {
 
 
 export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus, smithingCards, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
+  // missing smartas smithing stamp
   const talentsBonus = 1 + (focusedSoulTalentBonus + happyDudeTalentBonus) / 100;
-  const cardsBonus = 1 + (smithingCards) / 100;
+  const cardsBonus = 1 + smithingCards / 100;
   return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus) / 100);
 }
 

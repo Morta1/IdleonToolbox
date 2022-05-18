@@ -21,7 +21,7 @@ const AnvilDetails = ({ character, anvil }) => {
         </Section>
         <Section title={"Bonus"}>
           <PointsCard title={"Exp"} value={`${notateNumber(calcAnvilExp(state?.characters, character, anvilExp, xpPoints), "Big")}%`} />
-          <PointsCard title={"Speed"} value={kFormatter(anvilSpeed)} />
+          <PointsCard title={"Speed"} value={notateNumber(anvilSpeed, "Big")} />
           <PointsCard title={"Capacity"} value={kFormatter(anvilCapacity)} />
         </Section>
         <Section title={"Material"}>

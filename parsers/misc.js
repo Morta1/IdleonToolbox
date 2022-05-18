@@ -1,4 +1,4 @@
-import { lavaLog, tryToParse } from "../utility/helpers";
+import { lavaLog, tryToParse, round } from "../utility/helpers";
 import { filteredLootyItems, keysMap } from "./parseMaps";
 import { items } from "../data/website-data";
 
@@ -24,7 +24,7 @@ export const getLooty = (idleonData) => {
           : res,
       []
     ),
-    lootedItems: lootyRaw.filter((item) => !item.includes('DungW')).length
+    lootedItems: lootyRaw.filter((item) => !item.includes("DungW")).length
   };
 };
 
@@ -114,8 +114,8 @@ export const getHighestLevelOfClass = (characters, className) => {
   return highest?.[className];
 };
 
-export const getGoldenFoodMulti = (familyBonus, equipmentGoldFoodBonus, hungryForGoldTalentBonus, goldenAppleStamp, goldenFoodAchievement) => {
-  return Math.max(familyBonus, 1) + (equipmentGoldFoodBonus + (hungryForGoldTalentBonus + goldenAppleStamp + goldenFoodAchievement)) / 100;
+export const getGoldenFoodMulti = (familyBonus, equipmentGoldFoodBonus, hungryForGoldTalentBonus, goldenAppleStamp, goldenFoodAchievement, goldenFoodBubbleBonus, goldenFoodSigilBonus) => {
+  return Math.max(familyBonus, 1) + (equipmentGoldFoodBonus + (hungryForGoldTalentBonus + goldenAppleStamp + goldenFoodAchievement + goldenFoodBubbleBonus + goldenFoodSigilBonus)) / 100;
 };
 
 export const getGoldenFoodBonus = (goldenFoodMulti, amount, stack) => {
@@ -123,8 +123,8 @@ export const getGoldenFoodBonus = (goldenFoodMulti, amount, stack) => {
   return amount * goldenFoodMulti * 0.05 * lavaLog(1 + stack) * (1 + lavaLog(1 + stack) / 2.14);
 };
 
-export const getAllSkillExp = (sirSavvyStarSign, cEfauntCardBonus, goldenHamBonus, skillExpCardSetBonus, summereadingShrineBonus, ehexpeeStatueBonus, unendingEnergyBonus, skilledDimwitCurse, theRoyalSamplerCurse, equipmentBonus, maestroTransfusionTalentBonus, duneSoulLickBonus, dungeonSkillExpBonus) => {
-  return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) + (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus + (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus + (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus)))));
+export const getAllSkillExp = (sirSavvyStarSign, cEfauntCardBonus, goldenHamBonus, skillExpCardSetBonus, summereadingShrineBonus, ehexpeeStatueBonus, unendingEnergyBonus, skilledDimwitCurse, theRoyalSamplerCurse, equipmentBonus, maestroTransfusionTalentBonus, duneSoulLickBonus, dungeonSkillExpBonus, myriadPostOfficeBox) => {
+  return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) + (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus + (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus + (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus + myriadPostOfficeBox)))));
 };
 
 export const calculateLeaderboard = (characters) => {

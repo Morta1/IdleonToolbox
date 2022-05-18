@@ -38,7 +38,7 @@ export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0) => {
   if (!stamp) return 0;
   const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;
   const lvlDiff = 3 + (normalLevel - 3) * Math.pow(skillLevel / (normalLevel - 3), 0.75)
-  const reducedLevel = lvlDiff * stamp?.reqItemMultiplicationLevel / 10
+  const reducedLevel = Math.floor(lvlDiff * stamp?.reqItemMultiplicationLevel / 10);
   if (skillLevel > 0 && reducedLevel < stamp?.level && stampTree === 'skills') {
     return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
   }
