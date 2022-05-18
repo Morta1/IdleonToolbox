@@ -175,8 +175,8 @@ const AppProvider = ({ children }) => {
 
   const checkOfflineTool = () => {
     if (!router.pathname.includes("tools")) return false;
-    const endPoint = router.pathname.split("/")?.[2];
-    const formattedEndPoint = endPoint.replace("-", " ").toCamelCase();
+    const endPoint = router.pathname.split("/")?.[2] || "";
+    const formattedEndPoint = endPoint?.replace("-", " ")?.toCamelCase();
     return !state?.signedIn && router.pathname.includes("tools") && offlineTools[formattedEndPoint];
   };
 

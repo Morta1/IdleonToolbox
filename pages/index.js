@@ -9,6 +9,17 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.1",
+    gameVer: "1.56.1",
+    date: "18/05/2022",
+    features: [],
+    fixes: [
+      "Fixed a visual bug in construction page",
+      "Fixed calculation of anvil details"
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.0",
     gameVer: "1.56.1",
     date: "12/05/2022",
