@@ -122,7 +122,7 @@ export default function CardSearch() {
               return (
                 <React.Fragment key={cardSet + "" + cardSetIndex}>
                   {isCardSets ? <Typography my={1} variant={'h4'}>Card Sets</Typography> :
-                    <img src={`${prefix}banners/${cardSet}_Card_Header.png`}
+                    <img src={`${prefix}etc/${cardSet}_Card_Header.png`}
                          style={{ margin: '15px 0 10px 0' }}
                          alt=""
                     />}
