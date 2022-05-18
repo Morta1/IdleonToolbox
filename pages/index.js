@@ -12,10 +12,8 @@ const patchNotes = [
     ver: "3.0.3",
     gameVer: "1.56.1",
     date: "19/05/2022",
-    features: [],
-    fixes: [
-      "Quick and dirty storage page",
-    ],
+    features: ["Quick and dirty storage page"],
+    fixes: [],
     deprecatedFeatures: []
   },
   {
@@ -23,9 +21,7 @@ const patchNotes = [
     gameVer: "1.56.1",
     date: "18/05/2022",
     features: [],
-    fixes: [
-      "Re-added points distribution in anvil details",
-    ],
+    fixes: ["Re-added points distribution in anvil details"],
     deprecatedFeatures: []
   },
   {
@@ -33,10 +29,7 @@ const patchNotes = [
     gameVer: "1.56.1",
     date: "18/05/2022",
     features: [],
-    fixes: [
-      "Fixed a visual bug in construction page",
-      "Fixed calculation of anvil details"
-    ],
+    fixes: ["Fixed a visual bug in construction page", "Fixed calculation of anvil details"],
     deprecatedFeatures: []
   },
   {
@@ -77,10 +70,10 @@ const Home = () => {
           Learn how to connect
         </Button>
         {/* <Stack> */}
-          <Button variant={"outlined"} startIcon={<FileCopyIcon />} onClick={handleCopyRaw}>
-            Copy Raw JSON
-          </Button>
-          {/* <Typography color='#b7b7b7' variant="caption" component='span'>(while logged in)</Typography>
+        <Button variant={"outlined"} startIcon={<FileCopyIcon />} onClick={handleCopyRaw}>
+          Copy Raw JSON
+        </Button>
+        {/* <Typography color='#b7b7b7' variant="caption" component='span'>(while logged in)</Typography>
         </Stack> */}
         <a style={{ display: "flex", alignItems: "center" }} href="https://ko-fi.com/S6S7BHLQ4" target="_blank" rel="noreferrer">
           <img height="36" style={{ border: 0, height: 36, width: "100%", objectFit: "contain" }} src="https://cdn.ko-fi.com/cdn/kofi1.png?v=3" alt="Buy Me a Coffee at ko-fi.com" />
