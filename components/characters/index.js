@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Grid, Stack, Typography } from "@mui/material";
+import { Grid, Box, Stack, Typography } from "@mui/material";
 import { prefix } from "utility/helpers";
 import Bags from "./Bags";
 import Talents from "./Talents";
@@ -15,7 +15,6 @@ import PlayerBubbles from "./PlayerBubbles";
 import Stats from "./Stats";
 import styled from "@emotion/styled";
 import ActiveSkillsCD from "./ActiveSkillsCD";
-import Activity from "./Activity";
 
 const Character = ({ character, account, lastUpdated, filters, cols }) => {
   const { name, class: charClassName, level, cards, skillsInfo, activePrayers, starSigns, anvil, postOffice, obols, equippedBubbles, equipment, tools, food, invBagsUsed, carryCapBags, talents, starTalents, flatTalents, flatStarTalents, cooldowns, afkTime } = character;
@@ -47,8 +46,8 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
       <Grid item xl={cols}>
         <Stack gap={2}>
           <Stack direction={"row"} alignItems={"center"} gap={2}>
-            {/*<Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}icons/${charClassName}_Icon.png`}*/}
-            {/*                                                        alt=""/></Box>*/}
+            <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}icons/${charClassName}_Icon.png`}
+                                                                   alt=""/></Box>
             <Stack>
               <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
                 {name} ({level})
