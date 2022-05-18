@@ -11,6 +11,9 @@ const misc = {
   achievements: {
     icon: 'TaskAchBorder1'
   },
+  storage: {
+    icon: 'InvStorage42'
+  },
   quests: {
     icon: 'Quest62'
   },
