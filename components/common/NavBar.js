@@ -53,7 +53,7 @@ function NavBar({ children, window }) {
       setDisplayDrawer(false);
     }
   }, [router.pathname]);
-  
+
   useEffect(() => {
     setShouldDisplayMenu(state?.signedIn || state?.manualImport);
   }, [state]);
@@ -126,14 +126,15 @@ function NavBar({ children, window }) {
       <AppBar position="fixed" sx={{ ml: { sm: `${drawerWidth}px` } }}>
         <Toolbar>
           {shouldDisplayMenu ? (
-            <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { sm: "none" } }}>
-              <MenuIcon />
+            <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle}
+                        sx={{ mr: 2, display: { sm: "none" } }}>
+              <MenuIcon/>
             </IconButton>
           ) : null}
           <Link to="/" underline="none" component={NextLinkComposed} color="inherit" noWrap variant="h6">
             Idleon Toolbox
           </Link>
-          <TopNavigation signedIn={shouldDisplayMenu} />
+          <TopNavigation signedIn={shouldDisplayMenu}/>
           {shouldDisplayMenu && state?.lastUpdated ? (
             <Box sx={{ marginLeft: "auto", mr: 1 }}>
               <Typography component={"div"} variant={"caption"}>
@@ -146,10 +147,12 @@ function NavBar({ children, window }) {
           ) : null}
           <Tooltip title="Paste JSON">
             <IconButton onClick={handleMenu} sx={{ marginLeft: "auto" }} color="inherit">
-              <FileCopyIcon />
+              <FileCopyIcon/>
             </IconButton>
           </Tooltip>
-          <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }} keepMounted transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)} onClose={handleClose}>
+          <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }} keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)}
+                onClose={handleClose}>
             <MenuItem onClick={() => handleManualImport("steam")}>
               <Typography variant={"span"}>From extractor</Typography>
             </MenuItem>
@@ -159,7 +162,7 @@ function NavBar({ children, window }) {
           </Menu>
           <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
             <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
-              {shouldDisplayMenu ? <LoginIcon /> : <LogoutIcon />}
+              {shouldDisplayMenu ? <LoginIcon/> : <LogoutIcon/>}
             </IconButton>
           </Tooltip>
         </Toolbar>
@@ -181,11 +184,11 @@ function NavBar({ children, window }) {
               "& .MuiPaper-root": { backgroundImage: "none" }
             }}
           >
-            <Toolbar />
-            <TopNavigation signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle} drawer />
-            {drawer === "account" ? <AccountDrawer onLabelClick={handleDrawerToggle} /> : null}
-            {drawer === "characters" ? <CharactersDrawer onLabelClick={handleDrawerToggle} /> : null}
-            {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle} /> : null}
+            <Toolbar/>
+            <TopNavigation signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle} drawer/>
+            {drawer === "account" ? <AccountDrawer onLabelClick={handleDrawerToggle}/> : null}
+            {drawer === "characters" ? <CharactersDrawer onLabelClick={handleDrawerToggle}/> : null}
+            {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}/> : null}
           </Drawer>
           <Drawer
             variant="permanent"
@@ -195,15 +198,15 @@ function NavBar({ children, window }) {
             }}
             open
           >
-            <Toolbar />
-            {drawer === "account" ? <AccountDrawer /> : null}
-            {drawer === "characters" ? <CharactersDrawer /> : null}
-            {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu} /> : null}
+            <Toolbar/>
+            {drawer === "account" ? <AccountDrawer/> : null}
+            {drawer === "characters" ? <CharactersDrawer/> : null}
+            {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu}/> : null}
           </Drawer>
         </Box>
       ) : null}
       <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
-        <Toolbar />
+        <Toolbar/>
         <Box sx={{ height: "100%", minHeight: "unset" }}>{children}</Box>
       </Box>
       <Dialog open={dialog.open} onClose={handleDialogClose}>
@@ -224,7 +227,7 @@ function NavBar({ children, window }) {
               <Typography variant={"body1"}>Failed to auth, please refresh and try again.</Typography>
             ) : (
               <Stack flexWrap={"wrap"} gap={3} direction={"row"} alignItems={"center"}>
-                <Typography variant={"body1"}>Waiting for your authentication:</Typography> <CircularProgress />
+                <Typography variant={"body1"}>Waiting for your authentication:</Typography> <CircularProgress/>
               </Stack>
             )}
           </Stack>
@@ -241,7 +244,9 @@ const TopNavigation = ({ onLabelClick, signedIn, drawer }) => {
         if (!signedIn && page !== "tools") return null;
         const pageName = page === "account" ? "account/general" : page === "tools" ? "tools/card-search" : page;
         return (
-          <Button component={NextLinkComposed} to={`/${pageName}`} size="medium" key={`${page}-${index}`} onClick={() => drawer && onLabelClick()} sx={{ my: drawer ? 1 : 2, color: "white", display: "block" }}>
+          <Button component={NextLinkComposed} to={`/${pageName}`} size="medium" key={`${page}-${index}`}
+                  onClick={() => drawer && onLabelClick()}
+                  sx={{ my: drawer ? 1 : 2, color: "white", display: "block" }}>
             {page}
           </Button>
         );

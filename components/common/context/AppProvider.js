@@ -18,7 +18,7 @@ function appReducer(state, action) {
       return { ...state, ...action.data };
     }
     case "logout": {
-      return { characters:null, account: null, signedIn: false };
+      return { characters: null, account: null, signedIn: false };
     }
     case "displayedCharacters": {
       return { ...state, displayedCharacters: action.data };
@@ -170,7 +170,10 @@ const AppProvider = ({ children }) => {
     const parsedData = parseData(data, charNames, guildData, serverVars);
     localStorage.setItem("charactersData", JSON.stringify(parsedData));
     localStorage.setItem("manualImport", JSON.stringify(false));
-    dispatch({ type: "data", data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated: new Date().getTime(), serverVars } });
+    dispatch({
+      type: "data",
+      data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated: new Date().getTime(), serverVars }
+    });
   };
 
   const checkOfflineTool = () => {
@@ -193,7 +196,7 @@ const AppProvider = ({ children }) => {
         children
       ) : (
         <Stack m={15} direction={"row"} justifyContent={"center"}>
-          <CircularProgress />
+          <CircularProgress/>
         </Stack>
       )}
     </AppContext.Provider>

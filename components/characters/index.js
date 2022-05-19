@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Grid, Box, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import { prefix } from "utility/helpers";
 import Bags from "./Bags";
 import Talents from "./Talents";
@@ -17,23 +17,50 @@ import styled from "@emotion/styled";
 import ActiveSkillsCD from "./ActiveSkillsCD";
 
 const Character = ({ character, account, lastUpdated, filters, cols }) => {
-  const { name, class: charClassName, level, cards, skillsInfo, activePrayers, starSigns, anvil, postOffice, obols, equippedBubbles, equipment, tools, food, invBagsUsed, carryCapBags, talents, starTalents, flatTalents, flatStarTalents, cooldowns, afkTime } = character;
+  const {
+    name,
+    class: charClassName,
+    level,
+    cards,
+    skillsInfo,
+    activePrayers,
+    starSigns,
+    anvil,
+    postOffice,
+    obols,
+    equippedBubbles,
+    equipment,
+    tools,
+    food,
+    invBagsUsed,
+    carryCapBags,
+    talents,
+    starTalents,
+    flatTalents,
+    flatStarTalents,
+    cooldowns,
+    afkTime
+  } = character;
 
   const views = [
-    { component: <Stats activityFilter={filters?.["Activity"]} statsFilter={filters?.["Stats"]} character={character} account={account} lastUpdated={lastUpdated} />, filter: ["Stats", "Activity"] },
-    { component: <ObolsView obols={obols} />, filter: "Obols" },
+    {
+      component: <Stats activityFilter={filters?.["Activity"]} statsFilter={filters?.["Stats"]} character={character}
+                        account={account} lastUpdated={lastUpdated}/>, filter: ["Stats", "Activity"]
+    },
+    { component: <ObolsView obols={obols}/>, filter: "Obols" },
     { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: "Bags" },
-    { component: <Talents talents={talents} starTalents={starTalents} />, filter: "Talents" },
-    { component: <EquippedCards cards={cards} />, filter: "Cards" },
-    { component: <Skills skills={skillsInfo} charName={name} />, filter: "Skills" },
-    { component: <Prayers prayers={activePrayers} />, filter: "Prayers" },
-    { component: <PlayerStarSigns signs={starSigns} />, filter: "Star Signs" },
-    { component: <AnvilDetails character={character} anvil={anvil} />, filter: "Anvil Details" },
+    { component: <Talents talents={talents} starTalents={starTalents}/>, filter: "Talents" },
+    { component: <EquippedCards cards={cards}/>, filter: "Cards" },
+    { component: <Skills skills={skillsInfo} charName={name}/>, filter: "Skills" },
+    { component: <Prayers prayers={activePrayers}/>, filter: "Prayers" },
+    { component: <PlayerStarSigns signs={starSigns}/>, filter: "Star Signs" },
+    { component: <AnvilDetails character={character} anvil={anvil}/>, filter: "Anvil Details" },
     { component: <PostOffice {...postOffice} />, filter: "Post Office" },
     { component: <Equipment {...{ charName: name, equipment, tools, food }} />, filter: "Equipment" },
-    { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: "Equipped Bubbles" },
+    { component: <PlayerBubbles bubbles={equippedBubbles}/>, filter: "Equipped Bubbles" },
     {
-      component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated} talents={[...flatTalents, ...flatStarTalents]} afkTime={afkTime} />,
+      component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}
+                                 talents={[...flatTalents, ...flatStarTalents]} afkTime={afkTime}/>,
       filter: "Active Skills CD"
     }
   ];
@@ -46,12 +73,12 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
         <Stack gap={2}>
           <Stack direction={"row"} alignItems={"center"} gap={2}>
             <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}icons/${charClassName}_Icon.png`}
-                                                                   alt=""/></Box>
+                                                                    alt=""/></Box>
             <Stack>
               <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
                 {name} ({level})
               </Typography>
-              {trophy ? <TrophyIcon src={`${prefix}data/${trophy}disp.png`} alt="" /> : null}
+              {trophy ? <TrophyIcon src={`${prefix}data/${trophy}disp.png`} alt=""/> : null}
             </Stack>
           </Stack>
           <Stack direction={"row"} flexWrap={"wrap"} gap={4}>
@@ -60,7 +87,8 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
               if (Array.isArray(view.filter)) {
                 shouldDisplay = view.filter.some((v) => filters?.[v]);
               }
-              return shouldDisplay ? <React.Fragment key={`${name}-${view?.filter}-${index}`}>{view.component}</React.Fragment> : null;
+              return shouldDisplay ?
+                <React.Fragment key={`${name}-${view?.filter}-${index}`}>{view.component}</React.Fragment> : null;
             })}
           </Stack>
         </Stack>

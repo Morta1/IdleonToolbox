@@ -3,15 +3,22 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { getCoinsArray, kFormatter, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import CoinDisplay from "../common/CoinDisplay";
-import Tooltip from "../Tooltip";
-import {TitleAndValue} from "../common/styles";
 import { AppContext } from "components/common/context/AppProvider";
 import { calcAnvilExp } from "parsers/anvil";
-import InfoIcon from "@mui/icons-material/Info";
 
 const AnvilDetails = ({ character, anvil }) => {
   const { state } = useContext(AppContext);
-  const { pointsFromCoins, pointsFromMats, xpPoints, speedPoints, capPoints, anvilSpeed, anvilCapacity, anvilCost, anvilExp } = anvil?.stats;
+  const {
+    pointsFromCoins,
+    pointsFromMats,
+    xpPoints,
+    speedPoints,
+    capPoints,
+    anvilSpeed,
+    anvilCapacity,
+    anvilCost,
+    anvilExp
+  } = anvil?.stats;
 
   return (
     <Stack>
@@ -20,23 +27,26 @@ const AnvilDetails = ({ character, anvil }) => {
       </Typography>
       <Stack>
         <Section title={<PointsTitle {...anvil?.stats} />}>
-          <PointsCard title={"Exp"} value={xpPoints} />
-          <PointsCard title={"Speed"} value={speedPoints} />
-          <PointsCard title={"Capacity"} value={capPoints} />
+          <PointsCard title={"Exp"} value={xpPoints}/>
+          <PointsCard title={"Speed"} value={speedPoints}/>
+          <PointsCard title={"Capacity"} value={capPoints}/>
         </Section>
         <Section title={"Bonus"}>
-          <PointsCard title={"Exp"} value={`${notateNumber(calcAnvilExp(state?.characters, character, anvilExp, xpPoints), "Big")}%`} />
-          <PointsCard title={"Speed"} value={notateNumber(anvilSpeed, "Big")} />
-          <PointsCard title={"Capacity"} value={kFormatter(anvilCapacity)} />
+          <PointsCard title={"Exp"}
+                      value={`${notateNumber(calcAnvilExp(state?.characters, character, anvilExp, xpPoints), "Big")}%`}/>
+          <PointsCard title={"Speed"} value={notateNumber(anvilSpeed, "Big")}/>
+          <PointsCard title={"Capacity"} value={kFormatter(anvilCapacity)}/>
         </Section>
         <Section title={"Material"}>
-          <PointsCard title={"Item"} value={<MaterialIcon src={`${prefix}data/${anvilCost?.rawName}.png`} alt={""} />} />
-          <PointsCard title={"Upg. cost"} value={kFormatter(anvilCost?.nextMatUpgrade, 2)} />
-          <PointsCard title={"Total Spent"} value={kFormatter(anvilCost?.totalMats)} />
+          <PointsCard title={"Item"} value={<MaterialIcon src={`${prefix}data/${anvilCost?.rawName}.png`} alt={""}/>}/>
+          <PointsCard title={"Upg. cost"} value={kFormatter(anvilCost?.nextMatUpgrade, 2)}/>
+          <PointsCard title={"Total Spent"} value={kFormatter(anvilCost?.totalMats)}/>
         </Section>
         <Section title={"Money"}>
-          <PointsCard title={"Upg. cost"} money sx={{ pb: 2 }} value={<CoinDisplay title={""} maxCoins={3} money={getCoinsArray(anvilCost?.nextCoinUpgrade)} />} />
-          <PointsCard title={"Total Spent"} money sx={{ pb: 2 }} value={<CoinDisplay title={""} maxCoins={3} money={getCoinsArray(anvilCost?.totalCoins)} />} />
+          <PointsCard title={"Upg. cost"} money sx={{ pb: 2 }}
+                      value={<CoinDisplay title={""} maxCoins={3} money={getCoinsArray(anvilCost?.nextCoinUpgrade)}/>}/>
+          <PointsCard title={"Total Spent"} money sx={{ pb: 2 }}
+                      value={<CoinDisplay title={""} maxCoins={3} money={getCoinsArray(anvilCost?.totalCoins)}/>}/>
         </Section>
       </Stack>
     </Stack>

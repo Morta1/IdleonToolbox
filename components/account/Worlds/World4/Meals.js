@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { calcTimeTillDiamond, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
 import { cleanUnderscore, kFormatter, numberWithCommas, prefix } from "utility/helpers";
-import { Card, CardContent, Stack, Typography, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
 import Box from "@mui/material/Box";
@@ -48,15 +48,28 @@ const Meals = ({ meals, totalMealSpeed }) => {
       <Stack direction={"row"} flexWrap="wrap" gap={2}>
         {localMeals?.map((meal, index) => {
           if (!meal) return null;
-          const { name, amount, rawName, effect, level, baseStat, multiplier, levelCost, diamondCost, timeTillNextLevel, timeToDiamond } = meal;
+          const {
+            name,
+            amount,
+            rawName,
+            effect,
+            level,
+            baseStat,
+            multiplier,
+            levelCost,
+            diamondCost,
+            timeTillNextLevel,
+            timeToDiamond
+          } = meal;
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
                 <Stack direction={"row"} alignItems={"center"}>
                   <Tooltip title={<MealTooltip {...meal} />}>
                     <MealAndPlate>
-                      <img src={`${prefix}data/${rawName}.png`} alt="" />
-                      {level > 0 ? <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt="" /> : null}
+                      <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                      {level > 0 ?
+                        <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
                     </MealAndPlate>
                   </Tooltip>
                   <Typography>
@@ -64,20 +77,24 @@ const Meals = ({ meals, totalMealSpeed }) => {
                   </Typography>
                 </Stack>
                 <Stack mt={2} gap={1}>
-                  <Typography sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
+                  <Typography
+                    sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
                   {!filters.includes("minimized") ? (
                     <>
-                      <Typography sx={{ color: amount >= levelCost ? "success.light" : level > 0 ? "error.light" : "" }}>
+                      <Typography
+                        sx={{ color: amount >= levelCost ? "success.light" : level > 0 ? "error.light" : "" }}>
                         Progress: {numberWithCommas(parseInt(amount))} / {numberWithCommas(parseInt(levelCost))}
                       </Typography>
                       {level > 0 ? (
                         <>
                           <Typography component={"span"}>
-                            Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000} staticTime={true} />
+                            Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
+                                               staticTime={true}/>
                           </Typography>
                           {level < 11 && levelCost !== diamondCost ? (
                             <Typography>
-                              Diamond: <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000} staticTime={true} />
+                              Diamond: <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000}
+                                              staticTime={true}/>
                             </Typography>
                           ) : null}
                         </>

@@ -31,7 +31,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
   return (
     <>
       <Stack gap={2} flexWrap={"wrap"}>
-        {activityFilter ? <Activity afkTarget={afkTarget} /> : null}
+        {activityFilter ? <Activity afkTarget={afkTarget}/> : null}
         {statsFilter ? <>
           {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
             <Card variant={"outlined"}>
@@ -45,7 +45,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
             return statName !== "level" ? (
               <Card variant={"outlined"} key={`${name}-${statName}-${index}`}>
                 <CardContent>
-                  <Typography sx={{ width: 80, display: "inline-block" }} variant={"body1"} color={colors?.[statName] || "info.light"}>
+                  <Typography sx={{ width: 80, display: "inline-block" }} variant={"body1"}
+                              color={colors?.[statName] || "info.light"}>
                     {pascalCase(statName)}
                   </Typography>
                   <Typography variant={"body1"} component={"span"}>
@@ -66,10 +67,11 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
             <CardContent>
               <Typography color={"info.light"}>Afk time</Typography>
               <Stack direction={"row"} alignItems={"center"} gap={1} color={isOvertime() ? "error.light" : ""}>
-                {!isAfk() ? <Timer date={afkTime} lastUpdated={lastUpdated} /> : <Typography color={"success.light"}>Active</Typography>}
+                {!isAfk() ? <Timer date={afkTime} lastUpdated={lastUpdated}/> :
+                  <Typography color={"success.light"}>Active</Typography>}
                 {isOvertime() ? (
                   <Tooltip title={"This character is afk more than 10 hours with Unending Energy prayer"}>
-                    <InfoIcon />
+                    <InfoIcon/>
                   </Tooltip>
                 ) : null}
               </Stack>

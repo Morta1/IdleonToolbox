@@ -1,5 +1,5 @@
-import { Card, CardContent, Typography, Stack } from "@mui/material";
-import { prefix, cleanUnderscore } from "utility/helpers";
+import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { cleanUnderscore, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 
 const Activity = ({ afkTarget }) => {
@@ -9,12 +9,12 @@ const Activity = ({ afkTarget }) => {
         <Typography color={"info.light"}>Activity</Typography>
         {afkTarget && afkTarget !== "_" ? (
           <Stack direction="row" alignItems="center" gap={1}>
-            <ActivityImg src={`${prefix}afk_targets/${afkTarget}.png`} alt="" />
+            <ActivityImg src={`${prefix}afk_targets/${afkTarget}.png`} alt=""/>
             <Typography>{cleanUnderscore(afkTarget)}</Typography>
           </Stack>
         ) : (
           <Stack direction="row" alignItems="center" gap={1}>
-            <ActivityImg src={`${prefix}data/Afkz5.png`} alt="" />
+            <ActivityImg src={`${prefix}data/Afkz5.png`} alt=""/>
             <Typography>Nothing</Typography>
           </Stack>
         )}
