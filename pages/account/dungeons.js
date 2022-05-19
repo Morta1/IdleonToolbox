@@ -3,28 +3,45 @@ import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack
 import { cleanUnderscore, growth, prefix } from "utility/helpers";
 import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
-import { isPast, previousThursday, startOfToday } from "date-fns";
+import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from "date-fns";
 import Timer from "components/common/Timer";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const insideDungeonUpgradeMaxLevel = 100;
 const flurboUpgradeMaxLevel = 50;
 
-const calcHappyHours = (happyHours) => {
+const getHappyHourDates = (happyHours, thursday) => {
   const secondsInHour = 60 * 60;
-  let lastThursday = previousThursday(startOfToday());
-  lastThursday = lastThursday.getTime() - lastThursday.getTimezoneOffset() * 60 * 1000;
   return happyHours?.map((time) => {
-    return time + Math.round(lastThursday / 1000) - secondsInHour;
+    return time + Math.round(thursday / 1000) - secondsInHour;
   });
+}
+
+const calcHappyHours = (happyHours) => {
+  let lastThursday
+  if (isThursday(startOfToday())) {
+    lastThursday = startOfToday();
+  } else {
+    lastThursday = previousThursday(startOfToday());
+    lastThursday = lastThursday.getTime() - lastThursday.getTimezoneOffset() * 60 * 1000;
+  }
+  const hhDates = getHappyHourDates(happyHours, lastThursday);
+  const nextHappyHours = hhDates?.filter((time) => !isPast(time * 1000)).map((time) => time * 1000);
+  if (nextHappyHours.length === 0) {
+    let futureThursday = nextThursday(startOfToday());
+    futureThursday = futureThursday.getTime() - futureThursday.getTimezoneOffset() * 60 * 1000;
+    return getHappyHourDates(happyHours, futureThursday);
+  } else {
+    return nextHappyHours;
+  }
 };
 
 const Dungeons = () => {
   const { state } = useContext(AppContext);
   const { dungeons } = state?.account;
 
-  const happyHours = useMemo(() => calcHappyHours(state?.serverVars?.HappyHours) || [], [state]);
-  const nextHappyHours = happyHours?.filter((time) => !isPast(time * 1000)).map((time) => time * 1000);
+  const nextHappyHours = useMemo(() => calcHappyHours(state?.serverVars?.HappyHours) || [], [state]);
+
   return (
     <>
       <Typography my={2} variant="h2">
@@ -65,7 +82,10 @@ const Dungeons = () => {
               <Stack gap={2}>
                 {nextHappyHours.map((nextHappyHour, index) => {
                   if (index === 0) return null;
-                  return <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated}/>;
+                  return <Stack direction={'row'} gap={3}>
+                    <Typography sx={{ width: 40 }}>#{index}</Typography>
+                    <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated}/>
+                  </Stack>
                 })}
               </Stack>
             </AccordionDetails>
