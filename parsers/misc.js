@@ -1,4 +1,4 @@
-import { lavaLog, tryToParse, round } from "../utility/helpers";
+import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredLootyItems, keysMap } from "./parseMaps";
 import { items } from "../data/website-data";
 
@@ -15,12 +15,12 @@ export const getLooty = (idleonData) => {
       (res, key) =>
         !filteredLootyItems[key] && !key.includes("DungWeapon")
           ? [
-              ...res,
-              {
-                name: allItems?.[key]?.displayName,
-                rawName: key
-              }
-            ]
+            ...res,
+            {
+              name: allItems?.[key]?.displayName,
+              rawName: key
+            }
+          ]
           : res,
       []
     ),
@@ -28,7 +28,7 @@ export const getLooty = (idleonData) => {
   };
 };
 
-export const getCurrencies = (idleonData) => {
+export const getCurrencies = (idleonData, accountData) => {
   const keys = idleonData?.CurrenciesOwned?.["KeysAll"] || idleonData?.CYKeysAll;
   if (idleonData?.CurrenciesOwned) {
     return {
@@ -36,6 +36,7 @@ export const getCurrencies = (idleonData) => {
       KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res), [])
     };
   }
+
   return {
     WorldTeleports: idleonData?.CYWorldTeleports,
     KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res), []),
@@ -45,7 +46,9 @@ export const getCurrencies = (idleonData) => {
     GoldPens: idleonData?.CYGoldPens,
     DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
     DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
-    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc
+    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
+    libraryCheckouts: accountData?.accountOptions?.[55],
+    minigamePlays: idleonData?.PVMinigamePlays_1,
   };
 };
 
@@ -56,12 +59,12 @@ export const getBundles = (idleonData) => {
       (res, [bundleName, owned]) =>
         owned
           ? [
-              ...res,
-              {
-                name: bundleName,
-                owned: !!owned
-              }
-            ]
+            ...res,
+            {
+              name: bundleName,
+              owned: !!owned
+            }
+          ]
           : res,
       []
     )
@@ -85,7 +88,14 @@ export const getAllCapsBonus = (guildBonus, telekineticStorageBonus, shrineBonus
 };
 
 export const getMaterialCapacity = (bag, capacities) => {
-  const { allCapacity, mattyBagStampBonus, gemShopCarryBonus, masonJarStampBonus, extraBagsTalentBonus, starSignExtraCap } = capacities;
+  const {
+    allCapacity,
+    mattyBagStampBonus,
+    gemShopCarryBonus,
+    masonJarStampBonus,
+    extraBagsTalentBonus,
+    starSignExtraCap
+  } = capacities;
   const stampMatCapMath = 1 + mattyBagStampBonus / 100;
   const gemPurchaseMath = 1 + (25 * gemShopCarryBonus) / 100;
   const additionalCapMath = 1 + (masonJarStampBonus + starSignExtraCap) / 100; // ignoring star sign

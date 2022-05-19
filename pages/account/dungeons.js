@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { Card, CardContent, Stack, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, growth, prefix } from "utility/helpers";
 import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
@@ -30,9 +30,9 @@ const Dungeons = () => {
       <Typography my={2} variant="h2">
         Dungeons
       </Typography>
-      <Stack direction="row" gap={4}>
+      <Stack direction="row" flexWrap={'wrap'} gap={4}>
         <CardContainer>
-          <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons.rank}.png`} alt="" />
+          <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons.rank}.png`} alt=""/>
           <Stack>
             <Typography>Rank: {dungeons.rank}</Typography>
             <Typography>
@@ -41,43 +41,41 @@ const Dungeons = () => {
           </Stack>
         </CardContainer>
         <CardContainer>
-          <Typography>Boosted Runs: {dungeons.boostedRuns}</Typography>
-        </CardContainer>
-        <CardContainer>
-          <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt="" />
+          <img src={`${prefix}etc/boosted-runs.png`} alt=""/>
+          <Typography>{dungeons.boostedRuns}</Typography>
+          <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt=""/>
           {dungeons.credits}
-        </CardContainer>
-        <CardContainer>
-          <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt="" />
+          <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt=""/>
           {dungeons.flurbos}
         </CardContainer>
       </Stack>
-      {nextHappyHours?.length > 0 ? (
-        <Stack my={2} direction="row" gap={4}>
-          <Accordion>
-            <AccordionSummary expandIcon={nextHappyHours.length > 1 ? <ExpandMoreIcon /> : null}>
-              <Stack direction="row" gap={2}>
-                <Typography>Next happy hour:</Typography>
-                <Timer date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated} />
+
+      <Stack my={2} direction="row" gap={4}>
+        <Accordion>
+          <AccordionSummary expandIcon={nextHappyHours.length > 1 ? <ExpandMoreIcon/> : null}>
+            <Stack direction="row" gap={2}>
+              <Typography>Next happy hour:</Typography>
+              {nextHappyHours?.length > 0 ?
+                <Timer date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/> : "waiting for lava to set them"}
+            </Stack>
+          </AccordionSummary>
+          {nextHappyHours.length > 1 ? (
+            <AccordionDetails>
+              <Typography mb={1}>Future happy hours</Typography>
+              <Stack gap={2}>
+                {nextHappyHours.map((nextHappyHour, index) => {
+                  if (index === 0) return null;
+                  return <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated}/>;
+                })}
               </Stack>
-            </AccordionSummary>
-            {nextHappyHours.length > 1 ? (
-              <AccordionDetails>
-                <Typography mb={1}>Future happy hours</Typography>
-                <Stack gap={2}>
-                  {nextHappyHours.map((nextHappyHour, index) => {
-                    if (index === 0) return null;
-                    return <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated} />;
-                  })}
-                </Stack>
-              </AccordionDetails>
-            ) : null}
-          </Accordion>
-        </Stack>
-      ) : null}
-      <Stack direction="row" gap={4}>
-        <DungeonUpgrades upgrades={dungeons?.insideUpgrades} />
-        <DungeonUpgrades isFlurbo upgrades={dungeons?.upgrades} />
+            </AccordionDetails>
+          ) : null}
+        </Accordion>
+      </Stack>
+
+      <Stack direction="row" flexWrap={'wrap'} gap={4}>
+        <DungeonUpgrades upgrades={dungeons?.insideUpgrades}/>
+        <DungeonUpgrades isFlurbo upgrades={dungeons?.upgrades}/>
       </Stack>
     </>
   );
@@ -135,7 +133,7 @@ const DungeonUpgrades = ({ isFlurbo, upgrades = [] }) => {
           const { level, type, effect } = upgrade;
           const isMaxed = level >= (isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel);
           return (
-            <Card key={`${effect}-${index}`} sx={{ width: 450 }}>
+            <Card key={`${effect}-${index}`} sx={{ width: { md: 450 } }}>
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" gap={2}>
                   <Stack>
@@ -143,7 +141,8 @@ const DungeonUpgrades = ({ isFlurbo, upgrades = [] }) => {
                       +{calcBonus(upgrade)}
                       {type === "%" ? type : ""} {cleanUnderscore(effect)}
                     </Typography>
-                    <Typography color={isMaxed ? "success.light" : ""}>{isMaxed ? "MAXED" : `Lv. ${level} / ${isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel}`}</Typography>
+                    <Typography
+                      color={isMaxed ? "success.light" : ""}>{isMaxed ? "MAXED" : `Lv. ${level} / ${isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel}`}</Typography>
                   </Stack>
                   <Stack direction="row" gap={3}>
                     <Stack>

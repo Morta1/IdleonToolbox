@@ -15,11 +15,11 @@ export const floatingText = {
 
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon } = props
-  return <div {...props} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-    <img src={`${prefix}data/${icon}.png`} alt=""/>
-    <Typography sx={floatingText} variant={'body1'}
+  return <Stack alignItems={'center'} {...props} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
+    <img {...props?.img} src={`${prefix}data/${icon}.png`} alt=""/>
+    <Typography variant={'body1'}
                 component={'span'}>{stat}</Typography>
-  </div>
+  </Stack>
 })
 IconWithText.displayName = 'IconWithText'
 

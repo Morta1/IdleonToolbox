@@ -1,6 +1,6 @@
 import { AppContext } from "components/common/context/AppProvider";
-import { useContext, useState, useEffect, useMemo } from "react";
-import { Stack, Typography, Checkbox, Card, CardContent, FormControlLabel } from "@mui/material";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "components/Tooltip";
@@ -34,16 +34,16 @@ const Looty = () => {
       </Typography>
       <Stack>
         <Stack>
-          <FormControlLabel control={<Checkbox checked={checked} onChange={handleChange} />} label="Sort by stack size" />
+          <FormControlLabel control={<Checkbox checked={checked} onChange={handleChange}/>} label="Sort by stack size"/>
         </Stack>
         <Stack direction={"row"} gap={1} flexWrap={"wrap"}>
           {items?.map(({ name, rawName, amount }, index) => {
             return (
-              <Card sx={{ width: 75 }}>
+              <Card sx={{ width: 75 }} key={`${name}-${index}`}>
                 <CardContent>
                   <Stack alignItems="center" key={`${rawName}-${index}`}>
                     <HtmlTooltip title={cleanUnderscore(name)}>
-                      <ItemImg width={50} height={50} src={`${prefix}data/${rawName}.png`} alt="" />
+                      <ItemImg width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
                     </HtmlTooltip>
                     <Typography color={amount >= 1e7 ? "success.light" : ""}>{notateNumber(amount, "Big")}</Typography>
                   </Stack>

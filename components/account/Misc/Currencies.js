@@ -2,7 +2,17 @@ import CoinDisplay from "components/common/CoinDisplay";
 import { Stack } from "@mui/material";
 import { IconWithText } from "components/common/styles";
 
-const Currencies = ({ money = [], WorldTeleports, ObolFragments, ColosseumTickets, SilverPens, gems, KeysAll }) => {
+const Currencies = ({
+                      money = [],
+                      WorldTeleports,
+                      ObolFragments,
+                      ColosseumTickets,
+                      SilverPens,
+                      gems,
+                      KeysAll,
+                      libraryCheckouts,
+                      minigamePlays
+                    }) => {
   return (
     <>
       <CoinDisplay className={'box'} money={money}/>
@@ -12,6 +22,10 @@ const Currencies = ({ money = [], WorldTeleports, ObolFragments, ColosseumTicket
         <IconWithText stat={ColosseumTickets} icon={'TixCol'}/>
         <IconWithText stat={SilverPens} icon={'SilverPen'}/>
         <IconWithText stat={gems} icon={'PremiumGem'}/>
+        <IconWithText stat={minigamePlays} img={{ style: { width: 72, height: 72, objectFit: 'contain' } }}
+                      icon={'MGp'}/>
+        <IconWithText stat={libraryCheckouts} img={{ style: { width: 72, height: 72, objectFit: 'contain' } }}
+                      icon={'Libz'}/>
         {KeysAll?.map(({ rawName, amount }, index) => {
           return <IconWithText key={`${rawName}-${index}`} stat={amount} icon={rawName}/>
         })}

@@ -75,7 +75,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.cards = getCards(idleonData);
   accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.guild = getGuild(guildData);
-  accountData.currencies = getCurrencies(idleonData);
+  accountData.currencies = getCurrencies(idleonData, accountData);
   accountData.stamps = getStamps(idleonData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
