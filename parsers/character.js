@@ -165,10 +165,13 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.money = parseInt(char?.Money);
   character.cooldowns = char?.[`AttackCooldowns`];
   const statMap = { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' };
-  character.stats = char?.PersonalValuesMap?.StatList?.reduce((res, statValue, index) => ({
-    ...res,
-    [statMap[index]]: statValue
-  }), {});
+  character.stats = char?.PersonalValuesMap?.StatList?.reduce((res, statValue, index) => {
+    if (!statMap[index]) return res;
+    return {
+      ...res,
+      [statMap[index]]: statValue
+    }
+  }, {});
   character.level = character.stats.level;
   // inventory bags used
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
