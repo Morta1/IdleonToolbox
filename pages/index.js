@@ -20,6 +20,17 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.5",
+    gameVer: "1.56.1",
+    date: "19/05/2022",
+    features: [],
+    fixes: [
+      'Added doubling bonus chips to the calculations of cards and star signs',
+      'Fixed a small bug with displaying cards'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.4",
     gameVer: "1.56.1",
     date: "19/05/2022",

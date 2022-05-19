@@ -222,7 +222,17 @@ export const initializeCharacter = (char, charactersLevels, account) => {
     .split(",")
     .map((starSign) => {
       if (!starSign || starSign === '_') return null;
-      return starSignByIndexMap?.[starSign];
+      const silkrodeNanochipBonus = account?.lab?.playersChips?.[char?.playerId].find((chip) => chip.index === 15);
+      const updatedBonuses = starSignByIndexMap?.[starSign]?.bonuses?.map((star) => {
+        const extraBonus = (silkrodeNanochipBonus ? 2 : 1);
+        return {
+          ...star,
+          chipBoost: extraBonus,
+          bonus: star?.bonus * extraBonus,
+          rawName: star?.rawName?.replace('{', star?.bonus * extraBonus)
+        }
+      });
+      return { ...starSignByIndexMap?.[starSign], bonuses: updatedBonuses };
     })
     .filter(item => item);
 
@@ -265,6 +275,14 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.activePrayers = char?.Prayers?.filter((prayer) => prayer !== -1).map((prayerId) => account?.prayers?.[prayerId]);
   character.postOffice = getPlayerPostOffice(char?.PostOfficeInfo, account);
   character.cards = getPlayerCards(char, account);
+
+  const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId].find((chip) => chip.index === 20);
+  const omegaMotherboardChipBonus = account?.lab?.playersChips?.[char?.playerId].find((chip) => chip.index === 21);
+  character.cards.equippedCards = character?.cards?.equippedCards?.map((card, index) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus)) ? ({
+    ...card,
+    chipBoost: 2
+  }) : card);
+
   character.anvil = getPlayerAnvil(char, character, account, charactersLevels);
   const charObols = getObols(char, false);
   character.obols = {

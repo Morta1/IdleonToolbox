@@ -33,7 +33,7 @@ const StarSigns = ({ starSigns }) => {
               <Grid item sm={7} md={4} display={'flex'} alignItems={'center'} gap={2}>
                 {isMd && unlocked ? <CheckIcon color={'success'}/> : null}
                 <Typography variant={'body1'}
-                            component={'span'}>{bonuses?.map(({ rawName }) => cleanUnderscore(rawName)).join(', ')}</Typography>
+                            component={'span'}>{bonuses?.map(({ rawName, bonus }) => cleanUnderscore(rawName.replace('{', bonus))).join(', ')}</Typography>
               </Grid>
               <Grid item sm={4} md={4}> <Typography variant={'body1'}
                                                     pl={5}

@@ -59,7 +59,7 @@ export const getCardBonusByEffect = (cards, effectName) => {
 
 export const calcCardBonus = (card) => {
   if (!card) return 0;
-  return (card?.bonus * ((card?.stars ?? 0) + 1)) ?? 0;
+  return (card?.bonus * ((card?.stars ?? 0) + 1)) * (card?.chipBoost ?? 1) ?? 0;
 }
 
 export const getPlayerCards = (char, account) => {
@@ -68,6 +68,7 @@ export const getPlayerCards = (char, account) => {
     .map((card) => ({
       cardName: cards?.[card]?.displayName,
       stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
+      amount: account?.cards?.[cards?.[card]?.displayName]?.amount,
       ...cards?.[card]
     }))
     .filter((_, ind) => ind < 8); //cardEquipMap

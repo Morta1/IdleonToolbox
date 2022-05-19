@@ -7,6 +7,7 @@ import { CardAndBorder } from "../common/styles";
 
 const EquippedCards = ({ cards }) => {
   const { equippedCards, cardSet } = cards;
+
   return <Stack>
     <Typography mb={2} variant={'h5'}>Equipped cards</Typography>
     <Stack>
@@ -17,12 +18,12 @@ const EquippedCards = ({ cards }) => {
       </Stack> : null}
       <Grid container rowGap={3}>
         {equippedCards?.map((card, index) => {
-          const { cardName, stars } = card;
+          const { cardName, amount } = card;
           const bonus = calcCardBonus(card);
           return <Grid display={'flex'} justifyContent={'center'} key={`${cardName}-${index}`} position={'relative'}
                        xs={3}
                        item>
-            {stars > 0 ? <CardAndBorder {...{ ...card, bonus }}/> :
+            {amount > 0 ? <CardAndBorder {...{ ...card, bonus }}/> :
               <StyledEmptyCard><Typography variant={'subtitle2'}>EMPTY</Typography></StyledEmptyCard>}
           </Grid>
         })}
