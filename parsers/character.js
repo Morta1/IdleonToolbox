@@ -297,7 +297,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.quests = getPlayerQuests(char?.QuestComplete);
   character.crystalSpawnChance = getPlayerCrystalChance(character, account);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
-  character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, character?.bubbles, account?.lab?.jewels, account?.lab?.labBonuses);
+  character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, account?.alchemy?.bubbles, account?.lab?.jewels, account?.lab?.labBonuses);
 
   const kills = char?.[`KillsLeft2Advance`];
   character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);

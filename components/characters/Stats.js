@@ -60,7 +60,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
           <Card variant={"outlined"}>
             <CardContent>
               <Typography color={"info.light"}>Chance not to consume food</Typography>
-              <Typography>{nonConsumeChance}%</Typography>
+              <Typography>{kFormatter(nonConsumeChance, 2)}%</Typography>
             </CardContent>
           </Card>
           <Card variant={"outlined"}>
