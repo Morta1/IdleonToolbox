@@ -13,7 +13,7 @@ const colors = {
   luck: "warning.light"
 };
 const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
-  const { name, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget } = character;
+  const { name, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -57,6 +57,12 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
               </Card>
             ) : null;
           })}
+          <Card variant={"outlined"}>
+            <CardContent>
+              <Typography color={"info.light"}>Chance not to consume food</Typography>
+              <Typography>{nonConsumeChance}%</Typography>
+            </CardContent>
+          </Card>
           <Card variant={"outlined"}>
             <CardContent>
               <Typography color={"info.light"}>Crystal Chance</Typography>

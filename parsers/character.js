@@ -32,6 +32,7 @@ import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getObols, mergeCharacterAndAccountObols } from "./obols";
 import { getPlayerWorship } from "./worship";
 import { getPlayerQuests } from "./quests";
+import { getJewelBonus, getLabBonus } from "./lab";
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require("../utility/helpers");
 
@@ -141,7 +142,7 @@ export const getCharacters = (idleonData, charsNames) => {
         }
         return { ...res, [updatedKey]: arr?.length ? arr : updatedDetails }
       }
-      return {...res,  };
+      return { ...res, };
     }, {});
     return {
       name: charName,
@@ -292,6 +293,8 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.worship = getPlayerWorship(character, pages, account, char?.PlayerStuff?.[0]);
   character.quests = getPlayerQuests(char?.QuestComplete);
   character.crystalSpawnChance = getPlayerCrystalChance(character, account);
+  // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
+  character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, character?.bubbles, account?.lab?.jewels, account?.lab?.labBonuses);
 
   const kills = char?.[`KillsLeft2Advance`];
   character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
@@ -466,3 +469,38 @@ export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus
   return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus) / 100);
 }
 
+const getNonConsumeChance = (starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses) => {
+  // if ("FoodNOTconsume" == s) {
+  //   var baseMath = 90 + 5 * w._customBlock_MainframeBonus(108),
+  //     Co = b.engine.getGameAttribute("DNSM"),
+  //     Bo = null != d.AlchBubbles ? Co.getReserved("AlchBubbles") : Co.h.AlchBubbles,
+  //     bubbleBonus = null != d.nonFoodACTIVE ? Bo.getReserved("nonFoodACTIVE") : Bo.h.nonFoodACTIVE,
+  //     realBaseMath = Math.min(baseMath, 98 + Math.min(bubbleBonus, 1)),
+  //     jewel = Math.max(1, w._customBlock_MainframeBonus(108)),
+  //     freeMeal = t._customBlock_GetTalentNumber(1, 458),
+  //     xo = b.engine.getGameAttribute("DNSM"),
+  //     Qo = null != d.BoxRewards ? xo.getReserved("BoxRewards") : xo.h.BoxRewards,
+  //     Lo = null != d.NonConsume ? Qo.getReserved("NonConsume") : Qo.h.NonConsume,
+  //     postOffice = Lo,
+  //     cards = O._customBlock_CardBonusREAL(16),
+  //     Yo = b.engine.getGameAttribute("DNSM"),
+  //     Wo = null != d.StarSigns ? Yo.getReserved("StarSigns") : Yo.h.StarSigns,
+  //     Zo = null != d.NoConsumeFood ? Wo.getReserved("NoConsumeFood") : Wo.h.NoConsumeFood,
+  //     starSign = Zo,
+  //     Jo = b.engine.getGameAttribute("DNSM"),
+  //     jo = null != d.AlchBubbles ? Jo.getReserved("AlchBubbles") : Jo.h.AlchBubbles,
+  //     bubble = null != d.nonFoodACTIVE ? jo.getReserved("nonFoodACTIVE") : jo.h.nonFoodACTIVE;
+  //   return Math.min(realBaseMath, jewel * (freeMeal + (postOffice + (cards + starSign + (bubble)))));
+  // }
+  const spelunkerObolMulti = getLabBonus(labBonuses, 8); // gem multi
+  const nonConsumeJewelBonus = getJewelBonus(jewels, 8, spelunkerObolMulti);
+  const baseMath = 90 + 5 * nonConsumeJewelBonus;
+  const biteButNotChewBubbleBonus = getBubbleBonus(bubbles, 'power', 'BITE_BUT_NOT_CHEW', false);
+  const bubbleMath = Math.min(baseMath, 98 + Math.min(biteButNotChewBubbleBonus, 1));
+  const jewelMath = Math.max(1, nonConsumeJewelBonus);
+  const freeMealBonus = getTalentBonus(talents, 1, 'FREE_MEAL');
+  const carePackFromMumBonus = getPostOfficeBonus(postOffice, 'Carepack_From_Mum', 0);
+  const crabCakeBonus = getEquippedCardBonus(cards?.equippedCards, "B3");
+  const starSingBonus = getStarSignByEffect(starSigns, 'chance_to_not');
+  return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
+}

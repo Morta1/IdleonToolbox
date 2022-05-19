@@ -20,6 +20,16 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.6",
+    gameVer: "1.56.1",
+    date: "20/05/2022",
+    features: [
+      'Added \'chance not to consume food\' percentage in \'Stats\' filter'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.5",
     gameVer: "1.56.1",
     date: "19/05/2022",

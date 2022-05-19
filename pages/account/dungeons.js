@@ -82,7 +82,7 @@ const Dungeons = () => {
               <Stack gap={2}>
                 {nextHappyHours.map((nextHappyHour, index) => {
                   if (index === 0) return null;
-                  return <Stack direction={'row'} gap={3}>
+                  return <Stack key={`next-happy-hour-${index}`} direction={'row'} gap={3}>
                     <Typography sx={{ width: 40 }}>#{index}</Typography>
                     <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated}/>
                   </Stack>

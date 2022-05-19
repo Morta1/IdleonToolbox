@@ -163,3 +163,4 @@ export const calculateLeaderboard = (characters) => {
     }, {});
   }, {});
 };
+
