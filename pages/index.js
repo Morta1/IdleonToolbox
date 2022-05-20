@@ -20,6 +20,16 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.7",
+    gameVer: "1.56.1",
+    date: "20/05/2022",
+    features: [
+      '(Re-)Added the item browser which lets you find an item anywhere in your account'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.6",
     gameVer: "1.56.1",
     date: "20/05/2022",

@@ -12,6 +12,9 @@ const tools = {
   'itemPlanner': {
     icon: 'EquipmentTransparent2'
   },
+  'itemBrowser': {
+    icon: 'EquipmentTransparent105'
+  },
   'activeExpCalculator': {
     icon: 'StatusExp'
   },
