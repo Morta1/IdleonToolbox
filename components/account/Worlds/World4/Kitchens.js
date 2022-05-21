@@ -7,7 +7,7 @@ import { calcTimeTillDiamond, calcTimeToNextLevel, getMealLevelCost } from "pars
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
 
-const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated }) => {
+const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -53,11 +53,12 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated }) => {
           const { total } = meal;
           return <Card key={`${foodName}-${index}-${total}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Tooltip placement={'top'} title={<MealTooltip totalMealSpeed={totalMealSpeed} meal={meal}/>}>
+              <Tooltip placement={'top'}
+                       title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}/>}>
                 <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
               </Tooltip>
               <div>{kFormatter(total, 2)}/hr</div>
-              <MealTooltip totalMealSpeed={totalMealSpeed} meal={meal}/>
+              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}/>
             </CardContent>
           </Card>
         })}
@@ -128,7 +129,9 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated }) => {
                          lastUpdated={lastUpdated}/>
                 </Stack>
               </Stack> : <Stack mt={2} justifyContent={'center'} alignItems={'center'}>
-                <Tooltip placement={'top'} title={<MealTooltip totalMealSpeed={totalMealSpeed} meal={kitchen?.meal}/>}>
+                <Tooltip placement={'top'}
+                         title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed}
+                                             meal={kitchen?.meal}/>}>
                   <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
                 </Tooltip>
                 <div>{kFormatter(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>
@@ -142,9 +145,9 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated }) => {
 };
 
 
-const MealTooltip = ({ meal, totalMealSpeed }) => {
-  const timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed);
-  const levelCost = getMealLevelCost(meal?.level);
+const MealTooltip = ({ meal, totalMealSpeed, achievements }) => {
+  const timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed, achievements);
+  const levelCost = getMealLevelCost(meal?.level, achievements);
   const diamondCost = (11 - meal?.level) * levelCost;
   const timeTillNextLevel = meal?.amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
   return <>

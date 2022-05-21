@@ -6,10 +6,9 @@ import Meals from "components/account/Worlds/World4/Meals";
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
-  const { cooking } = state?.account;
+  const { cooking, achievements } = state?.account;
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
   }
@@ -29,8 +28,8 @@ const Cooking = () => {
       </Tabs>
 
       {selectedTab === 0 ?
-        <Kitchens {...cooking} lastUpdated={state?.lastUpdated} totalMealSpeed={totalMealSpeed}/> : null}
-      {selectedTab === 1 ? <Meals {...cooking} totalMealSpeed={totalMealSpeed}/> : null}
+        <Kitchens {...cooking} achievements={achievements} lastUpdated={state?.lastUpdated} totalMealSpeed={totalMealSpeed}/> : null}
+      {selectedTab === 1 ? <Meals {...cooking} achievements={achievements} totalMealSpeed={totalMealSpeed}/> : null}
     </>
   );
 };

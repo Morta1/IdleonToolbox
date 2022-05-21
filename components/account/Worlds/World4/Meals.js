@@ -7,7 +7,7 @@ import Tooltip from "components/Tooltip";
 import Box from "@mui/material/Box";
 import Timer from "components/common/Timer";
 
-const Meals = ({ meals, totalMealSpeed }) => {
+const Meals = ({ meals, totalMealSpeed, achievements }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
 
@@ -15,10 +15,10 @@ const Meals = ({ meals, totalMealSpeed }) => {
     return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
-      const levelCost = getMealLevelCost(level);
+      const levelCost = getMealLevelCost(level, achievements);
       const diamondCost = (11 - level) * levelCost;
       const timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
-      const timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed);
+      const timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed, achievements);
       return { ...meal, levelCost, diamondCost, timeTillNextLevel, timeToDiamond };
     });
   };
@@ -28,12 +28,19 @@ const Meals = ({ meals, totalMealSpeed }) => {
   useEffect(() => {
     if (filters.includes("time")) {
       const mealsCopy = [...defaultMeals];
-      mealsCopy.sort((a, b) => (a.level === 0 || b.level === 0 ? 0 : a.timeTillNextLevel - b.timeTillNextLevel));
+      mealsCopy.sort((a, b) => {
+        if (a.level === 0) {
+          return 1;
+        } else if (b.level === 0){
+          return -1;
+        }
+        return a.timeTillNextLevel - b.timeTillNextLevel
+      });
       setLocalMeals(mealsCopy);
     } else {
       setLocalMeals(defaultMeals);
     }
-  }, [filters]);
+  }, [filters, meals]);
 
   const handleFilters = (e, newFilters) => {
     setFilters(newFilters);
@@ -65,7 +72,7 @@ const Meals = ({ meals, totalMealSpeed }) => {
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
                 <Stack direction={"row"} alignItems={"center"}>
-                  <Tooltip title={<MealTooltip {...meal} />}>
+                  <Tooltip title={<MealTooltip achievements={achievements} {...meal} />}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
                       {level > 0 ?
@@ -111,8 +118,8 @@ const Meals = ({ meals, totalMealSpeed }) => {
   );
 };
 
-const MealTooltip = ({ level, baseStat, multiplier, effect }) => {
-  const levelCost = getMealLevelCost(level + 1);
+const MealTooltip = ({ level, baseStat, multiplier, effect, achievements }) => {
+  const levelCost = getMealLevelCost(level + 1, achievements);
   return (
     <>
       <Typography fontWeight={"bold"}>

@@ -20,6 +20,16 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.9",
+    gameVer: "1.56.1",
+    date: "21/05/2022",
+    features: [],
+    fixes: [
+      'Fixed sorting meals logic',
+      'Fixed meals cost calculations'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.8",
     gameVer: "1.56.1",
     date: "21/05/2022",
@@ -179,7 +189,7 @@ const Home = () => {
 
 const svgs = {
   purple: (
-    <svg style={{ flexShrink: 0, fill: "hsl(250, 84%, 67%)", width: 24, height: 24 }} viewBox="0 0 24 24"
+    <svg style={{ flexShrink: 0, fill: "rgb(158 140 247)", width: 24, height: 24 }} viewBox="0 0 24 24"
          aria-hidden="true">
       <circle cx="12" cy="12" r="12" opacity="0.2"/>
       <path
