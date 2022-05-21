@@ -20,6 +20,16 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.8",
+    gameVer: "1.56.1",
+    date: "21/05/2022",
+    features: [
+      'Added towers page under Account -> World 3'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.7",
     gameVer: "1.56.1",
     date: "20/05/2022",

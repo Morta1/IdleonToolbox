@@ -22,5 +22,5 @@ export const getGuild = (guildData) => {
 export const getGuildBonusBonus = (guildBonuses, bonusIndex) => {
   const guildBonus = guildBonuses?.[bonusIndex];
   if (!guildBonus) return 0;
-  return growth(guildBonus.func, guildBonus.level, guildBonus.x1, guildBonus.x2) ?? 0;
+  return growth(guildBonus.func, guildBonus.level, guildBonus.x1, guildBonus.x2, false) ?? 0;
 }

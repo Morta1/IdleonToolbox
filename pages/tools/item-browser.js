@@ -13,7 +13,7 @@ const filterOptions = createFilterOptions({
 });
 
 const ItemBrowser = ({}) => {
-  const { state, } = useContext(AppContext);
+  const { state } = useContext(AppContext);
   const [value, setValue] = useState("");
   const [items, setItems] = useState();
   const [labels, setLabels] = useState();

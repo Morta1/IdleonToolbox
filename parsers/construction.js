@@ -1,5 +1,5 @@
 import { tryToParse } from "../utility/helpers";
-import { cogKeyMap, flagsReqs } from "../data/website-data";
+import { cogKeyMap, flagsReqs, randomList, towers } from "../data/website-data";
 import { createCogstructionData } from "./cogstrution";
 
 export const getConstruction = (idleonData) => {
@@ -50,4 +50,27 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder) => {
       }
     }];
   }, []);
+}
+
+export const getTowers = (idleonData) => {
+  const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
+  return parseTowers(towersRaw);
+}
+
+const parseTowers = (towersRaw) => {
+  const towersLength = Object.keys(towers).length;
+  const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
+    const level = towersRaw?.[towerData?.index];
+    return {
+      ...towerData,
+      name: towerName,
+      level,
+      nextLevel: (level + 1) === towersRaw[towerData.index + towersLength],
+      progress: towersRaw?.[towerData?.index + 12 + towersLength * 2]
+    }
+  });
+  return {
+    data: towersData,
+    buildMultiplier: randomList?.[13].split(" ")
+  }
 }

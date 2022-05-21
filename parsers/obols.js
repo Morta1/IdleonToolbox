@@ -132,3 +132,8 @@ const calculateWeirdObolIndex = (index) => {
       return index;
   }
 }
+
+export const getObolsBonus = (obols, bonus) => {
+  const { personalBonus = 0, familyBonus = 0 } = obols?.stats?.[bonus] || {};
+  return !personalBonus && !familyBonus ? 0 : (personalBonus ?? 0) + (familyBonus ?? 0);
+}

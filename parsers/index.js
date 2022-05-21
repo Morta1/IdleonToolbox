@@ -14,7 +14,7 @@ import { getConstellations, getStarSigns } from "./starSigns";
 import { getPrayers } from "./prayers";
 import { getCoinsArray, tryToParse } from "../utility/helpers";
 import { getForge } from "./forge";
-import { getConstruction } from "./construction";
+import { getConstruction, getTowers } from "./construction";
 import { getAchievements } from "./achievements";
 import { getRefinery } from "./refinery";
 import { getTasks } from "./tasks";
@@ -80,11 +80,12 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
   accountData.tasks = getTasks(idleonData); //
-  accountData.breeding = getBreeding(idleonData, accountData); //
+  accountData.breeding = getBreeding(idleonData); //
   accountData.cooking = getCooking(idleonData); //
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.shrines = getShrines(idleonData, accountData);
+  accountData.towers = getTowers(idleonData, accountData);
   accountData.statues = getStatues(idleonData, serializedCharactersData);
   accountData.achievements = getAchievements(idleonData);
 

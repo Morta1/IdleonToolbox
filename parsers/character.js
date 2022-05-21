@@ -11,7 +11,7 @@ import {
   starSignByIndexMap
 } from "../data/website-data";
 import { calculateAfkTime, getHighestLevelOfClass, getMaterialCapacity } from "./misc";
-import { createItemsWithUpgrades, getStatFromEquipment } from "./items";
+import { calculateItemTotalAmount, createItemsWithUpgrades, getStatFromEquipment } from "./items";
 import { getInventory } from "./storage";
 import { skillIndexMap } from "./parseMaps";
 import { createTalentPage, getActiveBuffs, getTalentBonus, getTalentBonusIfActive, talentPagesMap } from "./talents";
@@ -29,10 +29,12 @@ import { getFamilyBonusBonus } from "./family";
 import { getSaltLickBonus } from "./saltLick";
 import { getDungeonStatBonus } from "./dungeons";
 import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getObols, mergeCharacterAndAccountObols } from "./obols";
+import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from "./obols";
 import { getPlayerWorship } from "./worship";
 import { getPlayerQuests } from "./quests";
 import { getJewelBonus, getLabBonus } from "./lab";
+import { getAchievementStatus } from "./achievements";
+import { lavaLog } from "../utility/helpers";
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require("../utility/helpers");
 
@@ -298,6 +300,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.crystalSpawnChance = getPlayerCrystalChance(character, account);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
   character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, account?.alchemy?.bubbles, account?.lab?.jewels, account?.lab?.labBonuses);
+  character.constructionSpeed = getPlayerConstructionSpeed(character, account);
 
   const kills = char?.[`KillsLeft2Advance`];
   character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
@@ -305,6 +308,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
     goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
+
   return character;
 }
 
@@ -506,4 +510,20 @@ const getNonConsumeChance = (starSigns, cards, postOffice, talents, bubbles, jew
   const crabCakeBonus = getEquippedCardBonus(cards?.equippedCards, "B3");
   const starSingBonus = getStarSignByEffect(starSigns, 'chance_to_not');
   return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
+}
+
+const getPlayerConstructionSpeed = (character, account) => {
+  const constructionLevel = character?.skillsInfo?.construction?.level;
+  const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
+  const carpenterBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false);
+  const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Spd', constructionLevel);
+  const postOffice = getPostOfficeBonus(account?.postOffice, 'Construction_Container', 0);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
+  const equipmentConstructionEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[30]), 0);
+  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
+  const constructionAchievement = getAchievementStatus(account?.achievements, 153);
+  const moreMath = 1 + (stampsBonus + 0.25 * (postOffice) + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement))) / 100;
+  const reduxRates = getTalentBonus(character?.talents, 2, 'REDUX_RATES');
+  const redSaltAmount = calculateItemTotalAmount(account?.storage, 'Refinery1', true);
+  return Math.floor(baseMath * (1 + (constructionLevel * carpenterBonus) / 100) * moreMath * (1 + (reduxRates * lavaLog(redSaltAmount)) / 100));
 }

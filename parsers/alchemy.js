@@ -64,7 +64,7 @@ export const getEquippedBubbles = (idleonData, bubbles) => {
 export const getActiveBubbleBonus = (equippedBubbles, bubbleName) => {
   const bubble = equippedBubbles?.find(({ rawName }) => rawName === bubbleName);
   if (!bubble) return 0;
-  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2) ?? 0;
+  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 
 export const getBubbleBonus = (cauldrons, cauldronName, bubName, round) => {
