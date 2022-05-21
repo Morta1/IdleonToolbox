@@ -42,9 +42,14 @@ const Towers = () => {
     <Typography variant={'h2'} mb={3}>Towers</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {state?.account?.towers?.data?.map((tower, index) => {
-        const { name, progress, level, maxLevel, bonusInc, itemReq } = tower;
+        const { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
         const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
-        return <Card key={`${name}-${index}`} sx={{ width: { xs: '100%', md: 450 }, height: { md: 160 } }}>
+        return <Card key={`${name}-${index}`} sx={{
+          border: inProgress ? '1px solid' : '',
+          borderColor: inProgress ? 'success.light' : '',
+          width: { xs: '100%', md: 450 },
+          height: { md: 160 }
+        }}>
           <CardContent>
             <Stack direction={'row'} sx={{ gap: { xs: 2, sm: 3 } }} flexWrap={'wrap'}>
               <Stack alignItems={'center'} sx={{ width: 105, textAlign: 'center' }}>

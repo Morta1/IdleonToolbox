@@ -59,6 +59,7 @@ export const getTowers = (idleonData) => {
 
 const parseTowers = (towersRaw) => {
   const towersLength = Object.keys(towers).length;
+  const inProgress = towersRaw.slice(54, 62);
   const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
     const level = towersRaw?.[towerData?.index];
     return {
@@ -66,7 +67,8 @@ const parseTowers = (towersRaw) => {
       name: towerName,
       level,
       nextLevel: (level + 1) === towersRaw[towerData.index + towersLength],
-      progress: towersRaw?.[towerData?.index + 12 + towersLength * 2]
+      progress: towersRaw?.[towerData?.index + 12 + towersLength * 2],
+      inProgress: inProgress?.includes(towerData?.index)
     }
   });
   return {
