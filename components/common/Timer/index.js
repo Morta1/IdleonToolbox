@@ -21,7 +21,7 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
       let duration = getDuration(tempTime?.getTime(), date + (timePassed * (type === 'countdown' ? -1 : 1)));
       setTime({ ...duration, overtime: type === 'countdown' ? dateIsInPast : false });
       if (dateIsInPast) {
-        setLocalType('cooldown');
+        setLocalType('countdown');
       }
     }
   }, [date, lastUpdated]);

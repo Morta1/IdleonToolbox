@@ -73,7 +73,7 @@ const Dungeons = () => {
             <Stack direction="row" gap={2}>
               <Typography>Next happy hour:</Typography>
               {nextHappyHours?.length > 0 ?
-                <Timer date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/> : "waiting for lava to set them"}
+                <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/> : "waiting for lava to set them"}
             </Stack>
           </AccordionSummary>
           {nextHappyHours.length > 1 ? (
