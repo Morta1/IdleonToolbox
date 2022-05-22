@@ -6,9 +6,10 @@ export const createCogstructionData = (cogMap, cogsOrder) => {
     const cogType = getCogstructionCogType(cogs[index]);
     if (!cogType) return res;
     const { a = '', c = '', d = '', b = '', e = '', g = '', k = '', f = '' } = cog || {};
+    const cogsValues = [a, c, d, b, e, g, k, f].map((cog, index) => index < 7 ? `${getCogstructionValue(cog) || ''},` : getCogstructionValue(cog));
     const characterName = cogs[index].includes('Player_') ? cogs[index].split('_')[1] : '';
     return `${res}
-${cogType},${characterName},${a},${c},${getCogstructionMulti(d)},${b},${getCogstructionMulti(e)},${getCogstructionMulti(g)},${k},${getCogstructionMulti(f)}`
+${cogType},${characterName},${cogsValues.join('')}`
   }, dataCsv);
   let empties = `empties_x,empties_y`;
   const cogsForEmpties = cogsOrder?.slice(0, 96);
@@ -50,6 +51,9 @@ const getCogstructionCogType = (name) => {
   return 'Cog';
 }
 
-const getCogstructionMulti = (number) => {
-  return number > 0 && !isNaN(number / 100) ? number / 100 : '';
+const getCogstructionValue = (cog) => {
+  if (cog?.name?.includes('%')) {
+    return cog?.value > 0 && !isNaN(cog?.value / 100) ? cog?.value / 100 : '';
+  }
+  return cog?.value || '';
 }

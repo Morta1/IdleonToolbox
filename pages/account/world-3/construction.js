@@ -61,10 +61,10 @@ const Construction = () => {
             </Tooltip>
           </Stack>
           <Stack direction={"row"} gap={2}>
-            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }} onClick={() => handleCopy(state?.construction?.cogstruction?.cogData)} startIcon={<FileCopyIcon />}>
+            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }} onClick={() => handleCopy(state?.account?.construction?.cogstruction?.cogData)} startIcon={<FileCopyIcon />}>
               Cogstruction Data
             </Button>
-            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }} onClick={() => handleCopy(state?.construction?.cogstruction?.cogData)} startIcon={<FileCopyIcon />}>
+            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }} onClick={() => handleCopy(state?.account?.construction?.cogstruction?.empties)} startIcon={<FileCopyIcon />}>
               Cogstruction Empties
             </Button>
           </Stack>

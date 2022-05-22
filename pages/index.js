@@ -20,6 +20,17 @@ import { useTheme } from "@emotion/react";
 
 const patchNotes = [
   {
+    ver: "3.0.10",
+    gameVer: "1.56.1",
+    date: "22/05/2022",
+    features: [],
+    fixes: [
+      'Fixed a bug with dungeons happy hour timer counting up',
+      'Fixed a bug with cogstruction data export'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.0.9",
     gameVer: "1.56.1",
     date: "21/05/2022",
