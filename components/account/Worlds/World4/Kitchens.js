@@ -41,8 +41,10 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           return spice ? <Card elevation={4} key={`${spice?.spiceName}-${index}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <SpiceIcon src={`${prefix}data/${spice?.rawName}.png`} alt=""/>
-              <Typography>{kFormatter(parseInt(spice?.amount))}</Typography>
-              <Typography sx={{ color: 'grey.400' }}>({kFormatter(parseInt(spice?.toClaim ?? 0))})</Typography>
+              <Tooltip title={parseInt(spice?.amount)}>
+                <Typography>{notateNumber(parseInt(spice?.amount), 'Big')}</Typography>
+              </Tooltip>
+              <Typography sx={{ color: 'grey.400' }}>({notateNumber(parseInt(spice?.toClaim ?? 0), 'Big')})</Typography>
             </CardContent>
           </Card> : null;
         })}

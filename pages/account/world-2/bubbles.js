@@ -199,10 +199,12 @@ const Bubbles = () => {
                       <Stack gap={2} justifyContent={'center'}
                              alignItems={'center'}>
                         <Tooltip title={cleanUnderscore(name)}>
-                        <ItemIcon src={`${prefix}data/${rawName}.png`}
-                                  alt=""/>
+                          <ItemIcon src={`${prefix}data/${rawName}.png`}
+                                    alt=""/>
                         </Tooltip>
-                        {notateNumber(cost, 'Big')}
+                        <Tooltip title={cost}>
+                          <Typography>{notateNumber(cost, 'Big')}</Typography>
+                        </Tooltip>
                       </Stack>
                     </Stack>
                   })}
