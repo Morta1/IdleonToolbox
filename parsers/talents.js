@@ -30,7 +30,7 @@ export const talentPagesMap = {
   "Maestro": ["Beginner", "Journeyman", "Maestro"],
   "Warrior": ["Rage_Basics", "Warrior"],
   "Barbarian": ["Rage_Basics", "Warrior", "Barbarian"],
-  "Blood_Berserker": ["Rage_Basics", "Warrior", "Blood_Berserker"],
+  "Blood_Berserker": ["Rage_Basics", "Warrior", "Barbarian", "Blood_Berserker"],
   "Squire": ["Rage_Basics", "Warrior", "Squire"],
   "Divine_Knight": ["Rage_Basics", "Warrior", "Squire", "Divine_Knight"],
   "Archer": ["Calm_Basics", "Archer"],

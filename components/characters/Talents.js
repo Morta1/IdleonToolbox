@@ -1,21 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "../Tooltip";
-import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import { AppContext } from "../common/context/AppProvider";
+import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { TalentTooltip } from "../common/styles";
 
 const Talents = ({ talents, starTalents }) => {
-  const { state } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(0);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(1);
 
   useEffect(() => {
-    const tempTalents = activeTab === 3 ? handleStarTalents(starTalents, specialsTab) : talents[activeTab];
+    const tempTalents = activeTab === 4 ? handleStarTalents(starTalents, specialsTab) : talents[activeTab];
     setActiveTalents(tempTalents);
     setSpecialTabs(1);
   }, [activeTab]);
@@ -54,12 +51,12 @@ const Talents = ({ talents, starTalents }) => {
       {Object.keys(talents)?.map((tabIndex) => {
         const tabName = talents?.[tabIndex]?.name;
         return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-                    icon={<img src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`} alt=""/>}
+                    icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`}/>}
                     onClick={() => setActiveTab(parseInt(tabIndex))}
                     key={`${tabName}-${tabIndex}`}/>
       })}
-      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }} onClick={() => setActiveTab(3)}
-           icon={<img src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
+      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }} onClick={() => setActiveTab(4)}
+           icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
     <div className="talents-wrapper">
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
@@ -76,7 +73,7 @@ const Talents = ({ talents, starTalents }) => {
                             arrow
                             alt=""/>
               </div> : null}
-            {(index === 14 || index === 26) && specialsTab < 3 ?
+            {(index === 14 || index === 26) && specialsTab < 4 ?
               <div>
                 <TalentIcon onClick={() => switchSpecials(specialsTab + 1)} className={'arrow'}
                             src={`${prefix}data/UIAnvilArrowsG1.png`}
@@ -86,7 +83,7 @@ const Talents = ({ talents, starTalents }) => {
           </div> :
           <Tooltip key={talentId + '' + index} title={<TalentTooltip {...talentDetails}/>}>
             <div className={'talent-wrapper'}>
-              {talentId ? <TalentIcon src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/> :
+              {!isNaN(talentId) ? <TalentIcon src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/> :
                 <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
               <Typography fontSize={12}>{levelText}&nbsp;</Typography>
             </div>
@@ -94,11 +91,16 @@ const Talents = ({ talents, starTalents }) => {
       })}
     </div>
     <div className="star-talents-arrows">
-      <span style={{ opacity: activeTab === 3 ? 1 : 0 }}>Specials {specialsTab}</span>
+      <span style={{ opacity: activeTab === 4 ? 1 : 0 }}>Specials {specialsTab}</span>
     </div>
   </StyledTalents>
 };
 
+const TabIcon = ({ src }) => {
+  return <Box sx={{ width: { xs: 30 }, '> img': { width: { xs: 30 } } }}>
+    <img src={src} alt=""/>
+  </Box>
+}
 const TalentIcon = styled.img`
   width: 50px;
   height: 50px;
@@ -150,6 +152,7 @@ const StyledTalents = styled.div`
     position: relative;
     margin-top: 25px;
     display: grid;
+    min-height: 245px;
     grid-template-columns: repeat(5, 50px);
     //column-gap: 10px;
     row-gap: 10px;
