@@ -44,9 +44,10 @@ const Towers = () => {
       {state?.account?.towers?.data?.map((tower, index) => {
         const { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
         const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
+        const buildCost = getBuildCost(level, bonusInc, tower?.index);
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress ? '1px solid' : '',
-          borderColor: inProgress ? 'success.light' : '',
+          borderColor: inProgress ? progress < buildCost ? 'success.light' : 'warning.light' : '',
           width: { xs: '100%', md: 450 },
           height: { md: 160 }
         }}>

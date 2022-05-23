@@ -12,7 +12,7 @@ const Traps = () => {
     <Typography variant={'h2'} mb={3}>Traps</Typography>
     <Stack gap={3}>
       {traps?.map((trapSlots, index) => {
-        const charClassName = state?.characters?.[index]?.class;
+        const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         return <Card key={`printer-row-${index}`} sx={{ width: { lg: 920, xl: 'fit-content' } }}>
           <CardContent>
@@ -20,7 +20,7 @@ const Traps = () => {
               <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
                      alignItems={'center'} gap={2}>
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                  <img className={'class-icon'} src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
+                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
                 <Typography className={'character-name'}>{playerName}</Typography>
               </Stack>

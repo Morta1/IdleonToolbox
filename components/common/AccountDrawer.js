@@ -95,7 +95,7 @@ const AccountDrawer = ({ onLabelClick }) => {
         value: 1,
       })
     }
-    router.push(url);
+    router.push({ pathname: url, query: router.query });
     typeof onLabelClick === 'function' && onLabelClick();
   }
 

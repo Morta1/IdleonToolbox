@@ -19,7 +19,7 @@ import ActiveSkillsCD from "./ActiveSkillsCD";
 const Character = ({ character, account, lastUpdated, filters, cols }) => {
   const {
     name,
-    class: charClassName,
+    classIndex,
     level,
     cards,
     skillsInfo,
@@ -72,7 +72,7 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
       <Grid item xl={cols}>
         <Stack gap={2}>
           <Stack direction={"row"} alignItems={"center"} gap={2}>
-            <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}icons/${charClassName}_Icon.png`}
+            <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                                                     alt=""/></Box>
             <Stack>
               <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>

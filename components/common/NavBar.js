@@ -55,7 +55,7 @@ function NavBar({ children, window }) {
   }, [router.pathname]);
 
   useEffect(() => {
-    setShouldDisplayMenu(state?.signedIn || state?.manualImport);
+    setShouldDisplayMenu(state?.signedIn || state?.manualImport || state?.pastebin);
   }, [state]);
 
   useEffect(() => {
@@ -97,21 +97,23 @@ function NavBar({ children, window }) {
   };
 
   const handleManualImport = async (source) => {
-    const content = await navigator.clipboard.readText();
-    let parsedData;
-    if (source === "steam") {
-      const data = JSON.parse(content);
-      parsedData = parseData(data);
-    } else {
-      const { data, charNames, guildData, serverVars } = JSON.parse(content);
-      parsedData = parseData(data, charNames, guildData, serverVars);
+    try {
+      const content = await navigator.clipboard.readText();
+      let parsedData;
+      if (source === "steam") {
+        const data = JSON.parse(content);
+        parsedData = parseData(data);
+      } else {
+        const { data, charNames, guildData, serverVars } = JSON.parse(content);
+        parsedData = parseData(data, charNames, guildData, serverVars);
+      }
+      localStorage.setItem('charactersData', JSON.stringify(parsedData));
+      localStorage.setItem('lastUpdated', JSON.stringify(new Date().getTime()));
+      dispatch({ type: "data", data: { manualImport: true } });
+      handleClose();
+    } catch (e) {
+      console.error(e);
     }
-
-    dispatch({ type: "data", data: { ...parsedData, manualImport: true, lastUpdated: new Date().getTime() } });
-    localStorage.setItem('charactersData', JSON.stringify(parsedData));
-    localStorage.setItem('lastUpdated', JSON.stringify(state?.lastUpdated));
-    // handleAuth(true);
-    handleClose();
   };
 
   const handleDialogClose = () => {
@@ -131,25 +133,28 @@ function NavBar({ children, window }) {
               <MenuIcon/>
             </IconButton>
           ) : null}
-          <Link to="/" underline="none" component={NextLinkComposed} color="inherit" noWrap variant="h6">
+          <Link to={{
+            pathname: '/',
+            query: router.query,
+          }} underline="none" component={NextLinkComposed} color="inherit" noWrap variant="h6">
             Idleon Toolbox
           </Link>
-          <TopNavigation signedIn={shouldDisplayMenu}/>
+          <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu}/>
           {shouldDisplayMenu && state?.lastUpdated ? (
             <Box sx={{ marginLeft: "auto", mr: 1 }}>
               <Typography component={"div"} variant={"caption"}>
-                Last Updated {`${state?.manualImport ? "(offline)" : ""}`}
+                Last Updated {`${state?.manualImport ? "(offline)" : state?.pastebin ? '(pastebin)' : ""}`}
               </Typography>
               <Typography component={"div"} variant={"caption"}>
                 {format(state?.lastUpdated, "dd/MM/yyyy HH:mm:ss")}
               </Typography>
             </Box>
           ) : null}
-          <Tooltip title="Paste JSON">
+          {!state?.pastebin ? <Tooltip title="Paste JSON">
             <IconButton onClick={handleMenu} sx={{ marginLeft: "auto" }} color="inherit">
               <FileCopyIcon/>
             </IconButton>
-          </Tooltip>
+          </Tooltip> : null}
           <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }} keepMounted
                 transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)}
                 onClose={handleClose}>
@@ -160,11 +165,11 @@ function NavBar({ children, window }) {
               <Typography variant={"span"}>From website</Typography>
             </MenuItem>
           </Menu>
-          <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
+          {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
             <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
               {shouldDisplayMenu ? <LoginIcon/> : <LogoutIcon/>}
             </IconButton>
-          </Tooltip>
+          </Tooltip> : null}
         </Toolbar>
       </AppBar>
       {displayDrawer ? (
@@ -185,7 +190,8 @@ function NavBar({ children, window }) {
             }}
           >
             <Toolbar/>
-            <TopNavigation signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle} drawer/>
+            <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}
+                           drawer/>
             {drawer === "account" ? <AccountDrawer onLabelClick={handleDrawerToggle}/> : null}
             {drawer === "characters" ? <CharactersDrawer onLabelClick={handleDrawerToggle}/> : null}
             {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}/> : null}
@@ -237,14 +243,17 @@ function NavBar({ children, window }) {
   );
 }
 
-const TopNavigation = ({ onLabelClick, signedIn, drawer }) => {
+const TopNavigation = ({ onLabelClick, signedIn, drawer, queryParams }) => {
   return (
     <Box sx={{ gap: 2, flexGrow: 1, marginLeft: 3, display: { xs: drawer ? "" : "none", sm: "flex" } }}>
       {topLevelItems.map((page, index) => {
         if (!signedIn && page !== "tools") return null;
         const pageName = page === "account" ? "account/general" : page === "tools" ? "tools/card-search" : page;
         return (
-          <Button component={NextLinkComposed} to={`/${pageName}`} size="medium" key={`${page}-${index}`}
+          <Button component={NextLinkComposed} to={{
+            pathname: `/${pageName}`,
+            query: queryParams,
+          }} size="medium" key={`${page}-${index}`}
                   onClick={() => drawer && onLabelClick()}
                   sx={{ my: drawer ? 1 : 2, color: "white", display: "block" }}>
             {page}

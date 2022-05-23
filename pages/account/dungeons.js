@@ -27,7 +27,7 @@ const calcHappyHours = (happyHours) => {
   }
   const hhDates = getHappyHourDates(happyHours, lastThursday);
   const nextHappyHours = hhDates?.filter((time) => !isPast(time * 1000)).map((time) => time * 1000);
-  if (nextHappyHours.length === 0) {
+  if (nextHappyHours?.length === 0) {
     let futureThursday = nextThursday(startOfToday());
     futureThursday = futureThursday.getTime() - futureThursday.getTimezoneOffset() * 60 * 1000;
     return getHappyHourDates(happyHours, futureThursday);
@@ -38,7 +38,7 @@ const calcHappyHours = (happyHours) => {
 
 const Dungeons = () => {
   const { state } = useContext(AppContext);
-  const { dungeons } = state?.account;
+  const { dungeons } = state?.account || {};
 
   const nextHappyHours = useMemo(() => calcHappyHours(state?.serverVars?.HappyHours) || [], [state]);
 
@@ -49,21 +49,21 @@ const Dungeons = () => {
       </Typography>
       <Stack direction="row" flexWrap={'wrap'} gap={4}>
         <CardContainer>
-          <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons.rank}.png`} alt=""/>
+          <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons?.rank}.png`} alt=""/>
           <Stack>
-            <Typography>Rank: {dungeons.rank}</Typography>
+            <Typography>Rank: {dungeons?.rank}</Typography>
             <Typography>
-              {dungeons.progress} / {dungeons.rankReq}
+              {dungeons?.progress} / {dungeons?.rankReq}
             </Typography>
           </Stack>
         </CardContainer>
         <CardContainer>
           <img src={`${prefix}etc/boosted-runs.png`} alt=""/>
-          <Typography>{dungeons.boostedRuns}</Typography>
+          <Typography>{dungeons?.boostedRuns}</Typography>
           <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt=""/>
-          {dungeons.credits}
+          {dungeons?.credits}
           <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt=""/>
-          {dungeons.flurbos}
+          {dungeons?.flurbos}
         </CardContainer>
       </Stack>
 

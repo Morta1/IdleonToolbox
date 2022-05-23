@@ -26,7 +26,13 @@ const checkUserStatus = () => {
   const auth = getAuth(app);
   return new Promise((resolve, reject) => {
     try {
-      auth.onAuthStateChanged(user => resolve(user))
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          resolve(user)
+        } else {
+          resolve(null)
+        }
+      })
     } catch (err) {
       reject(err)
     }

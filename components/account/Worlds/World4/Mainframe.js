@@ -11,13 +11,13 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords }) => {
         {playersCords?.map((playerCord, index) => {
           if (index > 8) return null;
           const playerName = characters?.[index]?.name;
-          const charClassName = characters?.[index]?.class;
+          const classIndex = characters?.[index]?.classIndex;
           const isUploaded = characters?.[index]?.afkTarget === 'Laboratory';
           return isUploaded ?
             <Card sx={{ width: 200 }} variant={'outlined'} key={`${playerCord.x}${playerCord.y}-${index}`}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <img className={'class-icon'} src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
+                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                   <Stack>
                     <Typography>{playerName}</Typography>
                     <Typography>{playerCord?.lineWidth}px</Typography>

@@ -14,7 +14,7 @@ const Anvil = () => {
     <Typography variant={'h2'} mb={3}>Anvil</Typography>
     <Stack gap={3}>
       {anvil?.map((anvil, index) => {
-        const charClassName = state?.characters?.[index]?.class;
+        const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const afkTime = state?.characters?.[index]?.afkTime;
         const hammerBubble = state?.characters?.[index]?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
@@ -28,7 +28,7 @@ const Anvil = () => {
               <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
                      alignItems={'center'} gap={2}>
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                  <img className={'class-icon'} src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
+                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
                 <Typography className={'character-name'}>{playerName}</Typography>
               </Stack>

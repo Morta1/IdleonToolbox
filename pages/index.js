@@ -17,8 +17,21 @@ import InfoIcon from "@mui/icons-material/Info";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import Instructions from "components/common/Instructions";
 import { useTheme } from "@emotion/react";
+import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
+  {
+    ver: "3.1.0",
+    gameVer: "1.57",
+    date: "23/05/2022",
+    features: [
+      'Updated all data to version 1.57',
+      '(Things might still be inaccurate, I\'m still updating the formulas to account for all the new stuff)',
+      'Added a light version of a "Public Profile" using pastebin to import your data, instructions can be found on the button above (let me know if you experience any kind of problems in any type of connection)'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
   {
     ver: "3.0.10",
     gameVer: "1.56.1",
@@ -129,6 +142,7 @@ const Home = () => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(false);
+  const [openPastebin, setOpenPastebin] = useState(false);
 
   const handleCopyRaw = async () => {
     try {
@@ -168,6 +182,12 @@ const Home = () => {
                src="https://cdn.ko-fi.com/cdn/kofi1.png?v=3" alt="Buy Me a Coffee at ko-fi.com"/>
         </a>
       </Stack>
+      <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center"
+             spacing={2} style={{ margin: "35px 0" }}>
+        <Button variant={"outlined"} onClick={() => setOpenPastebin(true)} startIcon={<InfoIcon/>}>
+          How to share your profile with pastebin
+        </Button>
+      </Stack>
       {patchNotes.map(({ ver, gameVer, date, features, fixes, deprecatedFeatures }, index) => {
         return (
           <React.Fragment key={`${ver}-${date}-${index}`}>
@@ -188,6 +208,12 @@ const Home = () => {
           </React.Fragment>
         );
       })}
+      <Dialog open={openPastebin} onClose={() => setOpenPastebin(false)}>
+        <DialogTitle>Pastebin</DialogTitle>
+        <DialogContent>
+          <PastebinInstructions/>
+        </DialogContent>
+      </Dialog>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Instructions</DialogTitle>
         <DialogContent>

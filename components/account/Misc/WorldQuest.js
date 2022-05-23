@@ -80,7 +80,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                                             color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>
                               <Avatar title={characters?.[charIndex]?.name}
                                       alt=""
-                                      src={`${prefix}icons/${characters[charIndex]?.class}_Icon.png`}/>
+                                      src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>
                             </Badge>
                           })}
                         </Box>

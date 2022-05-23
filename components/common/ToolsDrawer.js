@@ -24,7 +24,6 @@ export const offlineTools = { cardSearch: true, builds: true };
 
 const ToolsDrawer = ({ onLabelClick, signedIn }) => {
   const router = useRouter();
-
   const handleClick = (uri) => {
     const url = `/tools/${uri}`;
     if (typeof window.gtag !== 'undefined') {
@@ -34,7 +33,8 @@ const ToolsDrawer = ({ onLabelClick, signedIn }) => {
         value: 1,
       })
     }
-    router.push(url);
+
+    router.push({ pathname: url, query: router.query });
     typeof onLabelClick === 'function' && onLabelClick();
   }
 

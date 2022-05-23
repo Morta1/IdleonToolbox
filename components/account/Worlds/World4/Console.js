@@ -12,14 +12,14 @@ const Console = ({ chips, playersChips, characters }) => {
       <Stack gap={3} alignItems={'center'}>
         {playersChips?.map((playerChips, index) => {
           const playerName = characters?.[index]?.name;
-          const charClassName = characters?.[index]?.class;
+          const classIndex = characters?.[index]?.classIndex;
           const playerLabLevel = characters?.[index]?.skillsInfo?.laboratory?.level ?? 0;
           return <Card key={`player-${index}`}>
             <CardContent>
               <Stack direction='row' alignItems={'center'} gap={3}>
                 <Stack sx={{ width: 175, textAlign: 'center' }} direction='row' alignItems={'center'} gap={2}>
                   <Stack alignItems={'center'} justifyContent={'center'}>
-                    <img className={'class-icon'} src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
+                    <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                     <Typography>Lv. {playerLabLevel}</Typography>
                   </Stack>
                   <Typography className={'character-name'}>{playerName}</Typography>
