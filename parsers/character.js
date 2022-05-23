@@ -158,6 +158,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   const character = {};
   character.playerId = char.playerId;
   character.name = char.name;
+  character.classIndex = char?.CharacterClass;
   character.class = classes?.[char?.CharacterClass];
   character.afkTime = calculateAfkTime(char?.PlayerAwayTime, account?.timeAway?.GlobalTime);
   character.afkTarget = monsters?.[char?.AFKtarget]?.Name;

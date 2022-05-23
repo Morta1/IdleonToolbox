@@ -30,13 +30,19 @@ export const talentPagesMap = {
   "Maestro": ["Beginner", "Journeyman", "Maestro"],
   "Warrior": ["Rage_Basics", "Warrior"],
   "Barbarian": ["Rage_Basics", "Warrior", "Barbarian"],
+  "Blood_Berserker": ["Rage_Basics", "Warrior", "Blood_Berserker"],
   "Squire": ["Rage_Basics", "Warrior", "Squire"],
+  "Divine_Knight": ["Rage_Basics", "Warrior", "Squire", "Divine_Knight"],
   "Archer": ["Calm_Basics", "Archer"],
   "Bowman": ["Calm_Basics", "Archer", "Bowman"],
-  "Hunter": ["Calm_Basics", "Archer", "Hunter"],
+  "Siege_Breaker": ["Calm_Basics", "Archer", "Bowman", "Siege_Breaker"],
+  "Hunter": ["Calm_Basics", "Archer", "Hunter", "Beast_Master"],
+  "Beast_Master": ["Calm_Basics", "Archer", "Hunter", "Beast_Master"],
   "Mage": ["Savvy_Basics", "Mage"],
   "Shaman": ["Savvy_Basics", "Mage", "Shaman"],
-  "Wizard": ["Savvy_Basics", "Mage", "Wizard"]
+  "Bubonic_Conjuror": ["Savvy_Basics", "Mage", "Shaman", "Bubonic_Conjuror"],
+  "Wizard": ["Savvy_Basics", "Mage", "Wizard"],
+  "Elemental_Sorcerer": ["Savvy_Basics", "Mage", "Wizard", "Elemental_Sorcerer"]
 };
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {

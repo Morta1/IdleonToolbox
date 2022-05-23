@@ -97,7 +97,7 @@ const Quests = () => {
                     value={index}
                     key={character?.name + "" + index}>
                     <img
-                      src={`${prefix}icons/${character?.class}_Icon.png`}
+                      src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
                       alt=''
                     />
                   </ToggleButton>

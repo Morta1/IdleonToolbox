@@ -20,6 +20,9 @@ function appReducer(state, action) {
     case "logout": {
       return { characters: null, account: null, signedIn: false };
     }
+    case "queryParams": {
+      return { ...state, ...action.data };
+    }
     case "displayedCharacters": {
       return { ...state, displayedCharacters: action.data };
     }
@@ -66,44 +69,56 @@ const AppProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    if (state?.filters) {
-      localStorage.setItem("filters", JSON.stringify(state.filters));
+    if (!router.isReady) return;
+    const pastebinImport = async () => {
+      try {
+        const url = encodeURIComponent(`https://pastebin.com/raw/${router?.query?.pb}`);
+        const data = await fetch(`https://api.allorigins.win/raw?url=${url}`);
+        const content = await data.json();
+        let parsedData;
+        if (!Object.keys(content).includes('serverVars')) {
+          parsedData = parseData(content);
+        } else {
+          const { data, charNames, guildData, serverVars, lastUpdated } = content;
+          parsedData = parseData(data, charNames, guildData, serverVars);
+          parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() }
+          localStorage.setItem("rawJson", JSON.stringify({
+            data,
+            charNames,
+            guildData,
+            serverVars,
+            lastUpdated: lastUpdated ? lastUpdated : new Date().getTime()
+          }));
+        }
+        localStorage.setItem("manualImport", JSON.stringify(false));
+        const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
+        let importData = {
+          ...parsedData,
+          pastebin: true,
+          manualImport: false,
+          signedIn: false,
+          lastUpdated
+        };
+        dispatch({ type: 'data', data: { ...importData, lastUpdated, manualImport: false, pastebin: true } })
+        // logout(true, importData);
+      } catch (e) {
+        console.error('Failed to load data from pastebin', e);
+        router.push({ pathname: '/', query: router.query });
+      }
     }
-  }, [state?.filters]);
 
-  useEffect(() => {
-    if (state?.displayedCharacters) {
-      localStorage.setItem("displayedCharacters", JSON.stringify(state.displayedCharacters));
-    }
-  }, [state?.displayedCharacters]);
-
-  useEffect(() => {
-    if (state?.planner) {
-      localStorage.setItem("planner", JSON.stringify(state.planner));
-    }
-  }, [state?.planner]);
-
-  useEffect(() => {
-    if (state?.manualImport) {
-      localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
-    }
-  }, [state?.manualImport]);
-
-  useEffect(() => {
-    if (state?.manualImport) {
-      const charactersData = JSON.parse(localStorage.getItem("charactersData"));
-      dispatch({ type: "data", data: { ...charactersData } });
-    }
-    if (state?.signedIn) return;
     let unsubscribe;
     (async () => {
-      const user = await checkUserStatus();
-      if (user && !state?.account) {
-        unsubscribe = await subscribe(user?.uid, handleCloudUpdate);
-        setListener({ func: unsubscribe });
-      } else {
-        if (!state?.signedIn && router.pathname !== "/") {
-          router.push("/");
+      if (router?.query?.pb) {
+        pastebinImport()
+      } else if (!state?.signedIn) {
+        const user = await checkUserStatus();
+        if (!state?.account && user) {
+          unsubscribe = await subscribe(user?.uid, handleCloudUpdate);
+          setListener({ func: unsubscribe });
+        } else {
+          if (router.pathname === '/' || checkOfflineTool()) return;
+          router.push({ pathname: '/', query: router?.query });
         }
       }
     })();
@@ -113,7 +128,28 @@ const AppProvider = ({ children }) => {
       typeof listener.func === "function" && listener.func();
     };
   }, []);
-  //
+
+  useEffect(() => {
+    if (state?.filters) {
+      localStorage.setItem("filters", JSON.stringify(state.filters));
+    }
+    if (state?.displayedCharacters) {
+      localStorage.setItem("displayedCharacters", JSON.stringify(state.displayedCharacters));
+    }
+    if (state?.planner) {
+      localStorage.setItem("planner", JSON.stringify(state.planner));
+    }
+    if (state?.manualImport) {
+      localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
+      const charactersData = JSON.parse(localStorage.getItem("charactersData"));
+      const lastUpdated = JSON.parse(localStorage.getItem("lastUpdated"));
+      if (state?.signedIn) {
+        logout(true, { ...charactersData, lastUpdated, manualImport: true });
+      } else {
+        dispatch({ type: 'data', data: { ...charactersData, lastUpdated, manualImport: true } })
+      }
+    }
+  }, [state?.filters, state?.displayedCharacters, state?.planner, state?.manualImport]);
 
   useInterval(
     async () => {
@@ -147,8 +183,7 @@ const AppProvider = ({ children }) => {
     return codeReqResponse?.user_code;
   };
 
-  const logout = () => {
-    console.log("listener", listener.func)
+  const logout = (manualImport, data) => {
     typeof listener.func === "function" && listener.func();
     userSignOut();
     if (typeof window?.gtag !== "undefined") {
@@ -161,18 +196,24 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem("charactersData");
     localStorage.removeItem("rawJson");
     dispatch({ type: "logout" });
-    router.push("/");
+    if (!manualImport) {
+      router.push({ pathname: '/', query: router.query });
+    } else {
+      dispatch({ type: "data", data });
+    }
   };
 
   const handleCloudUpdate = (data, charNames, guildData, serverVars) => {
+    if (router?.query?.pb) return;
     console.log("data, charNames, guildData, serverVars", data, charNames, guildData, serverVars);
-    localStorage.setItem("rawJson", JSON.stringify({ data, charNames, guildData, serverVars }));
+    const lastUpdated = new Date().getTime();
+    localStorage.setItem("rawJson", JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
     const parsedData = parseData(data, charNames, guildData, serverVars);
     localStorage.setItem("charactersData", JSON.stringify(parsedData));
     localStorage.setItem("manualImport", JSON.stringify(false));
     dispatch({
       type: "data",
-      data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated: new Date().getTime(), serverVars }
+      data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated, serverVars }
     });
   };
 

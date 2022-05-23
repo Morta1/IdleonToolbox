@@ -5,10 +5,11 @@ import '../polyfills';
 import createEmotionCache from "../utility/createEmotionCache";
 import darkTheme from "../styles/theme/darkTheme";
 import "../styles/globals.css";
-import NavBar from "./../components/common/NavBar";
 import Head from "next/head";
 import Script from 'next/script'
 import AppProvider from "../components/common/context/AppProvider";
+import WaitForRouter from "../components/common/WaitForRouter";
+import NavBar from "../components/common/NavBar";
 
 const clientSideEmotionCache = createEmotionCache();
 // remove overlay of error in dev mode.
@@ -21,6 +22,7 @@ const noOverlayWorkaroundScript = `
     event.stopImmediatePropagation()
   })
 `;
+
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -53,11 +55,13 @@ const MyApp = (props) => {
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>
             <CssBaseline/>
-            <AppProvider>
-              <NavBar>
-                <Component {...pageProps} />
-              </NavBar>
-            </AppProvider>
+            <WaitForRouter>
+              <AppProvider>
+                <NavBar>
+                  <Component {...pageProps} />
+                </NavBar>
+              </AppProvider>
+            </WaitForRouter>
           </EmotionThemeProvider>
         </ThemeProvider>
       </CacheProvider>

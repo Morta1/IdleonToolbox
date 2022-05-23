@@ -66,7 +66,7 @@ const CharactersDrawer = () => {
           <ListItemText>All (Lv. {totalLevels})</ListItemText>
         </ListItem>
         {state?.characters?.map((character, index) => {
-          const { name, class: charClassName, level } = character;
+          const { name, classIndex, level } = character;
           return <ListItem button key={`${name}-${index}`}
                            secondaryAction={
                              <Checkbox
@@ -79,7 +79,7 @@ const CharactersDrawer = () => {
           >
             <ListItemIcon>
               <Tooltip title={`Lv. ${level}`}>
-                <img src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
+                <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
               </Tooltip>
             </ListItemIcon>
             <ListItemText id={name} primary={name}/>

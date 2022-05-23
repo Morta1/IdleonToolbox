@@ -25,7 +25,7 @@ const Refinery = () => {
   const [refineryCycles, setRefineryCycles] = useState([]);
 
   useEffect(() => {
-    const squires = state?.characters?.filter((character) => character?.class === 'Squire');
+    const squires = state?.characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');
     const squiresDataTemp = squires.reduce((res, character) => {
       const { name, talents, cooldowns, postOffice, afkTime } = character;
       const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);

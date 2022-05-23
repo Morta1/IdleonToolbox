@@ -14,7 +14,7 @@ const Printer = () => {
     <Typography variant={'h2'} mb={3}>Printer</Typography>
     <Stack gap={3}>
       {printer?.map((printerSlots, index) => {
-        const charClassName = state?.characters?.[index]?.class;
+        const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const labBonusActive = state?.characters?.[index]?.afkTarget === 'Laboratory' && wiredInBonus;
         return <Card sx={{ width: 'fit-content' }} key={`printer-row-${index}`}>
@@ -23,7 +23,7 @@ const Printer = () => {
               <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', sm: 'row' } }}
                      alignItems={'center'} gap={2}>
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                  <img className={'class-icon'} src={`${prefix}icons/${charClassName}_Icon.png`} alt=""/>
+                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
                 <Typography className={'character-name'}>{playerName}</Typography>
               </Stack>

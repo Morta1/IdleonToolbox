@@ -17,12 +17,12 @@ const Worship = () => {
         <CardContent>Total Charge: {totalCharge}</CardContent>
       </Card>
       <Stack gap={3} direction="row" flexWrap="wrap">
-        {state?.characters?.map(({ worship, name, class: charClassName }, index) => {
+        {state?.characters?.map(({ worship, name, classIndex }, index) => {
           const worshipProgress = (worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge)) * 100;
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300 }}>
               <CardContent>
-                <img src={`${prefix}icons/${charClassName}_Icon.png`} alt='' />
+                <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt='' />
                 <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>{name}</Typography>
                 <ProgressBar percent={worshipProgress > 100 ? 100 : worshipProgress} bgColor={"secondary.dark"} />
                 <Box my={2}>
