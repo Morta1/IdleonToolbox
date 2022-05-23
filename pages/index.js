@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.1",
+    gameVer: "1.57",
+    date: "24/05/2022",
+    features: [],
+    fixes: ['Hopefully fixed lab calculations'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.0",
     gameVer: "1.57",
     date: "23/05/2022",

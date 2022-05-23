@@ -1,5 +1,5 @@
-import { tryToParse } from "../utility/helpers";
-import { chips, jewels, labBonuses, randomList, tasks } from "../data/website-data";
+import { growth, tryToParse } from "../utility/helpers";
+import { chips, jewels, labBonuses, randomList, talents, tasks } from "../data/website-data";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getCardBonusByEffect } from "./cards";
 import { isArenaBonusActive } from "./misc";
@@ -52,6 +52,10 @@ const parseLab = (labRaw, charactersData, account) => {
   });
 
   const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * tasks?.[3]?.[4]?.bonusPerLevel;
+  let buboPlayer = charactersData.find(({ CharacterClass }) => CharacterClass === 36);
+  if (buboPlayer) {
+    buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }
+  }
 
   let foundNewConnection = true;
   let counter = 0;
@@ -61,7 +65,7 @@ const parseLab = (labRaw, charactersData, account) => {
     foundNewConnection = false;
     counter += 1;
     playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-      playersChips, account?.cooking?.meals, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs);
+      playersChips, account?.cooking?.meals, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer);
 
     if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
       const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -88,7 +92,7 @@ const parseLab = (labRaw, charactersData, account) => {
         if (jewelsList?.[16]?.acquired && !jewelsList?.[16]?.active) {
           jewelsList[16].active = true;
           playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-            playersChips, account?.cooking?.meals, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs);
+            playersChips, account?.cooking?.meals, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer);
           jewelsList[16].active = false;
         }
         labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], false);
@@ -156,7 +160,7 @@ const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, index, 
   return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange;
 }
 
-export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, meals, cards, gemShopPurchases, arenaWave, waveReqs) => {
+export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, meals, cards, gemShopPurchases, arenaWave, waveReqs, buboPlayer) => {
   return playersInTubes?.map((character, index) => {
     const soupedTubes = (gemShopPurchases?.find((value, index) => index === 123) ?? 0) * 2;
     const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 20 : 0;
@@ -168,7 +172,8 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, m
       chips?.[character?.playerId],
       meals,
       cards,
-      petArenaBonus
+      petArenaBonus,
+      buboPlayer
     );
     return {
       ...character,
@@ -177,14 +182,14 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, m
   })
 }
 
-export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses, jewels, chips, meals, cards, petArenaBonus) => {
+export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses, jewels, chips, meals, cards, petArenaBonus, buboPlayer) => {
   const spelunkerObolMulti = getLabBonus(labBonuses, 8);
   const labSkillLevel = labLevel ?? 0;
   let baseLineWidth = 50 + 2 * labSkillLevel;
   const { acquired, x, y, bonus } = jewels[5];
   if (acquired) {
     if (getDistance(x, y, playerCords.x, playerCords.y) < 150) {
-      baseLineWidth *= 1 + (bonus * spelunkerObolMulti / 100);
+      baseLineWidth *= 1.25;
     }
   }
   const bonusLineWidth = soupedTube ? 30 : 0;
@@ -193,8 +198,14 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
   const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
   const lineWidthCards = getCardBonusByEffect(cards, 'Line_Width_(Passive)');
-  return Math.floor((baseLineWidth + (mealPxBonus + Math.min(lineWidthCards, 50)))
-    * (1 + ((mealLinePctBonus + conductiveMotherboardBonus + (20 * petArenaBonus) + bonusLineWidth) / 100)));
+  let purpleTubeBonus = 0;
+  if (playerCords?.x >= buboPlayer?.x) {
+    const purpleTubeLevel = buboPlayer?.SkillLevels[536]
+    const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'];
+    purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
+  }
+  return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
+    (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + bonusLineWidth)) / 100))
 }
 
 const getPrismPlayerConnection = (playersInTubes) => {
