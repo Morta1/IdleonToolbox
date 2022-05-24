@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../components/common/context/AppProvider";
 import { talentPagesMap } from "../../parsers/talents";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { notateNumber, prefix } from "../../utility/helpers";
 import styled from "@emotion/styled";
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);
-  const [manicas, setManiacs] = useState([]);
+  const [maniacs, setManiacs] = useState([]);
 
   useEffect(() => {
     if (state?.characters) {
@@ -24,10 +24,11 @@ const Apocalypses = () => {
     <>
       <Typography textAlign={"center"} mt={2} mb={2} variant={"h2"}>Apocalypses</Typography>
       <Stack gap={4}>
-        {manicas?.map(({ name, zow, chow }) => {
+        {maniacs?.map(({ name, zow, chow }, index) => {
           return <Stack key={`${name}-zow-chow`} gap={4}>
             <ApocDisplay apocName={'zow'} charName={name} key={`${name}-zow`} monsters={zow}/>
             <ApocDisplay apocName={'chow'} charName={name} key={`${name}-chow`} monsters={chow}/>
+            {index < maniacs.length - 1 ? <Divider my={5}/> : null}
           </Stack>
         })}
       </Stack>
@@ -37,10 +38,10 @@ const Apocalypses = () => {
 
 const ApocDisplay = ({ apocName, charName, monsters }) => {
   return <Stack gap={2}>
-    <Typography variant={'h4'}>{charName} {apocName}ed {monsters?.finished} monsters</Typography>
+    <Typography variant={'h4'}>{charName} {apocName}ed {monsters?.finished ?? 0} monsters</Typography>
     <Card>
       <CardContent>
-        <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
+        {monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
           {monsters?.finished < monsters?.list?.length ?
             monsters?.list?.map(({
                                    name,
@@ -57,8 +58,9 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                     </Stack>
                   </CardContent>
                 </Card> : null
-            }) : <Typography key={`${charName}-${name}-${index}`} variant={'h5'} color={'error.light'}>You killed them ALL</Typography>}
-        </Stack>
+            }) : <Typography key={`${charName}-${name}`} variant={'h5'} color={'error.light'}>You killed them
+              ALL</Typography>}
+        </Stack> : <Typography>{apocName} talent is still locked !</Typography>}
       </CardContent>
     </Card>
   </Stack>
