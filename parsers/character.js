@@ -324,12 +324,10 @@ export const initializeCharacter = (char, charactersLevels, account) => {
 }
 
 export const getBarbarianZowChow = (allKills, threshold) => {
-  let finished = 0;
   const list = deathNote.map(({ rawName }) => {
     const mobIndex = mapEnemies?.[rawName];
     const { MonsterFace, Name } = monsters?.[rawName];
     const kills = allKills?.[mobIndex];
-    finished = finished + (kills >= threshold ? 1 : 0);
     return {
       name: Name,
       monsterFace: MonsterFace,
@@ -338,6 +336,7 @@ export const getBarbarianZowChow = (allKills, threshold) => {
       threshold
     }
   });
+  const finished = list?.reduce((sum, { done }) => sum + (done ? 1 : 0), 0);
   return {
     finished,
     list
