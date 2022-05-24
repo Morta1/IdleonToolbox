@@ -17,7 +17,7 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/router";
 import AccountDrawer from "./AccountDrawer";
-import { CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography } from "@mui/material";
+import { CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from "@mui/material";
 import { AppContext } from "./context/AppProvider";
 import CharactersDrawer from "./CharactersDrawer";
 import ToolsDrawer from "./ToolsDrawer";
@@ -37,6 +37,7 @@ function NavBar({ children, window }) {
   const [shouldDisplayMenu, setShouldDisplayMenu] = useState(false);
   const router = useRouter();
   const container = window !== undefined ? () => window().document.body : undefined;
+  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
   useEffect(() => {
     if (router.pathname.includes("/account")) {
@@ -50,9 +51,9 @@ function NavBar({ children, window }) {
       setDisplayDrawer(true);
     } else {
       setDrawer("");
-      setDisplayDrawer(false);
+      setDisplayDrawer(isXs);
     }
-  }, [router.pathname]);
+  }, [router.pathname, isXs]);
 
   useEffect(() => {
     setShouldDisplayMenu(state?.signedIn || state?.manualImport || state?.pastebin);
