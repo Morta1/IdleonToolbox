@@ -38,7 +38,6 @@ export default function CardSearch() {
     return { ...cards, ['Card Sets']: cardSetArr };
   }
   const cardsObject = useMemo(() => mapCards(cards, cardSets), [cards]);
-  console.log('cardsObject', cardsObject)
   const [localCardObject, setLocalCardObject] = useState(cardsObject);
   const preConfiguredStats = [
     "Show All",
