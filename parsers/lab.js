@@ -200,10 +200,17 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const lineWidthCards = getCardBonusByEffect(cards, 'Line_Width_(Passive)');
   let purpleTubeBonus = 0;
   if (playerCords?.x >= buboPlayer?.x) {
-    const purpleTubeLevel = buboPlayer?.SkillLevels[536]
-    const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'];
+    const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
+    const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'] || {};
     purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
   }
+
+  // No Chips
+  // const noChips = Math.floor(((baseLineWidth) + (mealPxBonus + Math.min(lineWidthCards, 50))) * (1 + (purpleTubeBonus + mealLinePctBonus + (20 * petArenaBonus + bonusLineWidth)) / 100))
+
+  // HAS CHIPS
+  // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
+
   return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
     (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + bonusLineWidth)) / 100))
 }
