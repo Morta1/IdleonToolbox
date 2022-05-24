@@ -38,6 +38,7 @@ export default function CardSearch() {
     return { ...cards, ['Card Sets']: cardSetArr };
   }
   const cardsObject = useMemo(() => mapCards(cards, cardSets), [cards]);
+  console.log('cardsObject', cardsObject)
   const [localCardObject, setLocalCardObject] = useState(cardsObject);
   const preConfiguredStats = [
     "Show All",
@@ -65,7 +66,7 @@ export default function CardSearch() {
     const newCards = Object.keys(cardsObject).reduce((res, cardSet) => {
       const cardsArr = cardsObject[cardSet];
       const sortedCardArr = cardsArr.filter(({ effect }) => {
-        const cleanEffect = effect.replace(/[+]?[%]?_/, '').replace(/_/g, ' ');
+        const cleanEffect = effect.replace(/[+%{]+_/, '').replace(/_/g, ' ');
         const isEffect = cleanEffect?.toLowerCase()?.includes(value.toLowerCase())
         const additionalEffect = additionalEffects[value.toLowerCase()]?.includes(cleanUnderscore(cleanEffect));
         return isEffect || additionalEffect;
