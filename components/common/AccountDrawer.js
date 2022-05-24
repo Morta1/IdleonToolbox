@@ -23,6 +23,9 @@ const misc = {
   looty: {
     icon: 'UISkillIcon305'
   },
+  apocalypses: {
+    icon: 'UISkillIcon110'
+  },
   constellations: {
     icon: "StarTitle1"
   }

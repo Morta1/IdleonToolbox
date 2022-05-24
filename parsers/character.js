@@ -3,8 +3,10 @@ import {
   carryBags,
   classes,
   classFamilyBonuses,
+  deathNote,
   invBags,
   items,
+  mapEnemies,
   mapNames,
   mapPortals,
   monsters,
@@ -304,13 +306,42 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.constructionSpeed = getPlayerConstructionSpeed(character, account);
 
   const kills = char?.[`KillsLeft2Advance`];
+  const isBarbarian = talentPagesMap[character.class].includes('Barbarian');
+  const isBloodBerserker = talentPagesMap[character.class].includes('Blood_Berserker');
   character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
   character.nextPortal = {
     goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
+  if (isBarbarian) { // zow
+    character.zow = getBarbarianZowChow(character.kills, 1e5);
+  }
+  if (isBloodBerserker) {
+    character.chow = getBarbarianZowChow(character.kills, 1e6);
+  }
 
   return character;
+}
+
+export const getBarbarianZowChow = (allKills, threshold) => {
+  let finished = 0;
+  const list = deathNote.map(({ rawName }) => {
+    const mobIndex = mapEnemies?.[rawName];
+    const { MonsterFace, Name } = monsters?.[rawName];
+    const kills = allKills?.[mobIndex];
+    finished = finished + (kills >= threshold ? 1 : 0);
+    return {
+      name: Name,
+      monsterFace: MonsterFace,
+      done: kills >= threshold,
+      kills,
+      threshold
+    }
+  });
+  return {
+    finished,
+    list
+  }
 }
 
 export const getPlayerCrystalChance = (character, account) => {
