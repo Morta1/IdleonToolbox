@@ -23,9 +23,9 @@ const Apocalypses = () => {
   return (
     <>
       <Typography textAlign={"center"} mt={2} mb={2} variant={"h2"}>Apocalypses</Typography>
-      <Stack>
+      <Stack gap={4}>
         {manicas?.map(({ name, zow, chow }) => {
-          return <Stack gap={4}>
+          return <Stack key={`${name}-zow-chow`} gap={4}>
             <ApocDisplay apocName={'zow'} charName={name} key={`${name}-zow`} monsters={zow}/>
             <ApocDisplay apocName={'chow'} charName={name} key={`${name}-chow`} monsters={chow}/>
           </Stack>
@@ -57,7 +57,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                     </Stack>
                   </CardContent>
                 </Card> : null
-            }) : <Typography variant={'h5'} color={'error.light'}>You killed them ALL</Typography>}
+            }) : <Typography key={`${charName}-${name}-${index}`} variant={'h5'} color={'error.light'}>You killed them ALL</Typography>}
         </Stack>
       </CardContent>
     </Card>
