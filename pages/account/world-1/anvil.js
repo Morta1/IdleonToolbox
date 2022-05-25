@@ -21,7 +21,7 @@ const Anvil = () => {
         const maxProducts = hammerBubble ? 3 : 2;
         const production = anvil?.production?.filter(({ hammers }) => hammers > 0);
         const numOfHammers = production.reduce((res, { hammers }) => res + hammers, 0);
-        const realProduction = numOfHammers === maxProducts ? production : fillArrayToLength(maxProducts, production);
+        const realProduction = numOfHammers === maxProducts ? production : fillArrayToLength(numOfHammers, production);
         return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 700 } }}>
           <CardContent>
             <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}>
@@ -50,7 +50,7 @@ const Anvil = () => {
                         <Badge color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
                           <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
                         </Badge>
-                        <ProgressBar percent={percentOfCap} label={false} />
+                        <ProgressBar percent={percentOfCap} label={false}/>
                         <Timer date={new Date().getTime() + (timeTillCap * 1000)}
                                type={'countdown'}
                                placeholder={<Typography color={'error.light'}>Full</Typography>}
