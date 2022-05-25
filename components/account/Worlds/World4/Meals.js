@@ -6,7 +6,7 @@ import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
 import Box from "@mui/material/Box";
 import Timer from "components/common/Timer";
-import InfoIcon from '@mui/icons-material/info';
+import InfoIcon from '@mui/icons-material/Info';
 
 const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   const [filters, setFilters] = React.useState(() => []);
