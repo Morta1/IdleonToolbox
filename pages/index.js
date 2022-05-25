@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.3",
+    gameVer: "1.57",
+    date: "24/05/2022",
+    features: ['Added an option to apply Overflowing ladle (Blood Berserker talent) to meals'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.2",
     gameVer: "1.57",
     date: "24/05/2022",

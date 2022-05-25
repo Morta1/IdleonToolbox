@@ -1,45 +1,67 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { calcTimeTillDiamond, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
-import { cleanUnderscore, kFormatter, numberWithCommas, prefix } from "utility/helpers";
+import { cleanUnderscore, growth, kFormatter, numberWithCommas, prefix } from "utility/helpers";
 import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
 import Box from "@mui/material/Box";
 import Timer from "components/common/Timer";
+import InfoIcon from '@mui/icons-material/info';
 
-const Meals = ({ meals, totalMealSpeed, achievements }) => {
+const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
+  const getHighestOverflowingLadle = () => {
+    const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
+    return bloodBerserkers.reduce((res, { talents }) => {
+      const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
+      const bonus = growth(overflowingLadle?.funcX, overflowingLadle?.maxLevel, overflowingLadle?.x1, overflowingLadle?.x2, false);
+      if (bonus > res) {
+        return bonus
+      }
+      return res;
+    }, 0);
+  }
+  const overflowingLadleBonus = useMemo(() => getHighestOverflowingLadle(), [characters]);
 
-  const calcMeals = () => {
-    return meals?.map((meal) => {
+  const calcMeals = (meals, overflow) => {
+    return meals?.map((meal, index) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
       const levelCost = getMealLevelCost(level, achievements);
       const diamondCost = (11 - level) * levelCost;
-      const timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
-      const timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed, achievements);
+      let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
+      let timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed, achievements);
+      if (overflow) {
+        timeTillNextLevel = timeTillNextLevel * (overflowingLadleBonus / 100);
+        timeToDiamond = timeToDiamond * (overflowingLadleBonus / 100);
+      }
       return { ...meal, levelCost, diamondCost, timeTillNextLevel, timeToDiamond };
     });
   };
 
-  const defaultMeals = useMemo(() => calcMeals(), [meals]);
+  const defaultMeals = useMemo(() => calcMeals(meals), [meals]);
 
   useEffect(() => {
+    let tempMeals;
     if (filters.includes("time")) {
       const mealsCopy = [...defaultMeals];
       mealsCopy.sort((a, b) => {
         if (a.level === 0) {
           return 1;
-        } else if (b.level === 0){
+        } else if (b.level === 0) {
           return -1;
         }
         return a.timeTillNextLevel - b.timeTillNextLevel
       });
-      setLocalMeals(mealsCopy);
+      tempMeals = mealsCopy;
     } else {
-      setLocalMeals(defaultMeals);
+      tempMeals = defaultMeals;
     }
+    if (filters.includes('overflow')) {
+      tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus)
+    }
+    setLocalMeals(tempMeals)
   }, [filters, meals]);
 
   const handleFilters = (e, newFilters) => {
@@ -51,6 +73,15 @@ const Meals = ({ meals, totalMealSpeed, achievements }) => {
       <ToggleButtonGroup sx={{ my: 2 }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
         <ToggleButton value="time">Sort by time</ToggleButton>
+        <ToggleButton value="overflow">
+          <Stack direction={'row'} gap={1}>
+            <Typography>Overflowing Ladle</Typography>
+            <Tooltip
+              title={`Blood Berserker Talent: Ladles gives ${kFormatter(overflowingLadleBonus, 2)}% more afk time`}>
+              <InfoIcon/>
+            </Tooltip>
+          </Stack>
+        </ToggleButton>
       </ToggleButtonGroup>
       <Stack direction={"row"} flexWrap="wrap" gap={2}>
         {localMeals?.map((meal, index) => {

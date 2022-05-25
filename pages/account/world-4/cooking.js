@@ -28,8 +28,10 @@ const Cooking = () => {
       </Tabs>
 
       {selectedTab === 0 ?
-        <Kitchens {...cooking} achievements={achievements} lastUpdated={state?.lastUpdated} totalMealSpeed={totalMealSpeed}/> : null}
-      {selectedTab === 1 ? <Meals {...cooking} achievements={achievements} totalMealSpeed={totalMealSpeed}/> : null}
+        <Kitchens {...cooking} achievements={achievements} lastUpdated={state?.lastUpdated}
+                  totalMealSpeed={totalMealSpeed}/> : null}
+      {selectedTab === 1 ? <Meals characters={state?.characters} {...cooking} achievements={achievements}
+                                  totalMealSpeed={totalMealSpeed}/> : null}
     </>
   );
 };
