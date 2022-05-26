@@ -48,7 +48,6 @@ const upgradesData = [
 
 const parseForge = (forgeOrderRaw, forgeQuantityRaw, forgeLevels, account) => {
   const upgrades = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels[index] }));
-  console.log('upgrades', upgrades)
   const brimestoneSlots = account?.gemShopPurchases?.find((value, index) => index === 104) ?? 0;
   const forgeRowItems = 3;
   let forge = [];

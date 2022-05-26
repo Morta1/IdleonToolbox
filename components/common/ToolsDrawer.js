@@ -6,9 +6,9 @@ const tools = {
   'cardSearch': {
     icon: '2CardsA0'
   },
-  // 'builds': {
-  //   icon: 'SmithingHammerChisel_x1'
-  // },
+  'builds': {
+    icon: 'SmithingHammerChisel_x1'
+  },
   'itemPlanner': {
     icon: 'EquipmentTransparent2'
   },

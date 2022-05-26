@@ -9,26 +9,25 @@ import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
 import { isArenaBonusActive } from "./misc";
 import { getAchievementStatus } from "./achievements";
 
-export const getCooking = (idleonData) => {
+export const getCooking = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
   const mealsRaw = tryToParse(idleonData?.Meals) || idleonData?.Meals;
   const territoryRaw = tryToParse(idleonData?.Territory) || idleonData?.Territory;
-  return parseCooking(mealsRaw, territoryRaw, cookingRaw);
+  return parseCooking(mealsRaw, territoryRaw, cookingRaw, account);
 }
 
-const parseCooking = (mealsRaw, territoryRaw, cookingRaw) => {
+const parseCooking = (mealsRaw, territoryRaw, cookingRaw, account) => {
   const meals = getMeals(mealsRaw);
-  const spices = getSpices(mealsRaw, territoryRaw);
+  const spices = getSpices(mealsRaw, territoryRaw, account);
   return {
     meals,
     spices
   }
 }
 
-const getSpices = (mealsRaw, territoryRaw) => {
+const getSpices = (mealsRaw, territoryRaw, account) => {
   const toClaim = territoryRaw?.reduce((res, territory) => {
     const [progress, amount, , spiceName] = territory;
-    // if (amount <= 0) return res;
     return [
       ...res,
       {
@@ -45,9 +44,11 @@ const getSpices = (mealsRaw, territoryRaw) => {
     rawName: `CookingSpice${index}`
   }));
 
+  const numberOfClaims = account?.accountOptions?.[100];
   return {
     toClaim,
-    available
+    available,
+    numberOfClaims
   }
 }
 

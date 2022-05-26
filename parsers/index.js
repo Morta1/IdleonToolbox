@@ -81,7 +81,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.looty = getLooty(idleonData);
   accountData.tasks = getTasks(idleonData); //
   accountData.breeding = getBreeding(idleonData, accountData); //
-  accountData.cooking = getCooking(idleonData); //
+  accountData.cooking = getCooking(idleonData, accountData); //
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.shrines = getShrines(idleonData, accountData);
