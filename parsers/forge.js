@@ -11,7 +11,7 @@ const upgradesData = [
   {
     name: "New Forge Slot",
     maxLevel: 16,
-    description: "extra slots to smelt ores.",
+    description: "extra slots to smelt ores",
     costMulti: undefined
   },
   {
@@ -23,25 +23,25 @@ const upgradesData = [
   {
     name: "Forge Speed",
     maxLevel: 90,
-    description: "Ores are turned into bars faster.",
+    description: "Ores are turned into bars faster",
     costMulti: 1.2
   },
   {
     name: "Forge EXP Gain",
     maxLevel: 85,
-    description: "Increased EXP gain from using the forge.",
+    description: "Increased EXP gain from using the forge",
     costMulti: 1.21
   },
   {
     name: "Bar Bonanza",
     maxLevel: 75,
-    description: "Increased chance to make an extra bar.",
+    description: "Increased chance to make an extra bar",
     costMulti: 1.25
   },
   {
     name: "Puff Puff Go",
     maxLevel: 60,
-    description: "Increased chance for a card drop while afk.",
+    description: "Increased chance for a card drop while afk",
     costMulti: 1.33
   }
 ];
