@@ -32,7 +32,22 @@ const Builds = () => {
         }
       }
     }
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (buildIndex) {
+      router.query.b = buildIndex + '';
+      router.push(router)
+    }
+  }, [buildIndex])
+
+  useEffect(() => {
+    if (className) {
+      router.query.c = className.toLowerCase();
+      router.query.b = 0;
+      router.push(router)
+    }
+  }, [className])
 
   const handleClassChange = (event) => {
     setClassName(event.target.value);
