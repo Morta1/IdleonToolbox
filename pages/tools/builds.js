@@ -34,30 +34,20 @@ const Builds = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (buildIndex) {
-      router.query.b = buildIndex + '';
-      router.push(router)
-    }
-  }, [buildIndex])
-
-  useEffect(() => {
-    if (className) {
-      router.query.c = className.toLowerCase();
-      router.query.b = 0;
-      router.push(router)
-    }
-  }, [className])
-
   const handleClassChange = (event) => {
     setClassName(event.target.value);
     setBuildLists(allBuilds[event.target.value]);
     setBuildIndex(0);
+    router.query.c = event.target.value.toLowerCase();
+    router.query.b = '0';
+    router.push(router)
   };
 
   const handleBuildChange = (event) => {
     const buildIndex = event.target.value;
     setBuildIndex(buildIndex);
+    router.query.b = buildIndex + '';
+    router.push(router)
   };
 
   return <>
