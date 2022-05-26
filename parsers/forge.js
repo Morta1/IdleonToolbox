@@ -3,10 +3,52 @@ import { items } from "../data/website-data";
 export const getForge = (idleonData, account) => {
   const forgeOrderRaw = idleonData?.ForgeItemOrder;
   const forgeQuantityRaw = idleonData?.ForgeItemQuantity || idleonData?.ForgeItemQty;
-  return parseForge(forgeOrderRaw, forgeQuantityRaw, account);
+  const forgeLevels = idleonData?.FurnaceLevels || idleonData?.ForgeLV;
+  return parseForge(forgeOrderRaw, forgeQuantityRaw, forgeLevels, account);
 }
 
-const parseForge = (forgeOrderRaw, forgeQuantityRaw, account) => {
+const upgradesData = [
+  {
+    name: "New Forge Slot",
+    maxLevel: 16,
+    description: "extra slots to smelt ores.",
+    costMulti: undefined
+  },
+  {
+    name: "Ore Capacity Boost",
+    maxLevel: 50,
+    description: "Increases max ores per slot",
+    costMulti: 1.41
+  },
+  {
+    name: "Forge Speed",
+    maxLevel: 90,
+    description: "Ores are turned into bars faster.",
+    costMulti: 1.2
+  },
+  {
+    name: "Forge EXP Gain",
+    maxLevel: 85,
+    description: "Increased EXP gain from using the forge.",
+    costMulti: 1.21
+  },
+  {
+    name: "Bar Bonanza",
+    maxLevel: 75,
+    description: "Increased chance to make an extra bar.",
+    costMulti: 1.25
+  },
+  {
+    name: "Puff Puff Go",
+    maxLevel: 60,
+    description: "Increased chance for a card drop while afk.",
+    costMulti: 1.33
+  }
+];
+
+const parseForge = (forgeOrderRaw, forgeQuantityRaw, forgeLevels, account) => {
+  const upgrades = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels[index] }));
+  console.log('upgrades', upgrades)
   const brimestoneSlots = account?.gemShopPurchases?.find((value, index) => index === 104) ?? 0;
   const forgeRowItems = 3;
   let forge = [];
@@ -28,5 +70,8 @@ const parseForge = (forgeOrderRaw, forgeQuantityRaw, account) => {
     }]
     index++;
   }
-  return forge;
+  return {
+    list: forge,
+    upgrades
+  };
 }
