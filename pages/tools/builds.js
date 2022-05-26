@@ -21,7 +21,8 @@ const Builds = () => {
   useEffect(() => {
     if (router.query) {
       let { c, b } = router.query || {};
-      c = c?.capitalize();
+      c = c?.capitalizeAll();
+      console.log('c', c)
       if (allClasses.includes(c)) {
         setClassName(c);
         setBuildLists(allBuilds[c]);
@@ -38,16 +39,13 @@ const Builds = () => {
     setClassName(event.target.value);
     setBuildLists(allBuilds[event.target.value]);
     setBuildIndex(0);
-    router.query.c = event.target.value.toLowerCase();
-    router.query.b = '0';
-    router.push(router)
+    router.replace({ query: { ...router.query, c: event.target.value.toLowerCase(), b: '0' } })
   };
 
   const handleBuildChange = (event) => {
     const buildIndex = event.target.value;
     setBuildIndex(buildIndex);
-    router.query.b = buildIndex + '';
-    router.push(router)
+    router.replace({ query: { ...router.query, b: buildIndex + '' } })
   };
 
   return <>
