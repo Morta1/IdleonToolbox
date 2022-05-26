@@ -156,7 +156,9 @@ const Refinery = () => {
                     type={'countdown'}
                     lastUpdated={state?.lastUpdated}
                     pause={!active || !hasMaterialsForCycle}
-                    placeholder={<span style={{ color: '#fa4e4e' }}>Missing Mats</span>}
+                    placeholder={<Typography
+                      component={'span'}
+                      color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle ? 'RANK UP' : 'Missing Mats'}</Typography>}
                     date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/> :
                   <Typography component={'span'} color={'error'}>Inactive</Typography>}</Typography>
                 <ProgressBar percent={progressPercentage} bgColor={saltsColors?.[saltIndex]}/>

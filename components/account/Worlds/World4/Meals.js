@@ -25,7 +25,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   const overflowingLadleBonus = useMemo(() => getHighestOverflowingLadle(), [characters]);
 
   const calcMeals = (meals, overflow) => {
-    return meals?.map((meal, index) => {
+    return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
       const levelCost = getMealLevelCost(level, achievements);

@@ -7,7 +7,7 @@ import {
   getHighestLevelOfClass,
   getSpeedBonusFromAgility
 } from "./misc";
-import {getBribeBonus} from './bribes';
+import { getBribeBonus } from './bribes';
 import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus } from "./alchemy";
 import { getTalentBonus, getTalentBonusIfActive, talentPagesMap } from "./talents";
 import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
@@ -67,6 +67,15 @@ export const getCoinCost = (pointsFromCoins, anvilCostReduction, format) => {
   const baseCost = Math.pow(pointsFromCoins, 3) + 50;
   const cost = Math.round(baseCost * (1 + pointsFromCoins / 100) * Math.max(0.1, 1 - anvilCostReduction / 100));
   return cost;
+}
+
+const MAX_POINTS_FROM_COINS = 600;
+export const getCoinToMax = (pointsFromCoins, anvilCostReduction) => {
+  let costToMax = 0;
+  for (let i = pointsFromCoins; i < MAX_POINTS_FROM_COINS; i++) {
+    costToMax += getCoinCost(i, anvilCostReduction, true);
+  }
+  return costToMax ?? 0;
 }
 
 export const getAnvilExp = (xpPoints, smithingExpMulti) => {
@@ -129,6 +138,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
     nextMatUpgrade: getMonsterMatCost(pointsFromMats, anvilCostReduction),
     totalCoins: getTotalCoinCost(pointsFromCoins, anvilCostReduction),
     nextCoinUpgrade: getCoinCost(pointsFromCoins, anvilCostReduction, true),
+    coinsToMax: getCoinToMax(pointsFromCoins, anvilCostReduction)
   };
 
 

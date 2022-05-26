@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.4",
+    gameVer: "1.57",
+    date: "26/05/2022",
+    features: ['Added coin cost to max calculation for anvil', 'Small refinery visual bug fix'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.3",
     gameVer: "1.57",
     date: "24/05/2022",

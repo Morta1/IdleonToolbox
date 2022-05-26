@@ -38,7 +38,8 @@ const AnvilDetails = ({ character, anvil }) => {
           <PointsCard title={"Capacity"} value={kFormatter(anvilCapacity)}/>
         </Section>
         <Section title={"Material"}>
-          <PointsCard title={"Item"} value={<MaterialIcon src={`${prefix}data/${anvilCost?.rawName}.png`} alt={""}/>}/>
+          <PointsCard title={"Item"} value={anvilCost?.rawName ?
+            <MaterialIcon src={`${prefix}data/${anvilCost?.rawName}.png`} alt={""}/> : <></>}/>
           <PointsCard title={"Upg. cost"} value={kFormatter(anvilCost?.nextMatUpgrade, 2)}/>
           <PointsCard title={"Total Spent"} value={kFormatter(anvilCost?.totalMats)}/>
         </Section>
@@ -48,6 +49,9 @@ const AnvilDetails = ({ character, anvil }) => {
           <PointsCard title={"Total Spent"} money sx={{ pb: 2 }}
                       value={<CoinDisplay title={""} maxCoins={3} money={getCoinsArray(anvilCost?.totalCoins)}/>}/>
         </Section>
+        {anvilCost?.coinsToMax > 0 ? <PointsCard title={"Coins to max"} money sx={{ pb: 2, my: 2 }}
+                                                 value={<CoinDisplay title={""} maxCoins={3}
+                                                                     money={getCoinsArray(anvilCost?.coinsToMax)}/>}/> : null}
       </Stack>
     </Stack>
   );
