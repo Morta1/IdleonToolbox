@@ -23,6 +23,8 @@ const Apocalypses = () => {
   return (
     <>
       <Typography textAlign={"center"} mt={2} mb={2} variant={"h2"}>Apocalypses</Typography>
+      <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't
+        zowed/chowed and how many you've already killed</Typography>
       <Stack gap={4}>
         {maniacs?.map(({ name, zow, chow }, index) => {
           return <Stack key={`${name}-zow-chow`} gap={4}>

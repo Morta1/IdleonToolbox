@@ -22,7 +22,6 @@ const Builds = () => {
     if (router.query) {
       let { c, b } = router.query || {};
       c = c?.capitalizeAll();
-      console.log('c', c)
       if (allClasses.includes(c)) {
         setClassName(c);
         setBuildLists(allBuilds[c]);
