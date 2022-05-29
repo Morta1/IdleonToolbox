@@ -17,7 +17,16 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/router";
 import AccountDrawer from "./AccountDrawer";
-import { CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from "@mui/material";
+import {
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Stack,
+  TextField,
+  Typography,
+  useMediaQuery
+} from "@mui/material";
 import { AppContext } from "./context/AppProvider";
 import CharactersDrawer from "./CharactersDrawer";
 import ToolsDrawer from "./ToolsDrawer";
@@ -32,12 +41,14 @@ function NavBar({ children, window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dialog, setDialog] = useState({ open: false });
   const [displayDrawer, setDisplayDrawer] = useState(false);
+  const [ffText, setFfText] = useState('');
   const [anchorEl, setAnchorEl] = useState();
   const [drawer, setDrawer] = useState();
   const [shouldDisplayMenu, setShouldDisplayMenu] = useState(false);
   const router = useRouter();
   const container = window !== undefined ? () => window().document.body : undefined;
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isFirefox = navigator.userAgent.toUpperCase().indexOf("FIREFOX") >= 0;
 
   useEffect(() => {
     if (router.pathname.includes("/account")) {
@@ -79,6 +90,7 @@ function NavBar({ children, window }) {
 
   const handleClose = () => {
     setAnchorEl(null);
+    setFfText('');
   };
 
   const handleAuth = async (logout) => {
@@ -97,15 +109,19 @@ function NavBar({ children, window }) {
     });
   };
 
-  const handleManualImport = async (source) => {
+  const handleManualImport = async (ff) => {
     try {
-      const content = await navigator.clipboard.readText();
-      let parsedData;
-      if (source === "steam") {
-        const data = JSON.parse(content);
-        parsedData = parseData(data);
+      let content;
+      if (ff) {
+        content = JSON.parse(ffText);
       } else {
-        const { data, charNames, guildData, serverVars } = JSON.parse(content);
+        content = JSON.parse(await navigator.clipboard.readText());
+      }
+      let parsedData;
+      if (!Object.keys(content).includes('serverVars')) {
+        parsedData = parseData(content);
+      } else {
+        const { data, charNames, guildData, serverVars } = content;
         parsedData = parseData(data, charNames, guildData, serverVars);
       }
       localStorage.setItem('charactersData', JSON.stringify(parsedData));
@@ -159,12 +175,36 @@ function NavBar({ children, window }) {
           <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }} keepMounted
                 transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)}
                 onClose={handleClose}>
-            <MenuItem onClick={() => handleManualImport("steam")}>
+            <MenuItem onClick={() => handleManualImport()}>
               <Typography variant={"span"}>From extractor</Typography>
             </MenuItem>
-            <MenuItem onClick={() => handleManualImport("website")}>
+            <MenuItem onClick={() => handleManualImport()}>
               <Typography variant={"span"}>From website</Typography>
             </MenuItem>
+            {isFirefox ? <MenuItem sx={{
+              '&': { width: 200 },
+              '& .MuiTouchRipple-root': { display: 'none' },
+              '&:hover': { background: 'inherit' },
+              '& .MuiOutlinedInput-root': {
+                '&:hover': {
+                  borderColor: ''
+                },
+                '& fieldset': {
+                  borderColor: ffText ? 'green' : '',
+                },
+                '&:hover fieldset': {
+                  borderColor: ffText ? 'green' : '',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: ffText ? 'green' : '',
+                },
+              },
+            }}>
+              <TextField onChange={(e) =>
+                setFfText(e.target.value)}
+                         value={ffText} size={'small'} label={'Firefox'}/>
+              <Button onClick={() => handleManualImport(true)}>upload</Button>
+            </MenuItem> : null}
           </Menu>
           {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
             <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
@@ -243,6 +283,10 @@ function NavBar({ children, window }) {
     </Box>
   );
 }
+
+const StyledTextField = styled(TextField)`
+  height: 35px;
+`;
 
 const TopNavigation = ({ onLabelClick, signedIn, drawer, queryParams }) => {
   return (
