@@ -7,7 +7,6 @@ const characters = () => {
   const { state } = useContext(AppContext);
   const numberOfCharacters = useMemo(() => Object.values(state?.displayedCharacters || [])?.filter((val) => val).length, [state]);
   const characterCols = Math.max(3, 12 / numberOfCharacters);
-  
   return numberOfCharacters > 0 ? (
     <>
       <Grid container sx={{ gap: { xs: 2 } }} columns={12.5}>

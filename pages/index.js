@@ -21,12 +21,21 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.6",
+    gameVer: "1.58",
+    date: "30/05/2022",
+    features: ['Updated to version 1.58'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.5",
     gameVer: "1.57",
     date: "26/05/2022",
     features: [
       <Typography>Added builds from idleon companion under Tools and can be accessed like this <Link
-        href={'https://idleontoolbox.com/tools/builds?b=barbarian&c=1'}>https://idleontoolbox.com/tools/builds?b=barbarian&c=1</Link> (The new classes are still missing builds, let me know if you want to add some)</Typography>,
+        href={'https://idleontoolbox.com/tools/builds?b=barbarian&c=1'}>https://idleontoolbox.com/tools/builds?b=barbarian&c=1</Link> (The
+        new classes are still missing builds, let me know if you want to add some)</Typography>,
       <Typography>Added forge upgrades tab to the <Link
         href={'https://idleontoolbox.com/account/world-1/forge'}>Forge</Link> page</Typography>,
       <Typography>Added claims counter for spices under to the <Link

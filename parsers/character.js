@@ -232,7 +232,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
     .split(",")
     .map((starSign) => {
       if (!starSign || starSign === '_') return null;
-      const silkrodeNanochipBonus = account?.lab?.playersChips?.[char?.playerId].find((chip) => chip.index === 15);
+      const silkrodeNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 15);
       const updatedBonuses = starSignByIndexMap?.[starSign]?.bonuses?.map((star) => {
         const extraBonus = (silkrodeNanochipBonus ? 2 : 1);
         return {
@@ -286,8 +286,8 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   character.postOffice = getPlayerPostOffice(char?.PostOfficeInfo, account);
   character.cards = getPlayerCards(char, account);
 
-  const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId].find((chip) => chip.index === 20);
-  const omegaMotherboardChipBonus = account?.lab?.playersChips?.[char?.playerId].find((chip) => chip.index === 21);
+  const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 20);
+  const omegaMotherboardChipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 21);
   character.cards.equippedCards = character?.cards?.equippedCards?.map((card, index) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus)) ? ({
     ...card,
     chipBoost: 2
@@ -400,7 +400,7 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
     finalSpeed = Math.min(2, Math.floor(100 * ((finalSpeed) + tipToeQuickness / 100)) / 100)
   } else {
     const saltLickBonus = getSaltLickBonus(saltLicks, 7);
-    const groundedMotherboard = playerChips.find((chip) => chip.index === 15)?.baseVal ?? 0;
+    const groundedMotherboard = playerChips?.find((chip) => chip.index === 15)?.baseVal ?? 0;
     finalSpeed = Math.min(1.75, Math.floor(100 * (finalSpeed + (saltLickBonus + groundedMotherboard + tipToeQuickness) / 100)) / 100)
   }
   // 2 < (finalSpeed) ? (s = b.engine.getGameAttribute("DummyNumbersStatManager"),
