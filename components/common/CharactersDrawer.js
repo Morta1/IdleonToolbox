@@ -71,7 +71,7 @@ const CharactersDrawer = () => {
                            secondaryAction={
                              <Checkbox
                                edge="end"
-                               name={name}
+                               name={`${name}`}
                                onChange={handleCharacterChange}
                                checked={checked?.[name]}
                              />

@@ -193,7 +193,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     }
   }
   const bonusLineWidth = soupedTube ? 30 : 0;
-  const conductiveMotherboardBonus = chips.reduce((res, chip) => chip.index === 6 ? res + chip.baseVal : res, 0);
+  const conductiveMotherboardBonus = chips?.reduce((res, chip) => chip.index === 6 ? res + chip.baseVal : res, 0);
   const blackDiamondRhinstone = getJewelBonus(jewels, 16, spelunkerObolMulti);
   const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
   const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
