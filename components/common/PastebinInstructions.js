@@ -12,7 +12,7 @@ const PastebinInstructions = () => {
         href={"https://pastebin.com/mQzgm0MX"}>https://pastebin.com/mQzgm0MX</Link></div>
       <div>6. Now you can share your profile and data like this</div>
       <Link target={'_blank'}
-            href={"https://idleontoolbox.com/?pb=mQzgm0MX"}>https://idleontoolbox/?pb=mQzgm0MX</Link>
+            href={"https://idleontoolbox.com/?pb=mQzgm0MX"}>https://idleontoolbox.com/?pb=mQzgm0MX</Link>
     </Stack>
   </>
 };
