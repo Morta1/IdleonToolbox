@@ -6,6 +6,7 @@ import useInterval from "../../hooks/useInterval";
 import { getUserAndDeviceCode, getUserToken } from "../../../google/login";
 import { CircularProgress, Stack } from "@mui/material";
 import { offlineTools } from "../ToolsDrawer";
+import Head from 'next/head'
 
 export const AppContext = createContext({});
 
@@ -233,6 +234,7 @@ const AppProvider = ({ children }) => {
         setWaitingForAuth
       }}
     >
+      <Head><title key={'with-name'}>Idleon Toolbox - {value?.state?.characters?.[0].name}</title></Head>
       {value?.state?.account || value?.state?.manualImport || router.pathname === "/" || checkOfflineTool() ? (
         children
       ) : (
