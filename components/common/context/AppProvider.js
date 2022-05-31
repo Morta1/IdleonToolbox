@@ -234,7 +234,8 @@ const AppProvider = ({ children }) => {
         setWaitingForAuth
       }}
     >
-      <Head><title key={'with-name'}>Idleon Toolbox - {value?.state?.characters?.[0].name}</title></Head>
+      <Head><title key={'with-name'}>Idleon
+        Toolbox{value?.state?.characters?.[0]?.name ? ` - ${value?.state?.characters?.[0]?.name}` : ''}</title></Head>
       {value?.state?.account || value?.state?.manualImport || router.pathname === "/" || checkOfflineTool() ? (
         children
       ) : (
