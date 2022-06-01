@@ -21,6 +21,18 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.7",
+    gameVer: "1.58",
+    date: "01/06/2022",
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-2/cauldrons'}>Cauldrons</Link> page to view all cauldrons and
+        cauldrons upgrades from p2w tab</Typography>
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.6",
     gameVer: "1.58",
     date: "30/05/2022",

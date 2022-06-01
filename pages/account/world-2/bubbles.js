@@ -73,7 +73,7 @@ const Bubbles = () => {
   };
 
   const calculateMaterialCost = (bubbleLv, baseCost, isLiquid, cauldronName, bubbleIndex) => {
-    const cauldronCostLvl = state?.account?.alchemy?.cauldrons?.[cauldronName]?.cost || 0;
+    const cauldronCostLvl = state?.account?.alchemy?.cauldrons?.[cauldronName]?.cost?.level || 0;
     const undevelopedBubbleLv = state?.account?.alchemy?.bubbles?.kazam?.[6].level || 0;
     const barleyBrewLvl = state?.account?.alchemy?.vials?.[9]?.level || 0;
     const multiBubble = cauldronName !== 'kazam' ? state?.account?.alchemy?.bubbles?.[cauldronName]?.[16]?.level || 0 : 0;

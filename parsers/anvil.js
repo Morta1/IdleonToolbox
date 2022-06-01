@@ -63,10 +63,9 @@ export const getTotalCoinCost = (pointsFromMats, anvilCostReduction) => {
   return totalMaterials;
 }
 
-export const getCoinCost = (pointsFromCoins, anvilCostReduction, format) => {
+export const getCoinCost = (pointsFromCoins, anvilCostReduction) => {
   const baseCost = Math.pow(pointsFromCoins, 3) + 50;
-  const cost = Math.round(baseCost * (1 + pointsFromCoins / 100) * Math.max(0.1, 1 - anvilCostReduction / 100));
-  return cost;
+  return Math.round(baseCost * (1 + pointsFromCoins / 100) * Math.max(0.1, 1 - anvilCostReduction / 100));
 }
 
 const MAX_POINTS_FROM_COINS = 600;
@@ -154,7 +153,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
   const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7', 0);
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
   const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false);
-  const goldenFoodSigilBonus = getSigilBonus(account?.sigils, 'EMOJI_VEGGIE')
+  const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE')
   const goldenGoodMulti = getGoldenFoodMulti(
     familyBonus,
     equipmentGoldFoodBonus,
@@ -194,7 +193,8 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
   const duneSoulLickBonus = getSaltLickBonus(account?.saltLick, 3);
   const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
   const myriadPostOfficeBox = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 2);
-  const allSkillExp = getAllSkillExp(
+
+  stats.anvilExp = getAllSkillExp(
     sirSavvyStarSign,
     cEfauntCardBonus,
     goldenFoodBonus,
@@ -209,22 +209,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
     duneSoulLickBonus,
     dungeonSkillExpBonus,
     myriadPostOfficeBox
-  );
-
-  // const focusedSoulTalentBonus = getTalentBonus(character?.talents, 0, 'FOCUSED_SOUL');
-  // const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
-  // const smithingCards = getTotalCardBonusById(character?.cards?.equippedCards, 49);
-  // const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
-  // const leftHandOfLearningTalentBonus = getTalentBonus(character?.talents, 2, 'LEFT_HAND_OF_LEARNING');
-  // const smithingExpMulti = getSmithingExpMulti(
-  //   focusedSoulTalentBonus,
-  //   happyDudeTalentBonus,
-  //   smithingCards,
-  //   blackSmithBoxBonus0,
-  //   allSkillExp,
-  //   leftHandOfLearningTalentBonus);
-
-  stats.anvilExp = allSkillExp;
+  );;
 
   // ANVIL SPEED MATH;
   const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);

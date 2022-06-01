@@ -102,3 +102,12 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
     <Typography>{cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat)}</Typography>
   </>
 }
+
+export const PlayersList = ({ players, characters }) => {
+  return <Stack gap={1} direction={'row'}>
+    {players.map(({ index }) => <Tooltip key={name + '-head-' + index}
+                                         title={characters?.[index]?.name}>
+      <img src={`${prefix}data/headBIG.png`} alt=""/>
+    </Tooltip>)}
+  </Stack>
+}

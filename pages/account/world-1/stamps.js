@@ -50,7 +50,7 @@ const Stamps = () => {
 
   const calculateMaterialCost = (level, { reqItemMultiplicationLevel, baseMatCost, powMatBase }) => {
     const reductionVal = getVialsBonusByEffect(state?.account?.alchemy?.vials, 'material_cost_for_stamps');
-    const sigilBonus = getSigilBonus(state?.account?.alchemy?.sigils, 'ENVELOPE_PILE');
+    const sigilBonus = getSigilBonus(state?.account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
     const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
     return (baseMatCost * sigilReduction * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8))) * Math.max(0.1, 1 - (reductionVal / 100)) || 0;
   }

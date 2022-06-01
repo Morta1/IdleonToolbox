@@ -18,7 +18,7 @@ const Refinery = () => {
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
   const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
-  const sigilRefinerySpeed = alchemy?.sigils?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
+  const sigilRefinerySpeed = alchemy?.sigils?.p2w?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
   const [squiresCooldown, setSquiresCooldown] = useState([]);

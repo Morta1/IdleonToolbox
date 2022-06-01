@@ -46,6 +46,7 @@ const worldsData = {
     icon: "BadgeD2",
     categories: [
       { label: "bubbles", icon: "aBrewOptionA0" },
+      { label: "Cauldrons", icon: "aStirringStick0" },
       { label: "vials", icon: "aVials1" },
       { label: "arcadeShop", icon: "PachiBall1" },
       { label: "sigils", icon: "LabBonus12" }

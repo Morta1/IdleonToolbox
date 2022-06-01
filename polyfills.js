@@ -18,3 +18,11 @@ String.prototype.toCamelCase = function () {
     return index === 0 ? word.toLowerCase() : word.toUpperCase();
   }).replace(/\s+/g, '');
 }
+
+Array.prototype.toChunks = function (perChunk) {
+  return this.reduce((all, one, i) => {
+    const ch = Math.floor(i / perChunk);
+    all[ch] = [].concat((all[ch] || []), one);
+    return all
+  }, []);
+}
