@@ -13,7 +13,6 @@ export const getAlchemy = (idleonData) => {
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
     alchemyRaw[8] = cauldronsInfo;
   }
-  console.log('alchemyRaw', alchemyRaw)
   return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo);
 };
 
@@ -52,7 +51,6 @@ const getPay2Win = (idleonData, alchemyActivity) => {
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
   p2w.player = { speed: player?.[0] || 0, extraExp: player?.[1] || 0 };
   p2w.sigils = getSigils(idleonData, alchemyActivity);
-  console.log(p2w)
   return p2w;
 }
 
@@ -167,7 +165,6 @@ const getCauldrons = (cauldronsProgress, cauldronsRaw, p2w, bubbles, alchemyActi
       }
     })
   }
-  console.log('cauldronsObject', cauldronsObject)
   return cauldronsObject;
 }
 
