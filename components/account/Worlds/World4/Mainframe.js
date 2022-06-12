@@ -9,7 +9,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords }) => {
     <>
       <Stack my={4} direction={'row'} flexWrap={'wrap'} justifyContent={'center'} gap={2}>
         {playersCords?.map((playerCord, index) => {
-          if (index > 8) return null;
+          if (index > 9) return null;
           const playerName = characters?.[index]?.name;
           const classIndex = characters?.[index]?.classIndex;
           const isUploaded = characters?.[index]?.afkTarget === 'Laboratory';
