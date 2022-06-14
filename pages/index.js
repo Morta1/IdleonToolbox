@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.8",
+    gameVer: "1.58",
+    date: "14/06/2022",
+    features: ['Added meal speed contribution view'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.7",
     gameVer: "1.58",
     date: "01/06/2022",
