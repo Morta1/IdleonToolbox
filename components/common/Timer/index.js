@@ -78,22 +78,21 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
     return strNumber?.length === 1 ? `0${number}` : number;
   }
 
-  return time ? <TimerStyle
-    className={`${time?.overtime ? 'overtime' : ''}`}>
-    {(time?.overtime || pause) && placeholder ? placeholder : <Typography component={'span'}>
-      {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
-      {wrapNumber(time?.hours) + 'h:'}
-      {wrapNumber(time?.minutes) + `m`}
-      {!time?.days ? ':' : ''}
-      {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
-    </Typography>}
+  return time ? <TimerStyle>
+    {(time?.overtime || pause) && placeholder ? placeholder :
+      <Typography className={`${time?.overtime ? 'overtime' : ''}`} component={'span'}>
+        {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
+        {wrapNumber(time?.hours) + 'h:'}
+        {wrapNumber(time?.minutes) + `m`}
+        {!time?.days ? ':' : ''}
+        {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
+      </Typography>}
 
   </TimerStyle> : null;
 }
 
 const TimerStyle = styled.span`
   .overtime {
-    font-weight: bold;
     color: #f91d1d;
   }
 `
