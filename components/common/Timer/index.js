@@ -66,7 +66,7 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
 
   useInterval(() => {
     if (!time) return null;
-    if (localType === 'countdown') {
+    if (localType === 'countdown' && !time?.overtime) {
       tickDown();
     } else {
       tickUp();
