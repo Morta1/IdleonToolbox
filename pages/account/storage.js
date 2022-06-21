@@ -14,7 +14,7 @@ const Looty = () => {
 
   useEffect(() => {
     if (state?.account?.storage) {
-      setItems(state?.account?.storage);
+      setItems(checked ? sortedItems : state?.account?.storage);
     }
   }, [state]);
 

@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.9",
+    gameVer: "1.58",
+    date: "21/06/2022",
+    features: [],
+    fixes: ['Small bug fix on storage page'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.8",
     gameVer: "1.58",
     date: "14/06/2022",
