@@ -21,11 +21,12 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
-    ver: "3.1.9",
+    ver: "3.1.10",
     gameVer: "1.58",
-    date: "21/06/2022",
-    features: [],
-    fixes: ['Small bug fix on storage page'],
+    date: "28/06/2022",
+    features: [<Typography>Added trap type, quantity and exp (by hovering the trap) to the <Link
+      href={'https://idleontoolbox.com/account/world-3/traps'}>Traps</Link> page</Typography>],
+    fixes: [],
     deprecatedFeatures: []
   },
   {
