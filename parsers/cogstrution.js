@@ -15,7 +15,7 @@ ${cogType},${characterName},${cogsValues.join('')}`
   const cogsForEmpties = cogsOrder?.slice(0, 96);
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 12; x++) {
-      const index = y * 12 + x;
+      const index = (7 - y) * 12 + x;
       if (cogsForEmpties[index] === 'Blank') {
         empties = `${empties}
 ${x},${y}`

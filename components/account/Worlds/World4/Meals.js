@@ -112,7 +112,6 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
         <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
           {bestSpeedMeal.map((meal, index) => {
             const { currentLevelBonus, nextLevelBonus, level, name, rawName, bonusDiff, timeTillNextLevel } = meal;
-            console.log('timeTillNextLevel', timeTillNextLevel)
             return <Card key={`${name}-${index}`} sx={{ width: 270 }}>
               <CardContent>
                 <Stack direction={"row"} alignItems={"center"}>

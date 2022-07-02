@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.11",
+    gameVer: "1.58",
+    date: "02/07/2022",
+    features: [],
+    fixes: ['Cogstruction: fix for empties cog array'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.10",
     gameVer: "1.58",
     date: "28/06/2022",
