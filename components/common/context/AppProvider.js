@@ -55,7 +55,8 @@ const AppProvider = ({ children }) => {
       const displayedCharacters = localStorage.getItem("displayedCharacters");
       const manualImport = localStorage.getItem("manualImport") || false;
       const lastUpdated = localStorage.getItem("lastUpdated") || false;
-      const planner = localStorage.getItem("planner") || '{"materials":[],"items":[]}';
+      const planner = localStorage.getItem("planner") || '{"sections": [{"items": [], "materials":[]}]}';
+      console.log('planner', planner)
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated }];
       return objects.reduce((res, obj) => {
         try {

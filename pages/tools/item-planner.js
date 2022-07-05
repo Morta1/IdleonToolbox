@@ -1,8 +1,8 @@
 import { crafts } from "data/website-data";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   Autocomplete,
-  Badge,
+  Badge, Card, CardContent,
   Checkbox,
   createFilterOptions,
   FormControlLabel,
@@ -16,6 +16,7 @@ import Button from "@mui/material/Button";
 import { flattenCraftObject } from "parsers/items";
 import IconButton from "@mui/material/IconButton";
 import RemoveIcon from '@mui/icons-material/Remove';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AddIcon from "@mui/icons-material/Add";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import styled from "@emotion/styled";
@@ -30,27 +31,24 @@ const defaultItem = { rawName: 'EquipmentTransparent108' };
 
 const ItemPlanner = ({}) => {
   const { state, lastUpdated, dispatch } = useContext(AppContext);
-  const { planner = { items: [], materials: [] } } = state;
+  const { planner = { sections: [] } } = state;
   const [labels] = useState(Object.keys(crafts));
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState({ '0': '' });
   const [defaultItems, setDefaultItems] = useState([]);
   const [myItems, setMyItems] = useState([]);
-  const [item, setItem] = useState(defaultItem);
+  const [item, setItem] = useState([defaultItem]);
   const [showEquips, setShowEquips] = useState(false);
   const [showFinishedItems, setShowFinishedItems] = useState(false);
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const [itemCount, setItemCount] = useState(1);
-  const itemsRef = useRef({ buttons: [] });
-
-  useEffect(() => {
-    itemsRef.current.buttons = itemsRef.current.buttons.slice(0, planner?.items?.length);
-  }, [planner?.items]);
+  const [buttons, setButtons] = useState({});
 
   useEffect(() => {
     const charItems = state?.characters?.reduce((res, { inventory }) => [...res, ...inventory], []) || [];
     const totalItems = [...charItems, ...(state?.account?.storage || [])];
     setMyItems(totalItems);
     setDefaultItems(totalItems);
+    setItem(planner?.sections?.map(() => defaultItem))
   }, [state, lastUpdated]);
 
   useEffect(() => {
@@ -58,6 +56,10 @@ const ItemPlanner = ({}) => {
       setMyItems(includeEquippedItems ? [...defaultItems, ...equippedItems] : defaultItems);
     }
   }, [includeEquippedItems])
+
+  useEffect(() => {
+    console.log('value#####', value)
+  }, [value])
 
   const addEquippedItems = (shouldInclude) => {
     return shouldInclude ? state?.characters.reduce((res, {
@@ -71,42 +73,47 @@ const ItemPlanner = ({}) => {
 
   const equippedItems = useMemo(() => addEquippedItems(includeEquippedItems), [includeEquippedItems]);
 
-  const onItemChange = (newValue) => {
-    setValue(newValue);
-    setItem(newValue ? crafts[newValue] : defaultItem);
-  }
-  const onMouseEnter = (index) => {
-    itemsRef.current.buttons[index].style.display = 'block';
+  const onItemChange = (newValue, sectionIndex) => {
+    const newArr = item.map((_, index) => index === sectionIndex ? newValue ? crafts[newValue] : defaultItem : _);
+    setValue({ ...value, [`${sectionIndex}`]: newValue });
+    setItem(newArr);
   }
 
-  const onMouseExit = (index) => {
-    itemsRef.current.buttons[index].style.display = 'none';
-  }
-
-  const onRemoveItem = (itemObject, amount) => {
+  const onRemoveItem = (sectionIndex, itemObject, amount) => {
     let accumulatedItems, accumulatedMaterials;
+    const section = planner?.sections?.[sectionIndex];
     const originalItem = crafts[itemObject?.itemName];
     if (originalItem) {
-      accumulatedItems = calculateItemsQuantity(planner?.items, originalItem, false, false, amount);
+      accumulatedItems = calculateItemsQuantity(section?.items, originalItem, false, false, amount);
       const list = Array.isArray(itemObject) ? itemObject : flattenCraftObject(itemObject);
       accumulatedMaterials = list?.reduce((res, itemObject) => {
         return calculateItemsQuantity(res, itemObject, true, false, amount);
-      }, planner?.materials);
-      dispatch({ type: 'planner', data: { materials: accumulatedMaterials, items: accumulatedItems } });
+      }, section?.materials);
+      const sections = updateSectionData(sectionIndex, { materials: accumulatedMaterials, items: accumulatedItems });
+      dispatch({ type: 'planner', data: { sections } });
     }
   }
 
-  const onAddItem = (item, count) => {
+  const onAddItem = (sectionIndex, item, count) => {
     if (item?.rawName !== defaultItem.rawName) {
+      const section = planner?.sections?.[sectionIndex];
       let accumulatedItems, accumulatedMaterials;
-      accumulatedItems = calculateItemsQuantity(planner?.items, item, false, true, count);
+      accumulatedItems = calculateItemsQuantity(section?.items, item, false, true, count);
       const list = Array.isArray(crafts[item?.itemName]) ? crafts[item?.itemName] : flattenCraftObject(crafts[item?.itemName]);
       accumulatedMaterials = list?.reduce((res, itemObject) => {
         return calculateItemsQuantity(res, itemObject, true, true, count);
-      }, planner?.materials);
-      dispatch({ type: 'planner', data: { materials: accumulatedMaterials, items: accumulatedItems } });
+      }, section?.materials);
+      const sections = updateSectionData(sectionIndex, { materials: accumulatedMaterials, items: accumulatedItems });
+      dispatch({ type: 'planner', data: { sections } });
+      setValue({ ...value, [sectionIndex]: '' });
       setItemCount(1);
     }
+  }
+
+  const updateSectionData = (sectionIndex, data) => {
+    return planner?.sections?.map((section, index) => {
+      return sectionIndex === index ? data : section;
+    });
   }
 
   const calculateItemsQuantity = (array, itemObject, isMaterial, add = true, amount) => {
@@ -124,57 +131,35 @@ const ItemPlanner = ({}) => {
         }]
       }, [])
     }
-    return add ? [...array, { ...itemObject, itemQuantity: itemObject?.itemQuantity * amount }] : array;
+    return add ? [...(array || []), { ...itemObject, itemQuantity: itemObject?.itemQuantity * amount }] : array;
+  }
+
+  const addSection = () => {
+    dispatch({ type: 'planner', data: { sections: [...planner?.sections, { items: [], materials: [] }] } });
+  }
+
+  const removeSection = (sectionIndex) => {
+    const sections = planner.sections.filter((_, index) => index !== sectionIndex);
+    setValue({ ...value, [sectionIndex]: '' })
+    dispatch({ type: 'planner', data: { sections } });
+  }
+
+  const handleResetAll = () => {
+    setValue({ '0': '' })
+    setItem([defaultItem]);
+    dispatch({ type: 'planner', data: { sections: [{ items: [], materials: [] }] } })
   }
 
   return (
     <TodoStyle>
-      <div className={'controls'}>
-        <div className="preview">
-          {item ? <img
-            src={`${prefix}data/${item?.rawName}.png`}
-            alt=''
-          /> : null}
-        </div>
-        <Autocomplete
-          id='item-locator'
-          value={value}
-          onChange={(event, newValue) => onItemChange(newValue)}
-          autoComplete
-          options={[value, ...labels]}
-          filterSelectedOptions
-          filterOptions={filterOptions}
-          getOptionLabel={(option) => {
-            return option ? option?.replace(/_/g, " ") : "";
-          }}
-          renderOption={(props, option) => {
-            return option ? (
-              <Stack gap={2} {...props} direction={'row'}>
-                <img
-                  width={24}
-                  height={24}
-                  src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
-                  alt=''
-                />
-                {option?.replace(/_/g, " ")}
-              </Stack>
-            ) : <></>;
-          }}
-          style={{ width: 300 }}
-          renderInput={(params) => (
-            <StyledTextField {...params} label='Item Name' variant='outlined'/>
-          )}
-        />
-        <StyledTextField
-          value={itemCount}
-          width={'100px'}
-          inputProps={{ min: 1 }}
-          onChange={(e) => setItemCount(e?.target?.value)}
-          type={'number'}
-          label={'Item Count'}
-          variant={'outlined'}/>
-        <Button color={'primary'} variant={'contained'} onClick={() => onAddItem(item, itemCount)} title={'Add Item'}>
-          Add
+      <div>
+        <Tooltip title={'This will reset all sections and items'}>
+          <Button onClick={handleResetAll}>
+            <RestartAltIcon/> Reset All
+          </Button>
+        </Tooltip>
+        <Button onClick={addSection}>
+          <AddIcon/> Add new section
         </Button>
       </div>
       <div>
@@ -212,50 +197,109 @@ const ItemPlanner = ({}) => {
           label={'Include Equipped Items'}
         />
       </div>
-      {planner?.items?.length ? <div className={'content'}>
-        <div className={'items-wrapper'}>
-          <span className={'title'}>Tracked Items</span>
-          <div className={'items'}>
-            {planner?.items?.map((item, index) => {
-              return <div className={'item-wrapper'} key={item?.itemName + '' + index}
-                          onMouseEnter={() => onMouseEnter(index, 'removeAll')}
-                          onMouseLeave={() => onMouseExit(index, 'removeAll')}>
-                <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
-                       max={10000}
-                       anchorOrigin={{
-                         vertical: 'top',
-                         horizontal: 'right',
-                       }}
-                       color="primary">
-                  <Tooltip title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
-                    <img key={item?.rawName + ' ' + index}
-                         src={`${prefix}data/${item?.rawName}.png`}
-                         alt=''/>
-                  </Tooltip>
-                </Badge>
-                <div className={'buttons'} ref={el => itemsRef.current.buttons[index] = el}>
-                  <IconButton type={'bottom'} size={"small"}
-                              onClick={() => onAddItem({ ...item, itemQuantity: 1 }, 1)}>
-                    <AddIcon/>
-                  </IconButton>
-                  <IconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(item, 1)}>
-                    <RemoveIcon/>
-                  </IconButton>
-                  <IconButton size={"small"} onClick={() => onRemoveItem(item, item?.itemQuantity)}>
-                    <DeleteForeverIcon/>
-                  </IconButton>
+      {planner?.sections?.map(({ items, materials }, sectionIndex) => {
+        return <Card sx={{ my: 2 }} variant={'outlined'} key={`section-${sectionIndex}`}>
+          <CardContent>
+            {planner?.sections?.length > 1 && <Button onClick={() => removeSection(sectionIndex)}>
+              <RemoveIcon/> Remove Section
+            </Button>}
+            <div className={'controls'}>
+              <div className="preview">
+                {item?.[sectionIndex] ? <img
+                  src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
+                  alt=''
+                /> : null}
+              </div>
+              <Autocomplete
+                id='item-locator'
+                value={value?.[sectionIndex]}
+                onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
+                autoComplete
+                options={[value?.[sectionIndex], ...labels]}
+                filterSelectedOptions
+                filterOptions={filterOptions}
+                getOptionLabel={(option) => {
+                  return option ? option?.replace(/_/g, " ") : "";
+                }}
+                renderOption={(props, option) => {
+                  return option ? (
+                    <Stack gap={2} {...props} direction={'row'}>
+                      <img
+                        width={24}
+                        height={24}
+                        src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
+                        alt=''
+                      />
+                      {option?.replace(/_/g, " ")}
+                    </Stack>
+                  ) : <span style={{ height: 0 }} key={'empty'}/>;
+                }}
+                style={{ width: 300 }}
+                renderInput={(params) => (
+                  <StyledTextField {...params} label='Item Name' variant='outlined'/>
+                )}
+              />
+              <StyledTextField
+                value={itemCount}
+                width={'100px'}
+                inputProps={{ min: 1 }}
+                onChange={(e) => setItemCount(e?.target?.value)}
+                type={'number'}
+                label={'Item Count'}
+                variant={'outlined'}/>
+              <Button color={'primary'} variant={'contained'}
+                      onClick={() => onAddItem(sectionIndex, item?.[sectionIndex], itemCount)}
+                      title={'Add Item'}>
+                Add
+              </Button>
+            </div>
+            <div className={'content'}>
+              <div className={'items-wrapper'}>
+                <span className={'title'}>Tracked Items</span>
+                <div className={'items'}>
+                  {items?.map((item, index) => {
+                    return <div className={'item-wrapper'} key={sectionIndex + '' + item?.itemName + '' + index}
+                                onMouseEnter={() => setButtons({ ...buttons, [`${sectionIndex}-${index}`]: true })}
+                                onMouseLeave={() => setButtons({ ...buttons, [`${sectionIndex}-${index}`]: false })}>
+                      <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
+                             max={10000}
+                             anchorOrigin={{
+                               vertical: 'top',
+                               horizontal: 'right',
+                             }}
+                             color="primary">
+                        <Tooltip title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
+                          <img key={item?.rawName + ' ' + index}
+                               src={`${prefix}data/${item?.rawName}.png`}
+                               alt=''/>
+                        </Tooltip>
+                      </Badge>
+                      {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
+                        <IconButton type={'bottom'} size={"small"}
+                                    onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
+                          <AddIcon/>
+                        </IconButton>
+                        <IconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(sectionIndex, item, 1)}>
+                          <RemoveIcon/>
+                        </IconButton>
+                        <IconButton size={"small"} onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity)}>
+                          <DeleteForeverIcon/>
+                        </IconButton>
+                      </div> : null}
+                    </div>
+                  })}
                 </div>
               </div>
-            })}
-          </div>
-        </div>
-        <div className={'crafts-container'}>
-          <span className={'title'}>Required Materials</span>
-          {myItems?.length > 0 ?
-            <ItemsList itemsList={planner?.materials} inventoryItems={myItems} showEquips={showEquips}
-                       showFinishedItems={showFinishedItems}/> : null}
-        </div>
-      </div> : null}
+              <div className={'crafts-container'}>
+                <span className={'title'}>Required Materials</span>
+                {myItems?.length > 0 ?
+                  <ItemsList itemsList={materials} inventoryItems={myItems} showEquips={showEquips}
+                             showFinishedItems={showFinishedItems}/> : null}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      })}
     </TodoStyle>
   );
 };
@@ -290,10 +334,6 @@ const TodoStyle = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  .buttons {
-    display: none;
   }
 
   .title {

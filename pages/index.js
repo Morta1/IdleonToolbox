@@ -21,6 +21,16 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.12",
+    gameVer: "1.59",
+    date: "05/07/2022",
+    features: [<Typography>Added sections to the <Link
+      href={'https://idleontoolbox.com/tools/item-planner'}>item planner</Link> page that allows you to track several items separately</Typography>,
+    'Updated the website data with 1.59 patch'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.11",
     gameVer: "1.58",
     date: "02/07/2022",
