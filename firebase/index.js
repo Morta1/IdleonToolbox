@@ -22,6 +22,24 @@ const signInWithToken = async (token) => {
   return result?.user;
 };
 
+const signInWithEmailPassword = async ({ email, password } = {}) => {
+  const auth = getAuth(app);
+  const credential = GoogleAuthProvider.credential(email, password);
+  const result = await signInWithCredential(auth, credential).catch(function (error) {
+    // Handle Errors here.
+    const errorCode = error.code;
+    if (errorCode === 'auth/account-exists-with-different-credential') {
+      alert('Email already associated with another account.');
+      // Handle account linking here, if using.
+    } else {
+      console.error('Error while trying to sign in with credentials: ', error);
+    }
+  });
+
+  return result?.user;
+
+}
+
 const checkUserStatus = () => {
   const auth = getAuth(app);
   return new Promise((resolve, reject) => {
@@ -89,6 +107,7 @@ const userSignOut = async () => {
 
 export {
   signInWithToken,
+  signInWithEmailPassword,
   subscribe,
   checkUserStatus,
   userSignOut

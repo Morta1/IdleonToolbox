@@ -33,6 +33,9 @@ function appReducer(state, action) {
     case "planner": {
       return { ...state, planner: action.data };
     }
+    case "emailPasswordLogin": {
+      return { ...state, emailPasswordLogin: action.data };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -151,12 +154,21 @@ const AppProvider = ({ children }) => {
         dispatch({ type: 'data', data: { ...charactersData, lastUpdated, manualImport: true } })
       }
     }
-  }, [state?.filters, state?.displayedCharacters, state?.planner, state?.manualImport]);
+    if (state?.emailPasswordLogin) {
+      setWaitingForAuth(true);
+    }
+  }, [state?.filters, state?.displayedCharacters, state?.planner, state?.manualImport, state?.emailPasswordLogin]);
 
   useInterval(
     async () => {
       if (state?.signedIn) return;
-      let { id_token } = (await getUserToken(code?.deviceCode)) || {};
+      let id_token;
+      if (state?.emailPasswordLogin) {
+        id_token = state?.emailPasswordLogin?.id_token;
+      } else {
+        const user = (await getUserToken(code?.deviceCode)) || {};
+        id_token = user?.id_token;
+      }
       if (id_token) {
         const userData = await signInWithToken(id_token);
         const unsubscribe = await subscribe(userData?.uid, handleCloudUpdate);

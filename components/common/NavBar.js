@@ -14,6 +14,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { NextLinkComposed } from "./NextLinkComposed";
 import LoginIcon from "@mui/icons-material/Login";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import PasswordIcon from '@mui/icons-material/Password';
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/router";
 import AccountDrawer from "./AccountDrawer";
@@ -32,6 +33,9 @@ import CharactersDrawer from "./CharactersDrawer";
 import ToolsDrawer from "./ToolsDrawer";
 import { format } from "date-fns";
 import { parseData } from "parsers";
+import EmailPasswordDialog from "./EmailPasswordModal";
+import { signInWithEmailPassword } from "../../firebase";
+
 
 const drawerWidth = 240;
 const topLevelItems = ["characters", "account", "tools"];
@@ -40,6 +44,7 @@ function NavBar({ children, window }) {
   const { state, dispatch, login, logout, setWaitingForAuth } = useContext(AppContext);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dialog, setDialog] = useState({ open: false });
+  const [emailPasswordDialog, setEmailPasswordDialog] = useState(false);
   const [displayDrawer, setDisplayDrawer] = useState(false);
   const [ffText, setFfText] = useState('');
   const [anchorEl, setAnchorEl] = useState();
@@ -93,10 +98,16 @@ function NavBar({ children, window }) {
     setFfText('');
   };
 
-  const handleAuth = async (logout) => {
+  const handleAuth = async (logout, emailPassword) => {
     if (logout) await handleSignOut();
     else {
-      await handleGoogleLogin();
+      if (emailPassword) {
+        const data = await signInWithEmailPassword(emailPassword);
+        console.log('Managed to get user token', data);
+        dispatch({ type: 'emailPasswordLogin', data })
+      } else {
+        await handleGoogleLogin();
+      }
     }
   };
 
@@ -208,7 +219,12 @@ function NavBar({ children, window }) {
           </Menu>
           {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
             <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
-              {shouldDisplayMenu ? <LoginIcon/> : <LogoutIcon/>}
+              {shouldDisplayMenu ? <LogoutIcon/> : <LoginIcon/>}
+            </IconButton>
+          </Tooltip> : null}
+          {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Email-Password Login"}>
+            <IconButton onClick={() => setEmailPasswordDialog(true)} color="inherit">
+              {shouldDisplayMenu ? <LogoutIcon/> : <PasswordIcon/>}
             </IconButton>
           </Tooltip> : null}
         </Toolbar>
@@ -256,6 +272,8 @@ function NavBar({ children, window }) {
         <Toolbar/>
         <Box sx={{ height: "100%", minHeight: "unset" }}>{children}</Box>
       </Box>
+      <EmailPasswordDialog open={emailPasswordDialog} handleClose={() => setEmailPasswordDialog(false)}
+                           handleClick={(emailPassword) => handleAuth(state?.signedIn, emailPassword)}/>
       <Dialog open={dialog.open} onClose={handleDialogClose}>
         <DialogTitle>Google Login</DialogTitle>
         <DialogContent>
@@ -283,10 +301,6 @@ function NavBar({ children, window }) {
     </Box>
   );
 }
-
-const StyledTextField = styled(TextField)`
-  height: 35px;
-`;
 
 const TopNavigation = ({ onLabelClick, signedIn, drawer, queryParams }) => {
   return (
