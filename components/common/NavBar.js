@@ -104,6 +104,9 @@ function NavBar({ children, window }) {
       if (emailPassword) {
         const data = await signInWithEmailPassword(emailPassword);
         console.log('Managed to get user token', data);
+        if (data) {
+          setEmailPasswordDialog(false);
+        }
         dispatch({ type: 'emailPasswordLogin', data })
       } else {
         await handleGoogleLogin();
