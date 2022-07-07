@@ -164,7 +164,7 @@ const AppProvider = ({ children }) => {
       if (state?.signedIn) return;
       let id_token;
       if (state?.emailPasswordLogin) {
-        id_token = state?.emailPasswordLogin?.id_token;
+        id_token = state?.emailPasswordLogin?.accessToken;
       } else {
         const user = (await getUserToken(code?.deviceCode)) || {};
         id_token = user?.id_token;
