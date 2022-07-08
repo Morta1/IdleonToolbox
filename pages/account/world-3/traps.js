@@ -85,7 +85,7 @@ const Traps = () => {
 };
 
 const TotalCritters = ({ critters, index }) => {
-  return <Stack direction={'row'} my={2} gap={2}>
+  return <Stack direction={'row'} mt={2} mb={index === 'total' ? 2 : 1} gap={2}>
     <Stack
       sx={{ width: index === 'total' ? 'auto' : 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
       alignItems={'center'} gap={2}>
