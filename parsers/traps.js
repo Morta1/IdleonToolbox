@@ -8,7 +8,7 @@ const parseTraps = (charactersData) => {
   return charactersData.map((char) => {
     const traps = char?.PldTraps || [];
     return traps.reduce((res, critterInfo) => {
-      const [critterId, , timeElapsed, critterName, , trapType, trapTime] = critterInfo;
+      const [critterId, , timeElapsed, critterName, crittersQuantity, trapType, trapTime] = critterInfo;
       if (critterId === -1 || critterId === '-1') return res;
       // trapType 0 = non shine
       // trapType 1 = shiny
@@ -17,6 +17,7 @@ const parseTraps = (charactersData) => {
       return critterName ? [...res, {
         name: items[critterName]?.displayName,
         rawName: critterName,
+        crittersQuantity,
         trapType,
         timeLeft: new Date().getTime() + (timeLeft * 1000),
         trapData

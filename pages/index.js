@@ -21,6 +21,15 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.14",
+    gameVer: "1.59",
+    date: "08/07/2022",
+    features: [<Typography>Added total critters calculations to <Link
+      href={'https://idleontoolbox.com/account/world-3/traps'}>Traps</Link> page</Typography>],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.13",
     gameVer: "1.59",
     date: "08/07/2022",
