@@ -26,7 +26,6 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
     }, 0);
   }
   const overflowingLadleBonus = useMemo(() => getHighestOverflowingLadle(), [characters]);
-
   const calcMeals = (meals, overflow) => {
     return meals?.map((meal) => {
       if (!meal) return null;
@@ -112,7 +111,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
         <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
           {bestSpeedMeal.map((meal, index) => {
             const { currentLevelBonus, nextLevelBonus, level, name, rawName, bonusDiff, timeTillNextLevel } = meal;
-            return <Card key={`${name}-${index}`} sx={{ width: 270 }}>
+            return <Card key={`${name}-${index}`} sx={{ width: 340 }}>
               <CardContent>
                 <Stack direction={"row"} alignItems={"center"}>
                   <MealAndPlate>
@@ -132,6 +131,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                       Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                                          staticTime={true}/>
                     </Typography>
+                    <Typography>Ladles: {kFormatter(timeTillNextLevel, 2)}</Typography>
                   </Stack>
                 </Stack>
               </CardContent>
@@ -192,6 +192,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                                               staticTime={true}/>
                             </Typography>
                           ) : null}
+                          <Typography>Ladles: {kFormatter(timeTillNextLevel, 2)}</Typography>
                         </>
                       ) : null}
                     </>

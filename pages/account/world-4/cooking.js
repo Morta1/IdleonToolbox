@@ -6,7 +6,7 @@ import Meals from "components/account/Worlds/World4/Meals";
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
-  const { cooking, achievements } = state?.account;
+  const { cooking, achievements } = state?.account || {};
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const handleOnClick = (e, selected) => {

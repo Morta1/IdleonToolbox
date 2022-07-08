@@ -7,7 +7,7 @@ import { calcTimeTillDiamond, calcTimeToNextLevel, getMealLevelCost } from "pars
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
 
-const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements, numberOfClaims }) => {
+const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -56,7 +56,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
       </Stack>
       <Typography variant={'h4'} textAlign={'center'} mb={3}>Totals</Typography>
       <Stack my={2} direction={'row'} justifyContent={'center'} gap={2}>
-        {Object.entries(totals)?.map(([foodName, meal], index) => {
+        {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;
           return <Card key={`${foodName}-${index}-${total}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

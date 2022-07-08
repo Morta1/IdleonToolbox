@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.15",
+    gameVer: "1.59",
+    date: "08/07/2022",
+    features: ['Added number of ladles needed for level up in meals page'],
+    fixes: ['Fixed meal speed calculations', 'Fixed overflowing ladle calculations'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.14",
     gameVer: "1.59",
     date: "08/07/2022",

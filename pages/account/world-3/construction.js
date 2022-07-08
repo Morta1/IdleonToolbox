@@ -48,6 +48,7 @@ const Construction = () => {
               Cogstruction{" "}
             </Typography>
             <Tooltip
+              followCursor={false}
               title={
                 <>
                   You can export your data and use it in{" "}

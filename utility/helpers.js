@@ -1,4 +1,4 @@
-import { getDaysInMonth, intervalToDuration } from "date-fns";
+import { getDaysInMonth, getDaysInYear, intervalToDuration } from "date-fns";
 
 export const tryToParse = (str) => {
   try {
@@ -163,9 +163,13 @@ export const getDuration = (start, end) => {
   const parsedStartTime = new Date(start);
   const parsedEndTime = new Date(end);
   let duration = intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
+  if (duration?.years) {
+    const daysInYear = getDaysInYear(new Date());
+    duration.days = duration.days + daysInYear;
+  }
   if (duration?.months) {
     const daysInMonth = getDaysInMonth(new Date());
-    duration.days = duration.days + daysInMonth;
+    duration.days = duration.days + daysInMonth * duration?.months;
   }
   return duration;
 };

@@ -149,7 +149,7 @@ const parseKitchens = (cookingRaw, account) => {
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchenEff', blackDiamondRhinestone);
-    const trollCard = account?.cards?.Troll; // Kitchen Eff card
+    const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     // const pyritePyramite = getJewelBonus(account.lab.jewels, 10, spelunkerObolMulti);
     // const allOrangeActive = account.lab.jewels?.slice(7, 10)?.every(({ active }) => active) ? pyritePyramite * 2 : 1;
     // const emeraldNavette = getJewelBonus(account.lab.jewels, 12, spelunkerObolMulti);
@@ -244,7 +244,7 @@ export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
   });
   // the sum of spice indexes is a possible meal.
   const spiceValuesArr = spiceValues.split(' ').map(num => parseFloat(num));
-  const sum = valueOfSpices.reduce((sum, value) => sum += spiceValuesArr.indexOf(value), 0);
+  const sum = valueOfSpices.reduce((sum, value) => sum + spiceValuesArr.indexOf(value), 0);
   if (!spiceValues.includes(sum)) {
     possibleMeals.push(sum);
   }
