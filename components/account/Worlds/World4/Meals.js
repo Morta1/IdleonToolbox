@@ -131,7 +131,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                       Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                                          staticTime={true}/>
                     </Typography>
-                    <Typography>Ladles: {kFormatter(timeTillNextLevel, 2)}</Typography>
+                    <Typography>Ladles: {numberWithCommas(parseInt(timeTillNextLevel))}</Typography>
                   </Stack>
                 </Stack>
               </CardContent>
@@ -192,7 +192,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                                               staticTime={true}/>
                             </Typography>
                           ) : null}
-                          <Typography>Ladles: {kFormatter(timeTillNextLevel, 2)}</Typography>
+                          <Typography>Ladles: {numberWithCommas(parseInt(timeTillNextLevel))}</Typography>
                         </>
                       ) : null}
                     </>
