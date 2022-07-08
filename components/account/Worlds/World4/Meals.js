@@ -131,7 +131,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                       Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                                          staticTime={true}/>
                     </Typography>
-                    <Typography>Ladles: {numberWithCommas(parseInt(timeTillNextLevel))}</Typography>
+                    <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
                   </Stack>
                 </Stack>
               </CardContent>
@@ -174,6 +174,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                 <Stack mt={2} gap={1}>
                   <Typography
                     sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
+                  <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
                   {!filters.includes("minimized") ? (
                     <>
                       <Typography
@@ -192,7 +193,6 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                                               staticTime={true}/>
                             </Typography>
                           ) : null}
-                          <Typography>Ladles: {numberWithCommas(parseInt(timeTillNextLevel))}</Typography>
                         </>
                       ) : null}
                     </>
