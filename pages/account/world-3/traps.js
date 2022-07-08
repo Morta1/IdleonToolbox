@@ -32,7 +32,7 @@ const Traps = () => {
         const playerName = state?.characters?.[index]?.name;
         const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank' ? state?.characters?.[index]?.tools?.[4] : null;
         const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + 1 : trapSlots.length;
-        const realTraps = trapSlots.length === maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
+        const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
         const charCritters = trapSlots.reduce((total, { crittersQuantity, rawName }) => {
           return {
             ...total,
