@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.13",
+    gameVer: "1.59",
+    date: "08/07/2022",
+    features: ['Added an option to login with email and password (I\'m still not saving anything anywhere so don\'t worry)'],
+    fixes: ['Fixed a bug in traps page caused when there\'s no trap box equipped'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.12",
     gameVer: "1.59",
     date: "05/07/2022",

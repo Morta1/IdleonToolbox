@@ -57,10 +57,6 @@ const ItemPlanner = ({}) => {
     }
   }, [includeEquippedItems])
 
-  useEffect(() => {
-    console.log('value#####', value)
-  }, [value])
-
   const addEquippedItems = (shouldInclude) => {
     return shouldInclude ? state?.characters.reduce((res, {
       tools,

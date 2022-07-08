@@ -9,15 +9,15 @@ import { TitleAndValue } from "../../../components/common/styles";
 
 const Traps = () => {
   const { state } = useContext(AppContext);
-  const { traps } = state?.account;
+  const { traps } = state?.account || {};
   return <>
     <Typography variant={'h2'} mb={3}>Traps</Typography>
     <Stack gap={3}>
       {traps?.map((trapSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
-        const usedTrap = state?.characters?.[index]?.tools?.[4];
-        const maxTraps = parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + 1;
+        const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank' ? state?.characters?.[index]?.tools?.[4] : null;
+        const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + 1 : 0;
         const realTraps = trapSlots.length === maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
         return <Card key={`printer-row-${index}`} sx={{ width: { lg: 920, xl: 'fit-content' } }}>
           <CardContent>
