@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.16",
+    gameVer: "1.60",
+    date: "12/07/2022",
+    features: ['Updated data to patch 1.60'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.15",
     gameVer: "1.59",
     date: "08/07/2022",
