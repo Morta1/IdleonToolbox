@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.17",
+    gameVer: "1.60",
+    date: "30/07/2022",
+    features: [],
+    fixes: ['Fixed AFK time in stats', 'Fixed obols ordering'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.16",
     gameVer: "1.60",
     date: "12/07/2022",
@@ -58,8 +66,9 @@ const patchNotes = [
     gameVer: "1.59",
     date: "05/07/2022",
     features: [<Typography>Added sections to the <Link
-      href={'https://idleontoolbox.com/tools/item-planner'}>item planner</Link> page that allows you to track several items separately</Typography>,
-    'Updated the website data with 1.59 patch'],
+      href={'https://idleontoolbox.com/tools/item-planner'}>item planner</Link> page that allows you to track several
+      items separately</Typography>,
+      'Updated the website data with 1.59 patch'],
     fixes: [],
     deprecatedFeatures: []
   },

@@ -73,7 +73,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
             <CardContent>
               <Typography color={"info.light"}>Afk time</Typography>
               <Stack direction={"row"} alignItems={"center"} gap={1} color={isOvertime() ? "error.light" : ""}>
-                {!isAfk() ? <Timer date={afkTime} lastUpdated={lastUpdated}/> :
+                {!isAfk() ? <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/> :
                   <Typography color={"success.light"}>Active</Typography>}
                 {isOvertime() ? (
                   <Tooltip title={"This character is afk more than 10 hours with Unending Energy prayer"}>

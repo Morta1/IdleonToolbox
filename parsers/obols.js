@@ -48,6 +48,7 @@ export const parseObols = (obolsRaw, obolsEquippedRaw, account) => {
     ...(!account ? { index: calculateWeirdObolIndex(index) } : {}),
     ...(obolsType?.[index] ? obolsType[index] : {})
   }));
+  obolsMapping.sort((a,b ) => a.index - b.index);
   const obolsList = createObolsWithUpgrades(obolsMapping, obolsEquippedRaw);
   const stats = getStatsFromObols(obolsList, account);
   return {
