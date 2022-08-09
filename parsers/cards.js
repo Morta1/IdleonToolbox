@@ -19,6 +19,19 @@ export const calculateStars = (tierReq, amountOfCards) => {
   return 0;
 };
 
+export const calculateAmountToNextLevel = (tierReq, amountOfCards) => {
+  if (amountOfCards < tierReq) {
+    return tierReq + 1;
+  } else if (amountOfCards < tierReq * 4) {
+    return tierReq * 4 + 1;
+  } else if (amountOfCards < tierReq * 9) {
+    return tierReq * 9 + 1;
+  } else if (amountOfCards < tierReq * 25) {
+    return tierReq * 25 + 1;
+  }
+  return 0;
+}
+
 const parseCards = (cardsRaw) => {
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
@@ -34,6 +47,7 @@ const parseCards = (cardsRaw) => {
       }
     }, {});
 }
+
 
 export const calculateCardSetStars = (card, bonus) => {
   if (!card || !bonus) return null;

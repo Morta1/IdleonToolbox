@@ -38,21 +38,23 @@ export const StyledBadge = styled(Badge)`
 `
 
 export const CardAndBorder = (cardProps) => {
-  const { cardName, stars, cardIndex, name, variant, rawName } = cardProps;
+  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
   const starsNumb = variant === 'cardSet' ? stars + 1 : stars;
   const realCardName = variant === 'cardSet' ? name : cardName;
   return <>
     {stars > 0 ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${starsNumb}.png`} alt=""/> : null}
-    <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName }}/>}>
+    <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
       <CardIcon
+        isCardSet={variant === 'cardSet'}
+        amount={amount}
         src={iconSrc} alt=""/>
     </Tooltip>
   </>
 }
 
-const CardTooltip = ({ displayName, effect, bonus, stars, showInfo }) => {
+const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq, amount }) => {
   let realBonus = bonus;
   if (showInfo) {
     realBonus = calcCardBonus({ bonus, stars });
@@ -68,6 +70,9 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo }) => {
         </Stack>
       })}
     </Stack> : null}
+    {nextLevelReq > 0 ? <Stack>
+      Progress: {amount} / {nextLevelReq}
+    </Stack> : null}
   </>
 }
 
@@ -80,6 +85,7 @@ const CardIcon = styled.img`
   width: 56px;
   height: 72px;
   object-fit: contain;
+  opacity: ${({ amount, isCardSet }) => !amount && !isCardSet ? .5 : 1};
 `
 
 const BorderIcon = styled.img`

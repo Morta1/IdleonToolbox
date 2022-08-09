@@ -12,11 +12,15 @@ const dividerSx = { marginTop: 4, display: { xs: "flex", sm: "none" } };
 
 const General = () => {
   const { state } = useContext(AppContext);
-
+  console.log('state?.account?.obols', state?.account?.obols)
   return <>
     <Grid container justifyContent={'center'} gap={5} columns={{ md: 8, lg: 12, xl: 16 }}>
       <Grid item xs={12} sm={12} md={5}>
         <ObolsView obols={state?.account?.obols} type={'account'}/>
+        <Divider sx={dividerSx}/>
+      </Grid>
+      <Grid item xs={3}>
+        <div>{}</div>
         <Divider sx={dividerSx}/>
       </Grid>
       <Grid item xs={3}>

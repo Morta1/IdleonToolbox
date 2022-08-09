@@ -9,6 +9,8 @@ import Timer from "components/common/Timer";
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
+const MEAL_MAX_LEVEL = 30;
+
 const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -63,6 +65,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
     if (filters.includes('overflow')) {
       tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus)
     }
+    if (filters.includes('hide')) {
+      tempMeals = tempMeals.filter((meal) => meal?.level < MEAL_MAX_LEVEL);
+    }
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
@@ -73,7 +78,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   };
 
   const getBestMealsSpeedContribute = (meals) => {
-    let speedMeals = meals.filter(({ effect }) => effect.includes('Meal_Cooking_Speed'));
+    let speedMeals = meals.filter((meal) => meal?.effect?.includes('Meal_Cooking_Speed'));
     speedMeals = speedMeals.map((meal) => {
       const { level, baseStat, multiplier, timeTillNextLevel } = meal;
       const currentBonus = (level) * baseStat * multiplier;
@@ -96,6 +101,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
       <ToggleButtonGroup sx={{ my: 2 }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
         <ToggleButton value="time">Sort by time</ToggleButton>
+        <ToggleButton value="hide">Hide capped</ToggleButton>
         <ToggleButton value="overflow">
           <Stack direction={'row'} gap={1}>
             <Typography>Overflowing Ladle</Typography>
@@ -174,9 +180,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                 <Stack mt={2} gap={1}>
                   <Typography
                     sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
-                  <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
+                  {meal?.level < MEAL_MAX_LEVEL ? <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography> : null}
                   {!filters.includes("minimized") ? (
-                    <>
+                    meal?.level === MEAL_MAX_LEVEL ? <Typography color={'success.light'}>MAXED</Typography> : <>
                       <Typography
                         sx={{ color: amount >= levelCost ? "success.light" : level > 0 ? "error.light" : "" }}>
                         Progress: {numberWithCommas(parseInt(amount))} / {numberWithCommas(parseInt(levelCost))}

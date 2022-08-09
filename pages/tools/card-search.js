@@ -6,6 +6,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import styled from "@emotion/styled";
 import { AppContext } from "components/common/context/AppProvider";
 import { CardAndBorder } from "components/common/styles";
+import { calculateAmountToNextLevel } from "../../parsers/cards";
 
 const categoriesOrder = ["Card Sets", "Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
   "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Dungeons", "Bosses", "Events"];
@@ -32,7 +33,7 @@ export default function CardSearch() {
       const { category } = cardDetails;
       return { ...res, [category]: [...(res?.[category] || []), cardDetails] };
     }, {});
-    const cardSetArr = Object.entries(cardSets).map(([cardSetName, cardSetValue]) => {
+    const cardSetArr = Object.entries(cardSets).map(([, cardSetValue]) => {
       return cardSetValue
     }, []);
     return { ...cards, ['Card Sets']: cardSetArr };
@@ -129,10 +130,12 @@ export default function CardSearch() {
                   <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
                     {cardsArr.map((card, index) => {
                       const { displayName } = card;
-                      const { stars } = state?.account?.cards?.[displayName] || {};
+                      const { stars, amount, perTier } = state?.account?.cards?.[displayName] || {};
+                      const nextLevelReq = calculateAmountToNextLevel(perTier, amount);
                       return (
                         <div style={{ position: 'relative' }} key={displayName + "" + index}>
-                          <CardAndBorder variant={isCardSets ? 'cardSet' : ''} showInfo
+                          <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
+                                         variant={isCardSets ? 'cardSet' : ''} showInfo
                                          {...{ ...card, ...(isCardSets ? {} : { stars }) }}
                           />
                         </div>
