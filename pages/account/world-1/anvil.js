@@ -16,6 +16,9 @@ const Anvil = () => {
       {anvil?.map((anvil, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
+        const smithingLevel = state?.characters?.[index].skillsInfo?.smithing?.level;
+        const { availablePoints, pointsFromCoins, pointsFromMats } = state?.characters?.[index]?.anvil?.stats;
+        const color = availablePoints === 0 ? "" : availablePoints > 0 ? "error.light" : "secondary";
         const afkTime = state?.characters?.[index]?.afkTime;
         const hammerBubble = state?.characters?.[index]?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
         const maxProducts = hammerBubble ? 3 : 2;
@@ -30,7 +33,11 @@ const Anvil = () => {
                 <Stack alignItems={'center'} justifyContent={'center'}>
                   <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
-                <Typography className={'character-name'}>{playerName}</Typography>
+                <Stack>
+                  <Typography className={'character-name'}>{playerName}</Typography>
+                  <Typography variant={'caption'}>Smithing lv. {smithingLevel}</Typography>
+                  <Typography variant={'caption'} color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints} / {pointsFromCoins + pointsFromMats}</Typography>
+                </Stack>
               </Stack>
               <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}
                      flexWrap={'wrap'} gap={3}>

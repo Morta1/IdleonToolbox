@@ -30,6 +30,9 @@ const Traps = () => {
       {traps?.map((trapSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
+        const trappingLevel = state?.characters?.[index].skillsInfo?.trapping?.level;
+        const trap = state?.characters?.[index]?.tools.find(({ name }) => name.includes('Trap'));
+        console.log(trap)
         const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank' ? state?.characters?.[index]?.tools?.[4] : null;
         const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + 1 : trapSlots.length;
         const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
@@ -47,8 +50,12 @@ const Traps = () => {
                        alignItems={'center'} gap={2}>
                   <Stack alignItems={'center'} justifyContent={'center'}>
                     <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                    <img style={{ height: 38 }} src={`${prefix}data/${trap?.rawName}.png`} alt=""/>
                   </Stack>
-                  <Typography className={'character-name'}>{playerName}</Typography>
+                  <Stack>
+                    <Typography className={'character-name'}>{playerName}</Typography>
+                    <Typography variant={'caption'}>Trapping lv. {trappingLevel}</Typography>
+                  </Stack>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={3}>
                   {realTraps?.map((slot, slotIndex) => {

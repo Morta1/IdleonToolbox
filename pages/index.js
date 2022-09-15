@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.19",
+    gameVer: "1.60",
+    date: "15/09/2022",
+    features: ['Added additional information to anvil, worship and trap pages'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.18",
     gameVer: "1.60",
     date: "09/08/2022",
