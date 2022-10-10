@@ -9,7 +9,7 @@ import {
   mapEnemies,
   mapNames,
   mapPortals,
-  monsters,
+  monsters, randomList,
   starSignByIndexMap
 } from "../data/website-data";
 import { calculateAfkTime, getHighestLevelOfClass, getMaterialCapacity } from "./misc";
@@ -325,7 +325,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
 }
 
 export const getBarbarianZowChow = (allKills, threshold) => {
-  const list = deathNote.map(({ rawName }) => {
+  let list = deathNote.map(({ rawName }) => {
     const mobIndex = mapEnemies?.[rawName];
     const { MonsterFace, Name } = monsters?.[rawName];
     const kills = allKills?.[mobIndex];
@@ -337,6 +337,14 @@ export const getBarbarianZowChow = (allKills, threshold) => {
       threshold
     }
   });
+  const boopKills = allKills[38];
+  list = [...list, {
+    name: 'Boop',
+    monsterFace: 33,
+    done: boopKills >= threshold,
+    kills: boopKills,
+    threshold
+  }];
   const finished = list?.reduce((sum, { done }) => sum + (done ? 1 : 0), 0);
   return {
     finished,

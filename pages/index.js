@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.20",
+    gameVer: "1.60",
+    date: "15/09/2022",
+    features: ['Added boop to zow/chow view', 'Added total material printed to Account -> General'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.19",
     gameVer: "1.60",
     date: "15/09/2022",
