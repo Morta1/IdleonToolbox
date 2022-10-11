@@ -21,9 +21,17 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.21",
+    gameVer: "1.60",
+    date: "11/10/2022",
+    features: [],
+    fixes: ['Fixed total mat printed fixed'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.20",
     gameVer: "1.60",
-    date: "15/09/2022",
+    date: "09/10/2022",
     features: ['Added boop to zow/chow view', 'Added total material printed to Account -> General'],
     fixes: [],
     deprecatedFeatures: []
