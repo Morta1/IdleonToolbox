@@ -13,12 +13,13 @@ export const getLooty = (idleonData) => {
   return {
     missingItems: Object.keys(allItems).reduce(
       (res, key) =>
-        !filteredLootyItems[key] && !key.includes("DungWeapon")
+        !key.includes("DungWeapon")
           ? [
             ...res,
             {
               name: allItems?.[key]?.displayName,
-              rawName: key
+              rawName: key,
+              obtainable: !filteredLootyItems[key]
             }
           ]
           : res,
