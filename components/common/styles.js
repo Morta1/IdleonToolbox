@@ -40,11 +40,10 @@ export const StyledBadge = styled(Badge)`
 export const CardAndBorder = (cardProps) => {
   const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
-  const starsNumb = variant === 'cardSet' ? stars + 1 : stars;
   const realCardName = variant === 'cardSet' ? name : cardName;
   return <>
     {stars > 0 ?
-      <BorderIcon src={`${prefix}data/CardEquipBorder${starsNumb}.png`} alt=""/> : null}
+      <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
     <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
       <CardIcon
         isCardSet={variant === 'cardSet'}
