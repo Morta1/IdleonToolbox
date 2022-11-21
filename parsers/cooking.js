@@ -150,6 +150,7 @@ const parseKitchens = (cookingRaw, account) => {
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchenEff', blackDiamondRhinestone);
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
+    const trollCardStars = trollCard?.stars ?? 0;
     // const pyritePyramite = getJewelBonus(account.lab.jewels, 10, spelunkerObolMulti);
     // const allOrangeActive = account.lab.jewels?.slice(7, 10)?.every(({ active }) => active) ? pyritePyramite * 2 : 1;
     // const emeraldNavette = getJewelBonus(account.lab.jewels, 12, spelunkerObolMulti);
@@ -159,7 +160,7 @@ const parseKitchens = (cookingRaw, account) => {
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
 
     const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (amethystRhinestone));
-    const mealSpeedCardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1)
+    const mealSpeedCardImpact = 1 + Math.min(6 * (trollCardStars === 0 ? 0 : trollCardStars + 1)
       + (20 * getAchievementStatus(account?.achievements, 225) +
         10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
     const mealSpeed = 10 *
@@ -174,8 +175,8 @@ const parseKitchens = (cookingRaw, account) => {
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
-    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Rcook');
-    const fireSpeedCardImpact = 1 + Math.min(6 * ((trollCard?.stars ?? 0) + 1), 50) / 100;
+    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Rcook', blackDiamondRhinestone);
+    const fireSpeedCardImpact = 1 + Math.min(6 * ((trollCardStars === 0 ? 0 : trollCardStars + 1)), 50) / 100;
     const fireSpeed = 5 *
       (1 + (isRichelin ? 1 : 0)) *
       Math.max(1, Math.pow(diamondChef, diamondMeals)) *
@@ -191,7 +192,7 @@ const parseKitchens = (cookingRaw, account) => {
 
     // Spices Cost
     const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
-    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchC');
+    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchC', blackDiamondRhinestone);
     const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
     const baseMath = 1 /
       ((1 + kitchenCostVials / 100) *

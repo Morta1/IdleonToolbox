@@ -39,14 +39,14 @@ const ActiveXpCalculator = () => {
   }, [selectedChar]);
 
   const calcTimeToLevelUp = (startExp, endPercentage) => {
-    const { exp, expReq } = selectedChar;
+    const { expReq } = selectedChar;
     const rawStartExp = expReq * (parseInt(parseFloat(startExp).toFixed(2).replace('.', '')) / 10000);
     const currentExp = expReq * (parseInt(parseFloat(endPercentage).toFixed(2).replace('.', '')) / 10000);
     const expNeeded = expReq - rawStartExp;
     const expFarmed = currentExp - rawStartExp;
     const expPerMinute = expFarmed / countdown;
     const timeLeft = expNeeded / expPerMinute / 60;
-    return { expFarmed, expPerMinute, timeLeft: splitTime(timeLeft) };
+    return { expFarmed, expPerMinute, expPerHour: expPerMinute * 60, timeLeft: splitTime(timeLeft) };
   }
 
   const renderTime = ({ remainingTime }) => {
@@ -129,6 +129,7 @@ const ActiveXpCalculator = () => {
               <h3>Results</h3>
               <div>Exp farmed: {kFormatter(result?.expFarmed)}</div>
               <div>Exp per minute: {kFormatter(result?.expPerMinute)}</div>
+              <div>Exp per hour: {kFormatter(result?.expPerHour)}</div>
               <div>Time to lv up: {result?.timeLeft}</div>
             </div> : null}
           </div>

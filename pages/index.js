@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.22",
+    gameVer: "1.60",
+    date: "21/11/2022",
+    features: [],
+    fixes: ['Fixed small calculation error in cooking page', 'Added missing Demon Genie icon', 'Added exp per hour to exp calculator'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.21",
     gameVer: "1.60",
     date: "11/10/2022",
