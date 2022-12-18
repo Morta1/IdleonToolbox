@@ -25,9 +25,9 @@ const Worship = () => {
               <CardContent>
                 <Stack direction={'row'}>
                   <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=''/>
-                  <Tooltip title={cleanUnderscore(skull.name)}>
+                  {skull &&<Tooltip title={cleanUnderscore(skull.name)}>
                     <img style={{ height: 38 }} src={`${prefix}data/${skull.rawName}.png`} alt=''/>
-                  </Tooltip>
+                  </Tooltip>}
                 </Stack>
                 <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>{name}</Typography>
                 <Typography variant={'caption'}>Worship
