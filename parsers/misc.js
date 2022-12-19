@@ -10,6 +10,7 @@ export const getLooty = (idleonData) => {
       delete allItems?.[lootyItemName];
     }
   });
+  const x1Extension = ['sail', 'bits'];
   return {
     missingItems: Object.keys(allItems).reduce(
       (res, key) =>
@@ -18,7 +19,7 @@ export const getLooty = (idleonData) => {
             ...res,
             {
               name: allItems?.[key]?.displayName,
-              rawName: key,
+              rawName: x1Extension.find((str) => key.toLowerCase().includes(str)) ? `${key}_x1` : key,
               obtainable: !filteredLootyItems[key]
             }
           ]
