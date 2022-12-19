@@ -7,7 +7,7 @@ import { Typography } from "@mui/material";
 
 const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placeholder, loop }) => {
   const [time, setTime] = useState();
-  const [localType, setLocalType] = useState(type);
+  // const [localType, setLocalType] = useState(type);
 
   useEffect(() => {
     if (date) {
@@ -20,9 +20,9 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
       const dateIsInPast = isPast(date)
       let duration = getDuration(tempTime?.getTime(), date + (timePassed * (type === 'countdown' ? -1 : 1)));
       setTime({ ...duration, overtime: type === 'countdown' ? dateIsInPast : false });
-      if (dateIsInPast) {
-        setLocalType('countdown');
-      }
+      // if (dateIsInPast) {
+      //   setLocalType('countdown');
+      // }
     }
   }, [date, lastUpdated]);
 
@@ -66,7 +66,7 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
 
   useInterval(() => {
     if (!time) return null;
-    if (localType === 'countdown' && !time?.overtime) {
+    if (type === 'countdown' && !time?.overtime) {
       tickDown();
     } else {
       tickUp();
