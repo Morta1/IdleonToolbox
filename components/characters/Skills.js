@@ -22,7 +22,7 @@ const Skills = ({ skills, charName }) => {
         <Box sx={{
           display: 'grid',
           gridAutoFlow: 'column',
-          gridTemplateColumns: { xs: 'repeat(3, minmax(45px, 100px))' },
+          gridTemplateColumns: { xs: 'repeat(4, minmax(45px, 100px))' },
           gridTemplateRows: { xs: 'repeat(3, minmax(45px, 100px))' },
           justifyContent: 'center'
         }}>

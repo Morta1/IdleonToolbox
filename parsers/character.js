@@ -253,7 +253,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
 
   character.skillsInfo = skillsInfoObject.reduce(
     (res, level, index) =>
-      index < 13 ? {
+      index < 16 ? {
         ...res,
         [skillIndexMap[index]?.name]: {
           level: level !== -1 ? level : 0,

@@ -79,7 +79,10 @@ export const skillIndexMap = {
   9: { name: "worship", icon: 'ClassIcons50' },
   10: { name: 'cooking', icon: 'ClassIcons51' },
   11: { name: 'breeding', icon: 'ClassIcons52' },
-  12: { name: 'laboratory', icon: 'ClassIcons53' }
+  12: { name: 'laboratory', icon: 'ClassIcons53' },
+  13: { name: 'sailing', icon: 'ClassIcons54' },
+  14: { name: 'divinity', icon: 'ClassIcons55' },
+  15: { name: 'gaming', icon: 'ClassIcons56' },
 };
 
 

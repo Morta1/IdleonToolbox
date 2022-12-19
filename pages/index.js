@@ -23,7 +23,7 @@ const patchNotes = [
   {
     ver: "3.1.23",
     gameVer: "1.70",
-    date: "19/21/2022",
+    date: "19/12/2022",
     features: ['Added data and assets for world 5!'],
     fixes: ['Fixed timer in "Stats" filter to count up instead of down (please let me know if there are any issue with timers)'],
     deprecatedFeatures: []
