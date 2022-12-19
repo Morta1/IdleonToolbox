@@ -26,38 +26,40 @@ const getImgName = (name, rawName, shape) => {
   }
 };
 
-const ObolsView = ({ obols, type = 'character' }) => {
+const ObolsView = ({ obols, type = 'character', obolStats }) => {
   if (!obols) return;
   return (
     <ObolsStyled>
-      {(type === 'character' ? [5, 9, 12, 16, 23] : [5, 10, 14, 19, 24]).map((endInd, rowNumber, array) => {
-        const startInd = rowNumber === 0 ? 0 : array[rowNumber - 1];
-        const relevantArray = obols?.list?.slice(startInd, endInd);
-        return <div className={'obol-row'} key={startInd + rowNumber}>
-          {relevantArray?.map((item, index) => {
-            const { displayName, rawName, levelReq, shape } = item;
-            const imgName = getImgName(displayName, rawName, shape);
-            return <div className={'obol-wrapper'} key={rawName + '' + index}>
-              {levelReq && rawName.includes('Locked') ?
-                <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
-              <Tooltip title={displayName !== 'ERROR' ? <ItemDisplay {...item}/> : ''}>
-                <img key={displayName + "" + index} src={`${prefix}data/${imgName}.png`}
-                     alt=""/>
-              </Tooltip>
-            </div>;
-          })}
-        </div>;
-      })}
-      <Stack gap={2} mt={2} ml={type === 'character' ? 1 : 7}>
-        {Object.entries(obols?.stats)?.map(([stat, value], index) => {
-          return <Stat key={`${stat}-${index}`}
-                       {...({
-                         statName: cleanUnderscore(stat),
-                         personalBonus: value?.personalBonus,
-                         familyBonus: value?.familyBonus
-                       })} />;
+      {!obolStats ? <>
+        {(type === 'character' ? [5, 9, 12, 16, 23] : [5, 10, 14, 19, 24]).map((endInd, rowNumber, array) => {
+          const startInd = rowNumber === 0 ? 0 : array[rowNumber - 1];
+          const relevantArray = obols?.list?.slice(startInd, endInd);
+          return <div className={'obol-row'} key={startInd + rowNumber}>
+            {relevantArray?.map((item, index) => {
+              const { displayName, rawName, levelReq, shape } = item;
+              const imgName = getImgName(displayName, rawName, shape);
+              return <div className={'obol-wrapper'} key={rawName + '' + index}>
+                {levelReq && rawName.includes('Locked') ?
+                  <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
+                <Tooltip title={displayName !== 'ERROR' ? <ItemDisplay {...item}/> : ''}>
+                  <img key={displayName + "" + index} src={`${prefix}data/${imgName}.png`}
+                       alt=""/>
+                </Tooltip>
+              </div>;
+            })}
+          </div>;
         })}
-      </Stack>
+      </> :
+        <Stack gap={2} mt={2} ml={type === 'character' ? 1 : 7}>
+      {Object.entries(obols?.stats)?.map(([stat, value], index) => {
+        return <Stat key={`${stat}-${index}`}
+      {...({
+        statName: cleanUnderscore(stat),
+        personalBonus: value?.personalBonus,
+        familyBonus: value?.familyBonus
+      })} />;
+      })}
+        </Stack>}
     </ObolsStyled>
   );
 };

@@ -48,6 +48,7 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
                         account={account} lastUpdated={lastUpdated}/>, filter: ["Stats", "Activity"]
     },
     { component: <ObolsView obols={obols}/>, filter: "Obols" },
+    { component: <ObolsView obols={obols} obolStats/>, filter: "Obols Stats" },
     { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: "Bags" },
     { component: <Talents talents={talents} starTalents={starTalents}/>, filter: "Talents" },
     { component: <EquippedCards cards={cards}/>, filter: "Cards" },

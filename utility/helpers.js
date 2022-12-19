@@ -188,7 +188,7 @@ export const splitTime = (numberOfHours) => {
   return `${days}d:${hours}h:${minutes}m`;
 };
 
-export const sections = [{ name: "Activity" },{ name: "Stats" }, { name: "Bags" }, { name: "Obols" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" }, { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" }, { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
+export const sections = [{ name: "Activity" },{ name: "Stats" }, { name: "Bags" }, { name: "Obols" }, { name: "Obols Stats" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" }, { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" }, { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
 
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/" : "/";
