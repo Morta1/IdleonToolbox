@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.24",
+    gameVer: "1.70",
+    date: "20/12/2022",
+    features: [],
+    fixes: ['Fixed small calculation error in max worship'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.23",
     gameVer: "1.70",
     date: "19/12/2022",
