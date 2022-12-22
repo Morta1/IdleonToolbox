@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.25",
+    gameVer: "1.70",
+    date: "22/12/2022",
+    features: [],
+    fixes: ['Added world 5 quests npc', 'Added world 5 vials', 'Added world 5 cards', 'Added world 5 death note', 'Added world 5 bubbles'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.24",
     gameVer: "1.70",
     date: "20/12/2022",

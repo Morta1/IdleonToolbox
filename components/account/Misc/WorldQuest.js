@@ -37,7 +37,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
       <WorldBg src={`${prefix}npcs/${worldName}.png`}
                onError={(e) => {
-                 e.target.src = `${prefix}data/Wb4.png`;
+                 e.target.src = `${prefix}data/Wb5.png`;
                  e.target.style.width = 'auto';
                }}
                alt=""/>

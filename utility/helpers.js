@@ -156,7 +156,8 @@ export const worlds = {
   0: "Blunder Hills",
   1: "Yum Yum Desert",
   2: "Frostbite Tundra",
-  3: "Hyperion Nebula"
+  3: "Hyperion Nebula",
+  4: "Smolderin' Plateau"
 };
 
 export const getDuration = (start, end) => {

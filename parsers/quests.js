@@ -310,5 +310,21 @@ export const worldNpcMap = {
   "Blobbo": {
     world: "Hyperion_Nebula",
     index: 3
-  }
+  },
+  "Muhmuguh": {
+    world: "Smolderin'_Plateau",
+    index: 1
+  },
+  "Slargon": {
+    world: "Smolderin'_Plateau",
+    index: 2
+  },
+  "Pirate_Porkchop": {
+    world: "Smolderin'_Plateau",
+    index: 3
+  },
+  "Poigu": {
+    world: "Smolderin'_Plateau",
+    index: 4
+  },
 };

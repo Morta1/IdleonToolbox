@@ -7,7 +7,7 @@ import Tooltip from "components/Tooltip";
 
 const Vials = () => {
   const { state } = useContext(AppContext);
-
+  console.log('state?.account?.alchemy?.vials', state?.account?.alchemy?.vials)
   return <>
     <Typography variant={'h2'} mb={3}>Vials</Typography>
     <Stack direction={'row'} flexWrap={'wrap'}>
@@ -21,6 +21,7 @@ const Vials = () => {
                  e.target.style = 'opacity: 0;'
                }}
                src={`${prefix}data/aVials${level === 0 ? '1' : level}.png`}
+               style={{ opacity: level === 0 ? .5 : 1 }}
                alt={'vial image missing'}/>
         </Box></Tooltip>
       })}

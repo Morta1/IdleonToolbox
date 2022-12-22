@@ -159,7 +159,7 @@ const Bubbles = () => {
       </Tabs>
       <Stack direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
         {bubbles?.map((bubble, index) => {
-          if (index > 19) return null;
+          if (index > 24) return null;
           const { level, itemReq, rawName, bubbleName, func, x1, x2 } = bubble;
           const goalLevel = bubblesGoals?.[index] ? bubblesGoals?.[index] < level ? level : bubblesGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true);
@@ -195,11 +195,13 @@ const Bubbles = () => {
                     if (rawName === 'Blank' || rawName === 'ERROR') return null;
                     const cauldronName = Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab];
                     const cost = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
+                    const x1Extension = ['sail', 'bits'];
+                    const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str)) ? `${rawName}_x1` : rawName;
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`}>
                       <Stack gap={2} justifyContent={'center'}
                              alignItems={'center'}>
                         <Tooltip title={cleanUnderscore(name)}>
-                          <ItemIcon src={`${prefix}data/${rawName}.png`}
+                          <ItemIcon src={`${prefix}data/${itemName}.png`}
                                     alt=""/>
                         </Tooltip>
                         <Tooltip title={cost}>

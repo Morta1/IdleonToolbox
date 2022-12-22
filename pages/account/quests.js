@@ -139,6 +139,12 @@ const Quests = () => {
               characters={state?.characters}
               worldName={"Hyperion_Nebula"}
             />
+            <WorldQuest
+              quests={worldQuests}
+              totalCharacters={filteredCharacters?.length}
+              characters={state?.characters}
+              worldName={"Smolderin'_Plateau"}
+            />
           </Stack>
         </>
       ) : null}
