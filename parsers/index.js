@@ -31,6 +31,7 @@ import { getTraps } from "./traps";
 import { getQuests } from "./quests";
 import { getDeathNote } from "./deathNote";
 import { getBreeding } from "./breeding";
+import { getDivinity } from "./divinity";
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
@@ -82,6 +83,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.tasks = getTasks(idleonData); //
   accountData.breeding = getBreeding(idleonData, accountData); //
   accountData.cooking = getCooking(idleonData, accountData); //
+  accountData.divinity = getDivinity(idleonData, serializedCharactersData);
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.shrines = getShrines(idleonData, accountData);

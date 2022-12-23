@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.26",
+    gameVer: "1.70",
+    date: "23/12/2022",
+    features: [, ],
+    fixes: ['Added missing meals (from world 5)', 'Added basic logic for deities to activate lab'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.25",
     gameVer: "1.70",
     date: "22/12/2022",

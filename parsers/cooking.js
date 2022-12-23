@@ -56,7 +56,7 @@ const getMeals = (mealsRaw) => {
   const mealsLevelsListRaw = mealsRaw?.[0];
   const mealsQuantityListRaw = mealsRaw?.[2];
   return mealsLevelsListRaw?.map((mealLevel, index) => {
-    if (index > 48) return null;
+    if (index > 56) return null;
     return {
       level: mealLevel,
       amount: mealsQuantityListRaw?.[index],
