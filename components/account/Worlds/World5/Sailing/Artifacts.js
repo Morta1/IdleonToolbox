@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
+import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
 
 const Artifacts = ({ artifacts }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-    {artifacts?.map(({ name, description, ancientFormDescription, rawName, acquired, additionalData }, index) => {
+    {artifacts?.map(({ name, description, ancientFormDescription, rawName, acquired, additionalData }) => {
       return <Card key={name} variant={acquired ? 'elevation' : 'outlined'}>
         <CardContent>
           <Stack sx={{ width: 200 }}>

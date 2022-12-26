@@ -186,7 +186,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const spelunkerObolMulti = getLabBonus(labBonuses, 8);
   const labSkillLevel = labLevel ?? 0;
   let baseLineWidth = 50 + 2 * labSkillLevel;
-  const { acquired, x, y, bonus } = jewels[5];
+  const { acquired, x, y } = jewels[5];
   if (acquired) {
     if (getDistance(x, y, playerCords.x, playerCords.y) < 150) {
       baseLineWidth *= 1.25;

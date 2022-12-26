@@ -31,13 +31,13 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
 }
 
 
-export const getDivStyleExpAndPoints = (divStyle) => {
-  const divPerHour = getDivinityPerHour(divStyle);
-  const style = divStyles?.[divStyle];
-  return {
-    ...style,
-  }
-}
+// export const getDivStyleExpAndPoints = (divStyle) => {
+//   const divPerHour = getDivinityPerHour(divStyle);
+//   const style = divStyles?.[divStyle];
+//   return {
+//     ...style,
+//   }
+// }
 
 const getDivinityPerHour = (divStyle) => {
   if (divStyle === 0 || divStyle === 2 || divStyle === 3) {

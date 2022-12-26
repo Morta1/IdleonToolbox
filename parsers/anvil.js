@@ -209,7 +209,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
     duneSoulLickBonus,
     dungeonSkillExpBonus,
     myriadPostOfficeBox
-  );;
+  );
 
   // ANVIL SPEED MATH;
   const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);

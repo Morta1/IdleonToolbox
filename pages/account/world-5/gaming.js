@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from "../../../components/common/context/AppProvider";
-import { Card, CardContent, Divider, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
+import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, kFormatter, notateNumber, prefix } from "../../../utility/helpers";
 import styled from "@emotion/styled";
 

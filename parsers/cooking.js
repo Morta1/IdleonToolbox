@@ -265,7 +265,7 @@ export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
 
 
 export const calcMealTime = (maxLevel, meal, totalMealSpeed, achievements) => {
-  const { amount, level, cookReq, name } = meal;
+  const { amount, level, cookReq } = meal;
   if (level >= maxLevel) return 0;
   let amountNeeded = 0;
   for (let i = level; i < maxLevel; i++) {

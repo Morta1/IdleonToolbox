@@ -3,13 +3,16 @@ import {
   carryBags,
   classes,
   classFamilyBonuses,
-  deathNote, divStyles, gods,
+  deathNote,
+  divStyles,
+  gods,
   invBags,
   items,
   mapEnemies,
   mapNames,
   mapPortals,
-  monsters, randomList,
+  monsters,
+  randomList,
   starSignByIndexMap
 } from "../data/website-data";
 import { calculateAfkTime, getHighestLevelOfClass, getMaterialCapacity } from "./misc";
@@ -17,7 +20,7 @@ import { calculateItemTotalAmount, createItemsWithUpgrades, getStatFromEquipment
 import { getInventory } from "./storage";
 import { skillIndexMap } from "./parseMaps";
 import { createTalentPage, getActiveBuffs, getTalentBonus, getTalentBonusIfActive, talentPagesMap } from "./talents";
-import { calcCardBonus, getCards, getEquippedCardBonus, getPlayerCards } from "./cards";
+import { calcCardBonus, getEquippedCardBonus, getPlayerCards } from "./cards";
 import { getStampBonus, getStampsBonusByEffect } from "./stamps";
 import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
 import { getActiveBubbleBonus, getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
@@ -334,24 +337,24 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   return character;
 }
 
-const calcNobisectBlessing = (character, account, charactersLevels) => {
-  // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses
-  const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
-  const { cards: playerCards, stats } = character
-  const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
-  const minEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false);
-  const minEffVial = getVialsBonusByEffect(alchemy?.vials, 'Mining_Efficiency');
-  const minEffStamp = getStampsBonusByEffect(account?.stamps, 'Mining_Efficiency');
-  // 189.54575009335448
-  const chopEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HOCUS_CHOPPUS', false);
-  // 420.9397074334178
-  const base = Math.max(1, allEff + Math.pow((minEff + (chopEff)) / 100, 2) + Math.pow((stats.strength + (stats.agility + stats.wisdom)) / 3, 0.5) / 7);
-  // 48.237034655800514
-  const baseBlessingMulti = divinity?.blessingBases?.[2];
-  const blessingMulti = gods?.[2]?.blessingMultiplier;
-  return baseBlessingMulti * blessingMulti * Math.min(1.8, Math.max(0.1, 4 * Math.pow(((base + 1e4) / Math.max(10 * (base) + 10, 1)) * 0.01, 2)));
-  // 8.32963478122674
-}
+// const calcNobisectBlessing = (character, account, charactersLevels) => {
+//   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses
+//   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
+//   const { cards: playerCards, stats } = character
+//   const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
+//   const minEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false);
+//   const minEffVial = getVialsBonusByEffect(alchemy?.vials, 'Mining_Efficiency');
+//   const minEffStamp = getStampsBonusByEffect(account?.stamps, 'Mining_Efficiency');
+//   // 189.54575009335448
+//   const chopEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HOCUS_CHOPPUS', false);
+//   // 420.9397074334178
+//   const base = Math.max(1, allEff + Math.pow((minEff + (chopEff)) / 100, 2) + Math.pow((stats.strength + (stats.agility + stats.wisdom)) / 3, 0.5) / 7);
+//   // 48.237034655800514
+//   const baseBlessingMulti = divinity?.blessingBases?.[2];
+//   const blessingMulti = gods?.[2]?.blessingMultiplier;
+//   return baseBlessingMulti * blessingMulti * Math.min(1.8, Math.max(0.1, 4 * Math.pow(((base + 1e4) / Math.max(10 * (base) + 10, 1)) * 0.01, 2)));
+//   // 8.32963478122674
+// }
 
 export const getBarbarianZowChow = (allKills, threshold) => {
   let list = deathNote.map(({ rawName }) => {
