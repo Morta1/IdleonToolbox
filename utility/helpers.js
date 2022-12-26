@@ -139,9 +139,89 @@ export const getCoinsArray = (coins) => {
   return Array.from(ret);
 };
 
-export const notateNumber = (e, t) => {
-  return "Whole" === t ? (1e4 > e ? "" + Math.floor(e) : 1e6 > e ? Math.floor(e / 1e3) + "K" : 1e7 > e ? Math.floor(e / 1e5) / 10 + "M" : 1e9 > e ? Math.floor(e / 1e6) + "M" : 1e10 > e ? Math.floor(e / 1e8) / 10 + "B" : Math.floor(e / 1e9) + "B") : "MultiplierInfo" === t ? (0 === (10 * e) % 10 ? Math.round(e) + ".00#" : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + "0#" : Math.round(100 * e) / 100 + "#") : "Micro" === t ? (10 < e ? "" + Math.round(e) / 1 : 0.1 < e ? "" + Math.round(10 * e) / 10 : 0.01 < e ? "" + Math.round(100 * e) / 100 : "" + Math.round(1e3 * e) / 1e3) : 100 > e ? ("Small" === t ? (1 > e ? "" + Math.round(100 * e) / 100 : "" + Math.round(10 * e) / 10) : "Smallish" === t ? (10 > e ? "" + Math.round(10 * e) / 10 : "" + Math.round(e)) : "Smaller" === t ? (10 > e ? "" + Math.round(100 * e) / 100 : "" + Math.round(10 * e) / 10) : "" + Math.floor(e)) : 1e3 > e ? "" + Math.floor(e) : 1e4 > e ? ("Bigish" === t ? "" + Math.floor(e) : Math.ceil(e / 10) / 100 + "K") : 1e5 > e ? Math.ceil(e / 100) / 10 + "K" : 1e6 > e ? Math.ceil(e / 1e3) / 1 + "K" : 1e7 > e ? Math.ceil(e / 1e4) / 100 + "M" : 1e8 > e ? Math.ceil(e / 1e5) / 10 + "M" : 1e10 > e ? Math.ceil(e / 1e6) / 1 + "M" : 1e13 > e ? Math.ceil(e / 1e9) + "B" : 1e16 > e ? Math.ceil(e / 1e12) + "T" : 1e19 > e ? Math.ceil(e / 1e15) + "Q" : Math.ceil(e / 1e18) + "QQ";
-};
+export const notateNumber = (e, s) => {
+  if ("bits"){
+    if (1e4 > e) {
+      return Math.floor(e);
+    }
+    if (1e5 > e) {
+      return Math.floor((e) / 100) / 10 + "K"
+    }
+    if (1e6 > e) {
+      return Math.floor(e / 1e3) + "K";
+    }
+    if (1e7 > e) {
+      return Math.floor((e) / 1e4) / 100 + "M";
+    }
+    if (1e8 > e) {
+      return Math.floor((e) / 1e5) / 10 + "M"
+    }
+    if (1e9 > e) {
+      return Math.floor((e) / 1e6) + "M"
+    }
+    if (1e10 > e) {
+      return Math.floor((e) / 1e7) / 100 + "B";
+    }
+    if (1e11 > e) {
+      return Math.floor((e) / 1e8) / 10 + "B"
+    }
+    if (1e12 > e) {
+      return Math.floor((e) / 1e9) + "B"
+    }
+    if (1e13 > e) {
+      return Math.floor((e) / 1e10) / 100 + "T"
+    }
+    if (1e14 > e) {
+      return Math.floor((e) / 1e11) / 10 + "T"
+    }
+    if (1e15 > e) {
+      return Math.floor((e) / 1e12) + "T"
+    }
+    if (1e16 > e) {
+      return Math.floor(e / 1e13) / 100 + "Q"
+    }
+    if (1e17 > e) {
+      return Math.floor((e) / 1e14) / 10 + "Q"
+    }
+    if (1e18 > e) {
+      return Math.floor(e / 1e15) + "Q"
+    }
+  }
+  return "Whole" === s ? (1e4 > e ? "" + Math.floor(e)
+      : 1e6 > e ? Math.floor(e / 1e3) + "K"
+        : 1e7 > e ? Math.floor(e / 1e5) / 10 + "M"
+          : 1e9 > e ? Math.floor(e / 1e6) + "M"
+            : 1e10 > e ? Math.floor(e / 1e8) / 10 + "B"
+              : Math.floor(e / 1e9) + "B")
+    : "MultiplierInfo" === s ? (0 === (10 * e) % 10 ? Math.round(e) + ".00#"
+        : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + "0#"
+          : Math.round(100 * e) / 100 + "#")
+      : "Micro" === s ? (10 < e ? "" + Math.round(e)
+          : 0.1 < e ? "" + Math.round(10 * e) / 10
+            : 0.01 < e ? "" + Math.round(100 * e) / 100
+              : "" + Math.round(1e3 * e) / 1e3)
+        : 100 > e ? ("Small" === s ? (1 > e ? "" + Math.round(100 * e) / 100
+              : "" + Math.round(10 * e) / 10)
+            : "Smallish" === s ? (10 > e ? "" + Math.round(10 * e) / 10
+                : "" + Math.round(e))
+              : "Smaller" === s ? (10 > e ? "" + Math.round(100 * e) / 100
+                  : "" + Math.round(10 * e) / 10)
+                : "" + Math.floor(e))
+          : 1e3 > e ? "" + Math.floor(e)
+            : 1e4 > e ? ("Bigish" === s ? "" + Math.floor(e)
+                : Math.ceil(e / 10) / 100 + "K")
+              : 1e5 > e ? Math.ceil(e / 100) / 10 + "K"
+                : 1e6 > e ? Math.ceil(e / 1e3) + "K"
+                  : 1e7 > e ? Math.ceil(e / 1e4) / 100 + "M"
+                    : 1e8 > e ? Math.ceil(e / 1e5) / 10 + "M"
+                      : 1e10 > e ? Math.ceil(e / 1e6) + "M"
+                        : 1e13 > e ? Math.ceil(e / 1e9) + "B"
+                          : 1e16 > e ? Math.ceil(e / 1e12) + "T"
+                            : 1e19 > e ? Math.ceil(e / 1e15) + "Q"
+                              : 1e22 > e ? Math.ceil(e / 1e18) + "QQ"
+                                : 1e24 > e ? Math.ceil(e / 1e21) + "QQQ"
+                                  : Math.floor((e / Math.pow(10, Math.floor(lavaLog(e)))) * 100) / 100 + ("E" + Math.floor(lavaLog(e)))
+}
 
 export const constellationIndexes = (str) => {
   const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8 };
@@ -189,7 +269,7 @@ export const splitTime = (numberOfHours) => {
   return `${days}d:${hours}h:${minutes}m`;
 };
 
-export const sections = [{ name: "Activity" },{ name: "Stats" }, { name: "Bags" }, { name: "Obols" }, { name: "Obols Stats" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" }, { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" }, { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
+export const sections = [{ name: "Activity" }, { name: "Stats" }, { name: "Bags" }, { name: "Obols" }, { name: "Obols Stats" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" }, { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" }, { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
 
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/" : "/";

@@ -115,7 +115,7 @@ const Stamps = () => {
                     <Stack gap={2} justifyContent={'center'}
                            direction={'row'} alignItems={'center'}>
                       <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
-                      <Typography>{goalBonus}</Typography>
+                      <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
                       <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
                                 alt=""/>
                       {materialCost ? notateNumber(materialCost, 'Big') : null}

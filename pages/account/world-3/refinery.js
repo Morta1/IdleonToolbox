@@ -7,18 +7,20 @@ import Timer from "components/common/Timer";
 import { getVialsBonusByEffect } from "parsers/alchemy";
 import { getPostOfficeBonus } from "parsers/postoffice";
 import ProgressBar from "components/common/ProgressBar";
+import { getStampsBonusByEffect } from "../../../parsers/stamps";
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
 
 const Refinery = () => {
   const { state } = useContext(AppContext);
-  const { refinery, alchemy, saltLick, lab } = state?.account;
+  const { refinery, alchemy, saltLick, lab, stamps } = state?.account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
   const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
   const sigilRefinerySpeed = alchemy?.sigils?.p2w?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
+  const stampRefinerySpeed = getStampsBonusByEffect(stamps, 'faster_refinery');
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
   const [squiresCooldown, setSquiresCooldown] = useState([]);
@@ -54,12 +56,12 @@ const Refinery = () => {
 
     const combustion = {
       name: "Combustion",
-      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed + stampRefinerySpeed) / 100) * labCycleBonus)),
       timePast: refinery?.timePastCombustion + timePassed
     };
     const synthesis = {
       name: "Synthesis",
-      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed + stampRefinerySpeed) / 100) * labCycleBonus)),
       timePast: refinery?.timePastSynthesis + timePassed
     }
     setRefineryCycles([combustion, synthesis]);

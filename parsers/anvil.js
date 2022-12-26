@@ -214,7 +214,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
   // ANVIL SPEED MATH;
   const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);
   const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
-  const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'aUpgradesG2');
+  const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'a2');
   const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
   const bobBuildGuyStarSign = getStarSignBonus(character?.starSigns, 'Bob_Build_Guy', 'Speed_in_Town');
   const talentTownSpeedBonus = getTalentBonus(character?.talents, 0, 'BROKEN_TIME');

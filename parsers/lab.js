@@ -35,14 +35,14 @@ const parseLab = (labRaw, charactersData, account) => {
       return chip;
     });
   });
-  console.log('account', account)
+
   let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory" || account?.divinity?.linkedDeities?.[index] === 1)
     .map(character => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
       y: playersCords?.[character?.playerId]?.y
     }));
-  console.log('charactersData', charactersData)
+
   const chipList = JSON.parse(JSON.stringify(chips));
   chipRepo?.map((chipCount, chipIndex) => {
     if (chipIndex < chips.length) {

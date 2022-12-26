@@ -21,10 +21,25 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.27",
+    gameVer: "1.70",
+    date: "26/12/2022",
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-5/sailing'}>Sailing</Link> page</Typography>,
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-5/divinity'}>Divinity</Link> page</Typography>,
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-5/gaming'}>Gaming</Link> page</Typography>
+    ],
+    fixes: ['Added refinery speed stamp to refinery calculations', 'Fixed minor bug with un-acquired stamps'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.26",
     gameVer: "1.70",
     date: "23/12/2022",
-    features: [, ],
+    features: [,],
     fixes: ['Added missing meals (from world 5)', 'Added basic logic for deities to activate lab'],
     deprecatedFeatures: []
   },

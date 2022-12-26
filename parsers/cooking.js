@@ -264,11 +264,11 @@ export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
 }
 
 
-export const calcTimeTillDiamond = (meal, totalMealSpeed, achievements) => {
-  const { amount, level, cookReq } = meal;
-  if (level >= 11) return 0;
+export const calcMealTime = (maxLevel, meal, totalMealSpeed, achievements) => {
+  const { amount, level, cookReq, name } = meal;
+  if (level >= maxLevel) return 0;
   let amountNeeded = 0;
-  for (let i = level; i < 11; i++) {
+  for (let i = level; i < maxLevel; i++) {
     amountNeeded += getMealLevelCost(i, achievements);
   }
   amountNeeded -= amount;

@@ -73,6 +73,14 @@ const worldsData = {
       { label: "breeding", icon: "ClassIcons52" },
       { label: "laboratory", icon: "ClassIcons53" }
     ]
+  },
+  "world 5": {
+    icon: "GemP24",
+    categories: [
+      { label: "sailing", icon: "ClassIcons54" },
+      { label: "divinity", icon: "ClassIcons55" },
+      { label: "gaming", icon: "ClassIcons56" }
+    ]
   }
 };
 

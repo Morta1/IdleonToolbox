@@ -1,6 +1,7 @@
 import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredLootyItems, keysMap } from "./parseMaps";
 import { items } from "../data/website-data";
+import { talentPagesMap } from "./talents";
 
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
@@ -26,7 +27,8 @@ export const getLooty = (idleonData) => {
           : res,
       []
     ),
-    lootedItems: lootyRaw.filter((item) => !item.includes("DungW")).length
+    lootedItems: lootyRaw.filter((item) => !item.includes("DungW")).length,
+    rawLootedItems: lootyRaw?.length
   };
 };
 
@@ -123,7 +125,14 @@ export const getHighestLevelOfClass = (characters, className) => {
     }
     return res;
   }, {});
-  return highest?.[className];
+  const allClasses = talentPagesMap?.[className];
+  const classAlias = allClasses?.find((cName) => highest?.[cName]);
+  return highest?.[classAlias];
+};
+
+export const getHighestLevelCharacter = (characters) => {
+  const levels = characters?.map(({ level }) => level);
+  return Math.max(...levels);
 };
 
 export const getGoldenFoodMulti = (familyBonus, equipmentGoldFoodBonus, hungryForGoldTalentBonus, goldenAppleStamp, goldenFoodAchievement, goldenFoodBubbleBonus, goldenFoodSigilBonus) => {

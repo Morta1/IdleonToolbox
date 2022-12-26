@@ -32,6 +32,8 @@ import { getQuests } from "./quests";
 import { getDeathNote } from "./deathNote";
 import { getBreeding } from "./breeding";
 import { getDivinity } from "./divinity";
+import { getSailing } from "./sailing";
+import { getGaming } from "./gaming";
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
@@ -81,9 +83,10 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
   accountData.tasks = getTasks(idleonData); //
-  accountData.breeding = getBreeding(idleonData, accountData); //
-  accountData.cooking = getCooking(idleonData, accountData); //
+  accountData.breeding = getBreeding(idleonData, accountData);
+  accountData.cooking = getCooking(idleonData, accountData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
+
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.shrines = getShrines(idleonData, accountData);
@@ -108,6 +111,9 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   charactersData = serializedCharactersData.map((char) => {
     return initializeCharacter(char, charactersLevels, { ...accountData });
   });
+
+  accountData.sailing = getSailing(idleonData, charactersData, accountData);
+  accountData.gaming = getGaming(idleonData, accountData, serverVars);
 
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   const leaderboard = calculateLeaderboard(skills);

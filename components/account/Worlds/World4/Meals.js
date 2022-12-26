@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { calcTimeTillDiamond, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
+import {
+  calcMealTime,
+  calcTimeToNextLevel,
+  getMealLevelCost
+} from "parsers/cooking";
 import { cleanUnderscore, growth, kFormatter, numberWithCommas, prefix } from "utility/helpers";
 import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
@@ -35,9 +39,11 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
       const levelCost = getMealLevelCost(level, achievements);
       const diamondCost = (11 - level) * levelCost;
       let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
-      let timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed, achievements);
+      // let timeTillMaxLevel = calcMealTime(30, meal, totalMealSpeed, achievements);
+      let timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
+        // timeTillMaxLevel = timeTillMaxLevel / (1 + overflowingLadleBonus / 100);
         timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
       }
       return { ...meal, levelCost, diamondCost, timeTillNextLevel, timeToDiamond };
@@ -78,7 +84,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   };
 
   const getBestMealsSpeedContribute = (meals) => {
-    let speedMeals = meals.filter((meal) => meal?.effect?.includes('Meal_Cooking_Speed'));
+    let speedMeals = meals.filter((meal) => meal?.effect?.includes('Meal_Cooking_Speed') && meal?.level < MEAL_MAX_LEVEL);
     speedMeals = speedMeals.map((meal) => {
       const { level, baseStat, multiplier, timeTillNextLevel } = meal;
       const currentBonus = (level) * baseStat * multiplier;
@@ -180,7 +186,10 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                 <Stack mt={2} gap={1}>
                   <Typography
                     sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
-                  {meal?.level < MEAL_MAX_LEVEL ? <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography> : null}
+                  {meal?.level < MEAL_MAX_LEVEL ? <>
+                    <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
+                    {/*<Typography>Ladles to max: {numberWithCommas(parseFloat(timeTillMaxLevel).toFixed(2))}</Typography>*/}
+                  </> : null}
                   {!filters.includes("minimized") ? (
                     meal?.level === MEAL_MAX_LEVEL ? <Typography color={'success.light'}>MAXED</Typography> : <>
                       <Typography

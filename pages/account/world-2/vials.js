@@ -7,7 +7,7 @@ import Tooltip from "components/Tooltip";
 
 const Vials = () => {
   const { state } = useContext(AppContext);
-  console.log('state?.account?.alchemy?.vials', state?.account?.alchemy?.vials)
+
   return <>
     <Typography variant={'h2'} mb={3}>Vials</Typography>
     <Stack direction={'row'} flexWrap={'wrap'}>

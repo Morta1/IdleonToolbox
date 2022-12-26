@@ -3,7 +3,7 @@ import { cleanUnderscore, kFormatter, notateNumber, prefix } from "../../../../u
 import Tooltip from "components/Tooltip";
 import Timer from "components/common/Timer";
 import React, { useMemo } from "react";
-import { calcTimeTillDiamond, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
+import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
 
@@ -153,7 +153,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
 
 
 const MealTooltip = ({ meal, totalMealSpeed, achievements }) => {
-  const timeToDiamond = calcTimeTillDiamond(meal, totalMealSpeed, achievements);
+  const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
   const levelCost = getMealLevelCost(meal?.level, achievements);
   const diamondCost = (11 - meal?.level) * levelCost;
   const timeTillNextLevel = meal?.amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
