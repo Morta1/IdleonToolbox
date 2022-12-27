@@ -80,7 +80,7 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
 
   return time ? <TimerStyle>
     {(time?.overtime || pause) && placeholder ? placeholder :
-      <Typography className={`${time?.overtime ? 'overtime' : ''}`} component={'span'}>
+      <Typography className={`${time?.overtime && !loop ? 'overtime' : ''}`} component={'span'}>
         {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
         {wrapNumber(time?.hours) + 'h:'}
         {wrapNumber(time?.minutes) + `m`}
