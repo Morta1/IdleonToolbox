@@ -67,6 +67,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     charactersData;
   const serializedCharactersData = getCharacters(idleonData, charsNames);
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
+  console.log('accountOptions', accountData.accountOptions)
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
   accountData.alchemy = getAlchemy(idleonData);
@@ -127,7 +128,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.construction = getConstruction(idleonData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
   accountData.arcade = getArcade(idleonData, accountData.accountOptions, serverVars);
-  accountData.printer = getPrinter(idleonData, charactersData);
+  accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
   accountData.deathNote = getDeathNote(charactersData);

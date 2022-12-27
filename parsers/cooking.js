@@ -8,6 +8,7 @@ import { getJewelBonus, getLabBonus } from "./lab";
 import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
 import { isArenaBonusActive } from "./misc";
 import { getAchievementStatus } from "./achievements";
+import { isArtifactAcquired } from "./sailing";
 
 export const getCooking = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
@@ -158,6 +159,8 @@ const parseKitchens = (cookingRaw, account) => {
     const allPurpleActive = account.lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
     const amethystRhinestone = getJewelBonus(account.lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
+    const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus;
+    const triagulonSpeedBonus = triagulonArtifactBonus ? (1 + triagulonArtifactBonus / 100) : 1;
 
     const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (amethystRhinestone));
     const mealSpeedCardImpact = 1 + Math.min(6 * (trollCardStars === 0 ? 0 : trollCardStars + 1)
@@ -166,7 +169,7 @@ const parseKitchens = (cookingRaw, account) => {
     const mealSpeed = 10 *
       (1 + (isRichelin ? 2 : 0)) *
       Math.max(1, Math.pow(diamondChef, diamondMeals)) *
-      (1 + speedLv / 10) *
+      ((1 + speedLv / 10) * (triagulonSpeedBonus)) *
       (1 + cookingSpeedVials / 100) *
       mealSpeedBonusMath *
       mealSpeedCardImpact *

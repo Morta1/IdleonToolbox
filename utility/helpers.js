@@ -140,7 +140,7 @@ export const getCoinsArray = (coins) => {
 };
 
 export const notateNumber = (e, s) => {
-  if ("bits"){
+  if (s === "bits"){
     if (1e4 > e) {
       return Math.floor(e);
     }

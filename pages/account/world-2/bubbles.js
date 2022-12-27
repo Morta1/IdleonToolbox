@@ -17,6 +17,7 @@ import styled from "@emotion/styled";
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
 import Tooltip from "components/Tooltip";
 import debounce from "lodash.debounce";
+import { isArtifactAcquired } from "../../../parsers/sailing";
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
@@ -103,11 +104,18 @@ const Bubbles = () => {
   const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals, bargainTag, classDiscount]);
 
   const getUpgradeableBubbles = (acc) => {
+    let upgradeableBubblesAmount = 3;
     const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
     if (!noBubbleLeftBehind) return null;
     const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles) => bubbles);
     const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15).sort((a, b) => a.level - b.level);
-    const upgradeableBubblesAmount = acc?.lab?.jewels?.find(jewel => jewel.name === "Pyrite_Rhinestone")?.active ? 4 : 3;
+    if (acc?.lab?.jewels?.find(jewel => jewel.name === "Pyrite_Rhinestone")?.active) {
+      upgradeableBubblesAmount++;
+    }
+    const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
+    if (amberiteArtifact) {
+      upgradeableBubblesAmount += amberiteArtifact?.baseBonus;
+    }
     return found.slice(0, upgradeableBubblesAmount);
   }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);

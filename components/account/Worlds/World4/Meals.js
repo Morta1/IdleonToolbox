@@ -1,9 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  calcMealTime,
-  calcTimeToNextLevel,
-  getMealLevelCost
-} from "parsers/cooking";
+import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
 import { cleanUnderscore, growth, kFormatter, numberWithCommas, prefix } from "utility/helpers";
 import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
@@ -12,13 +8,15 @@ import Box from "@mui/material/Box";
 import Timer from "components/common/Timer";
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { isArtifactAcquired } from "../../../../parsers/sailing";
 
-const MEAL_MAX_LEVEL = 30;
+let DEFAULT_MEAL_MAX_LEVEL = 30;
 
-const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
+const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
+  const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
@@ -53,6 +51,14 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   const defaultMeals = useMemo(() => calcMeals(meals), [meals]);
 
   useEffect(() => {
+    const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
+    if (causticolumnArtifact) {
+      console.log('DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus', DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus)
+      setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus);
+    }
+  }, [artifacts]);
+
+  useEffect(() => {
     let tempMeals;
     if (filters.includes("time")) {
       const mealsCopy = [...defaultMeals];
@@ -72,7 +78,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
       tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus)
     }
     if (filters.includes('hide')) {
-      tempMeals = tempMeals.filter((meal) => meal?.level < MEAL_MAX_LEVEL);
+      tempMeals = tempMeals.filter((meal) => meal?.level < mealMaxLevel);
     }
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
@@ -84,7 +90,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
   };
 
   const getBestMealsSpeedContribute = (meals) => {
-    let speedMeals = meals.filter((meal) => meal?.effect?.includes('Meal_Cooking_Speed') && meal?.level < MEAL_MAX_LEVEL);
+    let speedMeals = meals.filter((meal) => meal?.effect?.includes('Meal_Cooking_Speed') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
       const { level, baseStat, multiplier, timeTillNextLevel } = meal;
       const currentBonus = (level) * baseStat * multiplier;
@@ -186,12 +192,12 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements }) => {
                 <Stack mt={2} gap={1}>
                   <Typography
                     sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
-                  {meal?.level < MEAL_MAX_LEVEL ? <>
+                  {meal?.level < mealMaxLevel ? <>
                     <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
                     {/*<Typography>Ladles to max: {numberWithCommas(parseFloat(timeTillMaxLevel).toFixed(2))}</Typography>*/}
                   </> : null}
                   {!filters.includes("minimized") ? (
-                    meal?.level === MEAL_MAX_LEVEL ? <Typography color={'success.light'}>MAXED</Typography> : <>
+                    meal?.level === mealMaxLevel ? <Typography color={'success.light'}>MAXED</Typography> : <>
                       <Typography
                         sx={{ color: amount >= levelCost ? "success.light" : level > 0 ? "error.light" : "" }}>
                         Progress: {numberWithCommas(parseInt(amount))} / {numberWithCommas(parseInt(levelCost))}

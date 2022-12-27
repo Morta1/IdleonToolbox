@@ -31,6 +31,9 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
   }
 }
 
+export const isDeityLinked = (deities, deityIndex) => {
+  return deities?.findIndex((deity) => deityIndex === deity);
+}
 
 // export const getDivStyleExpAndPoints = (divStyle) => {
 //   const divPerHour = getDivinityPerHour(divStyle);

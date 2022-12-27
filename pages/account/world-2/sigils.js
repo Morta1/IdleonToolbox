@@ -4,9 +4,13 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import { PlayersList } from "../../../components/common/styles";
+import { isArtifactAcquired } from "../../../parsers/sailing";
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
+  const { alchemy, sailing } = state?.account || {};
+  const chilledYarnArtifact = isArtifactAcquired(sailing?.artifacts, 'Chilled_Yarn');
+  console.log('chilledYarnArtifact', chilledYarnArtifact)
 
   return (
     <Stack>
@@ -14,7 +18,7 @@ const Sigils = () => {
         Sigils
       </Typography>
       <Stack direction={"row"} flexWrap={"wrap"} gap={2}>
-        {state?.account?.alchemy?.p2w?.sigils?.map((sigil, index) => {
+        {alchemy?.p2w?.sigils?.map((sigil, index) => {
           if (index > 20) return null;
           const {
             name,
@@ -27,6 +31,10 @@ const Sigils = () => {
             unlockBonus,
             characters
           } = sigil;
+
+          let effectValue = unlocked === 1 ? boostBonus : unlockBonus;
+          effectValue = chilledYarnArtifact ? effectValue * 2 * (chilledYarnArtifact?.bonus ?? 1) : effectValue;
+
           return (
             <Card
               sx={{
@@ -47,7 +55,8 @@ const Sigils = () => {
                   </Stack>
                 </Stack>
                 <Stack mt={2} gap={2}>
-                  <Typography>Effect: {cleanUnderscore(effect?.replace(/{/g, unlocked === 1 ? boostBonus : unlockBonus))}</Typography>
+                  <Typography
+                    sx={{ color: chilledYarnArtifact ? 'info.light' : '' }}>Effect: {cleanUnderscore(effect?.replace(/{/g, effectValue))}</Typography>
                   {progress < boostCost ? (
                     <Typography>
                       Progress: {notateNumber(progress, "Small")}/{unlocked === 0 ? notateNumber(boostCost, "Small") : notateNumber(unlockCost, "Small")}

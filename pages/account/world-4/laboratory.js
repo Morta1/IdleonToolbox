@@ -25,7 +25,7 @@ const Laboratory = () => {
         })}
       </Tabs>
 
-      {selectedTab === 0 ? <Mainframe {...lab} characters={state?.characters}/> : null}
+      {selectedTab === 0 ? <Mainframe {...lab} characters={state?.characters} divinity={state?.account?.divinity}/> : null}
       {selectedTab === 1 ? <Console {...lab} characters={state?.characters}/> : null}
     </>
   );

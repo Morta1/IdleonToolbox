@@ -100,7 +100,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
                 <Divider sx={{ mx: 2, backgroundColor: 'white' }} orientation="vertical" flexItem/>
                 <Stack>
                   <Typography sx={{ color: 'info.light' }}>Luck ({kitchen?.luckLv})</Typography>
-                  <Typography>{notateNumber(kitchen?.mealLuck, 'Smaller') ?? 0}x</Typography>
+                  <Typography>{kitchen?.mealLuck.toFixed(2) ?? 0}x</Typography>
                   <Stack mt={2} alignItems={'center'}>
                     <SpiceIcon src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 2)}.png`} alt={''}/>
                     <Typography>{notateNumber(kitchen?.luckCost, "Big")}</Typography>

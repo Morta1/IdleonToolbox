@@ -1,4 +1,4 @@
-import { lavaLog, tryToParse } from "../utility/helpers";
+import { kFormatter, lavaLog, tryToParse } from "../utility/helpers";
 import { artifacts, captainsBonuses } from "../data/website-data";
 import { getHighestLevelCharacter } from "./misc";
 
@@ -22,6 +22,10 @@ const parseSailing = (sailingRaw, captainsRaw, boatsRaw, charactersData, account
   };
 }
 
+export const isArtifactAcquired = (artifacts, artifactName) => {
+  return artifacts?.find(({ name, acquired }) => name === artifactName && acquired);
+}
+
 const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw) => {
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
@@ -43,39 +47,46 @@ const getLootPile = (lootPile) => {
 }
 
 const getArtifact = (artifact, acquired, lootPile, index, charactersData, account) => {
-  let additionalData;
+  let additionalData, bonus = artifact?.baseBonus, ancientForm = acquired === 2;
   let fixedDescription = artifact?.description?.replace(/{/, artifact?.baseBonus).replace(/@/, '');
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {
     const highestLevel = getHighestLevelCharacter(charactersData)
     additionalData = `Highest level: ${highestLevel}`;
-    fixedDescription = fixedDescription.replace(/}/, highestLevel * artifact?.baseBonus);
+    bonus = highestLevel > artifact?.multiplier ? artifact?.multiplier * artifact?.baseBonus : highestLevel * artifact?.baseBonus;
+    if (artifact?.name === 'Ashen_Urn') {
+      fixedDescription = `${fixedDescription} Total Bonus: ${ancientForm ? bonus * 2 : bonus}`;
+    }
   } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
     const lootedItems = account?.looty?.rawLootedItems;
     const isAdTablet = artifact?.name === '10_AD_Tablet';
     additionalData = `Looted items: ${lootedItems}`;
     const math = (lootedItems - 500) / 10;
-    fixedDescription = fixedDescription.replace(/}/, isAdTablet ? artifact?.baseBonus * math : math);
+    bonus = isAdTablet ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const sailingLevel = charactersData?.[1]?.skillsInfo?.sailing?.level || 0;
     const isGenie = artifact?.name === 'Genie_Lamp';
+    bonus = isGenie ? sailingLevel * artifact?.baseBonus : sailingLevel;
     additionalData = `Sailing level: ${sailingLevel}`;
-    fixedDescription = fixedDescription.replace(/}/, isGenie ? sailingLevel * artifact?.baseBonus : sailingLevel);
   } else if (artifact?.name === 'Weatherbook') {
     const gamingLevel = charactersData?.[1]?.skillsInfo?.gaming?.level || 0;
     additionalData = `Gaming level: ${gamingLevel}`;
-    fixedDescription = fixedDescription.replace(/}/, gamingLevel * artifact?.baseBonus);
+    bonus = gamingLevel * artifact?.baseBonus;
   } else if (artifact?.name === 'Triagulon') {
     const ownedTurkey = account?.cooking?.meals?.[0]?.amount;
-    fixedDescription = fixedDescription.replace(/}/, (artifact?.baseBonus * lavaLog(ownedTurkey)).toFixed(2));
+    bonus = (artifact?.baseBonus * lavaLog(ownedTurkey));
   } else if (artifact?.name === 'Opera_Mask') {
     const sailingGold = lootPile?.[0];
-    fixedDescription = fixedDescription.replace(/}/, (artifact?.baseBonus * lavaLog(sailingGold)).toFixed(2));
+    bonus = (artifact?.baseBonus * lavaLog(sailingGold));
   }
-
+  if (ancientForm && artifact?.ancientFormDescription === "The_artifact's_main_bonus_is_doubled!") {
+    bonus *= 2;
+  }
+  fixedDescription = fixedDescription.replace(/}/, kFormatter(bonus, 2));
   return {
     ...artifact,
     description: fixedDescription,
     additionalData,
+    bonus,
     acquired,
     rawName: `Arti${index}`
   }

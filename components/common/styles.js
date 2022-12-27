@@ -23,9 +23,9 @@ export const IconWithText = forwardRef((props, ref) => {
 })
 IconWithText.displayName = 'IconWithText'
 
-export const TitleAndValue = ({ title, value }) => {
+export const TitleAndValue = ({ title, value, boldTitle }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
-    {title ? <Typography fontWeight={500} component={'span'}>{title}:&nbsp;</Typography> : null}
+    {title ? <Typography fontWeight={boldTitle ? 'bold' : 500} component={'span'}>{title}:&nbsp;</Typography> : null}
     <Typography fontSize={15} component={'span'}>{value}</Typography>
   </Stack>
 }

@@ -1,5 +1,6 @@
 import { createArrayOfArrays, growth, tryToParse } from "../utility/helpers";
 import { cauldrons, p2w, sigils, vials } from "../data/website-data";
+import { isArtifactAcquired } from "./sailing";
 
 const cauldronsIndexMapping = { 0: "power", 1: "quicc", 2: "high-iq", 3: "kazam" };
 const liquidsIndex = { 0: "water drops", 1: "liquid n2", 2: "trench h2o" };
