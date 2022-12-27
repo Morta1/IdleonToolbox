@@ -23,6 +23,14 @@ const patchNotes = [
   {
     ver: "3.1.27",
     gameVer: "1.70",
+    date: "27/12/2022",
+    features: ['Added a timer for dirty shovel (+ nuggets break points)'],
+    fixes: ['Divinity - now correctly showing unlocked gods',],
+    deprecatedFeatures: []
+  },
+  {
+    ver: "3.1.27",
+    gameVer: "1.70",
     date: "26/12/2022",
     features: [
       <Typography>Added <Link

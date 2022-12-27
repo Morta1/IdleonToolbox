@@ -6,7 +6,7 @@ const Instructions = () => {
         <Typography color={'primary'} variant={'h5'}>Google Login</Typography>
         <div>1. Click the google login icon.</div>
         <div>2. Open the link and paste the provided code.</div>
-        <div>3. Select your idelon google account.</div>
+        <div>3. Select your idleon google account.</div>
         <div>4. Done!</div>
         <div>(Don&apos;t worry, I&apos;m not saving anything about your google account, you can see for yourself in
           my&nbsp;<Link target={'_blank'} href="https://github.com/Morta1/IdleonToolbox"

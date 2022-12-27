@@ -6,15 +6,22 @@ import Tooltip from "components/Tooltip";
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
-  const { deities, linkedDeities, blessingBases } = state?.account?.divinity || {};
+  const { deities, linkedDeities, blessingBases, unlockedDeities } = state?.account?.divinity || {};
 
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
     <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
-      {deities?.map(({ name, rawName, majorBonus, minorBonus, blessing, blessingMultiplier }, godIndex) => {
+      {deities?.map(({
+                       name,
+                       rawName,
+                       majorBonus,
+                       minorBonus,
+                       blessing,
+                       blessingMultiplier
+                     }, godIndex) => {
         const blessingBonus = blessingBases?.[godIndex] * blessingMultiplier;
         const hasLinks = state?.characters?.some((_, index) => linkedDeities?.[index] === godIndex)
-        return <Card sx={{ width: 300 }} key={rawName}>
+        return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
               <img src={`${prefix}data/${rawName}.png`} alt=""/>

@@ -1,5 +1,3 @@
-import { divStyles } from "../data/website-data";
-
 const { tryToParse } = require("../utility/helpers");
 const { gods } = require('../data/website-data');
 
@@ -22,11 +20,14 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
   const blessingBasesStartIndex = 28;
   const blessingBases = divinityRaw.slice(blessingBasesStartIndex, blessingBasesStartIndex + deities?.length + 1);
   const linkedStyles = divinityRaw.slice(0, serializedCharactersData?.length + 1);
+  const unlockedDeities = divinityRaw?.[25];
+
   return {
     linkedDeities,
     linkedStyles,
     deities,
-    blessingBases
+    blessingBases,
+    unlockedDeities
   }
 }
 

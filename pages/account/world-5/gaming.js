@@ -3,10 +3,20 @@ import { AppContext } from "../../../components/common/context/AppProvider";
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, kFormatter, notateNumber, prefix } from "../../../utility/helpers";
 import styled from "@emotion/styled";
+import Timer from "../../../components/common/Timer";
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from "../../../components/Tooltip";
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
-  const { bits, fertilizerUpgrades, imports } = state?.account?.gaming || {};
+  const {
+    bits,
+    fertilizerUpgrades,
+    imports,
+    lastShovelClicked,
+    goldNuggets,
+    nuggetsBreakpoints
+  } = state?.account?.gaming || {};
 
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Gaming</Typography>
@@ -48,7 +58,7 @@ const Gaming = () => {
                        saveSprinklerChance,
                        acquired,
                        acornShop
-                     }) => {
+                     }, index) => {
         return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack sx={{ minHeight: 200 }}>
@@ -61,6 +71,16 @@ const Gaming = () => {
                 <Divider sx={{ my: 2 }}/> </> : null}
               <Typography>{cleanUnderscore(minorBonus)}</Typography>
               <Typography>Cost: {notateNumber(cost, "bits")} bits</Typography>
+              {acquired && index === 1 ?
+                <>
+                  <Stack mt={1} direction={'row'} gap={1}>
+                    <Timer date={new Date().getTime() - lastShovelClicked * 1000} lastUpdated={state?.lastUpdated}/>
+                    <Tooltip title={<NuggetsPerTime breakpoints={nuggetsBreakpoints}/>}>
+                      <InfoIcon/>
+                    </Tooltip>
+                  </Stack>
+                  <Typography># of nuggets: {goldNuggets}</Typography>
+                </> : null}
               {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
               {acornShop ? <Stack>
                 <Divider sx={{ my: 2 }}/>
@@ -90,6 +110,20 @@ const Gaming = () => {
     </Stack>
   </>
 };
+
+const NuggetsPerTime = ({ breakpoints }) => {
+  return <Stack>
+    <Typography sx={{ fontWeight: 'bold' }}>Breakpoints</Typography>
+    {breakpoints?.map(({ time, nuggets }, index) => {
+      const hours = Math.floor(time / 3600);
+      const minutes = Math.round(time / 3600 % 1 * 60)
+      return <Stack key={`bp-${index}`} direction={'row'} gap={2}>
+        <Typography sx={{ width: 100 }}>{`${hours}h`}{minutes > 0 ? `:${minutes}m` : ''}</Typography>
+        <Typography>{nuggets}</Typography>
+      </Stack>
+    })}
+  </Stack>
+}
 
 const ImportImg = styled.img`
   width: 50px;

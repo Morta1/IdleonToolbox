@@ -11,6 +11,9 @@ export const getGaming = (idleonData, account, serverVars) => {
 
 const parseGaming = (gamingRaw, gamingSproutRaw, account, serverVars) => {
   const bits = gamingRaw?.[0];
+  const lastShovelClicked = gamingSproutRaw[26][1];
+  const goldNuggets = calcGoldNuggets(lastShovelClicked);
+  const nuggetsBreakpoints = calcNuggetsPerTime();
   const gamingImportsStartIndex = 25;
   const gamingImportsValues = gamingSproutRaw.slice(gamingImportsStartIndex, gamingImportsStartIndex + gamingImports?.length + 1);
   const fertilizerUpgrades = gamingRaw.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => ({
@@ -34,7 +37,22 @@ const parseGaming = (gamingRaw, gamingSproutRaw, account, serverVars) => {
     } : {}),
   })).filter((_, index) => index < 8);
 
-  return { bits, fertilizerUpgrades, imports };
+  return { bits, fertilizerUpgrades, imports, lastShovelClicked, goldNuggets, nuggetsBreakpoints };
+}
+
+const calcNuggetsPerTime = () => {
+  const breakpoints = [1, 4.50, 12.09, 23.22, 38.47, 58.42];
+  return breakpoints.map((breakpoint) => {
+    const math = (Math.floor(breakpoint) * 3600) + ((breakpoint % 1) * 60 * 100);
+    return {
+      time: math,
+      nuggets: calcGoldNuggets(math)
+    }
+  })
+}
+
+export const calcGoldNuggets = (lastClick) => {
+  return Math.floor(Math.pow(lastClick / 3600, 0.44));
 }
 
 const calcSprinklerSave = (goldenSprinkler) => {
