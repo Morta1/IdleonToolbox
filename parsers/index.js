@@ -67,7 +67,6 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     charactersData;
   const serializedCharactersData = getCharacters(idleonData, charsNames);
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
-  console.log('accountOptions', accountData.accountOptions)
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
   accountData.alchemy = getAlchemy(idleonData);

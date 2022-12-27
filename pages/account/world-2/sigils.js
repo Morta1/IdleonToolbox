@@ -10,7 +10,6 @@ const Sigils = () => {
   const { state } = useContext(AppContext);
   const { alchemy, sailing } = state?.account || {};
   const chilledYarnArtifact = isArtifactAcquired(sailing?.artifacts, 'Chilled_Yarn');
-  console.log('chilledYarnArtifact', chilledYarnArtifact)
 
   return (
     <Stack>

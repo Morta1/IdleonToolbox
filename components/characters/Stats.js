@@ -5,6 +5,7 @@ import { kFormatter, pascalCase } from "utility/helpers";
 import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
+import { isArtifactAcquired } from "../../parsers/sailing";
 
 const colors = {
   strength: "error.light",
@@ -12,7 +13,7 @@ const colors = {
   wisdom: "secondary",
   luck: "warning.light"
 };
-const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
+const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account }) => {
   const { name, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
 
   const isOvertime = () => {
@@ -42,6 +43,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
             </Card>
           ) : null}
           {Object.entries(stats)?.map(([statName, statValue], index) => {
+            const socrates = isArtifactAcquired(account?.sailing?.artifacts, 'Socrates');
+            const enhancedStat = socrates ? statValue * (1 + socrates?.bonus / 100) : statValue;
             return statName !== "level" ? (
               <Card variant={"outlined"} key={`${name}-${statName}-${index}`}>
                 <CardContent>
@@ -51,7 +54,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated }) => {
                   </Typography>
                   <Typography variant={"body1"} component={"span"}>
                     {" "}
-                    {statValue}
+                    {Math.floor(enhancedStat)}
                   </Typography>
                 </CardContent>
               </Card>

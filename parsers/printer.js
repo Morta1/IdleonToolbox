@@ -12,7 +12,7 @@ const parsePrinter = (rawPrinter, charactersData, accountData) => {
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic')
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
-  const daysWithGoldRelic = accountData?.accountOptions?.[125];
+  const daysSinceLastSample = accountData?.accountOptions?.[125];
 
   const printData = rawPrinter.slice(5, rawPrinter.length); // REMOVE 5 '0' ELEMENTS
   // There are 14 items per character
@@ -36,7 +36,7 @@ const parsePrinter = (rawPrinter, charactersData, accountData) => {
           let boostedValue = sample[1], multiplier = 1, baseMath = 1, affectedBy = [];
           if (goldRelic?.acquired) {
             const goldRelicBonus = goldRelic?.acquired === 2 ? goldRelic?.multiplier : 0;
-            baseMath = 1 + ((daysWithGoldRelic) * (1 + goldRelicBonus)) / 100;
+            baseMath = 1 + ((daysSinceLastSample) * (1 + goldRelicBonus)) / 100;
             affectedBy = [...affectedBy, `Gold Relic (artifact) - x${baseMath}`];
           }
           const isPlayerConnected = connectedPlayers.find(({ playerId }) => playerId === charIndex);

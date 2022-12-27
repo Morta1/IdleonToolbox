@@ -44,6 +44,27 @@ export const talentPagesMap = {
   "Wizard": ["Savvy_Basics", "Mage", "Wizard"],
   "Elemental_Sorcerer": ["Savvy_Basics", "Mage", "Wizard", "Elemental_Sorcerer"]
 };
+// { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' }
+export const mainStatMap = {
+  Beginner: 'luck',
+  Journeyman: 'luck',
+  Maestro: 'luck',
+  Warrior: 'strength',
+  Barbarian: 'strength',
+  Blood_Berserker: 'strength',
+  Squire: 'strength',
+  Divine_Knight: 'strength',
+  Archer: 'agility',
+  Bowman: 'agility',
+  Siege_Breaker: 'agility',
+  Hunter: 'agility',
+  Beast_Master: 'agility',
+  Mage: 'wisdom',
+  Shaman: 'wisdom',
+  Bubonic_Conjuror: 'wisdom',
+  Wizard: 'wisdom',
+  Elemental_Sorcerer: 'wisdom',
+}
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {
   return pages.reduce((res, className, index) => {
