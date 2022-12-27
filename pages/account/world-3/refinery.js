@@ -117,7 +117,7 @@ const Refinery = () => {
             <Timer type={'countdown'} loop={true} startDate={startDate} date={nextCycle}
                    lastUpdated={state?.lastUpdated}/>
             <Typography sx={boldSx}>Max cycle time: <span
-              style={{ fontWeight: 400 }}>{minutes}m:{seconds}s</span></Typography>
+              style={{ fontWeight: 400 }}>{minutes}m:{seconds < 10 ? `0${seconds}`:seconds}s</span></Typography>
             <Typography sx={boldSx}>Cycles: <span
               style={{ fontWeight: 400 }}>{kFormatter(3600 / time, 2)}/hr</span></Typography>
           </CardContent>

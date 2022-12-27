@@ -32,7 +32,6 @@ const Sigils = () => {
           } = sigil;
 
           let effectValue = unlocked === 1 ? boostBonus : unlockBonus;
-          effectValue = chilledYarnArtifact ? effectValue * 2 * (chilledYarnArtifact?.bonus ?? 1) : effectValue;
 
           return (
             <Card

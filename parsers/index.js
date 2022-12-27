@@ -7,7 +7,7 @@ import { getShrines } from "./shrines";
 import { getHighscores } from "./highScores";
 import { getGemShop } from "./gemShop";
 import { getShops } from "./shops";
-import { applyVialsMulti, getAlchemy, getEquippedBubbles } from "./alchemy";
+import { applyArtifactBonusOnSigil, applyVialsMulti, getAlchemy, getEquippedBubbles } from "./alchemy";
 import { getStorage } from "./storage";
 import { getBribes } from "./bribes";
 import { getConstellations, getStarSigns } from "./starSigns";
@@ -114,6 +114,8 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   accountData.sailing = getSailing(idleonData, charactersData, accountData);
   accountData.gaming = getGaming(idleonData, accountData, serverVars);
+
+  accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, accountData?.sailing?.artifacts);
 
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   const leaderboard = calculateLeaderboard(skills);

@@ -22,15 +22,15 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 const patchNotes = [
   {
     ver: "3.1.28",
-    gameVer: "1.70",
+    gameVer: "1.71",
     date: "27/12/2022",
     features: ['Applied most artifacts bonuses all over the website', 'Added tooltip over printer items showing the boosted value from lab,artifacts,gods'],
-    fixes: [],
+    fixes: ['Sigils not calculated with artifacts bonus'],
     deprecatedFeatures: []
   },
   {
     ver: "3.1.27",
-    gameVer: "1.70",
+    gameVer: "1.71",
     date: "27/12/2022",
     features: ['Added a timer for dirty shovel (+ nuggets break points)'],
     fixes: ['Divinity - now correctly showing unlocked gods',],
