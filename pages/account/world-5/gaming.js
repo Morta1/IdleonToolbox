@@ -15,7 +15,10 @@ const Gaming = () => {
     imports,
     lastShovelClicked,
     goldNuggets,
-    nuggetsBreakpoints
+    lastAcornClicked,
+    acorns,
+    nuggetsBreakpoints,
+    acornsBreakpoints
   } = state?.account?.gaming || {};
 
   return <>
@@ -31,7 +34,7 @@ const Gaming = () => {
     </Card>
 
     <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
-      {fertilizerUpgrades?.map(({ name, level, description }) => {
+      {fertilizerUpgrades?.map(({ name, level, description, cost }) => {
         return <Card key={name} sx={{ width: 250 }}>
           <CardContent>
             <Stack direction={'row'} gap={2}>
@@ -39,6 +42,7 @@ const Gaming = () => {
               <Typography>Lv. {level}</Typography>
             </Stack>
             <Typography mt={1}>{cleanUnderscore(description)}</Typography>
+            <Typography mt={1}>Cost: {cost}</Typography>
           </CardContent>
         </Card>
       })}
@@ -57,7 +61,8 @@ const Gaming = () => {
                        rawName,
                        saveSprinklerChance,
                        acquired,
-                       acornShop
+                       acornShop,
+                       level
                      }, index) => {
         return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
           <CardContent>
@@ -75,11 +80,18 @@ const Gaming = () => {
                 <>
                   <Stack mt={1} direction={'row'} gap={1}>
                     <Timer date={new Date().getTime() - lastShovelClicked * 1000} lastUpdated={state?.lastUpdated}/>
-                    <Tooltip title={<NuggetsPerTime breakpoints={nuggetsBreakpoints}/>}>
+                    <Tooltip title={<ResourcePerTime breakpoints={nuggetsBreakpoints}/>}>
                       <InfoIcon/>
                     </Tooltip>
                   </Stack>
                   <Typography># of nuggets: {goldNuggets}</Typography>
+                </> : null}
+              {acquired && index === 2 ?
+                <>
+                  <Stack mt={1} direction={'row'} gap={1}>
+                    <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={state?.lastUpdated}/>
+                  </Stack>
+                  <Typography># of acorns: {acorns}</Typography>
                 </> : null}
               {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
               {acornShop ? <Stack>
@@ -94,6 +106,16 @@ const Gaming = () => {
                     </Stack>
                   </Stack>)}
                 </Stack>
+                  {level}
+                {level ? <>
+                    <Stack mt={1} direction={'row'} gap={1}>
+                      <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={state?.lastUpdated}/>
+                      <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints}/>}>
+                        <InfoIcon/>
+                      </Tooltip>
+                    </Stack>
+                    <Typography># of acorns: {acorns}</Typography></>
+                  : null}
               </Stack> : null}
               <Divider sx={{ my: 2 }}/>
             </Stack>
@@ -111,15 +133,15 @@ const Gaming = () => {
   </>
 };
 
-const NuggetsPerTime = ({ breakpoints }) => {
+const ResourcePerTime = ({ breakpoints }) => {
   return <Stack>
     <Typography sx={{ fontWeight: 'bold' }}>Breakpoints</Typography>
-    {breakpoints?.map(({ time, nuggets }, index) => {
+    {breakpoints?.map(({ time, amount }, index) => {
       const hours = Math.floor(time / 3600);
       const minutes = Math.round(time / 3600 % 1 * 60)
       return <Stack key={`bp-${index}`} direction={'row'} gap={2}>
         <Typography sx={{ width: 100 }}>{`${hours}h`}{minutes > 0 ? `:${minutes}m` : ''}</Typography>
-        <Typography>{nuggets}</Typography>
+        <Typography>{amount}</Typography>
       </Stack>
     })}
   </Stack>

@@ -112,8 +112,8 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     return initializeCharacter(char, charactersLevels, { ...accountData });
   });
 
-  accountData.sailing = getSailing(idleonData, charactersData, accountData);
-  accountData.gaming = getGaming(idleonData, accountData, serverVars);
+  accountData.sailing = getSailing(idleonData, charactersData, accountData, serverVars);
+  accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
 
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, accountData?.sailing?.artifacts);
 

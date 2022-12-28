@@ -31,6 +31,11 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
   }
 }
 
+export const getGodByIndex = (linkedDeities, characters, gIndex) => {
+  const char = characters?.find((_, index) => linkedDeities?.[index] === gIndex)
+  return char?.deityMinorBonus;
+}
+
 export const isDeityLinked = (deities, deityIndex) => {
   return deities?.findIndex((deity) => deityIndex === deity);
 }

@@ -3,24 +3,54 @@ import { artifacts, captainsBonuses } from "../data/website-data";
 import { getHighestLevelCharacter } from "./misc";
 import { mainStatMap } from "./talents";
 
-export const getSailing = (idleonData, charactersData, account) => {
+export const getSailing = (idleonData, charactersData, account, serverVars) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
-  const captainsRaw = tryToParse(idleonData?.Captains) || idleonData?.Captains
-  const boatsRaw = tryToParse(idleonData?.Boats) || idleonData?.Boats
-  return parseSailing(sailingRaw, captainsRaw, boatsRaw, charactersData, account);
+  const captainsRaw = tryToParse(idleonData?.Captains) || idleonData?.Captains;
+  const boatsRaw = tryToParse(idleonData?.Boats) || idleonData?.Boats;
+  const chestsRaw = tryToParse(idleonData?.SailChests) || idleonData?.SailChests;
+  return parseSailing(sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars);
 }
 
-const parseSailing = (sailingRaw, captainsRaw, boatsRaw, charactersData, account) => {
+const parseSailing = (sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars) => {
   const acquiredArtifacts = sailingRaw?.[3];
   const lootPile = sailingRaw?.[1];
   const artifactsList = artifacts?.map((artifact, index) => getArtifact(artifact, acquiredArtifacts?.[index], lootPile, index, charactersData, account))
   const maxChests = Math.min(Math.round(5 + (account?.gemShopPurchases?.find((value, index) => index === 129) ?? 0)), 19);
+  const chests = getChests(chestsRaw, artifactsList, serverVars);
+
   return {
     maxChests,
     artifacts: artifactsList,
     lootPile: getLootPile(lootPile),
+    chests,
     ...getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw)
   };
+}
+
+const getChests = (chestsRaw, artifactsList, serverVars) => {
+  const islandsUnlocked = chestsRaw?.[0]?.[1];
+  return chestsRaw?.map((chest) => ({
+    ...getArtifactChance(chest, islandsUnlocked, artifactsList, serverVars),
+    chestType: chest?.[3] // Maybe
+  }))
+}
+
+const getArtifactChance = (chest, islandsUnlocked, artifactsList, serverVars) => {
+  const boxChance = chest?.[2];
+
+  let startingIndex = 1, baseMath;
+  for (let i = 0; i < islandsUnlocked; i++) {
+    baseMath = startingIndex * (1 - boxChance / getAncientChances(islandsUnlocked, serverVars));
+    startingIndex = baseMath;
+  }
+  const artifactChance = 100 * Math.min(1, 1 - (baseMath));
+  return { artifactChance, ancientChance: boxChance / getAncientChances(islandsUnlocked, serverVars) };
+}
+
+const getAncientChances = (islandsUnlocked, serverVars) => {
+  // AncientOddPerIsland = 450
+  // AncientArtiPCT = 0
+  return 3 > islandsUnlocked ? 850 : (1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100);
 }
 
 export const isArtifactAcquired = (artifacts, artifactName) => {
@@ -60,10 +90,10 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     }
   } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
     const lootedItems = account?.looty?.rawLootedItems;
-    const isAdTablet = artifact?.name === '10_AD_Tablet';
+    const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
     const math = (lootedItems - 500) / 10;
-    bonus = isAdTablet ? artifact?.baseBonus * math : math;
+    bonus = everyXMulti ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const sailingLevel = charactersData?.[1]?.skillsInfo?.sailing?.level || 0;
     const isGenie = artifact?.name === 'Genie_Lamp';

@@ -327,8 +327,8 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
   if (linkedDeity !== -1) {
-    const majorBonusIndex = gods?.[linkedDeity]?.majorBonusIndex;
-    const multiplier = gods?.[majorBonusIndex]?.minorBonusMultiplier;
+    const godIndex = gods?.[linkedDeity]?.godIndex;
+    const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
     character.deityMinorBonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, bigPBubble) * multiplier;
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];

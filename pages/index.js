@@ -21,10 +21,21 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.29",
+    gameVer: "1.71",
+    date: "28/12/2022",
+    features: ['Added timer for acorns in gaming page'],
+    fixes: ['Fixed gaming upgrades bonus and cost'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.28",
     gameVer: "1.71",
     date: "27/12/2022",
-    features: ['Added a timer for dirty shovel (+ nuggets break points)', 'Applied most artifacts bonuses all over the website', 'Added tooltip over printer items showing the boosted value from lab,artifacts,gods', 'Divinity - now correctly showing unlocked gods'],
+    features: ['Added a timer for dirty shovel (+ nuggets break points)',
+      'Applied most artifacts bonuses all over the website',
+      'Added tooltip over printer items showing the boosted value from lab,artifacts,gods',
+      'Divinity - now correctly showing unlocked gods'],
     fixes: ['Sigils not calculated with artifacts bonus'],
     deprecatedFeatures: []
   },
@@ -56,7 +67,8 @@ const patchNotes = [
     gameVer: "1.70",
     date: "22/12/2022",
     features: [],
-    fixes: ['Added world 5 quests npc', 'Added world 5 vials', 'Added world 5 cards', 'Added world 5 death note', 'Added world 5 bubbles'],
+    fixes: ['Added world 5 quests npc', 'Added world 5 vials', 'Added world 5 cards', 'Added world 5 death note',
+      'Added world 5 bubbles'],
     deprecatedFeatures: []
   },
   {
@@ -80,7 +92,8 @@ const patchNotes = [
     gameVer: "1.60",
     date: "21/11/2022",
     features: [],
-    fixes: ['Fixed small calculation error in cooking page', 'Added missing Demon Genie icon', 'Added exp per hour to exp calculator'],
+    fixes: ['Fixed small calculation error in cooking page', 'Added missing Demon Genie icon',
+      'Added exp per hour to exp calculator'],
     deprecatedFeatures: []
   },
   {
@@ -111,7 +124,8 @@ const patchNotes = [
     ver: "3.1.18",
     gameVer: "1.60",
     date: "09/08/2022",
-    features: ['Added an option to hide capped meals', 'Added progress indicator for cards', 'Cards you haven\'t found will appear with low opacity'],
+    features: ['Added an option to hide capped meals', 'Added progress indicator for cards',
+      'Cards you haven\'t found will appear with low opacity'],
     fixes: [],
     deprecatedFeatures: []
   },
@@ -374,7 +388,8 @@ const patchNotes = [
     ver: "3.0.0",
     gameVer: "1.56.1",
     date: "12/05/2022",
-    features: ["Reworked the website - the website is now responsive and can be used in mobile as well!", "WIP: builds (from idleon companion)"],
+    features: ["Reworked the website - the website is now responsive and can be used in mobile as well!",
+      "WIP: builds (from idleon companion)"],
     fixes: [],
     deprecatedFeatures: []
   }
