@@ -1,5 +1,5 @@
 import { gamingImports, gamingUpgrades } from "../data/website-data";
-import { notateNumber } from "../utility/helpers";
+import { kFormatter, notateNumber } from "../utility/helpers";
 import { getGodByIndex } from "./divinity";
 
 const { tryToParse } = require("../utility/helpers");
@@ -105,7 +105,7 @@ const calcImportCost = (index, gamingImportsValues) => {
 const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, account, acornShop) => {
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
-    return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue));
+    return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'bits');
   } else if (index === 1) {
     const baseValue = gamingRaw?.[2];
     const godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 6)?.minorBonusMultiplier ?? 0;
