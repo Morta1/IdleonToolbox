@@ -1,5 +1,5 @@
 import { gamingImports, gamingUpgrades } from "../data/website-data";
-import { kFormatter, notateNumber } from "../utility/helpers";
+import { notateNumber } from "../utility/helpers";
 import { getGodByIndex } from "./divinity";
 
 const { tryToParse } = require("../utility/helpers");
@@ -115,9 +115,8 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
     const growTime = 5e3 / ((1 + (2 * baseValue) / 100) * baseMath * (1 + moreMath * (baseValue2)));
     const growChance = 1 / calcSproutGrowChance(gamingRaw);
     const final = (growTime * growChance) / 60;
-    console.log('Math.floor(100 * (time / 60)) / 100', Math.floor(100 * (final)) / 100)
     const time = Math.floor(100 * (final)) / 100;
-    return time > 60 ? `${(time / 60).toFixed(2)}Hr` : `${(notateNumber(10 * time) / 10)}Min`;
+    return time > 60 ? `${Math.floor(100 * time / 60) / 100}Hr` : `${(Math.floor(10 * time) / 10)}Min`;
   } else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value, index) => index === 133) ?? 0;
