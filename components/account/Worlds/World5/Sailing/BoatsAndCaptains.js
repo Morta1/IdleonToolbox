@@ -25,7 +25,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
             <BoatWrapper>
               <img style={{ width: 50, objectFit: 'contain' }}
                    src={`${prefix}etc/${rawName}.png`} alt=""/>
-              <Typography component={'span'}>{boatIndex}</Typography>
+              <Typography component={'span'}>{boatIndex + 1}</Typography>
             </BoatWrapper>
             <Stack>
               <Typography>Lv. {level}</Typography>
@@ -73,7 +73,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                    src={`${prefix}etc/Captain_${captainType}.png`} alt=""/>
               <Stack>
                 <Typography>{captainIndex}</Typography>
-                <Typography variant={'caption'}>Boat {captainsOnBoats?.[captainIndex]}</Typography>
+                <Typography variant={'caption'}>Boat {captainsOnBoats?.[captainIndex] + 1}</Typography>
               </Stack>
             </Stack>
             <Divider sx={{ my: 1 }}/>
