@@ -36,11 +36,14 @@ const parseLab = (labRaw, charactersData, account) => {
     });
   });
 
-  let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory" || account?.divinity?.linkedDeities?.[index] === 1)
-    .map(character => ({
+  console.log('account?.divinity?.linkedDeities', account?.divinity?.linkedDeities)
+  let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory"
+    || account?.divinity?.linkedDeities?.[index] === 1)
+    .map((character, index) => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
-      y: playersCords?.[character?.playerId]?.y
+      y: playersCords?.[character?.playerId]?.y,
+
     }));
 
   const chipList = JSON.parse(JSON.stringify(chips));
@@ -121,7 +124,7 @@ const parseLab = (labRaw, charactersData, account) => {
       lineWidth: p?.lineWidth || player?.lineWidth || 0
     }
   })
-
+  console.log('connectedPlayers', connectedPlayers)
   return {
     playersCords,
     playersChips,

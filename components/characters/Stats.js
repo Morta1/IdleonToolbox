@@ -15,7 +15,7 @@ const colors = {
   luck: "warning.light"
 };
 const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account }) => {
-  const { name, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
+  const { name, playerId, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -33,7 +33,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
   return (
     <>
       <Stack gap={2} flexWrap={"wrap"}>
-        {activityFilter ? <Activity afkTarget={afkTarget} divStyle={character?.divStyle}/> : null}
+        {activityFilter ? <Activity afkTarget={afkTarget} divStyle={character?.divStyle} playerId={playerId} account={account}/> : null}
         {statsFilter ? <>
           {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
             <Card variant={"outlined"}>

@@ -335,10 +335,10 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
   character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex };
-  console.log('character.divStyle', character.divStyle)
   // if (linkedDeity === 2) {
   //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
   // }
+  character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4;
   return character;
 }
 

@@ -94,6 +94,10 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.statues = getStatues(idleonData, serializedCharactersData);
   accountData.achievements = getAchievements(idleonData);
 
+  accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char) => ({
+    ...char,
+    isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4
+  }))
   // Update values for meals, stamps, vials
   const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7); // stamp multi
   accountData.stamps = applyStampsMulti(accountData.stamps, certifiedStampBookMulti);
