@@ -29,6 +29,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     cost: calcFertilizerCost(index, gamingRaw, serverVars)
   }));
   const goldenSprinkler = account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0;
+  console.log('goldenSprinkler', account)
+  console.log('goldenSprinkler', goldenSprinkler)
   const saveSprinklerChance = calcSprinklerSave(account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0);
   const imports = gamingImports?.map((item, index) => ({
     ...item,

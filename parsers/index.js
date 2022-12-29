@@ -119,7 +119,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars);
-  accountData.gaming = getGaming(idleonData, artifacts, charactersData, accountData, serverVars);
+  accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
 
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   const leaderboard = calculateLeaderboard(skills);
