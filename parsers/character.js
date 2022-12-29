@@ -39,7 +39,7 @@ import { getPlayerWorship } from "./worship";
 import { getPlayerQuests } from "./quests";
 import { getJewelBonus, getLabBonus } from "./lab";
 import { getAchievementStatus } from "./achievements";
-import { lavaLog } from "../utility/helpers";
+import { lavaLog, notateNumber } from "../utility/helpers";
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require("../utility/helpers");
 
@@ -334,7 +334,8 @@ export const initializeCharacter = (char, charactersLevels, account) => {
     character.deityMinorBonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, bigPBubble) * multiplier;
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
-  character.divStyle = divStyles?.[divStyleIndex];
+  character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex };
+  console.log('character.divStyle', character.divStyle)
   // if (linkedDeity === 2) {
   //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
   // }
@@ -406,9 +407,20 @@ export const getPlayerCrystalChance = (character, account) => {
   const crystals4DaysBonus = getTalentBonus(character?.starTalents, null, 'CRYSTALS_4_DAYYS');
   const cmonOutCrystalsBonus = getTalentBonus(character?.talents, 1, 'CMON_OUT_CRYSTALS');
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
-
-  return 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
-    * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100);
+  const breakdown = {
+    'Cmon Out Crystals': notateNumber(cmonOutCrystalsBonus),
+    'Crystal Shrine Bonus': notateNumber(crystalShrineBonus),
+    'Post Office': notateNumber(nonPredatoryBoxBonus),
+    'Crystals 4 Days': notateNumber(crystals4DaysBonus),
+    'Crystallin Stamp': notateNumber(crystallinStampBonus),
+    'Poop Card': notateNumber(poopCardBonus),
+    'Demon Genie Card': notateNumber(demonGenieBonus)
+  }
+  return {
+    value: 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
+      * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100),
+    breakdown
+  }
 }
 
 export const getPlayerFoodBonus = (character, statues, stamps) => {

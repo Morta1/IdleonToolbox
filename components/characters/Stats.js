@@ -6,6 +6,7 @@ import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
 import { isArtifactAcquired } from "../../parsers/sailing";
+import { TitleAndValue } from "../common/styles";
 
 const colors = {
   strength: "error.light",
@@ -32,7 +33,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
   return (
     <>
       <Stack gap={2} flexWrap={"wrap"}>
-        {activityFilter ? <Activity afkTarget={afkTarget}/> : null}
+        {activityFilter ? <Activity afkTarget={afkTarget} divStyle={character?.divStyle}/> : null}
         {statsFilter ? <>
           {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
             <Card variant={"outlined"}>
@@ -69,7 +70,12 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
           <Card variant={"outlined"}>
             <CardContent>
               <Typography color={"info.light"}>Crystal Chance</Typography>
-              <Typography>1 in {Math.floor(1 / crystalSpawnChance)}</Typography>
+              <Stack direction={'row'} gap={1}>
+                <Typography>1 in {Math.floor(1 / crystalSpawnChance?.value)}</Typography>
+                <Tooltip title={<CrystalChanceTooltip breakdown={crystalSpawnChance?.breakdown}/>}>
+                  <InfoIcon/>
+                </Tooltip>
+              </Stack>
             </CardContent>
           </Card>
           <Card variant={"outlined"}>
@@ -91,5 +97,12 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
     </>
   );
 };
+
+const CrystalChanceTooltip = ({ breakdown }) => {
+  return <Stack>
+    {Object.entries(breakdown)?.map(([name, value]) => <TitleAndValue key={`${name}-${value}`} boldTitle title={name}
+                                                                      value={value}/>)}
+  </Stack>
+}
 
 export default Stats;

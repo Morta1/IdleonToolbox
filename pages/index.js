@@ -24,7 +24,7 @@ const patchNotes = [
     ver: "3.1.30",
     gameVer: "1.71",
     date: "29/12/2022",
-    features: ['Added chests, boats and captains display'],
+    features: ['Added chests, boats and captains display', 'Added crystal chance breakdown', 'Added divinity style to the activity filter when character is afk in divinity'],
     fixes: [],
     deprecatedFeatures: []
   },
