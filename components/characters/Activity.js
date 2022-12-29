@@ -5,7 +5,6 @@ import Tooltip from "../Tooltip";
 
 const Activity = ({ playerId, afkTarget, account, divStyle }) => {
   const isLabConnectedByDivinity = () => {
-    console.log('isDivinityConnected', account?.lab?.connectedPlayers)
     return account?.lab?.connectedPlayers?.find((char) => char?.playerId === playerId)?.isDivinityConnected;
   }
 

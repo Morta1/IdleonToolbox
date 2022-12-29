@@ -36,7 +36,6 @@ const parseLab = (labRaw, charactersData, account) => {
     });
   });
 
-  console.log('account?.divinity?.linkedDeities', account?.divinity?.linkedDeities)
   let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory"
     || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character, index) => ({
