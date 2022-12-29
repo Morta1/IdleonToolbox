@@ -90,6 +90,9 @@ const Gaming = () => {
                 <>
                   <Stack mt={1} direction={'row'} gap={1}>
                     <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={state?.lastUpdated}/>
+                    <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints}/>}>
+                      <InfoIcon/>
+                    </Tooltip>
                   </Stack>
                   <Typography># of acorns: {acorns}</Typography>
                 </> : null}
@@ -101,21 +104,10 @@ const Gaming = () => {
                   {acornShop?.map(({ cost, bonus, description }, index) => <Stack key={'corn-' + index}>
                     <Stack>
                       <Typography>{description}</Typography>
-                      {/*<Typography>Bonus: {bonus.toFixed(2)}%</Typography>*/}
                       <Typography>Cost: {cost}</Typography>
                     </Stack>
                   </Stack>)}
                 </Stack>
-                  {level}
-                {level ? <>
-                    <Stack mt={1} direction={'row'} gap={1}>
-                      <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={state?.lastUpdated}/>
-                      <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints}/>}>
-                        <InfoIcon/>
-                      </Tooltip>
-                    </Stack>
-                    <Typography># of acorns: {acorns}</Typography></>
-                  : null}
               </Stack> : null}
               <Divider sx={{ my: 2 }}/>
             </Stack>

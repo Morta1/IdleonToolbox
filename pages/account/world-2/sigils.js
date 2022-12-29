@@ -18,7 +18,7 @@ const Sigils = () => {
       </Typography>
       <Stack direction={"row"} flexWrap={"wrap"} gap={2}>
         {alchemy?.p2w?.sigils?.map((sigil, index) => {
-          if (index > 20) return null;
+          if (index > 24) return null;
           const {
             name,
             progress,

@@ -23,7 +23,7 @@ import { createTalentPage, getActiveBuffs, getTalentBonus, getTalentBonusIfActiv
 import { calcCardBonus, getEquippedCardBonus, getPlayerCards } from "./cards";
 import { getStampBonus, getStampsBonusByEffect } from "./stamps";
 import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
-import { getActiveBubbleBonus, getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
+import { getActiveBubbleBonus, getBubbleBonus } from "./alchemy";
 import { getStatueBonus } from "./statues";
 import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
 import { getPlayerAnvil } from "./anvil";
@@ -278,7 +278,8 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   const {
     flat: flatStarTalents,
     talents: orderedStarTalents
-  } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2", "Special Talent 3"], talentsObject, maxTalentsObject, true);
+  } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2",
+    "Special Talent 3"], talentsObject, maxTalentsObject, true);
   character.starTalents = orderedStarTalents;
   character.flatStarTalents = flatStarTalents;
 
@@ -312,7 +313,8 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   const kills = char?.[`KillsLeft2Advance`];
   const isBarbarian = talentPagesMap[character.class].includes('Barbarian');
   const isBloodBerserker = talentPagesMap[character.class].includes('Blood_Berserker');
-  character.kills = kills?.reduce((res, map, index) => [...res, parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
+  character.kills = kills?.reduce((res, map, index) => [...res,
+    parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
   character.nextPortal = {
     goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
@@ -333,7 +335,9 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
   character.divStyle = divStyles?.[divStyleIndex];
-  // character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
+  // if (linkedDeity === 2) {
+  //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
+  // }
   return character;
 }
 
@@ -342,18 +346,26 @@ export const initializeCharacter = (char, charactersLevels, account) => {
 //   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
 //   const { cards: playerCards, stats } = character
 //   const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
+//   console.log('allEff - 5.219746817679558', allEff)
 //   const minEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false);
+//   console.log('minEff - 193.79715134472335', minEff)
 //   const minEffVial = getVialsBonusByEffect(alchemy?.vials, 'Mining_Efficiency');
 //   const minEffStamp = getStampsBonusByEffect(account?.stamps, 'Mining_Efficiency');
 //   // 189.54575009335448
 //   const chopEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HOCUS_CHOPPUS', false);
+//   console.log('chopEff - 418.5292587293732', chopEff)
 //   // 420.9397074334178
 //   const base = Math.max(1, allEff + Math.pow((minEff + (chopEff)) / 100, 2) + Math.pow((stats.strength + (stats.agility + stats.wisdom)) / 3, 0.5) / 7);
+//   console.log('base', base)
 //   // 48.237034655800514
 //   const baseBlessingMulti = divinity?.blessingBases?.[2];
 //   const blessingMulti = gods?.[2]?.blessingMultiplier;
 //   return baseBlessingMulti * blessingMulti * Math.min(1.8, Math.max(0.1, 4 * Math.pow(((base + 1e4) / Math.max(10 * (base) + 10, 1)) * 0.01, 2)));
 //   // 8.32963478122674
+// }
+
+// const getPlayerHp = (character, account) => {
+//
 // }
 
 export const getBarbarianZowChow = (allKills, threshold) => {
@@ -448,7 +460,7 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
 }
 
 export const getAfkGain = (character, skillName, bribes, arcadeShop, dungeonUpgrades, playerChips, afkGainsTask, guildBonuses, optionsList, shrines) => {
-  const afkGainsTaskBonus = afkGainsTask < character?.playerId ? 2 : 0;
+  // const afkGainsTaskBonus = afkGainsTask < character?.playerId ? 2 : 0;
   if (skillName !== 'fighting') {
     let guildAfkGains = 0;
     const amarokBonus = getEquippedCardBonus(character?.cards, 'Z2');
@@ -507,7 +519,7 @@ export const getAllBaseSkillEff = (character, playerChips, jewels) => {
   const baseAllEffBox = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 1);
   const galvanicMotherboard = playerChips.find((chip) => chip.index === 11)?.baseVal ?? 0;
   const superSource = getTalentBonus(character?.starTalents, null, 'SUPERSOURCE');
-  const emeraldNavetteBonus = jewels.filter(jewel => jewel.active && jewel.name === 'Emerald_Navette').reduce((sum, jewel) => sum += (jewel.bonus * jewel.multiplier), 0);
+  const emeraldNavetteBonus = jewels.filter(jewel => jewel.active && jewel.name === 'Emerald_Navette').reduce((sum, jewel) => sum + (jewel.bonus * jewel.multiplier), 0);
   return (baseAllEffBox) + galvanicMotherboard + (superSource + emeraldNavetteBonus);
 }
 

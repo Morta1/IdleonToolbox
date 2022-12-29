@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.30",
+    gameVer: "1.71",
+    date: "29/12/2022",
+    features: ['Added chests, boats and captains display'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.29",
     gameVer: "1.71",
     date: "28/12/2022",

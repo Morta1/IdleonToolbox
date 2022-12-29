@@ -11,7 +11,6 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
-  console.log(account?.divinity?.deities);
   const bits = gamingRaw?.[0];
   const lastShovelClicked = gamingSproutRaw[26][1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);

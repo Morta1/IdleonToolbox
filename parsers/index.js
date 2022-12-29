@@ -32,7 +32,7 @@ import { getQuests } from "./quests";
 import { getDeathNote } from "./deathNote";
 import { getBreeding } from "./breeding";
 import { getDivinity } from "./divinity";
-import { getSailing } from "./sailing";
+import { getArtifacts, getSailing } from "./sailing";
 import { getGaming } from "./gaming";
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
@@ -112,10 +112,10 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     return initializeCharacter(char, charactersLevels, { ...accountData });
   });
 
-  accountData.sailing = getSailing(idleonData, charactersData, accountData, serverVars);
-  accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
-
-  accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, accountData?.sailing?.artifacts);
+  const artifacts = getArtifacts(idleonData, charactersData, accountData)
+  accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
+  accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars);
+  accountData.gaming = getGaming(idleonData, artifacts, charactersData, accountData, serverVars);
 
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   const leaderboard = calculateLeaderboard(skills);
