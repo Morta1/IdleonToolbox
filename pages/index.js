@@ -25,7 +25,7 @@ const patchNotes = [
     gameVer: "1.71",
     date: "30/12/2022",
     features: ['Added max possible nugget roll possible', 'Added the required resources for a boat upgrade'],
-    fixes: [],
+    fixes: ['Fixed a bug with islands names in sailing'],
     deprecatedFeatures: []
   },
   {

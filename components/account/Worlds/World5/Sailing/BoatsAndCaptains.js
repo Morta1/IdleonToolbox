@@ -49,7 +49,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                 <img style={{ width: 25, objectFit: 'contain' }}
                      src={`${prefix}data/${rawName}.png`} alt=""/>
                 <Typography
-                  color={amount >= required ? 'success.light' : 'error.light'}>{notateNumber(amount, 'Big')} / {required}</Typography>
+                  color={amount >= required ? 'success.light' : 'error.light'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
               </Stack>)}
             </Stack> </> : null}
           <Divider sx={{ my: 1 }}/>

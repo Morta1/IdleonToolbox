@@ -100,7 +100,6 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
   const captains = allCaptains.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
-  console.log('allBoats', allBoats)
   const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({
     ...res,
@@ -128,7 +127,6 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account) =>
   }
 
   boatObj.resources = getBoatResources(boatObj, lootPile);
-  console.log('boatObj.cost', boatObj.cost)
   boatObj.loot = getBoatLootValue(account, artifactsList, boatObj, captain);
   return boatObj
 }
