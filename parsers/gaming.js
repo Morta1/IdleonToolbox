@@ -29,24 +29,27 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     cost: calcFertilizerCost(index, gamingRaw, serverVars)
   }));
   const goldenSprinkler = account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0;
-  console.log('goldenSprinkler', account)
-  console.log('goldenSprinkler', goldenSprinkler)
   const saveSprinklerChance = calcSprinklerSave(account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0);
-  const imports = gamingImports?.map((item, index) => ({
-    ...item,
-    level: gamingImportsValues?.[index]?.[0],
-    rawName: index === 3 ? `GamingItem${index}_0` : index === 0 ? goldenSprinkler > 0 ? `GamingItem${index}b` : `GamingItem${index}` : `GamingItem${index}`,
-    minorBonus: calcImportBonus(index, item?.minorBonus, gamingImportsValues),
-    cost: calcImportCost(index, gamingImportsValues),
-    acquired: gamingImportsValues?.[index]?.[0] > 0,
-    ...(index === 0 ? {
-      saveSprinklerChance: saveSprinklerChance * 100
-    } : {}),
-    ...(index === 2 ? {
-      acornShop
-    } : {}),
-  })).filter((_, index) => index < 8);
-
+  const imports = gamingImports?.map((item, index) => {
+    const bonus = calcImportBonus(index, item?.minorBonus, gamingImportsValues);
+    return {
+      ...item,
+      level: gamingImportsValues?.[index]?.[0],
+      rawName: index === 3 ? `GamingItem${index}_0` : index === 0 ? goldenSprinkler > 0 ? `GamingItem${index}b` : `GamingItem${index}` : `GamingItem${index}`,
+      minorBonus: bonus?.description,
+      cost: calcImportCost(index, gamingImportsValues),
+      acquired: gamingImportsValues?.[index]?.[0] > 0,
+      ...(index === 0 ? {
+        saveSprinklerChance: saveSprinklerChance * 100
+      } : {}),
+      ...(index === 1 ? {
+        maxNuggetValue: maxNuggetValue(bonus?.result)
+      } : {}),
+      ...(index === 2 ? {
+        acornShop
+      } : {}),
+    }
+  }).filter((_, index) => index < 8);
   return {
     bits,
     fertilizerUpgrades,
@@ -58,6 +61,10 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     nuggetsBreakpoints,
     acornsBreakpoints
   };
+}
+
+const maxNuggetValue = (bonus) => {
+  return notateNumber(bonus * (1 / Math.pow(1e-5, 0.64)));
 }
 
 const calcResourcePerTime = (type, squirrelLevel) => {
@@ -87,15 +94,18 @@ const calcImportBonus = (index, minorBonus, gamingImportsValues) => {
   const value = gamingImportsValues?.[index]?.[0];
   let fixedMinorBonus = minorBonus;
   if (index === 1) {
-    return fixedMinorBonus.replace(/{/, Math.floor(10 * (1 + Math.pow((60 * value) / (250 + (value)), 1.7))) / 10);
+    const result = Math.floor(10 * (1 + Math.pow((60 * value) / (250 + (value)), 1.7))) / 10;
+    return { description: fixedMinorBonus.replace(/{/, result), result };
   }
   if (index === 2) {
-    return fixedMinorBonus.replace(/{/, Math.round(5 * (value)));
+    const result = Math.round(5 * (value))
+    return { description: fixedMinorBonus.replace(/{/, result), result };
   }
   if (index === 5) {
-    return fixedMinorBonus.replace(/{/, Math.floor(((60 * value) / (100 + (value))) * 10) / 10);
+    const result = Math.floor(((60 * value) / (100 + (value))) * 10) / 10;
+    return { description: fixedMinorBonus.replace(/{/, result), result };
   }
-  return fixedMinorBonus.replace(/{/, Math.round(value));
+  return { description: fixedMinorBonus.replace(/{/, Math.round(value)), value: Math.round(value) };
 }
 
 const calcImportCost = (index, gamingImportsValues) => {

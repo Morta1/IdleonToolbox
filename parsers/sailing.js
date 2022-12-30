@@ -17,14 +17,15 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
   const maxChests = Math.min(Math.round(5 + (account?.gemShopPurchases?.find((value, index) => index === 129) ?? 0)), 19);
   const chests = getChests(chestsRaw, artifactsList, serverVars);
   const rareTreasureChance = getRareTreasureChance();
+  const lootPileList = getLootPile(lootPile);
 
   return {
     maxChests,
     artifacts: artifactsList,
-    lootPile: getLootPile(lootPile),
+    lootPile: lootPileList,
     chests,
     rareTreasureChance,
-    ...getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, artifactsList)
+    ...getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, artifactsList, lootPileList)
   };
 }
 
@@ -93,13 +94,14 @@ const getRareTreasureChance = () => {
   return Math.min(0.05, 0.1);
 }
 
-const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifactsList) => {
+const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifactsList, lootPileList) => {
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
   const captains = allCaptains.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
-  const boats = allBoats?.map((boat, index) => getBoat(boat, index, captains, artifactsList, account));
+  console.log('allBoats', allBoats)
+  const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({
     ...res,
     [captainMappedIndex]: index
@@ -111,8 +113,8 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
   }
 }
 
-const getBoat = (boat, boatIndex, captains, artifactsList, account) => {
-  const [captainIndex, islandIndex,, lootLevel,, speedLevel] = boat;
+const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account) => {
+  const [captainIndex, islandIndex, , lootLevel, , speedLevel] = boat;
   const captain = captains?.[captainIndex];
   const boatObj = {
     rawName: `Boat_Frame_${getBoatFrame(lootLevel + speedLevel)}`,
@@ -122,8 +124,11 @@ const getBoat = (boat, boatIndex, captains, artifactsList, account) => {
     captainMappedIndex: captain?.captainIndex,
     lootLevel, speedLevel,
     boatIndex,
-    island: islands?.[islandIndex]?.name
+    island: islands?.[islandIndex]?.name,
   }
+
+  boatObj.resources = getBoatResources(boatObj, lootPile);
+  console.log('boatObj.cost', boatObj.cost)
   boatObj.loot = getBoatLootValue(account, artifactsList, boatObj, captain);
   return boatObj
 }
@@ -152,6 +157,33 @@ const getCaptain = (captain, index) => {
   captainObj.expReq = notateNumber(getCaptainExpReq(captainObj), 'Big');
   return captainObj;
 }
+
+const getBoatResources = (boat, lootPile) => {
+  return [0, 1].map((index) => {
+    const boatType = getBoatUpgradeCostType(boat?.boatIndex, index);
+    return {
+      required: getBoatUpgradeCost(boat, index),
+      ...(lootPile?.[boatType] || {})
+    }
+  });
+}
+const getBoatUpgradeCostType = (boatIndex, itemIndex) => {
+  return 0 === itemIndex ? (4 > boatIndex ? 0 : Math.min(30, 1 + 2 * (boatIndex - 4))) :
+    2 > boatIndex ? boatIndex : 5 > boatIndex ? 1 + 2 * (boatIndex - 2) : Math.min(30, 2 * (boatIndex - 4));
+}
+
+const getBoatUpgradeCost = (boat, itemIndex) => {
+  const boatType = getBoatUpgradeCostType(boat?.boatIndex, itemIndex);
+  const value = itemIndex === 0 ? boat?.lootLevel : boat?.speedLevel;
+  if (boatType === 0) {
+    return Math.round((5 + 4 * value) * Math.pow(1.17 - .12 * value / (value + 200), value))
+  } else if (boatType % 2 === 1) {
+    return Math.round((5 + 2 * value) * Math.pow(1.15 - (0.1 * value) / (value + 200), value));
+  } else {
+    return Math.round((2 + value) * Math.pow(1.12 - (0.07 * value) / (value + 200), value));
+  }
+}
+
 
 const getBoatLootValue = (account, artifactsList, boat, captain) => {
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)

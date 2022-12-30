@@ -269,6 +269,10 @@ export const splitTime = (numberOfHours) => {
   return `${days}d:${hours}h:${minutes}m`;
 };
 
+export const randomFloatBetween = function(e, t) {
+  return e <= t ? e + Math.random() * (t - e) : t + Math.random() * (e - t)
+}
+
 export const sections = [{ name: "Activity" }, { name: "Stats" }, { name: "Bags" }, { name: "Obols" }, { name: "Obols Stats" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" }, { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" }, { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
 
 const isProd = process.env.NODE_ENV === "production";

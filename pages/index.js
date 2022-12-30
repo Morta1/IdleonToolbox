@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.31",
+    gameVer: "1.71",
+    date: "30/12/2022",
+    features: ['Added max possible nugget roll possible', 'Added the required resources for a boat upgrade'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.30",
     gameVer: "1.71",
     date: "29/12/2022",

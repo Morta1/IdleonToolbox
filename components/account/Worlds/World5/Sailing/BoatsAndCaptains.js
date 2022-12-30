@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
+import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
 
 const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
@@ -17,7 +17,8 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                      boatIndex,
                      captainIndex,
                      captainMappedIndex,
-                     island
+                     island,
+                     resources
                    }, index) => <Card
         key={`${rawName}-${index}`}>
         <CardContent sx={{ width: 250 }}>
@@ -41,6 +42,16 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
             <Typography variant={'caption'}>Base loot: {lootLevel}</Typography>
             <Typography variant={'caption'}>Base speed: {speedLevel}</Typography>
           </Stack>
+          {resources?.length > 0 ? <><Divider sx={{ my: 1 }}/>
+            <Stack>
+              {resources?.map(({ required, amount, rawName }, index) => <Stack key={`${rawName}-${index}`}
+                                                                               direction={'row'}>
+                <img style={{ width: 25, objectFit: 'contain' }}
+                     src={`${prefix}data/${rawName}.png`} alt=""/>
+                <Typography
+                  color={amount >= required ? 'success.light' : 'error.light'}>{notateNumber(amount, 'Big')} / {required}</Typography>
+              </Stack>)}
+            </Stack> </> : null}
           <Divider sx={{ my: 1 }}/>
           <Typography>Artifact Odds: {artifactChance}x</Typography>
         </CardContent>

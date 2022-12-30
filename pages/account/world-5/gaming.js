@@ -62,6 +62,7 @@ const Gaming = () => {
                        saveSprinklerChance,
                        acquired,
                        acornShop,
+                       maxNuggetValue,
                        level
                      }, index) => {
         return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
@@ -76,6 +77,7 @@ const Gaming = () => {
                 <Divider sx={{ my: 2 }}/> </> : null}
               <Typography>{cleanUnderscore(minorBonus)}</Typography>
               <Typography>Cost: {notateNumber(cost, "bits")} bits</Typography>
+              {acquired && (index === 1 || index === 2) ? <Divider sx={{ my: 2 }}/> : null}
               {acquired && index === 1 ?
                 <>
                   <Stack mt={1} direction={'row'} gap={1}>
@@ -85,6 +87,7 @@ const Gaming = () => {
                     </Tooltip>
                   </Stack>
                   <Typography># of nuggets: {goldNuggets}</Typography>
+                  <Typography>Max roll possible: {maxNuggetValue}</Typography>
                 </> : null}
               {acquired && index === 2 ?
                 <>
