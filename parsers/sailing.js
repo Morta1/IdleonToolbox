@@ -9,6 +9,7 @@ export const getSailing = (idleonData, artifactsList, charactersData, account, s
   const captainsRaw = tryToParse(idleonData?.Captains) || idleonData?.Captains;
   const boatsRaw = tryToParse(idleonData?.Boats) || idleonData?.Boats;
   const chestsRaw = tryToParse(idleonData?.SailChests) || idleonData?.SailChests;
+  if (!sailingRaw || !captainsRaw || !boatsRaw || !chestsRaw) return null;
   return parseSailing(artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars);
 }
 
@@ -98,7 +99,7 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
-  const captains = allCaptains.map((captain, index) => getCaptain(captain, index))
+  const captains = allCaptains?.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
   const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({

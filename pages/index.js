@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.32",
+    gameVer: "1.71",
+    date: "31/12/2022",
+    features: [],
+    fixes: ['Fixed a bug where accounts without world 5 data would crash'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.31",
     gameVer: "1.71",
     date: "30/12/2022",

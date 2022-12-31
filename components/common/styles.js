@@ -116,3 +116,7 @@ export const PlayersList = ({ players, characters }) => {
     </Tooltip>)}
   </Stack>
 }
+
+export const MissingData = ({ name }) => {
+  return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
+}

@@ -6,6 +6,7 @@ import LootPile from "../../../components/account/Worlds/World5/Sailing/LootPile
 import { prefix } from "../../../utility/helpers";
 import Chests from "../../../components/account/Worlds/World5/Sailing/Chests";
 import BoatsAndCaptains from "../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains";
+import { MissingData } from "../../../components/common/styles";
 
 const Sailing = () => {
   const { state } = useContext(AppContext);
@@ -15,7 +16,7 @@ const Sailing = () => {
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
   }
-
+  if (!state?.account?.sailing) return <MissingData name={'sailing'}/>;
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Sailing</Typography>
     <Stack mb={2} direction={'row'} gap={1}>

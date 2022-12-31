@@ -3,13 +3,14 @@ const { gods } = require('../data/website-data');
 
 export const getDivinity = (idleonData, serializedCharactersData) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
+  if (!divinityRaw) return null;
   return parseDivinity(divinityRaw, serializedCharactersData);
 }
 
 const parseDivinity = (divinityRaw, serializedCharactersData) => {
   const numberOfChars = serializedCharactersData?.length;
   const deitiesStartIndex = 12;
-  const linkedDeities = divinityRaw.slice(deitiesStartIndex, deitiesStartIndex + numberOfChars);
+  const linkedDeities = divinityRaw?.slice(deitiesStartIndex, deitiesStartIndex + numberOfChars);
   const deities = gods?.map((god, index) => {
       return {
         ...god,
@@ -18,8 +19,8 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
     }
   );
   const blessingBasesStartIndex = 28;
-  const blessingBases = divinityRaw.slice(blessingBasesStartIndex, blessingBasesStartIndex + deities?.length + 1);
-  const linkedStyles = divinityRaw.slice(0, serializedCharactersData?.length + 1);
+  const blessingBases = divinityRaw?.slice(blessingBasesStartIndex, blessingBasesStartIndex + deities?.length + 1);
+  const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
   const unlockedDeities = divinityRaw?.[25];
 
   return {

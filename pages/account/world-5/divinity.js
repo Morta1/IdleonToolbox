@@ -3,11 +3,12 @@ import { AppContext } from "../../../components/common/context/AppProvider";
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, prefix } from "../../../utility/helpers";
 import Tooltip from "components/Tooltip";
+import { MissingData } from "../../../components/common/styles";
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
   const { deities, linkedDeities, blessingBases, unlockedDeities } = state?.account?.divinity || {};
-
+  if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
     <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>

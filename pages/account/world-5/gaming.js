@@ -6,6 +6,7 @@ import styled from "@emotion/styled";
 import Timer from "../../../components/common/Timer";
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from "../../../components/Tooltip";
+import { MissingData } from "../../../components/common/styles";
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
@@ -20,7 +21,7 @@ const Gaming = () => {
     nuggetsBreakpoints,
     acornsBreakpoints
   } = state?.account?.gaming || {};
-
+  if (!state?.account?.gaming) return <MissingData name={'gaming'}/>;
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Gaming</Typography>
 

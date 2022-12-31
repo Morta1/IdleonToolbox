@@ -7,22 +7,23 @@ const { tryToParse } = require("../utility/helpers");
 export const getGaming = (idleonData, characters, account, serverVars) => {
   const gamingRaw = tryToParse(idleonData?.Gaming) || idleonData?.Gaming;
   const gamingSproutRaw = tryToParse(idleonData?.GamingSprout) || idleonData?.GamingSprout;
+  if (!gamingRaw || !gamingSproutRaw) return null;
   return parseGaming(gamingRaw, gamingSproutRaw, characters, account, serverVars);
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
   const bits = gamingRaw?.[0];
-  const lastShovelClicked = gamingSproutRaw[26][1];
+  const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);
-  const lastAcornClicked = gamingSproutRaw[27][1];
-  const squirrelLevel = gamingSproutRaw[27][0];
+  const lastAcornClicked = gamingSproutRaw?.[27]?.[1];
+  const squirrelLevel = gamingSproutRaw?.[27]?.[0];
   const acorns = calcAcorns(lastAcornClicked, squirrelLevel);
   const nuggetsBreakpoints = calcResourcePerTime('nugget');
   const acornsBreakpoints = calcResourcePerTime('acorn', squirrelLevel);
   const acornShop = calcAcornShop(gamingSproutRaw);
   const gamingImportsStartIndex = 25;
-  const gamingImportsValues = gamingSproutRaw.slice(gamingImportsStartIndex, gamingImportsStartIndex + gamingImports?.length + 1);
-  const fertilizerUpgrades = gamingRaw.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => ({
+  const gamingImportsValues = gamingSproutRaw?.slice(gamingImportsStartIndex, gamingImportsStartIndex + gamingImports?.length + 1);
+  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => ({
     ...gamingUpgrades?.[index],
     level,
     description: gamingUpgrades?.[index]?.description.replace(/{/, calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop)),
