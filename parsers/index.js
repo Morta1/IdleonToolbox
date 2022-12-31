@@ -59,6 +59,13 @@ export const parseData = (idleonData, charNames, guildData, serverVars) => {
     return { account: accountData, characters: charactersData };
   } catch (err) {
     console.error("Error while parsing data", err);
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'error', {
+        event_category: 'error',
+        event_label: 'engagement',
+        value: JSON.stringify(err),
+      })
+    }
   }
 };
 
