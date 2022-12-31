@@ -67,19 +67,6 @@ const maxNuggetValue = (bonus) => {
   return notateNumber(bonus * (1 / Math.pow(1e-5, 0.64)));
 }
 
-// const calcResourcePerTime = (type, squirrelLevel) => {
-//   // console.log()
-//   // const breakpoints = type === 'nugget' ? [1, 4.50, 12.09, 23.22, 38.47, 58.42] : [1, 2.1, 3.4, 5.1, 6.4];
-//   const breakpoints = findBreakpoints(type, squirrelLevel);
-//   return breakpoints.map((breakpoint) => {
-//     const math = (Math.floor(breakpoint) * 3600) + ((breakpoint % 1) * 60 * 100);
-//     return {
-//       time: math,
-//       amount: type === 'nugget' ? calcGoldNuggets(math) : calcAcorns(math, squirrelLevel)
-//     }
-//   })
-// }
-
 const calcResourcePerTime = (type, squirrelLevel) => {
   const bpObject = [1, 2, 3, 4, 5, 6].reduce(({ breakpoints, lastClicked }, _, index) => {
     let time = (Math.floor(lastClicked) * 3600) + ((lastClicked % 1) * 60 * 100);
