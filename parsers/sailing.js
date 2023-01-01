@@ -213,9 +213,8 @@ const getBoatArtifactChance = (artifacts, captain) => {
   const fauxoryTusk = isArtifactAcquired(artifacts, "Fauxory_Tusk");
   const firstCaptainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(3, captain, captain?.secondBonusIndex);
-  // var Bt = rd._customBlock_Sailing("ArtifactBonus", 3, 0),
-  //   Ot = a.engine.getGameAttribute("Boats")[0 | s][0];
-  return notateNumber(Math.max(1, 1 + (fauxoryTusk?.bonus + (firstCaptainBonus + secondCaptainBonus)) / 100), 'MultiplierInfo').replace('#', '');
+  return notateNumber(Math.max(1, 1 + (fauxoryTusk?.bonus + (firstCaptainBonus + secondCaptainBonus)) / 100), 'MultiplierInfo')
+    .replace('#', '');
 }
 
 const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {

@@ -62,6 +62,8 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
       {captains?.map(({
                         firstBonusDescription,
                         secondBonusDescription,
+                        firstBonus,
+                        secondBonus,
                         level,
                         exp,
                         expReq,
@@ -92,8 +94,10 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
               <Typography>Lv.{level}</Typography>
               <Typography>Exp: {exp} / {expReq}</Typography>
               <Divider sx={{ my: 1 }}/>
-              <Typography variant={'caption'}>{cleanUnderscore(firstBonusDescription)}</Typography>
-              <Typography variant={'caption'}>{cleanUnderscore(secondBonusDescription)}</Typography>
+              <Typography
+                variant={'caption'}>{cleanUnderscore(firstBonusDescription)} ({firstBonus / level})</Typography>
+              {secondBonus > 0 ? <Typography
+                variant={'caption'}>{cleanUnderscore(secondBonusDescription)} ({secondBonus / level})</Typography> : null}
             </Stack>
           </> : <Stack alignItems={'center'} justifyContent={'center'}>
             <Typography>EMPTY</Typography>
