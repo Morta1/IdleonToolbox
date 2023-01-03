@@ -88,6 +88,19 @@ const Refinery = () => {
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
 
+  const getFuelTime = (rank, costs, saltIndex) => {
+    const timeArray = [];
+    costs.forEach((cost) => {
+      const baseCost = calcCost(rank, cost?.quantity, cost?.rawName, saltIndex);
+      if (baseCost > cost?.totalAmount) {
+        timeArray.push(0)
+      }
+      timeArray.push((cost?.totalAmount ?? 0) / (baseCost));
+    });
+
+    return Math.min(...timeArray);
+  }
+
   return <>
     <Typography variant={'h2'} mb={3}>Refinery</Typography>
     <Stack my={3} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -117,7 +130,7 @@ const Refinery = () => {
             <Timer type={'countdown'} loop={true} startDate={startDate} date={nextCycle}
                    lastUpdated={state?.lastUpdated}/>
             <Typography sx={boldSx}>Max cycle time: <span
-              style={{ fontWeight: 400 }}>{minutes}m:{seconds < 10 ? `0${seconds}`:seconds}s</span></Typography>
+              style={{ fontWeight: 400 }}>{minutes}m:{seconds < 10 ? `0${seconds}` : seconds}s</span></Typography>
             <Typography sx={boldSx}>Cycles: <span
               style={{ fontWeight: 400 }}>{kFormatter(3600 / time, 2)}/hr</span></Typography>
           </CardContent>
@@ -142,7 +155,13 @@ const Refinery = () => {
                                                     rawName,
                                                     quantity,
                                                     totalAmount
-                                                  }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex))
+                                                  }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex));
+        console.log('refineryCycles', refineryCycles)
+        let fuelTime;
+        if (refineryCycles.length) {
+          fuelTime = getFuelTime(rank, cost, saltIndex) * refineryCycles[Math.floor(saltIndex / 3)]?.time;
+          console.log('fuelTime', fuelTime)
+        }
         return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content' }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'flex-start'} gap={3} flexWrap={'wrap'}>
@@ -163,6 +182,10 @@ const Refinery = () => {
                       color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle ? 'RANK UP' : 'Missing Mats'}</Typography>}
                     date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/> :
                   <Typography component={'span'} color={'error'}>Inactive</Typography>}</Typography>
+                <Typography>Fuel: {fuelTime ? <Timer type={'countdown'}
+                                                     date={new Date().getTime() + fuelTime * 1000}
+                                                     lastUpdated={state?.lastUpdated}
+                /> : 'Empty'}</Typography>
                 <ProgressBar percent={progressPercentage} bgColor={saltsColors?.[saltIndex]}/>
               </Stack>
               <Stack>

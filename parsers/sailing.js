@@ -71,6 +71,7 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
   const artifactChance = 100 * Math.min(1, 1 - (baseMath));
   const possibleArtifacts = artifactsList?.slice(artifactsStartIndex, artifactsStartIndex + island?.numberOfArtifacts)
     .filter(({ acquired }) => acquired < 2);
+
   return {
     artifactChance: artifactChance > 0.01 ? Math.round(100 * artifactChance) / 100 : 0.01,
     ancientChance: (chance / getAncientChances(islandIndex, serverVars)).toFixed(5),
