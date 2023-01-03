@@ -156,11 +156,9 @@ const Refinery = () => {
                                                     quantity,
                                                     totalAmount
                                                   }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex));
-        console.log('refineryCycles', refineryCycles)
         let fuelTime;
         if (refineryCycles.length) {
           fuelTime = getFuelTime(rank, cost, saltIndex) * refineryCycles[Math.floor(saltIndex / 3)]?.time;
-          console.log('fuelTime', fuelTime)
         }
         return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content' }}>
           <CardContent>
