@@ -10,15 +10,16 @@ import { getJewelBonus, getLabBonus } from "./lab";
 
 export const getLibraryBookTimes = (idleonData, account) => {
   const bookCount = account?.accountOptions?.[55];
+  const timeAway = account?.timeAway;
   const breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
-      time: calcTimeToXBooks(bookCount, maxCount, account, idleonData)
+      time: calcTimeToXBooks(bookCount, maxCount, account, idleonData) - timeAway?.BookLib
     }
   })
   return {
     bookCount,
-    next: getTimeToNextBooks(bookCount, account, idleonData),
+    next: getTimeToNextBooks(bookCount, account, idleonData) - timeAway?.BookLib,
     breakpoints
   }
 }
@@ -33,7 +34,6 @@ const calcTimeToXBooks = (bookCount, maxCount, account, idleonData) => {
 
 export const getTimeToNextBooks = (bookCount, account, idleonData) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
-  const timeAway = account?.timeAway;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = 1 + getMealsBonusByEffectOrStat(account?.cooking?.meals, 'Library_checkout_Speed', null, blackDiamondRhinestone) / 100;
@@ -44,7 +44,7 @@ export const getTimeToNextBooks = (bookCount, account, idleonData) => {
   const math = 3600 / ((mealBonus * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
     + (stampBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
 
-  return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100)) - timeAway?.BookLib;
+  return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100));
 }
 
 export const getLooty = (idleonData) => {
