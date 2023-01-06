@@ -100,8 +100,10 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
+  console.log('allCaptains', allCaptains)
   const captains = allCaptains?.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
+  console.log('allBoats', allBoats)
   const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({
     ...res,
@@ -115,7 +117,7 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
 }
 
 const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account) => {
-  const [captainIndex, islandIndex, , lootLevel, , speedLevel] = boat;
+  const [captainIndex, islandIndex, , lootLevel, distanceTraveled, speedLevel] = boat;
   const captain = captains?.[captainIndex];
   const boatObj = {
     rawName: `Boat_Frame_${getBoatFrame(lootLevel + speedLevel)}`,
@@ -125,7 +127,8 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account) =>
     captainMappedIndex: captain?.captainIndex,
     lootLevel, speedLevel,
     boatIndex,
-    island: islands?.[islandIndex]?.name,
+    island: islands?.[islandIndex],
+    distanceTraveled,
   }
 
   boatObj.resources = getBoatResources(boatObj, lootPile);

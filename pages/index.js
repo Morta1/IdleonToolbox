@@ -24,7 +24,7 @@ const patchNotes = [
     ver: "3.1.33",
     gameVer: "1.71",
     date: "06/01/2022",
-    features: ['Added library checkouts counter with breakpoints for 16, 18, 20 on Account -> General page (let me know if the timers are off)'],
+    features: ['Added library checkouts counter with breakpoints for 16, 18, 20 on Account -> General page (let me know if the timers are off)', 'Added percentage completed of the boat trip to the island'],
     fixes: [],
     deprecatedFeatures: []
   },

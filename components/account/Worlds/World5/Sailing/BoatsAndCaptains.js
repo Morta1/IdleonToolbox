@@ -18,6 +18,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                      captainIndex,
                      captainMappedIndex,
                      island,
+                     distanceTraveled,
                      resources
                    }, index) => <Card
         key={`${rawName}-${index}`}>
@@ -31,7 +32,8 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
             <Stack>
               <Typography>Lv. {level}</Typography>
               <Typography variant={'caption'}>Captain {captainMappedIndex}</Typography>
-              <Typography variant={'caption'}>Island - {cleanUnderscore(island)}</Typography>
+              <Typography variant={'caption'}>Island - {cleanUnderscore(island?.name)}</Typography>
+              <Typography variant={'caption'}>Trip {Math.round(distanceTraveled / island?.distance * 100)}% complete</Typography>
             </Stack>
           </Stack>
           <Divider sx={{ my: 1 }}/>
