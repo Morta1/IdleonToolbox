@@ -2,6 +2,50 @@ import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredLootyItems, keysMap } from "./parseMaps";
 import { items } from "../data/website-data";
 import { talentPagesMap } from "./talents";
+import { getMealsBonusByEffectOrStat } from "./cooking";
+import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
+import { getStampsBonusByEffect } from "./stamps";
+import { getAchievementStatus } from "./achievements";
+import { getJewelBonus, getLabBonus } from "./lab";
+
+export const getLibraryBookTimes = (idleonData, account) => {
+  const bookCount = account?.accountOptions?.[55];
+  const breakpoints = [16, 18, 20].map((maxCount) => {
+    return {
+      breakpoint: maxCount,
+      time: calcTimeToXBooks(bookCount, maxCount, account, idleonData)
+    }
+  })
+  return {
+    bookCount,
+    next: getTimeToNextBooks(bookCount, account, idleonData),
+    breakpoints
+  }
+}
+
+const calcTimeToXBooks = (bookCount, maxCount, account, idleonData) => {
+  let time = 0;
+  for (let i = bookCount; i < maxCount; i++) {
+    time += getTimeToNextBooks(i, account, idleonData);
+  }
+  return time;
+}
+
+export const getTimeToNextBooks = (bookCount, account, idleonData) => {
+  const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
+  const timeAway = account?.timeAway;
+  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+  const mealBonus = 1 + getMealsBonusByEffectOrStat(account?.cooking?.meals, 'Library_checkout_Speed', null, blackDiamondRhinestone) / 100;
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')
+  const libraryTowerLevel = towersLevels?.[1];
+  const math = 3600 / ((mealBonus * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
+    + (stampBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
+
+  return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100)) - timeAway?.BookLib;
+}
 
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
@@ -32,18 +76,20 @@ export const getLooty = (idleonData) => {
   };
 };
 
-export const getCurrencies = (idleonData, accountData) => {
+export const getCurrencies = (idleonData) => {
   const keys = idleonData?.CurrenciesOwned?.["KeysAll"] || idleonData?.CYKeysAll;
   if (idleonData?.CurrenciesOwned) {
     return {
       ...idleonData?.CurrenciesOwned,
-      KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res), [])
+      KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res,
+        { amount: keyAmount, ...keysMap[index] }] : res), [])
     };
   }
 
   return {
     WorldTeleports: idleonData?.CYWorldTeleports,
-    KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res, { amount: keyAmount, ...keysMap[index] }] : res), []),
+    KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res,
+      { amount: keyAmount, ...keysMap[index] }] : res), []),
     ColosseumTickets: idleonData?.CYColosseumTickets,
     ObolFragments: idleonData?.CYObolFragments,
     SilverPens: idleonData?.CYSilverPens,
@@ -51,7 +97,6 @@ export const getCurrencies = (idleonData, accountData) => {
     DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
     DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
     DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
-    libraryCheckouts: accountData?.accountOptions?.[55],
     minigamePlays: idleonData?.PVMinigamePlays_1,
   };
 };

@@ -19,7 +19,13 @@ import { getAchievements } from "./achievements";
 import { getRefinery } from "./refinery";
 import { getTasks } from "./tasks";
 import { getArcade } from "./arcade";
-import { calculateLeaderboard, getBundles, getCurrencies, getLooty } from "./misc";
+import {
+  calculateLeaderboard,
+  getBundles,
+  getCurrencies,
+  getLibraryBookTimes,
+  getLooty,
+} from "./misc";
 import { getSaltLick } from "./saltLick";
 import { getDungeons } from "./dungeons";
 import { applyMealsMulti, getCooking, getKitchens } from "./cooking";
@@ -157,7 +163,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, accountData);
-
+  accountData.libraryTimes = getLibraryBookTimes(idleonData, accountData);
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;

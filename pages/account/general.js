@@ -7,6 +7,7 @@ import Highscores from "components/account/Misc/Highscores";
 import Totals from "components/account/Misc/Totals";
 import { AppContext } from "components/common/context/AppProvider";
 import { useContext } from "react";
+import Library from "../../components/account/Worlds/World3/Library";
 
 const dividerSx = { marginTop: 4, display: { xs: "flex", sm: "none" } };
 
@@ -24,6 +25,10 @@ const General = () => {
       </Grid>
       <Grid item xs={3}>
         <Shrines shrines={state?.account?.shrines}/>
+        <Divider sx={dividerSx}/>
+      </Grid>
+      <Grid item xs={3}>
+        <Library libraryTimes={state?.account?.libraryTimes} lastUpdated={state?.lastUpdated}/>
         <Divider sx={dividerSx}/>
       </Grid>
       <Grid item xs={3}>
