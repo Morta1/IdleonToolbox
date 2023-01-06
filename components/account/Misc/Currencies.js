@@ -10,7 +10,6 @@ const Currencies = ({
                       SilverPens,
                       gems,
                       KeysAll,
-                      libraryCheckouts,
                       minigamePlays
                     }) => {
   return (
@@ -24,8 +23,6 @@ const Currencies = ({
         <IconWithText stat={gems} icon={'PremiumGem'}/>
         <IconWithText stat={minigamePlays} img={{ style: { width: 72, height: 72, objectFit: 'contain' } }}
                       icon={'MGp'}/>
-        <IconWithText stat={libraryCheckouts} img={{ style: { width: 72, height: 72, objectFit: 'contain' } }}
-                      icon={'Libz'}/>
         {KeysAll?.map(({ rawName, amount }, index) => {
           return <IconWithText key={`${rawName}-${index}`} stat={amount} icon={rawName}/>
         })}
