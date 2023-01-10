@@ -74,7 +74,7 @@ const Bubbles = () => {
   };
 
   const calculateMaterialCost = (bubbleLv, baseCost, isLiquid, cauldronName, bubbleIndex) => {
-    const cauldronCostLvl = state?.account?.alchemy?.cauldrons?.[cauldronName]?.cost?.level || 0;
+    const cauldronCostLvl = state?.account?.alchemy?.cauldrons?.[cauldronName]?.boosts?.cost?.level || 0;
     const undevelopedBubbleLv = state?.account?.alchemy?.bubbles?.kazam?.[6].level || 0;
     const barleyBrewLvl = state?.account?.alchemy?.vials?.[9]?.level || 0;
     const multiBubble = cauldronName !== 'kazam' ? state?.account?.alchemy?.bubbles?.[cauldronName]?.[16]?.level || 0 : 0;
@@ -101,7 +101,8 @@ const Bubbles = () => {
     );
   }
 
-  const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals, bargainTag, classDiscount]);
+  const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
+    bargainTag, classDiscount]);
 
   const getUpgradeableBubbles = (acc) => {
     let upgradeableBubblesAmount = 3;
@@ -114,7 +115,7 @@ const Bubbles = () => {
     }
     const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
     if (amberiteArtifact) {
-      upgradeableBubblesAmount += amberiteArtifact?.baseBonus;
+      upgradeableBubblesAmount += amberiteArtifact?.acquired === 2 ? amberiteArtifact?.baseBonus * 2 : amberiteArtifact?.baseBonus;
     }
     return found.slice(0, upgradeableBubblesAmount);
   }

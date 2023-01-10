@@ -100,10 +100,8 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
-  console.log('allCaptains', allCaptains)
   const captains = allCaptains?.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
-  console.log('allBoats', allBoats)
   const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({
     ...res,

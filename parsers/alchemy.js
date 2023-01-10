@@ -230,7 +230,7 @@ export const getSigilBonus = (sigils, name) => {
   if (!sigils) return 0;
   return sigils?.reduce((res, sigil) => {
     if (sigil?.name !== name) return res;
-    return res + (sigil?.unlocked === 1 ? sigil?.boostBonus : sigil?.unlocked === 0 ? sigil?.unlockBonus : 0);
+    return res + (sigil?.bonus);
   }, 0);
 };
 

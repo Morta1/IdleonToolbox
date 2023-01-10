@@ -41,7 +41,7 @@ const Looty = () => {
             return (
               <Card sx={{ width: 75 }} key={`${name}-${index}`}>
                 <CardContent>
-                  <Stack alignItems="center" key={`${rawName}-${index}`}>
+                  <Stack alignItems="center" key={`${rawName}-${index}`} data-index={index}>
                     <HtmlTooltip title={cleanUnderscore(name)}>
                       <ItemImg width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
                     </HtmlTooltip>

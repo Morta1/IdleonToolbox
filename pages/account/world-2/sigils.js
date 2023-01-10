@@ -25,13 +25,10 @@ const Sigils = () => {
             effect,
             unlocked,
             unlockCost,
-            boostBonus,
             boostCost,
-            unlockBonus,
+            bonus,
             characters
           } = sigil;
-
-          let effectValue = unlocked === 1 ? boostBonus : unlockBonus;
 
           return (
             <Card
@@ -54,7 +51,7 @@ const Sigils = () => {
                 </Stack>
                 <Stack mt={2} gap={2}>
                   <Typography
-                    sx={{ color: chilledYarnArtifact ? 'info.light' : '' }}>Effect: {cleanUnderscore(effect?.replace(/{/g, effectValue))}</Typography>
+                    sx={{ color: chilledYarnArtifact ? 'info.light' : '' }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
                   {progress < boostCost ? (
                     <Typography>
                       Progress: {notateNumber(progress, "Small")}/{unlocked === 0 ? notateNumber(boostCost, "Small") : notateNumber(unlockCost, "Small")}

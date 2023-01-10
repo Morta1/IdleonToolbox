@@ -166,14 +166,11 @@ const parseKitchens = (cookingRaw, account) => {
     const mealSpeedCardImpact = 1 + Math.min(6 * (trollCardStars === 0 ? 0 : trollCardStars + 1)
       + (20 * getAchievementStatus(account?.achievements, 225) +
         10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
-    const mealSpeed = 10 *
-      (1 + (isRichelin ? 2 : 0)) *
-      Math.max(1, Math.pow(diamondChef, diamondMeals)) *
-      ((1 + speedLv / 10) * (triagulonSpeedBonus)) *
-      (1 + cookingSpeedVials / 100) *
-      mealSpeedBonusMath *
-      mealSpeedCardImpact *
-      (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+
+    const firstMath = 10 * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
+    const secondMath = ((1 + speedLv / 10) * (triagulonSpeedBonus));
+    const thirdMath = (1 + cookingSpeedVials / 100);
+    const mealSpeed = firstMath * secondMath * thirdMath * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
