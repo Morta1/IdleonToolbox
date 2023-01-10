@@ -133,6 +133,14 @@ export const getVialsBonusByEffect = (vials, effectName) => {
   }, 0);
 };
 
+export const getVialsBonusByStat = (vials, statName) => {
+  return vials?.reduce((sum, vial) => {
+    const { func, level, x1, x2, multiplier = 1, stat } = vial;
+    if (statName !== stat) return sum;
+    return sum + (growth(func, level, x1, x2) ?? 0) * multiplier;
+  }, 0);
+};
+
 export const applyVialsMulti = (vials, multiplier) => {
   return vials?.map((vial) => ({ ...vial, multiplier }));
 };

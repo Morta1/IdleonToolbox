@@ -5,7 +5,7 @@ import { getStatFromEquipment } from "./items";
 import { tryToParse } from "../utility/helpers";
 import { getPostOfficeBonus } from "./postoffice";
 import { getJewelBonus, getLabBonus } from "./lab";
-import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
+import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
 import { isArenaBonusActive } from "./misc";
 import { getAchievementStatus } from "./achievements";
 import { isArtifactAcquired } from "./sailing";
@@ -146,7 +146,7 @@ const parseKitchens = (cookingRaw, account) => {
     const cookingSpeedFromJewel = Math.floor(globalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 0);
 
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
-    const cookingSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Meal_Cooking_Speed');
+    const cookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, 'MealCook');
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchenEff', blackDiamondRhinestone);
