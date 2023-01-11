@@ -57,6 +57,7 @@ const worldsData = {
     categories: [
       { label: "Printer", icon: "ConTower0" },
       { label: "refinery", icon: "TaskSc6" },
+      { label: "atomCollider", icon: "ConTower8" },
       { label: "towers", icon: "ConTower7" },
       { label: "deathNote", icon: "ConTower2" },
       { label: "worship", icon: "WorshipSkull1" },

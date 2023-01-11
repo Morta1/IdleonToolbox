@@ -108,8 +108,13 @@ const Bubbles = () => {
     let upgradeableBubblesAmount = 3;
     const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
     if (!noBubbleLeftBehind) return null;
-    const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles) => bubbles);
+    const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
+      return bubbles.map((bubble, bubbleIndex) => {
+        return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
+      });
+    });
     const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15).sort((a, b) => a.level - b.level);
+    const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
     if (acc?.lab?.jewels?.find(jewel => jewel.name === "Pyrite_Rhinestone")?.active) {
       upgradeableBubblesAmount++;
     }
@@ -117,7 +122,7 @@ const Bubbles = () => {
     if (amberiteArtifact) {
       upgradeableBubblesAmount += amberiteArtifact?.acquired === 2 ? amberiteArtifact?.baseBonus * 2 : amberiteArtifact?.baseBonus;
     }
-    return found.slice(0, upgradeableBubblesAmount);
+    return sorted.slice(0, upgradeableBubblesAmount);
   }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
 

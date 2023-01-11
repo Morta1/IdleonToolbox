@@ -40,6 +40,7 @@ import { getBreeding } from "./breeding";
 import { getDivinity } from "./divinity";
 import { getArtifacts, getSailing } from "./sailing";
 import { getGaming } from "./gaming";
+import { getAtoms } from "./atomCollider";
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
@@ -150,6 +151,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
   accountData.deathNote = getDeathNote(charactersData);
+  accountData.atoms = getAtoms(idleonData, accountData);
 
   // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);

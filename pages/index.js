@@ -21,6 +21,15 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.34",
+    gameVer: "1.72",
+    date: "11/01/2022",
+    features: ['Added images and data from version 1.72', <Typography>Added <Link
+      href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.33",
     gameVer: "1.71",
     date: "06/01/2022",
