@@ -246,7 +246,7 @@ export const getDuration = (start, end) => {
   let duration = intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
   if (duration?.years) {
     const daysInYear = getDaysInYear(new Date());
-    duration.days = duration.days + daysInYear;
+    duration.days = duration.days + daysInYear * duration?.years;
   }
   if (duration?.months) {
     const daysInMonth = getDaysInMonth(new Date());

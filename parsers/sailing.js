@@ -317,7 +317,6 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
 
   if (ancientForm && artifact?.ancientFormDescription === "The_artifact's_main_bonus_is_doubled!") {
     bonus *= 2;
-    baseBonus *= 2;
   }
 
   fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, kFormatter(bonus, 2)).replace(/@/, '');
@@ -329,4 +328,8 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     acquired,
     rawName: `Arti${index}`
   }
+}
+
+const getNextTurkeyLevel = () => {
+
 }

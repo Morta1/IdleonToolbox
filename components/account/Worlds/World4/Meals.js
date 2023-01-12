@@ -84,14 +84,14 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
-  }, [filters, meals]);
+  }, [filters, meals, mealMaxLevel]);
 
   const handleFilters = (e, newFilters) => {
     setFilters(newFilters);
   };
 
   const getBestMealsSpeedContribute = (meals) => {
-    let speedMeals = meals.filter((meal) => meal?.effect?.includes('Meal_Cooking_Speed') && meal?.level < mealMaxLevel);
+    let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
       const { level, baseStat, multiplier, timeTillNextLevel } = meal;
       const currentBonus = (level) * baseStat * multiplier;
