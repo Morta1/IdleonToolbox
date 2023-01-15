@@ -12,7 +12,7 @@ const AtomCollider = ({}) => {
 
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Atoms</Typography>
-    <Card sx={{ my: 2, width: 100 }}>
+    <Card sx={{ my: 2, width: 'fit-content' }}>
       <CardContent>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img src={`${prefix}etc/Particle.png`}
