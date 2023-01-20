@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.35",
+    gameVer: "1.73",
+    date: "11/01/2022",
+    features: ['Added images and data from version 1.73'],
+    fixes: ['Fixed sigil bonuses'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.34",
     gameVer: "1.72",
     date: "11/01/2022",

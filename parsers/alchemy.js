@@ -245,6 +245,6 @@ export const getSigilBonus = (sigils, name) => {
 export const applyArtifactBonusOnSigil = (sigils, artifacts) => {
   const chilledYarnArtifact = isArtifactAcquired(artifacts, 'Chilled_Yarn');
   if (!chilledYarnArtifact) return sigils;
-  const chilledYarnArtifactBonus = chilledYarnArtifact?.bonus * 2;
-  return sigils?.map((sigil) => ({ ...sigil, bonus: sigil.boostBonus * chilledYarnArtifactBonus }))
+  const chilledYarnArtifactBonus = 1 + chilledYarnArtifact?.bonus;
+  return sigils?.map((sigil) => ({ ...sigil, bonus: sigil.bonus * chilledYarnArtifactBonus }))
 }
