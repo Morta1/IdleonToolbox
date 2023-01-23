@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.36",
+    gameVer: "1.73",
+    date: "23/01/2022",
+    features: [],
+    fixes: ['Fixed atom collider bug when freshly opened'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.35",
     gameVer: "1.73",
     date: "11/01/2022",
