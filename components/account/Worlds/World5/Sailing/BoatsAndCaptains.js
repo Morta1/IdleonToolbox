@@ -4,6 +4,7 @@ import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/he
 import styled from "@emotion/styled";
 
 const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
+  console.log('captains', captains)
   return <>
     <Typography my={3} variant={'h3'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
@@ -80,7 +81,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
               <Stack gap={1}>
                 <img style={{ width: 25, height: 25, objectFit: 'contain' }}
                      src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt=""/>
-                {secondBonusIndex > 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
+                {secondBonusIndex >= 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
                                              src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
                                              alt=""/> : <>&nbsp;</>}
               </Stack>
