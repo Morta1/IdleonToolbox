@@ -8,13 +8,17 @@ import { getVialsBonusByEffect } from "parsers/alchemy";
 import { getPostOfficeBonus } from "parsers/postoffice";
 import ProgressBar from "components/common/ProgressBar";
 import { getStampsBonusByEffect } from "../../../parsers/stamps";
+import { getHighestLevelOfClass } from "../../../parsers/misc";
+import { getFamilyBonusBonus } from "../../../parsers/family";
+import { classFamilyBonuses } from "../../../data/website-data";
+import { getHighestTalentByClass } from "../../../parsers/talents";
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
 
 const Refinery = () => {
   const { state } = useContext(AppContext);
-  const { refinery, alchemy, saltLick, lab, stamps } = state?.account;
+  const { refinery, alchemy, saltLick, lab, stamps, charactersLevels } = state?.account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
@@ -27,6 +31,10 @@ const Refinery = () => {
   const [refineryCycles, setRefineryCycles] = useState([]);
 
   useEffect(() => {
+    const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
+    const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
+    const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
+    const amplifiedFamilyBonus = familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
     const squires = state?.characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');
     const squiresDataTemp = squires.reduce((res, character) => {
       const { name, talents, cooldowns, postOffice, afkTime } = character;
@@ -56,12 +64,12 @@ const Refinery = () => {
 
     const combustion = {
       name: "Combustion",
-      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed + stampRefinerySpeed) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed) / 100) * labCycleBonus)),
       timePast: refinery?.timePastCombustion + timePassed
     };
     const synthesis = {
       name: "Synthesis",
-      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + sigilRefinerySpeed + stampRefinerySpeed) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed) / 100) * labCycleBonus)),
       timePast: refinery?.timePastSynthesis + timePassed
     }
     setRefineryCycles([combustion, synthesis]);

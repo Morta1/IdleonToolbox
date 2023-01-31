@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.37",
+    gameVer: "1.74",
+    date: "31/01/2022",
+    features: ['Update the website with 1.74 data and assets', 'Added "King of the remembrance" calculation to printer'],
+    fixes: ['Shrine bonus is now calculated correctly (hopefully)', 'Added extra levels from symbol talents and bear god', 'Fixed family bonuses to account for The Family Guy talent'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.36",
     gameVer: "1.73",
     date: "23/01/2022",

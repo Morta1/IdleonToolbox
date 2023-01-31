@@ -1,6 +1,7 @@
 import { tryToParse } from "../utility/helpers";
 import { shrines } from '../data/website-data';
-import { getEquippedCardBonus } from "./cards";
+import { calcCardBonus } from "./cards";
+import { isArtifactAcquired } from "./sailing";
 
 const startingIndex = 18;
 
@@ -28,16 +29,18 @@ export const parseShrines = (shrinesRaw, account) => {
   }, []);
 }
 
-export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, cardIndex) => {
+export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifacts) => {
+  const moaiHead = isArtifactAcquired(artifacts, 'Moai_Head');
   const shrine = shrines?.[shrineIndex];
   const playerWorld = Math.floor(playerMapId / 50);
   const shrineWorld = Math.floor(shrine?.mapId / 50);
   const shrineInTown = shrine?.mapId % 50 === 0;
   const notSameMap = playerMapId !== shrine?.mapId;
-  const worldTourApplicable = shrine?.worldTour && shrineInTown && playerWorld === shrineWorld;
-  if (shrine?.level === 0 || (notSameMap && !worldTourApplicable)) {
+  const globalApplicable = (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || moaiHead;
+  if (shrine?.level === 0 || (notSameMap && !globalApplicable)) {
     return 0;
   }
-  const cardBonus = getEquippedCardBonus(cards, cardIndex) ?? 0;
+  const chaoticChizoarCard = cards?.Chaotic_Chizoar;
+  const cardBonus = calcCardBonus(chaoticChizoarCard) ?? 0;
   return shrine?.bonus * (1 + cardBonus / 100);
 }

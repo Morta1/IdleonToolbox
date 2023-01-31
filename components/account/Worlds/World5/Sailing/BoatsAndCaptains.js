@@ -4,7 +4,6 @@ import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/he
 import styled from "@emotion/styled";
 
 const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
-  console.log('captains', captains)
   return <>
     <Typography my={3} variant={'h3'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>

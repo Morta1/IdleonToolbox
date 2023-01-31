@@ -146,8 +146,10 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
   const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
 
   const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
-  const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Shaman');
+  const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(charactersLevels, 'Shaman') ?? 0;
+  const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
+  const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[8]), 0);
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7', 0);
@@ -155,7 +157,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
   const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false);
   const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE')
   const goldenGoodMulti = getGoldenFoodMulti(
-    familyBonus,
+    amplifiedFamilyBonus,
     equipmentGoldFoodBonus,
     hungryForGoldTalentBonus,
     goldenAppleStamp,
@@ -183,7 +185,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
 // }
 
   const skillExpCardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
-  const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap`], character.cards, 'Z9');
+  const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap`], account.cards, account?.sailing?.artifacts);
   const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
   const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy')?.bonus
   const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit')?.curse;
@@ -228,7 +230,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
     guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
   }
   const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
-  const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap`], character.cards, 'Z9');
+  const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap`], account.cards, account?.sailing?.artifacts);
   const bribeCapBonus = getBribeBonus(account?.bribes, 'Bottomless_Bags');
   const allCapacity = getAllCapsBonus(guildCarryBonus, telekineticStorageBonus, carryCapShrineBonus, zergPrayerBonus, ruckSackPrayerBonus, bribeCapBonus);
 

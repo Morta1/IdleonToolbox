@@ -94,3 +94,40 @@ export const createTalentPage = (className, pages, talentsObject, maxTalentsObje
 export const getActiveBuffs = (activeBuffs, talents) => {
   return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId));
 }
+
+export const getHighestTalentByClass = (characters, talentTree, className, talentName) => {
+  const classes = characters?.filter((character) => character?.class === className);
+  return classes?.reduce((res, { talents }) => {
+    const theFamilyGuy = getTalentBonus(talents, talentTree, talentName);
+    if (theFamilyGuy > res) {
+      return theFamilyGuy
+    }
+    return res;
+  }, 0);
+}
+
+export const applyTalentAddedLevels = (talents, linkedDeity, deityMinorBonus) => {
+  let addedLevels = 0;
+  if (linkedDeity === 1) {
+    addedLevels += deityMinorBonus;
+  }
+  const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'))
+  if (symbolTalent) {
+    const symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
+    addedLevels += symbolAddedLevel;
+  }
+  return Object.entries(talents).reduce((res, [key, data]) => {
+    const { orderedTalents } = data;
+    const updatedTalents = orderedTalents?.map((talent) => ({
+      ...talent,
+      level: talent.level > 1 ? Math.ceil(talent.level + addedLevels) : talent.level
+    }));
+    return {
+      ...res,
+      [key]: {
+        ...data,
+        orderedTalents: updatedTalents
+      }
+    }
+  }, {});
+}

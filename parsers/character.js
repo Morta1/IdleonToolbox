@@ -19,7 +19,14 @@ import { calculateAfkTime, getHighestLevelOfClass, getMaterialCapacity } from ".
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatFromEquipment } from "./items";
 import { getInventory } from "./storage";
 import { skillIndexMap } from "./parseMaps";
-import { createTalentPage, getActiveBuffs, getTalentBonus, getTalentBonusIfActive, talentPagesMap } from "./talents";
+import {
+  applyTalentAddedLevels,
+  createTalentPage,
+  getActiveBuffs, getHighestTalentByClass,
+  getTalentBonus,
+  getTalentBonusIfActive,
+  talentPagesMap
+} from "./talents";
 import { calcCardBonus, getEquippedCardBonus, getPlayerCards } from "./cards";
 import { getStampBonus, getStampsBonusByEffect } from "./stamps";
 import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
@@ -339,6 +346,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
   // }
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4;
+  character.talents = applyTalentAddedLevels(talents, linkedDeity, character.deityMinorBonus);
   return character;
 }
 
@@ -398,7 +406,7 @@ export const getBarbarianZowChow = (allKills, threshold) => {
 }
 
 export const getPlayerCrystalChance = (character, account) => {
-  const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, character.cards, 'Z9');
+  const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, account?.sailing?.artifacts);
   const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0);
   const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
   const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
@@ -499,7 +507,7 @@ export const getAfkGain = (character, skillName, bribes, arcadeShop, dungeonUpgr
       const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
       let afkGains = .25 + (tickTockBonus + (baseMath + (trappingBonus + ((starSignAfkGains) + bribeAfkGains)))) / 100;
       if (afkGains < .8) {
-        const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, character.cards, 'Z9');
+        const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
         afkGains = Math.min(.8, afkGains + shrineAfkGains / 100);
       }
       return afkGains;
@@ -537,7 +545,9 @@ export const getAllBaseSkillEff = (character, playerChips, jewels) => {
 
 export const getAllEff = (character, meals, lab, accountCards, guildBonuses, charactersLevels) => {
   const highestLevelHunter = getHighestLevelOfClass(charactersLevels, 'Hunter');
+  const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Beast_Master', 'THE_FAMILY_GUY')
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
+  const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
   const equipmentEffEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[48]), 0);
   const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab.jewels, 16, spelunkerObolMulti);
@@ -559,7 +569,7 @@ export const getAllEff = (character, meals, lab, accountCards, guildBonuses, cha
   //   * (1 + (guildSKillEff + (cardSet + skilledDimwit)) / 100)
   //   * Math.max(1 - (maestroTransfusion + balanceOfProficiency) / 100, .01);
 
-  return (1 + ((familyEffBonus) + (equipmentEffEffectBonus + 0)) / 100) *
+  return (1 + ((amplifiedFamilyBonus) + (equipmentEffEffectBonus + 0)) / 100) *
     (1 + (mealEff + (groundedMotherboard + 3 * crystalCapybaraBonus)) / 100) *
     (1 + chaoticTrollBonus / 100) *
     (1 + (guildSKillEff + (cardSet + skilledDimwit)) / 100) *
