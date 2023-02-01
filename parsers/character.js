@@ -166,7 +166,7 @@ export const getCharacters = (idleonData, charsNames) => {
   })
 }
 
-export const initializeCharacter = (char, charactersLevels, account) => {
+export const initializeCharacter = (char, charactersLevels, account, idleonData) => {
   const character = {};
   character.playerId = char.playerId;
   character.name = char.name;
@@ -304,7 +304,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
     chipBoost: 2
   }) : card);
 
-  character.anvil = getPlayerAnvil(char, character, account, charactersLevels);
+  character.anvil = getPlayerAnvil(char, character, account, charactersLevels, idleonData);
   const charObols = getObols(char, false);
   character.obols = {
     ...charObols,
@@ -312,7 +312,7 @@ export const initializeCharacter = (char, charactersLevels, account) => {
   };
   character.worship = getPlayerWorship(character, pages, account, char?.PlayerStuff?.[0]);
   character.quests = getPlayerQuests(char?.QuestComplete);
-  character.crystalSpawnChance = getPlayerCrystalChance(character, account);
+  character.crystalSpawnChance = getPlayerCrystalChance(character, account, idleonData);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
   character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, account?.alchemy?.bubbles, account?.lab?.jewels, account?.lab?.labBonuses);
   character.constructionSpeed = getPlayerConstructionSpeed(character, account);
@@ -405,8 +405,11 @@ export const getBarbarianZowChow = (allKills, threshold) => {
   }
 }
 
-export const getPlayerCrystalChance = (character, account) => {
-  const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, account?.sailing?.artifacts);
+export const getPlayerCrystalChance = (character, account, idleonData) => {
+  const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
+  const acquiredArtifacts = sailingRaw?.[3];
+  const moaiiHead =  acquiredArtifacts?.[0] > 0;
+  const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, moaiiHead);
   const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0);
   const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
   const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;

@@ -24,6 +24,7 @@ import { getDungeonStatBonus } from "./dungeons";
 import { getPostOfficeBonus } from "./postoffice";
 import { getGuildBonusBonus } from "./guild";
 import { getPlayerCapacity, getSmithingExpMulti } from "./character";
+import { tryToParse } from "../utility/helpers";
 
 export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0) => {
   const boxAndStatueMath = 1 + ((poBoxBonus + statueBonus) / 100);
@@ -83,7 +84,7 @@ export const getAnvilExp = (xpPoints, smithingExpMulti) => {
   return Math.min(20 + ((baseMath - 20) / (baseMath - 20 + 70)) * 50, 75);
 }
 
-export const getPlayerAnvil = (char, character, account, charactersLevels) => {
+export const getPlayerAnvil = (char, character, account, charactersLevels, idleonData) => {
   // crafting material in production
   // AnvilPA - production
   // AnvilPAstats - stats
@@ -185,7 +186,10 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
 // }
 
   const skillExpCardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
-  const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap`], account.cards, account?.sailing?.artifacts);
+  const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
+  const acquiredArtifacts = sailingRaw?.[3];
+  const moaiiHead =  acquiredArtifacts?.[0] > 0;
+  const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap`], account.cards, moaiiHead);
   const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
   const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy')?.bonus
   const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit')?.curse;
@@ -230,7 +234,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels) => {
     guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
   }
   const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
-  const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap`], account.cards, account?.sailing?.artifacts);
+  const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, char?.[`CurrentMap`], account.cards, moaiiHead);
   const bribeCapBonus = getBribeBonus(account?.bribes, 'Bottomless_Bags');
   const allCapacity = getAllCapsBonus(guildCarryBonus, telekineticStorageBonus, carryCapShrineBonus, zergPrayerBonus, ruckSackPrayerBonus, bribeCapBonus);
 

@@ -129,7 +129,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.charactersLevels = charactersLevels;
 
   charactersData = serializedCharactersData.map((char) => {
-    return initializeCharacter(char, charactersLevels, { ...accountData });
+    return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
 
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
