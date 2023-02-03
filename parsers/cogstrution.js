@@ -39,11 +39,12 @@ const getCogstructionCogType = (name) => {
     "le": "Left",
     "ro": "Row",
     "co": "Col",
+    "cr": "Omni",
   }
   if (name === 'Blank') return null;
   else if (name.includes('Player_')) return 'Character';
   else if (name === 'CogY') return 'Yang_Cog';
-  else if (name.includes('CogZ')) return 'Omni_Cog';
+  else if (name === 'CogZ') return 'Omni_Cog';
 
   const directionalType = Object.entries(cogType).find(([key]) => name.endsWith(key));
   if (directionalType) return `${directionalType[1]}_Cog`;
