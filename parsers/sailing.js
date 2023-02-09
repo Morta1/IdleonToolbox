@@ -202,7 +202,7 @@ const getBoatLootValue = (account, artifactsList, boat, captain) => {
 }
 
 const getCaptainExpReq = (captain) => {
-  const math = Math.pow(captain?.level, 3);
+  const math = 9 + Math.pow(captain?.level, 3);
   const moreMath = Math.pow(1.5, captain?.level);
   return math * moreMath * Math.pow(1.5, Math.max(captain?.level - 10, 0));
 }
@@ -328,8 +328,4 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     acquired,
     rawName: `Arti${index}`
   }
-}
-
-const getNextTurkeyLevel = () => {
-
 }

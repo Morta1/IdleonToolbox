@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.38",
+    gameVer: "1.74",
+    date: "09/02/2022",
+    features: [],
+    fixes: ['minor issue with captain exp requirement'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.37",
     gameVer: "1.74",
     date: "31/01/2022",

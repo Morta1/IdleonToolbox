@@ -43,7 +43,7 @@ const Looty = () => {
                 <CardContent>
                   <Stack alignItems="center" key={`${rawName}-${index}`} data-index={index}>
                     <HtmlTooltip title={cleanUnderscore(name)}>
-                      <ItemImg width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
+                      <ItemImg data-index={index} width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
                     </HtmlTooltip>
                     <Typography color={amount >= 1e7 ? "success.light" : ""}>{notateNumber(amount, "Big")}</Typography>
                   </Stack>
