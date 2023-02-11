@@ -120,7 +120,7 @@ export const applyTalentAddedLevels = (talents, linkedDeity, deityMinorBonus) =>
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level > 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
     return {
       ...res,
