@@ -6,16 +6,6 @@ export const getDungeons = (idleonData, accountOptions) => {
   return parseDungeons(dungeonUpgradesRaw, accountOptions);
 };
 
-// [
-//   [5, 10, 0, 0, 4, 5, 0, 0, 0, 6, 0, 7, 8, 0, 10, 0, 8, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 5, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
-//   [60, 30, 84, 79, 70, 34, 71, 50],
-//   [1, 5, 6, 10, 12, 18, 21, -1, -1],
-//   [14, 14, 14, 14, 3, 3, 2, 2, 2, 3],
-//   [5, 4, 3, 14],
-//   [25, 10, 10, 10, 10, 10, 10, 33],
-//   [1, 1, 1, 1, 0, 1, 1, 1, 1, 1]
-// ];
-
 const parseDungeons = (dungeonUpgrades, accountOptions) => {
   const dungeonUpgradesRaw = dungeonUpgrades?.[1];
   const flurbosUpgradesRaw = dungeonUpgrades?.[5];
