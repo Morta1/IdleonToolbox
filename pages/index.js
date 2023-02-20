@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.41",
+    gameVer: "1.75.1",
+    date: "10/02/2022",
+    features: ['Added materials per hour for refinery page'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.40",
     gameVer: "1.75.1",
     date: "10/02/2022",

@@ -207,6 +207,19 @@ const Refinery = () => {
                 </Stack>
               </Stack>
               <Stack>
+                <Typography fontWeight={'bold'}>Per hour</Typography>
+                <Stack flexWrap={'wrap'} direction={'row'} sx={{ width: { md: 140 } }} gap={1}>
+                  {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
+                    const combustionTime = refineryCycles[Math.floor(saltIndex / 3)]?.time;
+                    const cost = calcCost(rank, quantity, rawName, saltIndex);
+                    return <Stack alignItems={'center'} key={`per-hour-${rawName}-${index}`}>
+                      <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                      <Typography color={cost > totalAmount ? 'error.light' : ''}>{kFormatter(cost * 3600 / combustionTime, 2)}</Typography>
+                    </Stack>
+                  })}
+                </Stack>
+              </Stack>
+              <Stack>
                 <Typography fontWeight={'bold'}>Rank up</Typography>
                 <Stack flexWrap={'wrap'} direction={'row'} width={160} gap={1}>
                   {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
