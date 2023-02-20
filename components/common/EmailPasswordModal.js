@@ -1,8 +1,8 @@
-import { Dialog, DialogContent, Stack, TextField } from "@mui/material";
+import { Dialog, DialogContent, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
-import { useState } from "react";
+import React, { useState } from "react";
 
-const EmailPasswordDialog = ({ open, handleClick, handleClose }) => {
+const EmailPasswordDialog = ({ open, handleClick, handleClose, loginError }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -29,6 +29,8 @@ const EmailPasswordDialog = ({ open, handleClick, handleClose }) => {
                      label={'Password'}
                      inputProps={{ type: 'password' }}/>
           <Button onClick={handleLogin} variant={'contained'}>Login</Button>
+
+          {loginError ? <Typography color={'error'} variant={"body1"}>{loginError}</Typography> : null}
         </Stack>
       </DialogContent>
     </Dialog>

@@ -102,7 +102,12 @@ function NavBar({ children, window }) {
     if (logout) await handleSignOut();
     else {
       if (emailPassword) {
-        const data = await signInWithEmailPassword(emailPassword);
+        let data;
+        try {
+          data = await signInWithEmailPassword(emailPassword);
+        } catch (error){
+          dispatch({ type: 'loginError', data: error?.stack })
+        }
         console.log('Managed to get user token', data);
         if (data) {
           setEmailPasswordDialog(false);
@@ -150,6 +155,7 @@ function NavBar({ children, window }) {
   const handleDialogClose = () => {
     setWaitingForAuth(false);
     setDialog({ ...dialog, open: false });
+    dispatch({ type: 'resetLoginError' })
   };
 
   // const shouldDisplayMenu = state?.signedIn || state?.manualImport;
@@ -275,7 +281,7 @@ function NavBar({ children, window }) {
         <Toolbar/>
         <Box sx={{ height: "100%", minHeight: "unset" }}>{children}</Box>
       </Box>
-      <EmailPasswordDialog open={emailPasswordDialog} handleClose={() => setEmailPasswordDialog(false)}
+      <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog} handleClose={() => setEmailPasswordDialog(false)}
                            handleClick={(emailPassword) => handleAuth(state?.signedIn, emailPassword)}/>
       <Dialog open={dialog.open} onClose={handleDialogClose}>
         <DialogTitle>Google Login</DialogTitle>
@@ -298,6 +304,7 @@ function NavBar({ children, window }) {
                 <Typography variant={"body1"}>Waiting for your authentication:</Typography> <CircularProgress/>
               </Stack>
             )}
+            {state?.loginError ? <Typography color={'error'} variant={"body1"}>{state?.loginError}</Typography> : null}
           </Stack>
         </DialogContent>
       </Dialog>

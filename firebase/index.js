@@ -12,10 +12,11 @@ const signInWithToken = async (token) => {
     // Handle Errors here.
     const errorCode = error.code;
     if (errorCode === 'auth/account-exists-with-different-credential') {
-      alert('Email already associated with another account.');
+      throw new Error ('Email already associated with another account.');
       // Handle account linking here, if using.
     } else {
       console.error('Error while trying to sign in with credentials: ', error);
+      throw new Error(error)
     }
   });
 
@@ -29,10 +30,11 @@ const signInWithEmailPassword = async ({ email, password } = {}) => {
     // Handle Errors here.
     const errorCode = error.code;
     if (errorCode === 'auth/account-exists-with-different-credential') {
-      alert('Email already associated with another account.');
+      throw new Error('Email already associated with another account.')
       // Handle account linking here, if using.
     } else {
       console.error('Error while trying to sign in with credentials: ', error);
+      throw new Error(error)
     }
   });
 

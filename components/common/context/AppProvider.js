@@ -36,6 +36,12 @@ function appReducer(state, action) {
     case "emailPasswordLogin": {
       return { ...state, emailPasswordLogin: action.data };
     }
+    case 'loginError': {
+      return { ...state, loginError: action.data };
+    }
+    case 'resetLoginError': {
+      return { ...state, loginError: '' };
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -169,7 +175,13 @@ const AppProvider = ({ children }) => {
         id_token = user?.id_token;
       }
       if (id_token) {
-        const userData = await signInWithToken(id_token);
+        let userData
+        try {
+          userData = await signInWithToken(id_token);
+        } catch (error) {
+          console.log('error', error?.stack)
+          dispatch({ type: 'loginError', data: error?.stack });
+        }
         const unsubscribe = await subscribe(userData?.uid, handleCloudUpdate);
         if (typeof window?.gtag !== "undefined") {
           window?.gtag("event", "login", {
