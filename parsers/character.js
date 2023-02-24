@@ -200,7 +200,9 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     return { ...details, rawName: bagName };
   });
   const carryCapacityObject = char?.[`MaxCarryCap`];
-  character.carryCapBags = Object.keys(carryCapacityObject).map((bagName) => (carryBags?.[bagName]?.[carryCapacityObject[bagName]])).filter(bag => bag);
+  character.carryCapBags = Object.keys(carryCapacityObject).sort(function(a, b) {
+    return a.localeCompare(b);
+  }).map((bagName) => (carryBags?.[bagName]?.[carryCapacityObject[bagName]])).filter(bag => bag);
 
   character.statues = char?.StatueLevels;
 

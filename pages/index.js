@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.42",
+    gameVer: "1.76.0",
+    date: "24/02/2022",
+    features: ['Updated the website with 1.76.0 data and assets', 'Added new constellations'],
+    fixes: ['Carry bags order'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.41",
     gameVer: "1.75.1",
     date: "10/02/2022",
