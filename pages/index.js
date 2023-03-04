@@ -21,9 +21,17 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.43",
+    gameVer: "1.77.0",
+    date: "04/03/2023",
+    features: ['Updated the website with 1.77.0 data and assets'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.42",
     gameVer: "1.76.0",
-    date: "24/02/2022",
+    date: "24/02/2023",
     features: ['Updated the website with 1.76.0 data and assets', 'Added new constellations'],
     fixes: ['Carry bags order'],
     deprecatedFeatures: []
@@ -31,7 +39,7 @@ const patchNotes = [
   {
     ver: "3.1.41",
     gameVer: "1.75.1",
-    date: "10/02/2022",
+    date: "10/02/2023",
     features: ['Added materials per hour for refinery page'],
     fixes: [],
     deprecatedFeatures: []
@@ -39,7 +47,7 @@ const patchNotes = [
   {
     ver: "3.1.40",
     gameVer: "1.75.1",
-    date: "10/02/2022",
+    date: "10/02/2023",
     features: ['Updated the website with 1.75.1 data and assets'],
     fixes: [],
     deprecatedFeatures: []
@@ -47,7 +55,7 @@ const patchNotes = [
   {
     ver: "3.1.39",
     gameVer: "1.75",
-    date: "10/02/2022",
+    date: "10/02/2023",
     features: ['Updated the website with 1.75 data and assets'],
     fixes: [],
     deprecatedFeatures: []
@@ -55,7 +63,7 @@ const patchNotes = [
   {
     ver: "3.1.38",
     gameVer: "1.74",
-    date: "09/02/2022",
+    date: "09/02/2023",
     features: [],
     fixes: ['minor issue with captain exp requirement'],
     deprecatedFeatures: []
@@ -63,7 +71,7 @@ const patchNotes = [
   {
     ver: "3.1.37",
     gameVer: "1.74",
-    date: "31/01/2022",
+    date: "31/01/2023",
     features: ['Update the website with 1.74 data and assets', 'Added "King of the remembrance" calculation to printer'],
     fixes: ['Shrine bonus is now calculated correctly (hopefully)', 'Added extra levels from symbol talents and bear god', 'Fixed family bonuses to account for The Family Guy talent'],
     deprecatedFeatures: []
@@ -71,7 +79,7 @@ const patchNotes = [
   {
     ver: "3.1.36",
     gameVer: "1.73",
-    date: "23/01/2022",
+    date: "23/01/2023",
     features: [],
     fixes: ['Fixed atom collider bug when freshly opened'],
     deprecatedFeatures: []
@@ -79,7 +87,7 @@ const patchNotes = [
   {
     ver: "3.1.35",
     gameVer: "1.73",
-    date: "11/01/2022",
+    date: "11/01/2023",
     features: ['Added images and data from version 1.73'],
     fixes: ['Fixed sigil bonuses'],
     deprecatedFeatures: []
@@ -87,7 +95,7 @@ const patchNotes = [
   {
     ver: "3.1.34",
     gameVer: "1.72",
-    date: "11/01/2022",
+    date: "11/01/2023",
     features: ['Added images and data from version 1.72', <Typography>Added <Link
       href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>],
     fixes: [],
@@ -96,7 +104,7 @@ const patchNotes = [
   {
     ver: "3.1.33",
     gameVer: "1.71",
-    date: "06/01/2022",
+    date: "06/01/2023",
     features: ['Added library checkouts counter with breakpoints for 16, 18, 20 on Account -> General page (let me know if the timers are off)', 'Added percentage completed of the boat trip to the island'],
     fixes: [],
     deprecatedFeatures: []
