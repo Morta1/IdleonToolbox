@@ -4,6 +4,7 @@ import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, prefix } from "../../../utility/helpers";
 import Tooltip from "components/Tooltip";
 import { MissingData } from "../../../components/common/styles";
+import { isGodEnabledBySorcerer } from "../../../parsers/lab";
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
@@ -21,7 +22,7 @@ const Divinity = () => {
                        blessingMultiplier
                      }, godIndex) => {
         const blessingBonus = blessingBases?.[godIndex] * blessingMultiplier;
-        const hasLinks = state?.characters?.some((_, index) => linkedDeities?.[index] === godIndex)
+        const hasLinks = state?.characters?.some((character, index) => linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex))
         return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
