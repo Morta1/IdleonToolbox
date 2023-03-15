@@ -5,6 +5,9 @@ import { notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "../../../components/Tooltip";
 import { TitleAndValue } from "../../../components/common/styles";
+import { classes } from "../../../data/website-data";
+import { getTalentBonus } from "../../../parsers/talents";
+import { isGodEnabledBySorcerer } from "../../../parsers/lab";
 
 const Printer = () => {
   const { state } = useContext(AppContext);
@@ -19,7 +22,8 @@ const Printer = () => {
       {printer?.map((printerSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
-        const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || state?.account?.divinity?.linkedDeities?.[index] === 1) && wiredInBonus;
+        const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || isGodEnabledBySorcerer(state?.characters?.[index], 1) ||
+          state?.account?.divinity?.linkedDeities?.[index] === 1) && wiredInBonus;
         return <Card sx={{ width: 'fit-content' }} key={`printer-row-${index}`}>
           <CardContent>
             <Stack direction='row' alignItems={'center'} gap={3}>

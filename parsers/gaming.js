@@ -147,19 +147,6 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
 const calcSproutGrowChance = (gamingRaw) => {
   const baseValue = gamingRaw?.[7];
   return .13 + (.11 * baseValue) / (150 + baseValue);
-  // rd._customBlock_GamingStatType("SproutGrowthTime", 0, 0) * (1 / rd._customBlock_GamingStatType("SproutGrowthCHANCE", -1, 0))
-  // if ("SproutGrowthCHANCEperMUT" == e) {
-  //   var Ke = a.engine.getGameAttribute("Gaming")[7],
-  //     $e = Ke,
-  //     et = a.engine.getGameAttribute("Gaming")[7];
-  //   return 0.13 + (0.11 * $e) / (150 + (et));
-  // }
-  // if ("SproutGrowthCHANCE" == e) {
-  //   if (-1 == s) return rd._customBlock_GamingStatType("SproutGrowthCHANCEperMUT", 0, 0);
-  //   var tt = rd._customBlock_GamingStatType("SproutGrowthCHANCEperMUT", 0, 0),
-  //     nt = a.engine.getGameAttribute("GamingSprout")[0 | s][3];
-  //   return Math.pow(tt, (nt) + 1);
-  // }
 }
 
 const calcFertilizerCost = (index, gamingRaw, serverVars) => {

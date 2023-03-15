@@ -40,15 +40,20 @@ const Divinity = () => {
                 {hasLinks ? <>
                   <Divider sx={{ my: 2 }}/>
                   <Stack direction={'row'} flexWrap={'wrap'} mt={'auto'}>
-                    {state?.characters?.map(({ classIndex, name, deityMinorBonus = 0, divStyle }, index) => {
+                    {state?.characters?.map(({
+                                               classIndex, name, deityMinorBonus = 0, divStyle,
+                                               secondLinkedDeityIndex, secondDeityMinorBonus = 0
+                                             }, index) => {
                       const isLinked = linkedDeities?.[index] === godIndex;
-                      return isLinked ? <Tooltip title={<CharDeityDetails name={name}
-                                                                          divStyle={divStyle}
-                                                                          bonus={minorBonus.replace(/{/g, deityMinorBonus.toFixed(2))}/>}
-                                                 key={name}>
-                        <img src={`${prefix}data/ClassIcons${classIndex}.png`}
-                             alt=""/>
-                      </Tooltip> : null;
+                      const isSecondLinked = secondLinkedDeityIndex === godIndex;
+                      return isLinked || isSecondLinked ?
+                        <Tooltip title={<CharDeityDetails name={name}
+                                                          divStyle={divStyle}
+                                                          bonus={minorBonus.replace(/{/g, isLinked ? deityMinorBonus.toFixed(2) : isSecondLinked ? secondDeityMinorBonus.toFixed(2) : 0)}/>}
+                                 key={name}>
+                          <img src={`${prefix}data/ClassIcons${classIndex}.png`}
+                               alt=""/>
+                        </Tooltip> : null;
                     })}
                   </Stack>
                 </> : null}

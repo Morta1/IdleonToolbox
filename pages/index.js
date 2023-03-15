@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.44",
+    gameVer: "1.77.0",
+    date: "15/03/2023",
+    features: ['Added extra printer slots', 'Added calculation for \'Polytheism\' talent of Elemental Sorcerer'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.43",
     gameVer: "1.77.0",
     date: "04/03/2023",

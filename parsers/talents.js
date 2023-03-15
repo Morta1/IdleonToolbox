@@ -106,10 +106,12 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
-export const applyTalentAddedLevels = (talents, linkedDeity, deityMinorBonus) => {
+export const applyTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
     addedLevels += deityMinorBonus;
+  } else if (secondLinkedDeity === 1) {
+    addedLevels += secondDeityMinorBonus;
   }
   const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'))
   if (symbolTalent) {

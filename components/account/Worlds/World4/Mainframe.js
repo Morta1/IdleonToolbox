@@ -3,6 +3,7 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
+import { isGodEnabledBySorcerer } from "../../../../parsers/lab";
 
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) => {
   return (
@@ -12,7 +13,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
           if (index > 9) return null;
           const playerName = characters?.[index]?.name;
           const classIndex = characters?.[index]?.classIndex;
-          const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || divinity?.linkedDeities?.[index] === 1;
+          const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || divinity?.linkedDeities?.[index] === 1 || isGodEnabledBySorcerer(characters?.[index], 1);
           return isUploaded ?
             <Card sx={{ width: 200 }} variant={'outlined'} key={`${playerCord.x}${playerCord.y}-${index}`}>
               <CardContent>

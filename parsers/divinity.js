@@ -37,7 +37,7 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
   return char?.deityMinorBonus;
 }
 
-export const isDeityLinked = (deities, deityIndex) => {
+export const getDeityLinkedIndex = (deities, deityIndex) => {
   return deities?.findIndex((deity) => deityIndex === deity);
 }
 

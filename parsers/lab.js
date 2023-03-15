@@ -1,5 +1,5 @@
 import { growth, tryToParse } from "../utility/helpers";
-import { chips, jewels, labBonuses, randomList, talents, tasks } from "../data/website-data";
+import { chips, classes, jewels, labBonuses, randomList, talents, tasks } from "../data/website-data";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getCardBonusByEffect } from "./cards";
 import { isArenaBonusActive } from "./misc";
@@ -36,8 +36,8 @@ const parseLab = (labRaw, charactersData, account) => {
     });
   });
 
-  let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory"
-    || account?.divinity?.linkedDeities?.[index] === 1)
+  let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory" ||
+    isLabEnabledBySorcererRaw(character) || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character) => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
@@ -132,6 +132,20 @@ const parseLab = (labRaw, charactersData, account) => {
     chips: chipList,
     labBonuses: labBonusesList
   };
+}
+
+const isLabEnabledBySorcererRaw = (charData) =>{
+  if (classes?.[charData?.CharacterClass] === 'Elemental_Sorcerer'){
+    const polytheism = charData?.SkillLevels?.[505];
+    return polytheism % 10 === 1;
+  }
+}
+
+export const isGodEnabledBySorcerer = (character, godIndex) => {
+  if (character.class === 'Elemental_Sorcerer') {
+    const polytheism = character.flatTalents?.find(({ talentId }) => talentId === 505);
+    return polytheism?.level % 10 === godIndex;
+  }
 }
 
 export const applyBonusDesc = (labBonusesList, bonusDesc, index) => {

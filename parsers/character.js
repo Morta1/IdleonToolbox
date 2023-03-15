@@ -44,7 +44,7 @@ import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from "./obols";
 import { getPlayerWorship } from "./worship";
 import { getPlayerQuests } from "./quests";
-import { getJewelBonus, getLabBonus } from "./lab";
+import { getJewelBonus, getLabBonus, isGodEnabledBySorcerer } from "./lab";
 import { getAchievementStatus } from "./achievements";
 import { lavaLog, notateNumber } from "../utility/helpers";
 
@@ -200,7 +200,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     return { ...details, rawName: bagName };
   });
   const carryCapacityObject = char?.[`MaxCarryCap`];
-  character.carryCapBags = Object.keys(carryCapacityObject).sort(function(a, b) {
+  character.carryCapBags = Object.keys(carryCapacityObject).sort(function (a, b) {
     return a.localeCompare(b);
   }).map((bagName) => (carryBags?.[bagName]?.[carryCapacityObject[bagName]])).filter(bag => bag);
 
@@ -342,13 +342,25 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
     character.deityMinorBonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, bigPBubble) * multiplier;
   }
+  let secondLinkedDeity;
+  if (character?.class === 'Elemental_Sorcerer') {
+    const polytheism = char?.SkillLevels?.[505];
+    const gIndex = polytheism % 10;
+    const god = gods?.[gIndex];
+    if (god && (god?.godIndex !== linkedDeity)) {
+      secondLinkedDeity = god?.godIndex;
+      const multiplier = gods?.[secondLinkedDeity]?.minorBonusMultiplier;
+      character.secondLinkedDeityIndex = gIndex;
+      character.secondDeityMinorBonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, bigPBubble) * multiplier;
+    }
+  }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
   character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex };
   // if (linkedDeity === 2) {
   //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
   // }
-  character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4;
-  character.talents = applyTalentAddedLevels(talents, linkedDeity, character.deityMinorBonus);
+  character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
+  character.talents = applyTalentAddedLevels(talents, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
   return character;
 }
 
@@ -410,7 +422,7 @@ export const getBarbarianZowChow = (allKills, threshold) => {
 export const getPlayerCrystalChance = (character, account, idleonData) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
   const acquiredArtifacts = sailingRaw?.[3];
-  const moaiiHead =  acquiredArtifacts?.[0] > 0;
+  const moaiiHead = acquiredArtifacts?.[0] > 0;
   const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, moaiiHead);
   const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0);
   const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');

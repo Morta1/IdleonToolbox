@@ -29,7 +29,7 @@ import {
 import { getSaltLick } from "./saltLick";
 import { getDungeons } from "./dungeons";
 import { applyMealsMulti, getCooking, getKitchens } from "./cooking";
-import { applyBonusDesc, getJewelBonus, getLab, getLabBonus } from "./lab";
+import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isGodEnabledBySorcerer } from "./lab";
 import { classes } from "../data/website-data";
 import { getGuild } from "./guild";
 import { getPrinter } from "./printer";
@@ -110,7 +110,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char) => ({
     ...char,
-    isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4
+    isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4 || isGodEnabledBySorcerer(char, 4)
   }))
   // Update values for meals, stamps, vials
   const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7); // stamp multi

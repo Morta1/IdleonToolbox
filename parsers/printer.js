@@ -1,15 +1,16 @@
 import { lavaLog, notateNumber, tryToParse } from "../utility/helpers";
-import { isDeityLinked } from "./divinity";
+import { getDeityLinkedIndex } from "./divinity";
 import { isArtifactAcquired } from "./sailing";
 import { getTalentBonus } from "./talents";
 
 export const getPrinter = (idleonData, charactersData, accountData) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
-  return parsePrinter(rawPrinter, charactersData, accountData);
+  const rawExtraPrinter = tryToParse(idleonData?.PrinterXtra) || idleonData?.PrinterXtra;
+  return parsePrinter(rawPrinter, rawExtraPrinter, charactersData, accountData);
 }
 
-const parsePrinter = (rawPrinter, charactersData, accountData) => {
-  const harriepGodIndex = 0 ?? isDeityLinked(accountData?.divinity?.linkedDeities, 3);
+const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
+  const harriepGodIndex = 0 ?? getDeityLinkedIndex(accountData?.divinity?.linkedDeities, 3);
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic')
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
@@ -25,17 +26,25 @@ const parsePrinter = (rawPrinter, charactersData, accountData) => {
   }, 0);
 
   const printData = rawPrinter.slice(5, rawPrinter.length); // REMOVE 5 '0' ELEMENTS
+  const printExtra = rawExtraPrinter;
   // There are 14 items per character
   // Every 2 items represent an item and it's value in the printer.
   // The first 5 pairs represent the stored samples in the printer.
   // The last 2 pairs represent the samples in production.
   const chunk = 14;
+  const extraChunk = 10;
 
   return charactersData.map((charData, charIndex) => {
-    const relevantPrinterData = printData.slice(
+    let relevantPrinterData = printData.slice(
       charIndex * chunk,
       charIndex * chunk + chunk
     );
+    const relevantExtraPrinterData = printExtra.slice(
+      charIndex * extraChunk,
+      charIndex * extraChunk + extraChunk
+    )
+    relevantPrinterData.splice(-4, 0, relevantExtraPrinterData);
+    relevantPrinterData = relevantPrinterData.flat();
     return relevantPrinterData.reduce(
       (result, printItem, sampleIndex, array) => {
         if (sampleIndex % 2 === 0) {
@@ -72,7 +81,7 @@ const parsePrinter = (rawPrinter, charactersData, accountData) => {
           return [...result, {
             item: sample[0],
             value: sample[1],
-            active: sampleIndex >= 10,
+            active: sampleIndex >= relevantPrinterData.length - 4,
             boostedValue,
             affectedBy
           }];
