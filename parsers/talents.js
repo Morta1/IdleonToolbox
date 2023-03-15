@@ -106,7 +106,7 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
-export const applyTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus) => {
+export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
     addedLevels += deityMinorBonus;
@@ -118,11 +118,17 @@ export const applyTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, 
     const symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
     addedLevels += symbolAddedLevel;
   }
+  if (flatTalents) {
+    return flatTalents.map((talent) => ({
+      ...talent,
+      level: talent.level >= 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') && !talent?.name.includes('POLYTHEISM') ? Math.ceil(talent.level + addedLevels) : talent.level
+    }));
+  }
   return Object.entries(talents).reduce((res, [key, data]) => {
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') && !talent?.name.includes('POLYTHEISM') ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
     return {
       ...res,

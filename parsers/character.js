@@ -360,7 +360,9 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
   // }
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
-  character.talents = applyTalentAddedLevels(talents, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
+  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
+
   return character;
 }
 

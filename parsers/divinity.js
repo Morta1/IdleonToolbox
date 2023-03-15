@@ -1,3 +1,5 @@
+import { isGodEnabledBySorcerer } from "./lab";
+
 const { tryToParse } = require("../utility/helpers");
 const { gods } = require('../data/website-data');
 
@@ -37,8 +39,10 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
   return char?.deityMinorBonus;
 }
 
-export const getDeityLinkedIndex = (deities, deityIndex) => {
-  return deities?.findIndex((deity) => deityIndex === deity);
+export const getDeityLinkedIndex = (deities, characters, deityIndex) => {
+  const normalLink = deities?.map((deity, index) => deityIndex === deity ? index : -1);
+  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) ? index : -1 );
+  return normalLink.map((charIndex, index) => charIndex === -1 && esLink?.[index] !== -1 ? esLink?.[index] : charIndex);
 }
 
 // export const getDivStyleExpAndPoints = (divStyle) => {

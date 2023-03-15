@@ -10,7 +10,7 @@ export const getPrinter = (idleonData, charactersData, accountData) => {
 }
 
 const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
-  const harriepGodIndex = 0 ?? getDeityLinkedIndex(accountData?.divinity?.linkedDeities, 3);
+  const harriepGodIndex = getDeityLinkedIndex(accountData?.divinity?.linkedDeities, charactersData, 3);
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic')
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
@@ -59,7 +59,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             affectedBy = [...affectedBy, `Gold Relic (artifact) - x${notatedBonus}`];
           }
           const isPlayerConnected = connectedPlayers.find(({ playerId }) => playerId === charIndex);
-          if (harriepGodIndex !== -1 && harriepGodIndex === charIndex) {
+          if (harriepGodIndex.includes(charIndex)) {
             affectedBy = [...affectedBy, 'Harriep (god) - x3'];
             if (isPlayerConnected && wiredInBonus) {
               affectedBy = [...affectedBy, 'Wired In (lab) - x2'];

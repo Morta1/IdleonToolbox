@@ -37,7 +37,7 @@ const parseLab = (labRaw, charactersData, account) => {
   });
 
   let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory" ||
-    isLabEnabledBySorcererRaw(character) || account?.divinity?.linkedDeities?.[index] === 1)
+    isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character) => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
@@ -134,10 +134,10 @@ const parseLab = (labRaw, charactersData, account) => {
   };
 }
 
-const isLabEnabledBySorcererRaw = (charData) =>{
+export const isLabEnabledBySorcererRaw = (charData, godIndex) =>{
   if (classes?.[charData?.CharacterClass] === 'Elemental_Sorcerer'){
     const polytheism = charData?.SkillLevels?.[505];
-    return polytheism % 10 === 1;
+    return polytheism % 10 === godIndex;
   }
 }
 
