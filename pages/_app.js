@@ -51,6 +51,9 @@ const MyApp = (props) => {
             gtag('config', 'G-YER8JY07QK');          
           `}
       </Script>
+      <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1842647313167572"
+              crossOrigin="anonymous">
+      </Script>
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>

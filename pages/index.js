@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Dialog,
@@ -80,8 +80,11 @@ const patchNotes = [
     ver: "3.1.37",
     gameVer: "1.74",
     date: "31/01/2023",
-    features: ['Update the website with 1.74 data and assets', 'Added "King of the remembrance" calculation to printer'],
-    fixes: ['Shrine bonus is now calculated correctly (hopefully)', 'Added extra levels from symbol talents and bear god', 'Fixed family bonuses to account for The Family Guy talent'],
+    features: ['Update the website with 1.74 data and assets',
+      'Added "King of the remembrance" calculation to printer'],
+    fixes: ['Shrine bonus is now calculated correctly (hopefully)',
+      'Added extra levels from symbol talents and bear god',
+      'Fixed family bonuses to account for The Family Guy talent'],
     deprecatedFeatures: []
   },
   {
@@ -113,7 +116,8 @@ const patchNotes = [
     ver: "3.1.33",
     gameVer: "1.71",
     date: "06/01/2023",
-    features: ['Added library checkouts counter with breakpoints for 16, 18, 20 on Account -> General page (let me know if the timers are off)', 'Added percentage completed of the boat trip to the island'],
+    features: ['Added library checkouts counter with breakpoints for 16, 18, 20 on Account -> General page (let me know if the timers are off)',
+      'Added percentage completed of the boat trip to the island'],
     fixes: [],
     deprecatedFeatures: []
   },
@@ -522,6 +526,15 @@ const Home = () => {
   const [open, setOpen] = useState(false);
   const [openPastebin, setOpenPastebin] = useState(false);
 
+  useEffect(() => {
+    try {
+      if (typeof window === 'object') {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    } catch {
+    }
+  }, []);
+
   const handleCopyRaw = async () => {
     try {
       await navigator.clipboard.writeText(localStorage.getItem("rawJson"));
@@ -566,26 +579,35 @@ const Home = () => {
           How to share your profile with pastebin
         </Button>
       </Stack>
-      {patchNotes.map(({ ver, gameVer, date, features, fixes, deprecatedFeatures }, index) => {
-        return (
-          <React.Fragment key={`${ver}-${date}-${index}`}>
-            <Grid container spacing={2} style={{ marginTop: 50 }}>
-              <Grid item xs={12} sm={3}/>
-              <Grid item xs={12} sm={4}>
-                <Typography variant={"h4"}>v{ver}</Typography>
-                {gameVer ? <Typography variant={"subtitle1"}>Game ver {gameVer}</Typography> : null}
-                <Typography variant={"subtitle2"}>{date}</Typography>
+      <Stack>
+        {patchNotes.map(({ ver, gameVer, date, features, fixes, deprecatedFeatures }, index) => {
+          return (
+            <React.Fragment key={`${ver}-${date}-${index}`}>
+              <Grid container spacing={2} style={{ marginTop: 50 }}>
+                <Grid item xs={12} sm={3}/>
+                <Grid item xs={12} sm={4}>
+                  <Typography variant={"h4"}>v{ver}</Typography>
+                  {gameVer ? <Typography variant={"subtitle1"}>Game ver {gameVer}</Typography> : null}
+                  <Typography variant={"subtitle2"}>{date}</Typography>
+                </Grid>
+                <Grid item xs={12} sm={5}>
+                  <StyledSection icon={"green"} topMargin={false} title={"New features"} list={features}/>
+                  <StyledSection icon={"purple"} title={"Fixes"} list={fixes}/>
+                  <StyledSection icon={"red"} title={"Deprecated features"} list={deprecatedFeatures}/>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={5}>
-                <StyledSection icon={"green"} topMargin={false} title={"New features"} list={features}/>
-                <StyledSection icon={"purple"} title={"Fixes"} list={fixes}/>
-                <StyledSection icon={"red"} title={"Deprecated features"} list={deprecatedFeatures}/>
-              </Grid>
-            </Grid>
-            <Divider style={{ margin: "3em 0" }}/>
-          </React.Fragment>
-        );
-      })}
+              <Divider style={{ margin: "3em 0" }}/>
+            </React.Fragment>
+          );
+        })}
+      </Stack>
+      <Stack>
+        <ins className="adsbygoogle"
+             style={{ display: 'inline-block', height: 90 }}
+             data-ad-client="ca-pub-1842647313167572"
+             data-ad-slot="7203005854"
+             data-adtest="on" />
+      </Stack>
       <Dialog open={openPastebin} onClose={() => setOpenPastebin(false)}>
         <DialogTitle>Pastebin</DialogTitle>
         <DialogContent>
