@@ -106,7 +106,7 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus) => {
+export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
     addedLevels += deityMinorBonus;
@@ -117,6 +117,9 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (symbolTalent) {
     const symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
     addedLevels += symbolAddedLevel;
+  }
+  if (familyEffBonus) {
+    addedLevels += familyEffBonus;
   }
   if (flatTalents) {
     return flatTalents.map((talent) => ({

@@ -360,7 +360,9 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
   // }
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
-  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
+  const highestLevelElementalSorc = getHighestLevelOfClass(charactersLevels, 'Elemental_Sorcerer');
+  const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
+  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus);
   character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
 
   return character;

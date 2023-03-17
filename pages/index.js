@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.45",
+    gameVer: "1.77.0",
+    date: "17/03/2023",
+    features: [],
+    fixes: ['Added Elemental Sorcerer family bonus to talent levels'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.44",
     gameVer: "1.77.0",
     date: "15/03/2023",
