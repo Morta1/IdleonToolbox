@@ -119,7 +119,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     addedLevels += symbolAddedLevel;
   }
   if (familyEffBonus) {
-    addedLevels += familyEffBonus;
+    addedLevels += Math.floor(familyEffBonus);
   }
   if (flatTalents) {
     return flatTalents.map((talent) => ({
