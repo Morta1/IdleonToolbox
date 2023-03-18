@@ -46,7 +46,7 @@ const AtomCollider = ({}) => {
                 {processString([{
                   regex: /Total bonus.*/,
                   fn: (key, result) => {
-                    return <div style={{ marginTop: 15 }}>{result[0]}</div>
+                    return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
                   }
                 }])(description)}
               </Typography>
