@@ -9,8 +9,8 @@ import processString from "react-process-string";
 
 const Artifacts = ({ artifacts }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-    {artifacts?.map(({ name, description, ancientFormDescription, rawName, acquired, additionalData }) => {
-      return <Card key={name} variant={acquired ? 'elevation' : 'outlined'}>
+    {artifacts?.map(({ name, description, ancientFormDescription, rawName, acquired, additionalData }, index) => {
+      return <Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}>
         <CardContent>
           <Stack sx={{ width: 200 }}>
             <Stack direction={'row'} gap={1}>
@@ -22,7 +22,7 @@ const Artifacts = ({ artifacts }) => {
               <Typography sx={{ minHeight: 150 }} component={'div'}>{processString([{
                 regex: /Total bonus.*/gi,
                 fn: (key, result) => {
-                  return <div style={{ marginTop: 15 }}>{result[0]}</div>
+                  return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
                 }
               }])(cleanUnderscore(description))}</Typography>
               {Array.isArray(additionalData) ? <>
@@ -55,7 +55,7 @@ const getTooltip = (name, additionalData) => {
 const StatsTooltip = ({ additionalData }) => {
   return <>
     <Typography sx={{ fontWeight: 'bold' }} mb={1} variant={'subtitle1'}>Total Damage</Typography>
-    {additionalData?.map(({ name, bonus }) => <TitleAndValue key={`stat-${name}`}
+    {additionalData?.map(({ name, bonus }, index) => <TitleAndValue key={`stat-${name}-${index}`}
                                                              boldTitle
                                                              title={name}
                                                              value={`${bonus}%`}
@@ -66,7 +66,7 @@ const StatsTooltip = ({ additionalData }) => {
 const AllStatsTooltip = ({ additionalData }) => {
   return <>
     <Typography sx={{ fontWeight: 'bold' }} mb={1} variant={'subtitle1'}>All stats (STR/AGI/WIS/LUK)</Typography>
-    {additionalData?.map(({ name, strength, agility, wisdom, luck }) => <TitleAndValue key={`stat-${name}`}
+    {additionalData?.map(({ name, strength, agility, wisdom, luck }, index) => <TitleAndValue key={`all-stat-${name}-${index}`}
                                                                                        boldTitle
                                                                                        title={name}
                                                                                        value={`${strength}/${agility}/${wisdom}/${luck}`}

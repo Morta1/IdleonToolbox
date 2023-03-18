@@ -15,7 +15,8 @@ export const getSailing = (idleonData, artifactsList, charactersData, account, s
 
 const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars) => {
   const lootPile = sailingRaw?.[1];
-  const maxChests = Math.min(Math.round(5 + (account?.gemShopPurchases?.find((value, index) => index === 129) ?? 0)), 19);
+  const dreamCatcher = isArtifactAcquired(artifactsList, 'Dreamcatcher');
+  const maxChests = Math.min(Math.round(5 + (dreamCatcher?.bonus ?? 0) + (account?.gemShopPurchases?.find((value, index) => index === 129) ?? 0)), 19);
   const chests = getChests(chestsRaw, artifactsList, serverVars);
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
