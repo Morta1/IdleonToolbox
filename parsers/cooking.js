@@ -1,4 +1,4 @@
-import { bonuses, cookingMenu, monsters, randomList } from "../data/website-data";
+import { atomsInfo, bonuses, cookingMenu, monsters, randomList } from "../data/website-data";
 import { allProwess, getAllBaseSkillEff, getAllEff } from "./character";
 import { getStampsBonusByEffect } from "./stamps";
 import { getStatFromEquipment } from "./items";
@@ -110,10 +110,11 @@ export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonu
 
 export const getKitchens = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
-  return parseKitchens(cookingRaw, account);
+  const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
+  return parseKitchens(cookingRaw, atomsRaw, account);
 }
 
-const parseKitchens = (cookingRaw, account) => {
+const parseKitchens = (cookingRaw, atomsRaw, account) => {
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
   const globalKitchenUpgrades = cookingRaw?.reduce((sum, table) => {
@@ -121,6 +122,7 @@ const parseKitchens = (cookingRaw, account) => {
     return sum + speedLv + fireLv + luckLv
   }, 0);
   const diamondMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
+  const voidMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 30 ? res + 1 : res, 0)
   return cookingRaw?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
@@ -170,7 +172,10 @@ const parseKitchens = (cookingRaw, account) => {
     const firstMath = 10 * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
     const secondMath = ((1 + speedLv / 10) * (triagulonSpeedBonus));
     const thirdMath = (1 + cookingSpeedVials / 100);
-    const mealSpeed = firstMath * secondMath * thirdMath * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+    const voidPlateChefIndex = atomsInfo.findIndex(({ name }) => name === 'Fluoride_-_Void_Plate_Chef');
+    const voidPlateChefLevel = atomsRaw?.[voidPlateChefIndex];
+    const voidPlateChefBonus = 100 * (Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals) - 1);
+    const mealSpeed = firstMath * secondMath * thirdMath * (1 + voidPlateChefBonus / 100) * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');

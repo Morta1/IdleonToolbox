@@ -60,8 +60,14 @@ export const getTowers = (idleonData) => {
 const parseTowers = (towersRaw) => {
   const towersLength = Object.keys(towers).length;
   const inProgress = towersRaw.slice(54, 62);
+  let wizardOverLevels = 0;
   const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
     const level = towersRaw?.[towerData?.index];
+    if (towerData?.index >= 9 && towerData?.index <= 17) {
+      if (level > 50) {
+        wizardOverLevels += level - 50;
+      }
+    }
     return {
       ...towerData,
       name: towerName,
@@ -73,6 +79,7 @@ const parseTowers = (towersRaw) => {
   });
   return {
     data: towersData,
-    buildMultiplier: randomList?.[13].split(" ")
+    buildMultiplier: randomList?.[13].split(" "),
+    wizardOverLevels
   }
 }

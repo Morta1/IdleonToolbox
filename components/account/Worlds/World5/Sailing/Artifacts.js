@@ -5,6 +5,7 @@ import styled from "@emotion/styled";
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from "../../../../Tooltip";
 import { TitleAndValue } from "../../../../common/styles";
+import processString from "react-process-string";
 
 const Artifacts = ({ artifacts }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
@@ -18,7 +19,12 @@ const Artifacts = ({ artifacts }) => {
             </Stack>
             <Divider sx={{ my: 2 }}/>
             <Stack flexWrap={'wrap'}>
-              <Typography sx={{ minHeight: 150 }}>{cleanUnderscore(description)}</Typography>
+              <Typography sx={{ minHeight: 150 }} component={'div'}>{processString([{
+                regex: /Total bonus.*/gi,
+                fn: (key, result) => {
+                  return <div style={{ marginTop: 15 }}>{result[0]}</div>
+                }
+              }])(cleanUnderscore(description))}</Typography>
               {Array.isArray(additionalData) ? <>
                 <Tooltip title={getTooltip(name, additionalData)}>
                   <InfoIcon/>

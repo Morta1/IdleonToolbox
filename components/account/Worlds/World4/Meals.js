@@ -22,9 +22,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
     return bloodBerserkers.reduce((res, { talents }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
-      const symbolsOfBeyond = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'SYMBOLS_OF_BEYOND_~R');
-      const symbolsOfBeyondBonus = growth(symbolsOfBeyond?.funcX, symbolsOfBeyond?.maxLevel, symbolsOfBeyond?.x1, symbolsOfBeyond?.x2, false);
-      const bonus = growth(overflowingLadle?.funcX, overflowingLadle?.maxLevel + symbolsOfBeyondBonus, overflowingLadle?.x1, overflowingLadle?.x2, false);
+      const bonus = growth(overflowingLadle?.funcX, overflowingLadle?.maxLevel, overflowingLadle?.x1, overflowingLadle?.x2, false);
       if (bonus > res) {
         return bonus
       }

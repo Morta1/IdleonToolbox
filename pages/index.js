@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.46",
+    gameVer: "1.77.0",
+    date: "18/03/2023",
+    features: [],
+    fixes: ['Updated atoms description with the correct "Total Bonus"', 'Fixed cooking speed to account for "Fluoride - Void Plate Chef" atom'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.45",
     gameVer: "1.77.0",
     date: "17/03/2023",

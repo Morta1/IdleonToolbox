@@ -1,5 +1,5 @@
 import { capitalize, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, pascalCase } from "utility/helpers";
+import { cleanUnderscore, pascalCase } from "utility/helpers";
 import HtmlTooltip from "components/Tooltip";
 import { IconWithText } from "components/common/styles";
 import ProgressBar from "components/common/ProgressBar";
@@ -27,7 +27,7 @@ const StatueTooltip = ({ effect, bonus, name, level, progress }) => {
     <Typography fontWeight={'bold'} variant={'h5'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
     <Typography variant={'body1'}>{desc}</Typography>
     <ProgressBar percent={progress / nextLv * 100} label={false}/>
-    <Typography variant={'body2'}>{kFormatter(progress)} / {nextLv}</Typography>
+    <Typography variant={'body2'}>{Math.floor(progress)} / {nextLv}</Typography>
   </>
 };
 
