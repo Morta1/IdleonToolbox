@@ -1,6 +1,6 @@
 import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredLootyItems, keysMap } from "./parseMaps";
-import { items } from "../data/website-data";
+import { items, randomList, slab } from "../data/website-data";
 import { talentPagesMap } from "./talents";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
@@ -59,7 +59,7 @@ export const getLooty = (idleonData) => {
   return {
     missingItems: Object.keys(allItems).reduce(
       (res, key) =>
-        !key.includes("DungWeapon")
+        !key.includes("Gem") && !key.includes("SailTr") && !key.includes("Cards") && !key.includes("Spice") && !key.includes("Bits") && !randomList?.[17].includes(key)
           ? [
             ...res,
             {
@@ -71,7 +71,8 @@ export const getLooty = (idleonData) => {
           : res,
       []
     ),
-    lootedItems: lootyRaw.filter((item) => !item.includes("DungW")).length,
+    lootedItems: lootyRaw?.length,
+    totalItems: slab?.length,
     rawLootedItems: lootyRaw?.length
   };
 };

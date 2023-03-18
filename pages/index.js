@@ -25,7 +25,9 @@ const patchNotes = [
     gameVer: "1.77.0",
     date: "18/03/2023",
     features: [],
-    fixes: ['Updated atoms description with the correct "Total Bonus"', 'Fixed cooking speed to account for "Fluoride - Void Plate Chef" atom'],
+    fixes: ['Update looty (hopefully it is more accurate)', 'Update W5 quest header (visual update)',
+      'Updated atoms description with the correct "Total Bonus"',
+      'Fixed cooking speed to account for "Fluoride - Void Plate Chef" atom'],
     deprecatedFeatures: []
   },
   {

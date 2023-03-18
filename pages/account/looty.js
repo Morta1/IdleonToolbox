@@ -11,7 +11,7 @@ const Looty = () => {
   return <Stack>
     <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Looty Shooty</Typography>
     <Typography textAlign={'center'} mt={2} variant={'h5'}>Looted
-      Items: {state?.account?.looty?.lootedItems}</Typography>
+      Items: {state?.account?.looty?.lootedItems} / {state?.account?.looty?.totalItems}</Typography>
     <Typography textAlign={'center'} mt={2} mb={3} variant={'h5'}>Missing
       Items: {state?.account?.looty?.missingItems.filter(({ obtainable }) => obtainable)?.length}</Typography>
     <FormControlLabel
