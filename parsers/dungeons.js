@@ -1,5 +1,9 @@
 import { growth, tryToParse } from "../utility/helpers";
-import { dungeonStats, dungeonFlurboStats, randomList } from "../data/website-data";
+import { ballsBonuses, dungeonFlurboStats, dungeonStats, randomList } from "../data/website-data";
+import { getStampsBonusByEffect } from "./stamps";
+import { getBribeBonus } from "./bribes";
+import { getVialsBonusByStat } from "./alchemy";
+import { getAchievementStatus } from "./achievements";
 
 export const getDungeons = (idleonData, accountOptions) => {
   const dungeonUpgradesRaw = tryToParse(idleonData?.DungUpg) || idleonData?.DungUpg;
@@ -43,3 +47,26 @@ export const getDungeonStatBonus = (dungeonStats, statName) => {
   if (!stat) return 0;
   return growth(stat?.func, stat?.level, stat?.x1, stat?.x2, false) ?? 0;
 };
+
+export const getMaxClaimTime = (stamps) => {
+  return Math.ceil(3600 * (48 + Math.min(10, getStampsBonusByEffect(stamps, 'Max_Claim_Time'))));
+}
+
+export const getSecPerBall = (account) => {
+  return 4e3 /
+    (1 + (getBallBonus(account) + getBribeBonus(account?.bribes, 'Weighted_Marbles')) / 100)
+}
+
+export const getBallBonus = (account) => {
+  let ballBonus = 0;
+  for (let i = 0; i < ballsBonuses.length; i++) {
+    const [a, b] = ballsBonuses[i];
+    if (getAchievementStatus(account?.achievements, a) === 1) {
+      ballBonus += b;
+    }
+  }
+  const vialArcadeBonus = getVialsBonusByStat(account?.alchemy?.vials, 'arcadeBALLZ');
+  const taskArcadeBonus = account?.tasks?.[2]?.[1]?.[7];
+  const stampArcadeBonus = Math.min(50, getStampsBonusByEffect(account?.stamps, 'ball_gain_rate'));
+  return ballBonus + vialArcadeBonus + (5 * taskArcadeBonus) + stampArcadeBonus;
+}

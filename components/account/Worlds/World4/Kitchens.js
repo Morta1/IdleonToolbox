@@ -3,7 +3,7 @@ import { cleanUnderscore, kFormatter, notateNumber, prefix } from "../../../../u
 import Tooltip from "components/Tooltip";
 import Timer from "components/common/Timer";
 import React, { useMemo } from "react";
-import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
+import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, maxNumberOfSpiceClicks } from "parsers/cooking";
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
 
@@ -38,7 +38,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
     <>
       <Card sx={{ width: 'fit-content' }}>
         <CardContent>
-          <Typography>Claims: {spices?.numberOfClaims} / 100</Typography>
+          <Typography>Claims: {spices?.numberOfClaims} / {maxNumberOfSpiceClicks}</Typography>
         </CardContent>
       </Card>
       <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>

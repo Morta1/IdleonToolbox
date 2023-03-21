@@ -82,15 +82,13 @@ export const getCurrencies = (idleonData) => {
   if (idleonData?.CurrenciesOwned) {
     return {
       ...idleonData?.CurrenciesOwned,
-      KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res,
-        { amount: keyAmount, ...keysMap[index] }] : res), [])
+      KeysAll: getKeysObject(keys)
     };
   }
 
   return {
     WorldTeleports: idleonData?.CYWorldTeleports,
-    KeysAll: keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res,
-      { amount: keyAmount, ...keysMap[index] }] : res), []),
+    KeysAll: getKeysObject(keys),
     ColosseumTickets: idleonData?.CYColosseumTickets,
     ObolFragments: idleonData?.CYObolFragments,
     SilverPens: idleonData?.CYSilverPens,
@@ -101,6 +99,55 @@ export const getCurrencies = (idleonData) => {
     minigamePlays: idleonData?.PVMinigamePlays_1,
   };
 };
+
+export const enhanceColoTickets = (tickets, characters, account) => {
+  const npcs = {
+    0: { name: 'Typhoon', dialogThreshold: 3, daysSinceIndex: 15 },
+    1: { name: 'Centurion', dialogThreshold: 4, daysSinceIndex: 35 },
+    2: { name: 'Lonely_Hunter', dialogThreshold: 6, daysSinceIndex: 56 },
+  }
+  const allTickets = Object.entries(npcs).reduce((res, [, npc], index) => {
+    const amountPerDay = getAmountPerDay(npc, characters);
+    const daysSincePickup = account?.accountOptions?.[npc?.daysSinceIndex];
+    return [...res,
+      {
+        rawName: `TixEZ${index}`,
+        amountPerDay,
+        daysSincePickup,
+        amount: tickets,
+        totalAmount: Math.min(daysSincePickup, 3) * amountPerDay
+      }];
+  }, [])
+  return {
+    allTickets,
+    totalAmount: tickets
+  }
+}
+
+const getKeysObject = (keys) => {
+  return keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res,
+    { amount: keyAmount, ...keysMap[index] }] : res), []);
+}
+
+export const enhanceKeysObject = (keysAll, characters, account) => {
+  const npcs = {
+    0: { name: 'Dog_Bone', dialogThreshold: 5, daysSinceIndex: 16 },
+    1: { name: 'Djonnut', dialogThreshold: 6, daysSinceIndex: 31 },
+    2: { name: 'Bellows', dialogThreshold: 8.5, daysSinceIndex: 80 },
+    3: {}
+  }
+  return keysAll.map((key, keyIndex) => {
+    const amountPerDay = getAmountPerDay(npcs?.[keyIndex], characters);
+    const daysSincePickup = account?.accountOptions?.[npcs?.[keyIndex]?.daysSinceIndex];
+    return { ...key, amountPerDay, daysSincePickup, totalAmount: Math.min(daysSincePickup, 3) * amountPerDay };
+  });
+}
+
+const getAmountPerDay = ({ name, dialogThreshold }, characters) => {
+  return characters.reduce((res, { npcDialog }) => {
+    return npcDialog?.[name] > dialogThreshold ? res + 1 : res;
+  }, 0);
+}
 
 export const getBundles = (idleonData) => {
   const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived;

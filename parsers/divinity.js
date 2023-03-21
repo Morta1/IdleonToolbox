@@ -42,7 +42,7 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
 export const getDeityLinkedIndex = (deities, characters, deityIndex) => {
   const normalLink = deities?.map((deity, index) => deityIndex === deity ? index : -1);
   const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) ? index : -1 );
-  return normalLink.map((charIndex, index) => charIndex === -1 && esLink?.[index] !== -1 ? esLink?.[index] : charIndex);
+  return normalLink?.map((charIndex, index) => charIndex === -1 && esLink?.[index] !== -1 ? esLink?.[index] : charIndex) || [];
 }
 
 // export const getDivStyleExpAndPoints = (divStyle) => {
@@ -53,18 +53,18 @@ export const getDeityLinkedIndex = (deities, characters, deityIndex) => {
 //   }
 // }
 
-const getDivinityPerHour = (divStyle) => {
-  if (divStyle === 0 || divStyle === 2 || divStyle === 3) {
-    return 1;
-  } else if (divStyle === 1) {
-    return 2;
-  } else if (divStyle === 4) {
-    return 7;
-  } else if (divStyle === 5) {
-    return 3;
-  } else if (divStyle === 6) {
-    return 4;
-  } else if (divStyle === 7) {
-    return 10;
-  }
-}
+// const getDivinityPerHour = (divStyle) => {
+//   if (divStyle === 0 || divStyle === 2 || divStyle === 3) {
+//     return 1;
+//   } else if (divStyle === 1) {
+//     return 2;
+//   } else if (divStyle === 4) {
+//     return 7;
+//   } else if (divStyle === 5) {
+//     return 3;
+//   } else if (divStyle === 6) {
+//     return 4;
+//   } else if (divStyle === 7) {
+//     return 10;
+//   }
+// }

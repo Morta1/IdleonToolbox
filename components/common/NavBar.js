@@ -38,7 +38,7 @@ import { signInWithEmailPassword } from "../../firebase";
 
 
 const drawerWidth = 240;
-const topLevelItems = ["characters", "account", "tools"];
+const topLevelItems = ["dashboard", "characters", "account", "tools"];
 
 function NavBar({ children, window }) {
   const { state, dispatch, login, logout, setWaitingForAuth } = useContext(AppContext);
@@ -105,7 +105,7 @@ function NavBar({ children, window }) {
         let data;
         try {
           data = await signInWithEmailPassword(emailPassword);
-        } catch (error){
+        } catch (error) {
           dispatch({ type: 'loginError', data: error?.stack })
         }
         console.log('Managed to get user token', data);
@@ -281,7 +281,8 @@ function NavBar({ children, window }) {
         <Toolbar/>
         <Box sx={{ height: "100%", minHeight: "unset" }}>{children}</Box>
       </Box>
-      <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog} handleClose={() => setEmailPasswordDialog(false)}
+      <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
+                           handleClose={() => setEmailPasswordDialog(false)}
                            handleClick={(emailPassword) => handleAuth(state?.signedIn, emailPassword)}/>
       <Dialog open={dialog.open} onClose={handleDialogClose}>
         <DialogTitle>Google Login</DialogTitle>

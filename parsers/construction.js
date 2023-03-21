@@ -83,3 +83,13 @@ const parseTowers = (towersRaw) => {
     wizardOverLevels
   }
 }
+
+export const getBuildCost = (towers, level, bonusInc, index) => {
+  if (index === 0) {
+    const math1 = Math.pow(level + 1, 2);
+    return 20 * math1 * Math.pow(1.6, level + 1);
+  } else {
+    const multiplier = Number(towers?.buildMultiplier?.[index]);
+    return multiplier * Math.pow(bonusInc, level);
+  }
+}

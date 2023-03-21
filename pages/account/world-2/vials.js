@@ -30,7 +30,6 @@ const Vials = () => {
 };
 
 const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 }) => {
-  const vialCost = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5E6, 25E6, 1E8, 1E9, 5E10];
   const bonus = growth(func, level, x1, x2) * multiplier;
   return <>
     <Typography variant={'h5'}>{pascalCase(cleanUnderscore(name))}</Typography>
@@ -41,7 +40,7 @@ const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 
         return name && name !== 'Blank' && name !== 'ERROR' ?
           <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
             <ItemIcon tooltip src={`${prefix}data/${rawName}.png`} alt=""/>
-            <span>{name?.includes('Liquid') ? 3 * level : notateNumber(vialCost[parseFloat(level)], 'Big')}
+            <span>{name?.includes('Liquid') ? 3 * level : notateNumber(vialCostsArray[parseFloat(level)], 'Big')}
           </span>
           </Stack> : null
       })}

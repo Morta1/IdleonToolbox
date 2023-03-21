@@ -9,19 +9,30 @@ const MAX_ATOMS = 10;
 
 const AtomCollider = ({}) => {
   const { state } = useContext(AppContext);
-  const { atoms, particles } = state?.account?.atoms || {};
+  const { atoms, particles, stampReducer } = state?.account?.atoms || {};
 
   return <>
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Atoms</Typography>
-    <Card sx={{ my: 2, width: 'fit-content' }}>
-      <CardContent>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img src={`${prefix}etc/Particle.png`}
-               alt="" style={{ objectFit: 'contain' }}/>
-          <Typography>{particles}</Typography>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Stack direction={'row'} gap={2}>
+      <Card sx={{ my: 2, width: 'fit-content' }}>
+        <CardContent>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <img src={`${prefix}etc/Particle.png`}
+                 alt="" style={{ objectFit: 'contain' }}/>
+            <Typography>{particles}</Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+      <Card sx={{ my: 2, width: 'fit-content' }}>
+        <CardContent>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <img src={`${prefix}data/Atom0.png`}
+                 alt="" style={{ objectFit: 'contain', width: 45 }}/>
+            <Typography>{stampReducer}% reduction</Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, bonus }, index) => {
         if (index >= MAX_ATOMS) return;

@@ -1,14 +1,17 @@
 import { growth, tryToParse } from "../utility/helpers";
 import { arcadeShop } from "../data/website-data";
+import { getMaxClaimTime, getSecPerBall } from "./dungeons";
 
-export const getArcade = (idleonData, accountOptions, serverVars) => {
+export const getArcade = (idleonData, account, serverVars) => {
   const arcadeRaw = tryToParse(idleonData?.ArcadeUpg) || idleonData?.ArcadeUpg;
-  return parseArcade(arcadeRaw, accountOptions, serverVars);
+  return parseArcade(arcadeRaw, account, serverVars);
 }
 
-const parseArcade = (arcadeRaw, accountOptions, serverVars) => {
-  const balls = accountOptions?.[74];
-  const goldBalls = accountOptions?.[75];
+const parseArcade = (arcadeRaw, account, serverVars) => {
+  const balls = account?.accountOptions?.[74];
+  const goldBalls = account?.accountOptions?.[75];
+  const maxBalls = Math.round(getMaxClaimTime(account?.stamps)
+    / Math.max(1, getSecPerBall(account)));
   const arcadeShopList = arcadeShop?.map((upgrade, index) => {
     const { x1, x2, func } = upgrade;
     const level = arcadeRaw?.[index];
@@ -24,6 +27,7 @@ const parseArcade = (arcadeRaw, accountOptions, serverVars) => {
   return {
     shop: arcadeShopList,
     balls,
-    goldBalls
+    goldBalls,
+    maxBalls
   }
 }

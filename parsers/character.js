@@ -364,7 +364,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
   character.talents = applyTalentAddedLevels(talents, null, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus);
   character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
-
+  character.npcDialog = char?.NPCdialogue;
+  character.questComplete = char?.QuestComplete;
   return character;
 }
 

@@ -21,6 +21,8 @@ import { getTasks } from "./tasks";
 import { getArcade } from "./arcade";
 import {
   calculateLeaderboard,
+  enhanceColoTickets,
+  enhanceKeysObject,
   getBundles,
   getCurrencies,
   getLibraryBookTimes,
@@ -29,13 +31,7 @@ import {
 import { getSaltLick } from "./saltLick";
 import { getDungeons } from "./dungeons";
 import { applyMealsMulti, getCooking, getKitchens } from "./cooking";
-import {
-  applyBonusDesc,
-  getJewelBonus,
-  getLab,
-  getLabBonus,
-  isLabEnabledBySorcererRaw
-} from "./lab";
+import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from "./lab";
 import { classes } from "../data/website-data";
 import { getGuild } from "./guild";
 import { getPrinter } from "./printer";
@@ -52,7 +48,7 @@ export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
 
   try {
-    console.log("Start Parsing");
+    console.info("%cStart Parsing", 'color:orange');
     if (idleonData?.PlayerDATABASE) {
       charNames = Object.keys(idleonData?.PlayerDATABASE);
       charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
@@ -69,6 +65,8 @@ export const parseData = (idleonData, charNames, guildData, serverVars) => {
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
     // }
+    console.info('data', { account: accountData, characters: charactersData })
+    console.info("%cParsed successfully", 'color: green');
     return { account: accountData, characters: charactersData };
   } catch (err) {
     console.error("Error while parsing data", err);
@@ -140,6 +138,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
+  // accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
   accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars);
   accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
 
@@ -154,7 +153,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.forge = getForge(idleonData, accountData);
   accountData.construction = getConstruction(idleonData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
-  accountData.arcade = getArcade(idleonData, accountData.accountOptions, serverVars);
+  accountData.arcade = getArcade(idleonData, accountData, serverVars);
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
@@ -170,10 +169,13 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   const money = bankMoney + playersMoney;
   accountData.currencies.money = getCoinsArray(money);
   accountData.currencies.gems = idleonData?.GemsOwned;
+  accountData.currencies.KeysAll = enhanceKeysObject(accountData?.currencies?.KeysAll, charactersData, accountData);
+  accountData.currencies.ColosseumTickets = enhanceColoTickets(accountData?.currencies?.ColosseumTickets, charactersData, accountData);
 
   // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, accountData);
+
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;

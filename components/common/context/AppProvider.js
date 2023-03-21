@@ -33,6 +33,9 @@ function appReducer(state, action) {
     case "planner": {
       return { ...state, planner: action.data };
     }
+    case "trackers": {
+      return { ...state, trackers: action.data };
+    }
     case "emailPasswordLogin": {
       return { ...state, emailPasswordLogin: action.data };
     }
@@ -62,10 +65,12 @@ const AppProvider = ({ children }) => {
     if (typeof window !== "undefined") {
       const filters = localStorage.getItem("filters");
       const displayedCharacters = localStorage.getItem("displayedCharacters");
+      const trackers = localStorage.getItem("trackers");
       const manualImport = localStorage.getItem("manualImport") || false;
       const lastUpdated = localStorage.getItem("lastUpdated") || false;
       const planner = localStorage.getItem("planner") || '{"sections": [{"items": [], "materials":[]}]}';
-      const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated }];
+      const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
+        { trackers }];
       return objects.reduce((res, obj) => {
         try {
           const [objName, objValue] = Object.entries(obj)?.[0];
@@ -149,6 +154,9 @@ const AppProvider = ({ children }) => {
     if (state?.planner) {
       localStorage.setItem("planner", JSON.stringify(state.planner));
     }
+    if (state?.trackers) {
+      localStorage.setItem("trackers", JSON.stringify(state.trackers));
+    }
     if (state?.manualImport) {
       localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
       const charactersData = JSON.parse(localStorage.getItem("charactersData"));
@@ -162,7 +170,8 @@ const AppProvider = ({ children }) => {
     if (state?.emailPasswordLogin) {
       setWaitingForAuth(true);
     }
-  }, [state?.filters, state?.displayedCharacters, state?.planner, state?.manualImport, state?.emailPasswordLogin]);
+  }, [state?.trackers, state?.filters, state?.displayedCharacters, state?.planner, state?.manualImport,
+    state?.emailPasswordLogin]);
 
   useInterval(
     async () => {
@@ -179,7 +188,7 @@ const AppProvider = ({ children }) => {
         try {
           userData = await signInWithToken(id_token);
         } catch (error) {
-          console.log('error', error?.stack)
+          console.error('error', error?.stack)
           dispatch({ type: 'loginError', data: error?.stack });
         }
         const unsubscribe = await subscribe(userData?.uid, handleCloudUpdate);
@@ -230,7 +239,10 @@ const AppProvider = ({ children }) => {
 
   const handleCloudUpdate = (data, charNames, guildData, serverVars) => {
     if (router?.query?.pb) return;
-    console.log("data, charNames, guildData, serverVars", data, charNames, guildData, serverVars);
+    console.info('Character Names', charNames);
+    console.info('rawData', data);
+    console.info('guildData', guildData);
+    console.info('serverVars', serverVars);
     const lastUpdated = new Date().getTime();
     localStorage.setItem("rawJson", JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
     const parsedData = parseData(data, charNames, guildData, serverVars);

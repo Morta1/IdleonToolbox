@@ -3,21 +3,14 @@ import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
+import { getBuildCost } from "../../../parsers/construction";
 
 const Towers = () => {
   const { state } = useContext(AppContext);
 
   const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
 
-  const getBuildCost = (level, bonusInc, index) => {
-    if (index === 0) {
-      const math1 = Math.pow(level + 1, 2);
-      return 20 * math1 * Math.pow(1.6, level + 1);
-    } else {
-      const multiplier = Number(state?.account?.towers?.buildMultiplier[index]);
-      return multiplier * Math.pow(bonusInc, level);
-    }
-  }
+
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
     return itemReq.map(({ rawName, name, amount }) => {
@@ -42,9 +35,14 @@ const Towers = () => {
     <Typography variant={'h2'} mb={3}>Towers</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {state?.account?.towers?.data?.map((tower, index) => {
-        const { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
+        let { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
         const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
-        const buildCost = getBuildCost(level, bonusInc, tower?.index);
+        const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
+        if (tower?.index >= 9 && tower?.index <= 17) {
+          const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
+          const atomBonus = (atom?.level * atom?.baseBonus) ?? 0;
+          maxLevel += atomBonus;
+        }
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress ? '1px solid' : '',
           borderColor: inProgress ? progress < buildCost ? 'success.light' : 'warning.light' : '',
@@ -61,7 +59,7 @@ const Towers = () => {
               <Stack sx={{ width: 100 }}>
                 <Typography mb={2}>Progress</Typography>
                 {level === maxLevel ? <Typography color={'success.light'}>MAXED</Typography> :
-                  <Typography>{notateNumber(progress, 'Big')} / {notateNumber(getBuildCost(level, bonusInc, tower?.index), 'Big')}</Typography>}
+                  <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>}
               </Stack>
               {level === maxLevel ? null : <Stack>
                 <Typography mb={2}>Cost</Typography>

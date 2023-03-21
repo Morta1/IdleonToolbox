@@ -3,6 +3,12 @@ String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
+String.prototype.camelToTitleCase = function () {
+  if (!this) return '';
+  const str = this.replace(/([A-Z])/g, " $1")
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 String.prototype.capitalizeAll = function () {
   if (!this) return '';
   return this.split('_').map((word) => word.capitalize()).join('_');
@@ -17,6 +23,12 @@ String.prototype.toCamelCase = function () {
   return this.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
     return index === 0 ? word.toLowerCase() : word.toUpperCase();
   }).replace(/\s+/g, '');
+}
+
+Array.prototype.toSimpleObject = function () {
+  return this.reduce((res, el) => {
+    return { ...res, [el]: true };
+  }, {});
 }
 
 Array.prototype.toChunks = function (perChunk) {

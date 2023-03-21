@@ -12,7 +12,7 @@ export const getAlchemy = (idleonData) => {
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1) || idleonData?.CauldronJobs?.[1];
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
-    alchemyRaw[8] = cauldronsInfo;
+    alchemyRaw[8] = cauldronsInfo.slice(0, 16);
   }
   return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo);
 };
@@ -24,13 +24,42 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   }));
   const p2w = getPay2Win(idleonData, alchemyActivity);
   const bubbles = getBubbles(alchemyRaw);
+  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
+  const vials = getVials(alchemyRaw?.[4]);
   return {
     p2w,
     bubbles,
-    vials: getVials(alchemyRaw?.[4]),
-    cauldrons: getCauldrons(alchemyRaw?.[5], cauldronsInfo, p2w, bubbles, alchemyActivity)
+    vials,
+    cauldrons,
+    cauldronsInfo,
+    liquids: alchemyRaw?.[6]
   };
 };
+
+// export const getLiquidCauldrons = (account) => {
+//   const liquids = account?.alchemy?.liquids;
+//   const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
+//   return liquids.map((liquidVal, index) => {
+//     const brewBonus = getCauldronBrewBonus(liquidCauldrons[index * 4][1]); // CauldStatDN1
+//     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value, index) => index === 106) ?? 0;
+//     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5) / 100 + 2;
+//     let bleachLiquidBonus = 0;
+//     if (bleachLiquidCauldron > 0) {
+//       bleachLiquidBonus = .5 + saltLickBonus / 100;
+//     }
+//     if (account?.accountOptions?.[123] > 0) {
+//       bleachLiquidBonus = saltLickBonus / 100 + 2
+//     }
+//     // e.h.CauldStatDN1bb - 2.65
+//     // e.h.CauldStatDN1 - 45
+//     const bubbles = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DA_DAILY_DRIP', false);
+//   });
+// }
+//
+// const getCauldronBrewBonus = (cauldronVal) => {
+//   // a.engine.getGameAttribute("CauldronInfo")[8][0 | t][2][1]
+//   return Math.round(10 * growth("decay", 90, 100, cauldronVal, 0, 0)) / 10;
+// }
 
 const getPay2Win = (idleonData, alchemyActivity) => {
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
@@ -203,7 +232,7 @@ const getCauldronStats = (idleonData) => {
   } else {
     stats = idleonData?.CauldronInfo?.[8]?.reduce((res, array) => [...res, ...array], []);
   }
-  return stats.slice(0, 16);
+  return stats;
 };
 
 export const getSigils = (idleonData, alchemyActivity) => {
@@ -231,7 +260,7 @@ const parseSigils = (sigilsRaw, alchemyActivity) => {
       ];
     }
   }
-  return sigilsList;
+  return sigilsList.map((sigil, index) => ({ ...sigil, index }));
 };
 
 export const getSigilBonus = (sigils, name) => {
@@ -248,3 +277,5 @@ export const applyArtifactBonusOnSigil = (sigils, artifacts) => {
   const chilledYarnArtifactBonus = 1 + chilledYarnArtifact?.bonus;
   return sigils?.map((sigil) => ({ ...sigil, bonus: sigil.bonus * chilledYarnArtifactBonus }))
 }
+
+export const vialCostsArray = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5E6, 25E6, 1E8, 1E9, 5E10]

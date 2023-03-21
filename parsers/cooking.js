@@ -301,3 +301,5 @@ export const getMealLevelCost = (level, achievements) => {
 export const calcTimeToNextLevel = (amountNeeded, cookReq, totalMealSpeed) => {
   return amountNeeded * cookReq / totalMealSpeed;
 }
+
+export const maxNumberOfSpiceClicks = 100;

@@ -39,12 +39,14 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
       charIndex * chunk,
       charIndex * chunk + chunk
     );
-    const relevantExtraPrinterData = printExtra.slice(
-      charIndex * extraChunk,
-      charIndex * extraChunk + extraChunk
-    )
-    relevantPrinterData.splice(-4, 0, relevantExtraPrinterData);
-    relevantPrinterData = relevantPrinterData.flat();
+    if (printExtra) {
+      const relevantExtraPrinterData = printExtra?.slice(
+        charIndex * extraChunk,
+        charIndex * extraChunk + extraChunk
+      )
+      relevantPrinterData.splice(-4, 0, relevantExtraPrinterData);
+      relevantPrinterData = relevantPrinterData.flat();
+    }
     return relevantPrinterData.reduce(
       (result, printItem, sampleIndex, array) => {
         if (sampleIndex % 2 === 0) {
@@ -71,7 +73,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             affectedBy = [...affectedBy, 'Wired In (lab) - x2'];
             multiplier = 2;
           }
-          if (highestKingOfRemembrance > 0){
+          if (highestKingOfRemembrance > 0) {
             const bonus = lavaLog(orbOfRemembranceKills) * highestKingOfRemembrance;
             const notatedBonus = notateNumber(1 + bonus / 100, "MultiplierInfo").replace('#', '');
             affectedBy = [...affectedBy, `Divine Knight (King of..) x${notatedBonus}`];

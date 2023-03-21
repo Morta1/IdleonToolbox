@@ -142,7 +142,7 @@ export const isLabEnabledBySorcererRaw = (charData, godIndex) =>{
 }
 
 export const isGodEnabledBySorcerer = (character, godIndex) => {
-  if (character.class === 'Elemental_Sorcerer') {
+  if (character?.class === 'Elemental_Sorcerer') {
     const polytheism = character.flatTalents?.find(({ talentId }) => talentId === 505);
     return polytheism?.level % 10 === godIndex;
   }

@@ -21,6 +21,19 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.47",
+    gameVer: "1.77.0",
+    date: "21/03/2023",
+    features: [<Typography><Link
+      href={'https://idleontoolbox.com/dashboard'}>Dashboard</Link> page!</Typography>,
+      <Typography>Added a tooltip for boss keys + colo tickets on <Link
+        href={'https://idleontoolbox.com/account/general'}>General</Link> page</Typography>,
+      <Typography>Added Stamp Reducer indication on <Link
+        href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>],
+    fixes: ['Fixed wizard towers max level (from atom collider)', 'Some bug fixes for low level accounts', 'Added missing W5 catching and chopping targets (ops)'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.46",
     gameVer: "1.77.0",
     date: "18/03/2023",

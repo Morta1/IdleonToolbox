@@ -33,9 +33,9 @@ const MyApp = (props) => {
         <title>Idleon Toolbox</title>
         <meta
           name="description"
-          content="Follow your Legends of Idleon progression with ease with the help of account and characters' overview, craft calculator and more!"
+          content="Follow your Legends of Idleon progression with ease with the help of alerts dashboard, account and characters' overview, craft calculator and more!"
         />
-        <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator, refinery, anvil"/>
+        <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator, refinery, anvil, dashboard"/>
       </Head>
       {process.env.NODE_ENV !== 'production' &&
       <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}

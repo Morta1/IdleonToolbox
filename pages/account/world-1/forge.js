@@ -49,6 +49,7 @@ const Forge = () => {
     {selectedTab === 0 ? <Grid container gap={2}>
       {state?.account?.forge?.list?.map(({ ore, barrel, bar, isBrimestone }, index) => {
         const materials = [ore, barrel, bar];
+        const empty = materials.every(({ rawName }) => rawName === 'Blank');
         return <Grid item key={`${ore}-${barrel}-${bar}-${index}`}>
           <Card sx={{ position: 'relative', borderColor: isBrimestone ? '#9b689bbf' : 'none' }}
                 variant={'outlined'} key={`${ore}-${barrel}-${bar}-${index}`}>
@@ -56,9 +57,9 @@ const Forge = () => {
               <Stack direction={'row'}>
                 {materials?.map(({ rawName, quantity }, matIndex) => {
                   return <Stack key={`${rawName}-${matIndex}`} sx={slot}>
-                    <img style={{ width: !isMd ? 'auto' : 36 }} src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <img style={{ width: !isMd ? 'auto' : 36, opacity: empty ? 0 : 1 }} src={`${prefix}data/${!empty ? rawName : 'CopperBar'}.png`} alt=""/>
                     {quantity > 0 ?
-                      <Typography variant={'body1'} component={'span'}>{quantity}</Typography> : null}
+                      <Typography variant={'body1'} component={'span'}>{quantity}</Typography> : <Typography variant={'body1'} component={'span'}>&nbsp;</Typography>}
                   </Stack>
                 })}
               </Stack>
