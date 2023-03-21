@@ -36,6 +36,8 @@ const MyApp = (props) => {
           content="Follow your Legends of Idleon progression with ease with the help of alerts dashboard, account and characters' overview, craft calculator and more!"
         />
         <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator, refinery, anvil, dashboard"/>
+        <meta name="robots" content="index,follow" />
+        <meta name="googlebot" content="index,follow" />
       </Head>
       {process.env.NODE_ENV !== 'production' &&
       <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}

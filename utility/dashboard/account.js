@@ -45,10 +45,14 @@ export const areKeysOverdue = (account) => {
   })
 }
 
-export const areVialsReady = (account) => {
+export const areVialsReady = (account, trackersOptions) => {
+  const { subtractGreenStacks } = trackersOptions || {};
   return account?.alchemy?.vials?.filter(({ level, itemReq }) => {
     const cost = vialCostsArray?.[level];
-    const storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
+    let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
+    if (subtractGreenStacks) {
+      storageQuantity -= 1e7;
+    }
     const liquidIndex = parseInt(itemReq?.[1]?.name.split('\d')?.[1] || 0);
     const liquidQuantity = account?.alchemy?.liquids?.[liquidIndex - 1];
     const liquidCost = 3 * level;

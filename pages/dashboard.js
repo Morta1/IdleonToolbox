@@ -15,17 +15,24 @@ import Characters from "../components/dashboard/Characters";
 import Account from "../components/dashboard/Account";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from "@mui/material/IconButton";
+import { flatten } from "../utility/helpers";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses'
 ].toSimpleObject();
+const trackersOptions = {
+  account: {
+    vials: { subtractGreenStacks: true }
+  }
+};
 
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
   const [trackers, setTrackers] = useState();
+  const [options, setOptions] = useState();
 
   useEffect(() => {
     const accountHasDiff = state?.trackers?.account ? Object.keys(accountTrackers).length !== Object.keys(state?.trackers?.account).length : true;
@@ -34,7 +41,11 @@ const Dashboard = () => {
       account: accountHasDiff ? accountTrackers : state?.trackers?.account,
       characters: charactersHasDiff ? characterTrackers : state?.trackers?.characters
     })
-  }, [state])
+    const accountOptionDiff = state?.trackersOptions ? Object.keys(flatten(trackersOptions, {})).length !== Object.keys(flatten(state?.trackersOptions, {})).length : true;
+    setOptions({
+      ...(accountOptionDiff ? trackersOptions : state?.trackersOptions)
+    })
+  }, []);
 
   const handleTrackerChange = (event, type) => {
     const tempTrackers = {
@@ -44,8 +55,43 @@ const Dashboard = () => {
         [event.target.name]: event.target.checked
       }
     };
+    const hasOptions = options?.[type]?.[event.target.name];
+    if (hasOptions) {
+      setOptions({
+        ...options,
+        [type]: {
+          [event.target.name]: {
+            ...Object.keys(hasOptions).toSimpleObject(event.target.checked)
+          }
+        }
+      })
+    }
     setTrackers(tempTrackers);
     dispatch({ type: 'trackers', data: tempTrackers })
+  };
+
+  const handleOptionsChange = (event, type, option) => {
+    const tempOptions = {
+      ...options,
+      [type]: {
+        ...options[type],
+        [option]: {
+          ...options[type][option],
+          [event.target.name]: event.target.checked
+        }
+      }
+    };
+    setOptions(tempOptions);
+    if (!trackers?.[type]?.[option]) {
+      setTrackers({
+        ...trackers,
+        [type]: {
+          ...trackers[type],
+          [option]: true
+        }
+      })
+    }
+    dispatch({ type: 'trackersOptions', data: tempOptions })
   };
 
   return <>
@@ -58,22 +104,27 @@ const Dashboard = () => {
     <Typography component={'div'} variant={'caption'} mb={3}>* Please let me know if you want to tracks additional
       stuff</Typography>
     <Stack>
-      <Account trackers={trackers?.account} characters={characters} account={account} lastUpdated={lastUpdated}/>
+      <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters} account={account}
+               lastUpdated={lastUpdated}/>
       <Characters trackers={trackers?.characters} characters={characters} account={account} lastUpdated={lastUpdated}/>
     </Stack>
     <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>What would you like to track ?</DialogTitle>
       <DialogContent>
-        <Stack direction={'row'} alignItems={'flex-start'} gap={3}>
+        <Stack direction={'row'} alignItems={'flex-start'} gap={5} flexWrap={'wrap'}>
           <FormGroup>
             <FormLabel component="legend">Account</FormLabel>
             <TrackerOptions arr={trackers?.account}
-                            onChange={(event) => handleTrackerChange(event, 'account')}/>
+                            options={options?.account}
+                            type={'account'}
+                            onOptionChange={handleOptionsChange}
+                            onTrackerChange={handleTrackerChange}/>
           </FormGroup>
           <FormGroup>
             <FormLabel component="legend">Character</FormLabel>
             <TrackerOptions arr={trackers?.characters}
-                            onChange={(event) => handleTrackerChange(event, 'characters')}/>
+                            type={'characters'}
+                            onTrackerChange={handleTrackerChange}/>
           </FormGroup>
         </Stack>
       </DialogContent>
@@ -81,13 +132,25 @@ const Dashboard = () => {
   </>
 };
 
-const TrackerOptions = ({ arr, onChange }) => {
-  return Object.keys(arr).map((trackerName) => {
-    return <FormControlLabel
-      key={trackerName}
-      control={<Checkbox name={trackerName} checked={arr?.[trackerName]}
-                         onChange={onChange}/>}
-      label={trackerName.camelToTitleCase()}/>
+const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options }) => {
+  return Object.keys(arr)?.map((trackerName) => {
+    const trackerOptions = options?.[trackerName];
+    return <React.Fragment key={`tracker-${trackerName}`}>
+      <FormControlLabel
+        control={<Checkbox name={trackerName} checked={arr?.[trackerName]}
+                           onChange={(event) => onTrackerChange(event, type)}/>}
+        label={trackerName.camelToTitleCase()}/>
+      <Stack sx={{ ml: 3 }}>
+        {trackerOptions && Object.keys(trackerOptions)?.map((option) => {
+          return <FormControlLabel
+            key={`option-${option}`}
+            control={<Checkbox name={option}
+                               checked={trackerOptions?.[option]}
+                               onChange={(event) => onOptionChange(event, type, trackerName)}/>}
+            label={option.camelToTitleCase()}/>
+        })}
+      </Stack>
+    </React.Fragment>
   })
 }
 

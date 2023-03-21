@@ -25,9 +25,9 @@ String.prototype.toCamelCase = function () {
   }).replace(/\s+/g, '');
 }
 
-Array.prototype.toSimpleObject = function () {
+Array.prototype.toSimpleObject = function (val = true) {
   return this.reduce((res, el) => {
-    return { ...res, [el]: true };
+    return { ...res, [el]: val };
   }, {});
 }
 

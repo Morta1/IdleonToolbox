@@ -72,7 +72,7 @@ function NavBar({ children, window }) {
   }, [router.pathname, isXs]);
 
   useEffect(() => {
-    setShouldDisplayMenu(state?.signedIn || state?.manualImport || state?.pastebin);
+    setShouldDisplayMenu(state?.signedIn || state?.manualImport || state?.pastebin || state?.demo);
   }, [state]);
 
   useEffect(() => {

@@ -1,6 +1,8 @@
 import { createContext, useEffect, useMemo, useReducer, useState } from "react";
 import { checkUserStatus, signInWithToken, subscribe, userSignOut } from "../../../firebase";
 import { parseData } from "../../../parsers";
+import demoJson from '../../../data/raw.json';
+
 import { useRouter } from "next/router";
 import useInterval from "../../hooks/useInterval";
 import { getUserAndDeviceCode, getUserToken } from "../../../google/login";
@@ -36,6 +38,9 @@ function appReducer(state, action) {
     case "trackers": {
       return { ...state, trackers: action.data };
     }
+    case "trackersOptions": {
+      return { ...state, trackersOptions: action.data };
+    }
     case "emailPasswordLogin": {
       return { ...state, emailPasswordLogin: action.data };
     }
@@ -66,11 +71,12 @@ const AppProvider = ({ children }) => {
       const filters = localStorage.getItem("filters");
       const displayedCharacters = localStorage.getItem("displayedCharacters");
       const trackers = localStorage.getItem("trackers");
+      const trackersOptions = localStorage.getItem("trackersOptions");
       const manualImport = localStorage.getItem("manualImport") || false;
       const lastUpdated = localStorage.getItem("lastUpdated") || false;
       const planner = localStorage.getItem("planner") || '{"sections": [{"items": [], "materials":[]}]}';
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
-        { trackers }];
+        { trackers }, { trackersOptions }];
       return objects.reduce((res, obj) => {
         try {
           const [objName, objValue] = Object.entries(obj)?.[0];
@@ -126,6 +132,12 @@ const AppProvider = ({ children }) => {
     (async () => {
       if (router?.query?.pb) {
         pastebinImport()
+      } else if (router?.query?.demo) {
+        console.log('demo', demoJson)
+        const { data, charNames, guildData, serverVars, lastUpdated } = demoJson;
+        let parsedData = parseData(data, charNames, guildData, serverVars);
+        parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
+        dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {
@@ -157,6 +169,9 @@ const AppProvider = ({ children }) => {
     if (state?.trackers) {
       localStorage.setItem("trackers", JSON.stringify(state.trackers));
     }
+    if (state?.trackersOptions) {
+      localStorage.setItem("trackersOptions", JSON.stringify(state.trackersOptions));
+    }
     if (state?.manualImport) {
       localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
       const charactersData = JSON.parse(localStorage.getItem("charactersData"));
@@ -170,7 +185,8 @@ const AppProvider = ({ children }) => {
     if (state?.emailPasswordLogin) {
       setWaitingForAuth(true);
     }
-  }, [state?.trackers, state?.filters, state?.displayedCharacters, state?.planner, state?.manualImport,
+  }, [state?.trackers, state?.trackersOptions, state?.filters, state?.displayedCharacters, state?.planner,
+    state?.manualImport,
     state?.emailPasswordLogin]);
 
   useInterval(
@@ -239,10 +255,12 @@ const AppProvider = ({ children }) => {
 
   const handleCloudUpdate = (data, charNames, guildData, serverVars) => {
     if (router?.query?.pb) return;
-    console.info('Character Names', charNames);
-    console.info('rawData', data);
-    console.info('guildData', guildData);
-    console.info('serverVars', serverVars);
+    console.info('rawData', {
+      data,
+      charNames,
+      guildData,
+      serverVars
+    })
     const lastUpdated = new Date().getTime();
     localStorage.setItem("rawJson", JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
     const parsedData = parseData(data, charNames, guildData, serverVars);

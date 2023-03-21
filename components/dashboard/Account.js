@@ -27,7 +27,7 @@ const alertsMapping = {
   miniBosses: canKillBosses
 }
 
-const Account = ({ account, trackers }) => {
+const Account = ({ account, trackers, trackersOptions }) => {
   const [alerts, setAlerts] = useState();
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const Account = ({ account, trackers }) => {
       const tempAlerts = Object.entries(trackers).reduce((res, [trackerName, val]) => {
         if (val) {
           if (alertsMapping?.[trackerName]) {
-            res[trackerName] = alertsMapping?.[trackerName](account);
+            res[trackerName] = alertsMapping?.[trackerName](account, trackersOptions?.[trackerName]);
           }
         }
         return res;
@@ -46,7 +46,7 @@ const Account = ({ account, trackers }) => {
     } else {
       setAlerts(null)
     }
-  }, [account, trackers]);
+  }, [account, trackers, trackersOptions]);
 
   return <>
     <Card sx={{ mb: 2 }}>
@@ -60,8 +60,8 @@ const Account = ({ account, trackers }) => {
             <Alert title={'Max capacity has reached'} iconPath={'data/PachiBall0'}/> : null}
           {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
             alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
-                                                              title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
-                                                              iconPath={`etc/${rawName}`}/>) : null}
+                                                                                title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
+                                                                                iconPath={`etc/${rawName}`}/>) : null}
           {trackers?.sigils && alerts?.sigils.length > 0 ?
             alerts?.sigils?.map(({ name, index }) => <Alert key={name}
                                                             title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}

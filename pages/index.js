@@ -29,8 +29,10 @@ const patchNotes = [
       <Typography>Added a tooltip for boss keys + colo tickets on <Link
         href={'https://idleontoolbox.com/account/general'}>General</Link> page</Typography>,
       <Typography>Added Stamp Reducer indication on <Link
-        href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>],
-    fixes: ['Fixed wizard towers max level (from atom collider)', 'Some bug fixes for low level accounts', 'Added missing W5 catching and chopping targets (ops)'],
+        href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>,
+      'Added Subtract Green Stacks option for vials in dashboard (this will subtract 10M from your current amount to make sure you will still have green stack after upgrading)'],
+    fixes: ['Fixed wizard towers max level (from atom collider)', 'Some bug fixes for low level accounts',
+      'Added missing W5 catching and chopping targets (ops)', 'Fixed a bug on Vials page'],
     deprecatedFeatures: []
   },
   {

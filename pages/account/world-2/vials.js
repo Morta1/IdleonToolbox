@@ -4,6 +4,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
+import { vialCostsArray } from "../../../parsers/alchemy";
 
 const Vials = () => {
   const { state } = useContext(AppContext);

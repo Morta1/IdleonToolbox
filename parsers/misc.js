@@ -107,15 +107,15 @@ export const enhanceColoTickets = (tickets, characters, account) => {
     2: { name: 'Lonely_Hunter', dialogThreshold: 6, daysSinceIndex: 56 },
   }
   const allTickets = Object.entries(npcs).reduce((res, [, npc], index) => {
-    const amountPerDay = getAmountPerDay(npc, characters);
+    // const amountPerDay = getAmountPerDay(npc, characters);
     const daysSincePickup = account?.accountOptions?.[npc?.daysSinceIndex];
     return [...res,
       {
         rawName: `TixEZ${index}`,
-        amountPerDay,
+        amountPerDay: 1,
         daysSincePickup,
         amount: tickets,
-        totalAmount: Math.min(daysSincePickup, 3) * amountPerDay
+        totalAmount: Math.min(daysSincePickup, 3)
       }];
   }, [])
   return {

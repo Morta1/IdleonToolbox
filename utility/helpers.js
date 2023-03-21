@@ -140,7 +140,7 @@ export const getCoinsArray = (coins) => {
 };
 
 export const notateNumber = (e, s) => {
-  if (s === "bits"){
+  if (s === "bits") {
     if (1e4 > e) {
       return Math.floor(e);
     }
@@ -269,11 +269,26 @@ export const splitTime = (numberOfHours) => {
   return `${days}d:${hours}h:${minutes}m`;
 };
 
-export const randomFloatBetween = function(e, t) {
+export const randomFloatBetween = function (e, t) {
   return e <= t ? e + Math.random() * (t - e) : t + Math.random() * (e - t)
 }
 
-export const sections = [{ name: "Activity" }, { name: "Stats" }, { name: "Bags" }, { name: "Obols" }, { name: "Obols Stats" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" }, { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" }, { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
+export const flatten = (obj, out) => {
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] == 'object') {
+      out = flatten(obj[key], out) //recursively call for nested
+    } else {
+      out[key] = obj[key] //direct assign for values
+    }
+  });
+  return out;
+}
+
+export const sections = [{ name: "Activity" }, { name: "Stats" }, { name: "Bags" }, { name: "Obols" },
+  { name: "Obols Stats" }, { name: "Cards" }, { name: "Skills" }, { name: "Prayers" }, { name: "Talents" },
+  { name: "Equipment" }, { name: "Star Signs" }, { name: "Post Office" }, { name: "Anvil Details" },
+  { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
 
 const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/" : "/";
+
