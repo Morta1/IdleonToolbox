@@ -1,7 +1,7 @@
 import { AppContext } from "components/common/context/AppProvider";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "components/Tooltip";
 
@@ -45,7 +45,9 @@ const Looty = () => {
                     <HtmlTooltip title={cleanUnderscore(name)}>
                       <ItemImg data-index={index} width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
                     </HtmlTooltip>
-                    <Typography color={amount >= 1e7 ? "success.light" : ""}>{notateNumber(amount, "Big")}</Typography>
+                    <HtmlTooltip title={numberWithCommas(amount)}>
+                      <Typography color={amount >= 1e7 ? "success.light" : ""}>{notateNumber(amount, "Big")}</Typography>
+                    </HtmlTooltip>
                   </Stack>
                 </CardContent>
               </Card>
