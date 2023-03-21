@@ -59,7 +59,7 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
               {trackers?.worship && isWorshipOverdue(worship) ?
                 <Alert title={`${name} worship is full!`} iconPath={'data/ClassIcons50'}/> : null}
               {trackers?.traps && missingObols?.length > 0 ?
-                <Alert title={`${name} has ${missingObols?.length} empty slots!`} iconPath={'data/ObolLocked1'}/> : null}
+                <Alert title={`${name} has ${missingObols?.length} empty obol slots!`} iconPath={'data/ObolLocked1'}/> : null}
               {trackers?.postOffice && hasUnspentPoints(postOffice) ?
                 <Alert title={`${name} has ${postOffice?.unspentPoints} unspent points`}
                        iconPath={'data/UIboxUpg0'}/> : null}
