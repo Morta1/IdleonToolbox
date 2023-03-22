@@ -41,12 +41,13 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
               <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                                                       alt=""/></Box>
               <Typography>{name}</Typography>
+              <HtmlTooltip title={cleanUnderscore(activity)}>
+                <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
+                         style={{ marginLeft: 'auto' }}/>
+              </HtmlTooltip>
             </Stack>
             <Divider sx={{ my: 1 }}/>
             <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-              <HtmlTooltip title={cleanUnderscore(activity)}>
-                <IconImg src={`${prefix}afk_targets/${activity}.png`} alt=""/>
-              </HtmlTooltip>
               {trackers?.prayers && isAkfForMoreThanTenHours(character, lastUpdated) ?
                 <Alert title={`${name} has unending energy prayer and is afk for more than 10 hours!`}
                        iconPath={'data/Prayer2'}/> : null}
@@ -59,7 +60,8 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
               {trackers?.worship && isWorshipOverdue(worship) ?
                 <Alert title={`${name} worship is full!`} iconPath={'data/ClassIcons50'}/> : null}
               {trackers?.traps && missingObols?.length > 0 ?
-                <Alert title={`${name} has ${missingObols?.length} empty obol slots!`} iconPath={'data/ObolLocked1'}/> : null}
+                <Alert title={`${name} has ${missingObols?.length} empty obol slots!`}
+                       iconPath={'data/ObolLocked1'}/> : null}
               {trackers?.postOffice && hasUnspentPoints(postOffice) ?
                 <Alert title={`${name} has ${postOffice?.unspentPoints} unspent points`}
                        iconPath={'data/UIboxUpg0'}/> : null}

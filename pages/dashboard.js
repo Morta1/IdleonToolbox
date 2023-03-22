@@ -16,6 +16,7 @@ import Account from "../components/dashboard/Account";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from "@mui/material/IconButton";
 import { flatten } from "../utility/helpers";
+import Etc from "../components/dashboard/Etc";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents'].toSimpleObject();
@@ -103,10 +104,11 @@ const Dashboard = () => {
     </Stack>
     <Typography component={'div'} variant={'caption'} mb={3}>* Please let me know if you want to tracks additional
       stuff</Typography>
-    <Stack>
+    <Stack gap={2}>
       <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters} account={account}
                lastUpdated={lastUpdated}/>
       <Characters trackers={trackers?.characters} characters={characters} account={account} lastUpdated={lastUpdated}/>
+      <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
     </Stack>
     <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>What would you like to track ?</DialogTitle>

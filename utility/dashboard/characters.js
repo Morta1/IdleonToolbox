@@ -22,7 +22,7 @@ export const isWorshipOverdue = (worship) => {
 }
 
 export const hasUnspentPoints = (postOffice) => {
-  return postOffice?.unspentPoints > 0;
+  return postOffice?.unspentPoints > 0 && postOffice.boxes.some(({ level, maxLevel }) => level < maxLevel);
 }
 
 export const isProductionMissing = (equippedBubbles, account, characterIndex) => {

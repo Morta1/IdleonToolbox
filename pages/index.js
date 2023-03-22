@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.48",
+    gameVer: "1.77.0",
+    date: "22/03/2023",
+    features: ['Added library timer to dashboard'],
+    fixes: ['Updated logic for post office dashboard notification (doesn\'t show up when maxed all boxes)'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.47",
     gameVer: "1.77.0",
     date: "21/03/2023",

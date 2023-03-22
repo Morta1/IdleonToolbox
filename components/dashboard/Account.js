@@ -49,7 +49,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
   }, [account, trackers, trackersOptions]);
 
   return <>
-    <Card sx={{ mb: 2 }}>
+    <Card>
       <CardContent>
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.stampReducer && alerts?.stampReducer ?
@@ -57,7 +57,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
           {trackers?.cooking && alerts?.cooking > 0 ?
             <Alert title={`You have ${alerts?.cooking} spice clicks left!`} iconPath={'data/CookingSpice0'}/> : null}
           {trackers?.arcadeBalls && isBallsOverdue(account) ?
-            <Alert title={'Max capacity has reached'} iconPath={'data/PachiBall0'}/> : null}
+            <Alert title={'Max ball capacity has reached!'} iconPath={'data/PachiBall0'}/> : null}
           {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
             alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
                                                                                 title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
