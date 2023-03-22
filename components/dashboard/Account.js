@@ -12,7 +12,7 @@ import {
   hasAvailableSpiceClicks,
   isBallsOverdue,
   isRefineryEmpty,
-  isStampReducerMaxed
+  isStampReducerMaxed, zeroBargainTag
 } from "../../utility/dashboard/account";
 
 const alertsMapping = {
@@ -24,7 +24,8 @@ const alertsMapping = {
   arcadeBalls: isBallsOverdue,
   vials: areVialsReady,
   cooking: hasAvailableSpiceClicks,
-  miniBosses: canKillBosses
+  miniBosses: canKillBosses,
+  bargainTag: zeroBargainTag
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -54,6 +55,8 @@ const Account = ({ account, trackers, trackersOptions }) => {
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.stampReducer && alerts?.stampReducer ?
             <Alert title={'Stamp reducer is maxed (90%)!'} iconPath={'data/Atom0'}/> : null}
+          {trackers?.bargainTag && alerts?.bargainTag ?
+            <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
           {trackers?.cooking && alerts?.cooking > 0 ?
             <Alert title={`You have ${alerts?.cooking} spice clicks left!`} iconPath={'data/CookingSpice0'}/> : null}
           {trackers?.arcadeBalls && isBallsOverdue(account) ?

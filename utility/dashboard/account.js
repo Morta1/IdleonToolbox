@@ -78,3 +78,7 @@ export const canKillBosses = (account) => {
   }
   return maxedMiniBosses.length > 0 ? maxedMiniBosses : null;
 }
+
+export const zeroBargainTag = (account) => {
+  return account?.accountOptions?.[62] === 0;
+}
