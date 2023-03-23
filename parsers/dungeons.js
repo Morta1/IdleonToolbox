@@ -4,6 +4,7 @@ import { getStampsBonusByEffect } from "./stamps";
 import { getBribeBonus } from "./bribes";
 import { getVialsBonusByStat } from "./alchemy";
 import { getAchievementStatus } from "./achievements";
+import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from "date-fns";
 
 export const getDungeons = (idleonData, accountOptions) => {
   const dungeonUpgradesRaw = tryToParse(idleonData?.DungUpg) || idleonData?.DungUpg;
@@ -70,3 +71,29 @@ export const getBallBonus = (account) => {
   const stampArcadeBonus = Math.min(50, getStampsBonusByEffect(account?.stamps, 'ball_gain_rate'));
   return ballBonus + vialArcadeBonus + (5 * taskArcadeBonus) + stampArcadeBonus;
 }
+
+export const getHappyHourDates = (happyHours, thursday) => {
+  const secondsInHour = 60 * 60;
+  return happyHours?.map((time) => {
+    return time + Math.round(thursday / 1000) - secondsInHour;
+  });
+}
+
+export const calcHappyHours = (happyHours) => {
+  let lastThursday
+  if (isThursday(startOfToday())) {
+    lastThursday = startOfToday();
+  } else {
+    lastThursday = previousThursday(startOfToday());
+    lastThursday = lastThursday.getTime() - lastThursday.getTimezoneOffset() * 60 * 1000;
+  }
+  const hhDates = getHappyHourDates(happyHours, lastThursday);
+  const nextHappyHours = hhDates?.filter((time) => !isPast(time * 1000)).map((time) => time * 1000);
+  if (nextHappyHours?.length === 0) {
+    let futureThursday = nextThursday(startOfToday());
+    futureThursday = futureThursday.getTime() - futureThursday.getTimezoneOffset() * 60 * 1000;
+    return getHappyHourDates(happyHours, futureThursday);
+  } else {
+    return nextHappyHours;
+  }
+};

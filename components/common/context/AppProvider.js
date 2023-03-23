@@ -133,7 +133,6 @@ const AppProvider = ({ children }) => {
       if (router?.query?.pb) {
         pastebinImport()
       } else if (router?.query?.demo) {
-        console.log('demo', demoJson)
         const { data, charNames, guildData, serverVars, lastUpdated } = demoJson;
         let parsedData = parseData(data, charNames, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };

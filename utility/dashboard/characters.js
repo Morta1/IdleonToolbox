@@ -1,7 +1,8 @@
-import { differenceInHours, differenceInMinutes, isPast } from "date-fns";
+import { differenceInHours, differenceInMinutes, format, getHours, isFuture, isPast } from "date-fns";
 import { getPostOfficeBonus } from "../../parsers/postoffice";
-import { randomList } from "../../data/website-data";
+import { items, randomList } from "../../data/website-data";
 import { isArenaBonusActive } from "../../parsers/misc";
+import { getTimeTillCap } from "../../parsers/anvil";
 
 // character, characters, characterIndex, account
 
@@ -33,9 +34,21 @@ export const isProductionMissing = (equippedBubbles, account, characterIndex) =>
   return maxProducts - numOfHammers;
 }
 
-export const isAnvilOverdue = (account, characterIndex) => {
+export const isAnvilOverdue = (account, afkTime, characterIndex) => {
   const anvil = account?.anvil?.[characterIndex];
-  return anvil?.production?.some(({ currentAmount }) => currentAmount >= anvil?.stats?.anvilCapacity)
+  const allProgress = anvil?.production?.filter(({ hammers }) => hammers > 0)?.map((slot) => {
+    const tillCap = getTimeTillCap({
+      ...slot,
+      anvil,
+      afkTime
+    }) * 1000;
+    return { date: new Date().getTime() + tillCap, name: items?.[slot?.rawName]?.displayName, rawName: slot?.rawName };
+  })
+
+  return allProgress?.map(({ date, name, rawName }) => {
+    const d = new Date(date - 1);
+    return { diff: differenceInMinutes(d, new Date()), name, rawName };
+  }).filter(({ diff }) => diff <= 60);
 }
 
 export const isTalentReady = (character) => {

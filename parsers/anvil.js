@@ -188,7 +188,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels, idleo
   const skillExpCardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
   const acquiredArtifacts = sailingRaw?.[3];
-  const moaiiHead =  acquiredArtifacts?.[0] > 0;
+  const moaiiHead = acquiredArtifacts?.[0] > 0;
   const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap`], account.cards, moaiiHead);
   const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
   const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy')?.bonus
@@ -282,3 +282,9 @@ export const calcAnvilExp = (characters, character, anvilExp, xpPoints) => {
   const tempAnvilExp = getAnvilExp(xpPoints, smithingExpMulti);
   return 100 * (tempAnvilExp - 1);
 };
+
+export const getTimeTillCap = ({ hammers, currentAmount, currentProgress, time, afkTime, anvil }) => {
+  const timePassed = (new Date().getTime() - afkTime) / 1000;
+  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * anvil?.stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), anvil?.stats?.anvilCapacity);
+  return ((anvil?.stats?.anvilCapacity - futureProduction) / (anvil?.stats?.anvilSpeed / 3600 / time * (hammers ?? 0)));
+}

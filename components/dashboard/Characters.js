@@ -29,12 +29,14 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
           worship,
           postOffice,
           equippedBubbles,
+          afkTime
         } = character;
         const activity = afkTarget !== '_' ? afkTarget : 'Nothing';
         const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, account, characterIndex);
         const readyTalents = trackers?.talents && isTalentReady(character);
         const missingObols = trackers?.obols && isObolMissing(character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
+        const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex);
         return <Card key={name} sx={{ width: 345 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
@@ -68,8 +70,13 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
               {trackers?.anvil && productionHammersMissing > 0 ?
                 <Alert title={`${name} is missing ${productionHammersMissing} hammers`}
                        iconPath={'data/GemP1'}/> : null}
-              {trackers?.anvil && isAnvilOverdue(account, characterIndex) ?
-                <Alert title={`${name} anvil production is full!`} iconPath={'data/ClassIcons43'}/> : null}
+              {trackers?.anvil && fullAnvil?.length > 0 ?
+                fullAnvil?.map(({ diff, name, rawName }) => {
+                  const isFull = diff <= 0;
+                  return <Alert key={`${name}-${characterIndex}`}
+                                title={`${cleanUnderscore(name)} ${isFull ? 'production is full!' : `is ${diff} minutes away from being full!`}`}
+                                iconPath={`data/${rawName}`}/>;
+                }) : null}
               {trackers?.starSigns && missingStarSigns > 0 ?
                 <Alert title={`${name} is missing ${missingStarSigns} star signs!`}
                        iconPath={'data/SignStar1b'}/> : null}

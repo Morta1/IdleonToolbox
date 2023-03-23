@@ -5,6 +5,8 @@ import { fillArrayToLength, prefix } from "utility/helpers";
 import Timer from "components/common/Timer";
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
+import { getTimeTillCap } from "../../../parsers/anvil";
+import { items } from "../../../data/website-data";
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
@@ -36,7 +38,8 @@ const Anvil = () => {
                 <Stack>
                   <Typography className={'character-name'}>{playerName}</Typography>
                   <Typography variant={'caption'}>Smithing lv. {smithingLevel}</Typography>
-                  <Typography variant={'caption'} color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints} / {pointsFromCoins + pointsFromMats}</Typography>
+                  <Typography variant={'caption'}
+                              color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints} / {pointsFromCoins + pointsFromMats}</Typography>
                 </Stack>
               </Stack>
               <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}
@@ -46,7 +49,7 @@ const Anvil = () => {
                   const timePassed = (new Date().getTime() - afkTime) / 1000;
                   const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * anvil?.stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), anvil?.stats?.anvilCapacity);
                   const percentOfCap = Math.round(futureProduction / anvil?.stats?.anvilCapacity * 100);
-                  const timeTillCap = ((anvil?.stats?.anvilCapacity - futureProduction) / (anvil?.stats?.anvilSpeed / 3600 / time * (hammers ?? 0)));
+                  const timeTillCap = getTimeTillCap({ ...slot, anvil, afkTime })
                   return <Card elevation={5}
                                sx={{ boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707' }}
                                key={`${rawName}-${slotIndex}`}>
