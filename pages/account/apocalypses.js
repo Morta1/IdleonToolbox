@@ -4,6 +4,7 @@ import { talentPagesMap } from "../../parsers/talents";
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { notateNumber, prefix } from "../../utility/helpers";
 import styled from "@emotion/styled";
+import { NextSeo } from "next-seo";
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);
@@ -22,6 +23,10 @@ const Apocalypses = () => {
 
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Apocalypses"
+        description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
+      />
       <Typography textAlign={"center"} mt={2} mb={2} variant={"h2"}>Apocalypses</Typography>
       <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't
         zowed/chowed and how many you've already killed</Typography>

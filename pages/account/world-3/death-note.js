@@ -4,6 +4,7 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { getDeathNoteRank } from "parsers/deathNote";
 import { cleanUnderscore, notateNumber, prefix, worlds } from "utility/helpers";
 import Box from "@mui/material/Box";
+import { NextSeo } from "next-seo";
 
 const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e'];
 
@@ -12,6 +13,10 @@ const DeathNote = () => {
   const { deathNote } = state?.account || { deathNote: {} };
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Death Note"
+        description="Keep track of death note progression"
+      />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Death Note</Typography>
       <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
         {Object.entries(deathNote)?.map(([worldIndex, { mobs, rank }], index) => {

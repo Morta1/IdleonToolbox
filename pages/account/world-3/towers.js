@@ -4,6 +4,7 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import { getBuildCost } from "../../../parsers/construction";
+import { NextSeo } from "next-seo";
 
 const Towers = () => {
   const { state } = useContext(AppContext);
@@ -31,6 +32,10 @@ const Towers = () => {
   }
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Towers"
+      description="Keep track of your towers levels, bonuses and required materials for upgrades"
+    />
     <Typography variant={'h2'} mb={3}>Towers</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {state?.account?.towers?.data?.map((tower, index) => {

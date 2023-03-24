@@ -4,6 +4,7 @@ import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "components/Tooltip";
+import { NextSeo } from "next-seo";
 
 const Looty = () => {
   const { state } = useContext(AppContext);
@@ -29,6 +30,10 @@ const Looty = () => {
 
   return (
     <Stack>
+      <NextSeo
+        title="Idleon Toolbox | Storage"
+        description="A list of your storage items"
+      />
       <Typography textAlign={"center"} mt={2} mb={2} variant={"h2"}>
         Storage
       </Typography>
@@ -46,7 +51,8 @@ const Looty = () => {
                       <ItemImg data-index={index} width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""/>
                     </HtmlTooltip>
                     <HtmlTooltip title={numberWithCommas(amount)}>
-                      <Typography color={amount >= 1e7 ? "success.light" : ""}>{notateNumber(amount, "Big")}</Typography>
+                      <Typography
+                        color={amount >= 1e7 ? "success.light" : ""}>{notateNumber(amount, "Big")}</Typography>
                     </HtmlTooltip>
                   </Stack>
                 </CardContent>

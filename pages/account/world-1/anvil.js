@@ -7,12 +7,17 @@ import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
 import { getTimeTillCap } from "../../../parsers/anvil";
 import { items } from "../../../data/website-data";
+import { NextSeo } from "next-seo";
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
   const { anvil } = state?.account;
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Anvil"
+      description="Keep track of your characters anvil production"
+    />
     <Typography variant={'h2'} mb={3}>Anvil</Typography>
     <Stack gap={3}>
       {anvil?.map((anvil, index) => {

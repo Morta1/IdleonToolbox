@@ -6,6 +6,7 @@ import styled from "@emotion/styled";
 import Timer from "components/common/Timer";
 import Tooltip from "../../../components/Tooltip";
 import { TitleAndValue } from "../../../components/common/styles";
+import { NextSeo } from "next-seo";
 
 const Traps = () => {
   const { state } = useContext(AppContext);
@@ -24,6 +25,10 @@ const Traps = () => {
   const totalCritters = useMemo(() => calcTotalCritters(traps), [traps]);
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Traps"
+      description="Keep track of your traps timing, critters amounts and more"
+    />
     <Typography variant={'h2'} mb={3}>Traps</Typography>
     {totalCritters ? <TotalCritters critters={totalCritters} index={'total'}/> : null}
     <Stack gap={3}>

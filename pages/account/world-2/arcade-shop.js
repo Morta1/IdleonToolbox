@@ -4,6 +4,7 @@ import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, kFormatter, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import { getStampBonus } from "parsers/stamps";
+import { NextSeo } from "next-seo";
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
@@ -26,6 +27,10 @@ const ArcadeShop = () => {
 
   return (
     <Stack>
+      <NextSeo
+        title="Idleon Toolbox | Arcade Shop"
+        description="Arcade shop upgrades, balls and golden balls"
+      />
       <Typography variant={'h2'} mb={3}>Arcade Shop</Typography>
       <Stack direction={'row'} gap={2}>
         {[balls, goldBalls]?.map((ballsQuantity, index) => {

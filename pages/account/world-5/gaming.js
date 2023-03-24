@@ -7,6 +7,7 @@ import Timer from "../../../components/common/Timer";
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from "../../../components/Tooltip";
 import { MissingData } from "../../../components/common/styles";
+import { NextSeo } from "next-seo";
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
@@ -23,8 +24,11 @@ const Gaming = () => {
   } = state?.account?.gaming || {};
   if (!state?.account?.gaming) return <MissingData name={'gaming'}/>;
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Gaming"
+      description="Keep track of your gaming upgrades including dirty shovel and autumn squirrel timers"
+    />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Gaming</Typography>
-
     <Card sx={{ width: 250 }}>
       <CardContent>
         <Stack direction={'row'} gap={1} alignItems={'center'}>

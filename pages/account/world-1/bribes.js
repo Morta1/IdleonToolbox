@@ -4,11 +4,16 @@ import { Divider, Grid, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, getCoinsArray } from "utility/helpers";
 import CoinDisplay from "components/common/CoinDisplay";
 import CheckIcon from '@mui/icons-material/Check';
+import { NextSeo } from "next-seo";
 
 const Bribes = () => {
   const { state } = useContext(AppContext);
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Bribes"
+      description="Keep track of your bribes status"
+    />
     <Typography mt={2} mb={3} textAlign={'center'} variant={'h2'}>Bribes</Typography>
     <Stack gap={3}>
       {state?.account?.bribes?.map((bribe, index) => {

@@ -8,6 +8,7 @@ import { TitleAndValue } from "../../../components/common/styles";
 import { classes } from "../../../data/website-data";
 import { getTalentBonus } from "../../../parsers/talents";
 import { isGodEnabledBySorcerer } from "../../../parsers/lab";
+import { NextSeo } from "next-seo";
 
 const Printer = () => {
   const { state } = useContext(AppContext);
@@ -16,6 +17,10 @@ const Printer = () => {
   const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Printer"
+      description="Keep track of your printer output with calculated bonuses from various sources"
+    />
     <Typography variant={'h2'} mb={3}>Printer</Typography>
     <Typography variant={'caption'} component={'div'} mb={3}>* hover over items to see boosted values</Typography>
     <Stack gap={3}>

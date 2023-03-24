@@ -20,8 +20,9 @@ const misc = {
   dungeons: {
     icon: 'DungeonA7'
   },
-  looty: {
-    icon: 'UISkillIcon305'
+  slab: {
+    icon: 'etc/Slab',
+    differentSource: true
   },
   apocalypses: {
     icon: 'UISkillIcon110'
@@ -121,11 +122,12 @@ const AccountDrawer = ({ onLabelClick }) => {
       <Divider/>
       <List>
         {Object.entries(worldsData).map(([key, value], index) => {
-          const { icon, categories } = value;
+          const { icon, categories, differentSource } = value;
           return (
             <React.Fragment key={key + " " + index}>
               <ListItem button selected={isSelected(key)} onClick={() => handleClick(key)}>
-                <img className={"list-img"} width={32} height={32} src={`/data/${icon}.png`} alt=""/>
+                <img className={"list-img"} width={32} height={32} style={{ objectFit: 'contain' }}
+                     src={differentSource ? `/${icon}.png` : `/data/${icon}.png`} alt=""/>
                 <ListItemText style={{ marginLeft: 10 }} primary={key.capitalize()}/>
                 {categories ? worlds?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
               </ListItem>
@@ -138,7 +140,10 @@ const AccountDrawer = ({ onLabelClick }) => {
                               style={{ paddingLeft: nestedOptionPadding }}
                               button
                               onClick={() => handleLabelClick(key, label)}>
-                      <img className={"list-img"} width={32} src={`/data/${category.icon}.png`} alt=""/>
+                      <img className={"list-img"} width={32} height={32}
+                           style={{ objectFit: 'contain' }}
+                           src={differentSource ? `${category.icon}.png` : `/data/${category.icon}.png`}
+                           alt=""/>
                       <ListItemText
                         style={{ marginLeft: 10 }}
                         primary={category?.label

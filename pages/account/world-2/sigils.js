@@ -5,6 +5,7 @@ import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import { PlayersList } from "../../../components/common/styles";
 import { isArtifactAcquired } from "../../../parsers/sailing";
+import { NextSeo } from "next-seo";
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
@@ -13,6 +14,10 @@ const Sigils = () => {
 
   return (
     <Stack>
+      <NextSeo
+        title="Idleon Toolbox | Sigils"
+        description="Sigils information and progression"
+      />
       <Typography variant={"h2"} mb={3}>
         Sigils
       </Typography>

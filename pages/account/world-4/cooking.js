@@ -3,6 +3,7 @@ import React, { useContext, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import Kitchens from "components/account/Worlds/World4/Kitchens";
 import Meals from "components/account/Worlds/World4/Meals";
+import { NextSeo } from "next-seo";
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
@@ -17,6 +18,10 @@ const Cooking = () => {
 
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Cooking"
+        description="Keep track of your kitchens and meals progression"
+      />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Cooking</Typography>
       <Tabs centered
             sx={{ marginBottom: 3 }}

@@ -12,6 +12,7 @@ import { getHighestLevelOfClass } from "../../../parsers/misc";
 import { getFamilyBonusBonus } from "../../../parsers/family";
 import { classFamilyBonuses } from "../../../data/website-data";
 import { getHighestTalentByClass } from "../../../parsers/talents";
+import { NextSeo } from "next-seo";
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
@@ -110,6 +111,10 @@ const Refinery = () => {
   }
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Refinery"
+      description="Keep track of your refinery levels, timing, required materials and more"
+    />
     <Typography variant={'h2'} mb={3}>Refinery</Typography>
     <Stack my={3} direction={'row'} flexWrap={'wrap'} gap={2}>
       {squiresCooldown?.map(({ name, cooldown, talentId }, index) => {

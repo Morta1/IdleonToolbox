@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import ConstellationsComp from "components/account/Misc/Constellations";
 import StarSigns from "components/account/Misc/StarSigns";
+import { NextSeo } from "next-seo";
 
 const tabs = ['Constellations', 'Star Signs'];
 
@@ -12,6 +13,10 @@ const Constellations = () => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
 
   return <div>
+    <NextSeo
+      title="Idleon Toolbox | Constellations"
+      description="Constellation and star signs overview"
+    />
     <Tabs centered
           sx={{ marginBottom: 3 }}
           variant={isMd ? 'fullWidth' : 'standard'}

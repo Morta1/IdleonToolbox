@@ -41,6 +41,7 @@ const MyApp = (props) => {
           content="Follow your Legends of Idleon progression with ease with the help of alerts dashboard, account and characters' overview, craft calculator and more!"
         />
         <meta name="googlebot" content="index,follow"/>
+        {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       {process.env.NODE_ENV !== 'production' &&
       <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
@@ -60,7 +61,6 @@ const MyApp = (props) => {
               strategy={'afterInteractive'}
               crossOrigin="anonymous">
       </Script>
-      {preConnections?.map((link) => <link rel="preconnect" href={link}/>)}
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>

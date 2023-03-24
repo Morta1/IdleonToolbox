@@ -4,12 +4,17 @@ import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "components/Tooltip";
+import { NextSeo } from "next-seo";
 
-const Looty = () => {
+const Slab = () => {
   const { state } = useContext(AppContext);
   const [show, setShow] = useState();
   return <Stack>
-    <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Looty Shooty</Typography>
+    <NextSeo
+      title="Idleon Toolbox | Slab"
+      description="The Slab consists of a list of items within the game"
+    />
+    <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Slab</Typography>
     <Typography textAlign={'center'} mt={2} variant={'h5'}>Looted
       Items: {state?.account?.looty?.lootedItems} / {state?.account?.looty?.totalItems}</Typography>
     <Typography textAlign={'center'} mt={2} mb={3} variant={'h5'}>Missing
@@ -35,4 +40,4 @@ const LootyImg = styled.img`
   object-fit: contain;
 `
 
-export default Looty;
+export default Slab;

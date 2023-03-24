@@ -6,14 +6,19 @@ import Statues from "components/account/Worlds/World1/Statues";
 import Highscores from "components/account/Misc/Highscores";
 import Totals from "components/account/Misc/Totals";
 import { AppContext } from "components/common/context/AppProvider";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import Library from "../../components/account/Worlds/World3/Library";
+import { NextSeo } from "next-seo";
 
 const dividerSx = { marginTop: 4, display: { xs: "flex", sm: "none" } };
 
 const General = () => {
   const { state } = useContext(AppContext);
   return <>
+    <NextSeo
+      title="Idleon Toolbox | General"
+      description="General account information"
+    />
     <Grid container justifyContent={'center'} gap={5} columns={{ md: 8, lg: 12, xl: 16 }}>
       <Grid item xs={12} sm={12} md={5}>
         <ObolsView obols={state?.account?.obols} type={'account'}/>

@@ -15,8 +15,9 @@ export const floatingText = {
 
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon } = props
-  return <Stack alignItems={'center'} {...props} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-    <img {...props?.img} src={`${prefix}data/${icon}.png`} alt=""/>
+  const { img, ...rest } = props;
+  return <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
+    <img {...img} src={`${prefix}data/${icon}.png`} alt=""/>
     <Typography variant={'body1'}
                 component={'span'}>{stat}</Typography>
   </Stack>

@@ -5,6 +5,7 @@ import ProgressBar from "components/common/ProgressBar";
 import { cleanUnderscore, prefix } from "utility/helpers";
 import Tooltip from "../../../components/Tooltip";
 import Box from "@mui/material/Box";
+import { NextSeo } from "next-seo";
 
 const Worship = () => {
   const { state } = useContext(AppContext);
@@ -12,6 +13,10 @@ const Worship = () => {
   const totalCharge = useMemo(() => state?.characters?.reduce((res, { worship }) => res + worship?.currentCharge, 0), [state]);
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Worship"
+        description="Keep track of your worship charge and charge rate for all of your characters"
+      />
       <Typography variant={"h2"}>Worship</Typography>
       <Card sx={{ width: 300, my: 3 }}>
         <CardContent>Total Charge: {totalCharge}</CardContent>

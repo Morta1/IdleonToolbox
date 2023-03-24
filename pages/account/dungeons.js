@@ -7,6 +7,7 @@ import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from
 import Timer from "components/common/Timer";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { calcHappyHours } from "../../parsers/dungeons";
+import { NextSeo } from "next-seo";
 
 const insideDungeonUpgradeMaxLevel = 100;
 const flurboUpgradeMaxLevel = 50;
@@ -19,6 +20,10 @@ const Dungeons = () => {
 
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Dungeons"
+        description="Dungeon information including happy hour times, currency, upgrades and more"
+      />
       <Typography my={2} variant="h2">
         Dungeons
       </Typography>

@@ -7,6 +7,7 @@ import { prefix } from "../../../utility/helpers";
 import Chests from "../../../components/account/Worlds/World5/Sailing/Chests";
 import BoatsAndCaptains from "../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains";
 import { MissingData } from "../../../components/common/styles";
+import { NextSeo } from "next-seo";
 
 const Sailing = () => {
   const { state } = useContext(AppContext);
@@ -18,6 +19,10 @@ const Sailing = () => {
   }
   if (!state?.account?.sailing) return <MissingData name={'sailing'}/>;
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Sailing"
+      description="Keep track of your artiacts, boats and captains and their bonuses"
+    />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Sailing</Typography>
     <Stack mb={2} direction={'row'} gap={1}>
       <Card>

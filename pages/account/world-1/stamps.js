@@ -7,6 +7,7 @@ import { getSigilBonus, getVialsBonusByEffect } from "../../../parsers/alchemy";
 import CoinDisplay from "components/common/CoinDisplay";
 import HtmlTooltip from "components/Tooltip";
 import debounce from 'lodash.debounce';
+import { NextSeo } from "next-seo";
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
@@ -70,6 +71,10 @@ const Stamps = () => {
 
   return (
     <div>
+      <NextSeo
+        title="Idleon Toolbox | Stamps"
+        description="Keep track of your stamps levels and requirements"
+      />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Stamps</Typography>
       <Tabs centered
             sx={{ marginBottom: 3 }}

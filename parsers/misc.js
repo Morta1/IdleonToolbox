@@ -59,7 +59,7 @@ export const getTimeToNextBooks = (bookCount, account, idleonData) => {
   const libraryBooker = getAtomBonus(account?.atoms?.atoms, 'Oxygen_-_Library_Booker');
   const math = 3600 / ((mealBonus * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
     + (stampBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
-  console.log('Lib Speed', math)
+
   return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100));
 }
 

@@ -3,6 +3,7 @@ import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
 import styled from "@emotion/styled";
+import { NextSeo } from "next-seo";
 
 const Prayers = () => {
   const { state } = useContext(AppContext);
@@ -25,6 +26,10 @@ const Prayers = () => {
 
   return (
     <div>
+      <NextSeo
+        title="Idleon Toolbox | Prayers"
+        description="Prayers information"
+      />
       <Typography variant={'h2'} mb={3}>Prayers</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
         {prayers?.map((prayer, index) => {

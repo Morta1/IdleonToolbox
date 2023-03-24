@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import HtmlTooltip from "components/Tooltip";
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
+import { NextSeo } from "next-seo";
 
 const achievementsPerWorld = 70;
 const worlds = ['World 1', 'World 2', 'World 3', 'World 4'];
@@ -31,6 +32,10 @@ const Achievements = () => {
 
   return (
     <Box>
+      <NextSeo
+        title="Idleon Toolbox | Achievements"
+        description="Keep track of your achievements progression"
+      />
       <Tabs centered
             variant={isSm ? 'fullWidth' : 'standard'}
             value={world} onChange={handleWorldChange}>

@@ -5,12 +5,17 @@ import { cleanUnderscore, prefix } from "../../../utility/helpers";
 import Tooltip from "components/Tooltip";
 import { MissingData } from "../../../components/common/styles";
 import { isGodEnabledBySorcerer } from "../../../parsers/lab";
+import { NextSeo } from "next-seo";
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
   const { deities, linkedDeities, blessingBases, unlockedDeities } = state?.account?.divinity || {};
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Divinity"
+      description="Keep track of your characters' gods connections and upgrades"
+    />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
     <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
       {deities?.map(({

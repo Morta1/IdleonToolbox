@@ -3,6 +3,7 @@ import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
+import { NextSeo } from "next-seo";
 
 const SaltLick = () => {
   const { state } = useContext(AppContext);
@@ -24,6 +25,10 @@ const SaltLick = () => {
     return round(bonus.baseBonus * (bonus.level ?? 0));
   }
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Salt Lick"
+      description="Keep track of your salt lick levels and upgrades"
+    />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Salt Lick</Typography>
     <Stack alignItems={'center'} gap={3}>
       {saltLick?.map((bonus, index) => {

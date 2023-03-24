@@ -6,6 +6,7 @@ import { notateNumber, prefix } from "../../../utility/helpers";
 import darkTheme from "../../../styles/theme/darkTheme";
 import { PlayersList } from "../../../components/common/styles";
 import Box from "@mui/material/Box";
+import { NextSeo } from "next-seo";
 
 const cauldronsColors = [
   darkTheme.palette.warning.light,
@@ -19,6 +20,10 @@ const Cauldrons = () => {
   const { alchemy } = state?.account || {};
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Cauldrons"
+        description="Cauldrons progression and stats"
+      />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Cauldrons</Typography>
       <Typography variant={'h4'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

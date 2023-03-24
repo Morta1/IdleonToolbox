@@ -3,6 +3,7 @@ import { AppContext } from "../../../components/common/context/AppProvider";
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "../../../utility/helpers";
 import processString from 'react-process-string';
+import { NextSeo } from "next-seo";
 
 const ATOM_MAX_LEVEL = 20;
 const MAX_ATOMS = 10;
@@ -12,6 +13,10 @@ const AtomCollider = ({}) => {
   const { atoms, particles, stampReducer } = state?.account?.atoms || {};
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Atom Collider"
+      description="Atom Collider bonuses and progression"
+    />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Atoms</Typography>
     <Stack direction={'row'} gap={2}>
       <Card sx={{ my: 2, width: 'fit-content' }}>

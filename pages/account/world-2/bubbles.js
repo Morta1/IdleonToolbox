@@ -18,6 +18,7 @@ import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utili
 import Tooltip from "components/Tooltip";
 import debounce from "lodash.debounce";
 import { isArtifactAcquired } from "../../../parsers/sailing";
+import { NextSeo } from "next-seo";
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
@@ -131,6 +132,10 @@ const Bubbles = () => {
   }
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Bubbles"
+        description="Keep track of your bubbles level and requirements with a handy calculator"
+      />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Bubbles</Typography>
       <Stack justifyContent={'center'} alignItems={'center'}>
         <Typography>Next Bubble Upgrades:</Typography>

@@ -4,6 +4,7 @@ import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from "
 import BreedingUpgrades from "components/account/Worlds/World4/BreedingUpgrades";
 import BreedingArena from "components/account/Worlds/World4/BreedingArena";
 import { prefix } from "utility/helpers";
+import { NextSeo } from "next-seo";
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
@@ -14,6 +15,10 @@ const Breeding = () => {
   }
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Breeding"
+        description="Keep track of your breeding upgrades, eggs and arena upgrades"
+      />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Breeding</Typography>
       <Stack my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'} gap={2}>
         {state?.account?.breeding?.eggs.map((eggLevel, index) => {

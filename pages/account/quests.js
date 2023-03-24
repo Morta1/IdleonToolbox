@@ -4,6 +4,7 @@ import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import WorldQuest from "components/account/Misc/WorldQuest";
 import { prefix } from "utility/helpers";
 import { AppContext } from "components/common/context/AppProvider";
+import { NextSeo } from "next-seo";
 
 const Quests = () => {
   const { state } = useContext(AppContext);
@@ -82,6 +83,10 @@ const Quests = () => {
 
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Quests"
+        description="Keep track of your characters' quests progression"
+      />
       {filteredCharacters ? (
         <>
           <Stack direction={'row'} my={2} justifyContent={'center'} flexWrap={'wrap'}>

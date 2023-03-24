@@ -11,7 +11,7 @@ const Shrines = ({ shrines }) => {
         const { name, rawName, shrineLevel, desc, bonus } = shrine;
         const description = cleanUnderscore(desc?.replace('{', kFormatter(bonus, 2)));
         return <HtmlTooltip title={<ShrineTooltip {...shrine} description={description}/>} key={name + index}>
-          <IconWithText stat={shrineLevel} icon={rawName} img={{ width: 50, height: 50 }}/>
+          <IconWithText stat={shrineLevel} icon={rawName} img={{ style: { width: 50, height: 50 } }}/>
         </HtmlTooltip>
       })}
     </Stack>

@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import InfoIcon from "@mui/icons-material/Info";
 import Link from "@mui/material/Link";
+import { NextSeo } from "next-seo";
 
 const bonusTextSx = {
   fontSize: 12,
@@ -32,6 +33,10 @@ const Construction = () => {
 
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Construction"
+        description="Keep track of your construction board, cogs information and more"
+      />
       <Typography variant={"h2"} textAlign={"center"} mb={3}>
         Construction
       </Typography>

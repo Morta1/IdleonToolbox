@@ -5,11 +5,16 @@ import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utili
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
 import { vialCostsArray } from "../../../parsers/alchemy";
+import { NextSeo } from "next-seo";
 
 const Vials = () => {
   const { state } = useContext(AppContext);
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Vials"
+      description="Vials progressions and upgrade requirements"
+    />
     <Typography variant={'h2'} mb={3}>Vials</Typography>
     <Stack direction={'row'} flexWrap={'wrap'}>
       {state?.account?.alchemy?.vials?.map((vial, index) => {
