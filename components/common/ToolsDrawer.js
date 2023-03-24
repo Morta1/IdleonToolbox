@@ -67,7 +67,7 @@ const ToolsDrawer = ({ onLabelClick, signedIn }) => {
             <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
                rel="noreferrer">
               <img height='36'
-                   style={{ border: 0, height: 36 }}
+                   style={{ border: 0, height: 36, width: 143 }}
                    src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
                    alt='Buy Me a Coffee at ko-fi.com'/>
             </a>

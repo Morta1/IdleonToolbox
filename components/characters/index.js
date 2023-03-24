@@ -79,7 +79,8 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
               <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
                 {name} ({level})
               </Typography>
-              {trophy ? <TrophyIcon src={`${prefix}data/${trophy}disp.png`} alt=""/> : null}
+              {trophy ?
+                <TrophyIcon src={`${prefix}data/${trophy}disp.png`} style={{ width: 102, height: 19 }} alt=""/> : null}
             </Stack>
           </Stack>
           <Stack direction={"row"} flexWrap={"wrap"} gap={4}>

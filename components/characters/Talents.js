@@ -51,11 +51,14 @@ const Talents = ({ talents, starTalents }) => {
       {Object.keys(talents)?.map((tabIndex) => {
         const tabName = talents?.[tabIndex]?.name;
         return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-                    icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`}/>}
+                    icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`} alt={tabName}/>}
+                    aria-label={`${tabName}-tab`}
                     onClick={() => setActiveTab(parseInt(tabIndex))}
                     key={`${tabName}-${tabIndex}`}/>
       })}
-      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }} onClick={() => setActiveTab(4)}
+      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
+           onClick={() => setActiveTab(4)}
+           aria-label={`star-sign-tab`}
            icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
     <div className="talents-wrapper">

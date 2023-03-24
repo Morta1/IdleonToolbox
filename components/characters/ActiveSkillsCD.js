@@ -45,7 +45,7 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
         return (
           <Stack gap={1} direction="row" alignItems="center" className={"talent"} key={`${skill?.talentId}-${index}`}>
             <Tooltip title={<TalentTooltip {...skill} />}>
-              <img src={`${prefix}data/UISkillIcon${skill?.talentId}.png`} alt=""/>
+              <img src={`${prefix}data/UISkillIcon${skill?.talentId}.png`} style={{ width: 56, height: 56 }} alt=""/>
             </Tooltip>
             <Timer placeholder={<span style={{ color: "#51e406", fontWeight: "bold" }}>Ready</span>} type={"countdown"}
                    date={skill?.cd} lastUpdated={lastUpdated}/>

@@ -17,6 +17,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from "@mui/material/IconButton";
 import { flatten } from "../utility/helpers";
 import Etc from "../components/dashboard/Etc";
+import { NextSeo } from "next-seo";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents'].toSimpleObject();
@@ -96,6 +97,10 @@ const Dashboard = () => {
   };
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Dashboard"
+      description="Provides key information about your account and alerts you when there are unfinished tasks"
+    />
     <Stack direction={'row'} alignItems={'center'} gap={3}>
       <Typography variant={'h2'}>Dashboard</Typography>
       <IconButton title={'Configure alerts'} onClick={() => setOpen(true)}>

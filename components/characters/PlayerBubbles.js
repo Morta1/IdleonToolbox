@@ -12,6 +12,7 @@ const PlayerBubbles = ({ bubbles }) => {
         return <Tooltip key={alteredBubbleName + index}
                         title={<BubbleTooltip {...{ ...bubble, bubbleName: alteredBubbleName }}/>}>
           <img src={`${prefix}data/${rawName}.png`}
+               style={{ width: 70, height: 70 }}
                alt=""/>
         </Tooltip>;
       })}

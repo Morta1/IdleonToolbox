@@ -56,30 +56,32 @@ const CharactersDrawer = () => {
     <Stack sx={{ height: '100%' }}>
       <Divider/>
       <List dense={true}>
-        <ListItem secondaryAction={
-          <Checkbox
-            edge="end"
-            onChange={() => handleCharacterChange('all')}
-            checked={checked?.all}
-          />
-        }>
+        <ListItem
+          secondaryAction={
+            <Checkbox
+              edge="end"
+              onChange={() => handleCharacterChange('all')}
+              checked={checked?.all}
+            />
+          }>
           <ListItemText>All (Lv. {totalLevels})</ListItemText>
         </ListItem>
         {state?.characters?.map((character, index) => {
           const { name, classIndex, level } = character;
-          return <ListItem button key={`${name}-${index}`}
-                           secondaryAction={
-                             <Checkbox
-                               edge="end"
-                               name={`${name}`}
-                               onChange={handleCharacterChange}
-                               checked={checked?.[name]}
-                             />
-                           }
-          >
+          return <ListItem
+            key={`${name}-${index}`}
+            secondaryAction={
+              <Checkbox
+                edge="end"
+                name={`${name}`}
+                onChange={handleCharacterChange}
+                checked={checked?.[name]}
+                role={"checkbox"}
+                aria-label={`Check to see stats for ${name}`}
+              />}>
             <ListItemIcon>
               <Tooltip title={`Lv. ${level}`}>
-                <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                <img style={{ width: 38, height: 36 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
               </Tooltip>
             </ListItemIcon>
             <ListItemText id={name} primary={name}/>
@@ -118,7 +120,7 @@ const CharactersDrawer = () => {
             <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
                rel="noreferrer">
               <img height='36'
-                   style={{ border: 0, height: 36 }}
+                   style={{ border: 0, height: 36, width: 143 }}
                    src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
                    alt='Buy Me a Coffee at ko-fi.com'/>
             </a>

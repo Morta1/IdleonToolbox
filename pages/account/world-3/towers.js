@@ -11,7 +11,6 @@ const Towers = () => {
   const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
 
 
-
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
     return itemReq.map(({ rawName, name, amount }) => {
       const math1 = Math.min(0.1, 0.1 * Math.floor((costCruncher.level + 999) / 1000));
@@ -82,9 +81,13 @@ const Towers = () => {
 
 const TowerIcon = styled.img`
   width: 50px;
+  height: 50px;
+  object-fit: contain;
 `
 const ItemIcon = styled.img`
   width: 35px;
+  height: 35px;
+  object-fit: contain;
 `
 
 export default Towers;

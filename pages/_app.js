@@ -10,6 +10,7 @@ import Script from 'next/script'
 import AppProvider from "../components/common/context/AppProvider";
 import WaitForRouter from "../components/common/WaitForRouter";
 import NavBar from "../components/common/NavBar";
+import { DefaultSeo } from 'next-seo';
 
 const clientSideEmotionCache = createEmotionCache();
 // remove overlay of error in dev mode.
@@ -23,6 +24,10 @@ const noOverlayWorkaroundScript = `
   })
 `;
 
+const preConnections = ['https://firestore.googleapis.com', 'https://tpc.googlesyndication.com',
+  'https://partner.googleadservices.com', 'https://pagead2.googlesyndication.com',
+  'https://identitytoolkit.googleapis.com', 'https://googleads.g.doubleclick.net', 'https://www.google-analytics.com',
+  'https://adservice.google.co.il', 'https://www.googletagmanager.com', 'https://adservice.google.com']
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -35,9 +40,7 @@ const MyApp = (props) => {
           name="description"
           content="Follow your Legends of Idleon progression with ease with the help of alerts dashboard, account and characters' overview, craft calculator and more!"
         />
-        <meta name="keywords" content="Legends of Idleon, account, characters, craft calculator, refinery, anvil, dashboard"/>
-        <meta name="robots" content="index,follow" />
-        <meta name="googlebot" content="index,follow" />
+        <meta name="googlebot" content="index,follow"/>
       </Head>
       {process.env.NODE_ENV !== 'production' &&
       <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
@@ -54,8 +57,10 @@ const MyApp = (props) => {
           `}
       </Script>
       <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1842647313167572"
+              strategy={'afterInteractive'}
               crossOrigin="anonymous">
       </Script>
+      {preConnections?.map((link) => <link rel="preconnect" href={link}/>)}
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>
@@ -63,6 +68,14 @@ const MyApp = (props) => {
             <WaitForRouter>
               <AppProvider>
                 <NavBar>
+                  <DefaultSeo
+                    openGraph={{
+                      type: 'website',
+                      locale: 'en_US',
+                      url: 'https://www.idleontoolbox.com/',
+                      siteName: 'Idleon Toolbox',
+                    }}
+                  />
                   <Component {...pageProps} />
                 </NavBar>
               </AppProvider>

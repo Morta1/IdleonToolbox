@@ -11,7 +11,7 @@ const Statues = ({ statues }) => {
         const { name, rawName, level } = statue;
         return <div key={name + index}>
           <HtmlTooltip title={<StatueTooltip {...statue} />}>
-            <IconWithText stat={level} icon={rawName}/>
+            <IconWithText stat={level} icon={rawName} img={{ width: 40, height: 50, objectFit: 'contain' }}/>
           </HtmlTooltip>
         </div>;
       })}

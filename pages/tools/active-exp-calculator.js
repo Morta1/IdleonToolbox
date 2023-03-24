@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { kFormatter, prefix, splitTime } from "../../utility/helpers";
 import styled from "@emotion/styled";
 import { Stack, TextField } from "@mui/material";
@@ -7,6 +7,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import IconButton from "@mui/material/IconButton";
 import { AppContext } from "components/common/context/AppProvider";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { NextSeo } from "next-seo";
 
 const countdown = 10;
 
@@ -92,6 +93,10 @@ const ActiveXpCalculator = () => {
 
   return (
     <ActiveXpCalculatorStyle>
+      <NextSeo
+        title="Idleon Toolbox | Active Exp Calculator"
+        description="Calculate how much experience you get when playing actively"
+      />
       <Stack gap={5} flexWrap={'wrap'} sx={{ flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
         <div className={'character-wrapper'}>
           <Stack direction={'row'} flexWrap={'wrap'}>

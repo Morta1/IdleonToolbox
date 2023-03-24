@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import allBuilds from 'data/builds.json';
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
+import { NextSeo } from 'next-seo';
 
 const allClasses = Object.keys(allBuilds);
 
@@ -48,6 +49,10 @@ const Builds = () => {
   };
 
   return <>
+    <NextSeo
+      title="Idleon Toolbox | Builds"
+      description="Builds for all classes"
+    />
     <Typography mt={2} variant={"h2"}>Builds</Typography>
     <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'}>
       <FormControl sx={{ width: 270 }}>

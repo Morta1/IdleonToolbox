@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { itemsArray } from "data/website-data";
 import { findItemInInventory } from "parsers/items";
 import { Autocomplete, Card, CardContent, createFilterOptions, Stack, TextField, Typography } from "@mui/material";
@@ -6,6 +6,7 @@ import { kFormatter, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import ItemDisplay from "components/common/ItemDisplay";
 import { AppContext } from "components/common/context/AppProvider";
+import { NextSeo } from "next-seo";
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -37,6 +38,10 @@ const ItemBrowser = ({}) => {
 
   return (
     <ItemBrowserStyle>
+      <NextSeo
+        title="Idleon Toolbox | Item Browser"
+        description="Browse all of your existing items with a handy search"
+      />
       <Typography my={2} variant={'h2'}>Item Browser</Typography>
       <Typography variant={'subtitle1'}>Browse all items in your account!</Typography>
       <Typography mb={4} variant={'subtitle1'}>The amount of items you own will be displayed below the item&apos;s

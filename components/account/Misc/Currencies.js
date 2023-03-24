@@ -3,6 +3,7 @@ import { Stack } from "@mui/material";
 import { IconWithText, TitleAndValue } from "components/common/styles";
 import HtmlTooltip from "../../Tooltip";
 
+const imgStyle = { style: { width: 72, height: 72, objectFit: 'contain' } };
 const Currencies = ({
                       money = [],
                       WorldTeleports,
@@ -17,8 +18,8 @@ const Currencies = ({
     <>
       <CoinDisplay className={'box'} money={money}/>
       <Stack mt={2} flexWrap={'wrap'} gap={1} justifyContent={'center'} direction={'row'}>
-        <IconWithText stat={WorldTeleports} icon={'rtt0'}/>
-        <IconWithText stat={ObolFragments} icon={'ObolFrag'}/>
+        <IconWithText stat={WorldTeleports} icon={'rtt0'} img={imgStyle}/>
+        <IconWithText stat={ObolFragments} icon={'ObolFrag'} img={imgStyle}/>
         <HtmlTooltip title={<Stack gap={2}>
           {ColosseumTickets?.allTickets?.map(({
                                                 rawName,
@@ -29,8 +30,7 @@ const Currencies = ({
                                               }, index) => {
             return <Stack key={`${rawName}-${index}`} direction={'row'} gap={1}>
               <Stack>
-                <IconWithText stat={''} icon={rawName}
-                              img={{ style: { width: 72, height: 72, objectFit: 'contain' } }}/>
+                <IconWithText stat={''} icon={rawName} img={imgStyle}/>
               </Stack>
               <Stack>
                 <TitleAndValue title={'Tickets per day'} value={amountPerDay}/>
@@ -40,11 +40,11 @@ const Currencies = ({
             </Stack>
           })}
         </Stack>}>
-          <IconWithText stat={ColosseumTickets.totalAmount} icon={'TixCol'}/>
+          <IconWithText stat={ColosseumTickets.totalAmount} icon={'TixCol'} img={imgStyle}/>
         </HtmlTooltip>
-        <IconWithText stat={SilverPens} icon={'SilverPen'}/>
-        <IconWithText stat={gems} icon={'PremiumGem'}/>
-        <IconWithText stat={minigamePlays} img={{ style: { width: 72, height: 72, objectFit: 'contain' } }}
+        <IconWithText stat={SilverPens} icon={'SilverPen'} img={imgStyle}/>
+        <IconWithText stat={gems} icon={'PremiumGem'} img={imgStyle}/>
+        <IconWithText stat={minigamePlays} img={imgStyle}
                       icon={'MGp'}/>
         {KeysAll?.map(({ rawName, amount, totalAmount, amountPerDay, daysSincePickup }, index) => {
           return <HtmlTooltip key={`${rawName}-${index}`}
@@ -54,7 +54,7 @@ const Currencies = ({
                                                value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
                                 <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
                               </Stack>}>
-            <IconWithText stat={amount} icon={rawName}/>
+            <IconWithText stat={amount} icon={rawName} img={imgStyle}/>
           </HtmlTooltip>
         })}
       </Stack>

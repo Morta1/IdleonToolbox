@@ -16,7 +16,8 @@ const Activity = ({ playerId, afkTarget, account, divStyle }) => {
           <Stack direction="row" alignItems="center" gap={1}>
             {afkTarget === 'Divinity' || isLabConnectedByDivinity() ?
               <Tooltip title={cleanUnderscore(divStyle?.description.replace('@', ''))}>
-                <img style={{ height: 40 }} src={`${prefix}etc/Div_Style_${divStyle?.index ?? 0}.png`} alt=""/>
+                <img style={{ height: 40, width: 58 }} src={`${prefix}etc/Div_Style_${divStyle?.index ?? 0}.png`}
+                     alt=""/>
               </Tooltip> : null}
             <Stack>
               <Stack direction={'row'} alignItems="center" gap={1}>

@@ -32,7 +32,7 @@ const Skills = ({ skills, charName }) => {
             if (skillName === 'character') return null;
             return <Box key={index}>
               <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}/>}>
-                <img src={`${prefix}data/${icon}.png`} alt=""/>
+                <img src={`${prefix}data/${icon}.png`} style={{ width: 38, height: 36 }} alt=""/>
               </Tooltip>
               <Typography>Lv {level}</Typography>
               <Tooltip title={'Rank across the account'}>

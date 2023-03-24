@@ -22,6 +22,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import styled from "@emotion/styled";
 import ItemsList from "components/tools/item-planner/ItemsList";
 import Tooltip from "components/Tooltip";
+import { NextSeo } from "next-seo";
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -148,6 +149,10 @@ const ItemPlanner = ({}) => {
 
   return (
     <TodoStyle>
+      <NextSeo
+        title="Idleon Toolbox | Item Planner"
+        description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
+      />
       <div>
         <Tooltip title={'This will reset all sections and items'}>
           <Button onClick={handleResetAll}>

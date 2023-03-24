@@ -125,7 +125,7 @@ const AccountDrawer = ({ onLabelClick }) => {
           return (
             <React.Fragment key={key + " " + index}>
               <ListItem button selected={isSelected(key)} onClick={() => handleClick(key)}>
-                <img className={"list-img"} width={32} src={`/data/${icon}.png`} alt=""/>
+                <img className={"list-img"} width={32} height={32} src={`/data/${icon}.png`} alt=""/>
                 <ListItemText style={{ marginLeft: 10 }} primary={key.capitalize()}/>
                 {categories ? worlds?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
               </ListItem>
@@ -160,7 +160,7 @@ const AccountDrawer = ({ onLabelClick }) => {
             <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
                rel="noreferrer">
               <img height='36'
-                   style={{ border: 0, height: 36 }}
+                   style={{ border: 0, height: 36, width: 143 }}
                    src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
                    alt='Buy Me a Coffee at ko-fi.com'/>
             </a>

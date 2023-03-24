@@ -7,6 +7,7 @@ import styled from "@emotion/styled";
 import { AppContext } from "components/common/context/AppProvider";
 import { CardAndBorder } from "components/common/styles";
 import { calculateAmountToNextLevel } from "../../parsers/cards";
+import { NextSeo } from "next-seo";
 
 const categoriesOrder = ["Card Sets", "Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
   "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Smolderin'_Plateau", "Dungeons", "Bosses", "Events"];
@@ -78,6 +79,10 @@ export default function CardSearch() {
 
   return (
     <>
+      <NextSeo
+        title="Idleon Toolbox | Card Search"
+        description="Card search and filter by various tags e.g. Choppin, Catching, Worship, Attack etc"
+      />
       <Main style={{ padding: 10 }}>
         <StyledTextField
           InputProps={{

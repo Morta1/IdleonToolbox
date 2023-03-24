@@ -47,7 +47,7 @@ const Totals = ({ account }) => {
 const TotalStat = ({ text, icon, stat, formatting = 'commas' }) => {
   const finalStat = formatting === 'k' ? kFormatter(stat) : numberWithCommas(stat);
   return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-    <img style={{ width: 40 }} src={`${prefix}data/${icon}.png`} alt=""/>
+    <img style={{ width: 40, height: 40 }} src={`${prefix}data/${icon}.png`} alt=""/>
     <Typography variant={'body1'} component={'span'}>{text} :</Typography>
     <Typography variant={'body1'} component={'span'}>{finalStat}</Typography>
   </Stack>

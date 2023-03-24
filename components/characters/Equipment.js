@@ -31,7 +31,7 @@ const EquipmentPage = ({ items }) => {
           <CardContent sx={{ '&:last-child': { padding: 0 } }}>
             <Stack alignItems={'center'} justifyContent={'center'}>
               <Tooltip title={<ItemDisplay {...item}/>}>
-                <ItemIcon src={`${prefix}data/${rawName}.png`}/>
+                <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
               </Tooltip>
               {amount}
             </Stack>

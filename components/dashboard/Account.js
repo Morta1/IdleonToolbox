@@ -103,7 +103,7 @@ const Alert = ({ title, iconPath, vial }) => {
                      e.target.style = 'opacity: 0;'
                    }}
                    src={`${prefix}data/aVials${vial?.level === 0 ? '1' : vial?.level}.png`}
-                   style={{ opacity: vial?.level === 0 ? .5 : 1, width: 35 }}
+                   style={{ opacity: vial?.level === 0 ? .5 : 1, width: 35, height: 40 }}
                    alt={'vial image missing'}/> : null}
     </Box>
   </HtmlTooltip>
