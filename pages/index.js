@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.49",
+    gameVer: "1.77.0",
+    date: "24/03/2023",
+    features: [],
+    fixes: ['Fixed library speed calculation'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.48",
     gameVer: "1.77.0",
     date: "22/03/2023",

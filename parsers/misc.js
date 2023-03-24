@@ -7,10 +7,12 @@ import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
 import { getStampsBonusByEffect } from "./stamps";
 import { getAchievementStatus } from "./achievements";
 import { getJewelBonus, getLabBonus } from "./lab";
+import { getAtomBonus } from "./atomCollider";
 
 export const getLibraryBookTimes = (idleonData, account) => {
-  const bookCount = account?.accountOptions?.[55];
+  const bookCount = calcBookCount(account, idleonData);
   const timeAway = account?.timeAway;
+  console.log('bookCount', bookCount)
   const breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
@@ -22,6 +24,20 @@ export const getLibraryBookTimes = (idleonData, account) => {
     next: getTimeToNextBooks(bookCount, account, idleonData) - timeAway?.BookLib,
     breakpoints
   }
+}
+
+const calcBookCount = (account, idleonData) => {
+  const baseBookCount = account?.accountOptions?.[55];
+  const timeAway = account?.timeAway;
+  let libTime = timeAway?.BookLib;
+  let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
+  let books = baseBookCount;
+  if (afk > 300) libTime += afk;
+  while (libTime > getTimeToNextBooks(books, account, idleonData)) {
+    libTime -= getTimeToNextBooks(books, account, idleonData);
+    books += 1;
+  }
+  return books;
 }
 
 const calcTimeToXBooks = (bookCount, maxCount, account, idleonData) => {
@@ -41,9 +57,10 @@ export const getTimeToNextBooks = (bookCount, account, idleonData) => {
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')
   const libraryTowerLevel = towersLevels?.[1];
-  const math = 3600 / ((mealBonus * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
+  const libraryBooker = getAtomBonus(account?.atoms?.atoms, 'Oxygen_-_Library_Booker');
+  const math = 3600 / ((mealBonus * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
     + (stampBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
-
+  console.log('Lib Speed', math)
   return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100));
 }
 
