@@ -12,7 +12,6 @@ import { getAtomBonus } from "./atomCollider";
 export const getLibraryBookTimes = (idleonData, account) => {
   const bookCount = calcBookCount(account, idleonData);
   const timeAway = account?.timeAway;
-  console.log('bookCount', bookCount)
   const breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
