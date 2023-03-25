@@ -24,8 +24,8 @@ const EmailPasswordDialog = ({ open, handleClick, handleClose, loginError }) => 
     <Dialog open={open} onClose={handleClose}>
       <DialogContent>
         <Stack gap={3}>
-          <TextField value={email} error={submitted && !email} name={'email'} onChange={handleChange} label={'Email'}/>
-          <TextField value={password} error={submitted && !password} name={'password'} onChange={handleChange}
+          <TextField autoComplete={'off'} value={email} error={submitted && !email} name={'email'} onChange={handleChange} label={'Email'}/>
+          <TextField autoComplete={'off'} value={password} error={submitted && !password} name={'password'} onChange={handleChange}
                      label={'Password'}
                      inputProps={{ type: 'password' }}/>
           <Button onClick={handleLogin} variant={'contained'}>Login</Button>

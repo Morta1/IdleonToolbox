@@ -8,7 +8,6 @@ import useInterval from "../../hooks/useInterval";
 import { getUserAndDeviceCode, getUserToken } from "../../../google/login";
 import { CircularProgress, Stack } from "@mui/material";
 import { offlineTools } from "../ToolsDrawer";
-import Head from 'next/head'
 
 export const AppContext = createContext({});
 
@@ -191,22 +190,25 @@ const AppProvider = ({ children }) => {
   useInterval(
     async () => {
       if (state?.signedIn) return;
-      let id_token;
+      let id_token, uid;
       if (state?.emailPasswordLogin) {
         id_token = state?.emailPasswordLogin?.accessToken;
+        uid = state?.emailPasswordLogin?.uid;
       } else {
         const user = (await getUserToken(code?.deviceCode)) || {};
         id_token = user?.id_token;
+        if (id_token) {
+          try {
+            const userData = await signInWithToken(id_token);
+            uid = userData?.uid;
+          } catch (error) {
+            console.error('Error: ', error?.stack)
+            dispatch({ type: 'loginError', data: error?.stack });
+          }
+        }
       }
       if (id_token) {
-        let userData
-        try {
-          userData = await signInWithToken(id_token);
-        } catch (error) {
-          console.error('error', error?.stack)
-          dispatch({ type: 'loginError', data: error?.stack });
-        }
-        const unsubscribe = await subscribe(userData?.uid, handleCloudUpdate);
+        const unsubscribe = await subscribe(uid, handleCloudUpdate);
         if (typeof window?.gtag !== "undefined") {
           window?.gtag("event", "login", {
             action: "login",

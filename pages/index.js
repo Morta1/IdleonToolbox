@@ -25,7 +25,7 @@ const patchNotes = [
     gameVer: "1.78.0",
     date: "25/03/2023",
     features: ['Added data and assets from version 1.78','Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
-    fixes: [],
+    fixes: ['Fixed the email and password login flow (didn\'t notice it wasn\'t working correctly)'],
     deprecatedFeatures: []
   },
   {

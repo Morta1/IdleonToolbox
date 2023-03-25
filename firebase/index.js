@@ -1,4 +1,4 @@
-import { getAuth, GoogleAuthProvider, signInWithCredential, signOut, EmailAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { child, get, getDatabase, goOnline, ref } from "firebase/database";
 import { doc, getDoc, initializeFirestore, onSnapshot } from "firebase/firestore";
 import { getApp } from 'firebase/app';
@@ -12,7 +12,7 @@ const signInWithToken = async (token) => {
     // Handle Errors here.
     const errorCode = error.code;
     if (errorCode === 'auth/account-exists-with-different-credential') {
-      throw new Error ('Email already associated with another account.');
+      throw new Error('Email already associated with another account.');
       // Handle account linking here, if using.
     } else {
       console.error('Error while trying to sign in with credentials: ', error);
@@ -25,8 +25,7 @@ const signInWithToken = async (token) => {
 
 const signInWithEmailPassword = async ({ email, password } = {}) => {
   const auth = getAuth(app);
-  const credential = EmailAuthProvider.credential(email, password);
-  const result = await signInWithCredential(auth, credential).catch(function (error) {
+  const result = await signInWithEmailAndPassword(auth, email, password).catch(function (error) {
     // Handle Errors here.
     const errorCode = error.code;
     if (errorCode === 'auth/account-exists-with-different-credential') {
@@ -39,7 +38,6 @@ const signInWithEmailPassword = async ({ email, password } = {}) => {
   });
 
   return result?.user;
-
 }
 
 const checkUserStatus = () => {
