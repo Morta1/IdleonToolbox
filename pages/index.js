@@ -22,9 +22,9 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 const patchNotes = [
   {
     ver: "3.1.50",
-    gameVer: "1.77.0",
+    gameVer: "1.78.0",
     date: "25/03/2023",
-    features: ['Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
+    features: ['Added data and assets from version 1.78','Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
     fixes: [],
     deprecatedFeatures: []
   },
