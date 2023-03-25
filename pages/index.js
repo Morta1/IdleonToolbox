@@ -21,10 +21,18 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.50",
+    gameVer: "1.77.0",
+    date: "25/03/2023",
+    features: ['Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.49",
     gameVer: "1.77.0",
     date: "24/03/2023",
-    features: [],
+    features: ['Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
     fixes: ['Fixed library speed calculation'],
     deprecatedFeatures: []
   },

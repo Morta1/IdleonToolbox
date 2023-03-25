@@ -282,17 +282,6 @@ export const calcMealTime = (maxLevel, meal, totalMealSpeed, achievements) => {
 }
 
 export const getMealLevelCost = (level, achievements) => {
-  // if ("CookingMenuMealCosts" == s) {
-  //   var Zn = 1 / Math.min(5, Math.max(1, 1 + (10 * w._customBlock_AchieveStatus(233)) / 100)),
-  //     Hn = b.engine.getGameAttribute("Meals")[0][0 | a],
-  //     Jn = Hn,
-  //     jn = b.engine.getGameAttribute("Meals")[0][0 | a],
-  //     qn = Zn * (10 + (Jn + Math.pow(jn, 2))),
-  //     Kn = b.engine.getGameAttribute("Meals")[0][0 | a],
-  //     $n = Kn,
-  //     es = b.engine.getGameAttribute("Meals")[0][0 | a];
-  //   return qn * Math.pow(1.2 + 0.05 * $n, es);
-  // }
   const baseMath = 1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100))
   const morBaseMath = baseMath * (10 + (level + Math.pow(level, 2)));
   return morBaseMath * Math.pow(1.2 + 0.05 * level, level);

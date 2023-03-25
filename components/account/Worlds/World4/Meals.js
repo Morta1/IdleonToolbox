@@ -1,22 +1,27 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from "parsers/cooking";
-import { cleanUnderscore, growth, kFormatter, numberWithCommas, prefix } from "utility/helpers";
-import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from "utility/helpers";
+import { Card, CardContent, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
 import Box from "@mui/material/Box";
 import Timer from "components/common/Timer";
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import MenuItem from '@mui/material/MenuItem';
 import { isArtifactAcquired } from "../../../../parsers/sailing";
+import HtmlTooltip from "components/Tooltip";
 
+const msPerDay = 8.64e+7;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
+const breakpoints = [-1, 0, 11, 30];
 
 const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
+  const [sortBy, setSortBy] = useState(breakpoints[0]);
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
@@ -36,15 +41,18 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
       const { amount, level, cookReq } = meal;
       const levelCost = getMealLevelCost(level, achievements);
       const diamondCost = (11 - level) * levelCost;
+      const blackVoidCost = (30 - level) * levelCost;
       let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
       // let timeTillMaxLevel = calcMealTime(30, meal, totalMealSpeed, achievements);
       let timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
+      let timeToBlackVoid = calcMealTime(30, meal, totalMealSpeed, achievements);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
         // timeTillMaxLevel = timeTillMaxLevel / (1 + overflowingLadleBonus / 100);
         timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
+        timeToBlackVoid = timeToBlackVoid / (1 + overflowingLadleBonus / 100);
       }
-      return { ...meal, levelCost, diamondCost, timeTillNextLevel, timeToDiamond };
+      return { ...meal, levelCost, diamondCost, timeTillNextLevel, timeToDiamond, blackVoidCost, timeToBlackVoid };
     });
   };
 
@@ -57,19 +65,21 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
     }
   }, [artifacts]);
 
+  const handleFilters = (e, newFilters) => {
+    setFilters(newFilters);
+  };
+
   useEffect(() => {
     let tempMeals;
-    if (filters.includes("time")) {
+    if (sortBy === 0) {
       const mealsCopy = [...defaultMeals];
-      mealsCopy.sort((a, b) => {
-        if (a.level === 0) {
-          return 1;
-        } else if (b.level === 0) {
-          return -1;
-        }
-        return a.timeTillNextLevel - b.timeTillNextLevel
-      });
-      tempMeals = mealsCopy;
+      tempMeals = sortMealsBy(mealsCopy, 'timeTillNextLevel');
+    } else if (sortBy === 11) {
+      const mealsCopy = [...defaultMeals];
+      tempMeals = sortMealsBy(mealsCopy, 'timeToDiamond', 11);
+    } else if (sortBy === 30) {
+      const mealsCopy = [...defaultMeals];
+      tempMeals = sortMealsBy(mealsCopy, 'timeToBlackVoid', 30);
     } else {
       tempMeals = defaultMeals;
     }
@@ -82,11 +92,20 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
-  }, [filters, meals, mealMaxLevel]);
+  }, [filters, meals, mealMaxLevel, sortBy]);
 
-  const handleFilters = (e, newFilters) => {
-    setFilters(newFilters);
-  };
+  const sortMealsBy = (meals, sortBy, level = 0) => {
+    const mealsCopy = [...defaultMeals];
+    mealsCopy.sort((a, b) => {
+      if (a.level === level) {
+        return 1;
+      } else if (b.level === level) {
+        return -1;
+      }
+      return a?.[sortBy] - b?.[sortBy]
+    });
+    return mealsCopy;
+  }
 
   const getBestMealsSpeedContribute = (meals) => {
     let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff') && meal?.level < mealMaxLevel);
@@ -106,12 +125,14 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
     return speedMeals;
   }
 
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+  }
 
   return (
     <>
       <ToggleButtonGroup sx={{ my: 2 }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
-        <ToggleButton value="time">Sort by time</ToggleButton>
         <ToggleButton value="hide">Hide capped</ToggleButton>
         <ToggleButton value="overflow">
           <Stack direction={'row'} gap={1}>
@@ -123,11 +144,30 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
           </Stack>
         </ToggleButton>
       </ToggleButtonGroup>
+      <Stack direction={'row'} alignItems={'center'} gap={3}>
+        <TextField sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
+          {breakpoints?.map((val) => (<MenuItem key={val} value={val}>
+            {val === -1 ? 'Order' : val === 0 ? 'Time' : `Time to ${val}`}
+          </MenuItem>))}
+        </TextField>
+        {sortBy === 11 && !localMeals?.some(({ level, amount }) => amount > 0 && level < 11) ?
+          <Typography sx={{ color: '#ffa726' }}>All meals are higher than level 11 !</Typography> : null}
+        {sortBy === 30 && !localMeals?.some(({ level, amount }) => amount > 0 && level < 30) ?
+          <Typography sx={{ color: '#ffa726' }}>All meals are higher than level 30 !</Typography> : null}
+      </Stack>
       <Stack my={2}>
         <Typography my={1} variant={'h5'}>Best meal speed contribution</Typography>
         <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
           {bestSpeedMeal.map((meal, index) => {
-            const { currentLevelBonus, nextLevelBonus, level, name, rawName, bonusDiff, timeTillNextLevel } = meal;
+            const {
+              currentLevelBonus,
+              nextLevelBonus,
+              level,
+              name,
+              rawName,
+              bonusDiff,
+              timeTillNextLevel
+            } = meal;
             return <Card key={`${name}-${index}`} sx={{ width: 340 }}>
               <CardContent>
                 <Stack direction={"row"} alignItems={"center"}>
@@ -148,7 +188,12 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
                       Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                                          staticTime={true}/>
                     </Typography>
-                    <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
+                    <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
+                      <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
+                        <span>{notateNumber(timeTillNextLevel, 'Big')}</span>
+                      </HtmlTooltip>
+                    </Stack>
                   </Stack>
                 </Stack>
               </CardContent>
@@ -169,9 +214,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
             baseStat,
             multiplier,
             levelCost,
-            diamondCost,
             timeTillNextLevel,
-            timeToDiamond
+            timeToDiamond,
+            timeToBlackVoid
           } = meal;
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
@@ -191,32 +236,60 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
                 <Stack mt={2} gap={1}>
                   <Typography
                     sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
-                  {meal?.level < mealMaxLevel ? <>
-                    <Typography>Ladles: {numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}</Typography>
-                    {/*<Typography>Ladles to max: {numberWithCommas(parseFloat(timeTillMaxLevel).toFixed(2))}</Typography>*/}
-                  </> : null}
                   {!filters.includes("minimized") ? (
                     meal?.level === mealMaxLevel ? <Typography color={'success.light'}>MAXED</Typography> : <>
                       <Typography
                         sx={{ color: amount >= levelCost ? "success.light" : level > 0 ? "error.light" : "" }}>
-                        Progress: {numberWithCommas(parseInt(amount))} / {numberWithCommas(parseInt(levelCost))}
+                        Progress: {<HtmlTooltip title={numberWithCommas(parseInt(amount))}>
+                        <span>{notateNumber(Math.floor(amount), 'Big')}</span>
+                      </HtmlTooltip>} / {<HtmlTooltip title={numberWithCommas(parseInt(levelCost))}>
+                        <span>{notateNumber(Math.ceil(levelCost), 'Big')}</span>
+                      </HtmlTooltip>}
                       </Typography>
                       {level > 0 ? (
                         <>
-                          <Typography component={"span"}>
+                          {sortBy === 0 || sortBy === -1 ? <Typography component={"span"}>
                             Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                                                staticTime={true}/>
-                          </Typography>
-                          {level < 11 && levelCost !== diamondCost ? (
+                          </Typography> : null}
+                          {sortBy === 11 && level < 11 ? (
                             <Typography>
-                              Diamond: <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000}
-                                              staticTime={true}/>
+                              Next milestone: <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000}
+                                                     staticTime={true}/>
+                            </Typography>
+                          ) : null}
+                          {sortBy === 30 && level < 30 && timeToBlackVoid > 0 ? (
+                            <Typography>
+                              {/* Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1 */}
+                              Next milestone: {parseInt((timeToBlackVoid * 3600 * 1000) / msPerDay)} days
                             </Typography>
                           ) : null}
                         </>
                       ) : null}
                     </>
                   ) : null}
+                  {meal?.level < mealMaxLevel ? <>
+                    {(sortBy === -1 || sortBy === 0) && <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
+                      <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
+                        <span>{notateNumber(timeTillNextLevel, 'Big')}</span>
+                      </HtmlTooltip>
+                    </Stack>}
+                    {sortBy === 11 && level < 11 && level > 0 ?
+                      <Stack direction={'row'} alignItems={'center'} gap={1}>
+                        <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
+                        <HtmlTooltip title={numberWithCommas(parseFloat(timeToDiamond).toFixed(2))}>
+                          <span>{notateNumber(timeToDiamond, 'Big')}</span>
+                        </HtmlTooltip>
+                      </Stack> : null}
+                    {sortBy === 30 && level < 30 && level > 0 ?
+                      <Stack direction={'row'} alignItems={'center'} gap={1}>
+                        <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
+                        <HtmlTooltip title={numberWithCommas(parseFloat(timeToBlackVoid).toFixed(2))}>
+                          <span> {notateNumber(timeToBlackVoid, 'Big')}</span>
+                        </HtmlTooltip>
+                      </Stack> : null}
+                  </> : null}
                 </Stack>
               </CardContent>
             </Card>
