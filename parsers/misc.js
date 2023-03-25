@@ -10,7 +10,7 @@ import { getJewelBonus, getLabBonus } from "./lab";
 import { getAtomBonus } from "./atomCollider";
 
 export const getLibraryBookTimes = (idleonData, account) => {
-  const bookCount = calcBookCount(account, idleonData);
+  const { bookCount, libTime } = calcBookCount(account, idleonData);
   const timeAway = account?.timeAway;
   const breakpoints = [16, 18, 20].map((maxCount) => {
     return {
@@ -20,7 +20,7 @@ export const getLibraryBookTimes = (idleonData, account) => {
   })
   return {
     bookCount,
-    next: getTimeToNextBooks(bookCount, account, idleonData) - timeAway?.BookLib,
+    next: getTimeToNextBooks(bookCount, account, idleonData) - libTime,
     breakpoints
   }
 }
@@ -30,13 +30,13 @@ const calcBookCount = (account, idleonData) => {
   const timeAway = account?.timeAway;
   let libTime = timeAway?.BookLib;
   let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
-  let books = baseBookCount;
+  let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
-  while (libTime > getTimeToNextBooks(books, account, idleonData)) {
-    libTime -= getTimeToNextBooks(books, account, idleonData);
-    books += 1;
+  while (libTime > getTimeToNextBooks(bookCount, account, idleonData)) {
+    libTime -= getTimeToNextBooks(bookCount, account, idleonData);
+    bookCount += 1;
   }
-  return books;
+  return { bookCount, libTime };
 }
 
 const calcTimeToXBooks = (bookCount, maxCount, account, idleonData) => {
