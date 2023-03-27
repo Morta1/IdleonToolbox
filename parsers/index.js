@@ -167,6 +167,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   const bankMoney = parseInt(idleonData?.MoneyBANK);
   const playersMoney = charactersData?.reduce((res, char) => res + parseInt(char?.money), 0);
   const money = bankMoney + playersMoney;
+  accountData.currencies.rawMoney = money;
   accountData.currencies.money = getCoinsArray(money);
   accountData.currencies.gems = idleonData?.GemsOwned;
   accountData.currencies.KeysAll = enhanceKeysObject(accountData?.currencies?.KeysAll, charactersData, accountData);

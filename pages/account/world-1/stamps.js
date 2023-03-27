@@ -75,7 +75,10 @@ const Stamps = () => {
         title="Idleon Toolbox | Stamps"
         description="Keep track of your stamps levels and requirements"
       />
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Stamps</Typography>
+      <Typography textAlign={'center'} variant={'h2'} mb={3}>Stamps</Typography>
+      <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={3}>* Green border means you have enough
+        material to
+        craft</Typography>
       <Tabs centered
             sx={{ marginBottom: 3 }}
             variant={isMd ? 'fullWidth' : 'standard'}
@@ -92,9 +95,27 @@ const Stamps = () => {
           } = stamp;
           const goalLevel = stampsGoals?.[index] ? stampsGoals?.[index] < level ? level : stampsGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true) * multiplier;
-          // if (index !== 36) return;
+          let hasMaterials, hasMoney;
+          const itemRequirements = itemReq?.map((item) => {
+            const { rawName, materials } = item;
+            const materialCost = accumulatedCost(index, level, 'material', stamp);
+            const goldCost = accumulatedCost(index, level, 'gold', stamp);
+            const isMaterialCost = goalLevel % reqItemMultiplicationLevel === 0;
+            if (goldCost) {
+              hasMoney = state?.account?.currencies?.rawMoney >= goldCost;
+            }
+            if (materials) {
+              hasMaterials = materials?.every(({ rawName, itemQuantity }) => {
+                const ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+                return ownedMats >= itemQuantity * materialCost
+              })
+            } else {
+              hasMaterials = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount >= materialCost;
+            }
+            return { ...item, materialCost, goldCost, isMaterialCost, hasMaterials, hasMoney };
+          })
           return <React.Fragment key={rawName + '' + displayName + '' + index}>
-            <Card sx={{ width: 230 }}>
+            <Card sx={{ width: 230, border: hasMaterials && hasMoney && level > 0 ? '1px solid #81c784' : '' }}>
               <CardContent sx={{ '&:last-child': { paddingBottom: 4 } }}>
                 <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                   <Stack alignItems={'center'}>
@@ -112,10 +133,7 @@ const Stamps = () => {
                              onChange={(e) => handleGoalChange(e, index)}
                              label={'Goal'} variant={'outlined'} inputProps={{ min: level || 0 }}/>
                 </Stack>
-                {itemReq?.map(({ rawName, name }, itemIndex) => {
-                  const materialCost = accumulatedCost(index, level, 'material', stamp);
-                  const goldCost = accumulatedCost(index, level, 'gold', stamp);
-                  const isMaterialCost = goalLevel % reqItemMultiplicationLevel === 0;
+                {itemRequirements?.map(({ rawName, name, materialCost, isMaterialCost, goldCost }, itemIndex) => {
                   return <Stack gap={1} mt={2} key={`${rawName}-${name}-${itemIndex}`}>
                     <Stack gap={2} justifyContent={'center'}
                            direction={'row'} alignItems={'center'}>
@@ -161,7 +179,7 @@ const StampIcon = styled.img`
 const ItemIcon = styled.img`
   width: 32px;
   height: 32px;
-  opacity: ${({hide}) => hide ? 0.5 : 1};
+  opacity: ${({ hide }) => hide ? 0.5 : 1};
 `;
 
 export default Stamps;

@@ -21,6 +21,14 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.51",
+    gameVer: "1.78c.0",
+    date: "27/03/2023",
+    features: ['Added data and assets from version 1.78c', 'Added indication for stamps that you can upgrade based on your stored materials and money'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.50",
     gameVer: "1.78.0",
     date: "25/03/2023",
