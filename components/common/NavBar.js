@@ -12,10 +12,10 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
 import { NextLinkComposed } from "./NextLinkComposed";
-import LoginIcon from "@mui/icons-material/Login";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import PasswordIcon from '@mui/icons-material/Password';
 import LogoutIcon from "@mui/icons-material/Logout";
+import GoogleIcon from '@mui/icons-material/Google';
 import { useRouter } from "next/router";
 import AccountDrawer from "./AccountDrawer";
 import {
@@ -187,6 +187,9 @@ function NavBar({ children, window }) {
               </Typography>
             </Box>
           ) : null}
+          {(!state.signedIn && !state?.pastebin && !state?.manualImport) && state?.demo ? <Stack>
+            <Typography color={'primary'} variant={"caption"}>This is a demo site, please login</Typography>
+          </Stack> : null}
           {!state?.pastebin ? <Tooltip title="Paste JSON">
             <IconButton onClick={handleMenu} sx={{ marginLeft: "auto" }} color="inherit">
               <FileCopyIcon/>
@@ -228,12 +231,12 @@ function NavBar({ children, window }) {
           </Menu>
           {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
             <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
-              {shouldDisplayMenu ? <LogoutIcon/> : <LoginIcon/>}
+              {state?.signedIn ? <LogoutIcon/> : <GoogleIcon/>}
             </IconButton>
           </Tooltip> : null}
           {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Email-Password Login"}>
             <IconButton onClick={() => setEmailPasswordDialog(true)} color="inherit">
-              {shouldDisplayMenu ? <LogoutIcon/> : <PasswordIcon/>}
+              {state?.signedIn ? <LogoutIcon/> : <PasswordIcon/>}
             </IconButton>
           </Tooltip> : null}
         </Toolbar>

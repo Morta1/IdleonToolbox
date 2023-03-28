@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from "../components/common/context/AppProvider";
 import {
+  BottomNavigation, BottomNavigationAction,
   Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
   FormControlLabel,
   FormGroup,
-  FormLabel,
+  FormLabel, Paper,
   Stack,
   Typography
 } from "@mui/material";
@@ -21,7 +22,8 @@ import { NextSeo } from "next-seo";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents'].toSimpleObject();
-const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses', 'bargainTag'
+const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
+  'bargainTag'
 ].toSimpleObject();
 const trackersOptions = {
   account: {
@@ -115,6 +117,21 @@ const Dashboard = () => {
       <Characters trackers={trackers?.characters} characters={characters} account={account} lastUpdated={lastUpdated}/>
       <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
     </Stack>
+    <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
+      <BottomNavigation>
+        <BottomNavigationAction
+          label="Recents"
+          value="recents"
+          icon={<a href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
+                   rel="noreferrer">
+            <img height='36'
+                 style={{ border: 0, height: 36, width: 143 }}
+                 src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
+                 alt='Buy Me a Coffee at ko-fi.com'/>
+          </a>}
+        />
+      </BottomNavigation>
+    </Paper>
     <Dialog open={open} onClose={() => setOpen(false)}>
       <DialogTitle>What would you like to track ?</DialogTitle>
       <DialogContent>
