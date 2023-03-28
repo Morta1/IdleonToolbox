@@ -2,6 +2,7 @@ import { getMaxClaimTime, getSecPerBall } from "../../parsers/dungeons";
 import { getBuildCost } from "../../parsers/construction";
 import { vialCostsArray } from "../../parsers/alchemy";
 import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
+import { getHours } from "date-fns";
 
 export const isBallsOverdue = (account) => {
   const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account?.stamps))
@@ -81,4 +82,24 @@ export const canKillBosses = (account) => {
 
 export const zeroBargainTag = (account) => {
   return account?.accountOptions?.[62] === 0;
+}
+
+export const gamingAlerts = (account, trackersOptions) => {
+  const { sprouts, squirrel, shovel } = trackersOptions;
+  const alerts = {}
+  if (sprouts && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
+    alerts.maxSprouts = account?.gaming?.availableSprouts;
+  }
+  if (sprouts && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
+    alerts.drops = account?.gaming?.availableDrops;
+  }
+  if (shovel && account?.gaming?.lastShovelClicked > 0) {
+    const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
+    alerts.shovel = getHours(timePassed);
+  }
+  if (squirrel && account?.gaming?.lastAcornClicked > 0) {
+    const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
+    alerts.squirrel = getHours(timePassed);
+  }
+  return alerts;
 }

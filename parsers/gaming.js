@@ -12,6 +12,7 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
+  const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
   const bits = gamingRaw?.[0];
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);
@@ -23,12 +24,16 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const acornShop = calcAcornShop(gamingSproutRaw);
   const gamingImportsStartIndex = 25;
   const gamingImportsValues = gamingSproutRaw?.slice(gamingImportsStartIndex, gamingImportsStartIndex + gamingImports?.length + 1);
-  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => ({
-    ...gamingUpgrades?.[index],
-    level,
-    description: gamingUpgrades?.[index]?.description.replace(/{/, calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop)),
-    cost: calcFertilizerCost(index, gamingRaw, serverVars)
-  }));
+  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => {
+    const bonus = calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop);
+    return {
+      ...gamingUpgrades?.[index],
+      level,
+      bonus,
+      description: gamingUpgrades?.[index]?.description.replace(/{/, bonus),
+      cost: calcFertilizerCost(index, gamingRaw, serverVars)
+    }
+  });
   const goldenSprinkler = account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0;
   const saveSprinklerChance = calcSprinklerSave(account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0);
   const imports = gamingImports?.map((item, index) => {
@@ -51,9 +56,13 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
       } : {}),
     }
   }).filter((_, index) => index < 8);
+  const availableDrops = getDropsAmount(gamingSproutRaw?.[25]?.[1], imports);
   return {
     bits,
     fertilizerUpgrades,
+    availableSprouts,
+    availableDrops,
+    sproutsCapacity: fertilizerUpgrades?.[2]?.bonus,
     imports,
     lastShovelClicked,
     goldNuggets,
@@ -62,6 +71,13 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     nuggetsBreakpoints,
     acornsBreakpoints
   };
+}
+
+const getDropsAmount = (baseValue, fertilizerUpgrades) => {
+  const importBonus = fertilizerUpgrades?.[0]?.level;
+  return Math.floor(Math.pow(baseValue
+    * (1 + importBonus / 100) / 3600, .75));
+
 }
 
 const maxNuggetValue = (bonus) => {

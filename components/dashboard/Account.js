@@ -9,10 +9,12 @@ import {
   areTowersOverdue,
   areVialsReady,
   canKillBosses,
+  gamingAlerts,
   hasAvailableSpiceClicks,
   isBallsOverdue,
   isRefineryEmpty,
-  isStampReducerMaxed, zeroBargainTag
+  isStampReducerMaxed,
+  zeroBargainTag
 } from "../../utility/dashboard/account";
 
 const alertsMapping = {
@@ -25,7 +27,8 @@ const alertsMapping = {
   vials: areVialsReady,
   cooking: hasAvailableSpiceClicks,
   miniBosses: canKillBosses,
-  bargainTag: zeroBargainTag
+  bargainTag: zeroBargainTag,
+  gaming: gamingAlerts
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -59,8 +62,21 @@ const Account = ({ account, trackers, trackersOptions }) => {
             <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
           {trackers?.cooking && alerts?.cooking > 0 ?
             <Alert title={`You have ${alerts?.cooking} spice clicks left!`} iconPath={'data/CookingSpice0'}/> : null}
-          {trackers?.arcadeBalls && isBallsOverdue(account) ?
+          {trackers?.arcadeBalls && alerts?.arcadeBalls ?
             <Alert title={'Max ball capacity has reached!'} iconPath={'data/PachiBall0'}/> : null}
+          {trackers?.gaming && alerts?.gaming?.maxSprouts ?
+            <Alert title={`Max sprouts capacity has reached (${alerts?.gaming?.maxSprouts})`}
+                   imgStyle={{ objectFit: 'none' }}
+                   iconPath={'etc/Sprouts'}/> : null}
+          {trackers?.gaming && alerts?.gaming?.drops ?
+            <Alert title={`Sprinkler drops has reached it's capacity (${alerts?.gaming?.drops})`}
+                   iconPath={'data/GamingItem0b'}/> : null}
+          {trackers?.gaming && alerts?.gaming?.squirrel >= 1 ?
+            <Alert title={`${alerts?.gaming?.squirrel} hours has passed since you've clicked the squirrel!`}
+                   iconPath={'data/GamingItem2'}/> : null}
+          {trackers?.gaming && alerts?.gaming?.shovel >= 1 ?
+            <Alert title={`${alerts?.gaming?.shovel} hours has passed since you've clicked the shovel!`}
+                   iconPath={'data/GamingItem1'}/> : null}
           {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
             alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
                                                                                 title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
@@ -93,10 +109,10 @@ const Account = ({ account, trackers, trackersOptions }) => {
   </>
 };
 
-const Alert = ({ title, iconPath, vial }) => {
+const Alert = ({ title, iconPath, vial, imgStyle = {} }) => {
   return <HtmlTooltip title={title}>
     <Box sx={{ position: 'relative' }}>
-      <IconImg vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
+      <IconImg style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
       {vial ? <img key={`${vial?.name}`}
                    onError={(e) => {
                      e.target.src = `${prefix}data/aVials12.png`;

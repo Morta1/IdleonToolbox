@@ -1,14 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from "../components/common/context/AppProvider";
 import {
-  BottomNavigation, BottomNavigationAction,
+  BottomNavigation,
+  BottomNavigationAction,
   Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
   FormControlLabel,
   FormGroup,
-  FormLabel, Paper,
+  FormLabel,
+  Paper,
   Stack,
   Typography
 } from "@mui/material";
@@ -23,11 +25,12 @@ import { NextSeo } from "next-seo";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag'
+  'bargainTag', 'gaming'
 ].toSimpleObject();
 const trackersOptions = {
   account: {
-    vials: { subtractGreenStacks: true }
+    vials: { subtractGreenStacks: true },
+    gaming: { sprouts: true, squirrel: true, shovel: true }
   }
 };
 
@@ -64,6 +67,7 @@ const Dashboard = () => {
       setOptions({
         ...options,
         [type]: {
+          ...options?.[type],
           [event.target.name]: {
             ...Object.keys(hasOptions).toSimpleObject(event.target.checked)
           }

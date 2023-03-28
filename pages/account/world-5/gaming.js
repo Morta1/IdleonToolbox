@@ -13,6 +13,9 @@ const Gaming = () => {
   const { state } = useContext(AppContext);
   const {
     bits,
+    availableSprouts,
+    availableDrops,
+    sproutsCapacity,
     fertilizerUpgrades,
     imports,
     lastShovelClicked,
@@ -29,14 +32,32 @@ const Gaming = () => {
       description="Keep track of your gaming upgrades including dirty shovel and autumn squirrel timers"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Gaming</Typography>
-    <Card sx={{ width: 250 }}>
-      <CardContent>
-        <Stack direction={'row'} gap={1} alignItems={'center'}>
-          <img src={`${prefix}data/Bits_x1.png`} alt=""/>
-          <Typography>{kFormatter(bits, 2)}</Typography>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Stack direction={'row'} gap={2}>
+      <Card sx={{ width: 250, display: 'flex', alignItems: 'center' }}>
+        <CardContent>
+          <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <img src={`${prefix}data/Bits_x1.png`} alt=""/>
+            <Typography>{kFormatter(bits, 2)}</Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+      <Card sx={{ width: 250, display: 'flex', alignItems: 'center' }}>
+        <CardContent>
+          <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <img src={`${prefix}etc/Sprouts.png`} alt=""/>
+            <Typography>{availableSprouts} / {sproutsCapacity ?? 0}</Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+      <Card sx={{ width: 250, display: 'flex', alignItems: 'center' }}>
+        <CardContent>
+          <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <img src={`${prefix}etc/GamingDrop.png`} alt=""/>
+            <Typography>{availableDrops} / {sproutsCapacity ?? 0}</Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+    </Stack>
 
     <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
       {fertilizerUpgrades?.map(({ name, level, description, cost }) => {
@@ -70,6 +91,7 @@ const Gaming = () => {
                        maxNuggetValue,
                        level
                      }, index) => {
+        console.log('new Date().getTime() - lastShovelClicked * 1000', new Date().getTime() - lastShovelClicked * 1000)
         return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack sx={{ minHeight: 200 }}>

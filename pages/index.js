@@ -21,10 +21,20 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 
 const patchNotes = [
   {
+    ver: "3.1.52",
+    gameVer: "1.78c",
+    date: "28/03/2023",
+    features: ['Added gaming dashboard alerts (Max sprouts and sprinkler drops, squirrel and shovel alerts if you haven\'t clicked for over an hour)',
+      'Added sprouts and sprinkler drops indication to gaming page'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.51",
-    gameVer: "1.78c.0",
+    gameVer: "1.78c",
     date: "27/03/2023",
-    features: ['Added data and assets from version 1.78c', 'Added indication for stamps that you can upgrade based on your stored materials and money'],
+    features: ['Added data and assets from version 1.78c',
+      'Added indication for stamps that you can upgrade based on your stored materials and money'],
     fixes: [],
     deprecatedFeatures: []
   },
@@ -32,7 +42,8 @@ const patchNotes = [
     ver: "3.1.50",
     gameVer: "1.78.0",
     date: "25/03/2023",
-    features: ['Added data and assets from version 1.78','Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
+    features: ['Added data and assets from version 1.78',
+      'Added \'Sort By\' filter for meals (for next level ,lv. 11 and lv. 30)'],
     fixes: ['Fixed the email and password login flow (didn\'t notice it wasn\'t working correctly)'],
     deprecatedFeatures: []
   },
