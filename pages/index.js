@@ -18,6 +18,7 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import Instructions from "components/common/Instructions";
 import { useTheme } from "@emotion/react";
 import PastebinInstructions from "components/common/PastebinInstructions";
+import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
@@ -656,6 +657,7 @@ const Home = () => {
           How to share your profile with pastebin
         </Button>
       </Stack>
+      <DiscordInvite/>
       <Stack>
         {patchNotes.map(({ ver, gameVer, date, features, fixes, deprecatedFeatures }, index) => {
           return (

@@ -104,7 +104,6 @@ const CharactersDrawer = () => {
                                border: '1px solid gray'
                              }}
                              onClick={() => handleChipClick(name)} size={'small'}
-                  // icon={chips?.[name] ? <DoneIcon/> : null}
                              variant={chips?.[name] ? 'filled' : 'outlined'}
                              color={chips?.[name] ? 'primary' : 'default'}
                              label={name}/>

@@ -21,6 +21,7 @@ import IconButton from "@mui/material/IconButton";
 import { flatten } from "../utility/helpers";
 import Etc from "../components/dashboard/Etc";
 import { NextSeo } from "next-seo";
+import DiscordInvite from "../components/DiscordInvite";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents'].toSimpleObject();
@@ -124,8 +125,8 @@ const Dashboard = () => {
     <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
       <BottomNavigation>
         <BottomNavigationAction
-          label="Recents"
-          value="recents"
+          label="ko-fi"
+          value="ko-fi"
           icon={<a href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
                    rel="noreferrer">
             <img height='36'
@@ -134,6 +135,7 @@ const Dashboard = () => {
                  alt='Buy Me a Coffee at ko-fi.com'/>
           </a>}
         />
+        <BottomNavigationAction label={'discord'} value={'discord'} icon={<DiscordInvite />}/>
       </BottomNavigation>
     </Paper>
     <Dialog open={open} onClose={() => setOpen(false)}>
