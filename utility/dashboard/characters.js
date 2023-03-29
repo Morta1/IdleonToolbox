@@ -1,4 +1,4 @@
-import { differenceInHours, differenceInMinutes, format, getHours, isFuture, isPast } from "date-fns";
+import { differenceInHours, differenceInMinutes, isPast } from "date-fns";
 import { getPostOfficeBonus } from "../../parsers/postoffice";
 import { items, randomList } from "../../data/website-data";
 import { isArenaBonusActive } from "../../parsers/misc";
@@ -13,7 +13,9 @@ export const isTrapOverdue = (account, characterIndex) => {
 export const isTrapMissing = (tools, account, characterIndex) => {
   const traps = account?.traps?.[characterIndex];
   const usedTrap = tools?.[4]?.rawName !== 'Blank' ? tools?.[4] : null;
-  const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + 1 : traps?.length;
+  const callMeAshBubble = account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
+  const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
+  const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap : traps?.length;
   return traps?.length < maxTraps;
 }
 

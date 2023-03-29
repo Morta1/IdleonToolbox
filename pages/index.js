@@ -22,6 +22,15 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.53",
+    gameVer: "1.78c",
+    date: "28/03/2023",
+    features: [],
+    fixes: ['Fixed a bug where Traps option in also turned off Obols option in dashboard setting',
+      'Updated logic for max traps with CALL ME ASH bubble now working globally'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.52",
     gameVer: "1.78c",
     date: "28/03/2023",
