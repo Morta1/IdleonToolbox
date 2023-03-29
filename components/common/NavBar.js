@@ -35,6 +35,7 @@ import { format } from "date-fns";
 import { parseData } from "parsers";
 import EmailPasswordDialog from "./EmailPasswordModal";
 import { signInWithEmailPassword } from "../../firebase";
+import DiscordInvite from "../DiscordInvite";
 
 
 const drawerWidth = 240;
@@ -178,7 +179,7 @@ function NavBar({ children, window }) {
           </Link>
           <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu}/>
           {shouldDisplayMenu && state?.lastUpdated ? (
-            <Box sx={{ marginLeft: "auto", mr: 1 }}>
+            <Box sx={{ marginLeft: "auto", mr: 2 }}>
               <Typography component={"div"} variant={"caption"}>
                 Last Updated {`${state?.manualImport ? "(offline)" : state?.pastebin ? '(pastebin)' : ""}`}
               </Typography>
@@ -187,11 +188,12 @@ function NavBar({ children, window }) {
               </Typography>
             </Box>
           ) : null}
-          {(!state.signedIn && !state?.pastebin && !state?.manualImport) && state?.demo ? <Stack>
+          {(!state.signedIn && !state?.pastebin && !state?.manualImport) && state?.demo ? <Stack sx={{ mr: 1 }}>
             <Typography color={'primary'} variant={"caption"}>This is a demo site, please login</Typography>
           </Stack> : null}
+          <DiscordInvite shield={false} style={{ margin: '0 15px 0 auto' }}/>
           {!state?.pastebin ? <Tooltip title="Paste JSON">
-            <IconButton onClick={handleMenu} sx={{ marginLeft: "auto" }} color="inherit">
+            <IconButton onClick={handleMenu} color="inherit">
               <FileCopyIcon/>
             </IconButton>
           </Tooltip> : null}
