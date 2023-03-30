@@ -7,9 +7,9 @@ export const getBreeding = (idleonData, account) => {
 }
 
 const parseBreeding = (breedingRaw, account) => {
-  const eggs = breedingRaw[0];
-  const deadCells = breedingRaw[3][8];
-  const speciesUnlocks = breedingRaw[1];
+  const eggs = breedingRaw?.[0];
+  const deadCells = breedingRaw?.[3]?.[8];
+  const speciesUnlocks = breedingRaw?.[1];
   const petUpgradesList = breedingRaw?.[2]?.map((upgradeLevel, index) => {
     return {
       ...(petUpgrades[index] || []),
