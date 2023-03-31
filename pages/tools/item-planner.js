@@ -13,7 +13,7 @@ import {
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, numberWithCommas, prefix } from "utility/helpers";
 import Button from "@mui/material/Button";
-import { flattenCraftObject } from "parsers/items";
+import { addEquippedItems, flattenCraftObject, getAllItems } from "parsers/items";
 import IconButton from "@mui/material/IconButton";
 import RemoveIcon from '@mui/icons-material/Remove';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
@@ -35,40 +35,19 @@ const ItemPlanner = ({}) => {
   const { planner = { sections: [] } } = state;
   const [labels] = useState(Object.keys(crafts));
   const [value, setValue] = useState({ '0': '' });
-  const [defaultItems, setDefaultItems] = useState([]);
   const [myItems, setMyItems] = useState([]);
   const [item, setItem] = useState([defaultItem]);
-  const [showEquips, setShowEquips] = useState(false);
   const [showFinishedItems, setShowFinishedItems] = useState(false);
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const [itemCount, setItemCount] = useState(1);
   const [buttons, setButtons] = useState({});
+  const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
+  const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account]);
 
   useEffect(() => {
-    const charItems = state?.characters?.reduce((res, { inventory }) => [...res, ...inventory], []) || [];
-    const totalItems = [...charItems, ...(state?.account?.storage || [])];
-    setMyItems(totalItems);
-    setDefaultItems(totalItems);
+    setMyItems(includeEquippedItems ? [...totalItems, ...equippedItems] : totalItems);
     setItem(planner?.sections?.map(() => defaultItem))
-  }, [state, lastUpdated]);
-
-  useEffect(() => {
-    if (defaultItems?.length) {
-      setMyItems(includeEquippedItems ? [...defaultItems, ...equippedItems] : defaultItems);
-    }
-  }, [includeEquippedItems])
-
-  const addEquippedItems = (shouldInclude) => {
-    return shouldInclude ? state?.characters.reduce((res, {
-      tools,
-      equipment,
-      food
-    }) => [...res, ...tools, ...equipment, ...food], [])
-      .filter(({ rawName }) => rawName !== 'Blank')
-      .map((item) => item?.amount ? item : { ...item, amount: 1 }) : [];
-  };
-
-  const equippedItems = useMemo(() => addEquippedItems(includeEquippedItems), [includeEquippedItems]);
+  }, [state, lastUpdated, includeEquippedItems]);
 
   const onItemChange = (newValue, sectionIndex) => {
     const newArr = item.map((_, index) => index === sectionIndex ? newValue ? crafts[newValue] : defaultItem : _);
@@ -164,17 +143,6 @@ const ItemPlanner = ({}) => {
         </Button>
       </div>
       <div>
-        <FormControlLabel
-          control={
-            <StyledCheckbox
-              checked={showEquips}
-              onChange={() => setShowEquips(!showEquips)}
-              name='Show equips'
-              color='default'
-            />
-          }
-          label={'Show equips'}
-        />
         <FormControlLabel
           control={
             <StyledCheckbox
@@ -294,8 +262,10 @@ const ItemPlanner = ({}) => {
               <div className={'crafts-container'}>
                 <span className={'title'}>Required Materials</span>
                 {myItems?.length > 0 ?
-                  <ItemsList itemsList={materials} inventoryItems={myItems} showEquips={showEquips}
-                             showFinishedItems={showFinishedItems}/> : null}
+                  <ItemsList itemsList={materials}
+                             inventoryItems={myItems}
+                             showFinishedItems={showFinishedItems}
+                  /> : null}
               </div>
             </div>
           </CardContent>

@@ -22,6 +22,14 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.54",
+    gameVer: "1.78c",
+    date: "31/03/2023",
+    features: ['Updated Item Planner logic to account for equips', 'Added a checkbox to include equipped items for Item Browser'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.53",
     gameVer: "1.78c",
     date: "28/03/2023",
