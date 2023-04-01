@@ -22,6 +22,14 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.54",
+    gameVer: "1.79",
+    date: "01/04/2023",
+    features: ['Added data and assets from version 1.79'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.53",
     gameVer: "1.78c",
     date: "28/03/2023",

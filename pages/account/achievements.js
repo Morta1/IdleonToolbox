@@ -7,7 +7,7 @@ import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import { NextSeo } from "next-seo";
 
 const achievementsPerWorld = 70;
-const worlds = ['World 1', 'World 2', 'World 3', 'World 4'];
+const worlds = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 
 const Achievements = () => {
   const { state } = useContext(AppContext);
