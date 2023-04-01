@@ -10,28 +10,52 @@ const ItemsList = ({
                      inventoryItems,
                      itemsList = [],
                      copies = 1,
-                     showFinishedItems = true
+                     showFinishedItems = true,
+
                    }) => {
 
   const mapItems = (items, showFinishedItems) => {
+    // const test = items?.reduce((res, item) => {
+    //   const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
+    //   let allMaterials = flattenCraftObject(crafts?.[item?.itemName]);
+    //   if (allMaterials?.length > 0) {
+    //     allMaterials = allMaterials?.map((item) => {
+    //       const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
+    //       return { ...item, quantityOwned, owner }
+    //     })
+    //   }
+    //   return [
+    //     ...res,
+    //     { ...item, quantityOwned, owner, allMaterials }
+    //   ];
+    // }, []);
     return items?.reduce((res, item) => {
       const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
       let finishedItems = {};
-      if (item?.type === 'Equip' && quantityOwned >= item?.itemQuantity) {
+      if (item?.type === 'Equip' && quantityOwned > 0) {
         const finishedMats = crafts[item?.itemName]?.materials;
         if (finishedMats) {
           finishedItems = finishedMats?.reduce((res, item) => {
             return [...res, item, ...flattenCraftObject(item)];
           }, []);
         } else {
-          finishedItems = { [item?.subType]: { [item?.itemName]: item?.itemQuantity } };
+          finishedItems = [item];
         }
       }
+      console.log(`##### ${item?.itemName} ####`, finishedItems);
       if (!showFinishedItems && finishedItems?.length > 0) {
+        console.log(`Need ${item?.itemQuantity - quantityOwned} more`);
+        const remaining = item?.itemQuantity - quantityOwned;
+        const test = flattenCraftObject(crafts[item?.itemName])?.map((i) => ({
+          ...i,
+          itemQuantity: remaining * i?.itemQuantity
+        }));
+        console.log('Remaining:', test);
         return finishedItems?.reduce((resp, finishedItem) => {
           const { subType, itemName, itemQuantity } = finishedItem;
           const realItem = res?.[subType]?.find((i) => i?.itemName === itemName);
           const { amount: itemQuantityOwned, owner } = findQuantityOwned(inventoryItems, realItem?.itemName);
+          console.log(itemName, itemQuantity, itemQuantityOwned)
           if (realItem) {
             let finalQuantity;
             if (copies > 1) {

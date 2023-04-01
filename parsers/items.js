@@ -74,6 +74,7 @@ export const findItemInInventory = (arr, itemName) => {
 };
 
 export const flattenCraftObject = (craft) => {
+  if (!craft) return [];
   const uniques = {};
   const tempCraft = JSON.parse(JSON.stringify(craft));
 
@@ -118,6 +119,6 @@ export const addEquippedItems = (characters, shouldInclude) => {
 };
 
 export const getAllItems = (characters, account) => {
-  const charItems = characters.reduce((res, { inventory }) => [...res, ...inventory], []);
-  return [...charItems, ...(account?.storage || [])];
+  const charItems = characters?.reduce((res, { inventory }) => [...res, ...inventory], []);
+  return [...(charItems || []), ...(account?.storage || [])];
 }

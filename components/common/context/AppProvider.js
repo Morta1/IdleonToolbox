@@ -136,6 +136,8 @@ const AppProvider = ({ children }) => {
         let parsedData = parseData(data, charNames, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
         dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
+      } else if (localStorage.getItem('manualImport') === 'true') {
+        console.log('hi', state)
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {
