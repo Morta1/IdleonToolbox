@@ -73,7 +73,7 @@ const AppProvider = ({ children }) => {
       const trackersOptions = localStorage.getItem("trackersOptions");
       const manualImport = localStorage.getItem("manualImport") || false;
       const lastUpdated = localStorage.getItem("lastUpdated") || false;
-      const planner = localStorage.getItem("planner") || '{"sections": [{"items": [], "materials":[]}]}';
+      const planner = localStorage.getItem("planner");
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
         { trackers }, { trackersOptions }];
       return objects.reduce((res, obj) => {
@@ -136,8 +136,6 @@ const AppProvider = ({ children }) => {
         let parsedData = parseData(data, charNames, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
         dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
-      } else if (localStorage.getItem('manualImport') === 'true') {
-        console.log('hi', state)
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {

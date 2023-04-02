@@ -109,7 +109,7 @@ export const findQuantityOwned = (items, itemName) => {
 }
 
 export const addEquippedItems = (characters, shouldInclude) => {
-  return shouldInclude ? characters.reduce((res, {
+  return shouldInclude ? characters?.reduce((res, {
     tools,
     equipment,
     food

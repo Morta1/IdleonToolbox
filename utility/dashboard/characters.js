@@ -16,7 +16,7 @@ export const isTrapMissing = (tools, account, characterIndex) => {
   const callMeAshBubble = account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
   const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
   const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap : traps?.length;
-  return traps?.length < maxTraps;
+  return traps?.length < Math.min(maxTraps, 8);
 }
 
 export const isWorshipOverdue = (worship) => {
