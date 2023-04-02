@@ -216,9 +216,9 @@ const ItemPlanner = ({}) => {
             <AccordionDetails>
               {/*<Card sx={{ my: 2 }} variant={'outlined'} key={`section-${sectionIndex}`}>*/}
               {/*  <CardContent>*/}
-              {planner?.sections?.length > 1 && <Button onClick={() => removeSection(sectionIndex)}>
+              <Button onClick={() => removeSection(sectionIndex)}>
                 <RemoveIcon/> Remove Section
-              </Button>}
+              </Button>
               <div className={'controls'}>
                 <div className="preview">
                   {item?.[sectionIndex] ? <img
