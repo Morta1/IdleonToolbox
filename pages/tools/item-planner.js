@@ -1,11 +1,19 @@
 import { crafts } from "data/website-data";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Autocomplete,
-  Badge, Card, CardContent,
+  Badge,
   Checkbox,
   createFilterOptions,
+  FormControl,
   FormControlLabel,
+  FormLabel,
+  InputAdornment,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography,
@@ -13,8 +21,9 @@ import {
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, numberWithCommas, prefix } from "utility/helpers";
 import Button from "@mui/material/Button";
-import { flattenCraftObject } from "parsers/items";
+import { addEquippedItems, flattenCraftObject, getAllItems } from "parsers/items";
 import IconButton from "@mui/material/IconButton";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveIcon from '@mui/icons-material/Remove';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AddIcon from "@mui/icons-material/Add";
@@ -35,40 +44,20 @@ const ItemPlanner = ({}) => {
   const { planner = { sections: [] } } = state;
   const [labels] = useState(Object.keys(crafts));
   const [value, setValue] = useState({ '0': '' });
-  const [defaultItems, setDefaultItems] = useState([]);
   const [myItems, setMyItems] = useState([]);
   const [item, setItem] = useState([defaultItem]);
-  const [showEquips, setShowEquips] = useState(false);
-  const [showFinishedItems, setShowFinishedItems] = useState(false);
+  const [itemDisplay, setItemDisplay] = useState('0');
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const [itemCount, setItemCount] = useState(1);
   const [buttons, setButtons] = useState({});
+  const [sectionName, setSectionName] = useState();
+  const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
+  const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account]);
 
   useEffect(() => {
-    const charItems = state?.characters?.reduce((res, { inventory }) => [...res, ...inventory], []) || [];
-    const totalItems = [...charItems, ...(state?.account?.storage || [])];
-    setMyItems(totalItems);
-    setDefaultItems(totalItems);
+    setMyItems(includeEquippedItems ? [...(totalItems || []), ...(equippedItems || [])] : totalItems);
     setItem(planner?.sections?.map(() => defaultItem))
-  }, [state, lastUpdated]);
-
-  useEffect(() => {
-    if (defaultItems?.length) {
-      setMyItems(includeEquippedItems ? [...defaultItems, ...equippedItems] : defaultItems);
-    }
-  }, [includeEquippedItems])
-
-  const addEquippedItems = (shouldInclude) => {
-    return shouldInclude ? state?.characters.reduce((res, {
-      tools,
-      equipment,
-      food
-    }) => [...res, ...tools, ...equipment, ...food], [])
-      .filter(({ rawName }) => rawName !== 'Blank')
-      .map((item) => item?.amount ? item : { ...item, amount: 1 }) : [];
-  };
-
-  const equippedItems = useMemo(() => addEquippedItems(includeEquippedItems), [includeEquippedItems]);
+  }, [state, lastUpdated, includeEquippedItems]);
 
   const onItemChange = (newValue, sectionIndex) => {
     const newArr = item.map((_, index) => index === sectionIndex ? newValue ? crafts[newValue] : defaultItem : _);
@@ -86,7 +75,11 @@ const ItemPlanner = ({}) => {
       accumulatedMaterials = list?.reduce((res, itemObject) => {
         return calculateItemsQuantity(res, itemObject, true, false, amount);
       }, section?.materials);
-      const sections = updateSectionData(sectionIndex, { materials: accumulatedMaterials, items: accumulatedItems });
+      const sections = updateSectionData(sectionIndex, {
+        materials: accumulatedMaterials,
+        items: accumulatedItems,
+        name: section?.name
+      });
       dispatch({ type: 'planner', data: { sections } });
     }
   }
@@ -97,10 +90,15 @@ const ItemPlanner = ({}) => {
       let accumulatedItems, accumulatedMaterials;
       accumulatedItems = calculateItemsQuantity(section?.items, item, false, true, count);
       const list = Array.isArray(crafts[item?.itemName]) ? crafts[item?.itemName] : flattenCraftObject(crafts[item?.itemName]);
+      console.log('crafts[item?.itemName]', crafts[item?.itemName]?.materials?.filter(({ type }) => type !== 'Equip'));
       accumulatedMaterials = list?.reduce((res, itemObject) => {
         return calculateItemsQuantity(res, itemObject, true, true, count);
       }, section?.materials);
-      const sections = updateSectionData(sectionIndex, { materials: accumulatedMaterials, items: accumulatedItems });
+      const sections = updateSectionData(sectionIndex, {
+        materials: accumulatedMaterials,
+        items: accumulatedItems,
+        name: section?.name
+      });
       dispatch({ type: 'planner', data: { sections } });
       setValue({ ...value, [sectionIndex]: '' });
       setItemCount(1);
@@ -124,15 +122,21 @@ const ItemPlanner = ({}) => {
         }
         return [...res, {
           ...updatedItem,
-          itemQuantity: add ? updatedItem?.itemQuantity + quantity : updatedItem?.itemQuantity - quantity
+          itemQuantity: add ? updatedItem?.itemQuantity + quantity : updatedItem?.itemQuantity - quantity,
+          itemCount: parseFloat(amount)
         }]
       }, [])
     }
-    return add ? [...(array || []), { ...itemObject, itemQuantity: itemObject?.itemQuantity * amount }] : array;
+    return add ? [...(array || []),
+      { ...itemObject, itemQuantity: itemObject?.itemQuantity * amount, itemCount: parseFloat(amount) }] : array;
   }
 
   const addSection = () => {
-    dispatch({ type: 'planner', data: { sections: [...planner?.sections, { items: [], materials: [] }] } });
+    const name = sectionName ? sectionName : `section-${Math.floor(Math.random() * 100)}`;
+    dispatch({
+      type: 'planner',
+      data: { sections: [...(planner?.sections || []), { items: [], materials: [], name }] }
+    });
   }
 
   const removeSection = (sectionIndex) => {
@@ -144,7 +148,7 @@ const ItemPlanner = ({}) => {
   const handleResetAll = () => {
     setValue({ '0': '' })
     setItem([defaultItem]);
-    dispatch({ type: 'planner', data: { sections: [{ items: [], materials: [] }] } })
+    dispatch({ type: 'planner', data: { sections: [] } })
   }
 
   return (
@@ -153,154 +157,179 @@ const ItemPlanner = ({}) => {
         title="Idleon Toolbox | Item Planner"
         description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
       />
-      <div>
-        <Tooltip title={'This will reset all sections and items'}>
-          <Button onClick={handleResetAll}>
-            <RestartAltIcon/> Reset All
-          </Button>
-        </Tooltip>
-        <Button onClick={addSection}>
-          <AddIcon/> Add new section
-        </Button>
-      </div>
-      <div>
-        <FormControlLabel
-          control={
-            <StyledCheckbox
-              checked={showEquips}
-              onChange={() => setShowEquips(!showEquips)}
-              name='Show equips'
-              color='default'
-            />
-          }
-          label={'Show equips'}
-        />
-        <FormControlLabel
-          control={
-            <StyledCheckbox
-              checked={showFinishedItems}
-              onChange={() => setShowFinishedItems(!showFinishedItems)}
-              name='Show Finished Items'
-              color='default'
-            />
-          }
-          label={'Show Finished Items'}
-        />
-        <FormControlLabel
-          control={
-            <StyledCheckbox
-              checked={includeEquippedItems}
-              onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
-              name='Include Equipped Items'
-              color='default'
-            />
-          }
-          label={'Include Equipped Items'}
-        />
-      </div>
-      {planner?.sections?.map(({ items, materials }, sectionIndex) => {
-        return <Card sx={{ my: 2 }} variant={'outlined'} key={`section-${sectionIndex}`}>
-          <CardContent>
-            {planner?.sections?.length > 1 && <Button onClick={() => removeSection(sectionIndex)}>
-              <RemoveIcon/> Remove Section
-            </Button>}
-            <div className={'controls'}>
-              <div className="preview">
-                {item?.[sectionIndex] ? <img
-                  src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
-                  alt=''
-                /> : null}
-              </div>
-              <Autocomplete
-                id='item-locator'
-                value={value?.[sectionIndex]}
-                onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
-                autoComplete
-                options={[value?.[sectionIndex], ...labels]}
-                filterSelectedOptions
-                filterOptions={filterOptions}
-                getOptionLabel={(option) => {
-                  return option ? option?.replace(/_/g, " ") : "";
-                }}
-                renderOption={(props, option) => {
-                  return option ? (
-                    <Stack gap={2} {...props} direction={'row'}>
-                      <img
-                        width={24}
-                        height={24}
-                        src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
-                        alt=''
-                      />
-                      {option?.replace(/_/g, " ")}
-                    </Stack>
-                  ) : <span style={{ height: 0 }} key={'empty'}/>;
-                }}
-                style={{ width: 300 }}
-                renderInput={(params) => (
-                  <StyledTextField {...params} label='Item Name' variant='outlined'/>
-                )}
+      <Stack direction={'row'} gap={5}>
+        <div>
+          <Stack direction={'row'} alignItems={'center'}>
+            <TextField sx={{ mt: 1 }} label={'Section name'} placeholder={'Enter section name'}
+                       onChange={(e) => setSectionName(e.target.value)}
+                       InputProps={{
+                         endAdornment: <InputAdornment position="end">
+                           <IconButton onClick={addSection}>
+                             <AddIcon/>
+                           </IconButton>
+                         </InputAdornment>
+                       }}/>
+          </Stack>
+          <Tooltip title={'This will reset all sections and items'}>
+            <Button sx={{ mt: 1 }} onClick={handleResetAll}>
+              <RestartAltIcon/> Reset all sections
+            </Button>
+          </Tooltip>
+        </div>
+        <Stack sx={{ pl: 1, mt: 1 }}>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">Display</FormLabel>
+            <RadioGroup
+              row
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="0"
+              name="radio-buttons-group"
+              onChange={(e) => setItemDisplay(e.target.value)}
+            >
+              <FormControlLabel value="0" control={<Radio/>} label="Show Missing Items"/>
+              <FormControlLabel value="1" control={<Radio/>} label="Show All Items"/>
+            </RadioGroup>
+          </FormControl>
+          <FormControlLabel
+            control={
+              <StyledCheckbox
+                checked={includeEquippedItems}
+                onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
+                name='Include Equipped Items'
+                color='default'
               />
-              <StyledTextField
-                value={itemCount}
-                width={'100px'}
-                inputProps={{ min: 1 }}
-                onChange={(e) => setItemCount(e?.target?.value)}
-                type={'number'}
-                label={'Item Count'}
-                variant={'outlined'}/>
-              <Button color={'primary'} variant={'contained'}
-                      onClick={() => onAddItem(sectionIndex, item?.[sectionIndex], itemCount)}
-                      title={'Add Item'}>
-                Add
+            }
+            label={'Include Equipped Items'}
+          />
+        </Stack>
+      </Stack>
+      <Stack sx={{ mt: 2 }}>
+        {planner?.sections?.length > 0 ? planner?.sections?.map(({ items, materials, name }, sectionIndex) => {
+          return <Accordion key={`accordion-${sectionIndex}`}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon/>}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography>{name || `Accordion-${sectionIndex}`}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {/*<Card sx={{ my: 2 }} variant={'outlined'} key={`section-${sectionIndex}`}>*/}
+              {/*  <CardContent>*/}
+              <Button onClick={() => removeSection(sectionIndex)}>
+                <RemoveIcon/> Remove Section
               </Button>
-            </div>
-            <div className={'content'}>
-              <div className={'items-wrapper'}>
-                <span className={'title'}>Tracked Items</span>
-                <div className={'items'}>
-                  {items?.map((item, index) => {
-                    return <div className={'item-wrapper'} key={sectionIndex + '' + item?.itemName + '' + index}
-                                onMouseEnter={() => setButtons({ ...buttons, [`${sectionIndex}-${index}`]: true })}
-                                onMouseLeave={() => setButtons({ ...buttons, [`${sectionIndex}-${index}`]: false })}>
-                      <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
-                             max={10000}
-                             anchorOrigin={{
-                               vertical: 'top',
-                               horizontal: 'right',
-                             }}
-                             color="primary">
-                        <Tooltip title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
-                          <img key={item?.rawName + ' ' + index}
-                               src={`${prefix}data/${item?.rawName}.png`}
-                               alt=''/>
-                        </Tooltip>
-                      </Badge>
-                      {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
-                        <IconButton type={'bottom'} size={"small"}
-                                    onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
-                          <AddIcon/>
-                        </IconButton>
-                        <IconButton type={'bottom'} size={"small"} onClick={() => onRemoveItem(sectionIndex, item, 1)}>
-                          <RemoveIcon/>
-                        </IconButton>
-                        <IconButton size={"small"} onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity)}>
-                          <DeleteForeverIcon/>
-                        </IconButton>
-                      </div> : null}
-                    </div>
-                  })}
+              <div className={'controls'}>
+                <div className="preview">
+                  {item?.[sectionIndex] ? <img
+                    src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
+                    alt=''
+                  /> : null}
+                </div>
+                <Autocomplete
+                  id='item-locator'
+                  value={value?.[sectionIndex]}
+                  onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
+                  autoComplete
+                  options={[value?.[sectionIndex], ...labels]}
+                  filterSelectedOptions
+                  filterOptions={filterOptions}
+                  getOptionLabel={(option) => {
+                    return option ? option?.replace(/_/g, " ") : "";
+                  }}
+                  renderOption={(props, option) => {
+                    return option ? (
+                      <Stack gap={2} {...props} direction={'row'}>
+                        <img
+                          width={24}
+                          height={24}
+                          src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
+                          alt=''
+                        />
+                        {option?.replace(/_/g, " ")}
+                      </Stack>
+                    ) : <span style={{ height: 0 }} key={'empty'}/>;
+                  }}
+                  style={{ width: 300 }}
+                  renderInput={(params) => (
+                    <StyledTextField {...params} label='Item Name' variant='outlined'/>
+                  )}
+                />
+                <StyledTextField
+                  value={itemCount}
+                  width={'100px'}
+                  inputProps={{ min: 1 }}
+                  onChange={(e) => setItemCount(e?.target?.value)}
+                  type={'number'}
+                  label={'Item Count'}
+                  variant={'outlined'}/>
+                <Button color={'primary'} variant={'contained'}
+                        onClick={() => onAddItem(sectionIndex, item?.[sectionIndex], itemCount)}
+                        title={'Add Item'}>
+                  Add
+                </Button>
+              </div>
+              <div className={'content'}>
+                <div className={'items-wrapper'}>
+                  <span className={'title'}>Tracked Items</span>
+                  <div className={'items'}>
+                    {items?.map((item, index) => {
+                      return <div className={'item-wrapper'} key={sectionIndex + '' + item?.itemName + '' + index}
+                                  onMouseEnter={() => setButtons({
+                                    ...buttons,
+                                    [`${sectionIndex}-${index}`]: true
+                                  })}
+                                  onMouseLeave={() => setButtons({
+                                    ...buttons,
+                                    [`${sectionIndex}-${index}`]: false
+                                  })}>
+                        <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
+                               max={10000}
+                               anchorOrigin={{
+                                 vertical: 'top',
+                                 horizontal: 'right',
+                               }}
+                               color="primary">
+                          <Tooltip
+                            title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
+                            <img key={item?.rawName + ' ' + index}
+                                 src={`${prefix}data/${item?.rawName}.png`}
+                                 alt=''/>
+                          </Tooltip>
+                        </Badge>
+                        {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
+                          <IconButton type={'bottom'} size={"small"}
+                                      onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
+                            <AddIcon/>
+                          </IconButton>
+                          <IconButton type={'bottom'} size={"small"}
+                                      onClick={() => onRemoveItem(sectionIndex, item, 1)}>
+                            <RemoveIcon/>
+                          </IconButton>
+                          <IconButton size={"small"}
+                                      onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity)}>
+                            <DeleteForeverIcon/>
+                          </IconButton>
+                        </div> : null}
+                      </div>
+                    })}
+                  </div>
+                </div>
+                <div className={'crafts-container'}>
+                  <span className={'title'}>Required Materials</span>
+                  {myItems?.length > 0 ?
+                    <ItemsList itemsList={materials}
+                               inventoryItems={myItems}
+                               itemDisplay={itemDisplay}
+                    /> : null}
                 </div>
               </div>
-              <div className={'crafts-container'}>
-                <span className={'title'}>Required Materials</span>
-                {myItems?.length > 0 ?
-                  <ItemsList itemsList={materials} inventoryItems={myItems} showEquips={showEquips}
-                             showFinishedItems={showFinishedItems}/> : null}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      })}
+              {/*  </CardContent>*/}
+              {/*</Card>*/}
+            </AccordionDetails>
+          </Accordion>
+        }) : <Typography sx={{ mt: 3 }} variant={'h3'}>Please add a section</Typography>}
+      </Stack>
     </TodoStyle>
   );
 };

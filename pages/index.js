@@ -22,6 +22,15 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.55",
+    gameVer: "1.79",
+    date: "02/04/2023",
+    features: [<Typography>Updated logic for <Link
+      href={'https://idleontoolbox.com/tools/item-planner'}>Item Planner</Link> page!</Typography>, 'Added names to sections and made them collapsable'],
+    fixes: ['Fix bug with max traps in dashboard'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.54",
     gameVer: "1.79",
     date: "01/04/2023",

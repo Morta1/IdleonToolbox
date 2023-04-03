@@ -40,7 +40,7 @@ const Currencies = ({
             </Stack>
           })}
         </Stack>}>
-          <IconWithText stat={ColosseumTickets.totalAmount} icon={'TixCol'} img={imgStyle}/>
+          <IconWithText stat={ColosseumTickets?.totalAmount} icon={'TixCol'} img={imgStyle}/>
         </HtmlTooltip>
         <IconWithText stat={SilverPens} icon={'SilverPen'} img={imgStyle}/>
         <IconWithText stat={gems} icon={'PremiumGem'} img={imgStyle}/>

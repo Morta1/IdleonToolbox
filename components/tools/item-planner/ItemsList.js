@@ -1,43 +1,78 @@
 import React, { useMemo } from "react";
 import { cleanUnderscore, kFormatter, pascalCase, prefix } from "utility/helpers";
-import { findQuantityOwned } from "parsers/items";
+import { findQuantityOwned, flattenCraftObject } from "parsers/items";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { crafts } from "../../../data/website-data";
 
 const ItemsList = ({
                      inventoryItems,
                      itemsList = [],
                      copies = 1,
-                     showEquips = true,
-                     showFinishedItems = true
+                     itemDisplay
                    }) => {
 
-  const mapItems = (items, showEquips, showFinishedItems) => {
+  const mapItems = (items, itemDisplay) => {
     return items?.reduce((res, item) => {
-      if (!showEquips && item?.type === 'Equip') return res;
       const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
-      if (!showFinishedItems && quantityOwned >= item?.itemQuantity) return res;
+      if (itemDisplay === '0') {
+        const remaining = item?.itemQuantity - quantityOwned;
+        if (item?.type === 'Equip') {
+          const test = flattenCraftObject(crafts[item?.itemName])?.map((i) => {
+            const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, i?.itemName);
+            return {
+              ...i,
+              itemQuantity: i?.itemQuantity * remaining,
+              quantityOwned,
+              owner
+            }
+          });
+          test.forEach((missingItem) => {
+            let allItems = res?.[missingItem?.subType]?.filter((i) => i?.itemName !== missingItem?.itemName);
+            allItems = [...(allItems || []), missingItem];
+            res = {
+              ...res,
+              [missingItem?.subType]: allItems
+            }
+          })
+          res = {
+            ...res,
+            [item?.subType]: [
+              ...(res?.[item?.subType] || []),
+              { ...item, quantityOwned: 0, owner, itemQuantity: remaining }
+            ]
+          }
+          return res;
+        } else {
+          return {
+            ...res,
+            [item?.subType]: [
+              ...(res?.[item?.subType] || []),
+              { ...item, owner, quantityOwned }
+            ]
+          };
+        }
+      }
+      if (itemDisplay !== '1') return res;
       return {
         ...res,
         [item?.subType]: [...(res?.[item?.subType] || []), { ...item, quantityOwned, owner }]
       };
-    }, {})
+    }, {});
   };
 
-  const categorize = useMemo(() => mapItems(itemsList, showEquips, showFinishedItems), [itemsList, showEquips, showFinishedItems]);
+  const categorize = useMemo(() => mapItems(itemsList, itemDisplay), [itemsList, itemDisplay, inventoryItems]);
 
   return (
     <Stack flexWrap={'wrap'} direction={'row'} gap={4}>
       {Object.entries(categorize)?.map(([categoryName, items], index) => {
-        return <Card key={categoryName + '' + index}>
+        return <Card key={categoryName + '' + index} variant={'outlined'}>
           <CardContent>
             <span className={'title'}>{cleanUnderscore(pascalCase(categoryName))}</span>
             <Stack flexWrap={'wrap'} direction={'row'} gap={3}>
-              {items?.map(({ itemName, itemQuantity, rawName, type }, innerIndex) => {
-                if (!showEquips && type === 'Equip') return null;
-                const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, itemName);
-                if (!showFinishedItems && quantityOwned >= itemQuantity) return null;
+              {items?.map(({ itemName, itemQuantity, rawName, type, quantityOwned, owner }, innerIndex) => {
+                // if (itemDisplay !== '1' && quantityOwned >= itemQuantity) return null;
                 return <Stack gap={1} alignItems={'center'} key={itemName + '' + innerIndex}>
                   <Tooltip title={<OwnerTooltip itemName={itemName} owners={owner}/>}>
                     <ItemIcon
@@ -45,8 +80,9 @@ const ItemsList = ({
                       alt=''
                     />
                   </Tooltip>
-                  <Typography color={quantityOwned >= (parseInt(itemQuantity) * copies) ? "success.light" : ""}>
-                    {kFormatter(quantityOwned, 2)}/{kFormatter(parseInt(itemQuantity) * copies, 2)}
+                  <Typography
+                    color={quantityOwned >= (itemDisplay === '0' ? parseInt(itemQuantity) : parseInt(itemQuantity) * copies) ? "success.light" : ""}>
+                    {kFormatter(quantityOwned, 2)}/{itemDisplay === '0' ? kFormatter(parseInt(itemQuantity)) : kFormatter(parseInt(itemQuantity) * copies, 2)}
                   </Typography>
                 </Stack>;
               })}
@@ -69,7 +105,7 @@ const OwnerTooltip = ({ itemName, owners }) => {
       <Stack direction={'row'}>
         {owners?.length > 0 ? owners?.map((owner, index) => {
           return <div key={index + '' + owner}>
-            <Typography>{owner}</Typography>
+            <Typography>{owner}&nbsp;</Typography>
           </div>
         }) : <Typography>None</Typography>}
       </Stack>

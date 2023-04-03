@@ -74,6 +74,7 @@ export const findItemInInventory = (arr, itemName) => {
 };
 
 export const flattenCraftObject = (craft) => {
+  if (!craft) return [];
   const uniques = {};
   const tempCraft = JSON.parse(JSON.stringify(craft));
 
@@ -105,4 +106,19 @@ export const findQuantityOwned = (items, itemName) => {
       owner: [...res?.owner, owner]
     };
   }, { amount: 0, owner: [] });
+}
+
+export const addEquippedItems = (characters, shouldInclude) => {
+  return shouldInclude ? characters?.reduce((res, {
+    tools,
+    equipment,
+    food
+  }) => [...res, ...tools, ...equipment, ...food], [])
+    .filter(({ rawName }) => rawName !== 'Blank')
+    .map((item) => item?.amount ? item : { ...item, amount: 1 }) : [];
+};
+
+export const getAllItems = (characters, account) => {
+  const charItems = characters?.reduce((res, { inventory }) => [...res, ...inventory], []);
+  return [...(charItems || []), ...(account?.storage || [])];
 }

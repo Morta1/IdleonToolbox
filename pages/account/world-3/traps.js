@@ -40,7 +40,8 @@ const Traps = () => {
         const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
         const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
         const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank' ? state?.characters?.[index]?.tools?.[4] : null;
-        const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap : trapSlots.length;
+        let maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap : trapSlots.length;
+        maxTraps = Math.min(maxTraps, 8);
         const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
         const charCritters = trapSlots.reduce((total, { crittersQuantity, rawName }) => {
           return {
