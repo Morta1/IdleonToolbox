@@ -59,7 +59,6 @@ const ItemBrowser = ({}) => {
       setResult(findings);
     } else if (value && searchBy === 'description') {
       const findings = findItemByDescriptionInInventory(items, value);
-      console.log('findings', findings)
       setResult(findings);
     } else {
       setResult([]);
@@ -67,12 +66,10 @@ const ItemBrowser = ({}) => {
   }, [value, includeEquippedItems, items]);
 
   useEffect(() => {
-    console.log('Whats')
     setValue('')
   }, [searchBy]);
 
   const handleValueChange = debounce((e) => {
-    console.log('Hi', e.target)
     setValue(e.target.value);
   }, 100)
 
@@ -170,7 +167,7 @@ const ItemBrowser = ({}) => {
         <Stack direction={'row'} gap={3} flexWrap={'wrap'} flexShrink={0} flexGrow={0}>
           {result?.map((item, index) => {
             return <Box key={item?.rawName + index} sx={{ width: 200, height: 'fit-content' }}>
-              <HtmlTooltip title={'hello'}>
+              <HtmlTooltip title={item?.owners?.join(', ')}>
                 <Card sx={{ my: 2 }}>
                   <CardContent>
                     <ItemDisplay style={{ marginTop: 15 }} {...item}/>

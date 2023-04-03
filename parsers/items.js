@@ -75,11 +75,22 @@ export const findItemInInventory = (arr, itemName) => {
 
 export const findItemByDescriptionInInventory = (arr, desc) => {
   if (!desc) return {};
-  return arr.filter(({
-                       misc,
-                       description
-                     }) => description?.toLowerCase()?.includes(desc?.toLowerCase()) || misc?.toLowerCase()?.includes(desc?.toLowerCase()), [])
-    .map((item) => ({...item, ...items?.[item?.rawName]}));
+  const relevantItems = arr.filter(({
+                                      misc,
+                                      description
+                                    }) => description?.toLowerCase()?.includes(desc?.toLowerCase()) || misc?.toLowerCase()?.includes(desc?.toLowerCase()), [])
+    .map((item) => ({ ...item, ...items?.[item?.rawName] }));
+  return relevantItems?.reduce((res, item) => {
+    const itemExistsIndex = res?.findIndex((i) => i?.rawName === item?.rawName);
+    const itemExists = res?.[itemExistsIndex];
+    if (itemExists) {
+      res?.splice(itemExistsIndex, 1);
+      res = [...res, { ...item, owners: [...(itemExists?.owners || []), item?.owner] }]
+    } else {
+      res = [...res, { ...item, owners: [item?.owner] }]
+    }
+    return res;
+  }, []);
 };
 
 export const flattenCraftObject = (craft) => {
