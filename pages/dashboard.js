@@ -24,14 +24,15 @@ import Etc from "../components/dashboard/Etc";
 import { NextSeo } from "next-seo";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
-  'talents'].toSimpleObject();
+  'talents', 'crystalCountdown'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming'
+  'bargainTag', 'gaming', 'guildTasks'
 ].toSimpleObject();
 const trackersOptions = {
   account: {
     vials: { subtractGreenStacks: true },
-    gaming: { sprouts: true, squirrel: true, shovel: true }
+    gaming: { sprouts: true, squirrel: true, shovel: true },
+    guildTasks: { daily: true, weekly: true }
   }
 };
 
@@ -177,6 +178,7 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
     return <React.Fragment key={`tracker-${trackerName}`}>
       <FormControlLabel
         control={<Checkbox name={trackerName} checked={arr?.[trackerName]}
+                           size={'small'}
                            onChange={(event) => onTrackerChange(event, type)}/>}
         label={trackerName.camelToTitleCase()}/>
       <Stack sx={{ ml: 3 }}>
@@ -184,6 +186,7 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
           return <FormControlLabel
             key={`option-${option}`}
             control={<Checkbox name={option}
+                               size={'small'}
                                checked={trackerOptions?.[option]}
                                onChange={(event) => onOptionChange(event, type, trackerName)}/>}
             label={option.camelToTitleCase()}/>

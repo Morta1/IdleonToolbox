@@ -1,13 +1,19 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { itemsArray } from "data/website-data";
-import { addEquippedItems, findItemInInventory, getAllItems } from "parsers/items";
+import { addEquippedItems, findItemByDescriptionInInventory, findItemInInventory, getAllItems } from "parsers/items";
 import {
   Autocomplete,
+  Box,
   Card,
   CardContent,
   Checkbox,
   createFilterOptions,
+  FormControl,
   FormControlLabel,
+  FormLabel,
+  InputAdornment,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography
@@ -17,6 +23,10 @@ import styled from "@emotion/styled";
 import ItemDisplay from "components/common/ItemDisplay";
 import { AppContext } from "components/common/context/AppProvider";
 import { NextSeo } from "next-seo";
+import IconButton from "@mui/material/IconButton";
+import SearchIcon from '@mui/icons-material/Search';
+import debounce from "lodash.debounce";
+import HtmlTooltip from "../../components/Tooltip";
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -29,23 +39,42 @@ const ItemBrowser = ({}) => {
   const [items, setItems] = useState();
   const [labels, setLabels] = useState();
   const [result, setResult] = useState();
+  const [searchBy, setSearchBy] = useState('name');
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
   const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account])
 
   useEffect(() => {
     setLabels(itemsArray);
-    setItems(includeEquippedItems ? [...totalItems, ...equippedItems] : totalItems);
+    if (!state?.characters && !state?.account) {
+      setItems(itemsArray);
+    } else {
+      setItems(includeEquippedItems ? [...(totalItems || []), ...(equippedItems || [])] : totalItems);
+    }
   }, [state, includeEquippedItems]);
 
   useEffect(() => {
-    if (value) {
+    if (value && searchBy === 'name') {
       const findings = findItemInInventory(items, value?.displayName);
+      setResult(findings);
+    } else if (value && searchBy === 'description') {
+      const findings = findItemByDescriptionInInventory(items, value);
+      console.log('findings', findings)
       setResult(findings);
     } else {
       setResult([]);
     }
   }, [value, includeEquippedItems, items]);
+
+  useEffect(() => {
+    console.log('Whats')
+    setValue('')
+  }, [searchBy]);
+
+  const handleValueChange = debounce((e) => {
+    console.log('Hi', e.target)
+    setValue(e.target.value);
+  }, 100)
 
   return (
     <ItemBrowserStyle>
@@ -57,8 +86,23 @@ const ItemBrowser = ({}) => {
       <Typography variant={'subtitle1'}>Browse all items in your account!</Typography>
       <Typography mb={4} variant={'subtitle1'}>The amount of items you own will be displayed below the item&apos;s
         display</Typography>
+      <Stack>
+        <FormControl>
+          <FormLabel id="demo-radio-buttons-group-label">Search by</FormLabel>
+          <RadioGroup
+            row
+            aria-labelledby="demo-radio-buttons-group-label"
+            defaultValue="name"
+            name="radio-buttons-group"
+            onChange={(e) => setSearchBy(e.target.value)}
+          >
+            <FormControlLabel value="name" control={<Radio/>} label="Item Name"/>
+            <FormControlLabel value="description" control={<Radio/>} label="Item Description"/>
+          </RadioGroup>
+        </FormControl>
+      </Stack>
       <Stack direction={'row'} alignItems={'center'} gap={2}>
-        {labels?.length > 0 ? (
+        {searchBy === 'name' && labels?.length > 0 ? (
           <Autocomplete
             id='item-browser'
             value={value}
@@ -91,6 +135,16 @@ const ItemBrowser = ({}) => {
             )}
           />
         ) : null}
+        {searchBy === 'description' ?
+          <TextField sx={{ mt: 1 }} placeholder={'Type anything'}
+                     onChange={(e) => handleValueChange(e)}
+                     InputProps={{
+                       endAdornment: <InputAdornment position="end">
+                         <IconButton>
+                           <SearchIcon/>
+                         </IconButton>
+                       </InputAdornment>
+                     }}/> : null}
         <FormControlLabel
           control={
             <StyledCheckbox
@@ -103,15 +157,31 @@ const ItemBrowser = ({}) => {
           label={'Include Equipped Items'}
         />
       </Stack>
-      <Typography component={'div'} variant={'caption'} sx={{ width: 300, mt: 1 }}>Start to write to narrow down the
-        results (max of 250
-        items)</Typography>
-      {value ? <Card sx={{ my: 2, width: 'fit-content' }}>
+      {searchBy === 'name' ?
+        <Typography component={'div'} variant={'caption'} sx={{ width: 300, mt: 1 }}>Start to write to narrow down the
+          results (max of 250
+          items)</Typography> : null}
+      {value && searchBy === 'name' ? <Card sx={{ my: 2, width: 'fit-content' }}>
         <CardContent>
           <ItemDisplay style={{ marginTop: 15 }} {...value}/>
         </CardContent>
       </Card> : null}
-      {result && Object.keys(result)?.length > 0 ? (
+      {value && searchBy === 'description' ?
+        <Stack direction={'row'} gap={3} flexWrap={'wrap'} flexShrink={0} flexGrow={0}>
+          {result?.map((item, index) => {
+            return <Box key={item?.rawName + index} sx={{ width: 200, height: 'fit-content' }}>
+              <HtmlTooltip title={'hello'}>
+                <Card sx={{ my: 2 }}>
+                  <CardContent>
+                    <ItemDisplay style={{ marginTop: 15 }} {...item}/>
+                  </CardContent>
+                </Card>
+              </HtmlTooltip>
+            </Box>
+          })}
+        </Stack>
+        : null}
+      {searchBy === 'name' && result && Object.keys(result)?.length > 0 ? (
         <Card sx={{ my: 2, width: 'fit-content' }}>
           <CardContent>
             {Object.keys(result)?.map((ownerName, index) => (

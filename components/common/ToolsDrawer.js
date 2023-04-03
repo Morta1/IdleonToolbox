@@ -20,7 +20,7 @@ const tools = {
   },
 };
 
-export const offlineTools = { cardSearch: true, builds: true };
+export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
 const ToolsDrawer = ({ onLabelClick, signedIn }) => {
   const router = useRouter();

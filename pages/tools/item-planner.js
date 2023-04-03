@@ -1,4 +1,4 @@
-import { crafts } from "data/website-data";
+import { crafts, itemsArray } from "data/website-data";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   Accordion,
@@ -55,7 +55,11 @@ const ItemPlanner = ({}) => {
   const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account]);
 
   useEffect(() => {
-    setMyItems(includeEquippedItems ? [...(totalItems || []), ...(equippedItems || [])] : totalItems);
+    if (!state?.characters && !state?.account) {
+      setMyItems(itemsArray);
+    } else {
+      setMyItems(includeEquippedItems ? [...(totalItems || []), ...(equippedItems || [])] : totalItems);
+    }
     setItem(planner?.sections?.map(() => defaultItem))
   }, [state, lastUpdated, includeEquippedItems]);
 
@@ -90,7 +94,6 @@ const ItemPlanner = ({}) => {
       let accumulatedItems, accumulatedMaterials;
       accumulatedItems = calculateItemsQuantity(section?.items, item, false, true, count);
       const list = Array.isArray(crafts[item?.itemName]) ? crafts[item?.itemName] : flattenCraftObject(crafts[item?.itemName]);
-      console.log('crafts[item?.itemName]', crafts[item?.itemName]?.materials?.filter(({ type }) => type !== 'Equip'));
       accumulatedMaterials = list?.reduce((res, itemObject) => {
         return calculateItemsQuantity(res, itemObject, true, true, count);
       }, section?.materials);
@@ -157,6 +160,9 @@ const ItemPlanner = ({}) => {
         title="Idleon Toolbox | Item Planner"
         description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
       />
+      {!state?.characters && !state?.account ?
+        <Typography component={'div'} sx={{ mb: 2 }} variant={'caption'}>* This tool will work better if you're logged
+          in</Typography> : null}
       <Stack direction={'row'} gap={5}>
         <div>
           <Stack direction={'row'} alignItems={'center'}>

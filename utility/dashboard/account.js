@@ -103,3 +103,15 @@ export const gamingAlerts = (account, trackersOptions) => {
   }
   return alerts;
 }
+
+export const guildTasks = (account, trackersOptions) => {
+  const { daily, weekly } = trackersOptions;
+  const alerts = {};
+  if (daily) {
+    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({ requirement, progress }) => progress < requirement)?.length;
+  }
+  if (weekly) {
+    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({ requirement, progress }) => progress < requirement)?.length;
+  }
+  return alerts;
+}

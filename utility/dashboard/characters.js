@@ -1,8 +1,9 @@
 import { differenceInHours, differenceInMinutes, isPast } from "date-fns";
 import { getPostOfficeBonus } from "../../parsers/postoffice";
 import { items, randomList } from "../../data/website-data";
-import { isArenaBonusActive } from "../../parsers/misc";
+import { getExpReq, isArenaBonusActive } from "../../parsers/misc";
 import { getTimeTillCap } from "../../parsers/anvil";
+import { getTalentBonus } from "../../parsers/talents";
 
 // character, characters, characterIndex, account
 
@@ -110,4 +111,22 @@ export const isAkfForMoreThanTenHours = (character, lastUpdated) => {
     return hasUnendingEnergy && hours > 10;
   }
   return false;
+}
+
+export const crystalCooldownSkillsReady = (character,) => {
+  if (character?.class === 'Maestro') {
+    return Object.entries(character?.skillsInfo)?.reduce((res, [name, data]) => {
+      if (data?.index < 10 && name !== 'character') {
+        const expReq = getExpReq(name, data?.level);
+        const reduction = 100 * (1 - data?.expReq / expReq);
+        if (reduction > 0) {
+          const crystalCountdown = getTalentBonus(character?.talents, 2, 'CRYSTAL_COUNTDOWN')
+          if (reduction === crystalCountdown) {
+            return [...res, { name, ...data, crystalCountdown }]
+          }
+        }
+      }
+      return res;
+    }, []);
+  }
 }

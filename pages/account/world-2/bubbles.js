@@ -123,6 +123,10 @@ const Bubbles = () => {
     if (amberiteArtifact) {
       upgradeableBubblesAmount += amberiteArtifact?.acquired === 2 ? amberiteArtifact?.baseBonus * 2 : amberiteArtifact?.baseBonus;
     }
+    const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
+    if (moreBubblesFromMerit > 0) {
+      upgradeableBubblesAmount += moreBubblesFromMerit;
+    }
     return sorted.slice(0, upgradeableBubblesAmount);
   }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);

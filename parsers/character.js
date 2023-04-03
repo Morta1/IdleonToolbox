@@ -271,7 +271,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
           level: level !== -1 ? level : 0,
           exp: parseFloat(levelsRaw[index]),
           expReq: parseFloat(levelsReqRaw[index]),
-          icon: skillIndexMap[index]?.icon
+          icon: skillIndexMap[index]?.icon,
+          index
         },
       } : res, {});
 
@@ -370,7 +371,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 }
 
 // const calcNobisectBlessing = (character, account, charactersLevels) => {
-//   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses
+//   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses?.bonuses
 //   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
 //   const { cards: playerCards, stats } = character
 //   const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
@@ -655,7 +656,7 @@ const getPlayerConstructionSpeed = (character, account) => {
   const carpenterBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false);
   const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Spd', constructionLevel);
   const postOffice = getPostOfficeBonus(account?.postOffice, 'Construction_Container', 0);
-  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 5);
   const equipmentConstructionEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[30]), 0);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);

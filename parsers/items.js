@@ -73,6 +73,15 @@ export const findItemInInventory = (arr, itemName) => {
   }, {});
 };
 
+export const findItemByDescriptionInInventory = (arr, desc) => {
+  if (!desc) return {};
+  return arr.filter(({
+                       misc,
+                       description
+                     }) => description?.toLowerCase()?.includes(desc?.toLowerCase()) || misc?.toLowerCase()?.includes(desc?.toLowerCase()), [])
+    .map((item) => ({...item, ...items?.[item?.rawName]}));
+};
+
 export const flattenCraftObject = (craft) => {
   if (!craft) return [];
   const uniques = {};

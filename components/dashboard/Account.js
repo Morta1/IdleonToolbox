@@ -10,6 +10,7 @@ import {
   areVialsReady,
   canKillBosses,
   gamingAlerts,
+  guildTasks,
   hasAvailableSpiceClicks,
   isBallsOverdue,
   isRefineryEmpty,
@@ -28,7 +29,8 @@ const alertsMapping = {
   cooking: hasAvailableSpiceClicks,
   miniBosses: canKillBosses,
   bargainTag: zeroBargainTag,
-  gaming: gamingAlerts
+  gaming: gamingAlerts,
+  guildTasks: guildTasks
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -103,6 +105,12 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                 vial={vial}
                                                 title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial!`}
                                                 iconPath={`data/${vial?.mainItem}`}/>) : null}
+          {trackers?.guildTasks && alerts?.guildTasks?.daily ?
+            <Alert title={`You have ${alerts?.guildTasks?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
+                   imgStyle={{ filter: 'sepia(1) hue-rotate(46deg) saturate(1)' }}/> : null}
+          {trackers?.guildTasks && alerts?.guildTasks?.weekly ?
+            <Alert title={`You have ${alerts?.guildTasks?.weekly} uncompleted weekly tasks`} iconPath={`etc/GP`}
+                   imgStyle={{ filter: 'sepia(1) hue-rotate(140deg) saturate(1)' }}/> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}
       </CardContent>
     </Card>
