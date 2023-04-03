@@ -24,10 +24,21 @@ const patchNotes = [
   {
     ver: "3.1.55",
     gameVer: "1.79",
-    date: "02/04/2023",
-    features: [<Typography>Updated logic for <Link
-      href={'https://idleontoolbox.com/tools/item-planner'}>Item Planner</Link> page!</Typography>, 'Added names to sections and made them collapsable'],
-    fixes: ['Fix bug with max traps in dashboard'],
+    date: "03/04/2023",
+    features: [
+      'Added an ability to search by description in Item Browser',
+      'Added guild tasks alert to dashboard',
+      'Added crystal cooldown alert to dashboard (when reaching max reduction)',
+      'Added extra bubbles to \'No Bubble Left Behind\' from W4 merit shop',
+      <Typography>Updated logic for <Link href={'https://idleontoolbox.com/tools/item-planner'}>Item
+        Planner</Link> page!</Typography>,
+      'Added names to sections and made them collapsable',
+      'Enabled Item Planner and Item Browser to logged out users as well'
+    ],
+    fixes: [
+      'Fix bug with max traps in dashboard',
+      'Fixed a bug with \'Show Missing Item\' in Item Planner'
+    ],
     deprecatedFeatures: []
   },
   {

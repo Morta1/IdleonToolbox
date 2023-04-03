@@ -19,7 +19,7 @@ const ItemsList = ({
       if (itemDisplay === '0') {
         const remaining = item?.itemQuantity - quantityOwned;
         if (item?.type === 'Equip') {
-          const test = flattenCraftObject(crafts[item?.itemName])?.map((i) => {
+          const removableItems = flattenCraftObject(crafts[item?.itemName])?.map((i) => {
             const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, i?.itemName);
             return {
               ...i,
@@ -28,20 +28,24 @@ const ItemsList = ({
               owner
             }
           });
-          test.forEach((missingItem) => {
-            let allItems = res?.[missingItem?.subType]?.filter((i) => i?.itemName !== missingItem?.itemName);
-            allItems = [...(allItems || []), missingItem];
+          removableItems.forEach((removableItem) => {
+            let allItems = res?.[removableItem?.subType]?.filter((i) => i?.itemName !== removableItem?.itemName);
+            if (removableItem?.itemQuantity > 0) {
+              allItems = [...(allItems || []), removableItem];
+            }
             res = {
               ...res,
-              [missingItem?.subType]: allItems
+              [removableItem?.subType]: allItems
             }
           })
-          res = {
-            ...res,
-            [item?.subType]: [
-              ...(res?.[item?.subType] || []),
-              { ...item, quantityOwned: 0, owner, itemQuantity: remaining }
-            ]
+          if (remaining > 0) {
+            res = {
+              ...res,
+              [item?.subType]: [
+                ...(res?.[item?.subType] || []),
+                { ...item, quantityOwned: 0, owner, itemQuantity: remaining }
+              ]
+            }
           }
           return res;
         } else {
@@ -67,12 +71,12 @@ const ItemsList = ({
   return (
     <Stack flexWrap={'wrap'} direction={'row'} gap={4}>
       {Object.entries(categorize)?.map(([categoryName, items], index) => {
-        return <Card key={categoryName + '' + index} variant={'outlined'}>
+        const anythingToShow = itemDisplay === '0' ? items?.length > 0 : true;
+        return anythingToShow ? <Card key={categoryName + '' + index} variant={'outlined'}>
           <CardContent>
             <span className={'title'}>{cleanUnderscore(pascalCase(categoryName))}</span>
             <Stack flexWrap={'wrap'} direction={'row'} gap={3}>
               {items?.map(({ itemName, itemQuantity, rawName, type, quantityOwned, owner }, innerIndex) => {
-                // if (itemDisplay !== '1' && quantityOwned >= itemQuantity) return null;
                 return <Stack gap={1} alignItems={'center'} key={itemName + '' + innerIndex}>
                   <Tooltip title={<OwnerTooltip itemName={itemName} owners={owner}/>}>
                     <ItemIcon
@@ -88,7 +92,7 @@ const ItemsList = ({
               })}
             </Stack>
           </CardContent>
-        </Card>
+        </Card> : null
       })}
     </Stack>
   );

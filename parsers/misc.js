@@ -284,3 +284,15 @@ export const calculateLeaderboard = (characters) => {
   }, {});
 };
 
+export const getExpReq = (skill, t) => {
+  switch (skill) {
+    case 'smithing':
+      return (15 + Math.pow(t, 2) + 13 * t) * Math.pow(1.225 - Math.min(.114, .135 * t / (t + 50)), t) - 26;
+    case 'construction':
+      return t < 71 ? ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.117 - .135 * t / (t + 5), t) - 6) * (1 + Math.pow(t, 1.72) / 300) : ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.003, t) - 6) / 2.35 * (1 + Math.pow(t, 1.72) / 300);
+    case 'worship':
+      return (15 + Math.pow(t, 1.3) + 6 * t) * Math.pow(1.17 - Math.min(.07, .135 * t / (t + 50)), t) - 26;
+    default:
+      return (15 + Math.pow(t, 2) + 15 * t) * Math.pow(1.225 - Math.min(.18, .135 * t / (t + 50)), t) - 30
+  }
+}

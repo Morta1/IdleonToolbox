@@ -4,6 +4,7 @@ import { cleanUnderscore, pascalCase, prefix } from "../../utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "../Tooltip";
 import {
+  crystalCooldownSkillsReady,
   hasUnspentPoints,
   isAkfForMoreThanTenHours,
   isAnvilOverdue,
@@ -37,6 +38,7 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
         const missingObols = trackers?.obols && isObolMissing(character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
         const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex);
+        const ccdSkillsReady = crystalCooldownSkillsReady(character, account);
         return <Card key={name} sx={{ width: 345 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
@@ -84,6 +86,16 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
                 <Alert key={skillIndex + '-' + index} title={`${cleanUnderscore(pascalCase(name))} is ready!`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
+              {trackers?.crystalCountdown && ccdSkillsReady?.length > 0 ? ccdSkillsReady?.map(({
+                                                                                                 name,
+                                                                                                 icon,
+                                                                                                 crystalCountdown
+                                                                                               }, index) => (
+                <Alert key={icon + '-' + index + '-' + characterIndex}
+                       style={{ border: '1px solid #fbb9b9', borderRadius: 5 }}
+                       title={`Crystal Countdown is maxed for ${cleanUnderscore(pascalCase(name))} (${crystalCountdown.toFixed(2)}%)!`}
+                       iconPath={`data/${icon}`}/>
+              )) : null}
             </Stack>
           </CardContent>
         </Card>
@@ -92,9 +104,9 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
   </>
 };
 
-const Alert = ({ title, iconPath }) => {
+const Alert = ({ title, iconPath, style = {} }) => {
   return <HtmlTooltip title={title}>
-    <IconImg src={`${prefix}${iconPath}.png`} alt=""/>
+    <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>
   </HtmlTooltip>
 }
 
