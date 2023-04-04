@@ -16,6 +16,7 @@ import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
 import Tooltip from "components/Tooltip";
+import HtmlTooltip from "components/Tooltip";
 import debounce from "lodash.debounce";
 import { isArtifactAcquired } from "../../../parsers/sailing";
 import { NextSeo } from "next-seo";
@@ -134,6 +135,14 @@ const Bubbles = () => {
   const calculateBargainTag = () => {
     return parseFloat((25 * (Math.pow(0.75, bargainTag) - 1) / (0.75 - 1)).toFixed(1));
   }
+
+  const getHardCapMaxEffect = (goalLevel, func, x1) => {
+    if (!func?.includes('decay')) return null;
+    let maxBonus = x1
+    if (func === 'decayMulti') maxBonus += 1
+    return maxBonus;
+  }
+
   return (
     <>
       <NextSeo
@@ -186,6 +195,8 @@ const Bubbles = () => {
           const { level, itemReq, rawName, bubbleName, func, x1, x2 } = bubble;
           const goalLevel = bubblesGoals?.[index] ? bubblesGoals?.[index] < level ? level : bubblesGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true);
+          const effectHardCap = getHardCapMaxEffect(goalLevel, func, x1);
+          const effectHardCapPercent = goalBonus / effectHardCap * 100;
           return <React.Fragment key={rawName + '' + bubbleName + '' + index}>
             <Card sx={{ width: 330 }}>
               <CardContent>
@@ -197,7 +208,8 @@ const Bubbles = () => {
                                   src={`${prefix}data/${rawName}.png`}
                                   alt=""/>
                     </Tooltip>
-                    <Typography variant={'body1'}>Lv. {level}</Typography>
+                    <Typography
+                      variant={'body1'}>Lv. {level}</Typography>
                   </Stack>
                   <TextField type={'number'}
                              sx={{ width: 90 }}
@@ -211,7 +223,10 @@ const Bubbles = () => {
                     <Tooltip title={"Bubble's effect"}>
                       <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
                     </Tooltip>
-                    <Typography>{goalBonus}</Typography>
+                    <HtmlTooltip
+                      title={effectHardCap ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${effectHardCap}` : ''}>
+                      <Typography>{goalBonus} {effectHardCap ? `(${notateNumber(effectHardCapPercent)}%)` : ''}</Typography>
+                    </HtmlTooltip>
 
                   </Stack>
                   {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {

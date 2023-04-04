@@ -22,6 +22,17 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.56",
+    gameVer: "1.79",
+    date: "04/04/2023",
+    features: [
+      <Typography>Updated some logic and display for <Link
+        href={'https://idleontoolbox.com/account/slab'}>Slab</Link> page</Typography>
+    ],
+    fixes: ['Fixed a bug with guild data when importing from steam-extractor'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.55",
     gameVer: "1.79",
     date: "03/04/2023",

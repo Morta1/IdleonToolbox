@@ -1,6 +1,6 @@
 import { lavaLog, tryToParse } from "../utility/helpers";
-import { filteredLootyItems, keysMap } from "./parseMaps";
-import { items, randomList, slab } from "../data/website-data";
+import { filteredGemShopItems, filteredLootyItems, keysMap } from "./parseMaps";
+import { items, slab } from "../data/website-data";
 import { talentPagesMap } from "./talents";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
@@ -66,28 +66,20 @@ export const getTimeToNextBooks = (bookCount, account, idleonData) => {
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
   const allItems = JSON.parse(JSON.stringify(items)); // Deep clone
-  lootyRaw.forEach((lootyItemName) => {
-    if (allItems?.[lootyItemName]?.displayName) {
-      delete allItems?.[lootyItemName];
-    }
-  });
-  const x1Extension = ['sail', 'bits'];
+  const slabItems = slab?.map((name) => ({
+    name: allItems?.[name]?.displayName,
+    rawName: name,
+    obtained: lootyRaw?.includes(name),
+    onRotation: filteredGemShopItems?.[name]
+  }))
+  const missingItems = slabItems?.filter(({
+                                            obtained,
+                                            rawName
+                                          }) => !obtained && !filteredLootyItems?.[rawName])?.length;
   return {
-    missingItems: Object.keys(allItems).reduce(
-      (res, key) =>
-        !key.includes("Gem") && !key.includes("SailTr") && !key.includes("Cards") && !key.includes("Spice") && !key.includes("Bits") && !randomList?.[17].includes(key)
-          ? [
-            ...res,
-            {
-              name: allItems?.[key]?.displayName,
-              rawName: x1Extension.find((str) => key.toLowerCase().includes(str)) ? `${key}_x1` : key,
-              obtainable: !filteredLootyItems[key]
-            }
-          ]
-          : res,
-      []
-    ),
+    slabItems,
     lootedItems: lootyRaw?.length,
+    missingItems,
     totalItems: slab?.length,
     rawLootedItems: lootyRaw?.length
   };

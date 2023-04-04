@@ -2,9 +2,9 @@ import { growth, tryToParse } from "../utility/helpers";
 import { guildBonuses, guildTasks } from "../data/website-data";
 
 export const getGuild = (idleonData, guildData) => {
-  let guildBonuses;
+  let guildBonusesLocal;
   if (!guildData) {
-    guildBonuses = {
+    guildBonusesLocal = {
       guildIconIndex: '',
       guildName: '',
       guildBonuses: []
@@ -17,14 +17,14 @@ export const getGuild = (idleonData, guildData) => {
     level: guildData?.stats?.[0]?.[index] ?? 0
   }))
   if (guildData) {
-    guildBonuses = {
+    guildBonusesLocal = {
       iconIndex: guildData?.i ?? '',
       name: guildData?.n ?? '',
       bonuses: updatedGuildBonuses
     }
   }
   return {
-    guildBonuses,
+    guildBonuses: guildBonusesLocal,
     guildTasks
   }
 }

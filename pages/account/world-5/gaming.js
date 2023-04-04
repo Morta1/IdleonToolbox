@@ -91,7 +91,6 @@ const Gaming = () => {
                        maxNuggetValue,
                        level
                      }, index) => {
-        console.log('new Date().getTime() - lastShovelClicked * 1000', new Date().getTime() - lastShovelClicked * 1000)
         return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack sx={{ minHeight: 200 }}>
