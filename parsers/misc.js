@@ -3,11 +3,13 @@ import { filteredGemShopItems, filteredLootyItems, keysMap } from "./parseMaps";
 import { items, slab } from "../data/website-data";
 import { talentPagesMap } from "./talents";
 import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
+import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
 import { getStampsBonusByEffect } from "./stamps";
 import { getAchievementStatus } from "./achievements";
 import { getJewelBonus, getLabBonus } from "./lab";
 import { getAtomBonus } from "./atomCollider";
+import { getPrayerBonusAndCurse } from "./prayers";
+import { getShrineBonus } from "./shrines";
 
 export const getLibraryBookTimes = (idleonData, account) => {
   const { bookCount, libTime } = calcBookCount(account, idleonData);
@@ -286,5 +288,28 @@ export const getExpReq = (skill, t) => {
       return (15 + Math.pow(t, 1.3) + 6 * t) * Math.pow(1.17 - Math.min(.07, .135 * t / (t + 50)), t) - 26;
     default:
       return (15 + Math.pow(t, 2) + 15 * t) * Math.pow(1.225 - Math.min(.18, .135 * t / (t + 50)), t) - 30
+  }
+}
+
+export const getGiantMobChance = (character, account) => {
+  const giantsAlreadySpawned = account?.accountOptions?.[57];
+  // const tachionOfTitansPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Tachion_of_the_Titans')?.bonus > 5;
+  const glitterbugPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Glitterbug')?.curse;
+  const crescentShrineBonus = getShrineBonus(account?.shrines, 6, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const giantMobVial = getVialsBonusByStat(account?.alchemy?.vials, 'GiantMob');
+  let chance;
+  if (giantsAlreadySpawned < 5) {
+    chance = (1 / ((100 + 50 * Math.pow(giantsAlreadySpawned + 1, 2)) * (1 + glitterbugPrayer / 100))) * (1 + (crescentShrineBonus + giantMobVial) / 100);
+  } else {
+    chance = (1 / (2 * Math.pow(giantsAlreadySpawned + 1, 1.95)
+        * (1 + glitterbugPrayer / 100)
+        * Math.pow(giantsAlreadySpawned + 1, 1.5 + giantsAlreadySpawned / 15)))
+      * (1 + (crescentShrineBonus + giantMobVial) / 100);
+  }
+  return {
+    chance,
+    crescentShrineBonus,
+    giantMobVial,
+    glitterbugPrayer
   }
 }

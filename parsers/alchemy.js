@@ -279,3 +279,7 @@ export const applyArtifactBonusOnSigil = (sigils, artifacts) => {
 }
 
 export const vialCostsArray = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5E6, 25E6, 1E8, 1E9, 5E10]
+
+export const getBubbleAtomCost = (bubbleIndex, cost) => {
+  return Math.floor((cost / 1e9) * (bubbleIndex + 1) * Math.pow(1.04, bubbleIndex) * 100)
+}

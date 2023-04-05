@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { cleanUnderscore, kFormatter, pascalCase, prefix } from "utility/helpers";
+import { cleanUnderscore, notateNumber, numberWithCommas, pascalCase, prefix } from "utility/helpers";
 import { findQuantityOwned, flattenCraftObject } from "parsers/items";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
@@ -18,7 +18,7 @@ const ItemsList = ({
       const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
       if (itemDisplay === '0') {
         const remaining = item?.itemQuantity - quantityOwned;
-        if (item?.type === 'Equip') {
+        if (item?.type === 'Equip' && remaining !== item?.itemQuantity) {
           const removableItems = flattenCraftObject(crafts[item?.itemName])?.map((i) => {
             const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, i?.itemName);
             return {
@@ -84,10 +84,20 @@ const ItemsList = ({
                       alt=''
                     />
                   </Tooltip>
-                  <Typography
-                    color={quantityOwned >= (itemDisplay === '0' ? parseInt(itemQuantity) : parseInt(itemQuantity) * copies) ? "success.light" : ""}>
-                    {kFormatter(quantityOwned, 2)}/{itemDisplay === '0' ? kFormatter(parseInt(itemQuantity)) : kFormatter(parseInt(itemQuantity) * copies, 2)}
-                  </Typography>
+                  <Stack direction={'row'}>
+                    <Tooltip title={quantityOwned >= 1e3 ? numberWithCommas(quantityOwned) : ''}>
+                      <Typography
+                        color={quantityOwned >= (itemDisplay === '0' ? parseInt(itemQuantity) : parseInt(itemQuantity) * copies) ? "success.light" : ""}>
+                        {notateNumber(quantityOwned)}
+                      </Typography>
+                    </Tooltip>
+                    <Tooltip title={itemQuantity >= 1e3 ? numberWithCommas(itemQuantity) : ''}>
+                      <Typography
+                        color={quantityOwned >= (itemDisplay === '0' ? parseInt(itemQuantity) : parseInt(itemQuantity) * copies) ? "success.light" : ""}>
+                        /{itemDisplay === '0' ? notateNumber(parseInt(itemQuantity)) : notateNumber(parseInt(itemQuantity) * copies, 2)}
+                      </Typography>
+                    </Tooltip>
+                  </Stack>
                 </Stack>;
               })}
             </Stack>

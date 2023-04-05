@@ -15,11 +15,11 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
-import Tooltip from "components/Tooltip";
 import HtmlTooltip from "components/Tooltip";
 import debounce from "lodash.debounce";
 import { isArtifactAcquired } from "../../../parsers/sailing";
 import { NextSeo } from "next-seo";
+import { getBubbleAtomCost } from "../../../parsers/alchemy";
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
@@ -71,7 +71,8 @@ const Bubbles = () => {
         growth("decayMulti", multiBubble, 1.4, 30, false));
       const shopBargainBoost = Math.max(0.1, Math.pow(0.75, shopBargainBought));
       const smrtBoost = smrtAchievement ? 0.9 : 1;
-      return Math.round(first * cauldronCostReduxBoost * bubbleBargainBoost * bubbleCostBubbleBoost * shopBargainBoost * smrtBoost);
+      const endResult = Math.round(first * cauldronCostReduxBoost * bubbleBargainBoost * bubbleCostBubbleBoost * shopBargainBoost * smrtBoost);
+      return Math.min(endResult, 1e9);
     }
   };
 
@@ -83,7 +84,7 @@ const Bubbles = () => {
     const lastBubbleLvl = state?.account?.alchemy?.bubbles?.[cauldronName]?.[14]?.level || 0;
     const classMultiplierLvl = classDiscount ? (state?.account?.alchemy?.bubbles?.[cauldronName]?.[1]?.level || 0) : 0;
     const shopBargainBought = bargainTag || 0;
-    const smrtAchievement = state?.account?.achievements[108].completed;
+    const smrtAchievement = state?.account?.achievements[108]?.completed;
     return calcBubbleMatCost(bubbleIndex, myFirstChemSet ? 2 : 1, bubbleLv, baseCost, isLiquid, cauldronCostLvl,
       undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
       shopBargainBought, smrtAchievement, multiBubble);
@@ -152,23 +153,23 @@ const Bubbles = () => {
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Bubbles</Typography>
       <Stack justifyContent={'center'} alignItems={'center'}>
         <Typography>Next Bubble Upgrades:</Typography>
-        <Stack direction={'row'}>
+        <Stack direction={'row'} flexWrap={'wrap'}>
           {upgradeableBubbles?.map(({ rawName, bubbleName, level }, index) => {
             return <Stack alignItems={'center'} key={`${rawName}-${index}`}>
-              <Tooltip title={pascalCase(cleanUnderscore(bubbleName))}>
+              <HtmlTooltip title={pascalCase(cleanUnderscore(bubbleName))}>
                 <img src={`${prefix}data/${rawName}.png`} alt=""/>
-              </Tooltip>
+              </HtmlTooltip>
               <Typography variant={'body1'}>{level}</Typography>
             </Stack>
           })}
         </Stack>
       </Stack>
-      <Stack direction={'row'} justifyContent={'center'} mt={2}>
+      <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2}>
         {Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab] !== 'kazam' ?
           <FormControlLabel
             control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
             name={'classDiscount'}
-            label="Class Discount (II)"/> : null}
+            label="Class Discount"/> : null}
         <TextField value={bargainTag}
                    type={'number'}
                    inputProps={{ min: 0, max: 8 }}
@@ -180,6 +181,14 @@ const Bubbles = () => {
                             src={`${prefix}data/aShopItems10.png`} alt=""/>
                      </InputAdornment>
                    }}/>
+        <Card sx={{ alignItems: 'center', display: 'flex' }}>
+          <CardContent>
+            <Stack direction={'row'} alignItems={'center'} gap={2}>
+              <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
+              <Typography>Alternate particle upgrades left: {state?.account?.accountOptions?.[135]}</Typography>
+            </Stack>
+          </CardContent>
+        </Card>
       </Stack>
       <Tabs centered
             sx={{ marginBottom: 3, marginTop: 1 }}
@@ -202,12 +211,12 @@ const Bubbles = () => {
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                   <Stack alignItems={'center'}>
-                    <Tooltip title={<BubbleTooltip {...{ ...bubble, goalLevel }}/>}>
+                    <HtmlTooltip title={<BubbleTooltip {...{ ...bubble, goalLevel }}/>}>
                       <BubbleIcon width={48} height={48}
                                   level={level}
                                   src={`${prefix}data/${rawName}.png`}
                                   alt=""/>
-                    </Tooltip>
+                    </HtmlTooltip>
                     <Typography
                       variant={'body1'}>Lv. {level}</Typography>
                   </Stack>
@@ -220,9 +229,9 @@ const Bubbles = () => {
                 <Stack mt={1.5} direction={'row'} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
                   <Stack gap={2} justifyContent={'center'}
                          alignItems={'center'}>
-                    <Tooltip title={"Bubble's effect"}>
+                    <HtmlTooltip title={"Bubble's effect"}>
                       <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
-                    </Tooltip>
+                    </HtmlTooltip>
                     <HtmlTooltip
                       title={effectHardCap ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${effectHardCap}` : ''}>
                       <Typography>{goalBonus} {effectHardCap ? `(${notateNumber(effectHardCapPercent)}%)` : ''}</Typography>
@@ -235,16 +244,25 @@ const Bubbles = () => {
                     const cost = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
                     const x1Extension = ['sail', 'bits'];
                     const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str)) ? `${rawName}_x1` : rawName;
-                    return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`}>
+                    const atomCost = cost > 1e8 && !name?.includes('Liquid') && getBubbleAtomCost(index, cost);
+                    return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
+                      {atomCost ? <Stack gap={2} alignItems={'center'}>
+                          <HtmlTooltip title={<Typography>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
+                            <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
+                          </HtmlTooltip>
+                          <HtmlTooltip title={atomCost}>
+                            <Typography>{notateNumber(atomCost, 'Big')}</Typography>
+                          </HtmlTooltip></Stack>
+                        : null}
                       <Stack gap={2} justifyContent={'center'}
                              alignItems={'center'}>
-                        <Tooltip title={cleanUnderscore(name)}>
+                        <HtmlTooltip title={cleanUnderscore(name)}>
                           <ItemIcon src={`${prefix}data/${itemName}.png`}
                                     alt=""/>
-                        </Tooltip>
-                        <Tooltip title={cost}>
+                        </HtmlTooltip>
+                        <HtmlTooltip title={cost}>
                           <Typography>{notateNumber(cost, 'Big')}</Typography>
-                        </Tooltip>
+                        </HtmlTooltip>
                       </Stack>
                     </Stack>
                   })}

@@ -22,6 +22,21 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.57",
+    gameVer: "1.79",
+    date: "05/04/2023",
+    features: [
+      'Added particle cost for bubbles (displayed when required material is higher than 100M)',
+      'Added indication of how many particle upgrade left to bubble page',
+      'Added Giant Mob Spawn Chance card to the dashboard (near library timer)',
+    ],
+    fixes: [
+      'Fixed a bug on Item Planner when selecting \'Show Missing Items\'',
+      'Updated required material for bubble to be capped at 1000M (1B)'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.56",
     gameVer: "1.79",
     date: "04/04/2023",

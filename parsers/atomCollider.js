@@ -22,7 +22,8 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
   });
   const daysSinceUsed = account?.accountOptions?.[134];
   const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');
-  const value = Math.min(90, (stampReducer?.level ?? 0) * daysSinceUsed)
+  const value = Math.min(90, (stampReducer?.level ?? 0) * daysSinceUsed);
+
   return {
     particles,
     atoms,
