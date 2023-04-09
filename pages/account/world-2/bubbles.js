@@ -61,7 +61,7 @@ const Bubbles = () => {
     if (isLiquid) {
       return baseCost + Math.floor(bubbleLvl / 20);
     } else {
-      const first = bubbleIndex < 14 ?
+      const first = bubbleIndex < 15 ?
         baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl) :
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
       const cauldronCostReduxBoost = Math.max(0.1, 1 - ((Math.round(10 * growth("decay", cauldronCostLvl, 90, 100, false)) / 10)) / 100);

@@ -10,7 +10,8 @@ import { calculateAmountToNextLevel } from "../../parsers/cards";
 import { NextSeo } from "next-seo";
 
 const categoriesOrder = ["Card Sets", "Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
-  "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Smolderin'_Plateau", "Dungeons", "Bosses", "Events"];
+  "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Smolderin'_Plateau", "Dungeons",
+  "Bosses", "Events"];
 
 const additionalEffects = {
   choppin: [stats.BaseWIS, stats.SkillAFKgainrate],
@@ -22,7 +23,7 @@ const additionalEffects = {
   'drop rate': [stats.BaseLUK],
   'card drop': [stats.BaseLUK, stats.TotalDropRate],
   'monster exp': [stats.EXPfrommonsters],
-  dungeon: [stats.BlockChance, stats.RNGitemrarity, stats.tostartwithRNGitem],
+  dungeon: [stats.BlockChance, stats.RNGitemrarity, stats["tostartwithRNGorb(Passive)"]],
   worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP]
 }
 
@@ -42,25 +43,26 @@ export default function CardSearch() {
   const cardsObject = useMemo(() => mapCards(cards, cardSets), [cards]);
   const [localCardObject, setLocalCardObject] = useState(cardsObject);
   const preConfiguredStats = [
-    "Show All",
+    'Show All',
     'Afk',
-    "Choppin",
-    "Mining",
-    "Fishing",
-    "Catching",
-    "Trapping",
-    "Worship",
+    'Choppin',
+    'Mining',
+    'Fishing',
+    'Catching',
+    'Trapping',
+    'Worship',
     "Accuracy",
-    "Card Drop",
-    "Drop Rate",
-    "Monster Exp",
-    "Skill Exp",
-    "Damage",
-    "Dungeon",
-    "STR",
-    "AGI",
-    "WIS",
-    "LUK",
+    'Card Drop',
+    'Drop Rate',
+    'Monster Exp',
+    'Skill Exp',
+    'Defence',
+    'Damage',
+    'Dungeon',
+    'STR',
+    'AGI',
+    'WIS',
+    'LUK',
   ];
 
   useEffect(() => {

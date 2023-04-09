@@ -24,6 +24,17 @@ const patchNotes = [
   {
     ver: "3.1.57",
     gameVer: "1.79",
+    date: "09/04/2023",
+    features: ['Added Defence tag to Card Search'],
+    fixes: [
+      'Fixed material calculations for bubbles',
+      'Fixed a bug with calculating additional talent levels for Elemental Sorcerer'
+    ],
+    deprecatedFeatures: []
+  },
+  {
+    ver: "3.1.57",
+    gameVer: "1.79",
     date: "05/04/2023",
     features: [
       'Added particle cost for bubbles (displayed when required material is higher than 100M)',

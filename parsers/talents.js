@@ -1,5 +1,6 @@
 import { growth } from "../utility/helpers";
 import { classes, talents } from "../data/website-data";
+import { getAchievementStatus } from "./achievements";
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
@@ -106,7 +107,7 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus) => {
+export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, achievements) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
     addedLevels += deityMinorBonus;
@@ -121,6 +122,10 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (familyEffBonus) {
     addedLevels += Math.floor(familyEffBonus);
   }
+  if (getAchievementStatus(achievements, 291)) {
+    addedLevels += 1;
+  }
+
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,

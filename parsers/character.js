@@ -362,9 +362,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   // }
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
   const highestLevelElementalSorc = getHighestLevelOfClass(charactersLevels, 'Elemental_Sorcerer');
-  const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
-  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, secondLinkedDeity, character.deityMinorBonus, character.secondDeityMinorBonus);
+  let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
+  if (character?.class === 'Elemental_Sorcerer') {
+    familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
+  }
+  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account?.achievements);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus);
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
   return character;
@@ -568,7 +571,7 @@ export const getAllBaseSkillEff = (character, playerChips, jewels) => {
 
 export const getAllEff = (character, meals, lab, accountCards, guildBonuses, charactersLevels) => {
   const highestLevelHunter = getHighestLevelOfClass(charactersLevels, 'Hunter');
-  const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Beast_Master', 'THE_FAMILY_GUY')
+  const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Beast_Master', 'THE_FAMILY_GUY');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
   const equipmentEffEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[48]), 0);
