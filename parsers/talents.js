@@ -120,7 +120,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     addedLevels += symbolAddedLevel;
   }
   if (familyEffBonus) {
-    addedLevels += Math.floor(familyEffBonus);
+    addedLevels += familyEffBonus;
   }
   if (getAchievementStatus(achievements, 291)) {
     addedLevels += 1;
@@ -146,4 +146,8 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
       }
     }
   }, {});
+}
+
+export const getFamilyBonusValue = function (e, t, n, a) {
+  return 10 > e && -1 !== t.indexOf("decay") ? Math.round(100 * e) / 100 : 1 > e || ("add" === t && 1 > a && 100 > e) || (25 > e && "decay" === t) ? Math.round(10 * e) / 10 : Math.round(e);
 }

@@ -22,6 +22,20 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.58",
+    gameVer: "1.79",
+    date: "10/04/2023",
+    features: [
+      <Typography>Added the ability to create custom builds in <Link
+        href={'https://idleontoolbox.com/tools/builds'}>Builds</Link> page</Typography>
+    ],
+    fixes: [
+      'Fixed item planner bug',
+      'Fixed a bug with calculating additional talent levels for Elemental Sorcerer (again)'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.57",
     gameVer: "1.79",
     date: "09/04/2023",

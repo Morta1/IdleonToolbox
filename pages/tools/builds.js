@@ -1,52 +1,128 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, FormControl, Grid, InputLabel, Select, Stack, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent, Dialog, DialogActions,
+  DialogContent, DialogTitle,
+  FormControl,
+  Grid,
+  InputBase,
+  InputLabel,
+  Select,
+  Stack, TextField,
+  Typography
+} from "@mui/material";
 import { cleanUnderscore, growth, prefix } from "utility/helpers";
 import Tooltip from "components/Tooltip";
+import AddIcon from '@mui/icons-material/Add';
 import { classes } from "data/website-data";
 import MenuItem from "@mui/material/MenuItem";
 import allBuilds from 'data/builds.json';
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import { NextSeo } from 'next-seo';
+import IconButton from "@mui/material/IconButton";
+import ClearIcon from '@mui/icons-material/Clear';
+import debounce from "lodash.debounce";
+import Button from "@mui/material/Button";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 
 const allClasses = Object.keys(allBuilds);
 
-const DEFAULT_TITLE = 'Let me know if you want to add a build in here!'
-
 const Builds = () => {
   const router = useRouter();
-  const [className, setClassName] = useState(allClasses[1]);
-  const [buildLists, setBuildLists] = useState(allBuilds[className]);
-  const [buildIndex, setBuildIndex] = useState(0);
+  const [build, setBuild] = useState({
+    index: 0,
+    className: allClasses[1],
+    list: allBuilds[allClasses[1]]
+  });
+  const [createMode, setCreateMode] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [customBuild, setCustomBuild] = useState();
 
   useEffect(() => {
     if (router.query) {
       let { c, b } = router.query || {};
       c = c?.capitalizeAll();
       if (allClasses.includes(c)) {
-        setClassName(c);
-        setBuildLists(allBuilds[c]);
+        let ind;
         if (!isNaN(b) || (Number(b) < allBuilds[c].length)) {
-          setBuildIndex(b);
+          ind = b;
         } else {
-          setBuildIndex(0);
+          ind = 0;
         }
+        setBuild({
+          index: parseInt(ind),
+          className: c,
+          list: allBuilds[c]
+        })
       }
     }
   }, []);
 
   const handleClassChange = (event) => {
-    setClassName(event.target.value);
-    setBuildLists(allBuilds[event.target.value]);
-    setBuildIndex(0);
-    router.replace({ query: { ...router.query, c: event.target.value.toLowerCase(), b: '0' } })
+    setBuild({
+      ...build,
+      index: 0,
+      className: event.target.value,
+      list: allBuilds[event.target.value]
+    })
+    setCustomBuild();
+    router.replace({ query: { ...router.query, c: event.target.value.toLowerCase(), b: 0 } })
   };
 
   const handleBuildChange = (event) => {
     const buildIndex = event.target.value;
-    setBuildIndex(buildIndex);
-    router.replace({ query: { ...router.query, b: buildIndex + '' } })
+    setBuild({ ...build, index: parseInt(buildIndex) })
+    router.replace({ query: { ...router.query, b: parseInt(buildIndex) } })
   };
+
+  const handleCustomBuildChange = ({ tabIndex, tabTalents, tabNote }) => {
+    let tempTabs = {};
+    const allTabs = !customBuild?.tabs ? build?.list?.[0]?.tabs?.toObjectByIndex() : {};
+    if (tabTalents) {
+      tempTabs = {
+        tabs: {
+          ...allTabs,
+          ...customBuild?.tabs,
+          [tabIndex]: {
+            ...(customBuild?.tabs?.[tabIndex] || allTabs?.[tabIndex]),
+            talents: tabTalents
+          }
+        }
+      }
+    }
+    if (tabNote) {
+      tempTabs = {
+        tabs: {
+          ...allTabs,
+          ...customBuild?.tabs,
+          [tabIndex]: {
+            ...(customBuild?.tabs?.[tabIndex] || allTabs?.[tabIndex]),
+            note: tabNote
+          }
+        }
+      }
+    }
+
+    console.log('Custom Build', { ...customBuild, ...tempTabs });
+    setCustomBuild({ ...customBuild, ...tempTabs });
+  }
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify({
+        ...customBuild,
+        class: build?.className,
+        tabs: Object.values(customBuild?.tabs)
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const getSpecificList = (index) => {
+    return build?.list?.find((_, ind) => ind === index);
+  }
 
   return <>
     <NextSeo
@@ -54,13 +130,14 @@ const Builds = () => {
       description="Builds for all classes"
     />
     <Typography mt={2} variant={"h2"}>Builds</Typography>
-    <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'}>
+    <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <FormControl sx={{ width: 270 }}>
         <InputLabel id="class-select-label">Class</InputLabel>
         <Select
+          disabled={createMode}
           labelId="class-select-label"
           id="class-select"
-          value={className}
+          value={build?.className}
           label="Class"
           onChange={handleClassChange}
         >
@@ -77,33 +154,70 @@ const Builds = () => {
       <FormControl sx={{ width: 350 }}>
         <InputLabel id="build-select-label">Build</InputLabel>
         <Select
+          disabled={createMode}
           placeholder={'Choose a build'}
           labelId="build-select-label"
           id="build-select"
-          value={buildIndex}
+          value={build?.index}
           label="Build"
-          onChange={handleBuildChange}
-        >
-          {buildLists.map((build, index) => {
+          onChange={handleBuildChange}>
+          {build?.list?.map((build, index) => {
             const { title } = build;
-            return <MenuItem key={`${title}-${index}`} value={index}>{title}</MenuItem>;
+            return <MenuItem key={`${title}-${index}`}
+                             value={index}>{title || 'Press + to add the first build!'}</MenuItem>;
           })}
         </Select>
-        <Typography mb={2} variant={"caption"}>New builds additions are always welcome!</Typography>
       </FormControl>
+      <FormControl>
+        <IconButton onClick={() => setCreateMode(true)}>
+          <AddIcon/>
+        </IconButton>
+      </FormControl>
+      {createMode ? <FormControl>
+        <Tooltip title={'Exit create mode'}>
+          <IconButton onClick={() => setOpenDialog(true)}>
+            <ClearIcon/>
+          </IconButton>
+        </Tooltip>
+      </FormControl> : null}
     </Stack>
 
-
-    {buildLists.length > 0 ? <div>
-      <Typography mb={3} variant={'h4'}>{buildLists[buildIndex]?.title}</Typography>
+    {build?.list?.length > 0 ? <div>
+      <Stack direction={'row'} alignItems={'center'} gap={2}>
+        <Typography variant={'h4'}>{createMode ? 'Custom Build' : getSpecificList(build?.index)?.title}</Typography>
+        {createMode ? <Tooltip title={'Share custom build'}>
+          <IconButton onClick={handleShare}>
+            <FileCopyIcon/>
+          </IconButton>
+        </Tooltip> : null}
+      </Stack>
+      {createMode ? <Typography component={'div'} variant={'caption'} sx={{ mb: 3 }}>* If you want to share your custom
+        build, click on copy icon above and paste in <a
+          style={{ textDecoration: 'underline' }}
+          href="https://github.com/Morta1/IdleonToolbox/discussions/categories/builds">Builds Discussions</a> or send it
+        in the discord Builds channel</Typography> : null}
       <Grid container spacing={2}>
-        {buildLists[buildIndex]?.tabs?.map((tab, index) => {
-          return <Grid item key={`${tab.title}-${index}`}>
-            <Tab {...tab}/>
+        {getSpecificList(build?.index)?.tabs?.map((tab, index) => {
+          return <Grid item key={`${build?.className}-${index}`}>
+            <Tab {...tab} createMode={createMode} onCustomBuildChange={handleCustomBuildChange} tabIndex={index}/>
           </Grid>
         })}
       </Grid>
-    </div> : <Typography variant={'h5'}>There are not builds for this class</Typography>}
+    </div> : <Typography variant={'h5'}>There are no builds for this class</Typography>}
+
+    <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <DialogTitle>Edit mode</DialogTitle>
+      <DialogContent>
+        Are you sure you want to exit edit mode?
+      </DialogContent>
+      <DialogActions>
+        <Button autoFocus onClick={() => {
+          setCreateMode(false);
+          setOpenDialog(false);
+        }}>Yes</Button>
+        <Button onClick={() => setOpenDialog(false)}>No</Button>
+      </DialogActions>
+    </Dialog>
   </>
 };
 
@@ -113,23 +227,56 @@ const ClassIcon = styled.img`
   object-fit: contain;
 `
 
-const Tab = ({ note, talents: talentList = [] }) => {
+const Tab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, tabIndex }) => {
+  const [localTalents, setLocalTalents] = useState([]);
+
+  useEffect(() => {
+    setLocalTalents(!createMode ? talentList : talentList?.map((talent) => ({
+      ...talent,
+      level: 0
+    })))
+  }, [createMode]);
+
+  const handleChange = debounce(({ target }, index) => {
+    const val = target?.value;
+    let tempTalents, tempNote;
+    if (target?.name === 'level') {
+      tempTalents = localTalents?.map((talent, ind) => ind === index ? {
+        ...talent,
+        level: parseInt(val)
+      } : talent);
+      setLocalTalents(tempTalents);
+    }
+    if (target?.name === 'note') {
+      tempNote = val
+    }
+    typeof onCustomBuildChange === 'function' && onCustomBuildChange({
+      tabIndex,
+      tabTalents: tempTalents,
+      tabNote: tempNote
+    });
+  }, 200);
+
   return <>
     <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ width: 320, minHeight: 255.95 }}>
-      {talentList.map((skill) => {
+      {localTalents.map((skill, index) => {
         const { name, skillIndex, level } = skill;
-        return <Stack alignItems={'center'} key={skillIndex}>
+        return <Stack alignItems={'center'} key={skillIndex} sx={{ width: 56, height: 56 }}>
           <Tooltip
             title={<TalentTooltip name={name} level={level} skill={skill}/>}>
-            <img style={{ opacity: level === 0 ? .3 : 1 }} src={`${prefix}data/UISkillIcon${skillIndex}.png`} alt=""/>
+            <img style={{ opacity: createMode ? 1 : level === 0 ? .3 : 1 }}
+                 src={`${prefix}data/UISkillIcon${skillIndex}.png`} alt=""/>
           </Tooltip>
-          <Typography variant={'body1'}>{level || <span>&nbsp;</span>}</Typography>
+          {createMode ? <CustomInput name={'level'} type={'number'} onChange={(e) => handleChange(e, index)}/> :
+            <Typography variant={'body1'}>{level || <span>&nbsp;</span>}</Typography>}
         </Stack>
       })}
     </Stack>
     <Card sx={{ width: 320, my: 2 }}>
       <CardContent>
-        <Typography>{note}</Typography>
+        {createMode ? <CustomMultiline name={'note'} minRows={2} multiline placeholder={`Tab ${tabIndex} note`}
+                                       onChange={(e) => handleChange(e)}/> :
+          <Typography>{note}</Typography>}
       </CardContent>
     </Card>
   </>
@@ -146,5 +293,30 @@ const TalentTooltip = ({ name, skill, level }) => {
       variant={'body1'}>{cleanUnderscore(cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat))}</Typography>
   </>
 }
+
+const CustomInput = styled(InputBase)`
+  & .MuiInputBase-input {
+    border: 1px solid #7e7e7e;
+    border-radius: 5px;
+    padding: 3px;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      /* display: none; <- Crashes Chrome on hover */
+      -webkit-appearance: none;
+      margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+    }
+
+    &[type=number] {
+      -moz-appearance: textfield; /* Firefox */
+    }
+  }
+`;
+
+const CustomMultiline = styled(TextField)`
+  & {
+    width: 100%;
+  }
+`;
 
 export default Builds;

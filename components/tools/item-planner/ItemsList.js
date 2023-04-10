@@ -23,15 +23,17 @@ const ItemsList = ({
             const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, i?.itemName);
             return {
               ...i,
+              baseQuantity: i?.itemQuantity,
               itemQuantity: i?.itemQuantity * remaining,
               quantityOwned,
               owner
             }
           });
           removableItems.forEach((removableItem) => {
+            const existingItem = res?.[removableItem?.subType]?.find((i) => i?.itemName === removableItem?.itemName);
             let allItems = res?.[removableItem?.subType]?.filter((i) => i?.itemName !== removableItem?.itemName);
-            if (removableItem?.itemQuantity > 0) {
-              allItems = [...(allItems || []), removableItem];
+            if (existingItem && removableItem?.itemQuantity <= 0 && (existingItem?.itemQuantity - removableItem?.baseQuantity) > existingItem?.quantityOwned) {
+              allItems = [...(allItems || []), { ...existingItem, itemQuantity: existingItem?.itemQuantity - removableItem?.baseQuantity }];
             }
             res = {
               ...res,
@@ -49,6 +51,9 @@ const ItemsList = ({
           }
           return res;
         } else {
+          if (quantityOwned >= item?.itemQuantity){
+            return res;
+          }
           return {
             ...res,
             [item?.subType]: [

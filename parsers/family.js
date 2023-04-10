@@ -5,3 +5,7 @@ export const getFamilyBonusBonus = (bonuses, bonusName, level) => {
   if (!bonus) return 0;
   return growth(bonus?.func, Math.max(0, Math.round(level - bonus?.x3)), bonus?.x1, bonus?.x2, false);
 }
+
+export const getFamilyBonus = (bonuses, bonusName) => {
+  return bonuses?.find(({ name }) => name?.includes(bonusName));
+}

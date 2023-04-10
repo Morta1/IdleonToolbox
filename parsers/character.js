@@ -22,7 +22,7 @@ import { skillIndexMap } from "./parseMaps";
 import {
   applyTalentAddedLevels,
   createTalentPage,
-  getActiveBuffs, getHighestTalentByClass,
+  getActiveBuffs, getFamilyBonusValue, getHighestTalentByClass,
   getTalentBonus,
   getTalentBonusIfActive,
   talentPagesMap
@@ -37,7 +37,7 @@ import { getPlayerAnvil } from "./anvil";
 import { getPrayerBonusAndCurse } from "./prayers";
 import { getGuildBonusBonus } from "./guild";
 import { getShrineBonus } from "./shrines";
-import { getFamilyBonusBonus } from "./family";
+import { getFamilyBonus, getFamilyBonusBonus } from "./family";
 import { getSaltLickBonus } from "./saltLick";
 import { getDungeonStatBonus } from "./dungeons";
 import { getMealsBonusByEffectOrStat } from "./cooking";
@@ -365,6 +365,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
   if (character?.class === 'Elemental_Sorcerer') {
     familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
+    const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
+    familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
   }
   character.talents = applyTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account?.achievements);
   character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus);
@@ -372,6 +374,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.questComplete = char?.QuestComplete;
   return character;
 }
+
+
 
 // const calcNobisectBlessing = (character, account, charactersLevels) => {
 //   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses?.bonuses
