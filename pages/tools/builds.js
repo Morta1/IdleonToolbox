@@ -104,7 +104,6 @@ const Builds = () => {
       }
     }
 
-    console.log('Custom Build', { ...customBuild, ...tempTabs });
     setCustomBuild({ ...customBuild, ...tempTabs });
   }
 
@@ -198,7 +197,7 @@ const Builds = () => {
         in the discord Builds channel</Typography> : null}
       <Grid container spacing={2}>
         {getSpecificList(build?.index)?.tabs?.map((tab, index) => {
-          return <Grid item key={`${build?.className}-${index}`}>
+          return <Grid item key={`${build?.index}-${build?.className}-${index}`}>
             <Tab {...tab} createMode={createMode} onCustomBuildChange={handleCustomBuildChange} tabIndex={index}/>
           </Grid>
         })}
