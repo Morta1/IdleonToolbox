@@ -317,7 +317,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.quests = getPlayerQuests(char?.QuestComplete);
   character.crystalSpawnChance = getPlayerCrystalChance(character, account, idleonData);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
-  character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, account?.alchemy?.bubbles, account?.lab?.jewels, account?.lab?.labBonuses);
+  character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, character?.equippedBubbles, account?.lab?.jewels, account?.lab?.labBonuses);
   character.constructionSpeed = getPlayerConstructionSpeed(character, account);
 
   const kills = char?.[`KillsLeft2Advance`];
@@ -644,10 +644,18 @@ const getNonConsumeChance = (starSigns, cards, postOffice, talents, bubbles, jew
   //     bubble = null != d.nonFoodACTIVE ? jo.getReserved("nonFoodACTIVE") : jo.h.nonFoodACTIVE;
   //   return Math.min(realBaseMath, jewel * (freeMeal + (postOffice + (cards + starSign + (bubble)))));
   // }
+  // return Math.min(Math.min(90 + 5 * m._customBlock_MainframeBonus(108),
+  //   98 + Math.min(c.asNumber(a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.nonFoodACTIVE), 1)),
+  //   Math.max(1, m._customBlock_MainframeBonus(108))
+  //   * (k._customBlock_GetTalentNumber(1, 458)
+  //     + (c.asNumber(a.engine.getGameAttribute("DNSM").h.BoxRewards.h.NonConsume)
+  //       + (x._customBlock_CardBonusREAL(16) + c.asNumber(a.engine.getGameAttribute("DNSM").h.StarSigns.h.NoConsumeFood)
+  //         + c.asNumber(a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.nonFoodACTIVE)))));
+
   const spelunkerObolMulti = getLabBonus(labBonuses, 8); // gem multi
   const nonConsumeJewelBonus = getJewelBonus(jewels, 8, spelunkerObolMulti);
   const baseMath = 90 + 5 * nonConsumeJewelBonus;
-  const biteButNotChewBubbleBonus = getBubbleBonus(bubbles, 'power', 'BITE_BUT_NOT_CHEW', false);
+  const biteButNotChewBubbleBonus = getActiveBubbleBonus(bubbles, '_19');
   const bubbleMath = Math.min(baseMath, 98 + Math.min(biteButNotChewBubbleBonus, 1));
   const jewelMath = Math.max(1, nonConsumeJewelBonus);
   const freeMealBonus = getTalentBonus(talents, 1, 'FREE_MEAL');
