@@ -1,4 +1,4 @@
-import { kFormatter, prefix } from "../../utility/helpers";
+import { notateNumber, prefix } from "../../utility/helpers";
 import Box from "@mui/material/Box";
 import { capitalize, Card, CardContent, Stack, Typography } from "@mui/material";
 import Tooltip from "../Tooltip";
@@ -59,7 +59,7 @@ const SkillTooltip = ({ exp, expReq, charName, skillName, level }) => {
       variant={'body1'}
       component={'span'}>(Lv. {level})</Typography></Typography>
     <ProgressBar percent={percent} bgColor={'#f3dd4c'}/>
-    <Typography variant={'body1'}>{kFormatter(exp)} / {kFormatter(expReq)} <Typography
+    <Typography variant={'body1'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')} <Typography
       variant={'body1'}
       component={'span'}>({Math.round(percent)}%)</Typography>
     </Typography>
