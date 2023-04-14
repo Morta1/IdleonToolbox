@@ -22,6 +22,14 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.59",
+    gameVer: "1.79",
+    date: "14/04/2023",
+    features: [],
+    fixes: ['Added missing rank up alert for salts in refinery'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.58",
     gameVer: "1.79",
     date: "10/04/2023",

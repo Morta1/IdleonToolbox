@@ -32,7 +32,8 @@ const trackersOptions = {
   account: {
     vials: { subtractGreenStacks: true },
     gaming: { sprouts: true, squirrel: true, shovel: true },
-    guildTasks: { daily: true, weekly: true }
+    guildTasks: { daily: true, weekly: true },
+    refinery: { materials: true, rankUp: true }
   }
 };
 

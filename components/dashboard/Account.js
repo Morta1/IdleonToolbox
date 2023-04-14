@@ -13,15 +13,15 @@ import {
   guildTasks,
   hasAvailableSpiceClicks,
   isBallsOverdue,
-  isRefineryEmpty,
   isStampReducerMaxed,
-  zeroBargainTag
+  zeroBargainTag,
+  refineryAlerts
 } from "../../utility/dashboard/account";
 
 const alertsMapping = {
   stampReducer: isStampReducerMaxed,
   sigils: areSigilsOverdue,
-  refinery: isRefineryEmpty,
+  refinery: refineryAlerts,
   towers: areTowersOverdue,
   keys: areKeysOverdue,
   arcadeBalls: isBallsOverdue,
@@ -87,10 +87,14 @@ const Account = ({ account, trackers, trackersOptions }) => {
             alerts?.sigils?.map(({ name, index }) => <Alert key={name}
                                                             title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
                                                             iconPath={`data/aSiga${index}`}/>) : null}
-          {trackers?.refinery && alerts?.refinery?.length > 0 ?
-            alerts?.refinery?.map(({ rawName, missingMats }) => <Alert key={rawName}
+          {trackers?.refinery && alerts?.refinery?.materials?.length > 0 ?
+            alerts?.refinery?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
                                                                        title={<RefineryTitle
                                                                          missingMats={missingMats}/>}
+                                                                       iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.refinery && alerts?.refinery?.rankUp?.length > 0 ?
+            alerts?.refinery?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
+                                                                       title={`${cleanUnderscore(saltName)} is ready to rank up!`}
                                                                        iconPath={`data/${rawName}`}/>) : null}
           {trackers?.towers && alerts?.towers?.length > 0 ?
             alerts?.towers?.map(({ name, index }) => <Alert key={name}

@@ -14,18 +14,26 @@ export const areSigilsOverdue = (account) => {
   return account?.alchemy?.p2w?.sigils?.filter(({ characters, unlocked }) => characters.length > 0 && unlocked === 1)
 }
 
-export const isRefineryEmpty = (account) => {
-  return account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
-    const missingMats = cost?.filter(({
-                                        rawName,
-                                        quantity,
-                                        totalAmount
-                                      }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') && saltIndex <= account?.refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity)
-    if (missingMats.length > 0) {
-      res = [...res, { rawName, missingMats }]
-    }
-    return res;
-  }, []);
+export const refineryAlerts = (account, trackersOptions) => {
+  const { materials, rankUp } = trackersOptions || {};
+  const alerts = {};
+  if (materials) {
+    alerts.materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
+      const missingMats = cost?.filter(({
+                                          rawName,
+                                          quantity,
+                                          totalAmount
+                                        }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') && saltIndex <= account?.refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity)
+      if (missingMats.length > 0) {
+        res = [...res, { rawName, missingMats }]
+      }
+      return res;
+    }, []);
+  }
+  if (rankUp) {
+    alerts.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => refined >= powerCap);
+  }
+  return alerts;
 }
 
 export const isStampReducerMaxed = (account) => {
@@ -108,10 +116,16 @@ export const guildTasks = (account, trackersOptions) => {
   const { daily, weekly } = trackersOptions;
   const alerts = {};
   if (daily) {
-    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({ requirement, progress }) => progress < requirement)?.length;
+    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
+                                                                requirement,
+                                                                progress
+                                                              }) => progress < requirement)?.length;
   }
   if (weekly) {
-    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({ requirement, progress }) => progress < requirement)?.length;
+    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
+                                                                  requirement,
+                                                                  progress
+                                                                }) => progress < requirement)?.length;
   }
   return alerts;
 }
