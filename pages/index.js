@@ -22,6 +22,14 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.61",
+    gameVer: "1.79",
+    date: "18/04/2023",
+    features: [],
+    fixes: ['Fixed a bug with gaming alerts', 'Fixed a bug with refinery'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.60",
     gameVer: "1.79",
     date: "15/04/2023",

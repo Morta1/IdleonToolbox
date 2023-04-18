@@ -73,11 +73,11 @@ const Account = ({ account, trackers, trackersOptions }) => {
           {trackers?.gaming && alerts?.gaming?.drops ?
             <Alert title={`Sprinkler drops has reached it's capacity (${alerts?.gaming?.drops})`}
                    iconPath={'data/GamingItem0b'}/> : null}
-          {trackers?.gaming && alerts?.gaming?.squirrel >= 1 ?
-            <Alert title={`${alerts?.gaming?.squirrel} hours has passed since you've clicked the squirrel!`}
+          {trackers?.gaming && alerts?.gaming?.squirrel?.hours >= 1 ?
+            <Alert title={`${alerts?.gaming?.squirrel?.hours} hours has passed since you've clicked the squirrel!`}
                    iconPath={'data/GamingItem2'}/> : null}
-          {trackers?.gaming && alerts?.gaming?.shovel >= 1 ?
-            <Alert title={`${alerts?.gaming?.shovel} hours has passed since you've clicked the shovel!`}
+          {trackers?.gaming && alerts?.gaming?.hours >= 1 ?
+            <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
                    iconPath={'data/GamingItem1'}/> : null}
           {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
             alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}

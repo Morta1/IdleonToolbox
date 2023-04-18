@@ -37,7 +37,7 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
         saltName,
         cost: componentsWithTotalAmount,
         rawName: name,
-        powerCap: parseFloat(powerCap?.[rank]),
+        powerCap: parseFloat(powerCap?.[Math.max(Math.min(rank, powerCap?.length - 2), 25)]),
         refined,
         rank,
         active,
