@@ -8,7 +8,6 @@ import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from "../../../components/Tooltip";
 import { MissingData } from "../../../components/common/styles";
 import { NextSeo } from "next-seo";
-import { getHours } from "date-fns";
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
