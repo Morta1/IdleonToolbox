@@ -90,7 +90,6 @@ export const canKillBosses = (account) => {
 }
 
 export const zeroBargainTag = (account) => {
-  console.log('account?.accountOptions?.[62]', account?.accountOptions?.[62])
   return account?.accountOptions?.[62] === 0;
 }
 
@@ -103,11 +102,16 @@ export const gamingAlerts = (account, trackersOptions) => {
   if (sprouts && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
     alerts.drops = account?.gaming?.availableDrops;
   }
-  if (shovel && account?.gaming?.lastShovelClicked > 0) {
+  const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired)
+  if (shovelUnlocked && shovel && account?.gaming?.lastShovelClicked > 0) {
     const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
     alerts.shovel = getDuration(new Date().getTime(), timePassed);
   }
-  if (squirrel && account?.gaming?.lastAcornClicked > 0) {
+  const squirrelUnlocked = account?.gaming?.imports?.find(({
+                                                             name,
+                                                             acquired
+                                                           }) => name === 'Autumn_Squirrel' && acquired)
+  if (squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked > 0) {
     const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
     alerts.squirrel = getDuration(new Date().getTime(), timePassed);
   }

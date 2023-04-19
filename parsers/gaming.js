@@ -12,6 +12,8 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
+  console.log('gamingRaw', gamingRaw)
+  console.log('gamingSproutRaw', gamingSproutRaw)
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
   const bits = gamingRaw?.[0];
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
