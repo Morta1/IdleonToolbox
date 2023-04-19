@@ -20,7 +20,7 @@ function appReducer(state, action) {
       return { ...state, ...action.data };
     }
     case "logout": {
-      return { characters: null, account: null, signedIn: false };
+      return { characters: null, account: null, signedIn: false, emailPassword: null, appleLogin: null };
     }
     case "queryParams": {
       return { ...state, ...action.data };
@@ -42,6 +42,9 @@ function appReducer(state, action) {
     }
     case "emailPasswordLogin": {
       return { ...state, emailPasswordLogin: action.data };
+    }
+    case "appleLogin": {
+      return { ...state, appleLogin: action.data };
     }
     case 'loginError': {
       return { ...state, loginError: action.data };
@@ -180,12 +183,13 @@ const AppProvider = ({ children }) => {
         dispatch({ type: 'data', data: { ...charactersData, lastUpdated, manualImport: true } })
       }
     }
-    if (state?.emailPasswordLogin) {
+    if (state?.emailPasswordLogin || state?.appleLogin) {
       setWaitingForAuth(true);
     }
   }, [state?.trackers, state?.trackersOptions, state?.filters, state?.displayedCharacters, state?.planner,
     state?.manualImport,
-    state?.emailPasswordLogin]);
+    state?.emailPasswordLogin,
+    state?.appleLogin]);
 
   useInterval(
     async () => {
@@ -194,6 +198,9 @@ const AppProvider = ({ children }) => {
       if (state?.emailPasswordLogin) {
         id_token = state?.emailPasswordLogin?.accessToken;
         uid = state?.emailPasswordLogin?.uid;
+      } else if (state?.appleLogin) {
+        id_token = state?.appleLogin?.accessToken;
+        uid = state?.appleLogin?.uid;
       } else {
         const user = (await getUserToken(code?.deviceCode)) || {};
         id_token = user?.id_token;
@@ -213,7 +220,7 @@ const AppProvider = ({ children }) => {
           window?.gtag("event", "login", {
             action: "login",
             category: "engagement",
-            value: 1
+            value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
           });
         }
         setListener({ func: unsubscribe });
@@ -247,6 +254,7 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem("charactersData");
     localStorage.removeItem("rawJson");
     dispatch({ type: "logout" });
+    setWaitingForAuth(false);
     if (!manualImport) {
       router.push({ pathname: '/', query: router.query });
     } else {

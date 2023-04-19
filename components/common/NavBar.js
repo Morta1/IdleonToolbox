@@ -16,6 +16,7 @@ import FileCopyIcon from "@mui/icons-material/FileCopy";
 import PasswordIcon from '@mui/icons-material/Password';
 import LogoutIcon from "@mui/icons-material/Logout";
 import GoogleIcon from '@mui/icons-material/Google';
+import AppleIcon from '@mui/icons-material/Apple';
 import { useRouter } from "next/router";
 import AccountDrawer from "./AccountDrawer";
 import {
@@ -34,7 +35,7 @@ import ToolsDrawer from "./ToolsDrawer";
 import { format } from "date-fns";
 import { parseData } from "parsers";
 import EmailPasswordDialog from "./EmailPasswordModal";
-import { signInWithEmailPassword } from "../../firebase";
+import { signInWithApple, signInWithEmailPassword } from "../../firebase";
 import DiscordInvite from "../DiscordInvite";
 
 
@@ -99,13 +100,17 @@ function NavBar({ children, window }) {
     setFfText('');
   };
 
-  const handleAuth = async (logout, emailPassword) => {
+  const handleAuth = async (logout, { emailPassword, apple } = {}) => {
     if (logout) await handleSignOut();
     else {
-      if (emailPassword) {
+      if (emailPassword || apple) {
         let data;
         try {
-          data = await signInWithEmailPassword(emailPassword);
+          if (emailPassword) {
+            data = await signInWithEmailPassword(emailPassword);
+          } else if (apple) {
+            data = await signInWithApple();
+          }
         } catch (error) {
           dispatch({ type: 'loginError', data: error?.stack })
         }
@@ -113,7 +118,7 @@ function NavBar({ children, window }) {
         if (data) {
           setEmailPasswordDialog(false);
         }
-        dispatch({ type: 'emailPasswordLogin', data })
+        dispatch({ type: emailPassword ? 'emailPasswordLogin' : 'appleLogin', data })
       } else {
         await handleGoogleLogin();
       }
@@ -191,7 +196,7 @@ function NavBar({ children, window }) {
           {(!state.signedIn && !state?.pastebin && !state?.manualImport) && state?.demo ? <Stack sx={{ mr: 1 }}>
             <Typography color={'primary'} variant={"caption"}>This is a demo site, please login</Typography>
           </Stack> : null}
-          <DiscordInvite shield={false} style={{ margin: '0 15px 0 auto' }}/>
+          <DiscordInvite shield={false} style={{ margin: '0 7.5px' }}/>
           {!state?.pastebin ? <Tooltip title="Paste JSON">
             <IconButton onClick={handleMenu} color="inherit">
               <FileCopyIcon/>
@@ -231,7 +236,12 @@ function NavBar({ children, window }) {
               <Button onClick={() => handleManualImport(true)}>upload</Button>
             </MenuItem> : null}
           </Menu>
-          {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Login"}>
+          {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Apple Login"}>
+            <IconButton onClick={() => handleAuth(state?.signedIn, { apple: true })} color="inherit">
+              {state?.signedIn ? <LogoutIcon/> : <AppleIcon/>}
+            </IconButton>
+          </Tooltip> : null}
+          {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Google Login"}>
             <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
               {state?.signedIn ? <LogoutIcon/> : <GoogleIcon/>}
             </IconButton>
@@ -288,7 +298,7 @@ function NavBar({ children, window }) {
       </Box>
       <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
                            handleClose={() => setEmailPasswordDialog(false)}
-                           handleClick={(emailPassword) => handleAuth(state?.signedIn, emailPassword)}/>
+                           handleClick={(emailPassword) => handleAuth(state?.signedIn, { emailPassword })}/>
       <Dialog open={dialog.open} onClose={handleDialogClose}>
         <DialogTitle>Google Login</DialogTitle>
         <DialogContent>

@@ -6,7 +6,6 @@ const DiscordInvite = ({ shield = true, style = {} }) => {
   const href = "https://discord.gg/8Devcj7FzV";
   return <Style style={{ ...style }}>
     <Tooltip title={'Idleon Toolbox discord channel'}>
-
       {shield ?
         <a href={href}><img src={`https://discordapp.com/api/guilds/1090610727334719558/widget.png?style=shield`}
                             alt="Idleon Toolbox discord channel"/> </a> :

@@ -1,4 +1,12 @@
-import { getAuth, GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signOut,
+  OAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
 import { child, get, getDatabase, goOnline, ref } from "firebase/database";
 import { doc, getDoc, initializeFirestore, onSnapshot } from "firebase/firestore";
 import { getApp } from 'firebase/app';
@@ -37,6 +45,13 @@ const signInWithEmailPassword = async ({ email, password } = {}) => {
     }
   });
 
+  return result?.user;
+}
+
+const signInWithApple = async () => {
+  const auth = getAuth(app);
+  const provider = new OAuthProvider('apple.com');
+  const result = await signInWithPopup(auth, provider);
   return result?.user;
 }
 
@@ -108,6 +123,7 @@ const userSignOut = async () => {
 export {
   signInWithToken,
   signInWithEmailPassword,
+  signInWithApple,
   subscribe,
   checkUserStatus,
   userSignOut
