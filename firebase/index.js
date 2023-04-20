@@ -13,9 +13,18 @@ import { getApp } from 'firebase/app';
 import app from "./config";
 import { tryToParse } from "../utility/helpers";
 
-const signInWithToken = async (token) => {
+const signInWithToken = async (token, type) => {
   const auth = getAuth(app);
-  const credential = GoogleAuthProvider.credential(token, null);
+  let credential;
+  if (type === 'apple') {
+    const provider = new OAuthProvider('apple.com');
+    credential = provider.credential({
+      idToken: token?.id_token,
+      rawNonce: token?.nonce,
+    });
+  } else if (type === 'google') {
+    credential = GoogleAuthProvider.credential(token, null);
+  }
   const result = await signInWithCredential(auth, credential).catch(function (error) {
     // Handle Errors here.
     const errorCode = error.code;
@@ -84,10 +93,10 @@ const subscribe = async (uid, callback) => {
     if (charSnapshot && charSnapshot.exists()) {
       charNames = charSnapshot.val();
     } else {
-      console.log("No data available");
+      console.error("No data available");
     }
   } catch (error) {
-    console.log('Error while fetching charNames: ', error);
+    console.error('Error while fetching charNames: ', error);
   }
   let serverVars;
   if (firestore?.type === "firestore") {
@@ -104,7 +113,7 @@ const subscribe = async (uid, callback) => {
           callback(cloudsave, charNames, { stats: tryToParse(cloudsave?.Guild) }, serverVars);
         }
       }, (err) => {
-        console.log('Error has occurred on subscribe', err);
+        console.error('Error has occurred on subscribe', err);
       });
   }
 }
@@ -112,11 +121,11 @@ const subscribe = async (uid, callback) => {
 const userSignOut = async () => {
   const auth = getAuth(app);
   await signOut(auth).then(() => {
-    console.log('Logged off successfully');
+    console.info('Logged off successfully');
   }).catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-    console.log(`Error while logging out: ${errorCode}`, errorMessage);
+    console.error(`Error while logging out: ${errorCode}`, errorMessage);
   });
 }
 

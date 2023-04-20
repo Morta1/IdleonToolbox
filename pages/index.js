@@ -22,9 +22,17 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
-    ver: "3.1.62",
+    ver: "3.1.63",
     gameVer: "1.80",
     date: "20/04/2023",
+    features: ['Fixed Apple login'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
+    ver: "3.1.62",
+    gameVer: "1.80",
+    date: "19/04/2023",
     features: ['Added support for Apple login', 'Added data and assets from version 1.80'],
     fixes: [],
     deprecatedFeatures: []
