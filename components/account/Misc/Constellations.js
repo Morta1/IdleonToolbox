@@ -3,8 +3,9 @@ import React from "react";
 import { cleanUnderscore, constellationIndexes } from "utility/helpers";
 import CheckIcon from "@mui/icons-material/Check";
 
-const ConstellationsComp = ({ constellations }) => {
+const ConstellationsComp = ({ constellations = [] }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+
   const getTotalPoints = () => {
     const { ownedPoints, totalPoints } = constellations?.reduce((res, { points, done }) => {
       if (done) {
@@ -15,6 +16,7 @@ const ConstellationsComp = ({ constellations }) => {
     }, { ownedPoints: 0, totalPoints: 0 });
     return `${ownedPoints} / ${totalPoints}`;
   }
+
   return (
     <Stack gap={3}>
       <Typography variant={'h5'} textAlign={'center'}>Total Points: {getTotalPoints()}</Typography>
@@ -43,7 +45,7 @@ const ConstellationsComp = ({ constellations }) => {
             <Grid item xs={1}>
               {done ? <CheckIcon color={'success'}/> : <Typography variant={'body1'}
                                                                    component={'span'}>
-                {`${completedChars.length}/${requiredPlayers}`}
+                {`${completedChars?.length ?? 0}/${requiredPlayers}`}
               </Typography>}
             </Grid>
             <Grid item xs={2}>
@@ -52,7 +54,7 @@ const ConstellationsComp = ({ constellations }) => {
             <Grid item xs={3}>{cleanUnderscore(requirement)}</Grid>
             <Grid item xs={2} sm={1}>{points}</Grid>
             <Grid item xs={2}>
-              {completedChars.length ?
+              {completedChars?.length > 0 ?
                 <><Typography variant={'caption'} component={'div'}>Completed Chars</Typography>
                   <Typography variant={'caption'}
                               sx={{ wordBreak: 'break-word' }}>indexes: {constellationIndexes(completedChars)}</Typography></> : null}
