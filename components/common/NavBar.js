@@ -19,24 +19,17 @@ import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
 import { useRouter } from "next/router";
 import AccountDrawer from "./AccountDrawer";
-import {
-  CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-  Typography,
-  useMediaQuery
-} from "@mui/material";
+import { Stack, TextField, Typography, useMediaQuery } from "@mui/material";
 import { AppContext } from "./context/AppProvider";
 import CharactersDrawer from "./CharactersDrawer";
 import ToolsDrawer from "./ToolsDrawer";
 import { format } from "date-fns";
 import { parseData } from "parsers";
 import EmailPasswordDialog from "./EmailPasswordModal";
-import { signInWithApple, signInWithEmailPassword } from "../../firebase";
+import { signInWithEmailPassword } from "../../firebase";
 import DiscordInvite from "../DiscordInvite";
+import { appleAuthorize, getAppleCode } from "../../logins/apple";
+import AuthDialog from "./AuthDialog";
 
 
 const drawerWidth = 240;
@@ -103,14 +96,10 @@ function NavBar({ children, window }) {
   const handleAuth = async (logout, { emailPassword, apple } = {}) => {
     if (logout) await handleSignOut();
     else {
-      if (emailPassword || apple) {
+      if (emailPassword) {
         let data;
         try {
-          if (emailPassword) {
-            data = await signInWithEmailPassword(emailPassword);
-          } else if (apple) {
-            data = await signInWithApple();
-          }
+          data = await signInWithEmailPassword(emailPassword);
         } catch (error) {
           dispatch({ type: 'loginError', data: error?.stack })
         }
@@ -118,16 +107,32 @@ function NavBar({ children, window }) {
         if (data) {
           setEmailPasswordDialog(false);
         }
-        dispatch({ type: emailPassword ? 'emailPasswordLogin' : 'appleLogin', data })
+        dispatch({ type: 'emailPasswordLogin', data })
+      } else if (apple) {
+        await handleAppleLogin();
       } else {
         await handleGoogleLogin();
       }
     }
   };
 
+  const handleAppleLogin = async () => {
+    const code = await getAppleCode();
+    await appleAuthorize(code);
+    dispatch({ type: 'appleLogin', data: code })
+    setDialog({
+      title: 'Apple Login',
+      type: 'apple',
+      open: true,
+      loading: true
+    });
+  }
+
   const handleGoogleLogin = async () => {
     const userCode = await login();
     setDialog({
+      title: 'Google Login',
+      type: 'google',
       open: true,
       loading: true,
       userCode
@@ -299,31 +304,7 @@ function NavBar({ children, window }) {
       <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
                            handleClose={() => setEmailPasswordDialog(false)}
                            handleClick={(emailPassword) => handleAuth(state?.signedIn, { emailPassword })}/>
-      <Dialog open={dialog.open} onClose={handleDialogClose}>
-        <DialogTitle>Google Login</DialogTitle>
-        <DialogContent>
-          <Stack gap={3} alignItems={"center"}>
-            <div style={{ wordBreak: "break-all" }}>
-              Please go to{" "}
-              <Link mr={1} target="_blank" href="https://www.google.com/device" rel="noreferrer">
-                https://www.google.com/device
-              </Link>
-              and enter the following code:
-            </div>
-            <Typography p={1} border={"1px solid white"} justifySelf={"center"} margin={"0 auto"} width={"fit-content"}>
-              {dialog?.userCode}
-            </Typography>
-            {dialog?.error ? (
-              <Typography variant={"body1"}>Failed to auth, please refresh and try again.</Typography>
-            ) : (
-              <Stack flexWrap={"wrap"} gap={3} direction={"row"} alignItems={"center"}>
-                <Typography variant={"body1"}>Waiting for your authentication:</Typography> <CircularProgress/>
-              </Stack>
-            )}
-            {state?.loginError ? <Typography color={'error'} variant={"body1"}>{state?.loginError}</Typography> : null}
-          </Stack>
-        </DialogContent>
-      </Dialog>
+      <AuthDialog dialog={dialog} onClose={handleDialogClose} loginError={state?.loginError}/>
     </Box>
   );
 }

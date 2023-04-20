@@ -5,9 +5,10 @@ import demoJson from '../../../data/raw.json';
 
 import { useRouter } from "next/router";
 import useInterval from "../../hooks/useInterval";
-import { getUserAndDeviceCode, getUserToken } from "../../../google/login";
+import { getUserAndDeviceCode, getUserToken } from "../../../logins/google";
 import { CircularProgress, Stack } from "@mui/material";
 import { offlineTools } from "../ToolsDrawer";
+import { geAppleStatus } from "../../../logins/apple";
 
 export const AppContext = createContext({});
 
@@ -193,20 +194,29 @@ const AppProvider = ({ children }) => {
 
   useInterval(
     async () => {
+      console.log('state', state)
       if (state?.signedIn) return;
-      let id_token, uid;
+      let id_token, uid, type;
       if (state?.emailPasswordLogin) {
         id_token = state?.emailPasswordLogin?.accessToken;
         uid = state?.emailPasswordLogin?.uid;
-      } else if (state?.appleLogin) {
-        id_token = state?.appleLogin?.accessToken;
-        uid = state?.appleLogin?.uid;
       } else {
-        const user = (await getUserToken(code?.deviceCode)) || {};
-        id_token = user?.id_token;
+        if (state?.appleLogin) {
+          const appleCredential = await geAppleStatus(state?.appleLogin)
+          if (appleCredential?.id_token) {
+            id_token = appleCredential;
+            type = 'apple';
+          }
+        } else {
+          const user = (await getUserToken(code?.deviceCode)) || {};
+          if (user) {
+            id_token = user?.id_token;
+            type = 'google'
+          }
+        }
         if (id_token) {
           try {
-            const userData = await signInWithToken(id_token);
+            const userData = await signInWithToken(id_token, type);
             uid = userData?.uid;
           } catch (error) {
             console.error('Error: ', error?.stack)
@@ -231,7 +241,7 @@ const AppProvider = ({ children }) => {
       }
       setAuthCounter((counter) => counter + 1);
     },
-    waitingForAuth ? 5000 : null
+    waitingForAuth ? 6000 : null
   );
 
   const login = async () => {
