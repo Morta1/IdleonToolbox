@@ -32,7 +32,7 @@ const Bonuses = ({ list, currentRift, account }) => {
         width: 300,
         minHeight: 200,
         display: 'flex',
-        opacity: index > currentRift ? .7 : 1
+        opacity: index >= currentRift ? .7 : 1
       }}>
         <CardContent sx={{ width: 300 }}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>

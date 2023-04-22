@@ -8,6 +8,28 @@ export const tryToParse = (str) => {
   }
 };
 
+export const findNameCombination = (arr, str) => {
+  if (!arr) return [];
+  let result = [];
+
+  function find(str, combination) {
+    if (str === '') {
+      result.push(combination);
+      return;
+    }
+
+    for (let i = 0; i < arr.length; i++) {
+      if (str.startsWith(arr[i]?.name)) {
+        find(str.slice(arr[i]?.name?.length), [...combination, arr[i]]);
+      }
+    }
+  }
+
+  find(str, []);
+
+  return result.flat();
+}
+
 export const createArrayOfArrays = (array) => {
   return array?.map((object) => {
     if (!Array.isArray(object)) {

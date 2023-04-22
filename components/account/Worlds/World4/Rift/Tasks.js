@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
+import { cleanUnderscore, findNameCombination, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "../../../../Tooltip";
 
 const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
-  const finishedCharacters = characters?.filter(({ name }) => chars.includes(name));
+  const finishedCharacters = findNameCombination(characters, chars);
 
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
     {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon }, riftIndex) => {
@@ -32,7 +32,8 @@ const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
           <Typography sx={{ mt: 2 }}>{cleanUnderscore(realTask.toLowerCase().capitalize())}</Typography>
           {isCurrent && finishedCharacters?.length > 0 ? <>
             <Divider sx={{ my: 1 }}/>
-            {finishedCharacters?.map(({ name, classIndex }, index) => <Tooltip title={name} key={`${name}-${index}-${riftIndex}`}>
+            {finishedCharacters?.map(({ name, classIndex }, index) => <Tooltip title={name}
+                                                                               key={`${name}-${index}-${riftIndex}`}>
               <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
             </Tooltip>)}
           </> : null}

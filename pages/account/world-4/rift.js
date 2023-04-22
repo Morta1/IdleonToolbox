@@ -8,7 +8,7 @@ import SkillMastery from "../../../components/account/Worlds/World4/Rift/SkillMa
 
 const Rift = () => {
   const { state } = useContext(AppContext);
-  const { rift, totalSkillsLevels } = state?.account;
+  const { rift, totalSkillsLevels } = state?.account || {};
   let tabs = ['Tasks', 'Bonuses',
     'Skill Mastery'].filter((tab) => rift?.currentRift > 15 ? true : tab !== 'Skill Mastery');
   const [selectedTab, setSelectedTab] = useState(0);
