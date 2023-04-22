@@ -278,6 +278,63 @@ export const calculateLeaderboard = (characters) => {
   }, {});
 };
 
+export const calculateTotalSkillsLevel = (characters) => {
+  const allSkills = characters?.reduce((res, { skillsInfo }) => {
+    for (const [skillName, skillData] of Object.entries(skillsInfo)) {
+      if (res?.[skillName]) {
+        res[skillName] = { ...res[skillName], level: res[skillName].level + skillData?.level ?? 0 }
+      } else {
+        res[skillName] = { level: skillData?.level, index: skillData?.index - 1, icon: skillData?.icon };
+      }
+    }
+    return res;
+  }, {})
+  return Object.entries(allSkills)?.reduce((res, [skillName, { level }]) => {
+    const rank = getSkillRank(level);
+    return {
+      ...res, [skillName]: {
+        ...res?.[skillName],
+        rank,
+        color: level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600 ? '#cadadb' : level >= 600 && level < 1000 ? 'gold' : '#56ccff'
+      }
+    };
+  }, allSkills);
+}
+
+const getSkillRank = (level) => {
+  return 150 > level ? 0 : 200 > level ? 1 : 300 > level ? 2 : 400 > level ? 3 : 500 > level ? 4 : 750 > level ? 5 : 1e3 > level ? 6 : 7;
+}
+
+const getSkillRiftBonus = (rift, skillRank, index) => {
+  return rift?.[0] < 15 ? 0 : skillRank > index ? 1 : 0;
+}
+
+const getSkillRankByIndex = (skills, index) => {
+  for (const [, skillData] of Object.entries(skills)) {
+    if (skillData?.level > 0 && skillData?.index === index) {
+      return skillData?.rank;
+    }
+  }
+  return null;
+}
+
+export const getSkillMasteryBonusByIndex = (skills, rift, riftBonusIndex) => {
+  const array = new Array(15).fill(1);
+  return array?.reduce((sum, skill, index) => {
+    const skillRank = getSkillRankByIndex(skills, index);
+    if (riftBonusIndex === 1) {
+      sum += 10 * getSkillRiftBonus(rift, skillRank, Math.round(riftBonusIndex + 2));
+    } else if (riftBonusIndex === 3) {
+      sum += getSkillRiftBonus(rift, skillRank, Math.round(riftBonusIndex + 2));
+    } else if (riftBonusIndex === 4) {
+      sum += 25 * getSkillRiftBonus(rift, skillRank, Math.round(riftBonusIndex + 2));
+    } else if (0 !== index && 2 !== index && 3 !== index && 5 !== index && 6 !== index && 8 !== index && 8 !== index) {
+      sum += 5 * getSkillRiftBonus(rift, skillRank, Math.round(riftBonusIndex + 2));
+    }
+    return sum;
+  }, 7);
+}
+
 export const getExpReq = (skillIndex, t) => {
   return 0 === skillIndex ?
     (15 + Math.pow(t, 1.9) + 11 * t) * Math.pow(1.208 - Math.min(0.164, (0.215 * t) / (t + 100)), t) - 15 :

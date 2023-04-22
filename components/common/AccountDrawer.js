@@ -73,7 +73,8 @@ const worldsData = {
     categories: [
       { label: "cooking", icon: "ClassIcons51" },
       { label: "breeding", icon: "ClassIcons52" },
-      { label: "laboratory", icon: "ClassIcons53" }
+      { label: "laboratory", icon: "ClassIcons53" },
+      { label: "rift", icon: "Mface75" },
     ]
   },
   "world 5": {

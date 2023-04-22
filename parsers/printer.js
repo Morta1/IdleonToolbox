@@ -2,6 +2,7 @@ import { lavaLog, notateNumber, tryToParse } from "../utility/helpers";
 import { getDeityLinkedIndex } from "./divinity";
 import { isArtifactAcquired } from "./sailing";
 import { getTalentBonus } from "./talents";
+import { getSkillMasteryBonusByIndex } from "./misc";
 
 export const getPrinter = (idleonData, charactersData, accountData) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
@@ -24,6 +25,8 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
     }
     return res;
   }, 0);
+
+  const skillMasteryBonus = getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3);
 
   const printData = rawPrinter.slice(5, rawPrinter.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
@@ -53,7 +56,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           const sample = array
             .slice(sampleIndex, sampleIndex + 2)
             .map((item, sampleIndex) => sampleIndex === 0 ? item : item);
-          let boostedValue = sample[1], multiplier = 1, additionalMulti = 1, baseMath = 1, affectedBy = [];
+          let boostedValue = sample[1], labMulti = 1, rememberanceMulti = 1, skillMasteryMulti = 1, baseMath = 1, affectedBy = [];
           if (goldRelic?.acquired) {
             const goldRelicBonus = goldRelic?.acquired === 2 ? goldRelic?.multiplier : 0;
             baseMath = 1 + ((daysSinceLastSample) * (1 + goldRelicBonus)) / 100;
@@ -65,21 +68,25 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             affectedBy = [...affectedBy, 'Harriep (god) - x3'];
             if (isPlayerConnected && wiredInBonus) {
               affectedBy = [...affectedBy, 'Wired In (lab) - x2'];
-              multiplier = 6;
+              labMulti = 6;
             } else {
-              multiplier = 3;
+              labMulti = 3;
             }
           } else if (isPlayerConnected && wiredInBonus) {
             affectedBy = [...affectedBy, 'Wired In (lab) - x2'];
-            multiplier = 2;
+            labMulti = 2;
           }
           if (highestKingOfRemembrance > 0) {
             const bonus = lavaLog(orbOfRemembranceKills) * highestKingOfRemembrance;
             const notatedBonus = notateNumber(1 + bonus / 100, "MultiplierInfo").replace('#', '');
             affectedBy = [...affectedBy, `Divine Knight (King of..) x${notatedBonus}`];
-            additionalMulti = 1 + bonus / 100;
+            rememberanceMulti = 1 + bonus / 100;
           }
-          boostedValue *= multiplier * additionalMulti * baseMath;
+          if (skillMasteryBonus > 7) {
+            skillMasteryMulti = 1 + skillMasteryBonus / 100
+            affectedBy = [...affectedBy, `Skill Mastery x${skillMasteryMulti}`];
+          }
+          boostedValue *= labMulti * rememberanceMulti * baseMath * skillMasteryMulti;
           return [...result, {
             item: sample[0],
             value: sample[1],

@@ -20,7 +20,7 @@ import { getRefinery } from "./refinery";
 import { getTasks } from "./tasks";
 import { getArcade } from "./arcade";
 import {
-  calculateLeaderboard,
+  calculateLeaderboard, calculateTotalSkillsLevel,
   enhanceColoTickets,
   enhanceKeysObject,
   getBundles,
@@ -43,6 +43,7 @@ import { getDivinity } from "./divinity";
 import { getArtifacts, getSailing } from "./sailing";
 import { getGaming } from "./gaming";
 import { getAtoms } from "./atomCollider";
+import { getRift, isRiftBonusUnlocked } from "./world-4/rift";
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
@@ -116,11 +117,19 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     ...char,
     isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4 || isLabEnabledBySorcererRaw(char, 4)
   }))
+
+  accountData.rift = getRift(idleonData);
+
   // Update values for meals, stamps, vials
   const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7); // stamp multi
   accountData.stamps = applyStampsMulti(accountData.stamps, certifiedStampBookMulti);
   const myFirstChemistrySet = getLabBonus(accountData.lab.labBonuses, 10); // vial multi
   accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet);
+  if (isRiftBonusUnlocked(accountData.rift, 'Vial_Mastery')) {
+    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }) => level === 13);
+    const riftVialMulti = 1 + (2 * maxedVials?.length) / 100;
+    accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet * riftVialMulti)
+  }
   const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(accountData.lab.jewels, 16, spelunkerObolMulti);
   accountData.cooking.meals = applyMealsMulti(accountData.cooking.meals, blackDiamondRhinestone);
@@ -143,6 +152,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
 
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
+  accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character) => ({ ...character, skillsInfo: leaderboard[character?.name] }));
 

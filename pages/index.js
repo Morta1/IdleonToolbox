@@ -22,6 +22,24 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.65",
+    gameVer: "1.80b",
+    date: "22/04/2023",
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-4/rift'}>Rift</Link> page including Tasks, Bonuses and Skill
+        Mastery page</Typography>,
+      <Typography>Added Pets tab to <Link
+        href={'https://idleontoolbox.com/account/world-4/breeding'}>Breeding</Link> page to display information
+        about pets including shiny level, passive and gene information</Typography>,
+      'Applied rift Vial Mastery bonus to all vials',
+      'Applied rift Skill Mastery bonus to the Printer',
+      'Added eldritch artifacts support'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.63",
     gameVer: "1.80",
     date: "20/04/2023",

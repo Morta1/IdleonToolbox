@@ -194,7 +194,6 @@ const AppProvider = ({ children }) => {
 
   useInterval(
     async () => {
-      console.log('state', state)
       if (state?.signedIn) return;
       let id_token, uid, type;
       if (state?.emailPasswordLogin) {

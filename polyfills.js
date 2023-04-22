@@ -32,7 +32,6 @@ Array.prototype.toSimpleObject = function (val = true) {
 }
 
 Array.prototype.toObjectByIndex = function () {
-  console.log('Object.entries(this)', Object.entries(this))
   return Object.entries(this).reduce((res, [key, val]) => {
     return { ...res, [key]: val };
   }, {});

@@ -375,8 +375,6 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   return character;
 }
 
-
-
 // const calcNobisectBlessing = (character, account, charactersLevels) => {
 //   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses?.bonuses
 //   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;

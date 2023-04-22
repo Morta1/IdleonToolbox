@@ -254,21 +254,24 @@ const getLootPile = (lootPile) => {
 }
 
 const getArtifact = (artifact, acquired, lootPile, index, charactersData, account) => {
-  let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus, ancientForm = acquired === 2;
+  let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
+    upgradedForm = acquired === 2 || acquired === 3, formMultiplier = acquired,
+    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : '';
+
   let fixedDescription = artifact?.description;
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {
     const highestLevel = getHighestLevelCharacter(charactersData)
     additionalData = `Highest level: ${highestLevel}`;
     bonus = highestLevel * artifact?.baseBonus;
     if (artifact?.name === 'Ashen_Urn') {
-      bonus = highestLevel > artifact?.multiplier ? artifact?.multiplier * artifact?.baseBonus : highestLevel * artifact?.baseBonus;
-      fixedDescription = `${fixedDescription} Total Bonus: ${ancientForm ? bonus * 2 : bonus}`;
+      bonus = highestLevel > artifact?.[multiplierType] ? artifact?.[multiplierType] * artifact?.baseBonus : highestLevel * artifact?.baseBonus;
+      fixedDescription = `${fixedDescription} Total Bonus: ${upgradedForm ? bonus * formMultiplier : bonus}`;
     }
   } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
     const lootedItems = account?.looty?.rawLootedItems;
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
-    const math = artifact?.multiplier * Math.floor((lootedItems - 500) / 10);
+    const math = artifact?.[multiplierType] * Math.floor((lootedItems - 500) / 10);
     bonus = everyXMulti ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const sailingLevel = charactersData?.[1]?.skillsInfo?.sailing?.level || 0;
@@ -287,7 +290,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
   } else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];
-    const goldRelicBonus = ancientForm ? artifact?.multiplier : 0;
+    const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;
     const test = 1 + ((daysSinceLastSample) * (1 + goldRelicBonus)) / 100;
     additionalData = `Days passed: ${daysSinceLastSample}. Bonus: x${test}`;
   } else if (artifact?.name === 'Crystal_Steak') {
@@ -298,14 +301,14 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     fixedDescription = fixedDescription.replace('_Total_Bonus:_+}%_dmg', '')
     additionalData = mainStats.map(({ name, stat }) => ({
       name,
-      bonus: (ancientForm ? bonus * 2 : bonus) * Math.floor(stat / 100)
+      bonus: (upgradedForm ? bonus * formMultiplier : bonus) * Math.floor(stat / 100)
     }));
   } else if (artifact?.name === 'Socrates') {
     const mainStats = charactersData?.map(({ name, stats }) => {
       return { name, strength: stats.strength, agility: stats.agility, wisdom: stats.wisdom, luck: stats.luck };
     })
     additionalData = mainStats.map(({ name, strength, agility, wisdom, luck }) => {
-      const multiplier = 1 + (ancientForm ? artifact?.baseBonus * 2 : artifact?.baseBonus) / 100;
+      const multiplier = 1 + (upgradedForm ? artifact?.baseBonus * formMultiplier : artifact?.baseBonus) / 100;
       return {
         name,
         strength: Math.floor(multiplier * strength),
@@ -316,8 +319,10 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     });
   }
 
-  if (ancientForm && artifact?.ancientFormDescription === "The_artifact's_main_bonus_is_doubled!") {
+  if (acquired === 2 && artifact?.ancientFormDescription === "The_artifact's_main_bonus_is_doubled!") {
     bonus *= 2;
+  } else if (acquired === 3 && artifact?.eldritchFormDescription === "The_artifact's_main_bonus_is_tripled!") {
+    bonus *= 3;
   }
 
   fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, kFormatter(bonus, 2)).replace(/@/, '');
