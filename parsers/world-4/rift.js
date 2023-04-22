@@ -7,7 +7,7 @@ export const getRift = (idleonData) => {
 }
 
 const parseRift = (rawRift) => {
-  const [currentRift, currentProgress, chars] = rawRift;
+  const [currentRift, currentProgress, chars] = rawRift || [];
   return {
     list: riftInfo,
     currentRift: parseInt(currentRift),
