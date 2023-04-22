@@ -4,7 +4,6 @@ import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
 import { getShinyBonus } from "../../../../../parsers/breeding";
 
 const Bonuses = ({ list, currentRift, account }) => {
-  currentRift =  36
   const getTotalBonus = (riftBonus) => {
     let totalBonus, totalBonusText;
     if (riftBonus === 'Vial_Mastery') {
