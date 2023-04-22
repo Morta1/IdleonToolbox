@@ -4,6 +4,7 @@ import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
 import { getShinyBonus } from "../../../../../parsers/breeding";
 
 const Bonuses = ({ list, currentRift, account }) => {
+  currentRift =  36
   const getTotalBonus = (riftBonus) => {
     let totalBonus, totalBonusText;
     if (riftBonus === 'Vial_Mastery') {
@@ -32,7 +33,7 @@ const Bonuses = ({ list, currentRift, account }) => {
         width: 300,
         minHeight: 200,
         display: 'flex',
-        opacity: index >= currentRift ? .7 : 1
+        opacity: index > currentRift && index !== currentRift ? .7 : 1
       }}>
         <CardContent sx={{ width: 300 }}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -40,7 +41,7 @@ const Bonuses = ({ list, currentRift, account }) => {
                  alt=""/>
             <Typography>{cleanUnderscore(riftBonus)}</Typography>
           </Stack>
-          <Typography variant={'caption'} component={'span'}>{index < currentRift ?
+          <Typography variant={'caption'} component={'span'}>{index <= currentRift ?
             <Typography variant={'caption'} color={'success.light'}>Unlocked</Typography> : null} (Unlocks at
             rift {index})</Typography>
           <Divider sx={{ mt: 1 }}/>
