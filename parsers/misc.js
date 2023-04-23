@@ -53,7 +53,7 @@ export const getTimeToNextBooks = (bookCount, account, idleonData) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-  const mealBonus = 1 + getMealsBonusByEffectOrStat(account?.cooking?.meals, 'Library_checkout_Speed', null, blackDiamondRhinestone) / 100;
+  const mealBonus = 1 + getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone) / 100;
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')

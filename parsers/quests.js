@@ -2,14 +2,14 @@ import { quests } from "../data/website-data";
 import { cloneObject } from "../utility/helpers";
 
 
-export const isWorldFinished = (npcDialogue, worldIndex) => {
+export const isWorldFinished = (characters, worldIndex) => {
   const worldGatekeeper = {
-    1: 'Builder_Bob',
+    1: 'Builder_Bird',
     2: 'Constructor_Crow',
     3: 'Carpenter_Cardinal',
-    4: 'Architect_Toucan'
+    4: 'Muhmuguh'
   }
-  return npcDialogue?.[worldGatekeeper?.[worldIndex]] === 9999;
+  return characters?.some(({ npcDialog }) => worldIndex === 4 ? npcDialog?.[worldGatekeeper?.[worldIndex]] : npcDialog?.[worldGatekeeper?.[worldIndex]] === 9999);
 }
 
 export const getQuests = (characters) => {

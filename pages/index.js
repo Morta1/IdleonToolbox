@@ -29,7 +29,9 @@ const patchNotes = [
     fixes: ['Alerts are now only showing if you\'ve unlocked the relevant world!',
       <Typography>Added indication for infinite stars on <Link
         href={'https://idleontoolbox.com/account/constellations'}>Constellations</Link> page - star sign
-        tab</Typography>],
+        tab</Typography>,
+    'Added shiny bonuses to Refinery and Meals',
+    'Updated alerts logic'],
     deprecatedFeatures: []
   },
   {

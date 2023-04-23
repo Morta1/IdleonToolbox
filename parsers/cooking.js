@@ -9,6 +9,7 @@ import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./al
 import { isArenaBonusActive } from "./misc";
 import { getAchievementStatus } from "./achievements";
 import { isArtifactAcquired } from "./sailing";
+import { getShinyBonus } from "./breeding";
 
 export const getCooking = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
@@ -18,7 +19,7 @@ export const getCooking = (idleonData, account) => {
 }
 
 const parseCooking = (mealsRaw, territoryRaw, cookingRaw, account) => {
-  const meals = getMeals(mealsRaw);
+  const meals = getMeals(mealsRaw, account);
   const spices = getSpices(mealsRaw, territoryRaw, account);
   return {
     meals,
@@ -53,21 +54,23 @@ const getSpices = (mealsRaw, territoryRaw, account) => {
   }
 }
 
-const getMeals = (mealsRaw) => {
+const getMeals = (mealsRaw, account) => {
   const mealsLevelsListRaw = mealsRaw?.[0];
   const mealsQuantityListRaw = mealsRaw?.[2];
+  const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
   return mealsLevelsListRaw?.map((mealLevel, index) => {
     if (index > 56) return null;
     return {
       level: mealLevel,
       amount: mealsQuantityListRaw?.[index],
+      shinyMulti: shinyMealBonus,
       ...(cookingMenu?.[index] || {})
     }
   }).filter(meal => meal);
 }
 
 export const applyMealsMulti = (meals, multiplier) => {
-  return meals?.map((meal) => ({ ...meal, multiplier: (1 + multiplier / 100) }));
+  return meals?.map((meal) => ({ ...meal, multiplier: 1 + multiplier / 100 }));
 }
 
 export const getLadlesPerDay = (character, jewels, stamps, meals, playerChips, cards, guildBonuses, charactersLevels, bubbles) => {
@@ -96,15 +99,19 @@ export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
 }
 
 
-export const getMealsBonusByEffectOrStat = (meals, effectName, statName, labBonus = 0) => {
-  return meals?.reduce((sum, meal) => {
+export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBonus = 0) => {
+  const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
+  return account?.cooking?.meals?.reduce((sum, meal) => {
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
     } else {
       if (!stat.includes(statName)) return sum;
     }
-    return sum + ((1 + labBonus / 100) * level * baseStat ?? 0);
+    if (statName === 'PxLine') {
+      return sum + (level * baseStat ?? 0);
+    }
+    return sum + ((1 + (labBonus + shinyMealBonus) / 100) * level * baseStat ?? 0);
   }, 0);
 }
 
@@ -149,9 +156,9 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
 
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Spd');
     const cookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, 'MealCook');
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
-    const kitchenEffMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchenEff', blackDiamondRhinestone);
+    const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff', blackDiamondRhinestone);
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     const trollCardStars = trollCard?.stars ?? 0;
     // const pyritePyramite = getJewelBonus(account.lab.jewels, 10, spelunkerObolMulti);
@@ -180,7 +187,7 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
-    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Rcook', blackDiamondRhinestone);
+    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook', blackDiamondRhinestone);
     const fireSpeedCardImpact = 1 + Math.min(6 * ((trollCardStars === 0 ? 0 : trollCardStars + 1)), 50) / 100;
     const fireSpeed = 5 *
       (1 + (isRichelin ? 1 : 0)) *
@@ -197,7 +204,7 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
 
     // Spices Cost
     const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
-    const kitchenCostMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'KitchC', blackDiamondRhinestone);
+    const kitchenCostMeals = getMealsBonusByEffectOrStat(account, null, 'KitchC', blackDiamondRhinestone);
     const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
     const baseMath = 1 /
       ((1 + kitchenCostVials / 100) *

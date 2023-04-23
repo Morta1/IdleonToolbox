@@ -20,7 +20,8 @@ import { getRefinery } from "./refinery";
 import { getTasks } from "./tasks";
 import { getArcade } from "./arcade";
 import {
-  calculateLeaderboard, calculateTotalSkillsLevel,
+  calculateLeaderboard,
+  calculateTotalSkillsLevel,
   enhanceColoTickets,
   enhanceKeysObject,
   getBundles,
@@ -36,7 +37,7 @@ import { classes } from "../data/website-data";
 import { getGuild } from "./guild";
 import { getPrinter } from "./printer";
 import { getTraps } from "./traps";
-import { getQuests } from "./quests";
+import { getQuests, isWorldFinished } from "./quests";
 import { getDeathNote } from "./deathNote";
 import { getBreeding } from "./breeding";
 import { getDivinity } from "./divinity";
@@ -132,6 +133,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   }
   const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(accountData.lab.jewels, 16, spelunkerObolMulti);
+
   accountData.cooking.meals = applyMealsMulti(accountData.cooking.meals, blackDiamondRhinestone);
 
   const charactersLevels = serializedCharactersData?.map((char) => {
@@ -144,7 +146,15 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   charactersData = serializedCharactersData.map((char) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
-  accountData.npcDialog = charactersData?.[0]?.npcDialog;
+
+  accountData.finishedWorlds = [1, 2, 3, 4, 5]?.reduce((res, world) => {
+    return {
+      ...res,
+      [`World${world}`]: isWorldFinished(charactersData, world)
+    }
+  }, {});
+
+  console.log('accountData.finishedWorlds', accountData.finishedWorlds)
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   // accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);

@@ -4,17 +4,16 @@ import { items, randomList } from "../../data/website-data";
 import { getExpReq, isArenaBonusActive } from "../../parsers/misc";
 import { getTimeTillCap } from "../../parsers/anvil";
 import { getTalentBonus } from "../../parsers/talents";
-import { isWorldFinished } from "../../parsers/quests";
 
 // character, characters, characterIndex, account
 
 export const isTrapOverdue = (account, characterIndex) => {
-  if (!isWorldFinished(account?.npcDialog, 2)) return false;
+  if (!account?.finishedWorlds?.World2) return false;
   return account?.traps?.[characterIndex].some((slot) => isPast(slot?.timeLeft));
 }
 
 export const isTrapMissing = (tools, account, characterIndex) => {
-  if (!isWorldFinished(account?.npcDialog, 2)) return false;
+  if (!account?.finishedWorlds?.World2) return false;
   const traps = account?.traps?.[characterIndex];
   const usedTrap = tools?.[4]?.rawName !== 'Blank' ? tools?.[4] : null;
   const callMeAshBubble = account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
@@ -24,13 +23,13 @@ export const isTrapMissing = (tools, account, characterIndex) => {
 }
 
 export const isWorshipOverdue = (account, worship) => {
-  if (!isWorldFinished(account?.npcDialog, 2)) return false;
+  if (!account?.finishedWorlds?.World2) return false;
   const fivePercent = 5 * worship?.maxCharge / 100;
   return worship?.currentCharge >= worship?.maxCharge - fivePercent;
 }
 
 export const hasUnspentPoints = (account, postOffice) => {
-  if (!isWorldFinished(account?.npcDialog, 1)) return false;
+  if (!account?.finishedWorlds?.World1) return false;
   return postOffice?.unspentPoints > 0 && postOffice.boxes.some(({ level, maxLevel }) => level < maxLevel);
 }
 
@@ -84,7 +83,7 @@ export const isTalentReady = (character) => {
 }
 
 export const isMissingEquippedBubble = (character, account) => {
-  if (!isWorldFinished(account?.npcDialog, 1)) return false;
+  if (!account?.finishedWorlds?.World1) return false;
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
   const arenaBonusUnlock = isArenaBonusActive(arenaWave, waveReqs, 11);
@@ -92,8 +91,8 @@ export const isMissingEquippedBubble = (character, account) => {
   return character?.equippedBubbles?.length < maxEquippedBubbles;
 }
 
-export const isObolMissing = (character) => {
-  if (!isWorldFinished(character?.npcDialog, 1)) return false;
+export const isObolMissing = (account, character) => {
+  if (!account?.finishedWorlds?.World1) return false;
   return character?.obols?.list?.filter(({ rawName }) => rawName === 'Blank')
 }
 

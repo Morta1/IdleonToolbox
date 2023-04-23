@@ -3,22 +3,21 @@ import { getBuildCost } from "../../parsers/construction";
 import { vialCostsArray } from "../../parsers/alchemy";
 import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
 import { getDuration } from "../helpers";
-import { isWorldFinished } from "../../parsers/quests";
 
 export const isBallsOverdue = (account) => {
-  if (!isWorldFinished(account?.npcDialog, 1)) return false;
+  if (!account?.finishedWorlds?.World1) return false;
   const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account?.stamps))
     / Math.max(getSecPerBall(account), 1800));
   return ballsToClaim >= account?.arcade?.maxBalls
 }
 
 export const areSigilsOverdue = (account) => {
-  if (!isWorldFinished(account?.npcDialog, 1)) return false;
+  if (!account?.finishedWorlds?.World1) return false;
   return account?.alchemy?.p2w?.sigils?.filter(({ characters, unlocked }) => characters.length > 0 && unlocked === 1)
 }
 
 export const refineryAlerts = (account, trackersOptions) => {
-  if (!isWorldFinished(account?.npcDialog, 2)) return false;
+  if (!account?.finishedWorlds?.World2) return false;
   const { materials, rankUp } = trackersOptions || {};
   const alerts = {};
   if (materials) {
@@ -41,12 +40,12 @@ export const refineryAlerts = (account, trackersOptions) => {
 }
 
 export const isStampReducerMaxed = (account) => {
-  if (!isWorldFinished(account?.npcDialog, 2)) return false;
+  if (!account?.finishedWorlds?.World2) return false;
   return account?.atoms?.stampReducer >= 90;
 }
 
 export const areTowersOverdue = (account) => {
-  if (!isWorldFinished(account?.npcDialog, 2)) return false;
+  if (!account?.finishedWorlds?.World2) return false;
   return account?.towers?.data?.filter((tower) => {
     const cost = getBuildCost(account?.towers, tower?.level, tower?.bonusInc, tower?.index);
     return tower?.progress >= cost;
@@ -61,7 +60,7 @@ export const areKeysOverdue = (account) => {
 }
 
 export const areVialsReady = (account, trackersOptions) => {
-  if (!isWorldFinished(account?.npcDialog, 1)) return false;
+  if (!account?.finishedWorlds?.World1) return false;
   const { subtractGreenStacks } = trackersOptions || {};
   return account?.alchemy?.vials?.filter(({ level, itemReq }) => {
     const cost = vialCostsArray?.[level];
@@ -77,7 +76,7 @@ export const areVialsReady = (account, trackersOptions) => {
 }
 
 export const hasAvailableSpiceClicks = (account) => {
-  if (!isWorldFinished(account?.npcDialog, 3)) return false;
+  if (!account?.finishedWorlds?.World3) return false;
   return maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
 }
 
@@ -85,11 +84,11 @@ export const canKillBosses = (account) => {
   const maxedMiniBosses = [];
   const daysSinceSlush = account?.accountOptions?.[96];
   const daysSinceMush = account?.accountOptions?.[98];
-  if (daysSinceSlush > 3 && isWorldFinished(account?.npcDialog, 3)) {
+  if (daysSinceSlush > 3 && account?.finishedWorlds?.World3) {
     const currentCount = Math.min(10, Math.floor(Math.pow(daysSinceSlush - 3, .55)));
     if (currentCount > 0) maxedMiniBosses.push({ rawName: 'mini3b', name: 'Dilapidated_Slush', currentCount });
   }
-  if (daysSinceMush > 3 && isWorldFinished(account?.npcDialog, 2)) {
+  if (daysSinceMush > 3 && account?.finishedWorlds?.World2) {
     const currentCount = Math.min(8, Math.floor(Math.pow(daysSinceMush - 3, .5)));
     if (currentCount > 0) maxedMiniBosses.push({ rawName: 'mini4b', name: 'Mutated_Mush', currentCount });
   }
@@ -97,12 +96,12 @@ export const canKillBosses = (account) => {
 }
 
 export const zeroBargainTag = (account) => {
-  if (!isWorldFinished(account?.npcDialog, 1)) return false;
+  if (!account?.finishedWorlds?.World1) return false;
   return account?.accountOptions?.[62] === 0;
 }
 
 export const gamingAlerts = (account, trackersOptions) => {
-  if (!isWorldFinished(account?.npcDialog, 4)) return false;
+  if (!account?.finishedWorlds?.World4) return false;
   const { sprouts, squirrel, shovel } = trackersOptions;
   const alerts = {}
   if (sprouts && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {

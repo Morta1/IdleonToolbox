@@ -47,7 +47,6 @@ const parseBreeding = (breedingRaw, account) => {
 }
 
 export const getShinyBonus = (pets, passiveName) => {
-
   return pets?.reduce((sum, world) => sum + world?.reduce((innerSum, {
     passive,
     passiveValue

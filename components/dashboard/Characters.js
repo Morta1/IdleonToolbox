@@ -35,7 +35,7 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
         const activity = afkTarget !== '_' ? afkTarget : 'Nothing';
         const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, account, characterIndex);
         const readyTalents = trackers?.talents && isTalentReady(character);
-        const missingObols = trackers?.obols && isObolMissing(character);
+        const missingObols = trackers?.obols && isObolMissing(account, character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
         const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex);
         const ccdSkillsReady = crystalCooldownSkillsReady(character, account);

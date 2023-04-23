@@ -3,6 +3,7 @@ import { chips, classes, jewels, labBonuses, randomList, talents, tasks } from "
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getCardBonusByEffect } from "./cards";
 import { isArenaBonusActive } from "./misc";
+import { getShinyBonus } from "./breeding";
 
 export const getLab = (idleonData, charactersData, account) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -67,7 +68,7 @@ const parseLab = (labRaw, charactersData, account) => {
     foundNewConnection = false;
     counter += 1;
     playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-      playersChips, account?.cooking?.meals, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer);
+      playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer);
 
     if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
       const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -94,7 +95,7 @@ const parseLab = (labRaw, charactersData, account) => {
         if (jewelsList?.[16]?.acquired && !jewelsList?.[16]?.active) {
           jewelsList[16].active = true;
           playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-            playersChips, account?.cooking?.meals, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer);
+            playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData);
           jewelsList[16].active = false;
         }
         labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], false);
@@ -134,8 +135,8 @@ const parseLab = (labRaw, charactersData, account) => {
   };
 }
 
-export const isLabEnabledBySorcererRaw = (charData, godIndex) =>{
-  if (classes?.[charData?.CharacterClass] === 'Elemental_Sorcerer'){
+export const isLabEnabledBySorcererRaw = (charData, godIndex) => {
+  if (classes?.[charData?.CharacterClass] === 'Elemental_Sorcerer') {
     const polytheism = charData?.SkillLevels?.[505];
     return polytheism % 10 === godIndex;
   }
@@ -176,17 +177,18 @@ const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, index, 
   return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange;
 }
 
-export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, meals, cards, gemShopPurchases, arenaWave, waveReqs, buboPlayer) => {
-  return playersInTubes?.map((character, index) => {
+export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, account, cards, gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData) => {
+  return playersInTubes?.map((character) => {
     const soupedTubes = (gemShopPurchases?.find((value, index) => index === 123) ?? 0) * 2;
     const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 20 : 0;
+    const realIndex = charactersData?.find(({ name }) => name === character?.name)?.playerId;
     const lineWidth = getPlayerLineWidth(character,
       character?.Lv0?.[12], // lab skill
-      index < soupedTubes,
+      realIndex < soupedTubes,
       labBonuses,
       jewels,
       chips?.[character?.playerId],
-      meals,
+      account,
       cards,
       petArenaBonus,
       buboPlayer
@@ -198,7 +200,7 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, m
   })
 }
 
-export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses, jewels, chips, meals, cards, petArenaBonus, buboPlayer) => {
+export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses, jewels, chips, account, cards, petArenaBonus, buboPlayer) => {
   const spelunkerObolMulti = getLabBonus(labBonuses, 8);
   const labSkillLevel = labLevel ?? 0;
   let baseLineWidth = 50 + 2 * labSkillLevel;
@@ -211,9 +213,12 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const bonusLineWidth = soupedTube ? 30 : 0;
   const conductiveMotherboardBonus = chips?.reduce((res, chip) => chip.index === 6 ? res + chip.baseVal : res, 0);
   const blackDiamondRhinstone = getJewelBonus(jewels, 16, spelunkerObolMulti);
-  const mealPxBonus = getMealsBonusByEffectOrStat(meals, null, 'PxLine', blackDiamondRhinstone);
-  const mealLinePctBonus = getMealsBonusByEffectOrStat(meals, null, 'LinePct', blackDiamondRhinstone);
+  const mealPxBonus = getMealsBonusByEffectOrStat(account, null, 'PxLine', blackDiamondRhinstone);
+  const mealLinePctBonus = getMealsBonusByEffectOrStat(account, null, 'LinePct', blackDiamondRhinstone);
   const lineWidthCards = getCardBonusByEffect(cards, 'Line_Width_(Passive)');
+  // Line Width in Lab
+  const shinyLabBonus = getShinyBonus(account?.breeding?.pets, 'Line_Width_in_Lab');
+
   let purpleTubeBonus = 0;
   if (playerCords?.x >= buboPlayer?.x) {
     const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
@@ -226,9 +231,8 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
 
   // HAS CHIPS
   // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
-
   return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
-    (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + bonusLineWidth)) / 100))
+    (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + shinyLabBonus + bonusLineWidth)) / 100))
 }
 
 const getPrismPlayerConnection = (playersInTubes) => {

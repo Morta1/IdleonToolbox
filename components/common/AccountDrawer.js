@@ -90,7 +90,7 @@ const worldsData = {
 const nestedOptionPadding = 35;
 
 const AccountDrawer = ({ onLabelClick }) => {
-  const [worlds, setWorlds] = useState({ "World 1": false, "World 2": false, "World 3": false, "World 4": false });
+  const [worlds, setWorlds] = useState({ "World 1": false, "World 2": false, "World 3": false, "World 4": false, "World 5": false });
   const router = useRouter();
 
   const handleClick = (key) => {
