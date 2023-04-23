@@ -27,15 +27,18 @@ const DeathNote = () => {
               <Typography mb={2} variant={'h6'}>Multikill Bonus: {rank}%</Typography>
               <Stack>
                 {mobs?.map((mob, innerIndex) => {
-                  const mobRank = getDeathNoteRank(mob.kills);
+                  const mobRank = getDeathNoteRank(state?.account, mob.kills);
                   const iconNumber = mobRank - 1 - Math.floor(mobRank / 7) - 2 * Math.floor(mobRank / 10);
-                  const skullName = `StatusSkull${iconNumber}`;
-                  return <Stack sx={{ height: 35 }} direction={'row'}
+                  let skullName = `data/StatusSkull${iconNumber}`;
+                  if (mobRank > 10) {
+                    skullName = 'etc/EclipseSkull'
+                  }
+                  return <Stack sx={{ height: mobRank > 10 ? 30 : 35 }} direction={'row'}
                                 alignItems={'baseline'}
                                 justifyContent={'space-between'}
                                 key={mob?.rawName + ' ' + innerIndex}>
-                    <Stack direction={'row'} alignItems={'baseline'} gap={2}>
-                      {iconNumber !== -1 ? <img src={`${prefix}data/${skullName}.png`} alt=""/> :
+                    <Stack direction={'row'} alignItems={mobRank > 10 ? 'center' : 'baseline'} gap={2}>
+                      {iconNumber !== -1 ? <img src={`${prefix}${skullName}.png`} alt=""/> :
                         <Box sx={{ height: 25, width: 20 }}/>}
                       <Typography sx={{ width: { xs: 150, sm: 200 } }}>{cleanUnderscore(mob.displayName)}</Typography>
                     </Stack>

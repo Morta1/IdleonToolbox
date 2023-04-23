@@ -167,7 +167,8 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
-  accountData.deathNote = getDeathNote(charactersData);
+  accountData.deathNote = getDeathNote(charactersData, accountData);
+  console.log(';accountData.deathNote', accountData.deathNote)
   accountData.atoms = getAtoms(idleonData, accountData);
 
   // reduce anvil
