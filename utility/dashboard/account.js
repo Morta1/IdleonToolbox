@@ -46,8 +46,6 @@ export const isStampReducerMaxed = (account) => {
 }
 
 export const areTowersOverdue = (account) => {
-  console.log('account?.npcDialog', account?.npcDialog)
-  console.log('isWorldFinished(account?.npcDialog, 2)', isWorldFinished(account?.npcDialog, 2))
   if (!isWorldFinished(account?.npcDialog, 2)) return false;
   return account?.towers?.data?.filter((tower) => {
     const cost = getBuildCost(account?.towers, tower?.level, tower?.bonusInc, tower?.index);
