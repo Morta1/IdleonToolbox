@@ -61,7 +61,7 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
                 <Alert title={`${name} is missing a trap!`} iconPath={'data/ClassIcons48'}/> : null}
               {trackers?.bubbles && isMissingEquippedBubble(character, account) ?
                 <Alert title={`${name} is missing an active bubble!`} iconPath={'data/aJarB0'}/> : null}
-              {trackers?.worship && isWorshipOverdue(worship) ?
+              {trackers?.worship && isWorshipOverdue(account, worship) ?
                 <Alert title={`${name} worship is full!`} iconPath={'data/ClassIcons50'}/> : null}
               {trackers?.obols && missingObols?.length > 0 ?
                 <Alert title={`${name} has ${missingObols?.length} empty obol slots!`}

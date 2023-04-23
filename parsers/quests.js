@@ -1,6 +1,17 @@
 import { quests } from "../data/website-data";
 import { cloneObject } from "../utility/helpers";
 
+
+export const isWorldFinished = (npcDialogue, worldIndex) => {
+  const worldGatekeeper = {
+    1: 'Builder_Bob',
+    2: 'Constructor_Crow',
+    3: 'Carpenter_Cardinal',
+    4: 'Architect_Toucan'
+  }
+  return npcDialogue?.[worldGatekeeper?.[worldIndex]] === 9999;
+}
+
 export const getQuests = (characters) => {
   const questsKeys = Object.keys(quests);
   let mappedQuests = questsKeys?.reduce((res, npcName) => {

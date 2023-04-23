@@ -144,7 +144,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   charactersData = serializedCharactersData.map((char) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
-
+  accountData.npcDialogue = charactersData?.[0]?.npcDialog;
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   // accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);

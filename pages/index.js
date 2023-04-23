@@ -22,6 +22,14 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.66",
+    gameVer: "1.80b",
+    date: "23/04/2023",
+    features: [],
+    fixes: ['Alerts are now only showing if you\'ve unlocked the relevant world!'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.65",
     gameVer: "1.80b",
     date: "22/04/2023",
