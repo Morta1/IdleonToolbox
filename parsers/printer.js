@@ -56,9 +56,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           const sample = array
             .slice(sampleIndex, sampleIndex + 2)
             .map((item, sampleIndex) => sampleIndex === 0 ? item : item);
-          let boostedValue = sample[1], labMulti = 1, rememberanceMulti = 1, skillMasteryMulti = 1, baseMath = 1, affectedBy = [];
+          let boostedValue = sample[1], labMulti = 1, rememberanceMulti = 1, skillMasteryMulti = 1, baseMath = 1,
+            affectedBy = [];
           if (goldRelic?.acquired) {
-            const goldRelicBonus = goldRelic?.acquired === 2 ? goldRelic?.multiplier : 0;
+            const goldRelicBonus = goldRelic?.acquired === 3 ? goldRelic?.eldritchMultiplier : goldRelic?.acquired === 2 ? goldRelic?.ancientMultiplier : 0;
             baseMath = 1 + ((daysSinceLastSample) * (1 + goldRelicBonus)) / 100;
             const notatedBonus = notateNumber(baseMath, "MultiplierInfo").replace('#', '');
             affectedBy = [...affectedBy, `Gold Relic (artifact) - x${notatedBonus}`];
