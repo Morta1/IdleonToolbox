@@ -26,7 +26,10 @@ const patchNotes = [
     gameVer: "1.80b",
     date: "23/04/2023",
     features: [],
-    fixes: ['Alerts are now only showing if you\'ve unlocked the relevant world!'],
+    fixes: ['Alerts are now only showing if you\'ve unlocked the relevant world!',
+      <Typography>Added indication for infinite stars on <Link
+        href={'https://idleontoolbox.com/account/constellations'}>Constellations</Link> page - star sign
+        tab</Typography>],
     deprecatedFeatures: []
   },
   {

@@ -1,9 +1,11 @@
 import { Tab, Tabs, useMediaQuery } from "@mui/material";
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import ConstellationsComp from "components/account/Misc/Constellations";
 import StarSigns from "components/account/Misc/StarSigns";
 import { NextSeo } from "next-seo";
+import { getShinyBonus } from "../../parsers/breeding";
+import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
 
 const tabs = ['Constellations', 'Star Signs'];
 
@@ -11,6 +13,15 @@ const Constellations = () => {
   const { state } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+
+  const getInfiniteStar = (rift, pets) => {
+    if (isRiftBonusUnlocked(rift, 'Infinite_Stars')) {
+      return 5 + getShinyBonus(pets, 'Infinite_Star_Signs');
+    }
+  }
+
+  const infiniteStars = useMemo(() => getInfiniteStar(state?.account?.rift, state?.account?.breeding?.pets), [state?.account?.rift,
+    state?.account?.breeding?.pets])
 
   return <div>
     <NextSeo
@@ -26,7 +37,7 @@ const Constellations = () => {
       })}
     </Tabs>
     {selectedTab === 0 ? <ConstellationsComp constellations={state?.account?.constellations}/> : null}
-    {selectedTab === 1 ? <StarSigns starSigns={state?.account?.starSigns}/> : null}
+    {selectedTab === 1 ? <StarSigns starSigns={state?.account?.starSigns} infiniteStars={infiniteStars}/> : null}
   </div>
 };
 
