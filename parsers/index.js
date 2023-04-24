@@ -154,7 +154,6 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     }
   }, {});
 
-  console.log('accountData.finishedWorlds', accountData.finishedWorlds)
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   // accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);

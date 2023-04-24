@@ -3,6 +3,13 @@ import { Link, Stack, Typography } from "@mui/material";
 const Instructions = () => {
   return (<>
       <Stack rowGap={.5} style={{ margin: '10px 0' }}>
+        <Typography color={'primary'} variant={'h5'}>Apple Login</Typography>
+        <div>1. Click the apple login icon.</div>
+        <div>2. login to your apple account on the pop up.</div>
+        <div>3. Go back to the site and wait a few seconds.</div>
+        <div>4. Done!</div>
+      </Stack>
+      <Stack rowGap={.5} style={{ margin: '10px 0' }}>
         <Typography color={'primary'} variant={'h5'}>Google Login</Typography>
         <div>1. Click the google login icon.</div>
         <div>2. Open the link and paste the provided code.</div>
