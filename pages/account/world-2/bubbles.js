@@ -123,7 +123,7 @@ const Bubbles = () => {
     }
     const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
     if (amberiteArtifact) {
-      upgradeableBubblesAmount += amberiteArtifact?.acquired === 2 ? amberiteArtifact?.baseBonus * 2 : amberiteArtifact?.baseBonus;
+      upgradeableBubblesAmount += amberiteArtifact?.acquired === 3 ? amberiteArtifact?.baseBonus * 3 : amberiteArtifact?.acquired === 2 ? amberiteArtifact?.baseBonus * 2 : amberiteArtifact?.baseBonus;
     }
     const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
     if (moreBubblesFromMerit > 0) {
