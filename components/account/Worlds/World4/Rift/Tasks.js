@@ -1,15 +1,22 @@
-import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
+import React, { useState } from 'react';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, findNameCombination, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "../../../../Tooltip";
 
 const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
   const finishedCharacters = findNameCombination(characters, chars);
+  const [minimized, setMinimized] = useState(false);
 
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+  return <>
+    <FormControlLabel
+      control={<Checkbox name={'mini'} checked={minimized}
+                         size={'small'}
+                         onChange={() => setMinimized(!minimized)}/>}
+      label={'Show all tasks'}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
     {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon }, riftIndex) => {
-      if (riftIndex > 39) return;
+      if (riftIndex > 39 || (!minimized && riftIndex < currentRift)) return;
       const isCurrent = currentRift === riftIndex;
       const realTask = isCurrent ? task?.replace('{', currentProgress) : task.split('.')?.[0];
       return <Card key={`${monsterName}-${riftIndex}`} sx={{
@@ -40,7 +47,7 @@ const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
         </CardContent>
       </Card>
     })}
-  </Stack>
+  </Stack></>
 };
 
 const MonsterIcon = styled.img`
