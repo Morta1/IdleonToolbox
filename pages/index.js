@@ -772,9 +772,18 @@ const Home = () => {
     }
   }, []);
 
-  const handleCopyRaw = async () => {
+  const handleCopyITRaw = async () => {
     try {
       await navigator.clipboard.writeText(localStorage.getItem("rawJson"));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCopyRaw = async () => {
+    try {
+      const data = JSON.parse(localStorage.getItem("rawJson"));
+      await navigator.clipboard.writeText(JSON.stringify(data?.data));
     } catch (err) {
       console.error(err);
     }
@@ -799,9 +808,6 @@ const Home = () => {
           Learn how to connect
         </Button>
         {/* <Stack> */}
-        <Button variant={"outlined"} startIcon={<FileCopyIcon/>} onClick={handleCopyRaw}>
-          Copy Raw JSON
-        </Button>
         {/* <Typography color='#b7b7b7' variant="caption" component='span'>(while logged in)</Typography>
         </Stack> */}
         <a style={{ display: "flex", alignItems: "center" }} href="https://ko-fi.com/S6S7BHLQ4" target="_blank"
@@ -809,6 +815,14 @@ const Home = () => {
           <img height="36" style={{ border: 0, height: 36, width: "100%", objectFit: "contain" }}
                src="https://cdn.ko-fi.com/cdn/kofi1.png?v=3" alt="Buy Me a Coffee at ko-fi.com"/>
         </a>
+      </Stack>
+      <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center" gap={2}>
+        <Button variant={"outlined"} startIcon={<FileCopyIcon/>} onClick={handleCopyITRaw}>
+          Copy IdleonToolbox JSON
+        </Button>
+        <Button variant={"outlined"} startIcon={<FileCopyIcon/>} onClick={handleCopyRaw}>
+          Copy Raw JSON
+        </Button>
       </Stack>
       <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center"
              spacing={2} style={{ margin: "35px 0" }}>
