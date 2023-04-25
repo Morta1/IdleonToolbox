@@ -51,7 +51,7 @@ const SkillMastery = ({ totalSkillsLevels }) => {
           <Stack gap={1}>
             {defaultBonuses?.map((bonus, bonusIndex) => <Typography
               sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
-              key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore(bonusIndex === 1 && specialBonuses?.[skillName] ? specialBonuses?.[skillName].toLowerCase().capitalizeAll() : bonus.replace('{', skillName).toLowerCase().capitalizeAll())}</Typography>)}
+              key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore(bonusIndex === 2 && specialBonuses?.[skillName] ? specialBonuses?.[skillName].toLowerCase().capitalizeAll() : bonus.replace('{', skillName).toLowerCase().capitalizeAll())}</Typography>)}
           </Stack>
         </CardContent>
       </Card>
