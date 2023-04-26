@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
+import { getSkillRankColor } from "../../../../../parsers/misc";
 
 const defaultBonuses = [
   '+25%_{_EXP_GAIN',
@@ -28,35 +29,48 @@ const specialBonuses = {
   gaming: "1.15X_GAMING_BITS_GAINED",
 }
 
+const thresholds = [0, 0, 300, 400, 500, 750, 1000];
 const SkillMastery = ({ totalSkillsLevels }) => {
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-    {Object.entries(totalSkillsLevels)?.map(([skillName, { icon, level, rank, color }], index) => {
-      if (skillName === 'character') return;
-      return <Card key={`${skillName}-${index}`} sx={{
-        width: 250,
-        minHeight: 200,
-        display: 'flex',
-      }}>
-        <CardContent sx={{ width: 300 }}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <SkillIcon src={`${prefix}data/${icon}.png`}
-                       alt=""/>
-            <Stack>
-              <Typography>{cleanUnderscore(skillName.capitalize())}</Typography>
-              <Typography variant={'caption'} component={'span'} sx={{ color, fontWeight: 'bold' }}>Total
-                Level {level}</Typography>
-            </Stack>
-          </Stack>
-          <Divider sx={{ my: 1 }}/>
-          <Stack gap={1}>
-            {defaultBonuses?.map((bonus, bonusIndex) => <Typography
-              sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
-              key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore(bonusIndex === 2 && specialBonuses?.[skillName] ? specialBonuses?.[skillName].toLowerCase().capitalizeAll() : bonus.replace('{', skillName).toLowerCase().capitalizeAll())}</Typography>)}
-          </Stack>
+  return <>
+    <Typography variant={'h5'}>Skill level thresholds</Typography>
+    <Stack sx={{ my: 2 }} direction={'row'} gap={2}>
+      {thresholds?.map((threshold, index) => threshold > 0 ? <Card key={index} sx={{ width: 100 }}>
+        <CardContent>
+          <Typography color={getSkillRankColor(threshold)}>{threshold ? `Lv. ${threshold} ` : ''}</Typography>
         </CardContent>
-      </Card>
-    })}
-  </Stack>
+      </Card> : null)}
+    </Stack>
+
+    <Typography variant={'h5'}>Skills</Typography>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {Object.entries(totalSkillsLevels)?.map(([skillName, { icon, level, rank, color }], index) => {
+        if (skillName === 'character') return;
+        return <Card key={`${skillName}-${index}`} sx={{
+          width: 250,
+          minHeight: 200,
+          display: 'flex',
+        }}>
+          <CardContent sx={{ width: 300 }}>
+            <Stack direction={'row'} alignItems={'center'} gap={1}>
+              <SkillIcon src={`${prefix}data/${icon}.png`}
+                         alt=""/>
+              <Stack>
+                <Typography>{cleanUnderscore(skillName.capitalize())}</Typography>
+                <Typography variant={'caption'} component={'span'} sx={{ color, fontWeight: 'bold' }}>Total
+                  Level {level}</Typography>
+              </Stack>
+            </Stack>
+            <Divider sx={{ my: 1 }}/>
+            <Stack gap={1}>
+              {defaultBonuses?.map((bonus, bonusIndex) => <Typography
+                sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
+                key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore(bonusIndex === 2 && specialBonuses?.[skillName] ? specialBonuses?.[skillName].toLowerCase().capitalizeAll() : bonus.replace('{', skillName).toLowerCase().capitalizeAll())}</Typography>)}
+            </Stack>
+          </CardContent>
+        </Card>
+      })}
+    </Stack>
+  </>
 };
 
 const SkillIcon = styled.img`

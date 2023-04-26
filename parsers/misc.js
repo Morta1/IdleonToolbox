@@ -295,10 +295,14 @@ export const calculateTotalSkillsLevel = (characters) => {
       ...res, [skillName]: {
         ...res?.[skillName],
         rank,
-        color: level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600 ? '#cadadb' : level >= 600 && level < 1000 ? 'gold' : '#56ccff'
+        color: getSkillRankColor(level)
       }
     };
   }, allSkills);
+}
+
+export const getSkillRankColor = (level) => {
+  return level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600 ? '#cadadb' : level >= 600 && level < 1000 ? 'gold' : '#56ccff'
 }
 
 const getSkillRank = (level) => {
