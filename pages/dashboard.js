@@ -34,6 +34,9 @@ const trackersOptions = {
     gaming: { sprouts: true, squirrel: true, shovel: true },
     guildTasks: { daily: true, weekly: true },
     refinery: { materials: true, rankUp: true }
+  },
+  characters: {
+    anvil: { showAlertBeforeFull: true }
   }
 };
 
@@ -121,7 +124,7 @@ const Dashboard = () => {
     <Stack gap={2}>
       <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters} account={account}
                lastUpdated={lastUpdated}/>
-      <Characters trackers={trackers?.characters} characters={characters} account={account} lastUpdated={lastUpdated}/>
+      <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters} account={account} lastUpdated={lastUpdated}/>
       <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
     </Stack>
     <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>
@@ -165,6 +168,8 @@ const Dashboard = () => {
             <FormLabel component="legend">Character</FormLabel>
             <TrackerOptions arr={trackers?.characters}
                             type={'characters'}
+                            options={options?.characters}
+                            onOptionChange={handleOptionsChange}
                             onTrackerChange={handleTrackerChange}/>
           </FormGroup>
         </Stack>

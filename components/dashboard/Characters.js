@@ -18,7 +18,7 @@ import {
   isWorshipOverdue
 } from "../../utility/dashboard/characters";
 
-const Characters = ({ characters, account, lastUpdated, trackers }) => {
+const Characters = ({ characters, account, lastUpdated, trackersOptions, trackers }) => {
   return <>
     <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
       {characters.map((character, characterIndex) => {
@@ -37,7 +37,7 @@ const Characters = ({ characters, account, lastUpdated, trackers }) => {
         const readyTalents = trackers?.talents && isTalentReady(character);
         const missingObols = trackers?.obols && isObolMissing(account, character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
-        const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex);
+        const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex, trackersOptions);
         const ccdSkillsReady = crystalCooldownSkillsReady(character, account);
         return <Card key={name} sx={{ width: 345 }}>
           <CardContent>

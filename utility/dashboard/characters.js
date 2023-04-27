@@ -41,7 +41,7 @@ export const isProductionMissing = (equippedBubbles, account, characterIndex) =>
   return maxProducts - numOfHammers;
 }
 
-export const isAnvilOverdue = (account, afkTime, characterIndex) => {
+export const isAnvilOverdue = (account, afkTime, characterIndex, trackersOptions) => {
   const anvil = account?.anvil?.[characterIndex];
   const allProgress = anvil?.production?.filter(({ hammers }) => hammers > 0)?.map((slot) => {
     const tillCap = getTimeTillCap({
@@ -51,11 +51,11 @@ export const isAnvilOverdue = (account, afkTime, characterIndex) => {
     }) * 1000;
     return { date: new Date().getTime() + tillCap, name: items?.[slot?.rawName]?.displayName, rawName: slot?.rawName };
   })
-
+  const { anvil: anvilOption } = trackersOptions || {};
   return allProgress?.map(({ date, name, rawName }) => {
     const d = new Date(date - 1);
     return { diff: differenceInMinutes(d, new Date()), name, rawName };
-  }).filter(({ diff }) => diff <= 60);
+  }).filter(({ diff }) => anvilOption?.showAlertBeforeFull ? diff <= 60 : diff <= 0);
 }
 
 export const isTalentReady = (character) => {
