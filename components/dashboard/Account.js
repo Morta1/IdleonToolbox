@@ -14,8 +14,9 @@ import {
   hasAvailableSpiceClicks,
   isBallsOverdue,
   isStampReducerMaxed,
-  zeroBargainTag,
-  refineryAlerts
+  refineryAlerts,
+  riftAlerts,
+  zeroBargainTag
 } from "../../utility/dashboard/account";
 
 const alertsMapping = {
@@ -30,7 +31,8 @@ const alertsMapping = {
   miniBosses: canKillBosses,
   bargainTag: zeroBargainTag,
   gaming: gamingAlerts,
-  guildTasks: guildTasks
+  guildTasks: guildTasks,
+  rift: riftAlerts
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -79,6 +81,9 @@ const Account = ({ account, trackers, trackersOptions }) => {
           {trackers?.gaming && alerts?.gaming?.hours >= 1 ?
             <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
                    iconPath={'data/GamingItem1'}/> : null}
+          {trackers?.rift && alerts?.rift?.gildedStamps >= 0 ?
+            <Alert title={`You have ${alerts?.rift?.gildedStamps} available gilded stamps`}
+                   iconPath={'data/GildedStamp'}/> : null}
           {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
             alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
                                                                                 title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
@@ -89,13 +94,13 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                             iconPath={`data/aSiga${index}`}/>) : null}
           {trackers?.refinery && alerts?.refinery?.materials?.length > 0 ?
             alerts?.refinery?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
-                                                                       title={<RefineryTitle
-                                                                         missingMats={missingMats}/>}
-                                                                       iconPath={`data/${rawName}`}/>) : null}
+                                                                                  title={<RefineryTitle
+                                                                                    missingMats={missingMats}/>}
+                                                                                  iconPath={`data/${rawName}`}/>) : null}
           {trackers?.refinery && alerts?.refinery?.rankUp?.length > 0 ?
             alerts?.refinery?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
-                                                                       title={`${cleanUnderscore(saltName)} is ready to rank up!`}
-                                                                       iconPath={`data/${rawName}`}/>) : null}
+                                                                            title={`${cleanUnderscore(saltName)} is ready to rank up!`}
+                                                                            iconPath={`data/${rawName}`}/>) : null}
           {trackers?.towers && alerts?.towers?.length > 0 ?
             alerts?.towers?.map(({ name, index }) => <Alert key={name}
                                                             title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}

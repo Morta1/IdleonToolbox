@@ -5,7 +5,6 @@ import styled from "@emotion/styled";
 import { notateNumber, prefix } from "../../utility/helpers";
 import { getGiantMobChance } from "../../parsers/misc";
 import Tooltip from "../Tooltip";
-import { isWorldFinished } from "../../parsers/quests";
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -13,7 +12,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
     <Card>
       <CardContent>
         <Stack direction={'row'} flexWrap={'wrap'}>
-          {isWorldFinished(characters, 2) ? <Card variant={'outlined'} sx={{ width: 'fit-content' }}>
+          {account?.finishedWorlds?.World2 ? <Card variant={'outlined'} sx={{ width: 'fit-content' }}>
             <CardContent>
               <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
             </CardContent>

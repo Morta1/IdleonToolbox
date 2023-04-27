@@ -3,6 +3,7 @@ import { getBuildCost } from "../../parsers/construction";
 import { vialCostsArray } from "../../parsers/alchemy";
 import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
 import { getDuration } from "../helpers";
+import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
 
 export const isBallsOverdue = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
@@ -42,6 +43,12 @@ export const refineryAlerts = (account, trackersOptions) => {
 export const isStampReducerMaxed = (account) => {
   if (!account?.finishedWorlds?.World2) return false;
   return account?.atoms?.stampReducer >= 90;
+}
+export const riftAlerts = (account) => {
+  if (!account?.finishedWorlds?.World3 || !isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) return false;
+  return {
+    gildedStamps: account?.accountOptions?.[154]
+  }
 }
 
 export const areTowersOverdue = (account) => {
