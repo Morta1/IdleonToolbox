@@ -81,7 +81,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
           {trackers?.gaming && alerts?.gaming?.hours >= 1 ?
             <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
                    iconPath={'data/GamingItem1'}/> : null}
-          {trackers?.rift && alerts?.rift?.gildedStamps >= 0 ?
+          {trackers?.rift && alerts?.rift?.gildedStamps > 0 ?
             <Alert title={`You have ${alerts?.rift?.gildedStamps} available gilded stamps`}
                    iconPath={'data/GildedStamp'}/> : null}
           {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
