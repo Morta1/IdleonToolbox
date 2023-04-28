@@ -22,6 +22,18 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.67",
+    gameVer: "1.80b",
+    date: "28/04/2023",
+    features: ['Added an option to see production alert 1 hour before its being full',
+      'Added threshold levels indication for skill mastery'],
+    fixes: ['More accurate bargain tag check for dashboard',
+      'Ready talents are now showing only when they are available for the character',
+      'Fixed a bug with gilded stamp',
+      'Library is only showing when world 3 is unlocked (dashboard)'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.66",
     gameVer: "1.80b",
     date: "23/04/2023",
@@ -30,8 +42,8 @@ const patchNotes = [
       <Typography>Added indication for infinite stars on <Link
         href={'https://idleontoolbox.com/account/constellations'}>Constellations</Link> page - star sign
         tab</Typography>,
-    'Added shiny bonuses to Refinery and Meals',
-    'Updated alerts logic'],
+      'Added shiny bonuses to Refinery and Meals',
+      'Updated alerts logic'],
     deprecatedFeatures: []
   },
   {
@@ -816,7 +828,8 @@ const Home = () => {
                src="https://cdn.ko-fi.com/cdn/kofi1.png?v=3" alt="Buy Me a Coffee at ko-fi.com"/>
         </a>
       </Stack>
-      <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center" gap={2}>
+      <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center"
+             gap={2}>
         <Button variant={"outlined"} startIcon={<FileCopyIcon/>} onClick={handleCopyITRaw}>
           Copy IdleonToolbox JSON
         </Button>

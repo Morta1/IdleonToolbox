@@ -18,10 +18,10 @@ import {
   isWorshipOverdue
 } from "../../utility/dashboard/characters";
 
-const Characters = ({ characters, account, lastUpdated, trackersOptions, trackers }) => {
+const Characters = ({ characters = [], account, lastUpdated, trackersOptions, trackers }) => {
   return <>
     <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
-      {characters.map((character, characterIndex) => {
+      {characters?.map((character, characterIndex) => {
         const {
           name,
           tools,

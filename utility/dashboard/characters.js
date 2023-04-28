@@ -72,7 +72,7 @@ export const isTalentReady = (character) => {
   return Object.entries(cooldowns)?.reduce((res, [tId, talentCd]) => {
     if (!relevantTalents[tId]) return res;
     const talent = flatTalents?.find(({ talentId }) => parseInt(tId) === talentId);
-    if (!talent) return res;
+    if (!talent || talent?.level === 0) return res;
     const calculatedCooldown = (1 - cdReduction / 100) * talentCd;
     const actualCd = calculatedCooldown - timePassed;
     const cooldown = actualCd < 0 ? actualCd : new Date().getTime() + actualCd * 1000;

@@ -4,6 +4,7 @@ import { vialCostsArray } from "../../parsers/alchemy";
 import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
 import { getDuration } from "../helpers";
 import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
+import { liquidsShop } from "../../data/website-data";
 
 export const isBallsOverdue = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
@@ -104,7 +105,9 @@ export const canKillBosses = (account) => {
 
 export const zeroBargainTag = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
-  return account?.accountOptions?.[62] === 0;
+  const { x1, x2, index } = liquidsShop?.find(({ name }) => name === 'BARGAIN_TAG') || {};
+  const math = Math.round(x1 * Math.pow(x2, account?.alchemy?.multiplierArray?.[index]));
+  return math === 1;
 }
 
 export const gamingAlerts = (account, trackersOptions) => {
