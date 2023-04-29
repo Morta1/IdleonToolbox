@@ -13,7 +13,6 @@ const defaultBonuses = [
   "+30_MAX_LV_FOR_ALL_WIZARD_TOWERS",
 ];
 
-
 const ConstructMastery = ({ totalLevels }) => {
   return <>
     {totalLevels >= constructionMasteryThresholds?.[0] ? <>

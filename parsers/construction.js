@@ -54,10 +54,13 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder) => {
 
 export const getTowers = (idleonData) => {
   const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
-  return parseTowers(towersRaw);
+  const totemInfo = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
+  return parseTowers(towersRaw, totemInfo);
 }
 
-const parseTowers = (towersRaw) => {
+const parseTowers = (towersRaw, totemInfo) => {
+  const maxWaves = totemInfo?.[0];
+  const totalWaves = maxWaves?.reduce((sum, maxWave) => sum + maxWave, 0);
   const towersLength = Object.keys(towers).length;
   const inProgress = towersRaw.slice(54, 62);
   let wizardOverLevels = 0;
@@ -83,7 +86,8 @@ const parseTowers = (towersRaw) => {
     data: towersData,
     buildMultiplier: randomList?.[13].split(" "),
     wizardOverLevels,
-    totalLevels
+    totalLevels,
+    totalWaves
   }
 }
 

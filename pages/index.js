@@ -31,6 +31,7 @@ const patchNotes = [
       <Typography>Added Construct Mastery to <Link
         href={'https://idleontoolbox.com/account/world-4/rift'}>Rift</Link> page (if you've unlocked it)</Typography>,
       'Applied construct bonuses to Refinery page',
+      'Applied superbit bonus to cooking',
       'Work in progress: superbits upgrades and their effect on everything'
     ],
     fixes: [],

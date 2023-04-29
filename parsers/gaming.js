@@ -1,5 +1,5 @@
-import { gamingImports, gamingUpgrades } from "../data/website-data";
-import { notateNumber } from "../utility/helpers";
+import { gamingImports, gamingUpgrades, superbitsUpgrades } from "../data/website-data";
+import { notateNumber, number2letter } from "../utility/helpers";
 import { getGodByIndex } from "./divinity";
 
 const { tryToParse } = require("../utility/helpers");
@@ -57,6 +57,11 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     }
   }).filter((_, index) => index < 8);
   const availableDrops = getDropsAmount(gamingSproutRaw?.[25]?.[1], imports);
+  const superbitsUnlocks = gamingRaw?.[12];
+  const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
+    ...upgrade,
+    unlocked: superbitsUnlocks.indexOf(number2letter?.[index]) !== -1
+  }));
   return {
     bits,
     fertilizerUpgrades,
@@ -69,7 +74,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     lastAcornClicked,
     acorns,
     nuggetsBreakpoints,
-    acornsBreakpoints
+    acornsBreakpoints,
+    superbitsUpgrades: superbitsUpg
   };
 }
 

@@ -176,13 +176,23 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
       + (20 * getAchievementStatus(account?.achievements, 225) +
         10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
 
+    const superbitUnlocked = account?.gaming?.superbitsUpgrades?.find(({
+                                                                         name,
+                                                                         unlocked
+                                                                       }) => name === 'MSA_Mealing' && unlocked);
+    let superbitBonus = 0;
+    if (superbitUnlocked) {
+      superbitBonus = Math.floor(account?.towers?.totalWaves / 10) * 10
+    }
+
     const firstMath = 10 * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
     const secondMath = ((1 + speedLv / 10) * (triagulonSpeedBonus));
     const thirdMath = (1 + cookingSpeedVials / 100);
+    const fourthMath = (1 + superbitBonus / 100);
     const voidPlateChefIndex = atomsInfo.findIndex(({ name }) => name === 'Fluoride_-_Void_Plate_Chef');
     const voidPlateChefLevel = atomsRaw?.[voidPlateChefIndex];
     const voidPlateChefBonus = 100 * (Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals) - 1);
-    const mealSpeed = firstMath * secondMath * thirdMath * (1 + voidPlateChefBonus / 100) * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+    const mealSpeed = firstMath * secondMath * thirdMath * fourthMath * (1 + voidPlateChefBonus / 100) * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
@@ -193,6 +203,8 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
       (1 + (isRichelin ? 1 : 0)) *
       Math.max(1, Math.pow(diamondChef, diamondMeals)) *
       (1 + fireLv / 10) *
+      fourthMath *
+      (1 + voidPlateChefBonus / 100) *
       (1 + recipeSpeedVials / 100) *
       (1 + recipeSpeedStamps / 100) *
       (1 + recipeSpeedMeals / 100) *
