@@ -1,9 +1,9 @@
 import { bonuses, cards, cardSets } from "../data/website-data";
 import { tryToParse } from "../utility/helpers";
 
-export const getCards = (idleonData) => {
+export const getCards = (idleonData, account) => {
   const cardsRaw = idleonData?.Cards?.[0] || tryToParse(idleonData?.Cards0);
-  return parseCards(cardsRaw);
+  return parseCards(cardsRaw, account);
 }
 
 export const calculateStars = (tierReq, amountOfCards) => {
@@ -32,17 +32,18 @@ export const calculateAmountToNextLevel = (tierReq, amountOfCards) => {
   return 0;
 }
 
-const parseCards = (cardsRaw) => {
+const parseCards = (cardsRaw, account) => {
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
       const cardDetails = cards?.[name];
+      const sixStarList = account?.accountOptions?.[155]?.split(',') || [];
       if (!cardDetails) return res;
       return {
         ...res,
         [cardDetails?.displayName]: {
           ...cardDetails,
           amount,
-          stars: calculateStars(cardDetails?.perTier, amount)
+          stars: sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount)
         }
       }
     }, {});
@@ -79,12 +80,14 @@ export const calcCardBonus = (card) => {
 export const getPlayerCards = (char, account) => {
   const cardSet = char?.[`CSetEq`];
   const equippedCards = char?.[`CardEquip`]
-    .map((card) => ({
-      cardName: cards?.[card]?.displayName,
-      stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
-      amount: account?.cards?.[cards?.[card]?.displayName]?.amount,
-      ...cards?.[card]
-    }))
+    .map((card) => {
+      return {
+        cardName: cards?.[card]?.displayName,
+        stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
+        amount: account?.cards?.[cards?.[card]?.displayName]?.amount,
+        ...cards?.[card]
+      }
+    })
     .filter((_, ind) => ind < 8); //cardEquipMap
   const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
   return {

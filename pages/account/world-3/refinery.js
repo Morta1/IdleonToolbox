@@ -14,13 +14,15 @@ import { classFamilyBonuses } from "../../../data/website-data";
 import { getHighestTalentByClass } from "../../../parsers/talents";
 import { NextSeo } from "next-seo";
 import { getShinyBonus } from "../../../parsers/breeding";
+import { isRiftBonusUnlocked } from "../../../parsers/world-4/rift";
+import { constructionMasteryThresholds } from "../../../parsers/construction";
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
 
 const Refinery = () => {
   const { state } = useContext(AppContext);
-  const { refinery, alchemy, saltLick, lab, stamps, charactersLevels, breeding } = state?.account;
+  const { refinery, alchemy, saltLick, lab, stamps, charactersLevels, breeding, rift, towers } = state?.account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
@@ -64,15 +66,21 @@ const Refinery = () => {
     setSquiresCooldown(squiresDataTemp?.cooldowns);
     const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
     const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
+    let constructionMastery = 0;
+    const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');
+    if (isConstructUnlocked) {
+      constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0] ? Math.floor(towers?.totalLevels / 10) : 0
+    }
 
+    const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery;
     const combustion = {
       name: "Combustion",
-      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + (redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + additive / 100) * labCycleBonus)),
       timePast: refinery?.timePastCombustion + timePassed
     };
     const synthesis = {
       name: "Synthesis",
-      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + (redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus) / 100) * labCycleBonus)),
+      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + additive / 100) * labCycleBonus)),
       timePast: refinery?.timePastSynthesis + timePassed
     }
     setRefineryCycles([combustion, synthesis]);

@@ -61,6 +61,7 @@ const parseTowers = (towersRaw) => {
   const towersLength = Object.keys(towers).length;
   const inProgress = towersRaw.slice(54, 62);
   let wizardOverLevels = 0;
+  let totalLevels = 0;
   const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
     const level = towersRaw?.[towerData?.index];
     if (towerData?.index >= 9 && towerData?.index <= 17) {
@@ -68,6 +69,7 @@ const parseTowers = (towersRaw) => {
         wizardOverLevels += level - 50;
       }
     }
+    totalLevels += level;
     return {
       ...towerData,
       name: towerName,
@@ -80,7 +82,8 @@ const parseTowers = (towersRaw) => {
   return {
     data: towersData,
     buildMultiplier: randomList?.[13].split(" "),
-    wizardOverLevels
+    wizardOverLevels,
+    totalLevels
   }
 }
 
@@ -93,3 +96,5 @@ export const getBuildCost = (towers, level, bonusInc, index) => {
     return multiplier * Math.pow(bonusInc, level);
   }
 }
+
+export const constructionMasteryThresholds = [250, 500, 750, 1000, 1250, 1500, 2500];

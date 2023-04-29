@@ -22,6 +22,21 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.68",
+    gameVer: "1.81",
+    date: "29/04/2023",
+    features: [
+      'Added data and assets from version 1.81',
+      'Added support for 5* cards',
+      <Typography>Added Construct Mastery to <Link
+        href={'https://idleontoolbox.com/account/world-4/rift'}>Rift</Link> page (if you've unlocked it)</Typography>,
+      'Applied construct bonuses to Refinery page',
+      'Work in progress: superbits upgrades and their effect on everything'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.67",
     gameVer: "1.80b",
     date: "28/04/2023",

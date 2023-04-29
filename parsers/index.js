@@ -95,7 +95,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.saltLick = getSaltLick(idleonData, accountData.storage);
   accountData.dungeons = getDungeons(idleonData, accountData.accountOptions);
   accountData.prayers = getPrayers(idleonData, accountData.storage);
-  accountData.cards = getCards(idleonData);
+  accountData.cards = getCards(idleonData, accountData);
   accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.guild = getGuild(idleonData, guildData);
   accountData.currencies = getCurrencies(idleonData, accountData);
