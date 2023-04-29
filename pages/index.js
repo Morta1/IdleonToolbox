@@ -32,9 +32,10 @@ const patchNotes = [
         href={'https://idleontoolbox.com/account/world-4/rift'}>Rift</Link> page (if you've unlocked it)</Typography>,
       'Applied construct bonuses to Refinery page',
       'Applied superbit bonus to cooking',
+      'Applied library bonus from superbit',
       'Work in progress: superbits upgrades and their effect on everything'
     ],
-    fixes: [],
+    fixes: ['Fixed a bug with library causing the app to crash'],
     deprecatedFeatures: []
   },
   {

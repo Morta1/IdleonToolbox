@@ -194,7 +194,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, accountData);
-  accountData.libraryTimes = getLibraryBookTimes(idleonData, accountData);
+  accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
 
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);

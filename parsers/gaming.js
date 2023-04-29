@@ -207,3 +207,6 @@ const calcAcornShop = (gamingSproutRaw) => {
   });
 }
 
+export const isSuperbitUnlocked = (account, superbitName) => {
+  return account?.gaming?.superbitsUpgrades?.find(({ name, unlocked }) => name === superbitName && unlocked)
+}

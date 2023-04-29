@@ -10,46 +10,47 @@ import { getJewelBonus, getLabBonus } from "./lab";
 import { getAtomBonus } from "./atomCollider";
 import { getPrayerBonusAndCurse } from "./prayers";
 import { getShrineBonus } from "./shrines";
+import { isSuperbitUnlocked } from "./gaming";
 
-export const getLibraryBookTimes = (idleonData, account) => {
-  const { bookCount, libTime } = calcBookCount(account, idleonData);
+export const getLibraryBookTimes = (idleonData, characters, account) => {
+  const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
   const timeAway = account?.timeAway;
   const breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
-      time: calcTimeToXBooks(bookCount, maxCount, account, idleonData) - timeAway?.BookLib
+      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - timeAway?.BookLib
     }
   })
   return {
     bookCount,
-    next: getTimeToNextBooks(bookCount, account, idleonData) - libTime,
+    next: getTimeToNextBooks(bookCount, account, characters, idleonData) - libTime,
     breakpoints
   }
 }
 
-const calcBookCount = (account, idleonData) => {
+const calcBookCount = (account, characters, idleonData) => {
   const baseBookCount = account?.accountOptions?.[55];
   const timeAway = account?.timeAway;
   let libTime = timeAway?.BookLib;
   let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
   let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
-  while (libTime > getTimeToNextBooks(bookCount, account, idleonData)) {
-    libTime -= getTimeToNextBooks(bookCount, account, idleonData);
+  while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)) {
+    libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData);
     bookCount += 1;
   }
   return { bookCount, libTime };
 }
 
-const calcTimeToXBooks = (bookCount, maxCount, account, idleonData) => {
+const calcTimeToXBooks = (bookCount, maxCount, account, characters, idleonData) => {
   let time = 0;
   for (let i = bookCount; i < maxCount; i++) {
-    time += getTimeToNextBooks(i, account, idleonData);
+    time += getTimeToNextBooks(i, account, characters, idleonData);
   }
   return time;
 }
 
-export const getTimeToNextBooks = (bookCount, account, idleonData) => {
+export const getTimeToNextBooks = (bookCount, account, characters, idleonData) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
@@ -59,8 +60,15 @@ export const getTimeToNextBooks = (bookCount, account, idleonData) => {
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')
   const libraryTowerLevel = towersLevels?.[1];
   const libraryBooker = getAtomBonus(account?.atoms?.atoms, 'Oxygen_-_Library_Booker');
+  const superbitUnlocked = isSuperbitUnlocked(account, 'Library_Checkouts');
+  let superbitBonus = 0;
+  if (superbitUnlocked) {
+    // skill level doesn't update if the character is away for a long time
+    const highestGaming = getHighestCharacterSkill(characters, 'gaming');
+    superbitBonus = Math.floor(highestGaming / 10);
+  }
   const math = 3600 / ((mealBonus * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
-    + (stampBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
+    + (stampBonus + superbitBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
 
   return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100));
 }
@@ -235,6 +243,11 @@ export const getHighestLevelOfClass = (characters, className) => {
 
 export const getHighestLevelCharacter = (characters) => {
   const levels = characters?.map(({ level }) => level);
+  return Math.max(...levels);
+};
+
+export const getHighestCharacterSkill = (characters = [], skillName) => {
+  const levels = characters?.map(({ skillsInfo }) => skillsInfo?.[skillName]?.level ?? 0);
   return Math.max(...levels);
 };
 

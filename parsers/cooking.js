@@ -10,6 +10,7 @@ import { isArenaBonusActive } from "./misc";
 import { getAchievementStatus } from "./achievements";
 import { isArtifactAcquired } from "./sailing";
 import { getShinyBonus } from "./breeding";
+import { isSuperbitUnlocked } from "./gaming";
 
 export const getCooking = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
@@ -176,10 +177,7 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
       + (20 * getAchievementStatus(account?.achievements, 225) +
         10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
 
-    const superbitUnlocked = account?.gaming?.superbitsUpgrades?.find(({
-                                                                         name,
-                                                                         unlocked
-                                                                       }) => name === 'MSA_Mealing' && unlocked);
+    const superbitUnlocked = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
     if (superbitUnlocked) {
       superbitBonus = Math.floor(account?.towers?.totalWaves / 10) * 10
