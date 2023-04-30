@@ -242,7 +242,7 @@ const Tab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, 
     if (target?.name === 'level') {
       tempTalents = localTalents?.map((talent, ind) => ind === index ? {
         ...talent,
-        level: val ? parseInt(val) : 0
+        level: val ? val : 0
       } : talent);
       setLocalTalents(tempTalents);
     }
@@ -266,7 +266,7 @@ const Tab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, 
             <img style={{ opacity: createMode ? 1 : level === 0 ? .3 : 1 }}
                  src={`${prefix}data/UISkillIcon${skillIndex}.png`} alt=""/>
           </Tooltip>
-          {createMode ? <CustomInput name={'level'} type={'number'} onChange={(e) => handleChange(e, index)}/> :
+          {createMode ? <CustomInput name={'level'} onChange={(e) => handleChange(e, index)}/> :
             <Typography variant={'body1'}>{level || <span>&nbsp;</span>}</Typography>}
         </Stack>
       })}
