@@ -14,7 +14,7 @@ const appleAuthorize = async ({ device_code, h_nonce, statusToken }) => {
 
 const getAppleCode = async () => {
   const url = encodeURIComponent(`https://us-central1-idlemmo.cloudfunctions.net/tspa`);
-  const codeRes = await fetch(`https://api.allorigins.win/raw?url=${url}`, {
+  const codeRes = await fetch(`https://patient-dawn-9611.idleontoolboxappleauth.workers.dev/?url=${url}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
