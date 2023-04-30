@@ -57,10 +57,10 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     }
   }).filter((_, index) => index < 8);
   const availableDrops = getDropsAmount(gamingSproutRaw?.[25]?.[1], imports);
-  const superbitsUnlocks = gamingRaw?.[12];
+  const superbitsUnlocks = gamingRaw?.[12] || [];
   const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
     ...upgrade,
-    unlocked: superbitsUnlocks.indexOf(number2letter?.[index]) !== -1
+    unlocked: superbitsUnlocks?.indexOf(number2letter?.[index]) !== -1
   }));
   return {
     bits,
