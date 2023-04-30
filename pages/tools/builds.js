@@ -242,7 +242,7 @@ const Tab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, 
     if (target?.name === 'level') {
       tempTalents = localTalents?.map((talent, ind) => ind === index ? {
         ...talent,
-        level: parseInt(val)
+        level: val ? parseInt(val) : 0
       } : talent);
       setLocalTalents(tempTalents);
     }
