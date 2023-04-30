@@ -29,11 +29,13 @@ const ItemsList = ({
               owner
             }
           });
+          // console.log(`${item?.itemName} - Remaining: ${remaining}, Item Quantity:${item?.itemQuantity}, Owned: ${quantityOwned}`, removableItems)
           removableItems.forEach((removableItem) => {
             const existingItem = res?.[removableItem?.subType]?.find((i) => i?.itemName === removableItem?.itemName);
             let allItems = res?.[removableItem?.subType]?.filter((i) => i?.itemName !== removableItem?.itemName);
-            if (existingItem && removableItem?.itemQuantity <= 0 && (existingItem?.itemQuantity - removableItem?.baseQuantity) > existingItem?.quantityOwned) {
-              allItems = [...(allItems || []), { ...existingItem, itemQuantity: existingItem?.itemQuantity - removableItem?.baseQuantity }];
+            if (existingItem && (existingItem?.itemQuantity - quantityOwned) > existingItem?.quantityOwned) {
+              allItems = [...(allItems || []),
+                { ...existingItem, itemQuantity: existingItem?.itemQuantity - quantityOwned }];
             }
             res = {
               ...res,
@@ -51,7 +53,7 @@ const ItemsList = ({
           }
           return res;
         } else {
-          if (quantityOwned >= item?.itemQuantity){
+          if (quantityOwned >= item?.itemQuantity) {
             return res;
           }
           return {
