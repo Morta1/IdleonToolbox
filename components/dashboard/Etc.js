@@ -5,13 +5,32 @@ import styled from "@emotion/styled";
 import { notateNumber, prefix } from "../../utility/helpers";
 import { getGiantMobChance } from "../../parsers/misc";
 import Tooltip from "../Tooltip";
+import Timer from "../common/Timer";
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
+
+  const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
+  const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
+
   return <>
     <Card>
       <CardContent>
         <Stack direction={'row'} flexWrap={'wrap'}>
+          <Card variant={'outlined'}>
+            <CardContent>
+              <Stack>
+                <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#bfff77' }}>Daily Reset</Typography>
+                <Timer type={'countdown'} lastUpdated={lastUpdated}
+                       date={dailyReset}/>
+              </Stack>
+              <Stack sx={{ mt: 2 }}>
+                <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#b2ecfd' }}>Weekly Reset</Typography>
+                <Timer type={'countdown'} lastUpdated={lastUpdated}
+                       date={weeklyReset}/>
+              </Stack>
+            </CardContent>
+          </Card>
           {account?.finishedWorlds?.World2 ? <Card variant={'outlined'} sx={{ width: 'fit-content' }}>
             <CardContent>
               <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
