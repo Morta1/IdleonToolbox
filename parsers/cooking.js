@@ -177,10 +177,10 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
       + (20 * getAchievementStatus(account?.achievements, 225) +
         10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
 
-    const superbitUnlocked = isSuperbitUnlocked(account, 'MSA_Mealing');
+    const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
-    if (superbitUnlocked) {
-      superbitBonus = Math.floor(account?.towers?.totalWaves / 10) * 10
+    if (superbit) {
+      superbitBonus = superbit?.bonus;
     }
 
     const firstMath = 10 * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));

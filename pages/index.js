@@ -22,6 +22,16 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.69",
+    gameVer: "1.81",
+    date: "01/05/2023",
+    features: [<Typography>Added superbit information to <Link
+      href={'https://idleontoolbox.com/account/world-5/gaming'}>Gaming</Link> page</Typography>,
+      'Added colored bits in gaming page'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.68",
     gameVer: "1.81",
     date: "29/04/2023",

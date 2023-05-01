@@ -29,7 +29,6 @@ const ItemsList = ({
               owner
             }
           });
-          // console.log(`${item?.itemName} - Remaining: ${remaining}, Item Quantity:${item?.itemQuantity}, Owned: ${quantityOwned}`, removableItems)
           removableItems.forEach((removableItem) => {
             const existingItem = res?.[removableItem?.subType]?.find((i) => i?.itemName === removableItem?.itemName);
             let allItems = res?.[removableItem?.subType]?.filter((i) => i?.itemName !== removableItem?.itemName);

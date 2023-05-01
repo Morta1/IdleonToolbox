@@ -1,6 +1,7 @@
 import { gamingImports, gamingUpgrades, superbitsUpgrades } from "../data/website-data";
 import { notateNumber, number2letter } from "../utility/helpers";
 import { getGodByIndex } from "./divinity";
+import { getHighestCharacterSkill } from "./misc";
 
 const { tryToParse } = require("../utility/helpers");
 
@@ -60,7 +61,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const superbitsUnlocks = gamingRaw?.[12] || [];
   const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
     ...upgrade,
-    unlocked: superbitsUnlocks?.indexOf(number2letter?.[index]) !== -1
+    unlocked: superbitsUnlocks?.indexOf(number2letter?.[index]) !== -1,
+    ...getSuperbitBonus(characters, account, index)
   }));
   return {
     bits,
@@ -77,6 +79,28 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     acornsBreakpoints,
     superbitsUpgrades: superbitsUpg
   };
+}
+
+const getSuperbitBonus = (characters, account, index) => {
+  let bonus, totalBonus, additionalInfo;
+  if (index === 0) {
+    bonus = account?.achievements?.filter(({ completed }) => completed)?.length ?? 0;
+    totalBonus = Math.pow(1.03, bonus);
+  } else if (index === 3 || index === 11 || index === 16) {
+    bonus = Math.floor(account?.towers?.totalWaves / 10);
+    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+  } else if (index === 13) {
+    bonus = Math.floor(account?.towers?.totalWaves / 10) * 10;
+    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+  } else if (index === 20) {
+    bonus = Math.floor(account?.towers?.totalWaves / 10) * 50;
+    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+  } else if (index === 12) {
+    // skill level doesn't update if the character is away for a long time
+    const highestGaming = getHighestCharacterSkill(characters, 'gaming');
+    totalBonus = Math.floor(highestGaming / 10);
+  }
+  return { bonus, totalBonus, additionalInfo }
 }
 
 const getDropsAmount = (baseValue, fertilizerUpgrades) => {

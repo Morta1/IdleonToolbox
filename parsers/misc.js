@@ -60,12 +60,10 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')
   const libraryTowerLevel = towersLevels?.[1];
   const libraryBooker = getAtomBonus(account?.atoms?.atoms, 'Oxygen_-_Library_Booker');
-  const superbitUnlocked = isSuperbitUnlocked(account, 'Library_Checkouts');
+  const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
   let superbitBonus = 0;
-  if (superbitUnlocked) {
-    // skill level doesn't update if the character is away for a long time
-    const highestGaming = getHighestCharacterSkill(characters, 'gaming');
-    superbitBonus = Math.floor(highestGaming / 10);
+  if (superbit) {
+    superbitBonus = superbit?.totalBonus;
   }
   const math = 3600 / ((mealBonus * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
     + (stampBonus + superbitBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;

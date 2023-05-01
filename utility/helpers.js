@@ -167,6 +167,16 @@ export const getCoinsArray = (coins) => {
   return Array.from(ret);
 };
 
+export const getBitIndex = (e) => {
+  let temp = e, num = 0;
+  for (let i = 0; i < 4; i++) {
+    if (temp > 1e18) {
+      temp = temp / 1e18
+      num += 1;
+    }
+  }
+  return num;
+}
 export const notateNumber = (e, s) => {
   if (s === "bits") {
     if (1e4 > e) {
