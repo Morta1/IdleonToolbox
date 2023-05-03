@@ -29,16 +29,23 @@ const Refinery = () => {
   const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
   const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
   const stampRefinerySpeed = getStampsBonusByEffect(stamps, 'faster_refinery');
+  const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
+  let constructionMastery = 0;
+  const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');
+  if (isConstructUnlocked) {
+    constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0] ? Math.floor(towers?.totalLevels / 10) : 0
+  }
+  const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
+  const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
+  const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
+  const amplifiedFamilyBonus = familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
+  const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery;
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
   const [squiresCooldown, setSquiresCooldown] = useState([]);
   const [refineryCycles, setRefineryCycles] = useState([]);
 
   useEffect(() => {
-    const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
-    const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
-    const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
-    const amplifiedFamilyBonus = familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
     const squires = state?.characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');
     const squiresDataTemp = squires.reduce((res, character) => {
       const { name, talents, cooldowns, postOffice, afkTime } = character;
@@ -65,14 +72,7 @@ const Refinery = () => {
     setSquiresCycles(squiresDataTemp?.cycles);
     setSquiresCooldown(squiresDataTemp?.cooldowns);
     const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
-    const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
-    let constructionMastery = 0;
-    const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');
-    if (isConstructUnlocked) {
-      constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0] ? Math.floor(towers?.totalLevels / 10) : 0
-    }
 
-    const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery;
     const combustion = {
       name: "Combustion",
       time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + additive / 100) * labCycleBonus)),
@@ -102,7 +102,7 @@ const Refinery = () => {
     // Cycles per day = (24 * 60 * 60 / ((900 || 3600) / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const cycleByType = index <= 2 ? 900 : 3600;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (redMaltVial + saltLickUpgrade) / 100))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
+    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (additive) / 100))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
