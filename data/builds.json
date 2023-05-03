@@ -55270,11 +55270,7 @@
   ],
   "Bubonic_Conjuror": [
     {
-      "level": 0,
-      "title": "",
-      "notes": "",
-      "version": "",
-      "className": "",
+      "title":"Active Bubo",
       "tabs": [
         {
           "name": "Savvy_Basics",
@@ -55296,7 +55292,7 @@
             {
               "name": "Mana_Booster",
               "skillIndex": 1,
-              "level": 0,
+              "level": "*2",
               "note": "",
               "description": "Increases_Max_MP_by_{",
               "x1": 1,
@@ -55338,7 +55334,7 @@
             {
               "name": "Sharpened_Axe",
               "skillIndex": 5,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Increases_Base_Weapon_Power_by_{._This_contributes_to_your_total_damage.",
               "x1": 0.25,
@@ -55366,7 +55362,7 @@
             {
               "name": "Quickness_Boots",
               "skillIndex": 11,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Increases_your_Base_AGI_by_{_(AGI_boosts_Movement_Speed_and_Crit_Chance)",
               "x1": 1,
@@ -55380,7 +55376,7 @@
             {
               "name": "Book_Of_The_Wise",
               "skillIndex": 12,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Increases_your_Base_WIS_by_{_(WIS_boosts_Mana_and_Boss_Damage)",
               "x1": 1,
@@ -55408,7 +55404,7 @@
             {
               "name": "Gilded_Sword",
               "skillIndex": 6,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Boosts_Damage_dealt|to_all_monsters_by_{%",
               "x1": 1,
@@ -55436,7 +55432,7 @@
             {
               "name": "Overclocked_Energy",
               "skillIndex": 446,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Damage_dealt_is_increased_by_{%_for_every_power_of_10_Max_MP_you_have",
               "x1": 150,
@@ -55450,7 +55446,7 @@
             {
               "name": "Farsight",
               "skillIndex": 447,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Increases_Crit_Chance_by_{%_and_Crit_Dmg_by_}%",
               "x1": 17,
@@ -55464,7 +55460,7 @@
             {
               "name": "Idle_Casting",
               "skillIndex": 448,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "AFK_Gains_Rate_for_Fighting_is_increased_by_{%",
               "x1": 20,
@@ -55489,7 +55485,8 @@
               "funcY": "txt",
               "lvlUpText": "+{%_AFK_Gains_Rate"
             }
-          ]
+          ],
+          "note": "*1 Split points into Book of the Wise and Farsight\n*2 Spend remaining on Mana Booster"
         },
         {
           "name": "Mage",
@@ -55497,7 +55494,7 @@
             {
               "name": "Energy_Bolt",
               "skillIndex": 450,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Your_next_basic_attack_strikes_the_Targeted_Enemy_for_{%_Damage",
               "x1": 160,
@@ -55521,7 +55518,7 @@
             {
               "name": "Mini_Fireball",
               "skillIndex": 451,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Shoots_a_fireball_that_explodes_on_impact,_dealing_{%_damage",
               "x1": 120,
@@ -55545,7 +55542,7 @@
             {
               "name": "Mana_Overdrive",
               "skillIndex": 452,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Increase_max_MP_by_{%",
               "x1": 0.5,
@@ -55583,7 +55580,7 @@
             {
               "name": "You're_Next",
               "skillIndex": 454,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Basic_attacks_have_a_{%_chance_to_Mark_enemies,_who_then_take_}%_more_damage",
               "x1": 110,
@@ -55597,7 +55594,7 @@
             {
               "name": "Knowledge_Is_Power",
               "skillIndex": 455,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "The_effect_your_WIS_stat_has_on_Damage_is_increased_by_{%",
               "x1": 1.5,
@@ -55611,7 +55608,7 @@
             {
               "name": "Unt'wis'ted_Robes",
               "skillIndex": 456,
-              "level": 0,
+              "level": "*2",
               "note": "",
               "description": "All_Equipment_gives_{%_more_WIS_than_what's_listed",
               "x1": 1.5,
@@ -55625,7 +55622,7 @@
             {
               "name": "Power_Overwhelming",
               "skillIndex": 457,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "The_effect_Weapon_Power_has_on_Damage_Dealt_is_increased_by_{%",
               "x1": 1.2,
@@ -55653,7 +55650,7 @@
             {
               "name": "Individual_Insight",
               "skillIndex": 459,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "+{_base_WIS",
               "x1": 1,
@@ -55733,7 +55730,7 @@
             {
               "name": "Choppin_It_Up_Ez",
               "skillIndex": 463,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "+{%_Minigame_Rewards,_and_+}%_Dmg_per_25_Pts_of_your_Minigame_Highscore",
               "x1": 1,
@@ -55744,7 +55741,8 @@
               "funcY": "decay",
               "lvlUpText": "+{%_Rewards_&_+}%_Dmg"
             }
-          ]
+          ],
+          "note": "*1 Split excess on Mana Overdrive and You're Next\n*2 Spend excess on Unt'wis'ted Robes"
         },
         {
           "name": "Shaman",
@@ -55776,7 +55774,7 @@
             {
               "name": "Auspicious_Aura",
               "skillIndex": 481,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Casts_}_aura_which_heals_you_and_damages_monsters._The_strength_of_the_aura_is_{%",
               "x1": 10,
@@ -55800,7 +55798,7 @@
             {
               "name": "Sizzling_Skull",
               "skillIndex": 482,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Fire_a_skull_which_bounces_around_dealing_{%_dmg_to_up_to_}_monsters",
               "x1": 125,
@@ -55824,7 +55822,7 @@
             {
               "name": "Tenteyecle",
               "skillIndex": 483,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Killing_a_monster_has_a_{%_chance_to_reduce_attack_cooldowns_by_}_seconds",
               "x1": 100,
@@ -55852,7 +55850,7 @@
             {
               "name": "Virile_Vials",
               "skillIndex": 485,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "+{%_damage_dealt_for_every_alchemy_vial_upgraded_to_at_least_Green_LV",
               "x1": 12,
@@ -55922,7 +55920,7 @@
             {
               "name": "Cranium_Cooking",
               "skillIndex": 490,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Killing_a_monster_gives_{_seconds_of_instant_alchemy_progress._Lasts_for_}_seconds",
               "x1": 40,
@@ -55988,7 +55986,7 @@
             {
               "name": "Earlier_Education",
               "skillIndex": 494,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "+{_Talent_Points_for_the_'Mage'_talent_tab._What,_these_talent's_aint_good_'nuff_for_ya?",
               "x1": 1,
@@ -55999,7 +55997,8 @@
               "funcY": "txt",
               "lvlUpText": "+1_Talent_Pt"
             }
-          ]
+          ],
+          "note": "*1 If you need more points for tab 2 spend on Earlier Education otherwise spend on Cranium Cooking"
         },
         {
           "name": "Bubonic_Conjuror",
@@ -56007,7 +56006,7 @@
             {
               "name": "Chemical_Warfare",
               "skillIndex": 525,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Drop_poison_canisters_around_you_for_{_sec._Poison_does_}%_Dmg.",
               "x1": 8,
@@ -56031,7 +56030,7 @@
             {
               "name": "Flatulent_Spirit",
               "skillIndex": 526,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Summons_a_fart_cloud_for_{_sec,_who_farts_and_does_}%_dmg_to_poisoned_mobs",
               "x1": 8,
@@ -56093,7 +56092,7 @@
             {
               "name": "Raise_Dead",
               "skillIndex": 529,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Respawns_all_dead_'real'_monsters_within_a_{px_radius_of_you",
               "x1": 150,
@@ -56117,7 +56116,7 @@
             {
               "name": "Wired_In_Power",
               "skillIndex": 530,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "+{_Weapon_Power_for_every_10_Lab_Lvs_of_this_character",
               "x1": 7,
@@ -56131,7 +56130,7 @@
             {
               "name": "Memorial_Skulls",
               "skillIndex": 531,
-              "level": 0,
+              "level": "*2",
               "note": "",
               "description": "+{%_Kill_per_Kill_per_1000_WIS._Each_kill_is_worth_more_kills!",
               "x1": 40,
@@ -56243,7 +56242,7 @@
             {
               "name": "Symbols_Of_Beyond_~p",
               "skillIndex": 539,
-              "level": 0,
+              "level": "1",
               "note": "",
               "description": "+{_Lv_for_all_talents_higher_than_Lv_1._This_bonus_goes_up_every_20_lvs",
               "x1": 1,
@@ -56254,9 +56253,11 @@
               "funcY": "txt",
               "lvlUpText": "+1_all_LVs_every_20_LVs"
             }
-          ]
+          ],
+          "note": "*1 Spend excess on Wired In Power\n*2 If you still have points spend on Memorial Skulls"
         }
-      ]
+      ],
+      "class": "Bubonic_Conjuror"
     }
   ],
   "Wizard": [

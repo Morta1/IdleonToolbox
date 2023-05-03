@@ -32,7 +32,7 @@ const ItemsList = ({
           removableItems.forEach((removableItem) => {
             const existingItem = res?.[removableItem?.subType]?.find((i) => i?.itemName === removableItem?.itemName);
             let allItems = res?.[removableItem?.subType]?.filter((i) => i?.itemName !== removableItem?.itemName);
-            if (existingItem && (existingItem?.itemQuantity - quantityOwned) > existingItem?.quantityOwned) {
+            if (existingItem && remaining > 0 && (existingItem?.itemQuantity - quantityOwned) > existingItem?.quantityOwned) {
               allItems = [...(allItems || []),
                 { ...existingItem, itemQuantity: existingItem?.itemQuantity - quantityOwned }];
             }
