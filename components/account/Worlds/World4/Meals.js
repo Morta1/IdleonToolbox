@@ -4,13 +4,13 @@ import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, pr
 import { Card, CardContent, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
+import HtmlTooltip from "components/Tooltip";
 import Box from "@mui/material/Box";
 import Timer from "components/common/Timer";
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { isArtifactAcquired } from "../../../../parsers/sailing";
-import HtmlTooltip from "components/Tooltip";
 
 const msPerDay = 8.64e+7;
 let DEFAULT_MEAL_MAX_LEVEL = 30;

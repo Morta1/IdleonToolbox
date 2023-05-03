@@ -5,6 +5,7 @@ import styled from "@emotion/styled";
 import HtmlTooltip from "../Tooltip";
 import {
   crystalCooldownSkillsReady,
+  hasAvailableToolUpgrade,
   hasUnspentPoints,
   isAkfForMoreThanTenHours,
   isAnvilOverdue,
@@ -17,8 +18,10 @@ import {
   isTrapOverdue,
   isWorshipOverdue
 } from "../../utility/dashboard/characters";
+import { getAllTools } from "../../parsers/items";
 
 const Characters = ({ characters = [], account, lastUpdated, trackersOptions, trackers }) => {
+  const rawTools = getAllTools();
   return <>
     <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
       {characters?.map((character, characterIndex) => {
@@ -39,6 +42,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
         const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex, trackersOptions);
         const ccdSkillsReady = crystalCooldownSkillsReady(character, account);
+        const upgradeableTools = hasAvailableToolUpgrade(character, account, rawTools);
         return <Card key={name} sx={{ width: 345 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
@@ -85,6 +89,14 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
               {trackers?.talents && readyTalents?.length > 0 ? readyTalents?.map(({ name, skillIndex }, index) => (
                 <Alert key={skillIndex + '-' + index} title={`${cleanUnderscore(pascalCase(name))} is ready!`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
+              )) : null}
+              {trackers?.tools && upgradeableTools?.length > 0 ? upgradeableTools?.map(({
+                                                                                          rawName,
+                                                                                          displayName
+                                                                                        }, index) => (
+                <Alert key={`${character?.name}-${rawName}-${index}`}
+                       title={`${character?.name} can equip ${cleanUnderscore(pascalCase(displayName))}`}
+                       iconPath={`data/${rawName}`}/>
               )) : null}
               {trackers?.crystalCountdown && ccdSkillsReady?.length > 0 ? ccdSkillsReady?.map(({
                                                                                                  name,

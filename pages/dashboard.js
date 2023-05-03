@@ -24,7 +24,7 @@ import Etc from "../components/dashboard/Etc";
 import { NextSeo } from "next-seo";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
-  'talents', 'crystalCountdown'].toSimpleObject();
+  'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
   'bargainTag', 'gaming', 'guildTasks', 'rift'
 ].toSimpleObject();
@@ -124,7 +124,8 @@ const Dashboard = () => {
     <Stack gap={2}>
       <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters} account={account}
                lastUpdated={lastUpdated}/>
-      <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters} account={account} lastUpdated={lastUpdated}/>
+      <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters}
+                  account={account} lastUpdated={lastUpdated}/>
       <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
     </Stack>
     <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}>

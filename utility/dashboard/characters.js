@@ -136,3 +136,21 @@ export const crystalCooldownSkillsReady = (character,) => {
     }, []);
   }
 }
+
+export const hasAvailableToolUpgrade = (character, account, rawTools) => {
+  const charTools = character?.tools.slice(0, 6);
+  const skills = [
+    character?.skillsInfo?.mining?.level, character?.skillsInfo?.chopping?.level,
+    character?.skillsInfo?.fishing?.level, character?.skillsInfo?.catching?.level,
+    character?.skillsInfo?.trapping?.level, character?.skillsInfo?.worship?.level
+  ];
+  return charTools?.reduce((alerts, tool, index) => {
+    const skillLv = skills?.[index];
+    const toolList = rawTools?.[index];
+    const bestInSlot = toolList?.findLast(({ lvReqToEquip }) => skillLv >= lvReqToEquip);
+    if (bestInSlot && bestInSlot?.displayName !== tool?.name) {
+      alerts.push(bestInSlot)
+    }
+    return alerts;
+  }, []);
+}

@@ -5,8 +5,6 @@ import { notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "../../../components/Tooltip";
 import { TitleAndValue } from "../../../components/common/styles";
-import { classes } from "../../../data/website-data";
-import { getTalentBonus } from "../../../parsers/talents";
 import { isGodEnabledBySorcerer } from "../../../parsers/lab";
 import { NextSeo } from "next-seo";
 

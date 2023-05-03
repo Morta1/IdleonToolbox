@@ -3,7 +3,6 @@ import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack
 import { cleanUnderscore, growth, prefix } from "utility/helpers";
 import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
-import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from "date-fns";
 import Timer from "components/common/Timer";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { calcHappyHours } from "../../parsers/dungeons";

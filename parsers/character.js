@@ -22,7 +22,9 @@ import { skillIndexMap } from "./parseMaps";
 import {
   applyTalentAddedLevels,
   createTalentPage,
-  getActiveBuffs, getFamilyBonusValue, getHighestTalentByClass,
+  getActiveBuffs,
+  getFamilyBonusValue,
+  getHighestTalentByClass,
   getTalentBonus,
   getTalentBonusIfActive,
   talentPagesMap

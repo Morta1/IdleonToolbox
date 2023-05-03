@@ -6,7 +6,6 @@ import Timer from "components/common/Timer";
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
 import { getTimeTillCap } from "../../../parsers/anvil";
-import { items } from "../../../data/website-data";
 import { NextSeo } from "next-seo";
 
 const Anvil = () => {

@@ -1,4 +1,4 @@
-import { items } from "../data/website-data";
+import { items, itemsArray } from "../data/website-data";
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};
@@ -141,4 +141,20 @@ export const addEquippedItems = (characters, shouldInclude) => {
 export const getAllItems = (characters, account) => {
   const charItems = characters?.reduce((res, { inventory }) => [...res, ...inventory], []);
   return [...(charItems || []), ...(account?.storage || [])];
+}
+
+export const getAllTools = () => {
+  const pickaxes = itemsArray?.filter(({ rawName }) => rawName?.match(/EquipmentTools[0-9]+/))
+    ?.filter(({ rawName }) => rawName !== 'EquipmentTools13' && rawName !== 'EquipmentTools10');
+  const hatchets = itemsArray?.filter(({ rawName }) => rawName?.match(/EquipmentToolsHatchet[0-9]+/))
+    ?.filter(({ rawName }) => rawName !== 'EquipmentToolsHatchet0' &&
+      rawName !== 'EquipmentToolsHatchet3' && rawName !== 'EquipmentToolsHatchet11' && rawName !== 'EquipmentToolsHatchet10');
+  const fishingRods = itemsArray?.filter(({ rawName }) => rawName?.match(/FishingRod[0-9]+/))
+    ?.filter(({ rawName }) => rawName !== 'FishingRod1');
+  const catchingNets = itemsArray?.filter(({ rawName }) => rawName?.match(/CatchingNet[0-9]+/))
+    ?.filter(({ rawName }) => rawName !== 'CatchingNet1');
+  const traps = itemsArray?.filter(({ rawName }) => rawName?.match(/TrapBoxSet[0-9]+/));
+  const skulls = itemsArray?.filter(({ rawName }) => rawName?.match(/WorshipSkull[0-9]+/))
+    ?.filter(({ rawName }) => rawName !== 'WorshipSkull8');
+  return [pickaxes, hatchets, fishingRods, catchingNets, traps, skulls]
 }

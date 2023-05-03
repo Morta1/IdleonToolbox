@@ -22,6 +22,14 @@ import DiscordInvite from "../components/DiscordInvite";
 
 const patchNotes = [
   {
+    ver: "3.1.70",
+    gameVer: "1.81",
+    date: "03/05/2023",
+    features: ['New Alert in dashboard that will appear when your character can equip a new tier of a tool (pickaxe, hatchet, etc)'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.69",
     gameVer: "1.81",
     date: "01/05/2023",

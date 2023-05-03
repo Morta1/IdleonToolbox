@@ -1,11 +1,11 @@
 import {
   getAuth,
   GoogleAuthProvider,
+  OAuthProvider,
   signInWithCredential,
   signInWithEmailAndPassword,
-  signOut,
-  OAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  signOut
 } from 'firebase/auth';
 import { child, get, getDatabase, goOnline, ref } from "firebase/database";
 import { doc, getDoc, initializeFirestore, onSnapshot } from "firebase/firestore";
