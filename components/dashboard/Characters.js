@@ -70,8 +70,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
               {trackers?.obols && missingObols?.length > 0 ?
                 <Alert title={`${name} has ${missingObols?.length} empty obol slots!`}
                        iconPath={'data/ObolLocked1'}/> : null}
-              {trackers?.postOffice && hasUnspentPoints(postOffice) ?
-                <Alert title={`${name} has ${postOffice?.unspentPoints} unspent points`}
+              {trackers?.postOffice && hasUnspentPoints(account, postOffice) ?
+                <Alert title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent points`}
                        iconPath={'data/UIboxUpg0'}/> : null}
               {trackers?.anvil && productionHammersMissing > 0 ?
                 <Alert title={`${name} is missing ${productionHammersMissing} hammers`}
