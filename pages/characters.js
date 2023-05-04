@@ -4,7 +4,7 @@ import Character from "components/characters";
 import { AppContext } from "components/common/context/AppProvider";
 import { NextSeo } from "next-seo";
 
-const characters = () => {
+const Characters = () => {
   const { state } = useContext(AppContext);
   const numberOfCharacters = useMemo(() => Object.values(state?.displayedCharacters || [])?.filter((val) => val).length, [state]);
   const characterCols = Math.max(3, 12 / numberOfCharacters);
@@ -30,4 +30,4 @@ const characters = () => {
   </>
 };
 
-export default characters;
+export default Characters;

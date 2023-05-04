@@ -28,6 +28,7 @@ const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'p
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
   'bargainTag', 'gaming', 'guildTasks', 'rift'
 ].toSimpleObject();
+
 const trackersOptions = {
   account: {
     vials: { subtractGreenStacks: true },

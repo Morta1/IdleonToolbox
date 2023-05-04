@@ -9,9 +9,9 @@ import Superbits from "../../../components/account/Worlds/World5/Gaming/Superbit
 const Gaming = () => {
   const { state } = useContext(AppContext);
   const { superbitsUpgrades } = state?.account?.gaming || {};
-  if (!state?.account?.gaming) return <MissingData name={'gaming'}/>;
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  if (!state?.account?.gaming) return <MissingData name={'gaming'}/>;
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
   }

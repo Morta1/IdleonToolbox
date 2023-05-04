@@ -20,6 +20,7 @@ import { useTheme } from "@emotion/react";
 import PastebinInstructions from "components/common/PastebinInstructions";
 import DiscordInvite from "../components/DiscordInvite";
 
+/* eslint-disable react/jsx-key */
 const patchNotes = [
   {
     ver: "3.1.70",
@@ -804,6 +805,7 @@ const patchNotes = [
     deprecatedFeatures: []
   }
 ];
+
 const Home = () => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));

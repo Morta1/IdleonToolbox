@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Tab, Tabs, TextField, Typography, useMediaQuery } from "@mui/material";
+import { Box, Card, CardContent, Stack, Tab, Tabs, TextField, Typography, useMediaQuery } from "@mui/material";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from "../../../utility/helpers";
@@ -8,6 +8,7 @@ import CoinDisplay from "components/common/CoinDisplay";
 import HtmlTooltip from "components/Tooltip";
 import debounce from 'lodash.debounce';
 import { NextSeo } from "next-seo";
+import { isRiftBonusUnlocked } from "../../../parsers/world-4/rift";
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
@@ -15,6 +16,8 @@ const Stamps = () => {
   const [stamps, setStamps] = useState();
   const [stampsGoals, setStampsGoals] = useState();
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery') ? state?.account?.accountOptions?.[154] : 0;
+  const stampReducer = state?.account?.atoms?.stampReducer;
 
   useEffect(() => {
     const stampCategory = Object.keys(state?.account?.stamps)?.[selectedTab];
@@ -53,7 +56,8 @@ const Stamps = () => {
     const reductionVal = getVialsBonusByEffect(state?.account?.alchemy?.vials, 'material_cost_for_stamps');
     const sigilBonus = getSigilBonus(state?.account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
     const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
-    return (baseMatCost * sigilReduction * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8))) * Math.max(0.1, 1 - (reductionVal / 100)) || 0;
+    const stampReducerVal = Math.max(0.1, 1 - stampReducer / 100);
+    return (baseMatCost * (gildedStamps > 0 ? 0.05 : 1) * stampReducerVal * sigilReduction * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8))) * Math.max(0.1, 1 - (reductionVal / 100)) || 0;
   }
 
   const calculateGoldCost = (level, { reqItemMultiplicationLevel, baseCoinCost, powCoinBase }) => {
@@ -79,6 +83,22 @@ const Stamps = () => {
       <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={3}>* Green border means you have enough
         material to
         craft</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
+        <Stack direction={'row'} gap={1}>
+          <Card>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <img src={`${prefix}data/GildedStamp.png`} alt=""/>
+              {gildedStamps}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
+              {stampReducer}%
+            </CardContent>
+          </Card>
+        </Stack>
+      </Box>
       <Tabs centered
             sx={{ marginBottom: 3 }}
             variant={isMd ? 'fullWidth' : 'standard'}
