@@ -9,6 +9,8 @@ import HtmlTooltip from "components/Tooltip";
 import debounce from 'lodash.debounce';
 import { NextSeo } from "next-seo";
 import { isRiftBonusUnlocked } from "../../../parsers/world-4/rift";
+import { flattenCraftObject } from "../../../parsers/items";
+import { crafts, items } from "../../../data/website-data";
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
@@ -117,7 +119,8 @@ const Stamps = () => {
           const goalBonus = growth(func, goalLevel, x1, x2, true) * multiplier;
           let hasMaterials, hasMoney;
           const itemRequirements = itemReq?.map((item) => {
-            const { rawName, materials } = item;
+            const { rawName } = item;
+            const materials = flattenCraftObject(crafts[items?.[rawName]?.displayName]);
             const materialCost = accumulatedCost(index, level, 'material', stamp);
             const goldCost = accumulatedCost(index, level, 'gold', stamp);
             const isMaterialCost = goalLevel % reqItemMultiplicationLevel === 0;
@@ -125,7 +128,8 @@ const Stamps = () => {
               hasMoney = state?.account?.currencies?.rawMoney >= goldCost;
             }
             if (materials) {
-              hasMaterials = materials?.every(({ rawName, itemQuantity }) => {
+              hasMaterials = materials?.every(({ rawName, type, itemQuantity }) => {
+                if (type === 'Equip') return true;
                 const ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
                 return ownedMats >= itemQuantity * materialCost
               })
