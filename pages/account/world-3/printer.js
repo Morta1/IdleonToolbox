@@ -25,6 +25,7 @@ const Printer = () => {
       {printer?.map((printerSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
+        const printerSample = state?.characters?.[index]?.printerSample;
         const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || isGodEnabledBySorcerer(state?.characters?.[index], 1) ||
           state?.account?.divinity?.linkedDeities?.[index] === 1) && wiredInBonus;
         return <Card sx={{ width: 'fit-content' }} key={`printer-row-${index}`}>
@@ -35,7 +36,10 @@ const Printer = () => {
                 <Stack alignItems={'center'} justifyContent={'center'}>
                   <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
-                <Typography className={'character-name'}>{playerName}</Typography>
+                <Stack>
+                  <Typography className={'character-name'}>{playerName}</Typography>
+                  <Typography variant={'caption'}>Printer Sample: {printerSample}%</Typography>
+                </Stack>
               </Stack>
               <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} justifyContent={'center'} gap={3}>
                 {printerSlots?.map((slot, slotIndex) => {

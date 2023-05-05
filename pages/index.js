@@ -23,6 +23,15 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.71",
+    gameVer: "1.81",
+    date: "05/05/2023",
+    features: [<Typography>Added printer sample rate to the <Link
+      href={'https://idleontoolbox.com/account/world-3/printer'}>Printer</Link> page</Typography>],
+    fixes: ['Fixed a bug with bonuses from equipment'],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.70",
     gameVer: "1.81",
     date: "03/05/2023",

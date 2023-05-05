@@ -32,7 +32,7 @@ import {
 import { calcCardBonus, getEquippedCardBonus, getPlayerCards } from "./cards";
 import { getStampBonus, getStampsBonusByEffect } from "./stamps";
 import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
-import { getActiveBubbleBonus, getBubbleBonus } from "./alchemy";
+import { getActiveBubbleBonus, getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
 import { getStatueBonus } from "./statues";
 import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
 import { getPlayerAnvil } from "./anvil";
@@ -49,6 +49,7 @@ import { getPlayerQuests } from "./quests";
 import { getJewelBonus, getLabBonus, isGodEnabledBySorcerer } from "./lab";
 import { getAchievementStatus } from "./achievements";
 import { lavaLog, notateNumber } from "../utility/helpers";
+import { getArcadeBonus } from "./arcade";
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require("../utility/helpers");
 
@@ -374,35 +375,41 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus);
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
+  character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
+  console.log(`${character?.name} - ${character.printerSample}`)
   return character;
 }
 
-// const calcNobisectBlessing = (character, account, charactersLevels) => {
-//   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses?.bonuses
-//   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
-//   const { cards: playerCards, stats } = character
-//   const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
-//   console.log('allEff - 5.219746817679558', allEff)
-//   const minEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false);
-//   console.log('minEff - 193.79715134472335', minEff)
-//   const minEffVial = getVialsBonusByEffect(alchemy?.vials, 'Mining_Efficiency');
-//   const minEffStamp = getStampsBonusByEffect(account?.stamps, 'Mining_Efficiency');
-//   // 189.54575009335448
-//   const chopEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HOCUS_CHOPPUS', false);
-//   console.log('chopEff - 418.5292587293732', chopEff)
-//   // 420.9397074334178
-//   const base = Math.max(1, allEff + Math.pow((minEff + (chopEff)) / 100, 2) + Math.pow((stats.strength + (stats.agility + stats.wisdom)) / 3, 0.5) / 7);
-//   console.log('base', base)
-//   // 48.237034655800514
-//   const baseBlessingMulti = divinity?.blessingBases?.[2];
-//   const blessingMulti = gods?.[2]?.blessingMultiplier;
-//   return baseBlessingMulti * blessingMulti * Math.min(1.8, Math.max(0.1, 4 * Math.pow(((base + 1e4) / Math.max(10 * (base) + 10, 1)) * 0.01, 2)));
-//   // 8.32963478122674
-// }
+const getPrinterSampleRate = (character, account, charactersLevels) => {
+  const printerSamplingTalent = getTalentBonus(character?.starTalents, null, 'PRINTER_SAMPLING');
+  const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
+  const equipSampling = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[60]), 0);
+  const sampleItBubble = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'SAMPLE_IT', false);
+  const superSampleTalent = getTalentBonus(character?.talents, null, 'SUPER_SAMPLES');
+  const sampleAchievement = getAchievementStatus(account?.achievements, 158);
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
+  const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler')?.bonus;
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sample_Size');
+  const meritBonus = account?.tasks?.[2]?.[2]?.[4];
+  const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Maestro');
+  const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro);
+  const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;
+  const postofficeSampleBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 0);
 
-// const getPlayerHp = (character, account) => {
-//
-// }
+  const printerSample = Math.min(0.9, (printerSamplingTalent
+    + (saltLickBonus + equipSampling)
+    + (sampleItBubble + (superSampleTalent + Math.min(1, sampleAchievement)))
+    + (vialBonus)
+    + (theRoyalSamplerPrayer)
+    + (stampBonus)
+    + (Math.min(5, 0.5 * meritBonus))
+    + (Math.min(5, familyPrinterSample))
+    + (arcadeSampleBonus + postofficeSampleBonus)) / 100
+  );
+
+  return Math.floor(1e3 * printerSample) / 10;
+}
+
 
 export const getBarbarianZowChow = (allKills, threshold) => {
   let list = deathNote.map(({ rawName }) => {
@@ -593,11 +600,6 @@ export const getAllEff = (character, meals, lab, accountCards, guildBonuses, cha
   if (guildBonuses.length > 0) {
     guildSKillEff = getGuildBonusBonus(guildBonuses, 6);
   }
-  // return (1 + ((familyEffBonus) + equipmentEffEffectBonus) / 100) *
-  //   (1 + (mealEff + groundedMotherboard) / 100)
-  //   * (1 + chaoticTrollBonus / 100)
-  //   * (1 + (guildSKillEff + (cardSet + skilledDimwit)) / 100)
-  //   * Math.max(1 - (maestroTransfusion + balanceOfProficiency) / 100, .01);
 
   return (1 + ((amplifiedFamilyBonus) + (equipmentEffEffectBonus + 0)) / 100) *
     (1 + (mealEff + (groundedMotherboard + 3 * crystalCapybaraBonus)) / 100) *
@@ -610,7 +612,7 @@ export const getPlayerCapacity = (bag, capacities) => {
   if (bag) {
     return getMaterialCapacity(bag, capacities);
   }
-  return 50; // TODO: check for better solution
+  return 50;
 }
 
 
@@ -622,36 +624,6 @@ export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus
 }
 
 const getNonConsumeChance = (starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses) => {
-  // if ("FoodNOTconsume" == s) {
-  //   var baseMath = 90 + 5 * w._customBlock_MainframeBonus(108),
-  //     Co = b.engine.getGameAttribute("DNSM"),
-  //     Bo = null != d.AlchBubbles ? Co.getReserved("AlchBubbles") : Co.h.AlchBubbles,
-  //     bubbleBonus = null != d.nonFoodACTIVE ? Bo.getReserved("nonFoodACTIVE") : Bo.h.nonFoodACTIVE,
-  //     realBaseMath = Math.min(baseMath, 98 + Math.min(bubbleBonus, 1)),
-  //     jewel = Math.max(1, w._customBlock_MainframeBonus(108)),
-  //     freeMeal = t._customBlock_GetTalentNumber(1, 458),
-  //     xo = b.engine.getGameAttribute("DNSM"),
-  //     Qo = null != d.BoxRewards ? xo.getReserved("BoxRewards") : xo.h.BoxRewards,
-  //     Lo = null != d.NonConsume ? Qo.getReserved("NonConsume") : Qo.h.NonConsume,
-  //     postOffice = Lo,
-  //     cards = O._customBlock_CardBonusREAL(16),
-  //     Yo = b.engine.getGameAttribute("DNSM"),
-  //     Wo = null != d.StarSigns ? Yo.getReserved("StarSigns") : Yo.h.StarSigns,
-  //     Zo = null != d.NoConsumeFood ? Wo.getReserved("NoConsumeFood") : Wo.h.NoConsumeFood,
-  //     starSign = Zo,
-  //     Jo = b.engine.getGameAttribute("DNSM"),
-  //     jo = null != d.AlchBubbles ? Jo.getReserved("AlchBubbles") : Jo.h.AlchBubbles,
-  //     bubble = null != d.nonFoodACTIVE ? jo.getReserved("nonFoodACTIVE") : jo.h.nonFoodACTIVE;
-  //   return Math.min(realBaseMath, jewel * (freeMeal + (postOffice + (cards + starSign + (bubble)))));
-  // }
-  // return Math.min(Math.min(90 + 5 * m._customBlock_MainframeBonus(108),
-  //   98 + Math.min(c.asNumber(a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.nonFoodACTIVE), 1)),
-  //   Math.max(1, m._customBlock_MainframeBonus(108))
-  //   * (k._customBlock_GetTalentNumber(1, 458)
-  //     + (c.asNumber(a.engine.getGameAttribute("DNSM").h.BoxRewards.h.NonConsume)
-  //       + (x._customBlock_CardBonusREAL(16) + c.asNumber(a.engine.getGameAttribute("DNSM").h.StarSigns.h.NoConsumeFood)
-  //         + c.asNumber(a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.nonFoodACTIVE)))));
-
   const spelunkerObolMulti = getLabBonus(labBonuses, 8); // gem multi
   const nonConsumeJewelBonus = getJewelBonus(jewels, 8, spelunkerObolMulti);
   const baseMath = 90 + 5 * nonConsumeJewelBonus;
@@ -680,3 +652,30 @@ const getPlayerConstructionSpeed = (character, account) => {
   const redSaltAmount = calculateItemTotalAmount(account?.storage, 'Refinery1', true);
   return Math.floor(baseMath * (1 + (constructionLevel * carpenterBonus) / 100) * moreMath * (1 + (reduxRates * lavaLog(redSaltAmount)) / 100));
 }
+
+// const calcNobisectBlessing = (character, account, charactersLevels) => {
+//   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses?.bonuses
+//   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
+//   const { cards: playerCards, stats } = character
+//   const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
+//   console.log('allEff - 5.219746817679558', allEff)
+//   const minEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false);
+//   console.log('minEff - 193.79715134472335', minEff)
+//   const minEffVial = getVialsBonusByEffect(alchemy?.vials, 'Mining_Efficiency');
+//   const minEffStamp = getStampsBonusByEffect(account?.stamps, 'Mining_Efficiency');
+//   // 189.54575009335448
+//   const chopEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HOCUS_CHOPPUS', false);
+//   console.log('chopEff - 418.5292587293732', chopEff)
+//   // 420.9397074334178
+//   const base = Math.max(1, allEff + Math.pow((minEff + (chopEff)) / 100, 2) + Math.pow((stats.strength + (stats.agility + stats.wisdom)) / 3, 0.5) / 7);
+//   console.log('base', base)
+//   // 48.237034655800514
+//   const baseBlessingMulti = divinity?.blessingBases?.[2];
+//   const blessingMulti = gods?.[2]?.blessingMultiplier;
+//   return baseBlessingMulti * blessingMulti * Math.min(1.8, Math.max(0.1, 4 * Math.pow(((base + 1e4) / Math.max(10 * (base) + 10, 1)) * 0.01, 2)));
+//   // 8.32963478122674
+// }
+
+// const getPlayerHp = (character, account) => {
+//
+// }

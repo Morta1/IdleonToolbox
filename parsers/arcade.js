@@ -31,3 +31,7 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
     maxBalls
   }
 }
+
+export const getArcadeBonus = (list, effectName) => {
+  return list?.find(({ effect }) => effect.includes(effectName))
+}
