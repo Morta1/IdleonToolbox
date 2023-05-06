@@ -37,7 +37,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
         } = character;
         const activity = afkTarget !== '_' ? afkTarget : 'Nothing';
         const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, account, characterIndex);
-        const readyTalents = trackers?.talents && isTalentReady(character);
+        const readyTalents = trackers?.talents && isTalentReady(character, trackersOptions);
         const missingObols = trackers?.obols && isObolMissing(account, character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
         const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex, trackersOptions);
@@ -70,7 +70,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
               {trackers?.obols && missingObols?.length > 0 ?
                 <Alert title={`${name} has ${missingObols?.length} empty obol slots!`}
                        iconPath={'data/ObolLocked1'}/> : null}
-              {trackers?.postOffice && hasUnspentPoints(account, postOffice) ?
+              {trackers?.postOffice && hasUnspentPoints(account, postOffice, trackersOptions) ?
                 <Alert title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent points`}
                        iconPath={'data/UIboxUpg0'}/> : null}
               {trackers?.anvil && productionHammersMissing > 0 ?

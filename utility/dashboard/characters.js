@@ -28,9 +28,11 @@ export const isWorshipOverdue = (account, worship) => {
   return worship?.currentCharge >= worship?.maxCharge - fivePercent;
 }
 
-export const hasUnspentPoints = (account, postOffice) => {
+export const hasUnspentPoints = (account, postOffice, trackersOptions) => {
   if (!account?.finishedWorlds?.World1) return false;
-  return postOffice?.unspentPoints > 0 && postOffice.boxes.some(({ level, maxLevel }) => level < maxLevel);
+  const { postOffice: postOfficeConfig } = trackersOptions || {};
+  const value = parseInt(postOfficeConfig?.input?.value);
+  return postOffice?.unspentPoints > (value ?? 0) && postOffice.boxes.some(({ level, maxLevel }) => level < maxLevel);
 }
 
 export const isProductionMissing = (equippedBubbles, account, characterIndex) => {
@@ -58,10 +60,11 @@ export const isAnvilOverdue = (account, afkTime, characterIndex, trackersOptions
   }).filter(({ diff }) => anvilOption?.showAlertBeforeFull ? diff <= 60 : diff <= 0);
 }
 
-export const isTalentReady = (character) => {
+export const isTalentReady = (character, trackersOptions) => {
+  const { talents } = trackersOptions;
   const { postOffice, afkTime, cooldowns, flatTalents } = character;
   const relevantTalents = {
-    32: true, // Printer_Go_Brr
+    32: true, // PRINTER_GO_BRRR
     130: true, // Refinery_Throttle
     490: true, // Cranium,
     25: true // ITS_YOUR_BIRTHDAY!
@@ -72,7 +75,11 @@ export const isTalentReady = (character) => {
   return Object.entries(cooldowns)?.reduce((res, [tId, talentCd]) => {
     if (!relevantTalents[tId]) return res;
     const talent = flatTalents?.find(({ talentId }) => parseInt(tId) === talentId);
-    if (!talent || talent?.level === 0) return res;
+    const configTalents = Object.entries(talents)?.reduce((res, [name, val]) => ({
+      ...res,
+      [name.camelToTitleCase()?.replace(/ /g, '_')?.toUpperCase()]: val
+    }), {});
+    if (!talent || !configTalents?.[talent?.name]) return res;
     const calculatedCooldown = (1 - cdReduction / 100) * talentCd;
     const actualCd = calculatedCooldown - timePassed;
     const cooldown = actualCd < 0 ? actualCd : new Date().getTime() + actualCd * 1000;

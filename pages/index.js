@@ -23,6 +23,14 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.72",
+    gameVer: "1.81",
+    date: "06/05/2023",
+    features: ['Enhanced talents and post office dashboard configuration and changed the design a little bit'],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.71",
     gameVer: "1.81",
     date: "05/05/2023",

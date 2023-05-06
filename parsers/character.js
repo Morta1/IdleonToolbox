@@ -376,7 +376,6 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
-  console.log(`${character?.name} - ${character.printerSample}`)
   return character;
 }
 
