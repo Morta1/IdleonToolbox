@@ -25,7 +25,7 @@ export const findNameCombination = (arr, str) => {
     }
 
     for (let i = 0; i < arr.length; i++) {
-      if (str.startsWith(arr[i]?.name)) {
+      if (str?.startsWith(arr[i]?.name)) {
         find(str.slice(arr[i]?.name?.length), [...combination, arr[i]]);
       }
     }

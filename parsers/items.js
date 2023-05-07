@@ -139,7 +139,7 @@ export const addEquippedItems = (characters, shouldInclude) => {
 };
 
 export const getAllItems = (characters, account) => {
-  const charItems = characters?.reduce((res, { inventory }) => [...res, ...inventory], []);
+  const charItems = characters?.reduce((res, { inventory = [] }) => [...res, ...inventory], []);
   return [...(charItems || []), ...(account?.storage || [])];
 }
 

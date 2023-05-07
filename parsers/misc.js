@@ -264,6 +264,7 @@ export const getAllSkillExp = (sirSavvyStarSign, cEfauntCardBonus, goldenHamBonu
 
 export const calculateLeaderboard = (characters) => {
   const leaderboardObject = characters.reduce((res, { name, skillsInfo }) => {
+    if (!skillsInfo) return res;
     for (const [skillName, skillLevel] of Object.entries(skillsInfo)) {
       if (!res[skillName]) {
         res[skillName] = { ...res[skillName], [name]: skillLevel };
@@ -291,6 +292,7 @@ export const calculateLeaderboard = (characters) => {
 
 export const calculateTotalSkillsLevel = (characters) => {
   const allSkills = characters?.reduce((res, { skillsInfo }) => {
+    if (!skillsInfo) return res;
     for (const [skillName, skillData] of Object.entries(skillsInfo)) {
       if (res?.[skillName]) {
         res[skillName] = { ...res[skillName], level: res[skillName].level + skillData?.level ?? 0 }

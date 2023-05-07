@@ -96,7 +96,7 @@ const Stamps = () => {
           <Card>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
-              {stampReducer}%
+              {stampReducer ?? 0}%
             </CardContent>
           </Card>
         </Stack>

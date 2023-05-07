@@ -139,7 +139,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   const charactersLevels = serializedCharactersData?.map((char) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
-    return { level: personalValuesMap?.StatList?.[4], class: classes?.[char?.[`CharacterClass`]] };
+    return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
 
   accountData.charactersLevels = charactersLevels;

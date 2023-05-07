@@ -173,6 +173,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const character = {};
   character.playerId = char.playerId;
   character.name = char.name;
+  if (!char?.CharacterClass) return character;
   character.classIndex = char?.CharacterClass;
   character.class = classes?.[char?.CharacterClass];
   character.afkTime = calculateAfkTime(char?.PlayerAwayTime, account?.timeAway?.GlobalTime);
@@ -190,7 +191,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
       [statMap[index]]: statValue
     }
   }, {});
-  character.level = character.stats.level;
+  character.level = character?.stats?.level;
   // inventory bags used
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
   const bags = Object.keys(rawInvBagsUsed);
@@ -202,7 +203,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     }
     return { ...details, rawName: bagName };
   });
-  const carryCapacityObject = char?.[`MaxCarryCap`];
+  const carryCapacityObject = char?.[`MaxCarryCap`] || [];
   character.carryCapBags = Object.keys(carryCapacityObject).sort(function (a, b) {
     return a.localeCompare(b);
   }).map((bagName) => (carryBags?.[bagName]?.[carryCapacityObject[bagName]])).filter(bag => bag);
@@ -242,7 +243,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.inventory = getInventory(inventoryArr, inventoryQuantityArr, character.name);
 
   // star signs
-  const starSignsObject = char?.PersonalValuesMap?.StarSign;
+  const starSignsObject = char?.PersonalValuesMap?.StarSign || '';
   character.starSigns = starSignsObject
     .split(",")
     .map((starSign) => {
@@ -264,7 +265,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.equippedBubbles = account?.equippedBubbles?.[char?.playerId];
   const levelsRaw = char?.[`Exp0`];
   const levelsReqRaw = char?.[`ExpReq0`];
-  const skillsInfoObject = char?.[`Lv0`];
+  const skillsInfoObject = char?.[`Lv0`] || [];
 
   character.skillsInfo = skillsInfoObject.reduce(
     (res, level, index) =>

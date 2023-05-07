@@ -11,12 +11,13 @@ export const getLab = (idleonData, charactersData, account) => {
 }
 
 const parseLab = (labRaw, charactersData, account) => {
+  if (!labRaw) return {}
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
   const [cords] = labRaw;
-  const [chipRepo] = labRaw.splice(15);
-  const [jewelsRaw] = labRaw.splice(14);
-  const playerChipsRaw = labRaw.slice(1, charactersData?.length + 1);
+  const [chipRepo] = labRaw?.splice(15);
+  const [jewelsRaw] = labRaw?.splice(14);
+  const playerChipsRaw = labRaw?.slice(1, charactersData?.length + 1);
   let playerCordsChunk = 2, playersCords = [];
   for (let i = 0; i < cords.length; i += playerCordsChunk) {
     const [x, y] = cords.slice(i, i + playerCordsChunk);
@@ -157,12 +158,12 @@ export const applyBonusDesc = (labBonusesList, bonusDesc, index) => {
 }
 
 export const getJewelBonus = (jewels, index, multiplier = 1) => {
-  const jewel = jewels.find(jewel => jewel.index === index) || {};
+  const jewel = jewels?.find(jewel => jewel.index === index) || {};
   return jewel?.active ? jewel?.bonus * multiplier : 0;
 }
 
 export const getLabBonus = (labBonuses, index) => {
-  const bonus = labBonuses.find(bonus => bonus.index === index) || {};
+  const bonus = labBonuses?.find(bonus => bonus.index === index) || {};
   return bonus?.active ? bonus?.bonusOn : bonus?.bonusOff;
 }
 

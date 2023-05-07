@@ -13,8 +13,8 @@ const Apocalypses = () => {
   useEffect(() => {
     if (state?.characters) {
       const localManiacs = state?.characters?.filter((character) => {
-        const isBarbarian = talentPagesMap[character.class].includes('Barbarian');
-        const isBloodBerserker = talentPagesMap[character.class].includes('Blood_Berserker');
+        const isBarbarian = talentPagesMap[character?.class]?.includes('Barbarian');
+        const isBloodBerserker = talentPagesMap[character?.class]?.includes('Blood_Berserker');
         return isBarbarian || isBloodBerserker;
       })
       setManiacs(localManiacs);

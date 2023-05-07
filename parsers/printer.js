@@ -64,7 +64,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             const notatedBonus = notateNumber(baseMath, "MultiplierInfo").replace('#', '');
             affectedBy = [...affectedBy, `Gold Relic (artifact) - x${notatedBonus}`];
           }
-          const isPlayerConnected = connectedPlayers.find(({ playerId }) => playerId === charIndex);
+          const isPlayerConnected = connectedPlayers?.find(({ playerId }) => playerId === charIndex);
           if (harriepGodIndex.includes(charIndex)) {
             affectedBy = [...affectedBy, 'Harriep (god) - x3'];
             if (isPlayerConnected && wiredInBonus) {

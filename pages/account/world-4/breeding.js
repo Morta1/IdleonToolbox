@@ -22,7 +22,7 @@ const Breeding = () => {
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Breeding</Typography>
       <Stack my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'} gap={2}>
-        {state?.account?.breeding?.eggs.map((eggLevel, index) => {
+        {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
           return eggLevel > 0 ? <Card key={`egg-${index}`}>
             <CardContent sx={{ '&:last-child': { padding: '8px' }, display: 'flex', alignItems: 'center' }}>
               <img src={`${prefix}data/PetEgg${eggLevel}.png`} alt=""/>

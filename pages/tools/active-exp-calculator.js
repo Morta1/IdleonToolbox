@@ -24,7 +24,7 @@ const ActiveXpCalculator = () => {
   useEffect(() => {
     const chars = state?.characters?.map(({ name, skillsInfo, class: charClass }) => ({
       name,
-      charClass, ...skillsInfo.character
+      charClass, ...skillsInfo?.character
     }))
     const selected = chars?.[0];
     setSelectedChar(selected);
@@ -102,7 +102,7 @@ const ActiveXpCalculator = () => {
           <Stack direction={'row'} flexWrap={'wrap'}>
             <StyledTextField id="select" label="Character" value={selectedChar}
                              onChange={(e) => setSelectedChar(e.target.value)} select>
-              {charactersList.map((character, index) => {
+              {charactersList?.map((character, index) => {
                 return <StyledMenuItem key={character?.name + index} value={character}>
                   <img src={`${prefix}icons/${character?.charClass}_Icon.png`} alt=""/>
                   {character?.name}

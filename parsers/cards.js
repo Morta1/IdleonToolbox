@@ -36,7 +36,7 @@ const parseCards = (cardsRaw, account) => {
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
       const cardDetails = cards?.[name];
-      const sixStarList = account?.accountOptions?.[155].toString()?.split(',') || [];
+      const sixStarList = account?.accountOptions?.[155]?.toString()?.split(',') || [];
       if (!cardDetails) return res;
       return {
         ...res,

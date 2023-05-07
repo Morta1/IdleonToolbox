@@ -39,7 +39,7 @@ export const isProductionMissing = (equippedBubbles, account, characterIndex) =>
   const hammerBubble = equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
   const maxProducts = hammerBubble ? 3 : 2;
   const production = account?.anvil?.[characterIndex]?.production?.filter(({ hammers }) => hammers > 0);
-  const numOfHammers = production.reduce((res, { hammers }) => res + hammers, 0);
+  const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
   return maxProducts - numOfHammers;
 }
 
@@ -72,6 +72,7 @@ export const isTalentReady = (character, trackersOptions) => {
   const cooldownBonus = getPostOfficeBonus(postOffice, "Magician_Starterpack", 2);
   const cdReduction = Math.max(0, cooldownBonus);
   const timePassed = (new Date().getTime() - afkTime) / 1000;
+  if (!cooldowns) return [];
   return Object.entries(cooldowns)?.reduce((res, [tId, talentCd]) => {
     if (!relevantTalents[tId]) return res;
     const talent = flatTalents?.find(({ talentId }) => parseInt(tId) === talentId);
@@ -112,7 +113,7 @@ export const isMissingStarSigns = (character, account) => {
     }
     return res;
   }, 1);
-  return maxStarSigns - character?.starSigns.length;
+  return maxStarSigns - character?.starSigns?.length;
 }
 
 export const isAkfForMoreThanTenHours = (character, lastUpdated) => {
@@ -145,7 +146,7 @@ export const crystalCooldownSkillsReady = (character,) => {
 }
 
 export const hasAvailableToolUpgrade = (character, account, rawTools) => {
-  const charTools = character?.tools.slice(0, 6);
+  const charTools = character?.tools?.slice(0, 6);
   const skills = [
     character?.skillsInfo?.mining?.level, character?.skillsInfo?.chopping?.level,
     character?.skillsInfo?.fishing?.level, character?.skillsInfo?.catching?.level,

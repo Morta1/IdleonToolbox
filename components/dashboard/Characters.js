@@ -35,7 +35,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
           equippedBubbles,
           afkTime
         } = character;
-        const activity = afkTarget !== '_' ? afkTarget : 'Nothing';
+        const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
         const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, account, characterIndex);
         const readyTalents = trackers?.talents && isTalentReady(character, trackersOptions);
         const missingObols = trackers?.obols && isObolMissing(account, character);

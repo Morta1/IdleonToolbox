@@ -24,7 +24,7 @@ const Worship = () => {
       <Stack gap={3} direction="row" flexWrap="wrap">
         {state?.characters?.map(({ worship, tools, name, classIndex, skillsInfo }, index) => {
           const worshipProgress = (worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge)) * 100;
-          const skull = tools.find(({ name }) => name.includes('Skull'));
+          const skull = tools?.find(({ name }) => name.includes('Skull'));
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300 }}>
               <CardContent>

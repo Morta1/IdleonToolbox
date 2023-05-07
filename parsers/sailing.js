@@ -305,7 +305,13 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     }));
   } else if (artifact?.name === 'Socrates') {
     const mainStats = charactersData?.map(({ name, stats }) => {
-      return { name, strength: stats.strength, agility: stats.agility, wisdom: stats.wisdom, luck: stats.luck };
+      return {
+        name,
+        strength: stats?.strength ?? 0,
+        agility: stats?.agility ?? 0,
+        wisdom: stats?.wisdom ?? 0,
+        luck: stats?.luck ?? 0
+      };
     })
     additionalData = mainStats.map(({ name, strength, agility, wisdom, luck }) => {
       const multiplier = 1 + (upgradedForm ? artifact?.baseBonus * formMultiplier : artifact?.baseBonus) / 100;

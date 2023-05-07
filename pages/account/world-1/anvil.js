@@ -10,7 +10,7 @@ import { NextSeo } from "next-seo";
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
-  const { anvil } = state?.account;
+  const { anvil } = state?.account || {};
 
   return <>
     <NextSeo
@@ -23,13 +23,13 @@ const Anvil = () => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const smithingLevel = state?.characters?.[index].skillsInfo?.smithing?.level;
-        const { availablePoints, pointsFromCoins, pointsFromMats } = state?.characters?.[index]?.anvil?.stats;
+        const { availablePoints, pointsFromCoins, pointsFromMats } = state?.characters?.[index]?.anvil?.stats || {};
         const color = availablePoints === 0 ? "" : availablePoints > 0 ? "error.light" : "secondary";
         const afkTime = state?.characters?.[index]?.afkTime;
         const hammerBubble = state?.characters?.[index]?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
         const maxProducts = hammerBubble ? 3 : 2;
         const production = anvil?.production?.filter(({ hammers }) => hammers > 0);
-        const numOfHammers = production.reduce((res, { hammers }) => res + hammers, 0);
+        const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
         const realProduction = numOfHammers === maxProducts ? production : fillArrayToLength(numOfHammers, production);
         return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 700 } }}>
           <CardContent>
