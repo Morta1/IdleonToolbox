@@ -155,14 +155,14 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     }
   }, {});
 
+  const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
+  accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   // accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
-  accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars);
   accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
+  accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels);
 
-  const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
-  accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character) => ({ ...character, skillsInfo: leaderboard[character?.name] }));
 

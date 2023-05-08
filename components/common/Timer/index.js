@@ -5,7 +5,7 @@ import { getDuration } from "utility/helpers";
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 
-const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placeholder, loop }) => {
+const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placeholder, loop, variant = 'inherit' }) => {
   const [time, setTime] = useState();
   // const [localType, setLocalType] = useState(type);
 
@@ -80,7 +80,7 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
 
   return time ? <TimerStyle>
     {(time?.overtime || pause) && placeholder ? placeholder :
-      <Typography className={`${time?.overtime && !loop ? 'overtime' : ''}`} component={'span'}>
+      <Typography variant={variant} className={`${time?.overtime && !loop ? 'overtime' : ''}`} component={'span'}>
         {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
         {wrapNumber(time?.hours) + 'h:'}
         {wrapNumber(time?.minutes) + `m`}

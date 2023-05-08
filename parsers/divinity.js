@@ -13,17 +13,20 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
   const numberOfChars = serializedCharactersData?.length;
   const deitiesStartIndex = 12;
   const linkedDeities = divinityRaw?.slice(deitiesStartIndex, deitiesStartIndex + numberOfChars);
+  const blessingBasesStartIndex = 28;
+  const blessingBases = divinityRaw?.slice(blessingBasesStartIndex, blessingBasesStartIndex + gods?.length + 1);
+  const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
+  const unlockedDeities = divinityRaw?.[25];
+
   const deities = gods?.map((god, index) => {
+      const blessingBonus = blessingBases?.[index] * god?.blessingMultiplier;
       return {
         ...god,
         rawName: `DivGod${index}`,
+        blessingBonus
       }
     }
   );
-  const blessingBasesStartIndex = 28;
-  const blessingBases = divinityRaw?.slice(blessingBasesStartIndex, blessingBasesStartIndex + deities?.length + 1);
-  const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
-  const unlockedDeities = divinityRaw?.[25];
 
   return {
     linkedDeities,
@@ -34,6 +37,10 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
   }
 }
 
+export const getGodBlessingBonus = (gods, godName) => {
+  return gods?.find(({ name }) => name === godName)?.blessingBonus ?? 0;
+}
+
 export const getGodByIndex = (linkedDeities, characters, gIndex) => {
   const char = characters?.find((_, index) => linkedDeities?.[index] === gIndex)
   return char?.deityMinorBonus;
@@ -41,7 +48,7 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
 
 export const getDeityLinkedIndex = (deities, characters, deityIndex) => {
   const normalLink = deities?.map((deity, index) => deityIndex === deity ? index : -1);
-  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) ? index : -1 );
+  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) ? index : -1);
   return normalLink?.map((charIndex, index) => charIndex === -1 && esLink?.[index] !== -1 ? esLink?.[index] : charIndex) || [];
 }
 

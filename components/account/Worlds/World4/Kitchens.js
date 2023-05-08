@@ -6,8 +6,9 @@ import React, { useMemo } from "react";
 import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, maxNumberOfSpiceClicks } from "parsers/cooking";
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
+import { getJewelBonus, getLabBonus } from "../../../../parsers/lab";
 
-const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements }) => {
+const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements, lab }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -61,11 +62,11 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           return <Card key={`${foodName}-${index}-${total}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip placement={'top'}
-                       title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}/>}>
+                       title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}/>}>
                 <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
               </Tooltip>
               <div>{kFormatter(total, 2)}/hr</div>
-              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}/>
+              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}/>
             </CardContent>
           </Card>
         })}
@@ -138,7 +139,8 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
               </Stack> : <Stack mt={2} justifyContent={'center'} alignItems={'center'}>
                 <Tooltip placement={'top'}
                          title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed}
-                                             meal={kitchen?.meal}/>}>
+                                             lab={lab}
+                                             meal={kitchen?.meal}/>} >
                   <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
                 </Tooltip>
                 <div>{kFormatter(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>
@@ -152,11 +154,14 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
 };
 
 
-const MealTooltip = ({ meal, totalMealSpeed, achievements }) => {
+const MealTooltip = ({ meal, lab, totalMealSpeed, achievements }) => {
   const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
   const levelCost = getMealLevelCost(meal?.level, achievements);
   const diamondCost = (11 - meal?.level) * levelCost;
   const timeTillNextLevel = meal?.amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
+  const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
+  const realEffect = (1 + (blackDiamondRhinestone + meal?.shinyMulti) / 100) * meal?.level * meal?.baseStat;
   return <>
     {meal?.level >= 11 || levelCost === diamondCost ? <>
       <Typography>Next Level in: <Timer date={new Date().getTime() + (timeTillNextLevel * 3600 * 1000)}
@@ -172,7 +177,7 @@ const MealTooltip = ({ meal, totalMealSpeed, achievements }) => {
     </>}
     <Typography
       fontSize={15}
-      fontWeight={'bold'}>{cleanUnderscore(meal?.effect?.replace('{', kFormatter(meal?.level * meal?.baseStat * meal?.multiplier)))}</Typography>
+      fontWeight={'bold'}>{cleanUnderscore(meal?.effect?.replace('{', kFormatter(realEffect)))}</Typography>
   </>;
 }
 

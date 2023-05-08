@@ -11,17 +11,20 @@ import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { isArtifactAcquired } from "../../../../parsers/sailing";
+import { getJewelBonus, getLabBonus } from "../../../../parsers/lab";
 
 const msPerDay = 8.64e+7;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, 11, 30];
 
-const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) => {
+const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
   const [sortBy, setSortBy] = useState(breakpoints[0]);
+  const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
@@ -43,12 +46,10 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
       const diamondCost = (11 - level) * levelCost;
       const blackVoidCost = (30 - level) * levelCost;
       let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
-      // let timeTillMaxLevel = calcMealTime(30, meal, totalMealSpeed, achievements);
       let timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
       let timeToBlackVoid = calcMealTime(30, meal, totalMealSpeed, achievements);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
-        // timeTillMaxLevel = timeTillMaxLevel / (1 + overflowingLadleBonus / 100);
         timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
         timeToBlackVoid = timeToBlackVoid / (1 + overflowingLadleBonus / 100);
       }
@@ -110,13 +111,13 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
   const getBestMealsSpeedContribute = (meals) => {
     let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
-      const { level, baseStat, multiplier, timeTillNextLevel } = meal;
-      const currentBonus = (level) * baseStat * multiplier;
-      const nextLevelBonus = (level + 1) * baseStat * multiplier;
+      const { level, baseStat, shinyMulti, timeTillNextLevel } = meal;
+      const currentBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
+      const nextLevelBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (level + 1) * baseStat;
       return {
         ...meal,
-        currentLevelBonus: currentBonus,
-        nextLevelBonus: nextLevelBonus,
+        currentLevelBonus: notateNumber(currentBonus),
+        nextLevelBonus: notateNumber(nextLevelBonus),
         bonusDiff: nextLevelBonus - currentBonus,
         diff: (nextLevelBonus - currentBonus) / timeTillNextLevel
       }
@@ -213,11 +214,13 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
             level,
             baseStat,
             multiplier,
+            shinyMulti,
             levelCost,
             timeTillNextLevel,
             timeToDiamond,
             timeToBlackVoid
           } = meal;
+          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
@@ -235,7 +238,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts }) =
                 </Stack>
                 <Stack mt={2} gap={1}>
                   <Typography
-                    sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(level * baseStat * multiplier)))}</Typography>
+                    sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(realEffect)))}</Typography>
                   {!filters.includes("minimized") ? (
                     meal?.level === mealMaxLevel ? <Typography color={'success.light'}>MAXED</Typography> : <>
                       <Typography

@@ -4,16 +4,17 @@ import { getTalentBonus } from "./talents";
 
 export const getStatues = (idleonData, charactersData) => {
   const statuesRaw = tryToParse(idleonData?.StuG) || idleonData?.StatueG;
-  const firstCharacterStatues = charactersData ? charactersData?.[0]?.StatueLevels : null;
-  return parseStatues(statuesRaw, firstCharacterStatues);
+  const firstCharacterStatues = charactersData ? charactersData?.[8]?.StatueLevels : null;
+  return parseStatues(statuesRaw, firstCharacterStatues, charactersData);
 };
 
-export const parseStatues = (statuesRaw, firstCharacterStatues) => {
+export const parseStatues = (statuesRaw, firstCharacterStatues, charactersData) => {
   return statuesRaw
     ?.reduce((res, statue, statueIndex) => {
       const goldStatue = statue === 1;
-      const [level, progress] = firstCharacterStatues?.[statueIndex] || [];
-      if (!firstCharacterStatues?.[statueIndex]) return res;
+      const highestStatues = getHighestLevelStatues(charactersData, statueIndex)?.StatueLevels
+      const [level, progress] = highestStatues?.[statueIndex] || [];
+      if (!highestStatues?.[statueIndex]) return res;
       return [
         ...res,
         {
@@ -25,6 +26,10 @@ export const parseStatues = (statuesRaw, firstCharacterStatues) => {
       ];
     }, [])
     .filter(({ name } = {}) => name);
+};
+
+const getHighestLevelStatues = (characters, statueIndex) => {
+  return characters.reduce((prev, current) => (prev?.StatueLevels?.[statueIndex]?.[0] > current?.StatueLevels?.[statueIndex]?.[0]) ? prev : current)
 };
 
 export const getStatueBonus = (statues, statueName, talents) => {

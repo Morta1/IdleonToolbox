@@ -23,6 +23,21 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.73",
+    gameVer: "1.81",
+    date: "08/05/2023",
+    features: [
+      'Added Boat Speed value and a timer to "Boats and Captains" tab (Sailing page)'
+    ],
+    fixes: [
+      'Fixed meals actual values in Meals and Kitchen tabs',
+      'Fixed boat artifact chance',
+      'Fixed an issue with statues not showing the correct statue level',
+      'Fixed a bug in Skill Mastery with second bonus from Sailing, Gaming and divinity'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.72",
     gameVer: "1.81",
     date: "06/05/2023",

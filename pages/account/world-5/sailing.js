@@ -63,7 +63,7 @@ const Sailing = () => {
     {selectedTab === 0 ? <Artifacts artifacts={artifacts}/> : null}
     {selectedTab === 1 ? <Chests chests={chests}/> : null}
     {selectedTab === 2 ? <LootPile lootPile={lootPile}/> : null}
-    {selectedTab === 3 ? <BoatsAndCaptains boats={boats} captains={captains} captainsOnBoats={captainsOnBoats}/> : null}
+    {selectedTab === 3 ? <BoatsAndCaptains boats={boats} captains={captains} captainsOnBoats={captainsOnBoats} lastUpdated={state?.lastUpdated}/> : null}
   </>
 };
 

@@ -9,7 +9,7 @@ import { NextSeo } from "next-seo";
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
-  const { deities, linkedDeities, blessingBases, unlockedDeities } = state?.account?.divinity || {};
+  const { deities, linkedDeities, unlockedDeities } = state?.account?.divinity || {};
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <NextSeo
@@ -24,9 +24,9 @@ const Divinity = () => {
                        majorBonus,
                        minorBonus,
                        blessing,
-                       blessingMultiplier
+                       blessingMultiplier,
+                       blessingBonus
                      }, godIndex) => {
-        const blessingBonus = blessingBases?.[godIndex] * blessingMultiplier;
         const hasLinks = state?.characters?.some((character, index) => linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex))
         return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
           <CardContent>

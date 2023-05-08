@@ -62,7 +62,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
     ...upgrade,
     unlocked: superbitsUnlocks?.indexOf(number2letter?.[index]) !== -1,
-    ...getSuperbitBonus(characters, account, index)
+    ...calcSuperbitBonus(characters, account, index)
   }));
   return {
     bits,
@@ -81,7 +81,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   };
 }
 
-const getSuperbitBonus = (characters, account, index) => {
+const calcSuperbitBonus = (characters, account, index) => {
   let bonus, totalBonus, additionalInfo;
   if (index === 0) {
     bonus = account?.achievements?.filter(({ completed }) => completed)?.length ?? 0;

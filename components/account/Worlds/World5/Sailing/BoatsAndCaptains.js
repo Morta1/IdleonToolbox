@@ -2,8 +2,9 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
+import Timer from "../../../../common/Timer";
 
-const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
+const BoatsAndCaptains = ({ boats, captains, captainsOnBoats, lastUpdated }) => {
   return <>
     <Typography my={3} variant={'h3'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
@@ -11,7 +12,9 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                      rawName,
                      level,
                      artifactChance,
+                     eldritchChance,
                      loot,
+                     speed,
                      lootLevel,
                      speedLevel,
                      boatIndex,
@@ -19,6 +22,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                      captainMappedIndex,
                      island,
                      distanceTraveled,
+                     timeLeft,
                      resources
                    }, index) => <Card
         key={`${rawName}-${index}`}>
@@ -33,12 +37,16 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
               <Typography>Lv. {level}</Typography>
               <Typography variant={'caption'}>Captain {captainMappedIndex}</Typography>
               <Typography variant={'caption'}>Island - {cleanUnderscore(island?.name)}</Typography>
-              <Typography variant={'caption'}>Trip {Math.round(distanceTraveled / island?.distance * 100)}% complete</Typography>
+              <Timer variant={'body1'}
+                     type={'countdown'} lastUpdated={lastUpdated}
+                     date={new Date().getTime() + timeLeft}/>
             </Stack>
           </Stack>
           <Divider sx={{ my: 1 }}/>
           <Typography>Loot Value: {loot.value}</Typography>
           <Typography variant={'caption'}>Next level: {loot.nextLevelValue}</Typography>
+          <Typography>Speed Value: {notateNumber(speed.value, 'Big')}</Typography>
+          <Typography variant={'caption'}>Next level: {notateNumber(speed.nextLevelValue, 'Big')}</Typography>
           <Divider sx={{ my: 1 }}/>
           <Stack>
             <Typography variant={'caption'}>Base loot: {lootLevel}</Typography>
@@ -81,8 +89,8 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats }) => {
                 <img style={{ width: 25, height: 25, objectFit: 'contain' }}
                      src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt=""/>
                 {secondBonusIndex >= 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-                                             src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
-                                             alt=""/> : <>&nbsp;</>}
+                                              src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
+                                              alt=""/> : <>&nbsp;</>}
               </Stack>
               <img style={{ width: 40, height: 50, objectFit: 'contain' }}
                    src={`${prefix}etc/Captain_${captainType}.png`} alt=""/>

@@ -1,19 +1,33 @@
 import { kFormatter, lavaLog, notateNumber, tryToParse } from "../utility/helpers";
-import { artifacts, captainsBonuses, islands } from "../data/website-data";
-import { getHighestLevelCharacter } from "./misc";
+import { artifacts, captainsBonuses, classFamilyBonuses, islands } from "../data/website-data";
+import {
+  getHighestCharacterSkill,
+  getHighestLevelCharacter,
+  getHighestLevelOfClass,
+  isMasteryBonusUnlocked
+} from "./misc";
 import { mainStatMap } from "./talents";
-import { getSigilBonus } from "./alchemy";
+import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from "./alchemy";
+import { getCardBonusByEffect } from "./cards";
+import { getStampsBonusByEffect } from "./stamps";
+import { getMealsBonusByEffectOrStat } from "./cooking";
+import { getGodBlessingBonus } from "./divinity";
+import { getStatueBonus } from "./statues";
+import { isSuperbitUnlocked } from "./gaming";
+import { getJewelBonus, getLabBonus } from "./lab";
+import { getShinyBonus } from "./breeding";
+import { getFamilyBonusBonus } from "./family";
 
-export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars) => {
+export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
   const captainsRaw = tryToParse(idleonData?.Captains) || idleonData?.Captains;
   const boatsRaw = tryToParse(idleonData?.Boats) || idleonData?.Boats;
   const chestsRaw = tryToParse(idleonData?.SailChests) || idleonData?.SailChests;
   if (!sailingRaw || !captainsRaw || !boatsRaw || !chestsRaw) return null;
-  return parseSailing(artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars);
+  return parseSailing(artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars, charactersLevels);
 }
 
-const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars) => {
+const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars, charactersLevels) => {
   const lootPile = sailingRaw?.[1];
   const dreamCatcher = isArtifactAcquired(artifactsList, 'Dreamcatcher');
   const maxChests = Math.min(Math.round(5 + (dreamCatcher?.bonus ?? 0) + (account?.gemShopPurchases?.find((value, index) => index === 129) ?? 0)), 19);
@@ -27,7 +41,7 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
     lootPile: lootPileList,
     chests,
     rareTreasureChance,
-    ...getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, artifactsList, lootPileList)
+    ...getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList)
   };
 }
 
@@ -76,6 +90,7 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
   return {
     artifactChance: artifactChance > 0.01 ? Math.round(100 * artifactChance) / 100 : 0.01,
     ancientChance: (chance / getAncientChances(islandIndex, serverVars)).toFixed(5),
+    eldritchChance: (chance / getEldritchChances(islandIndex, serverVars)).toFixed(5),
     island,
     islandIndex,
     treasure,
@@ -84,9 +99,11 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
 }
 
 const getAncientChances = (islandsUnlocked, serverVars) => {
-  // AncientOddPerIsland = 450
-  // AncientArtiPCT = 0
   return 3 > islandsUnlocked ? 850 : (1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100);
+}
+
+const getEldritchChances = (islandsUnlocked, serverVars) => {
+  return 3 > islandsUnlocked ? 900 + 250 * islandsUnlocked : ((1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 4;
 }
 
 export const isArtifactAcquired = (artifacts, artifactName) => {
@@ -97,13 +114,18 @@ const getRareTreasureChance = () => {
   return Math.min(0.05, 0.1);
 }
 
-const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifactsList, lootPileList) => {
+const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, characters, charactersLevels, artifactsList, lootPileList) => {
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
+  const highestLevelSiegeBreaker = getHighestLevelOfClass(charactersLevels, 'Siege_Breaker') ?? 0;
+  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'FASTER_MINIMUM_BOAT_TRAVEL_TIME', highestLevelSiegeBreaker);
+  const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Lower_Minimum_Travel_Time_for_Sailing');
+  const minimumTravelTime = Math.round(120 / (1 + (familyBonus + shinyBonus) / 100))
+  const baseSpeed = getBaseSpeed(account, characters, artifactsList);
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
   const captains = allCaptains?.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
-  const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account));
+  const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account, baseSpeed, minimumTravelTime));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({
     ...res,
     [captainMappedIndex]: index
@@ -115,24 +137,52 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, artifac
   }
 }
 
-const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account) => {
+const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account, baseSpeed, minimumTravelTime = 120) => {
   const [captainIndex, islandIndex, , lootLevel, distanceTraveled, speedLevel] = boat;
   const captain = captains?.[captainIndex];
+  const island = islands?.[islandIndex];
   const boatObj = {
     rawName: `Boat_Frame_${getBoatFrame(lootLevel + speedLevel)}`,
     level: lootLevel + speedLevel,
-    artifactChance: getBoatArtifactChance(artifactsList, captains[captainIndex]),
+    artifactChance: getBoatArtifactChance(artifactsList, captains[captainIndex], account),
     captainIndex,
     captainMappedIndex: captain?.captainIndex,
     lootLevel, speedLevel,
     boatIndex,
-    island: islands?.[islandIndex],
+    island,
     distanceTraveled,
   }
 
+
   boatObj.resources = getBoatResources(boatObj, lootPile);
   boatObj.loot = getBoatLootValue(account, artifactsList, boatObj, captain);
+  boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed, minimumTravelTime)
+  boatObj.timeLeft = ((island?.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000;
   return boatObj
+}
+
+const getBaseSpeed = (account, characters, artifactsList) => {
+  const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
+  const divinityMinorBonus = purrmepPlayer?.deityMinorBonus;
+  const cardBonus = getCardBonusByEffect(account?.cards, 'Sailing_Speed_(Passive)');
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sailing_Speed')
+  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Sailing', blackDiamondRhinestone);
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'BOATY_BUBBLE', false)
+  const goharutGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Goharut');
+  const bagurGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Bagur');
+  const purrmepGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Purrmep');
+  const artifactBonus = isArtifactAcquired(artifactsList, '10_AD_Tablet')?.bonus ?? 0;
+  const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'SailSpd');
+  const superbitBonus = isSuperbitUnlocked(account, 'MSA_Sailing')?.bonus ?? 0;
+  const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sailing?.rank, 1);
+
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG25')
+  const firstMath = (1 + (divinityMinorBonus + cardBonus + bubbleBonus) / 125) * (1 + goharutGodBonus / 100);
+  return firstMath * (1 + purrmepGodBonus / 100)
+    * (1 + (bagurGodBonus +
+      artifactBonus + stampBonus + statueBonus + mealBonus + vialBonus + (17 * skillMasteryBonus + superbitBonus)) / 125);
 }
 
 const getCaptain = (captain, index) => {
@@ -186,7 +236,21 @@ const getBoatUpgradeCost = (boat, itemIndex) => {
   }
 }
 
-
+const getBoatSpeedValue = (captain, island, speedLevel, baseSpeed, minimumTravelTime) => {
+  let captainSpeedBonus = 0;
+  if (captain?.firstBonusDescription?.includes('Boat_Speed')) {
+    captainSpeedBonus += captain?.firstBonus;
+  }
+  if (captain?.secondBonusDescription?.includes('Boat_Speed')) {
+    captainSpeedBonus += captain?.secondBonus;
+  }
+  const boatSpeed = (10 + (5 + Math.pow(Math.floor(speedLevel / 7), 2)) * speedLevel) * (1 + captainSpeedBonus / 100) * baseSpeed;
+  const nextLevelBoatSpeed = (10 + (5 + Math.pow(Math.floor((speedLevel + 1) / 7), 2)) * (speedLevel + 1)) * (1 + captainSpeedBonus / 100) * baseSpeed;
+  return {
+    value: island ? Math.min(boatSpeed, (island?.distance * 60) / minimumTravelTime) : boatSpeed,
+    nextLevelValue: island ? Math.min(nextLevelBoatSpeed, (island?.distance * 60) / minimumTravelTime) : nextLevelBoatSpeed
+  };
+}
 const getBoatLootValue = (account, artifactsList, boat, captain) => {
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)
   const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2)
@@ -212,11 +276,12 @@ const getCaptainDisplayBonus = (captain, value) => {
   return Math.round(captain?.level * value * 10) / 10;
 }
 
-const getBoatArtifactChance = (artifacts, captain) => {
+const getBoatArtifactChance = (artifacts, captain, account) => {
   const fauxoryTusk = isArtifactAcquired(artifacts, "Fauxory_Tusk");
+  const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Higher_Artifact_Find_Chance');
   const firstCaptainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(3, captain, captain?.secondBonusIndex);
-  return notateNumber(Math.max(1, 1 + (fauxoryTusk?.bonus + (firstCaptainBonus + secondCaptainBonus)) / 100), 'MultiplierInfo')
+  return notateNumber(Math.max(1, 1 + (fauxoryTusk?.bonus + (firstCaptainBonus + secondCaptainBonus) + shinyBonus) / 100), 'MultiplierInfo')
     .replace('#', '');
 }
 
@@ -274,14 +339,14 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const math = artifact?.[multiplierType] * Math.floor((lootedItems - 500) / 10);
     bonus = everyXMulti ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
-    const sailingLevel = charactersData?.[1]?.skillsInfo?.sailing?.level || 0;
     const isGenie = artifact?.name === 'Genie_Lamp';
-    bonus = isGenie ? sailingLevel * artifact?.baseBonus : sailingLevel;
-    additionalData = `Sailing level: ${sailingLevel}`;
+    const highestSailing = getHighestCharacterSkill(charactersData, 'sailing');
+    bonus = isGenie ? highestSailing * artifact?.baseBonus : highestSailing;
+    additionalData = `Sailing level: ${highestSailing}`;
   } else if (artifact?.name === 'Weatherbook') {
-    const gamingLevel = charactersData?.[1]?.skillsInfo?.gaming?.level || 0;
-    additionalData = `Gaming level: ${gamingLevel}`;
-    bonus = gamingLevel * artifact?.baseBonus;
+    const highestGaming = getHighestCharacterSkill(charactersData, 'gaming');
+    additionalData = `Gaming level: ${highestGaming}`;
+    bonus = highestGaming * artifact?.baseBonus;
   } else if (artifact?.name === 'Triagulon') {
     const ownedTurkey = account?.cooking?.meals?.[0]?.amount;
     bonus = (artifact?.baseBonus * lavaLog(ownedTurkey));

@@ -34,9 +34,11 @@ const Cooking = () => {
 
       {selectedTab === 0 ?
         <Kitchens {...cooking} achievements={achievements} lastUpdated={state?.lastUpdated}
-                  totalMealSpeed={totalMealSpeed}/> : null}
+                  totalMealSpeed={totalMealSpeed} lab={state?.account?.lab}
+        /> : null}
       {selectedTab === 1 ? <Meals characters={state?.characters}
                                   {...cooking}
+                                  lab={state?.account?.lab}
                                   achievements={achievements}
                                   totalMealSpeed={totalMealSpeed}
                                   artifacts={sailing?.artifacts}

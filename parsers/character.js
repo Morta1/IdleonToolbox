@@ -342,6 +342,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'c21')
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
+  character.linkedDeity = linkedDeity;
   if (linkedDeity !== -1) {
     const godIndex = gods?.[linkedDeity]?.godIndex;
     const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
