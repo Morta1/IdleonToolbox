@@ -137,9 +137,9 @@ const Bubbles = () => {
     return parseFloat((25 * (Math.pow(0.75, bargainTag) - 1) / (0.75 - 1)).toFixed(1));
   }
 
-  const getHardCapMaxEffect = (goalLevel, func, x1) => {
+  const getMaxBonus = (func, x1) => {
     if (!func?.includes('decay')) return null;
-    let maxBonus = x1
+    let maxBonus = x1;
     if (func === 'decayMulti') maxBonus += 1
     return maxBonus;
   }
@@ -204,8 +204,8 @@ const Bubbles = () => {
           const { level, itemReq, rawName, bubbleName, func, x1, x2 } = bubble;
           const goalLevel = bubblesGoals?.[index] ? bubblesGoals?.[index] < level ? level : bubblesGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true);
-          const effectHardCap = getHardCapMaxEffect(goalLevel, func, x1);
-          const effectHardCapPercent = goalBonus / effectHardCap * 100;
+          const bubbleMaxBonus = getMaxBonus(func, x1);
+          const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
           return <React.Fragment key={rawName + '' + bubbleName + '' + index}>
             <Card sx={{ width: 330 }}>
               <CardContent>
@@ -233,8 +233,8 @@ const Bubbles = () => {
                       <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
                     </HtmlTooltip>
                     <HtmlTooltip
-                      title={effectHardCap ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${effectHardCap}` : ''}>
-                      <Typography>{goalBonus} {effectHardCap ? `(${notateNumber(effectHardCapPercent)}%)` : ''}</Typography>
+                      title={bubbleMaxBonus ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}` : ''}>
+                      <Typography>{goalBonus} {bubbleMaxBonus ? `(${notateNumber(effectHardCapPercent)}%)` : ''}</Typography>
                     </HtmlTooltip>
 
                   </Stack>
