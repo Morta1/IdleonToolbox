@@ -154,3 +154,28 @@ export const guildTasks = (account, trackersOptions) => {
   }
   return alerts;
 }
+
+export const sailingAlerts = (account, trackersOptions) => {
+  if (!account?.finishedWorlds?.World4) return false;
+  const { captains } = trackersOptions;
+  const alerts = {}
+  if (captains) {
+    const { captains, shopCaptains } = account?.sailing || {}
+    alerts.captains = shopCaptains?.reduce((res, shopCaption) => {
+      const { firstBonusIndex, secondBonusIndex, firstBonusValue, secondBonusValue } = shopCaption;
+      const matches = captains?.filter((rCaptain) => {
+        if (rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex) {
+          return firstBonusValue > rCaptain?.firstBonusValue || secondBonusValue > rCaptain?.secondBonusValue;
+        } else if (rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex) {
+          return firstBonusValue > rCaptain?.secondBonusValue || secondBonusValue > rCaptain?.firstBonusValue;
+        }
+        return false
+      });
+      if (matches?.length > 0) {
+        return [...res, { captain: shopCaption, badCaptains: matches.map(({ captainIndex }) => captainIndex) }]
+      }
+      return res;
+    }, []);
+  }
+  return alerts;
+}

@@ -7,12 +7,6 @@ import Captain from "./Captain";
 
 const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCaptains, lastUpdated }) => {
   return <>
-    <Typography my={3} variant={'h3'}>Shop Captains</Typography>
-    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
-      {shopCaptains?.map((captain, index) => <Captain shop key={index} {...captain}
-                                                      lootPile={lootPile}
-                                                      captainsOnBoats={captainsOnBoats}/>)}
-    </Stack>
     <Typography my={3} variant={'h3'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
       {boats?.map(({
@@ -73,6 +67,12 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
           <Typography>Artifact Odds: {artifactChance}x</Typography>
         </CardContent>
       </Card>)}
+    </Stack>
+    <Typography my={3} variant={'h3'}>Captains shop</Typography>
+    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
+      {shopCaptains?.map((captain, index) => <Captain shop key={index} {...captain}
+                                                      lootPile={lootPile}
+                                                      captainsOnBoats={captainsOnBoats}/>)}
     </Stack>
     <Typography my={3} variant={'h3'}>Captains</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>

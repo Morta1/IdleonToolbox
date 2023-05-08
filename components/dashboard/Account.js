@@ -15,7 +15,7 @@ import {
   isBallsOverdue,
   isStampReducerMaxed,
   refineryAlerts,
-  riftAlerts,
+  riftAlerts, sailingAlerts,
   zeroBargainTag
 } from "../../utility/dashboard/account";
 
@@ -32,7 +32,8 @@ const alertsMapping = {
   bargainTag: zeroBargainTag,
   gaming: gamingAlerts,
   guildTasks: guildTasks,
-  rift: riftAlerts
+  rift: riftAlerts,
+  sailing: sailingAlerts
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -88,10 +89,14 @@ const Account = ({ account, trackers, trackersOptions }) => {
             alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
                                                                                 title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
                                                                                 iconPath={`etc/${rawName}`}/>) : null}
-          {trackers?.sigils && alerts?.sigils.length > 0 ?
+          {trackers?.sigils && alerts?.sigils?.length > 0 ?
             alerts?.sigils?.map(({ name, index }) => <Alert key={name}
                                                             title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
                                                             iconPath={`data/aSiga${index}`}/>) : null}
+          {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
+            alerts?.sailing?.captains?.map(({ captain, badCaptains }) => <Alert key={'captain' + captain?.captainIndex}
+                                                                                title={`A captain (${captain?.captainIndex}) from the shop is better than ${badCaptains.length} of your captains (${badCaptains.join(',')})`}
+                                                                                iconPath={`etc/Captain_${captain?.captainType}`}/>) : null}
           {trackers?.refinery && alerts?.refinery?.materials?.length > 0 ?
             alerts?.refinery?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
                                                                                   title={<RefineryTitle
