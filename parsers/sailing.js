@@ -211,16 +211,8 @@ const getCaptain = (captain, index, isShop) => {
   captainObj.secondBonusDescription = captainObj?.secondBonusDescription?.replace('{', secondBonus);
   captainObj.expReq = notateNumber(getCaptainExpReq(captainObj), 'Big');
   if (isShop) {
-    // (i = a.engine.getGameAttribute("DNSM")),
-    //   (s = a.engine.getGameAttribute("Captains")[(30 + c.asNumber(a.engine.getGameAttribute("PixelHelperActor")[23].getValue("ActorEvents_577", "_GenINFO")[30])) | 0]),
-    //   (i.h.SailzDL = s), (i = a.engine.getGameAttribute("DNSM")), (s = 2 * c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[1])
-    //   + (2 * c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[2]) + (c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[5])
-    //     + c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[6])))), (i.h.SailzDN = s),
-    // Math.pow(8, 1 + c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[0])) *
-    // (1 + Math.pow(c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDN), 2) / 100);
     const baseCost = 2 * firstBonusIndex + (2 * secondBonusIndex) + firstBonusValue + secondBonusValue;
     captainObj.cost = Math.pow(8, 1 + captainType) * (1 + Math.pow(baseCost, 2) / 100);
-    console.log('captainObj.cost', captainObj.cost)
   }
   return captainObj;
 }
