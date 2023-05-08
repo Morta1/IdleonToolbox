@@ -127,7 +127,7 @@ const Stamps = () => {
             if (goldCost) {
               hasMoney = state?.account?.currencies?.rawMoney >= goldCost;
             }
-            if (materials) {
+            if (materials?.length > 0) {
               hasMaterials = materials?.every(({ rawName, type, itemQuantity }) => {
                 if (type === 'Equip') return true;
                 const ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
