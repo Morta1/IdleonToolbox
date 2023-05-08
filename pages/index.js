@@ -27,7 +27,8 @@ const patchNotes = [
     gameVer: "1.81",
     date: "08/05/2023",
     features: [
-      'Added Boat Speed value and a timer to "Boats and Captains" tab (Sailing page)'
+      'Added Boat Speed value and a timer to "Boats and Captains" tab (Sailing page)',
+      'Added shop captains to "Boats and Captains" tab (Sailing page)'
     ],
     fixes: [
       'Fixed meals actual values in Meals and Kitchen tabs',

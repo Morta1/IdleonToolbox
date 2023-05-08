@@ -3,9 +3,16 @@ import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
 import Timer from "../../../../common/Timer";
+import Captain from "./Captain";
 
-const BoatsAndCaptains = ({ boats, captains, captainsOnBoats, lastUpdated }) => {
+const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCaptains, lastUpdated }) => {
   return <>
+    <Typography my={3} variant={'h3'}>Shop Captains</Typography>
+    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
+      {shopCaptains?.map((captain, index) => <Captain shop key={index} {...captain}
+                                                      lootPile={lootPile}
+                                                      captainsOnBoats={captainsOnBoats}/>)}
+    </Stack>
     <Typography my={3} variant={'h3'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
       {boats?.map(({
@@ -69,51 +76,7 @@ const BoatsAndCaptains = ({ boats, captains, captainsOnBoats, lastUpdated }) => 
     </Stack>
     <Typography my={3} variant={'h3'}>Captains</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
-      {captains?.map(({
-                        firstBonusDescription,
-                        secondBonusDescription,
-                        firstBonus,
-                        secondBonus,
-                        level,
-                        exp,
-                        expReq,
-                        firstBonusIndex,
-                        secondBonusIndex,
-                        captainIndex,
-                        captainType
-                      }, index) => <Card key={index}>
-        <CardContent sx={{ width: 250, minHeight: 220 }}>
-          {captainType >= 0 ? <>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <Stack gap={1}>
-                <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-                     src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt=""/>
-                {secondBonusIndex >= 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-                                              src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
-                                              alt=""/> : <>&nbsp;</>}
-              </Stack>
-              <img style={{ width: 40, height: 50, objectFit: 'contain' }}
-                   src={`${prefix}etc/Captain_${captainType}.png`} alt=""/>
-              <Stack>
-                <Typography>{captainIndex}</Typography>
-                <Typography variant={'caption'}>Boat {captainsOnBoats?.[captainIndex] + 1}</Typography>
-              </Stack>
-            </Stack>
-            <Divider sx={{ my: 1 }}/>
-            <Stack>
-              <Typography>Lv.{level}</Typography>
-              <Typography>Exp: {exp} / {expReq}</Typography>
-              <Divider sx={{ my: 1 }}/>
-              <Typography
-                variant={'caption'}>{cleanUnderscore(firstBonusDescription)} ({firstBonus / level})</Typography>
-              {secondBonus > 0 ? <Typography
-                variant={'caption'}>{cleanUnderscore(secondBonusDescription)} ({secondBonus / level})</Typography> : null}
-            </Stack>
-          </> : <Stack alignItems={'center'} justifyContent={'center'}>
-            <Typography>EMPTY</Typography>
-          </Stack>}
-        </CardContent>
-      </Card>)}
+      {captains?.map((captain, index) => <Captain key={index} {...captain} captainsOnBoats={captainsOnBoats}/>)}
     </Stack>
   </>
 };

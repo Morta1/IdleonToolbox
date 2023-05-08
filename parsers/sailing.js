@@ -122,6 +122,8 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Lower_Minimum_Travel_Time_for_Sailing');
   const minimumTravelTime = Math.round(120 / (1 + (familyBonus + shinyBonus) / 100))
   const baseSpeed = getBaseSpeed(account, characters, artifactsList);
+  let shopCaptains = captainsRaw?.slice(30, 34);
+  shopCaptains = shopCaptains.map((captain, index) => getCaptain(captain, index, true))
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
   const captains = allCaptains?.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
@@ -133,6 +135,7 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
   return {
     captains,
     boats,
+    shopCaptains,
     captainsOnBoats
   }
 }
@@ -185,7 +188,7 @@ const getBaseSpeed = (account, characters, artifactsList) => {
       artifactBonus + stampBonus + statueBonus + mealBonus + vialBonus + (17 * skillMasteryBonus + superbitBonus)) / 125);
 }
 
-const getCaptain = (captain, index) => {
+const getCaptain = (captain, index, isShop) => {
   const captainIndex = String.fromCharCode(65 + index);
   const [captainType, firstBonusIndex, secondBonusIndex, level, exp, firstBonusValue, secondBonusValue] = captain;
   const captainObj = {
@@ -207,6 +210,18 @@ const getCaptain = (captain, index) => {
   captainObj.firstBonusDescription = captainObj?.firstBonusDescription?.replace('{', firstBonus);
   captainObj.secondBonusDescription = captainObj?.secondBonusDescription?.replace('{', secondBonus);
   captainObj.expReq = notateNumber(getCaptainExpReq(captainObj), 'Big');
+  if (isShop) {
+    // (i = a.engine.getGameAttribute("DNSM")),
+    //   (s = a.engine.getGameAttribute("Captains")[(30 + c.asNumber(a.engine.getGameAttribute("PixelHelperActor")[23].getValue("ActorEvents_577", "_GenINFO")[30])) | 0]),
+    //   (i.h.SailzDL = s), (i = a.engine.getGameAttribute("DNSM")), (s = 2 * c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[1])
+    //   + (2 * c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[2]) + (c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[5])
+    //     + c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[6])))), (i.h.SailzDN = s),
+    // Math.pow(8, 1 + c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDL[0])) *
+    // (1 + Math.pow(c.asNumber(a.engine.getGameAttribute("DNSM").h.SailzDN), 2) / 100);
+    const baseCost = 2 * firstBonusIndex + (2 * secondBonusIndex) + firstBonusValue + secondBonusValue;
+    captainObj.cost = Math.pow(8, 1 + captainType) * (1 + Math.pow(baseCost, 2) / 100);
+    console.log('captainObj.cost', captainObj.cost)
+  }
   return captainObj;
 }
 

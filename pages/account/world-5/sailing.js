@@ -11,7 +11,16 @@ import { NextSeo } from "next-seo";
 
 const Sailing = () => {
   const { state } = useContext(AppContext);
-  const { artifacts, lootPile, maxChests, captains, boats, chests, captainsOnBoats } = state?.account?.sailing || {};
+  const {
+    artifacts,
+    lootPile,
+    maxChests,
+    captains,
+    boats,
+    chests,
+    captainsOnBoats,
+    shopCaptains
+  } = state?.account?.sailing || {};
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const handleOnClick = (e, selected) => {
@@ -63,7 +72,11 @@ const Sailing = () => {
     {selectedTab === 0 ? <Artifacts artifacts={artifacts}/> : null}
     {selectedTab === 1 ? <Chests chests={chests}/> : null}
     {selectedTab === 2 ? <LootPile lootPile={lootPile}/> : null}
-    {selectedTab === 3 ? <BoatsAndCaptains boats={boats} captains={captains} captainsOnBoats={captainsOnBoats} lastUpdated={state?.lastUpdated}/> : null}
+    {selectedTab === 3 ?
+      <BoatsAndCaptains boats={boats} captains={captains}
+                        lootPile={lootPile}
+                        captainsOnBoats={captainsOnBoats} shopCaptains={shopCaptains}
+                        lastUpdated={state?.lastUpdated}/> : null}
   </>
 };
 
