@@ -24246,11 +24246,7 @@
   ],
   "Divine_Knight": [
     {
-      "level": 0,
-      "title": "",
-      "notes": "",
-      "version": "",
-      "className": "",
+      "title": "Active DK",
       "tabs": [
         {
           "name": "Rage_Basics",
@@ -24258,7 +24254,7 @@
             {
               "name": "Health_Booster",
               "skillIndex": 0,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Increases_Max_HP_by_{",
               "x1": 1,
@@ -24314,7 +24310,7 @@
             {
               "name": "Sharpened_Axe",
               "skillIndex": 5,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Increases_Base_Weapon_Power_by_{._This_contributes_to_your_total_damage.",
               "x1": 0.25,
@@ -24328,7 +24324,7 @@
             {
               "name": "Fist_Of_Rage",
               "skillIndex": 10,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Increases_your_Base_STR_by_{_(STR_boosts_Max_HP_and_Crit_Damage)",
               "x1": 1,
@@ -24356,7 +24352,7 @@
             {
               "name": "Book_Of_The_Wise",
               "skillIndex": 12,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Increases_your_Base_WIS_by_{_(WIS_boosts_Mana_and_Boss_Damage)",
               "x1": 1,
@@ -24384,7 +24380,7 @@
             {
               "name": "Gilded_Sword",
               "skillIndex": 6,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Boosts_Damage_dealt|to_all_monsters_by_{%",
               "x1": 1,
@@ -24412,7 +24408,7 @@
             {
               "name": "Meat_Shank",
               "skillIndex": 86,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Damage_dealt_is_increased_by_{%_for_every_power_of_10_Max_HP_you_have",
               "x1": 100,
@@ -24440,7 +24436,7 @@
             {
               "name": "Idle_Brawling",
               "skillIndex": 88,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "AFK_Gains_Rate_for_Fighting_is_increased_by_{%",
               "x1": 20,
@@ -24465,7 +24461,8 @@
               "funcY": "txt",
               "lvlUpText": "+{%_AFK_Gains_Rate"
             }
-          ]
+          ],
+          "note": "*1 Split excess points between Fist of Rage and Health Booster"
         },
         {
           "name": "Warrior",
@@ -24473,7 +24470,7 @@
             {
               "name": "Power_Strike",
               "skillIndex": 90,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Slash_forward_dealing_{%|damage_to_up_to|2_monsters",
               "x1": 130,
@@ -24497,7 +24494,7 @@
             {
               "name": "Whirl",
               "skillIndex": 91,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Swing_your_weapon_around_you|dealing_{%_damage_to_up_to|}_monsters",
               "x1": 60,
@@ -24521,7 +24518,7 @@
             {
               "name": "Health_Overdrive",
               "skillIndex": 92,
-              "level": 0,
+              "level": "*2",
               "note": "",
               "description": "Increase_max_HP_by_{%",
               "x1": 0.5,
@@ -24535,7 +24532,7 @@
             {
               "name": "Double_Strike",
               "skillIndex": 93,
-              "level": 0,
+              "level": "41",
               "note": "",
               "description": "Basic_Attacks_with_Warrior_Weapons_have_a_{%_chance_to_hit_twice",
               "x1": 110,
@@ -24549,7 +24546,7 @@
             {
               "name": "Firmly_Grasp_It",
               "skillIndex": 94,
-              "level": 0,
+              "level": "1",
               "note": "",
               "description": "Temporarily_boosts_base_STR_by_{_for_}_minutes",
               "x1": 15,
@@ -24573,7 +24570,7 @@
             {
               "name": "Strength_In_Numbers",
               "skillIndex": 95,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "STR's_effect_on_both_Damage_and_HP_is_increased_by_{%",
               "x1": 0.75,
@@ -24587,7 +24584,7 @@
             {
               "name": "'str'ess_Tested_Garb",
               "skillIndex": 96,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "All_Equipment_gives_{%_more_STR_than_what's_listed",
               "x1": 1.5,
@@ -24601,7 +24598,7 @@
             {
               "name": "Carry_A_Big_Stick",
               "skillIndex": 97,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "The_effect_Weapon_Power_has_on_Damage_Dealt_is_increased_by_{%",
               "x1": 1,
@@ -24615,7 +24612,7 @@
             {
               "name": "Absolute_Unit",
               "skillIndex": 98,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "+{_base_STR",
               "x1": 1,
@@ -24720,7 +24717,8 @@
               "funcY": "txt",
               "lvlUpText": "+{%_Exp_Gain"
             }
-          ]
+          ],
+          "note": "*1 Put excess into 'str'ess Tested Garb\n*2 Excess into Health Overdrive"
         },
         {
           "name": "Squire",
@@ -24728,7 +24726,7 @@
             {
               "name": "Shockwave_Slash",
               "skillIndex": 120,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Slash_forward,_causing_a_shockwave_which_deals_{%_dmg_to_up_to_}_enemies",
               "x1": 175,
@@ -24752,7 +24750,7 @@
             {
               "name": "Daggerang",
               "skillIndex": 121,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Throw_a_dagger_which_comes_right_back_to_you,_dealing_{%_Dmg_to_up_to_}_mobs",
               "x1": 200,
@@ -24776,7 +24774,7 @@
             {
               "name": "Bricky_Skin",
               "skillIndex": 122,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "Block_{%_of_all_damage._Also,_passively_gives_+}_base_DEF_at_all_times,_even_when_not_in_use!",
               "x1": 20,
@@ -24800,7 +24798,7 @@
             {
               "name": "Mastery_Up",
               "skillIndex": 123,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "+{%_Mastery._This_affects_how_big_your_minimum_damage_is_compared_to_max_damage!",
               "x1": 18,
@@ -24838,7 +24836,7 @@
             {
               "name": "Precision_Power",
               "skillIndex": 125,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "+{%_Dmg_per_Refinery_Rank_if_accuracy_is_1.5x_higher_than_needed_for_100%_hit_chance",
               "x1": 11,
@@ -24974,7 +24972,7 @@
             {
               "name": "Back_To_Basics",
               "skillIndex": 119,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "+{_Talent_Points_for_the_'Warrior'_talent_tab,_and_+10_dmg_to_these_Talents'_feelings!",
               "x1": 1,
@@ -24985,7 +24983,8 @@
               "funcY": "txt",
               "lvlUpText": "+1_Talent_Pt"
             }
-          ]
+          ],
+          "note": "*1 If you need more points into tab 2 put into Back to Basics otherwise Bricky skin"
         },
         {
           "name": "Divine_Knight",
@@ -24993,7 +24992,7 @@
             {
               "name": "Knightly_Disciple",
               "skillIndex": 165,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Spawn_a_knight_disciple_who_generates_shockwaves_for_{_sec.",
               "x1": 10,
@@ -25017,7 +25016,7 @@
             {
               "name": "Mega_Mongorang",
               "skillIndex": 166,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Your_daggerang_is_now_+{%_larger_in_size,_and_hits_up_to_}_more_mobs.",
               "x1": 100,
@@ -25031,7 +25030,7 @@
             {
               "name": "Divine_Intervention",
               "skillIndex": 167,
-              "level": 0,
+              "level": "1",
               "note": "",
               "description": "While_active_if_all_mobs_on_screen_are_dead,_instantly_revive_all._Also_+{%_crit_dmg",
               "x1": 200,
@@ -25055,7 +25054,7 @@
             {
               "name": "Orb_Of_Remembrance",
               "skillIndex": 168,
-              "level": 0,
+              "level": "1",
               "note": "",
               "description": "+1%_active_EXP_and_Drop_Rate_per_mob_kill_shown_above_Orb._Orb_lasts_for_{_sec",
               "x1": 30,
@@ -25079,7 +25078,7 @@
             {
               "name": "Imbued_Shockwaves",
               "skillIndex": 169,
-              "level": 0,
+              "level": "100+",
               "note": "",
               "description": "Every_basic_attack_with_a_spear_has_a_{%_chance_of_sending_out_a_shockwave.",
               "x1": 100,
@@ -25093,7 +25092,7 @@
             {
               "name": "Gamer_Strength",
               "skillIndex": 170,
-              "level": 0,
+              "level": "*1",
               "note": "",
               "description": "+{_Weapon_Power_for_every_10_Gaming_Lvs_of_this_character.",
               "x1": 7,
@@ -25219,7 +25218,7 @@
             {
               "name": "Symbols_Of_Beyond_~r",
               "skillIndex": 149,
-              "level": 0,
+              "level": "1",
               "note": "",
               "description": "+{_Lv_for_all_talents_higher_than_Lv_1._This_bonus_goes_up_every_20_lvs",
               "x1": 1,
@@ -25230,9 +25229,11 @@
               "funcY": "txt",
               "lvlUpText": "+1_all_LVs_every_20_LVs"
             }
-          ]
+          ],
+          "note": "*1 Excess into Gamer Strength"
         }
-      ]
+      ],
+      "class": "Divine_Knight"
     }
   ],
   "Archer": [
@@ -55270,7 +55271,7 @@
   ],
   "Bubonic_Conjuror": [
     {
-      "title":"Active Bubo",
+      "title": "Active Bubo",
       "tabs": [
         {
           "name": "Savvy_Basics",
