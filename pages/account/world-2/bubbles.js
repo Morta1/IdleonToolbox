@@ -7,7 +7,7 @@ import {
   Stack,
   Tab,
   Tabs,
-  TextField,
+  TextField, Tooltip,
   Typography,
   useMediaQuery
 } from "@mui/material";
@@ -143,7 +143,6 @@ const Bubbles = () => {
     if (func === 'decayMulti') maxBonus += 1
     return maxBonus;
   }
-
   return (
     <>
       <NextSeo
@@ -154,12 +153,22 @@ const Bubbles = () => {
       <Stack justifyContent={'center'} alignItems={'center'}>
         <Typography>Next Bubble Upgrades:</Typography>
         <Stack direction={'row'} flexWrap={'wrap'}>
-          {upgradeableBubbles?.map(({ rawName, bubbleName, level }, index) => {
-            return <Stack alignItems={'center'} key={`${rawName}-${index}`}>
+          {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index }, tIndex) => {
+            const cauldronName = Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab];
+            const cost = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldronName);
+            const atomCost = cost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && getBubbleAtomCost(index, cost);
+            return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
               <HtmlTooltip title={pascalCase(cleanUnderscore(bubbleName))}>
                 <img src={`${prefix}data/${rawName}.png`} alt=""/>
               </HtmlTooltip>
-              <Typography variant={'body1'}>{level}</Typography>
+              <Stack direction={'row'} alignItems={'center'} gap={.5}>
+                {atomCost > 0 ?
+                  <Tooltip title={<Typography
+                    color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
+                    <img width={18} height={18} src={`${prefix}etc/Particle.png`} alt=""/>
+                  </Tooltip> : null}
+                <Typography variant={'body1'}>{level}</Typography>
+              </Stack>
             </Stack>
           })}
         </Stack>
@@ -247,9 +256,9 @@ const Bubbles = () => {
                     const atomCost = cost > 1e8 && !name?.includes('Liquid') && getBubbleAtomCost(index, cost);
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
                       {atomCost ? <Stack gap={2} alignItems={'center'}>
-                          <HtmlTooltip title={<Typography>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
+                          <Tooltip title={<Typography color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
                             <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
-                          </HtmlTooltip>
+                          </Tooltip>
                           <HtmlTooltip title={atomCost}>
                             <Typography>{notateNumber(atomCost, 'Big')}</Typography>
                           </HtmlTooltip></Stack>
