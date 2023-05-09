@@ -1,10 +1,23 @@
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "utility/helpers";
-import React, { useState } from "react";
+import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
+import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
+import { getJewelBonus, getLabBonus } from "../../../../../parsers/lab";
+import { getShinyBonus } from "../../../../../parsers/breeding";
+import Timer from "../../../../common/Timer";
+import Tooltip from "../../../../Tooltip";
 
-const Pets = ({ pets }) => {
+const Pets = ({ pets, lab, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
+
+  const calcShinyLvMulti = () => {
+    const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
+    const emeraldUlthuriteBonus = getJewelBonus(lab.jewels, 15, spelunkerObolMulti);
+    const fasterShinyLevelBonus = getShinyBonus(pets, 'Faster_Shiny_Pet_Lv_Up_Rate');
+    return 1 + (emeraldUlthuriteBonus + fasterShinyLevelBonus) / 100;
+  }
+  const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
+
   return <>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
       <FormControlLabel
@@ -18,7 +31,8 @@ const Pets = ({ pets }) => {
           <Card key={`world-${worldIndex}`}>
             <CardContent>
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-                {world?.map(({ monsterName, icon, passive, level, shinyLevel, gene, unlocked }) => {
+                {world?.map(({ monsterName, icon, passive, level, shinyLevel, gene, unlocked, progress, goal }) => {
+                  const timeLeft = ((goal - progress) / fasterShinyLv) * 8.64e+7;
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'} sx={{
                     opacity: unlocked ? 1 : .6
                   }}>
@@ -31,6 +45,12 @@ const Pets = ({ pets }) => {
                           <Typography variant={'caption'}>Lv. {level}</Typography>
                           <Typography variant={'caption'} sx={{ opacity: shinyLevel > 0 ? 1 : .6 }}>Shiny
                             Lv. {shinyLevel}</Typography>
+                          <Tooltip title={`Faster Shiny Level Multi: ${fasterShinyLv}x`}>
+                            <Typography variant={'caption'}>Days {notateNumber(progress)} / {goal}</Typography>
+                          </Tooltip>
+                          {<Timer type={'countdown'} lastUpdated={lastUpdated}
+                                  staticTime={progress === 0}
+                                  date={new Date().getTime() + (timeLeft)}/>}
                         </Stack>
                       </Stack>
                       <Divider sx={{ my: 1 }}/>

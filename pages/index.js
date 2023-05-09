@@ -23,6 +23,16 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.74",
+    gameVer: "1.81",
+    date: "09/05/2023",
+    features: [
+      'Added timers for egg and shiny levels',
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.73",
     gameVer: "1.81",
     date: "08/05/2023",

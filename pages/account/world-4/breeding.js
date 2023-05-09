@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
 import BreedingUpgrades from "components/account/Worlds/World4/Breeding/BreedingUpgrades";
@@ -6,6 +6,12 @@ import BreedingArena from "components/account/Worlds/World4/Breeding/BreedingAre
 import { prefix } from "utility/helpers";
 import { NextSeo } from "next-seo";
 import Pets from "../../../components/account/Worlds/World4/Breeding/Pets";
+import { getJewelBonus, getLabBonus } from "../../../parsers/lab";
+import { getMealsBonusByEffectOrStat } from "../../../parsers/cooking";
+import { getBubbleBonus } from "../../../parsers/alchemy";
+import { getAchievementStatus } from "../../../parsers/achievements";
+import { isMasteryBonusUnlocked } from "../../../parsers/misc";
+import Timer from "../../../components/common/Timer";
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
@@ -14,6 +20,23 @@ const Breeding = () => {
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
   }
+
+  const calcTimePerEgg = () => {
+    const spelunkerObolMulti = getLabBonus(state?.account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(state?.account?.lab?.jewels, 16, spelunkerObolMulti);
+    const emeraldRhinestoneBonus = getJewelBonus(state?.account?.lab?.jewels, 11, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(state?.account, null, 'TimeEgg', blackDiamondRhinestone);
+    const bubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'EGG_INK', false);
+    const achievement = getAchievementStatus(state?.account?.achievements, 220);
+    const skillMasteryBonus = isMasteryBonusUnlocked(state?.account?.rift, state?.account?.totalSkillsLevels?.breeding?.rank, 1);
+    return 7200 / (1 +
+      (emeraldRhinestoneBonus
+        + (mealBonus
+          + (bubbleBonus
+            + (10 * achievement + 15 * skillMasteryBonus)))) / 100) * 1000;
+  }
+  const timePerEgg = useMemo(() => calcTimePerEgg(), [state]);
+
   return (
     <>
       <NextSeo
@@ -21,7 +44,7 @@ const Breeding = () => {
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Breeding</Typography>
-      <Stack my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} flexWrap={'wrap'} gap={2}>
+      <Stack my={2} direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={2}>
         {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
           return eggLevel > 0 ? <Card key={`egg-${index}`}>
             <CardContent sx={{ '&:last-child': { padding: '8px' }, display: 'flex', alignItems: 'center' }}>
@@ -30,15 +53,32 @@ const Breeding = () => {
           </Card> : null;
         })}
       </Stack>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <Card>
+          <CardContent>
+            <Typography variant={'subtitle2'}>Time to next egg</Typography>
+            <Timer type={'countdown'}
+                   date={new Date().getTime() + (timePerEgg - state?.account?.breeding?.timeToNextEgg)}
+                   lastUpdated={state?.lastUpdated}/>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <Typography variant={'subtitle2'}>Time per egg</Typography>
+            <Timer staticTime={true} date={new Date().getTime() + timePerEgg}/>
+          </CardContent>
+        </Card>
+      </Stack>
       <Tabs centered
             sx={{ marginBottom: 3 }}
             variant={isMd ? 'fullWidth' : 'standard'}
             value={selectedTab} onChange={handleOnClick}>
-        {['Pets', 'Upgrades', 'Arena' ]?.map((tab, index) => {
+        {['Pets', 'Upgrades', 'Arena']?.map((tab, index) => {
           return <Tab label={tab} key={`${tab}-${index}`}/>;
         })}
       </Tabs>
-      {selectedTab === 0 ? <Pets {...state?.account?.breeding}/> : null}
+      {selectedTab === 0 ?
+        <Pets {...state?.account?.breeding} lab={state?.account?.lab} lastUpdated={state?.lastUpdated}/> : null}
       {selectedTab === 1 ? <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
                                              meals={state?.account?.cooking?.meals}/> : null}
       {selectedTab === 2 ? <BreedingArena {...state?.account?.breeding}/> : null}

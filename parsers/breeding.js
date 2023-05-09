@@ -1,5 +1,6 @@
 import { arenaBonuses, petStats, petUpgrades } from "../data/website-data";
 import { tryToParse } from "../utility/helpers";
+import { getJewelBonus, getLabBonus } from "./lab";
 
 export const getBreeding = (idleonData, account) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -23,11 +24,14 @@ const parseBreeding = (breedingRaw, account) => {
     return petList?.map((pet, petIndex) => {
       let shinyLevel = new Array(19).fill(1)?.reduce((sum, _, index) => shinyPetsLevels?.[worldIndex]?.[petIndex] > Math.floor((1 + Math.pow(index + 1, 1.6)) * Math.pow(1.7, index + 1)) ? index + 2 : sum, 0)
       shinyLevel = shinyPetsLevels?.[worldIndex]?.[petIndex] === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
+      const goal = Math.floor((1 + Math.pow(shinyLevel, 1.6)) * Math.pow(1.7, shinyLevel));
       const passiveValue = Math.round(pet?.baseValue * shinyLevel);
       return {
         ...pet,
         level: petsLevels?.[worldIndex]?.[petIndex],
         shinyLevel,
+        progress: shinyPetsLevels?.[worldIndex]?.[petIndex],
+        goal,
         passive: pet?.passive?.replace('{', passiveValue),
         passiveValue,
         unlocked: petIndex < speciesUnlocked
@@ -40,6 +44,7 @@ const parseBreeding = (breedingRaw, account) => {
     deadCells,
     speciesUnlocks,
     maxArenaLevel: account?.accountOptions?.[89],
+    timeToNextEgg: account?.accountOptions?.[87] * 1000,
     petUpgrades: petUpgradesList,
     arenaBonuses,
     pets
