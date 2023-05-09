@@ -156,7 +156,7 @@ const Bubbles = () => {
           {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index }, tIndex) => {
             const cauldronName = Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab];
             const cost = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldronName);
-            const atomCost = cost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && getBubbleAtomCost(index, cost);
+            const atomCost = cost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, cost);
             return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
               <HtmlTooltip title={pascalCase(cleanUnderscore(bubbleName))}>
                 <img src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -253,7 +253,7 @@ const Bubbles = () => {
                     const cost = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
                     const x1Extension = ['sail', 'bits'];
                     const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str)) ? `${rawName}_x1` : rawName;
-                    const atomCost = cost > 1e8 && !name?.includes('Liquid') && getBubbleAtomCost(index, cost);
+                    const atomCost = cost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, cost);
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
                       {atomCost ? <Stack gap={2} alignItems={'center'}>
                           <Tooltip title={<Typography color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
