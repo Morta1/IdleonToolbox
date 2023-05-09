@@ -166,7 +166,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account, ba
 
 const getBaseSpeed = (account, characters, artifactsList) => {
   const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
-  const divinityMinorBonus = purrmepPlayer?.deityMinorBonus;
+  const divinityMinorBonus = purrmepPlayer?.deityMinorBonus ?? 0;
   const cardBonus = getCardBonusByEffect(account?.cards, 'Sailing_Speed_(Passive)');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sailing_Speed')
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
