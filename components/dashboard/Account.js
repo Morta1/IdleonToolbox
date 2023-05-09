@@ -94,9 +94,19 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                             title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
                                                             iconPath={`data/aSiga${index}`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
-            alerts?.sailing?.captains?.map(({ captain, badCaptains }) => <Alert key={'captain' + captain?.captainIndex}
-                                                                                title={`A captain (${captain?.captainIndex}) from the shop is better than ${badCaptains.length} of your captains (${badCaptains.join(',')})`}
-                                                                                iconPath={`etc/Captain_${captain?.captainType}`}/>) : null}
+            alerts?.sailing?.captains?.map(({ captain, badCaptains, bonuses }) => <Alert
+              key={'captain' + captain?.captainIndex}
+              title={<Stack>
+                <Typography sx={{ mb: 1 }}>A captain ({captain?.captainIndex}) from the shop is better
+                  than {badCaptains.length} of
+                  your captains ({badCaptains.join(',')})</Typography>
+                {bonuses?.length > 0 ? <>
+                  <Typography sx={{ fontWeight: 'bold' }}>Bonuses</Typography>
+                  {bonuses?.map((bonus, index) => <Typography
+                    key={captain + index}>{cleanUnderscore(bonus)}</Typography>)}
+                </> : null}
+              </Stack>}
+              iconPath={`etc/Captain_${captain?.captainType}`}/>) : null}
           {trackers?.refinery && alerts?.refinery?.materials?.length > 0 ?
             alerts?.refinery?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
                                                                                   title={<RefineryTitle

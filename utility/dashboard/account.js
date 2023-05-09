@@ -162,7 +162,14 @@ export const sailingAlerts = (account, trackersOptions) => {
   if (captains) {
     const { captains, shopCaptains } = account?.sailing || {}
     alerts.captains = shopCaptains?.reduce((res, shopCaption) => {
-      const { firstBonusIndex, secondBonusIndex, firstBonusValue, secondBonusValue } = shopCaption;
+      const {
+        firstBonusIndex,
+        secondBonusIndex,
+        firstBonusValue,
+        secondBonusValue,
+        firstBonusDescription,
+        secondBonusDescription
+      } = shopCaption;
       const matches = captains?.filter((rCaptain) => {
         if (rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex) {
           return firstBonusValue > rCaptain?.firstBonusValue || secondBonusValue > rCaptain?.secondBonusValue;
@@ -172,7 +179,12 @@ export const sailingAlerts = (account, trackersOptions) => {
         return false
       });
       if (matches?.length > 0) {
-        return [...res, { captain: shopCaption, badCaptains: matches.map(({ captainIndex }) => captainIndex) }]
+        return [...res, {
+          captain: shopCaption,
+          badCaptains: matches.map(({ captainIndex }) => captainIndex),
+          bonuses: matches ? [firstBonusDescription.substring(firstBonusDescription.indexOf('%')),
+            secondBonusDescription.substring(secondBonusDescription.indexOf('%'))] : []
+        }]
       }
       return res;
     }, []);

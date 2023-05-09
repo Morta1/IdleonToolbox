@@ -169,8 +169,6 @@ function NavBar({ children, window }) {
     dispatch({ type: 'resetLoginError' })
   };
 
-  // const shouldDisplayMenu = state?.signedIn || state?.manualImport;
-
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar position="fixed" sx={{ ml: { sm: `${drawerWidth}px` } }}>
@@ -201,61 +199,65 @@ function NavBar({ children, window }) {
           {(!state.signedIn && !state?.pastebin && !state?.manualImport) && state?.demo ? <Stack sx={{ mr: 1 }}>
             <Typography color={'primary'} variant={"caption"}>This is a demo site, please login</Typography>
           </Stack> : null}
-          <DiscordInvite shield={false} style={{ margin: '0 7.5px' }}/>
-          {!state?.pastebin ? <Tooltip title="Paste JSON">
-            <IconButton onClick={handleMenu} color="inherit">
-              <FileCopyIcon/>
-            </IconButton>
-          </Tooltip> : null}
-          <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }} keepMounted
-                transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)}
-                onClose={handleClose}>
-            <MenuItem onClick={() => handleManualImport()}>
-              <Typography variant={"span"}>From extractor</Typography>
-            </MenuItem>
-            <MenuItem onClick={() => handleManualImport()}>
-              <Typography variant={"span"}>From website</Typography>
-            </MenuItem>
-            {isFirefox ? <MenuItem sx={{
-              '&': { width: 200 },
-              '& .MuiTouchRipple-root': { display: 'none' },
-              '&:hover': { background: 'inherit' },
-              '& .MuiOutlinedInput-root': {
-                '&:hover': {
-                  borderColor: ''
+          <Stack direction={'row'} alignItems={'center'} sx={{ marginLeft: 'auto' }}>
+            <DiscordInvite shield={false} style={{ margin: '0 7.5px' }}/>
+            {!state?.pastebin ? <Tooltip title="Paste JSON">
+              <IconButton onClick={handleMenu} color="inherit">
+                <FileCopyIcon/>
+              </IconButton>
+            </Tooltip> : null}
+            <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  keepMounted
+                  transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)}
+                  onClose={handleClose}>
+              <MenuItem onClick={() => handleManualImport()}>
+                <Typography variant={"span"}>From extractor</Typography>
+              </MenuItem>
+              <MenuItem onClick={() => handleManualImport()}>
+                <Typography variant={"span"}>From website</Typography>
+              </MenuItem>
+              {isFirefox ? <MenuItem sx={{
+                '&': { width: 200 },
+                '& .MuiTouchRipple-root': { display: 'none' },
+                '&:hover': { background: 'inherit' },
+                '& .MuiOutlinedInput-root': {
+                  '&:hover': {
+                    borderColor: ''
+                  },
+                  '& fieldset': {
+                    borderColor: ffText ? 'green' : '',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: ffText ? 'green' : '',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: ffText ? 'green' : '',
+                  },
                 },
-                '& fieldset': {
-                  borderColor: ffText ? 'green' : '',
-                },
-                '&:hover fieldset': {
-                  borderColor: ffText ? 'green' : '',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: ffText ? 'green' : '',
-                },
-              },
-            }}>
-              <TextField onChange={(e) =>
-                setFfText(e.target.value)}
-                         value={ffText} size={'small'} label={'Firefox'}/>
-              <Button onClick={() => handleManualImport(true)}>upload</Button>
-            </MenuItem> : null}
-          </Menu>
-          {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Apple Login"}>
-            <IconButton onClick={() => handleAuth(state?.signedIn, { apple: true })} color="inherit">
-              {state?.signedIn ? <LogoutIcon/> : <AppleIcon/>}
-            </IconButton>
-          </Tooltip> : null}
-          {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Google Login"}>
-            <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
-              {state?.signedIn ? <LogoutIcon/> : <GoogleIcon/>}
-            </IconButton>
-          </Tooltip> : null}
-          {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Email-Password Login"}>
-            <IconButton onClick={() => setEmailPasswordDialog(true)} color="inherit">
-              {state?.signedIn ? <LogoutIcon/> : <PasswordIcon/>}
-            </IconButton>
-          </Tooltip> : null}
+              }}>
+                <TextField onChange={(e) =>
+                  setFfText(e.target.value)}
+                           value={ffText} size={'small'} label={'Firefox'}/>
+                <Button onClick={() => handleManualImport(true)}>upload</Button>
+              </MenuItem> : null}
+            </Menu>
+            {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Apple Login"}>
+              <IconButton onClick={() => handleAuth(state?.signedIn, { apple: true })} color="inherit">
+                {state?.signedIn ? <LogoutIcon/> : <AppleIcon/>}
+              </IconButton>
+            </Tooltip> : null}
+            {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Google Login"}>
+              <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
+                {state?.signedIn ? <LogoutIcon/> : <GoogleIcon/>}
+              </IconButton>
+            </Tooltip> : null}
+            {!state?.pastebin && !state?.signedIn ?
+              <Tooltip title={state?.signedIn ? "Logout" : "Email-Password Login"}>
+                <IconButton onClick={() => setEmailPasswordDialog(true)} color="inherit">
+                  {state?.signedIn ? <LogoutIcon/> : <PasswordIcon/>}
+                </IconButton>
+              </Tooltip> : null}
+          </Stack>
         </Toolbar>
       </AppBar>
       {displayDrawer ? (
@@ -275,7 +277,7 @@ function NavBar({ children, window }) {
               "& .MuiPaper-root": { backgroundImage: "none" }
             }}
           >
-            <Toolbar/>
+            <Toolbar sx={{ mt: 3 }}/>
             <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}
                            drawer/>
             {drawer === "account" ? <AccountDrawer onLabelClick={handleDrawerToggle}/> : null}
@@ -298,7 +300,7 @@ function NavBar({ children, window }) {
         </Box>
       ) : null}
       <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
-        <Toolbar/>
+        <Toolbar sx={{ mt: 3 }}/>
         <Box sx={{ height: "100%", minHeight: "unset" }}>{children}</Box>
       </Box>
       <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
