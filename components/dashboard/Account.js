@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
-import { cleanUnderscore, pascalCase, prefix } from "../../utility/helpers";
+import { cleanUnderscore, getNumberWithOrdinal, pascalCase, prefix } from "../../utility/helpers";
 import HtmlTooltip from "../Tooltip";
 import {
+  alchemyAlerts,
   areKeysOverdue,
   areSigilsOverdue,
   areTowersOverdue,
@@ -33,7 +34,8 @@ const alertsMapping = {
   gaming: gamingAlerts,
   guildTasks: guildTasks,
   rift: riftAlerts,
-  sailing: sailingAlerts
+  sailing: sailingAlerts,
+  alchemy: alchemyAlerts
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -93,6 +95,10 @@ const Account = ({ account, trackers, trackersOptions }) => {
             alerts?.sigils?.map(({ name, index }) => <Alert key={name}
                                                             title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
                                                             iconPath={`data/aSiga${index}`}/>) : null}
+          {trackers?.alchemy && alerts?.alchemy?.liquids?.length > 0 ?
+            alerts?.alchemy?.liquids?.map(({ index }) => <Alert key={'liq' + index}
+                                                                title={`${getNumberWithOrdinal(index + 1)} liquid is full!`}
+                                                                iconPath={`data/Liquid${index + 1}_x1`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
             alerts?.sailing?.captains?.map(({ captain, badCaptains, bonuses }) => <Alert
               key={'captain' + captain?.captainIndex}

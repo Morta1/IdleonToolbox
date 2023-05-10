@@ -1,6 +1,12 @@
 import { createArrayOfArrays, growth, tryToParse } from "../utility/helpers";
 import { cauldrons, p2w, sigils, vials } from "../data/website-data";
 import { isArtifactAcquired } from "./sailing";
+import { getSaltLickBonus } from "./saltLick";
+import { getMealsBonusByEffectOrStat } from "./cooking";
+import { getJewelBonus, getLabBonus } from "./lab";
+import { isMasteryBonusUnlocked } from "./misc";
+import { getStampsBonusByEffect } from "./stamps";
+import { getArcadeBonus } from "./arcade";
 
 const cauldronsIndexMapping = { 0: "power", 1: "quicc", 2: "high-iq", 3: "kazam" };
 const liquidsIndex = { 0: "water drops", 1: "liquid n2", 2: "trench h2o" };
@@ -37,30 +43,51 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   };
 };
 
-// export const getLiquidCauldrons = (account) => {
-//   const liquids = account?.alchemy?.liquids;
-//   const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
-//   return liquids.map((liquidVal, index) => {
-//     const brewBonus = getCauldronBrewBonus(liquidCauldrons[index * 4][1]); // CauldStatDN1
-//     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value, index) => index === 106) ?? 0;
-//     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5) / 100 + 2;
-//     let bleachLiquidBonus = 0;
-//     if (bleachLiquidCauldron > 0) {
-//       bleachLiquidBonus = .5 + saltLickBonus / 100;
-//     }
-//     if (account?.accountOptions?.[123] > 0) {
-//       bleachLiquidBonus = saltLickBonus / 100 + 2
-//     }
-//     // e.h.CauldStatDN1bb - 2.65
-//     // e.h.CauldStatDN1 - 45
-//     const bubbles = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DA_DAILY_DRIP', false);
-//   });
-// }
+export const getLiquidCauldrons = (account) => {
+  const liquids = account?.alchemy?.liquids;
+  const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
+  return liquids.map((liquidVal, index) => {
+    const brewBonus = getCauldronBrewBonus(index + 4, liquidCauldrons[index * 4][1]); // CauldStatDN1
+    const bleachLiquidCauldron = account?.gemShopPurchases?.find((value, index) => index === 106) ?? 0;
+    const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
+    let bleachLiquidBonus = 0;
+    if (bleachLiquidCauldron > index) {
+      bleachLiquidBonus = .5 + saltLickBonus / 100;
+    }
+    if (account?.accountOptions?.[123] > index) {
+      if (bleachLiquidBonus === 0) {
+        bleachLiquidBonus = 1;
+      } else {
+        bleachLiquidBonus = saltLickBonus / 100 + 2
+      }
+    }
+    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DA_DAILY_DRIP', false);
+    const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, `Liquid${index + 1}Cap`)
+    const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, `Liquid${index === 0 || index === 1 ? '12' : '34'}`, blackDiamondRhinestone);
+    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
+    const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
+    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity;
+    const stampBonus = getStampsBonusByEffect(account?.stamps, 'Liquid_Cap')
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
+
+
+    const firstMath = bubbleBonus * Math.max(Math.pow(account?.totalSkillsLevels?.alchemy?.level / 25, 0.3), 0);
+    const secondMath = bleachLiquidBonus + (mealBonus + 5 * skillMasteryBonus) / 100;
+    const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
+
+    return Math.ceil((1 + secondMath) * thirdMath)
+  });
+}
 //
-// const getCauldronBrewBonus = (cauldronVal) => {
-//   // a.engine.getGameAttribute("CauldronInfo")[8][0 | t][2][1]
-//   return Math.round(10 * growth("decay", 90, 100, cauldronVal, 0, 0)) / 10;
-// }
+const getCauldronBrewBonus = (index, cauldronVal) => {
+  // a.engine.getGameAttribute("CauldronInfo")[8][0 | t][2][1] - capacity
+  if (index < 4) {
+    return Math.round(10 * growth("decay", 90, 100, cauldronVal, 0, 0)) / 10;
+  }
+  return Math.round(cauldronVal);
+}
 
 const getPay2Win = (idleonData, alchemyActivity) => {
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
@@ -155,10 +182,11 @@ const getVials = (vialsRaw) => {
     .filter(({ name }) => name);
 };
 
-export const getVialsBonusByEffect = (vials, effectName) => {
+export const getVialsBonusByEffect = (vials, effectName, statName) => {
   return vials?.reduce((sum, vial) => {
-    const { func, level, x1, x2, desc, multiplier = 1 } = vial;
-    if (!desc.includes(effectName)) return sum;
+    const { func, level, x1, x2, desc, stat, multiplier = 1 } = vial;
+    if (effectName && !desc.includes(effectName)) return sum;
+    if (statName && !stat.includes(statName)) return sum;
     return sum + (growth(func, level, x1, x2) ?? 0) * multiplier;
   }, 0);
 };

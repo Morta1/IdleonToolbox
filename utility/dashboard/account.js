@@ -13,6 +13,21 @@ export const isBallsOverdue = (account) => {
   return ballsToClaim >= account?.arcade?.maxBalls
 }
 
+export const alchemyAlerts = (account, trackersOptions) => {
+  if (!account?.finishedWorlds?.World1) return false;
+  const { liquids } = trackersOptions || {};
+  const alerts = {}
+  if (liquids) {
+    const liquidsProgress = account?.alchemy?.liquids;
+    alerts.liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
+      current: liquidsProgress?.[index],
+      max: maxLiquid,
+      index
+    })).filter(({ current, max }) => current >= max);
+  }
+  return alerts
+}
+
 export const areSigilsOverdue = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
   return account?.alchemy?.p2w?.sigils?.filter(({ characters, unlocked }) => characters.length > 0 && unlocked === 1)
@@ -154,6 +169,7 @@ export const guildTasks = (account, trackersOptions) => {
   }
   return alerts;
 }
+
 
 export const sailingAlerts = (account, trackersOptions) => {
   if (!account?.finishedWorlds?.World4) return false;

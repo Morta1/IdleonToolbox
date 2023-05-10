@@ -1,9 +1,10 @@
 import { Box, LinearProgress, Typography } from "@mui/material";
 import React from "react";
 
-const ProgressBar = ({ percent, bgColor, label = true, sx }) => {
+const ProgressBar = ({ percent, bgColor, label = true, sx, pre }) => {
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
+      {pre}
       <Box sx={{ width: "100%", mr: 1 }}>
         <LinearProgress
           sx={{

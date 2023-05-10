@@ -23,6 +23,18 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.75",
+    gameVer: "1.81",
+    date: "10/05/2023",
+    features: [
+      'Added a dashboard alert for max capacity liquids in alchemy',
+      <Typography>Added liquids progress to the <Link
+        href={'https://idleontoolbox.com/account/world-2/cauldrons'}>cauldrons</Link> page</Typography>
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.74",
     gameVer: "1.81",
     date: "09/05/2023",

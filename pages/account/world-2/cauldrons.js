@@ -15,6 +15,13 @@ const cauldronsColors = [
   '#ecec31'
 ]
 
+const liquidsColors = [
+  '#61d5e8',
+  '#34c6fd',
+  '#2073ff',
+  '#3e2027'
+];
+
 const Cauldrons = () => {
   const { state } = useContext(AppContext);
   const { alchemy } = state?.account || {};
@@ -66,6 +73,8 @@ const Cauldrons = () => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w.liquids?.map((cauldron, index) => {
           const { name, regen, capacity, players } = cauldron;
+          const maxLiquid = alchemy?.liquidCauldrons?.[index];
+          const currentLiquid = alchemy?.liquids?.[index];
           return <Card key={`${name}-${index}`}>
             <CardContent>
               <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
@@ -79,6 +88,9 @@ const Cauldrons = () => {
                   <PlayersList players={players} characters={state?.characters}/>
                 </Stack>
               </Stack>
+              <ProgressBar bgColor={liquidsColors?.[index]}
+                           pre={<img src={`${prefix}data/Liquid${index + 1}_x1.png`} alt=""/>}
+                           percent={currentLiquid / maxLiquid * 100}/>
               <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                 <Card variant={'outlined'}>
                   <CardContent>

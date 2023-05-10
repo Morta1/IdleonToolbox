@@ -7,7 +7,13 @@ import { getShrines } from "./shrines";
 import { getHighscores } from "./highScores";
 import { getGemShop } from "./gemShop";
 import { getShops } from "./shops";
-import { applyArtifactBonusOnSigil, applyVialsMulti, getAlchemy, getEquippedBubbles } from "./alchemy";
+import {
+  applyArtifactBonusOnSigil,
+  applyVialsMulti,
+  getAlchemy,
+  getEquippedBubbles,
+  getLiquidCauldrons
+} from "./alchemy";
 import { getStorage } from "./storage";
 import { getBribes } from "./bribes";
 import { getConstellations, getStarSigns } from "./starSigns";
@@ -159,7 +165,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
-  // accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
+  accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
   accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
   accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels);
 

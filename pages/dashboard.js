@@ -34,7 +34,7 @@ import { NextSeo } from "next-seo";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing'
+  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy'
 ].toSimpleObject();
 
 const trackersOptions = {
@@ -43,7 +43,8 @@ const trackersOptions = {
     gaming: { sprouts: true, squirrel: true, shovel: true },
     guildTasks: { daily: true, weekly: true },
     refinery: { materials: true, rankUp: true },
-    sailing: { captains: true }
+    sailing: { captains: true },
+    alchemy: { liquids: true }
   },
   characters: {
     anvil: { showAlertBeforeFull: true },
