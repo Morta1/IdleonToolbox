@@ -1,13 +1,13 @@
 import { arenaBonuses, petStats, petUpgrades } from "../data/website-data";
 import { tryToParse } from "../utility/helpers";
-import { getJewelBonus, getLabBonus } from "./lab";
 
 export const getBreeding = (idleonData, account) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
-  return parseBreeding(breedingRaw, account);
+  const petsRaw = tryToParse(idleonData?.Pets) || idleonData?.Pets;
+  return parseBreeding(breedingRaw, petsRaw, account);
 }
 
-const parseBreeding = (breedingRaw, account) => {
+const parseBreeding = (breedingRaw, petsRaw, account) => {
   const eggs = breedingRaw?.[0];
   const deadCells = breedingRaw?.[3]?.[8];
   const speciesUnlocks = breedingRaw?.[1];
@@ -18,7 +18,11 @@ const parseBreeding = (breedingRaw, account) => {
     }
   })
   const petsLevels = breedingRaw?.slice(4, 8);
-  const shinyPetsLevels = breedingRaw?.slice(22, 26)
+  const shinyPetsLevels = breedingRaw?.slice(22, 26);
+  const fencePets = petsRaw?.slice(0, 19)?.reduce((res, [petName]) => ({
+    ...res,
+    [petName]: res?.[petName] ? res?.[petName] + 1 : 1
+  }), {});
   const pets = petStats?.map((petList, worldIndex) => {
     const speciesUnlocked = speciesUnlocks?.[worldIndex];
     return petList?.map((pet, petIndex) => {
@@ -43,6 +47,7 @@ const parseBreeding = (breedingRaw, account) => {
     eggs,
     deadCells,
     speciesUnlocks,
+    fencePets,
     maxArenaLevel: account?.accountOptions?.[89],
     timeToNextEgg: account?.accountOptions?.[87] * 1000,
     petUpgrades: petUpgradesList,

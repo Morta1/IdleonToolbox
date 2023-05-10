@@ -98,7 +98,7 @@ const calcSuperbitBonus = (characters, account, index) => {
   } else if (index === 12) {
     // skill level doesn't update if the character is away for a long time
     const highestGaming = getHighestCharacterSkill(characters, 'gaming');
-    totalBonus = Math.floor(highestGaming / 10);
+    totalBonus = Math.floor(highestGaming);
   }
   return { bonus, totalBonus, additionalInfo }
 }

@@ -15,12 +15,15 @@ import { isSuperbitUnlocked } from "./gaming";
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
   const timeAway = account?.timeAway;
-  const breakpoints = [16, 18, 20].map((maxCount) => {
+  let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
       time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - timeAway?.BookLib
     }
   })
+  breakpoints = [...breakpoints,
+    { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) - timeAway?.BookLib }]
+  console.log(breakpoints)
   return {
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData) - libTime,

@@ -7,7 +7,7 @@ import { getShinyBonus } from "../../../../../parsers/breeding";
 import Timer from "../../../../common/Timer";
 import Tooltip from "../../../../Tooltip";
 
-const Pets = ({ pets, lab, lastUpdated }) => {
+const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
 
   const calcShinyLvMulti = () => {
@@ -17,7 +17,7 @@ const Pets = ({ pets, lab, lastUpdated }) => {
     return 1 + (emeraldUlthuriteBonus + fasterShinyLevelBonus) / 100;
   }
   const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
-
+  console.log(pets)
   return <>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
       <FormControlLabel
@@ -31,8 +31,19 @@ const Pets = ({ pets, lab, lastUpdated }) => {
           <Card key={`world-${worldIndex}`}>
             <CardContent>
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-                {world?.map(({ monsterName, icon, passive, level, shinyLevel, gene, unlocked, progress, goal }) => {
-                  const timeLeft = ((goal - progress) / fasterShinyLv) * 8.64e+7;
+                {world?.map(({
+                               monsterName,
+                               monsterRawName,
+                               icon,
+                               passive,
+                               level,
+                               shinyLevel,
+                               gene,
+                               unlocked,
+                               progress,
+                               goal
+                             }) => {
+                  const timeLeft = ((goal - progress) / fasterShinyLv / (fencePets?.[monsterRawName] || 1)) * 8.64e+7;
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'} sx={{
                     opacity: unlocked ? 1 : .6
                   }}>
