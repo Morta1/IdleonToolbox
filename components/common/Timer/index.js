@@ -5,9 +5,19 @@ import { getDuration } from "utility/helpers";
 import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 
-const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placeholder, loop, variant = 'inherit' }) => {
+const Timer = ({
+                 date,
+                 startDate,
+                 lastUpdated,
+                 stopAtZero,
+                 type,
+                 pause,
+                 staticTime,
+                 placeholder,
+                 loop,
+                 variant = 'inherit'
+               }) => {
   const [time, setTime] = useState();
-  // const [localType, setLocalType] = useState(type);
 
   useEffect(() => {
     if (date) {
@@ -20,9 +30,6 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
       const dateIsInPast = isPast(date)
       let duration = getDuration(tempTime?.getTime(), date + (timePassed * (type === 'countdown' ? -1 : 1)));
       setTime({ ...duration, overtime: type === 'countdown' ? dateIsInPast : false });
-      // if (dateIsInPast) {
-      //   setLocalType('countdown');
-      // }
     }
   }, [date, lastUpdated]);
 
@@ -44,9 +51,14 @@ const Timer = ({ date, startDate, lastUpdated, type, pause, staticTime, placehol
   }
   const tickDown = () => {
     let { days, hours, minutes, seconds } = time;
-    if ((days === 0 && hours === 0 && minutes === 0 && seconds === 0) && loop) {
-      let duration = getDuration(new Date().getTime(), startDate);
-      return setTime({ ...duration });
+    if ((days === 0 && hours === 0 && minutes === 0 && seconds === 0)) {
+      if (stopAtZero) {
+        return;
+      }
+      if (loop) {
+        let duration = getDuration(new Date().getTime(), startDate);
+        return setTime({ ...duration });
+      }
     }
     seconds -= 1;
     if (seconds === -1) {

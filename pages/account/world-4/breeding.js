@@ -36,7 +36,7 @@ const Breeding = () => {
             + (10 * achievement + 15 * skillMasteryBonus)))) / 100) * 1000;
   }
   const timePerEgg = useMemo(() => calcTimePerEgg(), [state]);
-
+  const now = new Date().getTime();
   return (
     <>
       <NextSeo
@@ -58,7 +58,8 @@ const Breeding = () => {
           <CardContent>
             <Typography variant={'subtitle2'}>Time to next egg</Typography>
             <Timer type={'countdown'}
-                   date={new Date().getTime() + (timePerEgg - state?.account?.breeding?.timeToNextEgg)}
+                   stopAtZero
+                   date={now + (timePerEgg - state?.account?.breeding?.timeToNextEgg)}
                    lastUpdated={state?.lastUpdated}/>
           </CardContent>
         </Card>
@@ -78,7 +79,8 @@ const Breeding = () => {
         })}
       </Tabs>
       {selectedTab === 0 ?
-        <Pets {...state?.account?.breeding} fencePets={state?.account?.breeding?.fencePets} lab={state?.account?.lab} lastUpdated={state?.lastUpdated}/> : null}
+        <Pets {...state?.account?.breeding} fencePets={state?.account?.breeding?.fencePets} lab={state?.account?.lab}
+              lastUpdated={state?.lastUpdated}/> : null}
       {selectedTab === 1 ? <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
                                              meals={state?.account?.cooking?.meals}/> : null}
       {selectedTab === 2 ? <BreedingArena {...state?.account?.breeding}/> : null}
