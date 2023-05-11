@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { cleanUnderscore, growth, prefix } from "utility/helpers";
+import { cleanUnderscore, growth, numberWithCommas, prefix } from "utility/helpers";
 import { Badge, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import Tooltip from "../Tooltip";
@@ -63,16 +63,17 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq
     <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(displayName)}</Typography>
     <Typography>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
-      {[1, 2, 3, 4, 5].map((_, index) => {
+      {[1, 2, 3, 4, 5, 6].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
           {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt=""/>}
           <Typography>{bonus * (index + 1)}</Typography>
         </Stack>
       })}
     </Stack> : null}
-    {nextLevelReq > 0 ? <Stack>
-      Progress: {amount} / {nextLevelReq}
-    </Stack> : null}
+    {amount >= nextLevelReq ? <Stack>You've collected {numberWithCommas(amount)} cards</Stack> : nextLevelReq > 0 ?
+      <Stack>
+        Progress: {numberWithCommas(amount)} / {numberWithCommas(nextLevelReq)}
+      </Stack> : null}
   </>
 }
 

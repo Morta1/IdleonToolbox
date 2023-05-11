@@ -23,6 +23,18 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.74",
+    gameVer: "1.81",
+    date: "09/05/2023",
+    features: [],
+    fixes: [
+      'Fixed card progress calculations and added 5th star bonus to card page',
+      'Fixed a bug with bubble required material calculation',
+      'Fixed a bug with bubble atom cost calculation'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.75",
     gameVer: "1.81",
     date: "10/05/2023",

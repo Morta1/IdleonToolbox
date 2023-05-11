@@ -19,17 +19,21 @@ export const calculateStars = (tierReq, amountOfCards) => {
   return 0;
 };
 
-export const calculateAmountToNextLevel = (tierReq, amountOfCards) => {
-  if (amountOfCards < tierReq) {
-    return tierReq + 1;
-  } else if (amountOfCards < tierReq * 4) {
-    return tierReq * 4 + 1;
-  } else if (amountOfCards < tierReq * 9) {
-    return tierReq * 9 + 1;
-  } else if (amountOfCards < tierReq * 25) {
-    return tierReq * 25 + 1;
-  }
-  return 0;
+export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
+  return stars >= 5 ? 0 : (perTier
+    * Math.pow((stars + 1)
+      + (Math.floor((stars + 1) / 4)
+        + 16 * Math.floor((stars + 1) / 5)), 2) - amountOfCards) + 1;
+  // if (amountOfCards < tierReq) {
+  //   return tierReq + 1;
+  // } else if (amountOfCards < tierReq * 4) {
+  //   return tierReq * 4 + 1;
+  // } else if (amountOfCards < tierReq * 9) {
+  //   return tierReq * 9 + 1;
+  // } else if (amountOfCards < tierReq * 25) {
+  //   return tierReq * 25 + 1;
+  // }
+  // return 0;
 }
 
 const parseCards = (cardsRaw, account) => {

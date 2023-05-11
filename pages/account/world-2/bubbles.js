@@ -19,7 +19,7 @@ import HtmlTooltip from "components/Tooltip";
 import debounce from "lodash.debounce";
 import { isArtifactAcquired } from "../../../parsers/sailing";
 import { NextSeo } from "next-seo";
-import { getBubbleAtomCost } from "../../../parsers/alchemy";
+import { getBubbleAtomCost, getBubbleBonus, getVialsBonusByStat } from "../../../parsers/alchemy";
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
@@ -65,13 +65,15 @@ const Bubbles = () => {
         baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl) :
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
       const cauldronCostReduxBoost = Math.max(0.1, 1 - ((Math.round(10 * growth("decay", cauldronCostLvl, 90, 100, false)) / 10)) / 100);
-      const bubbleCostBubbleBoost = Math.max(0.05, 1 - (growth("decay", undevelopedBubbleLv, 40, 70, false) + (growth("add", barleyBrewLvl, 1, 0, false) * vialMultiplier)) / 100);
+      const barleyBrewVialBonus = getVialsBonusByStat(state?.account?.alchemy?.vials, 'AlchBubbleCost');
+      const undevelopedBubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'UNDEVELOPED_COSTS', false);
       const bubbleBargainBoost = Math.max(0.05, 1 - (growth("decay", lastBubbleLvl, 40, 12, false) / 100) *
         growth("decayMulti", classMultiplierLvl, 2, 50, false) *
         growth("decayMulti", multiBubble, 1.4, 30, false));
+      const secondMath = Math.max(.05, 1 - (barleyBrewVialBonus + undevelopedBubbleBonus) / 100);
       const shopBargainBoost = Math.max(0.1, Math.pow(0.75, shopBargainBought));
-      const smrtBoost = smrtAchievement ? 0.9 : 1;
-      const endResult = Math.round(first * cauldronCostReduxBoost * bubbleBargainBoost * bubbleCostBubbleBoost * shopBargainBoost * smrtBoost);
+      const smrtBoost = Math.max(.9, 1 - .1 * smrtAchievement)
+      const endResult = first * bubbleBargainBoost * cauldronCostReduxBoost * secondMath * shopBargainBoost * smrtBoost;
       return Math.min(endResult, 1e9);
     }
   };
@@ -82,7 +84,7 @@ const Bubbles = () => {
     const barleyBrewLvl = state?.account?.alchemy?.vials?.[9]?.level || 0;
     const multiBubble = cauldronName !== 'kazam' ? state?.account?.alchemy?.bubbles?.[cauldronName]?.[16]?.level || 0 : 0;
     const lastBubbleLvl = state?.account?.alchemy?.bubbles?.[cauldronName]?.[14]?.level || 0;
-    const classMultiplierLvl = classDiscount ? (state?.account?.alchemy?.bubbles?.[cauldronName]?.[1]?.level || 0) : 0;
+    const classMultiplierLvl = classDiscount && cauldronName !== 'kazam' ? (state?.account?.alchemy?.bubbles?.[cauldronName]?.[1]?.level || 0) : 0;
     const shopBargainBought = bargainTag || 0;
     const smrtAchievement = state?.account?.achievements[108]?.completed;
     return calcBubbleMatCost(bubbleIndex, myFirstChemSet ? 2 : 1, bubbleLv, baseCost, isLiquid, cauldronCostLvl,
@@ -91,7 +93,7 @@ const Bubbles = () => {
   }
 
   const getAccumulatedBubbleCost = (index, level, baseCost, isLiquid, cauldronName) => {
-    const levelDiff = bubblesGoals?.[index] - level;
+    const levelDiff = (bubblesGoals?.[index] ?? 0) - level;
     if (levelDiff <= 0) {
       return calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index);
     }
@@ -143,6 +145,7 @@ const Bubbles = () => {
     if (func === 'decayMulti') maxBonus += 1
     return maxBonus;
   }
+
   return (
     <>
       <NextSeo
@@ -153,9 +156,11 @@ const Bubbles = () => {
       <Stack justifyContent={'center'} alignItems={'center'}>
         <Typography>Next Bubble Upgrades:</Typography>
         <Stack direction={'row'} flexWrap={'wrap'}>
-          {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index }, tIndex) => {
-            const cauldronName = Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab];
-            const cost = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldronName);
+          {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
+            const cost = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
+            if (tIndex === 4) {
+              console.log('base, cost', itemReq?.[0]?.baseCost, notateNumber(cost))
+            }
             const atomCost = cost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, cost);
             return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
               <HtmlTooltip title={pascalCase(cleanUnderscore(bubbleName))}>
@@ -210,7 +215,7 @@ const Bubbles = () => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
         {bubbles?.map((bubble, index) => {
           if (index > 24) return null;
-          const { level, itemReq, rawName, bubbleName, func, x1, x2 } = bubble;
+          const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
           const goalLevel = bubblesGoals?.[index] ? bubblesGoals?.[index] < level ? level : bubblesGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true);
           const bubbleMaxBonus = getMaxBonus(func, x1);
@@ -249,14 +254,14 @@ const Bubbles = () => {
                   </Stack>
                   {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
                     if (rawName === 'Blank' || rawName === 'ERROR') return null;
-                    const cauldronName = Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab];
-                    const cost = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldronName);
+                    const cost = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
                     const x1Extension = ['sail', 'bits'];
                     const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str)) ? `${rawName}_x1` : rawName;
                     const atomCost = cost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, cost);
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
                       {atomCost ? <Stack gap={2} alignItems={'center'}>
-                          <Tooltip title={<Typography color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
+                          <Tooltip title={<Typography
+                            color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
                             <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
                           </Tooltip>
                           <HtmlTooltip title={atomCost}>

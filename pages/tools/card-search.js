@@ -138,10 +138,13 @@ export default function CardSearch() {
                     {cardsArr.map((card, index) => {
                       const { displayName } = card;
                       const { stars, amount, perTier } = state?.account?.cards?.[displayName] || {};
-                      const nextLevelReq = calculateAmountToNextLevel(perTier, amount);
+                      const nextLevelReq = calculateAmountToNextLevel(perTier, stars, amount);
+                      if (displayName === 'Demon_Genie'){
+                        console.log(nextLevelReq, stars, amount)
+                      }
                       return (
                         <div style={{ position: 'relative' }} key={displayName + "" + index}>
-                          <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
+                          <CardAndBorder nextLevelReq={amount + nextLevelReq} amount={amount}
                                          variant={isCardSets ? 'cardSet' : ''} showInfo
                                          {...{ ...card, ...(isCardSets ? {} : { stars }) }}
                           />
