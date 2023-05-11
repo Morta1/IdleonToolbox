@@ -62345,11 +62345,7 @@
   ],
   "Elemental_Sorcerer": [
     {
-      "level": 0,
-      "title": "",
-      "notes": "",
-      "version": "",
-      "className": "",
+      "title": "Active ES",
       "tabs": [
         {
           "name": "Savvy_Basics",
@@ -62371,7 +62367,7 @@
             {
               "name": "Mana_Booster",
               "skillIndex": 1,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Increases_Max_MP_by_{",
               "x1": 1,
@@ -62385,7 +62381,7 @@
             {
               "name": "Star_Player",
               "skillIndex": 8,
-              "level": 0,
+              "level": "PRIOR",
               "note": "",
               "description": "Gives_{_Star_Talent_Points._Star_Talents_are_found_throughout_the_game!",
               "x1": 1,
@@ -62399,7 +62395,7 @@
             {
               "name": "Bucklered_Up",
               "skillIndex": 9,
-              "level": 0,
+              "level": "MED",
               "note": "",
               "description": "Increases_Total_Defense_by_+{%",
               "x1": 40,
@@ -62413,7 +62409,7 @@
             {
               "name": "Sharpened_Axe",
               "skillIndex": 5,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Increases_Base_Weapon_Power_by_{._This_contributes_to_your_total_damage.",
               "x1": 0.25,
@@ -62441,7 +62437,7 @@
             {
               "name": "Quickness_Boots",
               "skillIndex": 11,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Increases_your_Base_AGI_by_{_(AGI_boosts_Movement_Speed_and_Crit_Chance)",
               "x1": 1,
@@ -62455,7 +62451,7 @@
             {
               "name": "Book_Of_The_Wise",
               "skillIndex": 12,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Increases_your_Base_WIS_by_{_(WIS_boosts_Mana_and_Boss_Damage)",
               "x1": 1,
@@ -62469,7 +62465,7 @@
             {
               "name": "Lucky_Clover",
               "skillIndex": 13,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Increases_your_Base_LUK_by_{_(LUK_boosts_drop_rate,_EXP_Gain,_and_other_RNG)",
               "x1": 1,
@@ -62483,7 +62479,7 @@
             {
               "name": "Gilded_Sword",
               "skillIndex": 6,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Boosts_Damage_dealt|to_all_monsters_by_{%",
               "x1": 1,
@@ -62511,7 +62507,7 @@
             {
               "name": "Overclocked_Energy",
               "skillIndex": 446,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Damage_dealt_is_increased_by_{%_for_every_power_of_10_Max_MP_you_have",
               "x1": 150,
@@ -62525,7 +62521,7 @@
             {
               "name": "Farsight",
               "skillIndex": 447,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Increases_Crit_Chance_by_{%_and_Crit_Dmg_by_}%",
               "x1": 17,
@@ -62564,7 +62560,8 @@
               "funcY": "txt",
               "lvlUpText": "+{%_AFK_Gains_Rate"
             }
-          ]
+          ],
+          "note": "PRIOR tabs can be maxed before resetting the talents"
         },
         {
           "name": "Mage",
@@ -62620,7 +62617,7 @@
             {
               "name": "Mana_Overdrive",
               "skillIndex": 452,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Increase_max_MP_by_{%",
               "x1": 0.5,
@@ -62658,7 +62655,7 @@
             {
               "name": "You're_Next",
               "skillIndex": 454,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Basic_attacks_have_a_{%_chance_to_Mark_enemies,_who_then_take_}%_more_damage",
               "x1": 110,
@@ -62672,7 +62669,7 @@
             {
               "name": "Knowledge_Is_Power",
               "skillIndex": 455,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "The_effect_your_WIS_stat_has_on_Damage_is_increased_by_{%",
               "x1": 1.5,
@@ -62686,7 +62683,7 @@
             {
               "name": "Unt'wis'ted_Robes",
               "skillIndex": 456,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "All_Equipment_gives_{%_more_WIS_than_what's_listed",
               "x1": 1.5,
@@ -62700,7 +62697,7 @@
             {
               "name": "Power_Overwhelming",
               "skillIndex": 457,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "The_effect_Weapon_Power_has_on_Damage_Dealt_is_increased_by_{%",
               "x1": 1.2,
@@ -62714,7 +62711,7 @@
             {
               "name": "Free_Meal",
               "skillIndex": 458,
-              "level": 0,
+              "level": "MED",
               "note": "",
               "description": "{%_Chance_for_food_to_not_be_consumed_when_it_otherwise_would_be",
               "x1": 53,
@@ -62728,7 +62725,7 @@
             {
               "name": "Individual_Insight",
               "skillIndex": 459,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "+{_base_WIS",
               "x1": 1,
@@ -62808,7 +62805,7 @@
             {
               "name": "Choppin_It_Up_Ez",
               "skillIndex": 463,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "+{%_Minigame_Rewards,_and_+}%_Dmg_per_25_Pts_of_your_Minigame_Highscore",
               "x1": 1,
@@ -62819,7 +62816,8 @@
               "funcY": "decay",
               "lvlUpText": "+{%_Rewards_&_+}%_Dmg"
             }
-          ]
+          ],
+          "note": "MAX must be maxed first\nHIGH must be unlocked but maxed later"
         },
         {
           "name": "Wizard",
@@ -62851,7 +62849,7 @@
             {
               "name": "Floor_Is_Lava",
               "skillIndex": 466,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Summon_{x2_volcanos_which_erupt_around_you,_dealing_}%_dmg",
               "x1": 1,
@@ -62875,7 +62873,7 @@
             {
               "name": "Tornado",
               "skillIndex": 467,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Summon_a_tornado,_which_deals_{%_dmg_and_disappears_after_}_seconds",
               "x1": 20,
@@ -62899,7 +62897,7 @@
             {
               "name": "Speedy_Book",
               "skillIndex": 468,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Getting_4@kills_in_4@sec_activates_'Speedy_Book'_boosting_attack_rate_by_{%_for_}_sec",
               "x1": 10,
@@ -62923,7 +62921,7 @@
             {
               "name": "Mana_Is_Life",
               "skillIndex": 469,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "{%_dmg_taken_is_dealt_to_MP._Also,_+}%_Multikill_per_Damage_Tier_(World_3_feature)",
               "x1": 25,
@@ -62947,7 +62945,7 @@
             {
               "name": "Paperwork,_Great...",
               "skillIndex": 470,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "+{%_Damage_for_every_10_Stamps_in_your_collection._Oink_Oink!",
               "x1": 70,
@@ -62961,7 +62959,7 @@
             {
               "name": "Occult_Obols",
               "skillIndex": 486,
-              "level": 0,
+              "level": "MED",
               "note": "",
               "description": "Obols_give_+{%_more_WIS_than_what_is_listed",
               "x1": 135,
@@ -62975,7 +62973,7 @@
             {
               "name": "Staring_Statues",
               "skillIndex": 472,
-              "level": 0,
+              "level": "MED",
               "note": "",
               "description": "'Exp',_'Lumberbob',_and_'Beholder'_statues_give_+{%_more_bonus",
               "x1": 100,
@@ -62989,7 +62987,7 @@
             {
               "name": "Wis_Wumbo",
               "skillIndex": 488,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "+{_Max_Talent_Level_for_'Book_of_the_Wise'",
               "x1": 1,
@@ -63003,7 +63001,7 @@
             {
               "name": "Fuscia_Flasks",
               "skillIndex": 474,
-              "level": 0,
+              "level": "PRIOR",
               "note": "",
               "description": "Each_Lv_of_'Mage_is_Best'_Bubble_raises_max_Lv_of_'Overclocked_Energy',_up_to_+{",
               "x1": 1,
@@ -63069,7 +63067,7 @@
             {
               "name": "Nearby_Outlet",
               "skillIndex": 478,
-              "level": 0,
+              "level": "BONUS",
               "note": "",
               "description": "{x_Charge_rate._You_know,_for_Worship..._No,_not_for_your_phone.",
               "x1": 1,
@@ -63094,7 +63092,8 @@
               "funcY": "txt",
               "lvlUpText": "+1_Talent_Pt"
             }
-          ]
+          ],
+          "note": "MED are for leftover points"
         },
         {
           "name": "Elemental_Sorcerer",
@@ -63102,7 +63101,7 @@
             {
               "name": "Meteor_Shower",
               "skillIndex": 495,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Rains_down_}_meteors_onto_nearby_platforms,_which_deal_{%_damage",
               "x1": 200,
@@ -63126,7 +63125,7 @@
             {
               "name": "Lightning_Barrage",
               "skillIndex": 496,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Your_next_attack_casts_a_lightning_strike,_dealing_{%_dmg_to_up_to_}_mobs",
               "x1": 700,
@@ -63150,7 +63149,7 @@
             {
               "name": "Radiant_Chainbolt",
               "skillIndex": 497,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Cast_a_bolt_with_{%_dmg_and_bounces_up_to_}_times,_losing_dmg_each_time",
               "x1": 50,
@@ -63174,7 +63173,7 @@
             {
               "name": "Dimensional_Wormhole",
               "skillIndex": 498,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "Spawns_Wormhole_Mobs_which_give_+{%_XP_&_Drop_per_Wormhole_kill_and_spawn_more.",
               "x1": 17,
@@ -63198,7 +63197,7 @@
             {
               "name": "Chaotic_Force",
               "skillIndex": 499,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "Basic_attacks_have_a_{%_chance_to_create_either_a_Fireball,_Tornado,_or_Volcano.",
               "x1": 75,
@@ -63212,7 +63211,7 @@
             {
               "name": "Believer_Strength",
               "skillIndex": 500,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "+{_Weapon_Power_for_every_10_Divinity_Lvs_of_this_character.",
               "x1": 7,
@@ -63226,7 +63225,7 @@
             {
               "name": "Memorial_Skulls",
               "skillIndex": 531,
-              "level": 0,
+              "level": "HIGH",
               "note": "",
               "description": "+{%_Kill_per_Kill_per_1000_WIS._Each_kill_is_worth_more_kills!",
               "x1": 40,
@@ -63240,7 +63239,7 @@
             {
               "name": "Skill_Wiz",
               "skillIndex": 532,
-              "level": 0,
+              "level": "MED",
               "note": "",
               "description": "WIS_has_a_{%_larger_impact_on_Skill_Efficiency._Also,_+}_WIS.",
               "x1": 60,
@@ -63254,7 +63253,7 @@
             {
               "name": "Utmost_Intellect",
               "skillIndex": 533,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "+{%_WIS,_and_+}_Max_Talent_Lv_for_'Book_of_the_Wise'",
               "x1": 15,
@@ -63268,7 +63267,7 @@
             {
               "name": "The_Family_Guy",
               "skillIndex": 144,
-              "level": 0,
+              "level": "NOTE",
               "note": "",
               "description": "+{%_larger_Family_Bonuses_than_what_is_displayed_from_bonuses_given_by_this_player",
               "x1": 40,
@@ -63282,7 +63281,7 @@
             {
               "name": "Polytheism",
               "skillIndex": 505,
-              "level": 0,
+              "level": "MED",
               "note": "",
               "description": "Link_to_2nd_God_based_on_Talents_Lv._Stand_under_Omniphau_God_to_De-Level.",
               "x1": 70,
@@ -63296,7 +63295,7 @@
             {
               "name": "Shared_Beliefs",
               "skillIndex": 506,
-              "level": 0,
+              "level": "NOTE",
               "note": "",
               "description": "+{%_Divinity_EXP_Gain_for_all_characters._Multiplicative_too,_divinilicious!",
               "x1": 100,
@@ -63310,7 +63309,7 @@
             {
               "name": "Gods_Chosen_Children",
               "skillIndex": 507,
-              "level": 0,
+              "level": "NOTE",
               "note": "",
               "description": "+{%_DMG_for_all_chars_per_GOD_Rank._Reach_all_10_Gods_first...",
               "x1": 10,
@@ -63324,7 +63323,7 @@
             {
               "name": "Wormhole_Emperor",
               "skillIndex": 508,
-              "level": 0,
+              "level": "NOTE",
               "note": "",
               "description": "+{%_DMG_per_POW_10_kills_of_Wormhole_Mobs._Applies_to_all_characters!",
               "x1": 1.5,
@@ -63338,7 +63337,7 @@
             {
               "name": "Symbols_Of_Beyond_~p",
               "skillIndex": 539,
-              "level": 0,
+              "level": "MAX",
               "note": "",
               "description": "+{_Lv_for_all_talents_higher_than_Lv_1._This_bonus_goes_up_every_20_lvs",
               "x1": 1,
@@ -63349,9 +63348,11 @@
               "funcY": "txt",
               "lvlUpText": "+1_all_LVs_every_20_LVs"
             }
-          ]
+          ],
+          "note": "NOTE can be affected on your non active ES if you have two of them.\nIf you have only one, consider them as MED"
         }
-      ]
+      ],
+      "class": "Elemental_Sorcerer"
     }
   ]
 }
