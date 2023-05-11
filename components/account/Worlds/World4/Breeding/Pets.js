@@ -17,7 +17,7 @@ const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
     return 1 + (emeraldUlthuriteBonus + fasterShinyLevelBonus) / 100;
   }
   const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
-  console.log(pets)
+
   return <>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
       <FormControlLabel

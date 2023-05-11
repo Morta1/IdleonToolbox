@@ -6,17 +6,20 @@ export const getCards = (idleonData, account) => {
   return parseCards(cardsRaw, account);
 }
 
-export const calculateStars = (tierReq, amountOfCards) => {
-  if (amountOfCards > tierReq * 25) {
-    return 4;
-  } else if (amountOfCards > tierReq * 9) {
-    return 3;
-  } else if (amountOfCards > tierReq * 4) {
-    return 2;
-  } else if (amountOfCards > tierReq) {
-    return 1;
+export const calculateStars = (tierReq, amountOfCards, cardName) => {
+  let stars = 0;
+  for (let i = 0; i < 5; i++) {
+    if (cardName === "Boss3B") {
+      if (amountOfCards > 1.5 * Math.pow(i + 1 + Math.floor(i / 3), 2)) {
+        stars = i + 2
+      }
+    } else {
+      if (amountOfCards > tierReq * Math.pow(i + 1 + (Math.floor(i / 3) + 16 * Math.floor(i / 4)), 2)) {
+        stars = i + 2
+      }
+    }
   }
-  return 0;
+  return stars - 1;
 };
 
 export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
@@ -24,16 +27,6 @@ export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
     * Math.pow((stars + 1)
       + (Math.floor((stars + 1) / 4)
         + 16 * Math.floor((stars + 1) / 5)), 2) - amountOfCards) + 1;
-  // if (amountOfCards < tierReq) {
-  //   return tierReq + 1;
-  // } else if (amountOfCards < tierReq * 4) {
-  //   return tierReq * 4 + 1;
-  // } else if (amountOfCards < tierReq * 9) {
-  //   return tierReq * 9 + 1;
-  // } else if (amountOfCards < tierReq * 25) {
-  //   return tierReq * 25 + 1;
-  // }
-  // return 0;
 }
 
 const parseCards = (cardsRaw, account) => {
@@ -42,13 +35,15 @@ const parseCards = (cardsRaw, account) => {
       const cardDetails = cards?.[name];
       const rawSixStarList = account?.accountOptions?.[155] || '';
       const sixStarList = rawSixStarList?.toString()?.split(',') || [];
+      const stars = sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount, name);
       if (!cardDetails) return res;
       return {
         ...res,
         [cardDetails?.displayName]: {
           ...cardDetails,
           amount,
-          stars: sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount)
+          stars,
+          nextLevelReq: amount + calculateAmountToNextLevel(cardDetails?.perTier, stars, amount)
         }
       }
     }, {});
@@ -85,14 +80,10 @@ export const calcCardBonus = (card) => {
 export const getPlayerCards = (char, account) => {
   const cardSet = char?.[`CSetEq`];
   const equippedCards = char?.[`CardEquip`]
-    .map((card) => {
-      return {
-        cardName: cards?.[card]?.displayName,
-        stars: account?.cards?.[cards?.[card]?.displayName]?.stars,
-        amount: account?.cards?.[cards?.[card]?.displayName]?.amount,
-        ...cards?.[card]
-      }
-    })
+    .map((card) => ({
+      cardName: cards?.[card]?.displayName,
+      ...account?.cards?.[cards?.[card]?.displayName]
+    }))
     .filter((_, ind) => ind < 8); //cardEquipMap
   const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
   return {

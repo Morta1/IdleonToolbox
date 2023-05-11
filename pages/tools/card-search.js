@@ -137,11 +137,10 @@ export default function CardSearch() {
                   <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
                     {cardsArr.map((card, index) => {
                       const { displayName } = card;
-                      const { stars, amount, perTier } = state?.account?.cards?.[displayName] || {};
-                      const nextLevelReq = calculateAmountToNextLevel(perTier, stars, amount);
+                      const { stars, amount, nextLevelReq } = state?.account?.cards?.[displayName] || {};
                       return (
                         <div style={{ position: 'relative' }} key={displayName + "" + index}>
-                          <CardAndBorder nextLevelReq={amount + nextLevelReq} amount={amount}
+                          <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
                                          variant={isCardSets ? 'cardSet' : ''} showInfo
                                          {...{ ...card, ...(isCardSets ? {} : { stars }) }}
                           />

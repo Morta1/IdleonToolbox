@@ -23,7 +23,6 @@ export const getLibraryBookTimes = (idleonData, characters, account) => {
   })
   breakpoints = [...breakpoints,
     { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) }]
-  console.log(breakpoints)
   return {
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData) - libTime,
