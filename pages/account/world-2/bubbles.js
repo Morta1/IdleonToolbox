@@ -158,9 +158,6 @@ const Bubbles = () => {
         <Stack direction={'row'} flexWrap={'wrap'}>
           {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
             const cost = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-            if (tIndex === 4) {
-              console.log('base, cost', itemReq?.[0]?.baseCost, notateNumber(cost))
-            }
             const atomCost = cost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, cost);
             return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
               <HtmlTooltip title={pascalCase(cleanUnderscore(bubbleName))}>

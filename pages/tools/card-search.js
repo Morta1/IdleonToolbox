@@ -139,9 +139,6 @@ export default function CardSearch() {
                       const { displayName } = card;
                       const { stars, amount, perTier } = state?.account?.cards?.[displayName] || {};
                       const nextLevelReq = calculateAmountToNextLevel(perTier, stars, amount);
-                      if (displayName === 'Demon_Genie'){
-                        console.log(nextLevelReq, stars, amount)
-                      }
                       return (
                         <div style={{ position: 'relative' }} key={displayName + "" + index}>
                           <CardAndBorder nextLevelReq={amount + nextLevelReq} amount={amount}
