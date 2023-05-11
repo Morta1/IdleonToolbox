@@ -82,7 +82,7 @@ export const getPlayerCards = (char, account) => {
   const equippedCards = char?.[`CardEquip`]
     .map((card) => ({
       cardName: cards?.[card]?.displayName,
-      ...account?.cards?.[cards?.[card]?.displayName]
+      ...(account?.cards?.[cards?.[card]?.displayName] || {})
     }))
     .filter((_, ind) => ind < 8); //cardEquipMap
   const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
