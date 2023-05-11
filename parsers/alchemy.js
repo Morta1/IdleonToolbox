@@ -275,7 +275,10 @@ const parseSigils = (sigilsRaw, alchemyActivity) => {
   for (let i = 0, j = sigilsData.length; i < j; i += 2) {
     const [progress, unlocked] = sigilsData.slice(i, i + 2);
     const sigilData = sigils?.[i / 2];
-    const charactersInSigil = alchemyActivity.filter(({ activity }) => activity >= 100 && Math.floor(activity - 100) === i / 2);
+    const charactersInSigil = alchemyActivity.filter(({
+                                                        activity,
+                                                        index
+                                                      }) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < 11);
     if (sigilData) {
       sigilsList = [
         ...sigilsList,
