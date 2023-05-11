@@ -23,9 +23,9 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
-    ver: "3.1.74",
+    ver: "3.1.76",
     gameVer: "1.81",
-    date: "09/05/2023",
+    date: "11/05/2023",
     features: [],
     fixes: [
       'Fixed card progress calculations and added 5th star bonus to card page',
