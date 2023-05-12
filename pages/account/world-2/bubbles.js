@@ -50,9 +50,15 @@ const Bubbles = () => {
     setBargainTag(e?.target?.value)
   }
 
-  const handleGoalChange = debounce((e, index) => {
+  const handleGoalChange = debounce((e, cauldronName, index) => {
     const { value } = e.target;
-    setBubblesGoals({ ...bubblesGoals, [index]: !value ? 0 : parseInt(value) });
+    setBubblesGoals({
+      ...bubblesGoals,
+      [cauldronName]: {
+        ...(bubblesGoals?.[cauldronName] || {}),
+        [index]: !value ? 0 : parseInt(value)
+      }
+    });
   }, 100);
 
   const calcBubbleMatCost = (bubbleIndex, vialMultiplier = 1, bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
@@ -93,17 +99,23 @@ const Bubbles = () => {
   }
 
   const getAccumulatedBubbleCost = (index, level, baseCost, isLiquid, cauldronName) => {
-    const levelDiff = (bubblesGoals?.[index] ?? 0) - level;
+    const levelDiff = (bubblesGoals?.[cauldronName]?.[index] ?? 0) - level;
     if (levelDiff <= 0) {
-      return calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index);
+      const cost = calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index);
+      return { singleLevelCost: cost, total: cost };
     }
     const array = new Array(levelDiff || 0).fill(1);
-    return array.reduce((res, _, levelInd) => {
+    let singleLevelCost = 0;
+    const total = array.reduce((res, _, levelInd) => {
         const cost = calculateMaterialCost(level + (levelInd === 0 ? 1 : levelInd), baseCost, isLiquid, cauldronName, index);
+        if (!isLiquid) {
+          singleLevelCost = cost;
+        }
         return res + cost;
       },
       calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index)
     );
+    return { total, singleLevelCost };
   }
 
   const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
@@ -157,8 +169,8 @@ const Bubbles = () => {
         <Typography>Next Bubble Upgrades:</Typography>
         <Stack direction={'row'} flexWrap={'wrap'}>
           {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
-            const cost = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-            const atomCost = cost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, cost);
+            const { singleLevelCost } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
+            const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
             return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
               <HtmlTooltip title={pascalCase(cleanUnderscore(bubbleName))}>
                 <img src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -213,7 +225,7 @@ const Bubbles = () => {
         {bubbles?.map((bubble, index) => {
           if (index > 24) return null;
           const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
-          const goalLevel = bubblesGoals?.[index] ? bubblesGoals?.[index] < level ? level : bubblesGoals?.[index] : level;
+          const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level ? level : bubblesGoals?.[cauldron]?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true);
           const bubbleMaxBonus = getMaxBonus(func, x1);
           const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
@@ -234,7 +246,7 @@ const Bubbles = () => {
                   <TextField type={'number'}
                              sx={{ width: 90 }}
                              defaultValue={goalLevel}
-                             onChange={(e) => handleGoalChange(e, index)}
+                             onChange={(e) => handleGoalChange(e, cauldron, index)}
                              label={'Goal'} variant={'outlined'} inputProps={{ min: level || 0 }}/>
                 </Stack>
                 <Stack mt={1.5} direction={'row'} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
@@ -251,10 +263,13 @@ const Bubbles = () => {
                   </Stack>
                   {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
                     if (rawName === 'Blank' || rawName === 'ERROR') return null;
-                    const cost = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
+                    const {
+                      singleLevelCost,
+                      total
+                    } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
                     const x1Extension = ['sail', 'bits'];
                     const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str)) ? `${rawName}_x1` : rawName;
-                    const atomCost = cost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, cost);
+                    const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
                       {atomCost ? <Stack gap={2} alignItems={'center'}>
                           <Tooltip title={<Typography
@@ -271,8 +286,8 @@ const Bubbles = () => {
                           <ItemIcon src={`${prefix}data/${itemName}.png`}
                                     alt=""/>
                         </HtmlTooltip>
-                        <HtmlTooltip title={cost}>
-                          <Typography>{notateNumber(cost, 'Big')}</Typography>
+                        <HtmlTooltip title={total}>
+                          <Typography>{notateNumber(total, 'Big')}</Typography>
                         </HtmlTooltip>
                       </Stack>
                     </Stack>
