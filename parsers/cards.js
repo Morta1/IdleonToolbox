@@ -78,9 +78,10 @@ export const calcCardBonus = (card) => {
 }
 
 export const getPlayerCards = (char, account) => {
+  if (!char?.[`CSetEq`] && !char?.[`CardEquip`]) return {};
   const cardSet = char?.[`CSetEq`];
   const equippedCards = char?.[`CardEquip`]
-    .map((card) => ({
+    ?.map((card) => ({
       cardName: cards?.[card]?.displayName,
       ...(account?.cards?.[cards?.[card]?.displayName] || {})
     }))
