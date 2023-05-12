@@ -15,6 +15,9 @@ const defaultBonuses = [
 
 const ConstructMastery = ({ totalLevels }) => {
   return <>
+    <Stack>
+      <Card sx={{ width: 'fit-content', my: 2 }}><CardContent>Construct Lv. {totalLevels}</CardContent></Card>
+    </Stack>
     {totalLevels >= constructionMasteryThresholds?.[0] ? <>
       <Typography variant={'h5'}>Bonuses</Typography>
       <Stack sx={{ mb: 2 }} gap={2} direction={'row'}>
