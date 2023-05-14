@@ -49,9 +49,9 @@ export const getStatFromEquipment = (item, statName) => {
 
 export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
-    if (owner === 'Fouinard_magic') {
-      console.log(items?.[item], stoneData?.[itemIndex])
-    }
+    // if (owner === 'Fouinard_magic') {
+    //   console.log(items?.[item], stoneData?.[itemIndex])
+    // }
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
     return item ? [...res, {
       name: items?.[item]?.displayName, rawName: item,
