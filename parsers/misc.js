@@ -1,9 +1,9 @@
 import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredGemShopItems, filteredLootyItems, keysMap } from "./parseMaps";
-import { items, slab } from "../data/website-data";
-import { talentPagesMap } from "./talents";
+import { classFamilyBonuses, items, slab } from "../data/website-data";
+import { getTalentBonus, mainStatMap, talentPagesMap } from "./talents";
 import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
+import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
 import { getStampsBonusByEffect } from "./stamps";
 import { getAchievementStatus } from "./achievements";
 import { getJewelBonus, getLabBonus } from "./lab";
@@ -11,6 +11,8 @@ import { getAtomBonus } from "./atomCollider";
 import { getPrayerBonusAndCurse } from "./prayers";
 import { getShrineBonus } from "./shrines";
 import { isSuperbitUnlocked } from "./gaming";
+import { getFamilyBonusBonus } from "./family";
+import { getStatsFromGear } from "./items";
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
@@ -251,15 +253,6 @@ export const getHighestCharacterSkill = (characters = [], skillName) => {
   return Math.max(...levels);
 };
 
-export const getGoldenFoodMulti = (familyBonus, equipmentGoldFoodBonus, hungryForGoldTalentBonus, goldenAppleStamp, goldenFoodAchievement, goldenFoodBubbleBonus, goldenFoodSigilBonus) => {
-  return Math.max(familyBonus, 1) + (equipmentGoldFoodBonus + (hungryForGoldTalentBonus + goldenAppleStamp + goldenFoodAchievement + goldenFoodBubbleBonus + goldenFoodSigilBonus)) / 100;
-};
-
-export const getGoldenFoodBonus = (goldenFoodMulti, amount, stack) => {
-  if (!amount || !stack) return 0;
-  return amount * goldenFoodMulti * 0.05 * lavaLog(1 + stack) * (1 + lavaLog(1 + stack) / 2.14);
-};
-
 export const getAllSkillExp = (sirSavvyStarSign, cEfauntCardBonus, goldenHamBonus, skillExpCardSetBonus, summereadingShrineBonus, ehexpeeStatueBonus, unendingEnergyBonus, skilledDimwitCurse, theRoyalSamplerCurse, equipmentBonus, maestroTransfusionTalentBonus, duneSoulLickBonus, dungeonSkillExpBonus, myriadPostOfficeBox) => {
   return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) + (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus + (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus + (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus + myriadPostOfficeBox)))));
 };
@@ -367,7 +360,7 @@ export const getExpReq = (skillIndex, t) => {
 export const getGiantMobChance = (character, account) => {
   const giantsAlreadySpawned = account?.accountOptions?.[57];
   // const tachionOfTitansPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Tachion_of_the_Titans')?.bonus > 5;
-  const glitterbugPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Glitterbug')?.curse;
+  const glitterbugPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Glitterbug', account)?.curse;
   const crescentShrineBonus = getShrineBonus(account?.shrines, 6, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const giantMobVial = getVialsBonusByStat(account?.alchemy?.vials, 'GiantMob');
   let chance;
@@ -386,3 +379,32 @@ export const getGiantMobChance = (character, account) => {
     glitterbugPrayer
   }
 }
+
+export const getGoldenFoodMulti = (familyBonus, equipmentGoldFoodBonus, hungryForGoldTalentBonus, goldenAppleStamp, goldenFoodAchievement, goldenFoodBubbleBonus, goldenFoodSigilBonus) => {
+  return Math.max(familyBonus, 1) + (equipmentGoldFoodBonus + (hungryForGoldTalentBonus + goldenAppleStamp + goldenFoodAchievement + goldenFoodBubbleBonus + goldenFoodSigilBonus)) / 100;
+};
+
+export const getGoldenFoodBonus = (foodName, character, account) => {
+  const goldenFood = character?.food?.find(({ name }) => name === foodName);
+  const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
+  const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
+  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
+  const isShaman = talentPagesMap[character?.class]?.includes('Shaman');
+  const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
+  const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
+  const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
+  const goldenAppleStamp = getStampsBonusByEffect(account?.stamps, 'Gold_Food_Effect');
+  const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
+  const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false,
+    mainStatMap?.[character?.class] === 'strength');
+  const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE');
+  const goldenFoodMulti = Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+    + (equipmentGoldFoodBonus
+      + (hungryForGoldTalentBonus
+        + (goldenAppleStamp
+          + (goldenFoodAchievement
+            + (goldenFoodBubbleBonus
+              + goldenFoodSigilBonus))))) / 100;
+  if (!goldenFood?.Amount || !goldenFood?.amount) return 0;
+  return goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
+};

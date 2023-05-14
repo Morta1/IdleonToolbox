@@ -1,4 +1,4 @@
-import { items, itemsArray } from "../data/website-data";
+import { bonuses, items, itemsArray } from "../data/website-data";
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};
@@ -10,7 +10,7 @@ export const addStoneDataToEquip = (baseItem, stoneData) => {
     const stoneStat = stoneData?.[statName];
     let sum = baseItemStat;
     if (isNaN(stoneStat) || stoneStat < 0) return { ...res, [statName]: stoneStat };
-    sum = (baseItemStat || 0) + stoneStat;
+    sum = (baseItemStat || 0) + ((stoneData?.['UQ1txt'] && baseItem?.['UQ1txt'] !== stoneData?.['UQ1txt']) ? 0 : stoneStat);
     return { ...res, [statName]: parseFloat(sum) };
   }, {});
 }
@@ -28,6 +28,16 @@ export const calculateItemTotalAmount = (array, itemName, exact) => {
     }
     return result;
   }, 0);
+}
+
+export const getStatsFromGear = (character, bonusIndex, account) => {
+  const { equipment } = character || {};
+  const silkroadMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 16) ?? 0;
+  const silkroadSoftware = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 17) ?? 0;
+  const silkroadProcessor = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 18) ?? 0;
+  return equipment?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
+      (((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1))
+    , 0)
 }
 
 export const getStatFromEquipment = (item, statName) => {

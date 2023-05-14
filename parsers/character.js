@@ -15,8 +15,14 @@ import {
   randomList,
   starSignByIndexMap
 } from "../data/website-data";
-import { calculateAfkTime, getHighestLevelOfClass, getMaterialCapacity } from "./misc";
-import { calculateItemTotalAmount, createItemsWithUpgrades, getStatFromEquipment } from "./items";
+import {
+  calculateAfkTime,
+  getGoldenFoodBonus,
+  getHighestLevelOfClass,
+  getMaterialCapacity,
+  isArenaBonusActive
+} from "./misc";
+import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from "./items";
 import { getInventory } from "./storage";
 import { skillIndexMap } from "./parseMaps";
 import {
@@ -27,12 +33,13 @@ import {
   getHighestTalentByClass,
   getTalentBonus,
   getTalentBonusIfActive,
+  mainStatMap,
   talentPagesMap
 } from "./talents";
-import { calcCardBonus, getEquippedCardBonus, getPlayerCards } from "./cards";
+import { calcCardBonus, getCardBonusByEffect, getEquippedCardBonus, getPlayerCards } from "./cards";
 import { getStampBonus, getStampsBonusByEffect } from "./stamps";
 import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
-import { getActiveBubbleBonus, getBubbleBonus, getVialsBonusByEffect } from "./alchemy";
+import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from "./alchemy";
 import { getStatueBonus } from "./statues";
 import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
 import { getPlayerAnvil } from "./anvil";
@@ -41,15 +48,17 @@ import { getGuildBonusBonus } from "./guild";
 import { getShrineBonus } from "./shrines";
 import { getFamilyBonus, getFamilyBonusBonus } from "./family";
 import { getSaltLickBonus } from "./saltLick";
-import { getDungeonStatBonus } from "./dungeons";
+import { getDungeonFlurboStatBonus, getDungeonStatBonus } from "./dungeons";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from "./obols";
 import { getPlayerWorship } from "./worship";
 import { getPlayerQuests } from "./quests";
 import { getJewelBonus, getLabBonus, isGodEnabledBySorcerer } from "./lab";
 import { getAchievementStatus } from "./achievements";
-import { lavaLog, notateNumber } from "../utility/helpers";
+import { lavaLog } from "../utility/helpers";
 import { getArcadeBonus } from "./arcade";
+import { isArtifactAcquired } from "./sailing";
+import { getShinyBonus } from "./breeding";
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require("../utility/helpers");
 
@@ -381,15 +390,164 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   return character;
 }
 
+
+export const getDropRate = (character, account) => {
+  const { luck } = character?.stats || {};
+  let luckMulti;
+  if (luck < 1e3) {
+    luckMulti = (Math.pow(luck + 1, 0.37) - 1) / 40;
+  } else {
+    luckMulti = (luck - 1e3) / (luck + 2500) * 0.5 + 0.297;
+  }
+  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 0);
+  const firstTalentBonus = getTalentBonus(character?.talents, 1, 'ROBBINGHOOD');
+  const secondTalentBonus = getTalentBonus(character?.talents, 1, 'CURSE_OF_MR_LOOTY_BOOTY');
+  const drFromEquipment = getStatsFromGear(character, 2, account);
+  const drFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DROPPIN_LOADS', false);
+  const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 10);
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25' ? character?.cards?.cardSet?.bonus : 0;
+  const shrineBonus = getShrineBonus(account?.shrines, 4, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Midas_Minded', account)?.bonus
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
+  const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
+  const starSignBonus = getStarSignBonus(character?.starSigns, 'Pirate_Booty', 'Drop_Rate', account, character?.playerId);
+  // const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'DropRarity');
+  // const thirdTalentBonus = getTalentBonus(character?.talents, 3, 'ARCHLORD_OF_THE_PIRATES');
+  // const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
+  const dropRate = 1.4 * luckMulti
+    + (firstTalentBonus + (postOfficeBonus + ((drFromEquipment + drFromObols)
+      + (bubbleBonus + (cardBonus + (secondTalentBonus
+        + (starSignBonus + (guildBonus + (
+          +(cardSetBonus + (shrineBonus + (prayerBonus + (sigilBonus
+            + shinyBonus))))))))))))) / 100 + 1;
+  const breakdown = [
+    { name: 'Luck', value: 1.4 * luckMulti },
+    { name: 'Talents', value: (firstTalentBonus + secondTalentBonus) / 100 },
+    { name: 'Post Office', value: postOfficeBonus / 100 },
+    { name: 'Equipment', value: drFromEquipment / 100 },
+    { name: 'Obols', value: drFromObols / 100 },
+    { name: 'Bubble', value: bubbleBonus / 100 },
+    { name: 'Cards', value: (cardBonus + cardSetBonus) / 100 },
+    { name: 'Shrine', value: shrineBonus / 100 },
+    { name: 'Prayers', value: prayerBonus / 100 },
+    { name: 'Sigil', value: sigilBonus / 100 },
+    { name: 'Shiny', value: shinyBonus / 100 },
+    { name: 'Starsign', value: starSignBonus / 100 },
+    { name: 'Guild', value: guildBonus / 100 },
+    { name: 'Base', value: 1 },
+  ]
+  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+  return {
+    dropRate,
+    breakdown
+  };
+}
+
+export const getCashMulti = (character, account) => {
+  const { strength, agility, wisdom } = character?.stats || {};
+  const cashStrBubble = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
+  const cashAgiBubble = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
+  const cashWisBubble = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
+  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Cash', blackDiamondRhinestone);
+  const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Maneki_Kat')?.bonus ?? 0;
+  const arenaWave = account?.accountOptions?.[89];
+  const waveReqs = randomList?.[53];
+  const arenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 5));
+  const secondArenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 14));
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG20');
+  const labBonus = getLabBonus(account?.lab.labBonuses, 9);
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
+  const divinityMinorBonus = character?.linkedDeity === 3 ? character?.deityMinorBonus : 0;
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
+  const cashFromEquipment = getStatsFromGear(character, 3, account);
+  const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Money_from_mobs_(Passive)');
+  const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Money_from_Monsters');
+  const talentBonus = getTalentBonus(character?.talents, 1, 'CHACHING!');
+  const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Monster_Cash');
+  const arcadeBonus = account?.arcade?.shop?.[10]?.bonus + account?.arcade?.shop?.[11]?.bonus;
+  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 2)
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 8);
+  const multikill = 1; // can't calculate multikill =/
+  const coinsForCharonBonus = multikill * getTalentBonus(character?.starTalents, null, 'COINS_FOR_CHARON');
+  const cashPerCookingLv = character?.skillsInfo?.cooking?.level / 10;
+  const americanTipperBonus = cashPerCookingLv * getTalentBonus(character?.starTalents, null, 'AMERICAN_TIPPER');
+  const goldFoodBonus = getGoldenFoodBonus('Golden_Bread', character, account)
+  const achievementBonus = getAchievementStatus(account?.achievements, 235);
+  const { dropRate } = getDropRate(character, account);
+  const dropRateMulti = (dropRate < 2 ? dropRate : Math.floor(dropRate < 5 ? dropRate : dropRate + 1)) * 100;
+
+  const bubbles = (cashStrBubble
+    * Math.floor(strength / 250)
+    + (cashAgiBubble
+      * Math.floor(agility / 250)
+      + cashWisBubble
+      * Math.floor(wisdom / 250)));
+
+  const cashMulti = (1 + (bubbles) / 100)
+    * (1 + (mealBonus
+      + artifactBonus) / 100)
+    * (1 + (0.5 * arenaBonusUnlock
+      + (secondArenaBonusUnlock
+        + statueBonus / 100)))
+    * (1 + labBonus / 100)
+    * (1 + prayerBonus / 100)
+    * (1 + divinityMinorBonus / 100)
+    * (1 + (vialBonus
+      + ((cashFromEquipment + cashFromObols)
+        + (equippedCardBonus
+          + passiveCardBonus
+          + (talentBonus
+            + (flurboBonus + (arcadeBonus)
+              + (postOfficeBonus
+                + (guildBonus
+                  * (1 + Math.floor(character?.mapIndex / 50))
+                  + (coinsForCharonBonus
+                    + (americanTipperBonus
+                      + ((1 + goldFoodBonus / 100) + 5 * achievementBonus)))))))))) / 100);
+  const breakdown = [
+    { name: 'Bubbles', value: bubbles },
+    { name: 'Meal', value: mealBonus },
+    { name: 'Artifact', value: artifactBonus },
+    { name: 'Pet Arena', value: 100 * (.5 * arenaBonusUnlock + secondArenaBonusUnlock) },
+    { name: 'Statues', value: statueBonus },
+    { name: 'Lab', value: labBonus },
+    { name: 'Prayers', value: prayerBonus },
+    { name: 'Divinity', value: divinityMinorBonus },
+    { name: 'Vials', value: vialBonus },
+    { name: 'Equipment', value: cashFromEquipment },
+    { name: 'Obols', value: cashFromObols },
+    { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
+    { name: 'Guild', value: guildBonus },
+    { name: 'World', value: Math.floor(character?.mapIndex / 50) },
+    { name: 'Talents', value: coinsForCharonBonus + americanTipperBonus },
+    { name: 'Golden Food', value: goldFoodBonus },
+    { name: 'Achievements', value: 5 * achievementBonus },
+    { name: 'Dungeons', value: flurboBonus },
+    { name: 'Arcade', value: arcadeBonus },
+    { name: 'Post Office', value: postOfficeBonus },
+    { name: 'Drop Rate', value: dropRateMulti },
+  ];
+  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+  return {
+    cashMulti,
+    breakdown
+  }
+}
+
 const getPrinterSampleRate = (character, account, charactersLevels) => {
   const printerSamplingTalent = getTalentBonus(character?.starTalents, null, 'PRINTER_SAMPLING');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
-  const equipSampling = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[60]), 0);
+  const equipSampling = getStatsFromGear(character, 60, account);
   const sampleItBubble = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'SAMPLE_IT', false);
   const superSampleTalent = getTalentBonus(character?.talents, null, 'SUPER_SAMPLES');
   const sampleAchievement = getAchievementStatus(account?.achievements, 158);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
-  const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler')?.bonus;
+  const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sample_Size');
   const meritBonus = account?.tasks?.[2]?.[2]?.[4];
   const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Maestro');
@@ -453,15 +611,16 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const crystals4DaysBonus = getTalentBonus(character?.starTalents, null, 'CRYSTALS_4_DAYYS');
   const cmonOutCrystalsBonus = getTalentBonus(character?.talents, 1, 'CMON_OUT_CRYSTALS');
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
-  const breakdown = {
-    'Cmon Out Crystals': notateNumber(cmonOutCrystalsBonus),
-    'Crystal Shrine Bonus': notateNumber(crystalShrineBonus),
-    'Post Office': notateNumber(nonPredatoryBoxBonus),
-    'Crystals 4 Days': notateNumber(crystals4DaysBonus),
-    'Crystallin Stamp': notateNumber(crystallinStampBonus),
-    'Poop Card': notateNumber(poopCardBonus),
-    'Demon Genie Card': notateNumber(demonGenieBonus)
-  }
+  const breakdown = [
+    { name: 'Cmon Out Crystals', value: cmonOutCrystalsBonus },
+    { name: 'Crystal Shrine Bonus', value: crystalShrineBonus },
+    { name: 'Post Office', value: nonPredatoryBoxBonus },
+    { name: 'Crystals 4 Days', value: crystals4DaysBonus },
+    { name: 'Crystallin Stamp', value: crystallinStampBonus },
+    { name: 'Poop Card', value: poopCardBonus },
+    { name: 'Demon Genie Card', value: demonGenieBonus },
+  ]
+  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
     value: 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
       * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100),
@@ -469,12 +628,12 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   }
 }
 
-export const getPlayerFoodBonus = (character, statues, stamps) => {
+export const getPlayerFoodBonus = (character, account) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
-  const statuePower = getStatueBonus(statues, 'StatueG4', character?.talents);
-  const equipmentFoodEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[9]), 0);
-  const stampBonus = getStampsBonusByEffect(stamps, 'Boost_Food_Effect', 0)
-  const starSignBonus = getStarSignBonus(character?.starSigns, 'Mount_Eaterest', 'All_Food_Effect');
+  const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.talents);
+  const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Food_Effect', 0)
+  const starSignBonus = getStarSignBonus(character?.starSigns, 'Mount_Eaterest', 'All_Food_Effect', account, character?.playerId);
   const cardBonus = getEquippedCardBonus(character?.cards, 'Y5');
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet1' ? character?.cards?.cardSet?.bonus : 0;
   const talentBonus = getTalentBonus(character?.starTalents, null, 'FROTHY_MALK');
@@ -499,7 +658,7 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
   const statuePower = getStatueBonus(statues, 'StatueG2', character?.talents);
   // const speedFromStatue = 1 + (speedBonusFromPotions + (statuePower) / 2.2);
   const speedStarSign = getStarSignByEffect(character?.starSigns, 'Movement_Speed');
-  const equipmentSpeedEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[1]), 0);
+  const equipmentSpeedEffectBonus = getStatsFromGear(character, 1, account);
   const cardBonus = getEquippedCardBonus(character?.cards, 'A5');
   finalSpeed = (baseMath + (statuePower + ((speedStarSign) + (equipmentSpeedEffectBonus + (cardBonus + featherFlight))))) / 100; // 1.708730398284699
   finalSpeed = 1 + (finalSpeed + (agiMulti) / 2.2); // 2.829035843985983
@@ -528,10 +687,10 @@ export const getAfkGain = (character, skillName, bribes, arcadeShop, dungeonUpgr
     }
     const cardSet = character?.cards?.cardSet?.rawName === 'CardSet7' ? character?.cards?.cardSet?.bonus : 0;
     const conductiveProcessor = playerChips.find((chip) => chip.index === 8)?.baseVal ?? 0;
-    const equipmentAfkEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[24]), 0);
-    const equipmentShrineEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[59]), 0);
-    const zergRushogen = getPrayerBonusAndCurse(character?.prayers, 'Zerg_Rushogen')?.bonus;
-    const ruckSack = getPrayerBonusAndCurse(character?.prayers, 'Ruck_Sack')?.curse;
+    const equipmentAfkEffectBonus = getStatsFromGear(character, 24, account);
+    const equipmentShrineEffectBonus = getStatsFromGear(character, 59, account);
+    const zergRushogen = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
+    const ruckSack = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
     const nonFightingGains = 2 + (amarokBonus + bunnyBonus) + (guildAfkGains + cardSet +
       (conductiveProcessor + (equipmentAfkEffectBonus + equipmentShrineEffectBonus + (zergRushogen - ruckSack))));
     const dungeonAfkGains = getDungeonStatBonus(dungeonUpgrades, 'AFK_Gains');
@@ -586,7 +745,7 @@ export const getAllEff = (character, meals, lab, accountCards, guildBonuses, cha
   const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Beast_Master', 'THE_FAMILY_GUY');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
-  const equipmentEffEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[48]), 0);
+  const equipmentEffEffectBonus = getStatsFromGear(character, 48, account);
   const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab.jewels, 16, spelunkerObolMulti);
   const mealEff = getMealsBonusByEffectOrStat(meals, null, 'Seff', blackDiamondRhinestone);
@@ -594,8 +753,8 @@ export const getAllEff = (character, meals, lab, accountCards, guildBonuses, cha
   const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B');
   const crystalCapybaraBonus = accountCards?.Crystal_Capybara?.stars + 1 ?? 0;
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet2' ? character?.cards?.cardSet?.bonus : 0;
-  const skilledDimwit = getPrayerBonusAndCurse(character?.prayers, 'Skilled_Dimwit')?.bonus;
-  const balanceOfProficiency = getPrayerBonusAndCurse(character?.prayers, 'Balance_of_Proficiency')?.curse;
+  const skilledDimwit = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.bonus;
+  const balanceOfProficiency = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency',account)?.curse;
   const maestroTransfusion = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
   let guildSKillEff = 0;
   if (guildBonuses.length > 0) {
@@ -645,7 +804,7 @@ const getPlayerConstructionSpeed = (character, account) => {
   const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Spd', constructionLevel);
   const postOffice = getPostOfficeBonus(account?.postOffice, 'Construction_Container', 0);
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 5);
-  const equipmentConstructionEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[30]), 0);
+  const equipmentConstructionEffectBonus = getStatsFromGear(character, 30, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
   const moreMath = 1 + (stampsBonus + 0.25 * (postOffice) + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement))) / 100;

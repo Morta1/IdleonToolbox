@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, pascalCase, prefix } from "../../utility/helpers";
+import { cleanUnderscore, notateNumber, pascalCase, prefix } from "../../utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "../Tooltip";
 import {
@@ -41,7 +41,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
         const missingObols = trackers?.obols && isObolMissing(account, character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
         const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex, trackersOptions);
-        const ccdSkillsReady = crystalCooldownSkillsReady(character, account);
+        const ccdSkillsReady = crystalCooldownSkillsReady(character, trackersOptions);
         const upgradeableTools = hasAvailableToolUpgrade(character, account, rawTools);
         return <Card key={name} sx={{ width: 345 }}>
           <CardContent>
@@ -101,11 +101,13 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
               {trackers?.crystalCountdown && ccdSkillsReady?.length > 0 ? ccdSkillsReady?.map(({
                                                                                                  name,
                                                                                                  icon,
-                                                                                                 crystalCountdown
+                                                                                                 reduction,
+                                                                                                 crystalCountdown,
+                                                                                                 ready
                                                                                                }, index) => (
                 <Alert key={icon + '-' + index + '-' + characterIndex}
-                       style={{ border: '1px solid #fbb9b9', borderRadius: 5 }}
-                       title={`Crystal Countdown is maxed for ${cleanUnderscore(pascalCase(name))} (${crystalCountdown.toFixed(2)}%)!`}
+                       style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}
+                       title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready ? 'maxed' : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})` : ''}!`}
                        iconPath={`data/${icon}`}/>
               )) : null}
             </Stack>

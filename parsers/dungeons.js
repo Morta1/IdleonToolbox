@@ -49,6 +49,12 @@ export const getDungeonStatBonus = (dungeonStats, statName) => {
   return growth(stat?.func, stat?.level, stat?.x1, stat?.x2, false) ?? 0;
 };
 
+export const getDungeonFlurboStatBonus = (upgrades, effectName) => {
+  const stat = upgrades?.find(({ effect }) => effect === effectName);
+  if (!stat) return 0;
+  return growth(stat?.func, stat?.level, stat?.x1, stat?.x2, false) ?? 0;
+};
+
 export const getMaxClaimTime = (stamps) => {
   return Math.ceil(3600 * (48 + Math.min(10, getStampsBonusByEffect(stamps, 'Max_Claim_Time'))));
 }

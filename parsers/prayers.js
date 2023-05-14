@@ -1,6 +1,7 @@
 import { tryToParse } from "../utility/helpers";
 import { calculateItemTotalAmount } from "./items";
 import { items, prayers } from "../data/website-data";
+import { isSuperbitUnlocked } from "./gaming";
 
 export const getPrayers = (idleonData, storage) => {
   const prayersRaw = idleonData?.PrayersUnlocked || tryToParse(idleonData?.PrayOwned);
@@ -20,12 +21,19 @@ const parsePrayers = (prayersRaw, storage) => {
   }, []);
 }
 
-export const getPrayerBonusAndCurse = (prayers, prayerName) => {
-  const prayer = prayers?.find(({ name }) => name === prayerName);
+export const getPrayerBonusAndCurse = (prayers, prayerName, account) => {
+  const superbitUnlocked = isSuperbitUnlocked(account, 'No_more_Praying');
+  let prayer;
+  if (superbitUnlocked && (!prayers || prayers?.length === 0)) {
+    prayer = account?.prayers?.find(({ name }) => name === prayerName);
+  } else {
+    prayer = prayers?.find(({ name }) => name === prayerName);
+  }
+
   if (!prayer) return { bonus: 0, curse: 0 };
   const bonus = prayer.x1 + (prayer.x1 * (prayer.level - 1)) / 10;
   const curse = prayer.x2 + (prayer.x2 * (prayer.level - 1)) / 10;
-  return { bonus: Math.round(bonus), curse: Math.round(curse) }
+  return { bonus: Math.round(superbitUnlocked ? bonus / 5 : bonus), curse: Math.round(superbitUnlocked ? 0 : curse) }
 }
 
 export const calcPrayerCost = (prayer) => {

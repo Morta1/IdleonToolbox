@@ -57,7 +57,7 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
     { component: <PlayerStarSigns signs={starSigns}/>, filter: "Star Signs" },
     { component: <AnvilDetails character={character} anvil={anvil}/>, filter: "Anvil Details" },
     { component: <PostOffice {...postOffice} />, filter: "Post Office" },
-    { component: <Equipment {...{ charName: name, equipment, tools, food }} />, filter: "Equipment" },
+    { component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />, filter: "Equipment" },
     { component: <PlayerBubbles bubbles={equippedBubbles}/>, filter: "Equipped Bubbles" },
     {
       component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}

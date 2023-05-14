@@ -26,7 +26,7 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw) => {
 }
 
 export const getStampsBonusByEffect = (stamps, effectName, skillLevel = 0) => {
-  return Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
+  return stamps && Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
     const foundStamps = stampTree?.filter(({ effect }) => effect.includes(effectName));
     const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, skillLevel), 0);
     return final + sum;

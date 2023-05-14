@@ -1,21 +1,12 @@
-import { anvilProducts, anvilUpgradeCost, bonuses, classFamilyBonuses } from "../data/website-data";
-import {
-  getAllCapsBonus,
-  getAllSkillExp,
-  getGoldenFoodBonus,
-  getGoldenFoodMulti,
-  getHighestLevelOfClass,
-  getSpeedBonusFromAgility
-} from "./misc";
+import { anvilProducts, anvilUpgradeCost } from "../data/website-data";
+import { getAllCapsBonus, getAllSkillExp, getGoldenFoodBonus, getSpeedBonusFromAgility } from "./misc";
 import { getBribeBonus } from './bribes';
-import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus } from "./alchemy";
+import { getActiveBubbleBonus, getBubbleBonus } from "./alchemy";
 import { getTalentBonus, getTalentBonusIfActive, talentPagesMap } from "./talents";
 import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
 import { getEquippedCardBonus, getTotalCardBonusById } from "./cards";
-import { getFamilyBonusBonus } from "./family";
-import { getStatFromEquipment } from "./items";
+import { getStatsFromGear } from "./items";
 import { getStampBonus } from "./stamps";
-import { getAchievementStatus } from "./achievements";
 import { getShrineBonus } from "./shrines";
 import { getStatueBonus } from "./statues";
 import { getPrayerBonusAndCurse } from "./prayers";
@@ -132,6 +123,7 @@ export const getPlayerAnvil = (char, character, account, charactersLevels, idleo
   const archerMultiBubble = isArcher ? getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ARCHER_OR_BUST') : 1;
   const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
   const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);
+
   stats.anvilCost = {
     ...anvilCost,
     totalMats: getTotalMonsterMatCost(anvilCost, pointsFromMats, anvilCostReduction),
@@ -141,60 +133,20 @@ export const getPlayerAnvil = (char, character, account, charactersLevels, idleo
     coinsToMax: getCoinToMax(pointsFromCoins, anvilCostReduction)
   };
 
-
   // ANVIL EXP
-  const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp');
+  const sirSavvyStarSign = getStarSignBonus(character?.starSigns, 'Sir_Savvy', 'Skill_Exp', account, character?.playerId);
   const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
-
-  const goldenHam = character?.food?.find(({ name }) => name === 'Golden_Ham');
-  const highestLevelShaman = getHighestLevelOfClass(charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(charactersLevels, 'Shaman') ?? 0;
-  const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
-  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
-  const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
-  const equipmentGoldFoodBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[8]), 0);
-  const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
-  const goldenAppleStamp = getStampBonus(account?.stamps, 'misc', 'StampC7', 0);
-  const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
-  const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false);
-  const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE')
-  const goldenGoodMulti = getGoldenFoodMulti(
-    amplifiedFamilyBonus,
-    equipmentGoldFoodBonus,
-    hungryForGoldTalentBonus,
-    goldenAppleStamp,
-    goldenFoodAchievement,
-    goldenFoodBubbleBonus,
-    goldenFoodSigilBonus
-  );
-  const goldenFoodBonus = getGoldenFoodBonus(goldenGoodMulti, goldenHam?.Amount, goldenHam?.amount);
-  // if ("AllSkillxpz" == s) {
-  //   var c = b.engine.getGameAttribute("DNSM")
-  //     , p = null != d.StarSigns ? c.getReserved("StarSigns") : c.h.StarSigns
-  //     , f = null != d.SkillEXP ? p.getReserved("SkillEXP") : p.h.SkillEXP
-  //     , R = f
-  //     , y = O._customBlock_CardBonusREAL(50) + A._customBlock_GoldFoodBonuses("SkillExp") // 26.62778429651485
-  //     , v = w._customBlock_CardSetBonuses(0, "3") + w._customBlock_Shrine(5) + D._customBlock_ArbitraryCode("StatueBonusGiven17") // 24.833333333333336
-  //     , F = w._customBlock_prayersReal(2, 0) + w._customBlock_prayersReal(17, 0) - w._customBlock_prayersReal(1, 1) - w._customBlock_prayersReal(9, 1) // -92
-  //     , N = O._customBlock_EtcBonuses("27") // 15
-  //     , _ = D._customBlock_GetBuffBonuses(40, 1) // 0
-  //     , I = w._customBlock_SaltLick(3) // 3.2
-  //     , E = w._customBlock_FlurboShop(2) // 4.090909090909091
-  //     , S = b.engine.getGameAttribute("DNSM")
-  //     , G = null != d.BoxRewards ? S.getReserved("BoxRewards") : S.h.BoxRewards
-  //     , T = null != d["20c"] ? G.getReserved("20c") : G.h["20c"]; // 0
-  //   return R + (y + (v + (F + (N + (_ + (I + (E + (T))))))))
-// }
-
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Ham', character, account);
   const skillExpCardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
   const acquiredArtifacts = sailingRaw?.[3];
   const moaiiHead = acquiredArtifacts?.[0] > 0;
   const summereadingShrineBonus = getShrineBonus(account?.shrines, 5, char?.[`CurrentMap`], account.cards, moaiiHead);
   const ehexpeeStatueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
-  const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy')?.bonus
-  const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit')?.curse;
-  const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler')?.curse;
-  const equipmentBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses.etcBonuses?.[27]), 0);
+  const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy', account)?.bonus
+  const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.curse;
+  const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.curse;
+  const equipmentBonus = getStatsFromGear(character, 27, account);
   const maestroTransfusionTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
   const duneSoulLickBonus = getSaltLickBonus(account?.saltLick, 3);
   const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
@@ -222,13 +174,13 @@ export const getPlayerAnvil = (char, character, account, charactersLevels, idleo
   const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
   const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'a2');
   const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
-  const bobBuildGuyStarSign = getStarSignBonus(character?.starSigns, 'Bob_Build_Guy', 'Speed_in_Town');
+  const bobBuildGuyStarSign = getStarSignBonus(character?.starSigns, 'Bob_Build_Guy', 'Speed_in_Town', account, character?.playerId);
   const talentTownSpeedBonus = getTalentBonus(character?.talents, 0, 'BROKEN_TIME');
   stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus);
 
   let guildCarryBonus = 0;
-  let zergPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen')?.curse;
-  let ruckSackPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack')?.bonus;
+  let zergPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
+  let ruckSackPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.bonus;
 
   if (account?.guild?.guildBonuses?.bonuses?.length > 0) {
     guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 2);

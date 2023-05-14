@@ -4,22 +4,16 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
 import styled from "@emotion/styled";
 import { NextSeo } from "next-seo";
+import { calcPrayerCost } from "../../../parsers/prayers";
 
 const Prayers = () => {
   const { state } = useContext(AppContext);
   const { prayers } = state?.account;
-  const calcCost = (prayer) => {
-    const { level, costMulti, prayerIndex } = prayer
-    if (level < 6) {
-      return Math.round(costMulti * (1 + (4 + prayerIndex / 25) * level));
-    }
-    return Math.round(Math.min(2e9, costMulti * (1 + (1 + prayerIndex / 20) * level) * Math.pow(prayerIndex === 9 ? 1.3 : 1.12, level - 5)))
-  }
 
   const calcCostToMax = (prayer) => {
     let costToMax = 0;
     for (let i = prayer?.level; i < prayer?.maxLevel; i++) {
-      costToMax += calcCost({ ...prayer, level: i });
+      costToMax += calcPrayerCost({ ...prayer, level: i });
     }
     return costToMax ?? 0;
   }
@@ -49,7 +43,7 @@ const Prayers = () => {
           } = prayer
           const calculatedBonus = x1 + (x1 * (level - 1)) / 10;
           const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
-          const cost = calcCost(prayer);
+          const cost = calcPrayerCost(prayer);
           return <Card key={name + index} sx={{ width: 300, display: 'flex', }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
               <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>

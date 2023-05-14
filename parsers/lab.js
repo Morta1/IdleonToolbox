@@ -153,6 +153,7 @@ export const isGodEnabledBySorcerer = (character, godIndex) => {
 export const applyBonusDesc = (labBonusesList, bonusDesc, index) => {
   return labBonusesList?.map((bonus, ind) => ind === index ? {
     ...bonus,
+    bonusOn: bonusDesc,
     bonusDesc
   } : bonus);
 }

@@ -1,6 +1,8 @@
 import { tryToParse } from "../utility/helpers";
 import { constellations, mapNames, starSigns } from "../data/website-data";
 import { starSignsIndicesMap } from "./parseMaps";
+import { isRiftBonusUnlocked } from "./world-4/rift";
+import { getShinyBonus } from "./breeding";
 
 export const getStarSigns = (idleonData) => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
@@ -42,10 +44,24 @@ export const parseConstellations = (constellationsRaw) => {
   }, []);
 }
 
-export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect) => {
-  const starSign = equippedStarSigns?.find(({ name }) => name === starSignName);
-  if (!starSign) return 0;
-  return starSign?.find(({ effect }) => effect === starEffect)?.bonus ?? 0;
+export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect, account, playerId) => {
+  const infiniteStarsUnlocked = isRiftBonusUnlocked(account?.rift, 'Infinite_Stars');
+  const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
+  let starSignIndex, bonuses = [], chipMulti = 1;
+
+  starSignIndex = equippedStarSigns?.findIndex(({ name }) => name?.includes(starSignName));
+  if (starSignIndex !== -1) {
+    bonuses = equippedStarSigns?.[starSignIndex];
+    const silkroadNanochip = account?.lab?.playersChips?.[playerId]?.find((chip) => chip.index === 15) ?? 0;
+    chipMulti = silkroadNanochip ? 2 : 1
+  }
+
+  if (infiniteStars) {
+    starSignIndex = account?.starSigns?.findIndex(({ starName }, index) => starName?.includes(starSignName) && index < infiniteStars);
+    bonuses = account?.starSigns?.[starSignIndex]?.bonuses;
+  }
+  if (!bonuses || !bonuses?.length) return 0;
+  return (bonuses?.find(({ effect }) => effect === starEffect)?.bonus ?? 0) * chipMulti;
 }
 
 export const getStarSignByEffect = (equippedStarSigns, starEffect) => {

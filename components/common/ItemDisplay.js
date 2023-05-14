@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
-import { cleanUnderscore, prefix } from "utility/helpers";
+import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import { Divider, Stack, Typography } from "@mui/material";
 import { TitleAndValue } from "./styles";
+import { getGoldenFoodBonus } from "../../parsers/misc";
 
 const ItemDisplay = ({
+                       character, account,
                        Type,
                        description,
                        lvReqToEquip,
@@ -50,7 +52,11 @@ const ItemDisplay = ({
     return "Weapon Power"
   }
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
-  const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, Amount).replace(/]/, Cooldown);
+  let goldenFoodBonus = 0, isGoldenFood = displayName?.includes('Golden');
+  if (isGoldenFood) {
+    goldenFoodBonus = getGoldenFoodBonus(displayName, character, account)
+  }
+  const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood ? notateNumber(goldenFoodBonus, 'Small') : Amount).replace(/]/, Cooldown);
 
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' && <>
     <Stack gap={1} direction={'row'} alignItems={'center'}>

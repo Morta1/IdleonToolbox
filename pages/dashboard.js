@@ -49,7 +49,8 @@ const trackersOptions = {
   characters: {
     anvil: { showAlertBeforeFull: true },
     postOffice: { input: { label: 'threshold', type: 'number', value: '' } },
-    talents: { printerGoBrrr: true, refineryThrottle: true, craniumCooking: true, 'itsYourBirthday!': true }
+    talents: { printerGoBrrr: true, refineryThrottle: true, craniumCooking: true, 'itsYourBirthday!': true },
+    crystalCountdown: { showNonMaxed: false }
   }
 };
 

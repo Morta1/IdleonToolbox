@@ -1,7 +1,7 @@
-import { atomsInfo, bonuses, cookingMenu, monsters, randomList } from "../data/website-data";
+import { atomsInfo, cookingMenu, monsters, randomList } from "../data/website-data";
 import { allProwess, getAllBaseSkillEff, getAllEff } from "./character";
 import { getStampsBonusByEffect } from "./stamps";
-import { getStatFromEquipment } from "./items";
+import { getStatsFromGear } from "./items";
 import { tryToParse } from "../utility/helpers";
 import { getPostOfficeBonus } from "./postoffice";
 import { getJewelBonus, getLabBonus } from "./lab";
@@ -84,7 +84,7 @@ const getCookingEff = (character, jewels, stamps, meals, playerChips, cards, gui
   const allBaseSkillEff = getAllBaseSkillEff(character, playerChips, jewels);
   const allEfficiencies = getAllEff(character, meals, playerChips, cards, guildBonuses, charactersLevels);
   const stampBonus = getStampsBonusByEffect(stamps, 'Cooking_Efficiency');
-  const equipmentCookingEffectBonus = character?.equipment?.reduce((res, item) => res + getStatFromEquipment(item, bonuses?.etcBonuses?.[62]), 0);
+  const equipmentCookingEffectBonus = getStatsFromGear(character, 62, account);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 0);
   return allEfficiencies * (250 + (stampBonus + (equipmentCookingEffectBonus + (postOfficeBonus)) + allBaseSkillEff));
 }

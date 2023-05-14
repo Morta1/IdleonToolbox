@@ -23,6 +23,24 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.77",
+    gameVer: "1.81",
+    date: "14/05/2023",
+    features: [
+      'Added Cash Multi value and breakdown under Characters page -> Stats filter',
+      'Added Drop Rate value and breakdown under Characters page -> Stats filter',
+      'Added support for No more Praying superbit',
+      'Added the correct bonus of golden food in Characters page -> Equipment filter -> Food tab',
+      'Added an option for crystal cooldown on dashboard to see non maxed skills'
+    ],
+    fixes: [
+      'Fixed some calculation with obols stats',
+      'Fixed a bug with shrine bonus',
+      'Now calculating star signs with Infinite stars bonus'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.76",
     gameVer: "1.81",
     date: "11/05/2023",

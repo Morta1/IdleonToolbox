@@ -127,16 +127,17 @@ export const isAkfForMoreThanTenHours = (character, lastUpdated) => {
   return false;
 }
 
-export const crystalCooldownSkillsReady = (character,) => {
+export const crystalCooldownSkillsReady = (character, trackersOptions) => {
   if (character?.class === 'Maestro') {
+    const { crystalCountdown: ccd } = trackersOptions || {};
     return Object.entries(character?.skillsInfo)?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character') {
         const crystalCountdown = getTalentBonus(character?.talents, 2, 'CRYSTAL_COUNTDOWN')
         const expReq = getExpReq(data?.index, data?.level);
         const reduction = 100 * (1 - Math.max((1 - crystalCountdown / 100) * expReq, .98 * data?.expReq) / expReq);
         if (reduction > 0) {
-          if (reduction === crystalCountdown) {
-            return [...res, { name, ...data, crystalCountdown }]
+          if (ccd?.showNonMaxed ? true : reduction === crystalCountdown) {
+            return [...res, { name, ...data, crystalCountdown, reduction, ready: reduction === crystalCountdown }]
           }
         }
       }

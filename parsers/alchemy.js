@@ -159,10 +159,12 @@ export const getActiveBubbleBonus = (equippedBubbles, bIndex) => {
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 
-export const getBubbleBonus = (cauldrons, cauldronName, bubName, round) => {
+export const getBubbleBonus = (cauldrons, cauldronName, bubName, round, shouldMulti) => {
   const bubble = cauldrons?.[cauldronName]?.find(({ bubbleName }) => bubbleName === bubName);
   if (!bubble) return 0;
-  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) ?? 0;
+  const multiBubble = cauldrons?.[cauldronName]?.[1];
+  const multiBubbleBonus = shouldMulti ? growth(multiBubble?.func, multiBubble?.level, multiBubble?.x1, multiBubble?.x2, round) : 1;
+  return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus) ?? 0;
 };
 
 const getVials = (vialsRaw) => {
