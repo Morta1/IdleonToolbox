@@ -5,7 +5,6 @@ import { kFormatter, notateNumber, pascalCase } from "utility/helpers";
 import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
-import { isArtifactAcquired } from "../../parsers/sailing";
 import { TitleAndValue } from "../common/styles";
 import { getCashMulti, getDropRate } from "../../parsers/character";
 import { useMemo } from "react";
@@ -16,12 +15,15 @@ const colors = {
   wisdom: "secondary",
   luck: "warning.light"
 };
-const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account }) => {
+const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, characters }) => {
   const { name, playerId, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
-  const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account) || {}, [character, account]);
-  const { dropRate, breakdown: drBreakdown } = useMemo(() => getDropRate(character, account) || {}, [character,
+  const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account, characters) || {}, [character,
     account]);
-  console.log(dropRate)
+  const {
+    dropRate,
+    breakdown: drBreakdown
+  } = useMemo(() => getDropRate(character, account, characters) || {}, [character,
+    account]);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -51,8 +53,6 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
             </Card>
           ) : null}
           {Object.entries(stats)?.map(([statName, statValue], index) => {
-            const socrates = isArtifactAcquired(account?.sailing?.artifacts, 'Socrates');
-            const enhancedStat = socrates ? statValue * (1 + socrates?.bonus / 100) : statValue;
             return statName !== "level" ? (
               <Card variant={"outlined"} key={`${name}-${statName}-${index}`}>
                 <CardContent>
@@ -62,7 +62,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
                   </Typography>
                   <Typography variant={"body1"} component={"span"}>
                     {" "}
-                    {Math.floor(enhancedStat)}
+                    {Math.floor(statValue)}
                   </Typography>
                 </CardContent>
               </Card>
@@ -80,7 +80,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account })
             <CardContent>
               <Typography color={"info.light"}>Drop Rate</Typography>
               <Tooltip title={<BreakdownTooltip breakdown={drBreakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(dropRate, 'Smaller')}%</Typography>
+                <Typography>{notateNumber(dropRate, 'MultiplierInfo').replace('#', '')}x</Typography>
               </Tooltip>
             </CardContent>
           </Card>

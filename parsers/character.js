@@ -391,7 +391,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 }
 
 
-export const getDropRate = (character, account) => {
+export const getDropRate = (character, account, characters) => {
   const { luck } = character?.stats || {};
   let luckMulti;
   if (luck < 1e3) {
@@ -414,14 +414,19 @@ export const getDropRate = (character, account) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
   const starSignBonus = getStarSignBonus(character?.starSigns, 'Pirate_Booty', 'Drop_Rate', account, character?.playerId);
   // const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'DropRarity');
-  // const thirdTalentBonus = getTalentBonus(character?.talents, 3, 'ARCHLORD_OF_THE_PIRATES');
-  // const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
+  // const math = 1 + (luck + flurboBonus) / 100;
+  const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
+  const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
+
   const dropRate = 1.4 * luckMulti
     + (firstTalentBonus + (postOfficeBonus + ((drFromEquipment + drFromObols)
       + (bubbleBonus + (cardBonus + (secondTalentBonus
         + (starSignBonus + (guildBonus + (
           +(cardSetBonus + (shrineBonus + (prayerBonus + (sigilBonus
             + shinyBonus))))))))))))) / 100 + 1;
+
+  const final = dropRate * extraDropRate;
+
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
     { name: 'Talents', value: (firstTalentBonus + secondTalentBonus) / 100 },
@@ -440,12 +445,12 @@ export const getDropRate = (character, account) => {
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
-    dropRate,
+    dropRate: final,
     breakdown
   };
 }
 
-export const getCashMulti = (character, account) => {
+export const getCashMulti = (character, account, characters) => {
   const { strength, agility, wisdom } = character?.stats || {};
   const cashStrBubble = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
   const cashAgiBubble = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
@@ -478,7 +483,7 @@ export const getCashMulti = (character, account) => {
   const americanTipperBonus = cashPerCookingLv * getTalentBonus(character?.starTalents, null, 'AMERICAN_TIPPER');
   const goldFoodBonus = getGoldenFoodBonus('Golden_Bread', character, account)
   const achievementBonus = getAchievementStatus(account?.achievements, 235);
-  const { dropRate } = getDropRate(character, account);
+  const { dropRate } = getDropRate(character, account, characters);
   const dropRateMulti = (dropRate < 2 ? dropRate : Math.floor(dropRate < 5 ? dropRate : dropRate + 1)) * 100;
 
   const bubbles = (cashStrBubble
@@ -522,8 +527,7 @@ export const getCashMulti = (character, account) => {
     { name: 'Equipment', value: cashFromEquipment },
     { name: 'Obols', value: cashFromObols },
     { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
-    { name: 'Guild', value: guildBonus },
-    { name: 'World', value: Math.floor(character?.mapIndex / 50) },
+    { name: 'Guild', value: guildBonus * Math.floor(character?.mapIndex / 50) },
     { name: 'Talents', value: coinsForCharonBonus + americanTipperBonus },
     { name: 'Golden Food', value: goldFoodBonus },
     { name: 'Achievements', value: 5 * achievementBonus },
@@ -754,7 +758,7 @@ export const getAllEff = (character, meals, lab, accountCards, guildBonuses, cha
   const crystalCapybaraBonus = accountCards?.Crystal_Capybara?.stars + 1 ?? 0;
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet2' ? character?.cards?.cardSet?.bonus : 0;
   const skilledDimwit = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.bonus;
-  const balanceOfProficiency = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency',account)?.curse;
+  const balanceOfProficiency = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.curse;
   const maestroTransfusion = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
   let guildSKillEff = 0;
   if (guildBonuses.length > 0) {

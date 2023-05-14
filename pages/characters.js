@@ -17,8 +17,13 @@ const Characters = () => {
       <>
         <Grid container sx={{ gap: { xs: 2 } }} columns={12.5}>
           {state?.characters?.map((character, index) => {
-            return state?.displayedCharacters?.[character?.name] ? <Character filters={state?.filters} account={state?.account}
-                                                                              character={character} cols={characterCols} lastUpdated={state?.lastUpdated} key={`${character?.name}-${index}`} /> : null;
+            return state?.displayedCharacters?.[character?.name] ? <Character filters={state?.filters}
+                                                                              account={state?.account}
+                                                                              character={character}
+                                                                              characters={state?.characters}
+                                                                              cols={characterCols}
+                                                                              lastUpdated={state?.lastUpdated}
+                                                                              key={`${character?.name}-${index}`}/> : null;
           })}
         </Grid>
       </>

@@ -16,7 +16,7 @@ import Stats from "./Stats";
 import styled from "@emotion/styled";
 import ActiveSkillsCD from "./ActiveSkillsCD";
 
-const Character = ({ character, account, lastUpdated, filters, cols }) => {
+const Character = ({ character, account, lastUpdated, filters, cols, characters }) => {
   const {
     name,
     classIndex,
@@ -44,7 +44,10 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
 
   const views = [
     {
-      component: <Stats activityFilter={filters?.["Activity"]} statsFilter={filters?.["Stats"]} character={character}
+      component: <Stats activityFilter={filters?.["Activity"]}
+                        statsFilter={filters?.["Stats"]}
+                        character={character}
+                        characters={characters}
                         account={account} lastUpdated={lastUpdated}/>, filter: ["Stats", "Activity"]
     },
     { component: <ObolsView obols={obols}/>, filter: "Obols" },
@@ -57,7 +60,10 @@ const Character = ({ character, account, lastUpdated, filters, cols }) => {
     { component: <PlayerStarSigns signs={starSigns}/>, filter: "Star Signs" },
     { component: <AnvilDetails character={character} anvil={anvil}/>, filter: "Anvil Details" },
     { component: <PostOffice {...postOffice} />, filter: "Post Office" },
-    { component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />, filter: "Equipment" },
+    {
+      component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
+      filter: "Equipment"
+    },
     { component: <PlayerBubbles bubbles={equippedBubbles}/>, filter: "Equipped Bubbles" },
     {
       component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}

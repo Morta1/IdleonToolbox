@@ -99,9 +99,9 @@ export const getActiveBuffs = (activeBuffs, talents) => {
 export const getHighestTalentByClass = (characters, talentTree, className, talentName) => {
   const classes = characters?.filter((character) => character?.class === className);
   return classes?.reduce((res, { talents }) => {
-    const theFamilyGuy = getTalentBonus(talents, talentTree, talentName);
-    if (theFamilyGuy > res) {
-      return theFamilyGuy
+    const talent = getTalentBonus(talents, talentTree, talentName);
+    if (talent > res) {
+      return talent
     }
     return res;
   }, 0);
@@ -125,18 +125,18 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (getAchievementStatus(achievements, 291)) {
     addedLevels += 1;
   }
-
+  const excludedTalents = ['ARCHLORD_OF_THE_PIRATES', 'POLYTHEISM', 'SYMBOLS_OF_BEYOND_~G', 'SYMBOLS_OF_BEYOND_~P', 'SYMBOLS_OF_BEYOND_~R']
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') && !talent?.name.includes('POLYTHEISM') ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !excludedTalents?.[talent?.name] ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
   }
   return Object.entries(talents).reduce((res, [key, data]) => {
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !talent?.name.includes('SYMBOLS_OF_BEYOND_') && !talent?.name.includes('POLYTHEISM') ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && excludedTalents?.[talent?.name] ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
     return {
       ...res,
