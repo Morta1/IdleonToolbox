@@ -24,7 +24,8 @@ const parsePrayers = (prayersRaw, storage) => {
 export const getPrayerBonusAndCurse = (prayers, prayerName, account) => {
   const superbitUnlocked = isSuperbitUnlocked(account, 'No_more_Praying');
   let prayer;
-  if (superbitUnlocked && (!prayers || prayers?.length === 0)) {
+  const useSuperbit = superbitUnlocked && (!prayers || prayers?.length === 0);
+  if (useSuperbit) {
     prayer = account?.prayers?.find(({ name }) => name === prayerName);
   } else {
     prayer = prayers?.find(({ name }) => name === prayerName);
@@ -33,7 +34,7 @@ export const getPrayerBonusAndCurse = (prayers, prayerName, account) => {
   if (!prayer) return { bonus: 0, curse: 0 };
   const bonus = prayer.x1 + (prayer.x1 * (prayer.level - 1)) / 10;
   const curse = prayer.x2 + (prayer.x2 * (prayer.level - 1)) / 10;
-  return { bonus: Math.round(superbitUnlocked ? bonus / 5 : bonus), curse: Math.round(superbitUnlocked ? 0 : curse) }
+  return { bonus: Math.round(useSuperbit ? bonus / 5 : bonus), curse: Math.round(useSuperbit ? 0 : curse) }
 }
 
 export const calcPrayerCost = (prayer) => {
