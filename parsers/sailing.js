@@ -106,7 +106,7 @@ const getEldritchChances = (islandsUnlocked, serverVars) => {
   return 3 > islandsUnlocked ? 900 + 250 * islandsUnlocked : ((1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 4;
 }
 
-export const isArtifactAcquired = (artifacts, artifactName) => {
+export const isArtifactAcquired = (artifacts = [], artifactName) => {
   return artifacts?.find(({ name, acquired }) => name === artifactName && acquired);
 }
 

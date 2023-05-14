@@ -30,7 +30,7 @@ export const parseShrines = (shrinesRaw, account) => {
 }
 
 export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifacts) => {
-  const moaiHead = artifacts === true || isArtifactAcquired(artifacts, 'Moai_Head');
+  const moaiHead = artifacts === true || Array.isArray(artifacts) && isArtifactAcquired(artifacts, 'Moai_Head');
   const shrine = shrines?.[shrineIndex];
   const playerWorld = Math.floor(playerMapId / 50);
   const shrineWorld = Math.floor(shrine?.mapId / 50);
