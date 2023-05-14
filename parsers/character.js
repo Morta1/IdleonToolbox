@@ -466,7 +466,7 @@ export const getCashMulti = (character, account, characters) => {
   const statueBonus = getStatueBonus(account?.statues, 'StatueG20');
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
-  const divinityMinorBonus = character?.linkedDeity === 3 ? character?.deityMinorBonus : 0;
+  const divinityMinorBonus = character?.linkedDeity === 3 || character?.secondLinkedDeityIndex === 3 ? character?.deityMinorBonus : 0;
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
   const cashFromEquipment = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])

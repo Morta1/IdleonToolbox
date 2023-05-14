@@ -49,7 +49,7 @@ export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect, ac
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
   let starSignIndex, bonuses = [], chipMulti = 1;
 
-  starSignIndex = equippedStarSigns?.findIndex(({ name }) => name?.includes(starSignName));
+  starSignIndex = equippedStarSigns?.findIndex(({ starName }) => starName?.includes(starSignName));
   if (starSignIndex !== -1) {
     bonuses = equippedStarSigns?.[starSignIndex];
     const silkroadNanochip = account?.lab?.playersChips?.[playerId]?.find((chip) => chip.index === 15) ?? 0;

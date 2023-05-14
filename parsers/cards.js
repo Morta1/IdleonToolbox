@@ -3,12 +3,13 @@ import { tryToParse } from "../utility/helpers";
 
 export const getCards = (idleonData, account) => {
   const cardsRaw = idleonData?.Cards?.[0] || tryToParse(idleonData?.Cards0);
-  return parseCards(cardsRaw, account);
+  const rawRift = tryToParse(idleonData?.Rift) || idleonData?.Rift;
+  return parseCards(cardsRaw, rawRift, account);
 }
 
-export const calculateStars = (tierReq, amountOfCards, cardName) => {
+export const calculateStars = (tierReq, amountOfCards, cardName, rubyCards) => {
   let stars = 0;
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4 + (+rubyCards); i++) {
     if (cardName === "Boss3B") {
       if (amountOfCards > 1.5 * Math.pow(i + 1 + Math.floor(i / 3), 2)) {
         stars = i + 2
@@ -29,13 +30,15 @@ export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
         + 16 * Math.floor((stars + 1) / 5)), 2) - amountOfCards) + 1;
 }
 
-const parseCards = (cardsRaw, account) => {
+const parseCards = (cardsRaw, rawRift, account) => {
+  const [currentRift] = rawRift || [];
+  const rubyCards = currentRift > 45;
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
       const cardDetails = cards?.[name];
       const rawSixStarList = account?.accountOptions?.[155] || '';
       const sixStarList = rawSixStarList?.toString()?.split(',') || [];
-      const stars = sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount, name);
+      const stars = rubyCards && sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount, name, rubyCards);
       if (!cardDetails) return res;
       return {
         ...res,
