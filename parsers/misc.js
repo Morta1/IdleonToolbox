@@ -380,10 +380,6 @@ export const getGiantMobChance = (character, account) => {
   }
 }
 
-export const getGoldenFoodMulti = (familyBonus, equipmentGoldFoodBonus, hungryForGoldTalentBonus, goldenAppleStamp, goldenFoodAchievement, goldenFoodBubbleBonus, goldenFoodSigilBonus) => {
-  return Math.max(familyBonus, 1) + (equipmentGoldFoodBonus + (hungryForGoldTalentBonus + goldenAppleStamp + goldenFoodAchievement + goldenFoodBubbleBonus + goldenFoodSigilBonus)) / 100;
-};
-
 export const getGoldenFoodBonus = (foodName, character, account) => {
   const goldenFood = character?.food?.find(({ name }) => name === foodName);
   const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
