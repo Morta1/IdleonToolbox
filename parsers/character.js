@@ -466,7 +466,7 @@ export const getCashMulti = (character, account, characters) => {
   const statueBonus = getStatueBonus(account?.statues, 'StatueG20');
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
-  const divinityMinorBonus = character?.linkedDeity === 3 || character?.secondLinkedDeityIndex === 3 ? character?.deityMinorBonus : 0;
+  const divinityMinorBonus = character?.linkedDeity === 3 ? character?.deityMinorBonus : character?.secondLinkedDeityIndex === 3 ? character?.secondDeityMinorBonus : 0;
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
   const cashFromEquipment = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
@@ -779,7 +779,6 @@ export const getPlayerCapacity = (bag, capacities) => {
   return 50;
 }
 
-
 export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus, smithingCards, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
   // missing smartas smithing stamp
   const talentsBonus = 1 + (focusedSoulTalentBonus + happyDudeTalentBonus) / 100;
@@ -816,30 +815,3 @@ const getPlayerConstructionSpeed = (character, account) => {
   const redSaltAmount = calculateItemTotalAmount(account?.storage, 'Refinery1', true);
   return Math.floor(baseMath * (1 + (constructionLevel * carpenterBonus) / 100) * moreMath * (1 + (reduxRates * lavaLog(redSaltAmount)) / 100));
 }
-
-// const calcNobisectBlessing = (character, account, charactersLevels) => {
-//   // account?.cooking?.meals, account?.lab?.playersChips, character?.cards, account?.guild?.guildBonuses?.bonuses
-//   const { cooking, lab, guild, alchemy, divinity, cards: accountCards } = account;
-//   const { cards: playerCards, stats } = character
-//   const allEff = getAllEff(character, cooking?.meals, lab, accountCards, guild?.guildBonuses, charactersLevels);
-//   console.log('allEff - 5.219746817679558', allEff)
-//   const minEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false);
-//   console.log('minEff - 193.79715134472335', minEff)
-//   const minEffVial = getVialsBonusByEffect(alchemy?.vials, 'Mining_Efficiency');
-//   const minEffStamp = getStampsBonusByEffect(account?.stamps, 'Mining_Efficiency');
-//   // 189.54575009335448
-//   const chopEff = getBubbleBonus(alchemy?.bubbles, 'power', 'HOCUS_CHOPPUS', false);
-//   console.log('chopEff - 418.5292587293732', chopEff)
-//   // 420.9397074334178
-//   const base = Math.max(1, allEff + Math.pow((minEff + (chopEff)) / 100, 2) + Math.pow((stats.strength + (stats.agility + stats.wisdom)) / 3, 0.5) / 7);
-//   console.log('base', base)
-//   // 48.237034655800514
-//   const baseBlessingMulti = divinity?.blessingBases?.[2];
-//   const blessingMulti = gods?.[2]?.blessingMultiplier;
-//   return baseBlessingMulti * blessingMulti * Math.min(1.8, Math.max(0.1, 4 * Math.pow(((base + 1e4) / Math.max(10 * (base) + 10, 1)) * 0.01, 2)));
-//   // 8.32963478122674
-// }
-
-// const getPlayerHp = (character, account) => {
-//
-// }

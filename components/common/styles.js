@@ -5,14 +5,6 @@ import styled from "@emotion/styled";
 import Tooltip from "../Tooltip";
 import { calcCardBonus } from "parsers/cards";
 
-export const floatingText = {
-  position: 'absolute',
-  bottom: '-14px',
-  textShadow: '6px 6px 0px rgb(0 0 0 / 20%)',
-  left: '50%',
-  transform: 'translateX(-50%)'
-}
-
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon } = props
   const { img, ...rest } = props;

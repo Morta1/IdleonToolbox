@@ -20,7 +20,7 @@ export const calculateStars = (tierReq, amountOfCards, cardName, rubyCards) => {
       }
     }
   }
-  return stars - 1;
+  return stars > 0 ? stars - 1 : stars;
 };
 
 export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
@@ -32,7 +32,7 @@ export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
 
 const parseCards = (cardsRaw, rawRift, account) => {
   const [currentRift] = rawRift || [];
-  const rubyCards = currentRift > 45;
+  let rubyCards = currentRift > 45;
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
       const cardDetails = cards?.[name];
@@ -77,7 +77,7 @@ export const getCardBonusByEffect = (cards, effectName) => {
 
 export const calcCardBonus = (card) => {
   if (!card) return 0;
-  return (card?.bonus * ((card?.stars ?? 0) + 1)) * (card?.chipBoost ?? 1) ?? 0;
+  return (card?.bonus * ((card?.stars ?? -1) + 1)) * (card?.chipBoost ?? 1) ?? 0;
 }
 
 export const getPlayerCards = (char, account) => {
