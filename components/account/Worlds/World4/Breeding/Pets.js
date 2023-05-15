@@ -9,6 +9,7 @@ import Tooltip from "../../../../Tooltip";
 
 const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
+  const [underFiveOnly, SetUnderFiveOnly] = useState(false);
 
   const calcShinyLvMulti = () => {
     const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
@@ -20,11 +21,18 @@ const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
 
   return <>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
-      <FormControlLabel
-        control={<Checkbox name={'mini'} checked={minimized}
-                           size={'small'}
-                           onChange={() => setMinimized(!minimized)}/>}
-        label={'Compact view'}/>
+      <Stack direction={'row'}>
+        <FormControlLabel
+          control={<Checkbox name={'mini'} checked={minimized}
+                             size={'small'}
+                             onChange={() => setMinimized(!minimized)}/>}
+          label={'Compact view'}/>
+        <FormControlLabel
+          control={<Checkbox name={'mini'} checked={underFiveOnly}
+                             size={'small'}
+                             onChange={() => SetUnderFiveOnly(!underFiveOnly)}/>}
+          label={'Show shiny under lv 5'}/>
+      </Stack>
       {pets?.map((world, worldIndex) => {
         return <React.Fragment key={`world-${worldIndex}`}>
           <Typography variant={'h3'}>World {worldIndex + 1}</Typography>
@@ -44,6 +52,7 @@ const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
                                goal
                              }) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv / (fencePets?.[monsterRawName] || 1)) * 8.64e+7;
+                  if (underFiveOnly && shinyLevel >= 5) return;
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'} sx={{
                     opacity: unlocked ? 1 : .6
                   }}>

@@ -70,6 +70,8 @@ const Breeding = () => {
           </CardContent>
         </Card>
       </Stack>
+      <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
+        town</Typography>
       <Tabs centered
             sx={{ marginBottom: 3 }}
             variant={isMd ? 'fullWidth' : 'standard'}
