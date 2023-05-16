@@ -1,6 +1,7 @@
 import { tryToParse } from "../utility/helpers";
 import { atomsInfo } from "../data/website-data";
 import { getBubbleBonus } from "./alchemy";
+import { isSuperbitUnlocked } from "./gaming";
 
 export const getAtoms = (idleonData, account) => {
   const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
@@ -16,9 +17,15 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
     const atomReductionFromAtom = atomsRaw?.[9] > 0 ? 1 : 0;
     const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'ATOM_SPLIT', false)
-    const cost = (1 / (1 + (atomReductionFromAtom + (bubbleBonus + atomColliderLevel / 10)) / 100)) * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
+    const reduxSuperbit = isSuperbitUnlocked(account, 'Atom_Redux')?.bonus ?? 0;
+    const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
+    const maxLevel = Math.round(20 + 10 * (+!!maxLevelSuperbit));
+
+    const cost = (1 / (1 + (atomReductionFromAtom + 10 * reduxSuperbit + bubbleBonus + atomColliderLevel / 10 + 7
+        * account?.tasks?.[2][4][6])) / 100)
+      * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
     const bonus = parseAtomBonus(atomInfo, level, account);
-    return { level, rawName: `Atom${index}`, ...(atomsInfo?.[index] || {}), cost: Math.floor(cost), bonus }
+    return { level, maxLevel, rawName: `Atom${index}`, ...(atomsInfo?.[index] || {}), cost: Math.floor(cost), bonus }
   });
   const daysSinceUsed = account?.accountOptions?.[134];
   const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');

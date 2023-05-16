@@ -23,6 +23,18 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.78",
+    gameVer: "1.81",
+    date: "16/05/2023",
+    features: [
+      'Added countdown timer for sigils'
+    ],
+    fixes: [
+      'Fixed calculation for atom collider\'s cost calculation',
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.77",
     gameVer: "1.81",
     date: "14/05/2023",

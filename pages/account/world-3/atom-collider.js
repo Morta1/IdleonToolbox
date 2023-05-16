@@ -5,7 +5,6 @@ import { cleanUnderscore, notateNumber, prefix } from "../../../utility/helpers"
 import processString from 'react-process-string';
 import { NextSeo } from "next-seo";
 
-const ATOM_MAX_LEVEL = 20;
 const MAX_ATOMS = 10;
 
 const AtomCollider = ({}) => {
@@ -39,7 +38,7 @@ const AtomCollider = ({}) => {
       </Card>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, bonus }, index) => {
+      {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, bonus, maxLevel }, index) => {
         if (index >= MAX_ATOMS) return;
         const description = cleanUnderscore(desc)
           .replace(/{/g, `${baseBonus * level}`)
@@ -53,7 +52,7 @@ const AtomCollider = ({}) => {
                      alt="" width={64} height={64} style={{ objectFit: 'contain' }}/>
                 <Stack>
                   <Typography>{cleanUnderscore(name)}</Typography>
-                  <Typography>Lv. {level} / {ATOM_MAX_LEVEL}</Typography>
+                  <Typography>Lv. {level} / {maxLevel}</Typography>
                   <Typography>Cost: {notateNumber(cost, 'Big')}</Typography>
                 </Stack>
               </Stack>

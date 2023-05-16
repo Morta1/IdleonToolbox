@@ -7,28 +7,29 @@ import { getJewelBonus, getLabBonus } from "./lab";
 import { isMasteryBonusUnlocked } from "./misc";
 import { getStampsBonusByEffect } from "./stamps";
 import { getArcadeBonus } from "./arcade";
+import { getAchievementStatus } from "./achievements";
 
 const cauldronsIndexMapping = { 0: "power", 1: "quicc", 2: "high-iq", 3: "kazam" };
 const liquidsIndex = { 0: "water drops", 1: "liquid n2", 2: "trench h2o" };
 const cauldronsTextMapping = { 0: "O", 1: "G", 2: "P", 3: "Y" };
 const bigBubblesIndices = { _: "power", a: "quicc", b: "high-iq", c: "kazam" };
 
-export const getAlchemy = (idleonData) => {
+export const getAlchemy = (idleonData, account) => {
   const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo) || idleonData?.CauldronInfo;
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1) || idleonData?.CauldronJobs?.[1];
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
     alchemyRaw[8] = cauldronsInfo.slice(0, 16);
   }
-  return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo);
+  return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, account);
 };
 
-export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo) => {
+export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, account) => {
   const alchemyActivity = cauldronJobs1Raw?.map((playerAlchActivity, index) => ({
     activity: playerAlchActivity,
     index
   }));
-  const p2w = getPay2Win(idleonData, alchemyActivity);
+  const p2w = getPay2Win(idleonData, alchemyActivity, account);
   const bubbles = getBubbles(alchemyRaw);
   const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
@@ -89,7 +90,7 @@ const getCauldronBrewBonus = (index, cauldronVal) => {
   return Math.round(cauldronVal);
 }
 
-const getPay2Win = (idleonData, alchemyActivity) => {
+const getPay2Win = (idleonData, alchemyActivity, account) => {
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
   const playersInLiquids = alchemyActivity.filter(({ activity }) => activity < 100 && activity >= 4 && activity !== -1);
   const p2w = {};
@@ -108,7 +109,7 @@ const getPay2Win = (idleonData, alchemyActivity) => {
   })).filter(({ name }) => name);
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
   p2w.player = { speed: player?.[0] || 0, extraExp: player?.[1] || 0 };
-  p2w.sigils = getSigils(idleonData, alchemyActivity);
+  p2w.sigils = getSigils(idleonData, alchemyActivity, account);
   return p2w;
 }
 
