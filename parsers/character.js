@@ -13,7 +13,7 @@ import {
   mapPortals,
   monsters,
   randomList,
-  starSignByIndexMap
+  starSignByIndexMap, tasks
 } from "../data/website-data";
 import {
   calculateAfkTime,
@@ -187,6 +187,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.class = classes?.[char?.CharacterClass];
   character.afkTime = calculateAfkTime(char?.PlayerAwayTime, account?.timeAway?.GlobalTime);
   character.afkTarget = monsters?.[char?.AFKtarget]?.Name;
+  character.targetMonster = char?.AFKtarget;
   const currentMapIndex = char?.CurrentMap;
   character.mapIndex = currentMapIndex;
   character.currentMap = mapNames?.[currentMapIndex];
@@ -390,6 +391,72 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   return character;
 }
 
+export const getRespawnRate = (character, account) => {
+  const { targetMonster } = character;
+  const monster = monsters?.[targetMonster];
+  if (!monster) return 0;
+  const isRift = targetMonster === 'riftAll';
+  const { RespawnTime, worldIndex } = monster;
+  const shrineBonus = getShrineBonus(account?.shrines, 7, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const chipBonus = account?.lab?.playersChips?.find((chip) => chip.index === 10)?.baseVal ?? 0;
+  const equipmentBonus = getStatsFromGear(character, 47, account);
+  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
+  const starSignBonus = getStarSignBonus(character?.starSigns, 'Grim_Reaper', 'Mob_Respawn_rate', account, character?.playerId)
+  const starSignMajorBonus = getStarSignBonus(character?.starSigns, 'Grim_Reaper_Major', 'Mob_Respawn_rate', account, character?.playerId)
+
+  const worldOneAchievement = getAchievementStatus(account?.achievements, 44);
+  const worldOneMeritBonus = account?.tasks?.[2]?.[0]?.[1];
+  const worldOneMeritBonusPerLevel = tasks?.[0]?.[1]?.bonusPerLevel;
+
+  const worldTwoAchievement = getAchievementStatus(account?.achievements, 109);
+  const worldTwoMeritBonus = account?.tasks?.[2]?.[1]?.[1];
+  const worldTwoMeritBonusPerLevel = tasks?.[1]?.[1]?.bonusPerLevel;
+
+  const worldThreeMeritBonus = account?.tasks?.[2]?.[1]?.[1];
+  const worldThreeMeritBonusPerLevel = tasks?.[1]?.[1]?.bonusPerLevel;
+
+  const worldFourMeritBonus = account?.tasks?.[2]?.[3]?.[1];
+  const worldFourMeritBonusPerLevel = tasks?.[3]?.[1]?.bonusPerLevel;
+
+  const worldFiveAchievement = getAchievementStatus(account?.achievements, 308);
+  const worldFiveMeritBonus = account?.tasks?.[2]?.[4]?.[1];
+  const worldFiveMeritBonusPerLevel = tasks?.[4]?.[1]?.bonusPerLevel;
+
+  const meritBonus = worldIndex === 1 ? worldOneMeritBonus * worldOneMeritBonusPerLevel
+    : worldIndex === 2 ? worldTwoMeritBonus * worldTwoMeritBonusPerLevel
+      : worldIndex === 3 ? worldThreeMeritBonus * worldThreeMeritBonusPerLevel
+        : worldIndex === 4 ? worldFourMeritBonus * worldFourMeritBonusPerLevel
+          : worldIndex === 5 ? worldFiveMeritBonus * worldFiveMeritBonusPerLevel : 0;
+
+  const achievementBonus = worldIndex === 1 ? worldOneAchievement
+    : worldIndex === 2 ? worldTwoAchievement
+      : worldIndex === 5 ? 2 * worldFiveAchievement : 0;
+
+  const monsterRespawnTime = isRift ? 45 : RespawnTime;
+
+  const respawnRate = monsterRespawnTime
+    / (1 + (shrineBonus
+      + chipBonus
+      + (equipmentBonus + obolsBonus)
+      + achievementBonus
+      + (starSignBonus + starSignMajorBonus)
+      + meritBonus) / 100);
+
+  const breakdown = [
+    { name: 'Shrine', value: shrineBonus / 100 },
+    { name: 'Equipment', value: equipmentBonus / 100 },
+    { name: 'Achievement', value: achievementBonus / 100 },
+    { name: 'Chip', value: chipBonus / 100 },
+    { name: 'Starsigns', value: (starSignBonus + starSignMajorBonus) / 100 },
+    { name: 'Merit', value: meritBonus / 100 },
+  ];
+  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+
+  return {
+    respawnRate,
+    breakdown
+  };
+}
 
 export const getDropRate = (character, account, characters) => {
   const { luck } = character?.stats || {};

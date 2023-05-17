@@ -8,6 +8,8 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const chronus = useMemo(() => starSigns.filter(({ tree }) => tree === 'chronus'), [starSigns, infiniteStars]);
   const hydron = useMemo(() => starSigns.filter(({ tree }) => tree === 'hydron'), [starSigns, infiniteStars]);
+  infiniteStars = selectedTab === 0 ? infiniteStars : infiniteStars - 34
+
   return (
     <>
       <Tabs centered
@@ -25,9 +27,8 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
           <Grid item xs={2} md={4} pl={5}>Cost</Grid>
         </Grid>
         {(selectedTab === 0 ? chronus : hydron)?.map((starSign, index) => {
-          const { starName, cost, unlocked, bonuses } = starSign;
-          infiniteStars = selectedTab === 0 ? infiniteStars : infiniteStars - 34
-          return (!starName.includes('Filler') && !starName.includes('Unknown')) &&
+          const { indexedStarName, cost, unlocked, bonuses, description } = starSign;
+          return (!indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown')) &&
             <React.Fragment key={name + ' ' + index}>
               <Grid rowGap={2} container>
                 <Grid item alignItems={'center'} gap={2} md={4} sx={{
@@ -37,7 +38,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                   {unlocked ? <CheckIcon color={'success'}/> : <Box width={24} height={24}/>}
                   {!isMd ?
                     <>
-                      <Typography variant={'body1'} component={'span'}>{cleanUnderscore(starName)}</Typography>
+                      <Typography variant={'body1'} component={'span'}>{cleanUnderscore(indexedStarName)}</Typography>
                       {infiniteStars >= index ?
                         <img src={`${prefix}data/SignStarInf${selectedTab === 0 ? 0 : 1}.png`} alt=""/> : null}
                     </> : null}
@@ -46,7 +47,10 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                   {isMd && unlocked ? <CheckIcon color={'success'}/> : null}
                   <Typography variant={'body1'}
                               component={'span'}>
-                    {bonuses?.map(({ rawName, bonus }) => cleanUnderscore(rawName.replace('{', bonus))).join(', ')}
+                    {bonuses ? bonuses?.map(({
+                                               rawName,
+                                               bonus
+                                             }) => cleanUnderscore(rawName.replace('{', bonus))).join(', ') : cleanUnderscore(description)}
                   </Typography>
                 </Grid>
                 <Grid item sm={4} md={4}> <Typography variant={'body1'}

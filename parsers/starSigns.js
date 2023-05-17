@@ -19,11 +19,12 @@ export const parseStarSigns = (starSignsRaw) => {
     const { starName } = starSign;
     return {
       ...starSign,
-      starName: `${starSignsIndicesMap?.[starName]} - ${starName}`,
+      indexedStarName: `${starSignsIndicesMap?.[starName]} - ${starName}`,
+      starName,
       unlocked: !!starSignsRaw?.[starName]
     }
   }, []);
-  const sortAlphaNum = (a, b) => a.starName.localeCompare(b.starName, 'en', { numeric: true });
+  const sortAlphaNum = (a, b) => a.indexedStarName.localeCompare(b.indexedStarName, 'en', { numeric: true });
   const sortedSigns = starSignsMapping.sort(sortAlphaNum);
   const lastItem = sortedSigns.pop();
   sortedSigns.splice(21, 0, lastItem);
@@ -49,7 +50,7 @@ export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect, ac
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
   let starSignIndex, bonuses = [], chipMulti = 1;
 
-  starSignIndex = equippedStarSigns?.findIndex(({ starName }) => starName?.includes(starSignName));
+  starSignIndex = equippedStarSigns?.findIndex(({ starName }) => starName === starSignName);
   if (starSignIndex !== -1) {
     bonuses = equippedStarSigns?.[starSignIndex];
     const silkroadNanochip = account?.lab?.playersChips?.[playerId]?.find((chip) => chip.index === 15) ?? 0;
@@ -57,7 +58,7 @@ export const getStarSignBonus = (equippedStarSigns, starSignName, starEffect, ac
   }
 
   if (infiniteStars) {
-    starSignIndex = account?.starSigns?.findIndex(({ starName }, index) => starName?.includes(starSignName) && index < infiniteStars);
+    starSignIndex = account?.starSigns?.findIndex(({ starName }, index) => starName === starSignName && index < infiniteStars);
     bonuses = account?.starSigns?.[starSignIndex]?.bonuses;
   }
   if (!bonuses || !bonuses?.length) return 0;

@@ -27,10 +27,11 @@ const patchNotes = [
     gameVer: "1.81",
     date: "17/05/2023",
     features: [
+      'Added Respawn Time value and breakdown under Characters page -> Stats filter',
       'Added a threshold input for alchemy in dashboard options (for liquids capacity)'
     ],
     fixes: [
-      'Fixed a bug where sigils won\'t display',
+      'Fixed a bug with sigils not displaying in dashboard',
     ],
     deprecatedFeatures: []
   },

@@ -6,7 +6,7 @@ import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
 import { TitleAndValue } from "../common/styles";
-import { getCashMulti, getDropRate } from "../../parsers/character";
+import { getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
 import { useMemo } from "react";
 
 const colors = {
@@ -17,13 +17,12 @@ const colors = {
 };
 const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, characters }) => {
   const { name, playerId, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
-  const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account, characters) || {}, [character,
-    account]);
-  const {
-    dropRate,
-    breakdown: drBreakdown
-  } = useMemo(() => getDropRate(character, account, characters) || {}, [character,
-    account]);
+  const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account, characters) || {},
+    [character, account]);
+  const { dropRate, breakdown: drBreakdown } = useMemo(() => getDropRate(character, account, characters) || {},
+    [character, account]);
+  const { respawnRate, breakdown: rtBreakdown } = useMemo(() => getRespawnRate(character, account) || {},
+    [character, account]);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -81,6 +80,14 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               <Typography color={"info.light"}>Drop Rate</Typography>
               <Tooltip title={<BreakdownTooltip breakdown={drBreakdown} notate={'Smaller'}/>}>
                 <Typography>{notateNumber(dropRate, 'MultiplierInfo').replace('#', '')}x</Typography>
+              </Tooltip>
+            </CardContent>
+          </Card>
+          <Card variant={"outlined"}>
+            <CardContent>
+              <Typography color={"info.light"}>Respawn Time</Typography>
+              <Tooltip title={<BreakdownTooltip breakdown={rtBreakdown} notate={'Smaller'}/>}>
+                <Typography>{notateNumber(respawnRate, 'MultiplierInfo').replace('#', '')}%</Typography>
               </Tooltip>
             </CardContent>
           </Card>
