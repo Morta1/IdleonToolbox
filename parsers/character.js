@@ -422,13 +422,13 @@ export const getRespawnRate = (character, account) => {
   const worldFiveMeritBonus = account?.tasks?.[2]?.[4]?.[1];
   const worldFiveMeritBonusPerLevel = tasks?.[4]?.[1]?.bonusPerLevel;
 
-  const meritBonus = worldIndex === 1 ? worldOneMeritBonus * worldOneMeritBonusPerLevel
+  const meritBonus = (worldIndex === 1 || isRift) ? worldOneMeritBonus * worldOneMeritBonusPerLevel
     : worldIndex === 2 ? worldTwoMeritBonus * worldTwoMeritBonusPerLevel
       : worldIndex === 3 ? worldThreeMeritBonus * worldThreeMeritBonusPerLevel
         : worldIndex === 4 ? worldFourMeritBonus * worldFourMeritBonusPerLevel
           : worldIndex === 5 ? worldFiveMeritBonus * worldFiveMeritBonusPerLevel : 0;
 
-  const achievementBonus = worldIndex === 1 ? worldOneAchievement
+  const achievementBonus = (worldIndex === 1 || isRift) ? worldOneAchievement
     : worldIndex === 2 ? worldTwoAchievement
       : worldIndex === 5 ? 2 * worldFiveAchievement : 0;
 
