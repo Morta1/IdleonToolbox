@@ -78,9 +78,15 @@ export const areTowersOverdue = (account) => {
 
 export const areKeysOverdue = (account) => {
   const keys = account?.currencies?.KeysAll;
-  return keys?.filter(({ daysSincePickup }) => {
+  const tickets = account?.currencies?.ColosseumTickets?.allTickets;
+  const keysAlerts = keys?.filter(({ daysSincePickup }) => {
     return daysSincePickup >= 3;
   })
+  const ticketsAlerts = tickets?.filter(({ daysSincePickup }) => {
+    return daysSincePickup >= 3;
+  })
+
+  return [...keysAlerts, ...ticketsAlerts];
 }
 
 export const areVialsReady = (account, trackersOptions) => {
