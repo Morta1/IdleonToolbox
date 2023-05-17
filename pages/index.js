@@ -23,6 +23,18 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.79",
+    gameVer: "1.81",
+    date: "17/05/2023",
+    features: [
+      'Added a threshold input for alchemy in dashboard options (for liquids capacity)'
+    ],
+    fixes: [
+      'Fixed a bug where sigils won\'t display',
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.78",
     gameVer: "1.81",
     date: "16/05/2023",

@@ -15,15 +15,16 @@ export const isBallsOverdue = (account) => {
 
 export const alchemyAlerts = (account, trackersOptions) => {
   if (!account?.finishedWorlds?.World1) return false;
-  const { liquids } = trackersOptions || {};
+  const { input } = trackersOptions || {};
   const alerts = {}
-  if (liquids) {
+  if (input) {
     const liquidsProgress = account?.alchemy?.liquids;
+    const percentage = input?.value / 100;
     alerts.liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
       current: liquidsProgress?.[index],
       max: maxLiquid,
       index
-    })).filter(({ current, max }) => current >= max);
+    })).filter(({ current, max }) => max && current >= max * percentage - 5);
   }
   return alerts
 }

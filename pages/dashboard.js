@@ -34,7 +34,7 @@ import { NextSeo } from "next-seo";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy'
+  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'sigils'
 ].toSimpleObject();
 
 const trackersOptions = {
@@ -44,11 +44,19 @@ const trackersOptions = {
     guildTasks: { daily: true, weekly: true },
     refinery: { materials: true, rankUp: true },
     sailing: { captains: true },
-    alchemy: { liquids: true }
+    alchemy: {
+      input: {
+        label: 'Liquid Threshold Alert',
+        type: 'number',
+        value: 90,
+        helperText: 'Liquid percent',
+        maxValue: 100, minValue: 0
+      }
+    }
   },
   characters: {
     anvil: { showAlertBeforeFull: true },
-    postOffice: { input: { label: 'threshold', type: 'number', value: '' } },
+    postOffice: { input: { label: 'threshold', type: 'number', value: '', helperText: 'Number of boxes' } },
     talents: { printerGoBrrr: true, refineryThrottle: true, craniumCooking: true, 'itsYourBirthday!': true },
     crystalCountdown: { showNonMaxed: false }
   }
@@ -233,14 +241,16 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
         <Stack sx={{ ml: 3, mr: 3 }}>
           {trackerOptions && Object.keys(trackerOptions)?.map((option) => {
             if (option === 'input') {
-              const { label, type: inputType, value } = trackerOptions?.[option]
-              return <TextField key={`option-${option}`} size={'small'} label={label.capitalize()}
+              const { label, type: inputType, value, helperText = '', maxValue, minValue } = trackerOptions?.[option]
+              return <TextField key={`option-${option}`} size={'small'}
+                                label={label.capitalize()}
                                 type={inputType}
                                 sx={{ mt: 1, width: 150 }}
                                 name={option}
                                 value={value}
+                                InputProps={{ inputProps: { max: maxValue, min: minValue, autoComplete: 'off' } }}
                                 onChange={(event) => onOptionChange(event, type, trackerName, true)}
-                                helperText={'Number of boxes'}/>
+                                helperText={helperText}/>
             }
             return <FormControlLabel
               key={`option-${option}`}
