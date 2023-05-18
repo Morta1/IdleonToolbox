@@ -61,7 +61,6 @@ export const getAtomBonus = (atoms, name) => {
 }
 
 export const getAtomColliderThreshold = (threshold) => {
-  threshold = 0
   return 0 === threshold ? 15e6 : 1 === threshold
     ? 25e6 : 2 === threshold ? 1e8 : 3 === threshold ? 25e7 : 105e7;
 }
