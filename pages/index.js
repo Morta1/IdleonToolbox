@@ -23,6 +23,18 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.80",
+    gameVer: "1.81",
+    date: "18/05/2023",
+    features: [
+      "Added 'Totals' section to the printer page, showing atoms generated from printer and total items printed in an hour/day/printer go brrr (let me know if it's inaccurate)",
+      'Added shops alerts to the dashboard',
+      'Updated logic for showing an alert for refinery'
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.79",
     gameVer: "1.81",
     date: "17/05/2023",

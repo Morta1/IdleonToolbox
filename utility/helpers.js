@@ -236,9 +236,9 @@ export const notateNumber = (e, s) => {
           : 1e9 > e ? Math.floor(e / 1e6) + "M"
             : 1e10 > e ? Math.floor(e / 1e8) / 10 + "B"
               : Math.floor(e / 1e9) + "B")
-    : "MultiplierInfo" === s ? (0 === (10 * e) % 10 ? Math.round(e) + ".00#"
-        : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + "0#"
-          : Math.round(100 * e) / 100 + "#")
+    : "MultiplierInfo" === s ? (0 === (10 * e) % 10 ? Math.round(e) + ".00"
+        : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + "0"
+          : Math.round(100 * e) / 100 + "")
       : "Micro" === s ? (10 < e ? "" + Math.round(e)
           : 0.1 < e ? "" + Math.round(10 * e) / 10
             : 0.01 < e ? "" + Math.round(100 * e) / 100

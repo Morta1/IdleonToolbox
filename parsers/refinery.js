@@ -53,3 +53,12 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
     timePastSynthesis: refineryRaw?.[0]?.[2]
   }
 }
+
+export const hasMissingMats = (saltIndex, rank, cost, account) => {
+  return cost?.filter(({
+                         rawName,
+                         quantity,
+                         totalAmount
+                       }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') &&
+    saltIndex <= account?.refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity)
+}

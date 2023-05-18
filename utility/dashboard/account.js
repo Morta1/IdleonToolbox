@@ -5,6 +5,7 @@ import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
 import { getDuration } from "../helpers";
 import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
 import { liquidsShop } from "../../data/website-data";
+import { hasMissingMats } from "../../parsers/refinery";
 
 export const isBallsOverdue = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
@@ -31,7 +32,11 @@ export const alchemyAlerts = (account, trackersOptions) => {
 
 export const areSigilsOverdue = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
-  return account?.alchemy?.p2w?.sigils?.filter(({ characters, unlocked }) => characters.length > 0 && unlocked === 1)
+  return account?.alchemy?.p2w?.sigils?.filter(({
+                                                  characters,
+                                                  progress,
+                                                  boostCost
+                                                }) => characters.length > 0 && progress >= boostCost);
 }
 
 export const refineryAlerts = (account, trackersOptions) => {
@@ -40,11 +45,16 @@ export const refineryAlerts = (account, trackersOptions) => {
   const alerts = {};
   if (materials) {
     alerts.materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
-      const missingMats = cost?.filter(({
-                                          rawName,
-                                          quantity,
-                                          totalAmount
-                                        }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') && saltIndex <= account?.refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity)
+      const previousSaltIndex = saltIndex > 0 ? saltIndex - 1 : null;
+      const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
+      const missingMats = hasMissingMats(saltIndex, rank, cost, account);
+      const previousSaltMissingMats = hasMissingMats(previousSaltIndex, previousSalt?.rank, previousSalt?.cost, account);
+
+      if (missingMats.length === 1 && missingMats?.[0]?.rawName?.includes('Refinery')
+        || previousSalt?.autoRefinePercentage > 0
+        || previousSaltMissingMats?.active && previousSaltMissingMats?.length > 0) {
+        return res;
+      }
       if (missingMats.length > 0) {
         res = [...res, { rawName, missingMats }]
       }
@@ -214,4 +224,19 @@ export const sailingAlerts = (account, trackersOptions) => {
     }, []);
   }
   return alerts;
+}
+
+export const hasItemsInShop = (account) => {
+  return account?.shopStock?.reduce((res, shop, index) => {
+    if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
+      return [...res, []];
+    } else if (index === 4 && !account?.finishedWorlds?.World2) {
+      return [...res, []];
+    } else if (index === 5 && !account?.finishedWorlds?.World3) {
+      return [...res, []];
+    } else if (index === 6 && !account?.finishedWorlds?.World4) {
+      return [...res, []];
+    }
+    return [...res, shop];
+  }, []);
 }

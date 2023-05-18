@@ -1,12 +1,13 @@
 import { Card, CardContent, Stack, Typography } from "@mui/material";
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { AppContext } from "components/common/context/AppProvider";
-import { notateNumber, prefix } from "utility/helpers";
+import { growth, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import Tooltip from "../../../components/Tooltip";
 import { TitleAndValue } from "../../../components/common/styles";
 import { isGodEnabledBySorcerer } from "../../../parsers/lab";
 import { NextSeo } from "next-seo";
+import { getHighestMaxLevelTalentByClass } from "../../../parsers/talents";
 
 const Printer = () => {
   const { state } = useContext(AppContext);
@@ -14,13 +15,59 @@ const Printer = () => {
 
   const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
 
+  const calcTotals = (printer) => {
+    const totals = printer?.reduce((res, character) => {
+      character.forEach(({ boostedValue, item, active }) => {
+        if (item !== 'Blank' && active) {
+          if (res?.[item]) {
+            res[item] += boostedValue;
+          } else {
+            res[item] = boostedValue;
+          }
+        }
+      })
+      return res;
+    }, {});
+    const totalAtoms = calcAtoms(totals);
+    return { ...totals, atom: totalAtoms }
+  }
+  const calcAtoms = (totals = {}) => {
+    return Object.entries(totals)?.reduce((sum, [item, value]) => sum + (value / 10e6), 0);
+  }
+  const totals = useMemo(() => calcTotals(printer), [printer]);
+  const highestBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Printer"
       description="Keep track of your printer output with calculated bonuses from various sources"
     />
     <Typography variant={'h2'} mb={3}>Printer</Typography>
-    <Typography variant={'caption'} component={'div'} mb={3}>* hover over items to see boosted values</Typography>
+    <Typography variant={'caption'} component={'div'} mb={3}>* hover over items to see boosted values (totals section
+      will also show atom per day)</Typography>
+
+    <Stack direction={'row'} alignItems={'baseline'} gap={1}>
+      <Typography variant={'h4'}>Totals</Typography>
+      <Typography variant={'caption'}>* per hour</Typography>
+    </Stack>
+    <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }}>
+      {Object.entries(totals || {})?.map(([item, value], index) => {
+        const isAtom = item === 'atom'
+        return <Card key={'total' + item + index}>
+          <Tooltip title={<TotalTooltip item={item} value={value} highestBrr={highestBrr}/>}>
+            <CardContent>
+              <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: 50, height: 50 }}>
+                <Stack sx={{ width: 42, height: 42 }} justifyContent={'center'} alignItems={'center'} flexShrink={0}>
+                  <ItemIcon atom={isAtom}
+                            src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt=""/>
+                </Stack>
+                <Typography>{isAtom ? notateNumber(value, 'MultiplierInfo') : notateNumber(value)}</Typography>
+              </Stack>
+            </CardContent>
+          </Tooltip>
+        </Card>
+      })}
+    </Stack>
     <Stack gap={3}>
       {printer?.map((printerSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
@@ -46,7 +93,6 @@ const Printer = () => {
                   return <Tooltip key={`${slot?.name}-${slotIndex}`} title={<BoostedTooltip {...slot}/>}>
                     <Card sx={{ borderColor: slot?.active ? 'success.light' : 'inherit' }}
                           elevation={slot?.active ? 0 : 5}
-
                           variant={slot?.active ? 'outlined' : 'elevation'}>
                       <CardContent>
                         {slot?.item !== 'Blank' ?
@@ -83,9 +129,30 @@ const BoostedTooltip = ({ value, boostedValue, affectedBy }) => {
   </Stack>
 }
 
+const TotalTooltip = ({ item, value, highestBrr }) => {
+  const perDay = value * 24;
+  const atomPerDay = item === 'atom' ? value * 24 : perDay / 10e6;
+  const printerGoBrrr = growth(highestBrr?.funcX, highestBrr?.maxLevel, highestBrr?.x1, highestBrr?.x2, false);
+  const perPrinterGoBrrr = value * printerGoBrrr;
+  return <Stack gap={1}>
+    {item !== 'atom' ? <Stack direction={'row'} gap={1} alignItems={'center'}>
+      <img width={30} height={30} src={`${prefix}data/${item}.png`}/>
+      <Typography>{notateNumber(perDay)} / day</Typography>
+    </Stack> : null}
+    {printerGoBrrr > 0 && item !== 'atom' ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`}/>
+      <Typography>{notateNumber(perPrinterGoBrrr)} / printer go brr ({printerGoBrrr} hours) </Typography>
+    </Stack> : null}
+    <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+      <img width={24} height={24} src={`${prefix}etc/Particle.png`}/>
+      <Typography>{notateNumber(atomPerDay, 'MultiplierInfo')} / day </Typography>
+    </Stack>
+  </Stack>
+}
+
 const ItemIcon = styled.img`
-  width: 42px;
-  height: 42px;
+  width: ${({ atom }) => atom ? 24 : 42}px;
+  height: ${({ atom }) => atom ? 24 : 42}px;
 `
 
 export default Printer;

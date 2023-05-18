@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
-import { cleanUnderscore, getNumberWithOrdinal, pascalCase, prefix } from "../../utility/helpers";
+import { cleanUnderscore, getNumberWithOrdinal, notateNumber, pascalCase, prefix } from "../../utility/helpers";
 import HtmlTooltip from "../Tooltip";
 import {
   alchemyAlerts,
@@ -12,7 +12,7 @@ import {
   canKillBosses,
   gamingAlerts,
   guildTasks,
-  hasAvailableSpiceClicks,
+  hasAvailableSpiceClicks, hasItemsInShop,
   isBallsOverdue,
   isStampReducerMaxed,
   refineryAlerts,
@@ -35,7 +35,8 @@ const alertsMapping = {
   guildTasks: guildTasks,
   rift: riftAlerts,
   sailing: sailingAlerts,
-  alchemy: alchemyAlerts
+  alchemy: alchemyAlerts,
+  shops: hasItemsInShop
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -135,6 +136,10 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                 vial={vial}
                                                 title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial!`}
                                                 iconPath={`data/${vial?.mainItem}`}/>) : null}
+          {trackers?.shops && alerts?.shops?.length > 0 ?
+            alerts?.shops?.map((shop, index) => shop?.length > 0 ? <Alert key={'shop' + index}
+                                                                          title={<ShopTitle shop={shop}/>}
+                                                                          iconPath={`data/ShopEZ${index}`}/> : null) : null}
           {trackers?.guildTasks && alerts?.guildTasks?.daily ?
             <Alert title={`You have ${alerts?.guildTasks?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
                    imgStyle={{ filter: 'sepia(1) hue-rotate(46deg) saturate(1)' }}/> : null}
@@ -173,6 +178,17 @@ const RefineryTitle = ({ missingMats }) => {
           src={`${prefix}data/${rawName}.png`}
           alt=""/>)}
     </Stack>
+  </Stack>
+}
+
+const ShopTitle = ({ shop }) => {
+  return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    {shop?.map(({ amount, rawName }) => {
+      return <Stack alignItems={'center'}>
+        <IconImg key={'shop' + rawName} src={`${prefix}data/${rawName}.png`}/>
+        <Typography>{notateNumber(amount)}</Typography>
+      </Stack>
+    })}
   </Stack>
 }
 

@@ -34,7 +34,7 @@ import { NextSeo } from "next-seo";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'sigils'
+  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'sigils', 'shops'
 ].toSimpleObject();
 
 const trackersOptions = {

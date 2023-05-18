@@ -107,6 +107,18 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
+export const getHighestMaxLevelTalentByClass = (characters, talentTree, className, talentName) => {
+  const classes = characters?.filter((character) => character?.class === className);
+  return classes?.reduce((res, { talents }) => {
+    const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
+    const talent = talentsObj?.find(({ name }) => name === talentName);
+    if (talent?.maxLevel > res?.maxLevel) {
+      return talent;
+    }
+    return res;
+  }, { maxLevel: 0 });
+}
+
 export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, achievements) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
@@ -125,7 +137,8 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (getAchievementStatus(achievements, 291)) {
     addedLevels += 1;
   }
-  const excludedTalents = ['ARCHLORD_OF_THE_PIRATES', 'POLYTHEISM', 'SYMBOLS_OF_BEYOND_~G', 'SYMBOLS_OF_BEYOND_~P', 'SYMBOLS_OF_BEYOND_~R']
+  const excludedTalents = ['ARCHLORD_OF_THE_PIRATES', 'POLYTHEISM', 'SYMBOLS_OF_BEYOND_~G', 'SYMBOLS_OF_BEYOND_~P',
+    'SYMBOLS_OF_BEYOND_~R']
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
