@@ -50,7 +50,7 @@ const Printer = () => {
       <Typography variant={'h4'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
-    <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }}>
+    <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {})?.map(([item, value], index) => {
         const isAtom = item === 'atom'
         return <Card key={'total' + item + index}>
