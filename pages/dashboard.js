@@ -24,12 +24,13 @@ import Characters from "../components/dashboard/Characters";
 import Account from "../components/dashboard/Account";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from "@mui/material/IconButton";
-import { flatten } from "../utility/helpers";
+import { flatten, prefix } from "../utility/helpers";
 import Etc from "../components/dashboard/Etc";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import CloseIcon from '@mui/icons-material/Close';
 import { NextSeo } from "next-seo";
+import { getRawShopItems } from "../parsers/shops";
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
@@ -52,7 +53,8 @@ const trackersOptions = {
         helperText: 'Liquid percent',
         maxValue: 100, minValue: 0
       }
-    }
+    },
+    shops: { asImages: true, ...getRawShopItems() }
   },
   characters: {
     anvil: { showAlertBeforeFull: true },
@@ -225,6 +227,7 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
   return arr && Object.keys(arr)?.map((trackerName, index) => {
     const trackerOptions = options?.[trackerName];
     const hasInput = trackerOptions?.input;
+    const asImages = trackerOptions?.asImages;
     return <Box key={`tracker-${trackerName}`}>
       <Stack direction={'row'} justifyContent={'space-between'}>
         <FormControlLabel
@@ -238,8 +241,9 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
         </IconButton> : null}
       </Stack>
       <Collapse in={showId === trackerName}>
-        <Stack sx={{ ml: 3, mr: 3 }}>
+        <Stack sx={{ ml: 3, mr: 3 }} direction={asImages ? 'row' : 'column'} flexWrap={asImages ? 'wrap' : 'no-wrap'}>
           {trackerOptions && Object.keys(trackerOptions)?.map((option) => {
+            if (option === 'asImages') return;
             if (option === 'input') {
               const { label, type: inputType, value, helperText = '', maxValue, minValue } = trackerOptions?.[option]
               return <TextField key={`option-${option}`} size={'small'}
@@ -258,7 +262,10 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
                                  size={'small'}
                                  checked={trackerOptions?.[option]}
                                  onChange={(event) => onOptionChange(event, type, trackerName)}/>}
-              label={option.camelToTitleCase()}/>
+              label={asImages ?
+                <img width={24} height={24} src={`${prefix}data/${option}.png`} alt=""/> : option.camelToTitleCase()}>
+
+            </FormControlLabel>
           })}
         </Stack>
       </Collapse>

@@ -226,7 +226,7 @@ export const sailingAlerts = (account, trackersOptions) => {
   return alerts;
 }
 
-export const hasItemsInShop = (account) => {
+export const hasItemsInShop = (account, trackersOptions) => {
   return account?.shopStock?.reduce((res, shop, index) => {
     if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
       return [...res, []];
@@ -237,6 +237,7 @@ export const hasItemsInShop = (account) => {
     } else if (index === 6 && !account?.finishedWorlds?.World4) {
       return [...res, []];
     }
-    return [...res, shop];
+    const filtered = shop?.filter(({ rawName }) => trackersOptions?.[rawName])
+    return [...res, filtered];
   }, []);
 }

@@ -183,8 +183,8 @@ const RefineryTitle = ({ missingMats }) => {
 
 const ShopTitle = ({ shop }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-    {shop?.map(({ amount, rawName }) => {
-      return <Stack alignItems={'center'}>
+    {shop?.map(({ amount, rawName }, index) => {
+      return <Stack alignItems={'center'} key={rawName + index}>
         <IconImg key={'shop' + rawName} src={`${prefix}data/${rawName}.png`}/>
         <Typography>{notateNumber(amount)}</Typography>
       </Stack>

@@ -21,6 +21,13 @@ export const parseShops = (shopsRaw) => {
   }, []);
 }
 
+export const getRawShopItems = () => {
+  return Object.entries(shops)?.reduce((res, [key, { items }]) => {
+    const filtered = items?.filter((_, index) => shopMapping?.[key]?.[index])?.map(({ rawName }) => rawName);
+    return [...res, ...filtered]
+  }, []).toSimpleObject();
+}
+
 // TODO: check if can make this less ugly
 // TODO: possibly reverse to exclude instead of include
 export const shopMapping = {
