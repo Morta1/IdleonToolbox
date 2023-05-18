@@ -1,4 +1,15 @@
-import { Box, Card, CardContent, Stack, Tab, Tabs, TextField, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Checkbox, FormControlLabel,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+  useMediaQuery
+} from "@mui/material";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from "../../../utility/helpers";
@@ -14,12 +25,14 @@ import { crafts, items } from "../../../data/website-data";
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
+  const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery') ? state?.account?.accountOptions?.[154] : 0;
+  const stampReducer = state?.account?.atoms?.stampReducer;
   const [selectedTab, setSelectedTab] = useState(0);
   const [stamps, setStamps] = useState();
   const [stampsGoals, setStampsGoals] = useState();
+  const [stampReducerInput, setStampReducerInput] = useState(stampReducer);
+  const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-  const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery') ? state?.account?.accountOptions?.[154] : 0;
-  const stampReducer = state?.account?.atoms?.stampReducer;
 
   useEffect(() => {
     const stampCategory = Object.keys(state?.account?.stamps)?.[selectedTab];
@@ -52,14 +65,18 @@ const Stamps = () => {
     return type === 'material' ? Math.floor(totalCost) : totalCost;
   };
 
-  const accumulatedCost = useCallback((index, level, type, stamp) => getAccumulatedCost(index, level, type, stamp), [stampsGoals]);
+  const accumulatedCost = useCallback((index, level, type, stamp) => getAccumulatedCost(index, level, type, stamp), [stampsGoals, stampReducerInput, forcedGildedStamp]);
 
   const calculateMaterialCost = (level, { reqItemMultiplicationLevel, baseMatCost, powMatBase }) => {
     const reductionVal = getVialsBonusByEffect(state?.account?.alchemy?.vials, 'material_cost_for_stamps');
     const sigilBonus = getSigilBonus(state?.account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
     const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
-    const stampReducerVal = Math.max(0.1, 1 - stampReducer / 100);
-    return (baseMatCost * (gildedStamps > 0 ? 0.05 : 1) * stampReducerVal * sigilReduction * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8))) * Math.max(0.1, 1 - (reductionVal / 100)) || 0;
+    const stampReducerVal = Math.max(0.1, 1 - (stampReducerInput !== stampReducer ? stampReducerInput : stampReducer) / 100);
+    return (baseMatCost * ((gildedStamps > 0 || forcedGildedStamp) ? 0.05 : 1)
+        * stampReducerVal
+        * sigilReduction
+        * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8)))
+      * Math.max(0.1, 1 - (reductionVal / 100)) || 0;
   }
 
   const calculateGoldCost = (level, { reqItemMultiplicationLevel, baseCoinCost, powCoinBase }) => {
@@ -87,18 +104,27 @@ const Stamps = () => {
         craft</Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
         <Stack direction={'row'} gap={1}>
-          <Card>
+          <Card sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <img src={`${prefix}data/GildedStamp.png`} alt=""/>
               {gildedStamps}
             </CardContent>
           </Card>
-          <Card>
+          <Card sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
               {stampReducer ?? 0}%
             </CardContent>
           </Card>
+        </Stack>
+        <Stack sx={{ mx: 2 }}>
+          <FormControlLabel
+            control={<Checkbox name={'mini'}
+                               size={'small'}/>}
+            label={'Force gilded stamp'}/>
+          <TextField label={'Stamp Reducer'} value={stampReducerInput}
+                     onChange={(e) => setStampReducerInput(e.target.value)} type={'number'}
+                     InputProps={{ inputProps: { min: 0, max: 90 } }}/>
         </Stack>
       </Box>
       <Tabs centered
