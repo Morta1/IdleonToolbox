@@ -138,7 +138,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     addedLevels += 1;
   }
   const excludedTalents = ['ARCHLORD_OF_THE_PIRATES', 'POLYTHEISM', 'SYMBOLS_OF_BEYOND_~G', 'SYMBOLS_OF_BEYOND_~P',
-    'SYMBOLS_OF_BEYOND_~R']
+    'SYMBOLS_OF_BEYOND_~R'].toSimpleObject()
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
