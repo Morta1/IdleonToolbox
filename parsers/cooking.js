@@ -188,8 +188,11 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
     const thirdMath = (1 + cookingSpeedVials / 100);
     const fourthMath = (1 + superbitBonus / 100);
     const voidPlateChefIndex = atomsInfo.findIndex(({ name }) => name === 'Fluoride_-_Void_Plate_Chef');
+    let voidPlateChefBonus = 0;
     const voidPlateChefLevel = atomsRaw?.[voidPlateChefIndex];
-    const voidPlateChefBonus = 100 * (Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals) - 1);
+    if (voidPlateChefLevel) {
+      voidPlateChefBonus = 100 * (Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals) - 1);
+    }
     const mealSpeed = firstMath * secondMath * thirdMath * fourthMath * (1 + voidPlateChefBonus / 100) * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // Fire Speed

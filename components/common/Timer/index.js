@@ -22,6 +22,7 @@ const Timer = ({
   useEffect(() => {
     if (date) {
       if (staticTime) {
+        if (!isFinite(date)) return;
         let duration = getDuration(new Date().getTime(), date);
         return setTime({ ...duration });
       }
