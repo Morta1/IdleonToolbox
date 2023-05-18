@@ -15,14 +15,14 @@ export const addStoneDataToEquip = (baseItem, stoneData) => {
   }, {});
 }
 
-export const calculateItemTotalAmount = (array, itemName, exact) => {
+export const calculateItemTotalAmount = (array, itemName, exact, isRawName) => {
   return array?.reduce((result, item) => {
     if (exact) {
-      if (itemName === item?.name) {
+      if (itemName === (isRawName ? item?.name : item?.rawName)) {
         result += item?.amount;
       }
     } else {
-      if (item?.name?.includes(itemName)) {
+      if ((isRawName ? item?.rawName?.includes(itemName) : item?.name?.includes(itemName))) {
         result += item?.amount;
       }
     }

@@ -8,21 +8,25 @@ import { TitleAndValue } from "../../../components/common/styles";
 import { isGodEnabledBySorcerer } from "../../../parsers/lab";
 import { NextSeo } from "next-seo";
 import { getHighestMaxLevelTalentByClass } from "../../../parsers/talents";
+import { getAtomColliderThreshold } from "../../../parsers/atomCollider";
+import { calculateItemTotalAmount } from "../../../parsers/items";
 
 const Printer = () => {
   const { state } = useContext(AppContext);
   const { printer, lab } = state?.account;
 
   const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
+  const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
   const calcTotals = (printer) => {
     const totals = printer?.reduce((res, character) => {
       character.forEach(({ boostedValue, item, active }) => {
         if (item !== 'Blank' && active) {
           if (res?.[item]) {
-            res[item] += boostedValue;
+            res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
           } else {
-            res[item] = boostedValue;
+            const storageItem = calculateItemTotalAmount(state?.account?.storage, item, true);
+            res[item] = { boostedValue, atomable: storageItem >= atomThreshold };
           }
         }
       })
@@ -32,7 +36,11 @@ const Printer = () => {
     return { ...totals, atom: totalAtoms }
   }
   const calcAtoms = (totals = {}) => {
-    return Object.entries(totals)?.reduce((sum, [item, value]) => sum + (value / 10e6), 0);
+    return Object.entries(totals)?.reduce((sum, [, { boostedValue, atomable }]) => {
+      if (!atomable) return sum;
+      sum.boostedValue += boostedValue / 10e6;
+      return sum;
+    }, { boostedValue: 0 });
   }
   const totals = useMemo(() => calcTotals(printer), [printer]);
   const highestBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
@@ -50,18 +58,25 @@ const Printer = () => {
       <Typography variant={'h4'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
+    <Card sx={{ width: 'fit-content', mt: 1 }}><CardContent>
+      <Typography>Atom Threshold: {notateNumber(atomThreshold)}</Typography>
+    </CardContent></Card>
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
-      {Object.entries(totals || {})?.map(([item, value], index) => {
+      {Object.entries(totals || {})?.map(([item, { boostedValue, atomable }], index) => {
         const isAtom = item === 'atom'
         return <Card key={'total' + item + index}>
-          <Tooltip title={<TotalTooltip item={item} value={value} highestBrr={highestBrr}/>}>
+          <Tooltip
+            title={<TotalTooltip atomable={atomable} item={item} value={boostedValue} highestBrr={highestBrr}/>}>
             <CardContent>
               <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: 50, height: 50 }}>
                 <Stack sx={{ width: 42, height: 42 }} justifyContent={'center'} alignItems={'center'} flexShrink={0}>
                   <ItemIcon atom={isAtom}
                             src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt=""/>
                 </Stack>
-                <Typography>{isAtom ? notateNumber(value, 'MultiplierInfo') : notateNumber(value)}</Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  {atomable ? <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=''/> : null}
+                  <Typography>{isAtom ? notateNumber(boostedValue, 'MultiplierInfo') : notateNumber(boostedValue)}</Typography>
+                </Stack>
               </Stack>
             </CardContent>
           </Tooltip>
@@ -129,24 +144,25 @@ const BoostedTooltip = ({ value, boostedValue, affectedBy }) => {
   </Stack>
 }
 
-const TotalTooltip = ({ item, value, highestBrr }) => {
+const TotalTooltip = ({ item, value, highestBrr, atomable }) => {
+  const isAtom = item === 'atom';
   const perDay = value * 24;
-  const atomPerDay = item === 'atom' ? value * 24 : perDay / 10e6;
+  const atomPerDay = isAtom ? value * 24 : perDay / 10e6;
   const printerGoBrrr = growth(highestBrr?.funcX, highestBrr?.maxLevel, highestBrr?.x1, highestBrr?.x2, false);
   const perPrinterGoBrrr = value * printerGoBrrr;
   return <Stack gap={1}>
     {item !== 'atom' ? <Stack direction={'row'} gap={1} alignItems={'center'}>
-      <img width={30} height={30} src={`${prefix}data/${item}.png`}/>
+      <img width={30} height={30} src={`${prefix}data/${item}.png`} alt=''/>
       <Typography>{notateNumber(perDay)} / day</Typography>
     </Stack> : null}
-    {printerGoBrrr > 0 && item !== 'atom' ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
-      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`}/>
+    {printerGoBrrr > 0 ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=''/>
       <Typography>{notateNumber(perPrinterGoBrrr)} / printer go brr ({printerGoBrrr} hours) </Typography>
     </Stack> : null}
-    <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
-      <img width={24} height={24} src={`${prefix}etc/Particle.png`}/>
+    {(atomable || isAtom) ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+      <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt=''/>
       <Typography>{notateNumber(atomPerDay, 'MultiplierInfo')} / day </Typography>
-    </Stack>
+    </Stack> : null}
   </Stack>
 }
 
