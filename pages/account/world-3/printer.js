@@ -25,7 +25,7 @@ const Printer = () => {
           if (res?.[item]) {
             res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
           } else {
-            const storageItem = calculateItemTotalAmount(state?.account?.storage, item, true);
+            const storageItem = calculateItemTotalAmount(state?.account?.storage, item, true, true);
             res[item] = { boostedValue, atomable: storageItem >= atomThreshold };
           }
         }
