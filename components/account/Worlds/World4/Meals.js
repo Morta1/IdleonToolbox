@@ -98,10 +98,12 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   const sortMealsBy = (meals, sortBy, level = 0) => {
     const mealsCopy = [...defaultMeals];
     mealsCopy.sort((a, b) => {
-      if (a.level >= level) {
-        return 1;
-      } else if (b.level >= level) {
-        return -1;
+      if (level !== 0){
+        if (a.level >= level) {
+          return 1;
+        } else if (b.level >= level) {
+          return -1;
+        }
       }
       return a?.[sortBy] - b?.[sortBy]
     });
