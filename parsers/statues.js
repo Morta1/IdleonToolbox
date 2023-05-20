@@ -1,14 +1,13 @@
 import { tryToParse } from "../utility/helpers";
 import { statues } from "../data/website-data";
-import { getTalentBonus } from "./talents";
+import { getHighestTalentByClass, getTalentBonus } from "./talents";
 
 export const getStatues = (idleonData, charactersData) => {
   const statuesRaw = tryToParse(idleonData?.StuG) || idleonData?.StatueG;
-  const firstCharacterStatues = charactersData ? charactersData?.[8]?.StatueLevels : null;
-  return parseStatues(statuesRaw, firstCharacterStatues, charactersData);
+  return parseStatues(statuesRaw, charactersData);
 };
 
-export const parseStatues = (statuesRaw, firstCharacterStatues, charactersData) => {
+export const parseStatues = (statuesRaw, charactersData) => {
   return statuesRaw
     ?.reduce((res, statue, statueIndex) => {
       const goldStatue = statue === 1;
@@ -31,6 +30,12 @@ export const parseStatues = (statuesRaw, firstCharacterStatues, charactersData) 
 const getHighestLevelStatues = (characters, statueIndex) => {
   return characters.reduce((prev, current) => (prev?.StatueLevels?.[statueIndex]?.[0] > current?.StatueLevels?.[statueIndex]?.[0]) ? prev : current)
 };
+
+export const applyStatuesMulti = (statues, characters) => {
+  const voodoStatusification = getHighestTalentByClass(characters, 3, 'Voidwalker', 'VOODOO_STATUFICATION');
+  const talentMutli = 1 + voodoStatusification / 100;
+  return statues?.map((statue) => ({ ...statue, bonus: statue?.bonus * talentMutli }));
+}
 
 export const getStatueBonus = (statues, statueName, talents) => {
   const statue = statues?.find(({ rawName }) => rawName === statueName);

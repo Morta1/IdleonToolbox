@@ -1,5 +1,46 @@
 import { getDaysInMonth, getDaysInYear, intervalToDuration } from "date-fns";
 
+export const eventsColors = {
+  'Meteorite': '#f8e8b7',
+  'Mega_Grumblo': '#e6b471',
+  'Glacial_Guild': '#65b8d6',
+  'Snake_Swarm': '#3f9c61',
+  'Angry_Frogs': '#f6b5f8'
+}
+export const getClosestDate = (date, hours = 0, every) => {
+  // Get the current date
+  const currentDate = date;
+
+// Add 6 hours to the current date
+  currentDate.setHours(currentDate.getHours() + hours);
+
+// Get the current time
+  const currentTime = currentDate.getTime();
+  const offSet = currentDate.getTimezoneOffset()
+
+// Define the target hours
+  const every6 = [6, 18, 0, 12];
+  const every1 = new Array(24).fill(1)?.map((_, index) => index);
+  const targetHours = every === 1 ? every1 : every6;
+
+// Calculate the timestamps for the target hours
+  const targetTimestamps = targetHours.map(targetHour => {
+    const targetDate = new Date(currentDate);
+    targetDate.setHours(targetHour, 0, 0, 0);
+    return targetDate.getTime() - offSet * 60 * 1000;
+  });
+
+// Find the closest timestamp
+  const closestTimestamp = targetTimestamps.reduce((prev, curr) => {
+    const prevDiff = Math.abs(currentTime - prev);
+    const currDiff = Math.abs(currentTime - curr);
+    return currDiff < prevDiff ? curr : prev;
+  });
+
+// Create a new Date object from the closest timestamp
+  return new Date(closestTimestamp);
+}
+
 export const
   number2letter = ["_", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
     "s",

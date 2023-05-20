@@ -1,12 +1,18 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 
-//2. Initialize app with the config vars
-const app = initializeApp({
-  apiKey: "AIzaSyAU62kOE6xhSrFqoXQPv6_WHxYilmoUxDk",
-  authDomain: "idlemmo.firebaseapp.com",
-  databaseURL: "idlemmo.firebaseio.com",
-  projectId: "idlemmo",
-});
+
+const getApp = () => {
+  const apps = getApps();
+  if (apps?.length > 0) return apps?.[0];
+  //2. Initialize app with the config vars
+  return initializeApp({
+    apiKey: "AIzaSyAU62kOE6xhSrFqoXQPv6_WHxYilmoUxDk",
+    authDomain: "idlemmo.firebaseapp.com",
+    databaseURL: "idlemmo.firebaseio.com",
+    storageBucket: "idlemmo.appspot.com",
+    projectId: "idlemmo",
+  });
+}
 
 //3. export it for use
-export default app;
+export default getApp();

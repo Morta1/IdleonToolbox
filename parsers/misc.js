@@ -1,6 +1,6 @@
 import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredGemShopItems, filteredLootyItems, keysMap } from "./parseMaps";
-import { classFamilyBonuses, items, slab } from "../data/website-data";
+import { classFamilyBonuses, items, mapNames, randomList, rawMapNames, slab } from "../data/website-data";
 import { getTalentBonus, mainStatMap, talentPagesMap } from "./talents";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
@@ -13,6 +13,7 @@ import { getShrineBonus } from "./shrines";
 import { isSuperbitUnlocked } from "./gaming";
 import { getFamilyBonusBonus } from "./family";
 import { getStatsFromGear } from "./items";
+import LavaRand from "../utility/lavaRand";
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
@@ -404,3 +405,59 @@ export const getGoldenFoodBonus = (foodName, character, account) => {
   if (!goldenFood?.Amount || !goldenFood?.amount) return 0;
   return goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
 };
+
+export const getRandomEvents = (account) => {
+  if (!account) return [];
+  const { serverVars, timeAway } = account || {};
+  const eventList = []
+  const seed = Math.round(Math.floor(timeAway?.GlobalTime / 3600));
+  for (let i = 0; i < 100; i++) {
+    const actualSeed = seed + i + serverVars?.RandEvntHr;
+    const eventRng = new LavaRand(actualSeed);
+    const eventRandom = eventRng.rand();
+    const eventType = getEventType(eventRandom);
+
+    const mapRng = new LavaRand(actualSeed + 1);
+    const mapRandom = mapRng.rand();
+    const eventMaps = getEventMaps(eventType);
+    if (eventMaps.length === 0) continue;
+    const mapIndex = Math.min(Math.floor(mapRandom * eventMaps.length), eventMaps.length - 1);
+    const realMapIndex = rawMapNames?.indexOf(eventMaps?.[mapIndex]);
+    if (realMapIndex === -1) continue;
+    const mapName = mapNames?.[realMapIndex];
+    const eventName = getEventName(eventType);
+    const dateInMs = (seed + i + 1) * 3600 * 1000;
+    eventList.push({ mapName, eventName, date: dateInMs })
+  }
+  return eventList
+}
+
+const getEventMaps = (eventType) => {
+  const [world1, world2, world3] = randomList.slice(68, 71)
+  let events = [];
+  if (0 === eventType || 1 === eventType || 3 === eventType || 4 === eventType) {
+    events = events.concat(world1.split(' '))
+  }
+  if (0 === eventType || 1 === eventType || 3 === eventType) {
+    events = events.concat(world2.split(' '))
+  }
+  if (0 === eventType || 2 === eventType) {
+    events = events.concat(world3.split(' '))
+  }
+  return events;
+}
+
+const getEventName = (eventType) => {
+  const eventNames = {
+    0: 'Meteorite',
+    1: 'Mega_Grumblo',
+    2: 'Glacial_Guild',
+    3: 'Snake_Swarm',
+    4: 'Angry_Frogs'
+  }
+  return eventNames?.[eventType] ?? '';
+}
+
+const getEventType = (index) => {
+  return .045 > index ? 0 : .087 > index ? 1 : .129 > index ? 2 : .171 > index ? 3 : .213 > index ? 4 : -1
+}

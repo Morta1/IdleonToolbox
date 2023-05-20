@@ -23,6 +23,38 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.82",
+    gameVer: "1.82",
+    date: "20/05/2023",
+    features: [
+      'Added data and assets from version 1.82',
+      <Typography>Added Random Events predictor to dashboard and <Link
+        href={'https://idleontoolbox.com/account/random-events'}>Random Events</Link> page</Typography>,
+      <Typography>Added Sailing Trades predictor to dashboard and <Link
+        href={'https://idleontoolbox.com/account/world-5/sailing'}>Sailing</Link> page to Trades tab</Typography>,
+      'Added cooking speed bonus by voidwalker enhancement',
+      'Added Statues multi by voidwalker skill (Voodoo Statusification)'
+    ],
+    fixes: [
+      'Now also check if the printer output is higher than atom threshold (instead of checking storage only)',
+      'Now showing the actual boat speed in "Boats And Captain" tab'
+    ],
+    deprecatedFeatures: []
+  },
+  {
+    ver: "3.1.81",
+    gameVer: "1.81",
+    date: "19/05/2023",
+    features: [
+      <Typography>Added sailing trades to <Link
+        href={'https://idleontoolbox.com/account/world-5/sailing'}>Sailing</Link> page under Trades tab</Typography>
+    ],
+    fixes: [
+      'Fixed boat speed calculation (it was missing the SB talent)'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.80",
     gameVer: "1.81",
     date: "18/05/2023",

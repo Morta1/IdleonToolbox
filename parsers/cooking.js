@@ -11,6 +11,7 @@ import { getAchievementStatus } from "./achievements";
 import { isArtifactAcquired } from "./sailing";
 import { getShinyBonus } from "./breeding";
 import { isSuperbitUnlocked } from "./gaming";
+import { getHighestTalentByClass, getVoidWalkerTalentEnhancements } from "./talents";
 
 export const getCooking = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
@@ -116,13 +117,13 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
   }, 0);
 }
 
-export const getKitchens = (idleonData, account) => {
+export const getKitchens = (idleonData, characters, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
   const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
-  return parseKitchens(cookingRaw, atomsRaw, account);
+  return parseKitchens(cookingRaw, atomsRaw, characters, account);
 }
 
-const parseKitchens = (cookingRaw, atomsRaw, account) => {
+const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
   const globalKitchenUpgrades = cookingRaw?.reduce((sum, table) => {
@@ -130,7 +131,8 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
     return sum + speedLv + fireLv + luckLv
   }, 0);
   const diamondMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 11 ? res + 1 : res, 0);
-  const voidMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 30 ? res + 1 : res, 0)
+  const voidMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 30 ? res + 1 : res, 0);
+  const totalMeals = account?.cooking?.meals?.reduce((res, { level }) => res + level, 0);
   return cookingRaw?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
@@ -162,10 +164,6 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff', blackDiamondRhinestone);
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     const trollCardStars = trollCard?.stars ?? 0;
-    // const pyritePyramite = getJewelBonus(account.lab.jewels, 10, spelunkerObolMulti);
-    // const allOrangeActive = account.lab.jewels?.slice(7, 10)?.every(({ active }) => active) ? pyritePyramite * 2 : 1;
-    // const emeraldNavette = getJewelBonus(account.lab.jewels, 12, spelunkerObolMulti);
-    // const allGreenActive = account.lab.jewels?.slice(11, 15)?.every(({ active }) => active) ? emeraldNavette * 2 : 1; // Change bonus
     const allPurpleActive = account.lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
     const amethystRhinestone = getJewelBonus(account.lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
@@ -183,7 +181,13 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
       superbitBonus = superbit?.bonus;
     }
 
-    const firstMath = 10 * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
+    const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
+    const voidWalkerBloodMarrow = getHighestTalentByClass(characters, 3, 'Voidwalker', 'BLOOD_MARROW');
+    const voidWalkerBonusTalent = 1 + (voidWalkerBloodMarrow * totalMeals) / 100;
+    const voidWalkerEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 146);
+    const voidWalkerApocalypseBonus = Math.max(1, voidWalkerEnhancement);
+
+    const firstMath = 10 * voidWalkerBonusTalent * voidWalkerApocalypseBonus * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
     const secondMath = ((1 + speedLv / 10) * (triagulonSpeedBonus));
     const thirdMath = (1 + cookingSpeedVials / 100);
     const fourthMath = (1 + superbitBonus / 100);
@@ -193,7 +197,15 @@ const parseKitchens = (cookingRaw, atomsRaw, account) => {
     if (voidPlateChefLevel) {
       voidPlateChefBonus = 100 * (Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals) - 1);
     }
-    const mealSpeed = firstMath * secondMath * thirdMath * fourthMath * (1 + voidPlateChefBonus / 100) * mealSpeedBonusMath * mealSpeedCardImpact * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+
+    const mealSpeed = firstMath
+      * secondMath
+      * thirdMath
+      * fourthMath
+      * (1 + voidPlateChefBonus / 100)
+      * mealSpeedBonusMath
+      * mealSpeedCardImpact
+      * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');

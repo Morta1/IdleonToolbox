@@ -2,7 +2,7 @@ import { getCharacters, initializeCharacter } from "./character";
 import { getCards } from "./cards";
 import { getObols } from "./obols";
 import { applyStampsMulti, getStamps } from "./stamps";
-import { getStatues } from "./statues";
+import { applyStatuesMulti, getStatues } from "./statues";
 import { getShrines } from "./shrines";
 import { getHighscores } from "./highScores";
 import { getGemShop } from "./gemShop";
@@ -92,6 +92,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   let accountData = {},
     charactersData;
   const serializedCharactersData = getCharacters(idleonData, charsNames);
+  accountData.serverVars = serverVars;
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
@@ -110,7 +111,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.looty = getLooty(idleonData);
   accountData.tasks = getTasks(idleonData); //
   accountData.breeding = getBreeding(idleonData, accountData);
-  accountData.cooking = getCooking(idleonData, accountData);
+  accountData.cooking = getCooking(idleonData, accountData, serializedCharactersData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
 
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
@@ -161,6 +162,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     }
   }, {});
 
+  accountData.statues = applyStatuesMulti(accountData.statues, charactersData);
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
@@ -199,7 +201,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.currencies.ColosseumTickets = enhanceColoTickets(accountData?.currencies?.ColosseumTickets, charactersData, accountData);
 
   // kitchens
-  accountData.cooking.kitchens = getKitchens(idleonData, accountData);
+  accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
 
   // update lab bonuses

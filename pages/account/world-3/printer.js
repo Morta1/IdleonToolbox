@@ -37,8 +37,9 @@ const Printer = () => {
   }
   const calcAtoms = (totals = {}) => {
     return Object.entries(totals)?.reduce((sum, [, { boostedValue, atomable }]) => {
-      if (!atomable) return sum;
-      sum.boostedValue += boostedValue / 10e6;
+      if (boostedValue < atomThreshold && !atomable) return sum;
+      const val = boostedValue >= atomThreshold ? boostedValue - atomThreshold : boostedValue;
+      sum.boostedValue += val / 10e6;
       return sum;
     }, { boostedValue: 0 });
   }
@@ -66,7 +67,8 @@ const Printer = () => {
         const isAtom = item === 'atom'
         return <Card key={'total' + item + index}>
           <Tooltip
-            title={<TotalTooltip atomable={atomable} item={item} value={boostedValue} highestBrr={highestBrr}/>}>
+            title={<TotalTooltip atomable={atomable} item={item} value={boostedValue} highestBrr={highestBrr}
+                                 atomThreshold={atomThreshold}/>}>
             <CardContent>
               <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: 50, height: 50 }}>
                 <Stack sx={{ width: 42, height: 42 }} justifyContent={'center'} alignItems={'center'} flexShrink={0}>
@@ -74,7 +76,8 @@ const Printer = () => {
                             src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt=""/>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  {atomable ? <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=''/> : null}
+                  {boostedValue >= atomThreshold || atomable ?
+                    <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=''/> : null}
                   <Typography>{isAtom ? notateNumber(boostedValue, 'MultiplierInfo') : notateNumber(boostedValue)}</Typography>
                 </Stack>
               </Stack>
@@ -144,7 +147,7 @@ const BoostedTooltip = ({ value, boostedValue, affectedBy }) => {
   </Stack>
 }
 
-const TotalTooltip = ({ item, value, highestBrr, atomable }) => {
+const TotalTooltip = ({ item, value, highestBrr, atomable, atomThreshold }) => {
   const isAtom = item === 'atom';
   const perDay = value * 24;
   const atomPerDay = isAtom ? value * 24 : perDay / 10e6;
@@ -159,7 +162,7 @@ const TotalTooltip = ({ item, value, highestBrr, atomable }) => {
       <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=''/>
       <Typography>{notateNumber(perPrinterGoBrrr)} / printer go brr ({printerGoBrrr} hours) </Typography>
     </Stack> : null}
-    {(atomable || isAtom) ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+    {(value >= atomThreshold || atomable || isAtom) ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
       <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt=''/>
       <Typography>{notateNumber(atomPerDay, 'MultiplierInfo')} / day </Typography>
     </Stack> : null}

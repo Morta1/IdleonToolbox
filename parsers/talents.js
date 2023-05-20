@@ -29,6 +29,7 @@ export const talentPagesMap = {
   "Beginner": ["Beginner"],
   "Journeyman": ["Beginner", "Journeyman"],
   "Maestro": ["Beginner", "Journeyman", "Maestro"],
+  "Voidwalker": ["Beginner", "Journeyman", "Maestro", "Voidwalker"],
   "Warrior": ["Rage_Basics", "Warrior"],
   "Barbarian": ["Rage_Basics", "Warrior", "Barbarian"],
   "Blood_Berserker": ["Rage_Basics", "Warrior", "Barbarian", "Blood_Berserker"],
@@ -69,7 +70,7 @@ export const mainStatMap = {
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {
   return pages.reduce((res, className, index) => {
-    const orderedTalents = Object.entries(talents?.[className])?.map(([, talentDetails]) => {
+    const orderedTalents = Object.entries(talents?.[className] || {})?.map(([, talentDetails]) => {
       return {
         talentId: talentDetails.skillIndex,
         ...talentDetails,
@@ -163,4 +164,57 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
 
 export const getFamilyBonusValue = function (e, t, n, a) {
   return 10 > e && -1 !== t.indexOf("decay") ? Math.round(100 * e) / 100 : 1 > e || ("add" === t && 1 > a && 100 > e) || (25 > e && "decay" === t) ? Math.round(10 * e) / 10 : Math.round(e);
+}
+
+export const getVoidWalkerTalentEnhancements = (characters, account, pointsInvested, index) => {
+  const talentList = [];
+  if (pointsInvested >= 25) {
+    talentList.push(42);
+  }
+  if (pointsInvested >= 50) {
+    talentList.push(318);
+  }
+  if (pointsInvested >= 75) {
+    talentList.push(497);
+  }
+  if (pointsInvested >= 100) {
+    talentList.push(79);
+  }
+  if (pointsInvested >= 125) {
+    talentList.push(146);
+  }
+  if (pointsInvested >= 150) {
+    talentList.push(362);
+  }
+  if (pointsInvested >= 175) {
+    talentList.push(43);
+  }
+  if (pointsInvested >= 200) {
+    talentList.push(536);
+  }
+  if (pointsInvested >= 225) {
+    talentList.push(165);
+  }
+  if (pointsInvested >= 250) {
+    talentList.push(35);
+  }
+  if (talentList.indexOf(index) !== -1) {
+    if (index === 146) {
+      const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
+      const superChows = bloodBerserkers?.reduce((res, bb) => {
+        const { chow } = bb;
+        chow?.list?.forEach(({ name, kills }) => {
+          if (kills < 1e8) return;
+          if (res?.[name] && kills > res?.[name]) {
+            res[name] = kills;
+          } else {
+            res[name] = kills;
+          }
+        })
+        return res;
+      }, {})
+      return Math.pow(1.1, Object.keys(superChows).length ?? 0);
+    }
+  }
+  return 0;
 }

@@ -44,9 +44,9 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
             </Stack>
           </Stack>
           <Divider sx={{ my: 1 }}/>
-          <Typography>Loot Value: {loot.value}</Typography>
-          <Typography variant={'caption'}>Next level: {loot.nextLevelValue}</Typography>
-          <Typography>Speed Value: {notateNumber(speed.value, 'Big')}</Typography>
+          <Typography>Loot Value: {notateNumber(loot.value, 'Big')}</Typography>
+          <Typography variant={'caption'}>Next level: {notateNumber(loot.nextLevelValue, 'Big')}</Typography>
+          <Typography>Speed Value: {notateNumber(speed.raw, 'Big')}</Typography>
           <Typography variant={'caption'}>Next level: {notateNumber(speed.nextLevelValue, 'Big')}</Typography>
           <Divider sx={{ my: 1 }}/>
           <Stack>

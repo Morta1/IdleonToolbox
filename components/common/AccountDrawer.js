@@ -29,6 +29,10 @@ const misc = {
   },
   constellations: {
     icon: "StarTitle1"
+  },
+  'random-events': {
+    icon: 'etc/Mega_Grumblo',
+    differentSource: true
   }
 };
 
@@ -90,7 +94,13 @@ const worldsData = {
 const nestedOptionPadding = 35;
 
 const AccountDrawer = ({ onLabelClick }) => {
-  const [worlds, setWorlds] = useState({ "World 1": false, "World 2": false, "World 3": false, "World 4": false, "World 5": false });
+  const [worlds, setWorlds] = useState({
+    "World 1": false,
+    "World 2": false,
+    "World 3": false,
+    "World 4": false,
+    "World 5": false
+  });
   const router = useRouter();
 
   const handleClick = (key) => {
@@ -129,7 +139,7 @@ const AccountDrawer = ({ onLabelClick }) => {
               <ListItem button selected={isSelected(key)} onClick={() => handleClick(key)}>
                 <img className={"list-img"} width={32} height={32} style={{ objectFit: 'contain' }}
                      src={differentSource ? `/${icon}.png` : `/data/${icon}.png`} alt=""/>
-                <ListItemText style={{ marginLeft: 10 }} primary={key.capitalize()}/>
+                <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalize()}/>
                 {categories ? worlds?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
               </ListItem>
               {categories ? <Collapse in={worlds?.[key]} timeout="auto" unmountOnExit>

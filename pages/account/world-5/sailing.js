@@ -8,6 +8,7 @@ import Chests from "../../../components/account/Worlds/World5/Sailing/Chests";
 import BoatsAndCaptains from "../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains";
 import { MissingData } from "../../../components/common/styles";
 import { NextSeo } from "next-seo";
+import Trades from "../../../components/account/Worlds/World5/Sailing/Trades";
 
 const Sailing = () => {
   const { state } = useContext(AppContext);
@@ -19,6 +20,7 @@ const Sailing = () => {
     boats,
     chests,
     captainsOnBoats,
+    trades,
     shopCaptains
   } = state?.account?.sailing || {};
   const [selectedTab, setSelectedTab] = useState(0);
@@ -64,19 +66,20 @@ const Sailing = () => {
           sx={{ marginBottom: 3 }}
           variant={isMd ? 'fullWidth' : 'standard'}
           value={selectedTab} onChange={handleOnClick}>
-      {['Artifacts', 'Chests', 'Loot Pile', 'Boats and Captains']?.map((tab, index) => {
+      {['Artifacts', 'Trades', 'Boats and Captains', 'Loot Pile', 'Chests']?.map((tab, index) => {
         return <Tab label={tab} key={`${tab}-${index}`}/>;
       })}
     </Tabs>
 
     {selectedTab === 0 ? <Artifacts artifacts={artifacts}/> : null}
-    {selectedTab === 1 ? <Chests chests={chests}/> : null}
-    {selectedTab === 2 ? <LootPile lootPile={lootPile}/> : null}
-    {selectedTab === 3 ?
+    {selectedTab === 1 ? <Trades trades={trades} lastUpdated={state?.lastUpdated}/> : null}
+    {selectedTab === 3 ? <LootPile lootPile={lootPile}/> : null}
+    {selectedTab === 2 ?
       <BoatsAndCaptains boats={boats} captains={captains}
                         lootPile={lootPile}
                         captainsOnBoats={captainsOnBoats} shopCaptains={shopCaptains}
                         lastUpdated={state?.lastUpdated}/> : null}
+    {selectedTab === 4 ? <Chests chests={chests}/> : null}
   </>
 };
 

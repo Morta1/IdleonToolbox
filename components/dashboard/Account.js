@@ -137,7 +137,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                 title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial!`}
                                                 iconPath={`data/${vial?.mainItem}`}/>) : null}
           {trackers?.shops && alerts?.shops?.length > 0 ?
-            alerts?.shops?.map((shop, index) => shop?.length > 0 ? <Alert key={'shop' + index}
+            alerts?.shops?.map((shop, index) => shop?.length > 0 ? <Alert key={'shop' + index + shop?.[0]?.rawName}
                                                                           title={<ShopTitle shop={shop}/>}
                                                                           iconPath={`data/ShopEZ${index}`}/> : null) : null}
           {trackers?.guildTasks && alerts?.guildTasks?.daily ?

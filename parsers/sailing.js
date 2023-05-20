@@ -1,4 +1,4 @@
-import { kFormatter, lavaLog, notateNumber, tryToParse } from "../utility/helpers";
+import { getClosestDate, kFormatter, lavaLog, notateNumber, tryToParse } from "../utility/helpers";
 import { artifacts, captainsBonuses, classFamilyBonuses, islands } from "../data/website-data";
 import {
   getHighestCharacterSkill,
@@ -6,7 +6,7 @@ import {
   getHighestLevelOfClass,
   isMasteryBonusUnlocked
 } from "./misc";
-import { mainStatMap } from "./talents";
+import { getHighestTalentByClass, mainStatMap } from "./talents";
 import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from "./alchemy";
 import { getCardBonusByEffect } from "./cards";
 import { getStampsBonusByEffect } from "./stamps";
@@ -17,6 +17,7 @@ import { isSuperbitUnlocked } from "./gaming";
 import { getJewelBonus, getLabBonus } from "./lab";
 import { getShinyBonus } from "./breeding";
 import { getFamilyBonusBonus } from "./family";
+import LavaRand from "../utility/lavaRand";
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -34,15 +35,50 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
   const chests = getChests(chestsRaw, artifactsList, serverVars);
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
-
+  const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList);
+  const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
   return {
     maxChests,
     artifacts: artifactsList,
     lootPile: lootPileList,
     chests,
     rareTreasureChance,
-    ...getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList)
+    trades,
+    ...captainsAndBoats
   };
+}
+
+const getFutureTrades = ({ boats } = {}, islands, lootPileList, artifactsList, account) => {
+  const firstBoatLootValue = boats?.[0]?.loot?.value ?? 0;
+  const emeraldRelic = isArtifactAcquired(artifactsList, 'Emerald_Relic');
+  const unlockedIslands = islands?.reduce((sum, island) => island === -1 ? sum + 1 : sum, 0);
+  const seed = Math.floor(account?.timeAway?.GlobalTime / 21600);
+  const trades = [];
+  const date = new Date();
+  for (let i = 0; i < 40; i++) {
+    const rng = new LavaRand(seed + i);
+    const random = rng.rand();
+    const lootIndex = Math.min(30, Math.ceil(2 * random * unlockedIslands));
+    const lootItemCost = getLootItemCost(lootPileList?.[lootIndex], firstBoatLootValue);
+    const closest = getClosestDate(date, 6 * i);
+    trades.push({
+      ...lootPileList?.[lootIndex],
+      date: closest,
+      moneyValue: getMoneyValue(lootItemCost, lootIndex, emeraldRelic),
+      lootItemCost
+    });
+  }
+  return trades;
+}
+
+const getLootItemCost = (loot, firstBoatLootValue) => {
+  return Math.max(.2 * loot?.amount, firstBoatLootValue)
+}
+const getMoneyValue = (lootItemCost, lootIndex, emeraldRelic) => {
+  const multi = (emeraldRelic?.acquired) ?? 0;
+  return lootItemCost * (1.5 * Math.pow(1.6, Math.floor(lootIndex / 2))
+    * (1 + (((lootIndex + 1) % 2) * 150 + (30 * Math.floor(multi / 2) + 30
+      * Math.floor(multi / 3))) / 100))
 }
 
 export const getArtifacts = (idleonData, charactersData, account) => {
@@ -127,7 +163,7 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
   const allCaptains = captainsRaw?.slice(0, captainsUnlocked + 1);
   const captains = allCaptains?.map((captain, index) => getCaptain(captain, index))
   const allBoats = boatsRaw?.slice(0, boatsUnlocked + 1);
-  const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, account, baseSpeed, minimumTravelTime));
+  const boats = allBoats?.map((boat, index) => getBoat(boat, index, lootPileList, captains, artifactsList, characters, account, baseSpeed, minimumTravelTime));
   const captainsOnBoats = boats?.reduce((res, { captainMappedIndex }, index) => ({
     ...res,
     [captainMappedIndex]: index
@@ -140,7 +176,7 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
   }
 }
 
-const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account, baseSpeed, minimumTravelTime = 120) => {
+const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters, account, baseSpeed, minimumTravelTime = 120) => {
   const [captainIndex, islandIndex, , lootLevel, distanceTraveled, speedLevel] = boat;
   const captain = captains?.[captainIndex];
   const island = islands?.[islandIndex];
@@ -158,7 +194,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, account, ba
 
 
   boatObj.resources = getBoatResources(boatObj, lootPile);
-  boatObj.loot = getBoatLootValue(account, artifactsList, boatObj, captain);
+  boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed, minimumTravelTime)
   boatObj.timeLeft = ((island?.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000;
   return boatObj
@@ -254,22 +290,25 @@ const getBoatSpeedValue = (captain, island, speedLevel, baseSpeed, minimumTravel
   const boatSpeed = (10 + (5 + Math.pow(Math.floor(speedLevel / 7), 2)) * speedLevel) * (1 + captainSpeedBonus / 100) * baseSpeed;
   const nextLevelBoatSpeed = (10 + (5 + Math.pow(Math.floor((speedLevel + 1) / 7), 2)) * (speedLevel + 1)) * (1 + captainSpeedBonus / 100) * baseSpeed;
   return {
+    raw: boatSpeed,
     value: island ? Math.min(boatSpeed, (island?.distance * 60) / minimumTravelTime) : boatSpeed,
-    nextLevelValue: island ? Math.min(nextLevelBoatSpeed, (island?.distance * 60) / minimumTravelTime) : nextLevelBoatSpeed
+    nextLevelValue: nextLevelBoatSpeed
   };
 }
-const getBoatLootValue = (account, artifactsList, boat, captain) => {
+const getBoatLootValue = (characters, account, artifactsList, boat, captain) => {
+  const unendingLootSearch = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'UNENDING_LOOT_SEARCH');
+  const talentBonus = 1 + unendingLootSearch / 100;
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)
   const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2)
   const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex);
   const artifact = isArtifactAcquired(artifactsList, 'Genie_Lamp');
-  const nextLevelValue = (5 + nextLevelMath * (boat?.lootLevel + 1)) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifact?.bonus)) / 100);
-  const value = (5 + currentLevelMath * boat?.lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifact?.bonus)) / 100);
+  const nextLevelValue = (5 + nextLevelMath * (boat?.lootLevel + 1)) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifact?.bonus)) / 100) * talentBonus;
+  const value = (5 + currentLevelMath * boat?.lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifact?.bonus)) / 100) * talentBonus;
   return {
-    value: notateNumber(value, 'Big'),
-    nextLevelValue: notateNumber(nextLevelValue, 'Big')
+    value: value,
+    nextLevelValue: nextLevelValue
   }
 }
 
