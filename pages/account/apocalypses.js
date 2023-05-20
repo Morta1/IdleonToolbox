@@ -45,32 +45,30 @@ const Apocalypses = () => {
 
 const ApocDisplay = ({ apocName, charName, monsters }) => {
   return <Stack gap={2}>
-    <Typography variant={'h4'}>{charName} {apocName}ed {monsters?.finished ?? 0} monsters</Typography>
+    <Typography variant={'h4'}>{charName} {apocName}ed {monsters?.finished?.join('/') ?? 0} monsters</Typography>
     {apocName === 'chow' ?
       <Typography component={'div'} variant={'caption'}>* Normal Chow requires 1M kills / Super Chow requires 100M
         kills</Typography> : null}
     <Card>
       <CardContent>
         {monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
-          {monsters?.finished < monsters?.list?.length ?
-            monsters?.list?.map(({
-                                   name,
-                                   monsterFace,
-                                   kills,
-                                   done,
-                                   thresholds
-                                 }, index) => {
-              return !done ?
-                <Card sx={{ width: 120 }} variant={'outlined'} key={`${charName}-${name}-${index}`}>
-                  <CardContent>
-                    <Stack alignItems={'center'} gap={1}>
-                      <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
-                      <Typography>{notateNumber(kills, 'Big')}</Typography>
-                    </Stack>
-                  </CardContent>
-                </Card> : null
-            }) : <Typography key={`${charName}-${name}`} variant={'h5'} color={'error.light'}>You killed them
-              ALL</Typography>}
+          {monsters?.list?.map(({
+                                  name,
+                                  monsterFace,
+                                  kills,
+                                  done,
+                                  thresholds
+                                }, index) => {
+            return !done.every((done) => done) ?
+              <Card sx={{ width: 120 }} variant={'outlined'} key={`${charName}-${name}-${index}`}>
+                <CardContent>
+                  <Stack alignItems={'center'} gap={1}>
+                    <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
+                    <Typography>{notateNumber(kills, 'Big')}</Typography>
+                  </Stack>
+                </CardContent>
+              </Card> : null
+          })}
         </Stack> : <Typography>{apocName} talent is still locked !</Typography>}
       </CardContent>
     </Card>

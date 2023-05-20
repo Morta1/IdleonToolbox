@@ -649,7 +649,7 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
     return {
       name: Name,
       monsterFace: MonsterFace,
-      done: thresholds?.every((threshold) => kills >= threshold),
+      done: thresholds?.map((threshold) => kills >= threshold),
       kills,
       thresholds
     }
@@ -658,11 +658,12 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
   list = [...list, {
     name: 'Boop',
     monsterFace: 33,
-    done: thresholds?.every((threshold) => boopKills >= threshold),
+    done: thresholds?.map((threshold) => boopKills >= threshold),
     kills: boopKills,
     thresholds
   }];
-  const finished = list?.reduce((sum, { done }) => sum + (done ? 1 : 0), 0);
+  const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],
+    done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0 ]);
   return {
     finished,
     list
