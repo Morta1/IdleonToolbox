@@ -344,10 +344,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
   if (isBarbarian) { // zow
-    character.zow = getBarbarianZowChow(character.kills, 1e5);
+    character.zow = getBarbarianZowChow(character.kills, [1e5]);
   }
   if (isBloodBerserker) {
-    character.chow = getBarbarianZowChow(character.kills, 1e6);
+    character.chow = getBarbarianZowChow(character.kills, [1e6, 1e8]);
   }
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'c21')
   const divinityLevel = character.skillsInfo?.divinity?.level;
@@ -641,7 +641,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
 }
 
 
-export const getBarbarianZowChow = (allKills, threshold) => {
+export const getBarbarianZowChow = (allKills, thresholds) => {
   let list = deathNote.map(({ rawName }) => {
     const mobIndex = mapEnemies?.[rawName];
     const { MonsterFace, Name } = monsters?.[rawName];
@@ -649,18 +649,18 @@ export const getBarbarianZowChow = (allKills, threshold) => {
     return {
       name: Name,
       monsterFace: MonsterFace,
-      done: kills >= threshold,
+      done: thresholds?.every((threshold) => kills >= threshold),
       kills,
-      threshold
+      thresholds
     }
   });
   const boopKills = allKills[38];
   list = [...list, {
     name: 'Boop',
     monsterFace: 33,
-    done: boopKills >= threshold,
+    done: thresholds?.every((threshold) => boopKills >= threshold),
     kills: boopKills,
-    threshold
+    thresholds
   }];
   const finished = list?.reduce((sum, { done }) => sum + (done ? 1 : 0), 0);
   return {

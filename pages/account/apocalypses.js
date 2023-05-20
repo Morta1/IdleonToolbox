@@ -46,6 +46,9 @@ const Apocalypses = () => {
 const ApocDisplay = ({ apocName, charName, monsters }) => {
   return <Stack gap={2}>
     <Typography variant={'h4'}>{charName} {apocName}ed {monsters?.finished ?? 0} monsters</Typography>
+    {apocName === 'chow' ?
+      <Typography component={'div'} variant={'caption'}>* Normal Chow requires 1M kills / Super Chow requires 100M
+        kills</Typography> : null}
     <Card>
       <CardContent>
         {monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
@@ -54,9 +57,10 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                                    name,
                                    monsterFace,
                                    kills,
-                                   threshold
+                                   done,
+                                   thresholds
                                  }, index) => {
-              return kills < threshold ?
+              return !done ?
                 <Card sx={{ width: 120 }} variant={'outlined'} key={`${charName}-${name}-${index}`}>
                   <CardContent>
                     <Stack alignItems={'center'} gap={1}>

@@ -3,7 +3,7 @@ import { getPostOfficeBonus } from "../../parsers/postoffice";
 import { items, randomList } from "../../data/website-data";
 import { getExpReq, isArenaBonusActive } from "../../parsers/misc";
 import { getTimeTillCap } from "../../parsers/anvil";
-import { getTalentBonus } from "../../parsers/talents";
+import { checkCharClass, getTalentBonus } from "../../parsers/talents";
 
 // character, characters, characterIndex, account
 
@@ -128,7 +128,7 @@ export const isAkfForMoreThanTenHours = (character, lastUpdated) => {
 }
 
 export const crystalCooldownSkillsReady = (character, trackersOptions) => {
-  if (character?.class === 'Maestro') {
+  if (checkCharClass(character?.class, 'Maestro')) {
     const { crystalCountdown: ccd } = trackersOptions || {};
     return Object.entries(character?.skillsInfo)?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character') {

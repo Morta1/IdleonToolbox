@@ -218,3 +218,7 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
   }
   return 0;
 }
+
+export const checkCharClass = (charClass, className) => {
+  return talentPagesMap[charClass]?.includes(className);
+}
