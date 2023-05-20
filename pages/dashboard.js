@@ -60,7 +60,7 @@ const trackersOptions = {
     anvil: { showAlertBeforeFull: true },
     postOffice: { input: { label: 'threshold', type: 'number', value: '', helperText: 'Number of boxes' } },
     talents: { printerGoBrrr: true, refineryThrottle: true, craniumCooking: true, 'itsYourBirthday!': true },
-    crystalCountdown: { showNonMaxed: false }
+    crystalCountdown: { showMaxed: true, showNonMaxed: false }
   }
 };
 

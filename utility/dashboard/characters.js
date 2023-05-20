@@ -135,10 +135,11 @@ export const crystalCooldownSkillsReady = (character, trackersOptions) => {
         const crystalCountdown = getTalentBonus(character?.talents, 2, 'CRYSTAL_COUNTDOWN')
         const expReq = getExpReq(data?.index, data?.level);
         const reduction = 100 * (1 - Math.max((1 - crystalCountdown / 100) * expReq, .98 * data?.expReq) / expReq);
-        if (reduction > 0) {
-          if (ccd?.showNonMaxed ? true : reduction === crystalCountdown) {
-            return [...res, { name, ...data, crystalCountdown, reduction, ready: reduction === crystalCountdown }]
-          }
+        if (ccd?.showMaxed && ccd?.showNonMaxed) {
+          return [...res, { name, ...data, crystalCountdown, reduction, ready: reduction === crystalCountdown }]
+        }
+        if (ccd?.showNonMaxed ? reduction < crystalCountdown : ccd?.showMaxed ? reduction === crystalCountdown : false) {
+          return [...res, { name, ...data, crystalCountdown, reduction, ready: reduction === crystalCountdown }]
         }
       }
       return res;
