@@ -1,6 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
 
-
 const getApp = () => {
   const apps = getApps();
   if (apps?.length > 0) return apps?.[0];
