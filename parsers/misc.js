@@ -14,6 +14,7 @@ import { isSuperbitUnlocked } from "./gaming";
 import { getFamilyBonusBonus } from "./family";
 import { getStatsFromGear } from "./items";
 import LavaRand from "../utility/lavaRand";
+import { isPast } from "date-fns";
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
@@ -427,11 +428,11 @@ export const getRandomEvents = (account) => {
     const mapName = mapNames?.[realMapIndex];
     const eventName = getEventName(eventType);
     let dateInMs = (seed + i + 1) * 3600 * 1000;
+    if (isPast(dateInMs)) continue;
     const date = new Date(dateInMs);
     if (date.isDstObserved()) {
       dateInMs -= 3600 * 1000;
     }
-    console.log(date.isDstObserved())
     eventList.push({ mapName, eventName, date: dateInMs })
   }
   return eventList
