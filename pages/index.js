@@ -7,7 +7,7 @@ import {
   Divider,
   Grid,
   Link,
-  Stack,
+  Stack, Tooltip,
   Typography,
   useMediaQuery
 } from "@mui/material";
@@ -1037,6 +1037,14 @@ const Home = () => {
         <Button variant={"outlined"} onClick={() => setOpenPastebin(true)} startIcon={<InfoIcon/>}>
           How to share your profile with pastebin
         </Button>
+      </Stack>
+      <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center"
+             spacing={2} style={{ margin: "35px 0" }}>
+        <Tooltip title={'Reset your dashboard and bubble goals preferences'}>
+          <Button color={'warning'} variant={"outlined"} onClick={() => localStorage.clear()} startIcon={<InfoIcon/>}>
+            Clear local storage
+          </Button>
+        </Tooltip>
       </Stack>
       <DiscordInvite/>
       <Stack>

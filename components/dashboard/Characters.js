@@ -102,14 +102,17 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
                                                                                                  name,
                                                                                                  icon,
                                                                                                  reduction,
-                                                                                                 crystalCountdown,
-                                                                                                 ready
-                                                                                               }, index) => (
-                <Alert key={icon + '-' + index + '-' + characterIndex}
-                       style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}
-                       title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready ? 'maxed' : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})` : ''}!`}
-                       iconPath={`data/${icon}`}/>
-              )) : null}
+                                                                                                 crystalCountdown
+                                                                                               }, index) => {
+                  const { crystalCountdown: ccd } = trackersOptions || {};
+                  const ready = crystalCountdown > 0 && reduction === crystalCountdown;
+                  if (!ccd?.showMaxed && ready || !ccd?.showNonMaxed && (ccd?.showMaxed && !ready) || (!ccd?.showNonMaxed && !ccd?.showMaxed)) return null;
+                  return <Alert key={icon + '-' + index + '-' + characterIndex}
+                                style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}
+                                title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready ? 'maxed' : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})` : ''}!`}
+                                iconPath={`data/${icon}`}/>
+                }
+              ) : null}
             </Stack>
           </CardContent>
         </Card>
