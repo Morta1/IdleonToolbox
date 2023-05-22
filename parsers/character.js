@@ -13,7 +13,8 @@ import {
   mapPortals,
   monsters,
   randomList,
-  starSignByIndexMap, tasks
+  starSignByIndexMap,
+  tasks
 } from "../data/website-data";
 import {
   calculateAfkTime,
@@ -42,13 +43,13 @@ import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
 import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from "./alchemy";
 import { getStatueBonus } from "./statues";
 import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
-import { getPlayerAnvil } from "./anvil";
+import { getAnvil } from "./anvil";
 import { getPrayerBonusAndCurse } from "./prayers";
 import { getGuildBonusBonus } from "./guild";
 import { getShrineBonus } from "./shrines";
 import { getFamilyBonus, getFamilyBonusBonus } from "./family";
 import { getSaltLickBonus } from "./saltLick";
-import { getDungeonFlurboStatBonus, getDungeonStatBonus } from "./dungeons";
+import { getDungeonFlurboStatBonus } from "./dungeons";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from "./obols";
 import { getPlayerWorship } from "./worship";
@@ -258,17 +259,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     .split(",")
     .map((starSign) => {
       if (!starSign || starSign === '_') return null;
-      const silkrodeNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 15);
-      const updatedBonuses = starSignByIndexMap?.[starSign]?.bonuses?.map((star) => {
-        const extraBonus = (silkrodeNanochipBonus ? 2 : 1);
-        return {
-          ...star,
-          chipBoost: extraBonus,
-          bonus: star?.bonus * extraBonus,
-          rawName: star?.rawName?.replace('{', star?.bonus * extraBonus)
-        }
-      });
-      return { ...starSignByIndexMap?.[starSign], bonuses: updatedBonuses };
+      return starSignByIndexMap?.[starSign];
     })
     .filter(item => item);
 
@@ -320,8 +311,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     ...card,
     chipBoost: 2
   }) : card);
-
-  character.anvil = getPlayerAnvil(char, character, account, charactersLevels, idleonData);
+  character.anvil = getAnvil(char);
   const charObols = getObols(char, false);
   character.obols = {
     ...charObols,
@@ -331,7 +321,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.quests = getPlayerQuests(char?.QuestComplete);
   character.crystalSpawnChance = getPlayerCrystalChance(character, account, idleonData);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
-  character.nonConsumeChance = getNonConsumeChance(character?.starSigns, character?.cards, character?.postOffice, character?.talents, character?.equippedBubbles, account?.lab?.jewels, account?.lab?.labBonuses);
+  character.nonConsumeChance = getNonConsumeChance(character, account);
   character.constructionSpeed = getPlayerConstructionSpeed(character, account);
 
   const kills = char?.[`KillsLeft2Advance`];
@@ -401,8 +391,8 @@ export const getRespawnRate = (character, account) => {
   const chipBonus = account?.lab?.playersChips?.find((chip) => chip.index === 10)?.baseVal ?? 0;
   const equipmentBonus = getStatsFromGear(character, 47, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
-  const starSignBonus = getStarSignBonus(character?.starSigns, 'Grim_Reaper', 'Mob_Respawn_rate', account, character?.playerId)
-  const starSignMajorBonus = getStarSignBonus(character?.starSigns, 'Grim_Reaper_Major', 'Mob_Respawn_rate', account, character?.playerId)
+  const starSignBonus = getStarSignBonus(character, account, 'Mob_Respawn_rate')
+  const starSignMajorBonus = getStarSignBonus(character, account, 'Mob_Respawn_rate')
 
   const worldOneAchievement = getAchievementStatus(account?.achievements, 44);
   const worldOneMeritBonus = account?.tasks?.[2]?.[0]?.[1];
@@ -479,7 +469,7 @@ export const getDropRate = (character, account, characters) => {
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Midas_Minded', account)?.bonus
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
-  const starSignBonus = getStarSignBonus(character?.starSigns, 'Pirate_Booty', 'Drop_Rate', account, character?.playerId);
+  const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
   // const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'DropRarity');
   // const math = 1 + (luck + flurboBonus) / 100;
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
@@ -533,7 +523,12 @@ export const getCashMulti = (character, account, characters) => {
   const statueBonus = getStatueBonus(account?.statues, 'StatueG20');
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
-  const divinityMinorBonus = character?.linkedDeity === 3 ? character?.deityMinorBonus : character?.secondLinkedDeityIndex === 3 ? character?.secondDeityMinorBonus : 0;
+  const divinityMinorBonus = characters?.reduce((sum, char) => {
+    if (char?.linkedDeity === 3) {
+      return sum + char?.deityMinorBonus;
+    }
+    return sum;
+  }, 0);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
   const cashFromEquipment = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
@@ -621,7 +616,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sample_Size');
   const meritBonus = account?.tasks?.[2]?.[2]?.[4];
-  const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Maestro');
+  const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
   const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro);
   const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;
   const postofficeSampleBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 0);
@@ -663,7 +658,7 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
     thresholds
   }];
   const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],
-    done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0 ]);
+    done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0]);
   return {
     finished,
     list
@@ -705,7 +700,7 @@ export const getPlayerFoodBonus = (character, account) => {
   const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.talents);
   const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Food_Effect', 0)
-  const starSignBonus = getStarSignBonus(character?.starSigns, 'Mount_Eaterest', 'All_Food_Effect', account, character?.playerId);
+  const starSignBonus = getStarSignBonus(character, account, 'All_Food_Effect');
   const cardBonus = getEquippedCardBonus(character?.cards, 'Y5');
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet1' ? character?.cards?.cardSet?.bonus : 0;
   const talentBonus = getTalentBonus(character?.starTalents, null, 'FROTHY_MALK');
@@ -729,7 +724,7 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
   }
   const statuePower = getStatueBonus(statues, 'StatueG2', character?.talents);
   // const speedFromStatue = 1 + (speedBonusFromPotions + (statuePower) / 2.2);
-  const speedStarSign = getStarSignByEffect(character?.starSigns, 'Movement_Speed');
+  const speedStarSign = getStarSignBonus(character, account, 'Movement_Speed');
   const equipmentSpeedEffectBonus = getStatsFromGear(character, 1, account);
   const cardBonus = getEquippedCardBonus(character?.cards, 'A5');
   finalSpeed = (baseMath + (statuePower + ((speedStarSign) + (equipmentSpeedEffectBonus + (cardBonus + featherFlight))))) / 100; // 1.708730398284699
@@ -748,40 +743,98 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
   return Math.round(finalSpeed * 100);
 }
 
-export const getAfkGain = (character, skillName, bribes, arcadeShop, dungeonUpgrades, playerChips, afkGainsTask, guildBonuses, optionsList, shrines) => {
-  // const afkGainsTaskBonus = afkGainsTask < character?.playerId ? 2 : 0;
-  if (skillName !== 'fighting') {
-    let guildAfkGains = 0;
-    const amarokBonus = getEquippedCardBonus(character?.cards, 'Z2');
-    const bunnyBonus = getEquippedCardBonus(character?.cards, 'F7');
-    if (guildBonuses.length > 0) {
-      guildAfkGains = getGuildBonusBonus(guildBonuses, 7);
-    }
-    const cardSet = character?.cards?.cardSet?.rawName === 'CardSet7' ? character?.cards?.cardSet?.bonus : 0;
-    const conductiveProcessor = playerChips.find((chip) => chip.index === 8)?.baseVal ?? 0;
-    const equipmentAfkEffectBonus = getStatsFromGear(character, 24, account);
-    const equipmentShrineEffectBonus = getStatsFromGear(character, 59, account);
-    const zergRushogen = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
-    const ruckSack = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
-    const nonFightingGains = 2 + (amarokBonus + bunnyBonus) + (guildAfkGains + cardSet +
-      (conductiveProcessor + (equipmentAfkEffectBonus + equipmentShrineEffectBonus + (zergRushogen - ruckSack))));
-    const dungeonAfkGains = getDungeonStatBonus(dungeonUpgrades, 'AFK_Gains');
-    const arcadeAfkGains = arcadeShop?.[6]?.bonus ?? 0;
-    const baseMath = (nonFightingGains) + (arcadeAfkGains + dungeonAfkGains);
+export const getAfkGain = (character, characters, account) => {
+  const { targetMonster } = character;
+  const { lab, guild, dungeons, accountOptions, bribes, shrines, charactersLevels, tasks } = account;
+  const afkGainsTaskBonus = tasks?.[2]?.[1]?.[2] > character?.playerId ? 2 : 0;
+  const monster = monsters?.[targetMonster];
 
-    if ("cooking") {
-      const tickTockBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
-      const trappingBonus = getTrappingStuff('TrapMGbonus', 8, optionsList)
-      const starSignAfkGains = getStarSignByEffect(character?.starSigns, 'Skill_AFK_Gain');
-      const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
-      let afkGains = .25 + (tickTockBonus + (baseMath + (trappingBonus + ((starSignAfkGains) + bribeAfkGains)))) / 100;
-      if (afkGains < .8) {
-        const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-        afkGains = Math.min(.8, afkGains + shrineAfkGains / 100);
-      }
-      return afkGains;
+  const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
+  const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
+  if (monster) {
+    const highestVoidwalker = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
+    const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'FIGHTING_AFK_GAINS', highestVoidwalker);
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 1);
+    const firstTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_BRAWLING');
+    const secondTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_CASTING');
+    const thirdTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_SHOOTING');
+    const fourthTalentBonus = getTalentBonus(character?.talents, 0, "SLEEPIN'_ON_THE_JOB");
+    const firstStarTalentBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
+    const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
+    const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
+    const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Fighting_AFK_gain_rate');
+    const fightEquipmentBonus = getStatsFromGear(character, 20, account);
+    const fightObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[20])
+    const afkEquipmentBonus = getStatsFromGear(character, 59, account);
+    const afkObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[59])
+    const starSignBonus = getStarSignBonus(character, account, 'Fight_AFK_Gain');
+    let guildBonus = 0;
+    if (guild?.guildBonuses?.bonuses?.length > 0) {
+      guildBonus = getGuildBonusBonus(guild?.guildBonuses?.bonuses, 4);
     }
+    const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
+    const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
+    const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 7)?.baseVal ?? 0;
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
+    const dungeonBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'AFK_Gains');
+    const majorBonus = character?.linkedDeity === 3 || character?.secondLinkedDeityIndex ? 1 : 0;
+    const divinityMinorBonus = characters?.reduce((sum, char) => {
+      if (char?.linkedDeity === 4) {
+        return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
+      } else if (char?.secondLinkedDeityIndex === 4) {
+        return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
+      }
+      return sum;
+    }, 0);
+
+    const base = afkGainsTaskBonus
+      + (arcadeBonus
+        + (dungeonBonus
+          + (30 * majorBonus
+            + divinityMinorBonus)));
+
+    const gains = 0.2 + (familyEffBonus + postOfficeBonus
+      + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
+        + (secondTalentBonus + (firstStarTalentBonus + (base
+          + (equippedCardBonus + (fourthTalentBonus + ((fightEquipmentBonus + fightObolsBonus) + (afkEquipmentBonus + afkObolsBonus)
+            + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
+
+    const math = Math.min(1.5, gains + shrineAfkGains / 100);
+
+    return Math.max(.01, math);
   }
+  // if (skillName !== 'fighting') {
+  //   let guildAfkGains = 0;
+  //   const amarokBonus = getEquippedCardBonus(character?.cards, 'Z2');
+  //   const bunnyBonus = getEquippedCardBonus(character?.cards, 'F7');
+  //   if (guild?.guildBonuses?.bonuses?.length > 0) {
+  //     guildAfkGains = getGuildBonusBonus(guild?.guildBonuses?.bonuses, 7);
+  //   }
+  //   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet7' ? character?.cards?.cardSet?.bonus : 0;
+  //   const conductiveProcessor = lab?.playersChips.find((chip) => chip.index === 8)?.baseVal ?? 0;
+  //   const equipmentAfkEffectBonus = getStatsFromGear(character, 24, account);
+  //   const equipmentShrineEffectBonus = getStatsFromGear(character, 59, account);
+  //   const zergRushogen = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
+  //   const ruckSack = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
+  //   const nonFightingGains = 2 + (amarokBonus + bunnyBonus) + (guildAfkGains + cardSet +
+  //     (conductiveProcessor + (equipmentAfkEffectBonus + equipmentShrineEffectBonus + (zergRushogen - ruckSack))));
+  //   const dungeonAfkGains = getDungeonStatBonus(dungeons?.upgrades, 'AFK_Gains');
+  //   const arcadeAfkGains = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
+  //   const baseMath = (nonFightingGains) + (arcadeAfkGains + dungeonAfkGains);
+  //
+  //   if ("cooking") {
+  //     const tickTockBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
+  //     const trappingBonus = getTrappingStuff('TrapMGbonus', 8, accountOptions)
+  //     const starSignAfkGains = getStarSignBonus(character, account, 'Skill_AFK_Gain');
+  //     const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
+  //     let afkGains = .25 + (tickTockBonus + (baseMath + (trappingBonus + ((starSignAfkGains) + bribeAfkGains)))) / 100;
+  //     if (afkGains < .8) {
+  //       const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
+  //       afkGains = Math.min(.8, afkGains + shrineAfkGains / 100);
+  //     }
+  //     return afkGains;
+  //   }
+  // }
   return 1;
 }
 
@@ -799,7 +852,7 @@ const getTrappingStuff = (type, index, optionsList) => {
 
 export const allProwess = (character, meals, bubbles) => {
   const prowessBubble = getBubbleBonus(bubbles, 'kazam', 'PROWESESSARY', false);
-  const starSignProwess = getStarSignByEffect(character?.starSigns, 'All_Skill_Prowess');
+  const starSignProwess = getStarSignBonus(character, account, 'All_Skill_Prowess');
   const skillProwessMeals = getMealsBonusByEffectOrStat(meals, null, 'Sprow')
   return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
 }
@@ -816,7 +869,7 @@ export const getAllEff = (character, meals, lab, accountCards, guildBonuses, cha
   const highestLevelHunter = getHighestLevelOfClass(charactersLevels, 'Hunter');
   const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Beast_Master', 'THE_FAMILY_GUY');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
-  const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
+  const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
   const equipmentEffEffectBonus = getStatsFromGear(character, 48, account);
   const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab.jewels, 16, spelunkerObolMulti);
@@ -854,17 +907,19 @@ export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus
   return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus) / 100);
 }
 
-const getNonConsumeChance = (starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses) => {
-  const spelunkerObolMulti = getLabBonus(labBonuses, 8); // gem multi
-  const nonConsumeJewelBonus = getJewelBonus(jewels, 8, spelunkerObolMulti);
+const getNonConsumeChance = (character, account) => {
+  const { starSigns, cards, postOffice, talents, equippedBubbles } = character;
+  const { lab } = account;
+  const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
+  const nonConsumeJewelBonus = getJewelBonus(lab?.jewels, 8, spelunkerObolMulti);
   const baseMath = 90 + 5 * nonConsumeJewelBonus;
-  const biteButNotChewBubbleBonus = getActiveBubbleBonus(bubbles, '_19');
+  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, '_19');
   const bubbleMath = Math.min(baseMath, 98 + Math.min(biteButNotChewBubbleBonus, 1));
   const jewelMath = Math.max(1, nonConsumeJewelBonus);
   const freeMealBonus = getTalentBonus(talents, 1, 'FREE_MEAL');
   const carePackFromMumBonus = getPostOfficeBonus(postOffice, 'Carepack_From_Mum', 0);
   const crabCakeBonus = getEquippedCardBonus(cards?.equippedCards, "B3");
-  const starSingBonus = getStarSignByEffect(starSigns, 'chance_to_not');
+  const starSingBonus = getStarSignByEffect(starSigns, account, 'chance_to_not');
   return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
 }
 

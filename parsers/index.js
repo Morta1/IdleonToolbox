@@ -148,7 +148,8 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
     return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
-
+  accountData.starSigns = getStarSigns(idleonData);
+  accountData.constellations = getConstellations(idleonData);
   accountData.charactersLevels = charactersLevels;
 
   charactersData = serializedCharactersData.map((char) => {
@@ -176,8 +177,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
 
   accountData.highscores = getHighscores(idleonData);
   accountData.shopStock = getShops(idleonData);
-  accountData.starSigns = getStarSigns(idleonData);
-  accountData.constellations = getConstellations(idleonData);
+
   accountData.forge = getForge(idleonData, accountData);
   accountData.construction = getConstruction(idleonData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);

@@ -82,7 +82,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
           {trackers?.gaming && alerts?.gaming?.squirrel?.hours >= 1 ?
             <Alert title={`${alerts?.gaming?.squirrel?.hours} hours has passed since you've clicked the squirrel!`}
                    iconPath={'data/GamingItem2'}/> : null}
-          {trackers?.gaming && alerts?.gaming?.hours >= 1 ?
+          {trackers?.gaming && alerts?.gaming?.shovel?.hours >= 1 ?
             <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
                    iconPath={'data/GamingItem1'}/> : null}
           {trackers?.rift && alerts?.rift?.gildedStamps > 0 ?

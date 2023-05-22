@@ -21,8 +21,15 @@ const parseLab = (labRaw, charactersData, account) => {
   let playerCordsChunk = 2, playersCords = [];
   for (let i = 0; i < cords.length; i += playerCordsChunk) {
     const [x, y] = cords.slice(i, i + playerCordsChunk);
-    playersCords = [...playersCords, { x, y }];
+    playersCords = [...playersCords, {
+      x,
+      y,
+      playerId: i / 2,
+      playerName: charactersData?.[i / 2]?.name,
+      class: classes[charactersData?.[i / 2]?.CharacterClass]
+    }];
   }
+  playersCords = playersCords?.filter((player) => player?.playerName);
   let jewelsList = jewelsRaw?.map((jewel, index) => {
     return {
       ...(jewels?.[index] || {}),

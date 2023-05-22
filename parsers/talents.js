@@ -98,7 +98,7 @@ export const getActiveBuffs = (activeBuffs, talents) => {
 }
 
 export const getHighestTalentByClass = (characters, talentTree, className, talentName) => {
-  const classes = characters?.filter((character) => character?.class === className);
+  const classes = characters?.filter((character) => checkCharClass(character?.class, className));
   return classes?.reduce((res, { talents }) => {
     const talent = getTalentBonus(talents, talentTree, talentName);
     if (talent > res) {
@@ -109,7 +109,7 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
 }
 
 export const getHighestMaxLevelTalentByClass = (characters, talentTree, className, talentName) => {
-  const classes = characters?.filter((character) => character?.class === className);
+  const classes = characters?.filter((character) => checkCharClass(character?.class, className));
   return classes?.reduce((res, { talents }) => {
     const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
     const talent = talentsObj?.find(({ name }) => name === talentName);
@@ -150,7 +150,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && excludedTalents?.[talent?.name] ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !excludedTalents?.[talent?.name] ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
     return {
       ...res,
@@ -166,7 +166,7 @@ export const getFamilyBonusValue = function (e, t, n, a) {
   return 10 > e && -1 !== t.indexOf("decay") ? Math.round(100 * e) / 100 : 1 > e || ("add" === t && 1 > a && 100 > e) || (25 > e && "decay" === t) ? Math.round(10 * e) / 10 : Math.round(e);
 }
 
-export const getVoidWalkerTalentEnhancements = (characters, account, pointsInvested, index) => {
+export const getVoidWalkerTalentEnhancements = (characters, account, pointsInvested, index, character) => {
   const talentList = [];
   if (pointsInvested >= 25) {
     talentList.push(42);
@@ -199,6 +199,9 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
     talentList.push(35);
   }
   if (talentList.indexOf(index) !== -1) {
+    if (index === 42) {
+      return true;
+    }
     if (index === 146) {
       const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
       const superChows = bloodBerserkers?.reduce((res, bb) => {
@@ -215,10 +218,36 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       }, {})
       return Math.pow(1.1, Object.keys(superChows).length ?? 0);
     }
+    if (index === 536) {
+      return 1;
+    }
+    if (index === 35) {
+      const { stats } = character || {};
+      let base
+      if (stats?.luck < 1e3) {
+        base = (Math.pow(stats?.luck + 1, 0.37) - 1) / 30;
+      } else {
+        base = ((stats?.luck - 1e3) / (stats?.luck + 2500)) * 0.8 + 0.3963
+      }
+      const talentBonus = getTalentBonus(character?.talents, 3, 'LUCKY_CHARMS');
+      return (base * (1 + talentBonus / 100)) / 1.8;
+    }
   }
   return 0;
 }
 
 export const checkCharClass = (charClass, className) => {
   return talentPagesMap[charClass]?.includes(className);
+}
+
+export const getBubonicGreenTube = (character, characters, account) => {
+  const charCords = account?.lab?.playersCords?.[character?.playerId];
+  const bubosCords = account?.lab?.playersCords?.filter(({ class: cName }) => checkCharClass(cName, 'Bubonic_Conjuror'));
+  if (!charCords || bubosCords?.length === 0) return 0;
+  const affected = bubosCords?.some(({ x }) => x > charCords?.x);
+  if (affected) {
+    return getHighestTalentByClass(characters, 3, 'Bubonic_Conjuror', 'GREEN_TUBE')
+  } else {
+    return 0;
+  }
 }

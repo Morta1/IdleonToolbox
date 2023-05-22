@@ -25,7 +25,6 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters 
     skillsInfo,
     activePrayers,
     starSigns,
-    anvil,
     postOffice,
     obols,
     equippedBubbles,
@@ -58,7 +57,7 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters 
     { component: <Skills skills={skillsInfo} charName={name}/>, filter: "Skills" },
     { component: <Prayers prayers={activePrayers}/>, filter: "Prayers" },
     { component: <PlayerStarSigns signs={starSigns}/>, filter: "Star Signs" },
-    { component: <AnvilDetails character={character} anvil={anvil}/>, filter: "Anvil Details" },
+    { component: <AnvilDetails characters={characters} character={character} account={account}/>, filter: "Anvil Details" },
     { component: <PostOffice {...postOffice} />, filter: "Post Office" },
     {
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
@@ -73,7 +72,6 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters 
   ];
 
   const trophy = useMemo(() => equipment?.reduce((res, { rawName }) => (!res && rawName.includes("Trophy") ? rawName : res), ""), [character]);
-
   return (
     <>
       <Grid item xl={cols}>

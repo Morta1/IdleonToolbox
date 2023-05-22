@@ -23,6 +23,25 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.81",
+    gameVer: "1.82",
+    date: "22/05/2023",
+    features: [
+      'Added Afk Gains value under Characters page -> Stats filter (Might be inaccurate, let me know)'
+    ],
+    fixes: [
+      'WIP: Anvil details under characters page is still kind of broken',
+      'Fixed logic for starsigns',
+      'Fixed a bug with added levels to talents',
+      'Fixed ccd calculations',
+      'Fixed cash multi calculations',
+      'Fixed printer sample calculations',
+      'Fixed a bug with displaying shovel at the dashboard',
+      'Fixed a bug with atom calculations'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.82",
     gameVer: "1.82",
     date: "20/05/2023",

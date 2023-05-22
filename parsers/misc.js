@@ -215,12 +215,15 @@ export const getMaterialCapacity = (bag, capacities) => {
     extraBagsTalentBonus,
     starSignExtraCap
   } = capacities;
-  const stampMatCapMath = 1 + mattyBagStampBonus / 100;
-  const gemPurchaseMath = 1 + (25 * gemShopCarryBonus) / 100;
-  const additionalCapMath = 1 + (masonJarStampBonus + starSignExtraCap) / 100; // ignoring star sign
-  const talentBonusMath = 1 + extraBagsTalentBonus / 100;
+
   const bCraftCap = bag?.capacity;
-  return Math.floor(bCraftCap * stampMatCapMath * gemPurchaseMath * additionalCapMath * talentBonusMath * allCapacity);
+
+  return Math.floor(bCraftCap
+    * (1 + mattyBagStampBonus / 100)
+    * (1 + (25 * gemShopCarryBonus) / 100)
+    * (1 + (masonJarStampBonus
+      + starSignExtraCap) / 100)
+    * (1 + extraBagsTalentBonus / 100) * allCapacity)
 };
 
 export const getSpeedBonusFromAgility = (agility = 0) => {
@@ -256,7 +259,9 @@ export const getHighestCharacterSkill = (characters = [], skillName) => {
 };
 
 export const getAllSkillExp = (sirSavvyStarSign, cEfauntCardBonus, goldenHamBonus, skillExpCardSetBonus, summereadingShrineBonus, ehexpeeStatueBonus, unendingEnergyBonus, skilledDimwitCurse, theRoyalSamplerCurse, equipmentBonus, maestroTransfusionTalentBonus, duneSoulLickBonus, dungeonSkillExpBonus, myriadPostOfficeBox) => {
-  return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) + (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus + (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus + (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus + myriadPostOfficeBox)))));
+  return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) +
+    (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus
+      + (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus + (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus + myriadPostOfficeBox)))));
 };
 
 export const calculateLeaderboard = (characters) => {
@@ -350,6 +355,7 @@ export const getSkillMasteryBonusByIndex = (skills, rift, riftBonusIndex) => {
 }
 
 export const getExpReq = (skillIndex, t) => {
+
   return 0 === skillIndex ?
     (15 + Math.pow(t, 1.9) + 11 * t) * Math.pow(1.208 - Math.min(0.164, (0.215 * t) / (t + 100)), t) - 15 :
     2 === skillIndex ? (15 + Math.pow(t, 2) + 13 * t) * Math.pow(1.225 - Math.min(0.114, (0.135 * t) / (t + 50)), t) - 26 :

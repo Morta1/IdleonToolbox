@@ -20,8 +20,18 @@ const Constellations = () => {
     }
   }
 
+  const sortStarSigns = (starSigns) => {
+    const sortAlphaNum = (a, b) => a.indexedStarName.localeCompare(b.indexedStarName, 'en', { numeric: true });
+    const sortedSigns = starSigns?.sort(sortAlphaNum);
+    const lastItem = sortedSigns?.pop();
+    sortedSigns.splice(21, 0, lastItem);
+    return sortedSigns;
+  }
+
   const infiniteStars = useMemo(() => getInfiniteStar(state?.account?.rift, state?.account?.breeding?.pets), [state?.account?.rift,
     state?.account?.breeding?.pets])
+
+  const stars = useMemo(() => sortStarSigns(state?.account?.starSigns), [state?.account?.starSigns])
 
   return <div>
     <NextSeo
@@ -37,7 +47,7 @@ const Constellations = () => {
       })}
     </Tabs>
     {selectedTab === 0 ? <ConstellationsComp constellations={state?.account?.constellations}/> : null}
-    {selectedTab === 1 ? <StarSigns starSigns={state?.account?.starSigns} infiniteStars={infiniteStars}/> : null}
+    {selectedTab === 1 ? <StarSigns starSigns={stars} infiniteStars={infiniteStars}/> : null}
   </div>
 };
 

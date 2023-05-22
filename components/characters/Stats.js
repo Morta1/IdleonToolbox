@@ -6,7 +6,7 @@ import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
 import { TitleAndValue } from "../common/styles";
-import { getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
+import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
 import { useMemo } from "react";
 
 const colors = {
@@ -23,6 +23,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     [character, account]);
   const { respawnRate, breakdown: rtBreakdown } = useMemo(() => getRespawnRate(character, account) || {},
     [character, account]);
+  const afkGains = useMemo(() => getAfkGain(character, characters, account), [character, account]);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -87,7 +88,15 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <CardContent>
               <Typography color={"info.light"}>Respawn Time</Typography>
               <Tooltip title={<BreakdownTooltip breakdown={rtBreakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(respawnRate, 'MultiplierInfo').replace('#', '')}%</Typography>
+                <Typography>{notateNumber(respawnRate, 'MultiplierInfo')}%</Typography>
+              </Tooltip>
+            </CardContent>
+          </Card>
+          <Card variant={"outlined"}>
+            <CardContent>
+              <Typography color={"info.light"}>Afk Gains</Typography>
+              <Tooltip title={''}>
+                <Typography>{notateNumber(afkGains * 100, 'MultiplierInfo')}%</Typography>
               </Tooltip>
             </CardContent>
           </Card>
@@ -129,6 +138,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 };
 
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
+  if (!breakdown) return '';
   return <Stack>
     {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
                                                                titleStyle={{ width: titleWidth }}

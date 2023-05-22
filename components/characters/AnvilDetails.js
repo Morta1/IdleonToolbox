@@ -1,24 +1,22 @@
-import { useContext } from "react";
+import { useMemo } from "react";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { getCoinsArray, kFormatter, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import CoinDisplay from "../common/CoinDisplay";
-import { AppContext } from "components/common/context/AppProvider";
-import { calcAnvilExp } from "parsers/anvil";
+import { calcAnvilExp, getPlayerAnvil } from "parsers/anvil";
 
-const AnvilDetails = ({ character, anvil }) => {
-  const { state } = useContext(AppContext);
+const AnvilDetails = ({ character, account, characters }) => {
+  const { stats } = useMemo(() => getPlayerAnvil(character, characters, account), [character, characters, account]);
   const {
-    pointsFromCoins,
-    pointsFromMats,
     xpPoints,
     speedPoints,
     capPoints,
     anvilSpeed,
     anvilCapacity,
     anvilCost,
-    anvilExp
-  } = anvil?.stats;
+    baseAnvilExp
+  } = stats;
+
 
   return (
     <Stack>
@@ -26,14 +24,14 @@ const AnvilDetails = ({ character, anvil }) => {
         Anvil Details
       </Typography>
       <Stack>
-        <Section title={<PointsTitle {...anvil?.stats} />}>
+        <Section title={<PointsTitle {...stats} />}>
           <PointsCard title={"Exp"} value={xpPoints}/>
           <PointsCard title={"Speed"} value={speedPoints}/>
           <PointsCard title={"Capacity"} value={capPoints}/>
         </Section>
         <Section title={"Bonus"}>
           <PointsCard title={"Exp"}
-                      value={`${notateNumber(calcAnvilExp(state?.characters, character, anvilExp, xpPoints), "Big")}%`}/>
+                      value={`${notateNumber(calcAnvilExp(character, characters, account, baseAnvilExp, xpPoints), "Big")}%`}/>
           <PointsCard title={"Speed"} value={notateNumber(anvilSpeed, "Big")}/>
           <PointsCard title={"Capacity"} value={kFormatter(anvilCapacity)}/>
         </Section>

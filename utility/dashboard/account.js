@@ -152,7 +152,7 @@ export const gamingAlerts = (account, trackersOptions) => {
   if (sprouts && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
     alerts.drops = account?.gaming?.availableDrops;
   }
-  const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired)
+  const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
   if (shovelUnlocked && shovel && account?.gaming?.lastShovelClicked > 0) {
     const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
     alerts.shovel = getDuration(new Date().getTime(), timePassed);
