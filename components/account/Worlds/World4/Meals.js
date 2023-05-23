@@ -22,9 +22,13 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
+  const [mealSpeed, setMealSpeed] = useState(totalMealSpeed);
   const [sortBy, setSortBy] = useState(breakpoints[0]);
   const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
+  const allPurpleActive = lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
+  const realAmethystRhinestone = getJewelBonus(lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
+  const amethystRhinestone = 4.5;
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
@@ -45,9 +49,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       const levelCost = getMealLevelCost(level, achievements);
       const diamondCost = (11 - level) * levelCost;
       const blackVoidCost = (30 - level) * levelCost;
-      let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, totalMealSpeed);
-      let timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
-      let timeToBlackVoid = calcMealTime(30, meal, totalMealSpeed, achievements);
+      let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
+      let timeToDiamond = calcMealTime(11, meal, mealSpeed, achievements);
+      let timeToBlackVoid = calcMealTime(30, meal, mealSpeed, achievements);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
         timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
@@ -57,7 +61,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     });
   };
 
-  const defaultMeals = useMemo(() => calcMeals(meals), [meals]);
+  const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed]);
 
   useEffect(() => {
     const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
@@ -90,15 +94,22 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     if (filters.includes('hide')) {
       tempMeals = tempMeals.filter((meal) => meal?.level < mealMaxLevel);
     }
+
+    if (filters.includes('amethystRhinestone') && realAmethystRhinestone === 0) {
+      setMealSpeed(totalMealSpeed * amethystRhinestone);
+    } else {
+      setMealSpeed(totalMealSpeed);
+    }
+
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
-  }, [filters, meals, mealMaxLevel, sortBy]);
+  }, [filters, meals, mealMaxLevel, sortBy, mealSpeed]);
 
   const sortMealsBy = (meals, sortBy, level = 0) => {
     const mealsCopy = [...defaultMeals];
     mealsCopy.sort((a, b) => {
-      if (level !== 0){
+      if (level !== 0) {
         if (a.level >= level) {
           return 1;
         } else if (b.level >= level) {
@@ -142,6 +153,15 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             <Typography>Overflowing Ladle</Typography>
             <Tooltip
               title={`Blood Berserker Talent: Ladles gives ${kFormatter(overflowingLadleBonus, 2)}% more afk time`}>
+              <InfoIcon/>
+            </Tooltip>
+          </Stack>
+        </ToggleButton>
+        <ToggleButton value="amethystRhinestone">
+          <Stack direction={'row'} gap={1}>
+            <Typography>Amethyst Rhinestone</Typography>
+            <Tooltip
+              title={`Apply additional 4.5 multi bonus`}>
               <InfoIcon/>
             </Tooltip>
           </Stack>

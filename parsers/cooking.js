@@ -170,7 +170,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus;
     const triagulonSpeedBonus = triagulonArtifactBonus ? (1 + triagulonArtifactBonus / 100) : 1;
 
-    const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, (amethystRhinestone));
+    const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, amethystRhinestone);
     const mealSpeedCardImpact = 1 + Math.min(6 * (trollCardStars === 0 ? 0 : trollCardStars + 1)
       + (20 * getAchievementStatus(account?.achievements, 225) +
         10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
