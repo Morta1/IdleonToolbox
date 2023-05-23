@@ -17,7 +17,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
+      {events?.length > 0 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
         <CardContent>
           <Stack gap={2}>
             {events?.map((event, index) => {
@@ -29,7 +29,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
             })}
           </Stack>
         </CardContent>
-      </Card>
+      </Card> : null}
       {account?.finishedWorlds?.World4 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
         <CardContent>
           <Stack alignItems={'center'} gap={2}>

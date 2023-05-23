@@ -1,5 +1,23 @@
 import { getDaysInMonth, getDaysInYear, intervalToDuration } from "date-fns";
 
+export const downloadFile = (data, filename) => {
+  const blob = new Blob([data], { type: "text/json" });
+  const link = document.createElement("a");
+
+  link.download = filename;
+  link.href = window.URL.createObjectURL(blob);
+  link.dataset.downloadurl = ["text/json", link.download, link.href].join(":");
+
+  const evt = new MouseEvent("click", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+  });
+
+  link.dispatchEvent(evt);
+  link.remove()
+}
+
 export const eventsColors = {
   'Meteorite': '#f8e8b7',
   'Mega_Grumblo': '#e6b471',

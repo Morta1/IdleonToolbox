@@ -90,6 +90,7 @@ export const getCoinToMax = (pointsFromCoins, anvilCostReduction) => {
 }
 
 export const getAnvilExp = (xpPoints, smithingExpMulti) => {
+  // "ProdExpBonus" == e
   const baseMath = (1 + (3 * xpPoints / 100)) * smithingExpMulti;
   if (baseMath < 20) return baseMath;
   return Math.min(20 + ((baseMath - 20) / (baseMath - 20 + 70)) * 50, 75);
@@ -213,6 +214,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7)
   }
 
+  // "AllSkillxpz" == e
   stats.baseAnvilExp = starSignBonus
     + (cEfauntCardBonus
       + goldenFoodBonus
@@ -221,7 +223,7 @@ export const getPlayerAnvil = (character, characters, account) => {
       + (cardSetBonus
         + passiveCardBonus
         + (Math.min(150, 100 * luckyCharmEnhancement) + shrineBonus)
-        + statueBonus // TODO: THIS IS OFF BY A BIT
+        + statueBonus // TODO: TOO HIGH
         + unendingEnergyBonus
         + balanceOfEffBonus
         - skilledDimwitCurse
@@ -230,7 +232,7 @@ export const getPlayerAnvil = (character, characters, account) => {
           + (maestroTransfusionTalentBonus
             + (saltLickBonus
               + (dungeonSkillExpBonus
-                + (myriadPostOfficeBox
+                + (myriadPostOfficeBox // TODO: TOO HIGH
                   + (godBonus
                     + (10 * firstAchievementBonus + (25 * secondAchievementBonus
                       + (10 * thirdAchievementBonus
@@ -301,6 +303,8 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
   if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement){
     leftHandOfLearningTalentBonus *= 2;
   }
+
+  // "SmithingEXPmulti" == e
   const smithingExpMulti = Math.max(0.1, (1 +
       (focusedSoulTalentBonus
         + (stampBonus
@@ -309,12 +313,13 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
     * (1 + smithingCards / 100) *
     (1 + blackSmithBoxBonus0 / 100)
     + (anvilExp + leftHandOfLearningTalentBonus) / 100);
+
   const tempAnvilExp = getAnvilExp(xpPoints, smithingExpMulti);
   return 100 * (tempAnvilExp - 1);
 };
 
-export const getTimeTillCap = ({ hammers, currentAmount, currentProgress, time, afkTime, anvil }) => {
+export const getTimeTillCap = ({ hammers, currentAmount, currentProgress, time, afkTime, stats }) => {
   const timePassed = (new Date().getTime() - afkTime) / 1000;
-  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * anvil?.stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), anvil?.stats?.anvilCapacity);
-  return ((anvil?.stats?.anvilCapacity - futureProduction) / (anvil?.stats?.anvilSpeed / 3600 / time * (hammers ?? 0)));
+  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), stats?.anvilCapacity);
+  return ((stats?.anvilCapacity - futureProduction) / (stats?.anvilSpeed / 3600 / time * (hammers ?? 0)));
 }

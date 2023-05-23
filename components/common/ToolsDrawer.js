@@ -34,7 +34,7 @@ const ToolsDrawer = ({ onLabelClick, signedIn }) => {
       })
     }
 
-    router.push({ pathname: url, query: router.query });
+    router.push({ pathname: url });
     typeof onLabelClick === 'function' && onLabelClick();
   }
 

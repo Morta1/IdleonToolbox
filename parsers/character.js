@@ -589,7 +589,7 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Equipment', value: cashFromEquipment },
     { name: 'Obols', value: cashFromObols },
     { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
-    { name: 'Guild', value: guildBonus * Math.floor(character?.mapIndex / 50) },
+    { name: 'Guild', value: guildBonus * (1 + Math.floor(character?.mapIndex / 50)) },
     { name: 'Talents', value: coinsForCharonBonus + americanTipperBonus },
     { name: 'Golden Food', value: goldFoodBonus },
     { name: 'Achievements', value: 5 * achievementBonus },
@@ -777,7 +777,7 @@ export const getAfkGain = (character, characters, account) => {
     const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 7)?.baseVal ?? 0;
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
     const dungeonBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'AFK_Gains');
-    const majorBonus = character?.linkedDeity === 3 || character?.secondLinkedDeityIndex ? 1 : 0;
+    const majorBonus = character?.linkedDeity === 0 || character?.secondLinkedDeityIndex === 0 ? 1 : 0;
     const divinityMinorBonus = characters?.reduce((sum, char) => {
       if (char?.linkedDeity === 4) {
         return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
@@ -786,6 +786,27 @@ export const getAfkGain = (character, characters, account) => {
       }
       return sum;
     }, 0);
+
+    const breakdown = [
+      { name: 'Tasks', value: afkGainsTaskBonus },
+      { name: 'Arcade Shop', value: arcadeBonus },
+      { name: 'Flurbo', value: dungeonBonus },
+      { name: 'Major God', value: 30 * majorBonus },
+      { name: 'Minor God', value: divinityMinorBonus },
+      { name: 'Family', value: familyEffBonus },
+      { name: 'Post Office', value: postOfficeBonus },
+      { name: 'Talents', value: firstTalentBonus + secondTalentBonus + thirdTalentBonus + fourthTalentBonus },
+      { name: 'Bribe', value: bribeBonus },
+      { name: 'Card Set', value: cardSetBonus },
+      { name: 'Cards', value: equippedCardBonus },
+      { name: 'Equipment', value: fightEquipmentBonus + afkEquipmentBonus },
+      { name: 'Obols', value: fightObolsBonus + afkObolsBonus },
+      { name: 'Prayers', value: prayerBonus - prayerCurse },
+      { name: 'Chips', value: chipBonus },
+      { name: 'Guild', value: guildBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Shrine', value: shrineAfkGains },
+    ]
 
     const base = afkGainsTaskBonus
       + (arcadeBonus
@@ -800,8 +821,11 @@ export const getAfkGain = (character, characters, account) => {
             + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
 
     const math = Math.min(1.5, gains + shrineAfkGains / 100);
-
-    return Math.max(.01, math);
+    const final = Math.max(.01, math);
+    return {
+      afkGains: final,
+      breakdown
+    };
   }
   // if (skillName !== 'fighting') {
   //   let guildAfkGains = 0;

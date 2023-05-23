@@ -23,7 +23,23 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
-    ver: "3.1.81",
+    ver: "3.1.84",
+    gameVer: "1.82",
+    date: "23/05/2023",
+    features: [
+      '- Added Import / Export to item planner (importing will override all of your sections)',
+      '- Added afk gains breakdown (to help debug issues :D)',
+      '- Added total kitchens speed to cooking page -> kitchens tab',
+      '- Towers pages renamed to Buildings page'
+    ],
+    fixes: [
+      'Fixed atom calculations in Printer page',
+      'Fixed max levels for all buildings'
+    ],
+    deprecatedFeatures: []
+  },
+  {
+    ver: "3.1.83",
     gameVer: "1.82",
     date: "22/05/2023",
     features: [

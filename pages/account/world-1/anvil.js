@@ -5,7 +5,7 @@ import { fillArrayToLength, prefix } from "utility/helpers";
 import Timer from "components/common/Timer";
 import styled from "@emotion/styled";
 import ProgressBar from "components/common/ProgressBar";
-import { getTimeTillCap } from "../../../parsers/anvil";
+import { getPlayerAnvil, getTimeTillCap } from "../../../parsers/anvil";
 import { NextSeo } from "next-seo";
 
 const Anvil = () => {
@@ -23,12 +23,20 @@ const Anvil = () => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const smithingLevel = state?.characters?.[index].skillsInfo?.smithing?.level;
-        const { availablePoints, pointsFromCoins, pointsFromMats } = state?.characters?.[index]?.anvil?.stats || {};
+        const {
+          stats,
+          production: prod
+        } = getPlayerAnvil(state?.characters?.[index], state?.characters, state?.account)
+        const {
+          availablePoints,
+          pointsFromCoins,
+          pointsFromMats
+        } = stats || {};
         const color = availablePoints === 0 ? "" : availablePoints > 0 ? "error.light" : "secondary";
         const afkTime = state?.characters?.[index]?.afkTime;
         const hammerBubble = state?.characters?.[index]?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
         const maxProducts = hammerBubble ? 3 : 2;
-        const production = anvil?.production?.filter(({ hammers }) => hammers > 0);
+        const production = prod?.filter(({ hammers }) => hammers > 0);
         const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
         const realProduction = numOfHammers === maxProducts ? production : fillArrayToLength(numOfHammers, production);
         return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 700 } }}>
@@ -51,9 +59,9 @@ const Anvil = () => {
                 {realProduction?.map((slot, slotIndex) => {
                   const { rawName, hammers, currentAmount, currentProgress, time } = slot;
                   const timePassed = (new Date().getTime() - afkTime) / 1000;
-                  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * anvil?.stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), anvil?.stats?.anvilCapacity);
-                  const percentOfCap = Math.round(futureProduction / anvil?.stats?.anvilCapacity * 100);
-                  const timeTillCap = getTimeTillCap({ ...slot, anvil, afkTime })
+                  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), stats?.anvilCapacity);
+                  const percentOfCap = Math.round(futureProduction / stats?.anvilCapacity * 100);
+                  const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime })
                   return <Card elevation={5}
                                sx={{ boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707' }}
                                key={`${rawName}-${slotIndex}`}>

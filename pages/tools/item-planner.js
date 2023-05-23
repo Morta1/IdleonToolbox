@@ -1,5 +1,5 @@
 import { crafts, itemsArray } from "data/website-data";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -19,7 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { AppContext } from "components/common/context/AppProvider";
-import { cleanUnderscore, numberWithCommas, prefix } from "utility/helpers";
+import { cleanUnderscore, downloadFile, numberWithCommas, prefix, tryToParse } from "utility/helpers";
 import Button from "@mui/material/Button";
 import { addEquippedItems, flattenCraftObject, getAllItems } from "parsers/items";
 import IconButton from "@mui/material/IconButton";
@@ -32,6 +32,8 @@ import styled from "@emotion/styled";
 import ItemsList from "components/tools/item-planner/ItemsList";
 import Tooltip from "components/Tooltip";
 import { NextSeo } from "next-seo";
+import GetAppIcon from '@mui/icons-material/GetApp';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -53,6 +55,7 @@ const ItemPlanner = ({}) => {
   const [sectionName, setSectionName] = useState();
   const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
   const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account]);
+  const inputRef = useRef();
 
   useEffect(() => {
     if (!state?.characters && !state?.account) {
@@ -62,6 +65,31 @@ const ItemPlanner = ({}) => {
     }
     setItem(planner?.sections?.map(() => defaultItem))
   }, [state, lastUpdated, includeEquippedItems]);
+
+  const handleExport = () => {
+    const data = localStorage.getItem('planner');
+    if (!data || planner?.sections?.length === 0) return;
+    downloadFile(data, 'it-item-planner.json')
+  }
+
+  const handleImport = () => {
+    inputRef.current.click();
+  }
+
+  const handleFileChange = async (e) => {
+    const fileObject = e.target.files[0];
+    if (!fileObject || fileObject?.type !== 'application/json') {
+      console.error('File isn\'t a json file');
+      return;
+    }
+    let content = await fileObject.text();
+    if (content) {
+      content = tryToParse(content);
+      if (content?.sections) {
+        dispatch({ type: 'planner', data: { sections: content?.sections } });
+      }
+    }
+  }
 
   const onItemChange = (newValue, sectionIndex) => {
     const newArr = item.map((_, index) => index === sectionIndex ? newValue ? crafts[newValue] : defaultItem : _);
@@ -208,6 +236,22 @@ const ItemPlanner = ({}) => {
             label={'Include Equipped Items'}
           />
         </Stack>
+        <Stack gap={1} sx={{ ml: 'auto' }} alignItems={'center'} justifyContent={'center'} direction={'row'}>
+          <Tooltip title={'Export all sections'}>
+            <Button onClick={handleExport}>
+              <GetAppIcon sx={{ mr: 1 }}/>
+              Export
+            </Button>
+          </Tooltip>
+          <Tooltip title={'Import (this will override your sections)'}>
+            <Button onClick={handleImport}>
+              <FileUploadIcon sx={{ mr: 1 }}/>
+              Import
+            </Button>
+          </Tooltip>
+          <input type='file' id='file' ref={inputRef} style={{ display: 'none' }} accept='.json'
+                 onChange={handleFileChange}/>
+        </Stack>
       </Stack>
       <Stack sx={{ mt: 2 }}>
         {planner?.sections?.length > 0 ? planner?.sections?.map(({ items, materials, name }, sectionIndex) => {
@@ -218,10 +262,9 @@ const ItemPlanner = ({}) => {
               id="panel1a-header"
             >
               <Typography>{name || `Accordion-${sectionIndex}`}</Typography>
+
             </AccordionSummary>
             <AccordionDetails>
-              {/*<Card sx={{ my: 2 }} variant={'outlined'} key={`section-${sectionIndex}`}>*/}
-              {/*  <CardContent>*/}
               <Button onClick={() => removeSection(sectionIndex)}>
                 <RemoveIcon/> Remove Section
               </Button>
@@ -330,8 +373,6 @@ const ItemPlanner = ({}) => {
                     /> : null}
                 </div>
               </div>
-              {/*  </CardContent>*/}
-              {/*</Card>*/}
             </AccordionDetails>
           </Accordion>
         }) : <Typography sx={{ mt: 3 }} variant={'h3'}>Please add a section</Typography>}

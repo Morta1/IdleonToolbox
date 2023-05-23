@@ -56,13 +56,14 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
         })}
       </Stack>
       <Typography variant={'h4'} textAlign={'center'} mb={3}>Totals</Typography>
-      <Stack my={2} direction={'row'} justifyContent={'center'} gap={2}>
+      <Stack sx={{ height: 160 }} my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
         {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;
           return <Card key={`${foodName}-${index}-${total}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip placement={'top'}
-                       title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}/>}>
+                       title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}
+                                           lab={lab}/>}>
                 <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
               </Tooltip>
               <div>{kFormatter(total, 2)}/hr</div>
@@ -70,6 +71,15 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
             </CardContent>
           </Card>
         })}
+        <Card>
+          <CardContent sx={{ height: '100%' }}>
+            <Stack alignItems={'center'} gap={2} justifyContent={'center'}>
+              <img src={`${prefix}etc/Kitchen.png`} alt=""/>
+              <Typography>Total Speed</Typography>
+              <Typography>{notateNumber(totalMealSpeed)}/hr</Typography>
+            </Stack>
+          </CardContent>
+        </Card>
       </Stack>
       <Stack direction={'row'} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
         {kitchens?.map((kitchen, kitchenIndex) => {
@@ -140,7 +150,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
                 <Tooltip placement={'top'}
                          title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed}
                                              lab={lab}
-                                             meal={kitchen?.meal}/>} >
+                                             meal={kitchen?.meal}/>}>
                   <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
                 </Tooltip>
                 <div>{kFormatter(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>

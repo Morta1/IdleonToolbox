@@ -3,14 +3,13 @@ import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
-import { getBuildCost } from "../../../parsers/construction";
+import { constructionMasteryThresholds, getBuildCost } from "../../../parsers/construction";
 import { NextSeo } from "next-seo";
 
-const Towers = () => {
+const Buildings = () => {
   const { state } = useContext(AppContext);
 
   const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
-
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
     return itemReq.map(({ rawName, name, amount }) => {
@@ -31,22 +30,39 @@ const Towers = () => {
     });
   }
 
+  const getConstructionMasteryBonus = (totalConstruct, index) => {
+    if (index === 6) {
+      return totalConstruct >= constructionMasteryThresholds?.[index] ? 30 : 0
+    } else if (index === 5 || index === 4) {
+      return totalConstruct >= constructionMasteryThresholds?.[index] ? 100 : 0
+    } else if (index === 3) {
+      return totalConstruct >= constructionMasteryThresholds?.[index] ? 35 : 0
+    }
+    return 0;
+  }
+  const getExtraMaxLevels = (totalConstruct, maxLevel, atomBonus) => {
+    return 50 === maxLevel ?
+      Math.round(2 * atomBonus
+        + getConstructionMasteryBonus(totalConstruct, 6, 0))
+      : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
+        : 100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
+          : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
+  }
+
   return <>
     <NextSeo
-      title="Idleon Toolbox | Towers"
+      title="Idleon Toolbox | Buildings"
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
-    <Typography variant={'h2'} mb={3}>Towers</Typography>
+    <Typography variant={'h2'} mb={3}>Buildings</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {state?.account?.towers?.data?.map((tower, index) => {
         let { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
         const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
         const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
-        if (tower?.index >= 9 && tower?.index <= 17) {
-          const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
-          const atomBonus = (atom?.level * atom?.baseBonus) ?? 0;
-          maxLevel += atomBonus;
-        }
+        const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
+        let extraLevels = getExtraMaxLevels(state?.account?.towers?.totalLevels, maxLevel, atom?.level);
+        maxLevel += extraLevels;
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress ? '1px solid' : '',
           borderColor: inProgress ? progress < buildCost ? 'success.light' : 'warning.light' : '',
@@ -95,4 +111,4 @@ const ItemIcon = styled.img`
   object-fit: contain;
 `
 
-export default Towers;
+export default Buildings;

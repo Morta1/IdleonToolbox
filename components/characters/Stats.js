@@ -23,7 +23,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     [character, account]);
   const { respawnRate, breakdown: rtBreakdown } = useMemo(() => getRespawnRate(character, account) || {},
     [character, account]);
-  const afkGains = useMemo(() => getAfkGain(character, characters, account), [character, account]);
+  const { afkGains, breakdown: agBreakdown } = useMemo(() => getAfkGain(character, characters, account), [character,
+    account]);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -95,7 +96,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
           <Card variant={"outlined"}>
             <CardContent>
               <Typography color={"info.light"}>Afk Gains</Typography>
-              <Tooltip title={''}>
+              <Tooltip title={<BreakdownTooltip breakdown={agBreakdown} notate={'Smaller'}/>}>
                 <Typography>{notateNumber(afkGains * 100, 'MultiplierInfo')}%</Typography>
               </Tooltip>
             </CardContent>
