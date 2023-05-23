@@ -787,6 +787,25 @@ export const getAfkGain = (character, characters, account) => {
       return sum;
     }, 0);
 
+
+    const base = afkGainsTaskBonus
+      + (arcadeBonus
+        + (dungeonBonus
+          + (30 * majorBonus
+            + divinityMinorBonus)));
+
+    let gains = 0.2 + (familyEffBonus + postOfficeBonus
+      + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
+        + (secondTalentBonus + (firstStarTalentBonus + (base
+          + (equippedCardBonus + (fourthTalentBonus + ((fightEquipmentBonus + fightObolsBonus) + (afkEquipmentBonus + afkObolsBonus)
+            + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
+
+    let math = gains;
+    if (gains < 1.5) {
+      math = Math.min(1.5, gains + shrineAfkGains / 100);
+    }
+    const final = Math.max(.01, math);
+
     const breakdown = [
       { name: 'Tasks', value: afkGainsTaskBonus },
       { name: 'Arcade Shop', value: arcadeBonus },
@@ -805,23 +824,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Chips', value: chipBonus },
       { name: 'Guild', value: guildBonus },
       { name: 'Starsign', value: starSignBonus },
-      { name: 'Shrine', value: shrineAfkGains },
+      { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0},
     ]
 
-    const base = afkGainsTaskBonus
-      + (arcadeBonus
-        + (dungeonBonus
-          + (30 * majorBonus
-            + divinityMinorBonus)));
-
-    const gains = 0.2 + (familyEffBonus + postOfficeBonus
-      + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
-        + (secondTalentBonus + (firstStarTalentBonus + (base
-          + (equippedCardBonus + (fourthTalentBonus + ((fightEquipmentBonus + fightObolsBonus) + (afkEquipmentBonus + afkObolsBonus)
-            + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
-
-    const math = Math.min(1.5, gains + shrineAfkGains / 100);
-    const final = Math.max(.01, math);
     return {
       afkGains: final,
       breakdown
