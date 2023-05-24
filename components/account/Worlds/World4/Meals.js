@@ -59,9 +59,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       }
       return {
         ...meal, levelCost, diamondCost,
-        timeTillNextLevel: Math.ceil(timeTillNextLevel),
-        timeToDiamond: Math.ceil(timeToDiamond),
-        timeToBlackVoid: Math.ceil(timeToBlackVoid),
+        timeTillNextLevel,
+        timeToDiamond,
+        timeToBlackVoid,
         blackVoidCost,
       };
     });
@@ -220,7 +220,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
                       <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
                       <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
-                        <span>{notateNumber(timeTillNextLevel, 'Big')}</span>
+                        <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
                       </HtmlTooltip>
                     </Stack>
                   </Stack>
@@ -303,21 +303,21 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                     {(sortBy === -1 || sortBy === 0) && <Stack direction={'row'} alignItems={'center'} gap={1}>
                       <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
                       <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
-                        <span>{notateNumber(timeTillNextLevel, 'Big')}</span>
+                        <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
                       </HtmlTooltip>
                     </Stack>}
                     {sortBy === 11 && level < 11 && level > 0 ?
                       <Stack direction={'row'} alignItems={'center'} gap={1}>
                         <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
                         <HtmlTooltip title={numberWithCommas(parseFloat(timeToDiamond).toFixed(2))}>
-                          <span>{notateNumber(timeToDiamond, 'Big')}</span>
+                          <span>{notateNumber(Math.ceil(timeToDiamond), 'Big')}</span>
                         </HtmlTooltip>
                       </Stack> : null}
                     {sortBy === 30 && level < 30 && level > 0 ?
                       <Stack direction={'row'} alignItems={'center'} gap={1}>
                         <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
                         <HtmlTooltip title={numberWithCommas(parseFloat(timeToBlackVoid).toFixed(2))}>
-                          <span> {notateNumber(timeToBlackVoid, 'Big')}</span>
+                          <span>{notateNumber(Math.ceil(timeToBlackVoid), 'Big')}</span>
                         </HtmlTooltip>
                       </Stack> : null}
                   </> : null}
