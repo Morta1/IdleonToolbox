@@ -9,7 +9,7 @@ import { isGodEnabledBySorcerer } from "../../../parsers/lab";
 import { NextSeo } from "next-seo";
 import { getHighestMaxLevelTalentByClass } from "../../../parsers/talents";
 import { getAtomColliderThreshold } from "../../../parsers/atomCollider";
-import { calculateItemTotalAmount } from "../../../parsers/items";
+import { calcTotals } from "../../../parsers/printer";
 
 const Printer = () => {
   const { state } = useContext(AppContext);
@@ -18,37 +18,7 @@ const Printer = () => {
   const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
-  const calcTotals = (printer) => {
-    let totals = printer?.reduce((res, character) => {
-      character.forEach(({ boostedValue, item, active }) => {
-        if (item !== 'Blank' && active) {
-          if (res?.[item]) {
-            res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
-          } else {
-            const storageItem = calculateItemTotalAmount(state?.account?.storage, item, true, true);
-            res[item] = { boostedValue, atomable: storageItem >= atomThreshold };
-          }
-        }
-      })
-      return res;
-    }, {});
-    totals = calcAtoms(totals);
-    const totalAtoms = Object.entries(totals)?.reduce((sum, [, slot]) => sum + (slot?.atoms ?? 0), 0);
-    return { ...totals, atom: { boostedValue: totalAtoms, atoms: totalAtoms } }
-  }
-  const calcAtoms = (totals = {}) => {
-    return Object.entries(totals)?.reduce((sum, [key, slot]) => {
-      const { boostedValue, atomable } = slot;
-      const val = boostedValue >= atomThreshold && !atomable ? boostedValue - atomThreshold : boostedValue;
-      const hasAtoms = (boostedValue >= atomThreshold && !atomable) || atomable;
-      sum[key] = {
-        ...slot,
-        ...(hasAtoms ? { atoms: val / 10e6 } : {})
-      }
-      return sum;
-    }, {});
-  }
-  const totals = useMemo(() => calcTotals(printer), [printer]);
+  const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
   const highestBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
 
   return <>

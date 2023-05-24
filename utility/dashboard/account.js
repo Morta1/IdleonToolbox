@@ -4,8 +4,9 @@ import { vialCostsArray } from "../../parsers/alchemy";
 import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
 import { getDuration } from "../helpers";
 import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
-import { liquidsShop } from "../../data/website-data";
+import { items, liquidsShop } from "../../data/website-data";
 import { hasMissingMats } from "../../parsers/refinery";
+import { calcTotals } from "../../parsers/printer";
 
 export const isBallsOverdue = (account) => {
   if (!account?.finishedWorlds?.World1) return false;
@@ -240,4 +241,15 @@ export const hasItemsInShop = (account, trackersOptions) => {
     const filtered = shop?.filter(({ rawName }) => trackersOptions?.[rawName])
     return [...res, filtered];
   }, []);
+}
+
+export const overflowingPrinter = (account, trackersOptions) => {
+  const { includeOakAndCopper } = trackersOptions;
+  const totals = calcTotals(account);
+  const exclusions = ['atom', ...(!includeOakAndCopper ? ['Copper', 'OakTree'] : [])].toSimpleObject();
+  return Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
+    name: items?.[name]?.displayName,
+    rawName: name,
+    ...data
+  }));
 }

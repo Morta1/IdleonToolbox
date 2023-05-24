@@ -12,11 +12,14 @@ import {
   canKillBosses,
   gamingAlerts,
   guildTasks,
-  hasAvailableSpiceClicks, hasItemsInShop,
+  hasAvailableSpiceClicks,
+  hasItemsInShop,
   isBallsOverdue,
   isStampReducerMaxed,
+  overflowingPrinter,
   refineryAlerts,
-  riftAlerts, sailingAlerts,
+  riftAlerts,
+  sailingAlerts,
   zeroBargainTag
 } from "../../utility/dashboard/account";
 
@@ -36,7 +39,8 @@ const alertsMapping = {
   rift: riftAlerts,
   sailing: sailingAlerts,
   alchemy: alchemyAlerts,
-  shops: hasItemsInShop
+  shops: hasItemsInShop,
+  printerAtoms: overflowingPrinter
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -131,6 +135,11 @@ const Account = ({ account, trackers, trackersOptions }) => {
             alerts?.keys?.map(({ name, rawName, totalAmount }) => <Alert key={name}
                                                                          title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
                                                                          iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.printerAtoms && alerts?.printerAtoms?.length > 0 ?
+            alerts?.printerAtoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
+                                                           title={`Printing is at capacity for ${cleanUnderscore(name)}`}
+                                                           atom
+                                                           iconPath={`data/${rawName}`}/>) : null}
           {trackers?.vials && alerts?.vials?.length > 0 ?
             alerts?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                 vial={vial}
@@ -152,10 +161,11 @@ const Account = ({ account, trackers, trackersOptions }) => {
   </>
 };
 
-const Alert = ({ title, iconPath, vial, imgStyle = {} }) => {
+const Alert = ({ title, iconPath, vial, atom, imgStyle = {} }) => {
   return <HtmlTooltip title={title}>
     <Box sx={{ position: 'relative' }}>
       <IconImg style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
+      {atom ? <AtomIcon vial={vial} src={`${prefix}etc/Particle.png`} alt=""/> : null}
       {vial ? <img key={`${vial?.name}`}
                    onError={(e) => {
                      e.target.src = `${prefix}data/aVials12.png`;
@@ -192,6 +202,13 @@ const ShopTitle = ({ shop }) => {
   </Stack>
 }
 
+const AtomIcon = styled.img`
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  left: -5px;
+  bottom: 30%;
+`;
 const IconImg = styled.img`
   width: ${({ vial }) => vial ? '25px' : '35px'};
   height: ${({ vial }) => vial ? '25px' : '35px'};

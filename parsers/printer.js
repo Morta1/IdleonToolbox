@@ -3,6 +3,8 @@ import { getDeityLinkedIndex } from "./divinity";
 import { isArtifactAcquired } from "./sailing";
 import { getTalentBonus } from "./talents";
 import { getSkillMasteryBonusByIndex } from "./misc";
+import { calculateItemTotalAmount } from "./items";
+import { getAtomColliderThreshold } from "./atomCollider";
 
 export const getPrinter = (idleonData, charactersData, accountData) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
@@ -101,9 +103,36 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   });
 }
 
-// Harriep
-// This character produces 3x more resources at 3d Printer! Works with the Lab Bonus, but won't affect the displayed printer amount.
+export const calcTotals = (account) => {
+  const { printer, storage } = account || {};
+  const atomThreshold = getAtomColliderThreshold(account?.accountOptions?.[133]);
+  let totals = printer?.reduce((res, character) => {
+    character.forEach(({ boostedValue, item, active }) => {
+      if (item !== 'Blank' && active) {
+        if (res?.[item]) {
+          res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
+        } else {
+          const storageItem = calculateItemTotalAmount(storage, item, true, true);
+          res[item] = { boostedValue, atomable: storageItem >= atomThreshold };
+        }
+      }
+    })
+    return res;
+  }, {});
+  totals = calcAtoms(totals, atomThreshold);
+  const totalAtoms = Object.entries(totals)?.reduce((sum, [, slot]) => sum + (slot?.atoms ?? 0), 0);
+  return { ...totals, atom: { boostedValue: totalAtoms, atoms: totalAtoms } }
+}
 
-// Gold Relic
-// All 3d printer samples grow by +1% per day for 40 days. Resets when taking new samples.
-// Samples grow by 1.5% for 60 days instead!
+const calcAtoms = (totals = {}, atomThreshold) => {
+  return Object.entries(totals)?.reduce((sum, [key, slot]) => {
+    const { boostedValue, atomable } = slot;
+    const val = boostedValue >= atomThreshold && !atomable ? boostedValue - atomThreshold : boostedValue;
+    const hasAtoms = (boostedValue >= atomThreshold && !atomable) || atomable;
+    sum[key] = {
+      ...slot,
+      ...(hasAtoms ? { atoms: val / 10e6 } : {})
+    }
+    return sum;
+  }, {});
+}
