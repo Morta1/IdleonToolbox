@@ -293,14 +293,14 @@ export const getPlayerAnvil = (character, characters, account) => {
 export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints) => {
   const focusedSoulTalentBonus = getTalentBonus(character?.talents, 1, "FOCUSED_SOUL");
   const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, "HAPPY_DUDE");
-  const smithingCards = getCardBonusByEffect(character?.cards?.equippedCards, 'Smithing_EXP');
+  const smithingCards = getCardBonusByEffect(account?.cards, 'Smithing_EXP_(Passive)');
   const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, "Blacksmith_Box", 0);
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'SmithExp', character?.skillsInfo?.smithing?.level);
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
   let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', "LEFT_HAND_OF_LEARNING");
   const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
   const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
-  if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement){
+  if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement) {
     leftHandOfLearningTalentBonus *= 2;
   }
 
