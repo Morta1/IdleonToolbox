@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, pascalCase, prefix } from "../../utility/helpers";
+import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from "../../utility/helpers";
 import styled from "@emotion/styled";
 import HtmlTooltip from "../Tooltip";
 import {
@@ -19,6 +19,10 @@ import {
   isWorshipOverdue
 } from "../../utility/dashboard/characters";
 import { getAllTools } from "../../parsers/items";
+import InfoIcon from '@mui/icons-material/Info';
+import Timer from "../common/Timer";
+import { TitleAndValue } from "../common/styles";
+import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
 
 const Characters = ({ characters = [], account, lastUpdated, trackersOptions, trackers }) => {
   const rawTools = getAllTools();
@@ -49,10 +53,16 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
               <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                                                       alt=""/></Box>
               <Typography>{name}</Typography>
-              <HtmlTooltip title={cleanUnderscore(activity)}>
-                <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
-                         style={{ marginLeft: 'auto' }}/>
-              </HtmlTooltip>
+              <Stack direction={'row'} alignItems='center' gap={1} style={{ marginLeft: 'auto' }}>
+                <HtmlTooltip title={cleanUnderscore(activity)}>
+                  <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
+                  />
+                </HtmlTooltip>
+                <HtmlTooltip title={<CharacterInfo characters={characters} account={account} character={character}
+                                                   lastUpdated={lastUpdated}/>}>
+                  <InfoIcon/>
+                </HtmlTooltip>
+              </Stack>
             </Stack>
             <Divider sx={{ my: 1 }}/>
             <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
@@ -125,6 +135,35 @@ const Alert = ({ title, iconPath, style = {} }) => {
   return <HtmlTooltip title={title}>
     <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>
   </HtmlTooltip>
+}
+
+const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
+  const {
+    name,
+    stats,
+    afkTime,
+    crystalSpawnChance,
+    nonConsumeChance
+  } = character || {};
+  const { cashMulti } = useMemo(() => getCashMulti(character, account, characters) || {},
+    [character, account]);
+  const { dropRate } = useMemo(() => getDropRate(character, account, characters) || {},
+    [character, account]);
+  const { respawnRate } = useMemo(() => getRespawnRate(character, account) || {},
+    [character, account]);
+  const { afkGains } = useMemo(() => getAfkGain(character, characters, account), [character,
+    account]);
+
+  return <Stack gap={1}>
+    <TitleAndValue title={name} value={`lv. ${stats?.level}`}/>
+    <TitleAndValue title={'Afk time'} value={<Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/>}/>
+    <TitleAndValue title={'Cash multi'} value={`${notateNumber(cashMulti)}%`}/>
+    <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
+    <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>
+    <TitleAndValue title={'Afk gains'} value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
+    <TitleAndValue title={'Crystal Chance'} value={`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}/>
+    <TitleAndValue title={'Non consume chance'} value={`${kFormatter(nonConsumeChance, 2)}%`}/>
+  </Stack>
 }
 
 const IconImg = styled.img`

@@ -81,7 +81,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <CardContent>
               <Typography color={"info.light"}>Drop Rate</Typography>
               <Tooltip title={<BreakdownTooltip breakdown={drBreakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(dropRate, 'MultiplierInfo').replace('#', '')}x</Typography>
+                <Typography>{notateNumber(dropRate, 'MultiplierInfo')}x</Typography>
               </Tooltip>
             </CardContent>
           </Card>
