@@ -123,9 +123,9 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
 export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, achievements) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
-    addedLevels += deityMinorBonus;
+    addedLevels += Math.ceil(deityMinorBonus);
   } else if (secondLinkedDeity === 1) {
-    addedLevels += secondDeityMinorBonus;
+    addedLevels += Math.ceil(secondDeityMinorBonus);
   }
   const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'))
   if (symbolTalent) {
@@ -133,7 +133,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     addedLevels += symbolAddedLevel;
   }
   if (familyEffBonus) {
-    addedLevels += familyEffBonus;
+    addedLevels += Math.floor(familyEffBonus);
   }
   if (getAchievementStatus(achievements, 291)) {
     addedLevels += 1;
@@ -142,14 +142,14 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level
     }));
   }
   return Object.entries(talents).reduce((res, [key, data]) => {
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level
     }));
     return {
       ...res,
