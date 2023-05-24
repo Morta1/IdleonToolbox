@@ -57,7 +57,13 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
         timeToBlackVoid = timeToBlackVoid / (1 + overflowingLadleBonus / 100);
       }
-      return { ...meal, levelCost, diamondCost, timeTillNextLevel, timeToDiamond, blackVoidCost, timeToBlackVoid };
+      return {
+        ...meal, levelCost, diamondCost,
+        timeTillNextLevel: Math.ceil(timeTillNextLevel),
+        timeToDiamond: Math.ceil(timeToDiamond),
+        timeToBlackVoid: Math.ceil(timeToBlackVoid),
+        blackVoidCost,
+      };
     });
   };
 
