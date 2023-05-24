@@ -138,19 +138,18 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (getAchievementStatus(achievements, 291)) {
     addedLevels += 1;
   }
-  const excludedTalents = ['ARCHLORD_OF_THE_PIRATES', 'POLYTHEISM', 'SYMBOLS_OF_BEYOND_~G', 'SYMBOLS_OF_BEYOND_~P',
-    'SYMBOLS_OF_BEYOND_~R', 'BLOOD_MARROW', 'VOODOO_STATUFICATION'].toSimpleObject()
+
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !excludedTalents?.[talent?.name] ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
   }
   return Object.entries(talents).reduce((res, [key, data]) => {
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !excludedTalents?.[talent?.name] ? Math.ceil(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.ceil(talent.level + addedLevels) : talent.level
     }));
     return {
       ...res,
@@ -160,6 +159,10 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
       }
     }
   }, {});
+}
+
+const isTalentExcluded = (skillIndex) => {
+  return 49 <= skillIndex && 59 >= skillIndex || 149 === skillIndex || 374 === skillIndex || 539 === skillIndex || 505 === skillIndex || 614 < skillIndex;
 }
 
 export const getFamilyBonusValue = function (e, t, n, a) {
