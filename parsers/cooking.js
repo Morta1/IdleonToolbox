@@ -183,11 +183,11 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
 
     const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
     const voidWalkerBloodMarrow = getHighestTalentByClass(characters, 3, 'Voidwalker', 'BLOOD_MARROW');
-    const voidWalkerBonusTalent = 1 + (voidWalkerBloodMarrow * totalMeals) / 100;
+    const voidWalkerBonusTalent = Math.pow(Math.min(1.012, 1 + voidWalkerBloodMarrow / 100), totalMeals);
     const voidWalkerEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 146);
     const voidWalkerApocalypseBonus = Math.max(1, voidWalkerEnhancement);
 
-    const firstMath = 10 * voidWalkerBonusTalent * voidWalkerApocalypseBonus * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
+    const firstMath = 10 * (1 + voidWalkerBonusTalent / 100) * voidWalkerApocalypseBonus * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
     const secondMath = ((1 + speedLv / 10) * (triagulonSpeedBonus));
     const thirdMath = (1 + cookingSpeedVials / 100);
     const fourthMath = (1 + superbitBonus / 100);
