@@ -343,18 +343,23 @@ export const worlds = {
 };
 
 export const getDuration = (start, end) => {
-  const parsedStartTime = new Date(start);
-  const parsedEndTime = new Date(end);
-  let duration = intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
-  if (duration?.years) {
-    const daysInYear = getDaysInYear(new Date());
-    duration.days = duration.days + daysInYear * duration?.years;
+  try {
+    const parsedStartTime = new Date(start);
+    const parsedEndTime = new Date(end);
+    let duration = intervalToDuration({ start: parsedStartTime, end: parsedEndTime });
+    if (duration?.years) {
+      const daysInYear = getDaysInYear(new Date());
+      duration.days = duration.days + daysInYear * duration?.years;
+    }
+    if (duration?.months) {
+      const daysInMonth = getDaysInMonth(new Date());
+      duration.days = duration.days + daysInMonth * duration?.months;
+    }
+    return duration;
+  } catch (err) {
+    console.error('getDuration -> Error occurred when trying to format date', start, end);
+    return {};
   }
-  if (duration?.months) {
-    const daysInMonth = getDaysInMonth(new Date());
-    duration.days = duration.days + daysInMonth * duration?.months;
-  }
-  return duration;
 };
 
 export const fillArrayToLength = (length, array, defaultValue = {}) => {
