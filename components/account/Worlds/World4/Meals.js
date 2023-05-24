@@ -14,6 +14,7 @@ import { isArtifactAcquired } from "../../../../parsers/sailing";
 import { getJewelBonus, getLabBonus } from "../../../../parsers/lab";
 
 const msPerDay = 8.64e+7;
+const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, 11, 30];
 
@@ -214,8 +215,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       ({kFormatter(bonusDiff)})
                     </CenteredTypography>
                     <Typography component={"span"}>
-                      Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
-                                         staticTime={true}/>
+                      Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
+                      <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
+                             staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
                     </Typography>
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
                       <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
@@ -280,19 +282,21 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       {level > 0 ? (
                         <>
                           {sortBy === 0 || sortBy === -1 ? <Typography component={"span"}>
-                            Next level: <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
-                                               staticTime={true}/>
+                            Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
+                            <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
+                                   staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
                           </Typography> : null}
                           {sortBy === 11 && level < 11 ? (
                             <Typography>
-                              Next milestone: <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000}
-                                                     staticTime={true}/>
+                              Next milestone: {timeToDiamond * 3600 * 1000 < maxTimeValue ?
+                              <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000}
+                                     staticTime={true}/> : `${getTimeAsDays(timeToDiamond)} days`}
                             </Typography>
                           ) : null}
                           {sortBy === 30 && level < 30 && timeToBlackVoid > 0 ? (
                             <Typography>
                               {/* Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1 */}
-                              Next milestone: {parseInt((timeToBlackVoid * 3600 * 1000) / msPerDay)} days
+                              Next milestone: {parseInt(getTimeAsDays(timeToBlackVoid))} days
                             </Typography>
                           ) : null}
                         </>
@@ -330,6 +334,10 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     </>
   );
 };
+
+const getTimeAsDays = (time) => {
+  return Math.ceil(time * 3600 * 1000 / msPerDay);
+}
 
 const MealTooltip = ({ level, baseStat, multiplier, effect, achievements }) => {
   const levelCost = getMealLevelCost(level + 1, achievements);
