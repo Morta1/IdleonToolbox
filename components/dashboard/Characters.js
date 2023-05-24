@@ -40,11 +40,11 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
           afkTime
         } = character;
         const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
-        const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, account, characterIndex);
+        const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, characters, account, characterIndex);
         const readyTalents = trackers?.talents && isTalentReady(character, trackersOptions);
         const missingObols = trackers?.obols && isObolMissing(account, character);
         const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
-        const fullAnvil = isAnvilOverdue(account, afkTime, characterIndex, trackersOptions);
+        const fullAnvil = isAnvilOverdue(characters, account, afkTime, characterIndex, trackersOptions);
         const ccdSkillsReady = crystalCooldownSkillsReady(character, trackersOptions);
         const upgradeableTools = hasAvailableToolUpgrade(character, account, rawTools);
         return <Card key={name} sx={{ width: 345 }}>

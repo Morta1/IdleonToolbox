@@ -2,7 +2,7 @@ import { differenceInHours, differenceInMinutes, isPast } from "date-fns";
 import { getPostOfficeBonus } from "../../parsers/postoffice";
 import { items, randomList } from "../../data/website-data";
 import { getExpReq, isArenaBonusActive } from "../../parsers/misc";
-import { getTimeTillCap } from "../../parsers/anvil";
+import { getPlayerAnvil, getTimeTillCap } from "../../parsers/anvil";
 import { checkCharClass, getTalentBonus } from "../../parsers/talents";
 
 // character, characters, characterIndex, account
@@ -35,20 +35,26 @@ export const hasUnspentPoints = (account, postOffice, trackersOptions) => {
   return postOffice?.unspentPoints > (value ?? 0) && postOffice.boxes.some(({ level, maxLevel }) => level < maxLevel);
 }
 
-export const isProductionMissing = (equippedBubbles, account, characterIndex) => {
+export const isProductionMissing = (equippedBubbles, characters, account, characterIndex) => {
   const hammerBubble = equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
   const maxProducts = hammerBubble ? 3 : 2;
-  const production = account?.anvil?.[characterIndex]?.production?.filter(({ hammers }) => hammers > 0);
+  const {
+    production: prod
+  } = getPlayerAnvil(characters?.[characterIndex], characters, account);
+  const production = prod?.filter(({ hammers }) => hammers > 0);
   const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
   return maxProducts - numOfHammers;
 }
 
-export const isAnvilOverdue = (account, afkTime, characterIndex, trackersOptions) => {
-  const anvil = account?.anvil?.[characterIndex];
-  const allProgress = anvil?.production?.filter(({ hammers }) => hammers > 0)?.map((slot) => {
+export const isAnvilOverdue = (characters, account, afkTime, characterIndex, trackersOptions) => {
+  const {
+    stats,
+    production
+  } = getPlayerAnvil(characters?.[characterIndex], characters, account);
+  const allProgress = production?.filter(({ hammers }) => hammers > 0)?.map((slot) => {
     const tillCap = getTimeTillCap({
       ...slot,
-      anvil,
+      stats,
       afkTime
     }) * 1000;
     return { date: new Date().getTime() + tillCap, name: items?.[slot?.rawName]?.displayName, rawName: slot?.rawName };
