@@ -40,9 +40,10 @@ const Printer = () => {
     return Object.entries(totals)?.reduce((sum, [key, slot]) => {
       const { boostedValue, atomable } = slot;
       const val = boostedValue >= atomThreshold && !atomable ? boostedValue - atomThreshold : boostedValue;
+      const hasAtoms = (boostedValue >= atomThreshold && !atomable) || atomable;
       sum[key] = {
         ...slot,
-        ...(val !== boostedValue ? { atoms: val / 10e6 } : {})
+        ...(hasAtoms ? { atoms: val / 10e6 } : {})
       }
       return sum;
     }, {});
@@ -81,7 +82,7 @@ const Printer = () => {
                             src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt=""/>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  {boostedValue >= atomThreshold || atomable ?
+                  {(boostedValue >= atomThreshold && !atomable) || atomable ?
                     <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=''/> : null}
                   <Typography>{isAtom ? notateNumber(boostedValue, 'MultiplierInfo') : notateNumber(boostedValue)}</Typography>
                 </Stack>
