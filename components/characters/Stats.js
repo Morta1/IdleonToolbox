@@ -15,6 +15,7 @@ const colors = {
   wisdom: "secondary",
   luck: "warning.light"
 };
+
 const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, characters }) => {
   const { name, playerId, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
   const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account, characters) || {},

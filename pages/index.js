@@ -23,6 +23,20 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.86",
+    gameVer: "1.82",
+    date: "25/05/2023",
+    features: [
+      'Added a "Closest trap" timer to dashboard view',
+      'Added a "Next printer cycle" timer to dashboard view',
+    ],
+    fixes: [
+      'Fixed cooking speed calc',
+      'Fixed shinies time calculations'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.85",
     gameVer: "1.82",
     date: "24/05/2023",

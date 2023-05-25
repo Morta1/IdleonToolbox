@@ -19,10 +19,15 @@ const parseBreeding = (breedingRaw, petsRaw, account) => {
   })
   const petsLevels = breedingRaw?.slice(4, 8);
   const shinyPetsLevels = breedingRaw?.slice(22, 26);
-  const fencePets = petsRaw?.slice(0, 19)?.reduce((res, [petName]) => ({
-    ...res,
-    [petName]: res?.[petName] ? res?.[petName] + 1 : 1
-  }), {});
+  const baseFenceSlots = breedingRaw?.[2]?.[4];
+  const fenceSlots = Math.round(5 + baseFenceSlots + 2 * (account?.gemShopPurchases?.find((value, index) => index === 125) ?? 0));
+  const fencePets = petsRaw?.slice(0, fenceSlots)?.reduce((res, [petName, , , color]) => {
+    if (color === 0) return res;
+    return {
+      ...res,
+      [petName]: res?.[petName] ? res?.[petName] + 1 : 1
+    }
+  }, {});
   const pets = petStats?.map((petList, worldIndex) => {
     const speciesUnlocked = speciesUnlocks?.[worldIndex];
     return petList?.map((pet, petIndex) => {

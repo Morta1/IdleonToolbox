@@ -207,7 +207,8 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
     }
     if (index === 146) {
       const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
-      const superChows = bloodBerserkers?.reduce((res, bb) => {
+      const lastBerserker = bloodBerserkers.at(-1);
+      let superChows = [lastBerserker]?.reduce((res, bb) => {
         const { chow } = bb;
         chow?.list?.forEach(({ name, kills }) => {
           if (kills < 1e8) return;

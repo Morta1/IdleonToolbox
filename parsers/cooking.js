@@ -136,24 +136,8 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
   return cookingRaw?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
-
-    // Multipliers
-    // X2 from stamps (Certified stamp book) - Cooked_Meal_Stamp
-    // X2 from vials (My 1st chemistry set) - LONG_ISLAND_TEA
-    // jewel multiplier X1.5 (Spelunker Obol)
-
-    // jewel meal multiplier X1.24 (* jewel multiplier) (Black diamond rhinestone)
-    // jewel cooking multiplier X1 per 25 kitchen levels (* jewel multiplier) (Emerald Pyramite)
-    // jewel cooking speed - X2.25 (Amethyst_Rhinestone)
-    // all purple jewels active - X2.25
-    // diamond chef - cooking speed per diamond meal
-    // cabbage - cooking speed per 10 kitchen levels
-    // Cooking Speed meals - Egg, Corndog, Soda
-    // kitchen upgrade from gemshop X2
-    // troll card
     const spelunkerObolMulti = getLabBonus(account.lab.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(account.lab.jewels, 16, spelunkerObolMulti);
-    const totalKitchenUpgrades = speedLv + fireLv + luckLv;
     const cookingSpeedJewelMultiplier = getJewelBonus(account.lab.jewels, 14, spelunkerObolMulti); // meal cooking speed
     const cookingSpeedFromJewel = Math.floor(globalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 0);
 
@@ -164,16 +148,16 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff', blackDiamondRhinestone);
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     const trollCardStars = trollCard?.stars ?? 0;
+    const trollBonus = trollCardStars === 0 ? 0 : trollCardStars + 1;
     const allPurpleActive = account.lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
     const amethystRhinestone = getJewelBonus(account.lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
     const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus;
-    const triagulonSpeedBonus = triagulonArtifactBonus ? (1 + triagulonArtifactBonus / 100) : 1;
+    const richelinBonus = isRichelin ? 2 : 0;
+    const bubbleBonus = Math.pow(diamondChef, diamondMeals);
+    const firstAchievement = getAchievementStatus(account?.achievements, 225);
+    const secondAchievement = getAchievementStatus(account?.achievements, 224);
 
-    const mealSpeedBonusMath = (1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100) * (1 + cookingSpeedMeals / 100) * Math.max(1, amethystRhinestone);
-    const mealSpeedCardImpact = 1 + Math.min(6 * (trollCardStars === 0 ? 0 : trollCardStars + 1)
-      + (20 * getAchievementStatus(account?.achievements, 225) +
-        10 * getAchievementStatus(account?.achievements, 224)), 100) / 100;
 
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
@@ -187,42 +171,52 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const voidWalkerEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 146);
     const voidWalkerApocalypseBonus = Math.max(1, voidWalkerEnhancement);
 
-    const firstMath = 10 * (1 + voidWalkerBonusTalent / 100) * voidWalkerApocalypseBonus * (1 + (isRichelin ? 2 : 0)) * Math.max(1, Math.pow(diamondChef, diamondMeals));
-    const secondMath = ((1 + speedLv / 10) * (triagulonSpeedBonus));
-    const thirdMath = (1 + cookingSpeedVials / 100);
-    const fourthMath = (1 + superbitBonus / 100);
     const voidPlateChefIndex = atomsInfo.findIndex(({ name }) => name === 'Fluoride_-_Void_Plate_Chef');
     let voidPlateChefBonus = 0;
     const voidPlateChefLevel = atomsRaw?.[voidPlateChefIndex];
     if (voidPlateChefLevel) {
-      voidPlateChefBonus = 100 * (Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals) - 1);
+      voidPlateChefBonus = Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals);
     }
 
-    const mealSpeed = firstMath
-      * secondMath
-      * thirdMath
-      * fourthMath
-      * (1 + voidPlateChefBonus / 100)
-      * mealSpeedBonusMath
-      * mealSpeedCardImpact
-      * (1 + (kitchenEffMeals * Math.floor((totalKitchenUpgrades) / 10)) / 100);
+    const mealSpeed = (10 * (1 + voidWalkerBonusTalent / 100)
+      * Math.max(1, voidWalkerApocalypseBonus)
+      * (1 + richelinBonus)
+      * Math.max(1, bubbleBonus)
+      * Math.max(1, voidPlateChefBonus)
+      * (1 + superbitBonus / 100)
+      * (1 + speedLv / 10)
+      * (1 + triagulonArtifactBonus / 100)
+      * (1 + cookingSpeedVials / 100)
+      * (1 + (cookingSpeedStamps
+        + Math.max(0, cookingSpeedFromJewel)) / 100)
+      * (1 + cookingSpeedMeals / 100)
+      * Math.max(1, amethystRhinestone)
+      * (1 + Math.min(6 * trollBonus
+        + (20 * firstAchievement + 10 * secondAchievement), 100) / 100)
+      * (1 + kitchenEffMeals
+        * Math.floor((speedLv
+          + (fireLv
+            + luckLv)) / 10) / 100));
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Spd');
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook', blackDiamondRhinestone);
-    const fireSpeedCardImpact = 1 + Math.min(6 * ((trollCardStars === 0 ? 0 : trollCardStars + 1)), 50) / 100;
-    const fireSpeed = 5 *
-      (1 + (isRichelin ? 1 : 0)) *
-      Math.max(1, Math.pow(diamondChef, diamondMeals)) *
-      (1 + fireLv / 10) *
-      fourthMath *
-      (1 + voidPlateChefBonus / 100) *
-      (1 + recipeSpeedVials / 100) *
-      (1 + recipeSpeedStamps / 100) *
-      (1 + recipeSpeedMeals / 100) *
-      fireSpeedCardImpact *
-      (1 + kitchenEffMeals * Math.floor(totalKitchenUpgrades / 10) / 100);
+
+    const fireSpeed = 5
+      * (1 + (isRichelin ? 1 : 0))
+      * Math.max(1, bubbleBonus)
+      * Math.max(1, voidPlateChefBonus)
+      * (1 + superbitBonus / 100)
+      * (1 + fireLv / 10)
+      * (1 + recipeSpeedVials / 100)
+      * (1 + recipeSpeedStamps / 100)
+      * (1 + recipeSpeedMeals / 100)
+      * (1 + Math.min(6 * trollBonus, 50) / 100)
+      * (1 + kitchenEffMeals
+        * Math.floor((speedLv
+          + (fireLv
+            + luckLv)) / 10) / 100);
 
     // New Recipe Luck
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;

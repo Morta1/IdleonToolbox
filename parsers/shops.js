@@ -28,8 +28,6 @@ export const getRawShopItems = () => {
   }, []).toSimpleObject();
 }
 
-// TODO: check if can make this less ugly
-// TODO: possibly reverse to exclude instead of include
 export const shopMapping = {
   0: [8, 14, 17].toSimpleObject(), // 'Blunder_Hills'
   1: [2, 8, 9].toSimpleObject(), // 'Encroaching_Forest_Villas'

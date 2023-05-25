@@ -15,6 +15,18 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
+  const closestTrap = account?.traps?.reduce((closestTrap, traps) => {
+    const times = traps?.map(({ timeLeft }) => timeLeft);
+    const lowest = Math.min(...times);
+    if (closestTrap === 0) {
+      return lowest;
+    } else {
+      if (lowest < closestTrap) {
+        return lowest
+      }
+      return closestTrap;
+    }
+  }, 0);
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {events?.length > 0 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
@@ -49,6 +61,52 @@ const Etc = ({ characters, account, lastUpdated }) => {
             <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
           </CardContent>
         </Card> : null}
+      <Stack gap={2}>
+        {account?.finishedWorlds?.World2 ? <Card sx={{ height: 'fit-content' }}>
+          <CardContent>
+            <Tooltip title={'Next printer cycle'}>
+              <Stack gap={1} direction={'row'} alignItems={'center'}>
+                <IconImg src={`${prefix}data/ConTower0.png`}/>
+                <Timer lastUpdated={lastUpdated}
+                       type={'countdown'}
+                       date={new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000}/>
+              </Stack>
+            </Tooltip>
+          </CardContent>
+        </Card> : null}
+        {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Card sx={{ height: 'fit-content' }}>
+          <CardContent>
+            <Tooltip title={'Closest trap'}>
+              <Stack gap={1} direction={'row'} alignItems={'center'}>
+                <IconImg src={`${prefix}data/TrapBoxSet1.png`}/>
+                <Timer lastUpdated={lastUpdated}
+                       type={'countdown'}
+                       date={closestTrap}/>
+              </Stack>
+            </Tooltip>
+          </CardContent>
+        </Card> : null}
+        <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
+          <CardContent>
+            <Stack direction={'row'} alignItems={'center'} gap={2}>
+              <Tooltip title={<Stack>
+                <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
+                <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
+                <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
+                {giantMob?.glitterbugPrayer > 0 ?
+                  <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
+              </Stack>}>
+                <Stack gap={1} direction={'row'} alignItems={'center'}>
+                  <IconImg src={`${prefix}data/Prayer5.png`}/>
+                  <Typography>1
+                    in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
+                </Stack>
+              </Tooltip>
+
+            </Stack>
+          </CardContent>
+        </Card>
+      </Stack>
       <Card sx={{ height: 'fit-content' }}>
         <CardContent>
           <Stack>
@@ -60,24 +118,6 @@ const Etc = ({ characters, account, lastUpdated }) => {
             <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#b2ecfd' }}>Weekly Reset</Typography>
             <Timer type={'countdown'} lastUpdated={lastUpdated}
                    date={weeklyReset}/>
-          </Stack>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
-        <CardContent>
-          <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <Tooltip title={<Stack>
-              <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
-              <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
-              <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
-              {giantMob?.glitterbugPrayer > 0 ?
-                <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
-            </Stack>}>
-              <IconImg src={`${prefix}data/Prayer5.png`}/>
-            </Tooltip>
-            <Typography>1
-              in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
           </Stack>
         </CardContent>
       </Card>
