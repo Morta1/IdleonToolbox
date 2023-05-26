@@ -143,6 +143,10 @@ export const zeroBargainTag = (account) => {
   return math === 1;
 }
 
+export const zeroRandomEvents = (account) => {
+  return account?.accountOptions?.[137] === 0;
+}
+
 export const gamingAlerts = (account, trackersOptions) => {
   if (!account?.finishedWorlds?.World4) return false;
   const { sprouts, squirrel, shovel } = trackersOptions;
@@ -253,3 +257,13 @@ export const overflowingPrinter = (account, trackersOptions) => {
     ...data
   }));
 }
+
+export const overflowingShinies = (account, trackersOptions) => {
+  const { input } = trackersOptions;
+  return account?.breeding?.pets?.reduce((res, world) => {
+    const pets = world?.filter(({ monsterRawName, shinyLevel }) => account?.breeding?.fencePets?.[monsterRawName]
+      && shinyLevel >= input?.value);
+    return [...res, ...pets]
+  }, [])
+}
+

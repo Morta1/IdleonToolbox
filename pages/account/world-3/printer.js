@@ -52,7 +52,7 @@ const Printer = () => {
                             src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt=""/>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  {(boostedValue >= atomThreshold && !atomable) || atomable ?
+                  {atoms ?
                     <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=''/> : null}
                   <Typography>{isAtom ? notateNumber(boostedValue, 'MultiplierInfo') : notateNumber(boostedValue)}</Typography>
                 </Stack>

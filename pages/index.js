@@ -23,6 +23,19 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.87",
+    gameVer: "1.82",
+    date: "26/05/2023",
+    features: [
+      'Added shiny level alert to the dashboard',
+      'Added Random Event (when you haven\'t done an event) alert to the dashboard'
+    ],
+    fixes: [
+      'Fixed a display bug showing the wrong effect at the overflowing ladle tooltip'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.86",
     gameVer: "1.82",
     date: "25/05/2023",

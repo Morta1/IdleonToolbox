@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
-import { cleanUnderscore, getNumberWithOrdinal, notateNumber, pascalCase, prefix } from "../../utility/helpers";
+import {
+  cleanUnderscore,
+  getNumberWithOrdinal,
+  notateNumber,
+  pascalCase,
+  prefix,
+  randomFloatBetween
+} from "../../utility/helpers";
 import HtmlTooltip from "../Tooltip";
 import {
   alchemyAlerts,
@@ -16,11 +23,11 @@ import {
   hasItemsInShop,
   isBallsOverdue,
   isStampReducerMaxed,
-  overflowingPrinter,
+  overflowingPrinter, overflowingShinies,
   refineryAlerts,
   riftAlerts,
   sailingAlerts,
-  zeroBargainTag
+  zeroBargainTag, zeroRandomEvents
 } from "../../utility/dashboard/account";
 
 const alertsMapping = {
@@ -40,7 +47,9 @@ const alertsMapping = {
   sailing: sailingAlerts,
   alchemy: alchemyAlerts,
   shops: hasItemsInShop,
-  printerAtoms: overflowingPrinter
+  printerAtoms: overflowingPrinter,
+  shinies: overflowingShinies,
+  randomEvents: zeroRandomEvents
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -72,6 +81,8 @@ const Account = ({ account, trackers, trackersOptions }) => {
             <Alert title={'Stamp reducer is maxed (90%)!'} iconPath={'data/Atom0'}/> : null}
           {trackers?.bargainTag && alerts?.bargainTag ?
             <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
+          {trackers?.randomEvents && alerts?.randomEvents ?
+            <Alert title={'You haven\'t done a random event today!'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.cooking && alerts?.cooking > 0 ?
             <Alert title={`You have ${alerts?.cooking} spice clicks left!`} iconPath={'data/CookingSpice0'}/> : null}
           {trackers?.arcadeBalls && alerts?.arcadeBalls ?
@@ -135,11 +146,17 @@ const Account = ({ account, trackers, trackersOptions }) => {
             alerts?.keys?.map(({ name, rawName, totalAmount }) => <Alert key={name}
                                                                          title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
                                                                          iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.shinies && alerts?.shinies?.length > 0 ?
+            alerts?.shinies?.map(({ monsterName, monsterRawName, shinyLevel }, index) => <Alert
+              key={monsterName + index}
+              imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
+              title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${trackersOptions?.['shinies']?.['input']?.['value']})`}
+              iconPath={`afk_targets/${monsterName}`}/>) : null}
           {trackers?.printerAtoms && alerts?.printerAtoms?.length > 0 ?
             alerts?.printerAtoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
-                                                           title={`Printing is at capacity for ${cleanUnderscore(name)}`}
-                                                           atom
-                                                           iconPath={`data/${rawName}`}/>) : null}
+                                                                    title={`Printing is at capacity for ${cleanUnderscore(name)}`}
+                                                                    atom
+                                                                    iconPath={`data/${rawName}`}/>) : null}
           {trackers?.vials && alerts?.vials?.length > 0 ?
             alerts?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                 vial={vial}

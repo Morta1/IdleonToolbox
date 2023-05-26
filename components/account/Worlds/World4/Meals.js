@@ -17,7 +17,6 @@ const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, 11, 30];
-
 const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -35,7 +34,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
     return bloodBerserkers.reduce((res, { talents }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
-      const bonus = growth(overflowingLadle?.funcX, overflowingLadle?.maxLevel, overflowingLadle?.x1, overflowingLadle?.x2, false);
+      const lv = overflowingLadle?.level > overflowingLadle?.maxLevel ? overflowingLadle?.level : overflowingLadle?.maxLevel;
+      const bonus = growth(overflowingLadle?.funcX, lv, overflowingLadle?.x1, overflowingLadle?.x2, false);
       if (bonus > res) {
         return bonus
       }

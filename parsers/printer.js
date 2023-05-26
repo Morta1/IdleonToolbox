@@ -113,7 +113,7 @@ export const calcTotals = (account) => {
           res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
         } else {
           const storageItem = calculateItemTotalAmount(storage, item, true, true);
-          res[item] = { boostedValue, atomable: storageItem >= atomThreshold };
+          res[item] = { boostedValue, atomable: storageItem >= atomThreshold, storageItem };
         }
       }
     })
@@ -126,9 +126,19 @@ export const calcTotals = (account) => {
 
 const calcAtoms = (totals = {}, atomThreshold) => {
   return Object.entries(totals)?.reduce((sum, [key, slot]) => {
-    const { boostedValue, atomable } = slot;
-    const val = boostedValue >= atomThreshold && !atomable ? boostedValue - atomThreshold : boostedValue;
-    const hasAtoms = (boostedValue >= atomThreshold && !atomable) || atomable;
+    const { boostedValue, atomable, storageItem } = slot;
+    let val;
+    const printingMoreThanThreshold = boostedValue >= atomThreshold && !atomable;
+    const storageAndPrintingMoreThanThreshold = boostedValue > atomThreshold - storageItem && !atomable;
+    if (printingMoreThanThreshold) {
+      val = boostedValue - atomThreshold;
+    } else if (storageAndPrintingMoreThanThreshold) {
+      const diff = atomThreshold - storageItem;
+      val = boostedValue - diff;
+    } else {
+      val = boostedValue
+    }
+    const hasAtoms = printingMoreThanThreshold || storageAndPrintingMoreThanThreshold || atomable;
     sum[key] = {
       ...slot,
       ...(hasAtoms ? { atoms: val / 10e6 } : {})

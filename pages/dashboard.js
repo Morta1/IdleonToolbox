@@ -35,7 +35,7 @@ import { getRawShopItems } from "../parsers/shops";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'printerAtoms', 'sigils', 'shops'
+  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops', 'randomEvents'
 ].toSimpleObject();
 
 const trackersOptions = {
@@ -54,6 +54,7 @@ const trackersOptions = {
         maxValue: 100, minValue: 0
       }
     },
+    shinies: { input: { label: 'Level Threshold', type: 'number', value: 5, helperText: 'Shiny level' } },
     shops: { asImages: true, ...getRawShopItems() },
     printerAtoms: { includeOakAndCopper: false },
   },
