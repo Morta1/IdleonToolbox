@@ -215,6 +215,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     return { ...details, rawName: bagName };
   });
   const carryCapacityObject = char?.[`MaxCarryCap`] || [];
+  character.maxCarryCap = carryCapacityObject;
   character.carryCapBags = Object.keys(carryCapacityObject).sort(function (a, b) {
     return a.localeCompare(b);
   }).map((bagName) => (carryBags?.[bagName]?.[carryCapacityObject[bagName]])).filter(bag => bag);
@@ -252,6 +253,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const inventoryArr = char[`InventoryOrder`];
   const inventoryQuantityArr = char[`ItemQuantity`];
   character.inventory = getInventory(inventoryArr, inventoryQuantityArr, character.name);
+  character.inventorySlots = inventoryArr?.reduce((sum, itemName) => sum + (itemName !== 'LockedInvSpace' ? 1 : 0), 0);
 
   // star signs
   const starSignsObject = char?.PersonalValuesMap?.StarSign || '';
@@ -824,7 +826,7 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Chips', value: chipBonus },
       { name: 'Guild', value: guildBonus },
       { name: 'Starsign', value: starSignBonus },
-      { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0},
+      { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0 },
     ]
 
     return {

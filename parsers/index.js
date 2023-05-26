@@ -31,9 +31,9 @@ import {
   enhanceColoTickets,
   enhanceKeysObject,
   getBundles,
-  getCurrencies,
+  getCurrencies, getItemCapacity,
   getLibraryBookTimes,
-  getLooty,
+  getLooty, getTypeGen,
 } from "./misc";
 import { getSaltLick } from "./saltLick";
 import { getDungeons } from "./dungeons";
@@ -203,6 +203,16 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
+
+  charactersData = charactersData?.map((character) => {
+    const { carryCapBags } = character;
+    character.carryCapBags = carryCapBags?.map((carryBag) => {
+      const typeGen = getTypeGen(carryBag?.Class);
+      const capacity = getItemCapacity(typeGen, character, accountData);
+      return { ...carryBag, capacityPerSlot: capacity, maxCapacity: capacity * character?.inventorySlots }
+    })
+    return character;
+  })
 
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);

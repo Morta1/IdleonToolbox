@@ -28,10 +28,13 @@ const patchNotes = [
     date: "26/05/2023",
     features: [
       'Added shiny level alert to the dashboard',
-      'Added Random Event (when you haven\'t done an event) alert to the dashboard'
+      'Added Random Event (when you haven\'t done an event) alert to the dashboard',
+      'Added capacity check for stamps upgrade, hovering the required item will show the recommended character with max capacity',
+      'Added capacity information to Characters page -> Bags filter (tooltip)'
     ],
     fixes: [
-      'Fixed a display bug showing the wrong effect at the overflowing ladle tooltip'
+      'Fixed a display bug showing the wrong effect at the overflowing ladle tooltip',
+      'Fixed a bug with 6 cards not showing even when bonus is unlocked'
     ],
     deprecatedFeatures: []
   },

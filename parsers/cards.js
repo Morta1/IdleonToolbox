@@ -32,7 +32,7 @@ export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
 
 const parseCards = (cardsRaw, rawRift, account) => {
   const [currentRift] = rawRift || [];
-  let rubyCards = currentRift > 45;
+  let rubyCards = currentRift >= 45;
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
       const cardDetails = cards?.[name];

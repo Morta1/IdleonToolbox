@@ -35,7 +35,9 @@ const ItemDisplay = ({
                        desc_line8,
                        Amount,
                        Cooldown,
-                       capacity
+                       capacity,
+                       capacityPerSlot,
+                       maxCapacity
                      }) => {
   const getPowerType = (type) => {
     let fixedType = type.toLowerCase();
@@ -67,8 +69,12 @@ const ItemDisplay = ({
     <Divider flexItem sx={{ my: 2 }} color={'black'}/>
     {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
-        {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Capacity' : 'Description'}
-                                   value={`+${cleanUnderscore(capacity)} slots`}/> : null}
+        {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Description'}
+                                   value={`${cleanUnderscore(capacity)}`}/> : null}
+        {capacityPerSlot ? <TitleAndValue title={'Capacity per slot'}
+                                          value={`${notateNumber(capacityPerSlot)}`}/> : null}
+        {maxCapacity ? <TitleAndValue title={'Max capacity'}
+                                      value={`${notateNumber(maxCapacity)}`}/> : null}
       </Stack> :
       <Stack>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}

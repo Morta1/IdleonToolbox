@@ -2,7 +2,8 @@ import {
   Box,
   Card,
   CardContent,
-  Checkbox, FormControlLabel,
+  Checkbox,
+  FormControlLabel,
   Stack,
   Tab,
   Tabs,
@@ -10,7 +11,7 @@ import {
   Typography,
   useMediaQuery
 } from "@mui/material";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from "../../../utility/helpers";
 import styled from "@emotion/styled";
@@ -22,27 +23,25 @@ import { NextSeo } from "next-seo";
 import { isRiftBonusUnlocked } from "../../../parsers/world-4/rift";
 import { flattenCraftObject } from "../../../parsers/items";
 import { crafts, items } from "../../../data/website-data";
+import { getHighestCapacityCharacter } from "../../../parsers/misc";
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery') ? state?.account?.accountOptions?.[154] : 0;
   const stampReducer = state?.account?.atoms?.stampReducer;
   const [selectedTab, setSelectedTab] = useState(0);
-  const [stamps, setStamps] = useState();
   const [stampsGoals, setStampsGoals] = useState();
   const [stampReducerInput, setStampReducerInput] = useState(stampReducer);
   const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-
-  useEffect(() => {
+  const getStamps = () => {
     const stampCategory = Object.keys(state?.account?.stamps)?.[selectedTab];
-    setStamps(state?.account?.stamps?.[stampCategory]);
-  }, [])
+    return state?.account?.stamps?.[stampCategory];
+  }
+  const stamps = useMemo(() => getStamps(), [selectedTab]);
 
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
-    const stampCategory = Object.keys(state?.account?.stamps)?.[selected];
-    setStamps(state?.account?.stamps?.[stampCategory]);
   }
 
   const getAccumulatedCost = (index, level, type, stamp) => {
@@ -65,7 +64,10 @@ const Stamps = () => {
     return type === 'material' ? Math.floor(totalCost) : totalCost;
   };
 
-  const accumulatedCost = useCallback((index, level, type, stamp) => getAccumulatedCost(index, level, type, stamp), [stampsGoals, stampReducerInput, forcedGildedStamp]);
+  const accumulatedCost = useCallback((index, level, type, stamp) => getAccumulatedCost(index, level, type, stamp), [stampsGoals,
+    stampReducerInput, forcedGildedStamp]);
+
+  const getBestCharacterForCraft = useCallback((item, characters, account) => getHighestCapacityCharacter(item, characters, account), [state]);
 
   const calculateMaterialCost = (level, { reqItemMultiplicationLevel, baseMatCost, powMatBase }) => {
     const reductionVal = getVialsBonusByEffect(state?.account?.alchemy?.vials, 'material_cost_for_stamps');
@@ -100,7 +102,7 @@ const Stamps = () => {
       />
       <Typography textAlign={'center'} variant={'h2'} mb={3}>Stamps</Typography>
       <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={3}>* Green border means you have enough
-        material to
+        material, money and space to
         craft</Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
         <Stack direction={'row'} gap={1}>
@@ -120,6 +122,8 @@ const Stamps = () => {
         <Stack sx={{ mx: 2 }}>
           <FormControlLabel
             control={<Checkbox name={'mini'}
+                               checked={forcedGildedStamp}
+                               onChange={() => setForcedGildedStamp(!forcedGildedStamp)}
                                size={'small'}/>}
             label={'Force gilded stamp'}/>
           <TextField label={'Stamp Reducer'} value={stampReducerInput}
@@ -143,7 +147,7 @@ const Stamps = () => {
           } = stamp;
           const goalLevel = stampsGoals?.[index] ? stampsGoals?.[index] < level ? level : stampsGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true) * multiplier;
-          let hasMaterials, hasMoney;
+          let hasMaterials, hasMoney, hasCharacter;
           const itemRequirements = itemReq?.map((item) => {
             const { rawName } = item;
             const materials = flattenCraftObject(crafts[items?.[rawName]?.displayName]);
@@ -162,10 +166,16 @@ const Stamps = () => {
             } else {
               hasMaterials = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount >= materialCost;
             }
-            return { ...item, materialCost, goldCost, isMaterialCost, hasMaterials, hasMoney };
+            return { ...item, materials, materialCost, goldCost, isMaterialCost, hasMaterials, hasMoney };
           })
+          let bestCharacter = getBestCharacterForCraft(items?.[itemReq?.[0]?.rawName], state?.characters, state?.account);
+          hasCharacter = bestCharacter?.maxCapacity >= itemRequirements?.[0]?.materialCost;
+
           return <React.Fragment key={rawName + '' + displayName + '' + index}>
-            <Card sx={{ width: 230, border: hasMaterials && hasMoney && level > 0 ? '1px solid #81c784' : '' }}>
+            <Card sx={{
+              width: 230,
+              border: hasMaterials && hasMoney && hasCharacter && level > 0 ? '1px solid #81c784' : ''
+            }}>
               <CardContent sx={{ '&:last-child': { paddingBottom: 4 } }}>
                 <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                   <Stack alignItems={'center'}>
@@ -189,9 +199,15 @@ const Stamps = () => {
                            direction={'row'} alignItems={'center'}>
                       <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
                       <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
-                      <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
-                                alt=""/>
-                      {materialCost ? notateNumber(materialCost, 'Big') : null}
+                      <HtmlTooltip
+                        title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity) ? 0 : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
+                        <Stack direction='row' alignItems={'center'} gap={1}>
+                          <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
+                                    alt=""/>
+
+                          {materialCost ? notateNumber(materialCost, 'Big') : null}
+                        </Stack>
+                      </HtmlTooltip>
                     </Stack>
                     <CoinDisplay title={''}
                                  money={getCoinsArray(goldCost)}/>

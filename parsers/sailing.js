@@ -327,8 +327,7 @@ const getBoatArtifactChance = (artifacts, captain, account) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Higher_Artifact_Find_Chance');
   const firstCaptainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(3, captain, captain?.secondBonusIndex);
-  return notateNumber(Math.max(1, 1 + (fauxoryTusk + (firstCaptainBonus + secondCaptainBonus) + shinyBonus) / 100), 'MultiplierInfo')
-    .replace('#', '');
+  return notateNumber(Math.max(1, 1 + (fauxoryTusk + (firstCaptainBonus + secondCaptainBonus) + shinyBonus) / 100), 'MultiplierInfo');
 }
 
 const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {

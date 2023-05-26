@@ -15,6 +15,8 @@ import { getFamilyBonusBonus } from "./family";
 import { getStatsFromGear } from "./items";
 import LavaRand from "../utility/lavaRand";
 import { isPast } from "date-fns";
+import { getGuildBonusBonus } from "./guild";
+import { getStarSignBonus } from "./starSigns";
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
@@ -472,4 +474,86 @@ const getEventName = (eventType) => {
 
 const getEventType = (index) => {
   return .045 > index ? 0 : .087 > index ? 1 : .129 > index ? 2 : .171 > index ? 3 : .213 > index ? 4 : -1
+}
+
+export const getHighestCapacityCharacter = (item, characters, account) => {
+  return characters?.reduce((res, character) => {
+    const itemCapacity = item?.itemType === 'Equip' ? 1 : getItemCapacity(item?.typeGen, character, account);
+    const maxCapacity = character?.inventorySlots * itemCapacity;
+    if (maxCapacity > res?.maxCapacity) {
+      res = {
+        capacityPerSlot: itemCapacity,
+        maxCapacity,
+        character: character?.name
+      }
+    }
+    return res;
+  }, { capacityPerSlot: 0, maxCapacity: 0, character: '' })
+}
+export const getAllCap = (character, account) => {
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 2);
+  const talentBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
+  const shrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
+  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
+  const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
+
+  return (1 + (guildBonus + talentBonus) / 100)
+    * (1 + shrineBonus / 100) * Math.max(1 - prayerCurse / 100, 0.4)
+    * (1 + (prayerBonus + bribeBonus) / 100);
+}
+export const getItemCapacity = (type = '', character, account) => {
+  const { chopping, mining, fishing, catching } = character?.skillsInfo || {};
+  const gemshop = account?.gemShopPurchases?.find((value, index) => index === 58);
+  const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap');
+  const minCapStamps = getStampsBonusByEffect(account?.stamps, "Mining_Carry_Cap", mining?.level);
+  const chopCapStamps = getStampsBonusByEffect(account?.stamps, "Choppin_Carry_Cap", chopping?.level);
+  const fishCapStamps = getStampsBonusByEffect(account?.stamps, "Fish_Carry_Cap", fishing?.level);
+  const catchCapStamps = getStampsBonusByEffect(account?.stamps, "Bug_Carry_Cap", catching?.level);
+  const matCapStamps = getStampsBonusByEffect(account?.stamps, "Material_Carry_Cap");
+  const allCarryStamps = getStampsBonusByEffect(account?.stamps, "All_Carry_Cap");
+  const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
+  const allCap = getAllCap(character, account);
+
+
+  return "bOre" === type || "bBar" === type || "cOil" === type ? Math.floor(character?.maxCarryCap.Mining
+    * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100)
+    * (1 + (allCarryStamps + starSignBonus) / 100)
+    * allCap) : "dFish" === type ? Math.floor(character?.maxCarryCap.Fishing
+    * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) *
+    (1 + (allCarryStamps + starSignBonus) / 100)
+    * allCap) : "dBugs" === type ? Math.floor(character?.maxCarryCap.Bugs
+    * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100)
+    * (1 + (allCarryStamps + starSignBonus) / 100)
+    * allCap) : "bLog" === type || "bLeaf" === type ? Math.floor(character?.maxCarryCap.Chopping
+    * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) *
+    (1 + (allCarryStamps + starSignBonus) / 100) *
+    allCap) : "cFood" === type ? Math.floor(character?.maxCarryCap.Foods *
+      (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps
+        + starSignBonus) / 100) * allCap) :
+    "dCritters" === type ? Math.floor(character?.maxCarryCap.Critters * (1 + (25 * gemshop) / 100) *
+        (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
+      : "dSouls" === type ? Math.floor(character?.maxCarryCap.Souls * (1 + (25 * gemshop) / 100) *
+          (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
+        : "dCurrency" === type || "dQuest" === type || "dStatueStone" === type ? 999999 : "bCraft" === type ? Math.floor(character?.maxCarryCap.bCraft
+          * (1 + matCapStamps / 100)
+          * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100)
+          * (1 + talentBonus / 100) * allCap) : "dExpOrb" === type || "dStone" === type || "dFishToolkit" === type ? 999999 :
+          "fillerz" === type ? character?.maxCarryCap.fillerz : "d" === type.charAt(0) ? 999999 : 2
+}
+
+export const getTypeGen = (type) => {
+  const capacities = {
+    bCraft: 'bCraft',
+    Foods: 'cFood',
+    Mining: 'bOre',
+    Quests: 'dQuest',
+    Statues: 'dStatueStone',
+    Chopping: 'bLog',
+    Fishing: 'dFish',
+    Bugs: 'dBugs',
+    Critters: 'dCritters',
+    Souls: 'dSouls'
+  }
+  return capacities?.[type];
 }
