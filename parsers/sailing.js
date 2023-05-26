@@ -303,9 +303,9 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
   const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex);
-  const artifact = isArtifactAcquired(artifactsList, 'Genie_Lamp');
-  const nextLevelValue = (5 + nextLevelMath * (boat?.lootLevel + 1)) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifact?.bonus)) / 100) * talentBonus;
-  const value = (5 + currentLevelMath * boat?.lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifact?.bonus)) / 100) * talentBonus;
+  const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
+  const nextLevelValue = (5 + nextLevelMath * (boat?.lootLevel + 1)) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
+  const value = (5 + currentLevelMath * boat?.lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
   return {
     value: value,
     nextLevelValue: nextLevelValue
@@ -323,11 +323,11 @@ const getCaptainDisplayBonus = (captain, value) => {
 }
 
 const getBoatArtifactChance = (artifacts, captain, account) => {
-  const fauxoryTusk = isArtifactAcquired(artifacts, "Fauxory_Tusk");
+  const fauxoryTusk = isArtifactAcquired(artifacts, "Fauxory_Tusk")?.bonus ?? 0;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Higher_Artifact_Find_Chance');
   const firstCaptainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(3, captain, captain?.secondBonusIndex);
-  return notateNumber(Math.max(1, 1 + (fauxoryTusk?.bonus + (firstCaptainBonus + secondCaptainBonus) + shinyBonus) / 100), 'MultiplierInfo')
+  return notateNumber(Math.max(1, 1 + (fauxoryTusk + (firstCaptainBonus + secondCaptainBonus) + shinyBonus) / 100), 'MultiplierInfo')
     .replace('#', '');
 }
 

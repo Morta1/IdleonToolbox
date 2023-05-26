@@ -152,7 +152,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const allPurpleActive = account.lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
     const amethystRhinestone = getJewelBonus(account.lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
-    const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus;
+    const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus ?? 0;
     const richelinBonus = isRichelin ? 2 : 0;
     const bubbleBonus = Math.pow(diamondChef, diamondMeals);
     const firstAchievement = getAchievementStatus(account?.achievements, 225);
