@@ -95,8 +95,7 @@ export const areKeysOverdue = (account) => {
   })
   const ticketsAlerts = tickets?.filter(({ daysSincePickup }) => {
     return daysSincePickup >= 3;
-  })
-
+  });
   return [...keysAlerts, ...ticketsAlerts];
 }
 

@@ -7,6 +7,7 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { crafts } from "../../../data/website-data";
 
 const ItemsList = ({
+                     account,
                      inventoryItems,
                      itemsList = [],
                      copies = 1,
@@ -15,7 +16,15 @@ const ItemsList = ({
 
   const mapItems = (items, itemDisplay) => {
     return items?.reduce((res, item) => {
-      const { amount: quantityOwned, owner } = findQuantityOwned(inventoryItems, item?.itemName);
+      let quantityOwned, owner;
+      if (item?.itemName === 'Dungeon_Credits_Flurbo_Edition') {
+        quantityOwned = account?.dungeons?.flurbos ?? 0;
+        owner = ['account'];
+      } else {
+        const res = findQuantityOwned(inventoryItems, item?.itemName);
+        quantityOwned = res?.amount;
+        owner = res?.owner;
+      }
       if (itemDisplay === '0') {
         const remaining = item?.itemQuantity - quantityOwned;
         if (item?.type === 'Equip' && remaining !== item?.itemQuantity) {
@@ -72,7 +81,7 @@ const ItemsList = ({
     }, {});
   };
 
-  const categorize = useMemo(() => mapItems(itemsList, itemDisplay), [itemsList, itemDisplay, inventoryItems]);
+  const categorize = useMemo(() => mapItems(itemsList, itemDisplay), [itemsList, itemDisplay, inventoryItems, account]);
 
   return (
     <Stack flexWrap={'wrap'} direction={'row'} gap={4}>

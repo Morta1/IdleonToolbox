@@ -143,9 +143,9 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                             title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
                                                             iconPath={`data/ConTower${index}`}/>) : null}
           {trackers?.keys && alerts?.keys?.length > 0 ?
-            alerts?.keys?.map(({ name, rawName, totalAmount }) => <Alert key={name}
-                                                                         title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
-                                                                         iconPath={`data/${rawName}`}/>) : null}
+            alerts?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
+                                                                                title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
+                                                                                iconPath={`data/${rawName}`}/>) : null}
           {trackers?.shinies && alerts?.shinies?.length > 0 ?
             alerts?.shinies?.map(({ monsterName, monsterRawName, shinyLevel }, index) => <Alert
               key={monsterName + index}

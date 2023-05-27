@@ -15,6 +15,7 @@ import PlayerBubbles from "./PlayerBubbles";
 import Stats from "./Stats";
 import styled from "@emotion/styled";
 import ActiveSkillsCD from "./ActiveSkillsCD";
+import Inventory from "./Inventory";
 
 const Character = ({ character, account, lastUpdated, filters, cols, characters }) => {
   const {
@@ -38,9 +39,10 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters 
     flatTalents,
     flatStarTalents,
     cooldowns,
-    afkTime
+    afkTime,
+    inventory,
+    inventorySlots
   } = character;
-
   const views = [
     {
       component: <Stats activityFilter={filters?.["Activity"]}
@@ -57,7 +59,11 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters 
     { component: <Skills skills={skillsInfo} charName={name}/>, filter: "Skills" },
     { component: <Prayers prayers={activePrayers}/>, filter: "Prayers" },
     { component: <PlayerStarSigns signs={starSigns}/>, filter: "Star Signs" },
-    { component: <AnvilDetails characters={characters} character={character} account={account}/>, filter: "Anvil Details" },
+    {
+      component: <AnvilDetails characters={characters} character={character} account={account}/>,
+      filter: "Anvil Details"
+    },
+    { component: <Inventory inventory={inventory} inventorySlots={inventorySlots}/>, filter: "Inventory" },
     { component: <PostOffice {...postOffice} />, filter: "Post Office" },
     {
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,

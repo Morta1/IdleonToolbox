@@ -60,7 +60,7 @@ const ItemDisplay = ({
   }
   const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood ? notateNumber(goldenFoodBonus, 'Small') : Amount).replace(/]/, Cooldown);
 
-  return displayName && displayName !== 'Empty' && displayName !== 'Locked' && <>
+  return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     <Stack gap={1} direction={'row'} alignItems={'center'}>
       <ItemIcon src={`${prefix}data/${rawName}.png`} alt={displayName}/>
       <Typography fontWeight={'bold'}
@@ -94,7 +94,7 @@ const ItemDisplay = ({
         {Upgrade_Slots_Left > 0 ?
           <TitleAndValue title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
       </Stack>}
-  </>
+  </> : null;
 };
 
 const ItemIcon = styled.img`

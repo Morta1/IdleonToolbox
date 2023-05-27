@@ -492,7 +492,6 @@ export const getDropRate = (character, account, characters) => {
         + (starSignBonus + (guildBonus + (
           +(cardSetBonus + (shrineBonus + (prayerBonus + (sigilBonus
             + shinyBonus))))))))))))) / 100 + 1;
-
   const final = dropRate * extraDropRate;
 
   const breakdown = [

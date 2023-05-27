@@ -288,7 +288,7 @@ const ItemPlanner = ({}) => {
                   }}
                   renderOption={(props, option) => {
                     return option ? (
-                      <Stack gap={2} {...props} direction={'row'}>
+                      <Stack gap={2} {...props} key={crafts?.[option]?.rawName} direction={'row'}>
                         <img
                           width={24}
                           height={24}
@@ -368,6 +368,7 @@ const ItemPlanner = ({}) => {
                   <span className={'title'}>Required Materials</span>
                   {myItems?.length > 0 ?
                     <ItemsList itemsList={materials}
+                               account={state?.account}
                                inventoryItems={myItems}
                                itemDisplay={itemDisplay}
                     /> : null}

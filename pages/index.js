@@ -23,6 +23,19 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.88",
+    gameVer: "1.82",
+    date: "27/05/2023",
+    features: [
+      'Added dungeon items to item planner',
+      'Added inventory display in Characters page -> Inventory filter'
+    ],
+    fixes: [
+      'Fixed a bug in item browser'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.87",
     gameVer: "1.82",
     date: "26/05/2023",

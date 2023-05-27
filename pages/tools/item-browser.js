@@ -165,7 +165,7 @@ const ItemBrowser = ({}) => {
       </Card> : null}
       {value && searchBy === 'description' ?
         <Stack direction={'row'} gap={3} flexWrap={'wrap'} flexShrink={0} flexGrow={0}>
-          {result?.map((item, index) => {
+          {Array.isArray(result) && result?.map((item, index) => {
             return <Box key={item?.rawName + index} sx={{ width: 200, height: 'fit-content' }}>
               <HtmlTooltip title={item?.owners?.join(', ')}>
                 <Card sx={{ my: 2 }}>
