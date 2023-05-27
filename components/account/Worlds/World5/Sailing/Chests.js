@@ -14,8 +14,10 @@ const Chests = ({ chests }) => {
                       island,
                       artifactChance,
                       ancientChance,
+                      eldritchChance,
                       rawName,
                       done,
+                      acquired,
                       possibleArtifacts,
                       islandIndex,
                       treasure
@@ -29,7 +31,8 @@ const Chests = ({ chests }) => {
                   {done ? <><Typography>No more artifacts!</Typography>
                     <Typography>&nbsp;</Typography></> : <>
                     <Typography>Artifact Chance {artifactChance}%</Typography>
-                    <Typography>Ancient Chance {ancientChance}%</Typography>
+                    <Typography color={'warning.light'}>Ancient Chance {ancientChance}%</Typography>
+                    <Typography color={'error.light'}>Eldritch Chance {eldritchChance}%</Typography>
                   </>}
                 </Stack>
               </Stack>
@@ -42,11 +45,19 @@ const Chests = ({ chests }) => {
                   <Typography>{notateNumber(treasure, 'Big')}</Typography>
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
-                {!done ? <Stack direction={'row'} flexWrap={'wrap'}>
+                {!done ? <Stack direction={'row'} flexWrap={'wrap'} gap={1} alignItems={'center'}>
                   {possibleArtifacts?.map((artifact) => <Tooltip key={artifact?.rawName}
                                                                  title={<ArtifactInfoTooltip {...artifact}/>}>
-                    <img src={`${prefix}data/${artifact?.rawName}.png`}
-                         alt=""/>
+                    <Stack sx={{
+                      border: '1px solid',
+                      borderColor: artifact?.acquired === 2 ? 'warning.light' : artifact?.acquired === 3 ? 'error.light' : '',
+                      p: 1
+                    }}
+                           alignItems={'center'}>
+                      <img src={`${prefix}data/${artifact?.rawName}.png`}
+                           width={24} height={24}
+                           alt=""/>
+                    </Stack>
                   </Tooltip>)}
                 </Stack> : null}
               </Stack>
