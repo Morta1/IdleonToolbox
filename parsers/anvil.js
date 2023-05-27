@@ -57,7 +57,7 @@ export const getMonsterMatCost = (pointsFromMats, anvilCostReduction) => {
 }
 
 export const getAnvilUpgradeCostItem = (pointsFromMats) => {
-  const costIndex = anvilUpgradeCost.findIndex(({ costThreshold }, index) => (pointsFromMats < costThreshold) || (index === anvilUpgradeCost?.length - 1)) || {};
+  const costIndex = anvilUpgradeCost.findIndex(({ costThreshold }, index) => (pointsFromMats < costThreshold) || (index === anvilUpgradeCost?.length - 1));
   const costObject = anvilUpgradeCost?.[costIndex];
   const startingIndex = costIndex === 0 ? 1 : pointsFromMats < costObject?.costThreshold ? anvilUpgradeCost?.[costIndex - 1]?.costThreshold : costObject?.costThreshold;
   return costObject ? {

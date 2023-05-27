@@ -17,7 +17,6 @@ const AnvilDetails = ({ character, account, characters }) => {
     baseAnvilExp
   } = stats;
 
-
   return (
     <Stack>
       <Typography variant={"h5"}>
