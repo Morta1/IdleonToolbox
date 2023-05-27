@@ -67,7 +67,7 @@ const ItemDisplay = ({
                   variant={'subtitle1'}>{cleanUnderscore(displayName)}</Typography>
     </Stack>
     <Divider flexItem sx={{ my: 2 }} color={'black'}/>
-    {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack>
+    {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
         {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Description'}
                                    value={`${cleanUnderscore(capacity)}`}/> : null}
@@ -76,10 +76,9 @@ const ItemDisplay = ({
         {maxCapacity ? <TitleAndValue title={'Max capacity'}
                                       value={`${notateNumber(maxCapacity)}`}/> : null}
       </Stack> :
-      <Stack>
+      <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
         {capacity ? <TitleAndValue title={'Description'} value={`+${cleanUnderscore(capacity)} slots`}/> : null}
-
         {description ? <TitleAndValue value={cleanUnderscore(description)}/> : null}
         {mergedDesc.length > 0 ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/> : null}
         {Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}

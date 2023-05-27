@@ -37,7 +37,7 @@ const Chests = ({ chests }) => {
               <Stack>
                 <Typography>Island: {cleanUnderscore(island?.name)}</Typography>
                 <Stack direction={'row'} alignItems={'center'}>
-                  <img style={{ objectFit: 'contain', width: 25 }} src={`${prefix}data/SailT${islandIndex + 1}.png`}
+                  <img style={{ objectFit: 'contain', width: 25 }} src={`${prefix}data/SailT${islandIndex * 2 + 1}.png`}
                        alt=""/>
                   <Typography>{notateNumber(treasure, 'Big')}</Typography>
                 </Stack>

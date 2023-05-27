@@ -218,8 +218,17 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.maxCarryCap = carryCapacityObject;
   character.carryCapBags = Object.keys(carryCapacityObject).sort(function (a, b) {
     return a.localeCompare(b);
-  }).map((bagName) => (carryBags?.[bagName]?.[carryCapacityObject[bagName]])).filter(bag => bag);
-
+  }).map((bagName) => {
+    if (bagName === 'Quests' || bagName === 'fillerz' || bagName === 'Statues') return;
+    const bag = carryBags?.[bagName]?.[carryCapacityObject[bagName]];
+    return bag ? bag : {
+      rawName: 'MaxCapBagNone',
+      displayName: bagName,
+      Class: bagName,
+      capacity: carryCapacityObject[bagName],
+      Type: 'CARRY'
+    };
+  }).filter((bag) => bag);
   character.statues = char?.StatueLevels;
 
   // equipment indices (0 = armor, 1 = tools, 2 = food)

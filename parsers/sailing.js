@@ -18,6 +18,7 @@ import { getJewelBonus, getLabBonus } from "./lab";
 import { getShinyBonus } from "./breeding";
 import { getFamilyBonusBonus } from "./family";
 import LavaRand from "../utility/lavaRand";
+import { getAchievementStatus } from "./achievements";
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -30,8 +31,13 @@ export const getSailing = (idleonData, artifactsList, charactersData, account, s
 
 const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars, charactersLevels) => {
   const lootPile = sailingRaw?.[1];
-  const dreamCatcher = isArtifactAcquired(artifactsList, 'Dreamcatcher');
-  const maxChests = Math.min(Math.round(5 + (dreamCatcher?.bonus ?? 0) + (account?.gemShopPurchases?.find((value, index) => index === 129) ?? 0)), 19);
+  const dreamCatcherBonus = isArtifactAcquired(artifactsList, 'Dreamcatcher')?.bonus ?? 0;
+  const chestsFromGems = account?.gemShopPurchases?.find((value, index) => index === 129);
+  const chestsFromAchievements = getAchievementStatus(account?.achievements, 287) + getAchievementStatus(account?.achievements, 290);
+  const maxChests = Math.min(Math.round(5 + chestsFromGems
+    + (Math.min(4, dreamCatcherBonus)
+      + (account?.tasks?.[2]?.[4]?.[2])
+      + (chestsFromAchievements))), 30);
   const chests = getChests(chestsRaw, artifactsList, serverVars);
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
@@ -366,7 +372,7 @@ const getLootPile = (lootPile) => {
 const getArtifact = (artifact, acquired, lootPile, index, charactersData, account) => {
   let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
     upgradedForm = acquired === 2 || acquired === 3, formMultiplier = acquired,
-    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : '';
+    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : 'baseBonus';
 
   let fixedDescription = artifact?.description;
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {

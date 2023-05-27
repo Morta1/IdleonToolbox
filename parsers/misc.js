@@ -494,8 +494,8 @@ export const getAllCap = (character, account) => {
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 2);
   const talentBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
   const shrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
-  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
-  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
+  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.bonus;
   const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
 
   return (1 + (guildBonus + talentBonus) / 100)

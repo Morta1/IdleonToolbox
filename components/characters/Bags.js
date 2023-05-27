@@ -1,35 +1,39 @@
 import Tooltip from "../Tooltip";
-import { prefix } from "utility/helpers";
+import { notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import ItemDisplay from "../common/ItemDisplay";
+import { Divider, Stack, Typography, useMediaQuery } from "@mui/material";
 
 const Bags = ({ bags, capBags }) => {
+  const isXs = useMediaQuery('(max-width: 370px)', { noSsr: true });
+
   return (
-    <BagsStyled>
-      {bags?.map((bag, index) => {
-        return <Tooltip key={bag?.displayName + index} title={<ItemDisplay {...bag}/>}>
-          <Bag exists={bag?.acquired}
-               src={`${prefix}data/${bag?.rawName}.png`} alt=""/>
-        </Tooltip>;
-      })}
-      {capBags?.map((item, index) => {
-        const { displayName, rawName, capacity } = item;
-        return <Tooltip title={<ItemDisplay {...item}/>} key={displayName + index}>
-          <Bag exists={true}
-               src={`${prefix}data/${rawName}.png`}
-               alt=""/>
-        </Tooltip>;
-      })}
-    </BagsStyled>
+    <Stack sx={{ width: 200 }} alignItems={'center'}>
+      <Stack direction={'row'} flexWrap={'wrap'}>
+        {bags?.map((bag, index) => {
+          return <Tooltip key={bag?.displayName + index} title={<ItemDisplay {...bag}/>}>
+            <Bag exists={bag?.acquired}
+                 src={`${prefix}data/${bag?.rawName}.png`} alt=""/>
+          </Tooltip>;
+        })}
+      </Stack>
+      <Divider sx={{ my: 2 }} flexItem/>
+      <Stack direction={'row'} flexWrap={'wrap'} gap={isXs ? 1 : 0} justifyContent={'center'}>
+        {capBags?.map((item, index) => {
+          const { displayName, rawName, capacityPerSlot } = item;
+          return <Tooltip title={<ItemDisplay {...item}/>} key={displayName + index}>
+            <Stack alignItems={'center'}>
+              <Bag exists={true}
+                   src={`${prefix}data/${rawName}.png`}
+                   alt=""/>
+              <Typography variant={'caption'}>{notateNumber(capacityPerSlot)}</Typography>
+            </Stack>
+          </Tooltip>;
+        })}
+      </Stack>
+    </Stack>
   );
 };
-
-const BagsStyled = styled.div`
-  display: grid;
-  gap: 5px;
-  grid-template-columns: repeat(4, minmax(36px, max-content));
-  justify-content: center;
-`;
 
 const Bag = styled.img`
   filter: ${({ exists }) => exists ? 'grayscale(0)' : 'grayscale(1)'};
