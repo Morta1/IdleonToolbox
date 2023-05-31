@@ -2,36 +2,6 @@ import { tryToParse } from "../utility/helpers";
 import { items, obols } from "../data/website-data";
 import { addStoneDataToEquip } from "./items";
 
-// AGI: 0
-// Class: "ALL"
-// Defence: 0
-// ID: 1
-// LUK: 0
-// Reach: 0
-// STR: 0
-// Speed: 0
-// SuperFunItemDisplayType: 0
-// Type: "SQUARE_OBOL"
-// UQ1txt: "%_MONEY"
-// UQ1val: 6
-// UQ2txt: 0
-// UQ2val: 0
-// Upgrade_Slots_Left: 0
-// WIS: 0
-// Weapon_Power: 0
-// common: "SV"
-// displayName: "Silver_Obol_of_Pocket_Change"
-// equip: "GV"
-// index: 0
-// itemType: "Equip"
-// levelReq: 32
-// lvReqToCraft: 1
-// lvReqToEquip: 1
-// rawName: "ObolSilverMoney"
-// sellPrice: 3
-// shape: "Square"
-// typeGen: "aObolSquare"
-
 const obolStats = ['STR', 'AGI', 'WIS', 'LUK', 'Weapon_Power', 'Defence', 'UQ1txt', 'UQ2txt'];
 
 export const getObols = (idleonData, account = true) => {

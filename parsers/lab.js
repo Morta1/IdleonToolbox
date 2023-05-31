@@ -119,11 +119,12 @@ const parseLab = (labRaw, charactersData, account) => {
   jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: spelunkerObolMulti }));
 
   const totalSpeciesUnlocked = account?.breeding.speciesUnlocks.reduce((sum, world) => sum + world, 0);
-  labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked, 0);
+  const purpleNaveete = jewelsList?.[1]?.active;
+  labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * (purpleNaveete ? 1.75 : 1), 0, purpleNaveete ? 1.75 : 1);
 
-  const greenStacks = account?.storage?.filter(item => item.amount >= 1e7).length;
-  const bankerFuryBonusFromJewel = labBonusesList?.[17]?.active ? greenStacks : 0;
-  labBonusesList = applyBonusDesc(labBonusesList, greenStacks + bankerFuryBonusFromJewel, 11)
+  let greenStacks = account?.storage?.filter(item => item.amount >= 1e7).length;
+  const bankerFuryBonusFromJewel = jewelsList?.[17]?.active ? 1.5 : 0;
+  labBonusesList = applyBonusDesc(labBonusesList, greenStacks * (2 + bankerFuryBonusFromJewel), 11, 2 + bankerFuryBonusFromJewel)
 
   playersCords = playersCords?.map((player, index) => {
     const p = playersInTubes?.find(({ playerId }) => playerId === index);
@@ -157,17 +158,18 @@ export const isGodEnabledBySorcerer = (character, godIndex) => {
   }
 }
 
-export const applyBonusDesc = (labBonusesList, bonusDesc, index) => {
+export const applyBonusDesc = (labBonusesList, bonusDesc, index, extraData = '') => {
   return labBonusesList?.map((bonus, ind) => ind === index ? {
     ...bonus,
     bonusOn: bonusDesc,
+    extraData,
     bonusDesc
   } : bonus);
 }
 
 export const getJewelBonus = (jewels, index, multiplier = 1) => {
   const jewel = jewels?.find(jewel => jewel.index === index) || {};
-  return jewel?.active ? jewel?.bonus * multiplier : 0;
+  return jewel?.active ? jewel?.bonus * (jewel?.multiplier || multiplier) : 0;
 }
 
 export const getLabBonus = (labBonuses, index) => {
@@ -280,4 +282,10 @@ const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConne
     return { resArr: [...res.resArr, object], newConnection }
   }, { resArr: [], newConnection: false });
 };
+
+export const getPlayerLabChipBonus = (character, account, chipIndex) => {
+  return account?.lab?.playersChips?.[character?.playerId]?.reduce((sum, chip) => {
+    return chip?.index === chipIndex ? sum + chip?.baseVal : sum;
+  }, 0)
+}
 

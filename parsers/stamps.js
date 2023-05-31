@@ -54,3 +54,13 @@ export const applyStampsMulti = (stamps, multiplier) => {
     return { ...res, [stampCategory]: updatedStamps };
   }, {});
 }
+
+export const calcStampLevels = (allStamps) => {
+  if (!allStamps) return 0;
+  return Object.values(allStamps)?.reduce((res, stamps) => res + stamps?.reduce((stampsLevels, { level }) => stampsLevels + level, 0), 0);
+};
+
+export const calcStampCollected = (allStamps) => {
+  if (!allStamps) return 0;
+  return Object.values(allStamps)?.reduce((res, stamps) => res + stamps?.reduce((stampsCollected, { level }) => stampsCollected + (level > 0 ? 1 : 0), 0), 0);
+};

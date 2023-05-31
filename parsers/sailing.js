@@ -391,7 +391,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const lootedItems = account?.looty?.rawLootedItems;
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
-    const math = artifact?.[multiplierType] * Math.floor((lootedItems - 500) / 10);
+    const math = artifact?.[multiplierType] * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const isGenie = artifact?.name === 'Genie_Lamp';
@@ -408,6 +408,10 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   } else if (artifact?.name === 'Opera_Mask') {
     const sailingGold = lootPile?.[0];
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
+  } else if (artifact?.name === 'Fun_Hippoete') {
+    bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate)
+  } else if (artifact?.name === 'The_True_Lantern') {
+    bonus = artifact?.baseBonus * (lavaLog(account?.atoms?.particles) ?? 0);
   } else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];
     const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;

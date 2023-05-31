@@ -58,7 +58,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
   useEffect(() => {
     const anyTracker = trackers && Object.values(trackers).some((tracker) => tracker);
     if (anyTracker) {
-      const tempAlerts = Object.entries(trackers).reduce((res, [trackerName, val]) => {
+      const tempAlerts = Object.entries(trackers || {}).reduce((res, [trackerName, val]) => {
         if (val) {
           if (alertsMapping?.[trackerName]) {
             res[trackerName] = alertsMapping?.[trackerName](account, trackersOptions?.[trackerName]);
@@ -144,14 +144,17 @@ const Account = ({ account, trackers, trackersOptions }) => {
                                                             iconPath={`data/ConTower${index}`}/>) : null}
           {trackers?.keys && alerts?.keys?.length > 0 ?
             alerts?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
-                                                                                title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
-                                                                                iconPath={`data/${rawName}`}/>) : null}
+                                                                          title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
+                                                                          iconPath={`data/${rawName}`}/>) : null}
           {trackers?.shinies && alerts?.shinies?.length > 0 ?
-            alerts?.shinies?.map(({ monsterName, monsterRawName, shinyLevel }, index) => <Alert
-              key={monsterName + index}
-              imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
-              title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${trackersOptions?.['shinies']?.['input']?.['value']})`}
-              iconPath={`afk_targets/${monsterName}`}/>) : null}
+            alerts?.shinies?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
+              const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
+              return <Alert
+                key={monsterName + index}
+                imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
+                title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${trackersOptions?.['shinies']?.['input']?.['value']})`}
+                iconPath={missingIcon ? `afk_targets/${monsterName}` : `data/${icon}`}/>
+            }) : null}
           {trackers?.printerAtoms && alerts?.printerAtoms?.length > 0 ?
             alerts?.printerAtoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
                                                                     title={`Printing is at capacity for ${cleanUnderscore(name)}`}

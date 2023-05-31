@@ -93,8 +93,8 @@ export const areKeysOverdue = (account) => {
   const keysAlerts = keys?.filter(({ daysSincePickup }) => {
     return daysSincePickup >= 3;
   })
-  const ticketsAlerts = tickets?.filter(({ daysSincePickup }) => {
-    return daysSincePickup >= 3;
+  const ticketsAlerts = tickets?.filter(({ daysSincePickup }, index) => {
+    return (index === 0 || account?.finishedWorlds?.[`World${index}`]) && daysSincePickup >= 3;
   });
   return [...keysAlerts, ...ticketsAlerts];
 }
@@ -258,7 +258,7 @@ export const overflowingPrinter = (account, trackersOptions) => {
 }
 
 export const overflowingShinies = (account, trackersOptions) => {
-  const { input } = trackersOptions;
+  const { input } = trackersOptions || {};
   return account?.breeding?.pets?.reduce((res, world) => {
     const pets = world?.filter(({ monsterRawName, shinyLevel }) => account?.breeding?.fencePets?.[monsterRawName]
       && shinyLevel >= input?.value);

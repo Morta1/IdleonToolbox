@@ -25,3 +25,12 @@ export const getDeathNote = (charactersData, account) => {
 export const getDeathNoteRank = (account, kills) => {
   return 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills ? 5 : 1e8 > kills ? 7 : 1e9 < kills && isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls') ? 20 : 10;
 }
+
+export const getEclipseSkullsBonus = (account) => {
+  const hasBonus = isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls');
+  if (!hasBonus) return 0;
+  return Object.entries(account?.deathNote || {})?.reduce((sum, [_, { mobs }]) => {
+    const eclipses = mobs?.reduce((res, { kills }) => res + (kills >= 1e9 ? 1 : 0), 0)
+    return sum + eclipses;
+  }, 0)
+}

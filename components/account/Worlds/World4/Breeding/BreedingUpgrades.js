@@ -1,8 +1,10 @@
 import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, prefix } from "utility/helpers";
+import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
+import { getAchievementStatus } from "../../../../../parsers/achievements";
+import { getTotalKitchenLevels } from "../../../../../parsers/cooking";
 
-const BreedingUpgrades = ({ petUpgrades, meals }) => {
+const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
   const calcFoodCost = (upgrade) => {
     return upgrade?.baseCost * (1 + upgrade?.level) * Math.pow(upgrade?.costScale, upgrade?.level);
   }
@@ -17,6 +19,14 @@ const BreedingUpgrades = ({ petUpgrades, meals }) => {
     return costToMax ?? 0;
   }
 
+  const getTotalBonus = (bonus, upgradeIndex) => {
+    if (upgradeIndex === 9) {
+      const totalKitchenLevels = getTotalKitchenLevels(account?.cooking?.kitchens)
+      return Math.pow(Math.max(1, bonus), totalKitchenLevels / 100);
+    }
+    return 0;
+  }
+
   const calcBonus = (upgrade, upgradeIndex) => {
     if (0 === upgradeIndex || 2 === upgradeIndex || 4 === upgradeIndex) {
       return upgrade?.level;
@@ -28,19 +38,19 @@ const BreedingUpgrades = ({ petUpgrades, meals }) => {
       return 25 * upgrade?.level;
     }
     if (5 === upgradeIndex) {
-      return 1 + 0.25 * upgrade?.level;
+      return (1 + 0.25 * upgrade?.level) * Math.min(2, Math.max(1, 1 + 0.1 * getAchievementStatus(account?.achievements, 221)));
     }
     if (6 === upgradeIndex) {
       return 6 * upgrade?.level;
     }
     if (7 === upgradeIndex) {
-      return 1 + 0.3 * upgrade?.level;
+      return 1 + 0.15 * upgrade?.level;
     }
     if (8 === upgradeIndex) {
       return 1 + 2 * upgrade?.level;
     }
     if (9 === upgradeIndex) {
-      return 1 + 0.05 * upgrade?.level;
+      return 1 + 0.02 * upgrade?.level;
     }
     if (10 === upgradeIndex) {
       return 10 * upgrade?.level;
@@ -57,8 +67,10 @@ const BreedingUpgrades = ({ petUpgrades, meals }) => {
         if (upgrade?.name === 'Filler') return null;
         const foodAmount = meals?.[upgrade?.foodIndex]?.amount;
         const foodUpgradeCost = calcFoodCost(upgrade);
-        const foodCostToMax = kFormatter(calcCostToMax(upgrade, true));
-        const cellCostToMax = kFormatter(calcCostToMax(upgrade));
+        const foodCostToMax = notateNumber(calcCostToMax(upgrade, true));
+        const cellCostToMax = notateNumber(calcCostToMax(upgrade));
+        const bonus = calcBonus(upgrade, index);
+        const totalBonus = getTotalBonus(bonus, index);
         return <Card key={upgrade?.name + '' + index} sx={{ width: 300, opacity: upgrade?.level === 0 ? .5 : 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} mb={2}>
@@ -75,12 +87,12 @@ const BreedingUpgrades = ({ petUpgrades, meals }) => {
             <div className={'info'}>
               <Stack direction={'row'} my={1}>
                 <Typography sx={{ fontWeight: 'bold' }}>Effect:&nbsp;</Typography>
-                <Typography>{upgrade?.boostEffect === '_' ? 'NOTHING' : cleanUnderscore(upgrade?.boostEffect.replace('}', calcBonus(upgrade, index)))}</Typography>
+                <Typography>{upgrade?.boostEffect === '_' ? 'NOTHING' : cleanUnderscore(upgrade?.boostEffect.replace('}', bonus))}</Typography>
               </Stack>
               <Stack mt={2} gap={2}>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
                   <img src={`${prefix}data/${upgrade?.material}.png`} alt=""/>
-                  {kFormatter(calcCellCost(upgrade))}
+                  {notateNumber(calcCellCost(upgrade))}
                   <div>({cellCostToMax})</div>
                 </Stack>
                 {index > 0 ? <Stack direction={'row'} alignItems={'center'}>
@@ -89,9 +101,11 @@ const BreedingUpgrades = ({ petUpgrades, meals }) => {
                     <img src={`${prefix}data/CookingPlate0.png`} alt=""/>
                   </MealAndPlate>
                   <div style={{ textAlign: 'center' }}>
-                    <Typography>{kFormatter(foodAmount, 2)} / {kFormatter(foodUpgradeCost, 2)} ({foodCostToMax})</Typography>
+                    <Typography>{notateNumber(foodAmount)} / {notateNumber(foodUpgradeCost)} ({foodCostToMax})</Typography>
                   </div>
                 </Stack> : null}
+                {totalBonus > 0 ?
+                  <Typography>Total Bonus: {notateNumber(totalBonus, 'MultiplierInfo')}x</Typography> : null}
               </Stack>
             </div>
           </CardContent>

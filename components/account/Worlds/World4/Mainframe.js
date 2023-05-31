@@ -68,8 +68,9 @@ const JewelIcon = styled.img`
   width: 64px;
 `
 
-const BonusTooltip = ({ name, description, bonusDesc }) => {
-  const desc = bonusDesc ? description.replace(/{/, bonusDesc) : description?.split("@_-_@")[0];
+const BonusTooltip = ({ name, description, bonusDesc, extraData }) => {
+  let desc = extraData ? description?.replace(/\+[0-9]+%/, `+${extraData}%`) : description;
+  desc = bonusDesc ? desc.replace(/{/, bonusDesc) : desc?.split("@_-_@")[0];
   return <>
     <Typography my={1} fontWeight={'bold'}
                 variant={'h5'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>

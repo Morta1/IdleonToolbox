@@ -1,6 +1,6 @@
-import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Box, Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
-import { cleanUnderscore, kFormatter, prefix } from "utility/helpers";
+import { cleanUnderscore, kFormatter, notateNumber, prefix } from "utility/helpers";
 import { AppContext } from "components/common/context/AppProvider";
 import styled from "@emotion/styled";
 import Tooltip from "components/Tooltip";
@@ -30,6 +30,24 @@ const Construction = () => {
       console.error(err);
     }
   };
+  //
+  // const test = () => {
+  //   const yes = [];
+  //   for (let y = 0; y < 8; y++) {
+  //     let list = []
+  //     for (let x = 0; x < 12; x++) {
+  //       const index = (7 - y) * 12 + x;
+  //       list.push(
+  //         <Stack textAlign={'center'} key={index} sx={{ width: 70, height: 70, border: '1px solid red' }}>
+  //           <Typography>{index} </Typography>
+  //           <Stack><Typography>({x},{y})</Typography></Stack>
+  //         </Stack>
+  //       )
+  //     }
+  //     yes.push(list)
+  //   }
+  //   return yes.reverse();
+  // }
 
   return (
     <>
@@ -57,23 +75,37 @@ const Construction = () => {
               title={
                 <>
                   You can export your data and use it in{" "}
-                  <Link target={"_blank"} underline={"always"} color={"info.dark"} href="https://github.com/automorphis/Cogstruction" rel="noreferrer">
+                  <Link target={"_blank"} underline={"always"} color={"info.dark"}
+                        href="https://github.com/automorphis/Cogstruction" rel="noreferrer">
                     Cogstruction
                   </Link>
                 </>
               }
             >
-              <InfoIcon />
+              <InfoIcon/>
             </Tooltip>
           </Stack>
           <Stack direction={"row"} gap={2}>
-            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }} onClick={() => handleCopy(state?.account?.construction?.cogstruction?.cogData)} startIcon={<FileCopyIcon />}>
+            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }}
+                    onClick={() => handleCopy(state?.account?.construction?.cogstruction?.cogData)}
+                    startIcon={<FileCopyIcon/>}>
               Cogstruction Data
             </Button>
-            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }} onClick={() => handleCopy(state?.account?.construction?.cogstruction?.empties)} startIcon={<FileCopyIcon />}>
+            <Button variant={"contained"} color={"primary"} sx={{ textTransform: "unset" }}
+                    onClick={() => handleCopy(state?.account?.construction?.cogstruction?.empties)}
+                    startIcon={<FileCopyIcon/>}>
               Cogstruction Empties
             </Button>
           </Stack>
+        </Stack>
+        {/*notateNumber(totalBuildRate)*/}
+        {/*notateNumber(totalExpRate)*/}
+        {/*notateNumber(totalFlaggyRate)*/}
+        <Stack direction={'row'} my={2} gap={2}>
+          <Total title={'Total Build Speed'}
+                 value={`${notateNumber(state?.account?.construction?.totalBuildRate)}/HR`}/>
+          <Total title={'Player XP Bonus'} value={`${notateNumber(state?.account?.construction?.totalExpRate)}%`}/>
+          <Total title={'Flaggy Rate'} value={`${notateNumber(state?.account?.construction?.totalFlaggyRate)}/HR`}/>
         </Stack>
         <Box
           mt={3}
@@ -88,14 +120,21 @@ const Construction = () => {
             const rest = 100 - filled;
             return (
               <Box key={index}>
-                <Tooltip title={<CogTooltip {...slot} character={cog?.name?.includes("Player") ? cog?.name?.split("_")[1] : ""} />}>
+                <Tooltip title={<CogTooltip {...slot} index={index}
+                                            character={cog?.name?.includes("Player") ? cog?.name?.split("_")[1] : ""}/>}>
                   <SlotBackground filled={filled} rest={rest}>
-                    {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt="" /> : null}
-                    {cog?.name && !flagPlaced ? <SlotIcon src={`${prefix}data/${cog?.name?.includes("Player") ? "headBIG" : cog?.name}.png`} alt="" /> : null}
-                    {view === "build" && !flagPlaced ? <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.a?.value) ?? null}</Typography> : null}
-                    {view === "exp" && !flagPlaced ? <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.b?.value) ?? kFormatter(cog?.stats?.d?.value) ?? null}</Typography> : null}
-                    {view === "flaggy" && !flagPlaced ? <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.c?.value) ?? null}</Typography> : null}
-                    {view === "classExp" && !flagPlaced ? <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.j?.value) ?? null}</Typography> : null}
+                    {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt=""/> : null}
+                    {cog?.name && !flagPlaced ?
+                      <SlotIcon src={`${prefix}data/${cog?.name?.includes("Player") ? "headBIG" : cog?.name}.png`}
+                                alt=""/> : null}
+                    {view === "build" && !flagPlaced ?
+                      <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.a?.value) ?? null}</Typography> : null}
+                    {view === "exp" && !flagPlaced ? <Typography
+                      sx={bonusTextSx}>{kFormatter(cog?.stats?.b?.value) ?? kFormatter(cog?.stats?.d?.value) ?? null}</Typography> : null}
+                    {view === "flaggy" && !flagPlaced ?
+                      <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.c?.value) ?? null}</Typography> : null}
+                    {view === "classExp" && !flagPlaced ?
+                      <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.j?.value) ?? null}</Typography> : null}
                   </SlotBackground>
                 </Tooltip>
               </Box>
@@ -103,11 +142,30 @@ const Construction = () => {
           })}
         </Box>
       </Stack>
+      {/*<Box*/}
+      {/*  mt={3}*/}
+      {/*  sx={{*/}
+      {/*    display: "grid",*/}
+      {/*    gridTemplateColumns: { xs: "repeat(8, minmax(70px, 1fr))", md: "repeat(12, minmax(70px, 1fr))" }*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  {test()}*/}
+      {/*</Box>*/}
     </>
   );
 };
 
-const CogTooltip = ({ character, currentAmount, requiredAmount, cog }) => {
+const Total = ({ title, value }) => {
+  return <Card>
+    <CardContent>
+      <Stack>
+        <Typography>{title}</Typography>
+        <Typography>{value}</Typography>
+      </Stack>
+    </CardContent>
+  </Card>
+}
+const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog }) => {
   return (
     <>
       {character ? <Typography sx={{ fontWeight: "bold" }}>{character}</Typography> : null}
@@ -124,6 +182,7 @@ const CogTooltip = ({ character, currentAmount, requiredAmount, cog }) => {
           </div>
         ) : null
       )}
+      index: {index}
     </>
   );
 };

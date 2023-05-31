@@ -84,6 +84,7 @@ const Breeding = () => {
         <Pets {...state?.account?.breeding} fencePets={state?.account?.breeding?.fencePets} lab={state?.account?.lab}
               lastUpdated={state?.lastUpdated}/> : null}
       {selectedTab === 1 ? <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
+                                             account={state?.account}
                                              meals={state?.account?.cooking?.meals}/> : null}
       {selectedTab === 2 ? <BreedingArena {...state?.account?.breeding}/> : null}
     </>

@@ -166,6 +166,8 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.statues = applyStatuesMulti(accountData.statues, charactersData);
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
+  accountData.construction = getConstruction(idleonData, accountData);
+  accountData.atoms = getAtoms(idleonData, accountData);
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
@@ -179,13 +181,11 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.shopStock = getShops(idleonData);
 
   accountData.forge = getForge(idleonData, accountData);
-  accountData.construction = getConstruction(idleonData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
   accountData.deathNote = getDeathNote(charactersData, accountData);
-  accountData.atoms = getAtoms(idleonData, accountData);
 
   // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);

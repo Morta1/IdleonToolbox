@@ -17,7 +17,7 @@ import {
   tasks
 } from "../data/website-data";
 import {
-  calculateAfkTime,
+  calculateAfkTime, getFoodBonus,
   getGoldenFoodBonus,
   getHighestLevelOfClass,
   getMaterialCapacity,
@@ -97,6 +97,11 @@ export const getCharacters = (idleonData, charsNames) => {
             } else {
               arr = [det];
             }
+            break;
+          }
+          case key.includes('IMm_'): {
+            updatedKey = `InventoryMap`;
+            updatedDetails = tryToParse(details);
             break;
           }
           case key.includes('EMm1'): {
@@ -261,7 +266,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   const inventoryArr = char[`InventoryOrder`];
   const inventoryQuantityArr = char[`ItemQuantity`];
-  character.inventory = getInventory(inventoryArr, inventoryQuantityArr, character.name);
+  const inventoryMap = char[`InventoryMap`];
+  character.inventory = getInventory(inventoryArr, inventoryQuantityArr, character.name, inventoryMap);
   character.inventorySlots = inventoryArr?.reduce((sum, itemName) => sum + (itemName !== 'LockedInvSpace' ? 1 : 0), 0);
 
   // star signs
@@ -385,7 +391,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
   }
   character.talents = applyTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account?.achievements);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account?.achievements);
+  character.activeBuffs = character.activeBuffs?.map(({ name }) => {
+    return character.flatTalents?.find(({ name: tName }) => tName === name);
+  });
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
@@ -609,6 +618,8 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Drop Rate', value: dropRateMulti },
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+  // cashMulti: cashMulti * (1 + dropRateMulti / 100),
+
   return {
     cashMulti,
     breakdown
@@ -719,24 +730,25 @@ export const getPlayerFoodBonus = (character, account) => {
       (cardBonus + (cardSet + talentBonus))))))) / 100;
 }
 
-export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChips, statues, saltLicks, stamps) => {
+export const getPlayerSpeedBonus = (character, characters, account) => {
   let finalSpeed;
   const featherWeight = getTalentBonus(character?.talents, 0, 'FEATHERWEIGHT');
   const featherFlight = getTalentBonus(character?.talents, 0, 'FEATHER_FLIGHT');
-  const stampBonus = getStampsBonusByEffect(stamps, 'Base_Move_Speed', 0)
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_Move_Speed', 0)
   const strafe = getTalentBonusIfActive(character?.activeBuffs, 'STRAFE');
-  let baseMath = speedBonusFromPotions + featherWeight + stampBonus + strafe;
+  const foodBonus = getFoodBonus(character, account, "MoveSpdBoosts")
+  let baseMath = foodBonus + featherWeight + stampBonus + strafe;
   let agiMulti;
   if (character.stats?.agility < 1000) {
     agiMulti = (Math.pow(character.stats?.agility + 1, .4) - 1) / 40;
   } else {
     agiMulti = (character.stats?.agility - 1e3) / (character.stats?.agility + 2500) * .5 + .371;
   }
-  const statuePower = getStatueBonus(statues, 'StatueG2', character?.talents);
+  const statuePower = getStatueBonus(account?.statues, 'StatueG2', character?.talents);
   // const speedFromStatue = 1 + (speedBonusFromPotions + (statuePower) / 2.2);
   const speedStarSign = getStarSignBonus(character, account, 'Movement_Speed');
   const equipmentSpeedEffectBonus = getStatsFromGear(character, 1, account);
-  const cardBonus = getEquippedCardBonus(character?.cards, 'A5');
+  const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Move_Spd');
   finalSpeed = (baseMath + (statuePower + ((speedStarSign) + (equipmentSpeedEffectBonus + (cardBonus + featherFlight))))) / 100; // 1.708730398284699
   finalSpeed = 1 + (finalSpeed + (agiMulti) / 2.2); // 2.829035843985983
   const tipToeQuickness = getTalentBonus(character?.starTalents, null, 'TIPTOE_QUICKNESS');
@@ -745,11 +757,11 @@ export const getPlayerSpeedBonus = (speedBonusFromPotions, character, playerChip
   } else if (finalSpeed > 1.75) {
     finalSpeed = Math.min(2, Math.floor(100 * ((finalSpeed) + tipToeQuickness / 100)) / 100)
   } else {
-    const saltLickBonus = getSaltLickBonus(saltLicks, 7);
-    const groundedMotherboard = playerChips?.find((chip) => chip.index === 15)?.baseVal ?? 0;
-    finalSpeed = Math.min(1.75, Math.floor(100 * (finalSpeed + (saltLickBonus + groundedMotherboard + tipToeQuickness) / 100)) / 100)
+    const saltLickBonus = getSaltLickBonus(account?.saltLick, 7);
+    const groundedMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 15)?.baseVal ?? 0;
+    const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TUFT_OF_HAIR');
+    finalSpeed = Math.min(1.75, Math.floor(100 * (finalSpeed + (saltLickBonus + groundedMotherboard + (tipToeQuickness + sigilBonus)) / 100)) / 100)
   }
-  // 2 < (finalSpeed) ? (s = b.engine.getGameAttribute("DummyNumbersStatManager"),
   return Math.round(finalSpeed * 100);
 }
 

@@ -1,13 +1,16 @@
 import InfoIcon from "@mui/icons-material/Info";
 import { Card, CardContent, Stack, Typography } from "@mui/material";
 import { differenceInHours, differenceInMinutes } from "date-fns";
-import { kFormatter, notateNumber, pascalCase } from "utility/helpers";
+import { kFormatter, notateNumber, pascalCase, prefix } from "utility/helpers";
 import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
 import { TitleAndValue } from "../common/styles";
 import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
+import { getMaxDamage, notateDamage } from "../../parsers/damage";
+import processString from "react-process-string";
+import styled from "@emotion/styled";
 
 const colors = {
   strength: "error.light",
@@ -26,6 +29,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     [character, account]);
   const { afkGains, breakdown: agBreakdown } = useMemo(() => getAfkGain(character, characters, account), [character,
     account]);
+  const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
@@ -70,44 +74,26 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               </Card>
             ) : null;
           })}
-          <Card variant={"outlined"}>
-            <CardContent>
-              <Typography color={"info.light"}>Cash Multi</Typography>
-              <Tooltip title={<BreakdownTooltip breakdown={breakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(cashMulti)}%</Typography>
-              </Tooltip>
-            </CardContent>
-          </Card>
-          <Card variant={"outlined"}>
-            <CardContent>
-              <Typography color={"info.light"}>Drop Rate</Typography>
-              <Tooltip title={<BreakdownTooltip breakdown={drBreakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(dropRate, 'MultiplierInfo')}x</Typography>
-              </Tooltip>
-            </CardContent>
-          </Card>
-          <Card variant={"outlined"}>
-            <CardContent>
-              <Typography color={"info.light"}>Respawn Time</Typography>
-              <Tooltip title={<BreakdownTooltip breakdown={rtBreakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(respawnRate, 'MultiplierInfo')}%</Typography>
-              </Tooltip>
-            </CardContent>
-          </Card>
-          <Card variant={"outlined"}>
-            <CardContent>
-              <Typography color={"info.light"}>Afk Gains</Typography>
-              <Tooltip title={<BreakdownTooltip breakdown={agBreakdown} notate={'Smaller'}/>}>
-                <Typography>{notateNumber(afkGains * 100, 'MultiplierInfo')}%</Typography>
-              </Tooltip>
-            </CardContent>
-          </Card>
-          <Card variant={"outlined"}>
-            <CardContent>
-              <Typography color={"info.light"}>Chance not to consume food</Typography>
-              <Typography>{kFormatter(nonConsumeChance, 2)}%</Typography>
-            </CardContent>
-          </Card>
+          <Stack direction={'row'} flexWrap={'wrap'}>
+            <Stat title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
+            <Stat title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
+            <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
+            <Stat title={'M. Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+          </Stack>
+          <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
+          <Stat title={'Cash Multi'} value={`${kFormatter(cashMulti, 2)}%`}
+                breakdown={breakdown} breakdownNotation={'Smaller'}/>
+          <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
+                breakdown={drBreakdown} breakdownNotation={'Smaller'}/>
+          <Stat title={'Respawn Time'}
+                value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
+                breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
+          <Stat title={'Afk Gains'}
+                value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
+                breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
+          <Stat title={'Chance not to consume food'}
+                value={`${kFormatter(nonConsumeChance, 2)}%`}
+          />
           <Card variant={"outlined"}>
             <CardContent>
               <Typography color={"info.light"}>Crystal Chance</Typography>
@@ -139,6 +125,25 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
   );
 };
 
+const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
+  return <Card variant={"outlined"}>
+    <CardContent>
+      <Typography color={"info.light"}>{title}</Typography>
+      <Tooltip title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+                                                    notate={breakdownNotation}/> : ''}>
+        {!damage ? <Typography>{value}</Typography> : <Typography color={'#fffcc9'}>
+          {processString([{
+            regex: /\[/g,
+            fn: (key) => {
+              return <DamageIcon key={key} src={`${prefix}etc/Damage_M.png`} alt="" />
+            }
+          }])(value)}
+        </Typography>}
+      </Tooltip>
+    </CardContent>
+  </Card>
+}
+
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
   if (!breakdown) return '';
   return <Stack>
@@ -148,5 +153,11 @@ const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
                                                                value={!isNaN(value) ? notateNumber(value, notate) : value}/>)}
   </Stack>
 }
+
+const DamageIcon = styled.img`
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+`
 
 export default Stats;

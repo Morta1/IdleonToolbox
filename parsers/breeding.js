@@ -4,10 +4,11 @@ import { tryToParse } from "../utility/helpers";
 export const getBreeding = (idleonData, account) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
   const petsRaw = tryToParse(idleonData?.Pets) || idleonData?.Pets;
-  return parseBreeding(breedingRaw, petsRaw, account);
+  const petsStoredRaw = tryToParse(idleonData?.PetsStored) || idleonData?.PetsStored;
+  return parseBreeding(breedingRaw, petsRaw, petsStoredRaw, account);
 }
 
-const parseBreeding = (breedingRaw, petsRaw, account) => {
+const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
   const eggs = breedingRaw?.[0];
   const deadCells = breedingRaw?.[3]?.[8];
   const speciesUnlocks = breedingRaw?.[1];
@@ -17,6 +18,9 @@ const parseBreeding = (breedingRaw, petsRaw, account) => {
       level: upgradeLevel
     }
   })
+  const storedPets = petsStoredRaw?.map(([name, level, power]) => {
+    return { name, level, power }
+  });
   const petsLevels = breedingRaw?.slice(4, 8);
   const shinyPetsLevels = breedingRaw?.slice(22, 26);
   const baseFenceSlots = breedingRaw?.[2]?.[4];
@@ -49,6 +53,7 @@ const parseBreeding = (breedingRaw, petsRaw, account) => {
   })
 
   return {
+    storedPets,
     eggs,
     deadCells,
     speciesUnlocks,

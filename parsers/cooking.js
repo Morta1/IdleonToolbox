@@ -317,4 +317,9 @@ export const calcTimeToNextLevel = (amountNeeded, cookReq, totalMealSpeed) => {
   return amountNeeded * cookReq / totalMealSpeed;
 }
 
+export const getTotalKitchenLevels = (kitchens) => {
+  return kitchens?.reduce((sum, { speedLv, luckLv, fireLv }) => {
+    return sum + speedLv + luckLv + fireLv;
+  }, 0);
+}
 export const maxNumberOfSpiceClicks = 100;

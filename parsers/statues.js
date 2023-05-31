@@ -33,10 +33,9 @@ const getHighestLevelStatues = (characters, statueIndex) => {
 
 export const applyStatuesMulti = (statues, characters) => {
   const voodoStatusification = getHighestTalentByClass(characters, 3, 'Voidwalker', 'VOODOO_STATUFICATION');
-  const talentMutli = 1 + voodoStatusification / 100;
-  return statues?.map((statue) => ({ ...statue, bonus: statue?.bonus * talentMutli }));
+  const talentMulti = 1 + voodoStatusification / 100;
+  return statues?.map((statue) => ({ ...statue, bonus: statue?.bonus, talentMulti }));
 }
-
 export const getStatueBonus = (statues, statueName, talents) => {
   const statue = statues?.find(({ rawName }) => rawName === statueName);
   if (!statue) return 0;
@@ -69,5 +68,5 @@ export const getStatueBonus = (statues, statueName, talents) => {
     default:
       talentBonus = 1;
   }
-  return statue?.level * statue?.bonus * talentBonus;
+  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti;
 };

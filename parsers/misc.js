@@ -1,7 +1,7 @@
 import { lavaLog, tryToParse } from "../utility/helpers";
 import { filteredGemShopItems, filteredLootyItems, keysMap } from "./parseMaps";
 import { classFamilyBonuses, items, mapNames, randomList, rawMapNames, slab } from "../data/website-data";
-import { getTalentBonus, mainStatMap, talentPagesMap } from "./talents";
+import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from "./talents";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
 import { getStampsBonusByEffect } from "./stamps";
@@ -17,6 +17,7 @@ import LavaRand from "../utility/lavaRand";
 import { isPast } from "date-fns";
 import { getGuildBonusBonus } from "./guild";
 import { getStarSignBonus } from "./starSigns";
+import { getPlayerFoodBonus } from "./character";
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
@@ -67,7 +68,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')
   const libraryTowerLevel = towersLevels?.[1];
-  const libraryBooker = getAtomBonus(account?.atoms?.atoms, 'Oxygen_-_Library_Booker');
+  const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
   let superbitBonus = 0;
   if (superbit) {
@@ -81,6 +82,8 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
 
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
+  const list = randomList?.[17]?.split(' ');
+  const filtered = lootyRaw?.filter((itemName) => !list.includes(itemName))
   const allItems = JSON.parse(JSON.stringify(items)); // Deep clone
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
@@ -94,7 +97,7 @@ export const getLooty = (idleonData) => {
                                           }) => !obtained && !filteredLootyItems?.[rawName])?.length;
   return {
     slabItems,
-    lootedItems: lootyRaw?.length,
+    lootedItems: filtered?.length,
     missingItems,
     totalItems: slab?.length,
     rawLootedItems: lootyRaw?.length
@@ -236,6 +239,16 @@ export const getSpeedBonusFromAgility = (agility = 0) => {
   return base * 2 + 1;
 };
 
+export const getHighestLevelOf = (characters, className) => {
+  const classes = characters?.filter((character) => checkCharClass(character?.class, className));
+  return classes?.reduce((res, { level }) => {
+    if (level > res) {
+      return level;
+    }
+    return res;
+  }, 0);
+}
+
 export const getHighestLevelOfClass = (characters, className) => {
   const highest = characters?.reduce((res, { level, class: cName }) => {
     if (res?.[cName]) {
@@ -258,12 +271,6 @@ export const getHighestLevelCharacter = (characters) => {
 export const getHighestCharacterSkill = (characters = [], skillName) => {
   const levels = characters?.map(({ skillsInfo }) => skillsInfo?.[skillName]?.level ?? 0);
   return Math.max(...levels);
-};
-
-export const getAllSkillExp = (sirSavvyStarSign, cEfauntCardBonus, goldenHamBonus, skillExpCardSetBonus, summereadingShrineBonus, ehexpeeStatueBonus, unendingEnergyBonus, skilledDimwitCurse, theRoyalSamplerCurse, equipmentBonus, maestroTransfusionTalentBonus, duneSoulLickBonus, dungeonSkillExpBonus, myriadPostOfficeBox) => {
-  return sirSavvyStarSign + (cEfauntCardBonus + goldenHamBonus) +
-    (skillExpCardSetBonus + summereadingShrineBonus + ehexpeeStatueBonus
-      + (unendingEnergyBonus - skilledDimwitCurse - theRoyalSamplerCurse + (equipmentBonus + (maestroTransfusionTalentBonus + (duneSoulLickBonus + dungeonSkillExpBonus + myriadPostOfficeBox)))));
 };
 
 export const calculateLeaderboard = (characters) => {
@@ -556,4 +563,16 @@ export const getTypeGen = (type) => {
     Souls: 'dSouls'
   }
   return capacities?.[type];
+}
+
+export const getFoodBonus = (character, account, bonusName) => {
+  const foodBonus = getPlayerFoodBonus(character, account);
+  return character?.food?.reduce((res, {
+    Amount,
+    Effect
+  }) => res + (Effect === bonusName ? Amount * foodBonus : 0), 0);
+}
+
+export const getMinigameScore = (account, name) => {
+  return account?.highscores?.minigameHighscores?.find(({ minigame }) => minigame === name)?.score || 0;
 }

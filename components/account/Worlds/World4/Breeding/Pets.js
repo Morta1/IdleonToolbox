@@ -53,13 +53,15 @@ const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
                              }) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv / (fencePets?.[monsterRawName] || 1)) * 8.64e+7;
                   if (underFiveOnly && shinyLevel >= 5) return;
-                  return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'} sx={{
-                    opacity: unlocked ? 1 : .6
-                  }}>
+                  const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
+                  return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}
+                               sx={{ opacity: unlocked ? 1 : .6 }}>
                     <CardContent sx={{ width: 300 }}>
                       <Stack direction={'row'} alignItems={'center'} gap={1}>
-                        <MonsterIcon src={`${prefix}data/${icon}.png`}
-                                     alt=""/>
+                        <MonsterIcon
+                          src={missingIcon ? `${prefix}afk_targets/${monsterName}.png` : `${prefix}data/${icon}.png`}
+                          missingIcon={missingIcon}
+                          alt=""/>
                         <Stack>
                           <Typography>{cleanUnderscore(monsterName)}</Typography>
                           <Typography variant={'caption'}>Lv. {level}</Typography>
@@ -114,9 +116,9 @@ const GeneIcon = styled.img`
   height: 44px;
 `
 const MonsterIcon = styled.img`
-  width: 34px;
-  height: 30px;
-  object-fit: none;
-  object-position: 0 100%;
+  width: 48px;
+  height: 48px;
+  object-fit: ${({ missingIcon }) => missingIcon ? 'contain' : 'none'};
+  ${({ missingIcon }) => missingIcon && `object-position: 0 100%;`}
 `
 export default Pets;

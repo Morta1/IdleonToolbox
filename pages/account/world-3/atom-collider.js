@@ -23,7 +23,7 @@ const AtomCollider = ({}) => {
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <img src={`${prefix}etc/Particle.png`}
                  alt="" style={{ objectFit: 'contain' }}/>
-            <Typography>{particles}</Typography>
+            <Typography>{Math.floor(particles)}</Typography>
           </Stack>
         </CardContent>
       </Card>

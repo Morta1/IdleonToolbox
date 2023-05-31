@@ -23,6 +23,22 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.89",
+    gameVer: "1.82",
+    date: "31/05/2023",
+    features: [
+      'Added Damage, Hp, Mp, Accuracy, Movement Speed info to Characters -> Stats filter (Might be inaccurate :) )',
+      'Added Construction calculations for Build rate, Player XP boost and flaggy rate',
+      'Added missing pet images in Breeding',
+      'Added happy hour timer to dashboard'
+    ],
+    fixes: [
+      'Fixed postoffice, statues calculations',
+      'Possible fix for dashboard throwing exception randomly when update filters'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.88",
     gameVer: "1.82",
     date: "27/05/2023",

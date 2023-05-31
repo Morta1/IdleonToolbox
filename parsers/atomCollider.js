@@ -11,7 +11,7 @@ export const getAtoms = (idleonData, account) => {
 
 const parseAtoms = (divinityRaw, atomsRaw, account) => {
   const localAtoms = atomsRaw ?? [];
-  const particles = Math.floor(divinityRaw?.[39]);
+  const particles = divinityRaw?.[39];
   const atoms = atomsInfo?.map((atomInfo, index) => {
     const level = localAtoms?.[index];
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
@@ -44,16 +44,19 @@ const parseAtomBonus = (atomInfo, level, account) => {
     const voidMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 30 ? res + 1 : res, 0);
     return 100 * (Math.pow(1 + atomInfo?.baseBonus * level / 100, voidMeals) - 1);
   } else if (atomInfo?.name === 'Carbon_-_Wizard_Maximizer') {
-    return 2 * account?.towers?.wizardOverLevels;
+    return atomInfo?.baseBonus * account?.towers?.wizardAboveFifty;
   }
 }
 
-export const getAtomBonus = (atoms, name) => {
-  return atoms?.filter((atom) => {
+export const getAtomBonus = (account, name) => {
+  const allAtoms = account?.atoms?.atoms;
+  return allAtoms?.filter((atom) => {
     return atom?.name === name;
   }).map((atom) => {
-    if (name === 'Fluoride_-_Void_Plate_Chef' || name === 'Carbon_-_Wizard_Maximizer') {
+    if (name === 'Fluoride_-_Void_Plate_Chef') {
       return atom?.bonus
+    } else if (name === 'Carbon_-_Wizard_Maximizer') {
+      return atom?.baseBonus * account?.towers?.wizardAboveFifty
     } else {
       return atom?.level * atom?.baseBonus;
     }

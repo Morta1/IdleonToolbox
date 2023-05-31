@@ -19,8 +19,8 @@ const Statues = ({ statues }) => {
   );
 };
 
-const StatueTooltip = ({ effect, bonus, name, level, progress }) => {
-  const calcBonus = Math.round(level * bonus);
+const StatueTooltip = ({ effect, bonus, talentMulti, name, level, progress }) => {
+  const calcBonus = Math.round(level * bonus * talentMulti);
   const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
   const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', calcBonus)));
   return <>

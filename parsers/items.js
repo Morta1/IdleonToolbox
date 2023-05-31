@@ -35,15 +35,20 @@ export const getStatsFromGear = (character, bonusIndex, account) => {
   const silkroadMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 16) ?? 0;
   const silkroadSoftware = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 17) ?? 0;
   const silkroadProcessor = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 18) ?? 0;
+  if (isNaN(bonusIndex)) {
+    return equipment?.reduce((res, item) => res + (getStatFromEquipment(item, bonusIndex)), 0);
+  }
   return equipment?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
       (((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1))
     , 0)
 }
 
 export const getStatFromEquipment = (item, statName) => {
-  // %_SKILL_EXP
   const misc1 = item?.UQ1txt === statName ? item?.UQ1val : 0;
   const misc2 = item?.UQ2txt === statName ? item?.UQ2val : 0;
+  if (item?.[statName]) {
+    return item?.[statName]
+  }
   return misc1 + misc2;
 }
 
@@ -88,14 +93,18 @@ export const findItemByDescriptionInInventory = (arr, desc) => {
   const relevantItems = arr.filter(({
                                       misc,
                                       description
-                                    }) => description?.toLowerCase()?.includes(desc?.toLowerCase()) || misc?.toLowerCase()?.includes(desc?.toLowerCase()), [])
-    .map((item) => ({ ...item, ...items?.[item?.rawName] }));
+                                    }) => description?.toLowerCase()?.includes(desc?.toLowerCase()) || misc?.toLowerCase()?.includes(desc?.toLowerCase()), []);
   return relevantItems?.reduce((res, item) => {
     const itemExistsIndex = res?.findIndex((i) => i?.rawName === item?.rawName);
     const itemExists = res?.[itemExistsIndex];
     if (itemExists) {
-      res?.splice(itemExistsIndex, 1);
-      res = [...res, { ...item, owners: [...(itemExists?.owners || []), item?.owner] }]
+      const ownerExist = itemExists?.owners?.includes(item?.owner);
+      const owners = ownerExist ? itemExists?.owners : [...itemExists?.owners,
+        item?.owner]
+      if (itemExists?.misc === item?.misc) {
+        res?.splice(itemExistsIndex, 1);
+      }
+      res = [...res, { ...item, owners: owners }]
     } else {
       res = [...res, { ...item, owners: [item?.owner] }]
     }

@@ -1,16 +1,12 @@
 import { Stack, Typography } from "@mui/material";
 import { useMemo } from "react";
 import { kFormatter, numberWithCommas, prefix } from "utility/helpers";
+import { calcStampLevels } from "../../../parsers/stamps";
 
 const Totals = ({ account }) => {
   const calcBubbleLevels = (allBubbles) => {
     if (!allBubbles) return 0;
     return Object.values(allBubbles)?.reduce((res, bubbles) => res + bubbles?.reduce((bubbleLevels, { level }) => bubbleLevels + level, 0), 0);
-  };
-
-  const calcStampLevels = (allStamps) => {
-    if (!allStamps) return 0;
-    return Object.values(allStamps)?.reduce((res, stamps) => res + stamps?.reduce((stampsLevels, { level }) => stampsLevels + level, 0), 0);
   };
 
   const calcStatueLevels = (allStatues) => {

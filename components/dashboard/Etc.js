@@ -8,6 +8,7 @@ import Tooltip from "../Tooltip";
 import Timer from "../common/Timer";
 import Trade from "../account/Worlds/World5/Sailing/Trade";
 import RandomEvent from "../account/Misc/RandomEvent";
+import { calcHappyHours } from "../../parsers/dungeons";
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -15,6 +16,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
+  const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
+
   const closestTrap = account?.traps?.reduce((closestTrap, traps) => {
     const times = traps?.map(({ timeLeft }) => timeLeft);
     const lowest = Math.min(...times);
@@ -27,6 +30,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
       return closestTrap;
     }
   }, 0);
+
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {events?.length > 0 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
@@ -86,7 +90,35 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Tooltip>
           </CardContent>
         </Card> : null}
-        <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
+        <Card>
+          <CardContent>
+            <Tooltip title={'Next happy hour'}>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
+                <IconImg src={`${prefix}etc/Happy_Hour.png`}/>
+                {nextHappyHours?.length > 0 ?
+                  <Timer type={'countdown'} date={nextHappyHours?.[0]}
+                         lastUpdated={lastUpdated}/> : "waiting for lava to set them"}
+              </Stack>
+            </Tooltip>
+          </CardContent>
+        </Card>
+      </Stack>
+      <Stack gap={1}>
+        <Card sx={{ height: 'fit-content' }}>
+          <CardContent>
+            <Stack>
+              <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#bfff77' }}>Daily Reset</Typography>
+              <Timer type={'countdown'} lastUpdated={lastUpdated}
+                     date={dailyReset}/>
+            </Stack>
+            <Stack sx={{ mt: 2 }}>
+              <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#b2ecfd' }}>Weekly Reset</Typography>
+              <Timer type={'countdown'} lastUpdated={lastUpdated}
+                     date={weeklyReset}/>
+            </Stack>
+          </CardContent>
+        </Card>
+        {account?.finishedWorlds?.World2 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Tooltip title={<Stack>
@@ -105,22 +137,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
 
             </Stack>
           </CardContent>
-        </Card>
+        </Card> : null}
       </Stack>
-      <Card sx={{ height: 'fit-content' }}>
-        <CardContent>
-          <Stack>
-            <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#bfff77' }}>Daily Reset</Typography>
-            <Timer type={'countdown'} lastUpdated={lastUpdated}
-                   date={dailyReset}/>
-          </Stack>
-          <Stack sx={{ mt: 2 }}>
-            <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#b2ecfd' }}>Weekly Reset</Typography>
-            <Timer type={'countdown'} lastUpdated={lastUpdated}
-                   date={weeklyReset}/>
-          </Stack>
-        </CardContent>
-      </Card>
     </Stack>
   </>
 };
@@ -131,6 +149,5 @@ const IconImg = styled.img`
   height: 35px;
   object-fit: contain;
 `;
-
 
 export default Etc;

@@ -2,14 +2,14 @@ import { growth } from "../utility/helpers";
 import { classes, talents } from "../data/website-data";
 import { getAchievementStatus } from "./achievements";
 
-export const getTalentBonus = (talents, talentTree, talentName, yBonus) => {
+export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
   const talent = talentsObj?.find(({ name }) => name === talentName);
   if (!talent) return 0;
   if (yBonus) {
-    return growth(talent?.funcY, talent?.level, talent?.y1, talent?.y2, false) ?? 0
+    return growth(talent?.funcY, useMaxLevel ? talent?.maxLevel : talent?.level, talent?.y1, talent?.y2, false) ?? 0
   }
-  return growth(talent?.funcX, talent?.level, talent?.x1, talent?.x2, false) ?? 0;
+  return growth(talent?.funcX, useMaxLevel ? talent?.maxLevel : talent?.level, talent?.x1, talent?.x2, false) ?? 0;
 }
 
 export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
@@ -51,6 +51,7 @@ export const mainStatMap = {
   Beginner: 'luck',
   Journeyman: 'luck',
   Maestro: 'luck',
+  Voidwalker: 'luck',
   Warrior: 'strength',
   Barbarian: 'strength',
   Blood_Berserker: 'strength',
@@ -97,10 +98,10 @@ export const getActiveBuffs = (activeBuffs, talents) => {
   return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId));
 }
 
-export const getHighestTalentByClass = (characters, talentTree, className, talentName) => {
+export const getHighestTalentByClass = (characters, talentTree, className, talentName, yBonus, useMaxLevel) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
   return classes?.reduce((res, { talents }) => {
-    const talent = getTalentBonus(talents, talentTree, talentName);
+    const talent = getTalentBonus(talents, talentTree, talentName, yBonus, useMaxLevel);
     if (talent > res) {
       return talent
     }
@@ -138,7 +139,6 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (getAchievementStatus(achievements, 291)) {
     addedLevels += 1;
   }
-
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
