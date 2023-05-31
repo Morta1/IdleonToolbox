@@ -21,7 +21,7 @@ import {
   guildTasks,
   hasAvailableSpiceClicks,
   hasItemsInShop,
-  isBallsOverdue,
+  isBallsOverdue, isFlagReady,
   isStampReducerMaxed,
   overflowingPrinter, overflowingShinies,
   refineryAlerts,
@@ -49,7 +49,8 @@ const alertsMapping = {
   shops: hasItemsInShop,
   printerAtoms: overflowingPrinter,
   shinies: overflowingShinies,
-  randomEvents: zeroRandomEvents
+  randomEvents: zeroRandomEvents,
+  flags: isFlagReady
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -79,6 +80,9 @@ const Account = ({ account, trackers, trackersOptions }) => {
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.stampReducer && alerts?.stampReducer ?
             <Alert title={'Stamp reducer is maxed (90%)!'} iconPath={'data/Atom0'}/> : null}
+          {trackers?.flags && alerts?.flags?.length > 0 ?
+            <Alert title={`There are ${alerts?.flags?.length} flags finished in construction board`}
+                   iconPath={'data/CogFLflag'}/> : null}
           {trackers?.bargainTag && alerts?.bargainTag ?
             <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
           {trackers?.randomEvents && alerts?.randomEvents ?

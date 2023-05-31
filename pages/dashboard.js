@@ -35,7 +35,7 @@ import { getRawShopItems } from "../parsers/shops";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops',
+  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops', 'flags',
   'randomEvents'
 ].toSimpleObject();
 

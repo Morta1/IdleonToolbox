@@ -96,7 +96,7 @@ export const areKeysOverdue = (account) => {
   const ticketsAlerts = tickets?.filter(({ daysSincePickup }, index) => {
     return (index === 0 || account?.finishedWorlds?.[`World${index}`]) && daysSincePickup >= 3;
   });
-  return [...keysAlerts, ...ticketsAlerts];
+  return [...(keysAlerts || []), ...(ticketsAlerts || [])];
 }
 
 export const areVialsReady = (account, trackersOptions) => {
@@ -264,5 +264,14 @@ export const overflowingShinies = (account, trackersOptions) => {
       && shinyLevel >= input?.value);
     return [...res, ...pets]
   }, [])
+}
+
+export const isFlagReady = (account) => {
+  if (!account?.finishedWorlds?.World2) return false;
+  return account?.construction?.board?.filter(({
+                                                 flagPlaced,
+                                                 currentAmount,
+                                                 requiredAmount
+                                               }) => flagPlaced && currentAmount === requiredAmount);
 }
 

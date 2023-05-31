@@ -25,13 +25,15 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
   const shinyPetsLevels = breedingRaw?.slice(22, 26);
   const baseFenceSlots = breedingRaw?.[2]?.[4];
   const fenceSlots = Math.round(5 + baseFenceSlots + 2 * (account?.gemShopPurchases?.find((value, index) => index === 125) ?? 0));
-  const fencePets = petsRaw?.slice(0, fenceSlots)?.reduce((res, [petName, , , color]) => {
+  const rawFencePets = petsRaw?.slice(0, fenceSlots)
+  const fencePetsObject = rawFencePets?.reduce((res, [petName, , , color]) => {
     if (color === 0) return res;
     return {
       ...res,
       [petName]: res?.[petName] ? res?.[petName] + 1 : 1
     }
   }, {});
+  const fencePets = [];
   const pets = petStats?.map((petList, worldIndex) => {
     const speciesUnlocked = speciesUnlocks?.[worldIndex];
     return petList?.map((pet, petIndex) => {
@@ -39,7 +41,7 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
       shinyLevel = shinyPetsLevels?.[worldIndex]?.[petIndex] === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
       const goal = Math.floor((1 + Math.pow(shinyLevel, 1.6)) * Math.pow(1.7, shinyLevel));
       const passiveValue = Math.round(pet?.baseValue * shinyLevel);
-      return {
+      const petInfo = {
         ...pet,
         level: petsLevels?.[worldIndex]?.[petIndex],
         shinyLevel,
@@ -49,8 +51,12 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
         passiveValue,
         unlocked: petIndex < speciesUnlocked
       }
+      if (fencePetsObject?.[pet?.monsterRawName]) {
+        fencePets.push(petInfo);
+      }
+      return petInfo;
     })
-  })
+  });
 
   return {
     storedPets,
@@ -58,6 +64,7 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
     deadCells,
     speciesUnlocks,
     fencePets,
+    fencePetsObject,
     maxArenaLevel: account?.accountOptions?.[89],
     timeToNextEgg: account?.accountOptions?.[87] * 1000,
     petUpgrades: petUpgradesList,

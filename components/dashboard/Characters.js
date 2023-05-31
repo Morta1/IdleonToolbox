@@ -23,6 +23,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import Timer from "../common/Timer";
 import { TitleAndValue } from "../common/styles";
 import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
+import { getMaxDamage, notateDamage } from "../../parsers/damage";
 
 const Characters = ({ characters = [], account, lastUpdated, trackersOptions, trackers }) => {
   const rawTools = getAllTools();
@@ -153,10 +154,19 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     [character, account]);
   const { afkGains } = useMemo(() => getAfkGain(character, characters, account), [character,
     account]);
+  const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
+
 
   return <Stack gap={1}>
-    <TitleAndValue title={name} value={`lv. ${stats?.level}`}/>
+    <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
     <TitleAndValue title={'Afk time'} value={<Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/>}/>
+    <Divider flexItem sx={{ background: 'black' }}/>
+    <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
+    <TitleAndValue title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
+    <TitleAndValue title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
+    <TitleAndValue title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
+    <TitleAndValue title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+    <Divider flexItem sx={{ background: 'black' }}/>
     <TitleAndValue title={'Cash multi'} value={`${notateNumber(cashMulti)}%`}/>
     <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
     <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>

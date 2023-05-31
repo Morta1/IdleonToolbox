@@ -30,7 +30,9 @@ const patchNotes = [
       'Added Damage, Hp, Mp, Accuracy, Movement Speed info to Characters -> Stats filter (Might be inaccurate :) )',
       'Added Construction calculations for Build rate, Player XP boost and flaggy rate',
       'Added missing pet images in Breeding',
-      'Added happy hour timer to dashboard'
+      'Added happy hour timer to dashboard',
+      'Added an alert for finished flags on construction',
+      'Added a display of all fence pets in breeding page'
     ],
     fixes: [
       'Fixed postoffice, statues calculations',

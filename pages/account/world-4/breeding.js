@@ -81,7 +81,7 @@ const Breeding = () => {
         })}
       </Tabs>
       {selectedTab === 0 ?
-        <Pets {...state?.account?.breeding} fencePets={state?.account?.breeding?.fencePets} lab={state?.account?.lab}
+        <Pets {...state?.account?.breeding} lab={state?.account?.lab}
               lastUpdated={state?.lastUpdated}/> : null}
       {selectedTab === 1 ? <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
                                              account={state?.account}

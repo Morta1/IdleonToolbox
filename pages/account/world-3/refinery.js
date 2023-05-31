@@ -1,5 +1,5 @@
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { cleanUnderscore, growth, kFormatter, numberWithCommas, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
@@ -22,7 +22,18 @@ const boldSx = { fontWeight: 'bold' };
 
 const Refinery = () => {
   const { state } = useContext(AppContext);
-  const { refinery, alchemy, saltLick, lab, stamps, charactersLevels, breeding, rift, towers } = state?.account;
+  const {
+    refinery,
+    printer,
+    alchemy,
+    saltLick,
+    lab,
+    stamps,
+    charactersLevels,
+    breeding,
+    rift,
+    towers
+  } = state?.account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
   const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
@@ -44,7 +55,9 @@ const Refinery = () => {
   const [squiresCycles, setSquiresCycles] = useState(0);
   const [squiresCooldown, setSquiresCooldown] = useState([]);
   const [refineryCycles, setRefineryCycles] = useState([]);
-
+  const activePrints = useMemo(() => printer?.reduce((res, arr) => ([...res,
+    arr.filter(({ active }) => active)]), []).flat(), [printer])
+  // console.log(activePrints)
   useEffect(() => {
     const squires = state?.characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');
     const squiresDataTemp = squires.reduce((res, character) => {

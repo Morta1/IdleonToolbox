@@ -1,5 +1,5 @@
-import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
+import { Badge, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from "@mui/material";
+import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from "utility/helpers";
 import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { getJewelBonus, getLabBonus } from "../../../../../parsers/lab";
@@ -7,7 +7,7 @@ import { getShinyBonus } from "../../../../../parsers/breeding";
 import Timer from "../../../../common/Timer";
 import Tooltip from "../../../../Tooltip";
 
-const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
+const Pets = ({ pets, lab, fencePetsObject, fencePets, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
   const [underFiveOnly, SetUnderFiveOnly] = useState(false);
 
@@ -19,7 +19,41 @@ const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
   }
   const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
 
+  const fencePetsByTime = useMemo(() => {
+    return fencePets?.map((pet) => ({
+      ...pet,
+      timeLeft: ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7
+    })).sort((a,b) => a?.timeLeft - b?.timeLeft)
+  }, [fencePets]);
+
   return <>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={2} my={5}>
+      {fencePetsByTime?.map((pet, index) => {
+        const missingIcon = pet?.icon === 'Mface23' && pet?.monsterRawName !== 'shovelR';
+        const amount = fencePetsObject?.[pet?.monsterRawName];
+        const timeLeft = ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7;
+        return <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left', }} badgeContent={amount} color="primary"
+                      key={'fence' + index}>
+          <Card>
+            <CardContent>
+              <Stack alignItems={'center'} justifyContent={'center'} direction='row' gap={1}>
+                <MonsterIcon
+                  style={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
+                  src={missingIcon ? `${prefix}afk_targets/${pet?.monsterName}.png` : `${prefix}data/${pet?.icon}.png`}
+                  missingIcon={missingIcon}
+                  alt=""/>
+                <Stack>
+                  <Typography>Lv. {pet?.shinyLevel}</Typography>
+                  {<Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                          staticTime={pet?.progress === 0}
+                          date={new Date().getTime() + (timeLeft)}/>}
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Badge>
+      })}
+    </Stack>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
       <Stack direction={'row'}>
         <FormControlLabel
@@ -51,7 +85,7 @@ const Pets = ({ pets, lab, fencePets, lastUpdated }) => {
                                progress,
                                goal
                              }) => {
-                  const timeLeft = ((goal - progress) / fasterShinyLv / (fencePets?.[monsterRawName] || 1)) * 8.64e+7;
+                  const timeLeft = ((goal - progress) / fasterShinyLv / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (underFiveOnly && shinyLevel >= 5) return;
                   const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}

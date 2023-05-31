@@ -64,9 +64,9 @@ export const getMaxDamage = (character, characters, account) => {
   playerInfo.maxDamage = baseDamage * perDamage * percentDamage;
   playerInfo.minDamage = mastery * playerInfo.maxDamage;
 
-  // console.log('dmg array', [baseDamage, perDamage, percentDamage])
-  // console.log('playerInfo', playerInfo);
-  // console.log('damage range', notateDamage(playerInfo));
+  //   console.log('dmg array', [baseDamage, perDamage, percentDamage])
+  //   console.log('playerInfo', playerInfo);
+  //   console.log('damage range', notateDamage(playerInfo));
 
   return playerInfo;
 }
@@ -81,7 +81,6 @@ export const notateDamage = (playerInfo) => {
         Math.ceil(playerInfo.maxDamage / 1e3) / 1e3 + "[") : 9999999999999 > playerInfo.maxDamage ?
         damageNotation.push(Math.ceil(playerInfo.minDamage / 1e5) / 10 + "[~" + Math.ceil(playerInfo.maxDamage / 1e5) / 10 + "[")
         : damageNotation.push(Math.ceil(playerInfo.minDamage / 1e9) / 1e3 + "!~" + Math.ceil(playerInfo.maxDamage / 1e9) / 1e3 + "!");
-  console.log(damageNotation)
   return damageNotation;
 }
 

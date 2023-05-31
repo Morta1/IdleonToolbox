@@ -98,9 +98,6 @@ const Construction = () => {
             </Button>
           </Stack>
         </Stack>
-        {/*notateNumber(totalBuildRate)*/}
-        {/*notateNumber(totalExpRate)*/}
-        {/*notateNumber(totalFlaggyRate)*/}
         <Stack direction={'row'} my={2} gap={2}>
           <Total title={'Total Build Speed'}
                  value={`${notateNumber(state?.account?.construction?.totalBuildRate)}/HR`}/>
