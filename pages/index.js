@@ -1173,16 +1173,19 @@ const Home = () => {
                 </Grid>
               </Grid>
               <Divider style={{ margin: "3em 0" }}/>
+              {index % 3 === 0 ? <>
+                <Stack>
+                  <ins className="adsbygoogle"
+                       style={{ display: 'inline-block', height: 90 }}
+                       data-ad-client="ca-pub-1842647313167572"
+                       data-ad-slot="7203005854"
+                  />
+                </Stack>
+                <Divider style={{ margin: "3em 0" }}/>
+              </> :null}
             </React.Fragment>
           );
         })}
-      </Stack>
-      <Stack>
-        <ins className="adsbygoogle"
-             style={{ display: 'inline-block', height: 90 }}
-             data-ad-client="ca-pub-1842647313167572"
-             data-ad-slot="7203005854"
-        />
       </Stack>
       <Dialog open={openPastebin} onClose={() => setOpenPastebin(false)}>
         <DialogTitle>Pastebin</DialogTitle>
