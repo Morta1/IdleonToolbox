@@ -35,7 +35,8 @@ import { getRawShopItems } from "../parsers/shops";
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops', 'flags',
+  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops',
+  'flags',
   'randomEvents'
 ].toSimpleObject();
 
@@ -62,7 +63,15 @@ const trackersOptions = {
   characters: {
     anvil: { showAlertBeforeFull: true },
     postOffice: { input: { label: 'threshold', type: 'number', value: 1, helperText: 'Number of boxes' } },
-    talents: { printerGoBrrr: true, refineryThrottle: true, craniumCooking: true, 'itsYourBirthday!': true },
+    talents: {
+      printerGoBrrr: true,
+      refineryThrottle: true,
+      craniumCooking: true,
+      'itsYourBirthday!': true,
+      voidTrialRerun: true,
+      arenaSpirit: true,
+      tasteTest: true
+    },
     crystalCountdown: { showMaxed: true, showNonMaxed: false }
   }
 };

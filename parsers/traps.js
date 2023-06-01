@@ -25,3 +25,15 @@ const parseTraps = (charactersData) => {
     }, []);
   })
 }
+
+export const calcTotalCritters = (traps) => {
+  return traps?.reduce((res, trapSlots) => {
+    trapSlots.reduce((total, { crittersQuantity, rawName }) => {
+      res = {
+        ...res,
+        [rawName]: (res?.[rawName] ?? 0) + crittersQuantity
+      }
+    }, {});
+    return res;
+  }, {});
+}

@@ -7,7 +7,6 @@ import { getJewelBonus, getLabBonus } from "./lab";
 import { isMasteryBonusUnlocked } from "./misc";
 import { getStampsBonusByEffect } from "./stamps";
 import { getArcadeBonus } from "./arcade";
-import { getAchievementStatus } from "./achievements";
 
 const cauldronsIndexMapping = { 0: "power", 1: "quicc", 2: "high-iq", 3: "kazam" };
 const liquidsIndex = { 0: "water drops", 1: "liquid n2", 2: "trench h2o" };
@@ -161,11 +160,19 @@ export const getActiveBubbleBonus = (equippedBubbles, bIndex) => {
 };
 
 export const getBubbleBonus = (cauldrons, cauldronName, bubName, round, shouldMulti) => {
-  const bubble = cauldrons?.[cauldronName]?.find(({ bubbleName }) => bubbleName === bubName);
-  if (!bubble) return 0;
+  const bubbleIndex = cauldrons?.[cauldronName]?.findIndex(({ bubbleName }) => bubbleName === bubName);
+  if (bubbleIndex === -1) return 0;
+  const multiIndexes = {
+    quicc: [0, 6, 9, 12, 14].toSimpleObject(),
+    power: [0, 2, 4, 7, 14].toSimpleObject(),
+    'high-iq': [0, 2, 6, 12, 14].toSimpleObject()
+  }
+  const bubble = cauldrons?.[cauldronName]?.[bubbleIndex];
   const multiBubble = cauldrons?.[cauldronName]?.[1];
   const multiBubbleBonus = shouldMulti ? growth(multiBubble?.func, multiBubble?.level, multiBubble?.x1, multiBubble?.x2, round) : 1;
-  return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus) ?? 0;
+  const anotherMultiBubble = cauldrons?.[cauldronName]?.[16];
+  const anotherMultiBubbleBonus = multiIndexes?.[cauldronName]?.[bubbleIndex] ? growth(anotherMultiBubble?.func, anotherMultiBubble?.level, anotherMultiBubble?.x1, anotherMultiBubble?.x2, round) : 1;
+  return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus * anotherMultiBubbleBonus) ?? 0;
 };
 
 const getVials = (vialsRaw) => {

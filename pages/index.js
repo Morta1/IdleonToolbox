@@ -23,6 +23,21 @@ import DiscordInvite from "../components/DiscordInvite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.90",
+    gameVer: "1.82",
+    date: "01/05/2023",
+    features: [
+      'Added Void Trial Rerun, Arena Spirit, Taste Test to dashboard alerts',
+      'Added few submitted builds',
+      'Updated the view for refinery page (hopefully for the better) and now accounting for printed items from Printer'
+    ],
+    fixes: [
+      'Fixed atom particles display',
+      'Fixed bubble calculations'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.89",
     gameVer: "1.82",
     date: "31/05/2023",
@@ -1182,7 +1197,7 @@ const Home = () => {
                   />
                 </Stack>
                 <Divider style={{ margin: "3em 0" }}/>
-              </> :null}
+              </> : null}
             </React.Fragment>
           );
         })}

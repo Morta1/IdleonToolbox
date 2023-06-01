@@ -3,7 +3,7 @@ import { getPostOfficeBonus } from "../../parsers/postoffice";
 import { items, randomList } from "../../data/website-data";
 import { getExpReq, isArenaBonusActive } from "../../parsers/misc";
 import { getPlayerAnvil, getTimeTillCap } from "../../parsers/anvil";
-import { checkCharClass, getTalentBonus } from "../../parsers/talents";
+import { checkCharClass, getTalentBonus, relevantTalents } from "../../parsers/talents";
 
 // character, characters, characterIndex, account
 
@@ -69,12 +69,6 @@ export const isAnvilOverdue = (characters, account, afkTime, characterIndex, tra
 export const isTalentReady = (character, trackersOptions) => {
   const { talents } = trackersOptions;
   const { postOffice, afkTime, cooldowns, flatTalents } = character;
-  const relevantTalents = {
-    32: true, // PRINTER_GO_BRRR
-    130: true, // Refinery_Throttle
-    490: true, // Cranium,
-    25: true // ITS_YOUR_BIRTHDAY!
-  };
   const cooldownBonus = getPostOfficeBonus(postOffice, "Magician_Starterpack", 2);
   const cdReduction = Math.max(0, cooldownBonus);
   const timePassed = (new Date().getTime() - afkTime) / 1000;
@@ -133,7 +127,7 @@ export const isAkfForMoreThanTenHours = (character, lastUpdated) => {
   return false;
 }
 
-export const crystalCooldownSkillsReady = (character, trackersOptions) => {
+export const crystalCooldownSkillsReady = (character) => {
   if (checkCharClass(character?.class, 'Maestro')) {
     return Object.entries(character?.skillsInfo)?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character') {

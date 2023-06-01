@@ -395,6 +395,9 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.activeBuffs = character.activeBuffs?.map(({ name }) => {
     return character.flatTalents?.find(({ name: tName }) => tName === name);
   });
+  character.talentsLoadout = char?.AttackLoadout?.flat()?.filter((skill) => skill !== 'Null')?.map((skillIndex) =>
+    character.flatTalents?.find(({ skillIndex: sIndex }) => skillIndex === sIndex)
+    || character.flatStarTalents?.find(({ skillIndex: sIndex }) => skillIndex === sIndex))
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);

@@ -108,7 +108,7 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
     } else {
-      if (!stat.includes(statName)) return sum;
+      if (stat !== statName) return sum;
     }
     if (statName === 'PxLine') {
       return sum + (level * baseStat ?? 0);

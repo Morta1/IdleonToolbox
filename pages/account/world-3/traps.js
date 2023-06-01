@@ -7,21 +7,11 @@ import Timer from "components/common/Timer";
 import Tooltip from "../../../components/Tooltip";
 import { TitleAndValue } from "../../../components/common/styles";
 import { NextSeo } from "next-seo";
+import { calcTotalCritters } from "../../../parsers/traps";
 
 const Traps = () => {
   const { state } = useContext(AppContext);
   const { traps } = state?.account || {};
-  const calcTotalCritters = (traps) => {
-    return traps?.reduce((res, trapSlots) => {
-      trapSlots.reduce((total, { crittersQuantity, rawName }) => {
-        res = {
-          ...res,
-          [rawName]: (res?.[rawName] ?? 0) + crittersQuantity
-        }
-      }, {});
-      return res;
-    }, {});
-  }
   const totalCritters = useMemo(() => calcTotalCritters(traps), [traps]);
 
   return <>
@@ -89,7 +79,8 @@ const Traps = () => {
                   })}
                 </Stack>
               </Stack>
-              {realTraps?.length > 0 ? <TotalCritters critters={charCritters} index={index}/> : <Card variant={'outlined'}><CardContent>{playerName} has no traps</CardContent></Card>}
+              {realTraps?.length > 0 ? <TotalCritters critters={charCritters} index={index}/> :
+                <Card variant={'outlined'}><CardContent>{playerName} has no traps</CardContent></Card>}
             </CardContent>
           </Card>
         </React.Fragment>

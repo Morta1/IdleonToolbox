@@ -22,7 +22,7 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
     funcY,
     y1,
     y2
-  } = {}) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2, false) : growth(funcY, level, y1, y2, false) : 0, 0) ?? 0;
+  } = {}) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2, false) : growth(funcY, level, y1, y2, false) : res, 0) ?? 0;
 }
 
 export const talentPagesMap = {
@@ -142,14 +142,16 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level,
+      baseLevel: talent.level
     }));
   }
   return Object.entries(talents).reduce((res, [key, data]) => {
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level,
+      baseLevel: talent.level
     }));
     return {
       ...res,
@@ -254,4 +256,14 @@ export const getBubonicGreenTube = (character, characters, account) => {
   } else {
     return 0;
   }
+}
+
+export const relevantTalents = {
+  32: true, // Printer_Go_Brr
+  130: true, // Refinery_Throttle
+  490: true, // Cranium,
+  25: true, // ITS_YOUR_BIRTHDAY!,
+  45: true, // VOID_SPEED_RERUN,
+  370: true, // ARENA_SPIRIT
+  145: true // TASTE_TEST
 }

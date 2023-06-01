@@ -6,13 +6,7 @@ import Tooltip from "../Tooltip";
 import { TalentTooltip } from "../common/styles";
 import { getPostOfficeBonus } from "parsers/postoffice";
 import { Stack } from "@mui/material";
-
-const relevantTalents = {
-  32: true, // Printer_Go_Brr
-  130: true, // Refinery_Throttle
-  490: true, // Cranium,
-  25: true // ITS_YOUR_BIRTHDAY!
-};
+import { relevantTalents } from "../../parsers/talents";
 
 const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }) => {
   const cooldownBonus = getPostOfficeBonus(postOffice, "Magician_Starterpack", 2);
@@ -55,16 +49,5 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
     </Stack>
   ) : null;
 };
-
-const ActiveSkillsCDStyle = styled.div`
-  display: flex;
-  justify-content: center;
-
-  .talent {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-`;
 
 export default ActiveSkillsCD;

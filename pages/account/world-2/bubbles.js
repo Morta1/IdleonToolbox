@@ -35,8 +35,6 @@ const Bubbles = () => {
     const bubblesPage = Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab];
     setBubbles(state?.account?.alchemy?.bubbles?.[bubblesPage]);
   }, []);
-
-
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
     const bubblesPage = Object.keys(state?.account?.alchemy?.bubbles)?.[selected];
@@ -178,7 +176,7 @@ const Bubbles = () => {
               <Stack direction={'row'} alignItems={'center'} gap={.5}>
                 {atomCost > 0 ?
                   <Tooltip title={<Typography
-                    color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
+                    color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{Math.floor(state?.account?.atoms?.particles)} / {atomCost}</Typography>}>
                     <img width={18} height={18} src={`${prefix}etc/Particle.png`} alt=""/>
                   </Tooltip> : null}
                 <Typography variant={'body1'}>{level}</Typography>
@@ -273,7 +271,7 @@ const Bubbles = () => {
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
                       {atomCost ? <Stack gap={2} alignItems={'center'}>
                           <Tooltip title={<Typography
-                            color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{state?.account?.atoms?.particles} / {atomCost}</Typography>}>
+                            color={state?.account?.atoms?.particles > atomCost ? 'success.light' : ''}>{Math.floor(state?.account?.atoms?.particles)} / {atomCost}</Typography>}>
                             <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
                           </Tooltip>
                           <HtmlTooltip title={atomCost}>
