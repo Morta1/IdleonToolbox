@@ -217,6 +217,7 @@ const Builds = () => {
           client="ca-pub-1842647313167572"
           slot="6690860140"
           responsive={'true'}
+          format={'horizontal'}
         />
       </Box>
     </Stack>
