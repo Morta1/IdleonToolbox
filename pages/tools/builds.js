@@ -215,7 +215,6 @@ const Builds = () => {
         <Adsense
           style={{ display: 'inline-block', height: 90 }}
           client="ca-pub-1842647313167572"
-          responsive={'true'}
           slot="6690860140"
           format={''}
         />
