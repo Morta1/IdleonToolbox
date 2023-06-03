@@ -172,7 +172,7 @@ function NavBar({ children, window }) {
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar position="fixed" sx={{ ml: { sm: `${drawerWidth}px` } }}>
-        <Toolbar>
+        <Toolbar sx={{ height: 70, minHeight: 70 }}>
           {shouldDisplayMenu ? (
             <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle}
                         sx={{ mr: 2, display: { sm: "none" } }}>
@@ -187,9 +187,9 @@ function NavBar({ children, window }) {
           </Link>
           <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu}/>
           {shouldDisplayMenu && state?.lastUpdated ? (
-            <Box sx={{ marginLeft: "auto", mr: 2 }}>
+            <Box sx={{ marginLeft: "auto", mx: 2 }}>
               <Typography component={"div"} variant={"caption"}>
-                Last Updated {`${state?.manualImport ? "(offline)" : state?.pastebin ? '(pastebin)' : ""}`}
+                {isXs ? '' : 'Last Updated'} {`${state?.manualImport ? "(offline)" : state?.pastebin ? '(pastebin)' : ""}`}
               </Typography>
               <Typography component={"div"} variant={"caption"}>
                 {format(state?.lastUpdated, "dd/MM/yyyy HH:mm:ss")}
@@ -277,7 +277,7 @@ function NavBar({ children, window }) {
               "& .MuiPaper-root": { backgroundImage: "none" }
             }}
           >
-            <Toolbar sx={{ mt: 3 }}/>
+            <Toolbar sx={{ height: 70, minHeight: 70 }}/>
             <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}
                            drawer/>
             {drawer === "account" ? <AccountDrawer onLabelClick={handleDrawerToggle}/> : null}
@@ -292,16 +292,16 @@ function NavBar({ children, window }) {
             }}
             open
           >
-            <Toolbar/>
+            <Toolbar sx={{ height: 70, minHeight: 70 }}/>
             {drawer === "account" ? <AccountDrawer/> : null}
             {drawer === "characters" ? <CharactersDrawer/> : null}
             {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu}/> : null}
           </Drawer>
         </Box>
       ) : null}
-      <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
-        <Toolbar sx={{ mt: 3 }}/>
-        <Box sx={{ height: "100%", minHeight: "unset" }}>{children}</Box>
+      <Box component="main" sx={{ flexGrow: 1, px: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+        <Toolbar sx={{ height: 70, minHeight: 70 }}/>
+        {children}
       </Box>
       <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
                            handleClose={() => setEmailPasswordDialog(false)}

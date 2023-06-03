@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -29,6 +29,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import debounce from "lodash.debounce";
 import Button from "@mui/material/Button";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import { Adsense } from "@ctrl/react-adsense";
 
 const allClasses = Object.keys(allBuilds);
 
@@ -133,81 +134,93 @@ const Builds = () => {
       title="Idleon Toolbox | Builds"
       description="Builds for all classes"
     />
-    <Typography mt={2} variant={"h2"}>Builds</Typography>
-    <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <FormControl sx={{ width: 270 }}>
-        <InputLabel id="class-select-label">Class</InputLabel>
-        <Select
-          disabled={createMode}
-          labelId="class-select-label"
-          id="class-select"
-          value={build?.className}
-          label="Class"
-          onChange={handleClassChange}
-        >
-          {Object.keys(allBuilds).map((name, index) => {
-            return <MenuItem key={`${name}-${index}`} value={name}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <ClassIcon src={`${prefix}data/ClassIcons${classes.indexOf(name)}.png`} alt=""/>
-                <Typography>{cleanUnderscore(name)}</Typography>
-              </Stack>
-            </MenuItem>;
-          })}
-        </Select>
-      </FormControl>
-      <FormControl sx={{ width: 350 }}>
-        <InputLabel id="build-select-label">Build</InputLabel>
-        <Select
-          disabled={createMode}
-          placeholder={'Choose a build'}
-          labelId="build-select-label"
-          id="build-select"
-          value={build?.index}
-          label="Build"
-          onChange={handleBuildChange}>
-          {build?.list?.map((build, index) => {
-            const { title } = build;
-            return <MenuItem key={`${title}-${index}`}
-                             value={index}>{title || 'Press + to add the first build!'}</MenuItem>;
-          })}
-        </Select>
-      </FormControl>
-      <FormControl>
-        <IconButton onClick={() => setCreateMode(true)}>
-          <AddIcon/>
-        </IconButton>
-      </FormControl>
-      {createMode ? <FormControl>
-        <Tooltip title={'Exit create mode'}>
-          <IconButton onClick={() => setOpenDialog(true)}>
-            <ClearIcon/>
+    <Stack sx={{ height: 'calc(100vh - 70px)' }}>
+      <Typography mt={2} variant={"h2"}>Builds</Typography>
+      <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+        <FormControl sx={{ width: 270 }}>
+          <InputLabel id="class-select-label">Class</InputLabel>
+          <Select
+            disabled={createMode}
+            labelId="class-select-label"
+            id="class-select"
+            value={build?.className}
+            label="Class"
+            onChange={handleClassChange}
+          >
+            {Object.keys(allBuilds).map((name, index) => {
+              return <MenuItem key={`${name}-${index}`} value={name}>
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <ClassIcon src={`${prefix}data/ClassIcons${classes.indexOf(name)}.png`} alt=""/>
+                  <Typography>{cleanUnderscore(name)}</Typography>
+                </Stack>
+              </MenuItem>;
+            })}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ width: 350 }}>
+          <InputLabel id="build-select-label">Build</InputLabel>
+          <Select
+            disabled={createMode}
+            placeholder={'Choose a build'}
+            labelId="build-select-label"
+            id="build-select"
+            value={build?.index}
+            label="Build"
+            onChange={handleBuildChange}>
+            {build?.list?.map((build, index) => {
+              const { title } = build;
+              return <MenuItem key={`${title}-${index}`}
+                               value={index}>{title || 'Press + to add the first build!'}</MenuItem>;
+            })}
+          </Select>
+        </FormControl>
+        <FormControl>
+          <IconButton onClick={() => setCreateMode(true)}>
+            <AddIcon/>
           </IconButton>
-        </Tooltip>
-      </FormControl> : null}
-    </Stack>
-
-    {build?.list?.length > 0 ? <div>
-      <Stack direction={'row'} alignItems={'center'} gap={2}>
-        <Typography variant={'h4'}>{createMode ? 'Custom Build' : getSpecificList(build?.index)?.title}</Typography>
-        {createMode ? <Tooltip title={'Share custom build'}>
-          <IconButton onClick={handleShare}>
-            <FileCopyIcon/>
-          </IconButton>
-        </Tooltip> : null}
+        </FormControl>
+        {createMode ? <FormControl>
+          <Tooltip title={'Exit create mode'}>
+            <IconButton onClick={() => setOpenDialog(true)}>
+              <ClearIcon/>
+            </IconButton>
+          </Tooltip>
+        </FormControl> : null}
       </Stack>
-      {createMode ? <Typography component={'div'} variant={'caption'} sx={{ mb: 3 }}>* If you want to share your custom
-        build, click on copy icon above and paste in <a
-          style={{ textDecoration: 'underline' }}
-          href="https://github.com/Morta1/IdleonToolbox/discussions/categories/builds">Builds Discussions</a> or send it
-        in the discord Builds channel</Typography> : null}
-      <Grid container spacing={2}>
-        {getSpecificList(build?.index)?.tabs?.map((tab, index) => {
-          return <Grid item key={`${build?.index}-${build?.className}-${index}`}>
-            <Tab {...tab} createMode={createMode} onCustomBuildChange={handleCustomBuildChange} tabIndex={index}/>
-          </Grid>
-        })}
-      </Grid>
-    </div> : <Typography variant={'h5'}>There are no builds for this class</Typography>}
+      {build?.list?.length > 0 ? <div>
+        <Stack direction={'row'} alignItems={'center'} gap={2}>
+          <Typography variant={'h4'}>{createMode ? 'Custom Build' : getSpecificList(build?.index)?.title}</Typography>
+          {createMode ? <Tooltip title={'Share custom build'}>
+            <IconButton onClick={handleShare}>
+              <FileCopyIcon/>
+            </IconButton>
+          </Tooltip> : null}
+        </Stack>
+        {createMode ?
+          <Typography component={'div'} variant={'caption'} sx={{ mb: 3 }}>* If you want to share your custom
+            build, click on copy icon above and paste in <a
+              style={{ textDecoration: 'underline' }}
+              href="https://github.com/Morta1/IdleonToolbox/discussions/categories/builds">Builds Discussions</a> or
+            send it
+            in the discord Builds channel</Typography> : null}
+        <Grid container spacing={2}>
+          {getSpecificList(build?.index)?.tabs?.map((tab, index) => {
+            return <Grid item key={`${build?.index}-${build?.className}-${index}`}>
+              <Tab {...tab} createMode={createMode} onCustomBuildChange={handleCustomBuildChange} tabIndex={index}/>
+            </Grid>
+          })}
+        </Grid>
+      </div> : <Typography variant={'h5'}>There are no builds for this class</Typography>}
+      <Stack sx={{ marginTop: 'auto', mb: 2, height: 90 }}>
+        <Adsense
+          style={{ display: 'inline-block', height: 90 }}
+          client="ca-pub-1842647313167572"
+          responsive={'true'}
+          slot="6690860140"
+          format={''}
+        />
+      </Stack>
+    </Stack>
 
     <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
       <DialogTitle>Edit mode</DialogTitle>
