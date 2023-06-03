@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Dialog,
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
   Link,
-  Stack, Tooltip,
+  Stack,
+  Tooltip,
   Typography,
   useMediaQuery
 } from "@mui/material";
@@ -20,6 +20,7 @@ import { useTheme } from "@emotion/react";
 import PastebinInstructions from "components/common/PastebinInstructions";
 import DiscordInvite from "../components/DiscordInvite";
 import { Adsense } from '@ctrl/react-adsense';
+import Box from "@mui/material/Box";
 
 /* eslint-disable react/jsx-key */
 const patchNotes = [
@@ -1104,15 +1105,6 @@ const Home = () => {
   const [open, setOpen] = useState(false);
   const [openPastebin, setOpenPastebin] = useState(false);
 
-  useEffect(() => {
-    try {
-      if (typeof window === 'object') {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    } catch {
-    }
-  }, []);
-
   const handleCopyITRaw = async () => {
     try {
       await navigator.clipboard.writeText(localStorage.getItem("rawJson"));
@@ -1148,9 +1140,6 @@ const Home = () => {
         <Button variant={"outlined"} onClick={() => setOpen(true)} startIcon={<InfoIcon/>}>
           Learn how to connect
         </Button>
-        {/* <Stack> */}
-        {/* <Typography color='#b7b7b7' variant="caption" component='span'>(while logged in)</Typography>
-        </Stack> */}
         <a style={{ display: "flex", alignItems: "center" }} href="https://ko-fi.com/S6S7BHLQ4" target="_blank"
            rel="noreferrer">
           <img height="36" style={{ border: 0, height: 36, width: "100%", objectFit: "contain" }}
@@ -1185,30 +1174,30 @@ const Home = () => {
         {patchNotes.map(({ ver, gameVer, date, features, fixes, deprecatedFeatures }, index) => {
           return (
             <React.Fragment key={`${ver}-${date}-${index}`}>
-              <Grid container spacing={2} style={{ marginTop: 50 }}>
-                <Grid item xs={12} sm={3}/>
-                <Grid item xs={12} sm={4}>
+              <Stack>
+                <Stack>
                   <Typography variant={"h4"}>v{ver}</Typography>
                   {gameVer ? <Typography variant={"subtitle1"}>Game ver {gameVer}</Typography> : null}
                   <Typography variant={"subtitle2"}>{date}</Typography>
-                </Grid>
-                <Grid item xs={12} sm={5}>
+                </Stack>
+                <Stack flexWrap={'wrap'}>
                   <StyledSection icon={"green"} topMargin={false} title={"New features"} list={features}/>
                   <StyledSection icon={"purple"} title={"Fixes"} list={fixes}/>
                   <StyledSection icon={"red"} title={"Deprecated features"} list={deprecatedFeatures}/>
-                </Grid>
-              </Grid>
-              <Divider style={{ margin: "3em 0" }}/>
+                </Stack>
+              </Stack>
+              <Divider sx={{ my: 3 }}/>
               {index % 3 === 0 ? <>
                 <Stack>
                   <Adsense
                     style={{ display: 'inline-block', height: 90 }}
                     client="ca-pub-1842647313167572"
+                    responsive={'true'}
                     slot="7203005854"
                     format={''}
                   />
                 </Stack>
-                <Divider style={{ margin: "3em 0" }}/>
+                <Divider sx={{ my: 3 }}/>
               </> : null}
             </React.Fragment>
           );
@@ -1259,7 +1248,7 @@ const svgs = {
 const StyledSection = ({ title, list, icon, topMargin = true }) => {
   if (!list || list.length === 0) return null;
   return (
-    <div style={{ marginTop: topMargin ? 20 : 0 }}>
+    <Box sx={{ marginTop: topMargin ? '20px' : 0 }}>
       <Typography variant={"h4"}>{title}</Typography>
       <Stack spacing={2} style={{ marginTop: 20 }}>
         {list.map((item, index) => {
@@ -1273,7 +1262,7 @@ const StyledSection = ({ title, list, icon, topMargin = true }) => {
           );
         })}
       </Stack>
-    </div>
+    </Box>
   );
 };
 
