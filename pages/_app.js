@@ -44,7 +44,7 @@ const MyApp = (props) => {
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       {process.env.NODE_ENV !== 'production' &&
-      <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
+        <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
       {/*Global site tag (gtag.js) - Google Analytics */}
       <Script strategy='afterInteractive'
               src="https://www.googletagmanager.com/gtag/js?id=G-YER8JY07QK"/>

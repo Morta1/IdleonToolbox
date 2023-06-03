@@ -573,6 +573,16 @@ export const getFoodBonus = (character, account, bonusName) => {
   }) => res + (Effect === bonusName ? Amount * foodBonus : 0), 0);
 }
 
+export const getHealthFoodBonus = (character, account, bonusName) => {
+  const foodBonus = getPlayerFoodBonus(character, account, true);
+  return character?.food?.reduce((res, {
+    Trigger,
+    Amount,
+    Cooldown,
+    Effect
+  }) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0);
+}
+
 export const getMinigameScore = (account, name) => {
   return account?.highscores?.minigameHighscores?.find(({ minigame }) => minigame === name)?.score || 0;
 }

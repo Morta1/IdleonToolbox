@@ -61,6 +61,7 @@ const Construction = () => {
       <Stack alignItems={"center"}>
         <ToggleButtonGroup value={view} exclusive onChange={(e, value) => (value?.length ? setView(value) : null)}>
           <ToggleButton value="build">Build</ToggleButton>
+          <ToggleButton value="buildPercent">Build %</ToggleButton>
           <ToggleButton value="exp">Exp</ToggleButton>
           <ToggleButton value="flaggy">Flaggy</ToggleButton>
           <ToggleButton value="classExp">Class Exp</ToggleButton>
@@ -126,6 +127,8 @@ const Construction = () => {
                                 alt=""/> : null}
                     {view === "build" && !flagPlaced ?
                       <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.a?.value) ?? null}</Typography> : null}
+                    {view === "buildPercent" && !flagPlaced ?
+                      <Typography sx={bonusTextSx}>{kFormatter(cog?.stats?.e?.value) ?? null}</Typography> : null}
                     {view === "exp" && !flagPlaced ? <Typography
                       sx={bonusTextSx}>{kFormatter(cog?.stats?.b?.value) ?? kFormatter(cog?.stats?.d?.value) ?? null}</Typography> : null}
                     {view === "flaggy" && !flagPlaced ?

@@ -30,7 +30,6 @@ export const getAchievementStatus = (achievements, achievementIndex) => {
       return 10;
     case 99:
     case 104:
-    case 122:
       return 20;
     default:
       return achievements?.[achievementIndex]?.completed ? 1 : 0;

@@ -54,7 +54,7 @@ import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from "./obols";
 import { getPlayerWorship } from "./worship";
 import { getPlayerQuests } from "./quests";
-import { getJewelBonus, getLabBonus, isGodEnabledBySorcerer } from "./lab";
+import { getJewelBonus, getLabBonus, getPlayerLabChipBonus, isGodEnabledBySorcerer } from "./lab";
 import { getAchievementStatus } from "./achievements";
 import { lavaLog } from "../utility/helpers";
 import { getArcadeBonus } from "./arcade";
@@ -411,11 +411,10 @@ export const getRespawnRate = (character, account) => {
   const isRift = targetMonster === 'riftAll';
   const { RespawnTime, worldIndex } = monster;
   const shrineBonus = getShrineBonus(account?.shrines, 7, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
-  const chipBonus = account?.lab?.playersChips?.find((chip) => chip.index === 10)?.baseVal ?? 0;
+  const chipBonus = getPlayerLabChipBonus(character, account, 10);
   const equipmentBonus = getStatsFromGear(character, 47, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
   const starSignBonus = getStarSignBonus(character, account, 'Mob_Respawn_rate')
-  const starSignMajorBonus = getStarSignBonus(character, account, 'Mob_Respawn_rate')
 
   const worldOneAchievement = getAchievementStatus(account?.achievements, 44);
   const worldOneMeritBonus = account?.tasks?.[2]?.[0]?.[1];
@@ -452,7 +451,7 @@ export const getRespawnRate = (character, account) => {
       + chipBonus
       + (equipmentBonus + obolsBonus)
       + achievementBonus
-      + (starSignBonus + starSignMajorBonus)
+      + (starSignBonus)
       + meritBonus) / 100);
 
   const breakdown = [
@@ -460,7 +459,7 @@ export const getRespawnRate = (character, account) => {
     { name: 'Equipment', value: equipmentBonus / 100 },
     { name: 'Achievement', value: achievementBonus / 100 },
     { name: 'Chip', value: chipBonus / 100 },
-    { name: 'Starsigns', value: (starSignBonus + starSignMajorBonus) / 100 },
+    { name: 'Starsigns', value: starSignBonus / 100 },
     { name: 'Merit', value: meritBonus / 100 },
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
@@ -719,7 +718,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   }
 }
 
-export const getPlayerFoodBonus = (character, account) => {
+export const getPlayerFoodBonus = (character, account, isHealth) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
   const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.talents);
   const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
@@ -728,6 +727,19 @@ export const getPlayerFoodBonus = (character, account) => {
   const cardBonus = getEquippedCardBonus(character?.cards, 'Y5');
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet1' ? character?.cards?.cardSet?.bonus : 0;
   const talentBonus = getTalentBonus(character?.starTalents, null, 'FROTHY_MALK');
+
+  if (isHealth) {
+    const goldenHealthFood = 1;
+    const secondPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 1);
+    const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Health_Effect', 0)
+    return goldenHealthFood
+      + (secondPostOfficeBonus
+        + (statuePower
+          + (equipmentFoodEffectBonus
+            + (stampBonus
+              + (starSignBonus
+                + cardSet))))) / 100;
+  }
   return 1 + (postOfficeBonus + (statuePower +
     (equipmentFoodEffectBonus + (stampBonus + ((starSignBonus) +
       (cardBonus + (cardSet + talentBonus))))))) / 100;

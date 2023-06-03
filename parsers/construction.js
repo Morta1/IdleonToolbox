@@ -214,7 +214,8 @@ const parseTowers = (towersRaw, totemInfo) => {
     wizardOverLevels,
     wizardAboveFifty,
     totalLevels,
-    totalWaves
+    totalWaves,
+    towersTwo: towersRaw?.[2]
   }
 }
 

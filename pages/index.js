@@ -19,9 +19,20 @@ import Instructions from "components/common/Instructions";
 import { useTheme } from "@emotion/react";
 import PastebinInstructions from "components/common/PastebinInstructions";
 import DiscordInvite from "../components/DiscordInvite";
+import { Adsense } from '@ctrl/react-adsense';
 
 /* eslint-disable react/jsx-key */
 const patchNotes = [
+  {
+    ver: "3.1.91",
+    gameVer: "1.83",
+    date: "03/05/2023",
+    features: [
+      'Added data and assets from version 1.83',
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
   {
     ver: "3.1.90",
     gameVer: "1.82",
@@ -1190,10 +1201,11 @@ const Home = () => {
               <Divider style={{ margin: "3em 0" }}/>
               {index % 3 === 0 ? <>
                 <Stack>
-                  <ins className="adsbygoogle"
-                       style={{ display: 'inline-block', height: 90 }}
-                       data-ad-client="ca-pub-1842647313167572"
-                       data-ad-slot="7203005854"
+                  <Adsense
+                    style={{ display: 'inline-block', height: 90 }}
+                    client="ca-pub-1842647313167572"
+                    slot="7203005854"
+                    format={''}
                   />
                 </Stack>
                 <Divider style={{ margin: "3em 0" }}/>
