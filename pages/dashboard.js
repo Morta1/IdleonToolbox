@@ -14,7 +14,8 @@ import {
   Tab,
   Tabs,
   TextField,
-  Typography
+  Typography,
+  useMediaQuery
 } from "@mui/material";
 import Characters from "../components/dashboard/Characters";
 import Account from "../components/dashboard/Account";
@@ -81,6 +82,7 @@ const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [trackers, setTrackers] = useState();
   const [options, setOptions] = useState();
+  const showSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
 
   useEffect(() => {
     const accountHasDiff = state?.trackers?.account ? Object.keys(accountTrackers).length !== Object.keys(state?.trackers?.account).length : true;
@@ -153,59 +155,71 @@ const Dashboard = () => {
       title="Idleon Toolbox | Dashboard"
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
-    <Stack direction={'row'} alignItems={'center'} gap={3}>
-      <Typography variant={'h2'}>Dashboard</Typography>
-      <IconButton title={'Configure alerts'} onClick={() => setOpen(true)}>
-        <SettingsIcon/>
-      </IconButton>
+    <Stack direction='row' gap={2} justifyContent={'space-between'}>
+      <Stack sx={{ maxWidth: '78%' }}>
+        <Stack direction={'row'} alignItems={'center'} gap={3}>
+          <Typography variant={'h2'}>Dashboard</Typography>
+          <IconButton title={'Configure alerts'} onClick={() => setOpen(true)}>
+            <SettingsIcon/>
+          </IconButton>
+        </Stack>
+        <Typography component={'div'} variant={'caption'} mb={3}>* Please let me know if you want to tracks additional
+          stuff</Typography>
+        <Stack gap={2}>
+          <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters}
+                   account={account} lastUpdated={lastUpdated}/>
+          <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters}
+                      account={account} lastUpdated={lastUpdated}/>
+          <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
+        </Stack>
+        <Stack sx={{ marginTop: 'auto', my: 10 }}>
+          <Adsense
+            style={{ display: 'inline-block', maxWidth: '100%', height: 90 }}
+            client="ca-pub-1842647313167572"
+            slot="1488341218"
+            responsive={'true'}
+            format={''}
+          />
+        </Stack>
+        <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Dashboard configurations
+            <IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Tabs centered
+                  sx={{ marginBottom: 3 }}
+                  variant={'fullWidth'}
+                  value={selectedTab} onChange={handleTabChange}>
+              {['Account', 'Character']?.map((tab, index) => {
+                return <Tab label={tab} key={`${tab}-${index}`}/>;
+              })}
+            </Tabs>
+            {selectedTab === 0 ? <FormGroup>
+              <TrackerOptions arr={trackers?.account}
+                              options={options?.account}
+                              type={'account'}
+                              onOptionChange={handleOptionsChange}
+                              onTrackerChange={handleTrackerChange}/>
+            </FormGroup> : null}
+            {selectedTab === 1 ? <FormGroup>
+              <TrackerOptions arr={trackers?.characters}
+                              type={'characters'}
+                              options={options?.characters}
+                              onOptionChange={handleOptionsChange}
+                              onTrackerChange={handleTrackerChange}/>
+            </FormGroup> : null}
+          </DialogContent>
+        </Dialog>
+      </Stack>
+      {showSideBanner ? <Stack>
+        <Adsense
+          client="ca-pub-1842647313167572"
+          slot="1488341218"
+          format={''}
+        />
+      </Stack> : null}
     </Stack>
-    <Typography component={'div'} variant={'caption'} mb={3}>* Please let me know if you want to tracks additional
-      stuff</Typography>
-    <Stack gap={2}>
-      <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters} account={account}
-               lastUpdated={lastUpdated}/>
-      <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters}
-                  account={account} lastUpdated={lastUpdated}/>
-      <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
-    </Stack>
-    <Stack sx={{ marginTop: 'auto', my: 10 }}>
-      <Adsense
-        style={{ display: 'inline-block', height: 90 }}
-        client="ca-pub-1842647313167572"
-        slot="1488341218"
-        format={''}
-      />
-    </Stack>
-    <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        Dashboard configurations
-        <IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
-      </DialogTitle>
-      <DialogContent>
-        <Tabs centered
-              sx={{ marginBottom: 3 }}
-              variant={'fullWidth'}
-              value={selectedTab} onChange={handleTabChange}>
-          {['Account', 'Character']?.map((tab, index) => {
-            return <Tab label={tab} key={`${tab}-${index}`}/>;
-          })}
-        </Tabs>
-        {selectedTab === 0 ? <FormGroup>
-          <TrackerOptions arr={trackers?.account}
-                          options={options?.account}
-                          type={'account'}
-                          onOptionChange={handleOptionsChange}
-                          onTrackerChange={handleTrackerChange}/>
-        </FormGroup> : null}
-        {selectedTab === 1 ? <FormGroup>
-          <TrackerOptions arr={trackers?.characters}
-                          type={'characters'}
-                          options={options?.characters}
-                          onOptionChange={handleOptionsChange}
-                          onTrackerChange={handleTrackerChange}/>
-        </FormGroup> : null}
-      </DialogContent>
-    </Dialog>
   </>
 };
 

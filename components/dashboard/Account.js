@@ -75,7 +75,7 @@ const Account = ({ account, trackers, trackersOptions }) => {
   }, [account, trackers, trackersOptions]);
 
   return <>
-    <Card>
+    <Card sx={{ width: 'fit-content' }}>
       <CardContent>
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.stampReducer && alerts?.stampReducer ?
@@ -233,9 +233,10 @@ const AtomIcon = styled.img`
   left: -5px;
   bottom: 30%;
 `;
+
 const IconImg = styled.img`
-  width: ${({ vial }) => vial ? '25px' : '35px'};
-  height: ${({ vial }) => vial ? '25px' : '35px'};
+  width: ${({ vial }) => vial ? '20px' : '30px'};
+  height: ${({ vial }) => vial ? '20px' : '30px'};
   object-fit: contain;
   ${({ vial }) => vial ? `top: 50%;left: 50%;transform:translate(-60%, -70%);` : ''}
   position: ${({ vial }) => vial ? 'absolute' : 'relative'};

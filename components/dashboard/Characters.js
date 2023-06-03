@@ -48,7 +48,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
         const fullAnvil = isAnvilOverdue(characters, account, afkTime, characterIndex, trackersOptions);
         const ccdSkillsReady = crystalCooldownSkillsReady(character, trackersOptions);
         const upgradeableTools = hasAvailableToolUpgrade(character, account, rawTools);
-        return <Card key={name} sx={{ width: 345 }}>
+        return <Card key={name} sx={{ width: 300 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
               <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
@@ -177,8 +177,8 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
 }
 
 const IconImg = styled.img`
-  width: 35px;
-  height: 35px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 `;
 
