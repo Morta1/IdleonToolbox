@@ -37,6 +37,7 @@ const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'k
   'randomEvents'
 ].toSimpleObject();
 
+
 const trackersOptions = {
   account: {
     vials: { subtractGreenStacks: true },
