@@ -319,7 +319,7 @@ function NavBar({ children, window }) {
         {children}
       </Box>
       <div style={{
-        height: 50,
+        // height: 50,
         backgroundColor: isProd ? '' : '#d73333',
         position: 'fixed',
         bottom: 0,
@@ -328,7 +328,7 @@ function NavBar({ children, window }) {
         width: '100%'
       }}>
         <Adsense
-          style={{ height: 50, maxWidth: 1200, margin: '0 auto' }}
+          style={{ maxHeight: 50, maxWidth: 1200, margin: '0 auto' }}
           client="ca-pub-1842647313167572"
           slot="8040203474"
           format={''}
