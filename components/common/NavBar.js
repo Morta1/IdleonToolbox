@@ -331,7 +331,6 @@ function NavBar({ children, window }) {
           style={{ maxHeight: 50, maxWidth: 1200, margin: '0 auto' }}
           client="ca-pub-1842647313167572"
           slot="8040203474"
-          format={''}
         />
       </div>
       <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
