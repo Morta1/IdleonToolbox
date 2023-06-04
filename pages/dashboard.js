@@ -214,7 +214,7 @@ const Dashboard = () => {
           client="ca-pub-1842647313167572"
           slot="2700532291"
         /> : null}
-        {showNarrowSideBanner ? <Adsense
+        {showNarrowSideBanner && !showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"
           slot="8040203474"
         /> : null}
