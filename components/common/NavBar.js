@@ -130,7 +130,7 @@ function NavBar({ children, window }) {
         open: true,
         loading: true
       });
-    } catch (error){
+    } catch (error) {
       console.error('Error: ', error?.stack)
       dispatch({ type: 'loginError', data: error?.stack });
     }
@@ -328,7 +328,7 @@ function NavBar({ children, window }) {
         width: '100%'
       }}>
         <Adsense
-          style={{ maxHeight: 50, maxWidth: 1200, margin: '0 auto' }}
+          style={{ display: 'block', maxHeight: 50, maxWidth: 1200, margin: '0 auto' }}
           client="ca-pub-1842647313167572"
           slot="8040203474"
         />
