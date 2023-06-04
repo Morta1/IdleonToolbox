@@ -323,7 +323,6 @@ function NavBar({ children, window }) {
         backgroundColor: isProd ? '' : '#d73333',
         position: 'fixed',
         bottom: 0,
-        align: 'center',
         left: drawer ? '240px' : 0,
         width: '100%'
       }}>

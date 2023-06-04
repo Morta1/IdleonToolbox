@@ -1195,7 +1195,7 @@ const Home = () => {
               </Stack>
               <Divider sx={{ my: 3 }}/>
               {index % 3 === 0 ? <>
-                <Box sx={{ width: '100%', align: 'center' }}>
+                <Box sx={{ width: '100%' }}>
                   <Adsense
                     style={{ display: 'inline-block', height: 90, maxWidth: 1200, margin: '0 auto' }}
                     client="ca-pub-1842647313167572"
