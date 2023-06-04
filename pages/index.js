@@ -1195,13 +1195,13 @@ const Home = () => {
               </Stack>
               <Divider sx={{ my: 3 }}/>
               {index % 3 === 0 ? <>
-                <Box sx={{ width: '100%' }}>
+                <Stack>
                   <Adsense
                     style={{ display: 'inline-block', height: 90 }}
                     client="ca-pub-1842647313167572"
                     slot="7203005854"
                   />
-                </Box>
+                </Stack>
                 <Divider sx={{ my: 3 }}/>
               </> : null}
             </React.Fragment>
