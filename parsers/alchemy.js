@@ -139,15 +139,15 @@ const getBubbles = (bubbles) => {
   );
 };
 
-export const getEquippedBubbles = (idleonData, bubbles) => {
+export const getEquippedBubbles = (idleonData, bubbles, serializedCharactersData) => {
   const equippedBubblesRaw = tryToParse(idleonData?.CauldronBubbles) || idleonData?.CauldronBubbles;
   return equippedBubblesRaw
+    ?.filter((_, index) => index < serializedCharactersData?.length)
     ?.map((charBubbles) => {
       return charBubbles?.reduce((res, bubbleIndStr) => {
-        if (!bubbleIndStr) return res;
         const cauldronIndex = bigBubblesIndices[bubbleIndStr[0]];
-        const bubbleIndex = bubbleIndStr.substring(1);
-        return [...res, bubbles?.[cauldronIndex]?.[bubbleIndex]];
+        const bubbleIndex = cauldronIndex ? bubbleIndStr?.substring(1) : null;
+        return [...res, (bubbleIndex ? bubbles?.[cauldronIndex]?.[bubbleIndex] : {})];
       }, []);
     })
     .filter((arr) => arr.length);

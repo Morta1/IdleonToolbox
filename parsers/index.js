@@ -97,7 +97,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
   accountData.alchemy = getAlchemy(idleonData);
-  accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles);
+  accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData);
   accountData.storage = getStorage(idleonData); // changed from inventory
   accountData.saltLick = getSaltLick(idleonData, accountData.storage);
   accountData.dungeons = getDungeons(idleonData, accountData.accountOptions);

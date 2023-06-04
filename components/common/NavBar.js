@@ -319,7 +319,6 @@ function NavBar({ children, window }) {
         {children}
       </Box>
       <div style={{
-        // height: 50,
         backgroundColor: isProd ? '' : '#d73333',
         position: 'fixed',
         bottom: 0,
