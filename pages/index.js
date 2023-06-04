@@ -1197,9 +1197,10 @@ const Home = () => {
               {index % 3 === 0 ? <>
                 <Stack>
                   <Adsense
-                    style={{ display: 'inline-block', height: 90 }}
+                    style={{ display: 'inline-block', maxHeight: 90 }}
                     client="ca-pub-1842647313167572"
                     slot="7203005854"
+                    format={''}
                   />
                 </Stack>
                 <Divider sx={{ my: 3 }}/>
