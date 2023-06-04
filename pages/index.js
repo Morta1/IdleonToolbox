@@ -1197,7 +1197,7 @@ const Home = () => {
               {index % 3 === 0 ? <>
                 <Box sx={{ width: '100%' }}>
                   <Adsense
-                    style={{ display: 'inline-block', height: 90, maxWidth: 1200, margin: '0 auto' }}
+                    style={{ display: 'inline-block', height: 90, margin: '0 auto' }}
                     client="ca-pub-1842647313167572"
                     slot="7203005854"
                     format={''}
