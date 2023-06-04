@@ -6,7 +6,7 @@ import ProgressBar from "components/common/ProgressBar";
 
 const Shrines = ({ shrines }) => {
   return (
-    <Stack justifyContent={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
+    <Stack sx={{ height: 'fit-content' }} justifyContent={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
       {shrines?.map((shrine, index) => {
         const { name, rawName, shrineLevel, desc, bonus } = shrine;
         const description = cleanUnderscore(desc?.replace('{', kFormatter(bonus, 2)));

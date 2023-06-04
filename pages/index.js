@@ -21,6 +21,7 @@ import PastebinInstructions from "components/common/PastebinInstructions";
 import DiscordInvite from "../components/DiscordInvite";
 import { Adsense } from '@ctrl/react-adsense';
 import Box from "@mui/material/Box";
+import { useRouter } from "next/router";
 
 /* eslint-disable react/jsx-key */
 const patchNotes = [
@@ -1101,6 +1102,7 @@ const patchNotes = [
 
 const Home = () => {
   const theme = useTheme();
+  const router = useRouter();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(false);
   const [openPastebin, setOpenPastebin] = useState(false);
@@ -1121,6 +1123,11 @@ const Home = () => {
       console.error(err);
     }
   };
+
+  const handleStorageClear = () => {
+    localStorage.clear();
+    router.reload();
+  }
 
   return (
     <Container>
@@ -1164,7 +1171,7 @@ const Home = () => {
       <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center"
              spacing={2} style={{ margin: "35px 0" }}>
         <Tooltip title={'Reset your dashboard and bubble goals preferences'}>
-          <Button color={'warning'} variant={"outlined"} onClick={() => localStorage.clear()} startIcon={<InfoIcon/>}>
+          <Button color={'warning'} variant={"outlined"} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
             Clear local storage
           </Button>
         </Tooltip>
@@ -1188,14 +1195,14 @@ const Home = () => {
               </Stack>
               <Divider sx={{ my: 3 }}/>
               {index % 3 === 0 ? <>
-                <Stack>
+                <Box sx={{ width: '100%', align: 'center' }}>
                   <Adsense
-                    style={{ display: 'inline-block', height: 90 }}
+                    style={{ display: 'inline-block', height: 90, maxWidth: 1200, margin: '0 auto' }}
                     client="ca-pub-1842647313167572"
                     slot="7203005854"
                     format={''}
                   />
-                </Stack>
+                </Box>
                 <Divider sx={{ my: 3 }}/>
               </> : null}
             </React.Fragment>

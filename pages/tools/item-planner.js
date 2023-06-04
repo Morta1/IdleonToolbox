@@ -191,7 +191,7 @@ const ItemPlanner = ({}) => {
       {!state?.characters && !state?.account ?
         <Typography component={'div'} sx={{ mb: 2 }} variant={'caption'}>* This tool will work better if you're logged
           in</Typography> : null}
-      <Stack direction={'row'} gap={5}>
+      <Stack direction={'row'} gap={5} flexWrap={'wrap'}>
         <div>
           <Stack direction={'row'} alignItems={'center'}>
             <TextField sx={{ mt: 1 }} label={'Section name'} placeholder={'Enter section name'}
@@ -401,10 +401,6 @@ const MaterialIcon = styled.img`
 `
 
 const TodoStyle = styled.div`
-  padding: 15px;
-  margin-top: 15px;
-  margin-bottom: 25px;
-
   .item-wrapper {
     width: 105px;
     height: 102px;

@@ -1,22 +1,24 @@
 import { AppContext } from "components/common/context/AppProvider";
-import React, { useContext, useState } from "react";
+import React, { forwardRef, useContext, useMemo, useState } from "react";
 import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
 import HtmlTooltip from "components/Tooltip";
 import { NextSeo } from "next-seo";
 import { filteredLootyItems } from "../../parsers/parseMaps";
+import Image from 'next/image';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
-  const [display, setDisplay] = useState('all');
+  const [display, setDisplay] = useState('missing');
 
-  const shouldDisplayItem = (item) => {
-    if (display === 'all') return true;
-    else if (display === 'looted' && item?.obtained) return true;
-    else if (display === 'missing' && !item?.obtained && !filteredLootyItems?.[item?.rawName]) return true;
-    else if (display === 'rotation' && item?.onRotation) return true;
+  const shouldDisplayItem = (item, itemDisplay) => {
+    if (itemDisplay === 'all') return true;
+    else if (itemDisplay === 'looted' && item?.obtained) return true;
+    else if (itemDisplay === 'missing' && !item?.obtained && !filteredLootyItems?.[item?.rawName]) return true;
+    else if (itemDisplay === 'rotation' && item?.onRotation) return true;
   }
+
+  const slabItems = useMemo(() => state?.account?.looty?.slabItems?.filter((item) => shouldDisplayItem(item, display)), [display]);
 
   return <Stack>
     <NextSeo
@@ -34,36 +36,44 @@ const Slab = () => {
         <RadioGroup
           row
           aria-labelledby="demo-radio-buttons-group-label"
-          defaultValue="all"
+          defaultValue="missing"
           name="radio-buttons-group"
           onChange={(e) => setDisplay(e.target.value)}
         >
-          <FormControlLabel value="all" control={<Radio/>} label="All items"/>
-          <FormControlLabel value="looted" control={<Radio/>} label="Looted items"/>
           <FormControlLabel value="missing" control={<Radio/>} label="Missing items"/>
+          <FormControlLabel value="looted" control={<Radio/>} label="Looted items"/>
+          <FormControlLabel value="all" control={<Radio/>} label="All items"/>
           <FormControlLabel value="rotation" control={<Radio/>} label="Gemshop rotation"/>
         </RadioGroup>
       </FormControl>
     </Box>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {state?.account?.looty?.slabItems?.map((item, index) => {
+      {slabItems?.map((item, index) => {
         const { name, rawName } = item;
-        return shouldDisplayItem(item) ? <HtmlTooltip key={`${rawName}-${index}`} title={cleanUnderscore(name)}>
-          <LootyImg width={50} height={50} src={`${prefix}data/${rawName}.png`} alt=""
-                    onError={(e) => {
-                      e.target.src = `${prefix}data/${rawName}_x1.png`;
-                    }}
-          />
-        </HtmlTooltip> : null
+        return <HtmlTooltip key={`${rawName}-${index}`} title={cleanUnderscore(name)}>
+          <Icon src={`${prefix}data/${rawName}.png`}
+                fallback={`${prefix}data/${rawName}_x1.png`}
+                size={50}
+                alt={rawName}/>
+        </HtmlTooltip>
       })}
     </Stack>
   </Stack>
 };
 
-const LootyImg = styled.img`
-  height: 50px;
-  width: 50px;
-  object-fit: contain;
-`
+const Icon = forwardRef((props, ref) => {
+  const { src, fallback, alt, size } = props;
+  const [error, setError] = useState(false);
 
-export default Slab;
+  return <Image
+    {...props}
+    ref={ref}
+    src={!error ? src : fallback}
+    alt={alt}
+    width={size} height={size}
+    onError={() => setError(true)}
+  />
+})
+
+
+export default React.memo(Slab);

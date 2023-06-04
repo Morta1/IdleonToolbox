@@ -30,6 +30,8 @@ import { signInWithEmailPassword } from "../../firebase";
 import DiscordInvite from "../DiscordInvite";
 import { appleAuthorize, getAppleCode } from "../../logins/apple";
 import AuthDialog from "./AuthDialog";
+import { Adsense } from "@ctrl/react-adsense";
+import { isProd } from "../../utility/helpers";
 
 
 const drawerWidth = 240;
@@ -48,6 +50,7 @@ function NavBar({ children, window }) {
   const router = useRouter();
   const container = window !== undefined ? () => window().document.body : undefined;
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isCompact = useMediaQuery('(max-width: 850px)', { noSsr: true })
   const isFirefox = navigator.userAgent.toUpperCase().indexOf("FIREFOX") >= 0;
 
   useEffect(() => {
@@ -117,15 +120,20 @@ function NavBar({ children, window }) {
   };
 
   const handleAppleLogin = async () => {
-    const code = await getAppleCode();
-    await appleAuthorize(code);
-    dispatch({ type: 'appleLogin', data: code })
-    setDialog({
-      title: 'Apple Login',
-      type: 'apple',
-      open: true,
-      loading: true
-    });
+    try {
+      const code = await getAppleCode();
+      await appleAuthorize(code);
+      dispatch({ type: 'appleLogin', data: code })
+      setDialog({
+        title: 'Apple Login',
+        type: 'apple',
+        open: true,
+        loading: true
+      });
+    } catch (error){
+      console.error('Error: ', error?.stack)
+      dispatch({ type: 'loginError', data: error?.stack });
+    }
   }
 
   const handleGoogleLogin = async () => {
@@ -170,12 +178,12 @@ function NavBar({ children, window }) {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ marginBottom: '75px' }}>
       <AppBar position="fixed" sx={{ ml: { sm: `${drawerWidth}px` } }}>
         <Toolbar sx={{ height: 70, minHeight: 70 }}>
           {shouldDisplayMenu ? (
             <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: "none" } }}>
+                        sx={{ display: { sm: "none" } }}>
               <MenuIcon/>
             </IconButton>
           ) : null}
@@ -188,9 +196,9 @@ function NavBar({ children, window }) {
           <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu}/>
           {shouldDisplayMenu && state?.lastUpdated ? (
             <Box sx={{ marginLeft: "auto", mx: 2 }}>
-              <Typography component={"div"} variant={"caption"}>
+              {!isCompact ? <Typography component={"div"} variant={"caption"}>
                 {isXs ? '' : 'Last Updated'} {`${state?.manualImport ? "(offline)" : state?.pastebin ? '(pastebin)' : ""}`}
-              </Typography>
+              </Typography> : null}
               <Typography component={"div"} variant={"caption"}>
                 {format(state?.lastUpdated, "dd/MM/yyyy HH:mm:ss")}
               </Typography>
@@ -299,10 +307,33 @@ function NavBar({ children, window }) {
           </Drawer>
         </Box>
       ) : null}
-      <Box component="main" sx={{ flexGrow: 1, px: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+      <Box component="main"
+           sx={{
+             flexGrow: 1,
+             pt: '24px',
+             pl: !isXs && drawer ? '264px' : '24px',
+             pr: '24px',
+             width: '100%'
+           }}>
         <Toolbar sx={{ height: 70, minHeight: 70 }}/>
         {children}
       </Box>
+      <div style={{
+        height: 50,
+        backgroundColor: isProd ? '' : '#d73333',
+        position: 'fixed',
+        bottom: 0,
+        align: 'center',
+        left: drawer ? '240px' : 0,
+        width: '100%'
+      }}>
+        <Adsense
+          style={{ height: 50, maxWidth: 1200, margin: '0 auto' }}
+          client="ca-pub-1842647313167572"
+          slot="8040203474"
+          format={''}
+        />
+      </div>
       <EmailPasswordDialog loginError={state?.loginError} open={emailPasswordDialog}
                            handleClose={() => setEmailPasswordDialog(false)}
                            handleClick={(emailPassword) => handleAuth(state?.signedIn, { emailPassword })}/>

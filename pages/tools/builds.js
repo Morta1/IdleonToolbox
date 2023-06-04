@@ -29,8 +29,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import debounce from "lodash.debounce";
 import Button from "@mui/material/Button";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
-import { Adsense } from "@ctrl/react-adsense";
-import Box from "@mui/material/Box";
 
 const allClasses = Object.keys(allBuilds);
 
@@ -212,14 +210,6 @@ const Builds = () => {
           })}
         </Grid>
       </div> : <Typography variant={'h5'}>There are no builds for this class</Typography>}
-      <Box sx={{ marginTop: 'auto', mb: 2, height: 90 }}>
-        <Adsense
-          client="ca-pub-1842647313167572"
-          slot="6690860140"
-          responsive={'true'}
-          format={'horizontal'}
-        />
-      </Box>
     </Stack>
 
     <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>

@@ -201,8 +201,6 @@ const ItemBrowser = ({}) => {
 };
 
 const ItemBrowserStyle = styled.div`
-  padding-left: 10px;
-  margin-top: 25px;
 
   .main-header {
     font-size: 22px;

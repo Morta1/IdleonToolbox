@@ -1,7 +1,8 @@
 import { Stack, Typography } from "@mui/material";
 import { useMemo } from "react";
-import { kFormatter, numberWithCommas, prefix } from "utility/helpers";
+import { notateNumber, prefix } from "utility/helpers";
 import { calcStampLevels } from "../../../parsers/stamps";
+import Tooltip from "../../Tooltip";
 
 const Totals = ({ account }) => {
   const calcBubbleLevels = (allBubbles) => {
@@ -25,7 +26,7 @@ const Totals = ({ account }) => {
   const totalShrineLevels = useMemo(() => calcShrineLevels(account?.shrines), [account]);
 
   return (
-    <Stack>
+    <Stack gap={1}>
       <Typography variant={'h5'}>Totals</Typography>
       <TotalStat text={'Total Bubbles'} icon={'aBrewOptionA0'} stat={totalBubbleLevels}/>
       <TotalStat text={'Total Stamps'} icon={'StampA34'} stat={totalStampLevels}/>
@@ -40,12 +41,13 @@ const Totals = ({ account }) => {
   );
 };
 
-const TotalStat = ({ text, icon, stat, formatting = 'commas' }) => {
-  const finalStat = formatting === 'k' ? kFormatter(stat) : numberWithCommas(stat);
+const TotalStat = ({ text, icon, stat }) => {
   return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-    <img style={{ width: 40, height: 40 }} src={`${prefix}data/${icon}.png`} alt=""/>
+    <img style={{ width: 35, height: 35 }} src={`${prefix}data/${icon}.png`} alt=""/>
     <Typography variant={'body1'} component={'span'}>{text} :</Typography>
-    <Typography variant={'body1'} component={'span'}>{finalStat}</Typography>
+    <Tooltip title={stat}>
+      <Typography variant={'body1'} component={'span'}>{notateNumber(stat)}</Typography>
+    </Tooltip>
   </Stack>
 }
 

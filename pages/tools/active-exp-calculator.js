@@ -10,7 +10,6 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { NextSeo } from "next-seo";
 
 const countdown = 10;
-
 const ActiveXpCalculator = () => {
   const { state } = useContext(AppContext);
   const [charactersList, setCharactersList] = useState([]);
@@ -176,11 +175,6 @@ const StyledMenuItem = styled(MenuItem)`
 `;
 
 const ActiveXpCalculatorStyle = styled.div`
-  padding: 20px;
-  margin-top: 15px;
-  margin-bottom: 25px;
-
-
   .selection {
     display: flex;
     align-items: baseline;

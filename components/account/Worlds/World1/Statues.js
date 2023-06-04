@@ -3,17 +3,18 @@ import { cleanUnderscore, pascalCase } from "utility/helpers";
 import HtmlTooltip from "components/Tooltip";
 import { IconWithText } from "components/common/styles";
 import ProgressBar from "components/common/ProgressBar";
+import Box from "@mui/material/Box";
 
 const Statues = ({ statues }) => {
   return (
-    <Stack flexWrap={'wrap'} direction={'row'} justifyContent={'center'} gap={2}>
+    <Stack sx={{ height: 'fit-content' }} flexWrap={'wrap'} direction={'row'} justifyContent={'center'} gap={2}>
       {statues?.map((statue, index) => {
         const { name, rawName, level } = statue;
-        return <div key={name + index}>
+        return <Box key={name + index}>
           <HtmlTooltip title={<StatueTooltip {...statue} />}>
             <IconWithText stat={level} icon={rawName} img={{ style: { width: 40, height: 50, objectFit: 'contain' } }}/>
           </HtmlTooltip>
-        </div>;
+        </Box>;
       })}
     </Stack>
   );

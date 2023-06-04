@@ -194,51 +194,51 @@ const AppProvider = ({ children }) => {
 
   useInterval(
     async () => {
-      if (state?.signedIn) return;
-      let id_token, uid, type;
-      if (state?.emailPasswordLogin) {
-        id_token = state?.emailPasswordLogin?.accessToken;
-        uid = state?.emailPasswordLogin?.uid;
-      } else {
-        if (state?.appleLogin) {
-          const appleCredential = await geAppleStatus(state?.appleLogin)
-          if (appleCredential?.id_token) {
-            id_token = appleCredential;
-            type = 'apple';
-          }
+      try {
+        if (state?.signedIn) return;
+        let id_token, uid, type;
+        if (state?.emailPasswordLogin) {
+          id_token = state?.emailPasswordLogin?.accessToken;
+          uid = state?.emailPasswordLogin?.uid;
         } else {
-          const user = (await getUserToken(code?.deviceCode)) || {};
-          if (user) {
-            id_token = user?.id_token;
-            type = 'google'
+          if (state?.appleLogin) {
+            const appleCredential = await geAppleStatus(state?.appleLogin)
+            if (appleCredential?.id_token) {
+              id_token = appleCredential;
+              type = 'apple';
+            }
+          } else {
+            const user = (await getUserToken(code?.deviceCode)) || {};
+            if (user) {
+              id_token = user?.id_token;
+              type = 'google'
+            }
+          }
+          if (id_token) {
+            const userData = await signInWithToken(id_token, type);
+            uid = userData?.uid;
           }
         }
         if (id_token) {
-          try {
-            const userData = await signInWithToken(id_token, type);
-            uid = userData?.uid;
-          } catch (error) {
-            console.error('Error: ', error?.stack)
-            dispatch({ type: 'loginError', data: error?.stack });
+          const unsubscribe = await subscribe(uid, handleCloudUpdate);
+          if (typeof window?.gtag !== "undefined") {
+            window?.gtag("event", "login", {
+              action: "login",
+              category: "engagement",
+              value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
+            });
           }
+          setListener({ func: unsubscribe });
+          setWaitingForAuth(false);
+          setAuthCounter(0);
+        } else if (authCounter > 5) {
+          setWaitingForAuth(false);
         }
+        setAuthCounter((counter) => counter + 1);
+      } catch (error) {
+        console.error('Error: ', error?.stack)
+        dispatch({ type: 'loginError', data: error?.stack });
       }
-      if (id_token) {
-        const unsubscribe = await subscribe(uid, handleCloudUpdate);
-        if (typeof window?.gtag !== "undefined") {
-          window?.gtag("event", "login", {
-            action: "login",
-            category: "engagement",
-            value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
-          });
-        }
-        setListener({ func: unsubscribe });
-        setWaitingForAuth(false);
-        setAuthCounter(0);
-      } else if (authCounter > 5) {
-        setWaitingForAuth(false);
-      }
-      setAuthCounter((counter) => counter + 1);
     },
     waitingForAuth ? 6000 : null
   );

@@ -397,6 +397,6 @@ export const sections = [{ name: "Activity" }, { name: "Stats" }, { name: "Bags"
   { name: 'Inventory' },
   { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
 
-const isProd = process.env.NODE_ENV === "production";
+export const isProd = process.env.NODE_ENV === "production";
 export const prefix = isProd ? "/" : "/";
 

@@ -3,7 +3,6 @@ import { CircularProgress, Dialog, DialogContent, DialogTitle, Stack, Typography
 import Link from "@mui/material/Link";
 
 const AuthDialog = ({ dialog, onClose, loginError }) => {
-
   const getContent = () => {
     if (dialog?.type === 'google') {
       return <>

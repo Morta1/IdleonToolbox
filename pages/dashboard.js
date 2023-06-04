@@ -21,7 +21,7 @@ import Characters from "../components/dashboard/Characters";
 import Account from "../components/dashboard/Account";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from "@mui/material/IconButton";
-import { flatten, prefix } from "../utility/helpers";
+import { flatten, isProd, prefix } from "../utility/helpers";
 import Etc from "../components/dashboard/Etc";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -82,7 +82,8 @@ const Dashboard = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [trackers, setTrackers] = useState();
   const [options, setOptions] = useState();
-  const showSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
+  const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
+  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
   useEffect(() => {
     const accountHasDiff = state?.trackers?.account ? Object.keys(accountTrackers).length !== Object.keys(state?.trackers?.account).length : true;
@@ -156,7 +157,7 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack direction='row' gap={2} justifyContent={'space-between'}>
-      <Stack sx={{ maxWidth: '78%' }}>
+      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : '78%' }}>
         <Stack direction={'row'} alignItems={'center'} gap={3}>
           <Typography variant={'h2'}>Dashboard</Typography>
           <IconButton title={'Configure alerts'} onClick={() => setOpen(true)}>
@@ -171,15 +172,6 @@ const Dashboard = () => {
           <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters}
                       account={account} lastUpdated={lastUpdated}/>
           <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
-        </Stack>
-        <Stack sx={{ marginTop: 'auto', my: 10 }}>
-          <Adsense
-            style={{ display: 'inline-block', maxWidth: '100%', height: 90 }}
-            client="ca-pub-1842647313167572"
-            slot="1488341218"
-            responsive={'true'}
-            format={''}
-          />
         </Stack>
         <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
           <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -212,13 +204,21 @@ const Dashboard = () => {
           </DialogContent>
         </Dialog>
       </Stack>
-      {showSideBanner ? <Stack>
-        <Adsense
+      {showWideSideBanner || showNarrowSideBanner ? <Box
+        sx={{
+          backgroundColor: isProd ? '' : '#d73333',
+          width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
+          height: 600
+        }}>
+        {showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"
-          slot="1488341218"
-          format={''}
-        />
-      </Stack> : null}
+          slot="2700532291"
+        /> : null}
+        {showNarrowSideBanner ? <Adsense
+          client="ca-pub-1842647313167572"
+          slot="8040203474"
+        /> : null}
+      </Box> : null}
     </Stack>
   </>
 };
