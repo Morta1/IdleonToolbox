@@ -323,7 +323,7 @@ function NavBar({ children, window }) {
         backgroundColor: isProd ? '' : '#d73333',
         position: 'fixed',
         bottom: 0,
-        left: drawer ? '240px' : 0,
+        left: !isXs && drawer ? '240px' : 0,
         width: '100%'
       }}>
         <Adsense
