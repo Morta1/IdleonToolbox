@@ -9,7 +9,6 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
   const getShipsOverview = () => {
     return boats?.reduce((res, boat) => {
       const { island, islandIndex } = boat;
-      console.log(island?.name)
       return {
         ...res,
         [island?.name]: {
