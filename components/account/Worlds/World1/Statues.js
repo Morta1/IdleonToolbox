@@ -24,19 +24,20 @@ const Statues = ({ statues, characters }) => {
 const StatueTooltip = ({ effect, bonus, talentMulti, name, rawName, level, progress, statues, characters }) => {
   const calcBonus = level * bonus * talentMulti;
   const nextLv = Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1;
-  const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', notateNumber(calcBonus, 'MultiplierInfo'))));
+  const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', Math.floor(10 * calcBonus) / 10)));
   return <>
     <Typography fontWeight={'bold'} variant={'h5'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
     <Typography variant={'body1'}>{desc}</Typography>
     <ProgressBar percent={progress / nextLv * 100} label={false}/>
     <Typography
-      variant={'body2'}>{notateNumber(progress, 'MultiplierInfo')} / {notateNumber(nextLv, 'MultiplierInfo')}</Typography>
+      variant={'body2'}>{notateNumber(progress, 'Big')} / {notateNumber(nextLv, 'Big')}</Typography>
     <Typography my={2} component={'div'} variant={'caption'}>Voodo
       Statufication: {notateNumber(talentMulti, 'MultiplierInfo')}x</Typography>
 
     <Stack>
       {characters?.map(({ name: cName, talents }) => {
-        return <TitleAndValue key={cName} title={cName} value={notateNumber(getStatueBonus(statues, rawName, talents), 'MultiplierInfo')}/>
+        const bonus = getStatueBonus(statues, rawName, talents);
+        return <TitleAndValue key={cName} title={cName} value={Math.floor(10 * bonus) / 10}/>
       })}
     </Stack>
   </>
