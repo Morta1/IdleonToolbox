@@ -178,7 +178,7 @@ function NavBar({ children, window }) {
   };
 
   return (
-    <Box sx={{ marginBottom: '75px' }}>
+    <Box sx={{ marginBottom: isXs ? '75px' : '110px' }}>
       <AppBar position="fixed" sx={{ ml: { sm: `${drawerWidth}px` } }}>
         <Toolbar sx={{ height: 70, minHeight: 70 }}>
           {shouldDisplayMenu ? (
@@ -326,7 +326,13 @@ function NavBar({ children, window }) {
         width: '100%'
       }}>
         <Adsense
-          style={{ display: 'block', height: 50, maxHeight: 50, maxWidth: 1200, margin: '0 auto' }}
+          style={{
+            display: 'block',
+            height: isXs ? 50 : 90,
+            maxHeight: isXs ? 50 : 90,
+            maxWidth: 1200,
+            margin: '0 auto'
+          }}
           client="ca-pub-1842647313167572"
           slot="8040203474"
           format={''}

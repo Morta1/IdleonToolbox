@@ -199,6 +199,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters,
     lootLevel, speedLevel,
     boatIndex,
     island,
+    islandIndex,
     distanceTraveled,
   }
 

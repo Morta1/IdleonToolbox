@@ -26,6 +26,17 @@ import { useRouter } from "next/router";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.92",
+    gameVer: "1.83",
+    date: "06/05/2023",
+    features: [
+      'Added an overview of islands/captains to Boats And Captains tab in Sailing page',
+      'Added detailed information about statues in account page',
+    ],
+    fixes: [],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.91",
     gameVer: "1.83",
     date: "03/05/2023",

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
 import styled from "@emotion/styled";
@@ -6,7 +6,39 @@ import Timer from "../../../../common/Timer";
 import Captain from "./Captain";
 
 const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCaptains, lastUpdated }) => {
+  const getShipsOverview = () => {
+    return boats?.reduce((res, boat) => {
+      const { island, islandIndex } = boat;
+      console.log(island?.name)
+      return {
+        ...res,
+        [island?.name]: {
+          islandIndex,
+          boats: [...(res?.[island?.name]?.boats || []), boat]
+        }
+      };
+    }, {})
+  };
+  const shipOverview = useMemo(() => getShipsOverview(), [boats])
   return <>
+    <Typography my={3} variant={'h3'}>Overview</Typography>
+    <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
+      {Object.entries(shipOverview || {})?.map(([islandName, { islandIndex, boats }]) => {
+        return <Card>
+          <CardContent>
+            <Stack key={islandName}>
+              <Stack direction={'row'} gap={1}>
+                <img style={{ width: 25, objectFit: 'contain' }}
+                     src={`${prefix}data/SailT${(islandIndex * 2) + 1}.png`} alt=""/>
+                <Typography>{cleanUnderscore(islandName)}</Typography>
+              </Stack>
+              <Typography
+                sx={{ textAlign: 'center' }}>{boats?.map(({ captainMappedIndex }) => captainMappedIndex)?.join(', ')}</Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      })}
+    </Stack>
     <Typography my={3} variant={'h3'}>Boats</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
       {boats?.map(({

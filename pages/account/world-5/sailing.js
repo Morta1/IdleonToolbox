@@ -25,10 +25,12 @@ const Sailing = () => {
   } = state?.account?.sailing || {};
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+
   const handleOnClick = (e, selected) => {
     setSelectedTab(selected);
   }
   if (!state?.account?.sailing) return <MissingData name={'sailing'}/>;
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Sailing"
