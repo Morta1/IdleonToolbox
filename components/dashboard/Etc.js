@@ -105,7 +105,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
       </Stack>
       <Stack gap={1}>
         <Card sx={{ height: 'fit-content' }}>
-          <CardContent >
+          <CardContent>
             <Stack sx={{ height: 'fit-content' }}>
               <Typography sx={{ fontWeight: 'bold', mb: 1, color: '#bfff77' }}>Daily Reset</Typography>
               <Timer type={'countdown'} lastUpdated={lastUpdated}

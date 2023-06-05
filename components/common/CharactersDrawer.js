@@ -7,7 +7,7 @@ import Tooltip from "../Tooltip";
 const CharactersDrawer = () => {
   const { state, dispatch } = useContext(AppContext);
   const [checked, setChecked] = React.useState(state?.displayedCharacters ? state?.displayedCharacters : {
-    all: false, ...state?.characters.reduce((res, { name }) => ({
+    all: false, ...state?.characters?.reduce((res, { name }) => ({
       ...res,
       [name]: false
     }), {})
@@ -22,7 +22,7 @@ const CharactersDrawer = () => {
     if (event === 'all') {
       newState = {
         all: !checked.all,
-        ...state?.characters.reduce((res, { name }) => ({ ...res, [name]: !checked.all }), {})
+        ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: !checked.all }), {})
       };
     } else {
       newState = {

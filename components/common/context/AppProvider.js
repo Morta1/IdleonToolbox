@@ -124,7 +124,6 @@ const AppProvider = ({ children }) => {
           lastUpdated
         };
         dispatch({ type: 'data', data: { ...importData, lastUpdated, manualImport: false, pastebin: true } })
-        // logout(true, importData);
       } catch (e) {
         console.error('Failed to load data from pastebin', e);
         router.push({ pathname: '/', query: router.query });
@@ -176,18 +175,19 @@ const AppProvider = ({ children }) => {
     }
     if (state?.manualImport) {
       localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
-      const charactersData = JSON.parse(localStorage.getItem("charactersData"));
       const lastUpdated = JSON.parse(localStorage.getItem("lastUpdated"));
       if (state?.signedIn) {
-        logout(true, { ...charactersData, lastUpdated, manualImport: true });
-      } else {
-        dispatch({ type: 'data', data: { ...charactersData, lastUpdated, manualImport: true } })
+        logout(true, { ...state?.data, lastUpdated, manualImport: true });
       }
     }
     if (state?.emailPasswordLogin || state?.appleLogin) {
       setWaitingForAuth(true);
     }
-  }, [state?.trackers, state?.trackersOptions, state?.filters, state?.displayedCharacters, state?.planner,
+  }, [state?.trackers,
+    state?.trackersOptions,
+    state?.filters,
+    state?.displayedCharacters,
+    state?.planner,
     state?.manualImport,
     state?.emailPasswordLogin,
     state?.appleLogin]);
@@ -282,7 +282,7 @@ const AppProvider = ({ children }) => {
     const lastUpdated = new Date().getTime();
     localStorage.setItem("rawJson", JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
     const parsedData = parseData(data, charNames, guildData, serverVars);
-    localStorage.setItem("charactersData", JSON.stringify(parsedData));
+    // localStorage.setItem("charactersData", JSON.stringify(parsedData));
     localStorage.setItem("manualImport", JSON.stringify(false));
     dispatch({
       type: "data",

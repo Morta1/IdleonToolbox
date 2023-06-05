@@ -147,10 +147,10 @@ function NavBar({ children, window }) {
     });
   };
 
-  const handleManualImport = async (ff) => {
+  const handleManualImport = async (firefox) => {
     try {
       let content;
-      if (ff) {
+      if (firefox) {
         content = JSON.parse(ffText);
       } else {
         content = JSON.parse(await navigator.clipboard.readText());
@@ -162,9 +162,9 @@ function NavBar({ children, window }) {
         const { data, charNames, guildData, serverVars } = content;
         parsedData = parseData(data, charNames, guildData, serverVars);
       }
-      localStorage.setItem('charactersData', JSON.stringify(parsedData));
-      localStorage.setItem('lastUpdated', JSON.stringify(new Date().getTime()));
-      dispatch({ type: "data", data: { manualImport: true } });
+      const lastUpdated = new Date().getTime();
+      localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
+      dispatch({ type: "data", data: { ...parsedData, lastUpdated, manualImport: true } });
       handleClose();
     } catch (e) {
       console.error(e);

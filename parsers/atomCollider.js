@@ -44,7 +44,7 @@ const parseAtomBonus = (atomInfo, level, account) => {
     const voidMeals = account?.cooking?.meals?.reduce((res, { level }) => level >= 30 ? res + 1 : res, 0);
     return 100 * (Math.pow(1 + atomInfo?.baseBonus * level / 100, voidMeals) - 1);
   } else if (atomInfo?.name === 'Carbon_-_Wizard_Maximizer') {
-    return atomInfo?.baseBonus * account?.towers?.wizardAboveFifty;
+    return atomInfo?.baseBonus * account?.towers?.wizardOverLevels;
   }
 }
 
@@ -56,7 +56,7 @@ export const getAtomBonus = (account, name) => {
     if (name === 'Fluoride_-_Void_Plate_Chef') {
       return atom?.bonus
     } else if (name === 'Carbon_-_Wizard_Maximizer') {
-      return atom?.baseBonus * account?.towers?.wizardAboveFifty
+      return atom?.baseBonus * account?.towers?.wizardOverLevels;
     } else {
       return atom?.level * atom?.baseBonus;
     }
