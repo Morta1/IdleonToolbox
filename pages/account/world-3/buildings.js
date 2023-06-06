@@ -88,6 +88,7 @@ const Buildings = () => {
         let extraLevels = getExtraMaxLevels(state?.account?.towers?.totalLevels, maxLevel, atom?.level);
         maxLevel += extraLevels;
         const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
+        const maxed = level === maxLevel;
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress ? '1px solid' : '',
           borderColor: inProgress ? progress < buildCost ? 'success.light' : 'warning.light' : '',
@@ -100,14 +101,12 @@ const Buildings = () => {
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt=""/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
-                {inProgress ?
-                  <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
-                         lastUpdated={state?.lastUpdated}/> : null}
-
+                {!maxed ? <Timer type={'countdown'} staticTime={!inProgress} date={new Date().getTime() + timeLeft}
+                                 lastUpdated={state?.lastUpdated}/> : null}
               </Stack>
               <Stack sx={{ width: 100 }}>
                 <Typography mb={2}>Progress</Typography>
-                {level === maxLevel ? <Typography color={'success.light'}>MAXED</Typography> :
+                {maxed ? <Typography color={'success.light'}>MAXED</Typography> :
                   <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>}
               </Stack>
               {level === maxLevel ? null : <Stack>
