@@ -30,6 +30,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
 
   const closestTrap = account?.traps?.reduce((closestTrap, traps) => {
     const times = traps?.map(({ timeLeft }) => timeLeft);
+    if (times.length === 0) return closestTrap;
     const lowest = Math.min(...times);
     if (closestTrap === 0 || lowest < closestTrap) {
       return lowest;
