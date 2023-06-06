@@ -1,15 +1,17 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import { constructionMasteryThresholds, getBuildCost } from "../../../parsers/construction";
 import { NextSeo } from "next-seo";
+import Timer from "../../../components/common/Timer";
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
-
+  const buildSpeed = state?.account?.construction?.totalBuildRate;
   const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
+  const [bySpeed, setBySpeed] = useState(false);
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
     return itemReq.map(({ rawName, name, amount }) => {
@@ -49,20 +51,43 @@ const Buildings = () => {
           : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
   }
 
+  const buildings = useMemo(() => {
+    if (!bySpeed) return state?.account?.towers?.data;
+    const towers = JSON.parse(JSON.stringify(state?.account?.towers?.data));
+    return towers?.sort((a, b) => {
+      const buildCostA = getBuildCost(state?.account?.towers, a?.level, a?.bonusInc, a?.index);
+      const buildCostB = getBuildCost(state?.account?.towers, b?.level, b?.bonusInc, b?.index);
+      const timeLeftA = (buildCostA - a?.progress) / buildSpeed;
+      const timeLeftB = (buildCostB - b?.progress) / buildSpeed;
+      if (!a?.inProgress) {
+        return 1;
+      } else if (!b?.inProgress) {
+        return -1;
+      }
+      return timeLeftA - timeLeftB;
+    })
+  }, [bySpeed])
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Buildings"
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
     <Typography variant={'h2'} mb={3}>Buildings</Typography>
+    <FormControlLabel
+      control={<Checkbox name={'bySpeed'} checked={bySpeed}
+                         size={'small'}
+                         onChange={() => setBySpeed(!bySpeed)}/>}
+      label={'Sort by time left'}/>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-      {state?.account?.towers?.data?.map((tower, index) => {
+      {buildings?.map((tower, index) => {
         let { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
         const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
         const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
         const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
         let extraLevels = getExtraMaxLevels(state?.account?.towers?.totalLevels, maxLevel, atom?.level);
         maxLevel += extraLevels;
+        const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress ? '1px solid' : '',
           borderColor: inProgress ? progress < buildCost ? 'success.light' : 'warning.light' : '',
@@ -75,6 +100,10 @@ const Buildings = () => {
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt=""/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
+                {inProgress ?
+                  <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
+                         lastUpdated={state?.lastUpdated}/> : null}
+
               </Stack>
               <Stack sx={{ width: 100 }}>
                 <Typography mb={2}>Progress</Typography>

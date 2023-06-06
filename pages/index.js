@@ -22,13 +22,25 @@ import DiscordInvite from "../components/DiscordInvite";
 import { Adsense } from '@ctrl/react-adsense';
 import Box from "@mui/material/Box";
 import { useRouter } from "next/router";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
     ver: "3.1.92",
     gameVer: "1.83",
-    date: "06/05/2023",
+    date: "06/06/2023",
+    features: [
+      'Added a timer for construction buildings to Buildings page and a timer on dashboard for closest building to finish',
+      'Added a checkbox to filter by time to build in Buildings page'
+    ],
+    fixes: ['Fixed issues with login in iPhone'],
+    deprecatedFeatures: []
+  },
+  {
+    ver: "3.1.92",
+    gameVer: "1.83",
+    date: "06/06/2023",
     features: [
       'Added an overview of islands/captains to Boats And Captains tab in Sailing page',
       'Added detailed information about statues in account page',
@@ -39,7 +51,7 @@ const patchNotes = [
   {
     ver: "3.1.91",
     gameVer: "1.83",
-    date: "03/05/2023",
+    date: "03/06/2023",
     features: [
       'Added data and assets from version 1.83',
     ],
@@ -49,7 +61,7 @@ const patchNotes = [
   {
     ver: "3.1.90",
     gameVer: "1.82",
-    date: "01/05/2023",
+    date: "01/06/2023",
     features: [
       'Added Void Trial Rerun, Arena Spirit, Taste Test to dashboard alerts',
       'Added few submitted builds',
@@ -1152,6 +1164,12 @@ const Home = () => {
         For any question, suggestion or bug report, please contact me in discord <span
         style={{ fontWeight: "bold" }}>Morojo#2331</span> or open an issue on <Link
         href="https://github.com/Morta1/IdleonToolbox/issues">github</Link>
+      </Typography>
+
+      <Typography style={{ textAlign: "center" }} component={'div'} variant={'body2'} my={3}>
+        * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
+        valuable content for all users <FavoriteIcon color={'error'}
+                                                     sx={{ fontSize: 12 }}/>
       </Typography>
       <Stack direction={fullScreen ? "column" : "row"} alignItems="flex-start" flexWrap={"wrap"} justifyContent="center"
              spacing={2} style={{ margin: "35px 0" }}>

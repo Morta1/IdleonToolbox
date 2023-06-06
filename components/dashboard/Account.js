@@ -21,13 +21,17 @@ import {
   guildTasks,
   hasAvailableSpiceClicks,
   hasItemsInShop,
-  isBallsOverdue, isFlagReady,
+  isBallsOverdue,
+  isFlagReady,
   isStampReducerMaxed,
-  overflowingPrinter, overflowingShinies,
+  overflowingPrinter,
+  overflowingShinies,
   refineryAlerts,
   riftAlerts,
   sailingAlerts,
-  zeroBargainTag, zeroRandomEvents
+  unusedShipments,
+  zeroBargainTag,
+  zeroRandomEvents
 } from "../../utility/dashboard/account";
 
 const alertsMapping = {
@@ -50,7 +54,8 @@ const alertsMapping = {
   printerAtoms: overflowingPrinter,
   shinies: overflowingShinies,
   randomEvents: zeroRandomEvents,
-  flags: isFlagReady
+  flags: isFlagReady,
+  shipments: unusedShipments
 }
 
 const Account = ({ account, trackers, trackersOptions }) => {
@@ -150,6 +155,10 @@ const Account = ({ account, trackers, trackersOptions }) => {
             alerts?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
                                                                           title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
                                                                           iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.shipments && alerts?.shipments?.length > 0 ?
+            alerts?.shipments?.map(({ index }) => <Alert key={"shipment" + index}
+                                                         title={`Order streak for shipment #${index} is 0!`}
+                                                         iconPath={`data/UIlilbox`}/>) : null}
           {trackers?.shinies && alerts?.shinies?.length > 0 ?
             alerts?.shinies?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
               const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';

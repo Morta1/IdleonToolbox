@@ -95,7 +95,7 @@ export const createTalentPage = (className, pages, talentsObject, maxTalentsObje
 }
 
 export const getActiveBuffs = (activeBuffs, talents) => {
-  return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId));
+  return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId))?.filter((talent) => talent);
 }
 
 export const getHighestTalentByClass = (characters, talentTree, className, talentName, yBonus, useMaxLevel) => {

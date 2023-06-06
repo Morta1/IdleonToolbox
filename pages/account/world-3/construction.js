@@ -30,24 +30,6 @@ const Construction = () => {
       console.error(err);
     }
   };
-  //
-  // const test = () => {
-  //   const yes = [];
-  //   for (let y = 0; y < 8; y++) {
-  //     let list = []
-  //     for (let x = 0; x < 12; x++) {
-  //       const index = (7 - y) * 12 + x;
-  //       list.push(
-  //         <Stack textAlign={'center'} key={index} sx={{ width: 70, height: 70, border: '1px solid red' }}>
-  //           <Typography>{index} </Typography>
-  //           <Stack><Typography>({x},{y})</Typography></Stack>
-  //         </Stack>
-  //       )
-  //     }
-  //     yes.push(list)
-  //   }
-  //   return yes.reverse();
-  // }
 
   return (
     <>

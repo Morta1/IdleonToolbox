@@ -9,6 +9,7 @@ import Timer from "../common/Timer";
 import Trade from "../account/Worlds/World5/Sailing/Trade";
 import RandomEvent from "../account/Misc/RandomEvent";
 import { calcHappyHours } from "../../parsers/dungeons";
+import { getBuildCost } from "../../parsers/construction";
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -18,17 +19,22 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
 
+  const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
+    const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
+    const timeLeft = (buildCost - building?.progress) / account?.construction?.totalBuildRate * 1000 * 3600;
+    if (building?.inProgress && (closestBuilding?.timeLeft === 0 || timeLeft < closestBuilding?.timeLeft)) {
+      return { timeLeft, icon: `ConTower${building?.index}` };
+    }
+    return closestBuilding;
+  }, { timeLeft: 0, icon: '' });
+
   const closestTrap = account?.traps?.reduce((closestTrap, traps) => {
     const times = traps?.map(({ timeLeft }) => timeLeft);
     const lowest = Math.min(...times);
-    if (closestTrap === 0) {
+    if (closestTrap === 0 || lowest < closestTrap) {
       return lowest;
-    } else {
-      if (lowest < closestTrap) {
-        return lowest
-      }
-      return closestTrap;
     }
+    return closestTrap;
   }, 0);
 
   return <>
@@ -86,6 +92,18 @@ const Etc = ({ characters, account, lastUpdated }) => {
                 <Timer lastUpdated={lastUpdated}
                        type={'countdown'}
                        date={closestTrap}/>
+              </Stack>
+            </Tooltip>
+          </CardContent>
+        </Card> : null}
+        {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <Card sx={{ height: 'fit-content' }}>
+          <CardContent>
+            <Tooltip title={'Closest building'}>
+              <Stack gap={1} direction={'row'} alignItems={'center'}>
+                <IconImg src={`${prefix}data/${closestBuilding?.icon}.png`}/>
+                <Timer lastUpdated={lastUpdated}
+                       type={'countdown'}
+                       date={new Date().getTime() + closestBuilding?.timeLeft}/>
               </Stack>
             </Tooltip>
           </CardContent>

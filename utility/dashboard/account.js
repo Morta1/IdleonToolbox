@@ -275,3 +275,10 @@ export const isFlagReady = (account) => {
                                                }) => flagPlaced && currentAmount === requiredAmount);
 }
 
+export const unusedShipments = (account, trackerOptions) => {
+  if (!account?.finishedWorlds?.World1) return false;
+  return account?.postOfficeShipments?.filter(({ streak }, index) => {
+    return trackerOptions?.[index + 1] && streak <= 0
+  })
+}
+

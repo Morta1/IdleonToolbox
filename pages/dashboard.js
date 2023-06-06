@@ -29,20 +29,23 @@ import CloseIcon from '@mui/icons-material/Close';
 import { NextSeo } from "next-seo";
 import { getRawShopItems } from "../parsers/shops";
 import { Adsense } from "@ctrl/react-adsense";
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
   'talents', 'crystalCountdown', 'tools'].toSimpleObject();
 const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
   'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops',
-  'flags',
-  'randomEvents'
+  'flags', 'randomEvents', 'shipments'
 ].toSimpleObject();
-
 
 const trackersOptions = {
   account: {
     vials: { subtractGreenStacks: true },
-    gaming: { sprouts: true, squirrel: true, shovel: true },
+    gaming: {
+      sprouts: true,
+      squirrel: true,
+      shovel: true
+    },
     guildTasks: { daily: true, weekly: true },
     refinery: { materials: true, rankUp: true },
     sailing: { captains: true },
@@ -58,6 +61,7 @@ const trackersOptions = {
     shinies: { input: { label: 'Level Threshold', type: 'number', value: 5, helperText: 'Shiny level' } },
     shops: { asImages: true, ...getRawShopItems() },
     printerAtoms: { includeOakAndCopper: false },
+    shipments: { ...[1, 2, 3, 4, 5, 6].toSimpleObject() }
   },
   characters: {
     anvil: { showAlertBeforeFull: true },
@@ -126,25 +130,25 @@ const Dashboard = () => {
     dispatch({ type: 'trackers', data: tempTrackers })
   };
 
-  const handleOptionsChange = (event, type, option, isInput) => {
+  const handleOptionsChange = ({ event, type, trackerName, isInput }) => {
     const tempOptions = {
       ...options,
       [type]: {
         ...options[type],
-        [option]: {
+        [trackerName]: {
           ...(isInput ? {
-            input: { ...options[type][option]['input'], value: event.target.value }
-          } : { ...options[type][option], [event.target.name]: event.target.checked })
+            input: { ...options[type][trackerName]['input'], value: event.target.value }
+          } : { ...options[type][trackerName], [event.target.name]: event.target.checked })
         }
       }
     };
     setOptions(tempOptions);
-    if (!trackers?.[type]?.[option]) {
+    if (!trackers?.[type]?.[trackerName]) {
       setTrackers({
         ...trackers,
         [type]: {
           ...trackers[type],
-          [option]: true
+          [trackerName]: true
         }
       })
     }
@@ -164,8 +168,11 @@ const Dashboard = () => {
             <SettingsIcon/>
           </IconButton>
         </Stack>
-        <Typography component={'div'} variant={'caption'} mb={3}>* Please let me know if you want to tracks additional
-          stuff</Typography>
+        <Typography component={'div'} variant={'caption'} mb={3}>
+          * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
+          valuable content for all users <FavoriteIcon color={'error'}
+                                                       sx={{ fontSize: 12 }}/>
+        </Typography>
         <Stack gap={2}>
           <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters}
                    account={account} lastUpdated={lastUpdated}/>
@@ -251,33 +258,57 @@ const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options })
           {trackerOptions && Object.keys(trackerOptions)?.map((option) => {
             if (option === 'asImages') return;
             if (option === 'input') {
-              const { label, type: inputType, value, helperText = '', maxValue, minValue } = trackerOptions?.[option]
-              return <TextField key={`option-${option}`} size={'small'}
-                                label={label.capitalize()}
-                                type={inputType}
-                                sx={{ mt: 1, width: 150 }}
-                                name={option}
-                                value={value}
-                                InputProps={{ inputProps: { max: maxValue, min: minValue, autoComplete: 'off' } }}
-                                onChange={(event) => onOptionChange(event, type, trackerName, true)}
-                                helperText={helperText}/>
+              return <CheckboxInput input={trackerOptions?.[option]}
+                                    key={`option-${option}`}
+                                    option={option}
+                                    onOptionChange={(event) => onOptionChange({
+                                      event,
+                                      type,
+                                      trackerName,
+                                      isInput: true
+                                    })}/>
             }
-            return <FormControlLabel
-              key={`option-${option}`}
-              control={<Checkbox name={option}
-                                 size={'small'}
-                                 checked={trackerOptions?.[option]}
-                                 onChange={(event) => onOptionChange(event, type, trackerName)}/>}
-              label={asImages ?
-                <img width={24} height={24} src={`${prefix}data/${option}.png`} alt=""/> : option.camelToTitleCase()}>
-
-            </FormControlLabel>
+            return <Stack key={`option-${option}`}>
+              <FormControlLabel
+                control={<Checkbox name={option}
+                                   size={'small'}
+                                   checked={trackerOptions?.[option]}
+                                   onChange={(event) => onOptionChange({
+                                     event,
+                                     type,
+                                     trackerName
+                                   })}/>}
+                label={asImages ?
+                  <img width={24} height={24} src={`${prefix}data/${option}.png`} alt=""/> : option.camelToTitleCase()}>
+              </FormControlLabel>
+            </Stack>
           })}
         </Stack>
       </Collapse>
       {index !== Object.keys(arr).length - 1 ? <Divider/> : null}
     </Box>
   })
+}
+
+const CheckboxInput = ({ input, onOptionChange, option }) => {
+  const {
+    label,
+    type: inputType,
+    value,
+    helperText = '',
+    maxValue = 0,
+    minValue = 0
+  } = input;
+  return <TextField
+    size={'small'}
+    label={label.capitalize()}
+    type={inputType}
+    sx={{ mt: 1, width: 150 }}
+    name={option}
+    value={value}
+    InputProps={{ inputProps: { max: maxValue, min: minValue, autoComplete: 'off' } }}
+    onChange={(event) => onOptionChange(event)}
+    helperText={helperText}/>
 }
 
 export default Dashboard;

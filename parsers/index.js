@@ -31,9 +31,11 @@ import {
   enhanceColoTickets,
   enhanceKeysObject,
   getBundles,
-  getCurrencies, getItemCapacity,
+  getCurrencies,
+  getItemCapacity,
   getLibraryBookTimes,
-  getLooty, getTypeGen,
+  getLooty,
+  getTypeGen,
 } from "./misc";
 import { getSaltLick } from "./saltLick";
 import { getDungeons } from "./dungeons";
@@ -51,6 +53,7 @@ import { getArtifacts, getSailing } from "./sailing";
 import { getGaming } from "./gaming";
 import { getAtoms } from "./atomCollider";
 import { getRift, isRiftBonusUnlocked } from "./world-4/rift";
+import { getPostOfficeShipments } from "./postoffice";
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
@@ -113,6 +116,7 @@ const serializeData = (idleonData, charsNames, guildData, serverVars) => {
   accountData.breeding = getBreeding(idleonData, accountData);
   accountData.cooking = getCooking(idleonData, accountData, serializedCharactersData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
+  accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
 
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
