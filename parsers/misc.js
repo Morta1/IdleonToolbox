@@ -112,7 +112,6 @@ export const getCurrencies = (idleonData) => {
       KeysAll: getKeysObject(keys)
     };
   }
-
   return {
     WorldTeleports: idleonData?.CYWorldTeleports,
     KeysAll: getKeysObject(keys),
@@ -152,7 +151,7 @@ export const enhanceColoTickets = (tickets, characters, account) => {
 }
 
 const getKeysObject = (keys) => {
-  return keys.reduce((res, keyAmount, index) => (keyAmount > 0 ? [...res,
+  return keys.reduce((res, keyAmount, index) => (index < 3 ? [...res,
     { amount: keyAmount, ...keysMap[index] }] : res), []);
 }
 

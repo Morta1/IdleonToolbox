@@ -90,6 +90,7 @@ export const areTowersOverdue = (account) => {
 export const areKeysOverdue = (account) => {
   const keys = account?.currencies?.KeysAll;
   const tickets = account?.currencies?.ColosseumTickets?.allTickets;
+
   const keysAlerts = keys?.filter(({ daysSincePickup }) => {
     return daysSincePickup >= 3;
   })

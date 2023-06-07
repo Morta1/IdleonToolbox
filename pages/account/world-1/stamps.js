@@ -170,13 +170,26 @@ const Stamps = () => {
           })
           let bestCharacter = getBestCharacterForCraft(items?.[itemReq?.[0]?.rawName], state?.characters, state?.account);
           hasCharacter = bestCharacter?.maxCapacity >= itemRequirements?.[0]?.materialCost;
-
           return <React.Fragment key={rawName + '' + displayName + '' + index}>
             <Card sx={{
+              overflow: 'visible',
+              position: 'relative',
               width: 230,
               border: hasMaterials && hasMoney && hasCharacter && level > 0 ? '1px solid #81c784' : ''
             }}>
               <CardContent sx={{ '&:last-child': { paddingBottom: 4 } }}>
+                {level > 0 ? <RequirementsWrapper>
+                  {!hasMaterials ? <HtmlTooltip title={`Not enough ${cleanUnderscore(itemReq?.[0]?.name)}`}>
+                    <img width={24} height={24} src={`${prefix}data/${itemReq?.[0]?.rawName}.png`} alt={''}/>
+                  </HtmlTooltip> : null}
+                  {!hasMoney ? <HtmlTooltip title={'Not enough coins'}>
+                    <img width={20} height={20} src={`${prefix}data/Coins5.png`} alt={''}/>
+                  </HtmlTooltip> : null}
+                  {!hasCharacter ? <HtmlTooltip title={'Not enough capacity'}>
+                    <img width={24} height={24} style={{ objectFit: 'contain' }} src={`${prefix}etc/Character.png`}
+                         alt={''}/>
+                  </HtmlTooltip> : null}
+                </RequirementsWrapper> : null}
                 <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                   <Stack alignItems={'center'}>
                     <HtmlTooltip title={<StampTooltip {...{ ...stamp, goalLevel, goalBonus }}/>}>
@@ -221,6 +234,17 @@ const Stamps = () => {
     </div>
   );
 };
+
+const RequirementsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transform: translate(10%, -50%);
+  position: absolute;
+  top: 0;
+  right: 0;
+`
+
 const BonusIcon = styled.img`
   width: 32px;
   height: 32px;
