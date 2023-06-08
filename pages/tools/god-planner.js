@@ -8,6 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from "@mui/material/IconButton";
 import { MissingData } from "../../components/common/styles";
 import Tooltip from "../../components/Tooltip";
+import { gods } from "../../data/website-data";
 
 const GodPlanner = () => {
   const { dispatch, state } = useContext(AppContext);
@@ -100,7 +101,9 @@ const GodPlanner = () => {
                                                 }, godIndex) => {
                 const isLinked = account?.divinity?.linkedDeities?.[charIndex] === godIndex;
                 const isSecondLinked = secondLinkedDeityIndex === godIndex;
-                const bonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, (bigP && bubbleBonus)) * minorBonusMultiplier;
+                const realGodIndex = gods?.[godIndex]?.godIndex;
+                const multiplier = gods?.[realGodIndex]?.minorBonusMultiplier;
+                const bonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, (bigP && bubbleBonus)) * multiplier;
                 const bonusDesc = minorBonus.replace(/{/g, bonus.toFixed(2));
                 return <Tooltip key={rawName} title={<CharDeityDetails name={name} bonus={bonusDesc}/>}>
                   <Card variant={'outlined'}
