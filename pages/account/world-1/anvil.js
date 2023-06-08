@@ -61,7 +61,7 @@ const Anvil = () => {
                   const timePassed = (new Date().getTime() - afkTime) / 1000;
                   const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), stats?.anvilCapacity);
                   const percentOfCap = Math.round(futureProduction / stats?.anvilCapacity * 100);
-                  const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime })
+                  const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
                   return <Card elevation={5}
                                sx={{ boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707' }}
                                key={`${rawName}-${slotIndex}`}>

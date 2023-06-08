@@ -168,7 +168,7 @@ const Dashboard = () => {
             <SettingsIcon/>
           </IconButton>
         </Stack>
-        <Typography component={'div'} variant={'caption'} mb={3}>
+        <Typography component={'div'} variant={'caption'} mb={3} sx={{ fontSize: 15 }}>
           * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
           valuable content for all users <FavoriteIcon color={'error'}
                                                        sx={{ fontSize: 12 }}/>

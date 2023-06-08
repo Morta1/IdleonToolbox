@@ -41,6 +41,9 @@ function appReducer(state, action) {
     case "trackersOptions": {
       return { ...state, trackersOptions: action.data };
     }
+    case "godPlanner": {
+      return { ...state, godPlanner: action.data };
+    }
     case "emailPasswordLogin": {
       return { ...state, emailPasswordLogin: action.data };
     }
@@ -75,11 +78,12 @@ const AppProvider = ({ children }) => {
       const displayedCharacters = localStorage.getItem("displayedCharacters");
       const trackers = localStorage.getItem("trackers");
       const trackersOptions = localStorage.getItem("trackersOptions");
+      const godPlanner = localStorage.getItem("godPlanner");
       const manualImport = localStorage.getItem("manualImport") || false;
       const lastUpdated = localStorage.getItem("lastUpdated") || false;
       const planner = localStorage.getItem("planner");
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
-        { trackers }, { trackersOptions }];
+        { trackers }, { trackersOptions }, { godPlanner }];
       return objects.reduce((res, obj) => {
         try {
           const [objName, objValue] = Object.entries(obj)?.[0];
@@ -173,6 +177,9 @@ const AppProvider = ({ children }) => {
     if (state?.trackersOptions) {
       localStorage.setItem("trackersOptions", JSON.stringify(state.trackersOptions));
     }
+    if (state?.godPlanner) {
+      localStorage.setItem("godPlanner", JSON.stringify(state.godPlanner));
+    }
     if (state?.manualImport) {
       localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
       const lastUpdated = JSON.parse(localStorage.getItem("lastUpdated"));
@@ -190,6 +197,7 @@ const AppProvider = ({ children }) => {
     state?.planner,
     state?.manualImport,
     state?.emailPasswordLogin,
+    state?.godPlanner,
     state?.appleLogin]);
 
   useInterval(

@@ -60,7 +60,7 @@ const General = ({
             <Typography mt={1}>{cleanUnderscore(description)}</Typography>
             <Stack mt={1} direction={'row'} gap={1} alignItems={'center'}>
               <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`} alt="" style={{ objectFit: 'contain' }}/>
-              <Typography>{notateNumber(cost, "bits")}</Typography>
+              <Typography>{cost}</Typography>
             </Stack>
           </CardContent>
         </Card>

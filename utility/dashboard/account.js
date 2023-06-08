@@ -261,7 +261,7 @@ export const overflowingPrinter = (account, trackersOptions) => {
 export const overflowingShinies = (account, trackersOptions) => {
   const { input } = trackersOptions || {};
   return account?.breeding?.pets?.reduce((res, world) => {
-    const pets = world?.filter(({ monsterRawName, shinyLevel }) => account?.breeding?.fencePets?.[monsterRawName]
+    const pets = world?.filter(({ monsterRawName, shinyLevel }) => account?.breeding?.fencePetsObject?.[monsterRawName]
       && shinyLevel >= input?.value);
     return [...res, ...pets]
   }, [])

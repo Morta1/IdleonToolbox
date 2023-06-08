@@ -27,6 +27,19 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.93",
+    gameVer: "1.83",
+    date: "07/06/2023",
+    features: [
+      'Added a God Planner to the tools section'
+    ],
+    fixes: [
+      'Fixed a bug with bits display in gaming page',
+      'Fixed a bug with shinies alert in dashboard'
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.92",
     gameVer: "1.83",
     date: "06/06/2023",

@@ -18,6 +18,9 @@ const tools = {
   'activeExpCalculator': {
     icon: 'StatusExp'
   },
+  'godPlanner': {
+    icon: 'DivGod1'
+  },
 };
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
