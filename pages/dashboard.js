@@ -296,7 +296,7 @@ const CheckboxInput = ({ input, onOptionChange, option }) => {
     type: inputType,
     value,
     helperText = '',
-    maxValue = 0,
+    maxValue,
     minValue = 0
   } = input;
   return <TextField
