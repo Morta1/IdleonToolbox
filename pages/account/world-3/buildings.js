@@ -6,6 +6,7 @@ import styled from "@emotion/styled";
 import { constructionMasteryThresholds, getBuildCost } from "../../../parsers/construction";
 import { NextSeo } from "next-seo";
 import Timer from "../../../components/common/Timer";
+import { getAtomBonus } from "../../../parsers/atomCollider";
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
@@ -51,14 +52,42 @@ const Buildings = () => {
           : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
   }
 
-  const buildings = useMemo(() => {
-    if (!bySpeed) return state?.account?.towers?.data;
-    const towers = JSON.parse(JSON.stringify(state?.account?.towers?.data));
+  const b = useMemo(() => {
+    return state?.account?.towers?.data?.map((tower) => {
+      let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
+      const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
+      const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
+      const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
+      let extraLevels = getExtraMaxLevels(state?.account?.towers?.totalLevels, maxLevel, atom?.level);
+      maxLevel += extraLevels;
+      const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
+      const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
+      const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
+      const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0);
+      const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
+      if (isSlotTrimmed) {
+        const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
+        progress += (3 + atomBonus / 100) * (timePassed / 3600) * buildSpeed;
+      }
+      const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
+      return {
+        ...tower,
+        isMaxed: level === maxLevel,
+        isSlotTrimmed,
+        timeLeft,
+        progress,
+        buildCost,
+        items
+      }
+    })
+  }, [state?.account]);
+
+  const sortedBuildings = useMemo(() => {
+    if (!bySpeed) return b;
+    const towers = JSON.parse(JSON.stringify(b));
     return towers?.sort((a, b) => {
-      const buildCostA = getBuildCost(state?.account?.towers, a?.level, a?.bonusInc, a?.index);
-      const buildCostB = getBuildCost(state?.account?.towers, b?.level, b?.bonusInc, b?.index);
-      const timeLeftA = (buildCostA - a?.progress) / buildSpeed;
-      const timeLeftB = (buildCostB - b?.progress) / buildSpeed;
+      const timeLeftA = (a?.buildCost - a?.progress) / buildSpeed;
+      const timeLeftB = (b?.buildCost - b?.progress) / buildSpeed;
       if (!a?.inProgress) {
         return 1;
       } else if (!b?.inProgress) {
@@ -66,7 +95,7 @@ const Buildings = () => {
       }
       return timeLeftA - timeLeftB;
     })
-  }, [bySpeed])
+  }, [bySpeed]);
 
   return <>
     <NextSeo
@@ -80,18 +109,11 @@ const Buildings = () => {
                          onChange={() => setBySpeed(!bySpeed)}/>}
       label={'Sort by time left'}/>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-      {buildings?.map((tower, index) => {
-        let { name, progress, level, maxLevel, bonusInc, itemReq, inProgress } = tower;
-        const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
-        const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
-        const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
-        let extraLevels = getExtraMaxLevels(state?.account?.towers?.totalLevels, maxLevel, atom?.level);
-        maxLevel += extraLevels;
-        const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
-        const maxed = level === maxLevel;
+      {sortedBuildings?.map((tower, index) => {
+        let { name, progress, level, maxLevel, inProgress, isSlotTrimmed, isMaxed, items, buildCost, timeLeft } = tower;
         return <Card key={`${name}-${index}`} sx={{
-          border: inProgress ? '1px solid' : '',
-          borderColor: inProgress ? progress < buildCost ? 'success.light' : 'warning.light' : '',
+          border: inProgress || isSlotTrimmed ? '1px solid' : '',
+          borderColor: isSlotTrimmed ? 'warning.light' : inProgress ? progress < buildCost ? 'success.light' : '' : '',
           width: { xs: '100%', md: 450 },
           height: { md: 160 }
         }}>
@@ -101,12 +123,12 @@ const Buildings = () => {
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt=""/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
-                {!maxed ? <Timer type={'countdown'} staticTime={!inProgress} date={new Date().getTime() + timeLeft}
-                                 lastUpdated={state?.lastUpdated}/> : null}
+                {!isMaxed ? <Timer type={'countdown'} staticTime={!inProgress} date={new Date().getTime() + timeLeft}
+                                   lastUpdated={state?.lastUpdated}/> : null}
               </Stack>
               <Stack sx={{ width: 100 }}>
                 <Typography mb={2}>Progress</Typography>
-                {maxed ? <Typography color={'success.light'}>MAXED</Typography> :
+                {isMaxed ? <Typography color={'success.light'}>MAXED</Typography> :
                   <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>}
               </Stack>
               {level === maxLevel ? null : <Stack>

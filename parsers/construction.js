@@ -204,7 +204,8 @@ const parseTowers = (towersRaw, totemInfo) => {
       level,
       nextLevel: (level + 1) === towersRaw[towerData.index + towersLength],
       progress: towersRaw?.[towerData?.index + 12 + towersLength * 2],
-      inProgress: inProgress?.includes(towerData?.index)
+      inProgress: inProgress?.includes(towerData?.index),
+      slot: inProgress?.findIndex((ind) => ind === towerData?.index)
     }
   });
   return {
