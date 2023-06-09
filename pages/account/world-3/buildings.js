@@ -1,12 +1,13 @@
 import React, { useContext, useMemo, useState } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from "utility/helpers";
 import styled from "@emotion/styled";
 import { constructionMasteryThresholds, getBuildCost } from "../../../parsers/construction";
 import { NextSeo } from "next-seo";
 import Timer from "../../../components/common/Timer";
 import { getAtomBonus } from "../../../parsers/atomCollider";
+import Tooltip from "../../../components/Tooltip";
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
@@ -129,7 +130,12 @@ const Buildings = () => {
               <Stack sx={{ width: 100 }}>
                 <Typography mb={2}>Progress</Typography>
                 {isMaxed ? <Typography color={'success.light'}>MAXED</Typography> :
-                  <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>}
+                  <Tooltip title={<>
+                    <Typography>Progress: {numberWithCommas(Math.floor(progress))}</Typography>
+                    <Typography>Requirement: {numberWithCommas(Math.floor(buildCost))}</Typography>
+                  </>}>
+                    <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>
+                  </Tooltip>}
               </Stack>
               {level === maxLevel ? null : <Stack>
                 <Typography mb={2}>Cost</Typography>
