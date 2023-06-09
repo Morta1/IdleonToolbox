@@ -27,6 +27,18 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 /* eslint-disable react/jsx-key */
 const patchNotes = [
   {
+    ver: "3.1.94",
+    gameVer: "1.83",
+    date: "09/06/2023",
+    features: [
+      'Added "Subtract green stacks" to stamps page'
+    ],
+    fixes: [
+      'Fixed printer calculation and breakdown',
+    ],
+    deprecatedFeatures: []
+  },
+  {
     ver: "3.1.93",
     gameVer: "1.83",
     date: "07/06/2023",

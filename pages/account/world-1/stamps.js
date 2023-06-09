@@ -33,6 +33,7 @@ const Stamps = () => {
   const [stampsGoals, setStampsGoals] = useState();
   const [stampReducerInput, setStampReducerInput] = useState(stampReducer);
   const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
+  const [subtractGreenStacks, setSubtractGreenStacks] = useState(false);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const getStamps = () => {
     const stampCategory = Object.keys(state?.account?.stamps)?.[selectedTab];
@@ -105,7 +106,7 @@ const Stamps = () => {
         material, money and space to
         craft</Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
-        <Stack direction={'row'} gap={1}>
+        <Stack gap={1}>
           <Card sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <img src={`${prefix}data/GildedStamp.png`} alt=""/>
@@ -120,6 +121,12 @@ const Stamps = () => {
           </Card>
         </Stack>
         <Stack sx={{ mx: 2 }}>
+          <FormControlLabel
+            control={<Checkbox name={'mini'}
+                               checked={subtractGreenStacks}
+                               onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
+                               size={'small'}/>}
+            label={'Subtract green stacks'}/>
           <FormControlLabel
             control={<Checkbox name={'mini'}
                                checked={forcedGildedStamp}
@@ -160,8 +167,9 @@ const Stamps = () => {
             if (materials?.length > 0) {
               hasMaterials = materials?.every(({ rawName, type, itemQuantity }) => {
                 if (type === 'Equip') return true;
-                const ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
-                return ownedMats >= itemQuantity * materialCost
+                let ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+                ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
+                return ownedMats >= itemQuantity * materialCost;
               })
             } else {
               hasMaterials = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount >= materialCost;

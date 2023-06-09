@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import React, { useContext, useMemo } from "react";
 import { AppContext } from "components/common/context/AppProvider";
 import { growth, notateNumber, prefix } from "utility/helpers";
@@ -112,13 +112,15 @@ const Printer = () => {
   </>;
 };
 
-const BoostedTooltip = ({ value, boostedValue, affectedBy }) => {
+const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
   return <Stack>
     <TitleAndValue boldTitle title={'Base value'} value={notateNumber(value, 'Big')}/>
     <TitleAndValue boldTitle title={'Boosted value'} value={notateNumber(boostedValue, 'Big')}/>
-    {affectedBy.length > 0 ? <Stack>
-      <Typography mt={1} sx={{ fontWeight: 'bold' }} variant={'subtitle1'}>Affected by:</Typography>
-      {affectedBy?.map((by) => <Typography key={by} fontSize={14}>{by}</Typography>)}
+    {breakdown.length > 0 ? <Stack>
+      <Divider flexItem sx={{ my: 1, backgroundColor: 'black' }}/>
+      {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
+                                                          key={name}
+                                                          value={`${notateNumber(value, 'MultiplierInfo')?.replace('.00', '')}x`}/>)}
     </Stack> : null}
   </Stack>
 }
