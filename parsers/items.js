@@ -56,7 +56,7 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
     let misc = '';
-    const it = items?.[item];
+    const it = { ...items?.[item], ...stoneResult };
     if (it?.UQ1txt) {
       misc += it?.UQ1txt;
     }
