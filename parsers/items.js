@@ -55,10 +55,19 @@ export const getStatFromEquipment = (item, statName) => {
 export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
+    let misc = '';
+    const it = items?.[item];
+    if (it?.UQ1txt) {
+      misc += it?.UQ1txt;
+    }
+    if (it?.UQ2txt) {
+      misc += ` ${it?.UQ2txt}`;
+    }
     return item ? [...res, {
       name: items?.[item]?.displayName, rawName: item,
       owner,
-      ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult })
+      ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult }),
+      misc
     }] : res
   }, []);
 }
