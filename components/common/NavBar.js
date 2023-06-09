@@ -334,7 +334,7 @@ function NavBar({ children, window }) {
             margin: '0 auto'
           }}
           client="ca-pub-1842647313167572"
-          slot="8040203474"
+          slot="1488341218"
           format={''}
         />
       </div>
