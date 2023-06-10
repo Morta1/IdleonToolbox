@@ -33,7 +33,7 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
       [petName]: res?.[petName] ? res?.[petName] + 1 : 1
     }
   }, {});
-  const fencePets = [];
+  const fencePets = [], passivesTotals = {};
   const pets = petStats?.map((petList, worldIndex) => {
     const speciesUnlocked = speciesUnlocks?.[worldIndex];
     return petList?.map((pet, petIndex) => {
@@ -47,9 +47,15 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
         shinyLevel,
         progress: shinyPetsLevels?.[worldIndex]?.[petIndex],
         goal,
+        rawPassive: pet?.passive,
         passive: pet?.passive?.replace('{', passiveValue),
         passiveValue,
         unlocked: petIndex < speciesUnlocked
+      }
+      if (passivesTotals?.[pet?.passive]) {
+        passivesTotals[pet?.passive] += passiveValue;
+      } else if (passiveValue > 0) {
+        passivesTotals[pet?.passive] = passiveValue;
       }
       if (fencePetsObject?.[pet?.monsterRawName]) {
         fencePets.push(petInfo);
@@ -59,6 +65,7 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, account) => {
   });
 
   return {
+    passivesTotals,
     storedPets,
     eggs,
     deadCells,
@@ -78,4 +85,13 @@ export const getShinyBonus = (pets, passiveName) => {
     passive,
     passiveValue
   }) => innerSum + (passive.includes(passiveName) && passiveValue), 0), 0);
+}
+
+export const getTimeToLevel = (pet, shinyMulti, copies, shinyLevel) => {
+  if (pet?.shinyLevel === shinyLevel) return 0;
+  let goal = 0;
+  for (let i = pet?.shinyLevel; i < shinyLevel; i++) {
+    goal += Math.floor((1 + Math.pow(i, 1.6)) * Math.pow(1.7, i));
+  }
+  return ((goal - pet?.progress) / shinyMulti / (copies || 1)) * 8.64e+7;
 }

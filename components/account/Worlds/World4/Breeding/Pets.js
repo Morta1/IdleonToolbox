@@ -3,11 +3,11 @@ import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from "utili
 import React, { useMemo, useState } from "react";
 import styled from "@emotion/styled";
 import { getJewelBonus, getLabBonus } from "../../../../../parsers/lab";
-import { getShinyBonus } from "../../../../../parsers/breeding";
+import { getShinyBonus, getTimeToLevel } from "../../../../../parsers/breeding";
 import Timer from "../../../../common/Timer";
 import Tooltip from "../../../../Tooltip";
 
-const Pets = ({ pets, lab, fencePetsObject, fencePets, lastUpdated }) => {
+const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
   const [underFiveOnly, SetUnderFiveOnly] = useState(false);
 
@@ -23,7 +23,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, lastUpdated }) => {
     return fencePets?.map((pet) => ({
       ...pet,
       timeLeft: ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7
-    })).sort((a,b) => a?.timeLeft - b?.timeLeft)
+    })).sort((a, b) => a?.timeLeft - b?.timeLeft)
   }, [fencePets]);
 
   return <>
@@ -32,11 +32,12 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, lastUpdated }) => {
         const missingIcon = pet?.icon === 'Mface23' && pet?.monsterRawName !== 'shovelR';
         const amount = fencePetsObject?.[pet?.monsterRawName];
         const timeLeft = ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7;
+        const timeLeftToFive = getTimeToLevel(pet, fasterShinyLv, amount, 5);
         return <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left', }} badgeContent={amount} color="primary"
                       key={'fence' + index}>
-          <Card>
-            <CardContent>
-              <Stack alignItems={'center'} justifyContent={'center'} direction='row' gap={1}>
+          <Card sx={{ width: 200, display: 'flex', alignItems: 'center', p: 0 }}>
+            <CardContent sx={{ '&:last-child': { padding: 1 } }}>
+              <Stack alignItems={'center'} direction='row' gap={1}>
                 <MonsterIcon
                   style={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
                   src={missingIcon ? `${prefix}afk_targets/${pet?.monsterName}.png` : `${prefix}data/${pet?.icon}.png`}
@@ -44,10 +45,23 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, lastUpdated }) => {
                   alt=""/>
                 <Stack>
                   <Typography>Lv. {pet?.shinyLevel}</Typography>
-                  {<Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
-                          staticTime={pet?.progress === 0}
-                          date={new Date().getTime() + (timeLeft)}/>}
+                  <Stack direction={'row'} gap={1}>
+                    <Typography component={'span'} variant={'caption'}>Next:</Typography>
+                    <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                           staticTime={pet?.progress === 0}
+                           date={new Date().getTime() + (timeLeft)}/>
+                  </Stack>
+                  {timeLeftToFive > 0 && timeLeftToFive !== timeLeft ? <Stack direction={'row'} gap={1}>
+                    <Typography component={'span'} variant={'caption'}>To 5:</Typography>
+                    <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                           staticTime={pet?.progress === 0}
+                           date={new Date().getTime() + (timeLeftToFive)}/>
+                  </Stack> : null}
                 </Stack>
+              </Stack>
+              <Stack sx={{ mt: 1 }}>
+                <Typography textAlign={'center'}
+                            variant={'caption'}>{cleanUnderscore(pet?.passive)} ({passivesTotals?.[pet?.rawPassive]})</Typography>
               </Stack>
             </CardContent>
           </Card>

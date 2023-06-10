@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import useInterval from "components/hooks/useInterval";
 import { isPast } from "date-fns";
 import { getDuration } from "utility/helpers";
-import styled from "@emotion/styled";
 import { Typography } from "@mui/material";
 
 const Timer = ({
@@ -91,24 +90,15 @@ const Timer = ({
     return strNumber?.length === 1 ? `0${number}` : number;
   }
 
-  return time ? <TimerStyle>
-    {(time?.overtime || pause) && placeholder ? placeholder :
-      <Typography variant={variant} className={`${time?.overtime && !loop ? 'overtime' : ''}`} component={'span'}>
-        {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
-        {wrapNumber(time?.hours) + 'h:'}
-        {wrapNumber(time?.minutes) + `m`}
-        {!time?.days ? ':' : ''}
-        {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
-      </Typography>}
-
-  </TimerStyle> : null;
+  return time ? (time?.overtime || pause) && placeholder ? placeholder :
+    <Typography variant={variant} sx={{ color: `${time?.overtime && !loop ? '#f91d1d' : ''}` }} component={'span'}>
+      {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
+      {wrapNumber(time?.hours) + 'h:'}
+      {wrapNumber(time?.minutes) + `m`}
+      {!time?.days ? ':' : ''}
+      {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
+    </Typography> : null;
 }
-
-const TimerStyle = styled.span`
-  .overtime {
-    color: #f91d1d;
-  }
-`
 
 
 export default Timer;
