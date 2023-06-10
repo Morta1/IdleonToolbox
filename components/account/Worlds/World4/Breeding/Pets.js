@@ -69,7 +69,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
       })}
     </Stack>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
-      <Stack direction={'row'}>
+      <Stack direction={'row'} flexWrap={'wrap'}>
         <FormControlLabel
           control={<Checkbox name={'mini'} checked={minimized}
                              size={'small'}
