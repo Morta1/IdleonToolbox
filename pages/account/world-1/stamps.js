@@ -172,7 +172,9 @@ const Stamps = () => {
                 return ownedMats >= itemQuantity * materialCost;
               })
             } else {
-              hasMaterials = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount >= materialCost;
+              let ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+              ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
+              hasMaterials = ownedMats >= materialCost;
             }
             return { ...item, materials, materialCost, goldCost, isMaterialCost, hasMaterials, hasMoney };
           })
