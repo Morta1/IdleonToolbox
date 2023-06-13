@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
 import Tooltip from "../Tooltip";
 import { calcPrayerCost } from "parsers/prayers";
@@ -6,21 +6,24 @@ import styled from "@emotion/styled";
 import React from "react";
 
 const Prayers = ({ prayers }) => {
-  return <Stack>
-    <Typography variant={'h5'}>Prayers</Typography>
-    <Stack direction={'row'} gap={2} flexWrap='wrap' justifyContent={'center'}>
-      {prayers?.map((prayer, index) => {
-        return <Tooltip title={<CurseTooltip {...prayer}/>} key={name + index}>
-          <PrayerIcon src={`${prefix}data/Prayer${prayer?.prayerIndex}.png`} alt=""/>
-        </Tooltip>;
-      })}
-    </Stack>
-  </Stack>
+  return <>
+    <Card variant={'outlined'}>
+      <CardContent>
+        <Stack direction={'row'} gap={2} flexWrap='wrap' justifyContent={'center'}>
+          {prayers?.map((prayer, index) => {
+            return <Tooltip title={<CurseTooltip {...prayer}/>} key={name + index}>
+              <PrayerIcon src={`${prefix}data/Prayer${prayer?.prayerIndex}.png`} alt=""/>
+            </Tooltip>;
+          })}
+        </Stack>
+      </CardContent>
+    </Card>
+  </>
 };
 
 const PrayerIcon = styled.img`
-  width: 50px;
-  height: 50px;
+  width: 32px;
+  height: 32px;
 `;
 
 const CurseTooltip = ({ name, x1, x2, level, prayerIndex, effect, curse, maxLevel, totalAmount, costMulti }) => {

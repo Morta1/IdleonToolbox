@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import {
@@ -12,72 +12,39 @@ import {
 import HtmlTooltip from "../Tooltip";
 import {
   alchemyAlerts,
-  areKeysOverdue,
-  areSigilsOverdue,
-  areTowersOverdue,
-  areVialsReady,
-  canKillBosses,
+  arcadeAlerts,
+  atomColliderAlerts,
+  breedingAlerts,
+  constructionAlerts,
+  cookingAlerts,
+  etcAlerts,
   gamingAlerts,
-  guildTasks,
-  hasAvailableSpiceClicks,
-  hasItemsInShop,
-  isBallsOverdue,
-  isFlagReady,
-  isStampReducerMaxed,
-  overflowingPrinter,
-  overflowingShinies,
-  refineryAlerts,
-  riftAlerts,
+  guildAlerts,
+  postOfficeAlerts,
+  printerAlerts,
   sailingAlerts,
-  unusedShipments,
-  zeroBargainTag,
-  zeroRandomEvents
+  shopsAlerts
 } from "../../utility/dashboard/account";
+import useAlerts from "../hooks/useAlerts";
 
-const alertsMapping = {
-  stampReducer: isStampReducerMaxed,
-  sigils: areSigilsOverdue,
-  refinery: refineryAlerts,
-  towers: areTowersOverdue,
-  keys: areKeysOverdue,
-  arcadeBalls: isBallsOverdue,
-  vials: areVialsReady,
-  cooking: hasAvailableSpiceClicks,
-  miniBosses: canKillBosses,
-  bargainTag: zeroBargainTag,
-  gaming: gamingAlerts,
-  guildTasks: guildTasks,
-  rift: riftAlerts,
-  sailing: sailingAlerts,
+const alertsMap = {
+  atomCollider: atomColliderAlerts,
+  arcade: arcadeAlerts,
   alchemy: alchemyAlerts,
-  shops: hasItemsInShop,
-  printerAtoms: overflowingPrinter,
-  shinies: overflowingShinies,
-  randomEvents: zeroRandomEvents,
-  flags: isFlagReady,
-  shipments: unusedShipments
+  gaming: gamingAlerts,
+  guild: guildAlerts,
+  sailing: sailingAlerts,
+  breeding: breedingAlerts,
+  printer: printerAlerts,
+  shops: shopsAlerts,
+  construction: constructionAlerts,
+  postOffice: postOfficeAlerts,
+  etc: etcAlerts,
+  cooking: cookingAlerts
 }
 
-const Account = ({ account, trackers, trackersOptions }) => {
-  const [alerts, setAlerts] = useState();
-
-  useEffect(() => {
-    const anyTracker = trackers && Object.values(trackers).some((tracker) => tracker);
-    if (anyTracker) {
-      const tempAlerts = Object.entries(trackers || {}).reduce((res, [trackerName, val]) => {
-        if (val) {
-          if (alertsMapping?.[trackerName]) {
-            res[trackerName] = alertsMapping?.[trackerName](account, trackersOptions?.[trackerName]);
-          }
-        }
-        return res;
-      }, {});
-      const anythingToShow = Object.values(tempAlerts).some((alert) => Array.isArray(alert) ? alert.length > 0 : alert)
-      setAlerts(anythingToShow ? tempAlerts : null);
-    } else {
-      setAlerts(null)
-    }
-  }, [account, trackers, trackersOptions]);
+const Account = ({ account, trackers }) => {
+  const alerts = useAlerts({ alertsMap, data: account, trackers });
 
   return <>
     <Card sx={{ width: 'fit-content' }}>
@@ -85,19 +52,20 @@ const Account = ({ account, trackers, trackersOptions }) => {
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.stampReducer && alerts?.stampReducer ?
             <Alert title={'Stamp reducer is maxed (90%)!'} iconPath={'data/Atom0'}/> : null}
-          {trackers?.flags && alerts?.flags?.length > 0 ?
-            <Alert title={`There are ${alerts?.flags?.length} flags finished in construction board`}
+          {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
+            <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
                    iconPath={'data/CogFLflag'}/> : null}
-          {trackers?.bargainTag && alerts?.bargainTag ?
+          {trackers?.alchemy && alerts?.alchemy?.bargainTag ?
             <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
-          {trackers?.randomEvents && alerts?.randomEvents ?
+          {trackers?.etc && alerts?.etc?.randomEvents ?
             <Alert title={'You haven\'t done a random event today!'} iconPath={'etc/Mega_Grumblo'}/> : null}
-          {trackers?.cooking && alerts?.cooking > 0 ?
-            <Alert title={`You have ${alerts?.cooking} spice clicks left!`} iconPath={'data/CookingSpice0'}/> : null}
-          {trackers?.arcadeBalls && alerts?.arcadeBalls ?
+          {trackers?.cooking && alerts?.cooking?.spices > 0 ?
+            <Alert title={`You have ${alerts?.cooking?.spices} spice clicks left!`}
+                   iconPath={'data/CookingSpice0'}/> : null}
+          {trackers?.arcade && alerts?.arcade?.balls ?
             <Alert title={'Max ball capacity has reached!'} iconPath={'data/PachiBall0'}/> : null}
-          {trackers?.gaming && alerts?.gaming?.maxSprouts ?
-            <Alert title={`Max sprouts capacity has reached (${alerts?.gaming?.maxSprouts})`}
+          {trackers?.gaming && alerts?.gaming?.sprouts ?
+            <Alert title={`Max sprouts capacity has reached (${alerts?.gaming?.sprouts})`}
                    imgStyle={{ objectFit: 'none' }}
                    iconPath={'etc/Sprouts'}/> : null}
           {trackers?.gaming && alerts?.gaming?.drops ?
@@ -109,17 +77,17 @@ const Account = ({ account, trackers, trackersOptions }) => {
           {trackers?.gaming && alerts?.gaming?.shovel?.hours >= 1 ?
             <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
                    iconPath={'data/GamingItem1'}/> : null}
-          {trackers?.rift && alerts?.rift?.gildedStamps > 0 ?
-            <Alert title={`You have ${alerts?.rift?.gildedStamps} available gilded stamps`}
+          {trackers?.etc && alerts?.etc?.gildedStamps > 0 ?
+            <Alert title={`You have ${alerts?.etc?.gildedStamps} available gilded stamps`}
                    iconPath={'data/GildedStamp'}/> : null}
-          {trackers?.miniBosses && alerts?.miniBosses?.length > 0 ?
-            alerts?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
-                                                                                title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
-                                                                                iconPath={`etc/${rawName}`}/>) : null}
-          {trackers?.sigils && alerts?.sigils?.length > 0 ?
-            alerts?.sigils?.map(({ name, index }) => <Alert key={name}
-                                                            title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
-                                                            iconPath={`data/aSiga${index}`}/>) : null}
+          {trackers?.etc && alerts?.etc?.miniBosses?.length > 0 ?
+            alerts?.etc?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
+                                                                                     title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
+                                                                                     iconPath={`etc/${rawName}`}/>) : null}
+          {trackers?.alchemy && alerts?.alchemy?.sigils?.length > 0 ?
+            alerts?.alchemy?.sigils?.map(({ name, index }) => <Alert key={name}
+                                                                     title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
+                                                                     iconPath={`data/aSiga${index}`}/>) : null}
           {trackers?.alchemy && alerts?.alchemy?.liquids?.length > 0 ?
             alerts?.alchemy?.liquids?.map(({ index }) => <Alert key={'liq' + index}
                                                                 title={`${getNumberWithOrdinal(index + 1)} liquid is full!`}
@@ -138,55 +106,57 @@ const Account = ({ account, trackers, trackersOptions }) => {
                 </> : null}
               </Stack>}
               iconPath={`etc/Captain_${captain?.captainType}`}/>) : null}
-          {trackers?.refinery && alerts?.refinery?.materials?.length > 0 ?
-            alerts?.refinery?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
-                                                                                  title={<RefineryTitle
-                                                                                    missingMats={missingMats}/>}
-                                                                                  iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.refinery && alerts?.refinery?.rankUp?.length > 0 ?
-            alerts?.refinery?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
-                                                                            title={`${cleanUnderscore(saltName)} is ready to rank up!`}
-                                                                            iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.towers && alerts?.towers?.length > 0 ?
-            alerts?.towers?.map(({ name, index }) => <Alert key={name}
-                                                            title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
-                                                            iconPath={`data/ConTower${index}`}/>) : null}
-          {trackers?.keys && alerts?.keys?.length > 0 ?
-            alerts?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
-                                                                          title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
-                                                                          iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.shipments && alerts?.shipments?.length > 0 ?
-            alerts?.shipments?.map(({ index }) => <Alert key={"shipment" + index}
-                                                         title={`Order streak for shipment #${index} is 0!`}
-                                                         iconPath={`data/UIlilbox`}/>) : null}
-          {trackers?.shinies && alerts?.shinies?.length > 0 ?
-            alerts?.shinies?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
+          {trackers?.construction && alerts?.construction?.materials?.length > 0 ?
+            alerts?.construction?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
+                                                                                      title={<RefineryTitle
+                                                                                        missingMats={missingMats}/>}
+                                                                                      iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.construction && alerts?.construction?.rankUp?.length > 0 ?
+            alerts?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
+                                                                                title={`${cleanUnderscore(saltName)} is ready to rank up!`}
+                                                                                iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.construction && trackers?.construction?.buildings?.length > 0 ?
+            trackers?.construction?.buildings?.map(({ name, index }) => <Alert key={name}
+                                                                               title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
+                                                                               iconPath={`data/ConTower${index}`}/>) : null}
+          {trackers?.etc?.keys}
+          {trackers?.etc && alerts?.etc?.keys?.length > 0 ?
+            alerts?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
+                                                                               title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
+                                                                               iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.postOffice && alerts?.postOffice?.shipments?.length > 0 ?
+            alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={"shipment" + index}
+                                                                     title={`Order streak for shipment #${index} is 0!`}
+                                                                     iconPath={`data/UIlilbox`}/>) : null}
+          {trackers?.breeding && alerts?.breeding?.shinies?.pets?.length > 0 ?
+            alerts?.breeding?.shinies?.pets?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
               const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
               return <Alert
                 key={monsterName + index}
                 imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
-                title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${trackersOptions?.['shinies']?.['input']?.['value']})`}
+                title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${alerts?.breeding?.shinies?.threshold})`}
                 iconPath={missingIcon ? `afk_targets/${monsterName}` : `data/${icon}`}/>
             }) : null}
-          {trackers?.printerAtoms && alerts?.printerAtoms?.length > 0 ?
-            alerts?.printerAtoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
-                                                                    title={`Printing is at capacity for ${cleanUnderscore(name)}`}
-                                                                    atom
-                                                                    iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.vials && alerts?.vials?.length > 0 ?
-            alerts?.vials?.map((vial) => <Alert key={vial?.mainItem}
-                                                vial={vial}
-                                                title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial!`}
-                                                iconPath={`data/${vial?.mainItem}`}/>) : null}
-          {trackers?.shops && alerts?.shops?.length > 0 ?
-            alerts?.shops?.map((shop, index) => shop?.length > 0 ? <Alert key={'shop' + index + shop?.[0]?.rawName}
-                                                                          title={<ShopTitle shop={shop}/>}
-                                                                          iconPath={`data/ShopEZ${index}`}/> : null) : null}
-          {trackers?.guildTasks && alerts?.guildTasks?.daily ?
-            <Alert title={`You have ${alerts?.guildTasks?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
+          {trackers?.printer?.checked && alerts?.printer?.atoms?.length > 0 ?
+            alerts?.printer?.atoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
+                                                                        title={`Printing is at capacity for ${cleanUnderscore(name)}`}
+                                                                        atom
+                                                                        iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.alchemy && alerts?.alchemy?.vials?.length > 0 ?
+            alerts?.alchemy?.vials?.map((vial) => <Alert key={vial?.mainItem}
+                                                         vial={vial}
+                                                         title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial!`}
+                                                         iconPath={`data/${vial?.mainItem}`}/>) : null}
+          {trackers?.shops && alerts?.shops?.items?.length > 0 ?
+            alerts?.shops?.items?.map((shop, index) => shop?.length > 0 ?
+              <Alert key={'shop' + index + shop?.[0]?.rawName}
+                     title={<ShopTitle shop={shop}/>}
+                     iconPath={`data/ShopEZ${index}`}/> : null) : null}
+          {trackers?.guild && alerts?.guild?.daily ?
+            <Alert title={`You have ${alerts?.guild?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
                    imgStyle={{ filter: 'sepia(1) hue-rotate(46deg) saturate(1)' }}/> : null}
-          {trackers?.guildTasks && alerts?.guildTasks?.weekly ?
-            <Alert title={`You have ${alerts?.guildTasks?.weekly} uncompleted weekly tasks`} iconPath={`etc/GP`}
+          {trackers?.guild && alerts?.guild?.weekly ?
+            <Alert title={`You have ${alerts?.guild?.weekly} uncompleted weekly tasks`} iconPath={`etc/GP`}
                    imgStyle={{ filter: 'sepia(1) hue-rotate(140deg) saturate(1)' }}/> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}
       </CardContent>

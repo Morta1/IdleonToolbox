@@ -398,5 +398,14 @@ export const sections = [{ name: "Activity" }, { name: "Stats" }, { name: "Bags"
   { name: "Equipped Bubbles" }, { name: "Active Skills CD" }];
 
 export const isProd = process.env.NODE_ENV === "production";
+
+export const getRandomNumbersArray = (length, max) => {
+  const arr = [];
+  while (arr.length < length) {
+    const r = Math.floor(Math.random() * max);
+    if (arr.indexOf(r) === -1) arr.push(r);
+  }
+  return arr;
+}
 export const prefix = isProd ? "/" : "/";
 

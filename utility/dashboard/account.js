@@ -8,43 +8,107 @@ import { items, liquidsShop } from "../../data/website-data";
 import { hasMissingMats } from "../../parsers/refinery";
 import { calcTotals } from "../../parsers/printer";
 
-export const isBallsOverdue = (account) => {
-  if (!account?.finishedWorlds?.World1) return false;
-  const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account?.stamps))
-    / Math.max(getSecPerBall(account), 1800));
-  return ballsToClaim >= account?.arcade?.maxBalls
-}
-
-export const alchemyAlerts = (account, trackersOptions) => {
-  if (!account?.finishedWorlds?.World1) return false;
-  const { input } = trackersOptions || {};
+export const atomColliderAlerts = (account, options) => {
   const alerts = {}
-  if (input) {
-    const liquidsProgress = account?.alchemy?.liquids;
-    const percentage = input?.value / 100;
-    alerts.liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
-      current: liquidsProgress?.[index],
-      max: maxLiquid,
-      index
-    })).filter(({ current, max }) => max && current >= max * percentage - 5);
+  if (!account?.finishedWorlds?.World2) return alerts;
+  if (options?.stampReducer?.checked) {
+    alerts.stampReducer = account?.atoms?.stampReducer >= 90;
   }
-  return alerts
+  return alerts;
 }
-
-export const areSigilsOverdue = (account) => {
-  if (!account?.finishedWorlds?.World1) return false;
-  return account?.alchemy?.p2w?.sigils?.filter(({
-                                                  characters,
-                                                  progress,
-                                                  boostCost
-                                                }) => characters.length > 0 && progress >= boostCost);
-}
-
-export const refineryAlerts = (account, trackersOptions) => {
-  if (!account?.finishedWorlds?.World2) return false;
-  const { materials, rankUp } = trackersOptions || {};
+export const arcadeAlerts = (account, options) => {
   const alerts = {};
-  if (materials) {
+  if (!account?.finishedWorlds?.World1) return alerts;
+  if (options?.balls?.checked) {
+    const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account?.stamps))
+      / Math.max(getSecPerBall(account), 1800));
+    alerts.balls = ballsToClaim >= account?.arcade?.maxBalls
+  }
+  return alerts;
+}
+export const guildAlerts = (account, options) => {
+  const alerts = {};
+  if (!account?.accountOptions?.[37]) return false;
+  const { daily, weekly } = options;
+  if (daily?.checked) {
+    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
+                                                                requirement,
+                                                                progress
+                                                              }) => progress < requirement)?.length;
+  }
+  if (weekly?.checked) {
+    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
+                                                                  requirement,
+                                                                  progress
+                                                                }) => progress < requirement)?.length;
+  }
+  return alerts;
+}
+export const breedingAlerts = (account, options) => {
+  const alerts = {}
+  if (!account?.finishedWorlds?.World3) return alerts;
+  if (options?.shinies?.checked) {
+    const list = account?.breeding?.pets?.reduce((res, world) => {
+      const pets = world?.filter(({
+                                    monsterRawName,
+                                    shinyLevel
+                                  }) => account?.breeding?.fencePetsObject?.[monsterRawName]
+        && shinyLevel >= options?.shinies?.props?.value);
+      return [...res, ...pets];
+    }, [])
+    alerts.shinies = { pets: list, threshold: options?.shinies?.props?.value }
+  }
+  return alerts;
+}
+export const printerAlerts = (account, options) => {
+  const alerts = {}
+  if (!account?.finishedWorlds?.World2) return alerts;
+  const { includeOakAndCopper } = options;
+  const totals = calcTotals(account);
+  const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
+  alerts.atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
+    name: items?.[name]?.displayName,
+    rawName: name,
+    ...data
+  }));
+
+  return alerts;
+}
+export const shopsAlerts = (account, options) => {
+  const alerts = {};
+  alerts.items = account?.shopStock?.reduce((res, shop, index) => {
+    if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
+      return [...res, []];
+    } else if (index === 4 && !account?.finishedWorlds?.World2) {
+      return [...res, []];
+    } else if (index === 5 && !account?.finishedWorlds?.World3) {
+      return [...res, []];
+    } else if (index === 6 && !account?.finishedWorlds?.World4) {
+      return [...res, []];
+    }
+    const filtered = shop?.filter(({ rawName }) => options?.items?.props?.value?.[rawName])
+    return [...res, filtered];
+  }, []);
+  return alerts;
+}
+export const constructionAlerts = (account, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World2) return alerts;
+  const { materials, rankUp, flags, buildings } = options || {};
+  if (flags?.checked) {
+    alerts.flags = account?.construction?.board?.filter(({
+                                                           flagPlaced,
+                                                           currentAmount,
+                                                           requiredAmount
+                                                         }) => flagPlaced && currentAmount === requiredAmount);
+  }
+  if (buildings?.checked) {
+    alerts.buildings = account?.towers?.data?.filter((tower) => {
+      const cost = getBuildCost(account?.towers, tower?.level, tower?.bonusInc, tower?.index);
+      return tower?.progress >= cost;
+    });
+  }
+  if (materials?.checked) {
     alerts.materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
       const previousSaltIndex = saltIndex > 0 ? saltIndex - 1 : null;
       const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
@@ -62,142 +126,102 @@ export const refineryAlerts = (account, trackersOptions) => {
       return res;
     }, []);
   }
-  if (rankUp) {
+  if (rankUp?.checked) {
     alerts.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => refined >= powerCap);
   }
   return alerts;
 }
-
-export const isStampReducerMaxed = (account) => {
-  if (!account?.finishedWorlds?.World2) return false;
-  return account?.atoms?.stampReducer >= 90;
-}
-export const riftAlerts = (account) => {
-  if (!account?.finishedWorlds?.World3 || !isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) return false;
-  return {
-    gildedStamps: account?.accountOptions?.[154]
+export const postOfficeAlerts = (account, options) => {
+  const alerts = {}
+  if (!account?.finishedWorlds?.World1) return alerts;
+  if (options?.shipments?.checked) {
+    alerts.shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
+      return options?.shipments?.props?.value?.[index + 1] && streak <= 0
+    });
   }
+  return alerts;
 }
-
-export const areTowersOverdue = (account) => {
-  if (!account?.finishedWorlds?.World2) return false;
-  return account?.towers?.data?.filter((tower) => {
-    const cost = getBuildCost(account?.towers, tower?.level, tower?.bonusInc, tower?.index);
-    return tower?.progress >= cost;
-  })
-}
-
-export const areKeysOverdue = (account) => {
-  const keys = account?.currencies?.KeysAll;
-  const tickets = account?.currencies?.ColosseumTickets?.allTickets;
-
-  const keysAlerts = keys?.filter(({ daysSincePickup }) => {
-    return daysSincePickup >= 3;
-  })
-  const ticketsAlerts = tickets?.filter(({ daysSincePickup }, index) => {
-    return (index === 0 || account?.finishedWorlds?.[`World${index}`]) && daysSincePickup >= 3;
-  });
-  return [...(keysAlerts || []), ...(ticketsAlerts || [])];
-}
-
-export const areVialsReady = (account, trackersOptions) => {
-  if (!account?.finishedWorlds?.World1) return false;
-  const { subtractGreenStacks } = trackersOptions || {};
-  return account?.alchemy?.vials?.filter(({ level, itemReq }) => {
-    const cost = vialCostsArray?.[level];
-    let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
-    if (subtractGreenStacks) {
-      storageQuantity -= 1e7;
+export const etcAlerts = (account, options) => {
+  const alerts = {}
+  if (options?.randomEvents?.checked) {
+    alerts.randomEvents = account?.accountOptions?.[137] === 0;
+  }
+  if (!account?.finishedWorlds?.World3 || !isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) return alerts;
+  if (options?.gildedStamps?.checked) {
+    alerts.gildedStamps = account?.accountOptions?.[154];
+  }
+  if (options?.miniBosses?.checked) {
+    const maxedMiniBosses = [];
+    const daysSinceSlush = account?.accountOptions?.[96];
+    const daysSinceMush = account?.accountOptions?.[98];
+    if (daysSinceSlush > 3 && account?.finishedWorlds?.World3) {
+      const currentCount = Math.min(10, Math.floor(Math.pow(daysSinceSlush - 3, .55)));
+      if (currentCount >= options?.miniBosses?.props?.value) maxedMiniBosses.push({
+        rawName: 'mini3b',
+        name: 'Dilapidated_Slush',
+        currentCount
+      });
     }
-    const liquidIndex = parseInt(itemReq?.[1]?.name.split('\d')?.[1] || 0);
-    const liquidQuantity = account?.alchemy?.liquids?.[liquidIndex - 1];
-    const liquidCost = 3 * level;
-    return storageQuantity > cost && liquidQuantity > liquidCost;
-  });
-}
-
-export const hasAvailableSpiceClicks = (account) => {
-  if (!account?.finishedWorlds?.World3) return false;
-  return maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
-}
-
-export const canKillBosses = (account) => {
-  const maxedMiniBosses = [];
-  const daysSinceSlush = account?.accountOptions?.[96];
-  const daysSinceMush = account?.accountOptions?.[98];
-  if (daysSinceSlush > 3 && account?.finishedWorlds?.World3) {
-    const currentCount = Math.min(10, Math.floor(Math.pow(daysSinceSlush - 3, .55)));
-    if (currentCount > 0) maxedMiniBosses.push({ rawName: 'mini3b', name: 'Dilapidated_Slush', currentCount });
+    if (daysSinceMush > 3 && account?.finishedWorlds?.World2) {
+      const currentCount = Math.min(8, Math.floor(Math.pow(daysSinceMush - 3, .5)));
+      if (currentCount >= options?.miniBosses?.props?.value) maxedMiniBosses.push({
+        rawName: 'mini4b',
+        name: 'Mutated_Mush',
+        currentCount
+      });
+    }
+    alerts.miniBosses = maxedMiniBosses.length > 0 ? maxedMiniBosses : null;
   }
-  if (daysSinceMush > 3 && account?.finishedWorlds?.World2) {
-    const currentCount = Math.min(8, Math.floor(Math.pow(daysSinceMush - 3, .5)));
-    if (currentCount > 0) maxedMiniBosses.push({ rawName: 'mini4b', name: 'Mutated_Mush', currentCount });
-  }
-  return maxedMiniBosses.length > 0 ? maxedMiniBosses : null;
-}
-
-export const zeroBargainTag = (account) => {
-  if (!account?.finishedWorlds?.World1) return false;
-  const { x1, x2, index } = liquidsShop?.find(({ name }) => name === 'BARGAIN_TAG') || {};
-  const math = Math.round(x1 * Math.pow(x2, account?.alchemy?.multiplierArray?.[index]));
-  return math === 1;
-}
-
-export const zeroRandomEvents = (account) => {
-  return account?.accountOptions?.[137] === 0;
-}
-
-export const gamingAlerts = (account, trackersOptions) => {
-  if (!account?.finishedWorlds?.World4) return false;
-  const { sprouts, squirrel, shovel } = trackersOptions;
-  const alerts = {}
-  if (sprouts && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
-    alerts.maxSprouts = account?.gaming?.availableSprouts;
-  }
-  if (sprouts && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
-    alerts.drops = account?.gaming?.availableDrops;
-  }
-  const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
-  if (shovelUnlocked && shovel && account?.gaming?.lastShovelClicked > 0) {
-    const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
-    alerts.shovel = getDuration(new Date().getTime(), timePassed);
-  }
-  const squirrelUnlocked = account?.gaming?.imports?.find(({
-                                                             name,
-                                                             acquired
-                                                           }) => name === 'Autumn_Squirrel' && acquired)
-  if (squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked > 0) {
-    const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
-    alerts.squirrel = getDuration(new Date().getTime(), timePassed);
+  if (options?.keys?.checked) {
+    alerts.keys = areKeysOverdue(account);
   }
   return alerts;
 }
-
-export const guildTasks = (account, trackersOptions) => {
-  if (!account?.accountOptions?.[37]) return false;
-  const { daily, weekly } = trackersOptions;
-  const alerts = {};
-  if (daily) {
-    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
-                                                                requirement,
-                                                                progress
-                                                              }) => progress < requirement)?.length;
+export const alchemyAlerts = (account, options) => {
+  const alerts = {}
+  if (!account?.finishedWorlds?.World1) return alerts;
+  if (options?.bargainTag?.checked) {
+    const { x1, x2, index } = liquidsShop?.find(({ name }) => name === 'BARGAIN_TAG') || {};
+    const math = Math.round(x1 * Math.pow(x2, account?.alchemy?.multiplierArray?.[index]));
+    alerts.bargainTag = math === 1;
   }
-  if (weekly) {
-    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
-                                                                  requirement,
-                                                                  progress
-                                                                }) => progress < requirement)?.length;
+  if (options?.liquids?.checked) {
+    const liquidsProgress = account?.alchemy?.liquids;
+    const percentage = options?.liquids?.props?.value / 100;
+    alerts.liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
+      current: liquidsProgress?.[index],
+      max: maxLiquid,
+      index
+    })).filter(({ current, max }) => max && current >= max * percentage - 5);
+  }
+  if (options?.sigils?.checked) {
+    alerts.sigils = account?.alchemy?.p2w?.sigils?.filter(({
+                                                             characters,
+                                                             progress,
+                                                             boostCost
+                                                           }) => characters.length > 0 && progress >= boostCost)
+  }
+  if (options?.vials?.checked) {
+    const { subtractGreenStacks } = options || {};
+    alerts.vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
+      const cost = vialCostsArray?.[level];
+      let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
+      if (subtractGreenStacks?.checked) {
+        storageQuantity -= 1e7;
+      }
+      const liquidIndex = parseInt(itemReq?.[1]?.name.split('\d')?.[1] || 0);
+      const liquidQuantity = account?.alchemy?.liquids?.[liquidIndex - 1];
+      const liquidCost = 3 * level;
+      return storageQuantity > cost && liquidQuantity > liquidCost;
+    });
   }
   return alerts;
 }
-
-
-export const sailingAlerts = (account, trackersOptions) => {
-  if (!account?.finishedWorlds?.World4) return false;
-  const { captains } = trackersOptions;
+export const sailingAlerts = (account, options) => {
   const alerts = {}
-  if (captains) {
+  if (!account?.finishedWorlds?.World4) return alerts;
+  const { captains } = options;
+  if (captains?.checked) {
     const { captains, shopCaptains } = account?.sailing || {}
     alerts.captains = shopCaptains?.reduce((res, shopCaption) => {
       const {
@@ -230,56 +254,72 @@ export const sailingAlerts = (account, trackersOptions) => {
   }
   return alerts;
 }
-
-export const hasItemsInShop = (account, trackersOptions) => {
-  return account?.shopStock?.reduce((res, shop, index) => {
-    if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
-      return [...res, []];
-    } else if (index === 4 && !account?.finishedWorlds?.World2) {
-      return [...res, []];
-    } else if (index === 5 && !account?.finishedWorlds?.World3) {
-      return [...res, []];
-    } else if (index === 6 && !account?.finishedWorlds?.World4) {
-      return [...res, []];
-    }
-    const filtered = shop?.filter(({ rawName }) => trackersOptions?.[rawName])
-    return [...res, filtered];
-  }, []);
+export const cookingAlerts = (account, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World3) return false;
+  if (options?.spices?.checked) {
+    alerts.spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
+  }
+  return alerts;
 }
+export const areKeysOverdue = (account) => {
+  const keys = account?.currencies?.KeysAll;
+  const tickets = account?.currencies?.ColosseumTickets?.allTickets;
 
-export const overflowingPrinter = (account, trackersOptions) => {
-  const { includeOakAndCopper } = trackersOptions;
-  const totals = calcTotals(account);
-  const exclusions = ['atom', ...(!includeOakAndCopper ? ['Copper', 'OakTree'] : [])].toSimpleObject();
-  return Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
-    name: items?.[name]?.displayName,
-    rawName: name,
-    ...data
-  }));
-}
-
-export const overflowingShinies = (account, trackersOptions) => {
-  const { input } = trackersOptions || {};
-  return account?.breeding?.pets?.reduce((res, world) => {
-    const pets = world?.filter(({ monsterRawName, shinyLevel }) => account?.breeding?.fencePetsObject?.[monsterRawName]
-      && shinyLevel >= input?.value);
-    return [...res, ...pets]
-  }, [])
-}
-
-export const isFlagReady = (account) => {
-  if (!account?.finishedWorlds?.World2) return false;
-  return account?.construction?.board?.filter(({
-                                                 flagPlaced,
-                                                 currentAmount,
-                                                 requiredAmount
-                                               }) => flagPlaced && currentAmount === requiredAmount);
-}
-
-export const unusedShipments = (account, trackerOptions) => {
-  if (!account?.finishedWorlds?.World1) return false;
-  return account?.postOfficeShipments?.filter(({ streak }, index) => {
-    return trackerOptions?.[index + 1] && streak <= 0
+  const keysAlerts = keys?.filter(({ daysSincePickup }) => {
+    return daysSincePickup >= 3;
   })
+  const ticketsAlerts = tickets?.filter(({ daysSincePickup }, index) => {
+    return (index === 0 || account?.finishedWorlds?.[`World${index}`]) && daysSincePickup >= 3;
+  });
+  return [...(keysAlerts || []), ...(ticketsAlerts || [])];
 }
-
+export const gamingAlerts = (account, options) => {
+  if (!account?.finishedWorlds?.World4) return false;
+  const { sprouts, squirrel, shovel } = options;
+  const alerts = {}
+  if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
+    alerts.sprouts = account?.gaming?.availableSprouts;
+  }
+  if (sprouts?.checked && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
+    alerts.drops = account?.gaming?.availableDrops;
+  }
+  const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
+  if (shovelUnlocked && shovel && account?.gaming?.lastShovelClicked >= 0) {
+    const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
+    const { hours } = getDuration(new Date().getTime(), timePassed);
+    if (hours >= options?.shovel?.props?.value) {
+      alerts.shovel = getDuration(new Date().getTime(), timePassed);
+    }
+  }
+  const squirrelUnlocked = account?.gaming?.imports?.find(({
+                                                             name,
+                                                             acquired
+                                                           }) => name === 'Autumn_Squirrel' && acquired)
+  if (squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
+    const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
+    const { hours } = getDuration(new Date().getTime(), timePassed);
+    if (hours >= options?.squirrel?.props?.value) {
+      alerts.squirrel = getDuration(new Date().getTime(), timePassed);
+    }
+  }
+  return alerts;
+}
+export const guildTasks = (account, trackersOptions) => {
+  if (!account?.accountOptions?.[37]) return false;
+  const { daily, weekly } = trackersOptions;
+  const alerts = {};
+  if (daily) {
+    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
+                                                                requirement,
+                                                                progress
+                                                              }) => progress < requirement)?.length;
+  }
+  if (weekly) {
+    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
+                                                                  requirement,
+                                                                  progress
+                                                                }) => progress < requirement)?.length;
+  }
+  return alerts;
+}

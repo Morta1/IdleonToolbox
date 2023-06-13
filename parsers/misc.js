@@ -66,7 +66,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const mealBonus = 1 + getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone) / 100;
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Faster_Books')
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Talent_Book_Library_Refresh_Speed')
   const libraryTowerLevel = towersLevels?.[1];
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
@@ -97,7 +97,7 @@ export const getLooty = (idleonData) => {
                                           }) => !obtained && !filteredLootyItems?.[rawName])?.length;
   return {
     slabItems,
-    lootedItems: filtered?.length,
+    lootedItems: lootyRaw?.length,
     missingItems,
     totalItems: slab?.length,
     rawLootedItems: lootyRaw?.length
@@ -405,7 +405,7 @@ export const getGoldenFoodBonus = (foodName, character, account) => {
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
-  const goldenAppleStamp = getStampsBonusByEffect(account?.stamps, 'Gold_Food_Effect');
+  const goldenAppleStamp = getStampsBonusByEffect(account?.stamps, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
   const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false,
     mainStatMap?.[character?.class] === 'strength');
@@ -509,15 +509,14 @@ export const getAllCap = (character, account) => {
     * (1 + (prayerBonus + bribeBonus) / 100);
 }
 export const getItemCapacity = (type = '', character, account) => {
-  const { chopping, mining, fishing, catching } = character?.skillsInfo || {};
   const gemshop = account?.gemShopPurchases?.find((value, index) => index === 58);
   const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap');
-  const minCapStamps = getStampsBonusByEffect(account?.stamps, "Mining_Carry_Cap", mining?.level);
-  const chopCapStamps = getStampsBonusByEffect(account?.stamps, "Choppin_Carry_Cap", chopping?.level);
-  const fishCapStamps = getStampsBonusByEffect(account?.stamps, "Fish_Carry_Cap", fishing?.level);
-  const catchCapStamps = getStampsBonusByEffect(account?.stamps, "Bug_Carry_Cap", catching?.level);
-  const matCapStamps = getStampsBonusByEffect(account?.stamps, "Material_Carry_Cap");
-  const allCarryStamps = getStampsBonusByEffect(account?.stamps, "All_Carry_Cap");
+  const minCapStamps = getStampsBonusByEffect(account?.stamps, "Carrying_Capacity_for_Mining_Items", character);
+  const chopCapStamps = getStampsBonusByEffect(account?.stamps, "Carrying_Capacity_for_Choppin'_Items", character);
+  const fishCapStamps = getStampsBonusByEffect(account?.stamps, "Carry_Capacity_for_Fishing_Items", character);
+  const catchCapStamps = getStampsBonusByEffect(account?.stamps, "Carry_Capacity_for_Catching_Items", character);
+  const matCapStamps = getStampsBonusByEffect(account?.stamps, "Carrying_Capacity_for_Material_Items", character);
+  const allCarryStamps = getStampsBonusByEffect(account?.stamps, "Carry_Capacity_for_ALL_item_types!");
   const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const allCap = getAllCap(character, account);
 

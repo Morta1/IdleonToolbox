@@ -82,7 +82,7 @@ export const getMaxDamage = (character, characters, account) => {
   playerInfo.finalKillsPerHour = Math.floor(playerInfo.killsPerHour * playerInfo.afkGains * (playerInfo.survivability / 100) * playerInfo.killPerkill);
   // console.log('Kills Per', ((playerInfo.killsPerHour * playerInfo.survivability * playerInfo.afkGains) / 100) * playerInfo.killPerkill)
   // console.log('dmg array', [baseDamage, perDamage, percentDamage])
-  console.log('playerInfo', playerInfo);
+  // console.log('playerInfo', playerInfo);
   //   console.log('damage range', notateDamage(playerInfo));
 
   return playerInfo;

@@ -1,160 +1,170 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from "../components/common/context/AppProvider";
-import {
-  Box,
-  Checkbox,
-  Collapse,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
-  FormGroup,
-  Stack,
-  Tab,
-  Tabs,
-  TextField,
-  Typography,
-  useMediaQuery
-} from "@mui/material";
+import { Box, Stack, Typography, useMediaQuery } from "@mui/material";
 import Characters from "../components/dashboard/Characters";
 import Account from "../components/dashboard/Account";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from "@mui/material/IconButton";
-import { flatten, isProd, prefix } from "../utility/helpers";
+import { isProd } from "../utility/helpers";
 import Etc from "../components/dashboard/Etc";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import CloseIcon from '@mui/icons-material/Close';
 import { NextSeo } from "next-seo";
 import { getRawShopItems } from "../parsers/shops";
 import { Adsense } from "@ctrl/react-adsense";
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import DashboardSettings from "../components/common/DashboardSettings";
 
-const characterTrackers = ['prayers', 'traps', 'bubbles', 'obols', 'worship', 'postOffice', 'anvil', 'starSigns',
-  'talents', 'crystalCountdown', 'tools'].toSimpleObject();
-const accountTrackers = ['stampReducer', 'arcadeBalls', 'refinery', 'towers', 'keys', 'vials', 'cooking', 'miniBosses',
-  'bargainTag', 'gaming', 'guildTasks', 'rift', 'sailing', 'alchemy', 'shinies', 'printerAtoms', 'sigils', 'shops',
-  'flags', 'randomEvents', 'shipments'
-].toSimpleObject();
-
-const trackersOptions = {
+const baseTrackers = {
   account: {
-    vials: { subtractGreenStacks: true },
-    gaming: {
-      sprouts: true,
-      squirrel: true,
-      shovel: true
-    },
-    guildTasks: { daily: true, weekly: true },
-    refinery: { materials: true, rankUp: true },
-    sailing: { captains: true },
+    atomCollider: { checked: true, options: [{ name: 'stampReducer', checked: true }] },
+    arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
     alchemy: {
-      input: {
-        label: 'Liquid Threshold Alert',
-        type: 'number',
-        value: 90,
-        helperText: 'Liquid percent',
-        maxValue: 100, minValue: 0
-      }
+      checked: true, options: [
+        { name: 'bargainTag', checked: true },
+        { name: 'sigils', checked: true },
+        {
+          name: 'liquids',
+          category: 'liquids',
+          type: 'input',
+          props: { label: 'Liquid percent', value: 90, maxValue: 100, minValue: 0 },
+          checked: true
+        },
+        { name: 'vials', category: 'vials', checked: true },
+        { name: 'subtractGreenStacks', checked: true },
+      ]
     },
-    shinies: { input: { label: 'Level Threshold', type: 'number', value: 5, helperText: 'Shiny level' } },
-    shops: { asImages: true, ...getRawShopItems() },
-    printerAtoms: { includeOakAndCopper: false },
-    shipments: { ...[1, 2, 3, 4, 5, 6].toSimpleObject() }
+    cooking: { checked: true, options: [{ name: 'spices', checked: true }] },
+    gaming: {
+      checked: true, options: [
+        { name: 'sprouts', checked: true },
+        { name: 'squirrel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true },
+        { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true },
+      ]
+    },
+    guild: { checked: true, options: [{ name: 'daily', checked: true }, { name: 'weekly', checked: true }] },
+    sailing: { checked: true, options: [{ name: 'captains', checked: true }] },
+    breeding: {
+      checked: true,
+      options: [{ name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }]
+    },
+    printer: { checked: true, options: [{ name: 'includeOakAndCopper', category: 'atoms', checked: false }] },
+    shops: {
+      checked: true,
+      options: [{
+        name: 'items', type: 'array', props: { value: getRawShopItems(), type: 'img' }, checked: true
+      }]
+    },
+    construction: {
+      checked: true, options: [
+        { name: 'flags', checked: true },
+        { name: 'buildings', checked: true },
+        { name: 'materials', category: 'refinery', checked: true },
+        { name: 'rankUp', checked: true }
+      ]
+    },
+    postOffice: {
+      checked: true, options: [{
+        name: 'shipments',
+        type: 'array',
+        category: 'shipments',
+        props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() },
+        checked: true
+      }]
+    },
+    etc: {
+      checked: true,
+      options: [
+        { name: 'randomEvents', checked: true },
+        { name: 'gildedStamps', checked: true },
+        { name: 'keys', checked: true },
+        {
+          name: 'miniBosses',
+          type: 'input',
+          props: { label: 'Bosses threshold', value: 1, minValue: 1 },
+          checked: true
+        }
+      ]
+    }
   },
   characters: {
-    anvil: { showAlertBeforeFull: true },
-    postOffice: { input: { label: 'threshold', type: 'number', value: 1, helperText: 'Number of boxes' } },
-    talents: {
-      printerGoBrrr: true,
-      refineryThrottle: true,
-      craniumCooking: true,
-      'itsYourBirthday!': true,
-      voidTrialRerun: true,
-      arenaSpirit: true,
-      tasteTest: true
+    anvil: {
+      checked: true,
+      options: [
+        { name: 'missingHammers', checked: true },
+        { name: 'anvilOverdue', checked: true },
+        { name: 'showAlertBeforeFull', checked: true, category: 'anvil overdue' }
+      ]
     },
-    crystalCountdown: { showMaxed: true, showNonMaxed: false }
+    worship: {
+      checked: true,
+      options: [{ name: 'unendingEnergy', checked: true }, { name: 'chargeOverdue', checked: true }]
+    },
+    traps: {
+      checked: true,
+      options: [{ name: 'missingTraps', checked: true }, { name: 'trapsOverdue', checked: true }]
+    },
+    alchemy: { checked: true, options: [{ name: 'missingBubbles', checked: true }] },
+    obols: { checked: true, options: [{ name: 'missingObols', checked: true }] },
+    postOffice: {
+      checked: true,
+      options: [{
+        name: 'unspentPoints',
+        checked: true,
+        type: 'input',
+        props: { label: 'Number of boxes', value: 1 }
+      }]
+    },
+    starSigns: { checked: true, options: [{ name: 'missingStarSigns', checked: true }] },
+    crystalCountdown: {
+      checked: true, options: [
+        { name: 'showMaxed', checked: true },
+        { name: 'showNonMaxed', checked: false }
+      ]
+    },
+    tools: { checked: true, options: [] },
+    talents: {
+      checked: true,
+      options: [{
+        name: 'talents',
+        type: 'array',
+        category: 'cooldowns',
+        checked: true,
+        props: {
+          value: {
+            printerGoBrrr: true,
+            refineryThrottle: true,
+            craniumCooking: true,
+            'itsYourBirthday!': true,
+            voidTrialRerun: true,
+            arenaSpirit: true,
+            tasteTest: true
+          }
+        }
+      }]
+    }
   }
-};
+}
 
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [trackers, setTrackers] = useState();
-  const [options, setOptions] = useState();
+  const [config, setConfig] = useState(baseTrackers);
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
   useEffect(() => {
-    const accountHasDiff = state?.trackers?.account ? Object.keys(accountTrackers).length !== Object.keys(state?.trackers?.account).length : true;
-    const charactersHasDiff = state?.trackers?.characters ? Object.keys(characterTrackers).length !== Object.keys(state?.trackers?.characters).length : true;
-    setTrackers({
-      account: accountHasDiff ? accountTrackers : state?.trackers?.account,
-      characters: charactersHasDiff ? characterTrackers : state?.trackers?.characters
-    })
-    const accountOptionDiff = state?.trackersOptions ? Object.keys(flatten(trackersOptions, {})).length !== Object.keys(flatten(state?.trackersOptions, {})).length : true;
-    setOptions({
-      ...(accountOptionDiff ? trackersOptions : state?.trackersOptions)
+    const accountHasDiff = state?.trackers?.account ? Object.keys(baseTrackers?.account).length !== Object.keys(state?.trackers?.account).length : true;
+    const charactersHasDiff = state?.trackers?.characters ? Object.keys(baseTrackers?.characters).length !== Object.keys(state?.trackers?.characters).length : true;
+    setConfig({
+      account: accountHasDiff ? baseTrackers?.account : state?.trackers?.account,
+      characters: charactersHasDiff ? baseTrackers?.characters : state?.trackers?.characters
     })
   }, []);
 
-  const handleTabChange = (e, selected) => {
-    setSelectedTab(selected);
+  const handleConfigChange = (updatedConfig) => {
+    setConfig(updatedConfig);
+    dispatch({ type: 'trackers', data: updatedConfig })
   }
-  const handleTrackerChange = (event, type, hasInput) => {
-    const tempTrackers = {
-      ...trackers,
-      [type]: {
-        ...trackers[type],
-        [event.target.name]: event.target.checked
-      }
-    };
-    const hasOptions = options?.[type]?.[event.target.name];
-    if (hasOptions) {
-      setOptions({
-        ...options,
-        [type]: {
-          ...options?.[type],
-          [event.target.name]: {
-            ...Object.keys(hasOptions).toSimpleObject(event.target.checked),
-            ...(hasInput ? { input: hasOptions?.input } : {})
-          }
-        }
-      })
-    }
-    setTrackers(tempTrackers);
-    dispatch({ type: 'trackers', data: tempTrackers })
-  };
-
-  const handleOptionsChange = ({ event, type, trackerName, isInput }) => {
-    const tempOptions = {
-      ...options,
-      [type]: {
-        ...options[type],
-        [trackerName]: {
-          ...(isInput ? {
-            input: { ...options[type][trackerName]['input'], value: event.target.value }
-          } : { ...options[type][trackerName], [event.target.name]: event.target.checked })
-        }
-      }
-    };
-    setOptions(tempOptions);
-    if (!trackers?.[type]?.[trackerName]) {
-      setTrackers({
-        ...trackers,
-        [type]: {
-          ...trackers[type],
-          [trackerName]: true
-        }
-      })
-    }
-    dispatch({ type: 'trackersOptions', data: tempOptions })
-  };
-
   return <>
     <NextSeo
       title="Idleon Toolbox | Dashboard"
@@ -174,43 +184,14 @@ const Dashboard = () => {
                                                        sx={{ fontSize: 12 }}/>
         </Typography>
         <Stack gap={2}>
-          <Account trackers={trackers?.account} trackersOptions={options?.account} characters={characters}
+          <Account trackers={config?.account} characters={characters}
                    account={account} lastUpdated={lastUpdated}/>
-          <Characters trackers={trackers?.characters} trackersOptions={options?.characters} characters={characters}
+          <Characters trackers={config?.characters} characters={characters}
                       account={account} lastUpdated={lastUpdated}/>
           <Etc characters={characters} account={account} lastUpdated={lastUpdated}/>
         </Stack>
-        <Dialog open={open} onClose={() => setOpen(false)} fullWidth>
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            Dashboard configurations
-            <IconButton onClick={() => setOpen(false)}><CloseIcon/></IconButton>
-          </DialogTitle>
-          <DialogContent>
-            <Tabs centered
-                  sx={{ marginBottom: 3 }}
-                  variant={'fullWidth'}
-                  value={selectedTab} onChange={handleTabChange}>
-              {['Account', 'Character']?.map((tab, index) => {
-                return <Tab label={tab} key={`${tab}-${index}`}/>;
-              })}
-            </Tabs>
-            {selectedTab === 0 ? <FormGroup>
-              <TrackerOptions arr={trackers?.account}
-                              options={options?.account}
-                              type={'account'}
-                              onOptionChange={handleOptionsChange}
-                              onTrackerChange={handleTrackerChange}/>
-            </FormGroup> : null}
-            {selectedTab === 1 ? <FormGroup>
-              <TrackerOptions arr={trackers?.characters}
-                              type={'characters'}
-                              options={options?.characters}
-                              onOptionChange={handleOptionsChange}
-                              onTrackerChange={handleTrackerChange}/>
-            </FormGroup> : null}
-          </DialogContent>
-        </Dialog>
       </Stack>
+      <DashboardSettings onChange={handleConfigChange} open={open} onClose={() => setOpen(false)} config={config}/>
       {showWideSideBanner || showNarrowSideBanner ? <Box
         sx={{
           backgroundColor: isProd ? '' : '#d73333',
@@ -229,86 +210,5 @@ const Dashboard = () => {
     </Stack>
   </>
 };
-
-const TrackerOptions = ({ arr, type, onTrackerChange, onOptionChange, options }) => {
-  const [showId, setShowId] = useState(null);
-
-  const handleArrowClick = (trackerName) => {
-    setShowId(showId === trackerName ? null : trackerName)
-  }
-
-  return arr && Object.keys(arr)?.map((trackerName, index) => {
-    const trackerOptions = options?.[trackerName];
-    const hasInput = trackerOptions?.input;
-    const asImages = trackerOptions?.asImages;
-    return <Box key={`tracker-${trackerName}`}>
-      <Stack direction={'row'} justifyContent={'space-between'}>
-        <FormControlLabel
-          control={<Checkbox name={trackerName} checked={arr?.[trackerName]}
-                             size={'small'}
-                             onChange={(event) => onTrackerChange(event, type, hasInput)}/>}
-          label={trackerName?.camelToTitleCase()}/>
-        {trackerOptions ? <IconButton size={"small"}
-                                      onClick={() => handleArrowClick(trackerName)}>
-          {showId === trackerName ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
-        </IconButton> : null}
-      </Stack>
-      <Collapse in={showId === trackerName}>
-        <Stack sx={{ ml: 3, mr: 3 }} direction={asImages ? 'row' : 'column'} flexWrap={asImages ? 'wrap' : 'no-wrap'}>
-          {trackerOptions && Object.keys(trackerOptions)?.map((option) => {
-            if (option === 'asImages') return;
-            if (option === 'input') {
-              return <CheckboxInput input={trackerOptions?.[option]}
-                                    key={`option-${option}`}
-                                    option={option}
-                                    onOptionChange={(event) => onOptionChange({
-                                      event,
-                                      type,
-                                      trackerName,
-                                      isInput: true
-                                    })}/>
-            }
-            return <Stack key={`option-${option}`}>
-              <FormControlLabel
-                control={<Checkbox name={option}
-                                   size={'small'}
-                                   checked={trackerOptions?.[option]}
-                                   onChange={(event) => onOptionChange({
-                                     event,
-                                     type,
-                                     trackerName
-                                   })}/>}
-                label={asImages ?
-                  <img width={24} height={24} src={`${prefix}data/${option}.png`} alt=""/> : option.camelToTitleCase()}>
-              </FormControlLabel>
-            </Stack>
-          })}
-        </Stack>
-      </Collapse>
-      {index !== Object.keys(arr).length - 1 ? <Divider/> : null}
-    </Box>
-  })
-}
-
-const CheckboxInput = ({ input, onOptionChange, option }) => {
-  const {
-    label,
-    type: inputType,
-    value,
-    helperText = '',
-    maxValue,
-    minValue = 0
-  } = input;
-  return <TextField
-    size={'small'}
-    label={label.capitalize()}
-    type={inputType}
-    sx={{ mt: 1, width: 150 }}
-    name={option}
-    value={value}
-    InputProps={{ inputProps: { max: maxValue, min: minValue, autoComplete: 'off' } }}
-    onChange={(event) => onOptionChange(event)}
-    helperText={helperText}/>
-}
 
 export default Dashboard;

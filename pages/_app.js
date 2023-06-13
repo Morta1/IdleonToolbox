@@ -38,7 +38,7 @@ const MyApp = (props) => {
         <title>Idleon Toolbox</title>
         <meta
           name="description"
-          content="Follow your Legends of Idleon progression with ease with the help of alerts dashboard, account and characters' overview, craft calculator and more!"
+          content="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
         />
         <meta name="googlebot" content="index,follow"/>
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}

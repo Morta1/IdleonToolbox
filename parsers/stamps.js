@@ -25,22 +25,29 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw) => {
   };
 }
 
-export const getStampsBonusByEffect = (stamps, effectName, skillLevel = 0) => {
+export const getStampsBonusByEffect = (stamps, effectName, character) => {
   return stamps && Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
     const foundStamps = stampTree?.filter(({ effect }) => effect.includes(effectName));
-    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, skillLevel), 0);
+    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, character), 0);
     return final + sum;
   }, 0);
 }
 
-export const getStampBonus = (stamps, stampTree, stampName, skillLevel = 0) => {
+export const getStampBonus = (stamps, stampTree, stampName, character) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
-  const normalLevel = stamp?.level * 10 / stamp?.reqItemMultiplicationLevel;
-  const lvlDiff = 3 + (normalLevel - 3) * Math.pow(skillLevel / (normalLevel - 3), 0.75)
-  const reducedLevel = Math.floor(lvlDiff * stamp?.reqItemMultiplicationLevel / 10);
-  if (skillLevel > 0 && reducedLevel < stamp?.level && stampTree === 'skills') {
-    return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
+  if (stamp?.skillIndex > 0) {
+    if (stamp?.reqItemMultiplicationLevel > 1) {
+      const deficitEff = 3;
+      let stampLevel = stamp?.level * (200 / (20 * stamp?.reqItemMultiplicationLevel));
+      if (stampLevel > deficitEff) {
+        const charSkillLevel = character?.skillsInfoArray?.[stamp?.skillIndex]?.level;
+        let lvlDiff = deficitEff + (stampLevel - deficitEff) * Math.pow(charSkillLevel / (stampLevel - deficitEff), 0.75);
+        lvlDiff *= 20 * stamp?.reqItemMultiplicationLevel / 200;
+        const reducedLevel = Math.floor(Math.min(lvlDiff, stampLevel));
+        return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
+      }
+    }
   }
   return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
 }

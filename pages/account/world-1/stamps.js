@@ -265,10 +265,10 @@ const StampTooltip = ({ func, level, goalLevel, x1, x2, displayName, effect, mul
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)}</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
-                variant={'body1'}>+{cleanUnderscore(effect.replace(/{}/, bonus))}</Typography>
-    {level !== goalLevel ? <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
+                variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
+    {level !== goalLevel ? <Typography mt={1} sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:
-      +{cleanUnderscore(effect.replace(/{}/, goalBonus))}</Typography> : null}
+      +{cleanUnderscore(effect.replace(/\+{/, goalBonus))}</Typography> : null}
   </>
 }
 

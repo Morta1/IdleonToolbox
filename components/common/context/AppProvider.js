@@ -149,7 +149,7 @@ const AppProvider = ({ children }) => {
           unsubscribe = await subscribe(user?.uid, handleCloudUpdate);
           setListener({ func: unsubscribe });
         } else {
-          if (router.pathname === '/' || checkOfflineTool()) return;
+          if (router.pathname === '/' || checkOfflineTool() || router.pathname === '/data') return;
           router.push({ pathname: '/', query: router?.query });
         }
       }
@@ -314,7 +314,7 @@ const AppProvider = ({ children }) => {
         setWaitingForAuth
       }}
     >
-      {value?.state?.account || value?.state?.manualImport || router.pathname === "/" || checkOfflineTool() ? (
+      {value?.state?.account || value?.state?.manualImport || router.pathname === "/" || checkOfflineTool() || router.pathname === '/data' ? (
         children
       ) : (
         <Stack m={15} direction={"row"} justifyContent={"center"}>

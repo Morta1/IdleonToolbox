@@ -77,7 +77,7 @@ export const getCardBonusByEffect = (cards, effectName) => {
 
 export const calcCardBonus = (card) => {
   if (!card) return 0;
-  return (card?.bonus * ((card?.stars || -1) + 1)) * (card?.chipBoost ?? 1) ?? 0;
+  return (card?.bonus * ((card?.stars ?? -1) + 1)) * (card?.chipBoost ?? 1) ?? 0;
 }
 
 export const getPlayerCards = (char, account) => {

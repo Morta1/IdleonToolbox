@@ -1,7 +1,7 @@
 import InfoIcon from "@mui/icons-material/Info";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
 import { differenceInHours, differenceInMinutes } from "date-fns";
-import { kFormatter, notateNumber, pascalCase, prefix } from "utility/helpers";
+import { getCoinsArray, kFormatter, notateNumber, numberWithCommas, pascalCase, prefix } from "utility/helpers";
 import Timer from "../common/Timer";
 import Tooltip from "../Tooltip";
 import Activity from "./Activity";
@@ -11,6 +11,7 @@ import React, { useMemo } from "react";
 import { getMaxDamage, notateDamage } from "../../parsers/damage";
 import processString from "react-process-string";
 import styled from "@emotion/styled";
+import CoinDisplay from "../common/CoinDisplay";
 
 const colors = {
   strength: "error.light",
@@ -58,42 +59,49 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               </CardContent>
             </Card>
           ) : null}
-          {Object.entries(stats)?.map(([statName, statValue], index) => {
-            return statName !== "level" ? (
-              <Card variant={"outlined"} key={`${name}-${statName}-${index}`}>
-                <CardContent>
-                  <Typography sx={{ width: 80, display: "inline-block" }} variant={"body1"}
+          <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
+            {Object.entries(stats)?.map(([statName, statValue], index) => {
+              return statName !== "level" ? (
+                <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}>
+                  <Typography component={'span'}
+                              variant={"body1"}
                               color={colors?.[statName] || "info.light"}>
                     {pascalCase(statName)}
                   </Typography>
-                  <Typography variant={"body1"} component={"span"}>
-                    {" "}
-                    {Math.floor(statValue)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            ) : null;
-          })}
-          <Stack direction={'row'} flexWrap={'wrap'}>
+                  <Typography variant={"body1"}
+                              component={"span"}>{Math.floor(statValue)}</Typography>
+                </Stack>
+              ) : null;
+            })}
             <Stat title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
             <Stat title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
+            <Stat title={'Kills Per Hour'}
+                  value={playerInfo?.finalKillsPerHour > 1e6 ? notateNumber(playerInfo?.finalKillsPerHour) : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
+            <Stat title={'Defence'} value={notateNumber(playerInfo?.defence)}/>
+            <Stat title={'C. chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
+            <Stat title={'C. damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'M. Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+            <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
+            <Stat title={'Cash Multi'} value={`${kFormatter(cashMulti, 2)}%`}
+                  breakdown={breakdown} breakdownNotation={'Smaller'}/>
+            <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
+                  breakdown={drBreakdown} breakdownNotation={'Smaller'}/>
+            <Stat title={'Respawn Time'}
+                  value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
+                  breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
+            <Stat title={'Afk Gains'}
+                  value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
+                  breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
+            <Stat title={'Non consume chance'}
+                  value={`${kFormatter(nonConsumeChance, 2)}%`}
+            />
+            <Stat title={'Money'}
+                  value={<CoinDisplay title={''}
+                                      money={getCoinsArray(character?.money)}/>}
+            />
           </Stack>
-          <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
-          <Stat title={'Cash Multi'} value={`${kFormatter(cashMulti, 2)}%`}
-                breakdown={breakdown} breakdownNotation={'Smaller'}/>
-          <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
-                breakdown={drBreakdown} breakdownNotation={'Smaller'}/>
-          <Stat title={'Respawn Time'}
-                value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
-                breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
-          <Stat title={'Afk Gains'}
-                value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
-                breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
-          <Stat title={'Chance not to consume food'}
-                value={`${kFormatter(nonConsumeChance, 2)}%`}
-          />
+
           <Card variant={"outlined"}>
             <CardContent>
               <Typography color={"info.light"}>Crystal Chance</Typography>
@@ -126,22 +134,20 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 };
 
 const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
-  return <Card variant={"outlined"}>
-    <CardContent>
-      <Typography color={"info.light"}>{title}</Typography>
-      <Tooltip title={breakdown ? <BreakdownTooltip breakdown={breakdown}
-                                                    notate={breakdownNotation}/> : ''}>
-        {!damage ? <Typography>{value}</Typography> : <Typography color={'#fffcc9'}>
-          {processString([{
-            regex: /\[/g,
-            fn: (key) => {
-              return <DamageIcon key={key} src={`${prefix}etc/Damage_M.png`} alt="" />
-            }
-          }])(value)}
-        </Typography>}
-      </Tooltip>
-    </CardContent>
-  </Card>
+  return <Stack direction={'row'} justifyContent={'space-between'}>
+    <Typography color={"info.light"}>{title}</Typography>
+    <Tooltip title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+                                                  notate={breakdownNotation}/> : ''}>
+      {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
+        {processString([{
+          regex: /\[/g,
+          fn: (key) => {
+            return <DamageIcon key={key} src={`${prefix}etc/Damage_M.png`} alt=""/>
+          }
+        }])(value)}
+      </Typography>}
+    </Tooltip>
+  </Stack>
 }
 
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {

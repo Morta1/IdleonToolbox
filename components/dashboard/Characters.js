@@ -4,50 +4,57 @@ import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from ".
 import styled from "@emotion/styled";
 import HtmlTooltip from "../Tooltip";
 import {
-  crystalCooldownSkillsReady,
-  hasAvailableToolUpgrade,
-  hasUnspentPoints,
-  isAkfForMoreThanTenHours,
-  isAnvilOverdue,
-  isMissingEquippedBubble,
-  isMissingStarSigns,
-  isObolMissing,
-  isProductionMissing,
-  isTalentReady,
-  isTrapMissing,
-  isTrapOverdue,
-  isWorshipOverdue
+  anvilAlerts,
+  crystalCountdownAlerts,
+  obolsAlerts,
+  starSignsAlerts,
+  talentsAlerts,
+  toolsAlerts,
+  trapsAlerts,
+  worshipAlerts,
+  alchemyAlerts, postOfficeAlerts
 } from "../../utility/dashboard/characters";
-import { getAllTools } from "../../parsers/items";
 import InfoIcon from '@mui/icons-material/Info';
 import Timer from "../common/Timer";
 import { TitleAndValue } from "../common/styles";
 import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
 import { getMaxDamage, notateDamage } from "../../parsers/damage";
 
-const Characters = ({ characters = [], account, lastUpdated, trackersOptions, trackers }) => {
-  const rawTools = getAllTools();
+const alertsMap = {
+  anvil: anvilAlerts,
+  worship: worshipAlerts,
+  traps: trapsAlerts,
+  alchemy: alchemyAlerts,
+  obols: obolsAlerts,
+  postOffice: postOfficeAlerts,
+  starSigns: starSignsAlerts,
+  crystalCountdown: crystalCountdownAlerts,
+  tools: toolsAlerts,
+  talents: talentsAlerts
+}
+
+const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
   return <>
     <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
       {characters?.map((character, characterIndex) => {
         const {
           name,
-          tools,
           classIndex,
           afkTarget,
-          worship,
           postOffice,
-          equippedBubbles,
-          afkTime
         } = character;
+        const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
+          const optionObject = data?.options?.reduce((result, option) => ({
+            ...result,
+            [option?.name]: option
+          }), {});
+          return { ...result, [trackerName]: optionObject }
+        }, {});
+        const alerts = Object.keys(options)?.reduce((result, trackerName) => {
+          result[trackerName] = alertsMap?.[trackerName](account, characters, character, lastUpdated, options) || {};
+          return result;
+        }, {})
         const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
-        const productionHammersMissing = trackers?.anvil && isProductionMissing(equippedBubbles, characters, account, characterIndex);
-        const readyTalents = trackers?.talents && isTalentReady(character, trackersOptions);
-        const missingObols = trackers?.obols && isObolMissing(account, character);
-        const missingStarSigns = trackers?.starSigns && isMissingStarSigns(character, account);
-        const fullAnvil = isAnvilOverdue(characters, account, afkTime, characterIndex, trackersOptions);
-        const ccdSkillsReady = crystalCooldownSkillsReady(character, trackersOptions);
-        const upgradeableTools = hasAvailableToolUpgrade(character, account, rawTools);
         return <Card key={name} sx={{ width: 300 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
@@ -67,57 +74,62 @@ const Characters = ({ characters = [], account, lastUpdated, trackersOptions, tr
             </Stack>
             <Divider sx={{ my: 1 }}/>
             <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-              {trackers?.prayers && isAkfForMoreThanTenHours(character, lastUpdated) ?
+              {trackers?.worship && alerts?.worship?.unendingEnergy ?
                 <Alert title={`${name} has unending energy prayer and is afk for more than 10 hours!`}
                        iconPath={'data/Prayer2'}/> : null}
-              {trackers?.traps && isTrapOverdue(account, characterIndex) ?
-                <Alert title={`${name} traps are overdue!`} iconPath={'data/TrapBoxSet1'}/> : null}
-              {trackers?.traps && isTrapMissing(tools, account, characterIndex) ?
-                <Alert title={`${name} is missing a trap!`} iconPath={'data/ClassIcons48'}/> : null}
-              {trackers?.bubbles && isMissingEquippedBubble(character, account) ?
-                <Alert title={`${name} is missing an active bubble!`} iconPath={'data/aJarB0'}/> : null}
-              {trackers?.worship && isWorshipOverdue(account, worship) ?
+              {trackers?.worship && alerts?.worship?.chargeOverdue ?
                 <Alert title={`${name} worship is full!`} iconPath={'data/ClassIcons50'}/> : null}
-              {trackers?.obols && missingObols?.length > 0 ?
-                <Alert title={`${name} has ${missingObols?.length} empty obol slots!`}
+              {trackers?.traps && alerts?.traps?.trapsOverdue ?
+                <Alert title={`${name} traps are overdue!`} iconPath={'data/TrapBoxSet1'}/> : null}
+              {trackers?.traps && alerts?.traps?.missingTraps ?
+                <Alert title={`${name} is missing a trap!`} iconPath={'data/ClassIcons48'}/> : null}
+              {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
+                <Alert title={`${name} is missing an active bubble!`} iconPath={'data/aJarB0'}/> : null}
+              {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
+                <Alert title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots!`}
                        iconPath={'data/ObolLocked1'}/> : null}
-              {trackers?.postOffice && hasUnspentPoints(account, postOffice, trackersOptions) ?
+              {trackers?.postOffice && alerts?.postOffice?.unspentPoints ?
                 <Alert title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent points`}
                        iconPath={'data/UIboxUpg0'}/> : null}
-              {trackers?.anvil && productionHammersMissing > 0 ?
-                <Alert title={`${name} is missing ${productionHammersMissing} hammers`}
+              {trackers?.anvil && alerts?.anvil?.missingHammers > 0 ?
+                <Alert title={`${name} is missing ${alerts?.anvil?.missingHammers} hammers`}
                        iconPath={'data/GemP1'}/> : null}
-              {trackers?.anvil && fullAnvil?.length > 0 ?
-                fullAnvil?.map(({ diff, name, rawName }) => {
+              {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
+                alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
                   const isFull = diff <= 0;
                   return <Alert key={`${name}-${characterIndex}`}
                                 title={`${cleanUnderscore(name)} ${isFull ? 'production is full!' : `is ${diff} minutes away from being full!`}`}
                                 iconPath={`data/${rawName}`}/>;
                 }) : null}
-              {trackers?.starSigns && missingStarSigns > 0 ?
-                <Alert title={`${name} is missing ${missingStarSigns} star signs!`}
+              {trackers?.starSigns && alerts?.starSigns?.missingStarSigns > 0 ?
+                <Alert title={`${name} is missing ${alerts?.starSigns?.missingStarSigns} star signs!`}
                        iconPath={'data/SignStar1b'}/> : null}
-              {trackers?.talents && readyTalents?.length > 0 ? readyTalents?.map(({ name, skillIndex }, index) => (
+              {trackers?.talents && alerts?.talents?.length > 0 ? alerts?.talents?.map(({
+                                                                                          name,
+                                                                                          skillIndex
+                                                                                        }, index) => (
                 <Alert key={skillIndex + '-' + index} title={`${cleanUnderscore(pascalCase(name))} is ready!`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
-              {trackers?.tools && upgradeableTools?.length > 0 ? upgradeableTools?.map(({
-                                                                                          rawName,
-                                                                                          displayName
-                                                                                        }, index) => (
+              {trackers?.tools && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
+                                                                                    rawName,
+                                                                                    displayName
+                                                                                  }, index) => (
                 <Alert key={`${character?.name}-${rawName}-${index}`}
                        title={`${character?.name} can equip ${cleanUnderscore(pascalCase(displayName))}`}
                        iconPath={`data/${rawName}`}/>
               )) : null}
-              {trackers?.crystalCountdown && ccdSkillsReady?.length > 0 ? ccdSkillsReady?.map(({
-                                                                                                 name,
-                                                                                                 icon,
-                                                                                                 reduction,
-                                                                                                 crystalCountdown
-                                                                                               }, index) => {
-                  const { crystalCountdown: ccd } = trackersOptions || {};
+              {trackers?.crystalCountdown && alerts?.crystalCountdown?.length > 0 ? alerts?.crystalCountdown?.map(({
+                                                                                                                     name,
+                                                                                                                     icon,
+                                                                                                                     reduction,
+                                                                                                                     crystalCountdown
+                                                                                                                   }, index) => {
+                  let { showMaxed, showNonMaxed } = options?.crystalCountdown || {};
+                  showMaxed = showMaxed?.checked;
+                  showNonMaxed = showNonMaxed?.checked;
                   const ready = crystalCountdown > 0 && reduction === crystalCountdown;
-                  if (!ccd?.showMaxed && ready || !ccd?.showNonMaxed && (ccd?.showMaxed && !ready) || (!ccd?.showNonMaxed && !ccd?.showMaxed)) return null;
+                  if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
                   return <Alert key={icon + '-' + index + '-' + characterIndex}
                                 style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}
                                 title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready ? 'maxed' : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})` : ''}!`}

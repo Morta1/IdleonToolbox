@@ -297,8 +297,7 @@ function NavBar({ children, window }) {
             sx={{
               display: { xs: "none", sm: "block" },
               "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth }
-            }}
-            open
+            }} open
           >
             <Toolbar sx={{ height: 70, minHeight: 70 }}/>
             {drawer === "account" ? <AccountDrawer/> : null}

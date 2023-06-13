@@ -298,6 +298,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
           index
         },
       } : res, {});
+  character.skillsInfoArray = Object.entries(character.skillsInfo || {}).reduce((result, [skillName, skillData]) => (
+    [...result, { ...skillData, skillName }]), []).sort((a, b) => a.index - b.index);
 
   const talentsObject = char?.[`SkillLevels`];
   const maxTalentsObject = char?.[`SkillLevelsMAX`];
@@ -599,14 +601,14 @@ export const getCashMulti = (character, account, characters) => {
                     + (americanTipperBonus
                       + ((1 + goldFoodBonus / 100) + 5 * achievementBonus)))))))))) / 100);
   const breakdown = [
-    { name: 'Bubbles', value: bubbles },
-    { name: 'Meal', value: mealBonus },
-    { name: 'Artifact', value: artifactBonus },
-    { name: 'Pet Arena', value: 100 * (.5 * arenaBonusUnlock + secondArenaBonusUnlock) },
+    { name: 'Bubbles*', value: bubbles },
+    { name: 'Meal*', value: mealBonus },
+    { name: 'Artifact*', value: artifactBonus },
+    { name: 'Pet Arena*', value: 100 * (.5 * arenaBonusUnlock + secondArenaBonusUnlock) },
     { name: 'Statues', value: statueBonus },
-    { name: 'Lab', value: labBonus },
-    { name: 'Prayers', value: prayerBonus },
-    { name: 'Divinity', value: divinityMinorBonus },
+    { name: 'Lab*', value: labBonus },
+    { name: 'Prayers*', value: prayerBonus },
+    { name: 'Divinity*', value: divinityMinorBonus },
     { name: 'Vials', value: vialBonus },
     { name: 'Equipment', value: cashFromEquipment },
     { name: 'Obols', value: cashFromObols },
@@ -618,7 +620,7 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Arcade', value: arcadeBonus },
     { name: 'Post Office', value: postOfficeBonus },
-    { name: 'Drop Rate', value: dropRateMulti },
+    { name: 'Drop Rate*', value: dropRateMulti },
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   // cashMulti: cashMulti * (1 + dropRateMulti / 100),
@@ -638,7 +640,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const sampleAchievement = getAchievementStatus(account?.achievements, 158);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
   const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sample_Size');
+  const stampBonus = getStampsBonusByEffect(account?.stamps, '3D_Printer_Sampling_Size');
   const meritBonus = account?.tasks?.[2]?.[2]?.[4];
   const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
   const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro);
@@ -723,7 +725,7 @@ export const getPlayerFoodBonus = (character, account, isHealth) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
   const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.talents);
   const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Food_Effect', 0)
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Effect_from_Boost_Food', character)
   const starSignBonus = getStarSignBonus(character, account, 'All_Food_Effect');
   const cardBonus = getEquippedCardBonus(character?.cards, 'Y5');
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet1' ? character?.cards?.cardSet?.bonus : 0;
@@ -732,7 +734,7 @@ export const getPlayerFoodBonus = (character, account, isHealth) => {
   if (isHealth) {
     const goldenHealthFood = 1;
     const secondPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 1);
-    const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Health_Effect', 0)
+    const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Health_Effect', character)
     return goldenHealthFood
       + (secondPostOfficeBonus
         + (statuePower
@@ -750,7 +752,7 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   let finalSpeed;
   const featherWeight = getTalentBonus(character?.talents, 0, 'FEATHERWEIGHT');
   const featherFlight = getTalentBonus(character?.talents, 0, 'FEATHER_FLIGHT');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_Move_Speed', 0)
+  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Movement_Speed', character)
   const strafe = getTalentBonusIfActive(character?.activeBuffs, 'STRAFE');
   const foodBonus = getFoodBonus(character, account, "MoveSpdBoosts")
   let baseMath = foodBonus + featherWeight + stampBonus + strafe;
@@ -994,7 +996,7 @@ const getPlayerConstructionSpeed = (character, account) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
   const carpenterBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false);
-  const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Spd', constructionLevel);
+  const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Speed', character);
   const postOffice = getPostOfficeBonus(account?.postOffice, 'Construction_Container', 0);
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 5);
   const equipmentConstructionEffectBonus = getStatsFromGear(character, 30, account);
