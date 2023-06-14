@@ -111,7 +111,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert key={skillIndex + '-' + index} title={`${cleanUnderscore(pascalCase(name))} is ready!`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
-              {trackers?.tools && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
+              {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
                                                                                     rawName,
                                                                                     displayName
                                                                                   }, index) => (

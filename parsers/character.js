@@ -696,7 +696,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const acquiredArtifacts = sailingRaw?.[3];
   const moaiiHead = acquiredArtifacts?.[0] > 0;
   const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, moaiiHead);
-  const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', 0);
+  const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', character);
   const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
   const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
   const demonGenie = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'G4');

@@ -50,7 +50,7 @@ const baseTrackers = {
     shops: {
       checked: true,
       options: [{
-        name: 'items', type: 'array', props: { value: getRawShopItems(), type: 'img' }, checked: true
+        name: 'shops', type: 'array', props: { value: getRawShopItems(), type: 'img' }, checked: true
       }]
     },
     construction: {

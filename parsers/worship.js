@@ -22,7 +22,7 @@ export const getChargeRate = (skull, worshipLevel, popeBonus, cardBonus, stampBo
 export const getPlayerWorship = (character, pages, account, playerCharge) => {
   // 0 - current worship charge rate
   const worshipLevel = character?.skillsInfo?.worship?.level;
-  const prayDayBonus = getStampBonus(account?.stamps, "skills", "StampB35", 0);
+  const prayDayBonus = getStampBonus(account?.stamps, "skills", "StampB35", character);
   let gospelBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'GOSPEL_LEADER', false);
   const cauldronMultiBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'SEVERAPURPLE', false);
   gospelBonus *= cauldronMultiBonus;
@@ -39,7 +39,7 @@ export const getPlayerWorship = (character, pages, account, playerCharge) => {
   }
   const chargeCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === "F11");
   const chargeCardBonus = calcCardBonus(chargeCard);
-  const flowinStampBonus = getStampBonus(account?.stamps, "skills", "StampB34", worshipLevel);
+  const flowinStampBonus = getStampBonus(account?.stamps, "skills", "StampB34", character);
   const hasSkull = character?.tools?.[5]?.rawName !== "Blank";
 
   const postOfficeWorshipBox = getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 1);

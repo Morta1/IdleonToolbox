@@ -25,7 +25,8 @@ export const patchNotes = [
     fixes: [
       'Now displaying the correct effect for all stamps on the stamps page',
       'Fixed an issue with 0 star cards',
-      'Fixed a bug with bags capacity'
+      'Fixed a bug with bags capacity',
+      'Bugs created on this release 😅'
     ]
   },
   {

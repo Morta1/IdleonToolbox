@@ -240,7 +240,7 @@ export const getPlayerAnvil = (character, characters, account) => {
                           + (shinyBonus + superbitBonus))))))))))))));
 
   // ANVIL SPEED MATH;
-  const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character?.skillsInfo?.smithing?.level);
+  const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character);
   const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
   const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'a2');
   const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
@@ -261,8 +261,8 @@ export const getPlayerAnvil = (character, characters, account) => {
   const allCapacity = (1 + (guildCarryBonus + telekineticStorageBonus) / 100) * (1 + carryCapShrineBonus / 100) * Math.max(1 - zergPrayerBonus / 100, 0.4)
     * (1 + (ruckSackPrayerBonus + bribeCapBonus) / 100);
 
-  const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character?.skillsInfo?.smithing?.level);
-  const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character?.skillsInfo?.smithing?.level);
+  const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character);
+  const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character);
   const gemShopCarryBonus = account?.gemShopPurchases?.find((value, index) => index === 58) ?? 0;
   const extraBagsTalentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const starSignExtraCap = getStarSignBonus(character, account, 'Carry_Cap');
