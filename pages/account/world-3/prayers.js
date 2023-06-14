@@ -44,7 +44,7 @@ const Prayers = () => {
           const calculatedBonus = x1 + (x1 * (level - 1)) / 10;
           const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
           const cost = calcPrayerCost(prayer);
-          return <Card key={name + index} sx={{ width: 300, display: 'flex', }}>
+          return <Card key={name + index} sx={{ width: 300, display: 'flex', opacity: level === 0 ? .5 : 1 }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
               <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>
                 <Stack alignItems={'center'}>

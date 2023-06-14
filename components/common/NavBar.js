@@ -1,41 +1,41 @@
-import React, { useContext, useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
-import MuiAppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Tooltip from "@mui/material/Tooltip";
-import { NextLinkComposed } from "./NextLinkComposed";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
+import React, { useContext, useEffect, useState } from 'react';
+import { styled } from '@mui/material/styles';
+import MuiAppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import Toolbar from '@mui/material/Toolbar';
+import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
+import { NextLinkComposed } from './NextLinkComposed';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 import PasswordIcon from '@mui/icons-material/Password';
-import LogoutIcon from "@mui/icons-material/Logout";
+import LogoutIcon from '@mui/icons-material/Logout';
 import GoogleIcon from '@mui/icons-material/Google';
 import AppleIcon from '@mui/icons-material/Apple';
-import { useRouter } from "next/router";
-import AccountDrawer from "./AccountDrawer";
-import { Stack, TextField, Typography, useMediaQuery } from "@mui/material";
-import { AppContext } from "./context/AppProvider";
-import CharactersDrawer from "./CharactersDrawer";
-import ToolsDrawer from "./ToolsDrawer";
-import { format } from "date-fns";
-import { parseData } from "parsers";
-import EmailPasswordDialog from "./EmailPasswordModal";
-import { signInWithEmailPassword } from "../../firebase";
-import DiscordInvite from "../DiscordInvite";
-import { appleAuthorize, getAppleCode } from "../../logins/apple";
-import AuthDialog from "./AuthDialog";
-import { Adsense } from "@ctrl/react-adsense";
-import { isProd } from "../../utility/helpers";
+import { useRouter } from 'next/router';
+import AccountDrawer from './AccountDrawer';
+import { Stack, TextField, Typography, useMediaQuery } from '@mui/material';
+import { AppContext } from './context/AppProvider';
+import CharactersDrawer from './CharactersDrawer';
+import ToolsDrawer from './ToolsDrawer';
+import { format } from 'date-fns';
+import { parseData } from 'parsers';
+import EmailPasswordDialog from './EmailPasswordModal';
+import { signInWithEmailPassword } from '../../firebase';
+import DiscordInvite from '../DiscordInvite';
+import { appleAuthorize, getAppleCode } from '../../logins/apple';
+import AuthDialog from './AuthDialog';
+import { Adsense } from '@ctrl/react-adsense';
+import { isProd } from '../../utility/helpers';
 
 
 const drawerWidth = 240;
-const topLevelItems = ["dashboard", "characters", "account", "tools"];
+const topLevelItems = ['dashboard', 'characters', 'account', 'tools'];
 
 function NavBar({ children, window }) {
   const { state, dispatch, login, logout, setWaitingForAuth } = useContext(AppContext);
@@ -45,26 +45,26 @@ function NavBar({ children, window }) {
   const [displayDrawer, setDisplayDrawer] = useState(false);
   const [ffText, setFfText] = useState('');
   const [anchorEl, setAnchorEl] = useState();
-  const [drawer, setDrawer] = useState();
+  const [drawer, setDrawer] = useState('');
   const [shouldDisplayMenu, setShouldDisplayMenu] = useState(false);
   const router = useRouter();
   const container = window !== undefined ? () => window().document.body : undefined;
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const isCompact = useMediaQuery('(max-width: 850px)', { noSsr: true })
-  const isFirefox = navigator.userAgent.toUpperCase().indexOf("FIREFOX") >= 0;
+  const isFirefox = navigator.userAgent.toUpperCase().indexOf('FIREFOX') >= 0;
 
   useEffect(() => {
-    if (router.pathname.includes("/account")) {
-      setDrawer("account");
+    if (router.pathname.includes('/account')) {
+      setDrawer('account');
       setDisplayDrawer(true);
-    } else if (router.pathname.includes("/characters")) {
-      setDrawer("characters");
+    } else if (router.pathname.includes('/characters')) {
+      setDrawer('characters');
       setDisplayDrawer(true);
-    } else if (router.pathname.includes("/tools")) {
-      setDrawer("tools");
+    } else if (router.pathname.includes('/tools')) {
+      setDrawer('tools');
       setDisplayDrawer(true);
     } else {
-      setDrawer("");
+      setDrawer('');
       setDisplayDrawer(isXs);
     }
   }, [router.pathname, isXs]);
@@ -164,7 +164,8 @@ function NavBar({ children, window }) {
       }
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
-      dispatch({ type: "data", data: { ...parsedData, lastUpdated, manualImport: true } });
+      console.log({ ...parsedData, lastUpdated, manualImport: true })
+      dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
       handleClose();
     } catch (e) {
       console.error(e);
@@ -183,7 +184,7 @@ function NavBar({ children, window }) {
         <Toolbar sx={{ height: 70, minHeight: 70 }}>
           {shouldDisplayMenu ? (
             <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle}
-                        sx={{ display: { sm: "none" } }}>
+                        sx={{ display: { sm: 'none' } }}>
               <MenuIcon/>
             </IconButton>
           ) : null}
@@ -195,17 +196,17 @@ function NavBar({ children, window }) {
           </Link>
           <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu}/>
           {shouldDisplayMenu && state?.lastUpdated ? (
-            <Box sx={{ marginLeft: "auto", mx: 2 }}>
-              {!isCompact ? <Typography component={"div"} variant={"caption"}>
-                {isXs ? '' : 'Last Updated'} {`${state?.manualImport ? "(offline)" : state?.pastebin ? '(pastebin)' : ""}`}
+            <Box sx={{ marginLeft: 'auto', mx: 2 }}>
+              {!isCompact ? <Typography component={'div'} variant={'caption'}>
+                {isXs ? '' : 'Last Updated'} {`${state?.manualImport ? '(offline)' : state?.pastebin ? '(pastebin)' : ''}`}
               </Typography> : null}
-              <Typography component={"div"} variant={"caption"}>
-                {format(state?.lastUpdated, "dd/MM/yyyy HH:mm:ss")}
+              <Typography component={'div'} variant={'caption'}>
+                {format(state?.lastUpdated, 'dd/MM/yyyy HH:mm:ss')}
               </Typography>
             </Box>
           ) : null}
           {(!state.signedIn && !state?.pastebin && !state?.manualImport) && state?.demo ? <Stack sx={{ mr: 1 }}>
-            <Typography color={'primary'} variant={"caption"}>This is a demo site, please login</Typography>
+            <Typography color={'primary'} variant={'caption'}>This is a demo site, please login</Typography>
           </Stack> : null}
           <Stack direction={'row'} alignItems={'center'} sx={{ marginLeft: 'auto' }}>
             <DiscordInvite shield={false} style={{ margin: '0 7.5px' }}/>
@@ -214,15 +215,15 @@ function NavBar({ children, window }) {
                 <FileCopyIcon/>
               </IconButton>
             </Tooltip> : null}
-            <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                   keepMounted
-                  transformOrigin={{ vertical: "top", horizontal: "right" }} open={Boolean(anchorEl)}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }} open={Boolean(anchorEl)}
                   onClose={handleClose}>
               <MenuItem onClick={() => handleManualImport()}>
-                <Typography variant={"span"}>From extractor</Typography>
+                <Typography variant={'span'}>From extractor</Typography>
               </MenuItem>
               <MenuItem onClick={() => handleManualImport()}>
-                <Typography variant={"span"}>From website</Typography>
+                <Typography variant={'span'}>From website</Typography>
               </MenuItem>
               {isFirefox ? <MenuItem sx={{
                 '&': { width: 200 },
@@ -249,18 +250,18 @@ function NavBar({ children, window }) {
                 <Button onClick={() => handleManualImport(true)}>upload</Button>
               </MenuItem> : null}
             </Menu>
-            {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? "Logout" : "Apple Login"}>
+            {!state?.pastebin && !state?.signedIn ? <Tooltip title={state?.signedIn ? 'Logout' : 'Apple Login'}>
               <IconButton onClick={() => handleAuth(state?.signedIn, { apple: true })} color="inherit">
                 {state?.signedIn ? <LogoutIcon/> : <AppleIcon/>}
               </IconButton>
             </Tooltip> : null}
-            {!state?.pastebin ? <Tooltip title={state?.signedIn ? "Logout" : "Google Login"}>
+            {!state?.pastebin ? <Tooltip title={state?.signedIn ? 'Logout' : 'Google Login'}>
               <IconButton onClick={() => handleAuth(state?.signedIn)} color="inherit">
                 {state?.signedIn ? <LogoutIcon/> : <GoogleIcon/>}
               </IconButton>
             </Tooltip> : null}
             {!state?.pastebin && !state?.signedIn ?
-              <Tooltip title={state?.signedIn ? "Logout" : "Email-Password Login"}>
+              <Tooltip title={state?.signedIn ? 'Logout' : 'Email-Password Login'}>
                 <IconButton onClick={() => setEmailPasswordDialog(true)} color="inherit">
                   {state?.signedIn ? <LogoutIcon/> : <PasswordIcon/>}
                 </IconButton>
@@ -280,29 +281,29 @@ function NavBar({ children, window }) {
               keepMounted: true // Better open performance on mobile.
             }}
             sx={{
-              display: { xs: "block", sm: "none" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
-              "& .MuiPaper-root": { backgroundImage: "none" }
+              display: { xs: 'block', sm: 'none' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              '& .MuiPaper-root': { backgroundImage: 'none' }
             }}
           >
             <Toolbar sx={{ height: 70, minHeight: 70 }}/>
             <TopNavigation queryParams={router.query} signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}
                            drawer/>
-            {drawer === "account" ? <AccountDrawer onLabelClick={handleDrawerToggle}/> : null}
-            {drawer === "characters" ? <CharactersDrawer onLabelClick={handleDrawerToggle}/> : null}
-            {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}/> : null}
+            {drawer === 'account' ? <AccountDrawer onLabelClick={handleDrawerToggle}/> : null}
+            {drawer === 'characters' ? <CharactersDrawer onLabelClick={handleDrawerToggle}/> : null}
+            {drawer === 'tools' ? <ToolsDrawer signedIn={shouldDisplayMenu} onLabelClick={handleDrawerToggle}/> : null}
           </Drawer>
           <Drawer
             variant="permanent"
             sx={{
-              display: { xs: "none", sm: "block" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth }
+              display: { xs: 'none', sm: 'block' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
             }} open
           >
             <Toolbar sx={{ height: 70, minHeight: 70 }}/>
-            {drawer === "account" ? <AccountDrawer/> : null}
-            {drawer === "characters" ? <CharactersDrawer/> : null}
-            {drawer === "tools" ? <ToolsDrawer signedIn={shouldDisplayMenu}/> : null}
+            {drawer === 'account' ? <AccountDrawer/> : null}
+            {drawer === 'characters' ? <CharactersDrawer/> : null}
+            {drawer === 'tools' ? <ToolsDrawer signedIn={shouldDisplayMenu}/> : null}
           </Drawer>
         </Box>
       ) : null}
@@ -347,17 +348,17 @@ function NavBar({ children, window }) {
 
 const TopNavigation = ({ onLabelClick, signedIn, drawer, queryParams }) => {
   return (
-    <Box sx={{ gap: 2, flexGrow: 1, marginLeft: 3, display: { xs: drawer ? "" : "none", sm: "flex" } }}>
+    <Box sx={{ gap: 2, flexGrow: 1, marginLeft: 3, display: { xs: drawer ? '' : 'none', sm: 'flex' } }}>
       {topLevelItems.map((page, index) => {
-        if (!signedIn && page !== "tools") return null;
-        const pageName = page === "account" ? "account/general" : page === "tools" ? "tools/card-search" : page;
+        if (!signedIn && page !== 'tools') return null;
+        const pageName = page === 'account' ? 'account/general' : page === 'tools' ? 'tools/card-search' : page;
         return (
           <Button component={NextLinkComposed} to={{
             pathname: `/${pageName}`,
             query: queryParams,
           }} size="medium" key={`${page}-${index}`}
                   onClick={() => drawer && onLabelClick()}
-                  sx={{ my: drawer ? 1 : 2, color: "white", display: "block" }}>
+                  sx={{ my: drawer ? 1 : 2, color: 'white', display: 'block' }}>
             {page}
           </Button>
         );
@@ -367,17 +368,17 @@ const TopNavigation = ({ onLabelClick, signedIn, drawer, queryParams }) => {
 };
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open"
+  shouldForwardProp: (prop) => prop !== 'open'
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
+  transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen
   }),
   ...(open && {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
+    transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen
     })

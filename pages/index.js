@@ -1,34 +1,34 @@
-import React, { useMemo, useState } from "react";
-import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from "@mui/material";
-import Instructions from "components/common/Instructions";
-import PastebinInstructions from "components/common/PastebinInstructions";
-import { useRouter } from "next/router";
+import React, { useMemo, useState } from 'react';
+import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
+import Instructions from 'components/common/Instructions';
+import PastebinInstructions from 'components/common/PastebinInstructions';
 import { getRandomNumbersArray, prefix } from '../utility/helpers'
-import useInterval from "../components/hooks/useInterval";
-import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from "framer-motion"
-import Button from "@mui/material/Button";
-import styled from "@emotion/styled";
-import { patchNotes } from "../data/patch-notes";
-import PatchNotes from "./patch-notes";
-import { NextLinkComposed } from "../components/common/NextLinkComposed";
-import Link from "@mui/material/Link";
-import { useFlubber } from "../components/hooks/useFlubber";
-import Box from "@mui/material/Box";
+import useInterval from '../components/hooks/useInterval';
+import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
+import Button from '@mui/material/Button';
+import styled from '@emotion/styled';
+import { patchNotes } from '../data/patch-notes';
+import PatchNotes from './patch-notes';
+import { NextLinkComposed } from '../components/common/NextLinkComposed';
+import Link from '@mui/material/Link';
+import { useFlubber } from '../components/hooks/useFlubber';
+import Box from '@mui/material/Box';
 
 const Home = () => {
   const indexes = useMemo(() => getRandomNumbersArray(6, 6), []);
-  const breakpoint = useMediaQuery('(max-width: 1230px)', { noSsr: true });
+  const breakpoint = useMediaQuery('(max-width: 1245px)', { noSsr: true });
   const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const [openPastebin, setOpenPastebin] = useState(false);
-  const [pathIndex, setPathIndex] = useState(1);
+  const [pathIndex, setPathIndex] = useState(0);
   const progress = useMotionValue(pathIndex);
-  const path = useFlubber(progress, ['m15 5-1.41 1.41L18.17 11H2v2h16.17l-4.59 4.59L15 19l7-7-7-7z',
-    'M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z']);
+  const path = useFlubber(progress, [
+    'M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z',
+    'm15 5-1.41 1.41L18.17 11H2v2h16.17l-4.59 4.59L15 19l7-7-7-7z']);
 
   const handleAnimation = (enter) => {
-    setPathIndex(enter ? 1 : 0)
+    setPathIndex(enter ? 0 : 1)
     animate(progress, pathIndex, {
       duration: .2,
       ease: 'easeInOut'
@@ -46,10 +46,10 @@ const Home = () => {
              sx={{ textAlign: breakpoint ? 'center' : 'inherit' }}
              gap={breakpoint ? 6 : 2}>
         <Stack sx={{ width: breakpoint ? '100%' : '50%' }}>
-          <Typography style={{ fontWeight: 400 }} variant={"h1"}>
+          <Typography style={{ fontWeight: 400 }} variant={'h1'}>
             Idleon Toolbox
           </Typography>
-          <Typography mt={2} variant={"h6"} style={{ fontWeight: 400, color: '#e3e3e3' }}>Power up your Legends of
+          <Typography mt={2} variant={'h6'} style={{ fontWeight: 400, color: '#e3e3e3' }}>Power up your Legends of
             Idleon
             adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>
@@ -57,9 +57,9 @@ const Home = () => {
             <DiscordButton href={'https://discord.gg/8Devcj7FzV'} target={'_blank'} variant={'contained'}>
               Join the discord
             </DiscordButton>
-            <a style={{ display: "flex", alignItems: "center" }} href="https://ko-fi.com/S6S7BHLQ4" target="_blank"
+            <a style={{ display: 'flex', alignItems: 'center' }} href="https://ko-fi.com/S6S7BHLQ4" target="_blank"
                rel="noreferrer">
-              <img height="36" width="150" style={{ border: 0, height: 36, width: "100%", objectFit: "contain" }}
+              <img height="36" width="150" style={{ border: 0, height: 36, width: '100%', objectFit: 'contain' }}
                    src="https://cdn.ko-fi.com/cdn/kofi1.png?v=3" alt="Buy Me a Coffee at ko-fi.com"/>
             </a>
           </Stack>

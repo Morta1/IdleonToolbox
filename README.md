@@ -33,7 +33,3 @@ A mini app to help you through your adventure in [Legends Of Idelon](https://leg
 - **Active Exp Calculator**
 - **Achievements**
 <!-- - **Shop Stock** -->
-
-## Contribution
-
-- Soon

@@ -1,53 +1,50 @@
-import { createContext, useEffect, useMemo, useReducer, useState } from "react";
-import { checkUserStatus, signInWithToken, subscribe, userSignOut } from "../../../firebase";
-import { parseData } from "../../../parsers";
+import { createContext, useEffect, useMemo, useReducer, useState } from 'react';
+import { checkUserStatus, signInWithToken, subscribe, userSignOut } from '../../../firebase';
+import { parseData } from '../../../parsers';
 import demoJson from '../../../data/raw.json';
 
-import { useRouter } from "next/router";
-import useInterval from "../../hooks/useInterval";
-import { getUserAndDeviceCode, getUserToken } from "../../../logins/google";
-import { CircularProgress, Stack } from "@mui/material";
-import { offlineTools } from "../ToolsDrawer";
-import { geAppleStatus } from "../../../logins/apple";
+import { useRouter } from 'next/router';
+import useInterval from '../../hooks/useInterval';
+import { getUserAndDeviceCode, getUserToken } from '../../../logins/google';
+import { CircularProgress, Stack } from '@mui/material';
+import { offlineTools } from '../ToolsDrawer';
+import { geAppleStatus } from '../../../logins/apple';
 
 export const AppContext = createContext({});
 
 function appReducer(state, action) {
   switch (action.type) {
-    case "view": {
+    case 'view': {
       return { ...state, view: action.view };
     }
-    case "data": {
+    case 'data': {
       return { ...state, ...action.data };
     }
-    case "logout": {
+    case 'logout': {
       return { characters: null, account: null, signedIn: false, emailPassword: null, appleLogin: null };
     }
-    case "queryParams": {
+    case 'queryParams': {
       return { ...state, ...action.data };
     }
-    case "displayedCharacters": {
+    case 'displayedCharacters': {
       return { ...state, displayedCharacters: action.data };
     }
-    case "filters": {
+    case 'filters': {
       return { ...state, filters: action.data };
     }
-    case "planner": {
+    case 'planner': {
       return { ...state, planner: action.data };
     }
-    case "trackers": {
+    case 'trackers': {
       return { ...state, trackers: action.data };
     }
-    case "trackersOptions": {
-      return { ...state, trackersOptions: action.data };
-    }
-    case "godPlanner": {
+    case 'godPlanner': {
       return { ...state, godPlanner: action.data };
     }
-    case "emailPasswordLogin": {
+    case 'emailPasswordLogin': {
       return { ...state, emailPasswordLogin: action.data };
     }
-    case "appleLogin": {
+    case 'appleLogin': {
       return { ...state, appleLogin: action.data };
     }
     case 'loginError': {
@@ -73,17 +70,16 @@ const AppProvider = ({ children }) => {
   const [listener, setListener] = useState({ func: null });
 
   function init() {
-    if (typeof window !== "undefined") {
-      const filters = localStorage.getItem("filters");
-      const displayedCharacters = localStorage.getItem("displayedCharacters");
-      const trackers = localStorage.getItem("trackers");
-      const trackersOptions = localStorage.getItem("trackersOptions");
-      const godPlanner = localStorage.getItem("godPlanner");
-      const manualImport = localStorage.getItem("manualImport") || false;
-      const lastUpdated = localStorage.getItem("lastUpdated") || false;
-      const planner = localStorage.getItem("planner");
+    if (typeof window !== 'undefined') {
+      const filters = localStorage.getItem('filters');
+      const displayedCharacters = localStorage.getItem('displayedCharacters');
+      const trackers = localStorage.getItem('trackers');
+      const godPlanner = localStorage.getItem('godPlanner');
+      const manualImport = localStorage.getItem('manualImport') || false;
+      const lastUpdated = localStorage.getItem('lastUpdated') || false;
+      const planner = localStorage.getItem('planner');
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
-        { trackers }, { trackersOptions }, { godPlanner }];
+        { trackers }, { godPlanner }];
       return objects.reduce((res, obj) => {
         try {
           const [objName, objValue] = Object.entries(obj)?.[0];
@@ -110,7 +106,7 @@ const AppProvider = ({ children }) => {
           const { data, charNames, guildData, serverVars, lastUpdated } = content;
           parsedData = parseData(data, charNames, guildData, serverVars);
           parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() }
-          localStorage.setItem("rawJson", JSON.stringify({
+          localStorage.setItem('rawJson', JSON.stringify({
             data,
             charNames,
             guildData,
@@ -118,7 +114,7 @@ const AppProvider = ({ children }) => {
             lastUpdated: lastUpdated ? lastUpdated : new Date().getTime()
           }));
         }
-        localStorage.setItem("manualImport", JSON.stringify(false));
+        localStorage.setItem('manualImport', JSON.stringify(false));
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
         let importData = {
           ...parsedData,
@@ -156,35 +152,35 @@ const AppProvider = ({ children }) => {
     })();
 
     return () => {
-      typeof unsubscribe === "function" && unsubscribe();
-      typeof listener.func === "function" && listener.func();
+      typeof unsubscribe === 'function' && unsubscribe();
+      typeof listener.func === 'function' && listener.func();
     };
   }, []);
 
   useEffect(() => {
     if (state?.filters) {
-      localStorage.setItem("filters", JSON.stringify(state.filters));
+      localStorage.setItem('filters', JSON.stringify(state.filters));
     }
     if (state?.displayedCharacters) {
-      localStorage.setItem("displayedCharacters", JSON.stringify(state.displayedCharacters));
+      localStorage.setItem('displayedCharacters', JSON.stringify(state.displayedCharacters));
     }
     if (state?.planner) {
-      localStorage.setItem("planner", JSON.stringify(state.planner));
+      localStorage.setItem('planner', JSON.stringify(state.planner));
     }
     if (state?.trackers) {
-      localStorage.setItem("trackers", JSON.stringify(state.trackers));
+      localStorage.setItem('trackers', JSON.stringify(state.trackers));
     }
     if (state?.trackersOptions) {
-      localStorage.setItem("trackersOptions", JSON.stringify(state.trackersOptions));
+      localStorage.setItem('trackersOptions', JSON.stringify(state.trackersOptions));
     }
     if (state?.godPlanner) {
-      localStorage.setItem("godPlanner", JSON.stringify(state.godPlanner));
+      localStorage.setItem('godPlanner', JSON.stringify(state.godPlanner));
     }
     if (state?.manualImport) {
-      localStorage.setItem("manualImport", JSON.stringify(state.manualImport));
-      const lastUpdated = JSON.parse(localStorage.getItem("lastUpdated"));
+      localStorage.setItem('manualImport', JSON.stringify(state.manualImport));
+      const lastUpdated = JSON.parse(localStorage.getItem('lastUpdated'));
       if (state?.signedIn) {
-        logout(true, { ...state?.data, lastUpdated, manualImport: true });
+        logout(true, { ...state, lastUpdated, signedIn: false, manualImport: true });
       }
     }
     if (state?.emailPasswordLogin || state?.appleLogin) {
@@ -229,10 +225,10 @@ const AppProvider = ({ children }) => {
         }
         if (id_token) {
           const unsubscribe = await subscribe(uid, handleCloudUpdate);
-          if (typeof window?.gtag !== "undefined") {
-            window?.gtag("event", "login", {
-              action: "login",
-              category: "engagement",
+          if (typeof window?.gtag !== 'undefined') {
+            window?.gtag('event', 'login', {
+              action: 'login',
+              category: 'engagement',
               value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
             });
           }
@@ -259,23 +255,23 @@ const AppProvider = ({ children }) => {
   };
 
   const logout = (manualImport, data) => {
-    typeof listener.func === "function" && listener.func();
+    typeof listener.func === 'function' && listener.func();
     userSignOut();
-    if (typeof window?.gtag !== "undefined") {
-      window?.gtag("event", "logout", {
-        action: "logout",
-        category: "engagement",
+    if (typeof window?.gtag !== 'undefined') {
+      window?.gtag('event', 'logout', {
+        action: 'logout',
+        category: 'engagement',
         value: 1
       });
     }
-    localStorage.removeItem("charactersData");
-    localStorage.removeItem("rawJson");
-    dispatch({ type: "logout" });
+    localStorage.removeItem('charactersData');
+    localStorage.removeItem('rawJson');
+    dispatch({ type: 'logout' });
     setWaitingForAuth(false);
     if (!manualImport) {
       router.push({ pathname: '/', query: router.query });
     } else {
-      dispatch({ type: "data", data });
+      dispatch({ type: 'data', data });
     }
   };
 
@@ -288,22 +284,25 @@ const AppProvider = ({ children }) => {
       serverVars
     })
     const lastUpdated = new Date().getTime();
-    localStorage.setItem("rawJson", JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
+    localStorage.setItem('rawJson', JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
     const parsedData = parseData(data, charNames, guildData, serverVars);
-    // localStorage.setItem("charactersData", JSON.stringify(parsedData));
-    localStorage.setItem("manualImport", JSON.stringify(false));
+    localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({
-      type: "data",
+      type: 'data',
       data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated, serverVars }
     });
   };
 
   const checkOfflineTool = () => {
-    if (!router.pathname.includes("tools")) return false;
-    const endPoint = router.pathname.split("/")?.[2] || "";
-    const formattedEndPoint = endPoint?.replace("-", " ")?.toCamelCase();
-    return !state?.signedIn && router.pathname.includes("tools") && offlineTools[formattedEndPoint];
+    if (!router.pathname.includes('tools')) return false;
+    const endPoint = router.pathname.split('/')?.[2] || '';
+    const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
+    return !state?.signedIn && router.pathname.includes('tools') && offlineTools[formattedEndPoint];
   };
+
+  const shouldDisplayPage = () => {
+    return value?.state?.account || value?.state?.manualImport || router.pathname === '/' || checkOfflineTool() || router.pathname === '/data';
+  }
 
   return (
     <AppContext.Provider
@@ -314,10 +313,10 @@ const AppProvider = ({ children }) => {
         setWaitingForAuth
       }}
     >
-      {value?.state?.account || value?.state?.manualImport || router.pathname === "/" || checkOfflineTool() || router.pathname === '/data' ? (
+      {shouldDisplayPage() ? (
         children
       ) : (
-        <Stack m={15} direction={"row"} justifyContent={"center"}>
+        <Stack m={15} direction={'row'} justifyContent={'center'}>
           <CircularProgress/>
         </Stack>
       )}
