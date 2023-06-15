@@ -14,7 +14,7 @@ const NavItemsList = ({ drawer }) => {
     sx={{ width: '100%', maxWidth: drawer ? drawerWidth : 'inherit' }}>
     <ItemsWrapper drawer={drawer}>
       {navItems.map((navItem, index) => {
-        if ((!state?.signedIn && !state?.pastebin && !state?.demo) && !offlinePages.includes(navItem)) return null;
+        if ((!state?.signedIn && !state?.pastebin && !state?.demo && !state?.manualImport) && !offlinePages.includes(navItem)) return null;
         const pageName = navItem === 'account' ? 'account/general' : navItem === 'tools' ? 'tools/card-search' : navItem;
         return <ListItemButton component={NextLinkComposed}
                                selected={router?.pathname.includes(navItem)}

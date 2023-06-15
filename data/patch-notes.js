@@ -14,7 +14,7 @@ export const patchNotes = [
         paste data into the website (steam data extractor is no longer supported, please use one of the other 3 login methods [Email, Google, Apple])</Typography>
 
     ],
-    fixes: []
+    fixes: ['Fixed a bug with max liquid calculation']
   },
   {
     ver: '3.1.95',
