@@ -1,5 +1,5 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore } from "utility/helpers";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore } from 'utility/helpers';
 
 const PlayerStarSigns = ({ signs }) => {
   return <Stack>

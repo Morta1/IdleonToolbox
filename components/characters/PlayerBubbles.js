@@ -1,6 +1,6 @@
-import Tooltip from "../Tooltip";
-import { cleanUnderscore, growth, prefix } from "utility/helpers";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import Tooltip from '../Tooltip';
+import { cleanUnderscore, growth, prefix } from 'utility/helpers';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 
 const PlayerBubbles = ({ bubbles }) => {
   const empty = bubbles?.every(({ bubbleName }) => !bubbleName);

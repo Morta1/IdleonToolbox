@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
-import { kFormatter, prefix, splitTime } from "../../utility/helpers";
-import styled from "@emotion/styled";
-import { Stack, TextField } from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
+import React, { useContext, useEffect, useState } from 'react';
+import { kFormatter, prefix, splitTime } from '../../utility/helpers';
+import styled from '@emotion/styled';
+import { Stack, TextField } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import IconButton from "@mui/material/IconButton";
-import { AppContext } from "components/common/context/AppProvider";
-import { CountdownCircleTimer } from "react-countdown-circle-timer";
-import { NextSeo } from "next-seo";
+import IconButton from '@mui/material/IconButton';
+import { AppContext } from 'components/common/context/AppProvider';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import { NextSeo } from 'next-seo';
 
 const countdown = 10;
 const ActiveXpCalculator = () => {

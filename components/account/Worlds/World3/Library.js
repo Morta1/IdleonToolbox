@@ -1,7 +1,7 @@
 import React from 'react';
-import Timer from "../../../common/Timer";
-import { Divider, Stack, Typography } from "@mui/material";
-import { prefix } from "../../../../utility/helpers";
+import Timer from '../../../common/Timer';
+import { Divider, Stack, Typography } from '@mui/material';
+import { prefix } from '../../../../utility/helpers';
 
 const Library = ({ libraryTimes, lastUpdated }) => {
   let { bookCount, next, breakpoints } = libraryTimes || {};

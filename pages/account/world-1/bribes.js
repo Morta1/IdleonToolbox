@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Divider, Grid, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, getCoinsArray } from "utility/helpers";
-import CoinDisplay from "components/common/CoinDisplay";
+import React, { useContext } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Divider, Grid, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, getCoinsArray } from 'utility/helpers';
+import CoinDisplay from 'components/common/CoinDisplay';
 import CheckIcon from '@mui/icons-material/Check';
-import { NextSeo } from "next-seo";
+import { NextSeo } from 'next-seo';
 
 const Bribes = () => {
   const { state } = useContext(AppContext);

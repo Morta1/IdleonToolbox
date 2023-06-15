@@ -1,12 +1,12 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import React, { useContext } from "react";
-import { AppContext } from "../../../components/common/context/AppProvider";
-import ProgressBar from "../../../components/common/ProgressBar";
-import { notateNumber, prefix } from "../../../utility/helpers";
-import darkTheme from "../../../styles/theme/darkTheme";
-import { PlayersList } from "../../../components/common/styles";
-import Box from "@mui/material/Box";
-import { NextSeo } from "next-seo";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import React, { useContext } from 'react';
+import { AppContext } from '../../../components/common/context/AppProvider';
+import ProgressBar from '../../../components/common/ProgressBar';
+import { notateNumber, prefix } from '../../../utility/helpers';
+import darkTheme from '../../../styles/theme/darkTheme';
+import { PlayersList } from '../../../components/common/styles';
+import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 
 const cauldronsColors = [
   darkTheme.palette.warning.light,

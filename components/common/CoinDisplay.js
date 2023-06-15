@@ -1,6 +1,6 @@
-import { prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import { Stack, Typography } from "@mui/material";
+import { prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import { Stack, Typography } from '@mui/material';
 
 const CoinDisplay = ({ centered = true, style = {}, money, title = 'Total Money', maxCoins = 5 }) => {
   return <div style={style}>

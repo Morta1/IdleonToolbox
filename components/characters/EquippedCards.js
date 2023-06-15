@@ -1,9 +1,9 @@
-import { calcCardBonus } from "../../parsers/cards";
-import { Grid, Stack, Typography } from "@mui/material";
-import styled from "@emotion/styled";
-import Box from "@mui/material/Box";
-import React from "react";
-import { CardAndBorder } from "../common/styles";
+import { calcCardBonus } from '../../parsers/cards';
+import { Grid, Stack, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import Box from '@mui/material/Box';
+import React from 'react';
+import { CardAndBorder } from '../common/styles';
 
 const EquippedCards = ({ cards }) => {
   const { equippedCards, cardSet } = cards;

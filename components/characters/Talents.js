@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import Tooltip from "../Tooltip";
-import { Box, Tab, Tabs, Typography } from "@mui/material";
-import { TalentTooltip } from "../common/styles";
+import React, { useEffect, useState } from 'react';
+import { prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import Tooltip from '../Tooltip';
+import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { TalentTooltip } from '../common/styles';
 
 const Talents = ({ talents, starTalents }) => {
   const [selectedTab, setSelectedTab] = useState(0);

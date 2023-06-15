@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
-import { constructionMasteryThresholds } from "../../../../../parsers/construction";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
+import { constructionMasteryThresholds } from '../../../../../parsers/construction';
 
 const defaultBonuses = [
   "+1%_REFINERY_SPD_PER_10_TOT_LV",

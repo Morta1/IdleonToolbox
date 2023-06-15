@@ -1,5 +1,5 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber } from "../../../../../utility/helpers";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber } from '../../../../../utility/helpers';
 
 const Superbits = ({ superbits }) => {
   return <>

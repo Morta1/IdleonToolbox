@@ -1,5 +1,5 @@
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 export default function WaitForRouter({ children }) {
   const router = useRouter()

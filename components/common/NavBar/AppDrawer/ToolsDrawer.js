@@ -1,6 +1,8 @@
-import { Divider, List, ListItem, ListItemText, Stack } from "@mui/material";
-import React from "react";
-import { useRouter } from "next/router";
+import { Divider, List, ListItem, ListItemText, Stack } from '@mui/material';
+import React, { useContext } from 'react';
+import { useRouter } from 'next/router';
+import { AppContext } from '../../context/AppProvider';
+import Kofi from '../../Kofi';
 
 const tools = {
   'cardSearch': {
@@ -25,7 +27,8 @@ const tools = {
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
-const ToolsDrawer = ({ onLabelClick, signedIn }) => {
+const ToolsDrawer = () => {
+  const { state } = useContext(AppContext);
   const router = useRouter();
   const handleClick = (uri) => {
     const url = `/tools/${uri}`;
@@ -38,7 +41,6 @@ const ToolsDrawer = ({ onLabelClick, signedIn }) => {
     }
 
     router.push({ pathname: url });
-    typeof onLabelClick === 'function' && onLabelClick();
   }
 
   const isSelected = (label) => {
@@ -50,14 +52,14 @@ const ToolsDrawer = ({ onLabelClick, signedIn }) => {
       <Divider/>
       <List>
         {Object.entries(tools).map(([key, value], index) => {
-          if (!signedIn && !offlineTools[key]) return null;
+          if (!state?.signedIn && !offlineTools[key]) return null;
           const { icon } = value;
           const keyUri = key.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
-          const formattedKey = key.split(/(?=[A-Z])/).join(" ").capitalize();
+          const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
           return (
-            <React.Fragment key={key + " " + index}>
+            <React.Fragment key={key + ' ' + index}>
               <ListItem button selected={isSelected(key)} onClick={() => handleClick(keyUri)}>
-                <img className={"list-img"} width={32} src={`/data/${icon}.png`} alt=""/>
+                <img className={'list-img'} width={32} src={`/data/${icon}.png`} alt=""/>
                 <ListItemText style={{ marginLeft: 10 }} primary={formattedKey}/>
               </ListItem>
             </React.Fragment>
@@ -67,13 +69,7 @@ const ToolsDrawer = ({ onLabelClick, signedIn }) => {
       <List style={{ marginTop: 'auto' }}>
         <ListItem>
           <ListItemText>
-            <a style={{ height: 0, display: 'inline-block' }} href='https://ko-fi.com/S6S7BHLQ4' target='_blank'
-               rel="noreferrer">
-              <img height='36'
-                   style={{ border: 0, height: 36, width: 143 }}
-                   src='https://cdn.ko-fi.com/cdn/kofi1.png?v=3'
-                   alt='Buy Me a Coffee at ko-fi.com'/>
-            </a>
+            <Kofi display={'inline-block'}/>
           </ListItemText>
         </ListItem>
       </List>

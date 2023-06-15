@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../utility/helpers";
-import Tooltip from "components/Tooltip";
-import { MissingData } from "../../../components/common/styles";
-import { isGodEnabledBySorcerer } from "../../../parsers/lab";
-import { NextSeo } from "next-seo";
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from '../../../utility/helpers';
+import Tooltip from 'components/Tooltip';
+import { MissingData } from '../../../components/common/styles';
+import { isGodEnabledBySorcerer } from '../../../parsers/lab';
+import { NextSeo } from 'next-seo';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);

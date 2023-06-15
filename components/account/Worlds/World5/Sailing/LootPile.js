@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { kFormatter, prefix } from "../../../../../utility/helpers";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { kFormatter, prefix } from '../../../../../utility/helpers';
 
 const LootPile = ({ lootPile }) => {
   return <Stack gap={2} direction={'row'} flexWrap={'wrap'}>

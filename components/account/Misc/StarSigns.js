@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { Box, Divider, Grid, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import { cleanUnderscore, prefix } from "utility/helpers";
+import React, { useMemo, useState } from 'react';
+import { Box, Divider, Grid, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
+import { cleanUnderscore, prefix } from 'utility/helpers';
 
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const [selectedTab, setSelectedTab] = useState(0);

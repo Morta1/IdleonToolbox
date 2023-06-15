@@ -1,5 +1,6 @@
 const Switch = ({ selected, children }) => {
-  return children?.filter(({ props }) => props?.['switch-id'] === selected);
+  const array = Array.isArray(children) ? children : [children];
+  return array?.filter(({ props }) => props?.['switch-id'] === selected);
 };
 
 export default Switch;

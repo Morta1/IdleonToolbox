@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import { MissingData } from "../../../components/common/styles";
-import { NextSeo } from "next-seo";
-import General from "../../../components/account/Worlds/World5/Gaming/General";
-import Superbits from "../../../components/account/Worlds/World5/Gaming/Superbits";
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { MissingData } from '../../../components/common/styles';
+import { NextSeo } from 'next-seo';
+import General from '../../../components/account/Worlds/World5/Gaming/General';
+import Superbits from '../../../components/account/Worlds/World5/Gaming/Superbits';
 
 const Gaming = () => {
   const { state } = useContext(AppContext);

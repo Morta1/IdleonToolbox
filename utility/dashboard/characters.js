@@ -1,10 +1,10 @@
-import { differenceInHours, differenceInMinutes, isPast } from "date-fns";
-import { getPostOfficeBonus } from "../../parsers/postoffice";
-import { items, randomList } from "../../data/website-data";
-import { getExpReq, isArenaBonusActive } from "../../parsers/misc";
-import { getPlayerAnvil, getTimeTillCap } from "../../parsers/anvil";
-import { checkCharClass, getTalentBonus, relevantTalents } from "../../parsers/talents";
-import { getAllTools } from "../../parsers/items";
+import { differenceInHours, differenceInMinutes, isPast } from 'date-fns';
+import { getPostOfficeBonus } from '../../parsers/postoffice';
+import { items, randomList } from '../../data/website-data';
+import { getExpReq, isArenaBonusActive } from '../../parsers/misc';
+import { getPlayerAnvil, getTimeTillCap } from '../../parsers/anvil';
+import { checkCharClass, getTalentBonus, relevantTalents } from '../../parsers/talents';
+import { getAllTools } from '../../parsers/items';
 
 export const anvilAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};

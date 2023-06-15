@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
-import Tooltip from "../../../../Tooltip";
-import { TitleAndValue } from "../../../../common/styles";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
+import Tooltip from '../../../../Tooltip';
+import { TitleAndValue } from '../../../../common/styles';
 
 const Chests = ({ chests }) => {
   if (chests.length === 0) return <Stack justifyContent={'center'} direction={'row'}>

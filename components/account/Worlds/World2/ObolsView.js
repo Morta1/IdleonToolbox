@@ -1,10 +1,10 @@
 import React from 'react';
-import { cleanUnderscore, prefix } from "utility/helpers";
+import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import Tooltip from "components/Tooltip";
-import ItemDisplay from "components/common/ItemDisplay";
-import Box from "@mui/material/Box";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import Tooltip from 'components/Tooltip';
+import ItemDisplay from 'components/common/ItemDisplay';
+import Box from '@mui/material/Box';
 
 const shapes = {
   'Circle': '1',

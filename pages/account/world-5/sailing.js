@@ -1,14 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import Artifacts from "components/account/Worlds/World5/Sailing/Artifacts";
-import LootPile from "../../../components/account/Worlds/World5/Sailing/LootPile";
-import { prefix } from "../../../utility/helpers";
-import Chests from "../../../components/account/Worlds/World5/Sailing/Chests";
-import BoatsAndCaptains from "../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains";
-import { MissingData } from "../../../components/common/styles";
-import { NextSeo } from "next-seo";
-import Trades from "../../../components/account/Worlds/World5/Sailing/Trades";
+import { AppContext } from 'components/common/context/AppProvider';
+import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import Artifacts from 'components/account/Worlds/World5/Sailing/Artifacts';
+import LootPile from '../../../components/account/Worlds/World5/Sailing/LootPile';
+import { prefix } from '../../../utility/helpers';
+import Chests from '../../../components/account/Worlds/World5/Sailing/Chests';
+import BoatsAndCaptains from '../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains';
+import { MissingData } from '../../../components/common/styles';
+import { NextSeo } from 'next-seo';
+import Trades from '../../../components/account/Worlds/World5/Sailing/Trades';
 
 const Sailing = () => {
   const { state } = useContext(AppContext);

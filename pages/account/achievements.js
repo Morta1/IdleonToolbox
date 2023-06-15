@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from "react";
-import { Box, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import styled from "@emotion/styled";
-import HtmlTooltip from "components/Tooltip";
-import { AppContext } from "components/common/context/AppProvider";
-import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
-import { NextSeo } from "next-seo";
+import { useContext, useEffect, useState } from 'react';
+import { Box, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import styled from '@emotion/styled';
+import HtmlTooltip from 'components/Tooltip';
+import { AppContext } from 'components/common/context/AppProvider';
+import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
+import { NextSeo } from 'next-seo';
 
 const achievementsPerWorld = 70;
 const worlds = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];

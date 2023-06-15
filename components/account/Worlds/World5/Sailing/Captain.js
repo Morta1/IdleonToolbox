@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
 
 const Captain = ({
                    lootPile,

@@ -1,8 +1,8 @@
-import { Stack, Typography } from "@mui/material";
-import { cleanUnderscore, growth, prefix } from "utility/helpers";
-import Tooltip from "../Tooltip";
-import styled from "@emotion/styled";
-import { StyledBadge } from "../common/styles";
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, growth, prefix } from 'utility/helpers';
+import Tooltip from '../Tooltip';
+import styled from '@emotion/styled';
+import { StyledBadge } from '../common/styles';
 
 const PostOffice = ({ boxes, totalPointsSpent, totalOrders }) => {
   return <Stack>

@@ -1,9 +1,9 @@
-import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
-import Tooltip from "../Tooltip";
-import { calcPrayerCost } from "parsers/prayers";
-import styled from "@emotion/styled";
-import React from "react";
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, kFormatter, prefix, round } from 'utility/helpers';
+import Tooltip from '../Tooltip';
+import { calcPrayerCost } from 'parsers/prayers';
+import styled from '@emotion/styled';
+import React from 'react';
 
 const Prayers = ({ prayers }) => {
   return <>

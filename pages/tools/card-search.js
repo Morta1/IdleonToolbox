@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Box, Chip, InputAdornment, Stack, TextField, Typography, useMediaQuery } from "@mui/material";
-import { cleanUnderscore, isProd, prefix } from "utility/helpers";
-import { cards, cardSets, stats } from "data/website-data";
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Box, Chip, InputAdornment, Stack, TextField, Typography, useMediaQuery } from '@mui/material';
+import { cleanUnderscore, isProd, prefix } from 'utility/helpers';
+import { cards, cardSets, stats } from 'data/website-data';
 import ClearIcon from '@mui/icons-material/Clear';
-import styled from "@emotion/styled";
-import { AppContext } from "components/common/context/AppProvider";
-import { CardAndBorder } from "components/common/styles";
-import { NextSeo } from "next-seo";
-import { Adsense } from "@ctrl/react-adsense";
+import styled from '@emotion/styled';
+import { AppContext } from 'components/common/context/AppProvider';
+import { CardAndBorder } from 'components/common/styles';
+import { NextSeo } from 'next-seo';
+import { Adsense } from '@ctrl/react-adsense';
 
 const categoriesOrder = ["Card Sets", "Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
   "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Smolderin'_Plateau", "Dungeons",

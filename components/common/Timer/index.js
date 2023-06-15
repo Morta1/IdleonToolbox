@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import useInterval from "components/hooks/useInterval";
-import { isPast } from "date-fns";
-import { getDuration } from "utility/helpers";
-import { Typography } from "@mui/material";
+import { useEffect, useState } from 'react';
+import useInterval from 'components/hooks/useInterval';
+import { isPast } from 'date-fns';
+import { getDuration } from 'utility/helpers';
+import { Typography } from '@mui/material';
 
 const Timer = ({
                  date,

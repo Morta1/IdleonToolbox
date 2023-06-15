@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { getDeathNoteRank } from "parsers/deathNote";
-import { cleanUnderscore, notateNumber, prefix, worlds } from "utility/helpers";
-import Box from "@mui/material/Box";
-import { NextSeo } from "next-seo";
+import React, { useContext } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { getDeathNoteRank } from 'parsers/deathNote';
+import { cleanUnderscore, notateNumber, prefix, worlds } from 'utility/helpers';
+import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 
 const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e'];
 

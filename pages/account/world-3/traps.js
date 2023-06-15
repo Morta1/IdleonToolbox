@@ -1,13 +1,13 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import React, { useContext, useMemo } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { fillArrayToLength, kFormatter, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import Timer from "components/common/Timer";
-import Tooltip from "../../../components/Tooltip";
-import { TitleAndValue } from "../../../components/common/styles";
-import { NextSeo } from "next-seo";
-import { calcTotalCritters } from "../../../parsers/traps";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import React, { useContext, useMemo } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { fillArrayToLength, kFormatter, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import Timer from 'components/common/Timer';
+import Tooltip from '../../../components/Tooltip';
+import { TitleAndValue } from '../../../components/common/styles';
+import { NextSeo } from 'next-seo';
+import { calcTotalCritters } from '../../../parsers/traps';
 
 const Traps = () => {
   const { state } = useContext(AppContext);

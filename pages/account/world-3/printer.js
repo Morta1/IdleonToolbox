@@ -1,15 +1,15 @@
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import React, { useContext, useMemo } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { growth, notateNumber, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import Tooltip from "../../../components/Tooltip";
-import { TitleAndValue } from "../../../components/common/styles";
-import { isGodEnabledBySorcerer } from "../../../parsers/lab";
-import { NextSeo } from "next-seo";
-import { getHighestMaxLevelTalentByClass } from "../../../parsers/talents";
-import { getAtomColliderThreshold } from "../../../parsers/atomCollider";
-import { calcTotals } from "../../../parsers/printer";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import React, { useContext, useMemo } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { growth, notateNumber, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import Tooltip from '../../../components/Tooltip';
+import { TitleAndValue } from '../../../components/common/styles';
+import { isGodEnabledBySorcerer } from '../../../parsers/lab';
+import { NextSeo } from 'next-seo';
+import { getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
+import { getAtomColliderThreshold } from '../../../parsers/atomCollider';
+import { calcTotals } from '../../../parsers/printer';
 
 const Printer = () => {
   const { state } = useContext(AppContext);

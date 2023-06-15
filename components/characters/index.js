@@ -1,21 +1,21 @@
-import React, { useMemo } from "react";
-import { Box, Grid, Stack, Typography } from "@mui/material";
-import { prefix } from "utility/helpers";
-import Bags from "./Bags";
-import Talents from "./Talents";
-import EquippedCards from "./EquippedCards";
-import Skills from "./Skills";
-import Prayers from "./Prayers";
-import PostOffice from "./PostOffice";
-import ObolsView from "../account/Worlds/World2/ObolsView";
-import Equipment from "./Equipment";
-import AnvilDetails from "./AnvilDetails";
-import PlayerStarSigns from "./PlayerStarSigns";
-import PlayerBubbles from "./PlayerBubbles";
-import Stats from "./Stats";
-import styled from "@emotion/styled";
-import ActiveSkillsCD from "./ActiveSkillsCD";
-import Inventory from "./Inventory";
+import React, { useMemo } from 'react';
+import { Box, Grid, Stack, Typography } from '@mui/material';
+import { prefix } from 'utility/helpers';
+import Bags from './Bags';
+import Talents from './Talents';
+import EquippedCards from './EquippedCards';
+import Skills from './Skills';
+import Prayers from './Prayers';
+import PostOffice from './PostOffice';
+import ObolsView from '../account/Worlds/World2/ObolsView';
+import Equipment from './Equipment';
+import AnvilDetails from './AnvilDetails';
+import PlayerStarSigns from './PlayerStarSigns';
+import PlayerBubbles from './PlayerBubbles';
+import Stats from './Stats';
+import styled from '@emotion/styled';
+import ActiveSkillsCD from './ActiveSkillsCD';
+import Inventory from './Inventory';
 
 const Character = ({ character, account, lastUpdated, filters, cols, characters }) => {
   const {

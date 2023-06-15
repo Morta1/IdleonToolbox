@@ -1,12 +1,12 @@
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from "../../../../utility/helpers";
-import Tooltip from "components/Tooltip";
-import Timer from "components/common/Timer";
-import React, { useMemo } from "react";
-import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, maxNumberOfSpiceClicks } from "parsers/cooking";
-import styled from "@emotion/styled";
-import ProgressBar from "components/common/ProgressBar";
-import { getJewelBonus, getLabBonus } from "../../../../parsers/lab";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, kFormatter, notateNumber, prefix } from '../../../../utility/helpers';
+import Tooltip from 'components/Tooltip';
+import Timer from 'components/common/Timer';
+import React, { useMemo } from 'react';
+import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, maxNumberOfSpiceClicks } from 'parsers/cooking';
+import styled from '@emotion/styled';
+import ProgressBar from 'components/common/ProgressBar';
+import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
 
 const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements, lab }) => {
   const calcTotals = (kitchens) => {

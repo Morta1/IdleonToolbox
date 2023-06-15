@@ -1,5 +1,5 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { numberWithCommas } from "utility/helpers";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { numberWithCommas } from 'utility/helpers';
 import React from 'react';
 
 const Highscores = ({ title, highscore }) => {

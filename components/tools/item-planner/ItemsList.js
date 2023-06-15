@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
-import { cleanUnderscore, notateNumber, numberWithCommas, pascalCase, prefix } from "utility/helpers";
-import { findQuantityOwned, flattenCraftObject } from "parsers/items";
-import styled from "@emotion/styled";
-import Tooltip from "components/Tooltip";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { crafts } from "../../../data/website-data";
+import React, { useMemo } from 'react';
+import { cleanUnderscore, notateNumber, numberWithCommas, pascalCase, prefix } from 'utility/helpers';
+import { findQuantityOwned, flattenCraftObject } from 'parsers/items';
+import styled from '@emotion/styled';
+import Tooltip from 'components/Tooltip';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { crafts } from '../../../data/website-data';
 
 const ItemsList = ({
                      account,

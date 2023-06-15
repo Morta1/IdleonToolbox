@@ -1,6 +1,6 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
-import styled from "@emotion/styled";
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import styled from '@emotion/styled';
 import {
   cleanUnderscore,
   getNumberWithOrdinal,
@@ -8,8 +8,8 @@ import {
   pascalCase,
   prefix,
   randomFloatBetween
-} from "../../utility/helpers";
-import HtmlTooltip from "../Tooltip";
+} from '../../utility/helpers';
+import HtmlTooltip from '../Tooltip';
 import {
   alchemyAlerts,
   arcadeAlerts,
@@ -24,8 +24,8 @@ import {
   printerAlerts,
   sailingAlerts,
   shopsAlerts
-} from "../../utility/dashboard/account";
-import useAlerts from "../hooks/useAlerts";
+} from '../../utility/dashboard/account';
+import useAlerts from '../hooks/useAlerts';
 
 const alertsMap = {
   atomCollider: atomColliderAlerts,

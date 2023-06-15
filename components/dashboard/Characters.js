@@ -1,24 +1,25 @@
 import React, { useMemo } from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from "../../utility/helpers";
-import styled from "@emotion/styled";
-import HtmlTooltip from "../Tooltip";
+import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '../../utility/helpers';
+import styled from '@emotion/styled';
+import HtmlTooltip from '../Tooltip';
 import {
+  alchemyAlerts,
   anvilAlerts,
   crystalCountdownAlerts,
   obolsAlerts,
+  postOfficeAlerts,
   starSignsAlerts,
   talentsAlerts,
   toolsAlerts,
   trapsAlerts,
-  worshipAlerts,
-  alchemyAlerts, postOfficeAlerts
-} from "../../utility/dashboard/characters";
+  worshipAlerts
+} from '../../utility/dashboard/characters';
 import InfoIcon from '@mui/icons-material/Info';
-import Timer from "../common/Timer";
-import { TitleAndValue } from "../common/styles";
-import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
-import { getMaxDamage, notateDamage } from "../../parsers/damage";
+import Timer from '../common/Timer';
+import { TitleAndValue } from '../common/styles';
+import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '../../parsers/character';
+import { getMaxDamage, notateDamage } from '../../parsers/damage';
 
 const alertsMap = {
   anvil: anvilAlerts,

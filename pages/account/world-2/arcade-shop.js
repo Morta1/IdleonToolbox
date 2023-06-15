@@ -1,10 +1,10 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import React, { useContext } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import { getStampBonus } from "parsers/stamps";
-import { NextSeo } from "next-seo";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import React, { useContext } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { cleanUnderscore, kFormatter, notateNumber, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import { getStampBonus } from 'parsers/stamps';
+import { NextSeo } from 'next-seo';
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);

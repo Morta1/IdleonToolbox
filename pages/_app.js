@@ -1,16 +1,16 @@
-import React from "react";
-import { CacheProvider, ThemeProvider as EmotionThemeProvider } from "@emotion/react";
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import React from 'react';
+import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import '../polyfills';
-import createEmotionCache from "../utility/createEmotionCache";
-import darkTheme from "../styles/theme/darkTheme";
-import "../styles/globals.css";
-import Head from "next/head";
+import createEmotionCache from '../utility/createEmotionCache';
+import darkTheme from '../styles/theme/darkTheme';
+import '../styles/globals.css';
+import Head from 'next/head';
 import Script from 'next/script'
-import AppProvider from "../components/common/context/AppProvider";
-import WaitForRouter from "../components/common/WaitForRouter";
-import NavBar from "../components/common/NavBar";
+import AppProvider from '../components/common/context/AppProvider';
+import WaitForRouter from '../components/common/WaitForRouter';
 import { DefaultSeo } from 'next-seo';
+import NavBar from '../components/common/NavBar';
 
 const clientSideEmotionCache = createEmotionCache();
 // remove overlay of error in dev mode.
@@ -46,9 +46,9 @@ const MyApp = (props) => {
       {process.env.NODE_ENV !== 'production' &&
         <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
       {/*Global site tag (gtag.js) - Google Analytics */}
-      <Script strategy='afterInteractive'
+      <Script strategy="afterInteractive"
               src="https://www.googletagmanager.com/gtag/js?id=G-YER8JY07QK"/>
-      <Script id='ga-analytics'>
+      <Script id="ga-analytics">
         {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

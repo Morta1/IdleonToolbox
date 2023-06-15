@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
-import styled from "@emotion/styled";
-import { getSkillRankColor } from "../../../../../parsers/misc";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
+import styled from '@emotion/styled';
+import { getSkillRankColor } from '../../../../../parsers/misc';
 
 const defaultBonuses = [
   '+25%_{_EXP_GAIN',

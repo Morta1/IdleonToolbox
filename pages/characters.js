@@ -1,8 +1,8 @@
-import React, { useContext, useMemo } from "react";
-import { Grid, Stack, Typography } from "@mui/material";
-import Character from "components/characters";
-import { AppContext } from "components/common/context/AppProvider";
-import { NextSeo } from "next-seo";
+import React, { useContext, useMemo } from 'react';
+import { Grid, Stack, Typography } from '@mui/material';
+import Character from 'components/characters';
+import { AppContext } from 'components/common/context/AppProvider';
+import { NextSeo } from 'next-seo';
 
 const Characters = () => {
   const { state } = useContext(AppContext);

@@ -1,9 +1,9 @@
-import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import React, { useContext, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import Mainframe from "components/account/Worlds/World4/Mainframe";
-import Console from "components/account/Worlds/World4/Console";
-import { NextSeo } from "next-seo";
+import { Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import Mainframe from 'components/account/Worlds/World4/Mainframe';
+import Console from 'components/account/Worlds/World4/Console';
+import { NextSeo } from 'next-seo';
 
 const Laboratory = () => {
   const { state } = useContext(AppContext);

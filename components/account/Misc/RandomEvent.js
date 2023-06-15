@@ -1,8 +1,8 @@
-import { Stack, Typography } from "@mui/material";
-import { cleanUnderscore, eventsColors, prefix } from "../../../utility/helpers";
-import { format, isValid } from "date-fns";
-import React from "react";
-import styled from "@emotion/styled";
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, eventsColors, prefix } from '../../../utility/helpers';
+import { format, isValid } from 'date-fns';
+import React from 'react';
+import styled from '@emotion/styled';
 
 const RandomEvent = ({ eventName, mapName, date }) => {
   return <>

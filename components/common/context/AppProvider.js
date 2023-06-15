@@ -5,26 +5,23 @@ import demoJson from '../../../data/raw.json';
 
 import { useRouter } from 'next/router';
 import useInterval from '../../hooks/useInterval';
-import { getUserAndDeviceCode, getUserToken } from '../../../logins/google';
+import { getUserToken } from '../../../logins/google';
 import { CircularProgress, Stack } from '@mui/material';
-import { offlineTools } from '../ToolsDrawer';
+import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../logins/apple';
 
 export const AppContext = createContext({});
 
 function appReducer(state, action) {
   switch (action.type) {
-    case 'view': {
-      return { ...state, view: action.view };
+    case 'login': {
+      return { ...state, ...action.data };
     }
     case 'data': {
       return { ...state, ...action.data };
     }
     case 'logout': {
       return { characters: null, account: null, signedIn: false, emailPassword: null, appleLogin: null };
-    }
-    case 'queryParams': {
-      return { ...state, ...action.data };
     }
     case 'displayedCharacters': {
       return { ...state, displayedCharacters: action.data };
@@ -41,17 +38,8 @@ function appReducer(state, action) {
     case 'godPlanner': {
       return { ...state, godPlanner: action.data };
     }
-    case 'emailPasswordLogin': {
-      return { ...state, emailPasswordLogin: action.data };
-    }
-    case 'appleLogin': {
-      return { ...state, appleLogin: action.data };
-    }
     case 'loginError': {
       return { ...state, loginError: action.data };
-    }
-    case 'resetLoginError': {
-      return { ...state, loginError: '' };
     }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
@@ -97,7 +85,7 @@ const AppProvider = ({ children }) => {
     const pastebinImport = async () => {
       try {
         const url = encodeURIComponent(`https://pastebin.com/raw/${router?.query?.pb}`);
-        const data = await fetch(`https://api.allorigins.win/raw?url=${url}`);
+        const data = await fetch(`https://patient-dawn-9611.idleontoolboxappleauth.workers.dev/?url=${url}`);
         const content = await data.json();
         let parsedData;
         if (!Object.keys(content).includes('serverVars')) {
@@ -133,6 +121,7 @@ const AppProvider = ({ children }) => {
     let unsubscribe;
     (async () => {
       if (router?.query?.pb) {
+        await logout();
         pastebinImport()
       } else if (router?.query?.demo) {
         const { data, charNames, guildData, serverVars, lastUpdated } = demoJson;
@@ -170,9 +159,6 @@ const AppProvider = ({ children }) => {
     if (state?.trackers) {
       localStorage.setItem('trackers', JSON.stringify(state.trackers));
     }
-    if (state?.trackersOptions) {
-      localStorage.setItem('trackersOptions', JSON.stringify(state.trackersOptions));
-    }
     if (state?.godPlanner) {
       localStorage.setItem('godPlanner', JSON.stringify(state.godPlanner));
     }
@@ -183,43 +169,43 @@ const AppProvider = ({ children }) => {
         logout(true, { ...state, lastUpdated, signedIn: false, manualImport: true });
       }
     }
-    if (state?.emailPasswordLogin || state?.appleLogin) {
-      setWaitingForAuth(true);
-    }
-  }, [state?.trackers,
-    state?.trackersOptions,
+  }, [
+    state?.trackers,
     state?.filters,
     state?.displayedCharacters,
     state?.planner,
     state?.manualImport,
-    state?.emailPasswordLogin,
-    state?.godPlanner,
-    state?.appleLogin]);
+    state?.godPlanner
+  ]);
+
+  useEffect(() => {
+    if (!waitingForAuth && authCounter !== 0) {
+      setAuthCounter(0);
+    }
+  }, [waitingForAuth])
 
   useInterval(
     async () => {
       try {
         if (state?.signedIn) return;
-        let id_token, uid, type;
-        if (state?.emailPasswordLogin) {
-          id_token = state?.emailPasswordLogin?.accessToken;
-          uid = state?.emailPasswordLogin?.uid;
+        let id_token, uid;
+        if (state?.loginType === 'email') {
+          id_token = state?.loginData?.accessToken;
+          uid = state?.loginData?.uid;
         } else {
-          if (state?.appleLogin) {
-            const appleCredential = await geAppleStatus(state?.appleLogin)
+          if (state?.loginType === 'apple') {
+            const appleCredential = await geAppleStatus(state?.loginData)
             if (appleCredential?.id_token) {
               id_token = appleCredential;
-              type = 'apple';
             }
           } else {
-            const user = (await getUserToken(code?.deviceCode)) || {};
+            const user = (await getUserToken(state?.loginData?.deviceCode)) || {};
             if (user) {
               id_token = user?.id_token;
-              type = 'google'
             }
           }
           if (id_token) {
-            const userData = await signInWithToken(id_token, type);
+            const userData = await signInWithToken(id_token, state?.loginType);
             uid = userData?.uid;
           }
         }
@@ -235,8 +221,9 @@ const AppProvider = ({ children }) => {
           setListener({ func: unsubscribe });
           setWaitingForAuth(false);
           setAuthCounter(0);
-        } else if (authCounter > 5) {
+        } else if (authCounter > 8) {
           setWaitingForAuth(false);
+          dispatch({ type: 'loginError', data: 'Reached maximum retry limit, please re-open this dialog' });
         }
         setAuthCounter((counter) => counter + 1);
       } catch (error) {
@@ -244,15 +231,8 @@ const AppProvider = ({ children }) => {
         dispatch({ type: 'loginError', data: error?.stack });
       }
     },
-    waitingForAuth ? 6000 : null
+    waitingForAuth ? authCounter === 0 ? 1000 : 4000 : null
   );
-
-  const login = async () => {
-    const codeReqResponse = await getUserAndDeviceCode();
-    setUserCode({ userCode: codeReqResponse?.user_code, deviceCode: codeReqResponse?.device_code });
-    setWaitingForAuth(true);
-    return codeReqResponse?.user_code;
-  };
 
   const logout = (manualImport, data) => {
     typeof listener.func === 'function' && listener.func();
@@ -276,7 +256,10 @@ const AppProvider = ({ children }) => {
   };
 
   const handleCloudUpdate = (data, charNames, guildData, serverVars) => {
-    if (router?.query?.pb) return;
+    if (router?.query?.pb) {
+      const { pb, ...rest } = router.query
+      router.replace({ query: rest })
+    }
     console.info('rawData', {
       data,
       charNames,
@@ -308,8 +291,8 @@ const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         ...value,
-        login,
         logout,
+        waitingForAuth,
         setWaitingForAuth
       }}
     >

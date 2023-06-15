@@ -1,7 +1,7 @@
-import { Divider, Grid, Stack, Typography, useMediaQuery } from "@mui/material";
-import React from "react";
-import { cleanUnderscore, constellationIndexes } from "utility/helpers";
-import CheckIcon from "@mui/icons-material/Check";
+import { Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
+import React from 'react';
+import { cleanUnderscore, constellationIndexes } from 'utility/helpers';
+import CheckIcon from '@mui/icons-material/Check';
 
 const ConstellationsComp = ({ constellations = [] }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });

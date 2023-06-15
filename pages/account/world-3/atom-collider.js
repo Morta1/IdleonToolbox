@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "../../../utility/helpers";
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
 import processString from 'react-process-string';
-import { NextSeo } from "next-seo";
+import { NextSeo } from 'next-seo';
 
 const MAX_ATOMS = 10;
 

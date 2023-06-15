@@ -1,9 +1,9 @@
 import React from 'react';
-import styled from "@emotion/styled";
-import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
-import ItemDisplay from "../common/ItemDisplay";
-import { prefix } from "utility/helpers";
-import Tooltip from "../Tooltip";
+import styled from '@emotion/styled';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import ItemDisplay from '../common/ItemDisplay';
+import { prefix } from 'utility/helpers';
+import Tooltip from '../Tooltip';
 
 const Equipment = ({ equipment, tools, food, account, character }) => {
   return <Stack>

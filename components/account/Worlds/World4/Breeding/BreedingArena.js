@@ -1,5 +1,5 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, pascalCase } from "utility/helpers";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, pascalCase } from 'utility/helpers';
 
 const BreedingArena = ({ maxArenaLevel, arenaBonuses }) => {
   return <>

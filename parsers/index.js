@@ -1,30 +1,30 @@
-import { getCharacters, initializeCharacter } from "./character";
-import { getCards } from "./cards";
-import { getObols } from "./obols";
-import { applyStampsMulti, getStamps } from "./stamps";
-import { applyStatuesMulti, getStatues } from "./statues";
-import { getShrines } from "./shrines";
-import { getHighscores } from "./highScores";
-import { getGemShop } from "./gemShop";
-import { getShops } from "./shops";
+import { getCharacters, initializeCharacter } from './character';
+import { getCards } from './cards';
+import { getObols } from './obols';
+import { applyStampsMulti, getStamps } from './stamps';
+import { applyStatuesMulti, getStatues } from './statues';
+import { getShrines } from './shrines';
+import { getHighscores } from './highScores';
+import { getGemShop } from './gemShop';
+import { getShops } from './shops';
 import {
   applyArtifactBonusOnSigil,
   applyVialsMulti,
   getAlchemy,
   getEquippedBubbles,
   getLiquidCauldrons
-} from "./alchemy";
-import { getStorage } from "./storage";
-import { getBribes } from "./bribes";
-import { getConstellations, getStarSigns } from "./starSigns";
-import { getPrayers } from "./prayers";
-import { getCoinsArray, tryToParse } from "../utility/helpers";
-import { getForge } from "./forge";
-import { getConstruction, getTowers } from "./construction";
-import { getAchievements } from "./achievements";
-import { getRefinery } from "./refinery";
-import { getTasks } from "./tasks";
-import { getArcade } from "./arcade";
+} from './alchemy';
+import { getStorage } from './storage';
+import { getBribes } from './bribes';
+import { getConstellations, getStarSigns } from './starSigns';
+import { getPrayers } from './prayers';
+import { getCoinsArray, tryToParse } from '../utility/helpers';
+import { getForge } from './forge';
+import { getConstruction, getTowers } from './construction';
+import { getAchievements } from './achievements';
+import { getRefinery } from './refinery';
+import { getTasks } from './tasks';
+import { getArcade } from './arcade';
 import {
   calculateLeaderboard,
   calculateTotalSkillsLevel,
@@ -36,30 +36,30 @@ import {
   getLibraryBookTimes,
   getLooty,
   getTypeGen,
-} from "./misc";
-import { getSaltLick } from "./saltLick";
-import { getDungeons } from "./dungeons";
-import { applyMealsMulti, getCooking, getKitchens } from "./cooking";
-import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from "./lab";
-import { classes } from "../data/website-data";
-import { getGuild } from "./guild";
-import { getPrinter } from "./printer";
-import { getTraps } from "./traps";
-import { getQuests, isWorldFinished } from "./quests";
-import { getDeathNote } from "./deathNote";
-import { getBreeding } from "./breeding";
-import { getDivinity } from "./divinity";
-import { getArtifacts, getSailing } from "./sailing";
-import { getGaming } from "./gaming";
-import { getAtoms } from "./atomCollider";
-import { getRift, isRiftBonusUnlocked } from "./world-4/rift";
-import { getPostOfficeShipments } from "./postoffice";
+} from './misc';
+import { getSaltLick } from './saltLick';
+import { getDungeons } from './dungeons';
+import { applyMealsMulti, getCooking, getKitchens } from './cooking';
+import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './lab';
+import { classes } from '../data/website-data';
+import { getGuild } from './guild';
+import { getPrinter } from './printer';
+import { getTraps } from './traps';
+import { getQuests, isWorldFinished } from './quests';
+import { getDeathNote } from './deathNote';
+import { getBreeding } from './breeding';
+import { getDivinity } from './divinity';
+import { getArtifacts, getSailing } from './sailing';
+import { getGaming } from './gaming';
+import { getAtoms } from './atomCollider';
+import { getRift, isRiftBonusUnlocked } from './world-4/rift';
+import { getPostOfficeShipments } from './postoffice';
 
 export const parseData = (idleonData, charNames, guildData, serverVars) => {
   let accountData, charactersData;
 
   try {
-    console.info("%cStart Parsing", 'color:orange');
+    console.info('%cStart Parsing', 'color:orange');
     if (idleonData?.PlayerDATABASE) {
       charNames = Object.keys(idleonData?.PlayerDATABASE);
       charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
@@ -71,16 +71,14 @@ export const parseData = (idleonData, charNames, guildData, serverVars) => {
       );
       idleonData = { ...idleonData, ...charactersData };
     }
-    // } else {
     const parsed = serializeData(idleonData, charNames, guildData, serverVars);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
-    // }
     console.info('data', { account: accountData, characters: charactersData })
-    console.info("%cParsed successfully", 'color: green');
+    console.info('%cParsed successfully', 'color: green');
     return { account: accountData, characters: charactersData };
   } catch (err) {
-    console.error("Error while parsing data", err);
+    console.error('Error while parsing data', err);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'error', {
         event_category: 'error',

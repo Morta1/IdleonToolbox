@@ -1,7 +1,7 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import Tooltip from "../Tooltip";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import Tooltip from '../Tooltip';
 
 const Activity = ({ playerId, afkTarget, account, divStyle }) => {
   const isLabConnectedByDivinity = () => {

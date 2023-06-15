@@ -1,11 +1,11 @@
-import { Accordion, AccordionDetails, AccordionSummary, Divider, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
-import Box from "@mui/material/Box";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import { useTheme } from "@emotion/react";
+import { Accordion, AccordionDetails, AccordionSummary, Divider, Stack, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import Box from '@mui/material/Box';
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import { useTheme } from '@emotion/react';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
-import { deepPurple, green } from "@mui/material/colors";
+import { deepPurple, green } from '@mui/material/colors';
 import { patchNotes } from '../data/patch-notes';
 
 const PatchNotes = ({ patchNotes: pNotes }) => {

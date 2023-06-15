@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
-import { getShinyBonus } from "../../../../../parsers/breeding";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
+import { getShinyBonus } from '../../../../../parsers/breeding';
 
 const Bonuses = ({ list, currentRift, account }) => {
   const getTotalBonus = (riftBonus) => {

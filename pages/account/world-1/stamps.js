@@ -10,20 +10,20 @@ import {
   TextField,
   Typography,
   useMediaQuery
-} from "@mui/material";
-import React, { useCallback, useContext, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from "../../../utility/helpers";
-import styled from "@emotion/styled";
-import { getSigilBonus, getVialsBonusByEffect } from "../../../parsers/alchemy";
-import CoinDisplay from "components/common/CoinDisplay";
-import HtmlTooltip from "components/Tooltip";
+} from '@mui/material';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from '../../../utility/helpers';
+import styled from '@emotion/styled';
+import { getSigilBonus, getVialsBonusByEffect } from '../../../parsers/alchemy';
+import CoinDisplay from 'components/common/CoinDisplay';
+import HtmlTooltip from 'components/Tooltip';
 import debounce from 'lodash.debounce';
-import { NextSeo } from "next-seo";
-import { isRiftBonusUnlocked } from "../../../parsers/world-4/rift";
-import { flattenCraftObject } from "../../../parsers/items";
-import { crafts, items } from "../../../data/website-data";
-import { getHighestCapacityCharacter } from "../../../parsers/misc";
+import { NextSeo } from 'next-seo';
+import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
+import { flattenCraftObject } from '../../../parsers/items';
+import { crafts, items } from '../../../data/website-data';
+import { getHighestCapacityCharacter } from '../../../parsers/misc';
 
 const Stamps = () => {
   const { state } = useContext(AppContext);

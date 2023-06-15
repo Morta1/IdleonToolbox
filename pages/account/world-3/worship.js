@@ -1,11 +1,11 @@
-import React, { useContext, useMemo } from "react";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { AppContext } from "components/common/context/AppProvider";
-import ProgressBar from "components/common/ProgressBar";
-import { cleanUnderscore, prefix } from "utility/helpers";
-import Tooltip from "../../../components/Tooltip";
-import Box from "@mui/material/Box";
-import { NextSeo } from "next-seo";
+import React, { useContext, useMemo } from 'react';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { AppContext } from 'components/common/context/AppProvider';
+import ProgressBar from 'components/common/ProgressBar';
+import { cleanUnderscore, prefix } from 'utility/helpers';
+import Tooltip from '../../../components/Tooltip';
+import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 
 const Worship = () => {
   const { state } = useContext(AppContext);

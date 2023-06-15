@@ -1,17 +1,17 @@
-import InfoIcon from "@mui/icons-material/Info";
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { differenceInHours, differenceInMinutes } from "date-fns";
-import { getCoinsArray, kFormatter, notateNumber, numberWithCommas, pascalCase, prefix } from "utility/helpers";
-import Timer from "../common/Timer";
-import Tooltip from "../Tooltip";
-import Activity from "./Activity";
-import { TitleAndValue } from "../common/styles";
-import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from "../../parsers/character";
-import React, { useMemo } from "react";
-import { getMaxDamage, notateDamage } from "../../parsers/damage";
-import processString from "react-process-string";
-import styled from "@emotion/styled";
-import CoinDisplay from "../common/CoinDisplay";
+import InfoIcon from '@mui/icons-material/Info';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { differenceInHours, differenceInMinutes } from 'date-fns';
+import { getCoinsArray, kFormatter, notateNumber, numberWithCommas, pascalCase, prefix } from 'utility/helpers';
+import Timer from '../common/Timer';
+import Tooltip from '../Tooltip';
+import Activity from './Activity';
+import { TitleAndValue } from '../common/styles';
+import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '../../parsers/character';
+import React, { useMemo } from 'react';
+import { getMaxDamage, notateDamage } from '../../parsers/damage';
+import processString from 'react-process-string';
+import styled from '@emotion/styled';
+import CoinDisplay from '../common/CoinDisplay';
 
 const colors = {
   strength: "error.light",

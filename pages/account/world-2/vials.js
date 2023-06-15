@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Box, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import Tooltip from "components/Tooltip";
-import { vialCostsArray } from "../../../parsers/alchemy";
-import { NextSeo } from "next-seo";
+import React, { useContext } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import Tooltip from 'components/Tooltip';
+import { vialCostsArray } from '../../../parsers/alchemy';
+import { NextSeo } from 'next-seo';
 
 const Vials = () => {
   const { state } = useContext(AppContext);

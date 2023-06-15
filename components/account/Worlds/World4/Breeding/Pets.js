@@ -1,11 +1,11 @@
-import { Badge, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from "utility/helpers";
-import React, { useMemo, useState } from "react";
-import styled from "@emotion/styled";
-import { getJewelBonus, getLabBonus } from "../../../../../parsers/lab";
-import { getShinyBonus, getTimeToLevel } from "../../../../../parsers/breeding";
-import Timer from "../../../../common/Timer";
-import Tooltip from "../../../../Tooltip";
+import { Badge, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from 'utility/helpers';
+import React, { useMemo, useState } from 'react';
+import styled from '@emotion/styled';
+import { getJewelBonus, getLabBonus } from '../../../../../parsers/lab';
+import { getShinyBonus, getTimeToLevel } from '../../../../../parsers/breeding';
+import Timer from '../../../../common/Timer';
+import Tooltip from '../../../../Tooltip';
 
 const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);

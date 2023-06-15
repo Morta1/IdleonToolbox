@@ -1,12 +1,11 @@
-import React, { useMemo } from "react";
-import Timer from "components/common/Timer";
-import styled from "@emotion/styled";
-import { growth, prefix } from "utility/helpers";
-import Tooltip from "../Tooltip";
-import { TalentTooltip } from "../common/styles";
-import { getPostOfficeBonus } from "parsers/postoffice";
-import { Stack } from "@mui/material";
-import { relevantTalents } from "../../parsers/talents";
+import React, { useMemo } from 'react';
+import Timer from 'components/common/Timer';
+import { growth, prefix } from 'utility/helpers';
+import Tooltip from '../Tooltip';
+import { TalentTooltip } from '../common/styles';
+import { getPostOfficeBonus } from 'parsers/postoffice';
+import { Stack } from '@mui/material';
+import { relevantTalents } from '../../parsers/talents';
 
 const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }) => {
   const cooldownBonus = getPostOfficeBonus(postOffice, "Magician_Starterpack", 2);

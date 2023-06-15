@@ -1,11 +1,11 @@
-import { Tab, Tabs, useMediaQuery } from "@mui/material";
-import React, { useContext, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import ConstellationsComp from "components/account/Misc/Constellations";
-import StarSigns from "components/account/Misc/StarSigns";
-import { NextSeo } from "next-seo";
-import { getShinyBonus } from "../../parsers/breeding";
-import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
+import { Tab, Tabs, useMediaQuery } from '@mui/material';
+import React, { useContext, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import ConstellationsComp from 'components/account/Misc/Constellations';
+import StarSigns from 'components/account/Misc/StarSigns';
+import { NextSeo } from 'next-seo';
+import { getShinyBonus } from '../../parsers/breeding';
+import { isRiftBonusUnlocked } from '../../parsers/world-4/rift';
 
 const tabs = ['Constellations', 'Star Signs'];
 

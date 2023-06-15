@@ -1,17 +1,17 @@
-import React, { useContext, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import BreedingUpgrades from "components/account/Worlds/World4/Breeding/BreedingUpgrades";
-import BreedingArena from "components/account/Worlds/World4/Breeding/BreedingArena";
-import { prefix } from "utility/helpers";
-import { NextSeo } from "next-seo";
-import Pets from "../../../components/account/Worlds/World4/Breeding/Pets";
-import { getJewelBonus, getLabBonus } from "../../../parsers/lab";
-import { getMealsBonusByEffectOrStat } from "../../../parsers/cooking";
-import { getBubbleBonus } from "../../../parsers/alchemy";
-import { getAchievementStatus } from "../../../parsers/achievements";
-import { isMasteryBonusUnlocked } from "../../../parsers/misc";
-import Timer from "../../../components/common/Timer";
+import React, { useContext, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import BreedingUpgrades from 'components/account/Worlds/World4/Breeding/BreedingUpgrades';
+import BreedingArena from 'components/account/Worlds/World4/Breeding/BreedingArena';
+import { prefix } from 'utility/helpers';
+import { NextSeo } from 'next-seo';
+import Pets from '../../../components/account/Worlds/World4/Breeding/Pets';
+import { getJewelBonus, getLabBonus } from '../../../parsers/lab';
+import { getMealsBonusByEffectOrStat } from '../../../parsers/cooking';
+import { getBubbleBonus } from '../../../parsers/alchemy';
+import { getAchievementStatus } from '../../../parsers/achievements';
+import { isMasteryBonusUnlocked } from '../../../parsers/misc';
+import Timer from '../../../components/common/Timer';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);

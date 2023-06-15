@@ -1,14 +1,14 @@
-import { Divider, Stack } from "@mui/material";
-import ObolsView from "components/account/Worlds/World2/ObolsView";
-import Currencies from "components/account/Misc/Currencies";
-import Shrines from "components/account/Worlds/World3/Shrines";
-import Statues from "components/account/Worlds/World1/Statues";
-import Highscores from "components/account/Misc/Highscores";
-import Totals from "components/account/Misc/Totals";
-import { AppContext } from "components/common/context/AppProvider";
-import React, { useContext } from "react";
-import { NextSeo } from "next-seo";
-import Box from "@mui/material/Box"; // Grid version 2
+import { Divider, Stack } from '@mui/material';
+import ObolsView from 'components/account/Worlds/World2/ObolsView';
+import Currencies from 'components/account/Misc/Currencies';
+import Shrines from 'components/account/Worlds/World3/Shrines';
+import Statues from 'components/account/Worlds/World1/Statues';
+import Highscores from 'components/account/Misc/Highscores';
+import Totals from 'components/account/Misc/Totals';
+import { AppContext } from 'components/common/context/AppProvider';
+import React, { useContext } from 'react';
+import { NextSeo } from 'next-seo';
+import Box from '@mui/material/Box'; // Grid version 2
 
 const dividerSx = { marginTop: 4, display: { xs: "flex", sm: "none" } };
 

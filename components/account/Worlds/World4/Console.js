@@ -1,9 +1,9 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "utility/helpers";
-import React from "react";
-import Tooltip from "components/Tooltip";
-import styled from "@emotion/styled";
-import Box from "@mui/material/Box";
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from 'utility/helpers';
+import React from 'react';
+import Tooltip from 'components/Tooltip';
+import styled from '@emotion/styled';
+import Box from '@mui/material/Box';
 
 const chipSlotReq = [5, 10, 15, 25, 35, 50, 75];
 const Console = ({ chips, playersChips, characters }) => {

@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "../../../../../utility/helpers";
-import styled from "@emotion/styled";
-import Timer from "../../../../common/Timer";
-import Captain from "./Captain";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
+import styled from '@emotion/styled';
+import Timer from '../../../../common/Timer';
+import Captain from './Captain';
 
 const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCaptains, lastUpdated }) => {
   const getShipsOverview = () => {

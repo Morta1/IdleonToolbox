@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
-import { AppContext } from "../../components/common/context/AppProvider";
-import { getRandomEvents } from "../../parsers/misc";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import RandomEvent from "../../components/account/Misc/RandomEvent";
+import React, { useContext } from 'react';
+import { AppContext } from '../../components/common/context/AppProvider';
+import { getRandomEvents } from '../../parsers/misc';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import RandomEvent from '../../components/account/Misc/RandomEvent';
 
 const RandomEvents = () => {
   const { state } = useContext(AppContext);

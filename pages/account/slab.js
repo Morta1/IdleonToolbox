@@ -1,10 +1,10 @@
-import { AppContext } from "components/common/context/AppProvider";
-import React, { forwardRef, useContext, useMemo, useState } from "react";
-import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "utility/helpers";
-import HtmlTooltip from "components/Tooltip";
-import { NextSeo } from "next-seo";
-import { filteredLootyItems } from "../../parsers/parseMaps";
+import { AppContext } from 'components/common/context/AppProvider';
+import React, { forwardRef, useContext, useMemo, useState } from 'react';
+import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from 'utility/helpers';
+import HtmlTooltip from 'components/Tooltip';
+import { NextSeo } from 'next-seo';
+import { filteredLootyItems } from '../../parsers/parseMaps';
 import Image from 'next/image';
 
 const Slab = () => {

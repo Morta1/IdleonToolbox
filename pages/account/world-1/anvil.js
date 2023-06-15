@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Badge, Card, CardContent, Stack, Typography } from "@mui/material";
-import { fillArrayToLength, prefix } from "utility/helpers";
-import Timer from "components/common/Timer";
-import styled from "@emotion/styled";
-import ProgressBar from "components/common/ProgressBar";
-import { getPlayerAnvil, getTimeTillCap } from "../../../parsers/anvil";
-import { NextSeo } from "next-seo";
+import React, { useContext } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
+import { fillArrayToLength, prefix } from 'utility/helpers';
+import Timer from 'components/common/Timer';
+import styled from '@emotion/styled';
+import ProgressBar from 'components/common/ProgressBar';
+import { getPlayerAnvil, getTimeTillCap } from '../../../parsers/anvil';
+import { NextSeo } from 'next-seo';
 
 const Anvil = () => {
   const { state } = useContext(AppContext);

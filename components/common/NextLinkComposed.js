@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import MuiLink from '@mui/material/Link';
-import { Typography } from "@mui/material";
+import { Typography } from '@mui/material';
 
 export const NextLinkComposed = React.forwardRef(
   function NextLinkComposed(props, ref) {
@@ -20,7 +20,7 @@ export const NextLinkComposed = React.forwardRef(
         passHref
         locale={locale}
       >
-        <Typography ref={ref} {...other}>{children}</Typography>
+        <Typography component={'span'} ref={ref} {...other}>{children}</Typography>
       </NextLink>
     );
   },

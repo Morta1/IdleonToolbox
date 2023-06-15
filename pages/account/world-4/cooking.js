@@ -1,9 +1,9 @@
-import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import React, { useContext, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import Kitchens from "components/account/Worlds/World4/Kitchens";
-import Meals from "components/account/Worlds/World4/Meals";
-import { NextSeo } from "next-seo";
+import { Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import React, { useContext, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import Kitchens from 'components/account/Worlds/World4/Kitchens';
+import Meals from 'components/account/Worlds/World4/Meals';
+import { NextSeo } from 'next-seo';
 
 const Cooking = () => {
   const { state } = useContext(AppContext);

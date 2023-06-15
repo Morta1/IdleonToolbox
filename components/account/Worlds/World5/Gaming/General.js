@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, getBitIndex, notateNumber, prefix } from "../../../../../utility/helpers";
-import Timer from "../../../../common/Timer";
-import Tooltip from "../../../../Tooltip";
-import InfoIcon from "@mui/icons-material/Info";
-import styled from "@emotion/styled";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '../../../../../utility/helpers';
+import Timer from '../../../../common/Timer';
+import Tooltip from '../../../../Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
+import styled from '@emotion/styled';
 
 const General = ({
                    bits,

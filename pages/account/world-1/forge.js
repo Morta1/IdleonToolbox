@@ -1,9 +1,9 @@
-import { AppContext } from "../../../components/common/context/AppProvider";
-import React, { useContext, useState } from "react";
-import { Card, CardContent, Grid, Stack, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import { getCoinsArray, prefix } from "../../../utility/helpers";
-import CoinDisplay from "../../../components/common/CoinDisplay";
-import { NextSeo } from "next-seo";
+import { AppContext } from '../../../components/common/context/AppProvider';
+import React, { useContext, useState } from 'react';
+import { Card, CardContent, Grid, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { getCoinsArray, prefix } from '../../../utility/helpers';
+import CoinDisplay from '../../../components/common/CoinDisplay';
+import { NextSeo } from 'next-seo';
 
 const slot = {
   width: 72,

@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { itemsArray } from "data/website-data";
-import { addEquippedItems, findItemByDescriptionInInventory, findItemInInventory, getAllItems } from "parsers/items";
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { itemsArray } from 'data/website-data';
+import { addEquippedItems, findItemByDescriptionInInventory, findItemInInventory, getAllItems } from 'parsers/items';
 import {
   Autocomplete,
   Box,
@@ -17,16 +17,16 @@ import {
   Stack,
   TextField,
   Typography
-} from "@mui/material";
-import { kFormatter, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import ItemDisplay from "components/common/ItemDisplay";
-import { AppContext } from "components/common/context/AppProvider";
-import { NextSeo } from "next-seo";
-import IconButton from "@mui/material/IconButton";
+} from '@mui/material';
+import { kFormatter, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import ItemDisplay from 'components/common/ItemDisplay';
+import { AppContext } from 'components/common/context/AppProvider';
+import { NextSeo } from 'next-seo';
+import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
-import debounce from "lodash.debounce";
-import HtmlTooltip from "../../components/Tooltip";
+import debounce from 'lodash.debounce';
+import HtmlTooltip from '../../components/Tooltip';
 
 const filterOptions = createFilterOptions({
   trim: true,

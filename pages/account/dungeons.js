@@ -1,12 +1,12 @@
-import React, { useContext, useMemo } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, growth, prefix } from "utility/helpers";
-import { AppContext } from "components/common/context/AppProvider";
-import styled from "@emotion/styled";
-import Timer from "components/common/Timer";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { calcHappyHours } from "../../parsers/dungeons";
-import { NextSeo } from "next-seo";
+import React, { useContext, useMemo } from 'react';
+import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, growth, prefix } from 'utility/helpers';
+import { AppContext } from 'components/common/context/AppProvider';
+import styled from '@emotion/styled';
+import Timer from 'components/common/Timer';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { calcHappyHours } from '../../parsers/dungeons';
+import { NextSeo } from 'next-seo';
 
 const insideDungeonUpgradeMaxLevel = 100;
 const flurboUpgradeMaxLevel = 50;

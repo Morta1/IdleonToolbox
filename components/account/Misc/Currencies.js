@@ -1,7 +1,7 @@
-import CoinDisplay from "components/common/CoinDisplay";
-import { Stack, Typography } from "@mui/material";
-import { IconWithText, TitleAndValue } from "components/common/styles";
-import HtmlTooltip from "../../Tooltip";
+import CoinDisplay from 'components/common/CoinDisplay';
+import { Stack, Typography } from '@mui/material';
+import { IconWithText, TitleAndValue } from 'components/common/styles';
+import HtmlTooltip from '../../Tooltip';
 
 const imgStyle = { style: { width: 32, height: 32, objectFit: 'contain' } };
 const Currencies = ({

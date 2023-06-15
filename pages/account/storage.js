@@ -1,10 +1,10 @@
-import { AppContext } from "components/common/context/AppProvider";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import HtmlTooltip from "components/Tooltip";
-import { NextSeo } from "next-seo";
+import { AppContext } from 'components/common/context/AppProvider';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import HtmlTooltip from 'components/Tooltip';
+import { NextSeo } from 'next-seo';
 
 const Looty = () => {
   const { state } = useContext(AppContext);

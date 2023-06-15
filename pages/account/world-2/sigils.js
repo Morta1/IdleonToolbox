@@ -1,14 +1,14 @@
-import React, { useContext, useMemo } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import { PlayersList } from "../../../components/common/styles";
-import { isArtifactAcquired } from "../../../parsers/sailing";
-import { NextSeo } from "next-seo";
-import { getAchievementStatus } from "../../../parsers/achievements";
-import { getSigilBonus } from "../../../parsers/alchemy";
-import Timer from "../../../components/common/Timer";
+import React, { useContext, useMemo } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import { PlayersList } from '../../../components/common/styles';
+import { isArtifactAcquired } from '../../../parsers/sailing';
+import { NextSeo } from 'next-seo';
+import { getAchievementStatus } from '../../../parsers/achievements';
+import { getSigilBonus } from '../../../parsers/alchemy';
+import Timer from '../../../components/common/Timer';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);

@@ -1,12 +1,12 @@
-import { getMaxClaimTime, getSecPerBall } from "../../parsers/dungeons";
-import { getBuildCost } from "../../parsers/construction";
-import { vialCostsArray } from "../../parsers/alchemy";
-import { maxNumberOfSpiceClicks } from "../../parsers/cooking";
-import { getDuration } from "../helpers";
-import { isRiftBonusUnlocked } from "../../parsers/world-4/rift";
-import { items, liquidsShop } from "../../data/website-data";
-import { hasMissingMats } from "../../parsers/refinery";
-import { calcTotals } from "../../parsers/printer";
+import { getMaxClaimTime, getSecPerBall } from '../../parsers/dungeons';
+import { getBuildCost } from '../../parsers/construction';
+import { vialCostsArray } from '../../parsers/alchemy';
+import { maxNumberOfSpiceClicks } from '../../parsers/cooking';
+import { getDuration } from '../helpers';
+import { isRiftBonusUnlocked } from '../../parsers/world-4/rift';
+import { items, liquidsShop } from '../../data/website-data';
+import { hasMissingMats } from '../../parsers/refinery';
+import { calcTotals } from '../../parsers/printer';
 
 export const atomColliderAlerts = (account, options) => {
   const alerts = {}

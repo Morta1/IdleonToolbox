@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "../../components/common/context/AppProvider";
-import { talentPagesMap } from "../../parsers/talents";
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { notateNumber, prefix } from "../../utility/helpers";
-import styled from "@emotion/styled";
-import { NextSeo } from "next-seo";
+import { useContext, useEffect, useState } from 'react';
+import { AppContext } from '../../components/common/context/AppProvider';
+import { talentPagesMap } from '../../parsers/talents';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { notateNumber, prefix } from '../../utility/helpers';
+import styled from '@emotion/styled';
+import { NextSeo } from 'next-seo';
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);

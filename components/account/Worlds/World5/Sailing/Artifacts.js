@@ -1,11 +1,11 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, prefix } from "../../../../../utility/helpers";
-import styled from "@emotion/styled";
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
+import styled from '@emotion/styled';
 import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from "../../../../Tooltip";
-import { TitleAndValue } from "../../../../common/styles";
-import processString from "react-process-string";
+import Tooltip from '../../../../Tooltip';
+import { TitleAndValue } from '../../../../common/styles';
+import processString from 'react-process-string';
 
 const Artifacts = ({ artifacts }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>

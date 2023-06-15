@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
-import { AppContext } from "../../../components/common/context/AppProvider";
-import { NextSeo } from "next-seo";
-import Tasks from "../../../components/account/Worlds/World4/Rift/Tasks";
-import Bonuses from "../../../components/account/Worlds/World4/Rift/Bonuses";
-import SkillMastery from "../../../components/account/Worlds/World4/Rift/SkillMastery";
-import ConstructMastery from "../../../components/account/Worlds/World4/Rift/ConstructMastery";
+import { Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { NextSeo } from 'next-seo';
+import Tasks from '../../../components/account/Worlds/World4/Rift/Tasks';
+import Bonuses from '../../../components/account/Worlds/World4/Rift/Bonuses';
+import SkillMastery from '../../../components/account/Worlds/World4/Rift/SkillMastery';
+import ConstructMastery from '../../../components/account/Worlds/World4/Rift/ConstructMastery';
 
 const Rift = () => {
   const { state } = useContext(AppContext);

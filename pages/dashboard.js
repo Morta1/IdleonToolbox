@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { AppContext } from "../components/common/context/AppProvider";
-import { Box, Stack, Typography, useMediaQuery } from "@mui/material";
-import Characters from "../components/dashboard/Characters";
-import Account from "../components/dashboard/Account";
+import { AppContext } from '../components/common/context/AppProvider';
+import { Box, Stack, Typography, useMediaQuery } from '@mui/material';
+import Characters from '../components/dashboard/Characters';
+import Account from '../components/dashboard/Account';
 import SettingsIcon from '@mui/icons-material/Settings';
-import IconButton from "@mui/material/IconButton";
-import { isProd } from "../utility/helpers";
-import Etc from "../components/dashboard/Etc";
-import { NextSeo } from "next-seo";
-import { getRawShopItems } from "../parsers/shops";
-import { Adsense } from "@ctrl/react-adsense";
+import IconButton from '@mui/material/IconButton';
+import { isProd } from '../utility/helpers';
+import Etc from '../components/dashboard/Etc';
+import { NextSeo } from 'next-seo';
+import { getRawShopItems } from '../parsers/shops';
+import { Adsense } from '@ctrl/react-adsense';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import DashboardSettings from "../components/common/DashboardSettings";
+import DashboardSettings from '../components/common/DashboardSettings';
 
 const baseTrackers = {
   account: {

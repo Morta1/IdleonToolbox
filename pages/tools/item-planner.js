@@ -1,5 +1,5 @@
-import { crafts, itemsArray } from "data/website-data";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { crafts, itemsArray } from 'data/website-data';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -17,21 +17,21 @@ import {
   Stack,
   TextField,
   Typography,
-} from "@mui/material";
-import { AppContext } from "components/common/context/AppProvider";
-import { cleanUnderscore, downloadFile, numberWithCommas, prefix, tryToParse } from "utility/helpers";
-import Button from "@mui/material/Button";
-import { addEquippedItems, flattenCraftObject, getAllItems } from "parsers/items";
-import IconButton from "@mui/material/IconButton";
+} from '@mui/material';
+import { AppContext } from 'components/common/context/AppProvider';
+import { cleanUnderscore, downloadFile, numberWithCommas, prefix, tryToParse } from 'utility/helpers';
+import Button from '@mui/material/Button';
+import { addEquippedItems, flattenCraftObject, getAllItems } from 'parsers/items';
+import IconButton from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveIcon from '@mui/icons-material/Remove';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import AddIcon from "@mui/icons-material/Add";
+import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import styled from "@emotion/styled";
-import ItemsList from "components/tools/item-planner/ItemsList";
-import Tooltip from "components/Tooltip";
-import { NextSeo } from "next-seo";
+import styled from '@emotion/styled';
+import ItemsList from 'components/tools/item-planner/ItemsList';
+import Tooltip from 'components/Tooltip';
+import { NextSeo } from 'next-seo';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 

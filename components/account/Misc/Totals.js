@@ -1,8 +1,8 @@
-import { Stack, Typography } from "@mui/material";
-import { useMemo } from "react";
-import { notateNumber, prefix } from "utility/helpers";
-import { calcStampLevels } from "../../../parsers/stamps";
-import Tooltip from "../../Tooltip";
+import { Stack, Typography } from '@mui/material';
+import { useMemo } from 'react';
+import { notateNumber, prefix } from 'utility/helpers';
+import { calcStampLevels } from '../../../parsers/stamps';
+import Tooltip from '../../Tooltip';
 
 const Totals = ({ account }) => {
   const calcBubbleLevels = (allBubbles) => {

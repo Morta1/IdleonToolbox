@@ -1,8 +1,8 @@
-import Tooltip from "../Tooltip";
-import { notateNumber, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import ItemDisplay from "../common/ItemDisplay";
-import { Card, CardContent, Divider, Stack, Typography, useMediaQuery } from "@mui/material";
+import Tooltip from '../Tooltip';
+import { notateNumber, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import ItemDisplay from '../common/ItemDisplay';
+import { Card, CardContent, Divider, Stack, Typography, useMediaQuery } from '@mui/material';
 
 const Bags = ({ bags, capBags }) => {
   const isXs = useMediaQuery('(max-width: 370px)', { noSsr: true });

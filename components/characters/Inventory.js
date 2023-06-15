@@ -1,7 +1,7 @@
-import { Stack, Typography } from "@mui/material";
-import { notateNumber, prefix, cleanUnderscore } from "../../utility/helpers";
-import { TitleAndValue } from "../common/styles";
-import Tooltip from "../Tooltip";
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, prefix } from '../../utility/helpers';
+import { TitleAndValue } from '../common/styles';
+import Tooltip from '../Tooltip';
 
 const Inventory = ({ inventory, inventorySlots }) => {
   return <Stack sx={{ width: 250 }}>

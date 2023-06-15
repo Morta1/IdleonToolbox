@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, kFormatter, prefix, round } from "utility/helpers";
-import styled from "@emotion/styled";
-import { NextSeo } from "next-seo";
-import { calcPrayerCost } from "../../../parsers/prayers";
+import React, { useContext } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, kFormatter, prefix, round } from 'utility/helpers';
+import styled from '@emotion/styled';
+import { NextSeo } from 'next-seo';
+import { calcPrayerCost } from '../../../parsers/prayers';
 
 const Prayers = () => {
   const { state } = useContext(AppContext);

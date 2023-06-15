@@ -1,9 +1,9 @@
-import React, { forwardRef } from "react";
-import { cleanUnderscore, growth, numberWithCommas, prefix } from "utility/helpers";
-import { Badge, Stack, Typography } from "@mui/material";
-import styled from "@emotion/styled";
-import Tooltip from "../Tooltip";
-import { calcCardBonus } from "parsers/cards";
+import React, { forwardRef } from 'react';
+import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
+import { Badge, Stack, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import Tooltip from '../Tooltip';
+import { calcCardBonus } from 'parsers/cards';
 
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon } = props

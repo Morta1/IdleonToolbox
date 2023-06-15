@@ -1,15 +1,15 @@
 import React, { Fragment, useMemo } from 'react';
-import Library from "../account/Worlds/World3/Library";
-import { Card, CardContent, Divider, Stack, Typography } from "@mui/material";
-import styled from "@emotion/styled";
-import { notateNumber, prefix } from "../../utility/helpers";
-import { getGiantMobChance, getRandomEvents } from "../../parsers/misc";
-import Tooltip from "../Tooltip";
-import Timer from "../common/Timer";
-import Trade from "../account/Worlds/World5/Sailing/Trade";
-import RandomEvent from "../account/Misc/RandomEvent";
-import { calcHappyHours } from "../../parsers/dungeons";
-import { getBuildCost } from "../../parsers/construction";
+import Library from '../account/Worlds/World3/Library';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import styled from '@emotion/styled';
+import { notateNumber, prefix } from '../../utility/helpers';
+import { getGiantMobChance, getRandomEvents } from '../../parsers/misc';
+import Tooltip from '../Tooltip';
+import Timer from '../common/Timer';
+import Trade from '../account/Worlds/World5/Sailing/Trade';
+import RandomEvent from '../account/Misc/RandomEvent';
+import { calcHappyHours } from '../../parsers/dungeons';
+import { getBuildCost } from '../../parsers/construction';
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);

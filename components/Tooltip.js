@@ -1,5 +1,5 @@
-import { Tooltip, tooltipClasses } from "@mui/material";
-import styled from "@emotion/styled";
+import { Tooltip, tooltipClasses } from '@mui/material';
+import styled from '@emotion/styled';
 
 const HtmlTooltip = styled(({ className, children, followCursor = true, ...props }) => (
   <Tooltip followCursor={followCursor} enterTouchDelay={200} {...props}

@@ -1,5 +1,5 @@
-import { interpolate } from "flubber";
-import { useTransform } from "framer-motion";
+import { interpolate } from 'flubber';
+import { useTransform } from 'framer-motion';
 
 export const getIndex = (_, index) => index;
 

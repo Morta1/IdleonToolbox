@@ -16,22 +16,22 @@ import {
   TextField,
   Typography,
   useMediaQuery
-} from "@mui/material";
-import { cleanUnderscore, growth, isProd, prefix } from "utility/helpers";
-import Tooltip from "components/Tooltip";
+} from '@mui/material';
+import { cleanUnderscore, growth, isProd, prefix } from 'utility/helpers';
+import Tooltip from 'components/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
-import { classes } from "data/website-data";
-import MenuItem from "@mui/material/MenuItem";
+import { classes } from 'data/website-data';
+import MenuItem from '@mui/material/MenuItem';
 import allBuilds from 'data/builds.json';
-import styled from "@emotion/styled";
-import { useRouter } from "next/router";
+import styled from '@emotion/styled';
+import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import IconButton from "@mui/material/IconButton";
+import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
-import debounce from "lodash.debounce";
-import Button from "@mui/material/Button";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
-import { Adsense } from "@ctrl/react-adsense";
+import debounce from 'lodash.debounce';
+import Button from '@mui/material/Button';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import { Adsense } from '@ctrl/react-adsense';
 
 const allClasses = Object.keys(allBuilds);
 

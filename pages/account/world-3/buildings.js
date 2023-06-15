@@ -1,13 +1,13 @@
-import React, { useContext, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import { constructionMasteryThresholds, getBuildCost } from "../../../parsers/construction";
-import { NextSeo } from "next-seo";
-import Timer from "../../../components/common/Timer";
-import { getAtomBonus } from "../../../parsers/atomCollider";
-import Tooltip from "../../../components/Tooltip";
+import React, { useContext, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import { constructionMasteryThresholds, getBuildCost } from '../../../parsers/construction';
+import { NextSeo } from 'next-seo';
+import Timer from '../../../components/common/Timer';
+import { getAtomBonus } from '../../../parsers/atomCollider';
+import Tooltip from '../../../components/Tooltip';
 
 const Buildings = () => {
   const { state } = useContext(AppContext);

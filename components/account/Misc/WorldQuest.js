@@ -1,10 +1,10 @@
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import React from "react";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import React from 'react';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedOutlinedIcon from '@mui/icons-material/RadioButtonUncheckedOutlined';
-import { Accordion, AccordionDetails, AccordionSummary, Avatar, Badge, Box, Stack, Typography } from "@mui/material";
-import styled from "@emotion/styled";
+import { Accordion, AccordionDetails, AccordionSummary, Avatar, Badge, Box, Stack, Typography } from '@mui/material';
+import styled from '@emotion/styled';
 import {
   Timeline,
   TimelineConnector,
@@ -13,10 +13,10 @@ import {
   TimelineItem,
   TimelineOppositeContent,
   TimelineSeparator
-} from "@mui/lab";
-import Tooltip from "components/Tooltip";
-import CoinDisplay from "components/common/CoinDisplay";
-import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix } from "utility/helpers";
+} from '@mui/lab';
+import Tooltip from 'components/Tooltip';
+import CoinDisplay from 'components/common/CoinDisplay';
+import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix } from 'utility/helpers';
 
 const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
   const getQuestIndicator = (status) => {

@@ -10,15 +10,15 @@ import {
   Tabs,
   TextField,
   Typography
-} from "@mui/material";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
-import React, { useState } from "react";
-import Switch from "./Switch";
-import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import Box from "@mui/material/Box";
-import { prefix } from "../../utility/helpers";
+} from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import React, { useState } from 'react';
+import Switch from './Switch';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import Box from '@mui/material/Box';
+import { prefix } from '../../utility/helpers';
 
 const DashboardSettings = ({ open, onClose, config, onChange }) => {
   const [selectedTab, setSelectedTab] = useState(0);

@@ -1,8 +1,8 @@
-import styled from "@emotion/styled";
-import { cleanUnderscore, notateNumber, prefix } from "utility/helpers";
-import { Divider, Stack, Typography } from "@mui/material";
-import { TitleAndValue } from "./styles";
-import { getGoldenFoodBonus } from "../../parsers/misc";
+import styled from '@emotion/styled';
+import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
+import { Divider, Stack, Typography } from '@mui/material';
+import { TitleAndValue } from './styles';
+import { getGoldenFoodBonus } from '../../parsers/misc';
 
 const ItemDisplay = ({
                        character, account,

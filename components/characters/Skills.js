@@ -1,9 +1,9 @@
-import { notateNumber, prefix } from "../../utility/helpers";
-import Box from "@mui/material/Box";
-import { capitalize, Card, CardContent, Stack, Typography } from "@mui/material";
-import Tooltip from "../Tooltip";
-import React from "react";
-import ProgressBar from "../common/ProgressBar";
+import { notateNumber, prefix } from '../../utility/helpers';
+import Box from '@mui/material/Box';
+import { capitalize, Card, CardContent, Stack, Typography } from '@mui/material';
+import Tooltip from '../Tooltip';
+import React from 'react';
+import ProgressBar from '../common/ProgressBar';
 
 const getRankColor = (rank) => {
   const colorMap = {

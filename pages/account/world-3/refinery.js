@@ -7,27 +7,27 @@ import {
   Stack,
   Typography,
   useMediaQuery
-} from "@mui/material";
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from "utility/helpers";
-import styled from "@emotion/styled";
-import Timer from "components/common/Timer";
-import { getVialsBonusByEffect } from "parsers/alchemy";
-import { getPostOfficeBonus } from "parsers/postoffice";
-import ProgressBar from "components/common/ProgressBar";
-import { getStampsBonusByEffect } from "../../../parsers/stamps";
-import { getHighestLevelOfClass } from "../../../parsers/misc";
-import { getFamilyBonusBonus } from "../../../parsers/family";
-import { classFamilyBonuses } from "../../../data/website-data";
-import { getHighestTalentByClass } from "../../../parsers/talents";
-import { NextSeo } from "next-seo";
-import { getShinyBonus } from "../../../parsers/breeding";
-import { isRiftBonusUnlocked } from "../../../parsers/world-4/rift";
-import { constructionMasteryThresholds } from "../../../parsers/construction";
-import Tooltip from "../../../components/Tooltip";
-import { calcTotals } from "../../../parsers/printer";
-import { calcTotalCritters } from "../../../parsers/traps";
+} from '@mui/material';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import styled from '@emotion/styled';
+import Timer from 'components/common/Timer';
+import { getVialsBonusByEffect } from 'parsers/alchemy';
+import { getPostOfficeBonus } from 'parsers/postoffice';
+import ProgressBar from 'components/common/ProgressBar';
+import { getStampsBonusByEffect } from '../../../parsers/stamps';
+import { getHighestLevelOfClass } from '../../../parsers/misc';
+import { getFamilyBonusBonus } from '../../../parsers/family';
+import { classFamilyBonuses } from '../../../data/website-data';
+import { getHighestTalentByClass } from '../../../parsers/talents';
+import { NextSeo } from 'next-seo';
+import { getShinyBonus } from '../../../parsers/breeding';
+import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
+import { constructionMasteryThresholds } from '../../../parsers/construction';
+import Tooltip from '../../../components/Tooltip';
+import { calcTotals } from '../../../parsers/printer';
+import { calcTotalCritters } from '../../../parsers/traps';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };

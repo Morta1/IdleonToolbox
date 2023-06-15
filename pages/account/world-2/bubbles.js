@@ -7,19 +7,20 @@ import {
   Stack,
   Tab,
   Tabs,
-  TextField, Tooltip,
+  TextField,
+  Tooltip,
   Typography,
   useMediaQuery
-} from "@mui/material";
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { AppContext } from "components/common/context/AppProvider";
-import styled from "@emotion/styled";
-import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from "utility/helpers";
-import HtmlTooltip from "components/Tooltip";
-import debounce from "lodash.debounce";
-import { isArtifactAcquired } from "../../../parsers/sailing";
-import { NextSeo } from "next-seo";
-import { getBubbleAtomCost, getBubbleBonus, getVialsBonusByStat } from "../../../parsers/alchemy";
+} from '@mui/material';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppContext } from 'components/common/context/AppProvider';
+import styled from '@emotion/styled';
+import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
+import HtmlTooltip from 'components/Tooltip';
+import debounce from 'lodash.debounce';
+import { isArtifactAcquired } from '../../../parsers/sailing';
+import { NextSeo } from 'next-seo';
+import { getBubbleAtomCost, getBubbleBonus, getVialsBonusByStat } from '../../../parsers/alchemy';
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
