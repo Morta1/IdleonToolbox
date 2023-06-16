@@ -1,4 +1,4 @@
-import { items, traps as trapsInfo } from "../data/website-data";
+import { items, traps as trapsInfo } from '../data/website-data';
 
 export const getTraps = (charactersData) => {
   return parseTraps(charactersData);

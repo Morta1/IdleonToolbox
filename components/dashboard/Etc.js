@@ -10,6 +10,7 @@ import Trade from '../account/Worlds/World5/Sailing/Trade';
 import RandomEvent from '../account/Misc/RandomEvent';
 import { calcHappyHours } from '../../parsers/dungeons';
 import { getBuildCost } from '../../parsers/construction';
+import { getClosestWorshiper } from '../../parsers/worship';
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -37,6 +38,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
     }
     return closestTrap;
   }, 0);
+
+  const closestWorshiper = getClosestWorshiper(characters);
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -72,7 +75,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
             <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
           </CardContent>
         </Card> : null}
-      <Stack gap={2}>
+      <Stack gap={1}>
         {account?.finishedWorlds?.World2 ? <Card sx={{ height: 'fit-content' }}>
           <CardContent>
             <Tooltip title={'Next printer cycle'}>
@@ -109,6 +112,18 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Tooltip>
           </CardContent>
         </Card> : null}
+        {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Card sx={{ height: 'fit-content' }}>
+          <CardContent>
+            <Tooltip title={`Closest full worship - ${closestWorshiper?.character}`}>
+              <Stack gap={1} direction={'row'} alignItems={'center'}>
+                <IconImg src={`${prefix}data/WorshipSkull3.png`}/>
+                <Timer lastUpdated={lastUpdated}
+                       type={'countdown'}
+                       date={new Date().getTime() + closestWorshiper?.timeLeft}/>
+              </Stack>
+            </Tooltip>
+          </CardContent>
+        </Card> : null}
         <Card>
           <CardContent>
             <Tooltip title={'Next happy hour'}>
@@ -116,7 +131,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
                 <IconImg src={`${prefix}etc/Happy_Hour.png`}/>
                 {nextHappyHours?.length > 0 ?
                   <Timer type={'countdown'} date={nextHappyHours?.[0]}
-                         lastUpdated={lastUpdated}/> : "waiting for lava to set them"}
+                         lastUpdated={lastUpdated}/> : 'waiting for lava to set them'}
               </Stack>
             </Tooltip>
           </CardContent>

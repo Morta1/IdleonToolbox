@@ -50,3 +50,13 @@ export const getPlayerWorship = (character, pages, account, playerCharge) => {
     currentCharge: round(parseInt(playerCharge))
   };
 };
+
+export const getClosestWorshiper = (characters) => {
+  return characters?.reduce((closestWorshiper, character) => {
+    const timeLeft = (character?.worship?.maxCharge - character?.worship?.currentCharge) / character?.worship?.chargeRate * 1000 * 3600;
+    if (closestWorshiper?.timeLeft === 0 || timeLeft < closestWorshiper?.timeLeft) {
+      return { character: character?.name, timeLeft };
+    }
+    return closestWorshiper;
+  }, { character: null, timeLeft: 0 })
+}

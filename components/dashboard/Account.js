@@ -45,7 +45,6 @@ const alertsMap = {
 
 const Account = ({ account, trackers }) => {
   const alerts = useAlerts({ alertsMap, data: account, trackers });
-
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
@@ -115,11 +114,10 @@ const Account = ({ account, trackers }) => {
             alerts?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
                                                                                 title={`${cleanUnderscore(saltName)} is ready to rank up!`}
                                                                                 iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.construction && trackers?.construction?.buildings?.length > 0 ?
-            trackers?.construction?.buildings?.map(({ name, index }) => <Alert key={name}
+          {trackers?.construction && alerts?.construction?.buildings?.length > 0 ?
+            alerts?.construction?.buildings?.map(({ name, index }) => <Alert key={name}
                                                                                title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
                                                                                iconPath={`data/ConTower${index}`}/>) : null}
-          {trackers?.etc?.keys}
           {trackers?.etc && alerts?.etc?.keys?.length > 0 ?
             alerts?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
                                                                                title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}

@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import { getCharacterByHighestTalent, getHighestTalentByClass } from '../../../parsers/talents';
 import Timer from '../../../components/common/Timer';
+import { getClosestWorshiper } from '../../../parsers/worship';
 
 const Worship = () => {
   const { state } = useContext(AppContext);
@@ -16,6 +17,7 @@ const Worship = () => {
   const totalChargeRate = useMemo(() => state?.characters?.reduce((res, { worship }) => res + worship?.chargeRate, 0), [state]);
   const bestChargeSyphon = useMemo(() => getHighestTalentByClass(state?.characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y', true), [state])
   const bestWizard = useMemo(() => getCharacterByHighestTalent(state?.characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y', true), [state])
+  const closestToFull = getClosestWorshiper(state?.characters);
 
   return (
     <>
@@ -34,6 +36,16 @@ const Worship = () => {
           <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Total Daily Charge</Typography>
             <Typography>{Math.round(24 * totalChargeRate)}%</Typography>
+          </CardContent>
+        </Card>
+        <Card sx={{ my: 3 }}>
+          <CardContent>
+            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>First to full</Typography>
+            <Typography>{closestToFull?.character}</Typography>
+            <Timer type={'countdown'}
+                   placeholder={'You have overflowing charge'}
+                   date={new Date().getTime() + closestToFull?.timeLeft}
+                   lastUpdated={state?.lastUpdated}/>
           </CardContent>
         </Card>
         <Card sx={{ my: 3 }}>
