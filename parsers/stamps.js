@@ -1,7 +1,7 @@
-import { growth, tryToParse } from "../utility/helpers";
-import { stamps } from "../data/website-data";
+import { growth, tryToParse } from '../utility/helpers';
+import { stamps } from '../data/website-data';
 
-const stampsMapping = { 0: "combat", 1: "skills", 2: "misc" };
+const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
 export const getStamps = (idleonData) => {
   const stampLevelsRaw = tryToParse(idleonData?.StampLv) || idleonData?.StampLevel;
@@ -45,7 +45,8 @@ export const getStampBonus = (stamps, stampTree, stampName, character) => {
         let lvlDiff = deficitEff + (stampLevel - deficitEff) * Math.pow(charSkillLevel / (stampLevel - deficitEff), 0.75);
         lvlDiff *= 20 * stamp?.reqItemMultiplicationLevel / 200;
         const reducedLevel = Math.floor(Math.min(lvlDiff, stampLevel));
-        return (growth(stamp?.func, reducedLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
+        const finalLevel = Math.min(reducedLevel, stamp?.level);
+        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
       }
     }
   }
@@ -69,5 +70,7 @@ export const calcStampLevels = (allStamps) => {
 
 export const calcStampCollected = (allStamps) => {
   if (!allStamps) return 0;
-  return Object.values(allStamps)?.reduce((res, stamps) => res + stamps?.reduce((stampsCollected, { level }) => stampsCollected + (level > 0 ? 1 : 0), 0), 0);
+  return Object.values(allStamps)?.reduce((res, stamps) => res + stamps?.reduce((stampsCollected, { level }) => stampsCollected + (level > 0
+    ? 1
+    : 0), 0), 0);
 };

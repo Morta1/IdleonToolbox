@@ -1,6 +1,6 @@
-import { growth } from "../utility/helpers";
-import { classes, talents } from "../data/website-data";
-import { getAchievementStatus } from "./achievements";
+import { growth } from '../utility/helpers';
+import { classes, talents } from '../data/website-data';
+import { getAchievementStatus } from './achievements';
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
@@ -22,29 +22,31 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
     funcY,
     y1,
     y2
-  } = {}) => name === tName ? variant === 'x' ? growth(funcX, level, x1, x2, false) : growth(funcY, level, y1, y2, false) : res, 0) ?? 0;
+  } = {}) => name === tName ? variant === 'x'
+    ? growth(funcX, level, x1, x2, false)
+    : growth(funcY, level, y1, y2, false) : res, 0) ?? 0;
 }
 
 export const talentPagesMap = {
-  "Beginner": ["Beginner"],
-  "Journeyman": ["Beginner", "Journeyman"],
-  "Maestro": ["Beginner", "Journeyman", "Maestro"],
-  "Voidwalker": ["Beginner", "Journeyman", "Maestro", "Voidwalker"],
-  "Warrior": ["Rage_Basics", "Warrior"],
-  "Barbarian": ["Rage_Basics", "Warrior", "Barbarian"],
-  "Blood_Berserker": ["Rage_Basics", "Warrior", "Barbarian", "Blood_Berserker"],
-  "Squire": ["Rage_Basics", "Warrior", "Squire"],
-  "Divine_Knight": ["Rage_Basics", "Warrior", "Squire", "Divine_Knight"],
-  "Archer": ["Calm_Basics", "Archer"],
-  "Bowman": ["Calm_Basics", "Archer", "Bowman"],
-  "Siege_Breaker": ["Calm_Basics", "Archer", "Bowman", "Siege_Breaker"],
-  "Hunter": ["Calm_Basics", "Archer", "Hunter", "Beast_Master"],
-  "Beast_Master": ["Calm_Basics", "Archer", "Hunter", "Beast_Master"],
-  "Mage": ["Savvy_Basics", "Mage"],
-  "Shaman": ["Savvy_Basics", "Mage", "Shaman"],
-  "Bubonic_Conjuror": ["Savvy_Basics", "Mage", "Shaman", "Bubonic_Conjuror"],
-  "Wizard": ["Savvy_Basics", "Mage", "Wizard"],
-  "Elemental_Sorcerer": ["Savvy_Basics", "Mage", "Wizard", "Elemental_Sorcerer"]
+  'Beginner': ['Beginner'],
+  'Journeyman': ['Beginner', 'Journeyman'],
+  'Maestro': ['Beginner', 'Journeyman', 'Maestro'],
+  'Voidwalker': ['Beginner', 'Journeyman', 'Maestro', 'Voidwalker'],
+  'Warrior': ['Rage_Basics', 'Warrior'],
+  'Barbarian': ['Rage_Basics', 'Warrior', 'Barbarian'],
+  'Blood_Berserker': ['Rage_Basics', 'Warrior', 'Barbarian', 'Blood_Berserker'],
+  'Squire': ['Rage_Basics', 'Warrior', 'Squire'],
+  'Divine_Knight': ['Rage_Basics', 'Warrior', 'Squire', 'Divine_Knight'],
+  'Archer': ['Calm_Basics', 'Archer'],
+  'Bowman': ['Calm_Basics', 'Archer', 'Bowman'],
+  'Siege_Breaker': ['Calm_Basics', 'Archer', 'Bowman', 'Siege_Breaker'],
+  'Hunter': ['Calm_Basics', 'Archer', 'Hunter', 'Beast_Master'],
+  'Beast_Master': ['Calm_Basics', 'Archer', 'Hunter', 'Beast_Master'],
+  'Mage': ['Savvy_Basics', 'Mage'],
+  'Shaman': ['Savvy_Basics', 'Mage', 'Shaman'],
+  'Bubonic_Conjuror': ['Savvy_Basics', 'Mage', 'Shaman', 'Bubonic_Conjuror'],
+  'Wizard': ['Savvy_Basics', 'Mage', 'Wizard'],
+  'Elemental_Sorcerer': ['Savvy_Basics', 'Mage', 'Wizard', 'Elemental_Sorcerer']
 };
 // { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' }
 export const mainStatMap = {
@@ -109,6 +111,18 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
+export const getCharacterByHighestTalent = (characters, talentTree, className, talentName, yBonus, useMaxLevel) => {
+  const classes = characters?.filter((character) => checkCharClass(character?.class, className));
+  return classes?.reduce((res, character) => {
+    const { talents } = character;
+    const talent = getTalentBonus(talents, talentTree, talentName, yBonus, useMaxLevel);
+    if (talent > res) {
+      return character;
+    }
+    return res;
+  }, 0);
+}
+
 export const getHighestMaxLevelTalentByClass = (characters, talentTree, className, talentName) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
   return classes?.reduce((res, { talents }) => {
@@ -142,7 +156,9 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level,
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
+        ? Math.floor(talent.level + addedLevels)
+        : talent.level,
       baseLevel: talent.level
     }));
   }
@@ -150,7 +166,9 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => ({
       ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex) ? Math.floor(talent.level + addedLevels) : talent.level,
+      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
+        ? Math.floor(talent.level + addedLevels)
+        : talent.level,
       baseLevel: talent.level
     }));
     return {
@@ -168,7 +186,9 @@ const isTalentExcluded = (skillIndex) => {
 }
 
 export const getFamilyBonusValue = function (e, t, n, a) {
-  return 10 > e && -1 !== t.indexOf("decay") ? Math.round(100 * e) / 100 : 1 > e || ("add" === t && 1 > a && 100 > e) || (25 > e && "decay" === t) ? Math.round(10 * e) / 10 : Math.round(e);
+  return 10 > e && -1 !== t.indexOf('decay')
+    ? Math.round(100 * e) / 100
+    : 1 > e || ('add' === t && 1 > a && 100 > e) || (25 > e && 'decay' === t) ? Math.round(10 * e) / 10 : Math.round(e);
 }
 
 export const getVoidWalkerTalentEnhancements = (characters, account, pointsInvested, index, character) => {

@@ -124,15 +124,6 @@ const Construction = () => {
           })}
         </Box>
       </Stack>
-      {/*<Box*/}
-      {/*  mt={3}*/}
-      {/*  sx={{*/}
-      {/*    display: "grid",*/}
-      {/*    gridTemplateColumns: { xs: "repeat(8, minmax(70px, 1fr))", md: "repeat(12, minmax(70px, 1fr))" }*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  {test()}*/}
-      {/*</Box>*/}
     </>
   );
 };

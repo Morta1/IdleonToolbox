@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.1.97',
+    gameVer: '1.83',
+    date: '16/06/2023',
+    features: [
+      'Added Total daily charge, charge with syphon and time to full display for worship page'
+    ],
+    fixes: ['Fixed a bug with stamp calculations', 'Fixed worship max charge and rate calculations']
+  },
+  {
     ver: '3.1.96',
     gameVer: '1.83',
     date: '15/06/2023',
@@ -11,7 +20,8 @@ export const patchNotes = [
       'Updated the login flow of the website 🎉',
       <Typography component={'span'}><Typography component={'span'}
                                                  sx={{ fontWeight: 'bold' }}>Deprecated</Typography> the ability to
-        paste data into the website (steam data extractor is no longer supported, please use one of the other 3 login methods [Email, Google, Apple])</Typography>
+        paste data into the website (steam data extractor is no longer supported, please use one of the other 3 login
+        methods [Email, Google, Apple])</Typography>
 
     ],
     fixes: ['Fixed a bug with max liquid calculation']
