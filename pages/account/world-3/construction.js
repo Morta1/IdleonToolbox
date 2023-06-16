@@ -101,7 +101,7 @@ const Construction = () => {
             return (
               <Box key={index}>
                 <Tooltip title={<CogTooltip {...slot} index={index}
-                                            character={cog?.name?.includes("Player") ? cog?.name?.split("_")[1] : ""}/>}>
+                                            character={cog?.name?.includes("Player") ? cog?.name?.split("Player_")[1] : ""}/>}>
                   <SlotBackground filled={filled} rest={rest}>
                     {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt=""/> : null}
                     {cog?.name && !flagPlaced ?

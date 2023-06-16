@@ -7,7 +7,7 @@ export const createCogstructionData = (cogMap, cogsOrder) => {
     if (!cogType) return res;
     const { a = '', c = '', d = '', b = '', e = '', g = '', k = '', f = '' } = cog || {};
     const cogsValues = [a, c, d, b, e, g, k, f].map((cog, index) => index < 7 ? `${getCogstructionValue(cog) || ''},` : getCogstructionValue(cog));
-    const characterName = cogs[index].includes('Player_') ? cogs[index].split('_')[1] : '';
+    const characterName = cogs[index].includes('Player_') ? cogs[index].split('Player_')[1] : '';
     return `${res}
 ${cogType},${characterName},${cogsValues.join('')}`
   }, dataCsv);
