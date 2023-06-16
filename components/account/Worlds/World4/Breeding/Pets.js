@@ -1,4 +1,14 @@
-import { Badge, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import {
+  Badge,
+  Card,
+  CardContent,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Stack,
+  TextField,
+  Typography
+} from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from 'utility/helpers';
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
@@ -9,7 +19,8 @@ import Tooltip from '../../../../Tooltip';
 
 const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
-  const [underFiveOnly, SetUnderFiveOnly] = useState(false);
+  const [threshold, setThreshold] = useState(5);
+  const [applyThreshold, setApplyThreshold] = useState(false);
 
   const calcShinyLvMulti = () => {
     const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
@@ -37,7 +48,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
                       key={'fence' + index}>
           <Card sx={{ width: 200, display: 'flex', alignItems: 'center', p: 0 }}>
             <CardContent sx={{ '&:last-child': { padding: 1 } }}>
-              <Stack alignItems={'center'} direction='row' gap={1}>
+              <Stack alignItems={'center'} direction="row" gap={1}>
                 <MonsterIcon
                   style={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
                   src={missingIcon ? `${prefix}afk_targets/${pet?.monsterName}.png` : `${prefix}data/${pet?.icon}.png`}
@@ -69,17 +80,21 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
       })}
     </Stack>
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
-      <Stack direction={'row'} flexWrap={'wrap'}>
+      <Stack>
         <FormControlLabel
           control={<Checkbox name={'mini'} checked={minimized}
                              size={'small'}
                              onChange={() => setMinimized(!minimized)}/>}
           label={'Compact view'}/>
         <FormControlLabel
-          control={<Checkbox name={'mini'} checked={underFiveOnly}
+          control={<Checkbox name={'mini'} checked={applyThreshold}
                              size={'small'}
-                             onChange={() => SetUnderFiveOnly(!underFiveOnly)}/>}
-          label={'Show shiny under lv 5'}/>
+                             onChange={() => setApplyThreshold(!applyThreshold)}/>}
+          label={'Apply level threshold'}/>
+        <TextField sx={{ width: 'fit-content' }}
+                   type={'number'} value={threshold} label={'Pet level threshold'}
+                   onChange={(e) => setThreshold(e.target.value)}
+                   helperText={'Show pets under this level only'}/>
       </Stack>
       {pets?.map((world, worldIndex) => {
         return <React.Fragment key={`world-${worldIndex}`}>
@@ -100,7 +115,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
                                goal
                              }) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
-                  if (underFiveOnly && shinyLevel >= 5) return;
+                  if (applyThreshold && shinyLevel >= threshold) return;
                   const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}
                                sx={{ opacity: unlocked ? 1 : .6 }}>

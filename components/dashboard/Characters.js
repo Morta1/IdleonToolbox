@@ -62,7 +62,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                                                       alt=""/></Box>
               <Typography>{name}</Typography>
-              <Stack direction={'row'} alignItems='center' gap={1} style={{ marginLeft: 'auto' }}>
+              <Stack direction={'row'} alignItems="center" gap={1} style={{ marginLeft: 'auto' }}>
                 <HtmlTooltip title={cleanUnderscore(activity)}>
                   <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
                   />
@@ -99,7 +99,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
                   const isFull = diff <= 0;
                   return <Alert key={`${name}-${characterIndex}`}
-                                title={`${cleanUnderscore(name)} ${isFull ? 'production is full!' : `is ${diff} minutes away from being full!`}`}
+                                title={`${cleanUnderscore(name)} ${isFull
+                                  ? 'production is full!'
+                                  : `is ${diff} minutes away from being full!`}`}
                                 iconPath={`data/${rawName}`}/>;
                 }) : null}
               {trackers?.starSigns && alerts?.starSigns?.missingStarSigns > 0 ?
@@ -113,9 +115,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
               {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
-                                                                                    rawName,
-                                                                                    displayName
-                                                                                  }, index) => (
+                                                                                             rawName,
+                                                                                             displayName
+                                                                                           }, index) => (
                 <Alert key={`${character?.name}-${rawName}-${index}`}
                        title={`${character?.name} can equip ${cleanUnderscore(pascalCase(displayName))}`}
                        iconPath={`data/${rawName}`}/>
@@ -133,7 +135,11 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                   if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
                   return <Alert key={icon + '-' + index + '-' + characterIndex}
                                 style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}
-                                title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready ? 'maxed' : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})` : ''}!`}
+                                title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready
+                                  ? 'maxed'
+                                  : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready
+                                  ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})`
+                                  : ''}!`}
                                 iconPath={`data/${icon}`}/>
                 }
               ) : null}
@@ -168,8 +174,7 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
   const { afkGains } = useMemo(() => getAfkGain(character, characters, account), [character,
     account]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
-
-
+  console.log(1 / crystalSpawnChance?.value)
   return <Stack gap={1}>
     <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
     <TitleAndValue title={'Afk time'} value={<Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/>}/>
@@ -184,7 +189,10 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
     <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>
     <TitleAndValue title={'Afk gains'} value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
-    <TitleAndValue title={'Crystal Chance'} value={`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}/>
+    <TitleAndValue title={'Crystal Chance'} value={Math.floor(1 / crystalSpawnChance?.value) < 100
+      ?
+      `${notateNumber(1 / crystalSpawnChance?.value, 'MultiplierInfo')?.replace('.00', '')}%`
+      : `1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}/>
     <TitleAndValue title={'Non consume chance'} value={`${kFormatter(nonConsumeChance, 2)}%`}/>
   </Stack>
 }
