@@ -63,7 +63,7 @@ const baseTrackers = {
     },
     postOffice: {
       checked: true, options: [{
-        name: 'shipments',
+        name: 'postOffice',
         type: 'array',
         category: 'shipments',
         props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() },
