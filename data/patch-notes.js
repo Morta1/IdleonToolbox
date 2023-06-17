@@ -6,6 +6,13 @@ export const patchNotes = [
   {
     ver: '3.1.97',
     gameVer: '1.83',
+    date: '17/06/2023',
+    features: [],
+    fixes: ['Fixed a bug with apple login']
+  },
+  {
+    ver: '3.1.97',
+    gameVer: '1.83',
     date: '16/06/2023',
     features: [
       'Added Total daily charge, charge with syphon and time to full display for worship page'

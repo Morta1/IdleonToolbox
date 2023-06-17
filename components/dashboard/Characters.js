@@ -174,7 +174,7 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
   const { afkGains } = useMemo(() => getAfkGain(character, characters, account), [character,
     account]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
-  console.log(1 / crystalSpawnChance?.value)
+
   return <Stack gap={1}>
     <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
     <TitleAndValue title={'Afk time'} value={<Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/>}/>

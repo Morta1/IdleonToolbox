@@ -13,7 +13,7 @@ const AppleLogin = () => {
       try {
         const userCode = await getAppleCode();
         await appleAuthorize(userCode);
-        dispatch({ type: 'login', data: { loginData: { userCode }, loginType: 'apple' } })
+        dispatch({ type: 'login', data: { loginData: { ...(userCode || {}) }, loginType: 'apple' } })
       } catch (e) {
         dispatch({ type: 'loginError', data: e })
       }
