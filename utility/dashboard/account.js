@@ -134,9 +134,9 @@ export const constructionAlerts = (account, options) => {
 export const postOfficeAlerts = (account, options) => {
   const alerts = {}
   if (!account?.finishedWorlds?.World1) return alerts;
-  if (options?.shipments?.checked) {
+  if (options?.postOffice?.checked) {
     alerts.shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
-      return options?.shipments?.props?.value?.[index + 1] && streak <= 0
+      return options?.postOffice?.props?.value?.[index + 1] && streak <= 0
     });
   }
   return alerts;
