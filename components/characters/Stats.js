@@ -108,7 +108,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               <Stack direction={'row'} gap={1}>
                 <Typography>{(1 / crystalSpawnChance?.value) < 100
                   ?
-                  `${notateNumber(1 / crystalSpawnChance?.value / 100, 'MultiplierInfo')?.replace('.00', '')}%`
+                  `${notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%`
                   : `1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}</Typography>
                 <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={crystalSpawnChance?.breakdown}/>}>
                   <InfoIcon/>
