@@ -2,7 +2,7 @@ import { growth, tryToParse } from "../utility/helpers";
 import { chips, classes, jewels, labBonuses, randomList, talents, tasks } from "../data/website-data";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getCardBonusByEffect } from "./cards";
-import { isArenaBonusActive } from "./misc";
+import { isArenaBonusActive, isCompanionBonusActive } from './misc';
 import { getShinyBonus } from "./breeding";
 
 export const getLab = (idleonData, charactersData, account) => {
@@ -45,7 +45,7 @@ const parseLab = (labRaw, charactersData, account) => {
     });
   });
 
-  let playersInTubes = [...charactersData].filter((character, index) => character?.AFKtarget === "Laboratory" ||
+  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || character?.AFKtarget === "Laboratory" ||
     isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character) => ({
       ...character,
