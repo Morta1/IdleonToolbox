@@ -7,11 +7,11 @@ import {
   signInWithPopup,
   signOut
 } from 'firebase/auth';
-import { child, get, getDatabase, goOnline, ref } from "firebase/database";
-import { doc, getDoc, initializeFirestore, onSnapshot } from "firebase/firestore";
+import { child, get, getDatabase, goOnline, ref } from 'firebase/database';
+import { doc, getDoc, initializeFirestore, onSnapshot } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
-import app from "./config";
-import { tryToParse } from "../utility/helpers";
+import app from './config';
+import { tryToParse } from '../utility/helpers';
 
 const signInWithToken = async (token, type) => {
   const auth = getAuth(app);
@@ -87,34 +87,40 @@ const subscribe = async (uid, callback) => {
   const firestore = initializeFirestore(app, {});
   goOnline(database);
   const dbRef = ref(database);
-  let charNames;
-  try {
-    const charSnapshot = await get(child(dbRef, `_uid/${uid}`))
-    if (charSnapshot && charSnapshot.exists()) {
-      charNames = charSnapshot.val();
-    } else {
-      console.error("No data available");
-    }
-  } catch (error) {
-    console.error('Error while fetching charNames: ', error);
-  }
+  const charNames = await getSnapshot(dbRef, `_uid/${uid}`);
+  const companion = await getSnapshot(dbRef, `_comp/${uid}`);
   let serverVars;
-  if (firestore?.type === "firestore") {
-    const res = await getDoc(doc(firestore, "_vars", "_vars"));
+  if (firestore?.type === 'firestore') {
+    const res = await getDoc(doc(firestore, '_vars', '_vars'));
     if (res.exists()) {
       serverVars = res.data();
     }
   }
   if (charNames?.length > 0) {
-    return onSnapshot(doc(firestore, "_data", uid),
+    return onSnapshot(doc(firestore, '_data', uid),
       { includeMetadataChanges: true }, (doc) => {
         if (doc.exists()) {
           const cloudsave = doc.data();
-          callback(cloudsave, charNames, { stats: tryToParse(cloudsave?.Guild) }, serverVars);
+          callback(cloudsave, charNames, companion, { stats: tryToParse(cloudsave?.Guild) }, serverVars);
         }
       }, (err) => {
         console.error('Error has occurred on subscribe', err);
       });
+  }
+}
+
+const getSnapshot = async (dbRef, id) => {
+  try {
+    const snapshot = await get(child(dbRef, id))
+    if (snapshot && snapshot.exists()) {
+      return snapshot.val();
+    } else {
+      console.error(`No data available for key ${id}`);
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error while fetching data for key ${id}: `, error);
+    return null;
   }
 }
 

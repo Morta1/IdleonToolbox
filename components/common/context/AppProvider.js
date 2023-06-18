@@ -54,7 +54,6 @@ const AppProvider = ({ children }) => {
   const router = useRouter();
   const [authCounter, setAuthCounter] = useState(0);
   const [waitingForAuth, setWaitingForAuth] = useState(false);
-  const [code, setUserCode] = useState();
   const [listener, setListener] = useState({ func: null });
 
   function init() {
@@ -91,8 +90,8 @@ const AppProvider = ({ children }) => {
         if (!Object.keys(content).includes('serverVars')) {
           parsedData = parseData(content);
         } else {
-          const { data, charNames, guildData, serverVars, lastUpdated } = content;
-          parsedData = parseData(data, charNames, guildData, serverVars);
+          const { data, charNames, companion, guildData, serverVars, lastUpdated } = content;
+          parsedData = parseData(data, charNames, companion, guildData, serverVars);
           parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() }
           localStorage.setItem('rawJson', JSON.stringify({
             data,
@@ -124,8 +123,8 @@ const AppProvider = ({ children }) => {
         await logout();
         pastebinImport()
       } else if (router?.query?.demo) {
-        const { data, charNames, guildData, serverVars, lastUpdated } = demoJson;
-        let parsedData = parseData(data, charNames, guildData, serverVars);
+        const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
+        let parsedData = parseData(data, charNames, companion, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
         dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
       } else if (!state?.signedIn) {
@@ -255,7 +254,7 @@ const AppProvider = ({ children }) => {
     }
   };
 
-  const handleCloudUpdate = (data, charNames, guildData, serverVars) => {
+  const handleCloudUpdate = (data, charNames, companion, guildData, serverVars) => {
     if (router?.query?.pb) {
       const { pb, ...rest } = router.query
       router.replace({ query: rest })
@@ -263,12 +262,13 @@ const AppProvider = ({ children }) => {
     console.info('rawData', {
       data,
       charNames,
+      companion,
       guildData,
       serverVars
     })
     const lastUpdated = new Date().getTime();
-    localStorage.setItem('rawJson', JSON.stringify({ data, charNames, guildData, serverVars, lastUpdated }));
-    const parsedData = parseData(data, charNames, guildData, serverVars);
+    localStorage.setItem('rawJson', JSON.stringify({ data, charNames, companion, guildData, serverVars, lastUpdated }));
+    const parsedData = parseData(data, charNames, companion, guildData, serverVars);
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({
       type: 'data',

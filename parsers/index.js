@@ -30,7 +30,7 @@ import {
   calculateTotalSkillsLevel,
   enhanceColoTickets,
   enhanceKeysObject,
-  getBundles,
+  getBundles, getCompanions,
   getCurrencies,
   getItemCapacity,
   getLibraryBookTimes,
@@ -55,7 +55,7 @@ import { getAtoms } from './atomCollider';
 import { getRift, isRiftBonusUnlocked } from './world-4/rift';
 import { getPostOfficeShipments } from './postoffice';
 
-export const parseData = (idleonData, charNames, guildData, serverVars) => {
+export const parseData = (idleonData, charNames, companion, guildData, serverVars) => {
   let accountData, charactersData;
 
   try {
@@ -71,7 +71,7 @@ export const parseData = (idleonData, charNames, guildData, serverVars) => {
       );
       idleonData = { ...idleonData, ...charactersData };
     }
-    const parsed = serializeData(idleonData, charNames, guildData, serverVars);
+    const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
     console.info('data', { account: accountData, characters: charactersData })
@@ -89,10 +89,11 @@ export const parseData = (idleonData, charNames, guildData, serverVars) => {
   }
 };
 
-const serializeData = (idleonData, charsNames, guildData, serverVars) => {
+const serializeData = (idleonData, charsNames, companion, guildData, serverVars) => {
   let accountData = {},
     charactersData;
   const serializedCharactersData = getCharacters(idleonData, charsNames);
+  accountData.companions = getCompanions(companion);
   accountData.serverVars = serverVars;
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
   accountData.bribes = getBribes(idleonData);

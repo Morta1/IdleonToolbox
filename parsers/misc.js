@@ -1,23 +1,23 @@
-import { lavaLog, tryToParse } from "../utility/helpers";
-import { filteredGemShopItems, filteredLootyItems, keysMap } from "./parseMaps";
-import { classFamilyBonuses, items, mapNames, randomList, rawMapNames, slab } from "../data/website-data";
-import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from "./talents";
-import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
-import { getStampsBonusByEffect } from "./stamps";
-import { getAchievementStatus } from "./achievements";
-import { getJewelBonus, getLabBonus } from "./lab";
-import { getAtomBonus } from "./atomCollider";
-import { getPrayerBonusAndCurse } from "./prayers";
-import { getShrineBonus } from "./shrines";
-import { isSuperbitUnlocked } from "./gaming";
-import { getFamilyBonusBonus } from "./family";
-import { getStatsFromGear } from "./items";
-import LavaRand from "../utility/lavaRand";
-import { isPast } from "date-fns";
-import { getGuildBonusBonus } from "./guild";
-import { getStarSignBonus } from "./starSigns";
-import { getPlayerFoodBonus } from "./character";
+import { lavaLog, tryToParse } from '../utility/helpers';
+import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
+import { classFamilyBonuses, companions, items, mapNames, randomList, rawMapNames, slab } from '../data/website-data';
+import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { getMealsBonusByEffectOrStat } from './cooking';
+import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
+import { getStampsBonusByEffect } from './stamps';
+import { getAchievementStatus } from './achievements';
+import { getJewelBonus, getLabBonus } from './lab';
+import { getAtomBonus } from './atomCollider';
+import { getPrayerBonusAndCurse } from './prayers';
+import { getShrineBonus } from './shrines';
+import { isSuperbitUnlocked } from './gaming';
+import { getFamilyBonusBonus } from './family';
+import { getStatsFromGear } from './items';
+import LavaRand from '../utility/lavaRand';
+import { isPast } from 'date-fns';
+import { getGuildBonusBonus } from './guild';
+import { getStarSignBonus } from './starSigns';
+import { getPlayerFoodBonus } from './character';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
@@ -105,7 +105,7 @@ export const getLooty = (idleonData) => {
 };
 
 export const getCurrencies = (idleonData) => {
-  const keys = idleonData?.CurrenciesOwned?.["KeysAll"] || idleonData?.CYKeysAll;
+  const keys = idleonData?.CurrenciesOwned?.['KeysAll'] || idleonData?.CYKeysAll;
   if (idleonData?.CurrenciesOwned) {
     return {
       ...idleonData?.CurrenciesOwned,
@@ -195,7 +195,7 @@ export const getBundles = (idleonData) => {
 };
 
 export const isArenaBonusActive = (arenaWave, waveReq, bonusNumber) => {
-  const waveReqArray = waveReq.split(" ");
+  const waveReqArray = waveReq.split(' ');
   if (bonusNumber > waveReqArray.length) {
     return false;
   }
@@ -325,11 +325,15 @@ export const calculateTotalSkillsLevel = (characters) => {
 }
 
 export const getSkillRankColor = (level) => {
-  return level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600 ? '#cadadb' : level >= 600 && level < 1000 ? 'gold' : '#56ccff'
+  return level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600
+    ? '#cadadb'
+    : level >= 600 && level < 1000 ? 'gold' : '#56ccff'
 }
 
 const getSkillRank = (level) => {
-  return 150 > level ? 0 : 200 > level ? 1 : 300 > level ? 2 : 400 > level ? 3 : 500 > level ? 4 : 750 > level ? 5 : 1e3 > level ? 6 : 7;
+  return 150 > level ? 0 : 200 > level ? 1 : 300 > level ? 2 : 400 > level ? 3 : 500 > level ? 4 : 750 > level
+    ? 5
+    : 1e3 > level ? 6 : 7;
 }
 
 export const isMasteryBonusUnlocked = (rift, skillRank, bonusIndex) => {
@@ -366,10 +370,16 @@ export const getExpReq = (skillIndex, t) => {
 
   return 0 === skillIndex ?
     (15 + Math.pow(t, 1.9) + 11 * t) * Math.pow(1.208 - Math.min(0.164, (0.215 * t) / (t + 100)), t) - 15 :
-    2 === skillIndex ? (15 + Math.pow(t, 2) + 13 * t) * Math.pow(1.225 - Math.min(0.114, (0.135 * t) / (t + 50)), t) - 26 :
-      8 === skillIndex ? (71 > t ? ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.117 - (0.135 * t) / (t + 5), t) - 6) * (1 + Math.pow(t, 1.72) / 300) :
+    2 === skillIndex
+      ? (15 + Math.pow(t, 2) + 13 * t) * Math.pow(1.225 - Math.min(0.114, (0.135 * t) / (t + 50)), t) - 26
+      :
+      8 === skillIndex ? (71 > t
+          ? ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.117 - (0.135 * t) / (t + 5), t) - 6) * (1 + Math.pow(t, 1.72) / 300)
+          :
           (((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.003, t) - 6) / 2.35) * (1 + Math.pow(t, 1.72) / 300)) :
-        9 === skillIndex ? (15 + Math.pow(t, 1.3) + 6 * t) * Math.pow(1.17 - Math.min(0.07, (0.135 * t) / (t + 50)), t) - 26 :
+        9 === skillIndex
+          ? (15 + Math.pow(t, 1.3) + 6 * t) * Math.pow(1.17 - Math.min(0.07, (0.135 * t) / (t + 50)), t) - 26
+          :
           (15 + Math.pow(t, 2) + 15 * t) * Math.pow(1.225 - Math.min(0.18, (0.135 * t) / (t + 50)), t) - 30;
 }
 
@@ -511,40 +521,42 @@ export const getAllCap = (character, account) => {
 export const getItemCapacity = (type = '', character, account) => {
   const gemshop = account?.gemShopPurchases?.find((value, index) => index === 58);
   const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap');
-  const minCapStamps = getStampsBonusByEffect(account?.stamps, "Carrying_Capacity_for_Mining_Items", character);
-  const chopCapStamps = getStampsBonusByEffect(account?.stamps, "Carrying_Capacity_for_Choppin'_Items", character);
-  const fishCapStamps = getStampsBonusByEffect(account?.stamps, "Carry_Capacity_for_Fishing_Items", character);
-  const catchCapStamps = getStampsBonusByEffect(account?.stamps, "Carry_Capacity_for_Catching_Items", character);
-  const matCapStamps = getStampsBonusByEffect(account?.stamps, "Carrying_Capacity_for_Material_Items", character);
-  const allCarryStamps = getStampsBonusByEffect(account?.stamps, "Carry_Capacity_for_ALL_item_types!");
+  const minCapStamps = getStampsBonusByEffect(account?.stamps, 'Carrying_Capacity_for_Mining_Items', character);
+  const chopCapStamps = getStampsBonusByEffect(account?.stamps, 'Carrying_Capacity_for_Choppin\'_Items', character);
+  const fishCapStamps = getStampsBonusByEffect(account?.stamps, 'Carry_Capacity_for_Fishing_Items', character);
+  const catchCapStamps = getStampsBonusByEffect(account?.stamps, 'Carry_Capacity_for_Catching_Items', character);
+  const matCapStamps = getStampsBonusByEffect(account?.stamps, 'Carrying_Capacity_for_Material_Items', character);
+  const allCarryStamps = getStampsBonusByEffect(account?.stamps, 'Carry_Capacity_for_ALL_item_types!');
   const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const allCap = getAllCap(character, account);
 
 
-  return "bOre" === type || "bBar" === type || "cOil" === type ? Math.floor(character?.maxCarryCap.Mining
+  return 'bOre' === type || 'bBar' === type || 'cOil' === type ? Math.floor(character?.maxCarryCap.Mining
     * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100)
     * (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : "dFish" === type ? Math.floor(character?.maxCarryCap.Fishing
+    * allCap) : 'dFish' === type ? Math.floor(character?.maxCarryCap.Fishing
     * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) *
     (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : "dBugs" === type ? Math.floor(character?.maxCarryCap.Bugs
+    * allCap) : 'dBugs' === type ? Math.floor(character?.maxCarryCap.Bugs
     * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100)
     * (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : "bLog" === type || "bLeaf" === type ? Math.floor(character?.maxCarryCap.Chopping
+    * allCap) : 'bLog' === type || 'bLeaf' === type ? Math.floor(character?.maxCarryCap.Chopping
     * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) *
     (1 + (allCarryStamps + starSignBonus) / 100) *
-    allCap) : "cFood" === type ? Math.floor(character?.maxCarryCap.Foods *
+    allCap) : 'cFood' === type ? Math.floor(character?.maxCarryCap.Foods *
       (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps
         + starSignBonus) / 100) * allCap) :
-    "dCritters" === type ? Math.floor(character?.maxCarryCap.Critters * (1 + (25 * gemshop) / 100) *
+    'dCritters' === type ? Math.floor(character?.maxCarryCap.Critters * (1 + (25 * gemshop) / 100) *
         (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
-      : "dSouls" === type ? Math.floor(character?.maxCarryCap.Souls * (1 + (25 * gemshop) / 100) *
+      : 'dSouls' === type ? Math.floor(character?.maxCarryCap.Souls * (1 + (25 * gemshop) / 100) *
           (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
-        : "dCurrency" === type || "dQuest" === type || "dStatueStone" === type ? 999999 : "bCraft" === type ? Math.floor(character?.maxCarryCap.bCraft
-          * (1 + matCapStamps / 100)
-          * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100)
-          * (1 + talentBonus / 100) * allCap) : "dExpOrb" === type || "dStone" === type || "dFishToolkit" === type ? 999999 :
-          "fillerz" === type ? character?.maxCarryCap.fillerz : "d" === type.charAt(0) ? 999999 : 2
+        : 'dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type ? 999999 : 'bCraft' === type
+          ? Math.floor(character?.maxCarryCap.bCraft
+            * (1 + matCapStamps / 100)
+            * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100)
+            * (1 + talentBonus / 100) * allCap)
+          : 'dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type ? 999999 :
+            'fillerz' === type ? character?.maxCarryCap.fillerz : 'd' === type.charAt(0) ? 999999 : 2
 }
 
 export const getTypeGen = (type) => {
@@ -583,4 +595,19 @@ export const getHealthFoodBonus = (character, account, bonusName) => {
 
 export const getMinigameScore = (account, name) => {
   return account?.highscores?.minigameHighscores?.find(({ minigame }) => minigame === name)?.score || 0;
+}
+
+export const getCompanions = (companionObject) => {
+  const maxStorage = 40;
+  const [companionIndex] = companionObject?.e?.split(',');
+  const companion = companions?.[companionIndex];
+
+  return {
+    totalBoxesOpened: companionObject?.x,
+    currentCompanion: companion,
+    companionInfo: companionObject?.l,
+    lastFreeClaim: companionObject?.t,
+    petCrystals: companionObject?.s,
+    maxStorage
+  };
 }
