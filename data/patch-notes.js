@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.1.98',
+    gameVer: '1.84',
+    date: '18/06/2023',
+    features: [
+      'Added 1.84 data and assets',
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/companions'}>Companions</Link> page</Typography>
+    ],
+    fixes: []
+  },
+  {
     ver: '3.1.97',
     gameVer: '1.83',
     date: '17/06/2023',
