@@ -2,7 +2,6 @@ import { NextSeo } from 'next-seo';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
-import { companions } from '../../data/website-data';
 import { cleanUnderscore, prefix } from '../../utility/helpers';
 
 const Companions = () => {
@@ -29,10 +28,15 @@ const Companions = () => {
       </Card>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {companions?.map(({ name, effect }) => {
-        return <Card key={name} sx={{ width: 200 }}>
-          <CardContent sx={{ '&:last-child': { padding: 1 } }} sx={{ height: '100%' }}>
-            <Stack gap={2} justifyContent={'center'}>
+      {state?.account?.companions?.list?.map(({ name, effect, acquired = '' }) => {
+        return <Card key={name}
+                     sx={{
+                       width: 250,
+                       border: acquired ? '1px solid' : '',
+                       borderColor: acquired ? 'success.dark' : ''
+                     }}>
+          <CardContent sx={{ '&:last-child': { padding: 2 }, height: '100%' }}>
+            <Stack gap={4} justifyContent={'center'}>
               <img width={50} height={50}
                    style={{ objectFit: 'contain' }}
                    src={`${prefix}afk_targets/${name}.png`} alt={''}/>

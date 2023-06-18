@@ -25,8 +25,8 @@ const NavBar = ({ children }) => {
   const handlePaste = async () => {
     try {
       const content = JSON.parse(await navigator.clipboard.readText());
-      const { data, charNames, guildData, serverVars } = content;
-      const parsedData = parseData(data, charNames, guildData, serverVars);
+      const { data, charNames, companion, guildData, serverVars } = content;
+      const parsedData = parseData(data, charNames, companion, guildData, serverVars);
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
       console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });

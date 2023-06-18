@@ -597,17 +597,31 @@ export const getMinigameScore = (account, name) => {
   return account?.highscores?.minigameHighscores?.find(({ minigame }) => minigame === name)?.score || 0;
 }
 
-export const getCompanions = (companionObject) => {
+export const getCompanions = (companionObject = {}) => {
   const maxStorage = 40;
   const [companionIndex] = companionObject?.e?.split(',');
   const companion = companions?.[companionIndex];
-
+  const ownedCompanions = companionObject?.l?.reduce((result, comp) => {
+    const [companionIndex] = comp?.split(',');
+    return {
+      ...result,
+      [companionIndex]: true
+    }
+  }, {})
+  const updatedCompanions = companions?.map((comp, index) => ({
+    ...comp,
+    acquired: !!ownedCompanions?.[index]
+  }))
   return {
     totalBoxesOpened: companionObject?.x,
     currentCompanion: companion,
-    companionInfo: companionObject?.l,
+    list: updatedCompanions,
     lastFreeClaim: companionObject?.t,
     petCrystals: companionObject?.s,
     maxStorage
   };
+}
+
+export const isCompanionBonusActive = (account, index) => {
+  return account?.companions?.list?.at(index)?.acquired;
 }

@@ -4,7 +4,7 @@ import { isArtifactAcquired } from "./sailing";
 import { getSaltLickBonus } from "./saltLick";
 import { getMealsBonusByEffectOrStat } from "./cooking";
 import { getJewelBonus, getLabBonus } from "./lab";
-import { isMasteryBonusUnlocked } from "./misc";
+import { isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getStampsBonusByEffect } from "./stamps";
 import { getArcadeBonus } from "./arcade";
 
@@ -153,9 +153,10 @@ export const getEquippedBubbles = (idleonData, bubbles, serializedCharactersData
     .filter((arr) => arr.length);
 };
 
-export const getActiveBubbleBonus = (equippedBubbles, bIndex) => {
+export const getActiveBubbleBonus = (equippedBubbles, bIndex, account) => {
+  const hasCompanionBonus = isCompanionBonusActive(account, 4);
   const bubble = equippedBubbles?.find(({ bubbleIndex }) => bubbleIndex === bIndex);
-  if (!bubble) return 0;
+  if (!bubble && !hasCompanionBonus) return 0;
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 

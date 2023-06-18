@@ -15,18 +15,19 @@ import {
   randomList,
   starSignByIndexMap,
   tasks
-} from "../data/website-data";
+} from '../data/website-data';
 import {
   calculateAfkTime,
   getFoodBonus,
   getGoldenFoodBonus,
   getHighestLevelOfClass,
   getMaterialCapacity,
-  isArenaBonusActive
-} from "./misc";
-import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from "./items";
-import { getInventory } from "./storage";
-import { skillIndexMap } from "./parseMaps";
+  isArenaBonusActive,
+  isCompanionBonusActive
+} from './misc';
+import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
+import { getInventory } from './storage';
+import { skillIndexMap } from './parseMaps';
 import {
   applyTalentAddedLevels,
   createTalentPage,
@@ -37,32 +38,32 @@ import {
   getTalentBonusIfActive,
   mainStatMap,
   talentPagesMap
-} from "./talents";
-import { calcCardBonus, getCardBonusByEffect, getEquippedCardBonus, getPlayerCards } from "./cards";
-import { getStampBonus, getStampsBonusByEffect } from "./stamps";
-import { getPlayerPostOffice, getPostOfficeBonus } from "./postoffice";
-import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from "./alchemy";
-import { getStatueBonus } from "./statues";
-import { getStarSignBonus, getStarSignByEffect } from "./starSigns";
-import { getAnvil } from "./anvil";
-import { getPrayerBonusAndCurse } from "./prayers";
-import { getGuildBonusBonus } from "./guild";
-import { getShrineBonus } from "./shrines";
-import { getFamilyBonus, getFamilyBonusBonus } from "./family";
-import { getSaltLickBonus } from "./saltLick";
-import { getDungeonFlurboStatBonus } from "./dungeons";
-import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from "./obols";
-import { getPlayerWorship } from "./worship";
-import { getPlayerQuests } from "./quests";
-import { getJewelBonus, getLabBonus, getPlayerLabChipBonus, isGodEnabledBySorcerer } from "./lab";
-import { getAchievementStatus } from "./achievements";
-import { lavaLog } from "../utility/helpers";
-import { getArcadeBonus } from "./arcade";
-import { isArtifactAcquired } from "./sailing";
-import { getShinyBonus } from "./breeding";
+} from './talents';
+import { calcCardBonus, getCardBonusByEffect, getEquippedCardBonus, getPlayerCards } from './cards';
+import { getStampBonus, getStampsBonusByEffect } from './stamps';
+import { getPlayerPostOffice, getPostOfficeBonus } from './postoffice';
+import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from './alchemy';
+import { getStatueBonus } from './statues';
+import { getStarSignBonus, getStarSignByEffect } from './starSigns';
+import { getAnvil } from './anvil';
+import { getPrayerBonusAndCurse } from './prayers';
+import { getGuildBonusBonus } from './guild';
+import { getShrineBonus } from './shrines';
+import { getFamilyBonus, getFamilyBonusBonus } from './family';
+import { getSaltLickBonus } from './saltLick';
+import { getDungeonFlurboStatBonus } from './dungeons';
+import { getMealsBonusByEffectOrStat } from './cooking';
+import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from './obols';
+import { getPlayerWorship } from './worship';
+import { getPlayerQuests } from './quests';
+import { getJewelBonus, getLabBonus, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './lab';
+import { getAchievementStatus } from './achievements';
+import { lavaLog } from '../utility/helpers';
+import { getArcadeBonus } from './arcade';
+import { isArtifactAcquired } from './sailing';
+import { getShinyBonus } from './breeding';
 
-const { tryToParse, createIndexedArray, createArrayOfArrays } = require("../utility/helpers");
+const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
 export const getCharacters = (idleonData, charsNames) => {
   const chars = charsNames ? charsNames : [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -238,7 +239,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.statues = char?.StatueLevels;
 
   // equipment indices (0 = armor, 1 = tools, 2 = food)
-  const equipmentMapping = { 0: "armor", 1: "tools", 2: "food" };
+  const equipmentMapping = { 0: 'armor', 1: 'tools', 2: 'food' };
   const equippableNames = char?.[
     `EquipmentOrder`
     ]?.reduce(
@@ -274,7 +275,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   // star signs
   const starSignsObject = char?.PersonalValuesMap?.StarSign || '';
   character.starSigns = starSignsObject
-    .split(",")
+    .split(',')
     .map((starSign) => {
       if (!starSign || starSign === '_') return null;
       return starSignByIndexMap?.[starSign];
@@ -313,8 +314,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const {
     flat: flatStarTalents,
     talents: orderedStarTalents
-  } = createTalentPage(character?.class, ["Special Talent 1", "Special Talent 2",
-    "Special Talent 3"], talentsObject, maxTalentsObject, true);
+  } = createTalentPage(character?.class, ['Special Talent 1', 'Special Talent 2',
+    'Special Talent 3'], talentsObject, maxTalentsObject, true);
   character.starTalents = orderedStarTalents;
   character.flatStarTalents = flatStarTalents;
 
@@ -327,10 +328,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 20);
   const omegaMotherboardChipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 21);
-  character.cards.equippedCards = character?.cards?.equippedCards?.map((card, index) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus)) ? ({
-    ...card,
-    chipBoost: 2
-  }) : card);
+  character.cards.equippedCards = character?.cards?.equippedCards?.map((card, index) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus))
+    ? ({
+      ...card,
+      chipBoost: 2
+    })
+    : card);
   character.anvil = getAnvil(char);
   const charObols = getObols(char, false);
   character.obols = {
@@ -359,7 +362,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   if (isBloodBerserker) {
     character.chow = getBarbarianZowChow(character.kills, [1e6, 1e8]);
   }
-  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'c21')
+  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'c21', account)
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
   character.linkedDeity = linkedDeity;
@@ -393,8 +396,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
     familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
   }
-  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account?.achievements);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account?.achievements);
+  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account);
   character.activeBuffs = character.activeBuffs?.map(({ name }) => {
     return character.flatTalents?.find(({ name: tName }) => tName === name);
   });
@@ -489,7 +492,9 @@ export const getDropRate = (character, account, characters) => {
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 10);
-  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25' ? character?.cards?.cardSet?.bonus : 0;
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25'
+    ? character?.cards?.cardSet?.bonus
+    : 0;
   const shrineBonus = getShrineBonus(account?.shrines, 4, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Midas_Minded', account)?.bonus
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
@@ -499,13 +504,15 @@ export const getDropRate = (character, account, characters) => {
   // const math = 1 + (luck + flurboBonus) / 100;
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
+  const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
+  // const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
 
   const dropRate = 1.4 * luckMulti
     + (firstTalentBonus + (postOfficeBonus + ((drFromEquipment + drFromObols)
       + (bubbleBonus + (cardBonus + (secondTalentBonus
         + (starSignBonus + (guildBonus + (
           +(cardSetBonus + (shrineBonus + (prayerBonus + (sigilBonus
-            + shinyBonus))))))))))))) / 100 + 1;
+            + shinyBonus + companionDropRate))))))))))))) / 100 + 1;
   const final = dropRate * extraDropRate;
 
   const breakdown = [
@@ -522,6 +529,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Shiny', value: shinyBonus / 100 },
     { name: 'Starsign', value: starSignBonus / 100 },
     { name: 'Guild', value: guildBonus / 100 },
+    { name: 'Companion', value: companionDropRate / 100 },
     { name: 'Base', value: 1 },
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
@@ -754,7 +762,7 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   const featherFlight = getTalentBonus(character?.talents, 0, 'FEATHER_FLIGHT');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Movement_Speed', character)
   const strafe = getTalentBonusIfActive(character?.activeBuffs, 'STRAFE');
-  const foodBonus = getFoodBonus(character, account, "MoveSpdBoosts")
+  const foodBonus = getFoodBonus(character, account, 'MoveSpdBoosts')
   let baseMath = foodBonus + featherWeight + stampBonus + strafe;
   let agiMulti;
   if (character.stats?.agility < 1000) {
@@ -798,7 +806,7 @@ export const getAfkGain = (character, characters, account) => {
     const firstTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_BRAWLING');
     const secondTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_CASTING');
     const thirdTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_SHOOTING');
-    const fourthTalentBonus = getTalentBonus(character?.talents, 0, "SLEEPIN'_ON_THE_JOB");
+    const fourthTalentBonus = getTalentBonus(character?.talents, 0, 'SLEEPIN\'_ON_THE_JOB');
     const firstStarTalentBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
     const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
     const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
@@ -817,7 +825,9 @@ export const getAfkGain = (character, characters, account) => {
     const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 7)?.baseVal ?? 0;
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
     const dungeonBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'AFK_Gains');
-    const majorBonus = character?.linkedDeity === 0 || character?.secondLinkedDeityIndex === 0 ? 1 : 0;
+    const majorBonus = isCompanionBonusActive(account, 0) || character?.linkedDeity === 0 || character?.secondLinkedDeityIndex === 0
+      ? 1
+      : 0;
     const divinityMinorBonus = characters?.reduce((sum, char) => {
       if (char?.linkedDeity === 4) {
         return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
@@ -826,13 +836,13 @@ export const getAfkGain = (character, characters, account) => {
       }
       return sum;
     }, 0);
-
+    const compBonus = isCompanionBonusActive(account, 6);
 
     const base = afkGainsTaskBonus
       + (arcadeBonus
         + (dungeonBonus
           + (30 * majorBonus
-            + divinityMinorBonus)));
+            + divinityMinorBonus + compBonus)));
 
     let gains = 0.2 + (familyEffBonus + postOfficeBonus
       + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
@@ -982,12 +992,12 @@ const getNonConsumeChance = (character, account) => {
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const nonConsumeJewelBonus = getJewelBonus(lab?.jewels, 8, spelunkerObolMulti);
   const baseMath = 90 + 5 * nonConsumeJewelBonus;
-  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, '_19');
+  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, '_19', account);
   const bubbleMath = Math.min(baseMath, 98 + Math.min(biteButNotChewBubbleBonus, 1));
   const jewelMath = Math.max(1, nonConsumeJewelBonus);
   const freeMealBonus = getTalentBonus(talents, 1, 'FREE_MEAL');
   const carePackFromMumBonus = getPostOfficeBonus(postOffice, 'Carepack_From_Mum', 0);
-  const crabCakeBonus = getEquippedCardBonus(cards?.equippedCards, "B3");
+  const crabCakeBonus = getEquippedCardBonus(cards?.equippedCards, 'B3');
   const starSingBonus = getStarSignByEffect(starSigns, account, 'chance_to_not');
   return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
 }

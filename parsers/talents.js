@@ -1,6 +1,7 @@
 import { growth } from '../utility/helpers';
 import { classes, talents } from '../data/website-data';
 import { getAchievementStatus } from './achievements';
+import { isCompanionBonusActive } from './misc';
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
@@ -135,7 +136,7 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
   }, { maxLevel: 0 });
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, achievements) => {
+export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account) => {
   let addedLevels = 0;
   if (linkedDeity === 1) {
     addedLevels += Math.ceil(deityMinorBonus);
@@ -150,8 +151,11 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (familyEffBonus) {
     addedLevels += Math.floor(familyEffBonus);
   }
-  if (getAchievementStatus(achievements, 291)) {
+  if (getAchievementStatus(account?.achievements, 291)) {
     addedLevels += 1;
+  }
+  if (isCompanionBonusActive(account, 1)) {
+    addedLevels += account?.companions?.list?.at(1)?.bonus;
   }
   if (flatTalents) {
     return flatTalents.map((talent) => ({

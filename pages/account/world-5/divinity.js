@@ -6,6 +6,7 @@ import Tooltip from 'components/Tooltip';
 import { MissingData } from '../../../components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
+import { isCompanionBonusActive } from '../../../parsers/misc';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
@@ -27,7 +28,7 @@ const Divinity = () => {
                        blessingMultiplier,
                        blessingBonus
                      }, godIndex) => {
-        const hasLinks = state?.characters?.some((character, index) => linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex))
+        const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex))
         return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
@@ -50,12 +51,15 @@ const Divinity = () => {
                                                classIndex, name, deityMinorBonus = 0, divStyle,
                                                secondLinkedDeityIndex, secondDeityMinorBonus = 0
                                              }, index) => {
-                      const isLinked = linkedDeities?.[index] === godIndex;
-                      const isSecondLinked = secondLinkedDeityIndex === godIndex;
-                      return isLinked || isSecondLinked ?
+                      const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
+                      const isLinked = compBonus || linkedDeities?.[index] === godIndex;
+                      const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
+                      return compBonus || isLinked || isSecondLinked ?
                         <Tooltip title={<CharDeityDetails name={name}
                                                           divStyle={divStyle}
-                                                          bonus={minorBonus.replace(/{/g, isLinked ? deityMinorBonus.toFixed(2) : isSecondLinked ? secondDeityMinorBonus.toFixed(2) : 0)}/>}
+                                                          bonus={minorBonus.replace(/{/g, isLinked
+                                                            ? deityMinorBonus.toFixed(2)
+                                                            : isSecondLinked ? secondDeityMinorBonus.toFixed(2) : 0)}/>}
                                  key={name}>
                           <img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                alt=""/>
