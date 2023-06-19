@@ -7,6 +7,7 @@ import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { calcTotals, getPlayerAnvil, getTimeTillCap } from '../../../parsers/anvil';
 import { NextSeo } from 'next-seo';
+import Tooltip from '../../../components/Tooltip';
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
@@ -27,12 +28,17 @@ const Anvil = () => {
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {}).map(([rawName, value], index) => {
         return <Card key={'total' + rawName + index}>
-          <CardContent >
-            <Stack alignItems={'center'} gap={1}>
-              <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={''}/>
-              <Typography>{notateNumber(value, 'Big')}</Typography>
-            </Stack>
-          </CardContent>
+          <Tooltip title={<>
+            <Typography>{notateNumber(value * 24, 'Big')} / day</Typography>
+            <Typography variant={'caption'}>In case you're claiming before full</Typography>
+          </>}>
+            <CardContent>
+              <Stack alignItems={'center'} gap={1}>
+                <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={''}/>
+                <Typography>{notateNumber(value, 'Big')}</Typography>
+              </Stack>
+            </CardContent>
+          </Tooltip>
         </Card>
       })}
     </Stack>
@@ -92,6 +98,7 @@ const Anvil = () => {
                         </Badge>
                         <ProgressBar percent={percentOfCap} label={false}/>
                         <Timer date={new Date().getTime() + (timeTillCap * 1000)}
+                               staticTime={true}
                                type={'countdown'}
                                placeholder={<Typography color={'error.light'}>Full</Typography>}
                                lastUpdated={state?.lastUpdated}/>

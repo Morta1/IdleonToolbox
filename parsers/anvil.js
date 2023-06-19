@@ -331,8 +331,8 @@ export const calcTotals = (account, characters) => {
     const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);
     const activeProduction = production?.filter(({ hammers }) => hammers > 0);
     activeProduction?.forEach((slot) => {
-      const { hammers, rawName } = slot;
-      const perHour = Math.min(stats?.anvilSpeed * hammers, stats?.anvilCapacity);
+      const { hammers, rawName, requiredAmount } = slot;
+      const perHour = Math.min(stats?.anvilSpeed * hammers / requiredAmount, stats?.anvilCapacity);
       if (result?.[rawName]) {
         result[rawName] += perHour;
       } else {
