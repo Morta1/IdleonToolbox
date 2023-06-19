@@ -1,5 +1,5 @@
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
 import { cleanUnderscore, prefix } from '../../utility/helpers';
@@ -13,20 +13,25 @@ const Companions = () => {
       description="Detailed information about companions and their bonuses"
     />
     <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Companions</Typography>
-    <Stack direction={'row'} gap={3}>
-      <Card sx={{ my: 3 }}>
-        <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Pet Crystals</Typography>
-          <Typography>{state?.account?.companions?.petCrystals ?? 0}</Typography>
-        </CardContent>
-      </Card>
-      <Card sx={{ my: 3 }}>
-        <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Total Box Opened</Typography>
-          <Typography>{state?.account?.companions?.totalBoxesOpened ?? 0}</Typography>
-        </CardContent>
-      </Card>
-    </Stack>
+    <Accordion defaultExpanded={false} sx={{ mb: 3, width: 'fit-content' }}>
+      <AccordionSummary>Summary</AccordionSummary>
+      <AccordionDetails>
+        <Stack direction={'row'} gap={3}>
+          <Card sx={{ my: 3 }} variant={'outlined'}>
+            <CardContent>
+              <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Pet Crystals</Typography>
+              <Typography>{state?.account?.companions?.petCrystals ?? 0}</Typography>
+            </CardContent>
+          </Card>
+          <Card sx={{ my: 3 }} variant={'outlined'}>
+            <CardContent>
+              <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Total Box Opened</Typography>
+              <Typography>{state?.account?.companions?.totalBoxesOpened ?? 0}</Typography>
+            </CardContent>
+          </Card>
+        </Stack>
+      </AccordionDetails>
+    </Accordion>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {state?.account?.companions?.list?.map(({ name, effect, acquired = '' }) => {
         return <Card key={name}

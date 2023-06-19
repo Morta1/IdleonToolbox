@@ -1,12 +1,12 @@
-import { anvilProducts, anvilUpgradeCost } from "../data/website-data";
+import { anvilProducts, anvilUpgradeCost } from '../data/website-data';
 import {
   getGoldenFoodBonus,
   getSkillMasteryBonusByIndex,
   getSpeedBonusFromAgility,
   isMasteryBonusUnlocked
-} from "./misc";
+} from './misc';
 import { getBribeBonus } from './bribes';
-import { getActiveBubbleBonus, getBubbleBonus } from "./alchemy";
+import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import {
   checkCharClass,
   getBubonicGreenTube,
@@ -15,23 +15,23 @@ import {
   getTalentBonusIfActive,
   getVoidWalkerTalentEnhancements,
   talentPagesMap
-} from "./talents";
-import { getStarSignBonus } from "./starSigns";
-import { getCardBonusByEffect, getEquippedCardBonus } from "./cards";
-import { getStatsFromGear } from "./items";
-import { getStampBonus, getStampsBonusByEffect } from "./stamps";
-import { getShrineBonus } from "./shrines";
-import { getStatueBonus } from "./statues";
-import { getPrayerBonusAndCurse } from "./prayers";
-import { getSaltLickBonus } from "./saltLick";
-import { getDungeonStatBonus } from "./dungeons";
-import { getPostOfficeBonus } from "./postoffice";
-import { getGuildBonusBonus } from "./guild";
-import { getPlayerCapacity } from "./character";
-import { getDeityLinkedIndex, getGodByIndex } from "./divinity";
-import { getAchievementStatus } from "./achievements";
-import { getShinyBonus } from "./breeding";
-import { isSuperbitUnlocked } from "./gaming";
+} from './talents';
+import { getStarSignBonus } from './starSigns';
+import { getCardBonusByEffect, getEquippedCardBonus } from './cards';
+import { getStatsFromGear } from './items';
+import { getStampBonus, getStampsBonusByEffect } from './stamps';
+import { getShrineBonus } from './shrines';
+import { getStatueBonus } from './statues';
+import { getPrayerBonusAndCurse } from './prayers';
+import { getSaltLickBonus } from './saltLick';
+import { getDungeonStatBonus } from './dungeons';
+import { getPostOfficeBonus } from './postoffice';
+import { getGuildBonusBonus } from './guild';
+import { getPlayerCapacity } from './character';
+import { getDeityLinkedIndex, getGodByIndex } from './divinity';
+import { getAchievementStatus } from './achievements';
+import { getShinyBonus } from './breeding';
+import { isSuperbitUnlocked } from './gaming';
 
 export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0) => {
   const boxAndStatueMath = 1 + ((poBoxBonus + statueBonus) / 100);
@@ -59,7 +59,9 @@ export const getMonsterMatCost = (pointsFromMats, anvilCostReduction) => {
 export const getAnvilUpgradeCostItem = (pointsFromMats) => {
   const costIndex = anvilUpgradeCost.findIndex(({ costThreshold }, index) => (pointsFromMats < costThreshold) || (index === anvilUpgradeCost?.length - 1));
   const costObject = anvilUpgradeCost?.[costIndex];
-  const startingIndex = costIndex === 0 ? 1 : pointsFromMats < costObject?.costThreshold ? anvilUpgradeCost?.[costIndex - 1]?.costThreshold : costObject?.costThreshold;
+  const startingIndex = costIndex === 0 ? 1 : pointsFromMats < costObject?.costThreshold
+    ? anvilUpgradeCost?.[costIndex - 1]?.costThreshold
+    : costObject?.costThreshold;
   return costObject ? {
     ...costObject,
     startingIndex: startingIndex
@@ -291,13 +293,13 @@ export const getPlayerAnvil = (character, characters, account) => {
 }
 
 export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints) => {
-  const focusedSoulTalentBonus = getTalentBonus(character?.talents, 1, "FOCUSED_SOUL");
-  const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, "HAPPY_DUDE");
+  const focusedSoulTalentBonus = getTalentBonus(character?.talents, 1, 'FOCUSED_SOUL');
+  const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
   const smithingCards = getCardBonusByEffect(account?.cards, 'Smithing_EXP_(Passive)');
-  const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, "Blacksmith_Box", 0);
+  const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'SmithExp', character);
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
-  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', "LEFT_HAND_OF_LEARNING");
+  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING');
   const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
   const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
   if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement) {
@@ -318,8 +320,25 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
   return 100 * (tempAnvilExp - 1);
 };
 
-export const getTimeTillCap = ({ hammers, currentAmount, currentProgress, time, afkTime, stats }) => {
+export const getTimeTillCap = ({ hammers, currentAmount, currentProgress, requiredAmount, afkTime, stats }) => {
   const timePassed = (new Date().getTime() - afkTime) / 1000;
-  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / time) * (hammers ?? 0)), stats?.anvilCapacity);
-  return ((stats?.anvilCapacity - futureProduction) / (stats?.anvilSpeed / 3600 / time * (hammers ?? 0)));
+  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / requiredAmount) * (hammers ?? 0)), stats?.anvilCapacity);
+  return ((stats?.anvilCapacity - futureProduction) / (stats?.anvilSpeed / 3600 / requiredAmount * (hammers ?? 0)));
+}
+
+export const calcTotals = (account, characters) => {
+  return account?.anvil?.reduce((result, anvil, index) => {
+    const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);
+    const activeProduction = production?.filter(({ hammers }) => hammers > 0);
+    activeProduction?.forEach((slot) => {
+      const { hammers, rawName } = slot;
+      const perHour = Math.min(stats?.anvilSpeed * hammers, stats?.anvilCapacity);
+      if (result?.[rawName]) {
+        result[rawName] += perHour;
+      } else {
+        result[rawName] = perHour
+      }
+    })
+    return result;
+  }, {})
 }

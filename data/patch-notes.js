@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.1.99',
+    gameVer: '1.84',
+    date: '19/06/2023',
+    features: [
+      'Added total production per hour to the anvil page'
+    ],
+    fixes: []
+  },
+  {
     ver: '3.1.98',
     gameVer: '1.84',
     date: '18/06/2023',
