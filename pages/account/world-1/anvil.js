@@ -4,10 +4,10 @@ import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
 import { fillArrayToLength, notateNumber, prefix } from 'utility/helpers';
 import Timer from 'components/common/Timer';
 import styled from '@emotion/styled';
-import ProgressBar from 'components/common/ProgressBar';
 import { calcTotals, getPlayerAnvil, getTimeTillCap } from '../../../parsers/anvil';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
+import ProgressBar from '../../../components/common/ProgressBar';
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
@@ -81,32 +81,50 @@ const Anvil = () => {
               <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}
                      flexWrap={'wrap'} gap={3}>
                 {realProduction?.map((slot, slotIndex) => {
-                  const { rawName, hammers, currentAmount, currentProgress, requiredAmount } = slot;
+                  const { rawName, hammers, currentAmount, currentProgress, requiredAmount, currentXP } = slot;
                   const timePassed = (new Date().getTime() - afkTime) / 1000;
                   const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / requiredAmount) * (hammers ?? 0)), stats?.anvilCapacity);
                   const percentOfCap = Math.round(futureProduction / stats?.anvilCapacity * 100);
                   const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
+                  const timeFromZeroTillCap = getTimeTillCap({
+                    ...slot,
+                    stats,
+                    afkTime,
+                    currentAmount: 0,
+                    currentProgress: 0
+                  });
                   return <Card elevation={5}
                                sx={{ boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707' }}
                                key={`${rawName}-${slotIndex}`}>
-                    <CardContent>
-                      {hammers > 0 ? <Stack sx={{ width: 90, height: 65 }}
-                                            justifyContent={'flex-start'}
-                                            alignItems={'center'}>
-                        <Badge color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
-                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                        </Badge>
-                        <ProgressBar percent={percentOfCap} label={false}/>
-                        <Timer date={new Date().getTime() + (timeTillCap * 1000)}
-                               staticTime={true}
-                               type={'countdown'}
-                               placeholder={<Typography color={'error.light'}>Full</Typography>}
-                               lastUpdated={state?.lastUpdated}/>
-                      </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
-                                        justifyContent={'center'}>
-                        <Typography variant={'caption'}>EMPTY</Typography>
-                      </Stack>}
-                    </CardContent>
+                    <Tooltip title={<>
+                      <Typography>Max from zero</Typography>
+                      <Timer date={new Date().getTime() + (timeFromZeroTillCap * 1000)}
+                             staticTime={true}
+                             type={'countdown'}
+                             placeholder={<Typography color={'error.light'}>Full</Typography>}
+                             lastUpdated={state?.lastUpdated}/>
+                    </>}>
+                      <CardContent>
+                        {hammers > 0 ? <Stack justifyContent={'flex-start'}>
+                          <Badge anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                          }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
+                            <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                          </Badge>
+                          <Timer date={new Date().getTime() + (timeTillCap * 1000)}
+                                 staticTime={true}
+                                 type={'countdown'}
+                                 placeholder={<Typography color={'error.light'}>Full</Typography>}
+                                 lastUpdated={state?.lastUpdated}/>
+                          <Typography>Exp: {notateNumber(currentXP, 'Big')}</Typography>
+                          <ProgressBar percent={percentOfCap} label={false}/>
+                        </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
+                                          justifyContent={'center'}>
+                          <Typography variant={'caption'}>EMPTY</Typography>
+                        </Stack>}
+                      </CardContent>
+                    </Tooltip>
                   </Card>
                 })}
               </Stack>

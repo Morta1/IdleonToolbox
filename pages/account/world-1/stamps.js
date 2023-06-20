@@ -27,7 +27,9 @@ import { getHighestCapacityCharacter } from '../../../parsers/misc';
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
-  const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery') ? state?.account?.accountOptions?.[154] : 0;
+  const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
+    ? state?.account?.accountOptions?.[154]
+    : 0;
   const stampReducer = state?.account?.atoms?.stampReducer;
   const [selectedTab, setSelectedTab] = useState(0);
   const [stampsGoals, setStampsGoals] = useState();
@@ -74,7 +76,9 @@ const Stamps = () => {
     const reductionVal = getVialsBonusByEffect(state?.account?.alchemy?.vials, 'material_cost_for_stamps');
     const sigilBonus = getSigilBonus(state?.account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
     const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
-    const stampReducerVal = Math.max(0.1, 1 - (stampReducerInput !== stampReducer ? stampReducerInput : stampReducer) / 100);
+    const stampReducerVal = Math.max(0.1, 1 - (stampReducerInput !== stampReducer
+      ? stampReducerInput
+      : stampReducer) / 100);
     return (baseMatCost * ((gildedStamps > 0 || forcedGildedStamp) ? 0.05 : 1)
         * stampReducerVal
         * sigilReduction
@@ -154,7 +158,7 @@ const Stamps = () => {
           } = stamp;
           const goalLevel = stampsGoals?.[index] ? stampsGoals?.[index] < level ? level : stampsGoals?.[index] : level;
           const goalBonus = growth(func, goalLevel, x1, x2, true) * multiplier;
-          let hasMaterials, hasMoney, hasCharacter;
+          let hasMaterials, hasMoney, hasCharacter, ownedMats;
           const itemRequirements = itemReq?.map((item) => {
             const { rawName } = item;
             const materials = flattenCraftObject(crafts[items?.[rawName]?.displayName]);
@@ -172,7 +176,7 @@ const Stamps = () => {
                 return ownedMats >= itemQuantity * materialCost;
               })
             } else {
-              let ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+              ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
               ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
               hasMaterials = ownedMats >= materialCost;
             }
@@ -189,7 +193,11 @@ const Stamps = () => {
             }}>
               <CardContent sx={{ '&:last-child': { paddingBottom: 4 } }}>
                 {level > 0 ? <RequirementsWrapper>
-                  {!hasMaterials ? <HtmlTooltip title={`Not enough ${cleanUnderscore(itemReq?.[0]?.name)}`}>
+                  {!hasMaterials ? <HtmlTooltip title={<>
+                    <Typography>Not enough {cleanUnderscore(itemReq?.[0]?.name)}</Typography>
+                    <Typography>You have {notateNumber(ownedMats ?? 0, 'Big')}, you
+                      need {notateNumber(Math.abs((ownedMats ?? 0) - itemRequirements?.[0]?.materialCost), 'Big')}</Typography>
+                  </>}>
                     <img width={24} height={24} src={`${prefix}data/${itemReq?.[0]?.rawName}.png`} alt={''}/>
                   </HtmlTooltip> : null}
                   {!hasMoney ? <HtmlTooltip title={'Not enough coins'}>
@@ -223,8 +231,10 @@ const Stamps = () => {
                       <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
                       <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
                       <HtmlTooltip
-                        title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity) ? 0 : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
-                        <Stack direction='row' alignItems={'center'} gap={1}>
+                        title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity)
+                          ? 0
+                          : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
+                        <Stack direction="row" alignItems={'center'} gap={1}>
                           <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
                                     alt=""/>
 
