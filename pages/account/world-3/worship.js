@@ -26,41 +26,25 @@ const Worship = () => {
         description="Keep track of your worship charge and charge rate for all of your characters"
       />
       <Typography variant={'h2'}>Worship</Typography>
-      <Stack direction={'row'} gap={3}>
-        <Card sx={{ my: 3 }}>
-          <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Total Charge</Typography>
-            <Typography>{totalCharge}</Typography></CardContent>
-        </Card>
-        <Card sx={{ my: 3 }}>
-          <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Total Daily Charge</Typography>
-            <Typography>{Math.round(24 * totalChargeRate)}%</Typography>
-          </CardContent>
-        </Card>
-        <Card sx={{ my: 3 }}>
-          <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>First to full</Typography>
-            <Typography>{closestToFull?.character}</Typography>
-            <Timer type={'countdown'}
-                   placeholder={'You have overflowing charge'}
-                   date={new Date().getTime() + closestToFull?.timeLeft}
-                   lastUpdated={state?.lastUpdated}/>
-          </CardContent>
-        </Card>
-        <Card sx={{ my: 3 }}>
-          <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Best Wizard
-              - {bestWizard?.name}</Typography>
-            <Typography>Charge with syphon ({(bestWizard?.worship?.maxCharge + bestChargeSyphon)})</Typography>
-            <ProgressBar percent={(totalCharge / (bestWizard?.worship?.maxCharge + bestChargeSyphon)) * 100}
-                         bgColor={'secondary.dark'}/>
-            <Timer type={'countdown'}
-                   placeholder={'You have overflowing charge'}
-                   date={new Date().getTime() + (((bestWizard?.worship?.maxCharge + bestChargeSyphon) - totalCharge) / totalChargeRate * 1000 * 3600)}
-                   lastUpdated={state?.lastUpdated}/>
-          </CardContent>
-        </Card>
+      <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+        <CardTitleAndValue title={'Total Charge'} value={totalCharge}/>
+        <CardTitleAndValue title={'Total Daily Charge'} value={`${Math.round(24 * totalChargeRate)}%`}/>
+        <CardTitleAndValue title={'First to full'}>
+          <Typography>{closestToFull?.character}</Typography>
+          <Timer type={'countdown'}
+                 placeholder={'You have overflowing charge'}
+                 date={new Date().getTime() + closestToFull?.timeLeft}
+                 lastUpdated={state?.lastUpdated}/>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={`Best Wizard -${bestWizard?.name}`}>
+          <Typography>Charge with syphon ({(bestWizard?.worship?.maxCharge + bestChargeSyphon)})</Typography>
+          <ProgressBar percent={(totalCharge / (bestWizard?.worship?.maxCharge + bestChargeSyphon)) * 100}
+                       bgColor={'secondary.dark'}/>
+          <Timer type={'countdown'}
+                 placeholder={'You have overflowing charge'}
+                 date={new Date().getTime() + (((bestWizard?.worship?.maxCharge + bestChargeSyphon) - totalCharge) / totalChargeRate * 1000 * 3600)}
+                 lastUpdated={state?.lastUpdated}/>
+        </CardTitleAndValue>
       </Stack>
       <Stack gap={3} direction="row" flexWrap="wrap">
         {state?.characters?.map(({ worship, tools, name, classIndex, skillsInfo }, index) => {
@@ -100,5 +84,13 @@ const Worship = () => {
     </>
   );
 };
+const CardTitleAndValue = ({ cardSx, title, value, children }) => {
+  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
+    <CardContent>
+      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+      {value ? <Typography>{value}</Typography> : children}
+    </CardContent>
+  </Card>
+}
 
 export default Worship;

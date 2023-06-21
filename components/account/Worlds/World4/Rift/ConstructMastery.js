@@ -26,7 +26,7 @@ const ConstructMastery = ({ totalLevels }) => {
         <Bonus name={'Refinery_Dmg'} label={'Dmg'}
                value={totalLevels >= constructionMasteryThresholds?.[2] ? `${2 * Math.floor((totalLevels - constructionMasteryThresholds?.[2]) / 10)}%` : null}/>
         <Bonus name={'Refinery_Build_Spd'} label={'Build Spd'}
-               value={totalLevels >= constructionMasteryThresholds?.[4] ? `${2 * Math.floor((totalLevels - constructionMasteryThresholds?.[4]) / 10)}%` : null}/>
+               value={totalLevels >= constructionMasteryThresholds?.[4] ? `${5 * Math.floor((totalLevels - constructionMasteryThresholds?.[4]) / 10)}%` : null}/>
       </Stack></> : null}
 
     <Card sx={{ width: 'fit-content' }}>
