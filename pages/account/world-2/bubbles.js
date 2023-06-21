@@ -325,8 +325,7 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
           singleLevelCost,
           total
         } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-        let atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
-        atomCost = 1800
+        const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
         return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
           <HtmlTooltip title={<>
             <Typography sx={{ fontWeight: 'bold' }}>{pascalCase(cleanUnderscore(bubbleName))}</Typography>
