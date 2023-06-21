@@ -137,9 +137,9 @@ const Bubbles = () => {
         return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
       });
     });
-    let atomBubbleExpander = allBubbles.sort((a, b) => b.flatIndex - a.flatIndex)
-      .filter(({ level, index }) => level >= 5);
 
+    const atomBubbleExpander = allBubbles.sort((a, b) => b.flatIndex - a.flatIndex)
+      .filter(({ level, index }) => level >= 5).sort((a, b) => a.level - b.level);
     const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
     const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
     if (acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone')?.active) {
@@ -321,10 +321,38 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
       collider)</Typography> : null}
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
       {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
-        const { singleLevelCost } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-        const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+        const {
+          singleLevelCost,
+          total
+        } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
+        let atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+        atomCost = 1800
         return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
-          <HtmlTooltip title={<Typography>{pascalCase(cleanUnderscore(bubbleName))}</Typography>}>
+          <HtmlTooltip title={<>
+            <Typography sx={{ fontWeight: 'bold' }}>{pascalCase(cleanUnderscore(bubbleName))}</Typography>
+            <Stack direction={'row'} justifyContent={'center'} gap={1}>
+              {itemReq?.map(({ rawName }) => {
+                if (rawName === 'Blank' || rawName === 'ERROR' || rawName.includes('Liquid')) return null;
+                const x1Extension = ['sail', 'bits'];
+                const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
+                  ? `${rawName}_x1`
+                  : rawName;
+                return <Stack alignItems={'center'} direction={'row'} gap={1}>
+                  <Stack alignItems={'center'} justifyContent={'space-between'}>
+                    <ItemIcon src={`${prefix}data/${itemName}.png`} alt=""/>
+                    <Typography>{notateNumber(total, 'Big')}</Typography>
+                  </Stack>
+                  {atomCost > 0 ? <Stack alignItems={'center'} justifyContent={'space-between'}>
+                    <Stack sx={{ width: 32, height: 32 }} alignItems={'center'} justifyContent={'center'}>
+                      <img width={18} height={18}
+                           src={`${prefix}etc/Particle.png`} alt=""/>
+                    </Stack>
+                    <Typography>{atomCost}</Typography>
+                  </Stack> : null}
+                </Stack>
+              })}
+            </Stack>
+          </>}>
             <img
               style={{ opacity: lithium ? 0.8 : 1 }}
               width={42}

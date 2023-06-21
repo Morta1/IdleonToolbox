@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { constructionMasteryThresholds, getBuildCost } from '../../../parsers/construction';
@@ -11,16 +11,16 @@ import Tooltip from '../../../components/Tooltip';
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
+  const [sortBy, setSortBy] = useState('order')
   const buildSpeed = state?.account?.construction?.totalBuildRate;
   const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
-  const [bySpeed, setBySpeed] = useState(false);
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
     return itemReq.map(({ rawName, name, amount }) => {
       const math1 = Math.min(0.1, 0.1 * Math.floor((costCruncher.level + 999) / 1000));
       const math2 = Math.max(0, costCruncher.level - 1);
       const costReduction = Math.max(0.2, 1 - (math1 + (math2 * costCruncher.costInc[0]) / 100))
-      if (rawName.includes("Refinery")) {
+      if (rawName.includes('Refinery')) {
         return {
           rawName, name,
           amount: Math.floor(costReduction * amount * (level + 1))
@@ -35,6 +35,7 @@ const Buildings = () => {
   }
 
   const getConstructionMasteryBonus = (totalConstruct, index) => {
+    // "ExtraMaxLvAtom"
     if (index === 6) {
       return totalConstruct >= constructionMasteryThresholds?.[index] ? 30 : 0
     } else if (index === 5 || index === 4) {
@@ -73,6 +74,7 @@ const Buildings = () => {
       const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
       return {
         ...tower,
+        maxLevel,
         isMaxed: level === maxLevel,
         isSlotTrimmed,
         timeLeft,
@@ -84,19 +86,36 @@ const Buildings = () => {
   }, [state?.account]);
 
   const sortedBuildings = useMemo(() => {
-    if (!bySpeed) return b;
-    const towers = JSON.parse(JSON.stringify(b));
-    return towers?.sort((a, b) => {
-      const timeLeftA = (a?.buildCost - a?.progress) / buildSpeed;
-      const timeLeftB = (b?.buildCost - b?.progress) / buildSpeed;
-      if (!a?.inProgress) {
-        return 1;
-      } else if (!b?.inProgress) {
-        return -1;
-      }
-      return timeLeftA - timeLeftB;
-    })
-  }, [bySpeed]);
+    if (sortBy === 'order') return b;
+    else if (sortBy === 'time') {
+      const towers = JSON.parse(JSON.stringify(b));
+      return towers?.sort((a, b) => {
+        const timeLeftA = (a?.buildCost - a?.progress) / buildSpeed;
+        const timeLeftB = (b?.buildCost - b?.progress) / buildSpeed;
+        if (a?.isMaxed) {
+          return 1;
+        } else if (b?.isMaxed) {
+          return -1;
+        }
+        if (!a?.inProgress) {
+          return 1;
+        } else if (!b?.inProgress) {
+          return -1;
+        }
+        return timeLeftA - timeLeftB;
+      })
+    } else if (sortBy === 'requirement') {
+      const towers = JSON.parse(JSON.stringify(b));
+      return towers?.sort((a, b) => {
+        if (a?.isMaxed) {
+          return 1;
+        } else if (b?.isMaxed) {
+          return -1;
+        }
+        return a?.buildCost - b?.buildCost
+      })
+    }
+  }, [sortBy]);
 
   return <>
     <NextSeo
@@ -104,11 +123,12 @@ const Buildings = () => {
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
     <Typography variant={'h2'} mb={3}>Buildings</Typography>
-    <FormControlLabel
-      control={<Checkbox name={'bySpeed'} checked={bySpeed}
-                         size={'small'}
-                         onChange={() => setBySpeed(!bySpeed)}/>}
-      label={'Sort by time left'}/>
+    <Typography>Sort by</Typography>
+    <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => setSortBy(newSort)}>
+      <ToggleButton value={'order'}>Order</ToggleButton>
+      <ToggleButton value={'time'}>Time left</ToggleButton>
+      <ToggleButton value={'requirement'}>Build cost</ToggleButton>
+    </ToggleButtonGroup>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {sortedBuildings?.map((tower, index) => {
         let { name, progress, level, maxLevel, inProgress, isSlotTrimmed, isMaxed, items, buildCost, timeLeft } = tower;
@@ -116,7 +136,7 @@ const Buildings = () => {
           border: inProgress || isSlotTrimmed ? '1px solid' : '',
           borderColor: isSlotTrimmed ? 'warning.light' : inProgress ? progress < buildCost ? 'success.light' : '' : '',
           width: { xs: '100%', md: 450 },
-          height: { md: 160 }
+          height: { md: 165 }
         }}>
           <CardContent>
             <Stack direction={'row'} sx={{ gap: { xs: 2, sm: 3 } }} flexWrap={'wrap'}>
