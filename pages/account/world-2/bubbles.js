@@ -280,6 +280,17 @@ const Bubbles = () => {
                       ? `${rawName}_x1`
                       : rawName;
                     const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+                    let amount;
+                    if (rawName.includes('Liquid')) {
+                      const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
+                      amount = state?.account?.alchemy?.liquids?.[liquids?.[rawName]];
+                    } else if (rawName.includes('Bits')) {
+                      amount = state?.account?.gaming?.bits;
+                    } else if (rawName.includes('Sail')) {
+                      amount = state?.account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
+                    } else {
+                      amount = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+                    }
                     return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
                       {atomCost ? <Stack gap={2} alignItems={'center'}>
                           <Tooltip title={<Typography
@@ -298,9 +309,12 @@ const Bubbles = () => {
                           <ItemIcon src={`${prefix}data/${itemName}.png`}
                                     alt=""/>
                         </HtmlTooltip>
-                        <HtmlTooltip title={total}>
+                        <Tooltip
+                          title={<Typography color={amount >= total
+                            ? 'success.light'
+                            : ''}>{notateNumber(amount, 'Big')} / {notateNumber(total, 'Big')}</Typography>}>
                           <Typography>{notateNumber(total, 'Big')}</Typography>
-                        </HtmlTooltip>
+                        </Tooltip>
                       </Stack>
                     </Stack>
                   })}
