@@ -2,6 +2,7 @@ import {
   Card,
   CardContent,
   Checkbox,
+  Divider,
   FormControlLabel,
   InputAdornment,
   Stack,
@@ -21,6 +22,7 @@ import debounce from 'lodash.debounce';
 import { isArtifactAcquired } from '../../../parsers/sailing';
 import { NextSeo } from 'next-seo';
 import { getBubbleAtomCost, getBubbleBonus, getVialsBonusByStat } from '../../../parsers/alchemy';
+import Box from '@mui/material/Box';
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
@@ -135,7 +137,9 @@ const Bubbles = () => {
         return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
       });
     });
-    const atomBubbleExpander = allBubbles.sort((a, b) => b.flatIndex - a.flatIndex).find(({ bubbleName }) => bubbleName);
+    let atomBubbleExpander = allBubbles.sort((a, b) => b.flatIndex - a.flatIndex)
+      .filter(({ level, index }) => level >= 5);
+
     const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
     const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
     if (acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone')?.active) {
@@ -151,8 +155,12 @@ const Bubbles = () => {
     if (moreBubblesFromMerit > 0) {
       upgradeableBubblesAmount += moreBubblesFromMerit;
     }
-    const final = sorted.slice(0, upgradeableBubblesAmount);
-    return [...final, atomBubbleExpander];
+    const normal = sorted.slice(0, upgradeableBubblesAmount);
+    const atomBubbles = atomBubbleExpander.slice(0, upgradeableBubblesAmount);
+    return {
+      normal,
+      atomBubbles
+    };
   }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
 
@@ -174,38 +182,14 @@ const Bubbles = () => {
         description="Keep track of your bubbles level and requirements with a handy calculator"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Bubbles</Typography>
-      <Stack justifyContent={'center'} alignItems={'center'}>
-        <Typography>Next Bubble Upgrades:</Typography>
-        <Stack direction={'row'} flexWrap={'wrap'}>
-          {upgradeableBubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
-            const { singleLevelCost } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-            const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
-            const lastBubble = tIndex === upgradeableBubbles?.length - 1;
-            return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
-              <HtmlTooltip title={<>
-                <Typography>{pascalCase(cleanUnderscore(bubbleName))}</Typography>
-                {lastBubble ? <Typography mt={1} variant={'caption'}>This bubble has 15% chance to be
-                  upgraded by Lithium - Bubble Insta Expander</Typography> : null}
-              </>}>
-                <img style={{ opacity: lastBubble ? .5 : 1 }}
-                     src={`${prefix}data/${rawName}.png`} alt=""/>
-              </HtmlTooltip>
-              <Stack direction={'row'} alignItems={'center'} gap={.5}>
-                {atomCost > 0 ?
-                  <Tooltip title={<Typography
-                    color={state?.account?.atoms?.particles > atomCost
-                      ? 'success.light'
-                      : ''}>{Math.floor(state?.account?.atoms?.particles)} / {atomCost}</Typography>}>
-                    <img width={18} height={18}
-                         src={`${prefix}etc/Particle.png`} alt=""/>
-                  </Tooltip> : null}
-                <Typography variant={'body1'}>{level}</Typography>
-              </Stack>
-            </Stack>
-          })}
-        </Stack>
-      </Stack>
-      <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2}>
+      <Box sx={{ width: 'fit-content', margin: '24px auto' }}>
+        <Nblb title={'Next bubble upgrades'} bubbles={upgradeableBubbles?.normal} accumulatedCost={accumulatedCost}
+              account={state?.account}/>
+        <Divider sx={{ my: 2 }}/>
+        <Nblb lithium bubbles={upgradeableBubbles?.atomBubbles} accumulatedCost={accumulatedCost}
+              account={state?.account}/>
+      </Box>
+      <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
         {Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab] !== 'kazam' ?
           <FormControlLabel
             control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
@@ -223,8 +207,8 @@ const Bubbles = () => {
                      </InputAdornment>
                    }}/>
         <Card sx={{ alignItems: 'center', display: 'flex' }}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={2}>
+          <CardContent sx={{ '&:last-child': { px: 1, py: { xs: 1, sm: 0 } }, width: 200 }}>
+            <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1}>
               <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
               <Typography>Alternate particle upgrades left: {state?.account?.accountOptions?.[135]}</Typography>
             </Stack>
@@ -329,6 +313,40 @@ const Bubbles = () => {
     </>
   );
 };
+
+const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
+  return <Stack justifyContent={'center'} alignItems={'center'}>
+    <Typography>{title}</Typography>
+    {lithium ? <Typography variant={'caption'}>* 15% chance to be upgraded by lithium (atom
+      collider)</Typography> : null}
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+      {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
+        const { singleLevelCost } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
+        const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+        return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
+          <HtmlTooltip title={<Typography>{pascalCase(cleanUnderscore(bubbleName))}</Typography>}>
+            <img
+              style={{ opacity: lithium ? 0.8 : 1 }}
+              width={42}
+              height={42}
+              src={`${prefix}data/${rawName}.png`} alt=""/>
+          </HtmlTooltip>
+          <Stack direction={'row'} alignItems={'center'} gap={.5}>
+            {atomCost > 0 ?
+              <Tooltip title={<Typography
+                color={account?.atoms?.particles > atomCost
+                  ? 'success.light'
+                  : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
+                <img width={18} height={18}
+                     src={`${prefix}etc/Particle.png`} alt=""/>
+              </Tooltip> : null}
+            <Typography variant={'body1'}>{level}</Typography>
+          </Stack>
+        </Stack>
+      })}
+    </Stack>
+  </Stack>
+}
 
 const BonusIcon = styled.img`
   width: 32px;
