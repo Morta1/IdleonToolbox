@@ -2,7 +2,7 @@ import React, { Fragment, useMemo } from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { notateNumber, prefix } from '../../utility/helpers';
+import { getRealDateInMs, notateNumber, prefix } from '../../utility/helpers';
 import { getGiantMobChance, getRandomEvents } from '../../parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
@@ -19,6 +19,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
+  const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
 
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
@@ -78,19 +79,19 @@ const Etc = ({ characters, account, lastUpdated }) => {
       <Stack gap={1}>
         {account?.finishedWorlds?.World2 ? <Card sx={{ height: 'fit-content' }}>
           <CardContent>
-            <Tooltip title={'Next printer cycle'}>
+            <Tooltip title={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}>
               <Stack gap={1} direction={'row'} alignItems={'center'}>
                 <IconImg src={`${prefix}data/ConTower0.png`}/>
                 <Timer lastUpdated={lastUpdated}
                        type={'countdown'}
-                       date={new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000}/>
+                       date={nextPrinterCycle}/>
               </Stack>
             </Tooltip>
           </CardContent>
         </Card> : null}
         {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Card sx={{ height: 'fit-content' }}>
           <CardContent>
-            <Tooltip title={'Closest trap'}>
+            <Tooltip title={'Closest trap: ' + getRealDateInMs(closestTrap)}>
               <Stack gap={1} direction={'row'} alignItems={'center'}>
                 <IconImg src={`${prefix}data/TrapBoxSet1.png`}/>
                 <Timer lastUpdated={lastUpdated}
@@ -102,7 +103,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Card> : null}
         {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <Card sx={{ height: 'fit-content' }}>
           <CardContent>
-            <Tooltip title={'Closest building'}>
+            <Tooltip title={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}>
               <Stack gap={1} direction={'row'} alignItems={'center'}>
                 <IconImg src={`${prefix}data/${closestBuilding?.icon}.png`}/>
                 <Timer lastUpdated={lastUpdated}
@@ -114,7 +115,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Card> : null}
         {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Card sx={{ height: 'fit-content' }}>
           <CardContent>
-            <Tooltip title={`Closest full worship - ${closestWorshiper?.character}`}>
+            <Tooltip
+              title={`Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}>
               <Stack gap={1} direction={'row'} alignItems={'center'}>
                 <IconImg src={`${prefix}data/WorshipSkull3.png`}/>
                 <Timer lastUpdated={lastUpdated}
@@ -126,7 +128,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Card> : null}
         <Card>
           <CardContent>
-            <Tooltip title={'Next happy hour'}>
+            <Tooltip title={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <IconImg src={`${prefix}etc/Happy_Hour.png`}/>
                 {nextHappyHours?.length > 0 ?
@@ -168,7 +170,6 @@ const Etc = ({ characters, account, lastUpdated }) => {
                     in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
                 </Stack>
               </Tooltip>
-
             </Stack>
           </CardContent>
         </Card> : null}

@@ -27,7 +27,7 @@ const Apocalypses = () => {
         title="Idleon Toolbox | Apocalypses"
         description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
       />
-      <Typography textAlign={"center"} mt={2} mb={2} variant={"h2"}>Apocalypses</Typography>
+      <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Apocalypses</Typography>
       <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't
         zowed/chowed and how many you've already killed</Typography>
       <Stack gap={4}>
@@ -45,7 +45,9 @@ const Apocalypses = () => {
 
 const ApocDisplay = ({ apocName, charName, monsters }) => {
   return <Stack gap={2}>
-    <Typography variant={'h4'}>{charName} {apocName}ed {monsters?.finished?.join('/') ?? 0} monsters</Typography>
+    <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow'
+      ? monsters.finished.at(0)
+      : monsters?.finished?.join('/') ?? 0} monsters</Typography>
     {apocName === 'chow' ?
       <Typography component={'div'} variant={'caption'}>* Normal Chow requires 1M kills / Super Chow requires 100M
         kills</Typography> : null}

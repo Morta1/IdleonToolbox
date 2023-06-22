@@ -1,4 +1,4 @@
-import { getDaysInMonth, getDaysInYear, intervalToDuration } from 'date-fns';
+import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
 import { drawerPages } from '../components/constants';
 
 export const downloadFile = (data, filename) => {
@@ -408,9 +408,20 @@ export const getRandomNumbersArray = (length, max) => {
   }
   return arr;
 }
-
 export const shouldDisplayDrawer = (pathname = '') => {
   return drawerPages.includes(pathname?.split('/').at(1))
+}
+
+export const getRealDateInMs = (ms, shouldFormat = true) => {
+  let dateInMs = ms;
+  // const date = new Date(ms);
+  // if (date.isDstObserved()) {
+  //   dateInMs -= 3600 * 1000;
+  // }
+  if (shouldFormat) {
+    return isValid(new Date(dateInMs)) && format(dateInMs, 'dd/MM/yyyy HH:mm:ss')
+  }
+  return dateInMs;
 }
 export const prefix = isProd ? '/' : '/';
 
