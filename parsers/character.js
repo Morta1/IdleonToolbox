@@ -684,11 +684,18 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
     }
   });
   const boopKills = allKills[38];
+  const riftKills = allKills[166];
   list = [...list, {
     name: 'Boop',
     monsterFace: 33,
     done: thresholds?.map((threshold) => boopKills >= threshold),
     kills: boopKills,
+    thresholds
+  }, {
+    name: 'Rift Monsters',
+    monsterFace: 75,
+    done: thresholds?.map((threshold) => riftKills >= threshold),
+    kills: riftKills,
     thresholds
   }];
   const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],
