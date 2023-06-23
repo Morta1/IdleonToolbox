@@ -60,7 +60,9 @@ const NavBar = ({ children }) => {
       component={'main'}>
       {children}
     </Box>
-    <Box style={{
+    <Box
+      key={router?.pathname}
+      style={{
       backgroundColor: isProd ? '' : '#d73333',
       position: 'fixed',
       bottom: 0,
