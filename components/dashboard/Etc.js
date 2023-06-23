@@ -20,6 +20,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
+  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim))
 
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
@@ -126,6 +127,19 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Tooltip>
           </CardContent>
         </Card> : null}
+        <Card>
+          <CardContent>
+            <Tooltip title={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
+                <IconImg src={`${prefix}afk_targets/Dog.png`}/>
+                {nextCompanionClaim > 0 ?
+                  <Timer type={'countdown'} date={nextCompanionClaim}
+                         placeholder={'Go claim!'}
+                         lastUpdated={lastUpdated}/> : null}
+              </Stack>
+            </Tooltip>
+          </CardContent>
+        </Card>
         <Card>
           <CardContent>
             <Tooltip title={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}>
