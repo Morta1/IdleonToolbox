@@ -194,8 +194,10 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.anvil = charactersData.map(({ anvil }) => anvil);
 
   accountData.bundles = getBundles(idleonData);
-  const bankMoney = parseInt(idleonData?.MoneyBANK);
-  const playersMoney = charactersData?.reduce((res, char) => res + parseInt(char?.money), 0);
+  const bankMoney = parseFloat(idleonData?.MoneyBANK);
+  const playersMoney = charactersData?.reduce((res, char) => {
+    return res + parseFloat(char?.money)
+  }, 0);
   const money = bankMoney + playersMoney;
   accountData.currencies.rawMoney = money;
   accountData.currencies.money = getCoinsArray(money);

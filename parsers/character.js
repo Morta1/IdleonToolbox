@@ -199,7 +199,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const currentMapIndex = char?.CurrentMap;
   character.mapIndex = currentMapIndex;
   character.currentMap = mapNames?.[currentMapIndex];
-  character.money = parseInt(char?.Money);
+  character.money = parseFloat(char?.Money);
   character.cooldowns = char?.[`AttackCooldowns`];
   const statMap = { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' };
   character.stats = char?.PersonalValuesMap?.StatList?.reduce((res, statValue, index) => {
@@ -419,7 +419,6 @@ export const getRespawnRate = (character, account) => {
       { name: 'Not fighting', value: 'TOWN' }
     ]
   };
-  console.log(monster)
   const isRift = targetMonster === 'riftAll';
   const { RespawnTime, worldIndex } = monster;
   const shrineBonus = getShrineBonus(account?.shrines, 7, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
@@ -443,7 +442,6 @@ export const getRespawnRate = (character, account) => {
   const worldFourMeritBonusPerLevel = tasks?.[3]?.[1]?.bonusPerLevel;
 
   const worldFiveAchievement = getAchievementStatus(account?.achievements, 308);
-  console.log('worldFiveAchievement', worldFiveAchievement)
   const worldFiveMeritBonus = account?.tasks?.[2]?.[4]?.[1];
   const worldFiveMeritBonusPerLevel = tasks?.[4]?.[1]?.bonusPerLevel;
 

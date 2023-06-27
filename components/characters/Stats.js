@@ -145,9 +145,10 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
                                                   notate={breakdownNotation}/> : ''}>
       {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
         {processString([{
-          regex: /\[/g,
-          fn: (key) => {
-            return <DamageIcon key={key} src={`${prefix}etc/Damage_M.png`} alt=""/>
+          regex: /[\[!]/g,
+          fn: (key, match) => {
+            const modifier = match.at(0);
+            return <DamageIcon key={key} src={`${prefix}etc/Damage_${modifier === '[' ? 'M' : 'T'}.png`} alt=""/>
           }
         }])(value)}
       </Typography>}
