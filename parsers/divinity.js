@@ -1,6 +1,7 @@
-import { isGodEnabledBySorcerer } from "./lab";
+import { isGodEnabledBySorcerer } from './lab';
+import { isCompanionBonusActive } from './misc';
 
-const { tryToParse } = require("../utility/helpers");
+const { tryToParse } = require('../utility/helpers');
 const { gods } = require('../data/website-data');
 
 export const getDivinity = (idleonData, serializedCharactersData) => {
@@ -46,32 +47,15 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
   return char?.deityMinorBonus;
 }
 
-export const getDeityLinkedIndex = (deities, characters, deityIndex) => {
-  const normalLink = deities?.map((deity, index) => deityIndex === deity ? index : -1);
-  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) ? index : -1);
-  return normalLink?.map((charIndex, index) => charIndex === -1 && esLink?.[index] !== -1 ? esLink?.[index] : charIndex) || [];
+export const getDeityLinkedIndex = (account, characters, deityIndex) => {
+  const normalLink = account?.divinity?.linkedDeities?.map((deity, index) => deityIndex === deity || isCompanionBonusActive(account, 0)
+    ? index
+    : -1);
+  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) || isCompanionBonusActive(account, 0)
+    ? index
+    : -1);
+  return (normalLink?.map((charIndex, index) => charIndex === -1
+  && esLink?.[index] !== -1
+    ? esLink?.[index]
+    : charIndex)) || [];
 }
-
-// export const getDivStyleExpAndPoints = (divStyle) => {
-//   const divPerHour = getDivinityPerHour(divStyle);
-//   const style = divStyles?.[divStyle];
-//   return {
-//     ...style,
-//   }
-// }
-
-// const getDivinityPerHour = (divStyle) => {
-//   if (divStyle === 0 || divStyle === 2 || divStyle === 3) {
-//     return 1;
-//   } else if (divStyle === 1) {
-//     return 2;
-//   } else if (divStyle === 4) {
-//     return 7;
-//   } else if (divStyle === 5) {
-//     return 3;
-//   } else if (divStyle === 6) {
-//     return 4;
-//   } else if (divStyle === 7) {
-//     return 10;
-//   }
-// }

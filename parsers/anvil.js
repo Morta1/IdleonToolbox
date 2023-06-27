@@ -211,7 +211,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Skill_EXP');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   let godBonus = 0;
-  const flutterbisIndexes = getDeityLinkedIndex(account?.divinity?.linkedDeities, characters, 7);
+  const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
   if (flutterbisIndexes?.[character?.playerId] !== -1) {
     godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7)
   }

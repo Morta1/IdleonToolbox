@@ -1,9 +1,9 @@
-import { growth, tryToParse } from "../utility/helpers";
-import { chips, classes, jewels, labBonuses, randomList, talents, tasks } from "../data/website-data";
-import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getCardBonusByEffect } from "./cards";
+import { growth, tryToParse } from '../utility/helpers';
+import { chips, classes, jewels, labBonuses, randomList, talents, tasks } from '../data/website-data';
+import { getMealsBonusByEffectOrStat } from './cooking';
+import { getCardBonusByEffect } from './cards';
 import { isArenaBonusActive, isCompanionBonusActive } from './misc';
-import { getShinyBonus } from "./breeding";
+import { getShinyBonus } from './breeding';
 
 export const getLab = (idleonData, charactersData, account) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -45,19 +45,20 @@ const parseLab = (labRaw, charactersData, account) => {
     });
   });
 
-  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || character?.AFKtarget === "Laboratory" ||
+  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || character?.AFKtarget === 'Laboratory' ||
     isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character) => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
       y: playersCords?.[character?.playerId]?.y,
-
     }));
 
   const chipList = JSON.parse(JSON.stringify(chips));
   chipRepo?.map((chipCount, chipIndex) => {
     if (chipIndex < chips.length) {
-      const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index ? 1 : 0), 0);
+      const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index
+        ? 1
+        : 0), 0);
       chipList[chipIndex].amount = chipCount - playerUsedCount;
     }
   });
@@ -76,7 +77,7 @@ const parseLab = (labRaw, charactersData, account) => {
     foundNewConnection = false;
     counter += 1;
     playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-      playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer);
+      playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData);
 
     if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
       const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -92,6 +93,9 @@ const parseLab = (labRaw, charactersData, account) => {
         if (newPlayer && !connectedPlayers.find((player) => player.playerId === newPlayer.playerId)) {
           newPlayerConnection = true;
           connectedPlayers = [...connectedPlayers, newPlayer];
+        }
+        if (i === 6) {
+
         }
         const spelunkerObolMulti = getLabBonus(labBonusesList, 8); // gem multi
         const pyriteRhombolBonus = getJewelBonus(jewelsList, 9, spelunkerObolMulti); // range bonus
@@ -110,7 +114,9 @@ const parseLab = (labRaw, charactersData, account) => {
         labBonusesList = labBonuses.resArr;
         jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], true);
         jewelsList = jewels.resArr;
-        foundNewConnection = !foundNewConnection ? newPlayerConnection || jewels?.newConnection || labBonuses?.newConnection : foundNewConnection;
+        foundNewConnection = !foundNewConnection
+          ? newPlayerConnection || jewels?.newConnection || labBonuses?.newConnection
+          : foundNewConnection;
       }
     }
   }
@@ -120,7 +126,9 @@ const parseLab = (labRaw, charactersData, account) => {
 
   const totalSpeciesUnlocked = account?.breeding.speciesUnlocks.reduce((sum, world) => sum + world, 0);
   const purpleNaveete = jewelsList?.[1]?.active;
-  labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * (purpleNaveete ? 1.75 : 1), 0, purpleNaveete ? 1.75 : 1);
+  labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * (purpleNaveete ? 1.75 : 1), 0, purpleNaveete
+    ? 1.75
+    : 1);
 
   let greenStacks = account?.storage?.filter(item => item.amount >= 1e7).length;
   const bankerFuryBonusFromJewel = jewelsList?.[17]?.active ? 1.5 : 0;
@@ -195,7 +203,7 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, a
     const realIndex = charactersData?.find(({ name }) => name === character?.name)?.playerId;
     const lineWidth = getPlayerLineWidth(character,
       character?.Lv0?.[12], // lab skill
-      realIndex < soupedTubes,
+      realIndex <= soupedTubes,
       labBonuses,
       jewels,
       chips?.[character?.playerId],
@@ -231,7 +239,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   const shinyLabBonus = getShinyBonus(account?.breeding?.pets, 'Line_Width_in_Lab');
 
   let purpleTubeBonus = 0;
-  if (playerCords?.x >= buboPlayer?.x) {
+  if (playerCords?.x > buboPlayer?.x) {
     const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
     const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'] || {};
     purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
@@ -243,7 +251,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   // HAS CHIPS
   // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
   return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
-    (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + shinyLabBonus + bonusLineWidth)) / 100))
+    (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + shinyLabBonus + bonusLineWidth)) / 100));
 }
 
 const getPrismPlayerConnection = (playersInTubes) => {

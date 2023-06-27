@@ -1,10 +1,10 @@
-import { lavaLog, tryToParse } from "../utility/helpers";
-import { getDeityLinkedIndex } from "./divinity";
-import { isArtifactAcquired } from "./sailing";
-import { getTalentBonus } from "./talents";
-import { getSkillMasteryBonusByIndex } from "./misc";
-import { calculateItemTotalAmount } from "./items";
-import { getAtomColliderThreshold } from "./atomCollider";
+import { lavaLog, tryToParse } from '../utility/helpers';
+import { getDeityLinkedIndex } from './divinity';
+import { isArtifactAcquired } from './sailing';
+import { getTalentBonus } from './talents';
+import { getSkillMasteryBonusByIndex } from './misc';
+import { calculateItemTotalAmount } from './items';
+import { getAtomColliderThreshold } from './atomCollider';
 
 export const getPrinter = (idleonData, charactersData, accountData) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
@@ -13,16 +13,18 @@ export const getPrinter = (idleonData, charactersData, accountData) => {
 }
 
 const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
-  const harriepGodIndex = getDeityLinkedIndex(accountData?.divinity?.linkedDeities, charactersData, 3);
+  const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, 3);
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
-  const goldRelicBonus = goldRelic?.acquired === 3 ? goldRelic?.eldritchMultiplier : goldRelic?.acquired === 2 ? goldRelic?.ancientMultiplier : 0;
+  const goldRelicBonus = goldRelic?.acquired === 3 ? goldRelic?.eldritchMultiplier : goldRelic?.acquired === 2
+    ? goldRelic?.ancientMultiplier
+    : 0;
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
   const daysSinceLastSample = accountData?.accountOptions?.[125];
   const orbOfRemembranceKills = accountData?.accountOptions?.[138];
   const divineKnights = charactersData?.filter((character) => character?.class === 'Divine_Knight');
   const highestKingOfRemembrance = divineKnights?.reduce((res, { talents }) => {
-    const kingOfRemembrance = getTalentBonus(talents, 3, "KING_OF_THE_REMEMBERED", false, true);
+    const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, true);
     if (kingOfRemembrance > res) {
       return kingOfRemembrance
     }

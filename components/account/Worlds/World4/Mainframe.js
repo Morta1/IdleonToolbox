@@ -4,6 +4,7 @@ import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { isGodEnabledBySorcerer } from '../../../../parsers/lab';
+import Box from '@mui/material/Box';
 
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) => {
   return (
@@ -49,7 +50,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
                        sx={{ borderColor: jewel?.active ? 'success.dark' : '', opacity: jewel?.acquired ? 1 : .3 }}>
             <CardContent>
               <Tooltip title={<JewelTooltip {...jewel}/>}>
-                <JewelIcon style={{ borderRadius: "50%" }}
+                <JewelIcon style={{ borderRadius: '50%' }}
                            src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
               </Tooltip>
             </CardContent>
@@ -70,7 +71,7 @@ const JewelIcon = styled.img`
 
 const BonusTooltip = ({ name, description, bonusDesc, extraData }) => {
   let desc = extraData ? description?.replace(/\+[0-9]+%/, `+${extraData}%`) : description;
-  desc = bonusDesc ? desc.replace(/{/, bonusDesc) : desc?.split("@_-_@")[0];
+  desc = bonusDesc ? desc.replace(/{/, bonusDesc) : desc?.split('@_-_@')[0];
   return <>
     <Typography my={1} fontWeight={'bold'}
                 variant={'h5'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
@@ -83,8 +84,53 @@ const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
     <Typography mb={1} fontWeight={'bold'}
                 variant={'h5'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
     <Typography
-      sx={{ color: multiplier > 1 ? 'multi' : '' }}>{cleanUnderscore(effect?.replace(/}/g, bonus * multiplier)).split('@')[0]}</Typography>
+      sx={{
+        color: multiplier > 1
+          ? 'multi'
+          : ''
+      }}>{cleanUnderscore(effect?.replace(/}/g, bonus * multiplier)).split('@')[0]}</Typography>
   </>
+}
+
+const Map = ({ playersCords, labBonuses, jewels }) => {
+  return <Box sx={{ position: 'relative', height: 200 }}>
+    {playersCords.map(({ x, y, playerName }) => {
+      return <Tooltip title={playerName} key={'map' + playerName}>
+        <Box
+          sx={{
+            position: 'absolute',
+            left: x / 2,
+            top: y / 2.5,
+            backgroundColor: 'white',
+            height: 24,
+            width: 24,
+            borderRadius: '50%'
+          }}/>
+      </Tooltip>
+    })}
+    {labBonuses.map(({ x, y, name, index, active }) => {
+      return active ? <Box key={'map' + name}
+                           sx={{
+                             position: 'absolute',
+                             left: x / 2,
+                             top: y / 2.5,
+                           }}>
+        <BonusIcon style={{ width: 24 }} src={`${prefix}data/LabBonus${index}.png`}
+                   alt=""/>
+      </Box> : null
+    })}
+    {jewels.map(({ x, y, name, rawName, active }) => {
+      return active ? <Box key={'map' + name}
+                           sx={{
+                             position: 'absolute',
+                             left: x / 2,
+                             top: y / 2.5,
+                           }}>
+        <JewelIcon style={{ width: 24 }}
+                   src={`${prefix}data/${rawName}.png`} alt=""/>
+      </Box> : null
+    })}
+  </Box>
 }
 
 
