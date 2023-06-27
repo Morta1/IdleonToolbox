@@ -38,7 +38,7 @@ const parseCards = (cardsRaw, rawRift, account) => {
       const cardDetails = cards?.[name];
       const rawSixStarList = account?.accountOptions?.[155] || '';
       const sixStarList = rawSixStarList?.toString()?.split(',') || [];
-      const stars = rubyCards && sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount, name, rubyCards);
+      const stars = sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount, name, rubyCards);
       if (!cardDetails) return res;
       return {
         ...res,
