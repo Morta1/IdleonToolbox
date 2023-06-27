@@ -413,7 +413,13 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 export const getRespawnRate = (character, account) => {
   const { targetMonster } = character;
   const monster = monsters?.[targetMonster];
-  if (!monster) return 0;
+  if (!monster || monster?.AFKtype === 'Nothing') return {
+    respawnRate: 0,
+    breakdown: [
+      { name: 'Not fighting', value: 'TOWN' }
+    ]
+  };
+  console.log(monster)
   const isRift = targetMonster === 'riftAll';
   const { RespawnTime, worldIndex } = monster;
   const shrineBonus = getShrineBonus(account?.shrines, 7, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
@@ -437,6 +443,7 @@ export const getRespawnRate = (character, account) => {
   const worldFourMeritBonusPerLevel = tasks?.[3]?.[1]?.bonusPerLevel;
 
   const worldFiveAchievement = getAchievementStatus(account?.achievements, 308);
+  console.log('worldFiveAchievement', worldFiveAchievement)
   const worldFiveMeritBonus = account?.tasks?.[2]?.[4]?.[1];
   const worldFiveMeritBonusPerLevel = tasks?.[4]?.[1]?.bonusPerLevel;
 

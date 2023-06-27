@@ -14,10 +14,10 @@ import styled from '@emotion/styled';
 import CoinDisplay from '../common/CoinDisplay';
 
 const colors = {
-  strength: "error.light",
-  agility: "success.light",
-  wisdom: "secondary",
-  luck: "warning.light"
+  strength: 'error.light',
+  agility: 'success.light',
+  wisdom: 'secondary',
+  luck: 'warning.light'
 };
 
 const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, characters }) => {
@@ -33,7 +33,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
 
   const isOvertime = () => {
-    const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
+    const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
     const timePassed = new Date().getTime() + (afkTime - lastUpdated);
     const hours = differenceInHours(new Date(), new Date(timePassed));
     return hasUnendingEnergy && hours > 10;
@@ -47,36 +47,38 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 
   return (
     <>
-      <Stack gap={2} flexWrap={"wrap"}>
+      <Stack gap={2} flexWrap={'wrap'}>
         {activityFilter ?
           <Activity afkTarget={afkTarget} divStyle={character?.divStyle} playerId={playerId} account={account}/> : null}
         {statsFilter ? <>
           {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
-            <Card variant={"outlined"}>
+            <Card variant={'outlined'}>
               <CardContent>
-                <Typography color={"info.light"}>Next Portal</Typography>
+                <Typography color={'info.light'}>Next Portal</Typography>
                 <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
               </CardContent>
             </Card>
           ) : null}
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
             {Object.entries(stats)?.map(([statName, statValue], index) => {
-              return statName !== "level" ? (
+              return statName !== 'level' ? (
                 <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}>
                   <Typography component={'span'}
-                              variant={"body1"}
-                              color={colors?.[statName] || "info.light"}>
+                              variant={'body1'}
+                              color={colors?.[statName] || 'info.light'}>
                     {pascalCase(statName)}
                   </Typography>
-                  <Typography variant={"body1"}
-                              component={"span"}>{Math.floor(statValue)}</Typography>
+                  <Typography variant={'body1'}
+                              component={'span'}>{Math.floor(statValue)}</Typography>
                 </Stack>
               ) : null;
             })}
             <Stat title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
             <Stat title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
             <Stat title={'Kills Per Hour'}
-                  value={playerInfo?.finalKillsPerHour > 1e6 ? notateNumber(playerInfo?.finalKillsPerHour) : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
+                  value={playerInfo?.finalKillsPerHour > 1e6
+                    ? notateNumber(playerInfo?.finalKillsPerHour)
+                    : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
             <Stat title={'Defence'} value={notateNumber(playerInfo?.defence)}/>
             <Stat title={'C. chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
             <Stat title={'C. damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
@@ -102,9 +104,9 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             />
           </Stack>
 
-          <Card variant={"outlined"}>
+          <Card variant={'outlined'}>
             <CardContent>
-              <Typography color={"info.light"}>Crystal Chance</Typography>
+              <Typography color={'info.light'}>Crystal Chance</Typography>
               <Stack direction={'row'} gap={1}>
                 <Typography>{(1 / crystalSpawnChance?.value) < 100
                   ?
@@ -116,14 +118,14 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               </Stack>
             </CardContent>
           </Card>
-          <Card variant={"outlined"}>
+          <Card variant={'outlined'}>
             <CardContent>
-              <Typography color={"info.light"}>Afk time</Typography>
-              <Stack direction={"row"} alignItems={"center"} gap={1} color={isOvertime() ? "error.light" : ""}>
+              <Typography color={'info.light'}>Afk time</Typography>
+              <Stack direction={'row'} alignItems={'center'} gap={1} color={isOvertime() ? 'error.light' : ''}>
                 {!isAfk() ? <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/> :
-                  <Typography color={"success.light"}>Active</Typography>}
+                  <Typography color={'success.light'}>Active</Typography>}
                 {isOvertime() ? (
-                  <Tooltip title={"This character is afk more than 10 hours with Unending Energy prayer"}>
+                  <Tooltip title={'This character is afk more than 10 hours with Unending Energy prayer'}>
                     <InfoIcon/>
                   </Tooltip>
                 ) : null}
@@ -138,7 +140,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 
 const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
   return <Stack direction={'row'} justifyContent={'space-between'}>
-    <Typography color={"info.light"}>{title}</Typography>
+    <Typography color={'info.light'}>{title}</Typography>
     <Tooltip title={breakdown ? <BreakdownTooltip breakdown={breakdown}
                                                   notate={breakdownNotation}/> : ''}>
       {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
@@ -159,7 +161,9 @@ const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
     {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
                                                                titleStyle={{ width: titleWidth }}
                                                                title={name}
-                                                               value={!isNaN(value) ? notateNumber(value, notate) : value}/>)}
+                                                               value={!isNaN(value)
+                                                                 ? notateNumber(value, notate)
+                                                                 : value}/>)}
   </Stack>
 }
 
