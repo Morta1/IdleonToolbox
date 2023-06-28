@@ -128,6 +128,22 @@ const Bubbles = () => {
   const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
     bargainTag, classDiscount]);
 
+  const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
+    const bubblesArrays = Object.values(acc?.alchemy?.bubbles || {})
+      .map((array) => array.filter(({
+                                      level,
+                                      index
+                                    }) => level >= 5 && index < maxBubbleIndex)
+        .sort((a, b) => a.level - b.level));
+    const bubblePerCauldron = Math.ceil(numberOfBubbles / 4);
+    const lowestBubbles = [];
+    for (let j = 0; j < bubblesArrays.length; j++) {
+      const bubblesArray = bubblesArrays[j];
+      lowestBubbles.push(bubblesArray.slice(0, bubblePerCauldron));
+    }
+    return lowestBubbles.flat();
+  }
+
   const getUpgradeableBubbles = (acc) => {
     let upgradeableBubblesAmount = 3;
     const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
@@ -138,8 +154,6 @@ const Bubbles = () => {
       });
     });
 
-    const atomBubbleExpander = allBubbles.sort((a, b) => b.flatIndex - a.flatIndex)
-      .filter(({ level, index }) => level >= 5).sort((a, b) => a.level - b.level);
     const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
     const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
     if (acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone')?.active) {
@@ -156,7 +170,7 @@ const Bubbles = () => {
       upgradeableBubblesAmount += moreBubblesFromMerit;
     }
     const normal = sorted.slice(0, upgradeableBubblesAmount);
-    const atomBubbles = atomBubbleExpander.slice(0, upgradeableBubblesAmount);
+    const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount);
     return {
       normal,
       atomBubbles
@@ -340,17 +354,17 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
           total
         } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
         const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
-        return <Stack alignItems={'center'} key={`${rawName}-${tIndex}`}>
+        return <Stack alignItems={'center'} key={`${rawName}-${tIndex}-${lithium}-nblb`}>
           <HtmlTooltip title={<>
             <Typography sx={{ fontWeight: 'bold' }}>{pascalCase(cleanUnderscore(bubbleName))}</Typography>
             <Stack direction={'row'} justifyContent={'center'} gap={1}>
-              {itemReq?.map(({ rawName }) => {
+              {itemReq?.map(({ rawName }, index) => {
                 if (rawName === 'Blank' || rawName === 'ERROR' || rawName.includes('Liquid')) return null;
                 const x1Extension = ['sail', 'bits'];
                 const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
                   ? `${rawName}_x1`
                   : rawName;
-                return <Stack alignItems={'center'} direction={'row'} gap={1}>
+                return <Stack alignItems={'center'} direction={'row'} gap={1} key={'req' + rawName + index}>
                   <Stack alignItems={'center'} justifyContent={'space-between'}>
                     <ItemIcon src={`${prefix}data/${itemName}.png`} alt=""/>
                     <Typography>{notateNumber(total, 'Big')}</Typography>
