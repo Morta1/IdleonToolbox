@@ -1,5 +1,5 @@
-import { tryToParse } from "../utility/helpers";
-import { achievements } from "../data/website-data";
+import { tryToParse } from '../utility/helpers';
+import { achievements } from '../data/website-data';
 
 export const getAchievements = (idleonData) => {
   const achievementsRaw = tryToParse(idleonData?.AchieveReg) || idleonData?.AchieveReg;
