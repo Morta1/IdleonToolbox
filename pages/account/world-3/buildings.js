@@ -67,11 +67,13 @@ const Buildings = () => {
       const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
       const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0);
       const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
+      let trimmedSlotSpeed = 0;
       if (isSlotTrimmed) {
         const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
         progress += (3 + atomBonus / 100) * (timePassed / 3600) * buildSpeed;
+        trimmedSlotSpeed = (3 + atomBonus / 100) * buildSpeed;
       }
-      const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
+      const timeLeft = (buildCost - progress) / (trimmedSlotSpeed || buildSpeed) * 1000 * 3600;
       return {
         ...tower,
         maxLevel,
@@ -80,7 +82,8 @@ const Buildings = () => {
         timeLeft,
         progress,
         buildCost,
-        items
+        items,
+        trimmedSlotSpeed
       }
     })
   }, [state?.account]);
