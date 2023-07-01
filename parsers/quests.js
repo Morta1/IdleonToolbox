@@ -1,5 +1,5 @@
-import { quests } from "../data/website-data";
-import { cloneObject } from "../utility/helpers";
+import { quests } from '../data/website-data';
+import { cloneObject } from '../utility/helpers';
 
 
 export const isWorldFinished = (characters, worldIndex) => {
@@ -9,7 +9,9 @@ export const isWorldFinished = (characters, worldIndex) => {
     3: 'Carpenter_Cardinal',
     4: 'Muhmuguh'
   }
-  return characters?.some(({ npcDialog }) => worldIndex === 4 ? npcDialog?.[worldGatekeeper?.[worldIndex]] : npcDialog?.[worldGatekeeper?.[worldIndex]] === 9999);
+  return characters?.some(({ npcDialog }) => worldIndex === 4
+    ? npcDialog?.[worldGatekeeper?.[worldIndex]]
+    : npcDialog?.[worldGatekeeper?.[worldIndex]] === 9999);
 }
 
 export const getQuests = (characters) => {
@@ -78,264 +80,269 @@ export const getPlayerQuests = (quests) => {
 }
 
 export const worldNpcMap = {
-  "Scripticus": {
-    "world": "Blunder_Hills",
+  'Scripticus': {
+    'world': 'Blunder_Hills',
     index: 0
   },
-  "Glumlee": {
-    "world": "Blunder_Hills",
+  'Glumlee': {
+    'world': 'Blunder_Hills',
     index: 1
   },
-  "Krunk": {
-    "world": "Blunder_Hills",
+  'Krunk': {
+    'world': 'Blunder_Hills',
     index: 2
   },
-  "Mutton": {
-    "world": "Blunder_Hills",
+  'Mutton': {
+    'world': 'Blunder_Hills',
     index: 3
   },
-  "Woodsman": {
-    "world": "Blunder_Hills",
+  'Woodsman': {
+    'world': 'Blunder_Hills',
     index: 4
   },
-  "Hamish": {
-    "world": "Blunder_Hills",
+  'Hamish': {
+    'world': 'Blunder_Hills',
     index: 5
   },
-  "Toadstall": {
-    "world": "Blunder_Hills",
+  'Toadstall': {
+    'world': 'Blunder_Hills',
     index: 5
   },
-  "Picnic_Stowaway": {
-    "world": "Blunder_Hills",
+  'Picnic_Stowaway': {
+    'world': 'Blunder_Hills',
     index: 6
   },
-  "Promotheus": {
-    "world": "Blunder_Hills",
+  'Promotheus': {
+    'world': 'Blunder_Hills',
     index: 6,
   },
-  "Typhoon": {
-    "world": "Blunder_Hills",
+  'Typhoon': {
+    'world': 'Blunder_Hills',
     index: 7
   },
-  "Sprout": {
-    "world": "Blunder_Hills",
+  'Sprout': {
+    'world': 'Blunder_Hills',
     index: 8
   },
-  "Dazey": {
-    "world": "Blunder_Hills",
+  'Dazey': {
+    'world': 'Blunder_Hills',
     index: 9
   },
-  "Telescope": {
-    "world": "Blunder_Hills",
+  'Telescope': {
+    'world': 'Blunder_Hills',
     index: 10
   },
-  "Stiltzcho": {
-    "world": "Blunder_Hills",
+  'Stiltzcho': {
+    'world': 'Blunder_Hills',
     index: 11
   },
-  "Funguy": {
-    "world": "Blunder_Hills",
+  'Funguy': {
+    'world': 'Blunder_Hills',
     index: 12
   },
-  "Tiki_Chief": {
-    "world": "Blunder_Hills",
+  'Tiki_Chief': {
+    'world': 'Blunder_Hills',
     index: 13
   },
-  "Dog_Bone": {
-    "world": "Blunder_Hills",
+  'Dog_Bone': {
+    'world': 'Blunder_Hills',
     index: 14
   },
-  "Papua_Piggea": {
-    "world": "Blunder_Hills",
+  'Papua_Piggea': {
+    'world': 'Blunder_Hills',
     index: 15
   },
-  "TP_Pete": {
-    "world": "Blunder_Hills",
+  'TP_Pete': {
+    'world': 'Blunder_Hills',
     index: 16
   },
-  "Meel": {
-    "world": "Blunder_Hills",
+  'Meel': {
+    'world': 'Blunder_Hills',
     index: 17
   },
-  "Town_Marble": {
-    "world": ""
+  'Town_Marble': {
+    'world': ''
   },
-  "Mr_Pigibank": {
-    "world": ""
+  'Mr_Pigibank': {
+    'world': ''
   },
-  "Secretkeeper": {
-    "world": ""
+  'Secretkeeper': {
+    'world': ''
   },
-  "Bushlyte": {
-    "world": ""
+  'Bushlyte': {
+    'world': ''
   },
-  "Rocklyte": {
-    "world": ""
+  'Rocklyte': {
+    'world': ''
   },
-  "Cowbo_Jones": {
-    "world": "Yum-Yum_Desert",
+  'Cowbo_Jones': {
+    'world': 'Yum-Yum_Desert',
     index: 0
   },
-  "Fishpaste97": {
-    "world": "Yum-Yum_Desert",
+  'Fishpaste97': {
+    'world': 'Yum-Yum_Desert',
     index: 1
   },
-  "Scubidew": {
-    "world": "Yum-Yum_Desert",
+  'Scubidew': {
+    'world': 'Yum-Yum_Desert',
     index: 2
   },
-  "Whattso": {
-    "world": "Yum-Yum_Desert",
+  'Whattso': {
+    'world': 'Yum-Yum_Desert',
     index: 3
   },
-  "Bandit_Bob": {
-    "world": "Yum-Yum_Desert",
+  'Bandit_Bob': {
+    'world': 'Yum-Yum_Desert',
     index: 4
   },
-  "Carpetiem": {
-    "world": "Yum-Yum_Desert",
+  'Carpetiem': {
+    'world': 'Yum-Yum_Desert',
     index: 5
   },
-  "Centurion": {
-    "world": "Yum-Yum_Desert",
+  'Centurion': {
+    'world': 'Yum-Yum_Desert',
     index: 6
   },
-  "Goldric": {
-    "world": "Yum-Yum_Desert",
+  'Goldric': {
+    'world': 'Yum-Yum_Desert',
     index: 7
   },
-  "Snake_Jar": {
-    "world": "Yum-Yum_Desert",
+  'Snake_Jar': {
+    'world': 'Yum-Yum_Desert',
     index: 8
   },
-  "XxX_Cattleprod_XxX": {
-    "world": "Yum-Yum_Desert",
+  'XxX_Cattleprod_XxX': {
+    'world': 'Yum-Yum_Desert',
     index: 9
   },
-  "Loominadi": {
-    "world": "Yum-Yum_Desert",
+  'Loominadi': {
+    'world': 'Yum-Yum_Desert',
     index: 10
   },
-  "Wellington": {
-    "world": "Yum-Yum_Desert",
+  'Wellington': {
+    'world': 'Yum-Yum_Desert',
     index: 11
   },
-  "Djonnut": {
-    "world": "Yum-Yum_Desert",
+  'Djonnut': {
+    'world': 'Yum-Yum_Desert',
     index: 12
   },
-  "Walupiggy": {
-    "world": "Yum-Yum_Desert",
+  'Walupiggy': {
+    'world': 'Yum-Yum_Desert',
     index: 13
   },
-  "Gangster_Gus": {
-    "world": "Yum-Yum_Desert",
+  'Gangster_Gus': {
+    'world': 'Yum-Yum_Desert',
     index: 14
   },
-  "Builder_Bird": {
-    "world": ""
+  'Builder_Bird': {
+    'world': ''
   },
-  "Speccius": {
-    "world": ""
+  'Speccius': {
+    'world': ''
   },
-  "Postboy_Pablob": {
-    "world": ""
+  'Postboy_Pablob': {
+    'world': ''
   },
-  "Desert_Davey": {
-    "world": ""
+  'Desert_Davey': {
+    'world': ''
   },
-  "Giftmas_Blobulyte": {
-    "world": ""
+  'Giftmas_Blobulyte': {
+    'world': ''
   },
-  "Loveulyte": {
-    "world": ""
+  'Loveulyte': {
+    'world': ''
   },
-  "Constructor_Crow": {
-    "world": ""
+  'Constructor_Crow': {
+    'world': ''
   },
-  "Iceland_Irwin": {
-    "world": ""
+  'Iceland_Irwin': {
+    'world': ''
   },
-  "Egggulyte": {
-    "world": ""
+  'Egggulyte': {
+    'world': ''
   },
-  "Hoggindaz": {
-    "world": "Frostbite_Tundra",
+  'Hoggindaz': {
+    'world': 'Frostbite_Tundra',
     index: 0
   },
-  "Worldo": {
-    "world": "Frostbite_Tundra",
+  'Worldo': {
+    'world': 'Frostbite_Tundra',
     index: 0
   },
-  "Lord_of_the_Hunt": {
-    "world": "Frostbite_Tundra",
+  'Lord_of_the_Hunt': {
+    'world': 'Frostbite_Tundra',
     index: 1
   },
-  "Lonely_Hunter": {
-    "world": "Frostbite_Tundra",
+  'Lonely_Hunter': {
+    'world': 'Frostbite_Tundra',
     index: 2
   },
-  "Snouts": {
-    "world": "Frostbite_Tundra",
+  'Snouts': {
+    'world': 'Frostbite_Tundra',
     index: 3
   },
-  "Shuvelle": {
-    "world": "Frostbite_Tundra",
+  'Shuvelle': {
+    'world': 'Frostbite_Tundra',
     index: 4
   },
-  "Yondergreen": {
-    "world": "Frostbite_Tundra",
+  'Yondergreen': {
+    'world': 'Frostbite_Tundra',
     index: 5
   },
-  "Crystalswine": {
-    "world": "Frostbite_Tundra",
+  'Crystalswine': {
+    'world': 'Frostbite_Tundra',
     index: 6
   },
-  "Bill_Brr": {
-    "world": "Frostbite_Tundra",
+  'Bill_Brr': {
+    'world': 'Frostbite_Tundra',
     index: 7
   },
-  "Bellows": {
-    "world": "Frostbite_Tundra",
+  'Bellows': {
+    'world': 'Frostbite_Tundra',
     index: 8
   },
-  "Cactolyte": {
-    "world": ""
+  'Cactolyte': {
+    'world': ''
   },
-  "Coastiolyte": {
-    "world": ""
+  'Coastiolyte': {
+    'world': ''
   },
-  "Gobo": {
-    world: "Hyperion_Nebula",
+  'Gobo': {
+    world: 'Hyperion_Nebula',
     index: 0
   },
-  "Oinkin": {
-    world: "Hyperion_Nebula",
+  'Oinkin': {
+    world: 'Hyperion_Nebula',
     index: 1
   },
-  "Capital_P": {
-    world: "Hyperion_Nebula",
+  'Capital_P': {
+    world: 'Hyperion_Nebula',
     index: 2
   },
-  "Blobbo": {
-    world: "Hyperion_Nebula",
+  'Blobbo': {
+    world: 'Hyperion_Nebula',
     index: 3
   },
-  "Muhmuguh": {
-    world: "Smolderin'_Plateau",
+  'Muhmuguh': {
+    world: 'Smolderin\'_Plateau',
     index: 1
   },
-  "Slargon": {
-    world: "Smolderin'_Plateau",
+  'Slargon': {
+    world: 'Smolderin\'_Plateau',
     index: 2
   },
-  "Pirate_Porkchop": {
-    world: "Smolderin'_Plateau",
+  'Pirate_Porkchop': {
+    world: 'Smolderin\'_Plateau',
     index: 3
   },
-  "Poigu": {
-    world: "Smolderin'_Plateau",
+  'Poigu': {
+    world: 'Smolderin\'_Plateau',
     index: 4
   },
+  'Tired_Mole': {
+    world: 'Smolderin\'_Plateau',
+    index: 5
+  }
+
 };
