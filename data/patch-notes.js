@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.0',
+    gameVer: '1.86',
+    date: '01/07/2023',
+    features: [
+      'Added data and assets from version 1.86'
+    ],
+    fixes: []
+  },
+  {
     ver: '3.1.99',
     gameVer: '1.84',
     date: '19/06/2023',

@@ -120,6 +120,15 @@ const Buildings = () => {
     }
   }, [sortBy]);
 
+  const getBorderColor = ({ isSlotTrimmed, inProgress }) => {
+    if (isSlotTrimmed) {
+      return 'warning.light';
+    } else if (inProgress) {
+      return 'success.light'
+    }
+    return '';
+  }
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Buildings"
@@ -137,7 +146,7 @@ const Buildings = () => {
         let { name, progress, level, maxLevel, inProgress, isSlotTrimmed, isMaxed, items, buildCost, timeLeft } = tower;
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress || isSlotTrimmed ? '1px solid' : '',
-          borderColor: isSlotTrimmed ? 'warning.light' : inProgress ? progress < buildCost ? 'success.light' : '' : '',
+          borderColor: getBorderColor(tower),
           width: { xs: '100%', md: 450 },
           height: { md: 165 }
         }}>
