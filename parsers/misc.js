@@ -151,7 +151,7 @@ export const enhanceColoTickets = (tickets, characters, account) => {
 }
 
 const getKeysObject = (keys) => {
-  return keys.reduce((res, keyAmount, index) => (index < 3 ? [...res,
+  return keys.reduce((res, keyAmount, index) => (index < 5 ? [...res,
     { amount: keyAmount, ...keysMap[index] }] : res), []);
 }
 
@@ -169,8 +169,9 @@ export const enhanceKeysObject = (keysAll, characters, account) => {
   });
 }
 
-const getAmountPerDay = ({ name, dialogThreshold }, characters) => {
+const getAmountPerDay = ({ name, dialogThreshold } = {}, characters) => {
   return characters.reduce((res, { npcDialog }) => {
+    if (dialogThreshold === undefined) return res;
     return npcDialog?.[name] > dialogThreshold ? res + 1 : res;
   }, 0);
 }

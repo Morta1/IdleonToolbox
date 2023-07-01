@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { constructionMasteryThresholds, getBuildCost } from '../../../parsers/construction';
@@ -8,11 +8,15 @@ import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
 import { getAtomBonus } from '../../../parsers/atomCollider';
 import Tooltip from '../../../components/Tooltip';
+import Box from '@mui/material/Box';
+import { TitleAndValue } from '../../../components/common/styles';
+import InfoIcon from '@mui/icons-material/Info';
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
   const [sortBy, setSortBy] = useState('order')
   const buildSpeed = state?.account?.construction?.totalBuildRate;
+  const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
   const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
@@ -64,16 +68,15 @@ const Buildings = () => {
       maxLevel += extraLevels;
       const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
       const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
-      const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
       const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0);
       const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
-      let trimmedSlotSpeed = 0;
       if (isSlotTrimmed) {
         const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
         progress += (3 + atomBonus / 100) * (timePassed / 3600) * buildSpeed;
-        trimmedSlotSpeed = (3 + atomBonus / 100) * buildSpeed;
       }
-      const timeLeft = (buildCost - progress) / (trimmedSlotSpeed || buildSpeed) * 1000 * 3600;
+      const trimmedSlotSpeed = (3 + atomBonus / 100) * buildSpeed;
+      const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
+      const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
       return {
         ...tower,
         maxLevel,
@@ -83,7 +86,8 @@ const Buildings = () => {
         progress,
         buildCost,
         items,
-        trimmedSlotSpeed
+        trimmedSlotSpeed,
+        trimmedTimeLeft
       }
     })
   }, [state?.account]);
@@ -135,15 +139,36 @@ const Buildings = () => {
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
     <Typography variant={'h2'} mb={3}>Buildings</Typography>
-    <Typography>Sort by</Typography>
-    <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => setSortBy(newSort)}>
-      <ToggleButton value={'order'}>Order</ToggleButton>
-      <ToggleButton value={'time'}>Time left</ToggleButton>
-      <ToggleButton value={'requirement'}>Build cost</ToggleButton>
-    </ToggleButtonGroup>
+    <Stack direction={'row'} alignItems="center" gap={3} flexWrap={'wrap'}>
+      <Box>
+        <Typography>Sort by</Typography>
+        <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => setSortBy(newSort)}>
+          <ToggleButton value={'order'}>Order</ToggleButton>
+          <ToggleButton value={'time'}>Time left</ToggleButton>
+          <ToggleButton value={'requirement'}>Build cost</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+      <CardTitleAndValue title={'Build Speed'} value={notateNumber(buildSpeed, 'Big')}/>
+      <CardTitleAndValue title={'Trimmed Build Speed'}
+                         value={notateNumber((3 + atomBonus / 100) * buildSpeed, 'Big')}
+                         breakdown={[{ name: 'Base (jewel)', value: 3 }, { name: 'Atom', value: atomBonus / 100 }]}
+      />
+    </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {sortedBuildings?.map((tower, index) => {
-        let { name, progress, level, maxLevel, inProgress, isSlotTrimmed, isMaxed, items, buildCost, timeLeft } = tower;
+        let {
+          name,
+          progress,
+          level,
+          maxLevel,
+          inProgress,
+          isSlotTrimmed,
+          isMaxed,
+          items,
+          buildCost,
+          timeLeft,
+          trimmedTimeLeft
+        } = tower;
         return <Card key={`${name}-${index}`} sx={{
           border: inProgress || isSlotTrimmed ? '1px solid' : '',
           borderColor: getBorderColor(tower),
@@ -151,16 +176,11 @@ const Buildings = () => {
           height: { md: 165 }
         }}>
           <CardContent>
-            <Stack direction={'row'} sx={{ gap: { xs: 2, sm: 3 } }} flexWrap={'wrap'}>
-              <Stack alignItems={'center'} sx={{ width: 105, textAlign: 'center' }}>
+            <Stack direction={'row'} justifyContent={'space-around'} flexWrap={'wrap'}>
+              <Stack alignItems={'center'} sx={{ textAlign: 'center' }}>
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt=""/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
-                {!isMaxed ? <Timer type={'countdown'} staticTime={!inProgress} date={new Date().getTime() + timeLeft}
-                                   lastUpdated={state?.lastUpdated}/> : null}
-              </Stack>
-              <Stack sx={{ width: 100 }}>
-                <Typography mb={2}>Progress</Typography>
                 {isMaxed ? <Typography color={'success.light'}>MAXED</Typography> :
                   <Tooltip title={<>
                     <Typography>Progress: {numberWithCommas(Math.floor(progress))}</Typography>
@@ -168,18 +188,37 @@ const Buildings = () => {
                   </>}>
                     <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>
                   </Tooltip>}
+
               </Stack>
-              {level === maxLevel ? null : <Stack>
-                <Typography mb={2}>Cost</Typography>
-                <Stack direction={'row'} gap={1}>
-                  {items?.map(({ rawName, amount }, itemIndex) => {
-                    return <Stack alignItems={'center'} key={`${name}-${rawName}-${itemIndex}`}>
-                      <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                      <Typography>{amount}</Typography>
-                    </Stack>
-                  })}
+              {!isMaxed ? <Stack gap={2} divider={<Divider flexItem/>}>
+                <Stack>
+                  {!isMaxed
+                    ? <TitleAndValue title={'Non-trimmed'}
+                                     value={<Timer type={'countdown'} staticTime={true}
+                                                   placeholder={'Ready!'}
+                                                   date={new Date().getTime() + timeLeft}
+                                                   lastUpdated={state?.lastUpdated}/>}/>
+                    : null}
+                  {!isMaxed
+                    ? <TitleAndValue title={'Trimmed'} value={<Timer type={'countdown'}
+                                                                     placeholder={'Ready!'}
+                                                                     staticTime={true}
+                                                                     date={new Date().getTime() + trimmedTimeLeft}
+                                                                     lastUpdated={state?.lastUpdated}/>}/>
+                    : null}
+
                 </Stack>
-              </Stack>}
+                {isMaxed ? null : <Stack direction={'row'} gap={3} alignItems={'center'}>
+                  <Stack direction={'row'} gap={1}>
+                    {items?.map(({ rawName, amount }, itemIndex) => {
+                      return <Stack alignItems={'center'} key={`${name}-${rawName}-${itemIndex}`}>
+                        <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                        <Typography>{notateNumber(amount, 'Big')}</Typography>
+                      </Stack>
+                    })}
+                  </Stack>
+                </Stack>}
+              </Stack> : null}
             </Stack>
           </CardContent>
         </Card>
@@ -198,5 +237,27 @@ const ItemIcon = styled.img`
   height: 35px;
   object-fit: contain;
 `
+
+const CardTitleAndValue = ({ cardSx, title, value, children, breakdown }) => {
+  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
+    <CardContent>
+      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+      <Stack direction={'row'} gap={2}>
+        {value ? <Typography>{value}</Typography> : children}
+        {breakdown ? <Tooltip title={<Stack>
+          {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
+                                                                     title={name}
+                                                                     value={!isNaN(value)
+                                                                       ? `${notateNumber(value, 'MultiplierInfo').replace('.00', '')}x`
+                                                                       : value}/>)}
+
+        </Stack>}>
+          <InfoIcon></InfoIcon>
+        </Tooltip> : null}
+      </Stack>
+    </CardContent>
+  </Card>
+}
+
 
 export default Buildings;

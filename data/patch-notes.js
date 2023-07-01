@@ -8,9 +8,19 @@ export const patchNotes = [
     gameVer: '1.86',
     date: '01/07/2023',
     features: [
-      'Added data and assets from version 1.86'
+      'Added data and assets from version 1.86',
+      'Updated design for Buildings page',
+      'Added world 4 and world 5 bosses keys to Account -> General page',
+      'Updated logic and design for upgradable bubbles from NLBL by lithium atom',
     ],
-    fixes: []
+    fixes: [
+      'Fixed a bug with trimmed slot',
+      'Fixed kitchen speed notation',
+      'Fixed a bug with lab and printer caused by doot doot',
+      'Fixed display for respawn time at Characters -> Stats',
+      'Fixed a display bug for very high damage numbers',
+      'Fixed an overflow bug with money values',
+    ]
   },
   {
     ver: '3.1.99',

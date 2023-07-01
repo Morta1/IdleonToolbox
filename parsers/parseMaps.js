@@ -89,7 +89,8 @@ export const keysMap = {
   0: { name: "Forest_Villa_Key", rawName: 'Key1' },
   1: { name: "Efaunt's_Tomb_Key", rawName: 'Key2' },
   2: { name: "Chizoar's_Cavern_Key", rawName: 'Key3' },
-  3: { name: "Troll's_Enclave_Key", rawName: 'Key4' }
+  3: { name: "Troll's_Enclave_Key", rawName: 'Key4' },
+  4: { name: "Kruk's_Volcano_Key", rawName: 'Key5' },
 };
 
 export const filteredGemShopItems = [
