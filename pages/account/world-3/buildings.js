@@ -97,8 +97,8 @@ const Buildings = () => {
     else if (sortBy === 'time') {
       const towers = JSON.parse(JSON.stringify(b));
       return towers?.sort((a, b) => {
-        const timeLeftA = (a?.buildCost - a?.progress) / buildSpeed;
-        const timeLeftB = (b?.buildCost - b?.progress) / buildSpeed;
+        const timeLeftA = a?.isSlotTrimmed ? a?.trimmedTimeLeft : a?.timeLeft;
+        const timeLeftB = b?.isSlotTrimmed ? b?.trimmedTimeLeft : b?.timeLeft;
         if (a?.isMaxed) {
           return 1;
         } else if (b?.isMaxed) {
@@ -194,17 +194,19 @@ const Buildings = () => {
                 <Stack>
                   {!isMaxed
                     ? <TitleAndValue title={'Non-trimmed'}
+                                     titleStyle={{ color: !isSlotTrimmed && '#81c784' }}
                                      value={<Timer type={'countdown'} staticTime={true}
                                                    placeholder={'Ready!'}
                                                    date={new Date().getTime() + timeLeft}
                                                    lastUpdated={state?.lastUpdated}/>}/>
                     : null}
                   {!isMaxed
-                    ? <TitleAndValue title={'Trimmed'} value={<Timer type={'countdown'}
-                                                                     placeholder={'Ready!'}
-                                                                     staticTime={true}
-                                                                     date={new Date().getTime() + trimmedTimeLeft}
-                                                                     lastUpdated={state?.lastUpdated}/>}/>
+                    ? <TitleAndValue title={'Trimmed'} titleStyle={{ color: isSlotTrimmed && '#81c784' }}
+                                     value={<Timer type={'countdown'}
+                                                   placeholder={'Ready!'}
+                                                   staticTime={true}
+                                                   date={new Date().getTime() + trimmedTimeLeft}
+                                                   lastUpdated={state?.lastUpdated}/>}/>
                     : null}
 
                 </Stack>
