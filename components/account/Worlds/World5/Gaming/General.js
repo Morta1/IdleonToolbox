@@ -22,31 +22,10 @@ const General = ({
                    lastUpdated
                  }) => {
   return <>
-    <Stack direction={'row'} gap={2}>
-      <Card sx={{ width: 250, display: 'flex', alignItems: 'center' }}>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <img src={`${prefix}etc/Bits_${getBitIndex(bits)}.png`} alt=""/>
-            <Typography>{notateNumber(bits, 'bits')}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Card sx={{ width: 250, display: 'flex', alignItems: 'center' }}>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <img src={`${prefix}etc/Sprouts.png`} alt=""/>
-            <Typography>{availableSprouts} / {sproutsCapacity ?? 0}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Card sx={{ width: 250, display: 'flex', alignItems: 'center' }}>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <img src={`${prefix}etc/GamingDrop.png`} alt=""/>
-            <Typography>{availableDrops} / {sproutsCapacity ?? 0}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <ImgCard imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
+      <ImgCard imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
+      <ImgCard imgSrc={'etc/GamingDrop'} value={availableDrops}/>
     </Stack>
 
     <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -92,12 +71,12 @@ const General = ({
                 <Typography>{cleanUnderscore(name)} ({cleanUnderscore(boxName)})</Typography>
               </Stack>
               <Divider sx={{ my: 2 }}/>
-              {majorBonus ? <><Typography> {cleanUnderscore(majorBonus.split("|").join(" "))}</Typography>
+              {majorBonus ? <><Typography> {cleanUnderscore(majorBonus.split('|').join(' '))}</Typography>
                 <Divider sx={{ my: 2 }}/> </> : null}
               <Typography>{cleanUnderscore(minorBonus)}</Typography>
               <Stack mt={1} direction={'row'} gap={1} alignItems={'center'}>
                 <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`} alt="" style={{ objectFit: 'contain' }}/>
-                <Typography>{notateNumber(cost, "bits")}</Typography>
+                <Typography>{notateNumber(cost, 'bits')}</Typography>
               </Stack>
               {acquired && (index === 1 || index === 2) ? <Divider sx={{ my: 2 }}/> : null}
               {acquired && index === 1 ?
@@ -168,5 +147,16 @@ const ResourcePerTime = ({ breakpoints }) => {
 const ImportImg = styled.img`
   width: 50px;
 `;
+
+const ImgCard = ({ imgSrc, value }) => {
+  return <Card sx={{ display: 'flex', alignItems: 'center' }}>
+    <CardContent>
+      <Stack direction={'row'} gap={1} alignItems={'center'}>
+        <img src={`${prefix}${imgSrc}.png`} alt=""/>
+        <Typography>{value}</Typography>
+      </Stack>
+    </CardContent>
+  </Card>
+}
 
 export default General;

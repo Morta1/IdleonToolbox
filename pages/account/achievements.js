@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
-import { Box, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
+import Tabber from '../../components/common/Tabber';
 
 const achievementsPerWorld = 70;
 const worlds = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
@@ -13,13 +14,12 @@ const Achievements = () => {
   const { state } = useContext(AppContext);
   const [localAchievements, setLocalAchievements] = useState(state?.account?.achievements);
   const [world, setWorld] = useState(0);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
   useEffect(() => {
     setLocalAchievements(getWorldAchievements(world * achievementsPerWorld, world * achievementsPerWorld + achievementsPerWorld));
   }, [state])
 
-  const handleWorldChange = (e, world) => {
+  const handleWorldChange = (world) => {
     setLocalAchievements(getWorldAchievements(world * achievementsPerWorld, world * achievementsPerWorld + achievementsPerWorld));
     setWorld(world);
   }
@@ -36,32 +36,27 @@ const Achievements = () => {
         title="Idleon Toolbox | Achievements"
         description="Keep track of your achievements progression"
       />
-      <Tabs centered
-            variant={isSm ? 'fullWidth' : 'standard'}
-            value={world} onChange={handleWorldChange}>
-        {worlds?.map((world, index) => {
-          return <Tab label={world} key={`${world}-${index}`}/>
-        })}
-      </Tabs>
-      <Box display={'flex'} justifyContent={'center'}>
-        {localAchievements?.length > 0 ?
-          <Stack sx={{ width: { lg: 900 } }} justifyContent={'center'} mt={3} flexWrap={'wrap'} direction={'row'}
-                 gap={3}>
-            {localAchievements?.map((achievement, index) => {
-              const { name, rawName, completed, visualIndex, currentQuantity, quantity } = achievement;
-              return visualIndex !== -1 && !name.includes('FILLER') ?
-                <Stack sx={{ position: 'relative' }} key={`${name}-${index}`}>
-                  <HtmlTooltip title={<AchievementTooltip {...achievement}/>}>
-                    <Achievement completed={completed} src={`${prefix}data/${rawName}.png`} alt=""/>
-                  </HtmlTooltip>
-                  {currentQuantity ? <Quantity>
-                    {notateNumber(currentQuantity)} {quantity > 1 ?
-                    <span> / {notateNumber(quantity, 'Big')}</span> : null}
-                  </Quantity> : null}
-                </Stack> : null
-            })}
-          </Stack> : <Typography mt={2} variant={'h4'}>No achievements yet</Typography>}
-      </Box>
+      <Tabber tabs={worlds} onTabChange={handleWorldChange}>
+        <Box display={'flex'} justifyContent={'center'}>
+          {localAchievements?.length > 0 ?
+            <Stack sx={{ width: { lg: 900 } }} justifyContent={'center'} mt={3} flexWrap={'wrap'} direction={'row'}
+                   gap={3}>
+              {localAchievements?.map((achievement, index) => {
+                const { name, rawName, completed, visualIndex, currentQuantity, quantity } = achievement;
+                return visualIndex !== -1 && !name.includes('FILLER') ?
+                  <Stack sx={{ position: 'relative' }} key={`${name}-${index}`}>
+                    <HtmlTooltip title={<AchievementTooltip {...achievement}/>}>
+                      <Achievement completed={completed} src={`${prefix}data/${rawName}.png`} alt=""/>
+                    </HtmlTooltip>
+                    {currentQuantity ? <Quantity>
+                      {notateNumber(currentQuantity)} {quantity > 1 ?
+                      <span> / {notateNumber(quantity, 'Big')}</span> : null}
+                    </Quantity> : null}
+                  </Stack> : null
+              })}
+            </Stack> : <Typography mt={2} variant={'h4'}>No achievements yet</Typography>}
+        </Box>
+      </Tabber>
     </Box>
   );
 };

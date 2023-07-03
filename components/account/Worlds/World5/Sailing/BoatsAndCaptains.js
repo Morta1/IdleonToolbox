@@ -23,7 +23,7 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
     <Typography my={3} variant={'h3'}>Overview</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
       {Object.entries(shipOverview || {})?.map(([islandName, { islandIndex, boats }]) => {
-        return <Card>
+        return <Card key={'overview' + islandIndex + boats?.length}>
           <CardContent>
             <Stack key={islandName}>
               <Stack direction={'row'} gap={1}>
@@ -91,7 +91,9 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
                 <img style={{ width: 25, objectFit: 'contain' }}
                      src={`${prefix}data/${rawName}.png`} alt=""/>
                 <Typography
-                  color={amount >= required ? 'success.light' : 'error.light'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
+                  color={amount >= required
+                    ? 'success.light'
+                    : 'error.light'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
               </Stack>)}
             </Stack> </> : null}
           <Divider sx={{ my: 1 }}/>

@@ -1,6 +1,6 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import BreedingUpgrades from 'components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from 'components/account/Worlds/World4/Breeding/BreedingArena';
 import { prefix } from 'utility/helpers';
@@ -12,15 +12,10 @@ import { getBubbleBonus } from '../../../parsers/alchemy';
 import { getAchievementStatus } from '../../../parsers/achievements';
 import { isMasteryBonusUnlocked } from '../../../parsers/misc';
 import Timer from '../../../components/common/Timer';
+import Tabber from '../../../components/common/Tabber';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-  const handleOnClick = (e, selected) => {
-    setSelectedTab(selected);
-  }
-
   const calcTimePerEgg = () => {
     const spelunkerObolMulti = getLabBonus(state?.account?.lab?.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(state?.account?.lab?.jewels, 16, spelunkerObolMulti);
@@ -72,21 +67,14 @@ const Breeding = () => {
       </Stack>
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
         town</Typography>
-      <Tabs centered
-            sx={{ marginBottom: 3 }}
-            variant={isMd ? 'fullWidth' : 'standard'}
-            value={selectedTab} onChange={handleOnClick}>
-        {['Pets', 'Upgrades', 'Arena']?.map((tab, index) => {
-          return <Tab label={tab} key={`${tab}-${index}`}/>;
-        })}
-      </Tabs>
-      {selectedTab === 0 ?
+      <Tabber tabs={['Pets', 'Upgrades', 'Arena']}>
         <Pets {...state?.account?.breeding} lab={state?.account?.lab}
-              lastUpdated={state?.lastUpdated}/> : null}
-      {selectedTab === 1 ? <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
-                                             account={state?.account}
-                                             meals={state?.account?.cooking?.meals}/> : null}
-      {selectedTab === 2 ? <BreedingArena {...state?.account?.breeding}/> : null}
+              lastUpdated={state?.lastUpdated}/>
+        <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
+                          account={state?.account}
+                          meals={state?.account?.cooking?.meals}/>
+        <BreedingArena {...state?.account?.breeding}/>
+      </Tabber>
     </>
   );
 };

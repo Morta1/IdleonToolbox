@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import Artifacts from 'components/account/Worlds/World5/Sailing/Artifacts';
 import LootPile from '../../../components/account/Worlds/World5/Sailing/LootPile';
 import { prefix } from '../../../utility/helpers';
@@ -9,6 +9,7 @@ import BoatsAndCaptains from '../../../components/account/Worlds/World5/Sailing/
 import { MissingData } from '../../../components/common/styles';
 import { NextSeo } from 'next-seo';
 import Trades from '../../../components/account/Worlds/World5/Sailing/Trades';
+import Tabber from '../../../components/common/Tabber';
 
 const Sailing = () => {
   const { state } = useContext(AppContext);
@@ -23,12 +24,6 @@ const Sailing = () => {
     trades,
     shopCaptains
   } = state?.account?.sailing || {};
-  const [selectedTab, setSelectedTab] = useState(0);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-
-  const handleOnClick = (e, selected) => {
-    setSelectedTab(selected);
-  }
   if (!state?.account?.sailing) return <MissingData name={'sailing'}/>;
 
   return <>
@@ -40,48 +35,40 @@ const Sailing = () => {
     <Stack mb={2} direction={'row'} gap={1}>
       <Card>
         <CardContent>
-          <Stack sx={{ width: 200 }} direction={'row'} gap={1} alignItems={'center'}>
+          <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
             <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.gif`} alt=""/>
-            Chests: {chests?.length || 0} / {maxChests}
+            <Typography>Chests: {chests?.length || 0} / {maxChests}</Typography>
           </Stack>
         </CardContent>
       </Card>
       <Card>
         <CardContent>
-          <Stack sx={{ width: 200 }} direction={'row'} gap={1} alignItems={'center'}>
+          <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
             <img style={{ width: 28, objectFit: 'contain' }} src={`${prefix}npcs/Captain.gif`} alt=""/>
-            Captains: {captains?.length}
+            <Typography>Captains: {captains?.length}</Typography>
           </Stack>
         </CardContent>
       </Card>
       <Card>
         <CardContent>
-          <Stack sx={{ width: 200 }} direction={'row'} gap={1} alignItems={'center'}>
+          <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
             <img style={{ width: 42, objectFit: 'contain' }} src={`${prefix}npcs/Boat.gif`} alt=""/>
-            Boats: {boats?.length}
+            <Typography>Boats: {boats?.length}</Typography>
           </Stack>
         </CardContent>
       </Card>
     </Stack>
 
-    <Tabs centered
-          sx={{ marginBottom: 3 }}
-          variant={isMd ? 'fullWidth' : 'standard'}
-          value={selectedTab} onChange={handleOnClick}>
-      {['Artifacts', 'Trades', 'Boats and Captains', 'Loot Pile', 'Chests']?.map((tab, index) => {
-        return <Tab label={tab} key={`${tab}-${index}`}/>;
-      })}
-    </Tabs>
-
-    {selectedTab === 0 ? <Artifacts artifacts={artifacts}/> : null}
-    {selectedTab === 1 ? <Trades trades={trades} lastUpdated={state?.lastUpdated}/> : null}
-    {selectedTab === 3 ? <LootPile lootPile={lootPile}/> : null}
-    {selectedTab === 2 ?
+    <Tabber tabs={['Artifacts', 'Trades', 'Boats and Captains', 'Loot Pile', 'Chests']}>
+      <Artifacts artifacts={artifacts}/>
+      <Trades trades={trades} lastUpdated={state?.lastUpdated}/>
+      <LootPile lootPile={lootPile}/>
       <BoatsAndCaptains boats={boats} captains={captains}
                         lootPile={lootPile}
                         captainsOnBoats={captainsOnBoats} shopCaptains={shopCaptains}
-                        lastUpdated={state?.lastUpdated}/> : null}
-    {selectedTab === 4 ? <Chests chests={chests}/> : null}
+                        lastUpdated={state?.lastUpdated}/>
+      <Chests chests={chests}/>
+    </Tabber>
   </>
 };
 

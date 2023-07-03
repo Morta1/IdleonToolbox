@@ -81,7 +81,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           </CardContent>
         </Card>
       </Stack>
-      <Stack direction={'row'} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
+      <Stack direction={'row'} sx={{ mt: 4 }} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
         {kitchens?.map((kitchen, kitchenIndex) => {
           if (!kitchen) return null;
           const isRecipe = kitchen?.status >= 3;
@@ -176,8 +176,9 @@ const MealTooltip = ({ meal, lab, totalMealSpeed, achievements }) => {
   const realEffect = (1 + (blackDiamondRhinestone + meal?.shinyMulti) / 100) * meal?.level * meal?.baseStat;
   return <>
     {meal?.level >= 11 || levelCost === diamondCost ? <>
-      <Typography>Next Level in: <Timer date={new Date().getTime() + (timeTillNextLevel * 3600 * 1000)}
-                                        staticTime={true}/>
+      <Typography sx={{ textAlign: 'center' }}>Next Level in: <Timer
+        date={new Date().getTime() + (timeTillNextLevel * 3600 * 1000)}
+        staticTime={true}/>
       </Typography>
       <Typography>({notateNumber(meal?.amount, 'Big')} / {notateNumber(levelCost, 'Big')})</Typography></> : <>
       <Typography>Next Level in: <Timer date={new Date().getTime() + (timeTillNextLevel * 3600 * 1000)}

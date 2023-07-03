@@ -34,7 +34,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
     return bloodBerserkers.reduce((res, { talents }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
-      const lv = overflowingLadle?.level > overflowingLadle?.maxLevel ? overflowingLadle?.level : overflowingLadle?.maxLevel;
+      const lv = overflowingLadle?.level > overflowingLadle?.maxLevel
+        ? overflowingLadle?.level
+        : overflowingLadle?.maxLevel;
       const bonus = growth(overflowingLadle?.funcX, lv, overflowingLadle?.x1, overflowingLadle?.x2, false);
       if (bonus > res) {
         return bonus
@@ -50,7 +52,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       const levelCost = getMealLevelCost(level, achievements);
       const diamondCost = (11 - level) * levelCost;
       const blackVoidCost = (30 - level) * levelCost;
-      let timeTillNextLevel = amount >= levelCost ? "0" : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
+      let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
       let timeToDiamond = calcMealTime(11, meal, mealSpeed, achievements);
       let timeToBlackVoid = calcMealTime(30, meal, mealSpeed, achievements);
       if (overflow) {
@@ -152,7 +154,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
 
   return (
     <>
-      <ToggleButtonGroup sx={{ my: 2 }} value={filters} onChange={handleFilters}>
+      <ToggleButtonGroup sx={{ my: 2, flexWrap: 'wrap' }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
         <ToggleButton value="hide">Hide capped</ToggleButton>
         <ToggleButton value="overflow">
@@ -200,7 +202,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             } = meal;
             return <Card key={`${name}-${index}`} sx={{ width: 340 }}>
               <CardContent>
-                <Stack direction={"row"} alignItems={"center"}>
+                <Stack direction={'row'} alignItems={'center'}>
                   <MealAndPlate>
                     <img src={`${prefix}data/${rawName}.png`} alt=""/>
                     {level > 0 ?
@@ -214,7 +216,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       {currentLevelBonus}% <ArrowForwardIcon fontSize={'small'}/> {nextLevelBonus}%
                       ({kFormatter(bonusDiff)})
                     </CenteredTypography>
-                    <Typography component={"span"}>
+                    <Typography component={'span'}>
                       Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
                       <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                              staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
@@ -233,7 +235,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         </Stack>
       </Stack>
       <Typography my={1} variant={'h5'}>Meals</Typography>
-      <Stack direction={"row"} flexWrap="wrap" gap={2}>
+      <Stack direction={'row'} flexWrap="wrap" gap={2}>
         {localMeals?.map((meal, index) => {
           if (!meal) return null;
           const {
@@ -254,7 +256,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
-                <Stack direction={"row"} alignItems={"center"}>
+                <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip title={<MealTooltip achievements={achievements} {...meal} />}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -268,11 +270,15 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                 </Stack>
                 <Stack mt={2} gap={1}>
                   <Typography
-                    sx={{ color: multiplier > 1 ? "info.light" : "" }}>{cleanUnderscore(effect?.replace("{", kFormatter(realEffect)))}</Typography>
-                  {!filters.includes("minimized") ? (
+                    sx={{
+                      color: multiplier > 1
+                        ? 'info.light'
+                        : ''
+                    }}>{cleanUnderscore(effect?.replace('{', kFormatter(realEffect)))}</Typography>
+                  {!filters.includes('minimized') ? (
                     meal?.level === mealMaxLevel ? <Typography color={'success.light'}>MAXED</Typography> : <>
                       <Typography
-                        sx={{ color: amount >= levelCost ? "success.light" : level > 0 ? "error.light" : "" }}>
+                        sx={{ color: amount >= levelCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
                         Progress: {<HtmlTooltip title={numberWithCommas(parseInt(amount))}>
                         <span>{notateNumber(Math.floor(amount), 'Big')}</span>
                       </HtmlTooltip>} / {<HtmlTooltip title={numberWithCommas(parseInt(levelCost))}>
@@ -281,7 +287,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       </Typography>
                       {level > 0 ? (
                         <>
-                          {sortBy === 0 || sortBy === -1 ? <Typography component={"span"}>
+                          {sortBy === 0 || sortBy === -1 ? <Typography component={'span'}>
                             Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
                             <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                                    staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
@@ -343,16 +349,16 @@ const MealTooltip = ({ level, baseStat, multiplier, effect, achievements }) => {
   const levelCost = getMealLevelCost(level + 1, achievements);
   return (
     <>
-      <Typography fontWeight={"bold"}>
+      <Typography fontWeight={'bold'}>
         Next level bonus:&nbsp;
-        <Typography component={"span"} sx={{ fontWeight: 400 }}>
-          {cleanUnderscore(effect?.replace("{", kFormatter((level + 1) * baseStat * multiplier)))}
+        <Typography component={'span'} sx={{ fontWeight: 400 }}>
+          {cleanUnderscore(effect?.replace('{', kFormatter((level + 1) * baseStat * multiplier)))}
         </Typography>
       </Typography>
       <Box>
-        <Typography fontWeight={"bold"}>
+        <Typography fontWeight={'bold'}>
           Next level req:&nbsp;
-          <Typography component={"span"} sx={{ fontWeight: 400 }}>
+          <Typography component={'span'} sx={{ fontWeight: 400 }}>
             {numberWithCommas(parseInt(levelCost))}
           </Typography>
         </Typography>

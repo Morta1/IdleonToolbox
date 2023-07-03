@@ -1,18 +1,16 @@
-import { Tab, Tabs, useMediaQuery } from '@mui/material';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import ConstellationsComp from 'components/account/Misc/Constellations';
 import StarSigns from 'components/account/Misc/StarSigns';
 import { NextSeo } from 'next-seo';
 import { getShinyBonus } from '../../parsers/breeding';
 import { isRiftBonusUnlocked } from '../../parsers/world-4/rift';
+import Tabber from '../../components/common/Tabber';
 
 const tabs = ['Constellations', 'Star Signs'];
 
 const Constellations = () => {
   const { state } = useContext(AppContext);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
 
   const getInfiniteStar = (rift, pets) => {
     if (isRiftBonusUnlocked(rift, 'Infinite_Stars')) {
@@ -38,16 +36,10 @@ const Constellations = () => {
       title="Idleon Toolbox | Constellations"
       description="Constellation and star signs overview"
     />
-    <Tabs centered
-          sx={{ marginBottom: 3 }}
-          variant={isMd ? 'fullWidth' : 'standard'}
-          value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
-      {tabs?.map((tab, index) => {
-        return <Tab label={tab} key={`${tab}-${index}`}/>
-      })}
-    </Tabs>
-    {selectedTab === 0 ? <ConstellationsComp constellations={state?.account?.constellations}/> : null}
-    {selectedTab === 1 ? <StarSigns starSigns={stars} infiniteStars={infiniteStars}/> : null}
+    <Tabber tabs={tabs}>
+      <ConstellationsComp constellations={state?.account?.constellations}/>
+      <StarSigns starSigns={stars} infiniteStars={infiniteStars}/>
+    </Tabber>
   </div>
 };
 

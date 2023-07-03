@@ -6,27 +6,19 @@ import {
   DialogTitle,
   FormControlLabel,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   Typography
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import React, { useState } from 'react';
-import Switch from './Switch';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
 import { prefix } from '../../utility/helpers';
+import Tabber from './Tabber';
 
 const DashboardSettings = ({ open, onClose, config, onChange }) => {
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  const handleTabChange = (e, selected) => {
-    setSelectedTab(selected);
-  }
-
   const handleSettingChange = (e, configType, option, trackerName) => {
     const tempConfig = JSON.parse(JSON.stringify(config));
     const nameClicked = e?.target?.name;
@@ -67,22 +59,14 @@ const DashboardSettings = ({ open, onClose, config, onChange }) => {
       <IconButton onClick={onClose}><CloseIcon/></IconButton>
     </DialogTitle>
     <DialogContent>
-      <Tabs centered
-            sx={{ marginBottom: 3 }}
-            variant={'fullWidth'}
-            value={selectedTab} onChange={handleTabChange}>
-        {['Account', 'Character'].map((tab, index) => {
-          return <Tab label={tab} key={`${tab}-${index}`}/>;
-        })}
-      </Tabs>
-      <Switch selected={selectedTab}>
-        <Box switch-id={0}>
+      <Tabber tabs={['Account', 'Character']}>
+        <Box>
           <Fields config={config?.account} configType={'account'} onChange={handleSettingChange}/>
         </Box>
-        <Box switch-id={1}>
+        <Box>
           <Fields config={config?.characters} configType={'characters'} onChange={handleSettingChange}/>
         </Box>
-      </Switch>
+      </Tabber>
     </DialogContent>
   </Dialog>
 };
@@ -103,7 +87,7 @@ const Fields = ({ config, onChange, configType }) => {
           />}
           onChange={(e) => onChange(e, configType)}
           label={trackerName?.camelToTitleCase()}/>
-        {data?.options?.length > 0 ? <IconButton size={"small"}
+        {data?.options?.length > 0 ? <IconButton size={'small'}
                                                  onClick={() => handleArrowClick(trackerName)}>
           {showId === trackerName ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
         </IconButton> : null}
