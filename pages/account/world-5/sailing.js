@@ -62,11 +62,11 @@ const Sailing = () => {
     <Tabber tabs={['Artifacts', 'Trades', 'Boats and Captains', 'Loot Pile', 'Chests']}>
       <Artifacts artifacts={artifacts}/>
       <Trades trades={trades} lastUpdated={state?.lastUpdated}/>
-      <LootPile lootPile={lootPile}/>
       <BoatsAndCaptains boats={boats} captains={captains}
                         lootPile={lootPile}
                         captainsOnBoats={captainsOnBoats} shopCaptains={shopCaptains}
                         lastUpdated={state?.lastUpdated}/>
+      <LootPile lootPile={lootPile}/>
       <Chests chests={chests}/>
     </Tabber>
   </>
