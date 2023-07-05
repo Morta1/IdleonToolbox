@@ -7,8 +7,7 @@ import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 
 const slot = {
-  width: 72,
-  alignItems: 'center'
+  width: 72,  alignItems: 'center'
 }
 
 const Forge = () => {
