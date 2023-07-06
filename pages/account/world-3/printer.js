@@ -124,7 +124,7 @@ const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
       <Divider flexItem sx={{ my: 1, backgroundColor: 'black' }}/>
       {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
                                                           key={name}
-                                                          value={`${Math.round(value * 1000) / 1000}x`}/>)}
+                                                          value={`${value.toString().match(/^-?\d+(?:\.\d{0,3})?/)?.[0]}x`}/>)}
     </Stack> : null}
   </Stack>
 }
