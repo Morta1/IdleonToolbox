@@ -53,8 +53,10 @@ const Printer = () => {
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
                   {atoms ?
-                    <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=''/> : null}
-                  <Typography>{isAtom ? notateNumber(boostedValue, 'MultiplierInfo') : notateNumber(boostedValue)}</Typography>
+                    <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=""/> : null}
+                  <Typography>{isAtom
+                    ? notateNumber(boostedValue, 'MultiplierInfo')
+                    : notateNumber(boostedValue)}</Typography>
                 </Stack>
               </Stack>
             </CardContent>
@@ -71,7 +73,7 @@ const Printer = () => {
           state?.account?.divinity?.linkedDeities?.[index] === 1) && wiredInBonus;
         return <Card sx={{ width: 'fit-content' }} key={`printer-row-${index}`}>
           <CardContent>
-            <Stack direction='row' alignItems={'center'} gap={3}>
+            <Stack direction="row" alignItems={'center'} gap={3}>
               <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', sm: 'row' } }}
                      alignItems={'center'} gap={2}>
                 <Stack alignItems={'center'} justifyContent={'center'}>
@@ -94,7 +96,9 @@ const Printer = () => {
                                  alignItems={'center'}>
                             <ItemIcon src={`${prefix}data/${slot?.item}.png`} alt=""/>
                             <Typography
-                              color={slot?.active && labBonusActive ? 'multiLight' : ''}>{notateNumber(slot?.value, 'Big')}</Typography>
+                              color={slot?.active && labBonusActive
+                                ? 'multiLight'
+                                : ''}>{notateNumber(slot?.value, 'Big')}</Typography>
                           </Stack> :
                           <Stack sx={{ width: 50, height: 50 }} alignItems={'center'}
                                  justifyContent={'center'}><Typography
@@ -120,7 +124,7 @@ const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
       <Divider flexItem sx={{ my: 1, backgroundColor: 'black' }}/>
       {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
                                                           key={name}
-                                                          value={`${notateNumber(value, 'MultiplierInfo')?.replace('.00', '')}x`}/>)}
+                                                          value={`${Math.round(value * 1000) / 1000}x`}/>)}
     </Stack> : null}
   </Stack>
 }
@@ -133,16 +137,16 @@ const TotalTooltip = ({ item, value, atoms, highestBrr }) => {
 
   return <Stack gap={1}>
     {item !== 'atom' ? <Stack direction={'row'} gap={1} alignItems={'center'}>
-      <img width={30} height={30} src={`${prefix}data/${item}.png`} alt=''/>
+      <img width={30} height={30} src={`${prefix}data/${item}.png`} alt=""/>
       <Typography>{notateNumber(perDay)} / day</Typography>
     </Stack> : null}
     {printerGoBrrr > 0 ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
-      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=''/>
+      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=""/>
       <Typography>{notateNumber(perPrinterGoBrrr)} / printer go brr ({printerGoBrrr} hours) </Typography>
     </Stack> : null}
     {(atoms || isAtom) ?
       <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
-        <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt=''/>
+        <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt=""/>
         <Typography>{notateNumber(atoms * 24, 'MultiplierInfo')} / day </Typography>
       </Stack> : null}
   </Stack>

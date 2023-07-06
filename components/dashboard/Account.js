@@ -49,7 +49,7 @@ const Account = ({ account, trackers }) => {
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-          {trackers?.stampReducer && alerts?.stampReducer ?
+          {trackers?.atomCollider && alerts?.atomCollider?.stampReducer ?
             <Alert title={'Stamp reducer is maxed (90%)!'} iconPath={'data/Atom0'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
