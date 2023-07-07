@@ -46,7 +46,11 @@ const baseTrackers = {
       checked: true,
       options: [{ name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }]
     },
-    printer: { checked: true, options: [{ name: 'includeOakAndCopper', category: 'atoms', checked: false }] },
+    printer: { checked: true,
+      options: [
+        { name: 'includeOakAndCopper', category: 'atoms', checked: false },
+        { name: 'showAlertWhenFull', checked: false }]
+    },
     shops: {
       checked: true,
       options: [{
@@ -153,8 +157,12 @@ const Dashboard = () => {
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
   useEffect(() => {
-    const accountHasDiff = state?.trackers?.account ? Object.keys(baseTrackers?.account).length !== Object.keys(state?.trackers?.account).length : true;
-    const charactersHasDiff = state?.trackers?.characters ? Object.keys(baseTrackers?.characters).length !== Object.keys(state?.trackers?.characters).length : true;
+    const accountHasDiff = state?.trackers?.account
+      ? Object.keys(baseTrackers?.account).length !== Object.keys(state?.trackers?.account).length
+      : true;
+    const charactersHasDiff = state?.trackers?.characters
+      ? Object.keys(baseTrackers?.characters).length !== Object.keys(state?.trackers?.characters).length
+      : true;
     setConfig({
       account: accountHasDiff ? baseTrackers?.account : state?.trackers?.account,
       characters: charactersHasDiff ? baseTrackers?.characters : state?.trackers?.characters
@@ -170,7 +178,7 @@ const Dashboard = () => {
       title="Idleon Toolbox | Dashboard"
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
-    <Stack direction='row' gap={2} justifyContent={'space-between'}>
+    <Stack direction="row" gap={2} justifyContent={'space-between'}>
       <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : '78%' }}>
         <Stack direction={'row'} alignItems={'center'} gap={3}>
           <Typography variant={'h2'}>Dashboard</Typography>

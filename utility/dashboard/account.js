@@ -63,8 +63,8 @@ export const breedingAlerts = (account, options) => {
 export const printerAlerts = (account, options) => {
   const alerts = {}
   if (!account?.finishedWorlds?.World2) return alerts;
-  const { includeOakAndCopper } = options;
-  const totals = calcTotals(account);
+  const { includeOakAndCopper, showAlertWhenFull } = options;
+  const totals = calcTotals(account, showAlertWhenFull);
   const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
   alerts.atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
     name: items?.[name]?.displayName,

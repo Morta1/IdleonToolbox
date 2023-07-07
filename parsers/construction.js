@@ -1,6 +1,6 @@
-import { tryToParse } from "../utility/helpers";
-import { cogKeyMap, flagsReqs, randomList, towers } from "../data/website-data";
-import { createCogstructionData } from "./cogstrution";
+import { tryToParse } from '../utility/helpers';
+import { cogKeyMap, flagsReqs, randomList, towers } from '../data/website-data';
+import { createCogstructionData } from './cogstrution';
 
 export const getConstruction = (idleonData, account) => {
   const cogMapRaw = idleonData?.CogMap || tryToParse(idleonData?.CogM);
@@ -95,11 +95,15 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
   const updatedBoard = board?.map((slot, index) => {
     const { cog } = slot || {};
     const { e, f, g } = boosted?.[index] || {};
-    const buildRate = e?.value > 0 && cog?.stats?.a?.value > 0 ? cog?.stats?.a?.value + (cog?.stats?.a?.value * e?.value / 100) : (cog?.stats?.a?.value || 0);
+    const buildRate = e?.value > 0 && cog?.stats?.a?.value > 0
+      ? cog?.stats?.a?.value + (cog?.stats?.a?.value * e?.value / 100)
+      : (cog?.stats?.a?.value || 0);
     totalBuildRate += buildRate;
     // const expRate = f?.value > 0 && cog?.stats?.b?.value > 0 ? cog?.stats?.b?.value + (cog?.stats?.b?.value * f?.value / 100) : (cog?.stats?.b?.value || 0);
     totalExpRate += cog?.stats?.d?.value > 0 ? cog?.stats?.d?.value : 0;
-    const flaggyRate = g?.value > 0 && cog?.stats?.c?.value > 0 ? cog?.stats?.c?.value + (cog?.stats?.c?.value * g?.value / 100) : (cog?.stats?.c?.value || 0);
+    const flaggyRate = g?.value > 0 && cog?.stats?.c?.value > 0
+      ? cog?.stats?.c?.value + (cog?.stats?.c?.value * g?.value / 100)
+      : (cog?.stats?.c?.value || 0);
     totalFlaggyRate += flaggyRate;
 
     return {
@@ -126,44 +130,44 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
 const getAffectedIndexes = (type, x, y) => {
   const boosted = [];
   switch (type) {
-    case "diagonal":
+    case 'diagonal':
       boosted.push([x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]);
       break;
-    case "adjacent":
+    case 'adjacent':
       boosted.push([x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1]);
       break;
-    case "up":
+    case 'up':
       boosted.push([x - 1, y + 2], [x, y + 2], [x + 1, y + 2], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]);
       break;
-    case "right":
+    case 'right':
       boosted.push([x + 2, y - 1], [x + 2, y], [x + 2, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]);
       break;
-    case "down":
+    case 'down':
       boosted.push([x - 1, y - 2], [x, y - 2], [x + 1, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1]);
       break;
-    case "left":
+    case 'left':
       boosted.push([x - 2, y - 1], [x - 2, y], [x - 2, y + 1], [x - 1, y - 1], [x - 1, y], [x - 1, y + 1]);
       break;
-    case "row":
+    case 'row':
       for (let k = 0; k < BOARD_X; k++) {
         if (x === k) continue;
         boosted.push([k, y]);
       }
       break;
-    case "column":
+    case 'column':
       for (let k = 0; k < BOARD_Y; k++) {
         if (y === k) continue;
         boosted.push([x, k]);
       }
       break;
-    case "corners":
+    case 'corners':
       boosted.push([x - 2, y - 2,], [x + 2, y - 2,], [x - 2, y + 2,], [x + 2, y + 2,]);
       break;
-    case "around":
+    case 'around':
       boosted.push([x, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x - 2, y], [x - 1, y], [x + 1, y],
         [x + 2, y], [x - 1, y + 1], [x, y + 1,], [x + 1, y + 1], [x, y + 2]);
       break;
-    case "everything":
+    case 'everything':
       for (let l = 0; l < BOARD_Y; l++) {
         for (let k = 0; k < BOARD_X; k++) {
           if (y === l && x === k) continue;
@@ -210,7 +214,7 @@ const parseTowers = (towersRaw, totemInfo) => {
   });
   return {
     data: towersData,
-    buildMultiplier: randomList?.[13].split(" "),
+    buildMultiplier: randomList?.[13].split(' '),
     wizardOverLevels,
     totalLevels,
     totalWaves,

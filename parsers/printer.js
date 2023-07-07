@@ -99,7 +99,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   });
 }
 
-export const calcTotals = (account) => {
+export const calcTotals = (account, showAlertWhenFull) => {
   const { printer, storage } = account || {};
   const atomThreshold = getAtomColliderThreshold(account?.accountOptions?.[133]);
   let totals = printer?.reduce((res, character) => {
@@ -115,26 +115,31 @@ export const calcTotals = (account) => {
     })
     return res;
   }, {});
-  totals = calcAtoms(totals, atomThreshold);
+  totals = calcAtoms(totals, atomThreshold, showAlertWhenFull);
   const totalAtoms = Object.entries(totals)?.reduce((sum, [, slot]) => sum + (slot?.atoms ?? 0), 0);
   return { ...totals, atom: { boostedValue: totalAtoms, atoms: totalAtoms } }
 }
 
-const calcAtoms = (totals = {}, atomThreshold) => {
+const calcAtoms = (totals = {}, atomThreshold, showAlertWhenFull) => {
   return Object.entries(totals)?.reduce((sum, [key, slot]) => {
     const { boostedValue, atomable, storageItem } = slot;
-    let val;
-    const printingMoreThanThreshold = boostedValue >= atomThreshold && !atomable;
-    const storageAndPrintingMoreThanThreshold = boostedValue > atomThreshold - storageItem && !atomable;
-    if (printingMoreThanThreshold) {
-      val = boostedValue - atomThreshold;
-    } else if (storageAndPrintingMoreThanThreshold) {
-      const diff = atomThreshold - storageItem;
-      val = boostedValue - diff;
+    let val, hasAtoms;
+    if (showAlertWhenFull?.checked) {
+      hasAtoms = atomable;
     } else {
-      val = boostedValue
+      const printingMoreThanThreshold = boostedValue >= atomThreshold && !atomable;
+      const storageAndPrintingMoreThanThreshold = boostedValue > atomThreshold - storageItem && !atomable;
+      if (printingMoreThanThreshold) {
+        val = boostedValue - atomThreshold;
+      } else if (storageAndPrintingMoreThanThreshold) {
+        const diff = atomThreshold - storageItem;
+        val = boostedValue - diff;
+      } else {
+        val = boostedValue
+      }
+      hasAtoms = printingMoreThanThreshold || storageAndPrintingMoreThanThreshold || atomable;
     }
-    const hasAtoms = printingMoreThanThreshold || storageAndPrintingMoreThanThreshold || atomable;
+
     sum[key] = {
       ...slot,
       ...(hasAtoms ? { atoms: val / 10e6 } : {})

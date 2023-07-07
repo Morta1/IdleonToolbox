@@ -11,6 +11,7 @@ import RandomEvent from '../account/Misc/RandomEvent';
 import { calcHappyHours } from '../../parsers/dungeons';
 import { getBuildCost } from '../../parsers/construction';
 import { getClosestWorshiper } from '../../parsers/worship';
+import { getAtomBonus } from '../../parsers/atomCollider';
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -21,10 +22,21 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim))
+  const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
 
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
+    const allBlueActive = account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
+    const jewelTrimmedSlot = account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
+    const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0);
+    const isSlotTrimmed = building?.slot !== -1 && building?.slot < trimmedSlots;
     const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
-    const timeLeft = (buildCost - building?.progress) / account?.construction?.totalBuildRate * 1000 * 3600;
+    let timeLeft;
+    if (isSlotTrimmed) {
+      const trimmedSlotSpeed = (3 + atomBonus / 100) * account?.construction?.totalBuildRate;
+      timeLeft = (buildCost - building?.progress) / (trimmedSlotSpeed) * 1000 * 3600;
+    } else {
+      timeLeft = (buildCost - building?.progress) / account?.construction?.totalBuildRate * 1000 * 3600;
+    }
     if (building?.inProgress && (closestBuilding?.timeLeft === 0 || timeLeft < closestBuilding?.timeLeft)) {
       return { timeLeft, icon: `ConTower${building?.index}` };
     }
