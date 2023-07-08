@@ -10,7 +10,6 @@ import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '../parsers/shops';
 import { Adsense } from '@ctrl/react-adsense';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import DashboardSettings from '../components/common/DashboardSettings';
 
 const baseTrackers = {
@@ -46,7 +45,8 @@ const baseTrackers = {
       checked: true,
       options: [{ name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }]
     },
-    printer: { checked: true,
+    printer: {
+      checked: true,
       options: [
         { name: 'includeOakAndCopper', category: 'atoms', checked: false },
         { name: 'showAlertWhenFull', checked: false }]
@@ -186,11 +186,11 @@ const Dashboard = () => {
             <SettingsIcon/>
           </IconButton>
         </Stack>
-        <Typography component={'div'} variant={'caption'} mb={3} sx={{ fontSize: 15 }}>
-          * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
-          valuable content for all users <FavoriteIcon color={'error'}
-                                                       sx={{ fontSize: 12 }}/>
-        </Typography>
+        {/*<Typography component={'div'} variant={'caption'} mb={3} sx={{ fontSize: 15 }}>*/}
+        {/*  * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to*/}
+        {/*  valuable content for all users <FavoriteIcon color={'error'}*/}
+        {/*                                               sx={{ fontSize: 12 }}/>*/}
+        {/*</Typography>*/}
         <Stack gap={2}>
           <Account trackers={config?.account} characters={characters}
                    account={account} lastUpdated={lastUpdated}/>

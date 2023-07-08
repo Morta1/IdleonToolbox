@@ -139,7 +139,7 @@ const Buildings = () => {
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
     <Typography variant={'h2'} mb={3}>Buildings</Typography>
-    <Stack direction={'row'} alignItems="center" gap={3} flexWrap={'wrap'}>
+    <Stack direction={'row'} alignItems="center" gap={3} flexWrap={'wrap'} mb={2}>
       <Box>
         <Typography>Sort by</Typography>
         <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => setSortBy(newSort)}>

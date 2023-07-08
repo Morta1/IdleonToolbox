@@ -10,14 +10,15 @@ import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { isProd, shouldDisplayDrawer } from '../../../utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
-import { useMediaQuery } from '@mui/material';
+import { Typography, useMediaQuery } from '@mui/material';
 import { parseData } from '../../../parsers';
 import { AppContext } from '../context/AppProvider';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const NavBar = ({ children }) => {
-  const {  dispatch } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
@@ -50,6 +51,16 @@ const NavBar = ({ children }) => {
       </AppBar>
     </Box>
     <AppDrawer permanent/>
+    <Box sx={{
+      textAlign: 'center',
+      pt: 1,
+      pr: 3,
+      pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
+    }}><Typography component={'div'} variant={'caption'} sx={{ fontSize: 15 }}>
+      * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
+      valuable content for all users <FavoriteIcon color={'error'}
+                                                   sx={{ fontSize: 12 }}/>
+    </Typography></Box>
     <Box
       sx={{
         pt: 3,
@@ -63,12 +74,12 @@ const NavBar = ({ children }) => {
     <Box
       key={router?.pathname}
       style={{
-      backgroundColor: isProd ? '' : '#d73333',
-      position: 'fixed',
-      bottom: 0,
-      left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
-      width: '100%'
-    }}>
+        backgroundColor: isProd ? '' : '#d73333',
+        position: 'fixed',
+        bottom: 0,
+        left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
+        width: '100%'
+      }}>
       <Adsense
         style={{
           display: 'block',
