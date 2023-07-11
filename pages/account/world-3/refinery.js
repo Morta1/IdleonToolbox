@@ -261,8 +261,8 @@ const Refinery = () => {
                     // activeCritters?.[rawName]
                     // previousPowerPerCycle
                     // previousSaltPerHour
-                    gainValuePerCycle = isCritter ? 0 : isSalt ? 0 : activePrints?.[rawName]?.boostedValue;
-                    gainValuePerHour = isCritter ? 0 : isSalt ? 0 : activePrints?.[rawName]?.boostedValue;
+                    gainValuePerCycle = isCritter ? 0 : isSalt ? previousPowerPerCycle : activePrints?.[rawName]?.boostedValue;
+                    gainValuePerHour = isCritter ? 0 : isSalt ? previousSaltPerHour : activePrints?.[rawName]?.boostedValue;
                     return <Stack key={`${rawName}-${index}`} direction={'row'} gap={5} alignItems={'center'}
                                   justifyContent={'center'}>
                       <Tooltip
@@ -278,7 +278,7 @@ const Refinery = () => {
                         <Stack sx={{ width: 50, height: 76 }} alignItems={'center'}>
                           <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
                           <Typography
-                            color={cost > totalAmount && gainValuePerHour < costPerHour ? 'error.light' : ''}>{notateNumber(costPerHour)}</Typography>
+                            color={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour ? 'error.light' : ''}>{notateNumber(costPerHour)}</Typography>
                         </Stack>
                       </Tooltip>
                       <Tooltip
