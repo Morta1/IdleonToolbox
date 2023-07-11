@@ -1,7 +1,7 @@
 import { getStampsBonusByEffect } from './stamps';
 import { round } from '../utility/helpers';
 import { getCardBonusByEffect } from './cards';
-import { getTalentBonusIfActive, mainStatMap } from './talents';
+import { getCharacterByHighestTalent, getHighestTalentByClass, getTalentBonusIfActive, mainStatMap } from './talents';
 import { getPostOfficeBonus } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 
@@ -43,11 +43,12 @@ export const getChargeRate = (character, account) => {
 export const getPlayerWorship = (character, pages, account, playerCharge) => {
   const maxCharge = getMaxCharge(character, account)
   const chargeRate = getChargeRate(character, account);
-
+  const afkFor = new Date().getTime() - character.afkTime;
+  const estimatedCharge = Math.min(parseInt(playerCharge) + chargeRate * (afkFor / 1000 / 3600), maxCharge);
   return {
     maxCharge: round(maxCharge),
     chargeRate: round(chargeRate),
-    currentCharge: round(parseInt(playerCharge))
+    currentCharge: round(estimatedCharge)
   };
 };
 
@@ -59,4 +60,19 @@ export const getClosestWorshiper = (characters) => {
     }
     return closestWorshiper;
   }, { character: null, timeLeft: 0 })
+}
+
+export const getChargeWithSyphon = (characters) => {
+  const totalCharge = characters?.reduce((res, { worship }) => res + worship?.currentCharge, 0);
+  const totalChargeRate = characters?.reduce((res, { worship }) => res + worship?.chargeRate, 0);
+  const bestChargeSyphon = getHighestTalentByClass(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y');
+  const bestWizard = getCharacterByHighestTalent(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y');
+
+  return {
+    bestWizard,
+    totalCharge,
+    bestChargeSyphon,
+    totalChargeRate,
+    timeToOverCharge: new Date().getTime() + (((bestWizard?.worship?.maxCharge + bestChargeSyphon) - totalCharge) / totalChargeRate * 1000 * 3600)
+  }
 }

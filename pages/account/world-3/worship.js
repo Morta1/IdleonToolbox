@@ -6,18 +6,20 @@ import { cleanUnderscore, prefix } from 'utility/helpers';
 import Tooltip from '../../../components/Tooltip';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
-import { getCharacterByHighestTalent, getHighestTalentByClass } from '../../../parsers/talents';
 import Timer from '../../../components/common/Timer';
-import { getClosestWorshiper } from '../../../parsers/worship';
+import { getChargeWithSyphon, getClosestWorshiper } from '../../../parsers/worship';
 
 const Worship = () => {
   const { state } = useContext(AppContext);
 
-  const totalCharge = useMemo(() => state?.characters?.reduce((res, { worship }) => res + worship?.currentCharge, 0), [state]);
-  const totalChargeRate = useMemo(() => state?.characters?.reduce((res, { worship }) => res + worship?.chargeRate, 0), [state]);
-  const bestChargeSyphon = useMemo(() => getHighestTalentByClass(state?.characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y', true), [state])
-  const bestWizard = useMemo(() => getCharacterByHighestTalent(state?.characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y', true), [state])
   const closestToFull = getClosestWorshiper(state?.characters);
+  const {
+    bestWizard,
+    totalCharge,
+    bestChargeSyphon,
+    totalChargeRate,
+    timeToOverCharge,
+  } = useMemo(() => getChargeWithSyphon(state?.characters), [state?.characters]);
 
   return (
     <>
@@ -26,6 +28,8 @@ const Worship = () => {
         description="Keep track of your worship charge and charge rate for all of your characters"
       />
       <Typography variant={'h2'}>Worship</Typography>
+      <Typography variant={'caption'}>* make sure you login to every character to "apply" their charge before using
+        syphon</Typography>
       <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Total Charge'} value={totalCharge}/>
         <CardTitleAndValue title={'Total Daily Charge'} value={`${Math.round(24 * totalChargeRate)}%`}/>
@@ -42,7 +46,7 @@ const Worship = () => {
                        bgColor={'secondary.dark'}/>
           <Timer type={'countdown'}
                  placeholder={'You have overflowing charge'}
-                 date={new Date().getTime() + (((bestWizard?.worship?.maxCharge + bestChargeSyphon) - totalCharge) / totalChargeRate * 1000 * 3600)}
+                 date={timeToOverCharge}
                  lastUpdated={state?.lastUpdated}/>
         </CardTitleAndValue>
       </Stack>
@@ -72,7 +76,10 @@ const Worship = () => {
                   <Typography>Charge Rate: {Math.round(worship?.chargeRate * 24)}% / day</Typography>
                   <Stack direction={'row'} gap={1}>
                     <Typography>Time to full: </Typography>
-                    <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
+                    <Timer type={'countdown'}
+                           sx={{ color: 'error.light' }}
+                           placeholder={'Full'}
+                           date={new Date().getTime() + timeLeft}
                            lastUpdated={state?.lastUpdated}/>
                   </Stack>
                 </Box>

@@ -56,7 +56,9 @@ const Refinery = () => {
   let constructionMastery = 0;
   const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');
   if (isConstructUnlocked) {
-    constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0] ? Math.floor(towers?.totalLevels / 10) : 0
+    constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0]
+      ? Math.floor(towers?.totalLevels / 10)
+      : 0
   }
   const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
   const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
@@ -98,12 +100,12 @@ const Refinery = () => {
     const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
 
     const combustion = {
-      name: "Combustion",
+      name: 'Combustion',
       time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + additive / 100) * labCycleBonus)),
       timePast: refinery?.timePastCombustion + timePassed
     };
     const synthesis = {
-      name: "Synthesis",
+      name: 'Synthesis',
       time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + additive / 100) * labCycleBonus)),
       timePast: refinery?.timePastSynthesis + timePassed
     }
@@ -126,7 +128,9 @@ const Refinery = () => {
     // Cycles per day = (24 * 60 * 60 / ((900 || 3600) / (1 + VIAL + saltLicks[2]))) + SQUIRE PER
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const cycleByType = index <= 2 ? 900 : 3600;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (additive) / 100))) + (includeSquireCycles ? (squiresCycles ?? 0) : 0);
+    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (additive) / 100))) + (includeSquireCycles
+      ? (squiresCycles ?? 0)
+      : 0);
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
     return new Date().getTime() + (timeLeft * 3600 * 1000);
   };
@@ -234,7 +238,9 @@ const Refinery = () => {
                     pause={!active || !hasMaterialsForCycle}
                     placeholder={<Typography
                       component={'span'}
-                      color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle ? 'RANK UP' : 'Missing Mats'}</Typography>}
+                      color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle
+                      ? 'RANK UP'
+                      : 'Missing Mats'}</Typography>}
                     date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/> :
                   <Typography component={'span'} color={'error'}>Inactive</Typography>}</Typography>
                 <Typography>Fuel: {fuelTime ? <Timer type={'countdown'}
@@ -261,8 +267,12 @@ const Refinery = () => {
                     // activeCritters?.[rawName]
                     // previousPowerPerCycle
                     // previousSaltPerHour
-                    gainValuePerCycle = isCritter ? 0 : isSalt ? previousPowerPerCycle : activePrints?.[rawName]?.boostedValue;
-                    gainValuePerHour = isCritter ? 0 : isSalt ? previousSaltPerHour : activePrints?.[rawName]?.boostedValue;
+                    gainValuePerCycle = isCritter ? 0 : isSalt
+                      ? previousPowerPerCycle
+                      : activePrints?.[rawName]?.boostedValue;
+                    gainValuePerHour = isCritter ? 0 : isSalt
+                      ? previousSaltPerHour
+                      : activePrints?.[rawName]?.boostedValue;
                     return <Stack key={`${rawName}-${index}`} direction={'row'} gap={5} alignItems={'center'}
                                   justifyContent={'center'}>
                       <Tooltip
@@ -278,7 +288,9 @@ const Refinery = () => {
                         <Stack sx={{ width: 50, height: 76 }} alignItems={'center'}>
                           <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
                           <Typography
-                            color={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour ? 'error.light' : ''}>{notateNumber(costPerHour)}</Typography>
+                            color={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour
+                              ? 'error.light'
+                              : ''}>{notateNumber(costPerHour)}</Typography>
                         </Stack>
                       </Tooltip>
                       <Tooltip

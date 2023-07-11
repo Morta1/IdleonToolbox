@@ -10,7 +10,7 @@ import Trade from '../account/Worlds/World5/Sailing/Trade';
 import RandomEvent from '../account/Misc/RandomEvent';
 import { calcHappyHours } from '../../parsers/dungeons';
 import { getBuildCost } from '../../parsers/construction';
-import { getClosestWorshiper } from '../../parsers/worship';
+import { getChargeWithSyphon, getClosestWorshiper } from '../../parsers/worship';
 import { getAtomBonus } from '../../parsers/atomCollider';
 
 const Etc = ({ characters, account, lastUpdated }) => {
@@ -54,6 +54,11 @@ const Etc = ({ characters, account, lastUpdated }) => {
   }, 0);
 
   const closestWorshiper = getClosestWorshiper(characters);
+  const {
+    bestWizard,
+    bestChargeSyphon,
+    timeToOverCharge
+  } = useMemo(() => getChargeWithSyphon(characters), [characters]);
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -89,81 +94,46 @@ const Etc = ({ characters, account, lastUpdated }) => {
             <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
           </CardContent>
         </Card> : null}
-      <Stack gap={1}>
-        {account?.finishedWorlds?.World2 ? <Card sx={{ height: 'fit-content' }}>
-          <CardContent>
-            <Tooltip title={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}>
-              <Stack gap={1} direction={'row'} alignItems={'center'}>
-                <IconImg src={`${prefix}data/ConTower0.png`}/>
-                <Timer lastUpdated={lastUpdated}
-                       type={'countdown'}
-                       date={nextPrinterCycle}/>
-              </Stack>
-            </Tooltip>
-          </CardContent>
-        </Card> : null}
-        {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Card sx={{ height: 'fit-content' }}>
-          <CardContent>
-            <Tooltip title={'Closest trap: ' + getRealDateInMs(closestTrap)}>
-              <Stack gap={1} direction={'row'} alignItems={'center'}>
-                <IconImg src={`${prefix}data/TrapBoxSet1.png`}/>
-                <Timer lastUpdated={lastUpdated}
-                       type={'countdown'}
-                       date={closestTrap}/>
-              </Stack>
-            </Tooltip>
-          </CardContent>
-        </Card> : null}
-        {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <Card sx={{ height: 'fit-content' }}>
-          <CardContent>
-            <Tooltip title={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}>
-              <Stack gap={1} direction={'row'} alignItems={'center'}>
-                <IconImg src={`${prefix}data/${closestBuilding?.icon}.png`}/>
-                <Timer lastUpdated={lastUpdated}
-                       type={'countdown'}
-                       date={new Date().getTime() + closestBuilding?.timeLeft}/>
-              </Stack>
-            </Tooltip>
-          </CardContent>
-        </Card> : null}
-        {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Card sx={{ height: 'fit-content' }}>
-          <CardContent>
-            <Tooltip
-              title={`Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}>
-              <Stack gap={1} direction={'row'} alignItems={'center'}>
-                <IconImg src={`${prefix}data/WorshipSkull3.png`}/>
-                <Timer lastUpdated={lastUpdated}
-                       type={'countdown'}
-                       date={new Date().getTime() + closestWorshiper?.timeLeft}/>
-              </Stack>
-            </Tooltip>
-          </CardContent>
-        </Card> : null}
-        <Card>
-          <CardContent>
-            <Tooltip title={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <IconImg src={`${prefix}afk_targets/Dog.png`}/>
-                {nextCompanionClaim > 0 ?
-                  <Timer type={'countdown'} date={nextCompanionClaim}
-                         placeholder={'Go claim!'}
-                         lastUpdated={lastUpdated}/> : null}
-              </Stack>
-            </Tooltip>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <Tooltip title={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <IconImg src={`${prefix}etc/Happy_Hour.png`}/>
-                {nextHappyHours?.length > 0 ?
-                  <Timer type={'countdown'} date={nextHappyHours?.[0]}
-                         lastUpdated={lastUpdated}/> : 'waiting for lava to set them'}
-              </Stack>
-            </Tooltip>
-          </CardContent>
-        </Card>
+      <Stack gap={1} direction={'row'} sx={{ width: 350 }} flexWrap={'wrap'}>
+        {account?.finishedWorlds?.World2 ? <TimerCard
+          tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
+          lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
+
+        {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <TimerCard
+          tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
+          lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/> : null}
+
+        {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <TimerCard
+          tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}
+          lastUpdated={lastUpdated} time={new Date().getTime() + closestBuilding?.timeLeft}
+          icon={`data/${closestBuilding?.icon}.png`}/> : null}
+
+        {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <TimerCard
+          tooltipContent={`Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}
+          lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
+          icon={'data/WorshipSkull3.png'}/> : null}
+
+        <TimerCard
+          tooltipContent={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}
+          lastUpdated={lastUpdated} time={nextCompanionClaim}
+          icon={'afk_targets/Dog.png'}
+          timerPlaceholder={'Go claim!'}
+        />
+
+        {nextHappyHours?.length > 0 ? <TimerCard
+          tooltipContent={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}
+          lastUpdated={lastUpdated} time={nextHappyHours?.[0]}
+          icon={'etc/Happy_Hour.png'}
+          timerPlaceholder={'Go claim!'}
+        /> : null}
+
+        {account?.finishedWorlds?.World2 ? <TimerCard
+          tooltipContent={`Overflow syphon Charge (${bestWizard?.worship?.maxCharge + bestChargeSyphon}): ` + getRealDateInMs(timeToOverCharge)}
+          lastUpdated={lastUpdated} time={timeToOverCharge}
+          icon={'data/UISkillIcon475.png'}
+          timerPlaceholder={'Overflowing charge'}
+        /> : null}
+
       </Stack>
       <Stack gap={1}>
         <Card sx={{ height: 'fit-content' }}>
@@ -199,16 +169,31 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Stack>
           </CardContent>
         </Card> : null}
+
       </Stack>
     </Stack>
   </>
 };
-
 
 const IconImg = styled.img`
   width: 35px;
   height: 35px;
   object-fit: contain;
 `;
+
+const TimerCard = ({ tooltipContent, icon, lastUpdated, time, timerPlaceholder = '' }) => {
+  return <Card sx={{ height: 'fit-content' }}>
+    <CardContent>
+      <Tooltip title={tooltipContent}>
+        <Stack direction={'row'} gap={1} alignItems={'center'}>
+          <IconImg src={`${prefix}${icon}`}/>
+          <Timer type={'countdown'} date={time}
+                 placeholder={timerPlaceholder}
+                 lastUpdated={lastUpdated}/>
+        </Stack>
+      </Tooltip>
+    </CardContent>
+  </Card>
+}
 
 export default Etc;
