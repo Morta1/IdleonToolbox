@@ -1,4 +1,4 @@
-import { Container, Dialog, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import { Container, Dialog, DialogContent, DialogTitle, Popover, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useState } from 'react';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -7,22 +7,26 @@ import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
 import PastebinInstructions from '../components/common/PastebinInstructions';
+import useTimeout from '../components/hooks/useTimeout';
 
 const Data = () => {
   const router = useRouter();
   const [key, setKey] = useState('all');
   const [openPastebin, setOpenPastebin] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleCopyITRaw = async () => {
+  const handleCopyITRaw = async (e) => {
     try {
+      setAnchorEl(e.currentTarget)
       await navigator.clipboard.writeText(localStorage.getItem('rawJson'));
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleCopyRaw = async () => {
+  const handleCopyRaw = async (e) => {
     try {
+      setAnchorEl(e.currentTarget)
       const data = JSON.parse(localStorage.getItem('rawJson'));
       await navigator.clipboard.writeText(JSON.stringify(data?.data));
     } catch (err) {
@@ -39,6 +43,10 @@ const Data = () => {
     router.reload();
   }
 
+  useTimeout(() => {
+    setAnchorEl(null);
+  }, anchorEl ? 1000 : null)
+
   return <Container>
     <Stack alignItems="center" flexWrap={'wrap'} justifyContent="center"
            gap={1}>
@@ -52,6 +60,7 @@ const Data = () => {
                    onClick={handleCopyRaw}>
         Raw Game JSON
       </ButtonStyle>
+      <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
     </Stack>
     <Typography variant={'h4'} mt={8} textAlign={'center'}>Local Storage</Typography>
     <Typography component={'div'} variant={'caption'} mb={2} textAlign={'center'} color={'warning.light'}>Use this if
@@ -87,5 +96,27 @@ const Data = () => {
 const ButtonStyle = styled(Button)`
   text-transform: none;
 `
+
+const Popper = ({ anchorEl, handleClose }) => {
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined;
+  return <Popover
+    sx={{ ml: 1 }}
+    id={id}
+    open={open}
+    anchorEl={anchorEl}
+    onClose={handleClose}
+    anchorOrigin={{
+      vertical: 'center',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'center',
+      horizontal: 'left',
+    }}
+  >
+    <Typography sx={{ py: 1, px: 2 }}>Copied to clipboard!</Typography>
+  </Popover>
+}
 
 export default Data;
