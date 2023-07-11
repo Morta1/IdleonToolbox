@@ -7,8 +7,10 @@ import Kofi from '../../Kofi';
 
 const CharactersDrawer = () => {
   const { state, dispatch } = useContext(AppContext);
+  const [hoverIndex, setHoverIndex] = useState(null);
   const [checked, setChecked] = React.useState(state?.displayedCharacters ? state?.displayedCharacters : {
-    all: false, ...state?.characters?.reduce((res, { name }) => ({
+    all: false,
+    ...state?.characters?.reduce((res, { name }) => ({
       ...res,
       [name]: false
     }), {})
@@ -18,17 +20,24 @@ const CharactersDrawer = () => {
     [name]: false
   }), {}));
 
-  const handleCharacterChange = (event) => {
+  const handleCharacterChange = (event, _, charName) => {
     let newState;
-    if (event === 'all') {
+    if (charName) {
       newState = {
-        all: !checked.all,
-        ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: !checked.all }), {})
-      };
+        ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: charName === name }), {}),
+        all: false,
+      }
     } else {
-      newState = {
-        ...checked,
-        [event.target.name]: event.target.checked,
+      if (event === 'all') {
+        newState = {
+          all: !checked.all,
+          ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: !checked.all }), {})
+        };
+      } else {
+        newState = {
+          ...checked,
+          [event.target.name]: event.target.checked,
+        }
       }
     }
     setChecked(newState);
@@ -70,6 +79,8 @@ const CharactersDrawer = () => {
         {state?.characters?.map((character, index) => {
           const { name, classIndex, level } = character;
           return <ListItem
+            onMouseEnter={() => setHoverIndex(index)}
+            onMouseLeave={() => setHoverIndex(null)}
             key={`${name}-${index}`}
             secondaryAction={
               <Checkbox
@@ -77,7 +88,7 @@ const CharactersDrawer = () => {
                 name={`${name}`}
                 onChange={handleCharacterChange}
                 checked={checked?.[name]}
-                role={"checkbox"}
+                role={'checkbox'}
                 aria-label={`Check to see stats for ${name}`}
               />}>
             <ListItemIcon>
@@ -85,7 +96,15 @@ const CharactersDrawer = () => {
                 <img style={{ width: 38, height: 36 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
               </Tooltip>
             </ListItemIcon>
-            <ListItemText id={name} primary={name}/>
+            <ListItemText
+
+              sx={{ height: 30, margin: 0 }} id={name} primary={name}
+              secondary={hoverIndex === index ? <span
+                onClick={() => handleCharacterChange(null, null, name)}
+                style={{
+                  textDecoration: 'underline',
+                  cursor: 'pointer'
+                }}>Only</span> : ''}/>
           </ListItem>
         })}
       </List>
