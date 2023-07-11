@@ -104,11 +104,6 @@ const Buildings = () => {
         } else if (b?.isMaxed) {
           return -1;
         }
-        if (!a?.inProgress) {
-          return 1;
-        } else if (!b?.inProgress) {
-          return -1;
-        }
         return timeLeftA - timeLeftB;
       })
     } else if (sortBy === 'requirement') {
