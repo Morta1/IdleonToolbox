@@ -114,7 +114,9 @@ const Buildings = () => {
         } else if (b?.isMaxed) {
           return -1;
         }
-        return a?.buildCost - b?.buildCost
+        const progressA = a?.buildCost - a?.progress;
+        const progressB = b?.buildCost - b?.progress;
+        return progressA - progressB;
       })
     }
   }, [sortBy]);
