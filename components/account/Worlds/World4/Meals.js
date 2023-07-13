@@ -16,7 +16,7 @@ import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
 const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
-const breakpoints = [-1, 0, 11, 30];
+const breakpoints = [-1, 0, 11, 30, 40, 50, 60];
 const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -60,12 +60,31 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
         timeToBlackVoid = timeToBlackVoid / (1 + overflowingLadleBonus / 100);
       }
+      const breakpointTimes = breakpoints.map((breakpoint) => {
+        if (breakpoint === 0 || breakpoint === -1) {
+          const timeTillNextLevel = amount >= levelCost
+            ? '0'
+            : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
+          return {
+            bpCost: levelCost,
+            bpLevel: breakpoint,
+            timeToBp: overflow ? timeTillNextLevel / (1 + overflowingLadleBonus / 100) : timeTillNextLevel
+          };
+        }
+        const bpCost = (breakpoint - level) * levelCost;
+        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements);
+        if (overflow) {
+          timeToBp = timeToBp / (1 + overflowingLadleBonus / 100)
+        }
+        return { bpCost, timeToBp, bpLevel: breakpoint };
+      })
       return {
         ...meal, levelCost, diamondCost,
         timeTillNextLevel,
         timeToDiamond,
         timeToBlackVoid,
         blackVoidCost,
+        breakpointTimes
       };
     });
   };
@@ -84,38 +103,30 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   };
 
   useEffect(() => {
-    let tempMeals;
-    if (sortBy === 0) {
-      const mealsCopy = [...defaultMeals];
-      tempMeals = sortMealsBy(mealsCopy, 'timeTillNextLevel');
-    } else if (sortBy === 11) {
-      const mealsCopy = [...defaultMeals];
-      tempMeals = sortMealsBy(mealsCopy, 'timeToDiamond', 11);
-    } else if (sortBy === 30) {
-      const mealsCopy = [...defaultMeals];
-      tempMeals = sortMealsBy(mealsCopy, 'timeToBlackVoid', 30);
-    } else {
-      tempMeals = defaultMeals;
-    }
+    let tempMeals = defaultMeals;
+    breakpoints.forEach((breakpoint, index) => {
+      if (sortBy === breakpoint) {
+        const mealsCopy = [...defaultMeals];
+        tempMeals = sortMealsBy(mealsCopy, index, breakpoint);
+      }
+    })
     if (filters.includes('overflow')) {
       tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus)
     }
     if (filters.includes('hide')) {
       tempMeals = tempMeals.filter((meal) => meal?.level < mealMaxLevel);
     }
-
     if (filters.includes('amethystRhinestone') && realAmethystRhinestone === 0) {
       setMealSpeed(totalMealSpeed * amethystRhinestone);
     } else {
       setMealSpeed(totalMealSpeed);
     }
-
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
   }, [filters, meals, mealMaxLevel, sortBy, mealSpeed]);
 
-  const sortMealsBy = (meals, sortBy, level = 0) => {
+  const sortMealsBy = (meals, index, level = 0) => {
     const mealsCopy = [...defaultMeals];
     mealsCopy.sort((a, b) => {
       if (level !== 0) {
@@ -125,7 +136,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
           return -1;
         }
       }
-      return a?.[sortBy] - b?.[sortBy]
+      const aSortIndex = a?.breakpointTimes?.[index]?.timeToBp;
+      const bSortIndex = b?.breakpointTimes?.[index]?.timeToBp;
+      return aSortIndex - bSortIndex;
     });
     return mealsCopy;
   }
@@ -182,10 +195,12 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             {val === -1 ? 'Order' : val === 0 ? 'Time' : `Time to ${val}`}
           </MenuItem>))}
         </TextField>
-        {sortBy === 11 && !localMeals?.some(({ level, amount }) => amount > 0 && level < 11) ?
-          <Typography sx={{ color: '#ffa726' }}>All meals are higher than level 11 !</Typography> : null}
-        {sortBy === 30 && !localMeals?.some(({ level, amount }) => amount > 0 && level < 30) ?
-          <Typography sx={{ color: '#ffa726' }}>All meals are higher than level 30 !</Typography> : null}
+        {breakpoints?.map((breakpoint) => {
+          if (breakpoint === 0 || breakpoint === -1) return null;
+          return sortBy === breakpoint && !localMeals?.some(({ level, amount }) => amount > 0 && level < breakpoint) ?
+            <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than level 30
+              !</Typography> : null;
+        })}
       </Stack>
       <Stack my={2}>
         <Typography my={1} variant={'h5'}>Best meal speed contribution</Typography>
@@ -247,10 +262,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             baseStat,
             multiplier,
             shinyMulti,
-            levelCost,
-            timeTillNextLevel,
-            timeToDiamond,
-            timeToBlackVoid
+            breakpointTimes
           } = meal;
           const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
           return (
@@ -275,62 +287,40 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                         ? 'info.light'
                         : ''
                     }}>{cleanUnderscore(effect?.replace('{', kFormatter(realEffect)))}</Typography>
-                  {!filters.includes('minimized') ? (
-                    meal?.level === mealMaxLevel ? <Typography color={'success.light'}>MAXED</Typography> : <>
-                      <Typography
-                        sx={{ color: amount >= levelCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
-                        Progress: {<HtmlTooltip title={numberWithCommas(parseInt(amount))}>
-                        <span>{notateNumber(Math.floor(amount), 'Big')}</span>
-                      </HtmlTooltip>} / {<HtmlTooltip title={numberWithCommas(parseInt(levelCost))}>
-                        <span>{notateNumber(Math.ceil(levelCost), 'Big')}</span>
-                      </HtmlTooltip>}
-                      </Typography>
-                      {level > 0 ? (
-                        <>
-                          {sortBy === 0 || sortBy === -1 ? <Typography component={'span'}>
-                            Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
-                            <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
-                                   staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
-                          </Typography> : null}
-                          {sortBy === 11 && level < 11 ? (
-                            <Typography>
-                              Next milestone: {timeToDiamond * 3600 * 1000 < maxTimeValue ?
-                              <Timer date={new Date().getTime() + timeToDiamond * 3600 * 1000}
-                                     staticTime={true}/> : `${getTimeAsDays(timeToDiamond)} days`}
-                            </Typography>
-                          ) : null}
-                          {sortBy === 30 && level < 30 && timeToBlackVoid > 0 ? (
-                            <Typography>
-                              {/* Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1 */}
-                              Next milestone: {parseInt(getTimeAsDays(timeToBlackVoid))} days
-                            </Typography>
-                          ) : null}
-                        </>
-                      ) : null}
-                    </>
-                  ) : null}
-                  {meal?.level < mealMaxLevel ? <>
-                    {(sortBy === -1 || sortBy === 0) && <Stack direction={'row'} alignItems={'center'} gap={1}>
-                      <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                      <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
-                        <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
-                      </HtmlTooltip>
-                    </Stack>}
-                    {sortBy === 11 && level < 11 && level > 0 ?
-                      <Stack direction={'row'} alignItems={'center'} gap={1}>
-                        <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                        <HtmlTooltip title={numberWithCommas(parseFloat(timeToDiamond).toFixed(2))}>
-                          <span>{notateNumber(Math.ceil(timeToDiamond), 'Big')}</span>
-                        </HtmlTooltip>
-                      </Stack> : null}
-                    {sortBy === 30 && level < 30 && level > 0 ?
-                      <Stack direction={'row'} alignItems={'center'} gap={1}>
-                        <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                        <HtmlTooltip title={numberWithCommas(parseFloat(timeToBlackVoid).toFixed(2))}>
-                          <span>{notateNumber(Math.ceil(timeToBlackVoid), 'Big')}</span>
-                        </HtmlTooltip>
-                      </Stack> : null}
-                  </> : null}
+                  {!filters.includes('minimized') ?
+                    breakpointTimes?.map(({ bpLevel, bpCost, timeToBp }) => {
+                      const timeInMs = timeToBp * 3600 * 1000
+                      return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Stack
+                        key={name + bpLevel} gap={1}
+                        flexWrap={'wrap'}>
+                        {amount >= bpCost ? <Typography
+                            color={'success.light'}>MAXED</Typography> :
+                          <Typography
+                            sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
+                            Progress: {<HtmlTooltip title={parseFloat(amount)}>
+                            <span>{notateNumber(Math.floor(amount), 'Big')}</span>
+                          </HtmlTooltip>} / {<HtmlTooltip title={parseFloat(bpCost)}>
+                            <span>{notateNumber(Math.ceil(bpCost), 'Big')}</span>
+                          </HtmlTooltip>}
+                          </Typography>
+                        }
+                        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                          <Typography>Next milestone: </Typography>
+                          {timeInMs < maxTimeValue
+                            ? <Timer
+                              date={new Date().getTime() + timeToBp * 3600 * 1000}
+                              staticTime={true}/>
+                            : `${notateNumber(getTimeAsDays(timeToBp), 'Big')} days`
+                          }
+                        </Stack>
+                        <Stack direction={'row'} alignItems={'center'} gap={1}>
+                          <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
+                          <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
+                            <span>{notateNumber(Math.ceil(timeToBp), 'Big')}</span>
+                          </HtmlTooltip>
+                        </Stack>
+                      </Stack> : null
+                    }) : null}
                 </Stack>
               </CardContent>
             </Card>
@@ -341,6 +331,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   );
 };
 
+// Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1
 const getTimeAsDays = (time) => {
   return Math.ceil(time * 3600 * 1000 / msPerDay);
 }

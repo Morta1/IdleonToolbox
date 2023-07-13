@@ -40,7 +40,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} my={5}>
       {fencePetsByTime?.map((pet, index) => {
-        const missingIcon = pet?.icon === 'Mface23' && pet?.monsterRawName !== 'shovelR';
+        const missingIcon = (pet?.icon === 'Mface23' || pet?.icon === 'Mface21') && pet?.monsterRawName !== 'shovelR';
         const amount = fencePetsObject?.[pet?.monsterRawName];
         const timeLeft = ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7;
         const timeLeftToFive = getTimeToLevel(pet, fasterShinyLv, amount, 5);
@@ -116,7 +116,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
                              }) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (applyThreshold && shinyLevel >= threshold) return;
-                  const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
+                  const missingIcon = (icon === 'Mface23' || icon === 'Mface21') && monsterRawName !== 'shovelR';
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}
                                sx={{ opacity: unlocked ? 1 : .6 }}>
                     <CardContent sx={{ width: 300 }}>
