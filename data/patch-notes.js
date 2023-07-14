@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.1',
+    gameVer: '1.86',
+    date: '14/07/2023',
+    features: [
+      <Typography>Added chips and jewels rotations to <Link
+        href={'https://idleontoolbox.com/account/world-4/laboratory'}>Laboratory</Link> page with the ability to filter specific jewels / chips </Typography>,
+      'Added submitted builds for Blood berserker, Elemental Sorcerer and Bubonic Conjuror',
+      'Added the ability to select only one character to display in characters page',
+      'Added charge syphon timer to the dashboard ',
+      'Added meals breakpoint for level 40, 50 and 60',
+    ],
+    fixes: [
+      'Fixed a bug with sorting buildings by time',
+      'Fixed a bug with wrong icon displayed in breeding page',
+    ]
+  },
+  {
     ver: '3.2.0',
     gameVer: '1.86',
     date: '01/07/2023',

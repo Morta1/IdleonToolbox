@@ -224,6 +224,6 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;
   const fungyFingerBonus = greenMushroomKilled * accountData.lab.labBonuses?.[9]?.bonusOn;
   accountData.lab.labBonuses = applyBonusDesc(accountData.lab.labBonuses, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
-
+  console.log(accountData.lab)
   return { accountData, charactersData };
 };

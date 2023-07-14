@@ -3,7 +3,13 @@ import { cleanUnderscore, kFormatter, notateNumber, prefix } from '../../../../u
 import Tooltip from 'components/Tooltip';
 import Timer from 'components/common/Timer';
 import React, { useMemo } from 'react';
-import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, maxNumberOfSpiceClicks } from 'parsers/cooking';
+import {
+  calcMealTime,
+  calcTimeToNextLevel,
+  getMealLevelCost,
+  maxNumberOfSpiceClicks,
+  spicesNames
+} from 'parsers/cooking';
 import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
@@ -44,9 +50,11 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
       </Card>
       <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
         {spices?.available?.map((spice, index) => {
-          return spice ? <Card elevation={4} key={`${spice?.spiceName}-${index}`}>
+          return spice ? <Card elevation={4} key={`${spice?.rawName}-${index}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <SpiceIcon src={`${prefix}data/${spice?.rawName}.png`} alt=""/>
+              <Tooltip title={spice?.name}>
+                <SpiceIcon src={`${prefix}data/${spice?.rawName}.png`} alt=""/>
+              </Tooltip>
               <Tooltip title={parseInt(spice?.amount)}>
                 <Typography>{notateNumber(parseInt(spice?.amount), 'Big')}</Typography>
               </Tooltip>
@@ -88,6 +96,8 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           const recipeTime = getRecipeTime(kitchen?.possibleMeals);
           const percentOfCap = Math.round(kitchen?.currentProgress / recipeTime * 100);
           const timeToFinish = (recipeTime - kitchen?.currentProgress) / kitchen.fireSpeed;
+          const [firstSpiceIndex, secondSpiceIndex, thirdSpiceIndex] = [0, 1,
+            2].map((ind) => getSpiceForUpgrade(kitchenIndex, ind));
           return <Card key={`kitchen-${kitchenIndex}`} sx={{ width: { xs: 350, sm: 400 } }}>
             <CardContent sx={{ padding: 4 }}>
               <Stack direction={'row'} justifyContent={'center'}>
@@ -95,7 +105,9 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
                   <Typography sx={{ color: 'success.light' }}>Speed ({kitchen?.speedLv})</Typography>
                   <Typography>{notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr</Typography>
                   <Stack mt={2} alignItems={'center'}>
-                    <SpiceIcon src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 0)}.png`} alt={''}/>
+                    <Tooltip title={spicesNames[firstSpiceIndex]}>
+                      <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt={''}/>
+                    </Tooltip>
                     <Typography>{notateNumber(kitchen?.speedCost, 'Big')}</Typography>
                   </Stack>
                 </Stack>
@@ -104,7 +116,9 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
                   <Typography sx={{ color: 'error.light' }}>Fire ({kitchen?.fireLv})</Typography>
                   <Typography>{notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr</Typography>
                   <Stack mt={2} alignItems={'center'}>
-                    <SpiceIcon src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 1)}.png`} alt={''}/>
+                    <Tooltip title={spicesNames[secondSpiceIndex]}>
+                      <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt={''}/>
+                    </Tooltip>
                     <Typography>{notateNumber(kitchen?.fireCost, 'Big')}</Typography>
                   </Stack>
                 </Stack>
@@ -113,7 +127,11 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
                   <Typography sx={{ color: 'info.light' }}>Luck ({kitchen?.luckLv})</Typography>
                   <Typography>{kitchen?.mealLuck.toFixed(2) ?? 0}x</Typography>
                   <Stack mt={2} alignItems={'center'}>
-                    <SpiceIcon src={`${prefix}data/CookingSpice${getSpiceForUpgrade(kitchenIndex, 2)}.png`} alt={''}/>
+                    <Tooltip title={thirdSpiceIndex >= 20 ? 'Unknown' : spicesNames[thirdSpiceIndex]}>
+                      <SpiceIcon src={`${prefix}data/${thirdSpiceIndex >= 20
+                        ? 'CookingSpiceNA'
+                        : `CookingSpice${thirdSpiceIndex}`}.png`} alt={''}/>
+                    </Tooltip>
                     <Typography>{notateNumber(kitchen?.luckCost, 'Big')}</Typography>
                   </Stack>
                 </Stack>

@@ -1,17 +1,41 @@
-import { atomsInfo, cookingMenu, monsters, randomList } from "../data/website-data";
-import { allProwess, getAllBaseSkillEff, getAllEff } from "./character";
-import { getStampsBonusByEffect } from "./stamps";
-import { getStatsFromGear } from "./items";
-import { tryToParse } from "../utility/helpers";
-import { getPostOfficeBonus } from "./postoffice";
-import { getJewelBonus, getLabBonus } from "./lab";
-import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "./alchemy";
-import { isArenaBonusActive } from "./misc";
-import { getAchievementStatus } from "./achievements";
-import { isArtifactAcquired } from "./sailing";
-import { getShinyBonus } from "./breeding";
-import { isSuperbitUnlocked } from "./gaming";
-import { getHighestTalentByClass, getVoidWalkerTalentEnhancements } from "./talents";
+import { atomsInfo, cookingMenu, monsters, randomList } from '../data/website-data';
+import { allProwess, getAllBaseSkillEff, getAllEff } from './character';
+import { getStampsBonusByEffect } from './stamps';
+import { getStatsFromGear } from './items';
+import { tryToParse } from '../utility/helpers';
+import { getPostOfficeBonus } from './postoffice';
+import { getJewelBonus, getLabBonus } from './lab';
+import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
+import { isArenaBonusActive } from './misc';
+import { getAchievementStatus } from './achievements';
+import { isArtifactAcquired } from './sailing';
+import { getShinyBonus } from './breeding';
+import { isSuperbitUnlocked } from './gaming';
+import { getHighestTalentByClass, getVoidWalkerTalentEnhancements } from './talents';
+import LavaRand from '../utility/lavaRand';
+
+export const spicesNames = [
+  'Grasslands',
+  'Jungle',
+  'Encroaching Forest',
+  'Tree Interior',
+  'Stinky Sewers',
+  'Desert Oasis',
+  'Beach Docks',
+  'Coarse Mountains',
+  'Twilight Desert',
+  'The Crypt',
+  'Frosty Peaks',
+  'Tundra Outback',
+  'Crystal Caverns',
+  'Pristalle Lake',
+  'Nebulon Mantle',
+  'Starfield Skies',
+  'Shores of Eternity',
+  'Molten Bay',
+  'Smokey Lake',
+  'Wurm Catacombs',
+]
 
 export const getCooking = (idleonData, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
@@ -30,14 +54,15 @@ const parseCooking = (mealsRaw, territoryRaw, cookingRaw, account) => {
 }
 
 const getSpices = (mealsRaw, territoryRaw, account) => {
-  const toClaim = territoryRaw?.reduce((res, territory) => {
+  const toClaim = territoryRaw?.reduce((res, territory, index) => {
     const [progress, amount, , spiceName] = territory;
     return [
       ...res,
       {
         progress,
         amount,
-        rawName: spiceName
+        rawName: spiceName,
+        name: spicesNames[index]
       }
     ]
   }, []);
@@ -45,7 +70,8 @@ const getSpices = (mealsRaw, territoryRaw, account) => {
   const available = mealsRaw?.[3]?.filter((spiceAmount) => spiceAmount > 0).map((amount, index) => ({
     amount,
     toClaim: toClaim?.[index]?.amount,
-    rawName: `CookingSpice${index}`
+    rawName: `CookingSpice${index}`,
+    name: spicesNames[index]
   }));
 
   const numberOfClaims = account?.accountOptions?.[100];
@@ -323,3 +349,32 @@ export const getTotalKitchenLevels = (kitchens) => {
   }, 0);
 }
 export const maxNumberOfSpiceClicks = 100;
+
+export const getChipsAndJewels = (account) => {
+  if (!account) return [];
+  const { serverVars, timeAway, lab } = account || {};
+  const chips = lab?.chips;
+  const jewels = lab?.jewels;
+  const seed = Math.floor(timeAway?.GlobalTime / 604800);
+
+  const rotations = []
+
+  for (let i = 0; i < 50; i++) {
+    const rotation = [];
+    const chipRng = new LavaRand(Math.round(seed + i));
+    const chipRandom = Math.floor(1e3 * chipRng.rand());
+    rotation.push(chips[Math.round(chipRandom - Math.floor(chipRandom / (chips.length - 10)) * (chips.length - 10))]);
+
+    const secondChipRng = new LavaRand(Math.round(seed + i + 500))
+    const secondChipRandom = Math.floor(1e3 * secondChipRng.rand());
+    rotation.push(chips[Math.round(secondChipRandom - Math.floor(secondChipRandom / chips.length) * chips.length)]);
+
+    const jewelRng = new LavaRand(Math.round(seed + i + 1000))
+    const jewelRandom = Math.floor(1e3 * jewelRng.rand());
+    rotation.push(jewels[Math.round(jewelRandom - Math.floor(jewelRandom / jewels.length) * jewels.length)]);
+    const dateInMs = Math.floor((seed + i) * 604800 * 1000);
+    rotations.push({ items: rotation, date: new Date(dateInMs) });
+  }
+
+  return rotations;
+}
