@@ -86,7 +86,6 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   useEffect(() => {
     const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
     if (causticolumnArtifact) {
-      console.log(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus)
       setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus);
     }
   }, [artifacts]);
