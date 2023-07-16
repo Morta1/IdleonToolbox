@@ -58,7 +58,7 @@ const Console = ({ chips, playersChips, characters }) => {
                         <img src={`${prefix}data/ConsoleChip${index}.png`}
                              alt=""/>
                       </Tooltip>
-                      {chip?.amount >= 0 ? <div className="amount">{chip?.amount}</div> : null}
+                      {chip?.repoAmount >= 0 ? <div className="amount">{chip?.repoAmount}</div> : null}
                     </Stack>
                   </CardContent>
                 </Card>

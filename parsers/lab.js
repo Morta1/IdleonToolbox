@@ -56,10 +56,11 @@ const parseLab = (labRaw, charactersData, account) => {
   const chipList = JSON.parse(JSON.stringify(chips));
   chipRepo?.map((chipCount, chipIndex) => {
     if (chipIndex < chips.length) {
-      const playerUsedCount = playersChips.flatMap(chips => chips).filter(chip => chip !== -1).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index
+      const playerUsedCount = playersChips.flatMap(chips => chips).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index
         ? 1
         : 0), 0);
-      chipList[chipIndex].amount = chipCount - playerUsedCount;
+      chipList[chipIndex].repoAmount = chipCount - playerUsedCount;
+      chipList[chipIndex].amount = playerUsedCount;
     }
   });
 

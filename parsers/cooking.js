@@ -350,7 +350,7 @@ export const getTotalKitchenLevels = (kitchens) => {
 }
 export const maxNumberOfSpiceClicks = 100;
 
-export const getChipsAndJewels = (account) => {
+export const getChipsAndJewels = (account, size = 10) => {
   if (!account) return [];
   const { serverVars, timeAway, lab } = account || {};
   const chips = lab?.chips;
@@ -359,7 +359,7 @@ export const getChipsAndJewels = (account) => {
 
   const rotations = []
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < size; i++) {
     const rotation = [];
     const chipRng = new LavaRand(Math.round(seed + i));
     const chipRandom = Math.floor(1e3 * chipRng.rand());

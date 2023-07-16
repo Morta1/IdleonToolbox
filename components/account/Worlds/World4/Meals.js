@@ -50,15 +50,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
       const levelCost = getMealLevelCost(level, achievements);
-      const diamondCost = (11 - level) * levelCost;
-      const blackVoidCost = (30 - level) * levelCost;
       let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
-      let timeToDiamond = calcMealTime(11, meal, mealSpeed, achievements);
-      let timeToBlackVoid = calcMealTime(30, meal, mealSpeed, achievements);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
-        timeToDiamond = timeToDiamond / (1 + overflowingLadleBonus / 100);
-        timeToBlackVoid = timeToBlackVoid / (1 + overflowingLadleBonus / 100);
       }
       const breakpointTimes = breakpoints.map((breakpoint) => {
         if (breakpoint === 0 || breakpoint === -1) {
@@ -79,11 +73,9 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         return { bpCost, timeToBp, bpLevel: breakpoint };
       })
       return {
-        ...meal, levelCost, diamondCost,
+        ...meal,
+        levelCost,
         timeTillNextLevel,
-        timeToDiamond,
-        timeToBlackVoid,
-        blackVoidCost,
         breakpointTimes
       };
     });

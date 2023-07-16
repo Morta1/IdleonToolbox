@@ -1,19 +1,33 @@
 import { getChipsAndJewels } from '../../../../parsers/cooking';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../../common/context/AppProvider';
-import { Autocomplete, Card, CardContent, Stack, TextField, Typography, useMediaQuery } from '@mui/material';
+import {
+  Autocomplete,
+  Card,
+  CardContent,
+  FormControl,
+  InputLabel,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+  useMediaQuery
+} from '@mui/material';
 import { format, isValid } from 'date-fns';
 import { cleanUnderscore, notateNumber, prefix } from '../../../../utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../Tooltip';
 import { calculateItemTotalAmount } from '../../../../parsers/items';
+import MenuItem from '@mui/material/MenuItem';
 
 const LabRotation = () => {
   const { state } = useContext(AppContext);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const [value, setValue] = useState([]);
-  const rotations = getChipsAndJewels(state?.account);
-  const names = [...state?.account?.lab?.chips, ...state?.account?.lab?.jewels];
+  const [weeks, setWeeks] = useState(10);
+  const [chipThreshold, setChipThreshold] = useState(0);
+  const rotations = useMemo(() => getChipsAndJewels(state?.account, weeks), [state?.account, weeks]);
+  const names = useMemo(() => ([...state?.account?.lab?.chips, ...state?.account?.lab?.jewels]), [state?.account]);
   return <>
     <Stack sx={{ mb: 3 }}>
       <Autocomplete
@@ -41,10 +55,28 @@ const LabRotation = () => {
               />
               {option?.name?.replace(/_/g, ' ')}
             </Stack>
-          ) : <span style={{ height: 0 }} key={'empty'}/>
+          ) : <span style={{ height: 0 }} key={'empty' + option?.index}/>
         }}
         renderInput={(params) => <TextField {...params} label="Filter by jewel or chip"/>}
       />
+      <Stack direction={'row'} gap={1}>
+        <FormControl sx={{ mt: 2 }} size={'small'}>
+          <InputLabel>Weeks</InputLabel>
+          <Select label={'Weeks'} sx={{ width: { xs: 100 } }} value={weeks}
+                  onChange={(e) => setWeeks(e.target.value)}>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={30}>30</MenuItem>
+            <MenuItem value={40}>40</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField onChange={(e) => setChipThreshold(e.target.value)}
+                   size={'small'} sx={{ mt: 2, width: 200 }}
+                   type={'number'} label={'Chip count threshold'}
+                   helperText={<Typography sx={{ width: 200 }} variant={'caption'}>This will highlight the chip when
+                     your threshold is met</Typography>}/>
+      </Stack>
     </Stack>
     <Stack gap={2}>
       {rotations?.map(({ items, date }, rotationIndex) => {
@@ -61,9 +93,23 @@ const LabRotation = () => {
                 ? format(date, 'dd/MM/yyyy HH:mm:ss')
                 : null}</Typography>
               <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                {items?.map(({ name, requirements = [], rawName, index, bonus, effect, baseVal }, itemsIndex) => {
+                {items?.map(({
+                               name,
+                               requirements = [],
+                               rawName,
+                               index,
+                               bonus,
+                               effect,
+                               baseVal,
+                               acquired,
+                               amount: chipCount
+                             }, itemsIndex) => {
                   const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
-                  return <Card variant={'outlined'} sx={{ width: 250 }} key={'items' + itemsIndex}>
+                  return <Card variant={'outlined'} key={'items' + itemsIndex}
+                               sx={{
+                                 width: 250,
+                                 borderColor: acquired || chipCount > chipThreshold ? 'success.light' : ''
+                               }}>
                     <CardContent sx={{ '&:last-child': { p: 3 } }}>
                       <Stack alignItems={'center'} gap={2}>
                         <Tooltip title={cleanUnderscore(desc)}>
