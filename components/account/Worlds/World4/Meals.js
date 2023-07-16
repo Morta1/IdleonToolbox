@@ -86,6 +86,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   useEffect(() => {
     const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
     if (causticolumnArtifact) {
+      console.log(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus)
       setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus);
     }
   }, [artifacts]);
@@ -285,7 +286,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Stack
                         key={name + bpLevel} gap={1}
                         flexWrap={'wrap'}>
-                        {amount >= bpCost ? <Typography
+                        {amount >= bpCost || level >= mealMaxLevel ? <Typography
                             color={'success.light'}>MAXED</Typography> :
                           <Typography
                             sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
