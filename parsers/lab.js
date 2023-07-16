@@ -17,6 +17,7 @@ const parseLab = (labRaw, charactersData, account) => {
   const [cords] = labRaw;
   const [chipRepo] = labRaw?.splice(15);
   const [jewelsRaw] = labRaw?.splice(14);
+  const [currentRotation] = labRaw?.splice(13);
   const playerChipsRaw = labRaw?.slice(1, charactersData?.length + 1);
   let playerCordsChunk = 2, playersCords = [];
   for (let i = 0; i < cords.length; i += playerCordsChunk) {
@@ -149,7 +150,8 @@ const parseLab = (labRaw, charactersData, account) => {
     connectedPlayers,
     jewels: jewelsList,
     chips: chipList,
-    labBonuses: labBonusesList
+    labBonuses: labBonusesList,
+    currentRotation
   };
 }
 

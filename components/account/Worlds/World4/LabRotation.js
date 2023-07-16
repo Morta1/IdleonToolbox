@@ -28,6 +28,7 @@ const LabRotation = () => {
   const [chipThreshold, setChipThreshold] = useState(0);
   const rotations = useMemo(() => getChipsAndJewels(state?.account, weeks), [state?.account, weeks]);
   const names = useMemo(() => ([...state?.account?.lab?.chips, ...state?.account?.lab?.jewels]), [state?.account]);
+
   return <>
     <Stack sx={{ mb: 3 }}>
       <Autocomplete
@@ -105,6 +106,7 @@ const LabRotation = () => {
                                amount: chipCount
                              }, itemsIndex) => {
                   const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
+                  const { currentRotation } = state?.account?.lab;
                   return <Card variant={'outlined'} key={'items' + itemsIndex}
                                sx={{
                                  width: 250,
@@ -112,12 +114,17 @@ const LabRotation = () => {
                                }}>
                     <CardContent sx={{ '&:last-child': { p: 3 } }}>
                       <Stack alignItems={'center'} gap={2}>
-                        <Tooltip title={cleanUnderscore(desc)}>
-                          <Stack direction={'row'} alignItems={'center'} gap={1}>
-                            <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt=""/>
-                            <Typography>{cleanUnderscore(name)}</Typography>
-                          </Stack>
-                        </Tooltip>
+                        <Stack>
+                          <Tooltip title={cleanUnderscore(desc)}>
+                            <Stack direction={'row'} alignItems={'center'} gap={1}>
+                              <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt=""/>
+                              <Typography>{cleanUnderscore(name)}</Typography>
+                            </Stack>
+                          </Tooltip>
+                          {rotationIndex === 0 && index === currentRotation?.[itemsIndex] ? <Typography
+                            sx={{ ml: '50px' }} color={'error.light'}>SOLD
+                            OUT</Typography> : <span>&nbsp;</span>}
+                        </Stack>
                         <Stack direction={'row'} gap={2}>
                           {requirements?.map(({ name, rawName, amount }, reqIndex) => {
                             let totalAmount;
