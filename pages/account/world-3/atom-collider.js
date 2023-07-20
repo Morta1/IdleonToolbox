@@ -5,7 +5,7 @@ import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers'
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 
-const MAX_ATOMS = 10;
+const MAX_ATOMS = 11;
 
 const AtomCollider = ({}) => {
   const { state } = useContext(AppContext);
