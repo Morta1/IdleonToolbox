@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
 import { getShinyBonus } from '../../../../../parsers/breeding';
 
 const Bonuses = ({ list, currentRift, account }) => {
@@ -8,7 +8,7 @@ const Bonuses = ({ list, currentRift, account }) => {
     let totalBonus, totalBonusText;
     if (riftBonus === 'Vial_Mastery') {
       const maxedVials = account?.alchemy?.vials?.filter(({ level }) => level === 13);
-      totalBonus = `${1 + (2 * maxedVials?.length) / 100}x`;
+      totalBonus = `${notateNumber(1 + (2 * maxedVials?.length) / 100, 'MultiplierInfo')}x`;
       totalBonusText = 'Total Vial Boost: ';
     } else if (riftBonus === 'Eclipse_Skulls') {
       const eclipseSkulls = Object.entries(account?.deathNote)?.reduce((sum, [, { mobs }]) => sum + (mobs?.filter(({ kills }) => kills >= 1e9)?.length ?? 0), 0);
