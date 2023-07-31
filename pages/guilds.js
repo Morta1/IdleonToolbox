@@ -34,7 +34,7 @@ const Guilds = () => {
   const parseGuildsData = useCallback(
     (topGuilds) => {
       return topGuilds?.sort((a, b) => {
-        return b?.p - a?.p;
+        return b?.totalGp - a?.totalGp;
       })?.map((guild) => {
         const members = Object.values(guild?.m || {});
         const leader = members?.find(({ g }) => g === 0);
@@ -106,6 +106,7 @@ const Guilds = () => {
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell sx={{ width: '1px' }}></TableCell>
             <TableCell sx={{ width: 30 }}></TableCell>
             <TableCell>Guild Name</TableCell>
             <TableCell>Guild Points</TableCell>
@@ -116,7 +117,7 @@ const Guilds = () => {
         </TableHead>
         <TableBody>
           {!guilds ? <TableRow>
-            <TableCell colSpan={6} align={'center'}>
+            <TableCell colSpan={7} align={'center'}>
               <Stack alignItems={'center'} gap={2}>
                 <Typography>Gathering guild info</Typography>
                 <LinearProgress sx={{ width: 300 }}/>
@@ -136,6 +137,11 @@ const Guilds = () => {
                     {openIndex === index ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                   </IconButton>
                 </TableCell>
+                <TableCell sx={{ p: 1, textAlign: 'center' }}>
+                  {index + 1}
+                </TableCell>
+
+
                 <TableCell>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <img src={`${prefix}data/G2icon${guildIcon}.png`}
@@ -150,7 +156,7 @@ const Guilds = () => {
                 <TableCell>{membersCount} / {maxMembers}</TableCell>
               </TableRow>
               <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
                   <Collapse in={openIndex === index} timeout="auto" unmountOnExit>
                     <Box sx={{ p: 1 }}>
                       <Typography variant={'h6'} sx={{ mb: 1 }}>Top Contributors</Typography>

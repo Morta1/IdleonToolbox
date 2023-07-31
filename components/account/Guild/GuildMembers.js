@@ -58,20 +58,20 @@ const GuildMembers = ({ members }) => {
       </TableHead>
       <TableBody>
         {localMembers?.map(({ name, level, gpEarned, wantedBonus, rank }, index) => {
-          return <TableRow key={name + level + index}
+          return name ? <TableRow key={name + level + index}
                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
             <TableCell>
               {rank < 5 ? <img src={`${prefix}etc/GuildRank${rank}.png`} alt={`rank-${rank}`}/> : <Box
                 component={'span'}
                 sx={{ display: 'inline-block', width: 15, height: 17 }}/>}
-              <Typography component={'span'} sx={{ ml: 1 }}>{name} {rank === 0 ? '(Leader)' : rank === 1
-                ? '(King)'
+              <Typography component={'span'} sx={{ ml: 1 }}>{name} {rank === 0 ? '(King)' : rank === 1
+                ? '(Leader)'
                 : ''}</Typography>
             </TableCell>
             <TableCell>{level}</TableCell>
             <TableCell>{gpEarned}</TableCell>
             <TableCell>{cleanUnderscore(wantedBonus?.name) || 'Guild Gifts'}</TableCell>
-          </TableRow>
+          </TableRow> : null
         })}
       </TableBody>
     </Table>

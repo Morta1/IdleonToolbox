@@ -572,7 +572,7 @@ const getWeaponPower = (character, characters, account) => {
   const flurbo = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Weapon_Power');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Weapon_Power');
   const cardPassiveBonus = getCardBonusByEffect(account?.cards, 'Weapon_Power_(Passive)')
-  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 3);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 3);
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DUSTER_STUDS');
   const equipmentBonus = getStatsFromGear(character, 'Weapon_Power', account);
   const obols = getObolsBonus(character?.obols, 'Weapon_Power');

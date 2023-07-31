@@ -508,7 +508,7 @@ export const getHighestCapacityCharacter = (item, characters, account) => {
   }, { capacityPerSlot: 0, maxCapacity: 0, character: '' })
 }
 export const getAllCap = (character, account) => {
-  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 2);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
   const talentBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
   const shrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
@@ -599,6 +599,7 @@ export const getMinigameScore = (account, name) => {
 }
 
 export const getCompanions = (companionObject = {}) => {
+  console.log(companionObject)
   const maxStorage = 40;
   const [companionIndex] = companionObject?.e?.split(',') || [];
   const companion = companions?.[companionIndex];

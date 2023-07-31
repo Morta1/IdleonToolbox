@@ -496,7 +496,7 @@ export const getDropRate = (character, account, characters) => {
   const drFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
-  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 10);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 10);
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25'
     ? character?.cards?.cardSet?.bonus
     : 0;
@@ -575,7 +575,7 @@ export const getCashMulti = (character, account, characters) => {
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Monster_Cash');
   const arcadeBonus = account?.arcade?.shop?.[10]?.bonus + account?.arcade?.shop?.[11]?.bonus;
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 2)
-  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 8);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 8);
   const multikill = 1; // can't calculate multikill =/
   const coinsForCharonBonus = multikill * getTalentBonus(character?.starTalents, null, 'COINS_FOR_CHARON');
   const cashPerCookingLv = character?.skillsInfo?.cooking?.level / 10;
@@ -829,8 +829,8 @@ export const getAfkGain = (character, characters, account) => {
     const afkObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[59])
     const starSignBonus = getStarSignBonus(character, account, 'Fight_AFK_Gain');
     let guildBonus = 0;
-    if (guild?.guildBonuses?.bonuses?.length > 0) {
-      guildBonus = getGuildBonusBonus(guild?.guildBonuses?.bonuses, 4);
+    if (guild?.guildBonuses?.length > 0) {
+      guildBonus = getGuildBonusBonus(guild?.guildBonuses, 4);
     }
     const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
     const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
@@ -898,7 +898,7 @@ export const getAfkGain = (character, characters, account) => {
   //   let guildAfkGains = 0;
   //   const amarokBonus = getEquippedCardBonus(character?.cards, 'Z2');
   //   const bunnyBonus = getEquippedCardBonus(character?.cards, 'F7');
-  //   if (guild?.guildBonuses?.bonuses?.length > 0) {
+  //   if (guild?.guildBonuses?.length > 0) {
   //     guildAfkGains = getGuildBonusBonus(guild?.guildBonuses?.bonuses, 7);
   //   }
   //   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet7' ? character?.cards?.cardSet?.bonus : 0;
@@ -1020,7 +1020,7 @@ const getPlayerConstructionSpeed = (character, account) => {
   const carpenterBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false);
   const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Speed', character);
   const postOffice = getPostOfficeBonus(account?.postOffice, 'Construction_Container', 0);
-  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 5);
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
   const equipmentConstructionEffectBonus = getStatsFromGear(character, 30, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);

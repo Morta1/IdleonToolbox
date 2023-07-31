@@ -254,8 +254,8 @@ export const getPlayerAnvil = (character, characters, account) => {
   let zergPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
   let ruckSackPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.bonus;
 
-  if (account?.guild?.guildBonuses?.bonuses?.length > 0) {
-    guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses?.bonuses, 2);
+  if (account?.guild?.guildBonuses?.length > 0) {
+    guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
   }
   const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
   const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account.cards, account?.sailing?.artifacts);
@@ -285,7 +285,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     .map((item) => anvilProducts[item]);
 
   return {
-    guild: account?.guild?.guildBonuses?.bonuses?.length > 0,
+    guild: account?.guild?.guildBonuses?.length > 0,
     stats,
     production,
     selected: selectedProducts,

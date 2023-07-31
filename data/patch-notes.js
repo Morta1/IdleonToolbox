@@ -12,7 +12,12 @@ export const patchNotes = [
         href={'https://idleontoolbox.com/account/guild'}>Guild</Link> page and <Link
         href={'https://idleontoolbox.com/guilds'}>Guilds</Link> page</Typography>
     ],
-    fixes: ['Fixed a bug with lab line width calculations']
+    fixes: [
+      'Fixed a bug with lab line width calculations',
+      'Fixed a bug with personal guild gp calculations',
+      'Fixed a bug with guild bonus calculations',
+      'Updated the guild leaderboard to be top 100'
+    ]
   },
   {
     ver: '3.2.2',

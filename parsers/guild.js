@@ -17,7 +17,9 @@ export const getGuild = (idleonData, guildData) => {
     const maxMembers = 30 + 4 * level;
     const levelReq = getGuildLevelReq(guildRaw, totalPoints)
     const members = parseGuildMembers(guildData, updatedGuildBonuses);
-    const totalGp = members?.reduce((res, { gpEarned }) => res + gpEarned, 0);
+    const totalStatCost = updatedGuildBonuses?.reduce((sum, { level }, index) => sum + calculateGuildBonusCost(level,
+      guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+    const totalGp = guildData?.points + totalStatCost;
     return {
       guildBonuses: updatedGuildBonuses,
       guildTasks,

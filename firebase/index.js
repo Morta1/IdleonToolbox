@@ -7,7 +7,7 @@ import {
   signInWithPopup,
   signOut
 } from 'firebase/auth';
-import { child, get, getDatabase, goOnline, onValue, orderByChild, query, ref, startAt } from 'firebase/database';
+import { child, get, getDatabase, goOnline, limitToLast, onValue, orderByChild, query, ref } from 'firebase/database';
 import {
   collection,
   doc,
@@ -133,24 +133,28 @@ export const getGuilds = async (callback) => {
   const database = getDatabase(app);
   const firestore = initializeFirestore(app, {});
   const snap = collection(firestore, '_guildStat');
-  const result = query(ref(database, '_guild'), orderByChild('p'), startAt(3e6));
+  const result = query(ref(database, '_guild'), orderByChild('p'), limitToLast(100));
   return onValue(result, async (docs) => {
     const guilds = docs.val();
-    const ids = Object.keys(guilds || {});
-    const q = fsQuery(snap, where(documentId(), 'in', ids));
-    const querySnapshot = await getDocs(q);
+    const allIds = Object.keys(guilds || {});
+    const idChunks = allIds.toChunks(30);
+    console.log(idChunks)
+    const queries = idChunks.map((ids) => getDocs(fsQuery(snap, where(documentId(), 'in', ids))));
+    let querySnapshot = await Promise.all(queries);
     let guildsStats = {};
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      // console.log(doc.id, ' => ', doc.data());
-      const { stats, n: guildName, i: guildIcon } = doc.data() || {};
-      const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
-        guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
-      guildsStats[doc.id] = {
-        totalStatCost,
-        guildName,
-        guildIcon
-      };
+    querySnapshot.forEach((queryRes) => {
+      queryRes.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(doc.id, ' => ', doc.data());
+        const { stats, n: guildName, i: guildIcon } = doc.data() || {};
+        const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
+          guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+        guildsStats[doc.id] = {
+          totalStatCost,
+          guildName,
+          guildIcon
+        };
+      })
     });
     const guildsWithIds = Object.entries(guilds || {})?.map(([id, data]) => ({
       ...data,
@@ -162,6 +166,7 @@ export const getGuilds = async (callback) => {
     callback(guildsWithIds);
   }, { onlyOnce: true })
 }
+
 
 const getSnapshot = async (dbRef, id) => {
   try {
