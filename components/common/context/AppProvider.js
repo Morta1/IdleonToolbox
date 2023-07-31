@@ -1,6 +1,6 @@
 import { createContext, useEffect, useMemo, useReducer, useState } from 'react';
 import { checkUserStatus, signInWithToken, subscribe, userSignOut } from '../../../firebase';
-import { parseData } from '../../../parsers';
+// import { parseData } from '../../../parsers';
 import demoJson from '../../../data/raw.json';
 
 import { useRouter } from 'next/router';
@@ -87,6 +87,7 @@ const AppProvider = ({ children }) => {
         const data = await fetch(`https://patient-dawn-9611.idleontoolboxappleauth.workers.dev/?url=${url}`);
         const content = await data.json();
         let parsedData;
+        const { parseData } = await import('../../../parsers');
         if (!Object.keys(content).includes('serverVars')) {
           parsedData = parseData(content);
         } else {
@@ -124,6 +125,7 @@ const AppProvider = ({ children }) => {
         pastebinImport()
       } else if (router?.query?.demo) {
         const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
+        const { parseData } = await import('../../../parsers');
         let parsedData = parseData(data, charNames, companion, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
         dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
@@ -254,7 +256,7 @@ const AppProvider = ({ children }) => {
     }
   };
 
-  const handleCloudUpdate = (data, charNames, companion, guildData, serverVars) => {
+  const handleCloudUpdate = async (data, charNames, companion, guildData, serverVars) => {
     if (router?.query?.pb) {
       const { pb, ...rest } = router.query
       router.replace({ query: rest })
@@ -268,6 +270,7 @@ const AppProvider = ({ children }) => {
     })
     const lastUpdated = new Date().getTime();
     localStorage.setItem('rawJson', JSON.stringify({ data, charNames, companion, guildData, serverVars, lastUpdated }));
+    const { parseData } = await import('../../../parsers');
     const parsedData = parseData(data, charNames, companion, guildData, serverVars);
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({

@@ -4,14 +4,24 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.3',
+    gameVer: '1.87',
+    date: '31/07/2023',
+    features: [
+      <Typography>Added 2 guild related pages, <Link
+        href={'https://idleontoolbox.com/account/guild'}>Guild</Link> page and <Link
+        href={'https://idleontoolbox.com/guilds'}>Guilds</Link> page</Typography>
+    ],
+    fixes: ['Fixed a bug with lab line width calculations']
+  },
+  {
     ver: '3.2.2',
     gameVer: '1.87',
     date: '20/07/2023',
     features: [
       'Added data and assets from version 1.87'
     ],
-    fixes: [
-    ]
+    fixes: []
   },
   {
     ver: '3.2.1',
@@ -19,7 +29,8 @@ export const patchNotes = [
     date: '14/07/2023',
     features: [
       <Typography>Added chips and jewels rotations to <Link
-        href={'https://idleontoolbox.com/account/world-4/laboratory'}>Laboratory</Link> page with the ability to filter specific jewels / chips </Typography>,
+        href={'https://idleontoolbox.com/account/world-4/laboratory'}>Laboratory</Link> page with the ability to filter
+        specific jewels / chips </Typography>,
       'Added submitted builds for Blood berserker, Elemental Sorcerer and Bubonic Conjuror',
       'Added the ability to select only one character to display in characters page',
       'Added charge syphon timer to the dashboard ',

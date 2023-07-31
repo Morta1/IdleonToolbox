@@ -11,7 +11,6 @@ import { useRouter } from 'next/router';
 import { isProd, shouldDisplayDrawer } from '../../../utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
 import { Typography, useMediaQuery } from '@mui/material';
-import { parseData } from '../../../parsers';
 import { AppContext } from '../context/AppProvider';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -27,6 +26,7 @@ const NavBar = ({ children }) => {
     try {
       const content = JSON.parse(await navigator.clipboard.readText());
       const { data, charNames, companion, guildData, serverVars } = content;
+      const { parseData } = await import('../../../parsers');
       const parsedData = parseData(data, charNames, companion, guildData, serverVars);
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));

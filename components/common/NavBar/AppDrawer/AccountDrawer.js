@@ -38,6 +38,10 @@ const misc = {
   'random-events': {
     icon: 'etc/Mega_Grumblo',
     differentSource: true
+  },
+  'guild': {
+    icon: 'etc/Guild',
+    differentSource: true
   }
 };
 

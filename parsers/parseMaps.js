@@ -128,7 +128,6 @@ export const filteredLootyItems = {
   ClassSwap: true,
   ResetBox: true,
   Ht: true,
-  StonePremRestore: true,
   SmithingRecipes3: true,
   SmithingRecipes4: true,
   Godshard: true,

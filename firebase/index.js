@@ -7,11 +7,23 @@ import {
   signInWithPopup,
   signOut
 } from 'firebase/auth';
-import { child, get, getDatabase, goOnline, ref } from 'firebase/database';
-import { doc, getDoc, initializeFirestore, onSnapshot } from 'firebase/firestore';
+import { child, get, getDatabase, goOnline, onValue, orderByChild, query, ref, startAt } from 'firebase/database';
+import {
+  collection,
+  doc,
+  documentId,
+  getDoc,
+  getDocs,
+  initializeFirestore,
+  onSnapshot,
+  query as fsQuery,
+  where
+} from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import app from './config';
 import { tryToParse } from '../utility/helpers';
+import { calculateGuildBonusCost } from '../parsers/guild';
+import { guildBonuses } from '../data/website-data';
 
 const signInWithToken = async (token, type) => {
   const auth = getAuth(app);
@@ -89,6 +101,9 @@ const subscribe = async (uid, callback) => {
   const dbRef = ref(database);
   const charNames = await getSnapshot(dbRef, `_uid/${uid}`);
   const companion = await getSnapshot(dbRef, `_comp/${uid}`);
+  const guildId = await getSnapshot(dbRef, `_usgu/${uid}/g`);
+  const guild = await getSnapshot(dbRef, `_guild/${guildId}`);
+
   let serverVars;
   if (firestore?.type === 'firestore') {
     const res = await getDoc(doc(firestore, '_vars', '_vars'));
@@ -101,12 +116,51 @@ const subscribe = async (uid, callback) => {
       { includeMetadataChanges: true }, (doc) => {
         if (doc.exists()) {
           const cloudsave = doc.data();
-          callback(cloudsave, charNames, companion, { stats: tryToParse(cloudsave?.Guild) }, serverVars);
+          callback(cloudsave, charNames, companion, {
+            stats: tryToParse(cloudsave?.Guild),
+            members: Object.values(guild?.m || {}),
+            points: guild?.p
+          }, serverVars);
         }
       }, (err) => {
         console.error('Error has occurred on subscribe', err);
       });
   }
+}
+
+export const getGuilds = async (callback) => {
+  const app = getApp();
+  const database = getDatabase(app);
+  const firestore = initializeFirestore(app, {});
+  const snap = collection(firestore, '_guildStat');
+  const result = query(ref(database, '_guild'), orderByChild('p'), startAt(3e6));
+  return onValue(result, async (docs) => {
+    const guilds = docs.val();
+    const ids = Object.keys(guilds || {});
+    const q = fsQuery(snap, where(documentId(), 'in', ids));
+    const querySnapshot = await getDocs(q);
+    let guildsStats = {};
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      // console.log(doc.id, ' => ', doc.data());
+      const { stats, n: guildName, i: guildIcon } = doc.data() || {};
+      const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
+        guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+      guildsStats[doc.id] = {
+        totalStatCost,
+        guildName,
+        guildIcon
+      };
+    });
+    const guildsWithIds = Object.entries(guilds || {})?.map(([id, data]) => ({
+      ...data,
+      id,
+      totalGp: data?.p + (guildsStats?.[id]?.totalStatCost || 0),
+      guildName: guildsStats?.[id]?.guildName,
+      guildIcon: guildsStats?.[id]?.guildIcon,
+    }));
+    callback(guildsWithIds);
+  }, { onlyOnce: true })
 }
 
 const getSnapshot = async (dbRef, id) => {

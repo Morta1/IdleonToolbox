@@ -30,7 +30,8 @@ import {
   calculateTotalSkillsLevel,
   enhanceColoTickets,
   enhanceKeysObject,
-  getBundles, getCompanions,
+  getBundles,
+  getCompanions,
   getCurrencies,
   getItemCapacity,
   getLibraryBookTimes,
@@ -159,6 +160,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
 
+  accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData)
   accountData.finishedWorlds = [1, 2, 3, 4, 5]?.reduce((res, world) => {
     return {
       ...res,

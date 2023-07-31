@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) => {
   return (
     <>
+      {/*<Map playersCords={playersCords} jewels={jewels} labBonuses={labBonuses}/>*/}
       <Stack my={4} direction={'row'} flexWrap={'wrap'} justifyContent={'center'} gap={2}>
         {playersCords?.map((playerCord, index) => {
           if (index > 9) return null;
@@ -94,6 +95,7 @@ const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
 
 const Map = ({ playersCords, labBonuses, jewels }) => {
   return <Box sx={{ position: 'relative', height: 200 }}>
+    <Box sx={{ position: 'absolute', left: 43 / 2, top: 229 / 2.5, height: 24, width: 24, backgroundColor: 'yellow' }}/>
     {playersCords.map(({ x, y, playerName }) => {
       return <Tooltip title={playerName} key={'map' + playerName}>
         <Box
@@ -104,31 +106,34 @@ const Map = ({ playersCords, labBonuses, jewels }) => {
             backgroundColor: 'white',
             height: 24,
             width: 24,
+            border: '1px solid red',
             borderRadius: '50%'
           }}/>
       </Tooltip>
     })}
     {labBonuses.map(({ x, y, name, index, active }) => {
-      return active ? <Box key={'map' + name}
-                           sx={{
-                             position: 'absolute',
-                             left: x / 2,
-                             top: y / 2.5,
-                           }}>
+      return <Box key={'map' + name}
+                  sx={{
+                    position: 'absolute',
+                    left: x / 2,
+                    top: y / 2.5,
+                    opacity: active ? 1 : .5
+                  }}>
         <BonusIcon style={{ width: 24 }} src={`${prefix}data/LabBonus${index}.png`}
                    alt=""/>
-      </Box> : null
+      </Box>
     })}
     {jewels.map(({ x, y, name, rawName, active }) => {
-      return active ? <Box key={'map' + name}
-                           sx={{
-                             position: 'absolute',
-                             left: x / 2,
-                             top: y / 2.5,
-                           }}>
+      return <Box key={'map' + name}
+                  sx={{
+                    position: 'absolute',
+                    left: x / 2,
+                    top: y / 2.5,
+                    opacity: active ? 1 : .5
+                  }}>
         <JewelIcon style={{ width: 24 }}
                    src={`${prefix}data/${rawName}.png`} alt=""/>
-      </Box> : null
+      </Box>
     })}
   </Box>
 }

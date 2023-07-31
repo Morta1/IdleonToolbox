@@ -14,7 +14,16 @@ export const getMaxCharge = (character, account) => {
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'GOSPEL_LEADER', false, mainStat === 'wisdom');
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'b11', account)
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.lvReqToCraft : 0;
-
+  // console.log('character', character?.name)
+  // console.log('cardBonus', cardBonus)
+  // console.log('postOfficeBonus', postOfficeBonus)
+  // console.log('wizardTalentBonus', wizardTalentBonus)
+  // console.log('stampBonus', stampBonus)
+  // console.log('bubbleBonus', bubbleBonus)
+  // console.log('skillLevel', Math.floor(character?.skillsInfo?.worship?.level / 10))
+  // console.log('skullCapa', Math.round(skullSpeed))
+  // console.log('active', Math.max(activeBubbleBonus, 1))
+  // console.log('_----------------------------_')
   return Math.floor(Math.max(50, cardBonus
     + postOfficeBonus + (wizardTalentBonus + (stampBonus
       + bubbleBonus
