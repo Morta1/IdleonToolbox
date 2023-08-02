@@ -61,7 +61,7 @@ const GuildMembers = ({ members, changes }) => {
           const memberChange = changes?.members?.find(({ name: cName }) => cName === name);
           let gpChange = 0;
           if (memberChange) {
-            gpChange = memberChange?.gpEarned - gpEarned;
+            gpChange = gpEarned - memberChange?.gpEarned;
           }
           return name ? <TableRow key={name + level + index}
                                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>

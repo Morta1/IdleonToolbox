@@ -100,9 +100,6 @@ const subscribe = async (uid, callback) => {
   goOnline(database);
   const dbRef = ref(database);
   const charNames = await getSnapshot(dbRef, `_uid/${uid}`);
-  const companion = await getSnapshot(dbRef, `_comp/${uid}`);
-  const guildId = await getSnapshot(dbRef, `_usgu/${uid}/g`);
-  const guild = await getSnapshot(dbRef, `_guild/${guildId}`);
 
   let serverVars;
   if (firestore?.type === 'firestore') {
@@ -113,8 +110,11 @@ const subscribe = async (uid, callback) => {
   }
   if (charNames?.length > 0) {
     return onSnapshot(doc(firestore, '_data', uid),
-      { includeMetadataChanges: true }, (doc) => {
+      { includeMetadataChanges: true }, async (doc) => {
         if (doc.exists()) {
+          const companion = await getSnapshot(dbRef, `_comp/${uid}`);
+          const guildId = await getSnapshot(dbRef, `_usgu/${uid}/g`);
+          const guild = await getSnapshot(dbRef, `_guild/${guildId}`);
           const cloudsave = doc.data();
           callback(cloudsave, charNames, companion, {
             stats: tryToParse(cloudsave?.Guild),
