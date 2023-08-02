@@ -13,7 +13,7 @@ import { cleanUnderscore, prefix } from '../../../utility/helpers';
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 
-const GuildMembers = ({ members }) => {
+const GuildMembers = ({ members, changes }) => {
   const [localMembers, setLocalMembers] = useState();
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('gpEarned')
@@ -58,8 +58,13 @@ const GuildMembers = ({ members }) => {
       </TableHead>
       <TableBody>
         {localMembers?.map(({ name, level, gpEarned, wantedBonus, rank }, index) => {
+          const memberChange = changes?.members?.find(({ name: cName }) => cName === name);
+          let gpChange = 0;
+          if (memberChange) {
+            gpChange = memberChange?.gpEarned - gpEarned;
+          }
           return name ? <TableRow key={name + level + index}
-                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
             <TableCell>
               {rank < 5 ? <img src={`${prefix}etc/GuildRank${rank}.png`} alt={`rank-${rank}`}/> : <Box
                 component={'span'}
@@ -69,7 +74,10 @@ const GuildMembers = ({ members }) => {
                 : ''}</Typography>
             </TableCell>
             <TableCell>{level}</TableCell>
-            <TableCell>{gpEarned}</TableCell>
+            <TableCell>{gpEarned} {changes ? <Typography variant={'caption'}
+                                               color={gpChange > 0 ? 'success.light' : 'error.light'}>({gpChange > 0
+              ? '+'
+              : ''}{gpChange})</Typography> : null}</TableCell>
             <TableCell>{cleanUnderscore(wantedBonus?.name) || 'Guild Gifts'}</TableCell>
           </TableRow> : null
         })}

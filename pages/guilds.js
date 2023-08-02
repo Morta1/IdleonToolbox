@@ -35,7 +35,7 @@ const Guilds = () => {
     (topGuilds) => {
       return topGuilds?.sort((a, b) => {
         return b?.totalGp - a?.totalGp;
-      })?.map((guild) => {
+      })?.slice(0, 100)?.map((guild) => {
         const members = Object.values(guild?.m || {});
         const leader = members?.find(({ g }) => g === 0);
         const topContributors = members?.sort((a, b) => b?.e - a?.e)
@@ -76,7 +76,8 @@ const Guilds = () => {
 
   useEffect(() => {
     const timePassed = getDuration(new Date(), snapshotDate);
-    if (timePassed?.hours === 0 && timePassed?.minutes >= 15 || !snapshotDate) {
+    console.log(timePassed)
+    if (timePassed?.days > 0 || timePassed?.hours > 0 || timePassed?.minutes >= 15 || !snapshotDate) {
       setTimeout(() => subscribe(), 3000);
     } else {
       setGuilds(tryToParse(sessionStorage.getItem('guildsLeaderboard')));

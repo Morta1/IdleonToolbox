@@ -1,19 +1,50 @@
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import React, { useContext } from 'react';
+import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
 import Tabber from '../../components/common/Tabber';
 import GuildMembers from '../../components/account/Guild/GuildMembers';
 import GuildBonuses from '../../components/account/Guild/GuildBonuses';
-import { numberWithCommas, prefix } from '../../utility/helpers';
+import { numberWithCommas, prefix, tryToParse } from '../../utility/helpers';
 import ProgressBar from '../../components/common/ProgressBar';
+import { format } from 'date-fns';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
   const { guild } = state?.account;
+  const [dataTimestamp, setDataTimestamp] = useState();
+  const [guildChanges, setGuildChanges] = useState();
+  const [error, setError] = useState('');
+
   if (!guild || guild?.members?.length === 0) {
     return <Typography variant={'h3'} mb={3}>You have to be in a guild to view this page's content</Typography>
   }
+
+  useEffect(() => {
+    const lsData = tryToParse(localStorage.getItem('guild'));
+    if (lsData?.timestamp) {
+      setDataTimestamp(lsData?.timestamp);
+    }
+  }, [])
+
+  const saveToLS = () => {
+    const timestamp = new Date().getTime();
+    setDataTimestamp(timestamp);
+    localStorage.setItem('guild', JSON.stringify({
+      timestamp,
+      members: guild?.members
+    }));
+    setError('')
+  }
+
+  const compareFromLS = () => {
+    const newData = tryToParse(localStorage.getItem('guild'));
+    if (!newData) {
+      return setError('Missing save to compare to')
+    }
+    setGuildChanges(newData);
+  }
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Guild"
@@ -34,11 +65,22 @@ const Guild = () => {
                        bgColor={'#f3dd4c'}/>
           <Typography>{numberWithCommas(guild?.totalGp)} / {numberWithCommas(Math.round(guild?.levelReq))}</Typography>
         </CardTitleAndValue>
+        <CardTitleAndValue title={'Compare'}>
+          <Stack gap={1}>
+            {dataTimestamp ? <Typography variant={'caption'}>Data
+              from: {format(new Date(dataTimestamp), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
+            <Stack direction={'row'} alignItems={'center'} gap={2}>
+              <Button variant={'contained'} onClick={saveToLS}>Save</Button>
+              <Button variant={'contained'} onClick={compareFromLS}>Compare</Button>
+            </Stack>
+            {error ? <Typography color={'error.light'}>{error}</Typography> : null}
+          </Stack>
+        </CardTitleAndValue>
       </Stack>
     </Stack>
     <Tabber tabs={['Members', 'Bonuses']}>
-      <GuildMembers members={guild?.members}/>
-      <GuildBonuses bonuses={guild?.guildBonuses} />
+      <GuildMembers members={guild?.members} changes={guildChanges}/>
+      <GuildBonuses bonuses={guild?.guildBonuses}/>
     </Tabber>
   </>
 };

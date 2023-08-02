@@ -133,12 +133,11 @@ export const getGuilds = async (callback) => {
   const database = getDatabase(app);
   const firestore = initializeFirestore(app, {});
   const snap = collection(firestore, '_guildStat');
-  const result = query(ref(database, '_guild'), orderByChild('p'), limitToLast(100));
+  const result = query(ref(database, '_guild'), orderByChild('p'), limitToLast(10000));
   return onValue(result, async (docs) => {
     const guilds = docs.val();
     const allIds = Object.keys(guilds || {});
     const idChunks = allIds.toChunks(30);
-    console.log(idChunks)
     const queries = idChunks.map((ids) => getDocs(fsQuery(snap, where(documentId(), 'in', ids))));
     let querySnapshot = await Promise.all(queries);
     let guildsStats = {};
