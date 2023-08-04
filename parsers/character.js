@@ -369,7 +369,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   if (linkedDeity !== -1) {
     const godIndex = gods?.[linkedDeity]?.godIndex;
     const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
-    character.deityMinorBonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, bigPBubble) * multiplier;
+    character.deityMinorBonus = Math.max(1, bigPBubble) * (divinityLevel / (60 + divinityLevel)) * multiplier;
   }
   let secondLinkedDeity;
   if (character?.class === 'Elemental_Sorcerer') {
@@ -380,7 +380,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
       secondLinkedDeity = god?.godIndex;
       const multiplier = gods?.[secondLinkedDeity]?.minorBonusMultiplier;
       character.secondLinkedDeityIndex = gIndex;
-      character.secondDeityMinorBonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, bigPBubble) * multiplier;
+      character.secondDeityMinorBonus = Math.max(1, bigPBubble) * (divinityLevel / (60 + divinityLevel)) * multiplier;
     }
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];

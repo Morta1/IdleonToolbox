@@ -1,35 +1,47 @@
 # Idleon Toolbox
 
-A mini app to help you through your adventure in [Legends Of Idelon](https://legendsofidleon.com).
+Welcome to the Idleon Toolbox repository! This toolbox aims to enhance the gameplay experience of the Idleon MMORPG by
+providing a wide range of tools, resources, and utilities. Whether you're a seasoned player or just starting out, this
+toolbox is designed to assist you in your adventures.
+
+## Table of Contents
+
+- [Features](#features)
+- [License](#license)
+- [Community](#community)
 
 ## Features
 
-- Follow your characters' progression by taking advantage of the parsed JSON provided by either
-  using connecting through google or using [steam-data-extractor](https://drive.google.com/file/d/1Q03J-kadz5iob45J1wnZWjnHhS0j0GgV/view?usp=sharing).
-- **Character / Account** - Keep track of your
+- **Multiple Login Options:** Enjoy convenience with various login methods including email, Google, and Apple login.
 
-  - Equipment
-  - Talents
-  - Skill Levels
-  - Equipped Cards
-  - Traps
-  - Prayers
-  - Star Signs
-  - Printer Products
-  - Equipped Bubbles
-  - Anvil Information
-  - Post Office
-  - Death Note
-  - Stamps
-  - Vials
-  - Refinery
+- **Dashboard with Timers and Alerts:** Stay organized with a comprehensive dashboard that includes event timers,
+  actionable alerts, and reminders for in-game tasks.
 
-  And Much more!
+- **Character Comparison Page:** Compare your characters' skills, inventory, equipment, talents, and more stats side by
+  side for effective decision-making.
 
-<!-- - **Item Locator** - Find an item somewhere in your account. -->
+- **Account Page:** Access all account-related information in one place. Manage guilds, view dungeons, achievements,
+  explore skill-specific pages, and more.
 
-- **Item Planner** - Create a todo list of items you want to craft and track missing items.
-- **Card Search** - Search cards by stat name.
-- **Active Exp Calculator**
-- **Achievements**
-<!-- - **Shop Stock** -->
+- **Guild Leaderboard and Personal Guild Page:** Keep track of guild rankings with a leaderboard and manage your
+  personal guild page for effective guild management.
+
+- **Tools:**
+    - **Card Search:** Search for specific cards to enhance your gameplay.
+    - **Builds for Characters:** Create and share character builds to optimize your performance.
+    - **Item Planner and Browser:** Plan and browse items efficiently to make the most of your resources.
+    - **God Planner:** Strategically plan and optimize your god powers.
+
+- **and much more!**
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code as
+permitted by the license.
+
+## Community
+
+Join our community on Discord for assistance, suggestions, and bug reports. Connect with other Idleon players and
+toolbox users!
+
+[![Idleon Toolbox Discord](https://img.shields.io/discord/1090610727334719558.svg?colorB=blue&logo=discord&logoColor=white)](https://discord.gg/8Devcj7FzV)

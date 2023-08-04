@@ -1,5 +1,6 @@
 import { isGodEnabledBySorcerer } from './lab';
 import { isCompanionBonusActive } from './misc';
+import { getActiveBubbleBonus } from './alchemy';
 
 const { tryToParse } = require('../utility/helpers');
 const { gods } = require('../data/website-data');
@@ -58,4 +59,13 @@ export const getDeityLinkedIndex = (account, characters, deityIndex) => {
   && esLink?.[index] !== -1
     ? esLink?.[index]
     : charIndex)) || [];
+}
+
+export const getMinorDivinityBonus = (character, account, forcedDivinityIndex) => {
+  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'c21', account)
+  const divinityLevel = character.skillsInfo?.divinity?.level;
+  const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
+  const godIndex = gods?.[linkedDeity]?.godIndex;
+  const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
+  return Math.max(1, bigPBubble) * (divinityLevel / (60 + divinityLevel)) * multiplier;
 }
