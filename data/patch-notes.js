@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.4',
+    gameVer: '1.87',
+    date: '04/08/2023',
+    features: [
+      'Added Blood Berserker and Beast Master builds'
+    ],
+    fixes: [
+      'Better performance for guilds leaderboard',
+      'Fixed minor god bonus',
+      'Fixed equipped bubble calculation',
+      'Fixed calculation for afk gains formula',
+      'Fixed captain comparison logic and enhanced the display for it',
+      'Fixed a bug with displaying anvil related dashboard alerts'
+    ]
+  },
+  {
     ver: '3.2.3',
     gameVer: '1.87',
     date: '31/07/2023',

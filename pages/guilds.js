@@ -33,19 +33,15 @@ const Guilds = () => {
 
   const parseGuildsData = useCallback(
     (topGuilds) => {
-      return topGuilds?.sort((a, b) => {
-        return b?.totalGp - a?.totalGp;
-      })?.slice(0, 100)?.map((guild) => {
-        const members = Object.values(guild?.m || {});
-        const leader = members?.find(({ g }) => g === 0);
-        const topContributors = members?.sort((a, b) => b?.e - a?.e)
+      return topGuilds?.slice(0, 100)?.map((guild) => {
+        const leader = guild?.members?.find(({ g }) => g === 0);
+        const topContributors = guild?.members?.sort((a, b) => b?.e - a?.e)
           ?.slice(0, 5)?.map(({ a, e }) => ({ name: a, gpEarned: e }));
         return {
           guildIcon: guild?.guildIcon,
           guildName: guild?.guildName,
           totalGp: guild?.totalGp,
-          points: guild?.p,
-          membersCount: members?.length,
+          membersCount: guild?.members?.length,
           leader,
           topContributors
         }
@@ -76,7 +72,6 @@ const Guilds = () => {
 
   useEffect(() => {
     const timePassed = getDuration(new Date(), snapshotDate);
-    console.log(timePassed)
     if (timePassed?.days > 0 || timePassed?.hours > 0 || timePassed?.minutes >= 15 || !snapshotDate) {
       setTimeout(() => subscribe(), 3000);
     } else {

@@ -8,7 +8,7 @@ import { getAllTools } from '../../parsers/items';
 
 export const anvilAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
-  if (options?.missingHammers?.checked) {
+  if (options?.anvil?.missingHammers?.checked) {
     const hammerBubble = character?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
     const maxProducts = hammerBubble ? 3 : 2;
     const {
@@ -18,7 +18,7 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
     const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
     alerts.missingHamemrs = maxProducts - numOfHammers;
   }
-  if (options?.anvilOverdue?.checked) {
+  if (options?.anvil?.anvilOverdue?.checked) {
     const { anvil: anvilOption } = options || {};
     const {
       stats,
@@ -36,7 +36,7 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
         rawName: slot?.rawName
       };
     })
-    return allProgress?.map(({ date, name, rawName }) => {
+    alerts.anvilOverdue = allProgress?.map(({ date, name, rawName }) => {
       const d = new Date(date - 1);
       return { diff: differenceInMinutes(d, new Date()), name, rawName };
     }).filter(({ diff }) => anvilOption?.showAlertBeforeFull ? diff <= 60 : diff <= 0);
@@ -50,7 +50,7 @@ export const worshipAlerts = (account, characters, character, lastUpdated, optio
     const timePassed = new Date().getTime() + (character?.afkTime - lastUpdated);
     const minutes = differenceInMinutes(new Date(), new Date(timePassed));
     if (minutes >= 5) {
-      const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === "Unending_Energy");
+      const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
       const hours = differenceInHours(new Date(), new Date(timePassed));
       alerts.unendingEnergy = hasUnendingEnergy && hours > 10;
     }
@@ -69,7 +69,9 @@ export const trapsAlerts = (account, characters, character, lastUpdated, options
     const usedTrap = character?.tools?.[4]?.rawName !== 'Blank' ? character?.tools?.[4] : null;
     const callMeAshBubble = account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
     const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
-    const maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap : traps?.length;
+    const maxTraps = usedTrap
+      ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap
+      : traps?.length;
     alerts.missingTraps = traps?.length < Math.min(maxTraps, 8);
   }
   if (options?.traps?.trapsOverdue?.checked) {
@@ -135,7 +137,7 @@ export const talentsAlerts = (account, characters, character, lastUpdated, optio
 export const isTalentReady = (character, options) => {
   const { talents } = options;
   const { postOffice, afkTime, cooldowns, flatTalents } = character;
-  const cooldownBonus = getPostOfficeBonus(postOffice, "Magician_Starterpack", 2);
+  const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
   const cdReduction = Math.max(0, cooldownBonus);
   const timePassed = (new Date().getTime() - afkTime) / 1000;
   if (!cooldowns) return [];

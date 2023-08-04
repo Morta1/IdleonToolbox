@@ -222,7 +222,7 @@ export const sailingAlerts = (account, options) => {
   if (!account?.finishedWorlds?.World4) return alerts;
   const { captains } = options;
   if (captains?.checked) {
-    const { captains, shopCaptains } = account?.sailing || {}
+    const { captains, shopCaptains } = account?.sailing || {};
     alerts.captains = shopCaptains?.reduce((res, shopCaption) => {
       const {
         captainType,
@@ -234,19 +234,20 @@ export const sailingAlerts = (account, options) => {
         secondBonusDescription
       } = shopCaption;
       const matches = captains?.filter((rCaptain) => {
-        if (rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex) {
-          return firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
-        } else if (rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex) {
-          return firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
+        if ((rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex)
+          || (rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex)) {
+          return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
         }
         return false
       });
       if (matches?.length > 0 && captainType !== -1) {
         return [...res, {
           captain: shopCaption,
-          badCaptains: matches.map(({ captainIndex }) => captainIndex),
-          bonuses: matches ? [firstBonusDescription.substring(firstBonusDescription.indexOf('%')),
-            secondBonusDescription.substring(secondBonusDescription.indexOf('%'))] : []
+          badCaptains: matches.map(({ captainIndex, firstBonusValue, secondBonusValue }) => ({
+            captainIndex,
+            sum: firstBonusValue + secondBonusValue
+          }))?.sort((a, b) => b?.sum - a?.sum),
+          bonus: firstBonusDescription.substring(firstBonusDescription.indexOf('%'))
         }]
       }
       return res;

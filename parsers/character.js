@@ -62,6 +62,7 @@ import { lavaLog } from '../utility/helpers';
 import { getArcadeBonus } from './arcade';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
+import { getMinorDivinityBonus } from './divinity';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -362,14 +363,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   if (isBloodBerserker) {
     character.chow = getBarbarianZowChow(character.kills, [1e6, 1e8]);
   }
-  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'c21', account)
+  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
   character.linkedDeity = linkedDeity;
   if (linkedDeity !== -1) {
-    const godIndex = gods?.[linkedDeity]?.godIndex;
-    const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
-    character.deityMinorBonus = Math.max(1, bigPBubble) * (divinityLevel / (60 + divinityLevel)) * multiplier;
+    character.deityMinorBonus = getMinorDivinityBonus(character, account);
   }
   let secondLinkedDeity;
   if (character?.class === 'Elemental_Sorcerer') {
@@ -561,6 +560,9 @@ export const getCashMulti = (character, account, characters) => {
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
   const divinityMinorBonus = characters?.reduce((sum, char) => {
+    if (isCompanionBonusActive(account, 3)) {
+      return sum + getMinorDivinityBonus(char, account, 3);
+    }
     if (char?.linkedDeity === 3) {
       return sum + char?.deityMinorBonus;
     }
@@ -841,6 +843,9 @@ export const getAfkGain = (character, characters, account) => {
       ? 1
       : 0;
     const divinityMinorBonus = characters?.reduce((sum, char) => {
+      if (isCompanionBonusActive(account, 0)) {
+        return sum + getMinorDivinityBonus(char, account, 4);
+      }
       if (char?.linkedDeity === 4) {
         return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
       } else if (char?.secondLinkedDeityIndex === 4) {
@@ -848,8 +853,7 @@ export const getAfkGain = (character, characters, account) => {
       }
       return sum;
     }, 0);
-    const compBonus = isCompanionBonusActive(account, 6);
-
+    const compBonus = isCompanionBonusActive(account, 6) && 5;
     const base = afkGainsTaskBonus
       + (arcadeBonus
         + (dungeonBonus
@@ -1004,7 +1008,7 @@ const getNonConsumeChance = (character, account) => {
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const nonConsumeJewelBonus = getJewelBonus(lab?.jewels, 8, spelunkerObolMulti);
   const baseMath = 90 + 5 * nonConsumeJewelBonus;
-  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, '_19', account);
+  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, 'power', 'BITE_BUT_NOT_CHEW', account);
   const bubbleMath = Math.min(baseMath, 98 + Math.min(biteButNotChewBubbleBonus, 1));
   const jewelMath = Math.max(1, nonConsumeJewelBonus);
   const freeMealBonus = getTalentBonus(talents, 1, 'FREE_MEAL');

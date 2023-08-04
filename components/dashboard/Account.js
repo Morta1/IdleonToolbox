@@ -79,10 +79,12 @@ const Account = ({ account, trackers }) => {
           {trackers?.etc && alerts?.etc?.gildedStamps > 0 ?
             <Alert title={`You have ${alerts?.etc?.gildedStamps} available gilded stamps`}
                    iconPath={'data/GildedStamp'}/> : null}
-          {trackers?.etc && alerts?.etc?.miniBosses?.length > 0 ?
+          {trackers?.etc && alerts?.etc?.miniBosses?.length > 0
+            ?
             alerts?.etc?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
                                                                                      title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
-                                                                                     iconPath={`etc/${rawName}`}/>) : null}
+                                                                                     iconPath={`etc/${rawName}`}/>)
+            : null}
           {trackers?.alchemy && alerts?.alchemy?.sigils?.length > 0 ?
             alerts?.alchemy?.sigils?.map(({ name, index }) => <Alert key={name}
                                                                      title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
@@ -92,38 +94,46 @@ const Account = ({ account, trackers }) => {
                                                                 title={`${getNumberWithOrdinal(index + 1)} liquid is full!`}
                                                                 iconPath={`data/Liquid${index + 1}_x1`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
-            alerts?.sailing?.captains?.map(({ captain, badCaptains, bonuses }) => <Alert
+            alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => <Alert
               key={'captain' + captain?.captainIndex}
               title={<Stack>
-                <Typography sx={{ mb: 1 }}>A captain ({captain?.captainIndex}) from the shop is better
+                <Typography sx={{ mb: 1 }}>Captain <Typography
+                  component={'span'}
+                  sx={{ fontWeight: 'bold' }}>{captain?.captainIndex}</Typography> with {cleanUnderscore((captain?.firstBonusValue + captain?.secondBonusValue) + bonus)} from
+                  the shop is better
                   than {badCaptains.length} of
-                  your captains ({badCaptains.join(',')})</Typography>
-                {bonuses?.length > 0 ? <>
-                  <Typography sx={{ fontWeight: 'bold' }}>Bonuses</Typography>
-                  {bonuses?.map((bonus, index) => <Typography
-                    key={captain + index}>{cleanUnderscore(bonus)}</Typography>)}
-                </> : null}
+                  your captains</Typography>
+                <Stack>
+                  {badCaptains?.map(({ captainIndex, sum }) =>
+                    <Typography><Typography
+                      component={'span'}
+                      sx={{ fontWeight: 'bold' }}>{captainIndex}</Typography>: {cleanUnderscore(sum + bonus)}</Typography>)}
+                </Stack>
               </Stack>}
               iconPath={`etc/Captain_${captain?.captainType}`}/>) : null}
-          {trackers?.construction && alerts?.construction?.materials?.length > 0 ?
+          {trackers?.construction && alerts?.construction?.materials?.length > 0
+            ?
             alerts?.construction?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
                                                                                       title={<RefineryTitle
                                                                                         missingMats={missingMats}/>}
-                                                                                      iconPath={`data/${rawName}`}/>) : null}
+                                                                                      iconPath={`data/${rawName}`}/>)
+            : null}
           {trackers?.construction && alerts?.construction?.rankUp?.length > 0 ?
             alerts?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
                                                                                 title={`${cleanUnderscore(saltName)} is ready to rank up!`}
                                                                                 iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.construction && alerts?.construction?.buildings?.length > 0 ?
+          {trackers?.construction && alerts?.construction?.buildings?.length > 0
+            ?
             alerts?.construction?.buildings?.map(({ name, index }) => <Alert key={name}
-                                                                               title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
-                                                                               iconPath={`data/ConTower${index}`}/>) : null}
+                                                                             title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
+                                                                             iconPath={`data/ConTower${index}`}/>)
+            : null}
           {trackers?.etc && alerts?.etc?.keys?.length > 0 ?
             alerts?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
                                                                                title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
                                                                                iconPath={`data/${rawName}`}/>) : null}
           {trackers?.postOffice && alerts?.postOffice?.shipments?.length > 0 ?
-            alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={"shipment" + index}
+            alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}
                                                                      title={`Order streak for shipment #${index} is 0!`}
                                                                      iconPath={`data/UIlilbox`}/>) : null}
           {trackers?.breeding && alerts?.breeding?.shinies?.pets?.length > 0 ?
@@ -137,9 +147,9 @@ const Account = ({ account, trackers }) => {
             }) : null}
           {trackers?.printer?.checked && alerts?.printer?.atoms?.length > 0 ?
             alerts?.printer?.atoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
-                                                                        title={`Printing is at capacity for ${cleanUnderscore(name)}`}
-                                                                        atom
-                                                                        iconPath={`data/${rawName}`}/>) : null}
+                                                                      title={`Printing is at capacity for ${cleanUnderscore(name)}`}
+                                                                      atom
+                                                                      iconPath={`data/${rawName}`}/>) : null}
           {trackers?.alchemy && alerts?.alchemy?.vials?.length > 0 ?
             alerts?.alchemy?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                          vial={vial}

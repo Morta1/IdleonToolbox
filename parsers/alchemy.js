@@ -1,17 +1,17 @@
-import { createArrayOfArrays, growth, tryToParse } from "../utility/helpers";
-import { cauldrons, p2w, sigils, vials } from "../data/website-data";
-import { isArtifactAcquired } from "./sailing";
-import { getSaltLickBonus } from "./saltLick";
-import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getJewelBonus, getLabBonus } from "./lab";
+import { createArrayOfArrays, growth, tryToParse } from '../utility/helpers';
+import { cauldrons, p2w, sigils, vials } from '../data/website-data';
+import { isArtifactAcquired } from './sailing';
+import { getSaltLickBonus } from './saltLick';
+import { getMealsBonusByEffectOrStat } from './cooking';
+import { getJewelBonus, getLabBonus } from './lab';
 import { isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
-import { getStampsBonusByEffect } from "./stamps";
-import { getArcadeBonus } from "./arcade";
+import { getStampsBonusByEffect } from './stamps';
+import { getArcadeBonus } from './arcade';
 
-const cauldronsIndexMapping = { 0: "power", 1: "quicc", 2: "high-iq", 3: "kazam" };
-const liquidsIndex = { 0: "water drops", 1: "liquid n2", 2: "trench h2o" };
-const cauldronsTextMapping = { 0: "O", 1: "G", 2: "P", 3: "Y" };
-const bigBubblesIndices = { _: "power", a: "quicc", b: "high-iq", c: "kazam" };
+const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
+const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o' };
+const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };
+const bigBubblesIndices = { _: 'power', a: 'quicc', b: 'high-iq', c: 'kazam' };
 
 export const getAlchemy = (idleonData, account) => {
   const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo) || idleonData?.CauldronInfo;
@@ -65,7 +65,9 @@ export const getLiquidCauldrons = (account) => {
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, `Liquid${index + 1}Cap`)
     const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, `Liquid${index === 0 || index === 1 ? '12' : '34'}`, blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, `Liquid${index === 0 || index === 1
+      ? '12'
+      : '34'}`, blackDiamondRhinestone);
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
     const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
     const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity;
@@ -84,7 +86,7 @@ export const getLiquidCauldrons = (account) => {
 const getCauldronBrewBonus = (index, cauldronVal) => {
   // a.engine.getGameAttribute("CauldronInfo")[8][0 | t][2][1] - capacity
   if (index < 4) {
-    return Math.round(10 * growth("decay", 90, 100, cauldronVal, 0, 0)) / 10;
+    return Math.round(10 * growth('decay', 90, 100, cauldronVal, 0, 0)) / 10;
   }
   return Math.round(cauldronVal);
 }
@@ -120,7 +122,7 @@ const getBubbles = (bubbles) => {
           ...res,
           [cauldronsIndexMapping?.[index]]: Object.keys(array)?.reduce(
             (res, key, bubbleIndex) =>
-              key !== "length"
+              key !== 'length'
                 ? [
                   ...res,
                   {
@@ -153,9 +155,12 @@ export const getEquippedBubbles = (idleonData, bubbles, serializedCharactersData
     .filter((arr) => arr.length);
 };
 
-export const getActiveBubbleBonus = (equippedBubbles, bIndex, account) => {
+export const getActiveBubbleBonus = (equippedBubbles, cauldronName, bubbleName, account) => {
   const hasCompanionBonus = isCompanionBonusActive(account, 4);
-  const bubble = equippedBubbles?.find(({ bubbleIndex }) => bubbleIndex === bIndex);
+  if (hasCompanionBonus) {
+    return getBubbleBonus(account?.alchemy?.bubbles, cauldronName, bubbleName, false)
+  }
+  const bubble = equippedBubbles?.find(({ bubbleName: bName }) => bubbleName === bName);
   if (!bubble && !hasCompanionBonus) return 0;
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
@@ -170,9 +175,13 @@ export const getBubbleBonus = (cauldrons, cauldronName, bubName, round, shouldMu
   }
   const bubble = cauldrons?.[cauldronName]?.[bubbleIndex];
   const multiBubble = cauldrons?.[cauldronName]?.[1];
-  const multiBubbleBonus = shouldMulti ? growth(multiBubble?.func, multiBubble?.level, multiBubble?.x1, multiBubble?.x2, round) : 1;
+  const multiBubbleBonus = shouldMulti
+    ? growth(multiBubble?.func, multiBubble?.level, multiBubble?.x1, multiBubble?.x2, round)
+    : 1;
   const anotherMultiBubble = cauldrons?.[cauldronName]?.[16];
-  const anotherMultiBubbleBonus = multiIndexes?.[cauldronName]?.[bubbleIndex] ? growth(anotherMultiBubble?.func, anotherMultiBubble?.level, anotherMultiBubble?.x1, anotherMultiBubble?.x2, round) : 1;
+  const anotherMultiBubbleBonus = multiIndexes?.[cauldronName]?.[bubbleIndex]
+    ? growth(anotherMultiBubble?.func, anotherMultiBubble?.level, anotherMultiBubble?.x1, anotherMultiBubble?.x2, round)
+    : 1;
   return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus * anotherMultiBubbleBonus) ?? 0;
 };
 
@@ -180,7 +189,7 @@ const getVials = (vialsRaw) => {
   return Object.keys(vialsRaw)
     .reduce((res, key, index) => {
       const vial = vials?.[index];
-      return key !== "length"
+      return key !== 'length'
         ? [
           ...res,
           {
@@ -216,7 +225,7 @@ export const applyVialsMulti = (vials, multiplier) => {
 
 const getCauldrons = (cauldronsProgress, cauldronsRaw, p2w, bubbles, alchemyActivity) => {
   const playersInCauldrons = alchemyActivity.filter(({ activity }) => activity < 100 && activity !== -1);
-  const cauldronsLevelsMapping = { 0: "power", 4: "quicc", 8: "high-iq", 12: "kazam" };
+  const cauldronsLevelsMapping = { 0: 'power', 4: 'quicc', 8: 'high-iq', 12: 'kazam' };
   let cauldronsObject = {};
   const chunk = 4;
   for (let i = 0, j = cauldronsRaw.length; i < j; i += chunk) {

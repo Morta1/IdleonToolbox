@@ -12,7 +12,7 @@ export const getMaxCharge = (character, account) => {
   const wizardTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Max_Charge', character);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'GOSPEL_LEADER', false, mainStat === 'wisdom');
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'b11', account)
+  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account);
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.lvReqToCraft : 0;
   // console.log('character', character?.name)
   // console.log('cardBonus', cardBonus)
@@ -35,7 +35,7 @@ export const getChargeRate = (character, account) => {
   const cardBonus = getCardBonusByEffect(account?.cards, 'Charge_Rate');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Charge_Rate_per_Hour', character);
   const wizardTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y');
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'b11', account)
+  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account)
   if (skullSpeed < 3) {
     return 6 / Math.max(5.7 + Math.pow(4 - skullSpeed, 2.2) - (.9 * Math.pow(character?.skillsInfo?.worship?.level, .5) /
         (Math.pow(character?.skillsInfo?.worship?.level, .5) + 250) + .6 * character?.skillsInfo?.worship?.level /

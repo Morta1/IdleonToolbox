@@ -7,6 +7,7 @@ import { MissingData } from '../../../components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
+import { getMinorDivinityBonus } from '../../../parsers/divinity';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
@@ -58,7 +59,7 @@ const Divinity = () => {
                         <Tooltip title={<CharDeityDetails name={name}
                                                           divStyle={divStyle}
                                                           bonus={minorBonus.replace(/{/g, isLinked
-                                                            ? deityMinorBonus.toFixed(2)
+                                                            ? getMinorDivinityBonus(state?.characters?.[index], state?.account, godIndex).toFixed(2)
                                                             : isSecondLinked ? secondDeityMinorBonus.toFixed(2) : 0)}/>}
                                  key={name}>
                           <img src={`${prefix}data/ClassIcons${classIndex}.png`}
