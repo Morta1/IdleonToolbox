@@ -2,6 +2,7 @@ import { growth } from '../utility/helpers';
 import { classes, talents } from '../data/website-data';
 import { getAchievementStatus } from './achievements';
 import { isCompanionBonusActive } from './misc';
+import { getMinorDivinityBonus } from './divinity';
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
@@ -136,14 +137,19 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
   }, { maxLevel: 0 });
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account) => {
+export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   let addedLevels = 0;
-  if (linkedDeity === 1) {
-    addedLevels += Math.ceil(deityMinorBonus);
-  } else if (secondLinkedDeity === 1) {
-    addedLevels += Math.ceil(secondDeityMinorBonus);
+  if (isCompanionBonusActive(account, 0)) {
+    addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
+  } else {
+    if (linkedDeity === 1) {
+      addedLevels += Math.ceil(deityMinorBonus);
+    } else if (secondLinkedDeity === 1) {
+      addedLevels += Math.ceil(secondDeityMinorBonus);
+    }
   }
-  const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'))
+
+  const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'));
   if (symbolTalent) {
     const symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
     addedLevels += symbolAddedLevel;
