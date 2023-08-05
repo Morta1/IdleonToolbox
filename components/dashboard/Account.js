@@ -105,7 +105,7 @@ const Account = ({ account, trackers }) => {
                   your captains</Typography>
                 <Stack>
                   {badCaptains?.map(({ captainIndex, sum }) =>
-                    <Typography><Typography
+                    <Typography key={`cap-${captainIndex}`}><Typography
                       component={'span'}
                       sx={{ fontWeight: 'bold' }}>{captainIndex}</Typography>: {cleanUnderscore(sum + bonus)}</Typography>)}
                 </Stack>
