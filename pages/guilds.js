@@ -12,7 +12,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography
+  Typography, useMediaQuery
 } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { getDuration, numberWithCommas, prefix, tryToParse } from '../utility/helpers';
