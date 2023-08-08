@@ -145,7 +145,11 @@ const extraIslandDetails = (account, index) => {
     };
   } else if (index === 5) {
     const hoursAfk = account?.accountOptions?.[184];
-    result = { hoursAfk, shop: fractalIslandBonuses, learnMore: true }
+    result = {
+      hoursAfk,
+      shop: fractalIslandBonuses?.map((bonus) => ({ ...bonus, unlocked: hoursAfk > bonus?.cost })),
+      learnMore: true
+    }
   }
   return result;
 }

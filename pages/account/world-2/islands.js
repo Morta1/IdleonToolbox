@@ -88,9 +88,10 @@ const Islands = () => {
       <DialogTitle>{dialog?.data?.name} shop</DialogTitle>
       <DialogContent>
         <Stack gap={1}>
-          {dialog?.data?.shop?.map(({ effect, cost, upgrades }, index) => {
+          {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked }, index) => {
             const isImage = effect.includes('etc') || effect.includes('data');
-            return <Card variant={'outlined'} key={'effect-' + index}>
+            return <Card variant={'outlined'} key={'effect-' + index}
+                         sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.light' : '' }}>
               <CardContent>
                 <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
                        alignItems={isImage ? 'center' : 'flex-start'}>
