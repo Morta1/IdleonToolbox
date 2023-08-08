@@ -195,6 +195,10 @@ export const getBundles = (idleonData) => {
     .sort((a, b) => a?.name?.match(/_[a-z]/i)?.[0].localeCompare(b?.name?.match(/_[a-z]/i)?.[0]));
 };
 
+export const isBundlePurchased = (bundles, name) => {
+  return bundles?.find(({ name: n }) => n === name);
+}
+
 export const isArenaBonusActive = (arenaWave, waveReq, bonusNumber) => {
   const waveReqArray = waveReq.split(' ');
   if (bonusNumber > waveReqArray.length) {

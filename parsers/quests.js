@@ -235,6 +235,10 @@ export const worldNpcMap = {
     'world': 'Yum-Yum_Desert',
     index: 14
   },
+  'Omar_Da_Ogar': {
+    'world': 'Yum-Yum_Desert',
+    index: 15
+  },
   'Builder_Bird': {
     'world': ''
   },

@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.6',
+    gameVer: '1.88',
+    date: '09/08/2023',
+    features: [
+      <Typography>Added<Link
+        href={'https://idleontoolbox.com/account/world-2/islands'}>Islands</Link> page under world 2</Typography>,
+      'Added total stats line to the stats filter under character page'
+    ],
+    fixes: [
+      'Added (the missing) Omar Da Ogar npc to quests page'
+    ]
+  },
+  {
     ver: '3.2.5',
     gameVer: '1.88',
     date: '04/08/2023',

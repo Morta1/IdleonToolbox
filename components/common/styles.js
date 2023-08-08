@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
-import { Badge, Stack, Typography } from '@mui/material';
+import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
 import { calcCardBonus } from 'parsers/cards';
@@ -115,4 +115,20 @@ export const PlayersList = ({ players, characters }) => {
 export const MissingData = ({ name }) => {
   return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
 }
+
+export const CardTitleAndValue = ({ cardSx, title, value, children }) => {
+  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
+    <CardContent>
+      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+      {value ? <Typography>{value}</Typography> : children}
+    </CardContent>
+  </Card>
+}
+
+export const CenteredStack = ({ direction = 'row', children }) => {
+  return <Stack gap={1} direction={direction} alignItems={'center'} >
+    {children}
+  </Stack>
+}
+
 

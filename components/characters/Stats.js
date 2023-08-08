@@ -45,6 +45,11 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     return minutes <= 5;
   };
 
+  const getTotalStats = useMemo(() => (character) => {
+    return Object.entries(character?.stats || {})?.reduce((sum, [statName, statValue]) => sum + (statName !== 'level'
+      ? statValue
+      : 0), 0);
+  }, [character]);
   return (
     <>
       <Stack gap={2} flexWrap={'wrap'}>
@@ -60,6 +65,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             </Card>
           ) : null}
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
+            <Stat title={'Total Stats'} value={getTotalStats(character)}/>
             {Object.entries(stats)?.map(([statName, statValue], index) => {
               return statName !== 'level' ? (
                 <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}>

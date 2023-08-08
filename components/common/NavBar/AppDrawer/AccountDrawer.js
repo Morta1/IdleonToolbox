@@ -63,7 +63,8 @@ const worldsData = {
       { label: 'Cauldrons', icon: 'aStirringStick0' },
       { label: 'vials', icon: 'aVials1' },
       { label: 'arcadeShop', icon: 'PachiBall1' },
-      { label: 'sigils', icon: 'LabBonus12' }
+      { label: 'sigils', icon: 'LabBonus12' },
+      { label: 'islands', icon: 'Island1' },
     ]
   },
   'world 3': {

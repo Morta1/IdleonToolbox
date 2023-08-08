@@ -31,7 +31,7 @@ const Worship = () => {
       <Typography variant={'caption'}>* make sure you login to every character to "apply" their charge before using
         syphon</Typography>
       <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Total Charge'} value={totalCharge}/>
+        <CardTitleAndValue title={'Total Charge'} value={Math.round(totalCharge)}/>
         <CardTitleAndValue title={'Total Daily Charge'} value={`${Math.round(24 * totalChargeRate)}%`}/>
         <CardTitleAndValue title={'First to full'}>
           <Typography>{closestToFull?.character}</Typography>

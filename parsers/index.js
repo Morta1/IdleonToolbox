@@ -55,6 +55,7 @@ import { getGaming } from './gaming';
 import { getAtoms } from './atomCollider';
 import { getRift, isRiftBonusUnlocked } from './world-4/rift';
 import { getPostOfficeShipments } from './postoffice';
+import { getIslands } from './world-2/islands';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars) => {
   let accountData, charactersData;
@@ -95,6 +96,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     charactersData;
   const serializedCharactersData = getCharacters(idleonData, charsNames);
   accountData.companions = getCompanions(companion);
+  accountData.bundles = getBundles(idleonData);
   accountData.serverVars = serverVars;
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
   accountData.bribes = getBribes(idleonData);
@@ -190,12 +192,12 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
+  accountData.islands = getIslands(accountData);
   accountData.deathNote = getDeathNote(charactersData, accountData);
 
   // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);
 
-  accountData.bundles = getBundles(idleonData);
   const bankMoney = parseFloat(idleonData?.MoneyBANK);
   const playersMoney = charactersData?.reduce((res, char) => {
     return res + parseFloat(char?.money)
