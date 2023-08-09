@@ -8,7 +8,7 @@ export const patchNotes = [
     gameVer: '1.88',
     date: '09/08/2023',
     features: [
-      <Typography>Added<Link
+      <Typography>Added <Link
         href={'https://idleontoolbox.com/account/world-2/islands'}>Islands</Link> page under world 2</Typography>,
       'Added total stats line to the stats filter under character page'
     ],

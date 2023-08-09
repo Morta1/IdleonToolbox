@@ -33,7 +33,7 @@ const Islands = () => {
     />
     <Typography variant={'h2'} mb={3}>Islands</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      <CardTitleAndValue title={'Bottles'} value={islands?.bottles}/>
+      <CardTitleAndValue title={'Bottles'} value={Math.round(islands?.bottles)}/>
       <CardTitleAndValue title={'Bottles/day'} value={islands?.bottlesPerDay}/>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
@@ -63,7 +63,7 @@ const Islands = () => {
               {!unlocked ? <Typography>Cost: {cost}</Typography> : null}
               {unlocked && island.hasOwnProperty('trash') ? <CenteredStack>
                 <img src={`${prefix}etc/Trash_Currency.png`} alt={''}/>
-                <Typography>{trash}</Typography>
+                <Typography>{Math.round(trash)}</Typography>
               </CenteredStack> : null}
               {unlocked && currentTrial ? <Stack gap={1}>
                 <TitleAndValue title={'Current trial'} value={cleanUnderscore(currentTrial)}/>
