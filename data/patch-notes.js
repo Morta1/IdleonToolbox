@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.7',
+    gameVer: '1.88',
+    date: '09/08/2023',
+    features: [
+      'Added a timer for atom collider upgrades'
+    ],
+    fixes: [
+      'Fixed a bug with captain comparison in dashboard'
+    ]
+  },
+  {
     ver: '3.2.6',
     gameVer: '1.88',
     date: '09/08/2023',

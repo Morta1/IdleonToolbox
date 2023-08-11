@@ -94,23 +94,27 @@ const Account = ({ account, trackers }) => {
                                                                 title={`${getNumberWithOrdinal(index + 1)} liquid is full!`}
                                                                 iconPath={`data/Liquid${index + 1}_x1`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
-            alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => <Alert
-              key={'captain' + captain?.captainIndex}
-              title={<Stack>
-                <Typography sx={{ mb: 1 }}>Captain <Typography
-                  component={'span'}
-                  sx={{ fontWeight: 'bold' }}>{captain?.captainIndex}</Typography> with {cleanUnderscore((captain?.firstBonusValue + captain?.secondBonusValue) + bonus)} from
-                  the shop is better
-                  than {badCaptains.length} of
-                  your captains</Typography>
-                <Stack>
-                  {badCaptains?.map(({ captainIndex, sum }) =>
-                    <Typography key={`cap-${captainIndex}`}><Typography
-                      component={'span'}
-                      sx={{ fontWeight: 'bold' }}>{captainIndex}</Typography>: {cleanUnderscore(sum + bonus)}</Typography>)}
-                </Stack>
-              </Stack>}
-              iconPath={`etc/Captain_${captain?.captainType}`}/>) : null}
+            alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {
+              return <Alert
+                key={'captain' + captain?.captainIndex}
+                title={<Stack>
+                  <Typography sx={{ mb: 1 }}>Captain <Typography
+                    component={'span'}
+                    sx={{ fontWeight: 'bold' }}>{captain?.captainIndex}</Typography> with {cleanUnderscore(bonus)} from
+                    the shop is better
+                    than {badCaptains.length} of
+                    your captains</Typography>
+                  <Stack>
+                    {badCaptains?.map(({ captainIndex, bonus }) => {
+                      return <Typography key={`cap-${captainIndex}`}><Typography
+                        component={'span'}
+                        sx={{ fontWeight: 'bold' }}>{captainIndex}</Typography>: {cleanUnderscore(bonus)}
+                      </Typography>
+                    })}
+                  </Stack>
+                </Stack>}
+                iconPath={`etc/Captain_${captain?.captainType}`}/>
+            }) : null}
           {trackers?.construction && alerts?.construction?.materials?.length > 0
             ?
             alerts?.construction?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}

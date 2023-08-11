@@ -234,27 +234,54 @@ export const sailingAlerts = (account, options) => {
         secondBonusDescription
       } = shopCaption;
       const matches = captains?.filter((rCaptain) => {
-        if ((rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex)
-          || (rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex)) {
-          return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+        if (rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex) {
+          if (firstBonusIndex === secondBonusIndex) {
+            return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+          } else {
+            return firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
+          }
+        } else if (rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex) {
+          if (firstBonusIndex === secondBonusIndex) {
+            return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+          } else {
+            return firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
+          }
         }
-        return false
+        return false;
       });
       if (matches?.length > 0 && captainType !== -1) {
-        return [...res, {
+        const isSameValue = firstBonusIndex === secondBonusIndex;
+        const temp = {
           captain: shopCaption,
-          badCaptains: matches.map(({ captainIndex, firstBonusValue, secondBonusValue }) => ({
+          isSameValue,
+          badCaptains: matches.map(({
+                                      captainIndex,
+                                      firstBonusDescription: fbDesc,
+                                      secondBonusDescription: sbDesc,
+                                      firstBonusValue: fbValue,
+                                      secondBonusValue: sbValue,
+                                    }) => ({
             captainIndex,
-            sum: firstBonusValue + secondBonusValue
-          }))?.sort((a, b) => b?.sum - a?.sum),
-          bonus: firstBonusDescription.substring(firstBonusDescription.indexOf('%'))
-        }]
+            firstBonusValue: fbValue,
+            secondBonusValue: sbValue,
+            bonus: isSameValue
+              ? fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue + sbValue) + '%')
+              : [fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue) + '%'),
+                sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
+          }))?.sort((a, b) => (b?.firstBonusValue + b?.secondBonusValue) - (a?.firstBonusValue + a?.secondBonusValue)),
+          bonus: isSameValue
+            ? firstBonusDescription.substring(firstBonusDescription.indexOf('%')).replace('%', (firstBonusValue + secondBonusValue) + '%')
+            : [firstBonusDescription.substring(firstBonusDescription.indexOf('%')).replace('%', (firstBonusValue) + '%'),
+              secondBonusDescription.substring(secondBonusDescription.indexOf('%')).replace('%', (secondBonusValue) + '%')]
+        }
+        return [...res, temp];
       }
       return res;
     }, []);
   }
   return alerts;
 }
+
 export const cookingAlerts = (account, options) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World3) return false;

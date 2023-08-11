@@ -1,16 +1,18 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
+import { calcTotals } from '../../../parsers/printer';
+import Timer from '../../../components/common/Timer';
 
 const MAX_ATOMS = 11;
 
 const AtomCollider = ({}) => {
   const { state } = useContext(AppContext);
   const { atoms, particles, stampReducer } = state?.account?.atoms || {};
-
+  const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
   return <>
     <NextSeo
       title="Idleon Toolbox | Atom Collider"
@@ -44,9 +46,10 @@ const AtomCollider = ({}) => {
           .replace(/{/g, `${baseBonus * level}`)
           .replace(/[>}]/, notateNumber(bonus, 'Big'))
           .replace('<', level);
+        const timeLeft = ((cost - particles) / totals?.atom?.atoms) * 3600 * 1000
         return <Card key={rawName}>
-          <CardContent sx={{ width: 250 }}>
-            <Stack>
+          <CardContent sx={{ width: 250, height: '100%' }}>
+            <Stack direction={'column'} sx={{ height: '100%' }}>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <img src={`${prefix}data/${rawName}.png`}
                      alt="" width={64} height={64} style={{ objectFit: 'contain' }}/>
@@ -57,7 +60,7 @@ const AtomCollider = ({}) => {
                 </Stack>
               </Stack>
               <Divider sx={{ my: 2 }}/>
-              <Typography variant={'body1'} component={'div'}>
+              <Typography sx={{ mb: 2 }} variant={'body1'} component={'div'}>
                 {processString([{
                   regex: /Total bonus.*/,
                   fn: (key, result) => {
@@ -65,6 +68,12 @@ const AtomCollider = ({}) => {
                   }
                 }])(description)}
               </Typography>
+              {level < maxLevel && totals?.atom?.atoms > 0 ? <Box sx={{ marginTop: 'auto' }}>
+                <Timer type={'countdown'}
+                       placeholder={<Typography color={'success.light'}>Ready!</Typography>}
+                       date={new Date().getTime() + timeLeft}
+                       lastUpdated={state?.lastUpdated}/>
+              </Box> : null}
             </Stack>
           </CardContent>
         </Card>
