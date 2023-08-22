@@ -8,6 +8,15 @@ export const patchNotes = [
     gameVer: '1.89',
     date: '09/08/2023',
     features: [
+      'Updated the website with latest version\'s data and assets'
+    ],
+    fixes: []
+  },
+  {
+    ver: '3.2.8',
+    gameVer: '1.89',
+    date: '09/08/2023',
+    features: [
       'Updated the website with version 1.89 data and assets'
     ],
     fixes: []

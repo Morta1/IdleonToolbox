@@ -1,17 +1,17 @@
-let Af = {}
-Af._mul = Math.imul;
-const x = {}
+let Bf = {}
+Bf._mul = Math.imul;
+const w = {}
 
 var Ub = function(e) {
   this.init(e);
 };
-(x.Rand = Ub),
+(w.Rand = Ub),
 (Ub.__name__ = "Rand"),
 (Ub.hash = function(e, t) {
-  return null == t && (t = 5381), (e = Af._mul(e, -862048943)), (t ^= e = Af._mul((e << 15) | (e >>> 17), 461845907)), (t = (Af._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Af._mul(t ^ (t >> 16), -2048144789)), (t = Af._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16);
+  return null == t && (t = 5381), (e = Bf._mul(e, -862048943)), (t ^= e = Bf._mul((e << 15) | (e >>> 17), 461845907)), (t = (Bf._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Bf._mul(t ^ (t >> 16), -2048144789)), (t = Bf._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16);
 }),
 (Ub.inlineHash = function(e, t) {
-  return (e = Af._mul(e, -862048943)), (t ^= e = Af._mul((e << 15) | (e >>> 17), 461845907)), (t = (Af._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Af._mul(t ^ (t >> 16), -2048144789)), (t = Af._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16);
+  return (e = Bf._mul(e, -862048943)), (t ^= e = Bf._mul((e << 15) | (e >>> 17), 461845907)), (t = (Bf._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Bf._mul(t ^ (t >> 16), -2048144789)), (t = Bf._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16);
 }),
 (Ub.prototype = {
   seed: null,
