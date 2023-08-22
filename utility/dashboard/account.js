@@ -143,11 +143,16 @@ export const postOfficeAlerts = (account, options) => {
 }
 export const etcAlerts = (account, options) => {
   const alerts = {}
+
   if (options?.randomEvents?.checked) {
     alerts.randomEvents = account?.accountOptions?.[137] === 0;
   }
-  if (!account?.finishedWorlds?.World3 || !isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) return alerts;
-  if (options?.gildedStamps?.checked) {
+
+  if (options?.keys?.checked) {
+    alerts.keys = areKeysOverdue(account);
+  }
+  if (!account?.finishedWorlds?.World3) return alerts;
+  if (options?.gildedStamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
     alerts.gildedStamps = account?.accountOptions?.[154];
   }
   if (options?.miniBosses?.checked) {
@@ -171,9 +176,6 @@ export const etcAlerts = (account, options) => {
       });
     }
     alerts.miniBosses = maxedMiniBosses.length > 0 ? maxedMiniBosses : null;
-  }
-  if (options?.keys?.checked) {
-    alerts.keys = areKeysOverdue(account);
   }
   return alerts;
 }

@@ -2,13 +2,14 @@ import {
   bonuses,
   carryBags,
   classes,
-  classFamilyBonuses,
-  deathNote,
+  classFamilyBonuses, deathNote,
   divStyles,
   gods,
   invBags,
   items,
+  mapDetails,
   mapEnemies,
+  mapEnemiesArray,
   mapNames,
   mapPortals,
   monsters,
@@ -678,6 +679,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
 
 
 export const getBarbarianZowChow = (allKills, thresholds) => {
+
   let list = deathNote.map(({ rawName }) => {
     const mobIndex = mapEnemies?.[rawName];
     const { MonsterFace, Name } = monsters?.[rawName];

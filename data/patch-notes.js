@@ -8,7 +8,9 @@ export const patchNotes = [
     gameVer: '1.89',
     date: '09/08/2023',
     features: [
-      'Updated the website with latest version\'s data and assets'
+      'Updated the website with latest version\'s data and assets',
+      'Added world 4 new npcs',
+      'Added onyx display and calculations'
     ],
     fixes: []
   },

@@ -45,6 +45,7 @@ const alertsMap = {
 
 const Account = ({ account, trackers }) => {
   const alerts = useAlerts({ alertsMap, data: account, trackers });
+
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>

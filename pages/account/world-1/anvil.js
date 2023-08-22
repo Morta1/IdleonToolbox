@@ -75,7 +75,7 @@ const Anvil = () => {
                   <Typography className={'character-name'}>{playerName}</Typography>
                   <Typography variant={'caption'}>Smithing lv. {smithingLevel}</Typography>
                   <Typography variant={'caption'}
-                              color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints} / {pointsFromCoins + pointsFromMats}</Typography>
+                              color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel} / {pointsFromCoins + pointsFromMats + smithingLevel}</Typography>
                 </Stack>
               </Stack>
               <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}

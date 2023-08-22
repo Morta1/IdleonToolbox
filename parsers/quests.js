@@ -328,6 +328,14 @@ export const worldNpcMap = {
     world: 'Hyperion_Nebula',
     index: 3
   },
+  'Royal_Worm': {
+    world: 'Hyperion_Nebula',
+    index: 4
+  },
+  'Monolith': {
+    world: 'Hyperion_Nebula',
+    index: 5
+  },
   'Muhmuguh': {
     world: 'Smolderin\'_Plateau',
     index: 1

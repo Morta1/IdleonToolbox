@@ -44,6 +44,7 @@ const Apocalypses = () => {
 };
 
 const ApocDisplay = ({ apocName, charName, monsters }) => {
+  const allDone = monsters?.list?.every(({done}) => done.every((done) => done));
   return <Stack gap={2}>
     <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow'
       ? monsters.finished.at(0)
@@ -53,7 +54,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
         kills</Typography> : null}
     <Card>
       <CardContent>
-        {monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
+        {allDone ? <Typography>You're Done</Typography> : monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
           {monsters?.list?.map(({
                                   name,
                                   monsterFace,
