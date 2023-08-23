@@ -2,13 +2,12 @@ import {
   bonuses,
   carryBags,
   classes,
-  classFamilyBonuses, deathNote,
+  classFamilyBonuses,
   divStyles,
   gods,
   invBags,
   items,
   mapDetails,
-  mapEnemies,
   mapEnemiesArray,
   mapNames,
   mapPortals,
@@ -359,10 +358,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
   if (isBarbarian) { // zow
-    character.zow = getBarbarianZowChow(character.kills, [1e5]);
+    character.zow = getBarbarianZowChow(kills, [1e5]);
   }
   if (isBloodBerserker) {
-    character.chow = getBarbarianZowChow(character.kills, [1e6, 1e8]);
+    character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
   }
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
@@ -679,34 +678,35 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
 
 
 export const getBarbarianZowChow = (allKills, thresholds) => {
-
-  let list = deathNote.map(({ rawName }) => {
-    const mobIndex = mapEnemies?.[rawName];
-    const { MonsterFace, Name } = monsters?.[rawName];
-    const kills = allKills?.[mobIndex];
+  const excludedMaps = [
+    'Nothing', 'Z', 'Copper',
+    'Iron', 'Starfire', 'Plat', 'Void',
+    'Filler', 'JungleZ', 'Grandfrog\'s_Gazebo',
+    'Grandfrog\'s_Backyard', 'Gravel_Tomb', 'Heaty_Hole',
+    'Igloo\'s_Basement', 'Inside_the_Igloo', 'End_Of_The_Road',
+    'Efaunt\'s_Tomb', 'Eycicles\'s_Nest', 'Enclave_a_la_Troll', 'Chizoar\'s_Cavern'].toSimpleObject();
+  const list = Object.values(mapNames).map((mapName, index) => {
+    const rawName = mapEnemiesArray?.[index];
+    const { MonsterFace, Name, AFKtype } = monsters?.[rawName] || {};
+    const kills = Math.abs(allKills?.[index]?.[0] - mapDetails?.[index]?.[0]?.[0]);
     return {
-      name: Name,
-      monsterFace: MonsterFace,
-      done: thresholds?.map((threshold) => kills >= threshold),
+      mapName,
+      afkTarget: rawName,
       kills,
-      thresholds
+      monsterFace: MonsterFace,
+      name: Name,
+      afkType: AFKtype,
+      done: thresholds?.map((threshold) => kills >= threshold),
     }
-  });
-  const boopKills = allKills[38];
-  const riftKills = allKills[166];
-  list = [...list, {
-    name: 'Boop',
-    monsterFace: 33,
-    done: thresholds?.map((threshold) => boopKills >= threshold),
-    kills: boopKills,
-    thresholds
-  }, {
-    name: 'Rift Monsters',
-    monsterFace: 75,
-    done: thresholds?.map((threshold) => riftKills >= threshold),
-    kills: riftKills,
-    thresholds
-  }];
+  }).filter(({
+               mapName,
+               afkTarget,
+               name,
+               afkType,
+               kills,
+               mapThreshold
+             }) => afkType === 'FIGHTING' && !excludedMaps[mapName] && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
+
   const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],
     done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0]);
   return {

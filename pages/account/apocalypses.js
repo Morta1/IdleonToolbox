@@ -2,9 +2,10 @@ import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
 import { talentPagesMap } from '../../parsers/talents';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '../../utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
+import Tooltip from '../../components/Tooltip';
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);
@@ -44,7 +45,7 @@ const Apocalypses = () => {
 };
 
 const ApocDisplay = ({ apocName, charName, monsters }) => {
-  const allDone = monsters?.list?.every(({done}) => done.every((done) => done));
+  const allDone = monsters?.list?.every(({ done }) => done.every((done) => done));
   return <Stack gap={2}>
     <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow'
       ? monsters.finished.at(0)
@@ -56,6 +57,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
       <CardContent>
         {allDone ? <Typography>You're Done</Typography> : monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
           {monsters?.list?.map(({
+                                  mapName,
                                   name,
                                   monsterFace,
                                   kills,
@@ -63,14 +65,16 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                                   thresholds
                                 }, index) => {
             return !done.every((done) => done) ?
-              <Card sx={{ width: 120 }} variant={'outlined'} key={`${charName}-${name}-${index}`}>
-                <CardContent>
-                  <Stack alignItems={'center'} gap={1}>
-                    <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
-                    <Typography>{notateNumber(kills, 'Big')}</Typography>
-                  </Stack>
-                </CardContent>
-              </Card> : null
+              <Tooltip title={cleanUnderscore(mapName)} key={`${charName}-${name}-${index}`}>
+                <Card sx={{ width: 120 }} variant={'outlined'}>
+                  <CardContent>
+                    <Stack alignItems={'center'} gap={1}>
+                      <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
+                      <Typography>{notateNumber(kills, 'Big')}</Typography>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Tooltip> : null
           })}
         </Stack> : <Typography>{apocName} talent is still locked !</Typography>}
       </CardContent>

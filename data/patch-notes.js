@@ -4,9 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
-    ver: '3.2.8',
+    ver: '3.2.10',
     gameVer: '1.89',
-    date: '09/08/2023',
+    date: '23/08/2023',
+    features: [],
+    fixes: ['Fixed zow and chow logic']
+  },
+  {
+    ver: '3.2.9',
+    gameVer: '1.89',
+    date: '22/08/2023',
     features: [
       'Updated the website with latest version\'s data and assets',
       'Added world 4 new npcs',
