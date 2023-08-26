@@ -211,38 +211,39 @@ export const worldNpcMap = {
     'world': 'Yum-Yum_Desert',
     index: 8
   },
-  'XxX_Cattleprod_XxX': {
+  'Speccius': {
     'world': 'Yum-Yum_Desert',
     index: 9
   },
-  'Loominadi': {
+  'XxX_Cattleprod_XxX': {
     'world': 'Yum-Yum_Desert',
     index: 10
   },
-  'Wellington': {
+  'Loominadi': {
     'world': 'Yum-Yum_Desert',
     index: 11
   },
-  'Djonnut': {
+  'Wellington': {
     'world': 'Yum-Yum_Desert',
     index: 12
   },
-  'Walupiggy': {
+  'Djonnut': {
     'world': 'Yum-Yum_Desert',
     index: 13
   },
-  'Gangster_Gus': {
+  'Walupiggy': {
     'world': 'Yum-Yum_Desert',
     index: 14
   },
-  'Omar_Da_Ogar': {
+  'Gangster_Gus': {
     'world': 'Yum-Yum_Desert',
     index: 15
   },
-  'Builder_Bird': {
-    'world': ''
+  'Omar_Da_Ogar': {
+    'world': 'Yum-Yum_Desert',
+    index: 16
   },
-  'Speccius': {
+  'Builder_Bird': {
     'world': ''
   },
   'Postboy_Pablob': {
@@ -320,21 +321,29 @@ export const worldNpcMap = {
     world: 'Hyperion_Nebula',
     index: 1
   },
-  'Capital_P': {
+  'Eliteus': {
     world: 'Hyperion_Nebula',
     index: 2
   },
-  'Blobbo': {
+  'Capital_P': {
     world: 'Hyperion_Nebula',
     index: 3
   },
-  'Royal_Worm': {
+  'Blobbo': {
     world: 'Hyperion_Nebula',
     index: 4
   },
-  'Monolith': {
+  'Royal_Worm': {
     world: 'Hyperion_Nebula',
     index: 5
+  },
+  'Monolith': {
+    world: 'Hyperion_Nebula',
+    index: 6
+  },
+  'Rift_Ripper': {
+    world: 'Hyperion_Nebula',
+    index: 7
   },
   'Muhmuguh': {
     world: 'Smolderin\'_Plateau',

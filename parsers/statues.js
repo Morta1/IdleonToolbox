@@ -50,7 +50,6 @@ export const getStatueBonus = (statues, statueName, talents) => {
     case 'MINING':
     case 'DEFENCE':
     case 'THICC_SKIN':
-    case 'OCEANMAN':
       talentBonus += (getTalentBonus(talents, 2, 'SHIELDIEST_STATUES') || getTalentBonus(talents, 2, 'STRONGEST_STATUES')) / 100;
       break;
     case 'SPEED':

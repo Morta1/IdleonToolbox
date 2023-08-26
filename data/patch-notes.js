@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.11',
+    gameVer: '1.89',
+    date: '26/08/2023',
+    features: [],
+    fixes: ['Added missing npcs to quests page', 'Fixed a bug with statue calculations']
+  },
+  {
     ver: '3.2.10',
     gameVer: '1.89',
     date: '23/08/2023',

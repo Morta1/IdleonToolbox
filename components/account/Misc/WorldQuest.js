@@ -52,38 +52,38 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
             <Timeline sx={{ m: 0, p: 0 }}>
               {npc?.npcQuests?.map((npcQuest, innerIndex) => {
                 const { Name, completed = [], progress = [] } = npcQuest;
-                return <TimelineItem key={npc?.name + "" + index + "" + innerIndex}>
+                return <TimelineItem key={npc?.name + '' + index + '' + innerIndex}>
                   <TimelineOppositeContent sx={{ display: 'none' }}/>
                   <TimelineSeparator>
                     <Tooltip title={<QuestTooltip {...npcQuest} npcName={npc?.name}/>}>
                       <TimelineDot
                         sx={{ width: 15, height: 15 }}
-                        color={completed?.length === totalCharacters ? 'success' : completed?.length === 0 && progress.length === 0 ? 'grey' : 'warning'}/>
+                        color={completed?.length === totalCharacters
+                          ? 'success'
+                          : completed?.length === 0 && progress.length === 0 ? 'grey' : 'warning'}/>
                     </Tooltip>
                     {innerIndex < npc?.npcQuests?.length - 1 ? <TimelineConnector/> : null}
                   </TimelineSeparator>
                   <TimelineContent>
                     <Typography>{cleanUnderscore(Name)}</Typography>
                     {progress?.length > 0 ?
-                      <Stack direction={'row'} flexWrap={'wrap'}>
-                        <Box
-                          icons={1}                                    {...(progress?.length > 0 ? {} : {})}>
-                          {progress?.map(({ charIndex, status }) => {
-                            return <Badge key={charIndex + '' + innerIndex}
-                                          overlap="circular"
-                                          title={status === 1 ? 'Completed' : status === -1 ? 'Not started' : 'In progress'}
-                                          anchorOrigin={{
-                                            vertical: 'bottom',
-                                            horizontal: 'right',
-                                          }}
-                                          badgeContent={<StatusIndicator
-                                            color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>
-                              <Avatar title={characters?.[charIndex]?.name}
-                                      alt=""
-                                      src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>
-                            </Badge>
-                          })}
-                        </Box>
+                      <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+                        {progress?.map(({ charIndex, status }) => {
+                          return <Badge
+                            key={charIndex + '' + innerIndex}
+                            anchorOrigin={{
+                              vertical: 'bottom',
+                              horizontal: 'right',
+                            }}
+                            badgeContent={<StatusIndicator
+                              color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>
+                            <Tooltip title={characters?.[charIndex]?.name}>
+                              <Avatar
+                                alt=""
+                                src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>
+                            </Tooltip>
+                          </Badge>
+                        })}
                       </Stack>
                       : null}
                   </TimelineContent>
