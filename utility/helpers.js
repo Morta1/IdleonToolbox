@@ -215,12 +215,12 @@ export const pascalCase = (str) => {
 export const getCoinsArray = (coins) => {
   let n = coins;
   const ret = new Map();
-  let i = 21;
+  let i = 18;
   do {
     const expo = Math.pow(10, i);
     if (n > expo) {
       const num = Math.floor(n / expo);
-      ret.set(Math.round(i / 2), num);
+      ret.set(Math.round(i / 2) + 1, num);
       n = n % expo;
     }
     i -= 2;
