@@ -63,7 +63,7 @@ const Islands = () => {
               {!unlocked ? <Typography>Cost: {cost}</Typography> : null}
               {unlocked && island.hasOwnProperty('trash') ? <CenteredStack>
                 <img src={`${prefix}etc/Trash_Currency.png`} alt={''}/>
-                <Typography>{Math.round(trash)}</Typography>
+                <Typography>{trash.toFixed(2)}</Typography>
               </CenteredStack> : null}
               {unlocked && currentTrial ? <Stack gap={1}>
                 <TitleAndValue title={'Current trial'} value={cleanUnderscore(currentTrial)}/>
