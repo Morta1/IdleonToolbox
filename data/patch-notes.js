@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.12',
+    gameVer: '1.89',
+    date: '10/09/2023',
+    features: [],
+    fixes: ['Fixed calculation for meal speed from super chows']
+  },
+  {
     ver: '3.2.11',
     gameVer: '1.89',
     date: '26/08/2023',

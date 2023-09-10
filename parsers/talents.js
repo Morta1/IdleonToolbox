@@ -241,19 +241,8 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
       const lastBerserker = bloodBerserkers.at(-1);
       if (!lastBerserker) return Math.pow(1.1, 0);
-      let superChows = [lastBerserker]?.reduce((res, bb) => {
-        const { chow } = bb;
-        chow?.list?.forEach(({ name, kills }) => {
-          if (kills < 1e8) return;
-          if (res?.[name] && kills > res?.[name]) {
-            res[name] = kills;
-          } else {
-            res[name] = kills;
-          }
-        })
-        return res;
-      }, {})
-      return Math.pow(1.1, Object.keys(superChows).length ?? 0);
+      const superChows = lastBerserker?.chow.finished?.[1];
+      return Math.pow(1.1, superChows ?? 0);
     }
     if (index === 536) {
       return 1;
