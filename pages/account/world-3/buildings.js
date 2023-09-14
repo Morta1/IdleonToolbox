@@ -3,7 +3,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { constructionMasteryThresholds, getBuildCost } from '../../../parsers/construction';
+import { getBuildCost, getExtraMaxLevels } from '../../../parsers/construction';
 import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
 import { getAtomBonus } from '../../../parsers/atomCollider';
@@ -38,25 +38,6 @@ const Buildings = () => {
     });
   }
 
-  const getConstructionMasteryBonus = (totalConstruct, index) => {
-    // "ExtraMaxLvAtom"
-    if (index === 6) {
-      return totalConstruct >= constructionMasteryThresholds?.[index] ? 30 : 0
-    } else if (index === 5 || index === 4) {
-      return totalConstruct >= constructionMasteryThresholds?.[index] ? 100 : 0
-    } else if (index === 3) {
-      return totalConstruct >= constructionMasteryThresholds?.[index] ? 35 : 0
-    }
-    return 0;
-  }
-  const getExtraMaxLevels = (totalConstruct, maxLevel, atomBonus) => {
-    return 50 === maxLevel ?
-      Math.round(2 * atomBonus
-        + getConstructionMasteryBonus(totalConstruct, 6, 0))
-      : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
-        : 100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
-          : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
-  }
 
   const b = useMemo(() => {
     return state?.account?.towers?.data?.map((tower) => {

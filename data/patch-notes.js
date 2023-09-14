@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.13',
+    gameVer: '1.89',
+    date: '14/09/2023',
+    features: [],
+    fixes: ['Fixed logic for calculating buildings max level']
+  },
+  {
     ver: '3.2.12',
     gameVer: '1.89',
     date: '10/09/2023',

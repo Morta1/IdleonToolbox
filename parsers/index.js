@@ -175,6 +175,8 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   accountData.construction = getConstruction(idleonData, accountData);
   accountData.atoms = getAtoms(idleonData, accountData);
+  // accountData.towers.data = applyMaxLevelToTowers(accountData);
+  // console.log('accountData.towers', accountData.towers)
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);

@@ -232,4 +232,38 @@ export const getBuildCost = (towers, level, bonusInc, index) => {
   }
 }
 
+// this._GenINFO[112].push(250)
 export const constructionMasteryThresholds = [250, 500, 750, 1000, 1250, 1500, 2500];
+
+export const applyMaxLevelToTowers = (accountData) => {
+  const atom = accountData?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
+  return accountData?.towers?.data?.map((tower) => {
+    const extraLevels = getExtraMaxLevels(accountData?.towers?.totalLevels, tower?.maxLevel, atom?.level);
+    return {
+      ...tower,
+      maxLevel: tower?.maxLevel + extraLevels
+    }
+  });
+}
+
+const getConstructionMasteryBonus = (totalConstruct, index) => {
+  // "ExtraMaxLvAtom"
+  if (index === 6) {
+    return totalConstruct >= constructionMasteryThresholds?.[6] ? 30 : 0
+  } else if (index === 4) {
+    return totalConstruct >= constructionMasteryThresholds?.[3] ? 100 : 0
+  } else if (index === 5) {
+    return totalConstruct >= constructionMasteryThresholds?.[5] ? 100 : 0
+  } else if (index === 3) {
+    return totalConstruct >= constructionMasteryThresholds?.[1] ? 35 : 0
+  }
+  return 0;
+}
+export const getExtraMaxLevels = (totalConstruct, maxLevel, atomBonus) => {
+  return 50 === maxLevel ?
+    Math.round(2 * atomBonus
+      + getConstructionMasteryBonus(totalConstruct, 6, 0))
+    : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
+      : 100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
+        : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
+}
