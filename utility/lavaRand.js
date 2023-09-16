@@ -1,23 +1,23 @@
 let Bf = {}
 Bf._mul = Math.imul;
-const w = {}
+const y = {}
 
-var Ub = function(e) {
+var Tb = function(e) {
   this.init(e);
 };
-(w.Rand = Ub),
-(Ub.__name__ = "Rand"),
-(Ub.hash = function(e, t) {
+(y.Rand = Tb),
+(Tb.__name__ = "Rand"),
+(Tb.hash = function(e, t) {
   return null == t && (t = 5381), (e = Bf._mul(e, -862048943)), (t ^= e = Bf._mul((e << 15) | (e >>> 17), 461845907)), (t = (Bf._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Bf._mul(t ^ (t >> 16), -2048144789)), (t = Bf._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16);
 }),
-(Ub.inlineHash = function(e, t) {
+(Tb.inlineHash = function(e, t) {
   return (e = Bf._mul(e, -862048943)), (t ^= e = Bf._mul((e << 15) | (e >>> 17), 461845907)), (t = (Bf._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Bf._mul(t ^ (t >> 16), -2048144789)), (t = Bf._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16);
 }),
-(Ub.prototype = {
+(Tb.prototype = {
   seed: null,
   seed2: null,
   init: function(e) {
-    (this.seed = e), (this.seed2 = Ub.hash(e)), 0 == this.seed && (this.seed = 1), 0 == this.seed2 && (this.seed2 = 1);
+    (this.seed = e), (this.seed2 = Tb.hash(e)), 0 == this.seed && (this.seed = 1), 0 == this.seed2 && (this.seed2 = 1);
   },
   random: function(e) {
     return (this.seed = 36969 * (65535 & this.seed) + (this.seed >> 16)), (this.seed2 = 18e3 * (65535 & this.seed2) + (this.seed2 >> 16)), (1073741823 & (((this.seed << 16) + this.seed2) | 0)) % e;
@@ -44,6 +44,6 @@ var Ub = function(e) {
   uint: function() {
     return (this.seed = 36969 * (65535 & this.seed) + (this.seed >> 16)), (this.seed2 = 18e3 * (65535 & this.seed2) + (this.seed2 >> 16)), 1073741823 & (((this.seed << 16) + this.seed2) | 0);
   },
-  __class__: Ub
+  __class__: Tb
 });
-export default Ub;
+export default Tb;
