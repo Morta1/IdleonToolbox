@@ -41,6 +41,9 @@ function appReducer(state, action) {
     case 'loginError': {
       return { ...state, loginError: action.data };
     }
+    case 'showRankOneOnly': {
+      return { ...state, showRankOneOnly: action.data }
+    }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
     }
@@ -66,7 +69,7 @@ const AppProvider = ({ children }) => {
       const lastUpdated = localStorage.getItem('lastUpdated') || false;
       const planner = localStorage.getItem('planner');
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
-        { trackers }, { godPlanner }];
+        { trackers }, { godPlanner }, { showRankOneOnly: false }];
       return objects.reduce((res, obj) => {
         try {
           const [objName, objValue] = Object.entries(obj)?.[0];

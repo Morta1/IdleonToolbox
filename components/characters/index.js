@@ -17,7 +17,7 @@ import styled from '@emotion/styled';
 import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
 
-const Character = ({ character, account, lastUpdated, filters, cols, characters }) => {
+const Character = ({ character, account, lastUpdated, filters, cols, characters, showSkillsRankOneOnly }) => {
   const {
     name,
     classIndex,
@@ -45,55 +45,57 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters 
   } = character;
   const views = [
     {
-      component: <Stats activityFilter={filters?.["Activity"]}
-                        statsFilter={filters?.["Stats"]}
+      component: <Stats activityFilter={filters?.['Activity']}
+                        statsFilter={filters?.['Stats']}
                         character={character}
                         characters={characters}
-                        account={account} lastUpdated={lastUpdated}/>, filter: ["Stats", "Activity"]
+                        account={account} lastUpdated={lastUpdated}/>, filter: ['Stats', 'Activity']
     },
-    { component: <ObolsView obols={obols}/>, filter: "Obols" },
-    { component: <ObolsView obols={obols} obolStats/>, filter: "Obols Stats" },
-    { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: "Bags" },
-    { component: <Talents talents={talents} starTalents={starTalents}/>, filter: "Talents" },
-    { component: <EquippedCards cards={cards}/>, filter: "Cards" },
-    { component: <Skills skills={skillsInfo} charName={name}/>, filter: "Skills" },
-    { component: <Prayers prayers={activePrayers}/>, filter: "Prayers" },
-    { component: <PlayerStarSigns signs={starSigns}/>, filter: "Star Signs" },
+    { component: <ObolsView obols={obols}/>, filter: 'Obols' },
+    { component: <ObolsView obols={obols} obolStats/>, filter: 'Obols Stats' },
+    { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: 'Bags' },
+    { component: <Talents talents={talents} starTalents={starTalents}/>, filter: 'Talents' },
+    { component: <EquippedCards cards={cards}/>, filter: 'Cards' },
+    { component: <Skills skills={skillsInfo} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>, filter: 'Skills' },
+    { component: <Prayers prayers={activePrayers}/>, filter: 'Prayers' },
+    { component: <PlayerStarSigns signs={starSigns}/>, filter: 'Star Signs' },
     {
       component: <AnvilDetails characters={characters} character={character} account={account}/>,
-      filter: "Anvil Details"
+      filter: 'Anvil Details'
     },
-    { component: <Inventory inventory={inventory} inventorySlots={inventorySlots}/>, filter: "Inventory" },
-    { component: <PostOffice {...postOffice} />, filter: "Post Office" },
+    { component: <Inventory inventory={inventory} inventorySlots={inventorySlots}/>, filter: 'Inventory' },
+    { component: <PostOffice {...postOffice} />, filter: 'Post Office' },
     {
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
-      filter: "Equipment"
+      filter: 'Equipment'
     },
-    { component: <PlayerBubbles bubbles={equippedBubbles}/>, filter: "Equipped Bubbles" },
+    { component: <PlayerBubbles bubbles={equippedBubbles}/>, filter: 'Equipped Bubbles' },
     {
       component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}
                                  talents={[...flatTalents, ...flatStarTalents]} afkTime={afkTime}/>,
-      filter: "Active Skills CD"
+      filter: 'Active Skills CD'
     }
   ];
 
-  const trophy = useMemo(() => equipment?.reduce((res, { rawName }) => (!res && rawName.includes("Trophy") ? rawName : res), ""), [character]);
+  const trophy = useMemo(() => equipment?.reduce((res, { rawName }) => (!res && rawName.includes('Trophy')
+    ? rawName
+    : res), ''), [character]);
   return (
     <>
       <Grid item xl={cols}>
         <Stack gap={2}>
-          <Stack direction={"row"} alignItems={"center"} gap={2}>
+          <Stack direction={'row'} alignItems={'center'} gap={2}>
             <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                                                     alt=""/></Box>
             <Stack>
-              <Typography sx={{ typography: { xs: "body2", sm: "body1" } }}>
+              <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>
                 {name} ({level})
               </Typography>
               {trophy ?
                 <TrophyIcon src={`${prefix}data/${trophy}disp.png`} style={{ width: 102, height: 19 }} alt=""/> : null}
             </Stack>
           </Stack>
-          <Stack direction={"row"} flexWrap={"wrap"} gap={4}>
+          <Stack direction={'row'} flexWrap={'wrap'} gap={4}>
             {views?.map((view, index) => {
               let shouldDisplay = filters?.[view.filter];
               if (Array.isArray(view.filter)) {
