@@ -49,7 +49,7 @@ const Guild = () => {
     try {
       const exportedData = {
         date: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
-        members: guild?.members
+        members: guild?.members?.map(({ name, gpEarned }) => ({ name, gpEarned }))
       }
       await navigator.clipboard.writeText(JSON.stringify(exportedData));
     } catch (e) {
