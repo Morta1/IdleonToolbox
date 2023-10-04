@@ -78,7 +78,7 @@ const Talents = ({ talents, starTalents }) => {
                             arrow
                             alt=""/>
               </div> : null}
-            {(index === 14 || index === 26) && specialsTab < 4 ?
+            {(index === 14 || index === 26) && specialsTab < 3 ?
               <div>
                 <TalentIcon onClick={() => switchSpecials(specialsTab + 1)} className={'arrow'}
                             src={`${prefix}data/UIAnvilArrowsG1.png`}
@@ -86,7 +86,7 @@ const Talents = ({ talents, starTalents }) => {
                             alt=""/>
               </div> : null}
           </div> :
-          <Tooltip key={talentId + '' + index} title={<TalentTooltip {...talentDetails}/>}>
+          <Tooltip key={talentId + '' + index} title={talentId ? <TalentTooltip {...talentDetails}/> : ''}>
             <div className={'talent-wrapper'}>
               {!isNaN(talentId) ? <TalentIcon src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/> :
                 <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
