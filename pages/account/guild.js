@@ -45,6 +45,18 @@ const Guild = () => {
     setGuildChanges(newData);
   }
 
+  const exportToJson = async () => {
+    try {
+      const exportedData = {
+        date: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
+        members: guild?.members
+      }
+      await navigator.clipboard.writeText(JSON.stringify(exportedData));
+    } catch (e) {
+      console.error('exportToJson -> ', e);
+    }
+  }
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Guild"
@@ -65,13 +77,14 @@ const Guild = () => {
                        bgColor={'#f3dd4c'}/>
           <Typography>{numberWithCommas(guild?.totalGp)} / {numberWithCommas(Math.round(guild?.levelReq))}</Typography>
         </CardTitleAndValue>
-        <CardTitleAndValue title={'Compare'}>
+        <CardTitleAndValue title={'Utility'}>
           <Stack gap={1}>
             {dataTimestamp ? <Typography variant={'caption'}>Data
               from: {format(new Date(dataTimestamp), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
               <Button variant={'contained'} onClick={compareFromLS}>Compare</Button>
+              <Button variant={'contained'} onClick={exportToJson}>Export</Button>
             </Stack>
             {error ? <Typography color={'error.light'}>{error}</Typography> : null}
           </Stack>

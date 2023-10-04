@@ -4,10 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.16',
+    gameVer: '1.90',
+    date: '04/10/2023',
+    features: ['Added an option to export guild data to json format'],
+    fixes: []
+  },
+  {
     ver: '3.2.15',
     gameVer: '1.90',
     date: '02/10/2023',
-    features: ['Added an option to view rank 1 skills for across all characters', 'Hiding ranks for sailing and gaming'],
+    features: ['Added an option to view rank 1 skills for across all characters',
+      'Hiding ranks for sailing and gaming'],
     fixes: []
   },
   {
