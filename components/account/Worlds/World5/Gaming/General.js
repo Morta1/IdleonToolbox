@@ -88,7 +88,7 @@ const General = ({
                     </Tooltip>
                   </Stack>
                   <Typography># of nuggets: {goldNuggets}</Typography>
-                  <Typography>Max roll possible: {maxNuggetValue}</Typography>
+                  <Typography>Rolls possible: {(notateNumber(maxNuggetValue/1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
                 </> : null}
               {acquired && index === 2 ?
                 <>

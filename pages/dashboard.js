@@ -74,6 +74,13 @@ const baseTrackers = {
         checked: true
       }]
     },
+    equinox: {
+      checked: true, options: [
+        { name: 'bar', checked: true },
+        { name: 'challenges', checked: true },
+        { name: 'foodLust', checked: true },
+      ]
+    },
     etc: {
       checked: true,
       options: [

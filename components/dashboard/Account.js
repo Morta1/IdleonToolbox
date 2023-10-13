@@ -23,7 +23,8 @@ import {
   postOfficeAlerts,
   printerAlerts,
   sailingAlerts,
-  shopsAlerts
+  shopsAlerts,
+  equinoxAlerts,
 } from '../../utility/dashboard/account';
 import useAlerts from '../hooks/useAlerts';
 
@@ -39,6 +40,7 @@ const alertsMap = {
   shops: shopsAlerts,
   construction: constructionAlerts,
   postOffice: postOfficeAlerts,
+  equinox: equinoxAlerts,
   etc: etcAlerts,
   cooking: cookingAlerts
 }
@@ -77,6 +79,14 @@ const Account = ({ account, trackers }) => {
           {trackers?.gaming && alerts?.gaming?.shovel?.hours >= 1 ?
             <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
                    iconPath={'data/GamingItem1'}/> : null}
+          
+          {trackers?.equinox && alerts?.equinox?.bar ?
+            <Alert title={`Your Equinox bar is full !`} iconPath={'data/Equinox_Mirror'} /> : null}
+          {trackers?.equinox && alerts?.equinox?.challenges > 0 ?
+            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate !`} iconPath={'data/Equinox_Mirror'} /> : null}
+          {trackers?.equinox && alerts?.equinox?.foodLust ?
+            <Alert title={`Food Lust is maxed !`} iconPath={'data/Dream_Upgrade_10'} /> : null}
+          
           {trackers?.etc && alerts?.etc?.gildedStamps > 0 ?
             <Alert title={`You have ${alerts?.etc?.gildedStamps} available gilded stamps`}
                    iconPath={'data/GildedStamp'}/> : null}

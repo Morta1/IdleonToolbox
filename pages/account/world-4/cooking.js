@@ -8,7 +8,7 @@ import Tabber from '../../../components/common/Tabber';
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
-  const { cooking, achievements, sailing } = state?.account || {};
+  const { cooking, achievements, sailing, equinox } = state?.account || {};
 
   const totalMealSpeed = useMemo(() => cooking?.kitchens?.reduce((sum, kitchen) => sum + kitchen.mealSpeed, 0), [cooking]);
 
@@ -21,14 +21,15 @@ const Cooking = () => {
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Cooking</Typography>
       <Tabber tabs={['Kitchens', 'Meals']}>
         <Kitchens {...cooking} achievements={achievements} lastUpdated={state?.lastUpdated}
-                  totalMealSpeed={totalMealSpeed} lab={state?.account?.lab}
+                  totalMealSpeed={totalMealSpeed} lab={state?.account?.lab} equinoxUpgrades={state?.account?.equinox?.upgrades}
         />
         <Meals characters={state?.characters}
                {...cooking}
                lab={state?.account?.lab}
                achievements={achievements}
                totalMealSpeed={totalMealSpeed}
-               artifacts={sailing?.artifacts}
+          artifacts={sailing?.artifacts}
+          equinoxUpgrades={state?.account?.equinox.upgrades}
         />
       </Tabber>
     </>

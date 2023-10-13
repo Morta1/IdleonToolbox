@@ -2,6 +2,7 @@ import { gamingImports, gamingUpgrades, superbitsUpgrades } from "../data/websit
 import { notateNumber, number2letter } from "../utility/helpers";
 import { getGodByIndex } from "./divinity";
 import { getHighestCharacterSkill } from "./misc";
+import { getEquinoxBonus } from "./equinox";
 
 const { tryToParse } = require("../utility/helpers");
 
@@ -50,7 +51,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
         saveSprinklerChance: saveSprinklerChance * 100
       } : {}),
       ...(index === 1 ? {
-        maxNuggetValue: maxNuggetValue(bonus?.result)
+        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, "Metal_Detector"), account?.accountOptions?.[192])
       } : {}),
       ...(index === 2 ? {
         acornShop
@@ -113,8 +114,8 @@ const getDropsAmount = (baseValue, fertilizerUpgrades) => {
 
 }
 
-const maxNuggetValue = (bonus) => {
-  return notateNumber(bonus * (1 / Math.pow(1e-5, 0.64)));
+const maxNuggetValue = (bonus, equinoxBonus, nbNuggetsSinceUpgrade) => {
+  return bonus * (1 / Math.pow(1e-5, 0.64)) * (1 + equinoxBonus * nbNuggetsSinceUpgrade / 100);
 }
 
 const calcResourcePerTime = (type, squirrelLevel) => {

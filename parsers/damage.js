@@ -43,6 +43,7 @@ import { constructionMasteryThresholds } from './construction';
 import { getSaltLickBonus } from './saltLick';
 import { getAchievementStatus } from './achievements';
 import { getGodBlessingBonus } from './divinity';
+import { getEquinoxBonus } from './equinox';
 
 export const getMaxDamage = (character, characters, account) => {
   const playerInfo = { survivabilityMath: 0 };
@@ -119,6 +120,7 @@ const getDamagePercent = (character, characters, account) => {
   const { strength, agility, wisdom, luck } = character?.stats;
   const wormHoleTalent = getTalentBonus(character?.talents, 3, 'WORMHOLE_EMPEROR');
   const perWormholeKills = 1 + (wormHoleTalent * lavaLog(account?.accountOptions?.[152])) / 100;
+  const equinoxDamageBonus = getEquinoxBonus(account?.equinox?.upgrades, "Matching_Scims");
   const eclipseSkulls = getEclipseSkullsBonus(account) * 5;
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_Damage');
@@ -198,6 +200,7 @@ const getDamagePercent = (character, characters, account) => {
   const secondGodBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Kattlecruk')
 
   const damage = perWormholeKills
+    * (1 + equinoxDamageBonus / 100)
     * (1 + eclipseSkulls / 100)
     * (1 + (activeBuff
       + (starSignBonus
@@ -252,7 +255,7 @@ const getDamagePercent = (character, characters, account) => {
   // console.log('starSignBonus', starSignBonus)
   // console.log('godTalent', godTalent)
   // console.log('orbTalent', orbTalent)
-  // console.log('eclipseSkulls', eclipseSkulls)
+  // console.log('equinoxDamageBonus', equinoxDamageBonus)
   // console.log('shrineBonus', shrineBonus)
   // console.log('postOfficeBonus', postOfficeBonus)
   // console.log('secondPostOfficeBonus', secondPostOfficeBonus)
