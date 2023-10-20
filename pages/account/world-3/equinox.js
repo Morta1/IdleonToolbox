@@ -52,36 +52,33 @@ const Equinox = () => {
         })}
       </Stack>
 
-      <Typography variant={'h4'} mt={3} mb={3}>Upgrades</Typography>
-      <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
-        {equinox.upgrades?.map(({ name, desc, lvl, maxLvl, unlocked }, index) => {
-          return <Card key={name + `${index}`}
-                       raised={unlocked !== -1}
-                       sx={{
-                         width: 300,
-                         border: unlocked ? '1px solid #dbe07b' : '',
-                         opacity: unlocked ? 1 : 0.5,
-                       }}>
-            <CardContent>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                {name !== 'Hmm...' ? <img src={`${prefix}data/Dream_Upgrade_${index + 1}.png`}
-                                         alt="" width={64} height={64} style={{ objectFit: 'contain' }}/> : null}
-                <Typography sx={{ fontSize: 22 }} width={'100%'}
-                            align="center">{cleanUnderscore(name.capitalize())}</Typography>
-              </Stack>
-              {desc.map((line, index) => {
-                return <Typography key={`${index}`} align="center" sx={{ mt: 2 }}>{cleanUnderscore(line)}</Typography>
-              })}
-              <Typography align="center" sx={{ mt: 2 }}>Lvl : {lvl}/{maxLvl}</Typography>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
-    </>
-  );
-};
-
-const CardTitleAndValue = ({ cardSx, title, value, children, width = 'fit-content', fontSize = 20 }) => {
+        <Typography variant={'h4'} mt={3} mb={3}>Upgrades</Typography>
+        <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
+          {equinox.upgrades?.map(({ name, desc, lvl, maxLvl, unlocked }, index) => {
+            return <Card key={name + `${index}`} sx={{
+              width: 300,
+              border: unlocked ? "1px solid #dbe07b" : "",
+              opacity: unlocked ? 1 : 0.5,
+            }} raised={unlocked != -1}>
+              <CardContent>
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  {name != "Hmm..." ? <img src={`${prefix}etc/Dream_Upgrade_${index + 1}.png`}
+                    alt="" width={64} height={64} style={{ objectFit: 'contain' }} /> : null}
+                  <Typography sx={{ fontSize: 22 }} width={"100%"} align='center'>{cleanUnderscore(name.capitalize())}</Typography>
+                </Stack>
+                {desc.map((line, index) => {
+                  return <Typography key={`${index}`} align='center' sx={{ mt: 2 }}>{cleanUnderscore(line)}</Typography>
+                })}
+                <Typography align='center' sx={{ mt: 2 }}>Lvl : {lvl}/{maxLvl}</Typography>
+              </CardContent>
+            </Card>
+          })}
+        </Stack>
+        </>
+        );
+    };
+    
+const CardTitleAndValue = ({ cardSx, title, value, children, width='fit-content', fontSize=20}) => {
   return <Card raised={true} sx={{ my: { xs: 0, md: 3 }, width: { width }, ...cardSx }}>
     <CardContent>
       <Typography align="center" sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>{title}</Typography>

@@ -81,13 +81,12 @@ const Account = ({ account, trackers }) => {
                    iconPath={'data/GamingItem1'}/> : null}
 
           {trackers?.equinox && alerts?.equinox?.bar ?
-            <Alert title={`Your Equinox bar is full !`} iconPath={'data/Equinox_Mirror'}/> : null}
+            <Alert title={`Your Equinox bar is full !`} iconPath={'data/Quest78'} /> : null}
           {trackers?.equinox && alerts?.equinox?.challenges > 0 ?
-            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate !`}
-                   iconPath={'data/Equinox_Mirror'}/> : null}
+            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate !`} iconPath={'data/Quest78'} /> : null}
           {trackers?.equinox && alerts?.equinox?.foodLust ?
-            <Alert title={`Food Lust is maxed !`} iconPath={'data/Dream_Upgrade_10'}/> : null}
-
+            <Alert title={`Food Lust is maxed !`} iconPath={'etc/Dream_Upgrade_10'} /> : null}
+          
           {trackers?.etc && alerts?.etc?.gildedStamps > 0 ?
             <Alert title={`You have ${alerts?.etc?.gildedStamps} available gilded stamps`}
                    iconPath={'data/GildedStamp'}/> : null}
