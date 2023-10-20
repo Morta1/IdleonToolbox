@@ -7,7 +7,10 @@ export const patchNotes = [
     ver: '3.2.17',
     gameVer: '1.91',
     date: '29/10/2023',
-    features: ['Updated the website with version 1.91 data and assets'],
+    features: [
+      'Updated the website with version 1.91 data and assets',
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-3/equinox'}>Equinox</Link> page under world 3</Typography>],
     fixes: []
   },
   {
