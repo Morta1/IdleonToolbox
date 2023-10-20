@@ -96,20 +96,26 @@ const ItemsList = ({
                   <Tooltip title={<OwnerTooltip itemName={itemName} owners={owner}/>}>
                     <ItemIcon
                       src={`${prefix}data/${rawName}.png`}
-                      alt=''
+                      alt=""
                     />
                   </Tooltip>
                   <Stack direction={'row'}>
                     <Tooltip title={quantityOwned >= 1e3 ? numberWithCommas(quantityOwned) : ''}>
                       <Typography
-                        color={quantityOwned >= (itemDisplay === '0' ? parseInt(itemQuantity) : parseInt(itemQuantity) * copies) ? "success.light" : ""}>
+                        color={quantityOwned >= (itemDisplay === '0'
+                          ? parseInt(itemQuantity)
+                          : parseInt(itemQuantity) * copies) ? 'success.light' : ''}>
                         {notateNumber(quantityOwned)}
                       </Typography>
                     </Tooltip>
                     <Tooltip title={itemQuantity >= 1e3 ? numberWithCommas(itemQuantity) : ''}>
                       <Typography
-                        color={quantityOwned >= (itemDisplay === '0' ? parseInt(itemQuantity) : parseInt(itemQuantity) * copies) ? "success.light" : ""}>
-                        /{itemDisplay === '0' ? notateNumber(parseInt(itemQuantity)) : notateNumber(parseInt(itemQuantity) * copies, 2)}
+                        color={quantityOwned >= (itemDisplay === '0'
+                          ? parseInt(itemQuantity)
+                          : parseInt(itemQuantity) * copies) ? 'success.light' : ''}>
+                        /{itemDisplay === '0'
+                        ? notateNumber(parseInt(itemQuantity))
+                        : notateNumber(parseInt(itemQuantity) * copies, 2)}
                       </Typography>
                     </Tooltip>
                   </Stack>

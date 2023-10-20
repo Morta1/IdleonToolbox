@@ -73,6 +73,7 @@ const worldsData = {
       { label: 'Printer', icon: 'ConTower0' },
       { label: 'refinery', icon: 'TaskSc6' },
       { label: 'atomCollider', icon: 'ConTower8' },
+      { label: 'Equinox', icon: 'Quest78' },
       { label: 'buildings', icon: 'ConTower7' },
       { label: 'deathNote', icon: 'ConTower2' },
       { label: 'worship', icon: 'WorshipSkull1' },

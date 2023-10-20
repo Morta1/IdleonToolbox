@@ -1,10 +1,10 @@
-import { growth, tryToParse } from "../utility/helpers";
-import { ballsBonuses, dungeonFlurboStats, dungeonStats, randomList } from "../data/website-data";
-import { getStampsBonusByEffect } from "./stamps";
-import { getBribeBonus } from "./bribes";
-import { getVialsBonusByStat } from "./alchemy";
-import { getAchievementStatus } from "./achievements";
-import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from "date-fns";
+import { growth, tryToParse } from '../utility/helpers';
+import { ballsBonuses, dungeonFlurboStats, dungeonStats, randomList } from '../data/website-data';
+import { getStampsBonusByEffect } from './stamps';
+import { getBribeBonus } from './bribes';
+import { getVialsBonusByStat } from './alchemy';
+import { getAchievementStatus } from './achievements';
+import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from 'date-fns';
 
 export const getDungeons = (idleonData, accountOptions) => {
   const dungeonUpgradesRaw = tryToParse(idleonData?.DungUpg) || idleonData?.DungUpg;
@@ -28,7 +28,7 @@ const parseDungeons = (dungeonUpgrades, accountOptions) => {
           rank = index.toString();
         }
         return rank;
-      }, "0")
+      }, '0')
     ) + 1;
   const rankReq = dungeonLevels?.[rank];
   return {

@@ -1,6 +1,6 @@
-import { growth, tryToParse } from "../utility/helpers";
-import { arcadeShop } from "../data/website-data";
-import { getMaxClaimTime, getSecPerBall } from "./dungeons";
+import { growth, tryToParse } from '../utility/helpers';
+import { arcadeShop } from '../data/website-data';
+import { getMaxClaimTime, getSecPerBall } from './dungeons';
 
 export const getArcade = (idleonData, account, serverVars) => {
   const arcadeRaw = tryToParse(idleonData?.ArcadeUpg) || idleonData?.ArcadeUpg;

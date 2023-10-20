@@ -1,7 +1,7 @@
-import { tryToParse } from "../utility/helpers";
-import { atomsInfo } from "../data/website-data";
-import { getBubbleBonus } from "./alchemy";
-import { isSuperbitUnlocked } from "./gaming";
+import { tryToParse } from '../utility/helpers';
+import { atomsInfo } from '../data/website-data';
+import { getBubbleBonus } from './alchemy';
+import { isSuperbitUnlocked } from './gaming';
 
 export const getAtoms = (idleonData, account) => {
   const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
@@ -21,7 +21,9 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
     const maxLevel = Math.round(20 + 10 * (+!!maxLevelSuperbit));
 
-    const cost = (1 / (1 + (atomReductionFromAtom + 10 * (reduxSuperbit ? 1 : 0) + bubbleBonus + atomColliderLevel / 10 + 7
+    const cost = (1 / (1 + (atomReductionFromAtom + 10 * (reduxSuperbit
+          ? 1
+          : 0) + bubbleBonus + atomColliderLevel / 10 + 7
         * account?.tasks?.[2][4][6]) / 100))
       * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
 

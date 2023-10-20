@@ -5,6 +5,7 @@ import { getCardBonusByEffect } from './cards';
 import { isArenaBonusActive, isCompanionBonusActive } from './misc';
 import { getShinyBonus } from './breeding';
 import { getHighestTalentByClass } from './talents';
+import { getEquinoxBonus } from './equinox';
 
 export const getLab = (idleonData, charactersData, account, updatedCharactersData) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -72,6 +73,8 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }
   }
 
+  const equinoxConnectionRangeBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Laboratory_Fuse');
+
   let foundNewConnection = true;
   let counter = 0;
   let labBonusesList = JSON.parse(JSON.stringify(labBonuses));
@@ -103,9 +106,9 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
         const spelunkerObolMulti = getLabBonus(labBonusesList, 8); // gem multi
         const pyriteRhombolBonus = getJewelBonus(jewelsList, 9, spelunkerObolMulti); // range bonus
         const viralConnectionBonus = getLabBonus(labBonusesList, 13); // range bonus
-        let labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], false);
+        let labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, connectedPlayers?.[i], false);
         labBonusesList = labBonuses.resArr;
-        let jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], true);
+        let jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, connectedPlayers?.[i], true);
         jewelsList = jewels.resArr;
         if (jewelsList?.[16]?.acquired && !jewelsList?.[16]?.active) {
           jewelsList[16].active = true;
@@ -113,9 +116,9 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
             playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData, updatedCharactersData);
           jewelsList[16].active = false;
         }
-        labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], false);
+        labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, connectedPlayers?.[i], false);
         labBonusesList = labBonuses.resArr;
-        jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, connectedPlayers?.[i], true);
+        jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, connectedPlayers?.[i], true);
         jewelsList = jewels.resArr;
         foundNewConnection = !foundNewConnection
           ? newPlayerConnection || jewels?.newConnection || labBonuses?.newConnection
@@ -193,11 +196,11 @@ const getDistance = (x1, y1, x2, y2) => {
   return 0.9604339 * Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) + 0.397824735 * Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }
 
-const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, index, isJewel) => {
+const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus, index, isJewel) => {
   if ((!isJewel && (index === 13 || index === 8)) || (index === 9 && isJewel)) {
     return 80;
   }
-  return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange;
+  return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange + equinoxConnectionRangeBonus;
 }
 
 export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, account, cards, gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData, updatedCharactersData) => {
@@ -296,10 +299,10 @@ const checkPlayerConnection = (playersInTubes, connectedPlayers, playerCords) =>
 }
 
 // Check connection for jewels / bonuses
-const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConnectionRange, playerCords, acquirable) => {
+const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus, playerCords, acquirable) => {
   return array?.reduce((res, object, index) => {
     let newConnection = false;
-    const range = getRange(connectionRangeBonus, viralRangeBonus, taskConnectionRange, index, acquirable);
+    const range = getRange(connectionRangeBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus, index, acquirable);
     const distance = getDistance(playerCords.x, playerCords.y, object.x, object.y);
     const inRange = distance < range;
     if (inRange && !object.active && (!acquirable || acquirable && object.acquired)) {

@@ -87,7 +87,9 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
             <div className={'info'}>
               <Stack direction={'row'} my={1}>
                 <Typography sx={{ fontWeight: 'bold' }}>Effect:&nbsp;</Typography>
-                <Typography>{upgrade?.boostEffect === '_' ? 'NOTHING' : cleanUnderscore(upgrade?.boostEffect.replace('}', bonus))}</Typography>
+                <Typography>{upgrade?.boostEffect === '_'
+                  ? 'NOTHING'
+                  : cleanUnderscore(upgrade?.boostEffect.replace('}', bonus))}</Typography>
               </Stack>
               <Stack mt={2} gap={2}>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>

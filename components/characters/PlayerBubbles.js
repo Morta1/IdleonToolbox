@@ -13,7 +13,7 @@ const PlayerBubbles = ({ bubbles }) => {
       </Tooltip> : null}
       <Card variant={'outlined'}>
         <CardContent>
-          <Stack direction={'row'} gap={2} flexWrap='wrap' justifyContent={'center'}>
+          <Stack direction={'row'} gap={2} flexWrap="wrap" justifyContent={'center'}>
             {!empty && bubbles?.map((bubble, index) => {
               const { bubbleName, rawName } = bubble;
               if (!bubbleName) return null;

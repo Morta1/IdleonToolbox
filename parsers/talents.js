@@ -3,6 +3,8 @@ import { classes, talents } from '../data/website-data';
 import { getAchievementStatus } from './achievements';
 import { isCompanionBonusActive } from './misc';
 import { getMinorDivinityBonus } from './divinity';
+import { getEquinoxBonus } from './equinox';
+
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
@@ -163,6 +165,8 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (isCompanionBonusActive(account, 1)) {
     addedLevels += account?.companions?.list?.at(1)?.bonus;
   }
+  addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
+
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,

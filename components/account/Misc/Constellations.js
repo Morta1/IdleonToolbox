@@ -54,10 +54,12 @@ const ConstellationsComp = ({ constellations = [] }) => {
             <Grid item xs={3}>{cleanUnderscore(requirement)}</Grid>
             <Grid item xs={2} sm={1}>{points}</Grid>
             <Grid item xs={2}>
-              {completedChars?.length > 0 ?
+              {completedChars?.length > 0
+                ?
                 <><Typography variant={'caption'} component={'div'}>Completed Chars</Typography>
                   <Typography variant={'caption'}
-                              sx={{ wordBreak: 'break-word' }}>indexes: {constellationIndexes(completedChars)}</Typography></> : null}
+                              sx={{ wordBreak: 'break-word' }}>indexes: {constellationIndexes(completedChars)}</Typography></>
+                : null}
             </Grid>
           </Grid>
           {constellations.length - 1 !== index ? <Divider/> : null}

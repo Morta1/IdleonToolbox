@@ -1,6 +1,6 @@
-import { calculateItemTotalAmount } from "./items";
-import { saltLicks } from "../data/website-data";
-import { tryToParse } from "../utility/helpers";
+import { calculateItemTotalAmount } from './items';
+import { saltLicks } from '../data/website-data';
+import { tryToParse } from '../utility/helpers';
 
 export const getSaltLick = (idleonData, storage) => {
   const saltLickRaw = tryToParse(idleonData?.SaltLick) || idleonData?.SaltLick;

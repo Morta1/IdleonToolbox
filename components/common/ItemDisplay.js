@@ -41,7 +41,7 @@ const ItemDisplay = ({
                      }) => {
   const getPowerType = (type) => {
     let fixedType = type.toLowerCase();
-    if (!fixedType) return "Weapon Power";
+    if (!fixedType) return 'Weapon Power';
     if (fixedType.includes('mining')) {
       return 'Mining Power';
     } else if (fixedType.includes('fishin')) {
@@ -51,14 +51,16 @@ const ItemDisplay = ({
     } else if (fixedType.includes('catch')) {
       return 'Catching Power';
     }
-    return "Weapon Power"
+    return 'Weapon Power'
   }
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
   let goldenFoodBonus = 0, isGoldenFood = displayName?.includes('Golden');
   if (isGoldenFood) {
     goldenFoodBonus = getGoldenFoodBonus(displayName, character, account)
   }
-  const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood ? notateNumber(goldenFoodBonus, 'Small') : Amount).replace(/]/, Cooldown);
+  const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
+    ? notateNumber(goldenFoodBonus, 'Small')
+    : Amount).replace(/]/, Cooldown);
 
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     <Stack gap={1} direction={'row'} alignItems={'center'}>

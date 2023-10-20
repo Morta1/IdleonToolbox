@@ -7,7 +7,7 @@ const Superbits = ({ superbits }) => {
       {superbits?.map(({ name, description, unlocked, bonus, totalBonus, additionalInfo }, index) => {
         return <Card key={name + `${index}`} sx={{
           width: 300,
-          border: unlocked ? "1px solid #81c784" : "",
+          border: unlocked ? '1px solid #81c784' : '',
           opacity: !unlocked ? 0.5 : 1,
         }}>
           <CardContent>

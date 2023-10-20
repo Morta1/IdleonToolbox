@@ -335,21 +335,33 @@ export const gamingAlerts = (account, options) => {
   }
   return alerts;
 }
-export const guildTasks = (account, trackersOptions) => {
-  if (!account?.accountOptions?.[37]) return false;
-  const { daily, weekly } = trackersOptions;
+export const equinoxAlerts = (account, options) => {
+  const equinox = account?.equinox;
+  const foodLustUpgrade = equinox?.upgrades[9];
+  const { bar, challenges, foodLust } = options;
   const alerts = {};
-  if (daily) {
-    alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
-                                                                requirement,
-                                                                progress
-                                                              }) => progress < requirement)?.length;
-  }
-  if (weekly) {
-    alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
-                                                                  requirement,
-                                                                  progress
-                                                                }) => progress < requirement)?.length;
-  }
+
+  if (bar)        alerts.bar =        equinox?.currentCharge >= equinox?.chargeRequired;
+  if (challenges) alerts.challenges = equinox?.challenges.filter(challenge => challenge.current >= challenge.goal)?.length;
+  if (foodLust)   alerts.foodLust =   foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
+
   return alerts;
 }
+// export const guildTasks = (account, trackersOptions) => {
+//   if (!account?.accountOptions?.[37]) return false;
+//   const { daily, weekly } = trackersOptions;
+//   const alerts = {};
+//   if (daily) {
+//     alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
+//                                                                 requirement,
+//                                                                 progress
+//                                                               }) => progress < requirement)?.length;
+//   }
+//   if (weekly) {
+//     alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
+//                                                                   requirement,
+//                                                                   progress
+//                                                                 }) => progress < requirement)?.length;
+//   }
+//   return alerts;
+// }

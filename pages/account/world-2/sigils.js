@@ -7,7 +7,7 @@ import { PlayersList } from '../../../components/common/styles';
 import { isArtifactAcquired } from '../../../parsers/sailing';
 import { NextSeo } from 'next-seo';
 import { getAchievementStatus } from '../../../parsers/achievements';
-import { getSigilBonus } from '../../../parsers/alchemy';
+import { getSigilBonus, getVialsBonusByStat } from '../../../parsers/alchemy';
 import Timer from '../../../components/common/Timer';
 
 const Sigils = () => {
@@ -19,7 +19,8 @@ const Sigils = () => {
     const achievement = getAchievementStatus(state?.account?.achievements, 112);
     const gemStore = state?.account?.gemShopPurchases?.find((value, index) => index === 120);
     const sigilBonus = getSigilBonus(alchemy?.p2w?.sigils, 'PEA_POD');
-    return 1 + ((achievement ? 20 : 0) + (sigilBonus + 20 * gemStore)) / 100
+    const vial = getVialsBonusByStat(alchemy?.vials, 'SigSpd');
+    return 1 + ((achievement ? 20 : 0) + (sigilBonus + 20 * gemStore) + vial) / 100
   }
 
   const sigilSpeed = useMemo(() => getSigilSpeed(), [state]);

@@ -1,12 +1,16 @@
-import { tryToParse } from "../utility/helpers";
-import { items, obols } from "../data/website-data";
-import { addStoneDataToEquip } from "./items";
+import { tryToParse } from '../utility/helpers';
+import { items, obols } from '../data/website-data';
+import { addStoneDataToEquip } from './items';
 
 const obolStats = ['STR', 'AGI', 'WIS', 'LUK', 'Weapon_Power', 'Defence', 'UQ1txt', 'UQ2txt'];
 
 export const getObols = (idleonData, account = true) => {
-  const obolsOrderRaw = tryToParse(idleonData?.ObolEqO1) || (account ? idleonData?.ObolEquippedOrder?.[1] : idleonData?.ObolEquippedOrder);
-  const obolsEquippedRaw = tryToParse(idleonData?.ObolEqMAPz1) || (account ? idleonData?.ObolEquippedMap?.[1] : idleonData?.ObolEquippedMap);
+  const obolsOrderRaw = tryToParse(idleonData?.ObolEqO1) || (account
+    ? idleonData?.ObolEquippedOrder?.[1]
+    : idleonData?.ObolEquippedOrder);
+  const obolsEquippedRaw = tryToParse(idleonData?.ObolEqMAPz1) || (account
+    ? idleonData?.ObolEquippedMap?.[1]
+    : idleonData?.ObolEquippedMap);
   return parseObols(obolsOrderRaw, obolsEquippedRaw, account);
 }
 

@@ -17,7 +17,7 @@ const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, 11, 30, 40, 50, 60];
-const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab }) => {
+const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
@@ -49,7 +49,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
-      const levelCost = getMealLevelCost(level, achievements);
+      const levelCost = getMealLevelCost(level, achievements, equinoxUpgrades);
       let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
@@ -66,7 +66,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
           };
         }
         const bpCost = (breakpoint - level) * levelCost;
-        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements);
+        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, equinoxUpgrades);
         if (overflow) {
           timeToBp = timeToBp / (1 + overflowingLadleBonus / 100)
         }
@@ -328,8 +328,8 @@ const getTimeAsDays = (time) => {
   return Math.ceil(time * 3600 * 1000 / msPerDay);
 }
 
-const MealTooltip = ({ level, baseStat, multiplier, effect, achievements }) => {
-  const levelCost = getMealLevelCost(level + 1, achievements);
+const MealTooltip = ({ level, baseStat, multiplier, effect, achievements, equinoxUpgrades }) => {
+  const levelCost = getMealLevelCost(level + 1, achievements, equinoxUpgrades);
   return (
     <>
       <Typography fontWeight={'bold'}>

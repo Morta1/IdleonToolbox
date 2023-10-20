@@ -56,6 +56,7 @@ import { getAtoms } from './atomCollider';
 import { getRift, isRiftBonusUnlocked } from './world-4/rift';
 import { getPostOfficeShipments } from './postoffice';
 import { getIslands } from './world-2/islands';
+import { getEquinox } from './equinox';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars) => {
   let accountData, charactersData;
@@ -145,6 +146,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     const riftVialMulti = 1 + (2 * maxedVials?.length) / 100;
     accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet * riftVialMulti)
   }
+  accountData.equinox = getEquinox(idleonData, accountData);
   const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(accountData.lab.jewels, 16, spelunkerObolMulti);
 

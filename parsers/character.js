@@ -63,6 +63,7 @@ import { getArcadeBonus } from './arcade';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
 import { getMinorDivinityBonus } from './divinity';
+import { getEquinoxBonus } from './equinox';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -510,13 +511,14 @@ export const getDropRate = (character, account, characters) => {
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   // const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
+  const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
 
   const dropRate = 1.4 * luckMulti
     + (firstTalentBonus + (postOfficeBonus + ((drFromEquipment + drFromObols)
       + (bubbleBonus + (cardBonus + (secondTalentBonus
         + (starSignBonus + (guildBonus + (
           +(cardSetBonus + (shrineBonus + (prayerBonus + (sigilBonus
-            + shinyBonus + companionDropRate))))))))))))) / 100 + 1;
+            + shinyBonus + companionDropRate + equinoxDropRateBonus))))))))))))) / 100 + 1;
   const final = dropRate * extraDropRate;
 
   const breakdown = [
@@ -534,6 +536,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Starsign', value: starSignBonus / 100 },
     { name: 'Guild', value: guildBonus / 100 },
     { name: 'Companion', value: companionDropRate / 100 },
+    { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Base', value: 1 },
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))

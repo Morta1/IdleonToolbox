@@ -1,4 +1,4 @@
-import { tryToParse } from "../utility/helpers";
+import { tryToParse } from '../utility/helpers';
 
 export const getTasks = (idleonData) => {
   const tasksRaw = idleonData?.Tasks || [

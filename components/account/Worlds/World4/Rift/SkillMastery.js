@@ -20,13 +20,13 @@ const specialBonuses = {
   chopping: 'ALL_CHOPPING_CARDS_ARE_NOW_PASSIVE',
   catching: 'ALL_CATCHING_CARDS_ARE_NOW_PASSIVE',
   trapping: 'ALL_TRAPPING_CARDS_ARE_NOW_PASSIVE',
-  smithing: "+25%_FORGE_ORE_CAPACITY",
-  alchemy: "+5%_ALL_LIQUID_CAP",
-  construction: "+15%_SHRINE_LV_UP_RATE",
-  breeding: "+15%_EGG_INCUBATION_SPEED",
-  sailing: "+15%_BOAT_SAILING_SPEED",
-  divinity: "+15%_DIVINITY_PTS_GAINED",
-  gaming: "1.15X_GAMING_BITS_GAINED",
+  smithing: '+25%_FORGE_ORE_CAPACITY',
+  alchemy: '+5%_ALL_LIQUID_CAP',
+  construction: '+15%_SHRINE_LV_UP_RATE',
+  breeding: '+15%_EGG_INCUBATION_SPEED',
+  sailing: '+15%_BOAT_SAILING_SPEED',
+  divinity: '+15%_DIVINITY_PTS_GAINED',
+  gaming: '1.15X_GAMING_BITS_GAINED',
 }
 
 const thresholds = [0, 0, 300, 400, 500, 750, 1000];
@@ -64,7 +64,10 @@ const SkillMastery = ({ totalSkillsLevels }) => {
             <Stack gap={1}>
               {defaultBonuses?.map((bonus, bonusIndex) => <Typography
                 sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
-                key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore((index < 12 ? bonusIndex === 2 : bonusIndex === 1) && specialBonuses?.[skillName] ? specialBonuses?.[skillName].toLowerCase().capitalizeAll()
+                key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore((index < 12
+                ? bonusIndex === 2
+                : bonusIndex === 1) && specialBonuses?.[skillName]
+                ? specialBonuses?.[skillName].toLowerCase().capitalizeAll()
                 : bonus.replace('{', skillName).toLowerCase().capitalizeAll())}</Typography>)}
             </Stack>
           </CardContent>

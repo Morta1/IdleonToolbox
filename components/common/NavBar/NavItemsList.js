@@ -15,7 +15,9 @@ const NavItemsList = ({ drawer }) => {
     <ItemsWrapper drawer={drawer}>
       {navItems.map((navItem, index) => {
         if ((!state?.signedIn && !state?.pastebin && !state?.demo && !state?.manualImport) && !offlinePages.includes(navItem)) return null;
-        const pageName = navItem === 'account' ? 'account/general' : navItem === 'tools' ? 'tools/card-search' : navItem;
+        const pageName = navItem === 'account' ? 'account/general' : navItem === 'tools'
+          ? 'tools/card-search'
+          : navItem;
         return <ListItemButton component={NextLinkComposed}
                                selected={router?.pathname.includes(navItem)}
                                key={`${navItem}-${index}`}

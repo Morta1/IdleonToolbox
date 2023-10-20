@@ -4,13 +4,13 @@ import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
 import { constructionMasteryThresholds } from '../../../../../parsers/construction';
 
 const defaultBonuses = [
-  "+1%_REFINERY_SPD_PER_10_TOT_LV",
-  "+35_MAX_LV_FOR_TRAPPER_DRONE",
-  "+2%_DMG_PER_10_TOT_LV_OVER_750",
-  "+100_MAX_LV_FOR_TALENT_LIBRARY",
-  "+5%_BUILD_SPD_PER_10_TOT_LV_OVER_1250",
-  "+100_MAX_LV_FOR_ALL_SHRINES",
-  "+30_MAX_LV_FOR_ALL_WIZARD_TOWERS",
+  '+1%_REFINERY_SPD_PER_10_TOT_LV',
+  '+35_MAX_LV_FOR_TRAPPER_DRONE',
+  '+2%_DMG_PER_10_TOT_LV_OVER_750',
+  '+100_MAX_LV_FOR_TALENT_LIBRARY',
+  '+5%_BUILD_SPD_PER_10_TOT_LV_OVER_1250',
+  '+100_MAX_LV_FOR_ALL_SHRINES',
+  '+30_MAX_LV_FOR_ALL_WIZARD_TOWERS',
 ];
 
 const ConstructMastery = ({ totalLevels }) => {
@@ -24,9 +24,13 @@ const ConstructMastery = ({ totalLevels }) => {
         <Bonus name={'Refinery_Spd'} label={'Ref Spd'}
                value={totalLevels >= constructionMasteryThresholds?.[0] ? `${Math.floor(totalLevels / 10)}%` : null}/>
         <Bonus name={'Refinery_Dmg'} label={'Dmg'}
-               value={totalLevels >= constructionMasteryThresholds?.[2] ? `${2 * Math.floor((totalLevels - constructionMasteryThresholds?.[2]) / 10)}%` : null}/>
+               value={totalLevels >= constructionMasteryThresholds?.[2]
+                 ? `${2 * Math.floor((totalLevels - constructionMasteryThresholds?.[2]) / 10)}%`
+                 : null}/>
         <Bonus name={'Refinery_Build_Spd'} label={'Build Spd'}
-               value={totalLevels >= constructionMasteryThresholds?.[4] ? `${5 * Math.floor((totalLevels - constructionMasteryThresholds?.[4]) / 10)}%` : null}/>
+               value={totalLevels >= constructionMasteryThresholds?.[4]
+                 ? `${5 * Math.floor((totalLevels - constructionMasteryThresholds?.[4]) / 10)}%`
+                 : null}/>
       </Stack></> : null}
 
     <Card sx={{ width: 'fit-content' }}>

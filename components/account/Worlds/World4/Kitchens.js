@@ -14,7 +14,7 @@ import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
 
-const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements, lab }) => {
+const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements, lab, equinoxUpgrades }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -71,11 +71,12 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip placement={'top'}
                        title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}
-                                           lab={lab}/>}>
+                                           lab={lab} equinoxUpgrades={equinoxUpgrades}/>}>
                 <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
               </Tooltip>
               <div>{notateNumber(total, 'Big')}/hr</div>
-              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}/>
+              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}
+                           equinoxUpgrades={equinoxUpgrades}/>
             </CardContent>
           </Card>
         })}
@@ -168,7 +169,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
                 <Tooltip placement={'top'}
                          title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed}
                                              lab={lab}
-                                             meal={kitchen?.meal}/>}>
+                                             meal={kitchen?.meal} equinoxUpgrades={equinoxUpgrades}/>}>
                   <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
                 </Tooltip>
                 <div>{notateNumber(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>
@@ -182,9 +183,9 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
 };
 
 
-const MealTooltip = ({ meal, lab, totalMealSpeed, achievements }) => {
-  const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements);
-  const levelCost = getMealLevelCost(meal?.level, achievements);
+const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades }) => {
+  const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades);
+  const levelCost = getMealLevelCost(meal?.level, achievements, equinoxUpgrades);
   const diamondCost = (11 - meal?.level) * levelCost;
   const timeTillNextLevel = meal?.amount >= levelCost
     ? '0'

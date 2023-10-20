@@ -1,9 +1,10 @@
-import { gamingImports, gamingUpgrades, superbitsUpgrades } from "../data/website-data";
-import { notateNumber, number2letter } from "../utility/helpers";
-import { getGodByIndex } from "./divinity";
-import { getHighestCharacterSkill } from "./misc";
+import { gamingImports, gamingUpgrades, superbitsUpgrades } from '../data/website-data';
+import { notateNumber, number2letter } from '../utility/helpers';
+import { getGodByIndex } from './divinity';
+import { getHighestCharacterSkill } from './misc';
+import { getEquinoxBonus } from './equinox';
 
-const { tryToParse } = require("../utility/helpers");
+const { tryToParse } = require('../utility/helpers');
 
 export const getGaming = (idleonData, characters, account, serverVars) => {
   const gamingRaw = tryToParse(idleonData?.Gaming) || idleonData?.Gaming;
@@ -42,7 +43,9 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     return {
       ...item,
       level: gamingImportsValues?.[index]?.[0],
-      rawName: index === 3 ? `GamingItem${index}_0` : index === 0 ? goldenSprinkler > 0 ? `GamingItem${index}b` : `GamingItem${index}` : `GamingItem${index}`,
+      rawName: index === 3 ? `GamingItem${index}_0` : index === 0 ? goldenSprinkler > 0
+        ? `GamingItem${index}b`
+        : `GamingItem${index}` : `GamingItem${index}`,
       minorBonus: bonus?.description,
       cost: calcImportCost(index, gamingImportsValues),
       acquired: gamingImportsValues?.[index]?.[0] > 0,
@@ -50,7 +53,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
         saveSprinklerChance: saveSprinklerChance * 100
       } : {}),
       ...(index === 1 ? {
-        maxNuggetValue: maxNuggetValue(bonus?.result)
+        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[192])
       } : {}),
       ...(index === 2 ? {
         acornShop
@@ -113,8 +116,8 @@ const getDropsAmount = (baseValue, fertilizerUpgrades) => {
 
 }
 
-const maxNuggetValue = (bonus) => {
-  return notateNumber(bonus * (1 / Math.pow(1e-5, 0.64)));
+const maxNuggetValue = (bonus, equinoxBonus, nbNuggetsSinceUpgrade) => {
+  return bonus * (1 / Math.pow(1e-5, 0.64)) * (1 + equinoxBonus * nbNuggetsSinceUpgrade / 100);
 }
 
 const calcResourcePerTime = (type, squirrelLevel) => {
@@ -145,7 +148,9 @@ export const calcAcorns = (lastClick, squirrelLevel) => {
 }
 
 const calcSprinklerSave = (goldenSprinkler) => {
-  return 1 === goldenSprinkler ? 0.3 : 2 === goldenSprinkler ? 0.43 : 3 === goldenSprinkler ? 0.53 : 4 === goldenSprinkler ? 0.6 : 0;
+  return 1 === goldenSprinkler ? 0.3 : 2 === goldenSprinkler ? 0.43 : 3 === goldenSprinkler
+    ? 0.53
+    : 4 === goldenSprinkler ? 0.6 : 0;
 }
 
 const calcImportBonus = (index, minorBonus, gamingImportsValues) => {
