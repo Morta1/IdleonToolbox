@@ -46,7 +46,7 @@ const Equinox = () => {
             <CardContent>
               <Typography align="center">{cleanUnderscore(label.capitalize())}</Typography>
               <Typography align="center" sx={{ mt: 2 }}>{cleanUnderscore(reward)}</Typography>
-              {current != -1 ? <Typography align="center" sx={{ mt: 2 }}>Current : {current}</Typography> : null}
+              {current !== -1 ? <Typography align="center" sx={{ mt: 2 }}>Current : {current}</Typography> : null}
             </CardContent>
           </Card>
         })}
