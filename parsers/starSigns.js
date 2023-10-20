@@ -1,8 +1,8 @@
-import { tryToParse } from "../utility/helpers";
-import { constellations, mapNames, starSigns } from "../data/website-data";
-import { starSignsIndicesMap } from "./parseMaps";
-import { isRiftBonusUnlocked } from "./world-4/rift";
-import { getShinyBonus } from "./breeding";
+import { tryToParse } from '../utility/helpers';
+import { constellations, mapNames, starSigns } from '../data/website-data';
+import { starSignsIndicesMap } from './parseMaps';
+import { isRiftBonusUnlocked } from './world-4/rift';
+import { getShinyBonus } from './breeding';
 
 export const getStarSigns = (idleonData) => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
@@ -77,7 +77,9 @@ export const getStarSignBonus = (character, account, effectName) => {
     bonus,
     active,
     isInfiniteStar
-  }) => effect.includes(effectName) && (active || isInfiniteStar) ? sum + (isInfiniteStar && bonus < 0 ? 0 : bonus) : sum, 0);
+  }) => effect.includes(effectName) && (active || isInfiniteStar)
+    ? sum + (isInfiniteStar && bonus < 0 ? 0 : bonus)
+    : sum, 0);
 }
 
 export const getStarSignsBonuses = (starSigns) => {

@@ -120,7 +120,7 @@ const getDamagePercent = (character, characters, account) => {
   const { strength, agility, wisdom, luck } = character?.stats;
   const wormHoleTalent = getTalentBonus(character?.talents, 3, 'WORMHOLE_EMPEROR');
   const perWormholeKills = 1 + (wormHoleTalent * lavaLog(account?.accountOptions?.[152])) / 100;
-  const equinoxDamageBonus = getEquinoxBonus(account?.equinox?.upgrades, "Matching_Scims");
+  const equinoxDamageBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Matching_Scims');
   const eclipseSkulls = getEclipseSkullsBonus(account) * 5;
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_Damage');
@@ -935,7 +935,7 @@ const getMultiKillTotal = (character, characters, account, playerInfo) => {
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Pain', account)?.bonus;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Multikill_Per_Tier');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 1);
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'kazam','MR_MASSACRE', account);
+  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'kazam', 'MR_MASSACRE', account);
   const achievement = getAchievementStatus(account?.achievements, 148);
   const achievementTwo = getAchievementStatus(account?.achievements, 122);
   const achievementThree = getAchievementStatus(account?.achievements, 123);

@@ -1,5 +1,5 @@
-import { tryToParse } from "../utility/helpers";
-import { bribes } from "../data/website-data";
+import { tryToParse } from '../utility/helpers';
+import { bribes } from '../data/website-data';
 
 export const getBribes = (idleonData) => {
   const bribesRaw = idleonData?.BribeStatus || tryToParse(idleonData?.BribeStatus);
@@ -16,5 +16,5 @@ const parseBribes = (bribesRaw) => {
 }
 
 export const getBribeBonus = (bribes, bribeName) => {
-  return bribes?.find(({name, done}) => name === bribeName && done)?.value ?? 0;
+  return bribes?.find(({ name, done }) => name === bribeName && done)?.value ?? 0;
 }

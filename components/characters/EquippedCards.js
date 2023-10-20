@@ -11,7 +11,7 @@ const EquippedCards = ({ cards }) => {
   return <Stack>
     <Typography mb={2} variant={'h5'}>Equipped cards</Typography>
     <Stack>
-      {cardSet?.rawName ? <Stack mb={3} justifyContent={'center'} direction='row'>
+      {cardSet?.rawName ? <Stack mb={3} justifyContent={'center'} direction="row">
         <Box sx={{ position: 'relative' }}>
           <CardAndBorder variant={'cardSet'} {...cardSet}/>
         </Box>

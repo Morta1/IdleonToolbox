@@ -126,7 +126,7 @@ export const CardTitleAndValue = ({ cardSx, title, value, children }) => {
 }
 
 export const CenteredStack = ({ direction = 'row', children }) => {
-  return <Stack gap={1} direction={direction} alignItems={'center'} >
+  return <Stack gap={1} direction={direction} alignItems={'center'}>
     {children}
   </Stack>
 }

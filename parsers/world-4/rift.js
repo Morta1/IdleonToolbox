@@ -1,5 +1,5 @@
-import { tryToParse } from "../../utility/helpers";
-import { riftInfo } from "../../data/website-data";
+import { tryToParse } from '../../utility/helpers';
+import { riftInfo } from '../../data/website-data';
 
 export const getRift = (idleonData) => {
   const rawRift = tryToParse(idleonData?.Rift) || idleonData?.Rift;

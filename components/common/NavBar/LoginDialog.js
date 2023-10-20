@@ -49,7 +49,8 @@ const LoginDialog = ({ open, onClose }) => {
 
             value={selectedTab} onChange={handleTabChange}>
         {methods.map(({ name, icon }, index) => {
-          return <Tab disabled={waitingForAuth} iconPosition={isSm ? 'top' : 'start'} label={name} icon={icon} key={`${name}-${index}`}/>;
+          return <Tab disabled={waitingForAuth} iconPosition={isSm ? 'top' : 'start'} label={name} icon={icon}
+                      key={`${name}-${index}`}/>;
         })}
       </Tabs>
       <Switch selected={selectedTab}>

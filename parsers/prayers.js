@@ -1,7 +1,7 @@
-import { tryToParse } from "../utility/helpers";
-import { calculateItemTotalAmount } from "./items";
-import { items, prayers } from "../data/website-data";
-import { isSuperbitUnlocked } from "./gaming";
+import { tryToParse } from '../utility/helpers';
+import { calculateItemTotalAmount } from './items';
+import { items, prayers } from '../data/website-data';
+import { isSuperbitUnlocked } from './gaming';
 
 export const getPrayers = (idleonData, storage) => {
   const prayersRaw = idleonData?.PrayersUnlocked || tryToParse(idleonData?.PrayOwned);
@@ -42,5 +42,7 @@ export const calcPrayerCost = (prayer) => {
   if (level < 6) {
     return Math.round(costMulti * (1 + (4 + prayerIndex / 25) * level));
   }
-  return Math.round(Math.min(2e9, costMulti * (1 + (1 + prayerIndex / 20) * level) * Math.pow(prayerIndex === 9 ? 1.3 : 1.12, level - 5)))
+  return Math.round(Math.min(2e9, costMulti * (1 + (1 + prayerIndex / 20) * level) * Math.pow(prayerIndex === 9
+    ? 1.3
+    : 1.12, level - 5)))
 }

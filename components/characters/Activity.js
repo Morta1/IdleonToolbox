@@ -9,10 +9,10 @@ const Activity = ({ playerId, afkTarget, account, divStyle }) => {
   }
 
   return (
-    <Card sx={{ width: 220 }} variant={"outlined"}>
+    <Card sx={{ width: 220 }} variant={'outlined'}>
       <CardContent>
-        <Typography color={"info.light"}>Activity</Typography>
-        {afkTarget && afkTarget !== "_" ? (
+        <Typography color={'info.light'}>Activity</Typography>
+        {afkTarget && afkTarget !== '_' ? (
           <Stack direction="row" alignItems="center" gap={1}>
             {afkTarget === 'Divinity' || isLabConnectedByDivinity() ?
               <Tooltip title={cleanUnderscore(divStyle?.description.replace('@', ''))}>

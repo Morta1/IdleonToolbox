@@ -1,5 +1,5 @@
-import { bonuses, cards, cardSets } from "../data/website-data";
-import { tryToParse } from "../utility/helpers";
+import { bonuses, cards, cardSets } from '../data/website-data';
+import { tryToParse } from '../utility/helpers';
 
 export const getCards = (idleonData, account) => {
   const cardsRaw = idleonData?.Cards?.[0] || tryToParse(idleonData?.Cards0);
@@ -10,7 +10,7 @@ export const getCards = (idleonData, account) => {
 export const calculateStars = (tierReq, amountOfCards, cardName, rubyCards) => {
   let stars = 0;
   for (let i = 0; i < 4 + (+rubyCards); i++) {
-    if (cardName === "Boss3B") {
+    if (cardName === 'Boss3B') {
       if (amountOfCards > 1.5 * Math.pow(i + 1 + Math.floor(i / 3), 2)) {
         stars = i + 2
       }
@@ -65,7 +65,9 @@ export const getEquippedCardBonus = (cards, cardInd) => {
 }
 
 export const getTotalCardBonusById = (cards, bonusId) => {
-  return cards?.reduce((res, card) => card?.effect === bonuses?.cardBonuses?.[bonusId] ? res + calcCardBonus(card) : res, 0);
+  return cards?.reduce((res, card) => card?.effect === bonuses?.cardBonuses?.[bonusId]
+    ? res + calcCardBonus(card)
+    : res, 0);
 }
 
 export const getCardBonusByEffect = (cards, effectName) => {

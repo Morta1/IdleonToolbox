@@ -73,7 +73,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }
   }
 
-  const equinoxConnectionRangeBonus = getEquinoxBonus(account?.equinox?.upgrades, "Laboratory_Fuse"); 
+  const equinoxConnectionRangeBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Laboratory_Fuse');
 
   let foundNewConnection = true;
   let counter = 0;

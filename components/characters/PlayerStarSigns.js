@@ -7,13 +7,15 @@ const PlayerStarSigns = ({ signs }) => {
     <Stack gap={1}>
       {signs?.map(({ starName, bonuses }, index) => {
         const hasChipBoost = bonuses?.some(({ chipBoost }) => chipBoost > 1);
-        return starName !== "None" ? <Card key={starName + index}>
+        return starName !== 'None' ? <Card key={starName + index}>
             <CardContent>
               <Typography fontWeight={'bold'} variant={'body1'}>{cleanUnderscore(starName)}</Typography>
               <Typography color={hasChipBoost ? 'info.light' : ''}>{bonuses?.map(({
                                                                                     rawName,
                                                                                     bonus
-                                                                                  }, index) => `${cleanUnderscore(rawName?.replace('{', bonus))}${bonuses.length - 1 === index ? '' : ', '}`)}</Typography>
+                                                                                  }, index) => `${cleanUnderscore(rawName?.replace('{', bonus))}${bonuses.length - 1 === index
+                ? ''
+                : ', '}`)}</Typography>
             </CardContent>
           </Card>
           : null;

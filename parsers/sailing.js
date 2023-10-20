@@ -1,24 +1,24 @@
-import { getClosestDate, kFormatter, lavaLog, notateNumber, tryToParse } from "../utility/helpers";
-import { artifacts, captainsBonuses, classFamilyBonuses, islands } from "../data/website-data";
+import { getClosestDate, kFormatter, lavaLog, notateNumber, tryToParse } from '../utility/helpers';
+import { artifacts, captainsBonuses, classFamilyBonuses, islands } from '../data/website-data';
 import {
   getHighestCharacterSkill,
   getHighestLevelCharacter,
   getHighestLevelOfClass,
   isMasteryBonusUnlocked
-} from "./misc";
-import { getHighestTalentByClass, mainStatMap } from "./talents";
-import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from "./alchemy";
-import { getCardBonusByEffect } from "./cards";
-import { getStampsBonusByEffect } from "./stamps";
-import { getMealsBonusByEffectOrStat } from "./cooking";
-import { getGodBlessingBonus } from "./divinity";
-import { getStatueBonus } from "./statues";
-import { isSuperbitUnlocked } from "./gaming";
-import { getJewelBonus, getLabBonus } from "./lab";
-import { getShinyBonus } from "./breeding";
-import { getFamilyBonusBonus } from "./family";
-import LavaRand from "../utility/lavaRand";
-import { getAchievementStatus } from "./achievements";
+} from './misc';
+import { getHighestTalentByClass, mainStatMap } from './talents';
+import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './alchemy';
+import { getCardBonusByEffect } from './cards';
+import { getStampsBonusByEffect } from './stamps';
+import { getMealsBonusByEffectOrStat } from './cooking';
+import { getGodBlessingBonus } from './divinity';
+import { getStatueBonus } from './statues';
+import { isSuperbitUnlocked } from './gaming';
+import { getJewelBonus, getLabBonus } from './lab';
+import { getShinyBonus } from './breeding';
+import { getFamilyBonusBonus } from './family';
+import LavaRand from '../utility/lavaRand';
+import { getAchievementStatus } from './achievements';
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -145,11 +145,15 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
 }
 
 const getAncientChances = (islandsUnlocked, serverVars) => {
-  return 3 > islandsUnlocked ? 850 : (1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100);
+  return 3 > islandsUnlocked
+    ? 850
+    : (1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100);
 }
 
 const getEldritchChances = (islandsUnlocked, serverVars) => {
-  return 3 > islandsUnlocked ? 900 + 250 * islandsUnlocked : ((1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 4;
+  return 3 > islandsUnlocked
+    ? 900 + 250 * islandsUnlocked
+    : ((1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 4;
 }
 
 export const isArtifactAcquired = (artifacts = [], artifactName) => {
@@ -334,7 +338,7 @@ const getCaptainDisplayBonus = (captain, value) => {
 }
 
 const getBoatArtifactChance = (artifacts, captain, account) => {
-  const fauxoryTusk = isArtifactAcquired(artifacts, "Fauxory_Tusk")?.bonus ?? 0;
+  const fauxoryTusk = isArtifactAcquired(artifacts, 'Fauxory_Tusk')?.bonus ?? 0;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Higher_Artifact_Find_Chance');
   const firstCaptainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(3, captain, captain?.secondBonusIndex);
@@ -385,7 +389,9 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     additionalData = `Highest level: ${highestLevel}`;
     bonus = highestLevel * artifact?.baseBonus;
     if (artifact?.name === 'Ashen_Urn') {
-      bonus = highestLevel > artifact?.[multiplierType] ? artifact?.[multiplierType] * artifact?.baseBonus : highestLevel * artifact?.baseBonus;
+      bonus = highestLevel > artifact?.[multiplierType]
+        ? artifact?.[multiplierType] * artifact?.baseBonus
+        : highestLevel * artifact?.baseBonus;
       fixedDescription = `${fixedDescription} Total Bonus: ${upgradedForm ? bonus * formMultiplier : bonus}`;
     }
   } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
@@ -450,9 +456,9 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     });
   }
 
-  if (acquired === 2 && artifact?.ancientFormDescription === "The_artifact's_main_bonus_is_doubled!") {
+  if (acquired === 2 && artifact?.ancientFormDescription === 'The_artifact\'s_main_bonus_is_doubled!') {
     bonus *= 2;
-  } else if (acquired === 3 && artifact?.eldritchFormDescription === "The_artifact's_main_bonus_is_tripled!") {
+  } else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
     bonus *= 3;
   }
 

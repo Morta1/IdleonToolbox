@@ -6,7 +6,9 @@ export const createCogstructionData = (cogMap, cogsOrder) => {
     const cogType = getCogstructionCogType(cogs[index]);
     if (!cogType) return res;
     const { a = '', c = '', d = '', b = '', e = '', g = '', k = '', f = '' } = cog || {};
-    const cogsValues = [a, c, d, b, e, g, k, f].map((cog, index) => index < 7 ? `${getCogstructionValue(cog) || ''},` : getCogstructionValue(cog));
+    const cogsValues = [a, c, d, b, e, g, k, f].map((cog, index) => index < 7
+      ? `${getCogstructionValue(cog) || ''},`
+      : getCogstructionValue(cog));
     const characterName = cogs[index].includes('Player_') ? cogs[index].split('Player_')[1] : '';
     return `${res}
 ${cogType},${characterName},${cogsValues.join('')}`
@@ -31,15 +33,15 @@ ${x},${y}`
 
 const getCogstructionCogType = (name) => {
   const cogType = {
-    "ad": "Plus",
-    "di": "X",
-    "up": "Up",
-    "do": "Down",
-    "ri": "Right",
-    "le": "Left",
-    "ro": "Row",
-    "co": "Col",
-    "cr": "Omni",
+    'ad': 'Plus',
+    'di': 'X',
+    'up': 'Up',
+    'do': 'Down',
+    'ri': 'Right',
+    'le': 'Left',
+    'ro': 'Row',
+    'co': 'Col',
+    'cr': 'Omni',
   }
   if (name === 'Blank') return null;
   else if (name.includes('Player_')) return 'Character';

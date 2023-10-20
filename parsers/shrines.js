@@ -1,7 +1,7 @@
-import { tryToParse } from "../utility/helpers";
+import { tryToParse } from '../utility/helpers';
 import { shrines } from '../data/website-data';
-import { calcCardBonus } from "./cards";
-import { isArtifactAcquired } from "./sailing";
+import { calcCardBonus } from './cards';
+import { isArtifactAcquired } from './sailing';
 
 const startingIndex = 18;
 

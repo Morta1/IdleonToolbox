@@ -1,6 +1,6 @@
-import { tryToParse } from "../utility/helpers";
-import { items, randomList, refinery } from "../data/website-data";
-import { calculateItemTotalAmount } from "./items";
+import { tryToParse } from '../utility/helpers';
+import { items, randomList, refinery } from '../data/website-data';
+import { calculateItemTotalAmount } from './items';
 
 export const getRefinery = (idleonData, storage, tasks) => {
   const refineryRaw = tryToParse(idleonData?.Refinery) || idleonData?.Refinery;

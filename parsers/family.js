@@ -1,4 +1,4 @@
-import { growth } from "../utility/helpers";
+import { growth } from '../utility/helpers';
 
 export const getFamilyBonusBonus = (bonuses, bonusName, level) => {
   const bonus = bonuses?.find(({ name }) => name?.includes(bonusName));

@@ -11,7 +11,7 @@ const RandomEvent = ({ eventName, mapName, date }) => {
       <Typography color={eventsColors?.[eventName]}>{cleanUnderscore(eventName)}</Typography>
     </Stack>
     <Typography>{cleanUnderscore(mapName)}</Typography>
-    {isValid(date) ? format(date, "dd/MM/yyyy HH:mm:ss") : null}
+    {isValid(date) ? format(date, 'dd/MM/yyyy HH:mm:ss') : null}
   </>
 };
 

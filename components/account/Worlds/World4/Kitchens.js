@@ -70,12 +70,13 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           return <Card key={`${foodName}-${index}-${total}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip placement={'top'}
-                title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}
-                  lab={lab} equinoxUpgrades={equinoxUpgrades} />}>
+                       title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}
+                                           lab={lab} equinoxUpgrades={equinoxUpgrades}/>}>
                 <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
               </Tooltip>
               <div>{notateNumber(total, 'Big')}/hr</div>
-              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab} equinoxUpgrades={equinoxUpgrades}/>
+              <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}
+                           equinoxUpgrades={equinoxUpgrades}/>
             </CardContent>
           </Card>
         })}

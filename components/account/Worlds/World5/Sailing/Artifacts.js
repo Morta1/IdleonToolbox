@@ -43,7 +43,9 @@ const Artifacts = ({ artifacts }) => {
                 sx={{
                   opacity: acquired === 2 || acquired === 3 ? 1 : .5,
                   color: acquired === 3 ? '#ffa092' : acquired === 2 ? 'gold' : 'white'
-                }}>{cleanUnderscore(acquired === 2 ? ancientFormDescription : acquired === 3 ? eldritchFormDescription : '')}</Typography>
+                }}>{cleanUnderscore(acquired === 2 ? ancientFormDescription : acquired === 3
+                ? eldritchFormDescription
+                : '')}</Typography>
             </Stack>
           </Stack>
         </CardContent>

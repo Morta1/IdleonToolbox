@@ -1,5 +1,5 @@
-import { deathNote, mapEnemies, monsters } from "../data/website-data";
-import { isRiftBonusUnlocked } from "./world-4/rift";
+import { deathNote, mapEnemies, monsters } from '../data/website-data';
+import { isRiftBonusUnlocked } from './world-4/rift';
 
 export const getDeathNote = (charactersData, account) => {
   const allKills = charactersData?.reduce((res, character) => {
@@ -23,7 +23,9 @@ export const getDeathNote = (charactersData, account) => {
 }
 
 export const getDeathNoteRank = (account, kills) => {
-  return 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills ? 5 : 1e8 > kills ? 7 : 1e9 < kills && isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls') ? 20 : 10;
+  return 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills
+    ? 5
+    : 1e8 > kills ? 7 : 1e9 < kills && isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls') ? 20 : 10;
 }
 
 export const getEclipseSkullsBonus = (account) => {

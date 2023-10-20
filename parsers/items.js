@@ -1,4 +1,4 @@
-import { bonuses, items, itemsArray } from "../data/website-data";
+import { bonuses, items, itemsArray } from '../data/website-data';
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};
@@ -10,7 +10,9 @@ export const addStoneDataToEquip = (baseItem, stoneData) => {
     const stoneStat = stoneData?.[statName];
     let sum = baseItemStat;
     if (isNaN(stoneStat) || stoneStat < 0) return { ...res, [statName]: stoneStat };
-    sum = (baseItemStat || 0) + ((stoneData?.['UQ1txt'] && baseItem?.Type !== "KEYCHAIN" && baseItem?.['UQ1txt'] !== stoneData?.['UQ1txt']) ? 0 : stoneStat);
+    sum = (baseItemStat || 0) + ((stoneData?.['UQ1txt'] && baseItem?.Type !== 'KEYCHAIN' && baseItem?.['UQ1txt'] !== stoneData?.['UQ1txt'])
+      ? 0
+      : stoneStat);
     return { ...res, [statName]: parseFloat(sum) };
   }, {});
 }
@@ -39,7 +41,9 @@ export const getStatsFromGear = (character, bonusIndex, account) => {
     return equipment?.reduce((res, item) => res + (getStatFromEquipment(item, bonusIndex)), 0);
   }
   return equipment?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
-      (((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1))
+      (((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware))
+        ? 2
+        : 1))
     , 0)
 }
 

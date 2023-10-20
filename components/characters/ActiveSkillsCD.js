@@ -8,7 +8,7 @@ import { Stack } from '@mui/material';
 import { relevantTalents } from '../../parsers/talents';
 
 const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }) => {
-  const cooldownBonus = getPostOfficeBonus(postOffice, "Magician_Starterpack", 2);
+  const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
   const cdReduction = Math.max(0, cooldownBonus);
   const getCooldowns = (cooldowns) => {
     return Object.entries(cooldowns)?.reduce((res, [tId, talentCd]) => {
@@ -24,7 +24,7 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
         ...res,
         {
           ...talent,
-          description: talent?.description.replace("{", mainStat).replace("}", secondaryStat),
+          description: talent?.description.replace('{', mainStat).replace('}', secondaryStat),
           cd: actualCd < 0 ? actualCd : new Date().getTime() + actualCd * 1000
         }
       ];
@@ -36,11 +36,11 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
     <Stack direction="row" gap={2}>
       {actualCooldowns?.map((skill, index) => {
         return (
-          <Stack gap={1} direction="row" alignItems="center" className={"talent"} key={`${skill?.talentId}-${index}`}>
+          <Stack gap={1} direction="row" alignItems="center" className={'talent'} key={`${skill?.talentId}-${index}`}>
             <Tooltip title={<TalentTooltip {...skill} />}>
               <img src={`${prefix}data/UISkillIcon${skill?.talentId}.png`} style={{ width: 56, height: 56 }} alt=""/>
             </Tooltip>
-            <Timer placeholder={<span style={{ color: "#51e406", fontWeight: "bold" }}>Ready</span>} type={"countdown"}
+            <Timer placeholder={<span style={{ color: '#51e406', fontWeight: 'bold' }}>Ready</span>} type={'countdown'}
                    date={skill?.cd} lastUpdated={lastUpdated}/>
           </Stack>
         );

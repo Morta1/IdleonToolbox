@@ -165,7 +165,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
   if (isCompanionBonusActive(account, 1)) {
     addedLevels += account?.companions?.list?.at(1)?.bonus;
   }
-  addedLevels += getEquinoxBonus(account?.equinox?.upgrades, "Equinox_Symbols");
+  addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
 
   if (flatTalents) {
     return flatTalents.map((talent) => ({

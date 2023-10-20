@@ -56,7 +56,10 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters,
     { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: 'Bags' },
     { component: <Talents talents={talents} starTalents={starTalents}/>, filter: 'Talents' },
     { component: <EquippedCards cards={cards}/>, filter: 'Cards' },
-    { component: <Skills skills={skillsInfo} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>, filter: 'Skills' },
+    {
+      component: <Skills skills={skillsInfo} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,
+      filter: 'Skills'
+    },
     { component: <Prayers prayers={activePrayers}/>, filter: 'Prayers' },
     { component: <PlayerStarSigns signs={starSigns}/>, filter: 'Star Signs' },
     {

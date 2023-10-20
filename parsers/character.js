@@ -511,7 +511,7 @@ export const getDropRate = (character, account, characters) => {
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   // const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
-  const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, "Faux_Jewels");
+  const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
 
   const dropRate = 1.4 * luckMulti
     + (firstTalentBonus + (postOfficeBonus + ((drFromEquipment + drFromObols)

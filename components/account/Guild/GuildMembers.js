@@ -75,7 +75,9 @@ const GuildMembers = ({ members, changes }) => {
             </TableCell>
             <TableCell>{level}</TableCell>
             <TableCell>{gpEarned} {changes ? <Typography variant={'caption'}
-                                               color={gpChange > 0 ? 'success.light' : 'error.light'}>({gpChange > 0
+                                                         color={gpChange > 0
+                                                           ? 'success.light'
+                                                           : 'error.light'}>({gpChange > 0
               ? '+'
               : ''}{gpChange})</Typography> : null}</TableCell>
             <TableCell>{cleanUnderscore(wantedBonus?.name) || 'Guild Gifts'}</TableCell>

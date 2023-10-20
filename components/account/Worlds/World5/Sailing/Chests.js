@@ -50,7 +50,9 @@ const Chests = ({ chests }) => {
                                                                  title={<ArtifactInfoTooltip {...artifact}/>}>
                     <Stack sx={{
                       border: '1px solid',
-                      borderColor: artifact?.acquired === 2 ? 'warning.light' : artifact?.acquired === 3 ? 'error.light' : '',
+                      borderColor: artifact?.acquired === 2 ? 'warning.light' : artifact?.acquired === 3
+                        ? 'error.light'
+                        : '',
                       p: 1
                     }}
                            alignItems={'center'}>
