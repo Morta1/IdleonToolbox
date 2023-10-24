@@ -16,10 +16,6 @@ const Guild = () => {
   const [guildChanges, setGuildChanges] = useState();
   const [error, setError] = useState('');
 
-  if (!guild || guild?.members?.length === 0) {
-    return <Typography variant={'h3'} mb={3}>You have to be in a guild to view this page's content</Typography>
-  }
-
   useEffect(() => {
     const lsData = tryToParse(localStorage.getItem('guild'));
     if (lsData?.timestamp) {
@@ -55,6 +51,10 @@ const Guild = () => {
     } catch (e) {
       console.error('exportToJson -> ', e);
     }
+  }
+
+  if (!guild || guild?.members?.length === 0) {
+    return <Typography variant={'h3'} mb={3}>You have to be in a guild to view this page's content</Typography>
   }
 
   return <>

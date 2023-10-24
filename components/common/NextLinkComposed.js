@@ -4,7 +4,9 @@ import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import MuiLink from '@mui/material/Link';
 import { Typography } from '@mui/material';
+import styled from '@emotion/styled';
 
+const Anchor = styled.a``;
 export const NextLinkComposed = React.forwardRef(
   function NextLinkComposed(props, ref) {
     const { to, linkAs, replace, scroll, shallow, prefetch, locale, children, ...other } = props;
