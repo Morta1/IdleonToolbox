@@ -23,13 +23,13 @@ var Tb = function(e) {
     return (this.seed = 36969 * (65535 & this.seed) + (this.seed >> 16)), (this.seed2 = 18e3 * (65535 & this.seed2) + (this.seed2 >> 16)), (1073741823 & (((this.seed << 16) + this.seed2) | 0)) % e;
   },
   shuffle: function(e) {
-    for (var t = e.length, n = 0; n < t;) {
-      n++, (this.seed = 36969 * (65535 & this.seed) + (this.seed >> 16)), (this.seed2 = 18e3 * (65535 & this.seed2) + (this.seed2 >> 16));
-      var a = (1073741823 & (((this.seed << 16) + this.seed2) | 0)) % t;
+    for (var t = e.length, i = 0; i < t;) {
+      i++, (this.seed = 36969 * (65535 & this.seed) + (this.seed >> 16)), (this.seed2 = 18e3 * (65535 & this.seed2) + (this.seed2 >> 16));
+      var n = (1073741823 & (((this.seed << 16) + this.seed2) | 0)) % t;
       (this.seed = 36969 * (65535 & this.seed) + (this.seed >> 16)), (this.seed2 = 18e3 * (65535 & this.seed2) + (this.seed2 >> 16));
-      var i = (1073741823 & (((this.seed << 16) + this.seed2) | 0)) % t,
-        s = e[a];
-      (e[a] = e[i]), (e[i] = s);
+      var a = (1073741823 & (((this.seed << 16) + this.seed2) | 0)) % t,
+        s = e[n];
+      (e[n] = e[a]), (e[a] = s);
     }
   },
   rand: function() {

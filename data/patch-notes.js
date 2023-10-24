@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.18',
+    gameVer: '1.92',
+    date: '04/10/2023',
+    features: ['Updated the website with version 1.92 data and assets'],
+    fixes: [
+      'Fixed a problem with the max level of equinox ',
+      'Fixed alerts for equinox'
+    ]
+  },
+  {
     ver: '3.2.17',
     gameVer: '1.91',
     date: '29/10/2023',
