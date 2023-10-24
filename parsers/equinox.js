@@ -56,7 +56,7 @@ const parseEquinoxUpgrades = (challenges, dream, accountOptions) => {
       : bonus * dream[index] || 0,
     desc: description?.replace('{}', bonus * dream[index] || 0).replace('{', '').split('_@_'),
     lvl: dream[index] || 0,
-    maxLvl: bonus + increasedMaxLvl.filter(reward => reward.includes(name)).reduce((accumulator, currentValue) => accumulator + (parseInt(currentValue.match(/\d+/)[0], 10)), 0),
+    maxLvl: maxLevel + increasedMaxLvl.filter(reward => reward.includes(name)).reduce((accumulator, currentValue) => accumulator + (parseInt(currentValue.match(/\d+/)[0], 10)), 0),
     unlocked: index <= nbChallengeUnlocked,
   }));
 };

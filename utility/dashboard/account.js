@@ -341,9 +341,9 @@ export const equinoxAlerts = (account, options) => {
   const { bar, challenges, foodLust } = options;
   const alerts = {};
 
-  if (bar)        alerts.bar =        equinox?.currentCharge >= equinox?.chargeRequired;
-  if (challenges) alerts.challenges = equinox?.challenges.filter(challenge => challenge.current >= challenge.goal)?.length;
-  if (foodLust)   alerts.foodLust =   foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
+  if (bar)        alerts.bar =        equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(challenge => challenge.active).some(upgrade => upgrade.lvl < upgrade.maxLvl);
+  if (challenges) alerts.challenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
+  if (foodLust)   alerts.foodLust =   foodLustUpgrade.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
 
   return alerts;
 }
