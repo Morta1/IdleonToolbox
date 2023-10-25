@@ -28,7 +28,7 @@ export const eventsColors = {
 }
 export const getClosestDate = (date, hours = 0, every) => {
   // Get the current date
-  const currentDate = date;
+  const currentDate = new Date(date.getTime());
 
 // Add 6 hours to the current date
   currentDate.setHours(currentDate.getHours() + hours);
