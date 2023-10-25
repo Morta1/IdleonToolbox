@@ -6,6 +6,7 @@ import Timer from '../../../components/common/Timer';
 import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
 import { NextSeo } from 'next-seo';
 import { yellow } from '@mui/material/colors';
+import Box from '@mui/material/Box';
 
 const Equinox = () => {
   const { state } = useContext(AppContext);
@@ -25,12 +26,12 @@ const Equinox = () => {
           <Typography
             textAlign={'center'}>{notateNumber(equinox.currentCharge, 'Whole')} / {notateNumber(equinox.chargeRequired, 'Whole')}</Typography>
           <ProgressBar bgColor={yellow} percent={equinox.currentCharge / equinox.chargeRequired * 100} width={300}/>
-          <Typography textAlign={'center'}>
+          <Box sx={{ textAlign: 'center' }}>
             <Timer type={'countdown'}
                    placeholder={'Upgrade is ready'}
                    date={equinox.timeToFull}
                    lastUpdated={state?.lastUpdated}/>
-          </Typography>
+          </Box>
         </CardTitleAndValue>
       </Stack>
 
