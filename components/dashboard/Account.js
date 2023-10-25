@@ -149,7 +149,7 @@ const Account = ({ account, trackers }) => {
                                                                                iconPath={`data/${rawName}`}/>) : null}
           {trackers?.postOffice && alerts?.postOffice?.shipments?.length > 0 ?
             alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}
-                                                                     title={`Order streak for shipment #${index} is 0!`}
+                                                                     title={`Order streak for shipment #${index + 1} is 0!`}
                                                                      iconPath={`data/UIlilbox`}/>) : null}
           {trackers?.breeding && alerts?.breeding?.shinies?.pets?.length > 0 ?
             alerts?.breeding?.shinies?.pets?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {

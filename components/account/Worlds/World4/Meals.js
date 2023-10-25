@@ -190,7 +190,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         {breakpoints?.map((breakpoint) => {
           if (breakpoint === 0 || breakpoint === -1) return null;
           return sortBy === breakpoint && !localMeals?.some(({ level, amount }) => amount > 0 && level < breakpoint) ?
-            <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than level 30
+            <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than level {breakpoint}
               !</Typography> : null;
         })}
       </Stack>

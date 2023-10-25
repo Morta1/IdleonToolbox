@@ -12,11 +12,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography, useMediaQuery
+  Typography
 } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { getDuration, numberWithCommas, prefix, tryToParse } from '../utility/helpers';
 import IconButton from '@mui/material/IconButton';
+import ErrorIcon from '@mui/icons-material/Error';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
@@ -30,6 +31,7 @@ const Guilds = () => {
   const [guilds, setGuilds] = useState(null);
   const [openIndex, setOpenIndex] = useState(null);
   const snapshotDate = tryToParse(sessionStorage.getItem('snapshotDate'));
+  const [error, setError] = useState('');
 
   const parseGuildsData = useCallback(
     (topGuilds) => {
@@ -51,8 +53,12 @@ const Guilds = () => {
   );
 
 
-  const handleGuildsUpdate = (data) => {
-    const parsedGuilds = parseGuildsData(data);
+  const handleGuildsUpdate = ({ guilds, error }) => {
+    console.log('error', error)
+    if (error) {
+      return setError('An unexpected error has occurred');
+    }
+    const parsedGuilds = parseGuildsData(guilds);
     sessionStorage.setItem('guildsLeaderboard', JSON.stringify(parsedGuilds));
     sessionStorage.setItem('snapshotDate', new Date().getTime());
     setGuilds(parsedGuilds)
@@ -112,11 +118,19 @@ const Guilds = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {!guilds ? <TableRow>
+          {!guilds && !error ? <TableRow>
             <TableCell colSpan={7} align={'center'}>
               <Stack alignItems={'center'} gap={2}>
                 <Typography>Gathering guild info</Typography>
                 <LinearProgress sx={{ width: 300 }}/>
+              </Stack>
+            </TableCell>
+          </TableRow> : null}
+          {error ? <TableRow>
+            <TableCell colSpan={7} align={'center'}>
+              <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
+                <ErrorIcon/>
+                <Typography variant={'h6'}>{error}</Typography>
               </Stack>
             </TableCell>
           </TableRow> : null}

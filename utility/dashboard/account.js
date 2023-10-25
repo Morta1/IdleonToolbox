@@ -341,27 +341,9 @@ export const equinoxAlerts = (account, options) => {
   const { bar, challenges, foodLust } = options;
   const alerts = {};
 
-  if (bar)        alerts.bar =        equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(challenge => challenge.active).some(upgrade => upgrade.lvl < upgrade.maxLvl);
+  if (bar) alerts.bar = equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(challenge => challenge.active).some(upgrade => upgrade.lvl < upgrade.maxLvl);
   if (challenges) alerts.challenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
-  if (foodLust)   alerts.foodLust =   foodLustUpgrade.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
+  if (foodLust) alerts.foodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
 
   return alerts;
 }
-// export const guildTasks = (account, trackersOptions) => {
-//   if (!account?.accountOptions?.[37]) return false;
-//   const { daily, weekly } = trackersOptions;
-//   const alerts = {};
-//   if (daily) {
-//     alerts.daily = account?.guild?.guildTasks?.daily?.filter(({
-//                                                                 requirement,
-//                                                                 progress
-//                                                               }) => progress < requirement)?.length;
-//   }
-//   if (weekly) {
-//     alerts.weekly = account?.guild?.guildTasks?.weekly?.filter(({
-//                                                                   requirement,
-//                                                                   progress
-//                                                                 }) => progress < requirement)?.length;
-//   }
-//   return alerts;
-// }

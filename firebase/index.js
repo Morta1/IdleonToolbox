@@ -127,76 +127,49 @@ const subscribe = async (uid, callback) => {
 }
 
 export const getGuilds = async (callback) => {
-  const startTime = Date.now();
-  const app = getApp();
-  const database = getDatabase(app);
-  const firestore = initializeFirestore(app, {});
-  const snap = collection(firestore, '_guildStat');
-  const guildsDocs = await getDocs(fsQuery(snap));
-  const allGuilds = [];
-  guildsDocs.forEach((doc) => {
-    // console.log(doc.id, ' => ', doc.data());
-    const { stats, n: guildName, i: guildIcon } = doc.data() || {};
-    const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
-      guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
-    allGuilds.push({
-      id: doc.id,
-      totalStatCost,
-      guildName,
-      guildIcon
+  try {
+    const startTime = Date.now();
+    const app = getApp();
+    const database = getDatabase(app);
+    const firestore = initializeFirestore(app, {});
+    const snap = collection(firestore, '_guildStat');
+    const guildsDocs = await getDocs(fsQuery(snap));
+    const allGuilds = [];
+    guildsDocs.forEach((doc) => {
+      // console.log(doc.id, ' => ', doc.data());
+      const { stats, n: guildName, i: guildIcon } = doc.data() || {};
+      const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
+        guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+      allGuilds.push({
+        id: doc.id,
+        totalStatCost,
+        guildName,
+        guildIcon
+      });
+    })
+    const firstEndTime = Date.now();
+    console.info(`Guild firestore execution time: ${firstEndTime - startTime} ms`);
+    const sortedGuilds = allGuilds.sort((a, b) => b?.totalStatCost - a?.totalStatCost);
+    const topGuilds = sortedGuilds?.slice(0, 150);
+    const queries = topGuilds.map(({ id }) => get(query(ref(database, `_guild/${id}`))));
+    const results = await Promise.all(queries);
+    const guildsWithData = results?.map((doc, index) => {
+      const value = doc.val();
+      const details = topGuilds?.[index];
+      return {
+        ...details,
+        totalGp: (value?.p || 0) + details?.totalStatCost,
+        members: Object.values(value?.m || {}),
+      }
     });
-  })
-  const firstEndTime = Date.now();
-  console.info(`Guild firestore execution time: ${firstEndTime - startTime} ms`);
-  const sortedGuilds = allGuilds.sort((a, b) => b?.totalStatCost - a?.totalStatCost);
-  const topGuilds = sortedGuilds?.slice(0, 150);
-  const queries = topGuilds.map(({ id }) => get(query(ref(database, `_guild/${id}`))));
-  const results = await Promise.all(queries);
-  const guildsWithData = results?.map((doc, index) => {
-    const value = doc.val();
-    const details = topGuilds?.[index];
-    return {
-      ...details,
-      totalGp: (value?.p || 0) + details?.totalStatCost,
-      members: Object.values(value?.m || {}),
-    }
-  });
-  const finalResult = guildsWithData.sort((a, b) => b?.totalGp - a?.totalGp)?.filter(({ members }) => members?.length > 10);
-  const endTime = Date.now();
-  console.info(`Guild realtime db execution time: ${endTime - startTime} ms`);
-  callback(finalResult);
-  // const result = query(ref(database, '_guild'), orderByChild('p'), limitToLast(100));
-  // return onValue(result, async (docs) => {
-  //   const guilds = docs.val();
-  //   const allIds = Object.keys(guilds || {});
-  //   const idChunks = allIds.toChunks(30);
-  //   console.log(idChunks)
-  //   const queries = idChunks.map((ids) => getDocs(fsQuery(snap, where(documentId(), 'in', ids))));
-  //   let querySnapshot = await Promise.all(queries);
-  //   let guildsStats = {};
-  //   querySnapshot.forEach((queryRes) => {
-  //     queryRes.forEach((doc) => {
-  //       // doc.data() is never undefined for query doc snapshots
-  //       // console.log(doc.id, ' => ', doc.data());
-  //       const { stats, n: guildName, i: guildIcon } = doc.data() || {};
-  //       const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
-  //         guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
-  //       guildsStats[doc.id] = {
-  //         totalStatCost,
-  //         guildName,
-  //         guildIcon
-  //       };
-  //     })
-  //   });
-  //   const guildsWithIds = Object.entries(guilds || {})?.map(([id, data]) => ({
-  //     ...data,
-  //     id,
-  //     totalGp: data?.p + (guildsStats?.[id]?.totalStatCost || 0),
-  //     guildName: guildsStats?.[id]?.guildName,
-  //     guildIcon: guildsStats?.[id]?.guildIcon,
-  //   }));
-  //   callback(guildsWithIds);
-  // }, { onlyOnce: true })
+    const finalResult = guildsWithData.sort((a, b) => b?.totalGp - a?.totalGp)?.filter(({ members }) => members?.length > 10);
+    const endTime = Date.now();
+    console.info(`Guild realtime db execution time: ${endTime - startTime} ms`);
+    callback({ guilds: finalResult });
+  } catch (e) {
+    console.error(e);
+    callback({ guilds: [], error: true })
+  }
 }
 
 

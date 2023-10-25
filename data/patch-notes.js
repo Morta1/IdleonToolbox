@@ -4,19 +4,31 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.19',
+    gameVer: '1.92',
+    date: '25/10/2023',
+    features: [],
+    fixes: [
+      'Updated the display of the equipment view in Characters page to represent the actual equipment slots',
+      'Fixed a small typing issue with meals sorting',
+      'Fixed a bug with calculating 10 Ad Tablet bonus',
+      'Added a tooltip to indicate quest status in Quests page'
+    ]
+  },
+  {
     ver: '3.2.18',
     gameVer: '1.92',
-    date: '04/10/2023',
+    date: '24/10/2023',
     features: ['Updated the website with version 1.92 data and assets'],
     fixes: [
-      'Fixed a problem with the max level of equinox ',
+      'Fixed a problem with the max level of equinox',
       'Fixed alerts for equinox'
     ]
   },
   {
     ver: '3.2.17',
     gameVer: '1.91',
-    date: '29/10/2023',
+    date: '20/10/2023',
     features: [
       'Updated the website with version 1.91 data and assets',
       <Typography>Added <Link

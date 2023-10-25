@@ -77,7 +77,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                             }}
                             badgeContent={<StatusIndicator
                               color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>
-                            <Tooltip title={characters?.[charIndex]?.name}>
+                            <Tooltip title={`${characters?.[charIndex]?.name} - ${status === 1 ? 'Completed' : status === -1 ? 'Not yet unlocked' : 'In progress'}`}>
                               <Avatar
                                 alt=""
                                 src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>

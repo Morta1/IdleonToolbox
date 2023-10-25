@@ -399,7 +399,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
     const math = artifact?.[multiplierType] * Math.floor(Math.max(0, lootedItems - 500) / 10);
-    bonus = everyXMulti ? artifact?.baseBonus * math : math;
+    bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const isGenie = artifact?.name === 'Genie_Lamp';
     const highestSailing = getHighestCharacterSkill(charactersData, 'sailing');

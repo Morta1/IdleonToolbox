@@ -9,7 +9,8 @@ const Equipment = ({ equipment, tools, food, account, character }) => {
   return <Stack>
     <Typography variant={'h5'}>Equipment</Typography>
     <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
-      <EquipmentPage items={equipment} character={character} account={account}/>
+      <EquipmentPage items={equipment.slice(0, 8)} character={character} account={account}/>
+      <EquipmentPage items={equipment.slice(8)} character={character} account={account}/>
       <EquipmentPage items={tools} character={character} account={account}/>
       <EquipmentPage items={food} character={character} account={account}/>
     </Stack>
@@ -25,15 +26,17 @@ const EquipmentPage = ({ items, character, account }) => {
     }}>
     {items.map((item, itemIndex) => {
       const { rawName, displayName, amount } = item;
-      return displayName && displayName !== 'ERROR' ?
-        <Card sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      return itemIndex < 8 ?
+        <Card sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 76 }}
               variant={'outlined'} key={`${rawName}-${itemIndex}`}>
           <CardContent sx={{ '&:last-child': { padding: 0 } }}>
             <Stack alignItems={'center'} justifyContent={'center'}>
-              <Tooltip title={<ItemDisplay {...item} character={character} account={account}/>}>
+              <Tooltip
+                title={displayName && displayName !== 'ERROR' ? <ItemDisplay {...item} character={character}
+                                                                             account={account}/> : ''}>
                 <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
               </Tooltip>
-              {amount}
+              {displayName !== 'ERROR' ? amount : ' '}
             </Stack>
           </CardContent>
         </Card> : null;
