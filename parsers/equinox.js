@@ -12,7 +12,6 @@ export const getEquinox = (idleonData, account) => {
 
 const parseEquinox = (weeklyBoss, dream, account) => {
   const totalUpgrade = dream.slice(2, 13).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  //const remaningChalls = Object.keys(weeklyBoss).filter(key => key.startsWith("d_") && weeklyBoss[key] !== -1).reduce((obj, key) => { obj[key.substring(2)] = weeklyBoss[key]; return obj; }, {});
   const equinoxResult = Object.keys(weeklyBoss).filter(key => key.startsWith('d_')).reduce((obj, key) => {
     obj[key.substring(2)] = weeklyBoss[key];
     return obj;
