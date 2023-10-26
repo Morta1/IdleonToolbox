@@ -12,11 +12,7 @@ const Equinox = () => {
   const { state } = useContext(AppContext);
   const equinox = state?.account?.equinox;
   if (!equinox) {
-    return (
-      <>
-        <Typography variant={'h2'} textAlign={'center'} mt={3}>Unlock Equinox first</Typography>
-      </>
-    );
+    return <Typography variant={'h2'} textAlign={'center'} mt={3}>Unlock Equinox first</Typography>;
   }
   return (
     <>
