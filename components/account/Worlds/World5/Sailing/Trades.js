@@ -5,7 +5,7 @@ import Trade from './Trade';
 const Trades = ({ trades }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
     {trades?.map((trade, index) => {
-      const { rawName } = trade
+      const { rawName } = trade;
       return <Card key={rawName + index} sx={{ width: 250 }}>
         <CardContent>
           <Trade {...trade}/>

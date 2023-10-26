@@ -1,4 +1,4 @@
-import { getClosestDate, kFormatter, lavaLog, notateNumber, tryToParse } from '../utility/helpers';
+import { kFormatter, lavaLog, notateNumber, tryToParse } from '../utility/helpers';
 import { artifacts, captainsBonuses, classFamilyBonuses, islands } from '../data/website-data';
 import {
   getHighestCharacterSkill,
@@ -60,13 +60,12 @@ const getFutureTrades = ({ boats } = {}, islands, lootPileList, artifactsList, a
   const unlockedIslands = islands?.reduce((sum, island) => island === -1 ? sum + 1 : sum, 0);
   const seed = Math.floor(account?.timeAway?.GlobalTime / 21600);
   const trades = [];
-  const date = new Date();
   for (let i = 0; i < 40; i++) {
     const rng = new LavaRand(seed + i);
     const random = rng.rand();
     const lootIndex = Math.min(30, Math.ceil(2 * random * unlockedIslands));
     const lootItemCost = getLootItemCost(lootPileList?.[lootIndex], firstBoatLootValue);
-    const closest = getClosestDate(date, 6 * i);
+    const closest = new Date(Math.floor((seed + i) * 21600 * 1000));
     trades.push({
       ...lootPileList?.[lootIndex],
       date: closest,
