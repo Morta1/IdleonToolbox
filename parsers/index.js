@@ -40,7 +40,7 @@ import {
 } from './misc';
 import { getSaltLick } from './saltLick';
 import { getDungeons } from './dungeons';
-import { applyMealsMulti, getCooking, getKitchens } from './cooking';
+import { applyMealsMulti, getCooking, getKitchens, getMealsBonusByEffectOrStat } from './cooking';
 import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './lab';
 import { classes } from '../data/website-data';
 import { getGuild } from './guild';
@@ -48,7 +48,7 @@ import { getPrinter } from './printer';
 import { getTraps } from './traps';
 import { getQuests, isWorldFinished } from './quests';
 import { getDeathNote } from './deathNote';
-import { getBreeding } from './breeding';
+import { addBreedingChance, getBreeding } from './breeding';
 import { getDivinity } from './divinity';
 import { getArtifacts, getSailing } from './sailing';
 import { getGaming } from './gaming';
@@ -177,8 +177,6 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   accountData.construction = getConstruction(idleonData, accountData);
   accountData.atoms = getAtoms(idleonData, accountData);
-  // accountData.towers.data = applyMaxLevelToTowers(accountData);
-  // console.log('accountData.towers', accountData.towers)
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
@@ -212,10 +210,10 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.currencies.gems = idleonData?.GemsOwned;
   accountData.currencies.KeysAll = enhanceKeysObject(accountData?.currencies?.KeysAll, charactersData, accountData);
   accountData.currencies.ColosseumTickets = enhanceColoTickets(accountData?.currencies?.ColosseumTickets, charactersData, accountData);
-
   // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
+  accountData.breeding = addBreedingChance(idleonData, accountData);
 
   charactersData = charactersData?.map((character) => {
     const { carryCapBags } = character;
@@ -226,7 +224,6 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     })
     return character;
   })
-
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;

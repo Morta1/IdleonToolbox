@@ -16,7 +16,7 @@ export const parseShrines = (shrinesRaw, account) => {
     const index = startingIndex + localIndex;
     const [mapId, , , shrineLevel, progress] = item;
     const { shrineName, desc, baseBonus, bonusPerLevel } = shrines[index];
-    return mapId !== 0 && shrineName !== 'Unknown' ? [...res, {
+    return shrineName !== 'Unknown' ? [...res, {
       mapId,
       shrineLevel,
       name: shrineName,

@@ -1,12 +1,14 @@
 import React, { useContext, useMemo } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, growth, prefix } from 'utility/helpers';
+import { cleanUnderscore, getRealDateInMs, growth, prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { calcHappyHours } from '../../parsers/dungeons';
 import { NextSeo } from 'next-seo';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '../../components/Tooltip';
 
 const insideDungeonUpgradeMaxLevel = 100;
 const flurboUpgradeMaxLevel = 50;
@@ -52,7 +54,12 @@ const Dungeons = () => {
             <Stack direction="row" gap={2}>
               <Typography>Next happy hour:</Typography>
               {nextHappyHours?.length > 0 ?
-                <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/> : "waiting for lava to set them"}
+                <>
+                  <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/>
+                  <Tooltip title={getRealDateInMs(nextHappyHours?.[0])}>
+                    <InfoIcon fontSize={'small'} />
+                  </Tooltip>
+                </> : "waiting for lava to set them"}
             </Stack>
           </AccordionSummary>
           {nextHappyHours.length > 1 ? (
@@ -64,6 +71,9 @@ const Dungeons = () => {
                   return <Stack key={`next-happy-hour-${index}`} direction={'row'} gap={3}>
                     <Typography sx={{ width: 40 }}>#{index}</Typography>
                     <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated}/>
+                    <Tooltip title={getRealDateInMs(nextHappyHour)}>
+                      <InfoIcon fontSize={'small'} />
+                    </Tooltip>
                   </Stack>
                 })}
               </Stack>

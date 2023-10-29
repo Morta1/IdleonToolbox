@@ -16,8 +16,9 @@ import { getJewelBonus, getLabBonus } from '../../../../../parsers/lab';
 import { getShinyBonus, getTimeToLevel } from '../../../../../parsers/breeding';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 
-const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdated }) => {
+const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingMultipliers, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
   const [threshold, setThreshold] = useState(5);
   const [applyThreshold, setApplyThreshold] = useState(false);
@@ -112,11 +113,15 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
                                gene,
                                unlocked,
                                progress,
-                               goal
-                             }) => {
+                               goal,
+                               breedingMultipliers
+                             }, index) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (applyThreshold && shinyLevel >= threshold) return;
                   const missingIcon = (icon === 'Mface23' || icon === 'Mface21') && monsterRawName !== 'shovelR';
+                  const totalChance = breedingMultipliers?.totalChance > 0.1
+                    ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
+                    : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
                   return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}
                                sx={{ opacity: unlocked ? 1 : .6 }}>
                     <CardContent sx={{ width: 300 }}>
@@ -136,6 +141,23 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, lastUpdat
                           {<Timer type={'countdown'} lastUpdated={lastUpdated}
                                   staticTime={progress === 0}
                                   date={new Date().getTime() + (timeLeft)}/>}
+                          <Stack direction={'row'} alignItems={'center'} gap={1}>
+                            <Typography>Total Chance: {totalChance}</Typography>
+                            <Tooltip title={<>
+                              <Typography>Genetic
+                                Multi: {notateNumber(breedingMultipliers?.first, 'MultiplierInfo')}x</Typography>
+                              <Typography>Breedable
+                                Multi: {notateNumber(breedingMultipliers?.second, 'MultiplierInfo')}x</Typography>
+                              <Typography>Rarity
+                                Multi: {notateNumber(breedingMultipliers?.third, 'MultiplierInfo')}x</Typography>
+                              <Typography>Pastpres
+                                Multi: {notateNumber(breedingMultipliers?.fourth, 'MultiplierInfo')}x</Typography>
+                              <Typography>Failure
+                                Multi: {notateNumber(breedingMultipliers?.fifth, 'MultiplierInfo')}x</Typography>
+                            </>}>
+                              <InfoIcon fontSize={'small'}/>
+                            </Tooltip>
+                          </Stack>
                         </Stack>
                       </Stack>
                       <Divider sx={{ my: 1 }}/>

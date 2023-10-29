@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.20',
+    gameVer: '1.92',
+    date: '29/10/2023',
+    features: [
+      'Added a tooltip to the dungeon page "Next happy hour" to show the actual date and time',
+      'Added breeding multipliers and chance for breeding page'
+    ],
+    fixes: [
+      'Fixed a bug where shrines placed on World 1 town weren\'t showing up on the website',
+      'Fixed drop rate formula',
+      'Fixed a display bug where star talents were displayed incorrectly.',
+    ]
+  },
+  {
     ver: '3.2.19',
     gameVer: '1.92',
     date: '25/10/2023',

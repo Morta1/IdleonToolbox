@@ -390,5 +390,17 @@ export const getRealDateInMs = (ms, shouldFormat = true) => {
   }
   return dateInMs;
 }
+
+export const fillMissingTalents = (arr) => {
+  const talentIds = arr.map(obj => obj.talentId);
+  const minTalentId = Math.min(...talentIds);
+  const maxTalentId = Math.max(...talentIds);
+
+  const missingNumbers = Array.from({ length: maxTalentId - minTalentId + 1 }, (_, i) => i + minTalentId)
+    .filter(num => !talentIds.includes(num))
+    .map(talentId => ({ talentId }));
+
+  return arr.concat(missingNumbers).sort((a, b) => a.talentId - b.talentId);
+}
 export const prefix = isProd ? '/' : '/';
 

@@ -317,7 +317,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     flat: flatStarTalents,
     talents: orderedStarTalents
   } = createTalentPage(character?.class, ['Special Talent 1', 'Special Talent 2',
-    'Special Talent 3'], talentsObject, maxTalentsObject, true);
+    'Special Talent 3', 'Special Talent 4', 'Special Talent 5'], talentsObject, maxTalentsObject, true);
   character.starTalents = orderedStarTalents;
   character.flatStarTalents = flatStarTalents;
 
@@ -492,6 +492,7 @@ export const getDropRate = (character, account, characters) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 0);
   const firstTalentBonus = getTalentBonus(character?.talents, 1, 'ROBBINGHOOD');
   const secondTalentBonus = getTalentBonus(character?.talents, 1, 'CURSE_OF_MR_LOOTY_BOOTY');
+  const starTalentBonus = getTalentBonus(character?.starTalents, null, 'BOSS_BATTLE_SPILLOVER');
   const drFromEquipment = getStatsFromGear(character, 2, account);
   const drFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DROPPIN_LOADS', false);
@@ -505,20 +506,37 @@ export const getDropRate = (character, account, characters) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
-  // const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'DropRarity');
-  // const math = 1 + (luck + flurboBonus) / 100;
+  const stampBonus = getStampsBonusByEffect(account?.stamps, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
-  // const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
+  const chipBonus = getPlayerLabChipBonus(character, account, 3);
 
-  const dropRate = 1.4 * luckMulti
-    + (firstTalentBonus + (postOfficeBonus + ((drFromEquipment + drFromObols)
-      + (bubbleBonus + (cardBonus + (secondTalentBonus
-        + (starSignBonus + (guildBonus + (
-          +(cardSetBonus + (shrineBonus + (prayerBonus + (sigilBonus
-            + shinyBonus + companionDropRate + equinoxDropRateBonus))))))))))))) / 100 + 1;
+  const additive =
+    firstTalentBonus +
+    postOfficeBonus +
+    (drFromEquipment + drFromObols) +
+    bubbleBonus +
+    cardBonus +
+    secondTalentBonus +
+    starSignBonus +
+    guildBonus +
+    cardSetBonus +
+    shrineBonus +
+    prayerBonus +
+    sigilBonus +
+    shinyBonus +
+    arcadeBonus +
+    companionDropRate +
+    stampBonus;
+
+  let dropRate = 1.4 * luckMulti
+    + (additive + (starTalentBonus * account?.accountOptions?.[189] + 5 * equinoxDropRateBonus)) / 100 + 1;
+  if (dropRate < 5 && chipBonus > 0) {
+    dropRate = Math.min(5, dropRate + chipBonus / 100);
+  }
   const final = dropRate * extraDropRate;
 
   const breakdown = [
@@ -533,10 +551,12 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Prayers', value: prayerBonus / 100 },
     { name: 'Sigil', value: sigilBonus / 100 },
     { name: 'Shiny', value: shinyBonus / 100 },
+    { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Starsign', value: starSignBonus / 100 },
     { name: 'Guild', value: guildBonus / 100 },
+    { name: 'Siege Breaker', value: extraDropRate },
     { name: 'Companion', value: companionDropRate / 100 },
-    { name: 'Equinox', value: equinoxDropRateBonus / 100 },
+    { name: 'Equinox', value: 5 * equinoxDropRateBonus / 100 },
     { name: 'Base', value: 1 },
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
