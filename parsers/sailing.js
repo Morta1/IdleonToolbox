@@ -11,7 +11,7 @@ import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './alchemy';
 import { getCardBonusByEffect } from './cards';
 import { getStampsBonusByEffect } from './stamps';
 import { getMealsBonusByEffectOrStat } from './cooking';
-import { getGodBlessingBonus } from './divinity';
+import { getGodBlessingBonus, getMinorDivinityBonus } from './divinity';
 import { getStatueBonus } from './statues';
 import { isSuperbitUnlocked } from './gaming';
 import { getJewelBonus, getLabBonus } from './lab';
@@ -216,7 +216,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters,
 
 const getBaseSpeed = (account, characters, artifactsList) => {
   const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
-  const divinityMinorBonus = purrmepPlayer?.deityMinorBonus ?? 0;
+  const divinityMinorBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Sailing_Speed_(Passive)');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sailing_Speed')
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
@@ -230,12 +230,24 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'SailSpd');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Sailing')?.bonus ?? 0;
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sailing?.rank, 1);
-
   const statueBonus = getStatueBonus(account?.statues, 'StatueG25')
-  const firstMath = (1 + (divinityMinorBonus + cardBonus + bubbleBonus) / 125) * (1 + goharutGodBonus / 100);
+
+  const firstMath = (1
+      + (divinityMinorBonus
+        + cardBonus
+        + bubbleBonus) / 125)
+    * (1
+      + goharutGodBonus
+      / 100);
   return firstMath * (1 + purrmepGodBonus / 100)
-    * (1 + (bagurGodBonus +
-      artifactBonus + stampBonus + statueBonus + mealBonus + vialBonus + (17 * skillMasteryBonus + superbitBonus)) / 125);
+    * (1
+      + (bagurGodBonus
+        + artifactBonus
+        + stampBonus
+        + statueBonus
+        + mealBonus
+        + vialBonus
+        + (17 * skillMasteryBonus + superbitBonus)) / 125)
 }
 
 const getCaptain = (captain, index, isShop) => {

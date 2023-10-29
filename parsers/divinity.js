@@ -61,8 +61,11 @@ export const getDeityLinkedIndex = (account, characters, deityIndex) => {
     : charIndex)) || [];
 }
 
-export const getMinorDivinityBonus = (character, account, forcedDivinityIndex) => {
-  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
+export const getMinorDivinityBonus = (character, account, forcedDivinityIndex, characters) => {
+  const bigPCharacter = characters?.find((char) => char.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'BIG_P'));
+  const bigPBubble = getActiveBubbleBonus(bigPCharacter
+    ? bigPCharacter.equippedBubbles
+    : character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
   const godIndex = gods?.[linkedDeity]?.godIndex;

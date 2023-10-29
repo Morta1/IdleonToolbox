@@ -41,7 +41,7 @@ export const applyStatuesMulti = (statues, characters) => {
   return statues?.map((statue) => ({ ...statue, bonus: statue?.bonus, talentMulti }));
 }
 export const getStatueBonus = (statues, statueName, talents) => {
-  const statue = statues?.find(({ rawName }) => rawName === statueName);
+  const statue = statues?.find(({ rawName }) => rawName === statueName || rawName === statueName.replace('G', 'O'));
   if (!statue) return 0;
   let talentBonus = 1;
 

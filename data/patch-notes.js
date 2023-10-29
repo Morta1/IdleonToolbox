@@ -15,6 +15,8 @@ export const patchNotes = [
       'Fixed a bug where shrines placed on World 1 town weren\'t showing up on the website',
       'Fixed drop rate formula',
       'Fixed a display bug where star talents were displayed incorrectly.',
+      'Fixed sailing speed calculation',
+      'Fixed a bug with statue calculating statue bonus for onyx statue'
     ]
   },
   {

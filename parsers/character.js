@@ -584,7 +584,7 @@ export const getCashMulti = (character, account, characters) => {
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
   const divinityMinorBonus = characters?.reduce((sum, char) => {
     if (isCompanionBonusActive(account, 3)) {
-      return sum + getMinorDivinityBonus(char, account, 3);
+      return sum + getMinorDivinityBonus(char, account, 3, characters);
     }
     if (char?.linkedDeity === 3) {
       return sum + char?.deityMinorBonus;
@@ -869,7 +869,7 @@ export const getAfkGain = (character, characters, account) => {
       : 0;
     const divinityMinorBonus = characters?.reduce((sum, char) => {
       if (isCompanionBonusActive(account, 0)) {
-        return sum + getMinorDivinityBonus(char, account, 4);
+        return sum + getMinorDivinityBonus(char, account, 4, characters);
       }
       if (char?.linkedDeity === 4) {
         return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
