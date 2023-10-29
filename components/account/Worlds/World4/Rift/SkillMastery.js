@@ -20,6 +20,7 @@ const specialBonuses = {
   chopping: 'ALL_CHOPPING_CARDS_ARE_NOW_PASSIVE',
   catching: 'ALL_CATCHING_CARDS_ARE_NOW_PASSIVE',
   trapping: 'ALL_TRAPPING_CARDS_ARE_NOW_PASSIVE',
+  worship: 'ALL_WORSHIP_CARS_ARE_NOW_PASSIVE',
   smithing: '+25%_FORGE_ORE_CAPACITY',
   alchemy: '+5%_ALL_LIQUID_CAP',
   construction: '+15%_SHRINE_LV_UP_RATE',
