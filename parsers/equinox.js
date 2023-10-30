@@ -16,7 +16,6 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     obj[key.substring(2)] = weeklyBoss[key];
     return obj;
   }, {});
-
   let nbChallengeActive = dream[2];
   const challenges = equinoxChallenges.map(({ label, goal, reward }, index) => ({
     label,
@@ -26,7 +25,6 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     active: equinoxResult[index] !== -1 && 0 < nbChallengeActive--,
   }));
   const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 13), account.accountOptions);
-
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q') ? 50 : 0;
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
 
@@ -48,16 +46,19 @@ const parseEquinox = (weeklyBoss, dream, account) => {
 const parseEquinoxUpgrades = (challenges, dream, accountOptions) => {
   const increasedMaxLvl = challenges.filter(challenge => challenge.current === -1 && challenge.reward.includes('Max_LV')).map(challenge => challenge.reward);
   const nbChallengeUnlocked = challenges.filter(challenge => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length
-  return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => ({
-    name: name,
-    bonus: name === 'Food_Lust'
+  return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
+    const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
       ? Math.min(parseInt(dream[index]), accountOptions?.[193])
-      : bonus * dream[index] || 0,
-    desc: description?.replace('{}', bonus * dream[index] || 0).replace('{', '').split('_@_'),
-    lvl: dream[index] || 0,
-    maxLvl: maxLevel + increasedMaxLvl.filter(reward => reward.includes(name)).reduce((accumulator, currentValue) => accumulator + (parseInt(currentValue.match(/\d+/)[0], 10)), 0),
-    unlocked: index <= nbChallengeUnlocked,
-  }));
+      : bonus * dream[index] || 0;
+    return {
+      name: name,
+      bonus: realBonus,
+      desc: description?.replace('{}', bonus * dream[index] || 0).replace('{', '').replace('}', dream[index] || 0).split('_@_'),
+      lvl: dream[index] || 0,
+      maxLvl: maxLevel + increasedMaxLvl.filter(reward => reward.includes(name)).reduce((accumulator, currentValue) => accumulator + (parseInt(currentValue.match(/\d+/)[0], 10)), 0),
+      unlocked: index <= nbChallengeUnlocked,
+    }
+  });
 };
 
 export const getEquinoxBonus = (upgrades, name) => {

@@ -7,6 +7,7 @@ import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers'
 import { NextSeo } from 'next-seo';
 import { yellow } from '@mui/material/colors';
 import Box from '@mui/material/Box';
+import { getEquinoxBonus } from '../../../parsers/equinox';
 
 const Equinox = () => {
   const { state } = useContext(AppContext);
@@ -58,7 +59,7 @@ const Equinox = () => {
 
       <Typography variant={'h4'} mt={3} mb={3}>Upgrades</Typography>
       <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
-        {equinox.upgrades?.map(({ name, desc, lvl, maxLvl, unlocked }, index) => {
+        {equinox.upgrades?.map(({ name, desc, lvl, maxLvl, unlocked, bonus }, index) => {
           return <Card key={name + `${index}`} sx={{
             width: 300,
             border: unlocked ? '1px solid #dbe07b' : '',
@@ -74,6 +75,7 @@ const Equinox = () => {
               {desc.map((line, index) => {
                 return <Typography key={`${index}`} align="center" sx={{ mt: 2 }}>{cleanUnderscore(line)}</Typography>
               })}
+              {index === 9 ? <Typography align="center" sx={{ mt: 2 }}>Bosses killed: {bonus}</Typography> : null}
               <Typography align="center" sx={{ mt: 2 }}>Lvl : {lvl}/{maxLvl}</Typography>
             </CardContent>
           </Card>
