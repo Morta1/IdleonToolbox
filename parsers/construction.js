@@ -38,8 +38,8 @@ const createCogMap = (cogMap, length) => {
   return array;
 }
 
-const BOARD_Y = 8;
-const BOARD_X = 12;
+export const BOARD_Y = 8;
+export const BOARD_X = 12;
 
 const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, account) => {
   const board = flagsUnlockedRaw?.reduce((res, flagSlot, index) => {
@@ -60,35 +60,53 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
     name: cogsOrder?.[index]
   })).filter(({ name }) => name?.includes('Player_'))
     .reduce((sum, { a }) => sum + (a?.value || 0), 0);
-
+  const relations = {};
   let boosted = new Array(BOARD_X * BOARD_Y).fill(0);
   for (let y = 0; y < BOARD_Y; y++) {
     for (let x = 0; x < BOARD_X; x++) {
       const index = (7 - y) * 12 + x;
-      const currentCog = board?.[index]?.cog?.stats;
-      let affected = getAffectedIndexes(currentCog?.h, x, y);
+      const currentCog = board?.[index]?.cog;
+      const currentCogStats = board?.[index]?.cog?.stats;
+      let affected = getAffectedIndexes(currentCog, x, y);
       if (affected?.length > 0) {
-        affected = affected?.map(([x, y]) => (7 - y) * 12 + x);
-        const { e, f, g } = currentCog || {};
+        affected = affected?.map(([x, y]) => (x < 0 || y < 0 || x >= BOARD_X || y >= BOARD_Y)
+          ? null
+          : (7 - y) * 12 + x)?.filter((num) => num !== null);
+        const { e, f, g } = currentCogStats || {};
         if (e || f || g) {
           affected?.forEach((affectedIndex) => {
             const { e, f, g } = board?.[index]?.cog?.stats || {};
             if (boosted?.[affectedIndex] === 0) {
-              boosted[affectedIndex] = { e, f, g }
+              boosted[affectedIndex] = {
+                e: {
+                  ...e,
+                  value: Math.ceil(e?.value)
+                },
+                f: {
+                  ...f,
+                  value: Math.ceil(f?.value)
+                },
+                g: {
+                  ...g,
+                  value: Math.ceil(g?.value)
+                }
+              }
             } else {
               const { e: curE, f: curF, g: curG } = boosted[affectedIndex] || {};
               boosted[affectedIndex] = {
-                e: { ...curE, value: (curE?.value || 0) + (e?.value || 0) },
-                f: { ...curF, value: (curF?.value || 0) + (f?.value || 0) },
-                g: { ...curG, value: (curG?.value || 0) + (g?.value || 0) },
+                // build rate
+                e: { ...curE, value: Math.ceil((curE?.value || 0) + (e?.value || 0)) },
+                f: { ...curF, value: Math.ceil((curF?.value || 0) + (f?.value || 0)) },
+                // flaggy rate
+                g: { ...curG, value: Math.ceil((curG?.value || 0) + (g?.value || 0)) },
               }
             }
+            relations[affectedIndex] = [...(relations[affectedIndex] || []), index];
           })
         }
       }
     }
   }
-
   let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
   const gemShop = account?.gemShopPurchases?.find((value, index) => index === 118) ?? 0;
   const flaggyMulti = (1 + 50 * gemShop / 100)
@@ -96,7 +114,7 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
     const { cog } = slot || {};
     const { e, f, g } = boosted?.[index] || {};
     const buildRate = e?.value > 0 && cog?.stats?.a?.value > 0
-      ? cog?.stats?.a?.value + (cog?.stats?.a?.value * e?.value / 100)
+      ? Math.ceil(cog?.stats?.a?.value * (1 + e?.value / 100))
       : (cog?.stats?.a?.value || 0);
     totalBuildRate += buildRate;
     // const expRate = f?.value > 0 && cog?.stats?.b?.value > 0 ? cog?.stats?.b?.value + (cog?.stats?.b?.value * f?.value / 100) : (cog?.stats?.b?.value || 0);
@@ -119,6 +137,7 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
     }
   });
   return {
+    relations,
     board: updatedBoard,
     totalBuildRate,
     totalExpRate,
@@ -127,9 +146,9 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
   };
 }
 
-const getAffectedIndexes = (type, x, y) => {
+export const getAffectedIndexes = (currentCog, x, y) => {
   const boosted = [];
-  switch (type) {
+  switch (currentCog?.stats?.h) {
     case 'diagonal':
       boosted.push([x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]);
       break;
