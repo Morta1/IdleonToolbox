@@ -7,20 +7,23 @@ import InfoIcon from '@mui/icons-material/Info';
 import styled from '@emotion/styled';
 
 const General = ({
-                   bits,
-                   availableSprouts,
-                   availableDrops,
-                   sproutsCapacity,
-                   fertilizerUpgrades,
-                   imports,
-                   lastShovelClicked,
-                   goldNuggets,
-                   lastAcornClicked,
-                   acorns,
-                   nuggetsBreakpoints,
-                   acornsBreakpoints,
+                   account,
                    lastUpdated
                  }) => {
+  const {
+    bits,
+    availableSprouts,
+    availableDrops,
+    sproutsCapacity,
+    fertilizerUpgrades,
+    imports,
+    lastShovelClicked,
+    goldNuggets,
+    lastAcornClicked,
+    acorns,
+    nuggetsBreakpoints,
+    acornsBreakpoints,
+  } = account?.gaming;
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
@@ -90,6 +93,7 @@ const General = ({
                   <Typography># of nuggets: {goldNuggets}</Typography>
                   <Typography>Rolls
                     possible: {(notateNumber(maxNuggetValue / 1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
+                  <Typography>Nuggets since upgrade: {account?.accountOptions?.[192]}</Typography>
                 </> : null}
               {acquired && index === 2 ?
                 <>

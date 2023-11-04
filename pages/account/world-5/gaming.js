@@ -18,7 +18,7 @@ const Gaming = () => {
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Gaming</Typography>
     <Tabber tabs={['General', 'Superbits']}>
-      <General {...state?.account?.gaming} lastUpdated={state?.lastUpdated}/>
+      <General account={state?.account} lastUpdated={state?.lastUpdated}/>
       <Superbits superbits={superbitsUpgrades}/>
     </Tabber>
   </>

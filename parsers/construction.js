@@ -1,4 +1,4 @@
-import { tryToParse } from '../utility/helpers';
+import { notateNumber, tryToParse } from '../utility/helpers';
 import { cogKeyMap, flagsReqs, randomList, towers } from '../data/website-data';
 import { createCogstructionData } from './cogstrution';
 
@@ -42,7 +42,7 @@ export const BOARD_Y = 8;
 export const BOARD_X = 12;
 
 const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, account) => {
-  const board = flagsUnlockedRaw?.reduce((res, flagSlot, index) => {
+  let board = flagsUnlockedRaw?.reduce((res, flagSlot, index) => {
     const name = cogsOrder?.[index];
     const stats = cogsMap?.[index];
     return [...res, {
@@ -55,11 +55,110 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
       }
     }];
   }, []);
+  const gemShop = account?.gemShopPurchases?.find((value, index) => index === 118) ?? 0;
+  const flaggyMulti = (1 + 50 * gemShop / 100)
   const playersBuildRate = cogsMap?.map((cog, index) => ({
     ...cog,
     name: cogsOrder?.[index]
   })).filter(({ name }) => name?.includes('Player_'))
     .reduce((sum, { a }) => sum + (a?.value || 0), 0);
+  board = evaluateBoard(board);
+  return {
+    ...board,
+    totalFlaggyRate: board?.totalFlaggyRate * flaggyMulti,
+    playersBuildRate
+  };
+}
+
+const findBest = (board) => {
+  let bestBoard = [...board];
+  let bestEvaluatedBoard = evaluateBoard(board);
+  let bestSpeed = bestEvaluatedBoard?.totalBuildRate;
+  let tries = [], temp;
+  console.time('Finding best');
+  for (let i = 0; i < 2000; i++) {
+    const shuffledBoard = [...bestBoard];
+    const randomKey = Math.floor(Math.random() * board.length);
+    const anotherRandomKey = Math.floor(Math.random() * board.length);
+    if (!shuffledBoard?.[randomKey]?.flagPlaced
+      && shuffledBoard?.[randomKey]?.cog?.stats?.h !== 'everything'
+      && !shuffledBoard?.[anotherRandomKey]?.flagPlaced
+      && shuffledBoard?.[anotherRandomKey]?.cog?.stats?.h !== 'everything') {
+      temp = shuffledBoard?.[randomKey].cog;
+      shuffledBoard[randomKey].cog = shuffledBoard[anotherRandomKey].cog;
+      shuffledBoard[anotherRandomKey].cog = temp;
+    }
+    const newEvaluatedBoard = evaluateBoard(shuffledBoard);
+    if (newEvaluatedBoard?.totalBuildRate > bestSpeed) {
+      bestSpeed = newEvaluatedBoard?.totalBuildRate;
+      bestBoard = shuffledBoard;
+      bestEvaluatedBoard = newEvaluatedBoard;
+    }
+    tries.push(newEvaluatedBoard?.totalBuildRate)
+  }
+  console.timeEnd('Finding best')
+  console.log('Best', bestSpeed, notateNumber(Math.max(...tries)));
+  return bestEvaluatedBoard;
+}
+
+const evaluateBoard = (currentBoard) => {
+  const { boosted, relations } = getAllBoostedCogs(currentBoard);
+  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
+  const updatedBoard = currentBoard?.map((slot, index) => {
+    const { cog } = slot || {};
+    const { e, f, g } = boosted?.[index] || {};
+    const buildRate = e?.value > 0 && cog?.stats?.a?.value > 0
+      ? Math.ceil(cog?.stats?.a?.value * (1 + e?.value / 100))
+      : (cog?.stats?.a?.value || 0);
+    totalBuildRate += buildRate;
+    // const expRate = f?.value > 0 && cog?.stats?.b?.value > 0 ? cog?.stats?.b?.value + (cog?.stats?.b?.value * f?.value / 100) : (cog?.stats?.b?.value || 0);
+    totalExpRate += cog?.stats?.d?.value > 0 ? cog?.stats?.d?.value : 0;
+    const flaggyRate = g?.value > 0 && cog?.stats?.c?.value > 0
+      ? cog?.stats?.c?.value + (cog?.stats?.c?.value * g?.value / 100)
+      : (cog?.stats?.c?.value || 0);
+    totalFlaggyRate += flaggyRate;
+
+    return {
+      ...slot,
+      cog: {
+        ...cog,
+        stats: {
+          ...cog?.stats,
+          a: { ...cog?.stats?.a, value: buildRate },
+          c: { ...cog?.stats?.c, value: flaggyRate }
+        }
+      }
+    }
+  });
+
+  return {
+    relations,
+    totalBuildRate,
+    totalExpRate,
+    totalFlaggyRate,
+    board: updatedBoard
+  }
+}
+
+const shuffleBoard = (board) => {
+  const shuffledBoard = JSON.parse(JSON.stringify(board));
+  let temp;
+  for (let i = 0; i < 500; i++) {
+    const randomKey = Math.floor(Math.random() * board.length);
+    const anotherRandomKey = Math.floor(Math.random() * board.length);
+    if (!shuffledBoard?.[randomKey]?.flagPlaced
+      && shuffledBoard?.[randomKey]?.cog?.stats?.h !== 'everything'
+      && !shuffledBoard?.[anotherRandomKey]?.flagPlaced
+      && shuffledBoard?.[anotherRandomKey]?.cog?.stats?.h !== 'everything') {
+      temp = shuffledBoard?.[randomKey].cog;
+      shuffledBoard[randomKey].cog = shuffledBoard[anotherRandomKey].cog;
+      shuffledBoard[anotherRandomKey].cog = temp;
+    }
+  }
+  return shuffledBoard;
+}
+
+export const getAllBoostedCogs = (board) => {
   const relations = {};
   let boosted = new Array(BOARD_X * BOARD_Y).fill(0);
   for (let y = 0; y < BOARD_Y; y++) {
@@ -107,43 +206,11 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
       }
     }
   }
-  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
-  const gemShop = account?.gemShopPurchases?.find((value, index) => index === 118) ?? 0;
-  const flaggyMulti = (1 + 50 * gemShop / 100)
-  const updatedBoard = board?.map((slot, index) => {
-    const { cog } = slot || {};
-    const { e, f, g } = boosted?.[index] || {};
-    const buildRate = e?.value > 0 && cog?.stats?.a?.value > 0
-      ? Math.ceil(cog?.stats?.a?.value * (1 + e?.value / 100))
-      : (cog?.stats?.a?.value || 0);
-    totalBuildRate += buildRate;
-    // const expRate = f?.value > 0 && cog?.stats?.b?.value > 0 ? cog?.stats?.b?.value + (cog?.stats?.b?.value * f?.value / 100) : (cog?.stats?.b?.value || 0);
-    totalExpRate += cog?.stats?.d?.value > 0 ? cog?.stats?.d?.value : 0;
-    const flaggyRate = g?.value > 0 && cog?.stats?.c?.value > 0
-      ? cog?.stats?.c?.value + (cog?.stats?.c?.value * g?.value / 100)
-      : (cog?.stats?.c?.value || 0);
-    totalFlaggyRate += flaggyRate;
 
-    return {
-      ...slot,
-      cog: {
-        ...cog,
-        stats: {
-          ...cog?.stats,
-          a: { ...cog?.stats?.a, value: buildRate },
-          c: { ...cog?.stats?.c, value: flaggyRate }
-        }
-      }
-    }
-  });
   return {
-    relations,
-    board: updatedBoard,
-    totalBuildRate,
-    totalExpRate,
-    totalFlaggyRate: totalFlaggyRate * flaggyMulti,
-    playersBuildRate
-  };
+    boosted,
+    relations
+  }
 }
 
 export const getAffectedIndexes = (currentCog, x, y) => {
