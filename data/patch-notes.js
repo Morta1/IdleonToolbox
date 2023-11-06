@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.22',
+    gameVer: '1.92',
+    date: '06/11/2023',
+    features: [
+      'Added totems tab in the worship page to calculate Exp and Souls from each totem'
+    ],
+    fixes: []
+  },
+  {
     ver: '3.2.21',
     gameVer: '1.92',
     date: '03/11/2023',

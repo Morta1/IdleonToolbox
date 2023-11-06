@@ -1,9 +1,39 @@
 import { getStampsBonusByEffect } from './stamps';
-import { round } from '../utility/helpers';
+import { round, tryToParse } from '../utility/helpers';
 import { getCardBonusByEffect } from './cards';
 import { getCharacterByHighestTalent, getHighestTalentByClass, getTalentBonusIfActive, mainStatMap } from './talents';
 import { getPostOfficeBonus } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
+import { mapNames, randomList, totems } from '../data/website-data';
+
+
+export const getTotems = (idleonData) => {
+  const totemInfoRaw = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
+  const totemsNames = randomList?.[10]?.split(' ');
+  const totemMapIndexes = [26, 63, 30, 107, 155, 208];
+  return totemsNames?.map((totemName, index) => {
+    const maxWave = totemInfoRaw?.[0]?.[index];
+    const waveMulti = (0 === maxWave ? 0 : Math.pow((5 + maxWave) / 10, 2.6))
+    const expReward = Math.floor(15 * Math.pow(index + 1, 2) * Math.pow(waveMulti, 0.9));
+    const map = mapNames?.[totemMapIndexes?.[index]];
+    const totemInfo = totems?.[index];
+    return {
+      ...totemInfo,
+      name: totemName,
+      maxWave,
+      waveMulti,
+      expReward,
+      map
+    }
+  })
+}
+
+export const getSoulsReward = ({ waveMulti, minEfficiency, efficiency, foodEffect }) => {
+  const efficiencyBonus = efficiency >= minEfficiency
+    ? Math.floor(100 * Math.pow(efficiency / (10 * minEfficiency), .25))
+    : 0;
+  return Math.floor(5 * (1 + efficiencyBonus / 100) * waveMulti * (1 + foodEffect / 100));
+}
 
 export const getMaxCharge = (character, account) => {
   const mainStat = mainStatMap?.[character?.class];
@@ -14,16 +44,6 @@ export const getMaxCharge = (character, account) => {
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'GOSPEL_LEADER', false, mainStat === 'wisdom');
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account);
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.lvReqToCraft : 0;
-  // console.log('character', character?.name)
-  // console.log('cardBonus', cardBonus)
-  // console.log('postOfficeBonus', postOfficeBonus)
-  // console.log('wizardTalentBonus', wizardTalentBonus)
-  // console.log('stampBonus', stampBonus)
-  // console.log('bubbleBonus', bubbleBonus)
-  // console.log('skillLevel', Math.floor(character?.skillsInfo?.worship?.level / 10))
-  // console.log('skullCapa', Math.round(skullSpeed))
-  // console.log('active', Math.max(activeBubbleBonus, 1))
-  // console.log('_----------------------------_')
   return Math.floor(Math.max(50, cardBonus
     + postOfficeBonus + (wizardTalentBonus + (stampBonus
       + bubbleBonus

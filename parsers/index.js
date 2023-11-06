@@ -40,7 +40,7 @@ import {
 } from './misc';
 import { getSaltLick } from './saltLick';
 import { getDungeons } from './dungeons';
-import { applyMealsMulti, getCooking, getKitchens, getMealsBonusByEffectOrStat } from './cooking';
+import { applyMealsMulti, getCooking, getKitchens } from './cooking';
 import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './lab';
 import { classes } from '../data/website-data';
 import { getGuild } from './guild';
@@ -57,6 +57,7 @@ import { getRift, isRiftBonusUnlocked } from './world-4/rift';
 import { getPostOfficeShipments } from './postoffice';
 import { getIslands } from './world-2/islands';
 import { getEquinox } from './equinox';
+import { getTotems } from './worship';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars) => {
   let accountData, charactersData;
@@ -229,5 +230,6 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;
   const fungyFingerBonus = greenMushroomKilled * accountData.lab.labBonuses?.[9]?.bonusOn;
   accountData.lab.labBonuses = applyBonusDesc(accountData.lab.labBonuses, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
+  accountData.totems = getTotems(idleonData);
   return { accountData, charactersData };
 };
