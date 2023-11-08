@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
 import Tooltip from '../../../Tooltip';
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, isProd, kFormatter, notateNumber, prefix } from '../../../../utility/helpers';
 import React from 'react';
 import styled from '@emotion/styled';
 
