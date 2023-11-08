@@ -1,4 +1,4 @@
-import { notateNumber, tryToParse } from '../utility/helpers';
+import { tryToParse } from '../utility/helpers';
 import { cogKeyMap, flagsReqs, randomList, towers } from '../data/website-data';
 import { createCogstructionData } from './cogstrution';
 
@@ -51,7 +51,8 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
       flagPlaced: flagsPlacedRaw?.includes(index),
       cog: {
         name,
-        stats
+        stats,
+        originalIndex: index
       }
     }];
   }, []);
@@ -62,43 +63,71 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
     name: cogsOrder?.[index]
   })).filter(({ name }) => name?.includes('Player_'))
     .reduce((sum, { a }) => sum + (a?.value || 0), 0);
-  board = evaluateBoard(board);
+  const firstBoard = evaluateBoard(board);
   return {
-    ...board,
-    totalFlaggyRate: board?.totalFlaggyRate * flaggyMulti,
+    ...firstBoard,
+    baseBoard: board,
+    totalFlaggyRate: firstBoard?.totalFlaggyRate * flaggyMulti,
     playersBuildRate
   };
 }
 
-const findBest = (board) => {
-  let bestBoard = [...board];
-  let bestEvaluatedBoard = evaluateBoard(board);
-  let bestSpeed = bestEvaluatedBoard?.totalBuildRate;
-  let tries = [], temp;
-  console.time('Finding best');
-  for (let i = 0; i < 2000; i++) {
-    const shuffledBoard = [...bestBoard];
-    const randomKey = Math.floor(Math.random() * board.length);
-    const anotherRandomKey = Math.floor(Math.random() * board.length);
-    if (!shuffledBoard?.[randomKey]?.flagPlaced
-      && shuffledBoard?.[randomKey]?.cog?.stats?.h !== 'everything'
-      && !shuffledBoard?.[anotherRandomKey]?.flagPlaced
-      && shuffledBoard?.[anotherRandomKey]?.cog?.stats?.h !== 'everything') {
-      temp = shuffledBoard?.[randomKey].cog;
-      shuffledBoard[randomKey].cog = shuffledBoard[anotherRandomKey].cog;
-      shuffledBoard[anotherRandomKey].cog = temp;
+const swapElements = (board, index1, index2) => {
+  // Create a new array with the same objects as the original board
+  const newBoard = [...board];
+
+  // Swap the inner properties (cog objects) at the specified indices
+  const tempCog = { ...newBoard[index1]?.cog };
+  newBoard[index1] = {
+    ...newBoard[index1],
+    cog: { ...newBoard[index2]?.cog },
+  };
+  newBoard[index2] = {
+    ...newBoard[index2],
+    cog: tempCog,
+  };
+
+  return newBoard;
+}
+
+export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
+  let currentSolution = [...arr];
+  let best = evaluateBoard(currentSolution);
+  let currentScore = best?.[stat];
+  let moves = [];
+  const startTime = Date.now();
+
+  while (Date.now() - startTime < time) {
+    const randomIndex1 = Math.floor(Math.random() * currentSolution.length);
+    const randomIndex2 = Math.floor(Math.random() * currentSolution.length);
+
+    if (randomIndex1 === randomIndex2) {
+      continue; // Skip the swap if the same index is selected
     }
-    const newEvaluatedBoard = evaluateBoard(shuffledBoard);
-    if (newEvaluatedBoard?.totalBuildRate > bestSpeed) {
-      bestSpeed = newEvaluatedBoard?.totalBuildRate;
-      bestBoard = shuffledBoard;
-      bestEvaluatedBoard = newEvaluatedBoard;
+
+    // Additional conditions to skip the swap
+    if (
+      currentSolution?.[randomIndex1]?.flagPlaced ||
+      currentSolution?.[randomIndex1]?.cog?.stats?.h === 'everything' ||
+      currentSolution?.[randomIndex2]?.flagPlaced ||
+      currentSolution?.[randomIndex2]?.cog?.stats?.h === 'everything'
+    ) {
+      continue; // Skip the swap if any of the conditions are met
     }
-    tries.push(newEvaluatedBoard?.totalBuildRate)
+
+    const newSolution = swapElements(currentSolution, randomIndex1, randomIndex2);
+    const newBoard = evaluateBoard(newSolution);
+
+    if (newBoard?.[stat] > currentScore) {
+      // If a lower score is better, use "<". If higher is better, use ">".
+      best = newBoard;
+      currentSolution = newSolution;
+      currentScore = newBoard?.[stat];
+      moves = [...moves, { from: randomIndex1, to: randomIndex2 }];
+    }
   }
-  console.timeEnd('Finding best')
-  console.log('Best', bestSpeed, notateNumber(Math.max(...tries)));
-  return bestEvaluatedBoard;
+
+  return { ...best, moves };
 }
 
 const evaluateBoard = (currentBoard) => {
@@ -106,17 +135,17 @@ const evaluateBoard = (currentBoard) => {
   let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
   const updatedBoard = currentBoard?.map((slot, index) => {
     const { cog } = slot || {};
-    const { e, f, g } = boosted?.[index] || {};
-    const buildRate = e?.value > 0 && cog?.stats?.a?.value > 0
-      ? Math.ceil(cog?.stats?.a?.value * (1 + e?.value / 100))
-      : (cog?.stats?.a?.value || 0);
-    totalBuildRate += buildRate;
-    // const expRate = f?.value > 0 && cog?.stats?.b?.value > 0 ? cog?.stats?.b?.value + (cog?.stats?.b?.value * f?.value / 100) : (cog?.stats?.b?.value || 0);
-    totalExpRate += cog?.stats?.d?.value > 0 ? cog?.stats?.d?.value : 0;
-    const flaggyRate = g?.value > 0 && cog?.stats?.c?.value > 0
-      ? cog?.stats?.c?.value + (cog?.stats?.c?.value * g?.value / 100)
-      : (cog?.stats?.c?.value || 0);
-    totalFlaggyRate += flaggyRate;
+    const { e, g } = boosted?.[index] || {};
+    const a = cog?.stats?.a?.value || 0;
+    const c = cog?.stats?.c?.value || 0;
+
+    const buildRate = a * (1 + (e?.value || 0) / 100);
+    totalBuildRate += Math.max(buildRate, 0);
+
+    totalExpRate += cog?.stats?.d?.value || 0;
+
+    const flaggyRate = c + (c * (g?.value || 0) / 100);
+    totalFlaggyRate += Math.max(flaggyRate, 0);
 
     return {
       ...slot,
@@ -128,7 +157,7 @@ const evaluateBoard = (currentBoard) => {
           c: { ...cog?.stats?.c, value: flaggyRate }
         }
       }
-    }
+    };
   });
 
   return {
@@ -137,25 +166,7 @@ const evaluateBoard = (currentBoard) => {
     totalExpRate,
     totalFlaggyRate,
     board: updatedBoard
-  }
-}
-
-const shuffleBoard = (board) => {
-  const shuffledBoard = JSON.parse(JSON.stringify(board));
-  let temp;
-  for (let i = 0; i < 500; i++) {
-    const randomKey = Math.floor(Math.random() * board.length);
-    const anotherRandomKey = Math.floor(Math.random() * board.length);
-    if (!shuffledBoard?.[randomKey]?.flagPlaced
-      && shuffledBoard?.[randomKey]?.cog?.stats?.h !== 'everything'
-      && !shuffledBoard?.[anotherRandomKey]?.flagPlaced
-      && shuffledBoard?.[anotherRandomKey]?.cog?.stats?.h !== 'everything') {
-      temp = shuffledBoard?.[randomKey].cog;
-      shuffledBoard[randomKey].cog = shuffledBoard[anotherRandomKey].cog;
-      shuffledBoard[anotherRandomKey].cog = temp;
-    }
-  }
-  return shuffledBoard;
+  };
 }
 
 export const getAllBoostedCogs = (board) => {
@@ -165,7 +176,7 @@ export const getAllBoostedCogs = (board) => {
     for (let x = 0; x < BOARD_X; x++) {
       const index = (7 - y) * 12 + x;
       const currentCog = board?.[index]?.cog;
-      const currentCogStats = board?.[index]?.cog?.stats;
+      const currentCogStats = board?.[index]?.cog?.stats || {};
       let affected = getAffectedIndexes(currentCog, x, y);
       if (affected?.length > 0) {
         affected = affected?.map(([x, y]) => (x < 0 || y < 0 || x >= BOARD_X || y >= BOARD_Y)
@@ -173,22 +184,14 @@ export const getAllBoostedCogs = (board) => {
           : (7 - y) * 12 + x)?.filter((num) => num !== null);
         const { e, f, g } = currentCogStats || {};
         if (e || f || g) {
-          affected?.forEach((affectedIndex) => {
-            const { e, f, g } = board?.[index]?.cog?.stats || {};
+          for (let i = 0; i < affected.length; i++) {
+            const affectedIndex = affected[i];
+            const { e, f, g } = currentCogStats;
             if (boosted?.[affectedIndex] === 0) {
               boosted[affectedIndex] = {
-                e: {
-                  ...e,
-                  value: Math.ceil(e?.value)
-                },
-                f: {
-                  ...f,
-                  value: Math.ceil(f?.value)
-                },
-                g: {
-                  ...g,
-                  value: Math.ceil(g?.value)
-                }
+                e: { ...e, value: Math.ceil(e?.value) },
+                f: { ...f, value: Math.ceil(f?.value) },
+                g: { ...g, value: Math.ceil(g?.value) }
               }
             } else {
               const { e: curE, f: curF, g: curG } = boosted[affectedIndex] || {};
@@ -201,7 +204,7 @@ export const getAllBoostedCogs = (board) => {
               }
             }
             relations[affectedIndex] = [...(relations[affectedIndex] || []), index];
-          })
+          }
         }
       }
     }
@@ -214,57 +217,57 @@ export const getAllBoostedCogs = (board) => {
 }
 
 export const getAffectedIndexes = (currentCog, x, y) => {
-  const boosted = [];
+  const affected = [];
   switch (currentCog?.stats?.h) {
     case 'diagonal':
-      boosted.push([x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]);
+      affected.push([x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]);
       break;
     case 'adjacent':
-      boosted.push([x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1]);
+      affected.push([x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1]);
       break;
     case 'up':
-      boosted.push([x - 1, y + 2], [x, y + 2], [x + 1, y + 2], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]);
+      affected.push([x - 1, y + 2], [x, y + 2], [x + 1, y + 2], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]);
       break;
     case 'right':
-      boosted.push([x + 2, y - 1], [x + 2, y], [x + 2, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]);
+      affected.push([x + 2, y - 1], [x + 2, y], [x + 2, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]);
       break;
     case 'down':
-      boosted.push([x - 1, y - 2], [x, y - 2], [x + 1, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1]);
+      affected.push([x - 1, y - 2], [x, y - 2], [x + 1, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1]);
       break;
     case 'left':
-      boosted.push([x - 2, y - 1], [x - 2, y], [x - 2, y + 1], [x - 1, y - 1], [x - 1, y], [x - 1, y + 1]);
+      affected.push([x - 2, y - 1], [x - 2, y], [x - 2, y + 1], [x - 1, y - 1], [x - 1, y], [x - 1, y + 1]);
       break;
     case 'row':
       for (let k = 0; k < BOARD_X; k++) {
         if (x === k) continue;
-        boosted.push([k, y]);
+        affected.push([k, y]);
       }
       break;
     case 'column':
       for (let k = 0; k < BOARD_Y; k++) {
         if (y === k) continue;
-        boosted.push([x, k]);
+        affected.push([x, k]);
       }
       break;
     case 'corners':
-      boosted.push([x - 2, y - 2,], [x + 2, y - 2,], [x - 2, y + 2,], [x + 2, y + 2,]);
+      affected.push([x - 2, y - 2,], [x + 2, y - 2,], [x - 2, y + 2,], [x + 2, y + 2,]);
       break;
     case 'around':
-      boosted.push([x, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x - 2, y], [x - 1, y], [x + 1, y],
+      affected.push([x, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x - 2, y], [x - 1, y], [x + 1, y],
         [x + 2, y], [x - 1, y + 1], [x, y + 1,], [x + 1, y + 1], [x, y + 2]);
       break;
     case 'everything':
       for (let l = 0; l < BOARD_Y; l++) {
         for (let k = 0; k < BOARD_X; k++) {
           if (y === l && x === k) continue;
-          boosted.push([k, l]);
+          affected.push([k, l]);
         }
       }
       break;
     default:
       break;
   }
-  return boosted;
+  return affected;
 }
 
 export const getTowers = (idleonData) => {

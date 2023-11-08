@@ -6,6 +6,15 @@ export const patchNotes = [
   {
     ver: '3.2.22',
     gameVer: '1.92',
+    date: '08/11/2023',
+    features: [
+      'Added a prototype for optimizing construction board (under construction tab) - use at your own risk :)',
+    ],
+    fixes: []
+  },
+  {
+    ver: '3.2.22',
+    gameVer: '1.92',
     date: '06/11/2023',
     features: [
       'Added totems tab in the worship page to calculate Exp and Souls from each totem'
