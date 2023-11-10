@@ -107,6 +107,8 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
 
     // Additional conditions to skip the swap
     if (
+      currentSolution?.[randomIndex1]?.currentAmount < currentSolution?.[randomIndex1]?.requiredAmount ||
+      currentSolution?.[randomIndex2]?.currentAmount < currentSolution?.[randomIndex2]?.requiredAmount ||
       currentSolution?.[randomIndex1]?.flagPlaced ||
       currentSolution?.[randomIndex1]?.cog?.stats?.h === 'everything' ||
       currentSolution?.[randomIndex2]?.flagPlaced ||

@@ -126,16 +126,16 @@ const SlotBackground = styled(Stack)`
             ? ''
             : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
 
-    width: 44px;
-    height: 41px;
+    width: 48px;
+    height: 47px;
     top: 1px;
     left: -1px;
   }
 `;
 
 const FlagIcon = styled.img`
-  width: 43px;
-  height: 42px;
+  width: 47px;
+  height: 47px;
 `;
 
 const SlotIcon = styled.img`
