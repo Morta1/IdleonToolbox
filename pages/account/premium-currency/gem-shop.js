@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { AppContext } from '../../components/common/context/AppProvider';
-import { gemShop } from '../../data/website-data';
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { gemShop } from '../../../data/website-data';
 import {
   Badge,
   Card,
@@ -12,9 +12,9 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../utility/helpers';
+import { cleanUnderscore, prefix } from '../../../utility/helpers';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue } from '../../components/common/styles';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 // const priorities = {
 //   S: [103, 106, 111, 63],

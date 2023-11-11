@@ -18,10 +18,12 @@ export const patchNotes = [
       'Added a timer for counting down until the forge is emptied.',
       'Added a display for the material cost of the next rank of all salts',
       'Added gem shop page under account page with some priority options',
+      'Added more collapsable sections to the account page to make the navigation bar more concise',
     ],
     fixes: [
       'Fixed a bug where optimizing construction board was taking locked slots into account',
       'Fixed a bug with the atom collider atoms max level',
+      'Fixed some bugs that popped up from the latest update'
     ]
   },
   {

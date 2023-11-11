@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
-import { AppContext } from '../../components/common/context/AppProvider';
+import { AppContext } from '../../../components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import Tabber from '../../components/common/Tabber';
-import { cleanUnderscore, prefix, worldsArray } from '../../utility/helpers';
+import Tabber from '../../../components/common/Tabber';
+import { cleanUnderscore, prefix, worldsArray } from '../../../utility/helpers';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '../../components/common/styles';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const Merits = () => {
   const { state } = useContext(AppContext);

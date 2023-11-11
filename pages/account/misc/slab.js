@@ -4,7 +4,7 @@ import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
-import { filteredLootyItems } from '../../parsers/parseMaps';
+import { filteredLootyItems } from '../../../parsers/parseMaps';
 import Image from 'next/image';
 
 const Slab = () => {

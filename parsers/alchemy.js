@@ -13,22 +13,23 @@ const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o' };
 const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };
 const bigBubblesIndices = { _: 'power', a: 'quicc', b: 'high-iq', c: 'kazam' };
 
-export const getAlchemy = (idleonData, account) => {
+export const getAlchemy = (idleonData, account, serializedCharactersData) => {
+  console.log('serializedCharactersData', serializedCharactersData)
   const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo) || idleonData?.CauldronInfo;
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1) || idleonData?.CauldronJobs?.[1];
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
     alchemyRaw[8] = cauldronsInfo.slice(0, 16);
   }
-  return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, account);
+  return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData);
 };
 
-export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, account) => {
+export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData) => {
   const alchemyActivity = cauldronJobs1Raw?.map((playerAlchActivity, index) => ({
     activity: playerAlchActivity,
     index
   }));
-  const p2w = getPay2Win(idleonData, alchemyActivity, account);
+  const p2w = getPay2Win(idleonData, alchemyActivity, serializedCharactersData);
   const bubbles = getBubbles(alchemyRaw);
   const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
@@ -91,9 +92,9 @@ const getCauldronBrewBonus = (index, cauldronVal) => {
   return Math.round(cauldronVal);
 }
 
-const getPay2Win = (idleonData, alchemyActivity, account) => {
+const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
-  const playersInLiquids = alchemyActivity.filter(({ activity }) => activity < 100 && activity >= 4 && activity !== -1);
+  const playersInLiquids = alchemyActivity.filter(({ activity }, index) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w = {};
   const [cauldrons, liquids, vials, player] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
   p2w.cauldrons = cauldrons.toChunks(3).map(([speed, newBubble, boostReq], index) => ({
@@ -110,7 +111,7 @@ const getPay2Win = (idleonData, alchemyActivity, account) => {
   })).filter(({ name }) => name);
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
   p2w.player = { speed: player?.[0] || 0, extraExp: player?.[1] || 0 };
-  p2w.sigils = getSigils(idleonData, alchemyActivity, account);
+  p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
   return p2w;
 }
 
@@ -284,12 +285,12 @@ const getCauldronStats = (idleonData) => {
   return stats;
 };
 
-export const getSigils = (idleonData, alchemyActivity) => {
+export const getSigils = (idleonData, alchemyActivity, serializedCharactersData) => {
   const sigilsRaw = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
-  return parseSigils(sigilsRaw, alchemyActivity);
+  return parseSigils(sigilsRaw, alchemyActivity, serializedCharactersData);
 };
 
-const parseSigils = (sigilsRaw, alchemyActivity) => {
+const parseSigils = (sigilsRaw, alchemyActivity, serializedCharactersData) => {
   const sigilsData = sigilsRaw?.[4];
   let sigilsList = [];
   for (let i = 0, j = sigilsData.length; i < j; i += 2) {
@@ -298,7 +299,7 @@ const parseSigils = (sigilsRaw, alchemyActivity) => {
     const charactersInSigil = alchemyActivity.filter(({
                                                         activity,
                                                         index
-                                                      }) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < 11);
+                                                      }) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < 11 && index < serializedCharactersData?.length);
     if (sigilData) {
       sigilsList = [
         ...sigilsList,

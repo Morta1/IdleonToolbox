@@ -1,5 +1,5 @@
 import { growth, tryToParse } from '../utility/helpers';
-import { chips, classes, jewels, labBonuses, randomList, talents, tasks } from '../data/website-data';
+import { chips, classes, jewels, labBonuses, merits, randomList, talents } from '../data/website-data';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getCardBonusByEffect } from './cards';
 import { isArenaBonusActive, isCompanionBonusActive } from './misc';
@@ -67,7 +67,8 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     }
   });
 
-  const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * tasks?.[3]?.[4]?.bonusPerLevel;
+  const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * merits?.[3]?.[4]?.bonusPerLevel;
+  console.log('merits?.[3]?.[4]?.bonusPerLevel', merits?.[3]?.[4]?.bonusPerLevel)
   let buboPlayer = charactersData.find(({ CharacterClass }) => CharacterClass === 36);
   if (buboPlayer) {
     buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }

@@ -5,10 +5,10 @@ import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { calcHappyHours } from '../../parsers/dungeons';
+import { calcHappyHours } from '../../../parsers/dungeons';
 import { NextSeo } from 'next-seo';
 import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../../components/Tooltip';
 
 const insideDungeonUpgradeMaxLevel = 100;
 const flurboUpgradeMaxLevel = 50;

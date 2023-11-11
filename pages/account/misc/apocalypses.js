@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../components/common/context/AppProvider';
-import { talentPagesMap } from '../../parsers/talents';
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { talentPagesMap } from '../../../parsers/talents';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
-import Tooltip from '../../components/Tooltip';
+import Tooltip from '../../../components/Tooltip';
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);

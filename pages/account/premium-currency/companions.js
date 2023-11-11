@@ -1,8 +1,8 @@
 import { NextSeo } from 'next-seo';
 import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
-import { AppContext } from '../../components/common/context/AppProvider';
-import { cleanUnderscore, prefix } from '../../utility/helpers';
+import { AppContext } from '../../../components/common/context/AppProvider';
+import { cleanUnderscore, prefix } from '../../../utility/helpers';
 
 const Companions = () => {
   const { state } = useContext(AppContext);
