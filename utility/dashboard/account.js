@@ -8,11 +8,27 @@ import { items, liquidsShop } from '../../data/website-data';
 import { hasMissingMats } from '../../parsers/refinery';
 import { calcTotals } from '../../parsers/printer';
 
+
+export const tasksAlert = (account, options) => {
+  let tasksAlerts = []
+  if (options?.tasks?.checked) {
+    tasksAlerts = account?.tasksDescriptions?.reduce((acc, tasks, worldIndex) => {
+      const ninthTask = tasks?.[8];
+      const ninthTaskNotCompleted = ninthTask?.level === 0;
+      if (ninthTaskNotCompleted && options?.tasks?.props?.value?.[worldIndex + 1]) {
+        return [...acc, worldIndex];
+      } else {
+        return acc;
+      }
+    }, []);
+  }
+  return tasksAlerts;
+}
 export const atomColliderAlerts = (account, options) => {
   const alerts = {}
   if (!account?.finishedWorlds?.World2) return alerts;
   if (options?.stampReducer?.checked) {
-    alerts.stampReducer = account?.atoms?.stampReducer >= 90;
+    alerts.stampReducer = account?.atoms?.stampReducer >= options?.stampReducer?.props?.value;
   }
   return alerts;
 }

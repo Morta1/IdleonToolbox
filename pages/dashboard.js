@@ -14,7 +14,24 @@ import DashboardSettings from '../components/common/DashboardSettings';
 
 const baseTrackers = {
   account: {
-    atomCollider: { checked: true, options: [{ name: 'stampReducer', checked: true }] },
+    tasks: {
+      checked: true,
+      options: [{
+        name: 'tasks',
+        type: 'array',
+        category: 'Worlds',
+        props: { value: [1, 2, 3, 4, 5].toSimpleObject() },
+        checked: true
+      }]
+    },
+    atomCollider: {
+      checked: true, options: [{
+        name: 'stampReducer',
+        type: 'input',
+        props: { label: 'Threshold', value: 90, maxValue: 90, minValue: 0, endAdornment: '%' },
+        checked: true
+      }]
+    },
     arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
     alchemy: {
       checked: true, options: [

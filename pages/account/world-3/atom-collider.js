@@ -40,7 +40,7 @@ const AtomCollider = ({}) => {
       </Card>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, bonus, maxLevel }, index) => {
+      {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, nextLeveCost, costToMax, bonus, maxLevel }, index) => {
         if (index >= MAX_ATOMS) return;
         const description = cleanUnderscore(desc)
           .replace(/{/g, `${baseBonus * level}`)
@@ -56,7 +56,11 @@ const AtomCollider = ({}) => {
                 <Stack>
                   <Typography>{cleanUnderscore(name)}</Typography>
                   <Typography>Lv. {level} / {maxLevel}</Typography>
-                  <Typography>Cost: {notateNumber(cost, 'Big')}</Typography>
+                  {level < maxLevel ? <>
+                    <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
+                    <Typography variant={'caption'}>Next level cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
+                    <Typography variant={'caption'}>Cost to max: {notateNumber(costToMax, 'Big')}</Typography>
+                  </> : null}
                 </Stack>
               </Stack>
               <Divider sx={{ my: 2 }}/>

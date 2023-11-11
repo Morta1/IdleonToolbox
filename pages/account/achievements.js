@@ -3,12 +3,11 @@ import { Box, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
+import { cleanUnderscore, notateNumber, prefix, worldsArray } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../components/common/Tabber';
 
 const achievementsPerWorld = 70;
-const worlds = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 
 const Achievements = () => {
   const { state } = useContext(AppContext);
@@ -36,7 +35,7 @@ const Achievements = () => {
         title="Idleon Toolbox | Achievements"
         description="Keep track of your achievements progression"
       />
-      <Tabber tabs={worlds} onTabChange={handleWorldChange}>
+      <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
         <Box display={'flex'} justifyContent={'center'}>
           {localAchievements?.length > 0 ?
             <Stack sx={{ width: { lg: 900 } }} justifyContent={'center'} mt={3} flexWrap={'wrap'} direction={'row'}

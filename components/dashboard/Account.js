@@ -25,6 +25,7 @@ import {
   printerAlerts,
   sailingAlerts,
   shopsAlerts,
+  tasksAlert,
 } from '../../utility/dashboard/account';
 import useAlerts from '../hooks/useAlerts';
 
@@ -42,7 +43,8 @@ const alertsMap = {
   postOffice: postOfficeAlerts,
   equinox: equinoxAlerts,
   etc: etcAlerts,
-  cooking: cookingAlerts
+  cooking: cookingAlerts,
+  tasks: tasksAlert
 }
 
 const Account = ({ account, trackers }) => {
@@ -81,12 +83,13 @@ const Account = ({ account, trackers }) => {
                    iconPath={'data/GamingItem1'}/> : null}
 
           {trackers?.equinox && alerts?.equinox?.bar ?
-            <Alert title={`Your Equinox bar is full !`} iconPath={'data/Quest78'} /> : null}
+            <Alert title={`Your Equinox bar is full !`} iconPath={'data/Quest78'}/> : null}
           {trackers?.equinox && alerts?.equinox?.challenges > 0 ?
-            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate !`} iconPath={'data/Quest78'} /> : null}
+            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate !`}
+                   iconPath={'data/Quest78'}/> : null}
           {trackers?.equinox && alerts?.equinox?.foodLust ?
-            <Alert title={`Food Lust is maxed !`} iconPath={'etc/Dream_Upgrade_10'} /> : null}
-          
+            <Alert title={`Food Lust is maxed !`} iconPath={'etc/Dream_Upgrade_10'}/> : null}
+
           {trackers?.etc && alerts?.etc?.gildedStamps > 0 ?
             <Alert title={`You have ${alerts?.etc?.gildedStamps} available gilded stamps`}
                    iconPath={'data/GildedStamp'}/> : null}
@@ -104,6 +107,10 @@ const Account = ({ account, trackers }) => {
             alerts?.alchemy?.liquids?.map(({ index }) => <Alert key={'liq' + index}
                                                                 title={`${getNumberWithOrdinal(index + 1)} liquid is full!`}
                                                                 iconPath={`data/Liquid${index + 1}_x1`}/>) : null}
+          {trackers?.tasks && alerts?.tasks?.length > 0 ?
+            alerts?.tasks?.map((world) => <Alert key={'task' + world}
+                                                 title={`Daily task in world ${world + 1} not done yet.`}
+                                                 iconPath={`etc/Merit_${world}`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
             alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {
               return <Alert

@@ -5,9 +5,11 @@ import { getCoinsArray, prefix } from '../../../utility/helpers';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
+import Timer from '../../../components/common/Timer';
+import Box from '@mui/material/Box';
 
 const slot = {
-  width: 72,  alignItems: 'center'
+  width: 72, alignItems: 'center'
 }
 
 const Forge = () => {
@@ -41,13 +43,14 @@ const Forge = () => {
     <Tabber tabs={['Slots', 'Upgrades']}>
       <Grid container gap={2}>
         {state?.account?.forge?.list?.map(({ ore, barrel, bar, isBrimestone }, index) => {
+          const timeTillEmpty = ore?.timeTillEmpty ?? 0;
           const materials = [ore, barrel, bar];
           const empty = materials.every(({ rawName }) => rawName === 'Blank');
           return <Grid item key={`${ore}-${barrel}-${bar}-${index}`}>
             <Card sx={{ position: 'relative', borderColor: isBrimestone ? '#9b689bbf' : 'none' }}
                   variant={'outlined'} key={`${ore}-${barrel}-${bar}-${index}`}>
               <CardContent>
-                <Stack direction={'row'}>
+                <Stack direction={'row'} alignItems={'center'}>
                   {materials?.map(({ rawName, quantity }, matIndex) => {
                     return <Stack key={`${rawName}-${matIndex}`} sx={slot}>
                       <img style={{ width: !isMd ? 'auto' : 36, opacity: empty ? 0 : 1 }}
@@ -57,6 +60,11 @@ const Forge = () => {
                           variant={'body1'} component={'span'}>&nbsp;</Typography>}
                     </Stack>
                   })}
+                  <Box>
+                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Time till empty</Typography>
+                    <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
+                           date={new Date().getTime() + timeTillEmpty}/>
+                  </Box>
                 </Stack>
               </CardContent>
             </Card>

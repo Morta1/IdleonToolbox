@@ -8,7 +8,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -28,6 +28,7 @@ import { constructionMasteryThresholds } from '../../../parsers/construction';
 import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '../../../parsers/printer';
 import { calcTotalCritters } from '../../../parsers/traps';
+import Box from '@mui/material/Box';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
@@ -161,7 +162,8 @@ const Refinery = () => {
             <Stack alignItems={'center'}>
               <img src={`${prefix}data/UISkillIcon130.png`} alt=""/>
               <Typography sx={boldSx}>{name}</Typography>
-              <Timer placeholder={<Typography sx={{ color: 'success.main', fontWeight: 'bold' }}>Ready</Typography>}
+              <Timer placeholder={<Typography component={'span'}
+                                              sx={{ color: 'success.main', fontWeight: 'bold' }}>Ready</Typography>}
                      type={'countdown'} date={cooldown} lastUpdated={state?.lastUpdated}/>
             </Stack>
           </CardContent>
@@ -198,6 +200,7 @@ const Refinery = () => {
         </CardContent>
       </Card>
     </Stack>
+    <Typography sx={{ my: 1 }}>* The number in parenthesis is the cost of the next rank</Typography>
     <Stack gap={3} justifyContent={'center'}>
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
@@ -225,14 +228,16 @@ const Refinery = () => {
           <CardContent>
             <Stack direction={'row'} alignItems={'flex-start'} gap={3} flexWrap={'wrap'}>
               <Stack alignItems={'center'} alignSelf={'center'}>
-                <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                <Tooltip title={'hi'}>
+                  <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                </Tooltip>
                 Rank: {rank}
               </Stack>
               <Stack alignSelf={'center'} sx={{ width: { md: 200 } }} gap={.5}>
                 <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
                 <Typography>Power: {numberWithCommas(refined)} / {numberWithCommas(powerCap)}</Typography>
                 <Typography>Auto refine: {autoRefinePercentage}%</Typography>
-                <Typography>Rank up: {active ? <Timer
+                <Typography component={'span'}>Rank up: {active ? <Timer
                     type={'countdown'}
                     lastUpdated={state?.lastUpdated}
                     pause={!active || !hasMaterialsForCycle}
@@ -243,9 +248,9 @@ const Refinery = () => {
                       : 'Missing Mats'}</Typography>}
                     date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/> :
                   <Typography component={'span'} color={'error'}>Inactive</Typography>}</Typography>
-                <Typography>Fuel: {fuelTime ? <Timer type={'countdown'}
-                                                     date={new Date().getTime() + fuelTime * 1000}
-                                                     lastUpdated={state?.lastUpdated}
+                <Typography component={'span'}>Fuel: {fuelTime ? <Timer type={'countdown'}
+                                                                        date={new Date().getTime() + fuelTime * 1000}
+                                                                        lastUpdated={state?.lastUpdated}
                 /> : 'Empty'}</Typography>
                 <ProgressBar percent={progressPercentage} bgColor={saltsColors?.[saltIndex]}/>
               </Stack>
@@ -260,51 +265,50 @@ const Refinery = () => {
                        justifyContent={'center'}>
                   {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
                     const cost = calcCost(rank, quantity, rawName, saltIndex);
+                    const nextLevelCost = calcCost(rank + 1, quantity, rawName, saltIndex);
+                    const nextLevelPerHour = nextLevelCost * 3600 / combustionTime;
+                    const nextLevelRankUp = calcResourceToRankUp(rank + 1, refined, powerCap, nextLevelCost);
                     const costPerHour = cost * 3600 / combustionTime;
                     const costRankUp = calcResourceToRankUp(rank, refined, powerCap, cost);
                     const isSalt = rawName?.includes('Refinery');
                     const isCritter = rawName?.includes('Critter');
-                    // activeCritters?.[rawName]
-                    // previousPowerPerCycle
-                    // previousSaltPerHour
                     gainValuePerCycle = isCritter ? 0 : isSalt
                       ? previousPowerPerCycle
                       : activePrints?.[rawName]?.boostedValue;
                     gainValuePerHour = isCritter ? 0 : isSalt
                       ? previousSaltPerHour
                       : activePrints?.[rawName]?.boostedValue;
-                    return <Stack key={`${rawName}-${index}`} direction={'row'} gap={5} alignItems={'center'}
-                                  justifyContent={'center'}>
+                    return <Box display="grid" gridTemplateColumns="repeat(3, 60px)" gap={5}
+                                key={`${rawName}-${index}`}>
                       <Tooltip
-                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerCycle}/>}><Stack
-                        sx={{ width: 50, height: 76 }} alignItems={'center'}>
-                        <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                        <Typography
-                          color={cost > totalAmount && gainValuePerHour < cost ? 'error.light' : ''}>{cost}</Typography>
-                      </Stack>
+                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerCycle}/>}>
+                        <ItemCell rawName={rawName}
+                                  mainValue={cost}
+                                  mainError={cost > totalAmount && gainValuePerHour < cost}
+                                  secondaryValue={nextLevelCost}
+                                  secondaryError={cost > totalAmount && gainValuePerHour < nextLevelCost}
+                        />
                       </Tooltip>
                       <Tooltip
                         title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}>
-                        <Stack sx={{ width: 50, height: 76 }} alignItems={'center'}>
-                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                          <Typography
-                            color={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour
-                              ? 'error.light'
-                              : ''}>{notateNumber(costPerHour)}</Typography>
-                        </Stack>
+                        <ItemCell rawName={rawName}
+                                  mainValue={costPerHour}
+                                  mainError={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour}
+                                  secondaryError={(cost > totalAmount && gainValuePerHour < nextLevelPerHour) || isSalt && nextLevelPerHour > previousSaltPerHour}
+                                  secondaryValue={nextLevelPerHour}
+                        />
                       </Tooltip>
                       <Tooltip
-                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}><Stack
-                        sx={{ width: 50, height: 76 }} alignItems={'center'}>
-                        <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                        <Typography
-                          color={cost > totalAmount ? 'error.light' : ''}>{notateNumber(costRankUp)}</Typography>
-                        <Typography
-                          variant={'caption'}
-                          color={cost > totalAmount ? 'error.light' : ''}>({notateNumber(totalAmount)})</Typography>
-                      </Stack>
+                        title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}>
+                        <ItemCell rankUp
+                                  rawName={rawName}
+                                  mainValue={costRankUp}
+                                  mainError={cost > totalAmount}
+                                  secondaryValue={nextLevelRankUp}
+                                  secondaryError={nextLevelCost > totalAmount}
+                        />
                       </Tooltip>
-                    </Stack>
+                    </Box>
                   })}
                 </Stack>
               </Stack>
@@ -326,34 +330,6 @@ const Refinery = () => {
                   </Stack>
                 </Stack>
               </Stack>
-              {/*<Stack>*/}
-              {/*  <Typography fontWeight={'bold'}>Per hour</Typography>*/}
-              {/*  <Stack flexWrap={'wrap'} direction={'row'} sx={{ width: { md: 140 } }} gap={1}>*/}
-              {/*    {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {*/}
-              {/*      const cost = calcCost(rank, quantity, rawName, saltIndex);*/}
-              {/*      return <Stack alignItems={'center'} key={`per-hour-${rawName}-${index}`}>*/}
-              {/*        <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>*/}
-              {/*        <Typography*/}
-              {/*          color={cost > totalAmount ? 'error.light' : ''}>{notateNumber(cost * 3600 / combustionTime)}</Typography>*/}
-              {/*      </Stack>*/}
-              {/*    })}*/}
-              {/*  </Stack>*/}
-              {/*</Stack>*/}
-              {/*<Stack>*/}
-              {/*  <Typography fontWeight={'bold'}>Rank up</Typography>*/}
-              {/*  <Stack flexWrap={'wrap'} direction={'row'} width={160} gap={1}>*/}
-              {/*    {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {*/}
-              {/*      let cost = calcCost(rank, quantity, rawName, saltIndex);*/}
-              {/*      cost = calcResourceToRankUp(rank, refined, powerCap, cost);*/}
-              {/*      return <Stack alignItems={'center'} key={`${rawName}-${index}`}>*/}
-              {/*        <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>*/}
-              {/*        <Typography>{kFormatter(cost)}</Typography>*/}
-              {/*        <Typography color={cost > totalAmount ? 'error.light' : ''}*/}
-              {/*                    variant={'caption'}>({kFormatter(totalAmount)})</Typography>*/}
-              {/*      </Stack>*/}
-              {/*    })}*/}
-              {/*  </Stack>*/}
-              {/*</Stack>*/}
             </Stack>
           </CardContent>
         </Card>
@@ -362,6 +338,37 @@ const Refinery = () => {
   </>
 };
 
+const ItemCell = forwardRef((props, ref) => {
+  const {
+    rankUp,
+    rawName,
+    mainValue,
+    secondaryValue,
+    mainError,
+    secondaryError,
+    thirdValue,
+    thirdError,
+    ...rest
+  } = props;
+  return <Stack
+    {...rest}
+    ref={ref}
+    direction={'row'}
+    alignItems={'center'}>
+    <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+    <Stack>
+      <Typography
+        fontSize={14}
+        color={mainError ? 'error.light' : ''}>{notateNumber(mainValue)}</Typography>
+      {secondaryValue ? <Typography
+        variant={'caption'}
+        color={secondaryError ? 'error.light' : ''}>({notateNumber(secondaryValue)})</Typography> : null}
+      {thirdValue ? <Typography
+        variant={'caption'}
+        color={thirdError ? 'error.light' : ''}>({notateNumber(thirdValue)})</Typography> : null}
+    </Stack>
+  </Stack>
+})
 const PrintingTooltip = ({ isCritter, amount }) => {
   return <Stack>
     <Typography variant={'button'}>{isCritter ? 'Trapping' : 'Printing'}</Typography>

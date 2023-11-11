@@ -12,6 +12,14 @@ const misc = {
   achievements: {
     icon: 'TaskAchBorder1'
   },
+  tasks: {
+    icon: 'etc/TasksStar',
+    differentSource: true
+  },
+  merits: {
+    icon: 'etc/Merit_4',
+    differentSource: true
+  },
   storage: {
     icon: 'InvStorage42'
   },
@@ -42,6 +50,9 @@ const misc = {
   'guild': {
     icon: 'etc/Guild',
     differentSource: true
+  },
+  'gem-shop': {
+    icon: 'PremiumGem'
   }
 };
 

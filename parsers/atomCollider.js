@@ -20,15 +20,29 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const reduxSuperbit = isSuperbitUnlocked(account, 'Atom_Redux')?.unlocked ?? 0;
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
     const maxLevel = Math.round(20 + 10 * (+!!maxLevelSuperbit));
-
-    const cost = (1 / (1 + (atomReductionFromAtom + 10 * (reduxSuperbit
-          ? 1
-          : 0) + bubbleBonus + atomColliderLevel / 10 + 7
-        * account?.tasks?.[2][4][6]) / 100))
-      * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
+    const costObject = {
+      account,
+      atomReductionFromAtom,
+      reduxSuperbit,
+      bubbleBonus,
+      atomColliderLevel,
+      atomInfo,
+      level
+    };
+    const cost = getCost(costObject);
+    const nextLeveCost = getCost({ ...costObject, level: level + 1 });
+    const costToMax = getCostToMax({ ...costObject, maxLevel })
 
     const bonus = parseAtomBonus(atomInfo, level, account);
-    return { level, maxLevel, rawName: `Atom${index}`, ...(atomsInfo?.[index] || {}), cost: Math.floor(cost), bonus }
+    return {
+      level,
+      maxLevel,
+      rawName: `Atom${index}`, ...(atomsInfo?.[index] || {}),
+      cost: Math.floor(cost),
+      nextLeveCost: Math.floor(nextLeveCost),
+      costToMax: Math.floor(costToMax),
+      bonus
+    }
   });
   const daysSinceUsed = account?.accountOptions?.[134];
   const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');
@@ -39,6 +53,29 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     atoms,
     stampReducer: value
   }
+}
+
+const getCost = ({
+                   account,
+                   atomReductionFromAtom,
+                   reduxSuperbit,
+                   bubbleBonus,
+                   atomColliderLevel,
+                   atomInfo,
+                   level
+                 }) => {
+  const baseCost = (1 / (1 + (atomReductionFromAtom + 10 * (reduxSuperbit
+      ? 1
+      : 0) + bubbleBonus + atomColliderLevel / 10 + 7
+    * account?.tasks?.[2][4][6]) / 100));
+  return baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level)
+}
+const getCostToMax = (costObject) => {
+  let total = 0;
+  for (let i = costObject?.level; i < costObject?.maxLevel; i++) {
+    total += getCost(({ ...costObject, level: i }));
+  }
+  return total
 }
 
 const parseAtomBonus = (atomInfo, level, account) => {

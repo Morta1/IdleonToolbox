@@ -402,5 +402,7 @@ export const fillMissingTalents = (arr) => {
 
   return arr.concat(missingNumbers).sort((a, b) => a.talentId - b.talentId);
 }
+
+export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 export const prefix = isProd ? '/' : '/';
 

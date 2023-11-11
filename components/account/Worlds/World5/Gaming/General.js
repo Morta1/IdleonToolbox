@@ -1,10 +1,11 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '../../../../../utility/helpers';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import styled from '@emotion/styled';
+import { calculateSnailEncouragementForSuccessChance } from '../../../../../parsers/gaming';
 
 const General = ({
                    account,
@@ -12,6 +13,8 @@ const General = ({
                  }) => {
   const {
     bits,
+    snailLevel,
+    snailEncouragement,
     availableSprouts,
     availableDrops,
     sproutsCapacity,
@@ -23,12 +26,16 @@ const General = ({
     acorns,
     nuggetsBreakpoints,
     acornsBreakpoints,
+    envelopes,
+    bestNugget
   } = account?.gaming;
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
       <ImgCard imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
+      <ImgCard imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
       <ImgCard imgSrc={'etc/GamingDrop'} value={availableDrops}/>
+      <ImgCard imgSrc={'etc/GamingEnvelope'} value={envelopes}/>
     </Stack>
 
     <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -82,42 +89,17 @@ const General = ({
                 <Typography>{notateNumber(cost, 'bits')}</Typography>
               </Stack>
               {acquired && (index === 1 || index === 2) ? <Divider sx={{ my: 2 }}/> : null}
-              {acquired && index === 1 ?
-                <>
-                  <Stack mt={1} direction={'row'} gap={1}>
-                    <Timer date={new Date().getTime() - lastShovelClicked * 1000} lastUpdated={lastUpdated}/>
-                    <Tooltip title={<ResourcePerTime breakpoints={nuggetsBreakpoints}/>}>
-                      <InfoIcon/>
-                    </Tooltip>
-                  </Stack>
-                  <Typography># of nuggets: {goldNuggets}</Typography>
-                  <Typography>Rolls
-                    possible: {(notateNumber(maxNuggetValue / 1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
-                  <Typography>Nuggets since upgrade: {account?.accountOptions?.[192]}</Typography>
-                </> : null}
-              {acquired && index === 2 ?
-                <>
-                  <Stack mt={1} direction={'row'} gap={1}>
-                    <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={lastUpdated}/>
-                    <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints}/>}>
-                      <InfoIcon/>
-                    </Tooltip>
-                  </Stack>
-                  <Typography># of acorns: {acorns}</Typography>
-                </> : null}
+              {acquired && index === 1 ? <Nuggets account={account} bestNugget={bestNugget} lastUpdated={lastUpdated}
+                                                  goldNuggets={goldNuggets}
+                                                  lastShovelClicked={lastShovelClicked} maxNuggetValue={maxNuggetValue}
+                                                  nuggetsBreakpoints={nuggetsBreakpoints}/> : null}
+              {acquired && index === 2 ? <Acorns acorns={acorns} lastUpdated={lastUpdated}
+                                                 acornsBreakpoints={acornsBreakpoints}
+                                                 lastAcornClicked={lastAcornClicked}/> : null}
+              {acquired && index === 7 ? <Snail snailLevel={snailLevel}
+                                                snailEncouragement={snailEncouragement}/> : null}
               {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
-              {acornShop ? <Stack>
-                <Divider sx={{ my: 2 }}/>
-                <Typography>Acorn Shop</Typography>
-                <Stack direction={'row'} gap={3}>
-                  {acornShop?.map(({ cost, bonus, description }, index) => <Stack key={'corn-' + index}>
-                    <Stack>
-                      <Typography>{description}</Typography>
-                      <Typography>Cost: {cost}</Typography>
-                    </Stack>
-                  </Stack>)}
-                </Stack>
-              </Stack> : null}
+              {acornShop ? <AcornShop acornShop={acornShop}/> : null}
               <Divider sx={{ my: 2 }}/>
             </Stack>
             <Stack mt={'auto'}>
@@ -133,6 +115,71 @@ const General = ({
     </Stack>
   </>
 };
+
+const Snail = ({ snailLevel, snailEncouragement }) => {
+  const successChance = Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.72)) * (1 + (100 * snailEncouragement) / (25 + snailEncouragement) / 100));
+  const resetChance = Math.max(0, (Math.pow(snailLevel + 1, 0.07) - 1) / (1 + (300 * snailEncouragement) / (100 + snailEncouragement) / 100));
+  const encNeededForProbableSuccess = calculateSnailEncouragementForSuccessChance(snailLevel, 0.9);
+  return <Stack>
+    <Divider sx={{ my: 1 }}/>
+    <Typography>Level: {snailLevel}</Typography>
+    <Typography>Encouragement: {snailEncouragement}</Typography>
+    <Typography>Success chance: {notateNumber(successChance * 100, 'MultiplierInfo')}%</Typography>
+    <Typography>Reset chance: {notateNumber(resetChance * 100, 'MultiplierInfo')}%</Typography>
+    <Typography>Real Reset
+      chance: {notateNumber((resetChance * (1 - successChance)) * 100, 'MultiplierInfo')}%</Typography>
+    <Typography>Enc. needed for 90% success
+      chance: {encNeededForProbableSuccess}</Typography>
+  </Stack>
+}
+
+const Nuggets = ({
+                   account,
+                   goldNuggets,
+                   nuggetsBreakpoints,
+                   lastShovelClicked,
+                   lastUpdated,
+                   maxNuggetValue
+                 }) => {
+  return <>
+    <Stack mt={1} direction={'row'} gap={1}>
+      <Timer date={new Date().getTime() - lastShovelClicked * 1000} lastUpdated={lastUpdated}/>
+      <Tooltip title={<ResourcePerTime breakpoints={nuggetsBreakpoints}/>}>
+        <InfoIcon/>
+      </Tooltip>
+    </Stack>
+    <Typography># of nuggets: {goldNuggets}</Typography>
+    <Typography>Rolls
+      possible: {(notateNumber(maxNuggetValue / 1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
+    <Typography>Nuggets since upgrade: {account?.accountOptions?.[192]}</Typography>
+  </>
+}
+
+const Acorns = ({ lastAcornClicked, lastUpdated, acornsBreakpoints, acorns }) => {
+  return <>
+    <Stack mt={1} direction={'row'} gap={1}>
+      <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={lastUpdated}/>
+      <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints}/>}>
+        <InfoIcon/>
+      </Tooltip>
+    </Stack>
+    <Typography># of acorns: {acorns}</Typography>
+  </>
+}
+const AcornShop = ({ acornShop }) => {
+  return <Stack>
+    <Divider sx={{ my: 2 }}/>
+    <Typography>Acorn Shop</Typography>
+    <Stack direction={'row'} gap={3}>
+      {acornShop?.map(({ cost, bonus, description }, index) => <Stack key={'corn-' + index}>
+        <Stack>
+          <Typography>{description}</Typography>
+          <Typography>Cost: {cost}</Typography>
+        </Stack>
+      </Stack>)}
+    </Stack>
+  </Stack>
+}
 
 
 const ResourcePerTime = ({ breakpoints }) => {

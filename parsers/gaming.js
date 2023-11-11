@@ -14,8 +14,11 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
+  const [, snailLevel, snailEncouragement] = gamingSproutRaw?.[32];
+  const envelopes = gamingRaw?.[13];
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
   const bits = gamingRaw?.[0];
+  const bestNugget = gamingRaw?.[8];
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);
   const lastAcornClicked = gamingSproutRaw?.[27]?.[1];
@@ -68,7 +71,10 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     ...calcSuperbitBonus(characters, account, index)
   }));
   return {
+    bestNugget,
     bits,
+    envelopes,
+    snailLevel, snailEncouragement,
     fertilizerUpgrades,
     availableSprouts,
     availableDrops,
@@ -241,4 +247,21 @@ const calcAcornShop = (gamingSproutRaw) => {
 
 export const isSuperbitUnlocked = (account, superbitName) => {
   return account?.gaming?.superbitsUpgrades?.find(({ name, unlocked }) => name === superbitName && unlocked)
+}
+
+export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredSuccessChance) => {
+  const epsilon = 1; // Set epsilon to 1 to work with whole numbers
+  let low = 0;
+  let high = 1000; // Adjust the upper bound based on your specific scenario.
+  while (high - low > epsilon) {
+    const mid = Math.floor((low + high) / 2); // Use Math.floor to ensure whole numbers
+    const midValue = (1 - 0.1 * Math.pow(snailLevel, 0.72)) * (1 + (100 * mid) / (25 + mid) / 100);
+
+    if (midValue < desiredSuccessChance) {
+      low = mid + 1; // Increment low by 1 to ensure progress
+    } else {
+      high = mid;
+    }
+  }
+  return low; // Return low as a whole number
 }

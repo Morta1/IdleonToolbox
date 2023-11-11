@@ -43,7 +43,7 @@ const Slab = () => {
           <FormControlLabel value="missing" control={<Radio/>} label="Missing items"/>
           <FormControlLabel value="looted" control={<Radio/>} label="Looted items"/>
           <FormControlLabel value="all" control={<Radio/>} label="All items"/>
-          <FormControlLabel value="rotation" control={<Radio/>} label="Gemshop rotation"/>
+          <FormControlLabel value="rotation" control={<Radio/>} label="GemShop rotation"/>
         </RadioGroup>
       </FormControl>
     </Box>

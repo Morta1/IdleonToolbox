@@ -3,6 +3,7 @@ import { cleanUnderscore, kFormatter, numberWithCommas } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { IconWithText } from 'components/common/styles';
 import ProgressBar from 'components/common/ProgressBar';
+import { mapNames } from '../../../../data/website-data';
 
 const Shrines = ({ shrines }) => {
   return (
@@ -18,11 +19,12 @@ const Shrines = ({ shrines }) => {
   );
 };
 
-const ShrineTooltip = ({ name, description, shrineLevel, progress }) => {
+const ShrineTooltip = ({ name, description, shrineLevel, progress, mapId }) => {
   const hoursReq = Math.floor(20 * (shrineLevel - 1) + 6 * shrineLevel * Math.pow(1.63, shrineLevel - 1));
   return <>
     <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
     <Typography variant={'body1'}>{description}</Typography>
+    <Typography fontWeight={'bold'} variant={'body1'}>Map: {cleanUnderscore(mapNames[mapId])}</Typography>
     <Typography fontWeight={'bold'}>Progress:</Typography>
     <ProgressBar percent={progress / hoursReq * 100} label={false}/>
     <Typography

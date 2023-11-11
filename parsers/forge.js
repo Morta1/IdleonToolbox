@@ -61,10 +61,16 @@ const parseForge = (forgeOrderRaw, forgeQuantityRaw, forgeLevels, account) => {
       row,
       row + forgeRowItems
     );
+    const barrelItem = items?.[barrel];
+    const oreItem = items?.[ore];
+    const isBrimestone = index < brimestoneSlots;
+    const forgeSpeed = Math.round(100 + 5 * upgrades?.[2]?.level);
+    const slotSpeed = getSpeed(forgeSpeed, barrelItem, isBrimestone);
+    const timeTillEmpty = Math.round(oreQuantity / oreItem?.Amount) * (oreItem?.Cooldown / (4 * slotSpeed));
     forge = [...forge, {
-      isBrimestone: index < brimestoneSlots,
-      ore: { ...items?.[ore], rawName: ore, quantity: oreQuantity },
-      barrel: { ...items?.[barrel], rawName: barrel, quantity: barrelQuantity },
+      isBrimestone,
+      ore: { ...oreItem, rawName: ore, quantity: oreQuantity, timeTillEmpty: timeTillEmpty * 1000 },
+      barrel: { ...barrelItem, rawName: barrel, quantity: barrelQuantity },
       bar: { ...items?.[bar], rawName: bar, quantity: barQuantity }
     }]
     index++;
@@ -73,4 +79,13 @@ const parseForge = (forgeOrderRaw, forgeQuantityRaw, forgeLevels, account) => {
     list: forge,
     upgrades
   };
+}
+
+const getSpeed = (forgeSpeed, barrel, isBrimestone) => {
+  let t = Math.round(forgeSpeed) / 100;
+  t *= barrel?.Effect === 'SpeedForge' ? barrel?.Amount : 1;
+  if (isBrimestone) {
+    t *= 1.5;
+  }
+  return t * .25;
 }

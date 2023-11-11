@@ -26,6 +26,7 @@ const Bubbles = () => {
   const { state } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
   const [bargainTag, setBargainTag] = useState(0);
+  const [effThreshold, setEffThreshold] = useState(75);
   const [selectedTab, setSelectedTab] = useState(0);
   const [bubbles, setBubbles] = useState();
   const [bubblesGoals, setBubblesGoals] = useState();
@@ -217,6 +218,13 @@ const Bubbles = () => {
                             src={`${prefix}data/aShopItems10.png`} alt=""/>
                      </InputAdornment>
                    }}/>
+        <TextField sx={{ width: 150 }}
+                   label={'Efficiency threshold'}
+                   value={effThreshold}
+                   type={'number'}
+                   inputProps={{ min: 0, max: 100 }}
+                   onChange={({ target }) => setEffThreshold(target.value)}
+        />
         <Card sx={{ alignItems: 'center', display: 'flex' }}>
           <CardContent sx={{ '&:last-child': { px: 1, py: { xs: 1, sm: 0 } }, width: 200 }}>
             <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1}>
@@ -238,7 +246,11 @@ const Bubbles = () => {
             const bubbleMaxBonus = getMaxBonus(func, x1);
             const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
             return <React.Fragment key={rawName + '' + bubbleName + '' + index}>
-              <Card sx={{ width: 330 }}>
+              <Card sx={{
+                width: 330,
+                border: bubbleMaxBonus && effectHardCapPercent >= effThreshold ? '1px solid' : '',
+                borderColor: 'success.main'
+              }}>
                 <CardContent>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack alignItems={'center'}>

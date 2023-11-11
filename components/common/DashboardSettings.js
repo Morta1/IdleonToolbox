@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  InputAdornment,
   Stack,
   TextField,
   Typography
@@ -147,7 +148,8 @@ const InputField = ({ option, onChange, configType, name, trackerName }) => {
     value,
     helperText = '',
     maxValue,
-    minValue = 0
+    minValue = 0,
+    endAdornment = '',
   } = option?.props;
   return <TextField
     size={'small'}
@@ -156,7 +158,12 @@ const InputField = ({ option, onChange, configType, name, trackerName }) => {
     sx={{ mt: 1, width: 150 }}
     name={name}
     value={value}
-    InputProps={{ inputProps: { max: maxValue, min: minValue, autoComplete: 'off' } }}
+    InputProps={{
+      endAdornment: endAdornment ? <InputAdornment position="end">{endAdornment}</InputAdornment> : null,
+      inputProps: {
+        max: maxValue, min: minValue, autoComplete: 'off',
+      }
+    }}
     onChange={(e) => onChange(e, configType, { ...option, inputVal: true }, trackerName)}
     helperText={helperText}/>
 }

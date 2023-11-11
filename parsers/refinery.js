@@ -17,7 +17,6 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
     owner: 'refinery'
   }] : res, []);
   const combinedStorage = [...storage, ...refineryStorage];
-  const powerCap = randomList[18]?.split(' ');
   const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
   const salts = refineryRaw?.slice(3, 3 + refineryRaw?.[0]?.[0]);
   const saltsArray = salts?.reduce((res, salt, index) => {
@@ -37,7 +36,7 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
         saltName,
         cost: componentsWithTotalAmount,
         rawName: name,
-        powerCap: parseFloat(Math.max(powerCap?.[Math.min(rank, powerCap?.length - 2)], 25)),
+        powerCap: getPowerCap(rank),
         refined,
         rank,
         active,
@@ -53,6 +52,11 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
     timePastSynthesis: refineryRaw?.[0]?.[2],
     totalLevels: saltsArray?.reduce((sum, { rank }) => sum + rank, 0)
   }
+}
+
+export const getPowerCap = (rank) => {
+  const powerCap = randomList[18]?.split(' ');
+  return parseFloat(Math.max(powerCap?.[Math.min(rank, powerCap?.length - 2)], 25))
 }
 
 export const hasMissingMats = (saltIndex, rank, cost, account) => {

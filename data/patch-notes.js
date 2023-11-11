@@ -4,6 +4,27 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.23',
+    gameVer: '1.92',
+    date: '11/11/2023',
+    features: [
+      'Added the ability to set a threshold for stamp reducer in dashboard alert',
+      'Added BobJoePickle to the World 2 shop options for the daily purchases',
+      'Added a feature to indicate the printer sample rate exceeding 90%.',
+      'Added the ability to highlight bubbles that are above the configured efficiency threshold in the bubbles page',
+      'Added more information to the Gaming -> General page, including: # of envelopes, snail level, encouragement, success and reset rates and more',
+      'Added tasks and merits pages under the account page + dashboard alerts for tasks',
+      'Added cost to next level and cost to max for atoms in atom collider page',
+      'Added a timer for counting down until the forge is emptied.',
+      'Added a display for the material cost of the next rank of all salts',
+      'Added gem shop page under account page with some priority options',
+    ],
+    fixes: [
+      'Fixed a bug where optimizing construction board was taking locked slots into account',
+      'Fixed a bug with the atom collider atoms max level',
+    ]
+  },
+  {
     ver: '3.2.22',
     gameVer: '1.92',
     date: '08/11/2023',

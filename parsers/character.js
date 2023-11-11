@@ -685,7 +685,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;
   const postofficeSampleBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 0);
 
-  const printerSample = Math.min(0.9, (printerSamplingTalent
+  const printerSample = (printerSamplingTalent
     + (saltLickBonus + equipSampling)
     + (sampleItBubble + (superSampleTalent + Math.min(1, sampleAchievement)))
     + (vialBonus)
@@ -694,7 +694,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
     + (Math.min(5, 0.5 * meritBonus))
     + (Math.min(5, familyPrinterSample))
     + (arcadeSampleBonus + postofficeSampleBonus)) / 100
-  );
+  ;
 
   return Math.floor(1e3 * printerSample) / 10;
 }

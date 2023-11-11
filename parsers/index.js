@@ -116,7 +116,10 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.stamps = getStamps(idleonData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
-  accountData.tasks = getTasks(idleonData); //
+  const { tasks, tasksDescriptions, meritsDescriptions } = getTasks(idleonData)
+  accountData.tasks = tasks; //
+  accountData.tasksDescriptions = tasksDescriptions; //
+  accountData.meritsDescriptions = meritsDescriptions; //
   accountData.breeding = getBreeding(idleonData, accountData);
   accountData.cooking = getCooking(idleonData, accountData, serializedCharactersData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
@@ -182,6 +185,8 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
   accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
+  // reapply atoms
+  accountData.atoms = getAtoms(idleonData, accountData);
   accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels);
 
   const leaderboard = calculateLeaderboard(skills);
