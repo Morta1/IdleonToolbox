@@ -134,7 +134,8 @@ const GemShop = () => {
                       <CardContent sx={{ height: '100%', display: 'flex', position: 'relative' }}>
                         <Stack>
                           <Stack gap={1} direction={'row'} alignItems={'center'}>
-                            <img width={32} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
+                            {!rawName.includes(';') ? <img width={32} src={`${prefix}data/${rawName}.png`}
+                                                           alt={rawName}/> : null}
                             <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
                           </Stack>
                           <Typography fontSize={14}>{cleanUnderscore(desc)}</Typography>
