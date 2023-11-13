@@ -29,6 +29,7 @@ export const atomColliderAlerts = (account, options) => {
   if (!account?.finishedWorlds?.World2) return alerts;
   if (options?.stampReducer?.checked) {
     alerts.stampReducer = account?.atoms?.stampReducer >= options?.stampReducer?.props?.value;
+    alerts.stampReducerValue = options?.stampReducer?.props?.value;
   }
   return alerts;
 }

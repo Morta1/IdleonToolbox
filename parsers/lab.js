@@ -68,7 +68,6 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
   });
 
   const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * merits?.[3]?.[4]?.bonusPerLevel;
-  console.log('merits?.[3]?.[4]?.bonusPerLevel', merits?.[3]?.[4]?.bonusPerLevel)
   let buboPlayer = charactersData.find(({ CharacterClass }) => CharacterClass === 36);
   if (buboPlayer) {
     buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }

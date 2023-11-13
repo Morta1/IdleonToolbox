@@ -1,6 +1,6 @@
 import { gamingImports, gamingUpgrades, superbitsUpgrades } from '../data/website-data';
 import { notateNumber, number2letter } from '../utility/helpers';
-import { getGodByIndex } from './divinity';
+import { getMinorDivinityBonus } from './divinity';
 import { getHighestCharacterSkill } from './misc';
 import { getEquinoxBonus } from './equinox';
 
@@ -29,16 +29,6 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const acornShop = calcAcornShop(gamingSproutRaw);
   const gamingImportsStartIndex = 25;
   const gamingImportsValues = gamingSproutRaw?.slice(gamingImportsStartIndex, gamingImportsStartIndex + gamingImports?.length + 1);
-  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => {
-    const bonus = calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop);
-    return {
-      ...gamingUpgrades?.[index],
-      level,
-      bonus,
-      description: gamingUpgrades?.[index]?.description.replace(/{/, bonus),
-      cost: calcFertilizerCost(index, gamingRaw, serverVars)
-    }
-  });
   const goldenSprinkler = account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0;
   const saveSprinklerChance = calcSprinklerSave(account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0);
   const imports = gamingImports?.map((item, index) => {
@@ -63,6 +53,16 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
       } : {}),
     }
   }).filter((_, index) => index < 8);
+  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => {
+    const bonus = calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop, imports);
+    return {
+      ...gamingUpgrades?.[index],
+      level,
+      bonus,
+      description: gamingUpgrades?.[index]?.description.replace(/{/, bonus),
+      cost: calcFertilizerCost(index, gamingRaw, serverVars)
+    }
+  });
   const availableDrops = getDropsAmount(gamingSproutRaw?.[25]?.[1], imports);
   const superbitsUnlocks = gamingRaw?.[12] || [];
   const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
@@ -163,7 +163,7 @@ const calcImportBonus = (index, minorBonus, gamingImportsValues) => {
   const value = gamingImportsValues?.[index]?.[0];
   let fixedMinorBonus = minorBonus;
   if (index === 1) {
-    const result = Math.floor(10 * (1 + Math.pow((60 * value) / (250 + (value)), 1.7))) / 10;
+    const result = Math.floor(10 * (1 + Math.pow((60 * value) / (250 + value), 1.7))) / 10;
     return { description: fixedMinorBonus.replace(/{/, result), result };
   }
   if (index === 2) {
@@ -182,21 +182,22 @@ const calcImportCost = (index, gamingImportsValues) => {
     Math.pow(10, gamingImports?.[index]?.x2)) / 4 * Math.pow(1.4, gamingImportsValues?.[index]?.[0]);
 }
 
-const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, account, acornShop) => {
+const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, account, acornShop, imports) => {
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
     return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'bits');
   } else if (index === 1) {
     const baseValue = gamingRaw?.[2];
-    const godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 6)?.minorBonusMultiplier ?? 0;
+    const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
+    const godBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters) ?? 0;
     const baseMath = 1 + (acornShop?.[1]?.bonus + godBonus) / 100;
-    const moreMath = 3 + gamingSproutRaw?.[29]?.[0] / 100;
+    const moreMath = 3 + imports?.[4]?.level / 100;
     const baseValue2 = gamingSproutRaw?.[29]?.[1];
     const growTime = 5e3 / ((1 + (2 * baseValue) / 100) * baseMath * (1 + moreMath * (baseValue2)));
     const growChance = 1 / calcSproutGrowChance(gamingRaw);
     const final = (growTime * growChance) / 60;
     const time = Math.floor(100 * (final)) / 100;
-    return time > 60 ? `${Math.floor(100 * time / 60) / 100}Hr` : `${(Math.floor(10 * time) / 10)}Min`;
+    return time > 60 ? `${Math.floor(100 * time / 60) / 100} Hr` : `${(Math.floor(10 * time) / 10)} Min`;
   } else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value, index) => index === 133) ?? 0;

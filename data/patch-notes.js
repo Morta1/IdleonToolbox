@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.24',
+    gameVer: '1.92',
+    date: '13/11/2023',
+    features: [
+      'Added a checkbox to show/hide the cost of the next level of salts in refinery page'
+    ],
+    fixes: [
+      'Fixed a bug with worship alerts for individual characters',
+      'Fixed sprouts growth speed calculation',
+      'Fixed stamp reducer tooltip display'
+    ]
+  },
+  {
     ver: '3.2.23',
     gameVer: '1.92',
     date: '11/11/2023',

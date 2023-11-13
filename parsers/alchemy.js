@@ -14,7 +14,6 @@ const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };
 const bigBubblesIndices = { _: 'power', a: 'quicc', b: 'high-iq', c: 'kazam' };
 
 export const getAlchemy = (idleonData, account, serializedCharactersData) => {
-  console.log('serializedCharactersData', serializedCharactersData)
   const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo) || idleonData?.CauldronInfo;
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1) || idleonData?.CauldronJobs?.[1];
   const cauldronsInfo = getCauldronStats(idleonData);

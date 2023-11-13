@@ -14,8 +14,6 @@ const Merits = () => {
     setWorld(world);
   }
 
-  console.log('state?.account?.meritsDescriptions', state?.account?.meritsDescriptions)
-
   return (
     <>
       <NextSeo

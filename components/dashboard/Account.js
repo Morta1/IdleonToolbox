@@ -49,13 +49,13 @@ const alertsMap = {
 
 const Account = ({ account, trackers }) => {
   const alerts = useAlerts({ alertsMap, data: account, trackers });
-
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.atomCollider && alerts?.atomCollider?.stampReducer ?
-            <Alert title={'Stamp reducer is maxed (90%)!'} iconPath={'data/Atom0'}/> : null}
+            <Alert title={`Stamp reducer has reached your threshold (${alerts?.atomCollider?.stampReducerValue}%) !`}
+                   iconPath={'data/Atom0'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
                    iconPath={'data/CogFLflag'}/> : null}

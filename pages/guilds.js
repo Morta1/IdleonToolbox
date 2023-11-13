@@ -54,7 +54,6 @@ const Guilds = () => {
 
 
   const handleGuildsUpdate = ({ guilds, error }) => {
-    console.log('error', error)
     if (error) {
       return setError('An unexpected error has occurred');
     }

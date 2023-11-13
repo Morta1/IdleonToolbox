@@ -29,6 +29,7 @@ import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '../../../parsers/printer';
 import { calcTotalCritters } from '../../../parsers/traps';
 import Box from '@mui/material/Box';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
@@ -68,6 +69,7 @@ const Refinery = () => {
   const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery;
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
+  const [showNextLevelCost, setShowNextLevelCost] = useState(false);
   const [squiresCooldown, setSquiresCooldown] = useState([]);
   const [refineryCycles, setRefineryCycles] = useState([]);
   const activePrints = useMemo(() => calcTotals(state?.account), [state?.account]);
@@ -190,17 +192,20 @@ const Refinery = () => {
         </Card>
       })}
     </Stack>
-    <Stack my={2} direction={'row'}>
-      <Card sx={{ width: 'fit-content' }}>
-        <CardContent>
-          <FormControlLabel
-            control={<Checkbox checked={includeSquireCycles}
-                               onChange={(e) => setIncludeSquireCycles(e.target.checked)}/>}
-            label="Include Squires Cycles"/>
-        </CardContent>
-      </Card>
+    <Stack my={2} direction={'row'} gap={2}>
+      <CardTitleAndValue title={'More cycles'}>
+        <FormControlLabel
+          control={<Checkbox checked={includeSquireCycles}
+                             onChange={(e) => setIncludeSquireCycles(e.target.checked)}/>}
+          label="Include squires cycles"/>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Material cost'}>
+        <FormControlLabel
+          control={<Checkbox checked={showNextLevelCost}
+                             onChange={(e) => setShowNextLevelCost(e.target.checked)}/>}
+          label="Show next level cost"/>
+      </CardTitleAndValue>
     </Stack>
-    <Typography sx={{ my: 1 }}>* The number in parenthesis is the cost of the next rank</Typography>
     <Stack gap={3} justifyContent={'center'}>
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
@@ -274,15 +279,16 @@ const Refinery = () => {
                     const isCritter = rawName?.includes('Critter');
                     gainValuePerCycle = isCritter ? 0 : isSalt
                       ? previousPowerPerCycle
-                      : activePrints?.[rawName]?.boostedValue;
+                      : (activePrints?.[rawName]?.boostedValue || 0);
                     gainValuePerHour = isCritter ? 0 : isSalt
                       ? previousSaltPerHour
-                      : activePrints?.[rawName]?.boostedValue;
+                      : (activePrints?.[rawName]?.boostedValue || 0);
                     return <Box display="grid" gridTemplateColumns="repeat(3, 60px)" gap={5}
                                 key={`${rawName}-${index}`}>
                       <Tooltip
                         title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerCycle}/>}>
                         <ItemCell rawName={rawName}
+                                  showNextLevelCost={showNextLevelCost}
                                   mainValue={cost}
                                   mainError={cost > totalAmount && gainValuePerHour < cost}
                                   secondaryValue={nextLevelCost}
@@ -292,6 +298,7 @@ const Refinery = () => {
                       <Tooltip
                         title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}>
                         <ItemCell rawName={rawName}
+                                  showNextLevelCost={showNextLevelCost}
                                   mainValue={costPerHour}
                                   mainError={(cost > totalAmount && gainValuePerHour < costPerHour) || isSalt && costPerHour > previousSaltPerHour}
                                   secondaryError={(cost > totalAmount && gainValuePerHour < nextLevelPerHour) || isSalt && nextLevelPerHour > previousSaltPerHour}
@@ -301,6 +308,7 @@ const Refinery = () => {
                       <Tooltip
                         title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerHour}/>}>
                         <ItemCell rankUp
+                                  showNextLevelCost={showNextLevelCost}
                                   rawName={rawName}
                                   mainValue={costRankUp}
                                   mainError={cost > totalAmount}
@@ -346,8 +354,7 @@ const ItemCell = forwardRef((props, ref) => {
     secondaryValue,
     mainError,
     secondaryError,
-    thirdValue,
-    thirdError,
+    showNextLevelCost,
     ...rest
   } = props;
   return <Stack
@@ -360,12 +367,9 @@ const ItemCell = forwardRef((props, ref) => {
       <Typography
         fontSize={14}
         color={mainError ? 'error.light' : ''}>{notateNumber(mainValue)}</Typography>
-      {secondaryValue ? <Typography
+      {showNextLevelCost && secondaryValue ? <Typography
         variant={'caption'}
         color={secondaryError ? 'error.light' : ''}>({notateNumber(secondaryValue)})</Typography> : null}
-      {thirdValue ? <Typography
-        variant={'caption'}
-        color={thirdError ? 'error.light' : ''}>({notateNumber(thirdValue)})</Typography> : null}
     </Stack>
   </Stack>
 })

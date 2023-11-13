@@ -1,6 +1,4 @@
 import {
-  Card,
-  CardContent,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -27,6 +25,7 @@ import ForwardIcon from '@mui/icons-material/Forward';
 import SouthIcon from '@mui/icons-material/South';
 
 import styled from '@emotion/styled';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const Construction = () => {
     const { state } = useContext(AppContext);
@@ -212,15 +211,5 @@ const Construction = () => {
 const ReverseForwardIcon = styled(ForwardIcon)`
   transform: rotate(180deg);
 `
-
-const CardTitleAndValue = ({ cardSx, title, value, children }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      {value ? <Typography>{value}</Typography> : children}
-    </CardContent>
-  </Card>
-}
-
 
 export default Construction;

@@ -46,7 +46,7 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
 export const worshipAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World2) return alerts;
-  if (options?.unendingEnergy?.checked) {
+  if (options?.worship?.unendingEnergy?.checked) {
     const timePassed = new Date().getTime() + (character?.afkTime - lastUpdated);
     const minutes = differenceInMinutes(new Date(), new Date(timePassed));
     if (minutes >= 5) {
@@ -55,7 +55,7 @@ export const worshipAlerts = (account, characters, character, lastUpdated, optio
       alerts.unendingEnergy = hasUnendingEnergy && hours > 10;
     }
   }
-  if (options?.chargeOverdue?.checked) {
+  if (options?.worship?.chargeOverdue?.checked) {
     const fivePercent = 5 * character?.worship?.maxCharge / 100;
     alerts.chargeOverdue = character?.worship?.currentCharge >= character?.worship?.maxCharge - fivePercent;
   }

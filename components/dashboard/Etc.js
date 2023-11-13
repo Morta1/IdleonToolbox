@@ -104,7 +104,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
           lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/> : null}
 
         {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <TimerCard
-          tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}
+          tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestBuilding?.timeLeft)}
           lastUpdated={lastUpdated} time={new Date().getTime() + closestBuilding?.timeLeft}
           icon={`data/${closestBuilding?.icon}.png`}/> : null}
 
