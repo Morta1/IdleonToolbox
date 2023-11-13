@@ -16,13 +16,6 @@ import { cleanUnderscore, prefix } from '../../../utility/helpers';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '../../../components/common/styles';
 
-// const priorities = {
-//   S: [103, 106, 111, 63],
-//   A: [56, 58, 55, 104, 84, 59, 115, 120, 119, 129, 131, 133, 130],
-//   B: [72, 71, 105, 112, 117, 122],
-//   C: [57, 114, 118, 113, 125]
-// }
-
 const priorities = {
   103: 'S',
   106: 'S',
@@ -71,7 +64,7 @@ const GemShop = () => {
     }
     setSelectedPriorities(finalArray);
   };
-
+  console.log('gemShop', gemShop)
   return <>
     <NextSeo
       title="Idleon Toolbox | Gem Shop"
@@ -120,8 +113,17 @@ const GemShop = () => {
             <CardContent>
               <Typography sx={{ mb: 1 }} variant={'h5'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
               <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-                {sectionItems?.map(({ globalIndex, rawName, displayName, desc, cost, maxPurchases }, index) => {
+                {sectionItems?.map(({
+                                      globalIndex,
+                                      rawName,
+                                      displayName,
+                                      desc,
+                                      cost,
+                                      maxPurchases,
+                                      costIncrement
+                                    }, index) => {
                   const purchased = state?.account?.gemShopPurchases?.[globalIndex];
+                  const addedCost = purchased * costIncrement;
                   const priority = priorities?.[globalIndex];
                   if (rawName === 'Blank' || displayName === 'NAME_OF_ITEM' || (showMissingOnly && purchased >= maxPurchases) || (!selectedPriorities.includes('All') && !selectedPriorities?.includes(priority))) return null;
                   return <Badge badgeContent={priorities?.[globalIndex] || 0} color={'warning'} key={rawName + index}>
@@ -143,7 +145,7 @@ const GemShop = () => {
                                  justifyContent={'space-between'}>
                             <Stack direction={'row'} alignItems={'center'} gap={1}>
                               <img width={32} height={32} src={`${prefix}data/PremiumGem.png`} alt={'gem'}/>
-                              <Typography variant={'body1'}>{cost}</Typography>
+                              <Typography variant={'body1'}>{cost + (isNaN(addedCost) ? 0 : addedCost)}</Typography>
                             </Stack>
                             <Typography variant={'body1'}>{purchased} / {maxPurchases}</Typography>
                           </Stack>

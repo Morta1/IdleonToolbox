@@ -119,7 +119,8 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
 
     const newSolution = swapElements(currentSolution, randomIndex1, randomIndex2);
     const newBoard = evaluateBoard(newSolution);
-
+    // console.log('currentScore', currentScore)
+    // console.log('newBoard score', newBoard?.[stat])
     if (newBoard?.[stat] > currentScore) {
       // If a lower score is better, use "<". If higher is better, use ">".
       best = newBoard;
@@ -133,20 +134,28 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
 }
 
 const evaluateBoard = (currentBoard) => {
-  const { boosted, relations } = getAllBoostedCogs(currentBoard);
+  const { boosted } = getAllBoostedCogs(currentBoard);
   let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
   const updatedBoard = currentBoard?.map((slot, index) => {
     const { cog } = slot || {};
-    const { e, g } = boosted?.[index] || {};
-    const a = cog?.stats?.a?.value || 0;
-    const c = cog?.stats?.c?.value || 0;
+    // f: boostedPlayerXp
+    const { e: boostedBuildRate, g: boostedFlaggyRate, } = boosted?.[index] || {};
 
-    const buildRate = a * (1 + (e?.value || 0) / 100);
+    const cogBaseBuildRate = cog?.stats?.a?.value || 0;
+    const cogBaseFlaggyRate = cog?.stats?.c?.value || 0;
+    // const cogBasePlayerCharacterExp = cog?.stats?.b?.value || 0;
+
+    // PLAYER EXP
+    // Math.floor(c.asNumber(this._GenINFO[8][s].h.b) * (1 + c.asNumber(this._GenINFO[12][1]) / 100))
+    if (cog?.name?.includes('Player_')){
+    }
+
+    const buildRate = cogBaseBuildRate * (1 + (boostedBuildRate?.value || 0) / 100);
     totalBuildRate += Math.max(buildRate, 0);
 
     totalExpRate += cog?.stats?.d?.value || 0;
 
-    const flaggyRate = c + (c * (g?.value || 0) / 100);
+    const flaggyRate = cogBaseFlaggyRate + (cogBaseFlaggyRate * (boostedFlaggyRate?.value || 0) / 100);
     totalFlaggyRate += Math.max(flaggyRate, 0);
 
     return {
@@ -156,14 +165,15 @@ const evaluateBoard = (currentBoard) => {
         stats: {
           ...cog?.stats,
           a: { ...cog?.stats?.a, value: buildRate },
-          c: { ...cog?.stats?.c, value: flaggyRate }
+          c: { ...cog?.stats?.c, value: flaggyRate },
+          d: { ...cog?.stats?.d, value: totalExpRate },
+          // b: { ...cog?.stats?.b, value: totalCharacterExp },
         }
       }
     };
   });
 
   return {
-    relations,
     totalBuildRate,
     totalExpRate,
     totalFlaggyRate,

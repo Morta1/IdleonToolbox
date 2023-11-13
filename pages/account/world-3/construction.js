@@ -131,7 +131,7 @@ const Construction = () => {
               </Button>
             </Stack>
           </Stack>
-          <Stack direction={'row'} my={2} gap={2}>
+          <Stack direction={'row'} my={2} gap={2} flexWrap={'wrap'}>
             <CardTitleAndValue title={'Total Build Speed'}>
               <Stack alignItems={'center'} gap={1}>
                 <Typography>{notateNumber(state?.account?.construction?.totalBuildRate)}/HR</Typography>
@@ -172,7 +172,8 @@ const Construction = () => {
                     onChange={(e) => setStat(e.target.value)}
                   >
                     <MenuItem value={'totalBuildRate'}>Build speed</MenuItem>
-                    {/*<MenuItem value={'totalExpRate'}>Xp bonus</MenuItem>*/}
+                    {/*<MenuItem value={'totalExpRate'}>Player XP rate</MenuItem>*/}
+                    {/*<MenuItem value={'totalCharacterExp'}>Total character XP</MenuItem>*/}
                   </Select>
                 </FormControl>
                 <Button variant={'contained'} onClick={handleOptimize}>Optimize</Button>
@@ -182,7 +183,6 @@ const Construction = () => {
           </Stack>
           <ConstructionBoard view={view} showTooltip={showTooltip}
                              setOutsideHighlight={setOutsideHighlight}
-                             relations={current?.relations}
                              move={moves.list[moves.current]}
                              board={current?.board}/>
           {/*{optimized ? <Stack direction={'row'} alignItems={'center'} justify-content={'space-between'}>*/}
@@ -194,12 +194,11 @@ const Construction = () => {
           {/*    <ForwardIcon/>*/}
           {/*  </IconButton>*/}
           {/*</Stack> : null}*/}
-          {optimized ? <Typography sx={{ mt: 3 }} variant={'caption'}>* Hovering over a cog in the lower board will reveal
-            where the same cog was originally placed on the upper board.</Typography> : null}
+          {optimized ? <Typography sx={{ mt: 3 }} variant={'caption'}>* Hovering over a cog in the upper board will reveal
+            where the same cog is placed on the lower board.</Typography> : null}
           {optimized ? <ConstructionBoard view={view}
                                           outsideHighlight={outsideHighlight}
                                           showTooltip={showTooltip}
-                                          relations={optimized?.relations}
                                           board={optimized?.board}/> : null}
 
         </Stack>

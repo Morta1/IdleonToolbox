@@ -44,7 +44,7 @@ const Tasks = () => {
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <img src={`${prefix}data/TaskRank${level}.png`} alt={'task-rank-' + level}/>
-                  <Typography>{cleanUnderscore(name)} ({level} / {breakpoints?.length})</Typography>
+                  <Typography>{cleanUnderscore(name)} ({level} / {index === 8 ? 1 : breakpoints?.length})</Typography>
                 </Stack>
                 <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>
                 <Typography>{notateNumber(stat, 'Big')}{level < breakpoints.length

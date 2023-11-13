@@ -40,7 +40,7 @@ const Merits = () => {
                                                                meritCost,
                                                                totalLevels
                                                              }, index) => {
-            if (descLine1 === 'IDK_YET') return null;
+            if (descLine1 === 'IDK_YET' || meritCost === null) return null;
             let desc = ('Blank420q' !== extraStr
               ? descLine1.replace(/}/, extraStr.split('|')[level])
               : descLine1.replace(/{/, bonusPerLevel * level)) + (descLine2 !== 'Descline2' ? ` ${descLine2}` : '');
