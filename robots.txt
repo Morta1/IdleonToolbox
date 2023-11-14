@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://idleontoolbox.com
-
-# Sitemaps
-Sitemap: https://idleontoolbox.com/sitemap.xml
