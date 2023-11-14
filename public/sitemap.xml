@@ -109,6 +109,22 @@
     <changefreq>hourly</changefreq>
   </url>
   <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/anvil</loc>
+    <changefreq>hourly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/bribes</loc>
+    <changefreq>hourly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/forge</loc>
+    <changefreq>hourly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/stamps</loc>
+    <changefreq>hourly</changefreq>
+  </url>
+  <url>
     <loc>https://www.idleontoolbox.com/account/world-2/arcade-shop</loc>
     <changefreq>hourly</changefreq>
   </url>
@@ -130,22 +146,6 @@
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/vials</loc>
-    <changefreq>hourly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/anvil</loc>
-    <changefreq>hourly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/bribes</loc>
-    <changefreq>hourly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/forge</loc>
-    <changefreq>hourly</changefreq>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/stamps</loc>
     <changefreq>hourly</changefreq>
   </url>
   <url>
