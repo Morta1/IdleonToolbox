@@ -144,7 +144,10 @@ export const constructionAlerts = (account, options) => {
     }, []);
   }
   if (rankUp?.checked) {
-    alerts.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => refined >= powerCap);
+    alerts.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => {
+      const halfPercent = .5 * powerCap / 100;
+      return refined >= powerCap - halfPercent
+    });
   }
   return alerts;
 }
