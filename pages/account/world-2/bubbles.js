@@ -253,6 +253,10 @@ const Bubbles = () => {
               }}>
                 <CardContent>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
+                  <Typography
+                        variant={'body1'}>{cleanUnderscore(bubbleName)}</Typography>
+                  </Stack>
+                  <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack alignItems={'center'}>
                       <HtmlTooltip title={<BubbleTooltip {...{ ...bubble, goalLevel }}/>}>
                         <BubbleIcon width={48} height={48}
