@@ -21,9 +21,10 @@ const ActiveXpCalculator = () => {
   const [result, setResult] = useState(null);
 
   useEffect(() => {
-    const chars = state?.characters?.map(({ name, skillsInfo, class: charClass }) => ({
+    const chars = state?.characters?.map(({ name, skillsInfo, classIndex }) => ({
       name,
-      charClass, ...skillsInfo?.character
+      classIndex,
+      ...skillsInfo?.character
     }))
     const selected = chars?.[0];
     setSelectedChar(selected);
@@ -89,7 +90,6 @@ const ActiveXpCalculator = () => {
       setIsPlaying(true);
     }
   }
-
   return (
     <ActiveXpCalculatorStyle>
       <NextSeo
@@ -98,17 +98,17 @@ const ActiveXpCalculator = () => {
       />
       <Stack gap={5} flexWrap={'wrap'} sx={{ flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
         <div className={'character-wrapper'}>
-          <Stack direction={'row'} flexWrap={'wrap'}>
+          <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'}>
             <StyledTextField id="select" label="Character" value={selectedChar}
                              onChange={(e) => setSelectedChar(e.target.value)} select>
               {charactersList?.map((character, index) => {
                 return <StyledMenuItem key={character?.name + index} value={character}>
-                  <img src={`${prefix}icons/${character?.charClass}_Icon.png`} alt=""/>
+                  <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt=""/>
                   {character?.name}
                 </StyledMenuItem>
               })}
             </StyledTextField>
-            <IconButton aria-label="delete" onClick={onStart}>
+            <IconButton aria-label="start" onClick={onStart}>
               <PlayCircleOutlineIcon/>
             </IconButton>
           </Stack>
@@ -142,7 +142,7 @@ const ActiveXpCalculator = () => {
           key={start}
           isPlaying={isPlaying}
           duration={600}
-          colors={[["#15aee1"]]}
+          colors={[['#15aee1']]}
         >
           {renderTime}
         </CountdownCircleTimer>

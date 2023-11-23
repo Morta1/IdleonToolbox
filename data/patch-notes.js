@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.25',
+    gameVer: '1.92',
+    date: '23/11/2023',
+    features: [
+      'Added an option to optimize the construction board by "Player xp rate" - this is highly experimental and might not work as expected so use at your own risk',
+      'Added cog stat calculator to construction page',
+      'Added "Plants picked" stat to the totals list in general page',
+    ],
+    fixes: [
+      'Fixed a bug with construction exp calculations',
+      'Fixed class icons on active exp calc'
+    ]
+  },
+  {
     ver: '3.2.24',
     gameVer: '1.92',
     date: '13/11/2023',

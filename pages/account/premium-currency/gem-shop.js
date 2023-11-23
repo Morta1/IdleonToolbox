@@ -64,7 +64,7 @@ const GemShop = () => {
     }
     setSelectedPriorities(finalArray);
   };
-  console.log('gemShop', gemShop)
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Gem Shop"

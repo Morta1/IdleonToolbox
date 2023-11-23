@@ -1,4 +1,9 @@
-import { getCharacters, initializeCharacter } from './character';
+import {
+  getCharacters,
+  getPlayerConstructionExpPerHour,
+  getPlayerConstructionSpeed,
+  initializeCharacter
+} from './character';
 import { getCards } from './cards';
 import { getObols } from './obols';
 import { applyStampsMulti, getStamps } from './stamps';
@@ -198,7 +203,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.forge = getForge(idleonData, accountData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
-  accountData.traps = getTraps(serializedCharactersData);
+  accountData.traps = getTraps(serializedCharactersData, charactersData, accountData);
   accountData.quests = getQuests(charactersData);
   accountData.islands = getIslands(accountData);
   accountData.deathNote = getDeathNote(charactersData, accountData);
@@ -228,6 +233,8 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
       const capacity = getItemCapacity(typeGen, character, accountData);
       return { ...carryBag, capacityPerSlot: capacity, maxCapacity: capacity * character?.inventorySlots }
     })
+    character.constructionSpeed = getPlayerConstructionSpeed(character, accountData);
+    character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
     return character;
   })
   // update lab bonuses

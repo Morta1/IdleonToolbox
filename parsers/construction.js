@@ -90,9 +90,9 @@ const swapElements = (board, index1, index2) => {
   return newBoard;
 }
 
-export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
+export const optimizeArrayWithSwaps = (arr, stat, time = 2500, characters) => {
   let currentSolution = [...arr];
-  let best = evaluateBoard(currentSolution);
+  let best = evaluateBoard(currentSolution, characters)
   let currentScore = best?.[stat];
   let moves = [];
   const startTime = Date.now();
@@ -118,7 +118,7 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
     }
 
     const newSolution = swapElements(currentSolution, randomIndex1, randomIndex2);
-    const newBoard = evaluateBoard(newSolution);
+    const newBoard = evaluateBoard(newSolution, characters);
     // console.log('currentScore', currentScore)
     // console.log('newBoard score', newBoard?.[stat])
     if (newBoard?.[stat] > currentScore) {
@@ -133,21 +133,27 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500) => {
   return { ...best, moves };
 }
 
-const evaluateBoard = (currentBoard) => {
+const evaluateBoard = (currentBoard, characters) => {
   const { boosted } = getAllBoostedCogs(currentBoard);
-  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0;
-  const updatedBoard = currentBoard?.map((slot, index) => {
+  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0, totalPlayerExpRate = 0;
+  let updatedBoard = currentBoard?.map((slot, index) => {
     const { cog } = slot || {};
     // f: boostedPlayerXp
-    const { e: boostedBuildRate, g: boostedFlaggyRate, } = boosted?.[index] || {};
+    const { e: boostedBuildRate, g: boostedFlaggyRate, f: characterExpPerHour } = boosted?.[index] || {};
 
     const cogBaseBuildRate = cog?.stats?.a?.value || 0;
     const cogBaseFlaggyRate = cog?.stats?.c?.value || 0;
-    // const cogBasePlayerCharacterExp = cog?.stats?.b?.value || 0;
-
-    // PLAYER EXP
-    // Math.floor(c.asNumber(this._GenINFO[8][s].h.b) * (1 + c.asNumber(this._GenINFO[12][1]) / 100))
-    if (cog?.name?.includes('Player_')){
+    const cogBasePlayerCharacterExp = cog?.stats?.b?.value || 0;
+    let playerExp = 0;
+    if (cog?.name?.includes('Player_')) {
+      const character = characters?.find(({ name }) => name === cog?.name.replace('Player_', ''));
+      if (!character) {
+        totalPlayerExpRate += cogBasePlayerCharacterExp
+      } else {
+        // console.log(cog?.name, character?.constructionExpPerHour, characterExpPerHour?.value, character?.constructionExpPerHour * (1 + (characterExpPerHour?.value || 0) / 100))
+        playerExp = character?.constructionExpPerHour * (1 + (characterExpPerHour?.value || 0) / 100);
+        totalPlayerExpRate += playerExp;
+      }
     }
 
     const buildRate = cogBaseBuildRate * (1 + (boostedBuildRate?.value || 0) / 100);
@@ -166,17 +172,34 @@ const evaluateBoard = (currentBoard) => {
           ...cog?.stats,
           a: { ...cog?.stats?.a, value: buildRate },
           c: { ...cog?.stats?.c, value: flaggyRate },
-          d: { ...cog?.stats?.d, value: totalExpRate },
-          // b: { ...cog?.stats?.b, value: totalCharacterExp },
+          // d: { ...cog?.stats?.d, value: totalExpRate },
+          ...(characters ? { b: { ...cog?.stats?.b, value: playerExp } } : {})
         }
       }
     };
   });
-
+  if (characters) {
+    updatedBoard = updatedBoard?.map((slot) => {
+      if (slot?.cog?.name?.includes('Player_')) {
+        return {
+          ...slot,
+          cog: {
+            ...slot?.cog,
+            stats: {
+              ...slot?.cog?.stats,
+              b: { ...slot?.cog?.stats?.b, value: slot?.cog?.stats?.b?.value * (1 + totalExpRate / 100) }
+            }
+          }
+        }
+      }
+      return slot;
+    })
+  }
   return {
     totalBuildRate,
     totalExpRate,
     totalFlaggyRate,
+    totalPlayerExpRate: totalPlayerExpRate * (characters ? (1 + totalExpRate / 100) : 1),
     board: updatedBoard
   };
 }

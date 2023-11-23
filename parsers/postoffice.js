@@ -27,6 +27,12 @@ export const getPostOfficeBonus = (postOffice, boxName, bonusIndex) => {
   return growth(upgrade?.func, updatedLevel > 0 ? updatedLevel : 0, upgrade?.x1, upgrade?.x2, false) ?? 0;
 }
 
+export const getPostOfficeBoxLevel = (postOffice, boxName) => {
+  const box = postOffice?.boxes?.find(({ name }) => name === boxName);
+  if (!box) return 0;
+  return box?.level;
+}
+
 export const getPostOfficeShipments = (idleonData) => {
   const postOfficeRaw = tryToParse(idleonData?.PostOfficeInfo1) || idleonData?.PostOfficeInfo1;
   const postOfficeArrays = createArrayOfArrays(postOfficeRaw)

@@ -41,7 +41,7 @@ import {
 } from './talents';
 import { calcCardBonus, getCardBonusByEffect, getEquippedCardBonus, getPlayerCards } from './cards';
 import { getStampBonus, getStampsBonusByEffect } from './stamps';
-import { getPlayerPostOffice, getPostOfficeBonus } from './postoffice';
+import { getPlayerPostOffice, getPostOfficeBonus, getPostOfficeBoxLevel } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from './alchemy';
 import { getStatueBonus } from './statues';
 import { getStarSignBonus, getStarSignByEffect } from './starSigns';
@@ -64,6 +64,8 @@ import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
 import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
+import { getConstructMastery } from './world-4/rift';
+import { getAtomBonus } from './atomCollider';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -347,8 +349,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.crystalSpawnChance = getPlayerCrystalChance(character, account, idleonData);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
   character.nonConsumeChance = getNonConsumeChance(character, account);
-  character.constructionSpeed = getPlayerConstructionSpeed(character, account);
-
+  // character.constructionSpeed = getPlayerConstructionSpeed(character, account);
+  // character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, account);
   const kills = char?.[`KillsLeft2Advance`];
   const isBarbarian = talentPagesMap[character.class].includes('Barbarian');
   const isBloodBerserker = talentPagesMap[character.class].includes('Blood_Berserker');
@@ -1043,18 +1045,71 @@ const getNonConsumeChance = (character, account) => {
   return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
 }
 
-const getPlayerConstructionSpeed = (character, account) => {
+export const getPlayerConstructionSpeed = (character, account) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
-  const carpenterBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false);
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false, true);
   const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Speed', character);
-  const postOffice = getPostOfficeBonus(account?.postOffice, 'Construction_Container', 0);
+  const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
   const equipmentConstructionEffectBonus = getStatsFromGear(character, 30, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
-  const moreMath = 1 + (stampsBonus + 0.25 * (postOffice) + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement))) / 100;
-  const reduxRates = getTalentBonus(character?.talents, 2, 'REDUX_RATES');
-  const redSaltAmount = calculateItemTotalAmount(account?.storage, 'Refinery1', true);
-  return Math.floor(baseMath * (1 + (constructionLevel * carpenterBonus) / 100) * moreMath * (1 + (reduxRates * lavaLog(redSaltAmount)) / 100));
+  const constructMastery = getConstructMastery(account?.towers?.totalLevels, 'Build Spd');
+  const moreMath = 1 + (stampsBonus + 0.25 * postOffice + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement) + constructMastery)) / 100;
+  const talentBonus = getTalentBonus(character?.talents, 2, 'REDOX_RATES');
+  const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
+  const redSaltAmount = calculateItemTotalAmount([...account?.storage,
+    ...account?.refinery?.refineryStorage], 'Refinery1', true, true);
+  if (character?.name === 'MortasNinth') {
+    // Console log each variable
+    // console.log('constructionLevel:', constructionLevel);
+    // console.log('baseMath:', baseMath);
+    // console.log('bubbleBonus:', bubbleBonus);
+    // console.log('stampsBonus:', stampsBonus);
+    // console.log('postOffice:', postOffice);
+    // console.log('guildBonus:', guildBonus);
+    // console.log('equipmentConstructionEffectBonus:', equipmentConstructionEffectBonus);
+    // console.log('obolsBonus:', obolsBonus);
+    // console.log('constructionAchievement:', constructionAchievement);
+    // console.log('constructMastery', constructMastery)
+    // console.log('moreMath:', moreMath);
+    // console.log('reduxRates:', talentBonus);
+    // console.log('redSaltAmount:', redSaltAmount);
+    // console.log('atomBonus', atomBonus)
+    // console.log('test', (1 + (talentBonus * lavaLog(redSaltAmount)) / 100))
+    // console.log('result', Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100)))
+  }
+  return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
+}
+
+export const getPlayerConstructionExpPerHour = (character, account) => {
+  const playerBuildSpeed = character?.constructionSpeed;
+  const activeBubbleBonus = getActiveBubbleBonus(character.equippedBubbles, 'power', 'CALL_ME_BOB', account);
+  const talentBonus = getTalentBonus(character?.talents, 2, 'SHARPER_SAWS');
+  const secondTalentBonus = getTalentBonus(character?.talents, 1, 'TEMPESTUOUS_EMOTIONS');
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG19', character?.talents);
+  const stampBonus = getStampsBonusByEffect(account?.stamps, '+{%_Construction_Exp_Gain', character);
+  const starSignBonus = getStarSignByEffect(character?.starSigns, account, 'Construct_Exp');
+  const postOfficeBonus = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
+  if (character?.name === 'MortasNinth') {
+    // Console log each variable
+    // console.log('playerBuildSpeed:', playerBuildSpeed);
+    // console.log('character?.skillsInfo?.construction?.level:', character?.skillsInfo?.construction?.level);
+    // console.log('activeBubbleBonus:', activeBubbleBonus);
+    // console.log('talentBonus:', talentBonus);
+    // console.log('secondTalentBonus:', secondTalentBonus);
+    // console.log('vialBonus:', vialBonus);
+    // console.log('statueBonus:', statueBonus);
+    // console.log('stampBonus:', stampBonus);
+    // console.log('starSignBonus:', starSignBonus);
+    // console.log('postOfficeBonus:', postOfficeBonus);
+    // console.log('result', Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
+    //   * (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus + (stampBonus + (starSignBonus + Math.max(0, 0.5 *
+    //     ((postOfficeBonus) - 100)))))))) / 100)))
+  }
+  return Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
+    * (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus + (stampBonus + (starSignBonus + Math.max(0, 0.5 *
+      ((postOfficeBonus) - 100)))))))) / 100));
 }

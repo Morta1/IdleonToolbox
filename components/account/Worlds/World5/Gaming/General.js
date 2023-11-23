@@ -119,6 +119,9 @@ const General = ({
 const Snail = ({ snailLevel, snailEncouragement }) => {
   const successChance = Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.72)) * (1 + (100 * snailEncouragement) / (25 + snailEncouragement) / 100));
   const resetChance = Math.max(0, (Math.pow(snailLevel + 1, 0.07) - 1) / (1 + (300 * snailEncouragement) / (100 + snailEncouragement) / 100));
+  const realResetChance = (resetChance * (1 - successChance));
+  const averageAttempts = 1 / successChance;
+  const succeedBeforeReset = 1 - Math.pow(1 - successChance, 1 / realResetChance);
   const encNeededForProbableSuccess = calculateSnailEncouragementForSuccessChance(snailLevel, 0.9);
   return <Stack>
     <Divider sx={{ my: 1 }}/>
@@ -127,7 +130,9 @@ const Snail = ({ snailLevel, snailEncouragement }) => {
     <Typography>Success chance: {notateNumber(successChance * 100, 'MultiplierInfo')}%</Typography>
     <Typography>Reset chance: {notateNumber(resetChance * 100, 'MultiplierInfo')}%</Typography>
     <Typography>Real Reset
-      chance: {notateNumber((resetChance * (1 - successChance)) * 100, 'MultiplierInfo')}%</Typography>
+      chance: {notateNumber(realResetChance * 100, 'MultiplierInfo')}%</Typography>
+    <Typography>Avg # attempts: {notateNumber(averageAttempts, 'MultiplierInfo')}</Typography>
+    <Typography>Chance to Succeed Before Reset: {notateNumber(succeedBeforeReset, 'MultiplierInfo')}</Typography>
     <Typography>Enc. needed for 90% success
       chance: {encNeededForProbableSuccess}</Typography>
   </Stack>

@@ -261,7 +261,9 @@ const Bubbles = () => {
                                     alt=""/>
                       </HtmlTooltip>
                       <Typography
-                        variant={'body1'}>Lv. {level}</Typography>
+                        variant={'caption'}>Lv. {level}</Typography>
+                      <Typography variant={'caption'}>{cleanUnderscore(bubbleName)}</Typography>
+
                     </Stack>
                     <TextField type={'number'}
                                sx={{ width: 90 }}
