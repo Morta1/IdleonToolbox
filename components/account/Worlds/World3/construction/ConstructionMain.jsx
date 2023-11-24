@@ -149,7 +149,7 @@ const ConstructionMain = () => {
                 ? <Typography sx={{
                   color: 'info.light',
                 }}>{notateNumber(optimized?.totalPlayerExpRate)}/HR
-                  (+{notateNumber(optimized?.totalPlayerExpRate - state?.account?.construction?.totalPlayerExpRate)})</Typography>
+                  ({notateNumber(optimized?.totalPlayerExpRate - state?.account?.construction?.totalPlayerExpRate)})</Typography>
                 : null}
             </Stack>
           </CardTitleAndValue>

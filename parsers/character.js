@@ -1056,7 +1056,8 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
   const constructMastery = getConstructMastery(account?.towers?.totalLevels, 'Build Spd');
-  const moreMath = 1 + (stampsBonus + 0.25 * postOffice + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement) + constructMastery)) / 100;
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'Contspd');
+  const moreMath = 1 + (stampsBonus + 0.25 * postOffice + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement) + constructMastery + vialBonus)) / 100;
   const talentBonus = getTalentBonus(character?.talents, 2, 'REDOX_RATES');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const redSaltAmount = calculateItemTotalAmount([...account?.storage,

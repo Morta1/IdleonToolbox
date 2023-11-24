@@ -41,8 +41,8 @@ export const parseConstellations = (constellationsRaw) => {
 }
 
 export const getStarSignByEffect = (equippedStarSigns, starEffect) => {
-  if (equippedStarSigns.length === 0) return 0;
-  const allBonuses = equippedStarSigns.flatMap(({ bonuses }) => bonuses).filter((defined) => defined);
+  if (equippedStarSigns?.length === 0) return 0;
+  const allBonuses = equippedStarSigns?.flatMap(({ bonuses }) => bonuses).filter((defined) => defined);
   return allBonuses?.reduce((sum, { effect, bonus }) => effect === starEffect ? sum + bonus : sum, 0);
 }
 
