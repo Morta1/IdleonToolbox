@@ -34,7 +34,7 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
   >
     {board?.map((slot, index) => {
       const { currentAmount, requiredAmount, flagPlaced, cog } = slot;
-      const { a: buildRate, e: buildPercent, b: exp, d: secondExp, c: flaggyRate, j: classExp } = cog?.stats;
+      const { a: buildRate, e: buildPercent, b: exp, d: secondExp, c: flaggyRate, j: classExp, f: playerExp } = cog?.stats;
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
       return (
@@ -69,6 +69,10 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
               {view === 'exp' && !flagPlaced
                 ? <Typography
                   sx={bonusTextSx}>{(exp?.value && notateNumber(exp?.value, 'Big')) || (secondExp?.value && notateNumber(secondExp?.value, 'Big')) || null}</Typography>
+                : null}
+              {view === 'playerExp' && !flagPlaced
+                ? <Typography
+                  sx={bonusTextSx}>{(playerExp?.value && notateNumber(playerExp?.value, 'Big')) || null}</Typography>
                 : null}
               {view === 'flaggy' && !flagPlaced && flaggyRate?.value
                 ?

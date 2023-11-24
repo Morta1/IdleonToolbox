@@ -92,6 +92,7 @@ const ConstructionMain = () => {
           <ToggleButton value="build">Build</ToggleButton>
           <ToggleButton value="buildPercent">Build %</ToggleButton>
           <ToggleButton value="exp">Exp</ToggleButton>
+          <ToggleButton value="playerExp">Player Exp boost</ToggleButton>
           <ToggleButton value="flaggy">Flaggy</ToggleButton>
           <ToggleButton value="classExp">Class Exp</ToggleButton>
         </ToggleButtonGroup>

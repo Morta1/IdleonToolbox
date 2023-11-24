@@ -72,6 +72,24 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
   };
 }
 
+const swapElements = (board, index1, index2) => {
+  // Create a new array with the same objects as the original board
+  const newBoard = [...board];
+
+  // Swap the inner properties (cog objects) at the specified indices
+  const tempCog = { ...newBoard[index1]?.cog };
+  newBoard[index1] = {
+    ...newBoard[index1],
+    cog: { ...newBoard[index2]?.cog },
+  };
+  newBoard[index2] = {
+    ...newBoard[index2],
+    cog: tempCog,
+  };
+
+  return newBoard;
+}
+
 export const optimizeArrayWithSwaps = (arr, stat, time = 2500, characters) => {
   let currentSolution = [...arr];
   let best = evaluateBoard(currentSolution, characters)
@@ -122,7 +140,6 @@ const evaluateBoard = (currentBoard, characters) => {
     const { cog } = slot || {};
     // f: boostedPlayerXp
     const { e: boostedBuildRate, g: boostedFlaggyRate, f: characterExpPerHour } = boosted?.[index] || {};
-
     const cogBaseBuildRate = cog?.stats?.a?.value || 0;
     const cogBaseFlaggyRate = cog?.stats?.c?.value || 0;
     const cogBasePlayerCharacterExp = cog?.stats?.b?.value || 0;
@@ -132,6 +149,7 @@ const evaluateBoard = (currentBoard, characters) => {
       if (!character) {
         totalPlayerExpRate += cogBasePlayerCharacterExp
       } else {
+        // console.log(cog?.name, characterExpPerHour?.value)
         playerExp = character?.constructionExpPerHour * (1 + (characterExpPerHour?.value || 0) / 100);
         // console.log(`name: ${cog?.name} - base exp/hr ${character?.constructionExpPerHour} - construction speed ${character?.constructionSpeed} - boosted exp/hr ${characterExpPerHour?.value}`)
         // console.log(cog?.name, character?.constructionExpPerHour, character?.constructionSpeed, characterExpPerHour?.value, playerExp)
