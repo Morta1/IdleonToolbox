@@ -1048,7 +1048,8 @@ const getNonConsumeChance = (character, account) => {
 export const getPlayerConstructionSpeed = (character, account) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false, true);
+  const mainStat = mainStatMap?.[character?.class];
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false, mainStat === 'strength');
   const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
@@ -1085,7 +1086,11 @@ export const getPlayerConstructionSpeed = (character, account) => {
     // console.log('atomBonus', atomBonus);
     // console.log('redSaltAmount', redSaltAmount);
     // console.log('lavaLog(redSaltAmount)', lavaLog(redSaltAmount));
-    // console.log('result', Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100)))
+    console.log('baseMath', baseMath)
+    console.log('n', (1 + (constructionLevel * bubbleBonus) / 100))
+    console.log('moreMath', moreMath)
+    console.log('last', (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100))
+    console.log('getPlayerConstructionSpeed result 1', Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + talentBonus * (atomBonus + lavaLog(redSaltAmount)) / 100)))
   }
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
