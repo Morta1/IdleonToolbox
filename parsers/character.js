@@ -1063,7 +1063,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const redSaltAmount = calculateItemTotalAmount([...account?.storage,
     ...account?.refinery?.refineryStorage], 'Refinery1', true, true);
-  if (character?.name === 'MortasNinth' || character?.name === 'Bravius') {
+  if (character?.name === 'MortasNinth') {
     // Console log each variable
     // console.log("constructionLevel:", character?.skillsInfo?.construction?.level);
     // console.log("baseMath:", 3 * Math.pow((character?.skillsInfo?.construction?.level) / 2 + 0.7, 1.6));
@@ -1086,11 +1086,11 @@ export const getPlayerConstructionSpeed = (character, account) => {
     // console.log('atomBonus', atomBonus);
     // console.log('redSaltAmount', redSaltAmount);
     // console.log('lavaLog(redSaltAmount)', lavaLog(redSaltAmount));
-    console.log('baseMath', baseMath)
-    console.log('n', (1 + (constructionLevel * bubbleBonus) / 100))
-    console.log('moreMath', moreMath)
-    console.log('last', (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100))
-    console.log('getPlayerConstructionSpeed result 1', Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + talentBonus * (atomBonus + lavaLog(redSaltAmount)) / 100)))
+    // console.log('baseMath', baseMath)
+    // console.log('n', (1 + (constructionLevel * bubbleBonus) / 100))
+    // console.log('moreMath', moreMath)
+    // console.log('last', (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100))
+    // console.log('getPlayerConstructionSpeed result 1', Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + talentBonus * (atomBonus + lavaLog(redSaltAmount)) / 100)))
   }
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
@@ -1105,7 +1105,7 @@ export const getPlayerConstructionExpPerHour = (character, account) => {
   const stampBonus = getStampsBonusByEffect(account?.stamps, '+{%_Construction_Exp_Gain', character);
   const starSignBonus = getStarSignBonus(character, account, 'Construct_Exp');
   const postOfficeBonus = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
-  if (character?.name === 'MortasNinth' || character?.name === 'Bravius') {
+  if (character?.name === 'MortasNinth') {
     // Console log each variable
     // console.log('playerBuildSpeed:', playerBuildSpeed);
     // console.log('character?.skillsInfo?.construction?.level:', character?.skillsInfo?.construction?.level);

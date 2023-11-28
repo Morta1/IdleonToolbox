@@ -130,7 +130,7 @@ const ConstructionMain = () => {
           </Stack>
         </Stack>
         <Stack direction={'row'} my={2} gap={2} flexWrap={'wrap'}>
-          <CardTitleAndValue title={'Total Build Speed'}>
+          <CardTitleAndValue title={'Total Build Rate'}>
             <Stack alignItems={'center'} gap={1}>
               <Typography>{notateNumber(state?.account?.construction?.totalBuildRate)}/HR</Typography>
               {optimized ? <SouthIcon/> : null}

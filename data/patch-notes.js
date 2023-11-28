@@ -6,6 +6,15 @@ export const patchNotes = [
   {
     ver: '3.2.25',
     gameVer: '1.92',
+    date: '28/11/2023',
+    features: [
+      'Added more information to shrines tooltip (affecting characters, exp/hr)'
+    ],
+    fixes: [    ]
+  },
+  {
+    ver: '3.2.25',
+    gameVer: '1.92',
     date: '23/11/2023',
     features: [
       'Added an option to optimize the construction board by "Player xp rate" - this is highly experimental and might not work as expected so use at your own risk',

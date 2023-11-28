@@ -89,6 +89,12 @@ const worldsData = {
       { label: 'divinity', icon: 'data/ClassIcons55' },
       { label: 'gaming', icon: 'data/ClassIcons56' }
     ]
+  },
+  'world 6': {
+    icon: 'etc/farming-temp',
+    categories: [
+      { label: 'farming', icon: 'etc/farming-temp' },
+    ]
   }
 };
 

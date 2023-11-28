@@ -8,7 +8,7 @@ import { getCards } from './cards';
 import { getObols } from './obols';
 import { applyStampsMulti, getStamps } from './stamps';
 import { applyStatuesMulti, getStatues } from './statues';
-import { getShrines } from './shrines';
+import { getShrineExpBonus, getShrines } from './shrines';
 import { getHighscores } from './highScores';
 import { getGemShop } from './gemShop';
 import { getShops } from './shops';
@@ -132,8 +132,8 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
 
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
-  accountData.shrines = getShrines(idleonData, accountData);
   accountData.towers = getTowers(idleonData, accountData);
+  accountData.shrines = getShrines(idleonData, accountData);
   accountData.statues = getStatues(idleonData, serializedCharactersData);
   accountData.achievements = getAchievements(idleonData);
 
@@ -237,6 +237,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
     return character;
   })
+  accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;
