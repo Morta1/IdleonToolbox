@@ -38,7 +38,7 @@ const ShrineTooltip = ({ name, description, shrineLevel, progress, mapId, affect
     <Typography
       variant={'body1'}>{numberWithCommas(parseInt(progress))} / {numberWithCommas(parseInt(hoursReq))}</Typography>
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>Affected by:</Typography>
-    <Typography variant={'body1'}>{affectingCharacters.join(', ')}</Typography>
+    <Typography variant={'body1'}>{affectingCharacters?.join(', ')}</Typography>
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>{progressPerHour.toFixed(2)}/hr</Typography>
     <Timer date={new Date().getTime() + timeLeft} staticTime={true}/>
   </>
