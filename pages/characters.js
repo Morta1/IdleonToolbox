@@ -10,7 +10,6 @@ const Characters = () => {
   const characterCols = Math.max(3, 12 / numberOfCharacters);
   const hasSkillsFilter = state?.filters?.Skills;
   const hasPostOfficeFilter = state?.filters?.['Post Office'];
-  console.log('state.showUnmaxedBoxesOnly', state.showUnmaxedBoxesOnly)
   return <>
     <NextSeo
       title="Idleon Toolbox | Characters"
