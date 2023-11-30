@@ -9,7 +9,8 @@ const Characters = () => {
   const numberOfCharacters = useMemo(() => Object.values(state?.displayedCharacters || [])?.filter((val) => val).length, [state]);
   const characterCols = Math.max(3, 12 / numberOfCharacters);
   const hasSkillsFilter = state?.filters?.Skills;
-
+  const hasPostOfficeFilter = state?.filters?.['Post Office'];
+  console.log('state.showUnmaxedBoxesOnly', state.showUnmaxedBoxesOnly)
   return <>
     <NextSeo
       title="Idleon Toolbox | Characters"
@@ -23,6 +24,12 @@ const Characters = () => {
                              size={'small'}
           />}
           label={'Show rank 1 only'}/> : null}
+        {hasPostOfficeFilter ? <FormControlLabel
+          control={<Checkbox name={'mini'} checked={state.showUnmaxedBoxesOnly}
+                             onChange={() => dispatch({ type: 'showUnmaxedBoxesOnly', data: !state.showUnmaxedBoxesOnly })}
+                             size={'small'}
+          />}
+          label={'Show Unmaxed Boxes Only'}/> : null}
         <Grid container sx={{ gap: { xs: 2 } }} columns={12.5}>
           {state?.characters?.map((character, index) => {
             return state?.displayedCharacters?.[character?.name]
@@ -33,6 +40,7 @@ const Characters = () => {
                            cols={characterCols}
                            lastUpdated={state?.lastUpdated}
                            showSkillsRankOneOnly={state.showRankOneOnly}
+                           showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}
                            key={`${character?.name}-${index}`}/>
               : null;
           })}

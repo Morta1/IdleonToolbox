@@ -363,7 +363,8 @@ export const sections = [{ name: 'Activity' }, { name: 'Stats' }, { name: 'Bags'
   { name: 'Obols Stats' }, { name: 'Cards' }, { name: 'Skills' }, { name: 'Prayers' }, { name: 'Talents' },
   { name: 'Equipment' }, { name: 'Star Signs' }, { name: 'Post Office' }, { name: 'Anvil Details' },
   { name: 'Inventory' },
-  { name: 'Equipped Bubbles' }, { name: 'Active Skills CD' }];
+  { name: 'Chips' },
+  { name: 'Equipped Bubbles' }, { name: 'Active Skills CD' }, ];
 
 export const isProd = process.env.NODE_ENV === 'production';
 

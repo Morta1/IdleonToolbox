@@ -4,8 +4,8 @@ import React from 'react';
 import Tooltip from 'components/Tooltip';
 import styled from '@emotion/styled';
 import Box from '@mui/material/Box';
+import Chips from './Chips';
 
-const chipSlotReq = [5, 10, 15, 25, 35, 50, 75];
 const Console = ({ chips, playersChips, characters }) => {
   return (
     <>
@@ -24,23 +24,7 @@ const Console = ({ chips, playersChips, characters }) => {
                   </Stack>
                   <Typography className={'character-name'}>{playerName}</Typography>
                 </Stack>
-                <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} justifyContent={'center'} gap={3}>
-                  {playerChips?.map((chip, chipIndex) => {
-                    const isSlotAvailable = playerLabLevel >= chipSlotReq[chipIndex];
-                    return <Card elevation={5} key={`${chip?.name}-${chipIndex}`}>
-                      <CardContent>
-                        <Stack justifyContent={'center'}>
-                          {chip !== -1 ? <Tooltip title={<ChipTooltip {...chip}/>}>
-                            <ChipIcon src={`${prefix}data/ConsoleChip${chip?.index}.png`} alt=""/>
-                          </Tooltip> : <Box sx={{
-                            width: 42,
-                            height: 42, display: 'flex', alignItems: 'center'
-                          }}>{isSlotAvailable ? '' : `Lv. ${chipSlotReq?.[chipIndex]}`}</Box>}
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  })}
-                </Stack>
+                <Chips playerLabLevel={playerLabLevel} playerChips={playerChips} />
               </Stack>
             </CardContent>
           </Card>
@@ -70,9 +54,6 @@ const Console = ({ chips, playersChips, characters }) => {
     </>
   );
 };
-
-const ChipIcon = styled.img`
-`;
 
 const ChipTooltip = ({ name, bonus, baseVal }) => {
   return <>

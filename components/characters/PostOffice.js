@@ -4,7 +4,7 @@ import Tooltip from '../Tooltip';
 import styled from '@emotion/styled';
 import { StyledBadge } from '../common/styles';
 
-const PostOffice = ({ boxes, totalPointsSpent, totalOrders }) => {
+const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly }) => {
   return <Stack>
     <Typography variant={'h5'}>Post Office (<Typography variant={'h5'}
                                                         color={totalPointsSpent < totalOrders ? 'error.light' : ''}
@@ -12,6 +12,7 @@ const PostOffice = ({ boxes, totalPointsSpent, totalOrders }) => {
       variant={'h5'} component={'span'}>{totalOrders}</Typography>)</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ maxWidth: 310 }}>
       {boxes?.map((box, index) => {
+        if (showUnmaxedBoxesOnly && box?.level === box?.maxLevel) return null;
         return box?.name !== 'Filler' ? <div key={box?.name + ' ' + index}>
           <Tooltip title={<PostOfficeTooltip {...box}/>}>
             <StyledBadge color={'primary'}

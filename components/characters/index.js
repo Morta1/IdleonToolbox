@@ -16,8 +16,9 @@ import Stats from './Stats';
 import styled from '@emotion/styled';
 import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
+import Chips from '../account/Worlds/World4/Chips';
 
-const Character = ({ character, account, lastUpdated, filters, cols, characters, showSkillsRankOneOnly }) => {
+const Character = ({ character, account, lastUpdated, filters, cols, characters, showSkillsRankOneOnly, showUnmaxedBoxesOnly }) => {
   const {
     name,
     classIndex,
@@ -41,7 +42,8 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters,
     cooldowns,
     afkTime,
     inventory,
-    inventorySlots
+    inventorySlots,
+    playerId
   } = character;
   const views = [
     {
@@ -67,7 +69,8 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters,
       filter: 'Anvil Details'
     },
     { component: <Inventory inventory={inventory} inventorySlots={inventorySlots}/>, filter: 'Inventory' },
-    { component: <PostOffice {...postOffice} />, filter: 'Post Office' },
+    { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly} />, filter: 'Post Office' },
+    { component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0} playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}/>, filter: 'Chips' },
     {
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
       filter: 'Equipment'

@@ -5,7 +5,7 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 const PlayerBubbles = ({ bubbles }) => {
   const empty = bubbles?.every(({ bubbleName }) => !bubbleName);
   return <>
-    <Stack direction={'row'}>
+    <Stack direction={'row'} sx={{ height: 'fit-content' }}>
       {empty ? <Tooltip title={'Missing Active Bubble'}>
         <img src={`${prefix}data/aUpgradesG2.png`}
              style={{ width: 70, height: 70, filter: 'brightness(0)' }}

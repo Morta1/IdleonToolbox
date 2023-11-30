@@ -70,6 +70,7 @@ const Data = () => {
       <TextField sx={{ width: 250 }} label={'Local storage key'} select value={key}
                  onChange={(e) => setKey(e.target.value)}>
         <MenuItem value={'all'}>All</MenuItem>
+        <MenuItem value={'filters'}>Characters page filters</MenuItem>
         <MenuItem value={'trackers'}>Dashboard config</MenuItem>
         <MenuItem value={'planner'}>Item Planner</MenuItem>
       </TextField>

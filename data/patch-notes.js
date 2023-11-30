@@ -9,7 +9,9 @@ export const patchNotes = [
     date: '30/11/2023',
     features: [
       'Added cost calculations to divinity page',
-      'Added the ability to see zow/chow for all characters with a filter'
+      'Added the ability to see zow/chow for all characters with a filter',
+      'In character page, added the ability to hide all maxed post office boxes',
+      'In character page, added a Chips filter'
     ],
     fixes: [    ]
   },
