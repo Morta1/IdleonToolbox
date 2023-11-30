@@ -5,26 +5,27 @@ import { getActiveBubbleBonus } from './alchemy';
 const { tryToParse } = require('../utility/helpers');
 const { gods } = require('../data/website-data');
 
-export const getDivinity = (idleonData, serializedCharactersData) => {
+export const getDivinity = (idleonData, serializedCharactersData, accountData) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
   if (!divinityRaw) return null;
-  return parseDivinity(divinityRaw, serializedCharactersData);
+  return parseDivinity(divinityRaw, serializedCharactersData, accountData);
 }
 
-const parseDivinity = (divinityRaw, serializedCharactersData) => {
+const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
   const numberOfChars = serializedCharactersData?.length;
   const deitiesStartIndex = 12;
   const linkedDeities = divinityRaw?.slice(deitiesStartIndex, deitiesStartIndex + numberOfChars);
-  const blessingBasesStartIndex = 28;
-  const blessingBases = divinityRaw?.slice(blessingBasesStartIndex, blessingBasesStartIndex + gods?.length + 1);
+  const blessingLevelsStartIndex = 28;
+  const blessingLevels = divinityRaw?.slice(blessingLevelsStartIndex, blessingLevelsStartIndex + gods?.length + 1);
   const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
   const unlockedDeities = divinityRaw?.[25];
-
   const deities = gods?.map((god, index) => {
-      const blessingBonus = blessingBases?.[index] * god?.blessingMultiplier;
+      const level = blessingLevels?.[index];
+      const blessingBonus = level * god?.blessingMultiplier;
       return {
         ...god,
         rawName: `DivGod${index}`,
+        level,
         blessingBonus
       }
     }
@@ -34,8 +35,71 @@ const parseDivinity = (divinityRaw, serializedCharactersData) => {
     linkedDeities,
     linkedStyles,
     deities,
-    blessingBases,
+    blessingLevels,
     unlockedDeities
+  }
+}
+
+export const applyGodCost = (accountData) => {
+  return accountData?.divinity?.deities?.map((god, index) => ({
+    ...god,
+    cost: getGodCost(god, index, accountData)
+  }))
+}
+
+const getCostToMax = (level, x1, x2, maxLevel = 100) => {
+  let total = 0;
+  for (let i = level; i < maxLevel; i++) {
+    total += x1 * Math.pow(x2, level);
+  }
+  return total;
+}
+
+const getGodCost = ({ name, level, x1, x2 } = {}, index, account) => {
+  if (level < 100) {
+    const cost = x1 * Math.pow(x2, level);
+    const nextLevelCost = x1 * Math.pow(x2, level + 1);
+    const costToMax = getCostToMax(level, x1, x2);
+    if (0 === index || 8 === index || 4 === index || 2 === index) {
+      const atoms = account?.gaming?.bits;
+      return {
+        type: 'particle',
+        cost,
+        nextLevelCost,
+        costToMax,
+        currency: atoms
+      }
+    } else if (1 === index) {
+      const sailingGold = account?.sailing?.lootPile?.[0];
+      return {
+        type: 'sailingGold',
+        cost,
+        nextLevelCost,
+        costToMax,
+        currency: sailingGold
+      }
+    } else if (3 === index || 6 === index) {
+      const money = account?.currencies?.rawMoney;
+      return {
+        type: 'coins',
+        cost,
+        nextLevelCost,
+        costToMax,
+        currency: money
+      }
+    } else {
+      const bits = account?.gaming?.bits;
+      return {
+        type: 'bits',
+        cost,
+        nextLevelCost,
+        costToMax,
+        currency: bits
+      }
+    }
+  }
+  return {
+    cost: 'MAX'
   }
 }
 

@@ -1,17 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../utility/helpers';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '../../../utility/helpers';
 import Tooltip from 'components/Tooltip';
 import { MissingData } from '../../../components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
 import { getMinorDivinityBonus } from '../../../parsers/divinity';
+import CoinDisplay from '../../../components/common/CoinDisplay';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
   const { deities, linkedDeities, unlockedDeities } = state?.account?.divinity || {};
+  const [showCost, setShowCost] = useState(false);
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <NextSeo
@@ -19,6 +21,11 @@ const Divinity = () => {
       description="Keep track of your characters' gods connections and upgrades"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
+    <FormControlLabel
+      control={<Checkbox name={'mini'} checked={showCost}
+                         size={'small'}
+                         onChange={() => setShowCost(!showCost)}/>}
+      label={'Show upgrade cost'}/>
     <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
       {deities?.map(({
                        name,
@@ -27,9 +34,11 @@ const Divinity = () => {
                        minorBonus,
                        blessing,
                        blessingMultiplier,
-                       blessingBonus
+                       blessingBonus,
+                       cost,
+                       level
                      }, godIndex) => {
-        const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex))
+        const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex));
         return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
@@ -37,11 +46,17 @@ const Divinity = () => {
               <Stack gap={1} justifyContent={'space-between'} sx={{ minHeight: 250 }}>
                 <Stack>
                   <Typography>{name}</Typography>
+                  <Typography variant={'body2'}>Lv. {level} / 100</Typography>
                   <Divider sx={{ my: 2 }}/>
                   <Typography variant={'body1'}>
                     Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus))}
                   </Typography>
                   {godIndex === 2 ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
+                  {cost?.cost !== 'MAX' && showCost ? <>
+                    <Cost title={'Cost'} {...cost} cost={cost?.cost}/>
+                    <Cost title={'Next level cost'} {...cost} cost={cost?.nextLevelCost}/>
+                    <Cost title={'Cost to max'} {...cost} cost={cost?.costToMax}/>
+                  </> : null}
                   <Divider sx={{ my: 2 }}/>
                   <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus)}</Typography>
                 </Stack>
@@ -76,6 +91,19 @@ const Divinity = () => {
     </Stack>
   </>
 };
+
+const Cost = ({ type, cost, isMaxed, currency, title }) => {
+  const currencyIcon = type === 'bits' ? `etc/Bits_${getBitIndex(cost)}` : 'etc/Particle';
+  return type !== 'coins' ? <Stack alignItems={'center'} direction={'row'} gap={1} mt={1}>
+    <Typography variant={'body2'}>
+      {title}: {cost === 'MAX' ? cost : notateNumber(cost, 'Big')}
+    </Typography>
+    <img src={`${prefix}${currencyIcon}.png`}/>
+  </Stack> : <CoinDisplay title={title}
+                          noShadow
+                          centered={false}
+                          money={getCoinsArray(cost)}/>
+}
 
 const CharDeityDetails = ({ name, bonus, divStyle }) => {
   return <>

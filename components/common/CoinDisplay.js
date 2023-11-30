@@ -4,7 +4,7 @@ import { Stack, Typography } from '@mui/material';
 
 const CoinDisplay = ({ centered = true, style = {}, money, title = 'Total Money', maxCoins = 5 }) => {
   return <div style={style}>
-    {title ? <Typography style={{ textAlign: 'center' }}>{title}</Typography> : null}
+    {title ? <Typography style={{ textAlign: centered ? 'center' : 'left' }}>{title}</Typography> : null}
     <Stack flexWrap={'wrap'} justifyContent={centered ? 'center' : 'flex-start'} direction={'row'} gap={2.3}>
       {money?.map(([coinIndex, coin], index) => {
         return index < maxCoins && Number(coin) > 0 ?

@@ -54,7 +54,7 @@ import { getTraps } from './traps';
 import { getQuests, isWorldFinished } from './quests';
 import { getDeathNote } from './deathNote';
 import { addBreedingChance, getBreeding } from './breeding';
-import { getDivinity } from './divinity';
+import { applyGodCost, getDivinity } from './divinity';
 import { getArtifacts, getSailing } from './sailing';
 import { getGaming } from './gaming';
 import { getAtoms } from './atomCollider';
@@ -225,7 +225,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
   accountData.breeding = addBreedingChance(idleonData, accountData);
-
+  accountData.divinity.deities = applyGodCost(accountData);
   charactersData = charactersData?.map((character) => {
     const { carryCapBags } = character;
     character.carryCapBags = carryCapBags?.map((carryBag) => {

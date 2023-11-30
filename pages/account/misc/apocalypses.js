@@ -1,24 +1,36 @@
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { talentPagesMap } from '../../../parsers/talents';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
+import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);
-  const [maniacs, setManiacs] = useState([]);
+  const [filteredCharacters, setFilteredCharacters] = useState([0]);
 
+  const handleFilteredCharacters = (event, newCharacters) => {
+    setFilteredCharacters(newCharacters)
+  };
+
+  const handleSelectAll = () => {
+    const allSelected = filteredCharacters?.length === state?.characters?.length;
+    const chars = Array.from(
+      Array(allSelected ? 1 : state?.characters?.length).keys()
+    );
+    setFilteredCharacters(chars);
+  };
   useEffect(() => {
     if (state?.characters) {
       const localManiacs = state?.characters?.filter((character) => {
         const isBarbarian = talentPagesMap[character?.class]?.includes('Barbarian');
         const isBloodBerserker = talentPagesMap[character?.class]?.includes('Blood_Berserker');
         return isBarbarian || isBloodBerserker;
-      })
-      setManiacs(localManiacs);
+      });
+      setFilteredCharacters(localManiacs?.map(({ playerId }) => playerId))
     }
   }, [state]);
 
@@ -29,14 +41,47 @@ const Apocalypses = () => {
         description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
       />
       <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Apocalypses</Typography>
+      <Stack direction={'row'} my={2} justifyContent={'center'} flexWrap={'wrap'}>
+        <ToggleButtonGroup
+          size={'small'}
+          sx={{ display: 'flex', flexWrap: 'wrap' }}
+          value={filteredCharacters}
+          onChange={handleFilteredCharacters}>
+          {state?.characters?.map((character, index) => {
+            return (
+              <ToggleButton
+                title={character?.name}
+                value={index}
+                key={character?.name + '' + index}>
+                <img
+                  src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
+                  alt=""
+                />
+              </ToggleButton>
+            );
+          })}
+        </ToggleButtonGroup>
+        <ToggleButtonGroup sx={{ display: 'flex', flexWrap: 'wrap' }}
+                           size={'small'}>
+          <ToggleButton
+            onClick={handleSelectAll}
+            title="Select all"
+            value={'all'}>
+            <FormatAlignCenterIcon/>
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Stack>
       <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't
         zowed/chowed and how many you've already killed</Typography>
       <Stack gap={4}>
-        {maniacs?.map(({ name, zow, chow }, index) => {
+        {filteredCharacters.length === 0 ? <Typography variant={'h3'} sx={{ textAlign: 'center' }}>Please select at
+          least one character</Typography> : null}
+        {state?.characters?.map(({ name, zow, chow, playerId }, index) => {
+          if (filteredCharacters?.indexOf(playerId) === -1) return null;
           return <Stack key={`${name}-zow-chow`} gap={4}>
             <ApocDisplay apocName={'zow'} charName={name} key={`${name}-zow`} monsters={zow}/>
             <ApocDisplay apocName={'chow'} charName={name} key={`${name}-chow`} monsters={chow}/>
-            {index < maniacs.length - 1 ? <Divider my={5}/> : null}
+            {index < filteredCharacters.length - 1 ? <Divider my={5}/> : null}
           </Stack>
         })}
       </Stack>

@@ -6,6 +6,16 @@ export const patchNotes = [
   {
     ver: '3.2.25',
     gameVer: '1.92',
+    date: '30/11/2023',
+    features: [
+      'Added cost calculations to divinity page',
+      'Added the ability to see zow/chow for all characters with a filter'
+    ],
+    fixes: [    ]
+  },
+  {
+    ver: '3.2.25',
+    gameVer: '1.92',
     date: '28/11/2023',
     features: [
       'Added more information to shrines tooltip (affecting characters, exp/hr)'

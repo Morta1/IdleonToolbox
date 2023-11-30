@@ -360,12 +360,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
-  if (isBarbarian) { // zow
+  // if (isBarbarian) { // zow
     character.zow = getBarbarianZowChow(kills, [1e5]);
-  }
-  if (isBloodBerserker) {
+  // }
+  // if (isBloodBerserker) {
     character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
-  }
+  // }
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
