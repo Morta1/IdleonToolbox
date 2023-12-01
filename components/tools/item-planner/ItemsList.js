@@ -92,7 +92,6 @@ const ItemsList = ({
             <span className={'title'}>{cleanUnderscore(pascalCase(categoryName))}</span>
             <Stack flexWrap={'wrap'} direction={'row'} gap={3}>
               {items?.map(({ itemName, itemQuantity, rawName, type, quantityOwned, owner }, innerIndex) => {
-                if (itemQuantity <= 0) return null;
                 return <Stack gap={1} alignItems={'center'} key={itemName + '' + innerIndex}>
                   <Tooltip title={<OwnerTooltip itemName={itemName} owners={owner}/>}>
                     <ItemIcon
