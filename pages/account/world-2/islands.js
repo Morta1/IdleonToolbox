@@ -28,8 +28,8 @@ const Islands = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Vials"
-      description="Vials progressions and upgrade requirements"
+      title="Idleon Toolbox | Islands"
+      description="Islands progressions and available upgrades"
     />
     <Typography variant={'h2'} mb={3}>Islands</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

@@ -113,10 +113,10 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
 }
 
 export const getDeityLinkedIndex = (account, characters, deityIndex) => {
-  const normalLink = account?.divinity?.linkedDeities?.map((deity, index) => deityIndex === deity || isCompanionBonusActive(account, 0)
+  const normalLink = account?.divinity?.linkedDeities?.map((deity, index) => deityIndex === deity || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
     : -1);
-  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) || isCompanionBonusActive(account, 0)
+  const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
     : -1);
   return (normalLink?.map((charIndex, index) => charIndex === -1

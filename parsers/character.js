@@ -683,7 +683,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const stampBonus = getStampsBonusByEffect(account?.stamps, '3D_Printer_Sampling_Size');
   const meritBonus = account?.tasks?.[2]?.[2]?.[4];
   const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
-  const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro);
+  const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro) || 0;
   const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;
   const postofficeSampleBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 0);
 

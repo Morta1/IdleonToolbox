@@ -97,15 +97,16 @@ const ItemPlanner = ({}) => {
     setItem(newArr);
   }
 
-  const onRemoveItem = (sectionIndex, itemObject, amount) => {
+  const onRemoveItem = (sectionIndex, itemObject, amount, isDelete) => {
+    if (itemObject?.itemQuantity === 0 && amount > 0) return;
     let accumulatedItems, accumulatedMaterials;
     const section = planner?.sections?.[sectionIndex];
     const originalItem = crafts[itemObject?.itemName];
     if (originalItem) {
-      accumulatedItems = calculateItemsQuantity(section?.items, originalItem, false, false, amount);
+      accumulatedItems = calculateItemsQuantity(section?.items, originalItem, false, false, amount, isDelete);
       const list = Array.isArray(itemObject) ? itemObject : flattenCraftObject(itemObject);
       accumulatedMaterials = list?.reduce((res, itemObject) => {
-        return calculateItemsQuantity(res, itemObject, true, false, amount);
+        return calculateItemsQuantity(res, itemObject, true, false, amount, isDelete);
       }, section?.materials);
       const sections = updateSectionData(sectionIndex, {
         materials: accumulatedMaterials,
@@ -121,7 +122,9 @@ const ItemPlanner = ({}) => {
       const section = planner?.sections?.[sectionIndex];
       let accumulatedItems, accumulatedMaterials;
       accumulatedItems = calculateItemsQuantity(section?.items, item, false, true, count);
-      const list = Array.isArray(crafts[item?.itemName]) ? crafts[item?.itemName] : flattenCraftObject(crafts[item?.itemName]);
+      const list = Array.isArray(crafts[item?.itemName])
+        ? crafts[item?.itemName]
+        : flattenCraftObject(crafts[item?.itemName]);
       accumulatedMaterials = list?.reduce((res, itemObject) => {
         return calculateItemsQuantity(res, itemObject, true, true, count);
       }, section?.materials);
@@ -142,13 +145,13 @@ const ItemPlanner = ({}) => {
     });
   }
 
-  const calculateItemsQuantity = (array, itemObject, isMaterial, add = true, amount) => {
+  const calculateItemsQuantity = (array, itemObject, isMaterial, add = true, amount, isDelete) => {
     const updatedItem = array?.find((innerItem) => itemObject?.itemName === innerItem?.itemName);
     if (updatedItem) {
       return array?.reduce((res, innerItem) => {
         if (itemObject?.itemName !== innerItem?.itemName) return [...res, innerItem];
         const quantity = amount ? amount * itemObject?.itemQuantity : innerItem?.itemQuantity;
-        if (!add && updatedItem?.itemQuantity - quantity <= 0) {
+        if (!add && updatedItem?.itemQuantity - quantity <= 0 && isDelete) {
           return res;
         }
         return [...res, {
@@ -229,8 +232,8 @@ const ItemPlanner = ({}) => {
               <StyledCheckbox
                 checked={includeEquippedItems}
                 onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
-                name='Include Equipped Items'
-                color='default'
+                name="Include Equipped Items"
+                color="default"
               />
             }
             label={'Include Equipped Items'}
@@ -249,7 +252,7 @@ const ItemPlanner = ({}) => {
               Import
             </Button>
           </Tooltip>
-          <input type='file' id='file' ref={inputRef} style={{ display: 'none' }} accept='.json'
+          <input type="file" id="file" ref={inputRef} style={{ display: 'none' }} accept=".json"
                  onChange={handleFileChange}/>
         </Stack>
       </Stack>
@@ -272,11 +275,11 @@ const ItemPlanner = ({}) => {
                 <div className="preview">
                   {item?.[sectionIndex] ? <img
                     src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
-                    alt=''
+                    alt=""
                   /> : null}
                 </div>
                 <Autocomplete
-                  id='item-locator'
+                  id="item-locator"
                   value={value?.[sectionIndex]}
                   onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
                   autoComplete
@@ -284,7 +287,7 @@ const ItemPlanner = ({}) => {
                   filterSelectedOptions
                   filterOptions={filterOptions}
                   getOptionLabel={(option) => {
-                    return option ? option?.replace(/_/g, " ") : "";
+                    return option ? option?.replace(/_/g, ' ') : '';
                   }}
                   renderOption={(props, option) => {
                     return option ? (
@@ -293,15 +296,15 @@ const ItemPlanner = ({}) => {
                           width={24}
                           height={24}
                           src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
-                          alt=''
+                          alt=""
                         />
-                        {option?.replace(/_/g, " ")}
+                        {option?.replace(/_/g, ' ')}
                       </Stack>
                     ) : <span style={{ height: 0 }} key={'empty'}/>;
                   }}
                   style={{ width: 300 }}
                   renderInput={(params) => (
-                    <StyledTextField {...params} label='Item Name' variant='outlined'/>
+                    <StyledTextField {...params} label="Item Name" variant="outlined"/>
                   )}
                 />
                 <StyledTextField
@@ -343,20 +346,20 @@ const ItemPlanner = ({}) => {
                             title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
                             <img key={item?.rawName + ' ' + index}
                                  src={`${prefix}data/${item?.rawName}.png`}
-                                 alt=''/>
+                                 alt=""/>
                           </Tooltip>
                         </Badge>
                         {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
-                          <IconButton type={'bottom'} size={"small"}
+                          <IconButton type={'bottom'} size={'small'}
                                       onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
                             <AddIcon/>
                           </IconButton>
-                          <IconButton type={'bottom'} size={"small"}
+                          <IconButton type={'bottom'} size={'small'}
                                       onClick={() => onRemoveItem(sectionIndex, item, 1)}>
                             <RemoveIcon/>
                           </IconButton>
-                          <IconButton size={"small"}
-                                      onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity)}>
+                          <IconButton size={'small'}
+                                      onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity, true)}>
                             <DeleteForeverIcon/>
                           </IconButton>
                         </div> : null}

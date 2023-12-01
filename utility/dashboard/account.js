@@ -256,17 +256,27 @@ export const sailingAlerts = (account, options) => {
         secondBonusDescription
       } = shopCaption;
       const matches = captains?.filter((rCaptain) => {
-        if (rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex) {
+        const areBonusesEqual = rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex;
+        const areBonusesSwapped = rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex;
+        const atLeastOneBonusIsEqual = rCaptain?.firstBonusIndex === firstBonusIndex || rCaptain?.firstBonusIndex === secondBonusIndex;
+
+        if (areBonusesEqual || areBonusesSwapped) {
           if (firstBonusIndex === secondBonusIndex) {
             return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
           } else {
-            return firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
+            const condition1 = firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
+            const condition2 = firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
+            return condition1 || condition2;
           }
-        } else if (rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex) {
-          if (firstBonusIndex === secondBonusIndex) {
-            return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-          } else {
-            return firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
+        }
+        if (atLeastOneBonusIsEqual) {
+          const isSameValue = rCaptain?.firstBonusIndex === rCaptain?.secondBonusIndex;
+          if (isSameValue) {
+            if (firstBonusIndex === rCaptain?.firstBonusIndex) {
+              return firstBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+            } else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
+              return secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+            }
           }
         }
         return false;

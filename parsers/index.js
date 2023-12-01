@@ -180,7 +180,6 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
       [`World${world}`]: isWorldFinished(charactersData, world)
     }
   }, {});
-
   accountData.statues = applyStatuesMulti(accountData.statues, charactersData);
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
