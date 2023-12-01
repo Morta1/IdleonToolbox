@@ -47,23 +47,23 @@ export const applyGodCost = (accountData) => {
   }))
 }
 
-const getCostToMax = (level, x1, x2, maxLevel = 100) => {
+const getCostToMax = (level, x4, x5, maxLevel = 100) => {
   let total = 0;
   for (let i = level; i < maxLevel; i++) {
-    total += x1 * Math.pow(x2, level);
+    total += (x4 * Math.pow(x5, i));
   }
   return total;
 }
 
-const getGodCost = ({ name, level, x1, x2 } = {}, index, account) => {
+const getGodCost = ({ name, level, x4, x5 } = {}, index, account) => {
   if (level < 100) {
-    const cost = x1 * Math.pow(x2, level);
-    const nextLevelCost = x1 * Math.pow(x2, level + 1);
-    const costToMax = getCostToMax(level, x1, x2);
+    const cost = x4 * Math.pow(x5, level);
+    const nextLevelCost = x4 * Math.pow(x5, level + 1);
+    const costToMax = getCostToMax(level, x4, x5);
     if (0 === index || 8 === index || 4 === index || 2 === index) {
       const atoms = account?.gaming?.bits;
       return {
-        type: 'particle',
+        type: 'bits',
         cost,
         nextLevelCost,
         costToMax,
@@ -88,13 +88,13 @@ const getGodCost = ({ name, level, x1, x2 } = {}, index, account) => {
         currency: money
       }
     } else {
-      const bits = account?.gaming?.bits;
+      const particles = account?.atomCollider?.particles;
       return {
-        type: 'bits',
+        type: 'particles',
         cost,
         nextLevelCost,
         costToMax,
-        currency: bits
+        currency: particles
       }
     }
   }

@@ -72,7 +72,7 @@ const AppProvider = ({ children }) => {
       const lastUpdated = localStorage.getItem('lastUpdated') || false;
       const planner = localStorage.getItem('planner');
       const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
-        { trackers }, { godPlanner }, { showRankOneOnly: false }, {showUnmaxedBoxesOnly: false}];
+        { trackers }, { godPlanner }, { showRankOneOnly: false }, { showUnmaxedBoxesOnly: false }];
       return objects.reduce((res, obj) => {
         try {
           const [objName, objValue] = Object.entries(obj)?.[0];

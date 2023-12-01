@@ -92,8 +92,17 @@ const Divinity = () => {
   </>
 };
 
-const Cost = ({ type, cost, isMaxed, currency, title }) => {
-  const currencyIcon = type === 'bits' ? `etc/Bits_${getBitIndex(cost)}` : 'etc/Particle';
+const Cost = ({ type, cost, title }) => {
+  if (type === 'coins') {
+    // console.log('cost', cost)
+    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
+    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
+    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
+    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
+  }
+  const currencyIcon = type === 'bits' ? `etc/Bits_${getBitIndex(cost)}` : type === 'sailingGold'
+    ? 'data/SailT0'
+    : 'etc/Particle';
   return type !== 'coins' ? <Stack alignItems={'center'} direction={'row'} gap={1} mt={1}>
     <Typography variant={'body2'}>
       {title}: {cost === 'MAX' ? cost : notateNumber(cost, 'Big')}
