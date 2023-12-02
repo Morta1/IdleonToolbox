@@ -302,9 +302,9 @@ export const sailingAlerts = (account, options) => {
                 sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
           }))?.sort((a, b) => (b?.firstBonusValue + b?.secondBonusValue) - (a?.firstBonusValue + a?.secondBonusValue)),
           bonus: isSameValue
-            ? firstBonusDescription.substring(firstBonusDescription.indexOf('%')).replace('%', (firstBonusValue + secondBonusValue) + '%')
-            : [firstBonusDescription.substring(firstBonusDescription.indexOf('%')).replace('%', (firstBonusValue) + '%'),
-              secondBonusDescription.substring(secondBonusDescription.indexOf('%')).replace('%', (secondBonusValue) + '%')]
+            ? firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue + secondBonusValue) + '%')
+            : [firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue) + '%'),
+              secondBonusDescription?.substring(secondBonusDescription?.indexOf('%')).replace('%', (secondBonusValue) + '%')]
         }
         return [...res, temp];
       }
