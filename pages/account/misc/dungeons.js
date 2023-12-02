@@ -9,6 +9,7 @@ import { calcHappyHours } from '../../../parsers/dungeons';
 import { NextSeo } from 'next-seo';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../../components/Tooltip';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const insideDungeonUpgradeMaxLevel = 100;
 const flurboUpgradeMaxLevel = 50;
@@ -29,23 +30,34 @@ const Dungeons = () => {
         Dungeons
       </Typography>
       <Stack direction="row" flexWrap={'wrap'} gap={4}>
-        <CardContainer>
-          <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons?.rank}.png`} alt=""/>
-          <Stack>
-            <Typography>Rank: {dungeons?.rank}</Typography>
-            <Typography>
-              {dungeons?.progress} / {dungeons?.rankReq}
-            </Typography>
+        <CardTitleAndValue title={'Rank'}>
+          <Stack direction={'row'} gap={2}>
+            <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons?.rank}.png`} alt=""/>
+            <Stack>
+              <Typography>Rank: {dungeons?.rank}</Typography>
+              <Typography>Exp: {dungeons?.progress} / {dungeons?.rankReq}</Typography>
+            </Stack>
           </Stack>
-        </CardContainer>
-        <CardContainer>
-          <img src={`${prefix}etc/boosted-runs.png`} alt=""/>
-          <Typography>{dungeons?.boostedRuns}</Typography>
-          <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt=""/>
-          {dungeons?.credits}
-          <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt=""/>
-          {dungeons?.flurbos}
-        </CardContainer>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Boosted runs'}>
+          <Stack direction={'row'} gap={1}>
+            <img src={`${prefix}etc/boosted-runs.png`} alt=""/>
+            <Typography>{dungeons?.boostedRuns}</Typography>
+          </Stack>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Credits'}>
+          <Stack direction={'row'} gap={1}>
+            <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt=""/>
+            {dungeons?.credits}
+          </Stack>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Flurbos'}>
+          <Stack direction={'row'} gap={1}>
+            <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt=""/>
+            {dungeons?.flurbos}
+          </Stack>
+        </CardTitleAndValue>
+
       </Stack>
 
       <Stack my={2} direction="row" gap={4}>
@@ -57,9 +69,9 @@ const Dungeons = () => {
                 <>
                   <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/>
                   <Tooltip title={getRealDateInMs(nextHappyHours?.[0])}>
-                    <InfoIcon fontSize={'small'} />
+                    <InfoIcon fontSize={'small'}/>
                   </Tooltip>
-                </> : "waiting for lava to set them"}
+                </> : 'waiting for lava to set them'}
             </Stack>
           </AccordionSummary>
           {nextHappyHours.length > 1 ? (
@@ -72,7 +84,7 @@ const Dungeons = () => {
                     <Typography sx={{ width: 40 }}>#{index}</Typography>
                     <Timer key={`happy-${index}`} date={nextHappyHour} lastUpdated={state?.lastUpdated}/>
                     <Tooltip title={getRealDateInMs(nextHappyHour)}>
-                      <InfoIcon fontSize={'small'} />
+                      <InfoIcon fontSize={'small'}/>
                     </Tooltip>
                   </Stack>
                 })}
@@ -93,8 +105,8 @@ const Dungeons = () => {
 const CardContainer = ({ column, sx = {}, children }) => {
   return (
     <Card sx={sx}>
-      <CardContent sx={{ height: "100%", display: "flex" }}>
-        <Stack direction={column ? "column" : "row"} gap={1} justifyContent="center" alignItems="center">
+      <CardContent sx={{ height: '100%', display: 'flex' }}>
+        <Stack direction={column ? 'column' : 'row'} gap={1} justifyContent="center" alignItems="center">
           {children}
         </Stack>
       </CardContent>
@@ -135,7 +147,7 @@ const DungeonUpgrades = ({ isFlurbo, upgrades = [] }) => {
   return (
     <Stack>
       <Typography my={2} variant="h4">
-        {isFlurbo ? "Flurbo" : "Dungeon"} Upgrades
+        {isFlurbo ? 'Flurbo' : 'Dungeon'} Upgrades
       </Typography>
       <Stack gap={1}>
         {upgrades.map((upgrade, index) => {
@@ -148,18 +160,20 @@ const DungeonUpgrades = ({ isFlurbo, upgrades = [] }) => {
                   <Stack>
                     <Typography>
                       +{calcBonus(upgrade)}
-                      {type === "%" ? type : ""} {cleanUnderscore(effect)}
+                      {type === '%' ? type : ''} {cleanUnderscore(effect)}
                     </Typography>
                     <Typography
-                      color={isMaxed ? "success.light" : ""}>{isMaxed ? "MAXED" : `Lv. ${level} / ${isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel}`}</Typography>
+                      color={isMaxed ? 'success.light' : ''}>{isMaxed ? 'MAXED' : `Lv. ${level} / ${isFlurbo
+                      ? flurboUpgradeMaxLevel
+                      : insideDungeonUpgradeMaxLevel}`}</Typography>
                   </Stack>
                   <Stack direction="row" gap={3}>
                     <Stack>
-                      <Typography color={"info.light"}>Cost</Typography>
+                      <Typography color={'info.light'}>Cost</Typography>
                       <Typography>{calcUpgradeCost(level)}</Typography>
                     </Stack>
                     <Stack>
-                      <Typography color={"info.light"}>Cost to max</Typography>
+                      <Typography color={'info.light'}>Cost to max</Typography>
                       <Typography>{calcCostToMax(level)}</Typography>
                     </Stack>
                   </Stack>

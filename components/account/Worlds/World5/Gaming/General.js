@@ -6,6 +6,7 @@ import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import styled from '@emotion/styled';
 import { calculateSnailEncouragementForSuccessChance } from '../../../../../parsers/gaming';
+import { CardTitleAndValue } from '../../../../common/styles';
 
 const General = ({
                    account,
@@ -31,11 +32,11 @@ const General = ({
   } = account?.gaming;
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      <ImgCard imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
-      <ImgCard imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
-      <ImgCard imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
-      <ImgCard imgSrc={'etc/GamingDrop'} value={availableDrops}/>
-      <ImgCard imgSrc={'etc/GamingEnvelope'} value={envelopes}/>
+      <ImgCard title={'Bits'} imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
+      <ImgCard title={'Sprouts'} imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
+      <ImgCard title={'Best nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
+      <ImgCard title={'Drops'} imgSrc={'etc/GamingDrop'} value={availableDrops}/>
+      <ImgCard title={'Envelopes'} imgSrc={'etc/GamingEnvelope'} value={envelopes}/>
     </Stack>
 
     <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -205,15 +206,13 @@ const ImportImg = styled.img`
   width: 50px;
 `;
 
-const ImgCard = ({ imgSrc, value }) => {
-  return <Card sx={{ display: 'flex', alignItems: 'center' }}>
-    <CardContent>
-      <Stack direction={'row'} gap={1} alignItems={'center'}>
-        <img src={`${prefix}${imgSrc}.png`} alt=""/>
-        <Typography>{value}</Typography>
-      </Stack>
-    </CardContent>
-  </Card>
+const ImgCard = ({ title, imgSrc, value }) => {
+  return <CardTitleAndValue title={title}>
+    <Stack direction={'row'} gap={2}>
+      <img src={`${prefix}${imgSrc}.png`} alt=""/>
+      <Typography>{value}</Typography>
+    </Stack>
+  </CardTitleAndValue>
 }
 
 export default General;

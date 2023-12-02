@@ -6,6 +6,7 @@ import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '../../../parsers/printer';
 import Timer from '../../../components/common/Timer';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const MAX_ATOMS = 11;
 
@@ -20,24 +21,20 @@ const AtomCollider = ({}) => {
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Atoms</Typography>
     <Stack direction={'row'} gap={2}>
-      <Card sx={{ my: 2, width: 'fit-content' }}>
-        <CardContent>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <img src={`${prefix}etc/Particle.png`}
-                 alt="" style={{ objectFit: 'contain' }}/>
-            <Typography>{Math.floor(particles)}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Card sx={{ my: 2, width: 'fit-content' }}>
-        <CardContent>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <img src={`${prefix}data/Atom0.png`}
-                 alt="" style={{ objectFit: 'contain', width: 45 }}/>
-            <Typography>{stampReducer}% reduction</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
+      <CardTitleAndValue title={'Particles'}>
+        <Stack direction={'row'} gap={2}>
+          <img src={`${prefix}etc/Particle.png`}
+               alt="" style={{ objectFit: 'contain' }}/>
+          <Typography>{Math.floor(particles)}</Typography>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Stamp reducer'}>
+        <Stack direction={'row'} gap={1}>
+          <img src={`${prefix}data/Atom0.png`}
+               alt="" style={{ objectFit: 'contain', width: 45 }}/>
+          <Typography>{stampReducer}%</Typography>
+        </Stack>
+      </CardTitleAndValue>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, nextLeveCost, costToMax, bonus, maxLevel }, index) => {

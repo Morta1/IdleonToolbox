@@ -3,6 +3,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { cleanUnderscore, prefix } from '../../../utility/helpers';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Companions = () => {
   const { state } = useContext(AppContext);
@@ -14,7 +15,7 @@ const Companions = () => {
     />
     <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Companions</Typography>
     <Accordion defaultExpanded={false} sx={{ mb: 3, width: 'fit-content' }}>
-      <AccordionSummary>Summary</AccordionSummary>
+      <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Summary</AccordionSummary>
       <AccordionDetails>
         <Stack direction={'row'} gap={3}>
           <Card sx={{ my: 3 }} variant={'outlined'}>

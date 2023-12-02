@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from '../../../utility/helpers';
@@ -13,6 +13,8 @@ import { flattenCraftObject } from '../../../parsers/items';
 import { crafts, items } from '../../../data/website-data';
 import { getHighestCapacityCharacter } from '../../../parsers/misc';
 import Tabber from '../../../components/common/Tabber';
+import { CardTitleAndValue } from '../../../components/common/styles';
+import { calcStampLevels } from '../../../parsers/stamps';
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
@@ -97,21 +99,22 @@ const Stamps = () => {
       <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={3}>* Green border means you have enough
         material, money and space to
         craft</Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
-        <Stack gap={1}>
-          <Card sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <img src={`${prefix}data/GildedStamp.png`} alt=""/>
-              {gildedStamps}
-            </CardContent>
-          </Card>
-          <Card sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
-              {stampReducer ?? 0}%
-            </CardContent>
-          </Card>
-        </Stack>
+      <Stack direction={'row'} gap={3} justifyContent={'center'}>
+        <CardTitleAndValue title={'Gilded stamp'}>
+          <Stack alignItems={'center'} direction={'row'} gap={2}>
+            <img src={`${prefix}data/GildedStamp.png`} alt=""/>
+            <Stack>
+              <Typography>Owned: {gildedStamps}</Typography>
+              <Typography>Chance: {calcStampLevels(state?.account?.stamps) / 100}%</Typography>
+            </Stack>
+          </Stack>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Stamp Reducer'}>
+          <Stack alignItems={'center'} direction={'row'} gap={2}>
+            <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
+            {stampReducer ?? 0}%
+          </Stack>
+        </CardTitleAndValue>
         <Stack sx={{ mx: 2 }}>
           <FormControlLabel
             control={<Checkbox name={'mini'}
@@ -129,7 +132,7 @@ const Stamps = () => {
                      onChange={(e) => setStampReducerInput(e.target.value)} type={'number'}
                      InputProps={{ inputProps: { min: 0, max: 90 } }}/>
         </Stack>
-      </Box>
+      </Stack>
       <Tabber tabs={Object.keys(state?.account?.stamps)} onTabChange={handleOnClick}>
         <Stack direction={'row'} flexWrap={'wrap'} justifyContent={'center'} gap={3}>
           {stamps?.map((stamp, index) => {

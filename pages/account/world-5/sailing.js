@@ -6,7 +6,7 @@ import LootPile from '../../../components/account/Worlds/World5/Sailing/LootPile
 import { prefix } from '../../../utility/helpers';
 import Chests from '../../../components/account/Worlds/World5/Sailing/Chests';
 import BoatsAndCaptains from '../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains';
-import { MissingData } from '../../../components/common/styles';
+import { CardTitleAndValue, MissingData } from '../../../components/common/styles';
 import { NextSeo } from 'next-seo';
 import Trades from '../../../components/account/Worlds/World5/Sailing/Trades';
 import Tabber from '../../../components/common/Tabber';
@@ -33,30 +33,24 @@ const Sailing = () => {
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Sailing</Typography>
     <Stack mb={2} direction={'row'} gap={1}>
-      <Card>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-            <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.gif`} alt=""/>
-            <Typography>Chests: {chests?.length || 0} / {maxChests}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-            <img style={{ width: 28, objectFit: 'contain' }} src={`${prefix}npcs/Captain.gif`} alt=""/>
-            <Typography>Captains: {captains?.length}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-            <img style={{ width: 42, objectFit: 'contain' }} src={`${prefix}npcs/Boat.gif`} alt=""/>
-            <Typography>Boats: {boats?.length}</Typography>
-          </Stack>
-        </CardContent>
-      </Card>
+      <CardTitleAndValue title={'Chests'}>
+        <Stack direction={'row'} gap={2}>
+          <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.gif`} alt=""/>
+          <Typography>{chests?.length || 0} / {maxChests}</Typography>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Captains'}>
+        <Stack direction={'row'} gap={2}>
+          <img style={{ width: 28, objectFit: 'contain' }} src={`${prefix}npcs/Captain.gif`} alt=""/>
+          <Typography>{captains?.length}</Typography>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Boats'}>
+        <Stack direction={'row'} gap={2}>
+          <img style={{ width: 42, objectFit: 'contain' }} src={`${prefix}npcs/Boat.gif`} alt=""/>
+          <Typography>{boats?.length}</Typography>
+        </Stack>
+      </CardTitleAndValue>
     </Stack>
 
     <Tabber tabs={['Artifacts', 'Trades', 'Boats and Captains', 'Loot Pile', 'Chests']}>

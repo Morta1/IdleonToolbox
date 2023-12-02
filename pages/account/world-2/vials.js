@@ -6,16 +6,29 @@ import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { vialCostsArray } from '../../../parsers/alchemy';
 import { NextSeo } from 'next-seo';
+import { CardTitleAndValue } from '../../../components/common/styles';
+import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 
 const Vials = () => {
   const { state } = useContext(AppContext);
-
+  const getVialMastery = () => {
+    if (isRiftBonusUnlocked(state?.account?.rift, 'Vial_Mastery')) {
+      const maxedVials = state?.account?.alchemy?.vials?.filter(({ level }) => level >= 13);
+      return 1 + (2 * maxedVials?.length) / 100;
+    }
+  }
+  
   return <>
     <NextSeo
       title="Idleon Toolbox | Vials"
       description="Vials progressions and upgrade requirements"
     />
     <Typography variant={'h2'} mb={3}>Vials</Typography>
+
+    <CardTitleAndValue title={'Vial mastery bonus'}
+                       value={`${getVialMastery()}x`}>
+    </CardTitleAndValue>
+
     <Stack direction={'row'} flexWrap={'wrap'}>
       {state?.account?.alchemy?.vials?.map((vial, index) => {
         const { name, level, mainItem } = vial;

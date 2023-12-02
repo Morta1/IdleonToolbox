@@ -6,6 +6,7 @@ import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { filteredLootyItems } from '../../../parsers/parseMaps';
 import Image from 'next/image';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -26,10 +27,12 @@ const Slab = () => {
       description="The Slab consists of a list of items within the game"
     />
     <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Slab</Typography>
-    <Typography textAlign={'center'} mt={2} variant={'h5'}>Looted
-      Items: {state?.account?.looty?.lootedItems} / {state?.account?.looty?.totalItems}</Typography>
-    <Typography textAlign={'center'} mt={2} mb={3} variant={'h5'}>Missing
-      Items: {state?.account?.looty?.missingItems}</Typography>
+    <Stack direction={'row'} gap={3}>
+      <CardTitleAndValue title={'Looted items'}
+                         value={`${state?.account?.looty?.lootedItems} / ${state?.account?.looty?.totalItems}`}/>
+      <CardTitleAndValue title={'Missing items'}
+                         value={state?.account?.looty?.missingItems}/>
+    </Stack>
     <Box sx={{ mb: 3 }}>
       <FormControl>
         <FormLabel id="demo-radio-buttons-group-label">Display</FormLabel>

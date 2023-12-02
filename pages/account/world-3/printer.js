@@ -4,7 +4,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { growth, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../components/Tooltip';
-import { TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '../../../components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
@@ -34,9 +34,7 @@ const Printer = () => {
       <Typography variant={'h4'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
-    <Card sx={{ width: 'fit-content', mt: 1 }}><CardContent>
-      <Typography>Atom Threshold: {notateNumber(atomThreshold)}</Typography>
-    </CardContent></Card>
+    <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)} />
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {})?.map(([item, { boostedValue, atomable, atoms }], index) => {
         const isAtom = item === 'atom'

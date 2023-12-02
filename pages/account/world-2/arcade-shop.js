@@ -5,6 +5,7 @@ import { cleanUnderscore, kFormatter, notateNumber, prefix } from 'utility/helpe
 import styled from '@emotion/styled';
 import { getStampBonus } from 'parsers/stamps';
 import { NextSeo } from 'next-seo';
+import { CardTitleAndValue } from '../../../components/common/styles';
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
@@ -33,16 +34,18 @@ const ArcadeShop = () => {
       />
       <Typography variant={'h2'} mb={3}>Arcade Shop</Typography>
       <Stack direction={'row'} gap={2}>
-        {[balls, goldBalls]?.map((ballsQuantity, index) => {
-          return <Card key={index}>
-            <CardContent>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <BallIcon gold={index === 1} src={`${prefix}data/PachiBall${index}.png`} alt=""/>
-                {ballsQuantity}
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
+        <CardTitleAndValue title={'Balls'}>
+          <Stack direction={'row'} gap={2}>
+            <BallIcon gold={false} src={`${prefix}data/PachiBall0.png`} alt=""/>
+            <Typography>{balls}</Typography>
+          </Stack>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Gold balls'}>
+          <Stack direction={'row'} gap={2}>
+            <BallIcon gold={true} src={`${prefix}data/PachiBall1.png`} alt=""/>
+            <Typography>{goldBalls}</Typography>
+          </Stack>
+        </CardTitleAndValue>
       </Stack>
       <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
         {shop?.map((upgrade, index) => {
