@@ -8,6 +8,7 @@ import GuildBonuses from '../../../components/account/Guild/GuildBonuses';
 import { numberWithCommas, prefix, tryToParse } from '../../../utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
 import { format } from 'date-fns';
+import Box from '@mui/material/Box';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
@@ -18,27 +19,37 @@ const Guild = () => {
 
   useEffect(() => {
     const lsData = tryToParse(localStorage.getItem('guild'));
-    if (lsData?.timestamp) {
-      setDataTimestamp(lsData?.timestamp);
+    if (lsData) {
+      setDataTimestamp(lsData);
     }
   }, [])
 
   const saveToLS = () => {
     const timestamp = new Date().getTime();
-    setDataTimestamp(timestamp);
-    localStorage.setItem('guild', JSON.stringify({
-      timestamp,
-      members: guild?.members
-    }));
-    setError('')
-  }
-
-  const compareFromLS = () => {
-    const newData = tryToParse(localStorage.getItem('guild'));
-    if (!newData) {
-      return setError('Missing save to compare to')
+    let currentSaves = tryToParse(localStorage.getItem('guild'));
+    let saves
+    if (Array.isArray(currentSaves)) {
+      currentSaves = currentSaves?.length >= 3 ? currentSaves?.slice(1) : currentSaves;
+      saves = [...(currentSaves || []), {
+        timestamp,
+        members: guild?.members
+      }]
+    } else {
+      if (currentSaves) {
+        saves = [currentSaves, {
+          timestamp,
+          members: guild?.members
+        }]
+      } else {
+        saves = [{
+          timestamp,
+          members: guild?.members
+        }]
+      }
     }
-    setGuildChanges(newData);
+    setDataTimestamp(saves)
+    localStorage.setItem('guild', JSON.stringify(saves));
+    setError('')
   }
 
   const exportToJson = async () => {
@@ -51,6 +62,11 @@ const Guild = () => {
     } catch (e) {
       console.error('exportToJson -> ', e);
     }
+  }
+
+  const onClear = () => {
+    localStorage.removeItem('guild');
+    setDataTimestamp([]);
   }
 
   if (!guild || guild?.members?.length === 0) {
@@ -77,14 +93,19 @@ const Guild = () => {
                        bgColor={'#f3dd4c'}/>
           <Typography>{numberWithCommas(guild?.totalGp)} / {numberWithCommas(Math.round(guild?.levelReq))}</Typography>
         </CardTitleAndValue>
-        <CardTitleAndValue title={'Utility'}>
+        <CardTitleAndValue title={'Saves (up to 3)'}>
           <Stack gap={1}>
-            {dataTimestamp ? <Typography variant={'caption'}>Data
-              from: {format(new Date(dataTimestamp), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
+            <Box>
+              {dataTimestamp?.reverse()?.map(({ timestamp }, index) => {
+                return <Typography
+                  key={timestamp + index}>#{index + 1} - {format(new Date(timestamp), 'dd/MM/yyyy HH:mm:ss')}</Typography>
+              })}
+            </Box>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
-              <Button variant={'contained'} onClick={compareFromLS}>Compare</Button>
               <Button variant={'contained'} onClick={exportToJson}>Export</Button>
+              <Button variant={'contained'} color={'warning'} onClick={onClear}>Clear
+                all</Button>
             </Stack>
             {error ? <Typography color={'error.light'}>{error}</Typography> : null}
           </Stack>
@@ -92,7 +113,7 @@ const Guild = () => {
       </Stack>
     </Stack>
     <Tabber tabs={['Members', 'Bonuses']}>
-      <GuildMembers members={guild?.members} changes={guildChanges}/>
+      <GuildMembers members={guild?.members} saves={dataTimestamp}/>
       <GuildBonuses bonuses={guild?.guildBonuses}/>
     </Tabber>
   </>

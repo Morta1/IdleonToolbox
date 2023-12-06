@@ -12,8 +12,9 @@ import {
 import { cleanUnderscore, prefix } from '../../../utility/helpers';
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import { format } from 'date-fns';
 
-const GuildMembers = ({ members, changes }) => {
+const GuildMembers = ({ members, saves }) => {
   const [localMembers, setLocalMembers] = useState();
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('gpEarned')
@@ -47,7 +48,7 @@ const GuildMembers = ({ members, changes }) => {
               Level
             </TableSortLabel>
           </TableCell>
-          <TableCell sortDirection={order}>
+          <TableCell sortDirection={order} align={saves?.length === 0 ? 'left' : 'center'} colSpan={saves?.length || 1}>
             <TableSortLabel direction={order} active={orderBy === 'gpEarned'}
                             onClick={() => handleSort('gpEarned', order === 'asc' ? 'desc' : 'asc')}>
               Earned GP
@@ -55,14 +56,30 @@ const GuildMembers = ({ members, changes }) => {
           </TableCell>
           <TableCell>Wanted Bonus</TableCell>
         </TableRow>
+        {saves?.length > 0 ? <TableRow>
+          <TableCell colSpan={2}/>
+          {saves?.map((save, index) => {
+            if (save) {
+              return <TableCell key={save?.timestamp + index}>
+                {format(save?.timestamp, 'MM/dd/yyyy')}
+              </TableCell>
+            }
+          })}
+          <TableCell/>
+        </TableRow> : null}
       </TableHead>
       <TableBody>
         {localMembers?.map(({ name, level, gpEarned, wantedBonus, rank }, index) => {
-          const memberChange = changes?.members?.find(({ name: cName }) => cName === name);
-          let gpChange = 0;
-          if (memberChange) {
-            gpChange = gpEarned - memberChange?.gpEarned;
-          }
+          const allChanges = saves?.reduce((res, save) => {
+            const memberChange = save?.members?.find(({ name: cName }) => cName === name);
+            let gpChange;
+            if (memberChange) {
+              gpChange = gpEarned - memberChange?.gpEarned;
+            } else {
+              gpChange = gpEarned;
+            }
+            return [...res, { gpChange, timestamp: save?.timestamp }]
+          }, [])
           return name ? <TableRow key={name + level + index}
                                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
             <TableCell>
@@ -74,12 +91,18 @@ const GuildMembers = ({ members, changes }) => {
                 : ''}</Typography>
             </TableCell>
             <TableCell>{level}</TableCell>
-            <TableCell>{gpEarned} {changes ? <Typography variant={'caption'}
-                                                         color={gpChange > 0
-                                                           ? 'success.light'
-                                                           : 'error.light'}>({gpChange > 0
-              ? '+'
-              : ''}{gpChange})</Typography> : null}</TableCell>
+            {saves?.length === 0 ? <TableCell>{gpEarned}</TableCell> : null}
+            {allChanges.map(({ gpChange }, changeIndex) => {
+              return <TableCell key={'change' + changeIndex}>
+                <Typography component={'span'} mr={1}>{gpEarned}</Typography>
+                <Typography variant={'caption'}
+                            color={gpChange > 0
+                              ? 'success.light'
+                              : 'error.light'}>({gpChange > 0
+                  ? '+'
+                  : ''}{gpChange})</Typography>
+              </TableCell>
+            })}
             <TableCell>{cleanUnderscore(wantedBonus?.name) || 'Guild Gifts'}</TableCell>
           </TableRow> : null
         })}

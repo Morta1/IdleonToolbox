@@ -359,21 +359,34 @@ export const getChipsAndJewels = (account, size = 10) => {
   const jewels = lab?.jewels;
   const seed = Math.floor(timeAway?.GlobalTime / 604800);
 
-  const rotations = []
+  const rotations = [];
 
   for (let i = 0; i < size; i++) {
     const rotation = [];
-    const chipRng = new LavaRand(Math.round(seed + i));
-    const chipRandom = Math.floor(1e3 * chipRng.rand());
-    rotation.push(chips[Math.round(chipRandom - Math.floor(chipRandom / (chips.length - 10)) * (chips.length - 10))]);
 
-    const secondChipRng = new LavaRand(Math.round(seed + i + 500))
-    const secondChipRandom = Math.floor(1e3 * secondChipRng.rand());
-    rotation.push(chips[Math.round(secondChipRandom - Math.floor(secondChipRandom / chips.length) * chips.length)]);
-
-    const jewelRng = new LavaRand(Math.round(seed + i + 1000))
-    const jewelRandom = Math.floor(1e3 * jewelRng.rand());
-    rotation.push(jewels[Math.round(jewelRandom - Math.floor(jewelRandom / jewels.length) * jewels.length)]);
+    for (let j = 0; j < 3; j++) {
+      const itRng = new LavaRand(Math.round(seed + i + (500 * j)));
+      const itRandom = Math.floor(1e3 * itRng.rand());
+      const isJewel = j === 2;
+      const index = isJewel
+        ? Math.round(itRandom - Math.floor(itRandom / jewels.length) * jewels.length)
+        : Math.round(itRandom - Math.floor(itRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))));
+      const extraRng = new LavaRand(Math.round(seed + (2 * j - 1)))
+      const extraRandom = Math.floor(1e3 * extraRng.rand());
+      const extraIndex = isJewel
+        ? Math.round(extraRandom - Math.floor(extraRandom / jewels.length) * jewels.length)
+        : Math.round(extraRandom - Math.floor(extraRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))))
+      if (extraIndex === index) {
+        const finalRng = new LavaRand(Math.round(seed + (500 * j) + 765 * (j + 1)));
+        const finalRandom = Math.floor(1e3 * finalRng.rand());
+        const finalIndex = isJewel
+          ? Math.round(finalRandom - Math.floor(finalRandom / jewels.length) * jewels.length)
+          : Math.round(finalRandom - Math.floor(finalRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))))
+        rotation.push(isJewel ? jewels[finalIndex] : chips[finalIndex]);
+      } else {
+        rotation.push(isJewel ? jewels[index] : chips[index]);
+      }
+    }
     const dateInMs = Math.floor((seed + i) * 604800 * 1000);
     rotations.push({ items: rotation, date: new Date(dateInMs) });
   }

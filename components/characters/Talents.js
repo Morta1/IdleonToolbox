@@ -43,10 +43,10 @@ const Talents = ({ talents, starTalents }) => {
   }
 
   const getLevelAndMaxLevel = (level, maxLevel) => {
-    if ((!level || level === -1) || (!maxLevel || maxLevel === -1)) {
-      return '';
+    if (level >= 0 && maxLevel >= 0) {
+      return `${level}/${maxLevel}`;
     }
-    return `${level}/${maxLevel}`;
+    return ''
   }
 
   return <StyledTalents active={activeTab}>
@@ -161,7 +161,6 @@ const StyledTalents = styled.div`
     display: grid;
     min-height: 245px;
     grid-template-columns: repeat(5, 50px);
-    //column-gap: 10px;
     row-gap: 10px;
     justify-content: center;
     margin-bottom: 10px;

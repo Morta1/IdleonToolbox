@@ -431,21 +431,21 @@ export const getRespawnRate = (character, account) => {
 
   const worldOneAchievement = getAchievementStatus(account?.achievements, 44);
   const worldOneMeritBonus = account?.tasks?.[2]?.[0]?.[1];
-  const worldOneMeritBonusPerLevel = tasks?.[0]?.[1]?.bonusPerLevel;
+  const worldOneMeritBonusPerLevel = account?.meritsDescriptions?.[0]?.[1]?.bonusPerLevel;
 
   const worldTwoAchievement = getAchievementStatus(account?.achievements, 109);
   const worldTwoMeritBonus = account?.tasks?.[2]?.[1]?.[1];
-  const worldTwoMeritBonusPerLevel = tasks?.[1]?.[1]?.bonusPerLevel;
+  const worldTwoMeritBonusPerLevel = account?.meritsDescriptions?.[1]?.[1]?.bonusPerLevel;
 
   const worldThreeMeritBonus = account?.tasks?.[2]?.[1]?.[1];
-  const worldThreeMeritBonusPerLevel = tasks?.[1]?.[1]?.bonusPerLevel;
+  const worldThreeMeritBonusPerLevel = account?.meritsDescriptions?.[1]?.[1]?.bonusPerLevel;
 
   const worldFourMeritBonus = account?.tasks?.[2]?.[3]?.[1];
-  const worldFourMeritBonusPerLevel = tasks?.[3]?.[1]?.bonusPerLevel;
+  const worldFourMeritBonusPerLevel = account?.meritsDescriptions?.[3]?.[1]?.bonusPerLevel;
 
   const worldFiveAchievement = getAchievementStatus(account?.achievements, 308);
   const worldFiveMeritBonus = account?.tasks?.[2]?.[4]?.[1];
-  const worldFiveMeritBonusPerLevel = tasks?.[4]?.[1]?.bonusPerLevel;
+  const worldFiveMeritBonusPerLevel = account?.meritsDescriptions?.[4]?.[1]?.bonusPerLevel;
 
   const meritBonus = (worldIndex === 1 || isRift) ? worldOneMeritBonus * worldOneMeritBonusPerLevel
     : worldIndex === 2 ? worldTwoMeritBonus * worldTwoMeritBonusPerLevel

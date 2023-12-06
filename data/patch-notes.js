@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.26',
+    gameVer: '1.92',
+    date: '06/12/2023',
+    features: [
+      'Account -> Guild page now support tracking of 3 days (let me know if the behavior is not as expected)',
+      'Characters -> Talents now showing all skills\' level and max level',
+      'Added sigil speed to sigils page',
+      'Account -> Stamps show the chance for a gilded stamp'
+    ],
+    fixes: [
+      'Fixed the calculation of jewel and chips rotations',
+    ]
+  },
+  {
     ver: '3.2.25',
     gameVer: '1.92',
     date: '30/11/2023',
@@ -13,7 +27,7 @@ export const patchNotes = [
       'In character page, added the ability to hide all maxed post office boxes',
       'In character page, added a Chips filter'
     ],
-    fixes: [    ]
+    fixes: []
   },
   {
     ver: '3.2.25',
@@ -22,7 +36,7 @@ export const patchNotes = [
     features: [
       'Added more information to shrines tooltip (affecting characters, exp/hr)'
     ],
-    fixes: [    ]
+    fixes: []
   },
   {
     ver: '3.2.25',
