@@ -13,8 +13,7 @@ import Box from '@mui/material/Box';
 const Guild = () => {
   const { state } = useContext(AppContext);
   const { guild } = state?.account;
-  const [dataTimestamp, setDataTimestamp] = useState();
-  const [guildChanges, setGuildChanges] = useState();
+  const [dataTimestamp, setDataTimestamp] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
