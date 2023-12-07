@@ -188,7 +188,7 @@ const Bubbles = () => {
     if (func === 'decayMulti') maxBonus += 1
     return maxBonus;
   }
-  console.log('state?.account?.accountOptions?.[135]' ,state?.account?.accountOptions?.[135])
+
   return (
     <>
       <NextSeo
