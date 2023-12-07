@@ -24,6 +24,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
   const [mealSpeed, setMealSpeed] = useState(totalMealSpeed);
   const [sortBy, setSortBy] = useState(breakpoints[0]);
+  const [foodLust, setFoodLust] = useState(0)
+  const [localEquinoxUpgrades, setLocalEquinoxUpgrades] = useState(equinoxUpgrades);
   const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
   const allPurpleActive = lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
@@ -49,7 +51,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
-      const levelCost = getMealLevelCost(level, achievements, equinoxUpgrades);
+      const levelCost = getMealLevelCost(level, achievements, localEquinoxUpgrades);
       let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
@@ -66,7 +68,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
           };
         }
         const bpCost = (breakpoint - level) * levelCost;
-        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, equinoxUpgrades);
+        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, localEquinoxUpgrades);
         if (overflow) {
           timeToBp = timeToBp / (1 + overflowingLadleBonus / 100)
         }
@@ -80,8 +82,14 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       };
     });
   };
+  const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed, localEquinoxUpgrades]);
 
-  const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed]);
+  useEffect(() => {
+    const temp = equinoxUpgrades?.map((upgrade) => upgrade?.name === 'Food_Lust'
+      ? { ...upgrade, bonus: parseInt(foodLust) }
+      : upgrade)
+    setLocalEquinoxUpgrades(temp);
+  }, [foodLust])
 
   useEffect(() => {
     const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
@@ -116,7 +124,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
-  }, [filters, meals, mealMaxLevel, sortBy, mealSpeed]);
+  }, [filters, meals, mealMaxLevel, sortBy, mealSpeed, localEquinoxUpgrades]);
 
   const sortMealsBy = (meals, index, level = 0) => {
     const mealsCopy = [...defaultMeals];
@@ -190,9 +198,13 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         {breakpoints?.map((breakpoint) => {
           if (breakpoint === 0 || breakpoint === -1) return null;
           return sortBy === breakpoint && !localMeals?.some(({ level, amount }) => amount > 0 && level < breakpoint) ?
-            <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than level {breakpoint}
+            <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than
+              level {breakpoint}
               !</Typography> : null;
         })}
+        <TextField label={'Food lust bosses'} type={'number'} value={foodLust}
+                   inputProps={{ min: 0, max: 14 }}
+                   onChange={({ target }) => setFoodLust(target.value)}/>
       </Stack>
       <Stack my={2}>
         <Typography my={1} variant={'h5'}>Best meal speed contribution</Typography>
@@ -261,7 +273,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
-                  <Tooltip title={<MealTooltip achievements={achievements} {...meal} />}>
+                  <Tooltip
+                    title={<MealTooltip achievements={achievements} equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
                       {level > 0 ?
@@ -285,7 +298,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Stack
                         key={name + bpLevel} gap={1}
                         flexWrap={'wrap'}>
-                        {amount >= bpCost || level >= mealMaxLevel ? <Typography
+                        {level >= mealMaxLevel ? <Typography
                             color={'success.light'}>MAXED</Typography> :
                           <Typography
                             sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>

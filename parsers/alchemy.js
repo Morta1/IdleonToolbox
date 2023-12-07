@@ -234,7 +234,7 @@ const getCauldrons = (cauldronsProgress, cauldronsRaw, p2w, bubbles, alchemyActi
     const players = playersInCauldrons.filter(({ activity }) => activity === i / 4);
     cauldronsObject[cauldronsLevelsMapping[i]] = {
       progress: cauldronsProgress?.[i / 4],
-      req: getMaxCauldron(bubbles?.[cauldronsLevelsMapping[i]]),
+      req: getMaxCauldron(bubbles?.[cauldronsLevelsMapping[i]]?.length),
       players
     };
     Object.entries(cauldronsAsObject).forEach(([name, stats]) => {
@@ -256,9 +256,9 @@ const getCauldrons = (cauldronsProgress, cauldronsRaw, p2w, bubbles, alchemyActi
 }
 
 
-const getMaxCauldron = (bubbles) => {
-  const math = Math.pow(3 * (bubbles.length), 2.2)
-  return 3 + math * Math.pow(1.3, bubbles.length);
+export const getMaxCauldron = (length) => {
+  const math = Math.pow(3 * (length), 2.2)
+  return 3 + math * Math.pow(1.3, length);
 }
 
 const getP2WBonus = (p2wIndex, bonusIndex, level) => {

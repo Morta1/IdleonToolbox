@@ -18,9 +18,11 @@ import HtmlTooltip from 'components/Tooltip';
 import debounce from 'lodash.debounce';
 import { isArtifactAcquired } from '../../../parsers/sailing';
 import { NextSeo } from 'next-seo';
-import { getBubbleAtomCost, getBubbleBonus, getVialsBonusByStat } from '../../../parsers/alchemy';
+import { getBubbleAtomCost, getBubbleBonus, getMaxCauldron, getVialsBonusByStat } from '../../../parsers/alchemy';
 import Box from '@mui/material/Box';
 import Tabber from '../../../components/common/Tabber';
+import { CardTitleAndValue } from '../../../components/common/styles';
+import InfoIcon from '@mui/icons-material/Info';
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
@@ -202,37 +204,49 @@ const Bubbles = () => {
               account={state?.account}/>
       </Box>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
-        {Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab] !== 'kazam' ?
-          <FormControlLabel
-            control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
-            name={'classDiscount'}
-            label="Class Discount"/> : null}
-        <TextField value={bargainTag}
-                   type={'number'}
-                   inputProps={{ min: 0, max: 8 }}
-                   onChange={(e) => handleBargainChange(e)}
-                   helperText={`${calculateBargainTag()}%`}
-                   InputProps={{
-                     startAdornment: <InputAdornment position="start">
-                       <img width={36} height={36}
-                            src={`${prefix}data/aShopItems10.png`} alt=""/>
-                     </InputAdornment>
-                   }}/>
-        <TextField sx={{ width: 150 }}
-                   label={'Efficiency threshold'}
-                   value={effThreshold}
-                   type={'number'}
-                   inputProps={{ min: 0, max: 100 }}
-                   onChange={({ target }) => setEffThreshold(target.value)}
-        />
-        <Card sx={{ alignItems: 'center', display: 'flex' }}>
-          <CardContent sx={{ '&:last-child': { px: 1, py: { xs: 1, sm: 0 } }, width: 200 }}>
-            <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1}>
-              <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
-              <Typography>Alternate particle upgrades left: {state?.account?.accountOptions?.[135]}</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
+        <Stack gap={1}>
+          {Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab] !== 'kazam' ?
+            <FormControlLabel
+              control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
+              name={'classDiscount'}
+              label="Class Discount"/> : null}
+
+          <TextField sx={{ width: 150 }}
+                     label={'Efficiency threshold'}
+                     value={effThreshold}
+                     type={'number'}
+                     inputProps={{ min: 0, max: 100 }}
+                     onChange={({ target }) => setEffThreshold(target.value)}
+          />
+          <TextField value={bargainTag}
+                     type={'number'}
+                     inputProps={{ min: 0, max: 8 }}
+                     onChange={(e) => handleBargainChange(e)}
+                     helperText={`${calculateBargainTag()}%`}
+                     InputProps={{
+                       startAdornment: <InputAdornment position="start">
+                         <img width={36} height={36}
+                              src={`${prefix}data/aShopItems10.png`} alt=""/>
+                       </InputAdornment>
+                     }}/>
+        </Stack>
+        {/*<Card sx={{ alignItems: 'center', display: 'flex', height: 'fit-content', p: 3 }}>*/}
+        {/*  <CardContent sx={{ '&:last-child': { px: 1, py: { xs: 1, sm: 0 } }, width: 200 }}>*/}
+        {/*    <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1}>*/}
+        {/*      <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>*/}
+        {/*      <Typography>Alternate particle upgrades left: {state?.account?.accountOptions?.[135]}</Typography>*/}
+        {/*    </Stack>*/}
+        {/*  </CardContent>*/}
+        {/*</Card>*/}
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Particle upgrades'}
+                           value={state?.account?.accountOptions?.[135]}/>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Future bubbles'}>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <HtmlTooltip title={<FutureBubblesTooltip/>}>
+              <InfoIcon/>
+            </HtmlTooltip>
+          </Stack>
+        </CardTitleAndValue>
       </Stack>
       <Tabber tabs={Object.keys(state?.account?.alchemy?.bubbles)} onTabChange={handleOnClick}>
         <Stack direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
@@ -434,5 +448,16 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
   </>
 }
 
+const FutureBubblesTooltip = () => {
+  const arr = new Array(15).fill(25).map((bubbleIndex, index) => getMaxCauldron(bubbleIndex + index)).toChunks(5);
+  return <Stack gap={2}>
+    {arr.map((chunk, index) => {
+      return <Stack key={index}>
+        <Typography sx={{ fontWeight: 'bold' }}>World {6 + index}</Typography>
+        <Typography>Req. {chunk.map((i) => notateNumber(i)).join(', ')}</Typography>
+      </Stack>
+    })}
+  </Stack>
+}
 
 export default Bubbles;
