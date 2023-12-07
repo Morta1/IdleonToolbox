@@ -240,8 +240,9 @@ const Bubbles = () => {
         {/*</Card>*/}
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Particle upgrades'}
                            value={state?.account?.accountOptions?.[135] || '0'}/>
-        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Future bubbles'}>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Total bubbles'}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
+            {bubbles?.length}
             <HtmlTooltip title={<FutureBubblesTooltip/>}>
               <InfoIcon/>
             </HtmlTooltip>
@@ -454,7 +455,12 @@ const FutureBubblesTooltip = () => {
     {arr.map((chunk, index) => {
       return <Stack key={index}>
         <Typography sx={{ fontWeight: 'bold' }}>World {6 + index}</Typography>
-        <Typography>Req. {chunk.map((i) => notateNumber(i)).join(', ')}</Typography>
+        <Stack>
+          {chunk.map((i, bIndex) => {
+            const currentIndex = 26 + (index * 5) + bIndex;
+            return <Typography key={i}>{currentIndex} - {notateNumber(i)}</Typography>
+          })}
+        </Stack>
       </Stack>
     })}
   </Stack>
