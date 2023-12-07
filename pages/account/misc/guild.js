@@ -19,7 +19,7 @@ const Guild = () => {
   useEffect(() => {
     const lsData = tryToParse(localStorage.getItem('guild'));
     if (lsData) {
-      setDataTimestamp(lsData);
+      setDataTimestamp(Array.isArray(lsData) ? lsData : [lsData]);
     }
   }, [])
 
