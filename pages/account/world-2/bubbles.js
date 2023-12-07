@@ -188,7 +188,7 @@ const Bubbles = () => {
     if (func === 'decayMulti') maxBonus += 1
     return maxBonus;
   }
-
+  console.log('state?.account?.accountOptions?.[135]' ,state?.account?.accountOptions?.[135])
   return (
     <>
       <NextSeo
@@ -239,7 +239,7 @@ const Bubbles = () => {
         {/*  </CardContent>*/}
         {/*</Card>*/}
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Particle upgrades'}
-                           value={state?.account?.accountOptions?.[135]}/>
+                           value={state?.account?.accountOptions?.[135] || '0'}/>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Future bubbles'}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <HtmlTooltip title={<FutureBubblesTooltip/>}>
