@@ -90,7 +90,7 @@ const AppProvider = ({ children }) => {
     const pastebinImport = async () => {
       try {
         const url = encodeURIComponent(`https://pastebin.com/raw/${router?.query?.pb}`);
-        const data = await fetch(`https://patient-dawn-9611.idleontoolbox.workers.dev/?url=${url}`);
+        const data = await fetch(`https://appleauth.idleontoolbox.workers.dev/?url=${url}`);
         const content = await data.json();
         let parsedData;
         const { parseData } = await import('../../../parsers');

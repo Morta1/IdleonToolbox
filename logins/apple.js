@@ -14,7 +14,7 @@ const appleAuthorize = async ({ device_code, h_nonce, statusToken }) => {
 
 const getAppleCode = async () => {
   const url = encodeURIComponent(`https://us-central1-idlemmo.cloudfunctions.net/tspa`);
-  const codeRes = await fetch(`https://patient-dawn-9611.idleontoolbox.workers.dev/?url=${url}`, {
+  const codeRes = await fetch(`https://appleauth.idleontoolbox.workers.dev/?url=${url}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -28,7 +28,7 @@ const geAppleStatus = async ({ device_code, statusToken }) => {
   params.append('device_code', device_code);
   params.append('statusToken', statusToken);
   const url = encodeURIComponent(`https://us-central1-idlemmo.cloudfunctions.net/capsc`);
-  const codeRes = await fetch(`https://patient-dawn-9611.idleontoolbox.workers.dev/?url=${url}`, {
+  const codeRes = await fetch(`https://appleauth.idleontoolbox.workers.dev/?url=${url}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
