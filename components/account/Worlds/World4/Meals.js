@@ -24,7 +24,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
   const [mealSpeed, setMealSpeed] = useState(totalMealSpeed);
   const [sortBy, setSortBy] = useState(breakpoints[0]);
-  const [foodLust, setFoodLust] = useState(0)
+  const [foodLust, setFoodLust] = useState(equinoxUpgrades.find(({ name }) => name === 'Food_Lust')?.bonus)
   const [localEquinoxUpgrades, setLocalEquinoxUpgrades] = useState(equinoxUpgrades);
   const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
