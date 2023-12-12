@@ -129,7 +129,6 @@ const AppProvider = ({ children }) => {
     let unsubscribe;
     (async () => {
       if (router?.query?.profile) {
-        await logout();
         await handleProfile()
       } else if (router?.query?.demo) {
         const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
