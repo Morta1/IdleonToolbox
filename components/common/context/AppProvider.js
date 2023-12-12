@@ -9,6 +9,7 @@ import { getUserToken } from '../../../logins/google';
 import { CircularProgress, Stack } from '@mui/material';
 import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../logins/apple';
+import { getProfile } from '../../../services/profiles';
 
 export const AppContext = createContext({});
 
@@ -87,11 +88,12 @@ const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const pastebinImport = async () => {
+    const handleProfile = async () => {
       try {
-        const url = encodeURIComponent(`https://pastebin.com/raw/${router?.query?.pb}`);
-        const data = await fetch(`https://appleauth.idleontoolbox.workers.dev/?url=${url}`);
-        const content = await data.json();
+        const content = await getProfile({ mainChar: router?.query?.profile });
+        if (!content) {
+          throw new Error('Failed to load data from profile api');
+        }
         let parsedData;
         const { parseData } = await import('../../../parsers');
         if (!Object.keys(content).includes('serverVars')) {
@@ -112,23 +114,23 @@ const AppProvider = ({ children }) => {
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
         let importData = {
           ...parsedData,
-          pastebin: true,
+          profile: true,
           manualImport: false,
           signedIn: false,
           lastUpdated
         };
-        dispatch({ type: 'data', data: { ...importData, lastUpdated, manualImport: false, pastebin: true } })
+        dispatch({ type: 'data', data: { ...importData, lastUpdated } })
       } catch (e) {
-        console.error('Failed to load data from pastebin', e);
+        console.error('Failed to load data from profile api', e);
         router.push({ pathname: '/', query: router.query });
       }
     }
 
     let unsubscribe;
     (async () => {
-      if (router?.query?.pb) {
+      if (router?.query?.profile) {
         await logout();
-        pastebinImport()
+        await handleProfile()
       } else if (router?.query?.demo) {
         const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
         const { parseData } = await import('../../../parsers');
@@ -138,7 +140,7 @@ const AppProvider = ({ children }) => {
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {
-          unsubscribe = await subscribe(user?.uid, handleCloudUpdate);
+          unsubscribe = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           setListener({ func: unsubscribe });
         } else {
           if (router.pathname === '/' || checkOfflineTool() || router.pathname === '/data') return;
@@ -195,10 +197,11 @@ const AppProvider = ({ children }) => {
     async () => {
       try {
         if (state?.signedIn) return;
-        let id_token, uid;
+        let id_token, uid, accessToken;
         if (state?.loginType === 'email') {
           id_token = state?.loginData?.accessToken;
           uid = state?.loginData?.uid;
+          accessToken = id_token;
         } else {
           if (state?.loginType === 'apple') {
             const appleCredential = await geAppleStatus(state?.loginData)
@@ -217,7 +220,8 @@ const AppProvider = ({ children }) => {
           }
         }
         if (id_token) {
-          const unsubscribe = await subscribe(uid, handleCloudUpdate);
+          console.log('accessToken', accessToken, id_token?.id_token)
+          const unsubscribe = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
           if (typeof window?.gtag !== 'undefined') {
             window?.gtag('event', 'login', {
               action: 'login',
@@ -262,9 +266,9 @@ const AppProvider = ({ children }) => {
     }
   };
 
-  const handleCloudUpdate = async (data, charNames, companion, guildData, serverVars) => {
-    if (router?.query?.pb) {
-      const { pb, ...rest } = router.query
+  const handleCloudUpdate = async (data, charNames, companion, guildData, serverVars, uid, accessToken) => {
+    if (router?.query?.profile) {
+      const { profile, ...rest } = router.query
       router.replace({ query: rest })
     }
     console.info('rawData', {
@@ -281,7 +285,7 @@ const AppProvider = ({ children }) => {
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({
       type: 'data',
-      data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated, serverVars }
+      data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated, serverVars, uid, accessToken }
     });
   };
 

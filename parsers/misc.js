@@ -178,6 +178,7 @@ const getAmountPerDay = ({ name, dialogThreshold } = {}, characters) => {
 
 export const getBundles = (idleonData) => {
   const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived;
+  if (!bundlesRaw) return [];
   return Object.entries(bundlesRaw)
     ?.reduce(
       (res, [bundleName, owned]) =>

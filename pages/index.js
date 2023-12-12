@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
 import Instructions from 'components/common/Instructions';
-import PastebinInstructions from 'components/common/PastebinInstructions';
 import { getRandomNumbersArray, prefix } from '../utility/helpers'
 import useInterval from '../components/hooks/useInterval';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
@@ -20,7 +19,6 @@ const Home = () => {
   const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);
   const [open, setOpen] = useState(false);
-  const [openPastebin, setOpenPastebin] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);
   const progress = useMotionValue(pathIndex);
   const path = useFlubber(progress, [
@@ -119,12 +117,6 @@ const Home = () => {
         </Link>
         <PatchNotes patchNotes={patchNotes.slice(0, 3)}/>
       </motion.div>
-      <Dialog open={openPastebin} onClose={() => setOpenPastebin(false)}>
-        <DialogTitle>Pastebin</DialogTitle>
-        <DialogContent>
-          <PastebinInstructions/>
-        </DialogContent>
-      </Dialog>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Instructions</DialogTitle>
         <DialogContent>

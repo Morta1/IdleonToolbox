@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.27',
+    gameVer: '1.92',
+    date: '12/12/2023',
+    features: [
+      <Typography>Added the ability to upload and share your profile under <Link
+        href={'https://idleontoolbox.com/data'}>data</Link> page</Typography>,
+      'Removed pastebin support'
+    ],
+    fixes: [
+      'Fixed the calculation of jewel and chips rotations',
+    ]
+  },
+  {
     ver: '3.2.26',
     gameVer: '1.92',
     date: '06/12/2023',

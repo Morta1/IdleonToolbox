@@ -91,7 +91,7 @@ const checkUserStatus = () => {
   });
 }
 
-const subscribe = async (uid, callback) => {
+const subscribe = async (uid, accessToken, callback) => {
   const app = getApp();
   const database = getDatabase(app);
   const firestore = initializeFirestore(app, {});
@@ -118,7 +118,7 @@ const subscribe = async (uid, callback) => {
             stats: tryToParse(cloudsave?.Guild),
             members: Object.values(guild?.m || {}),
             points: guild?.p
-          }, serverVars);
+          }, serverVars, uid, accessToken);
         }
       }, (err) => {
         console.error('Error has occurred on subscribe', err);
