@@ -54,6 +54,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
   }, 0);
 
   const closestWorshiper = getClosestWorshiper(characters);
+
   const {
     bestWizard,
     bestChargeSyphon,
@@ -110,6 +111,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
 
         {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <TimerCard
           tooltipContent={`Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}
+          timerPlaceholder={'Full!'}
+          forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
           lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
           icon={'data/WorshipSkull3.png'}/> : null}
 
@@ -181,15 +184,15 @@ const IconImg = styled.img`
   object-fit: contain;
 `;
 
-const TimerCard = ({ tooltipContent, icon, lastUpdated, time, timerPlaceholder = '' }) => {
+const TimerCard = ({ tooltipContent, icon, lastUpdated, time, timerPlaceholder = '', forcePlaceholder }) => {
   return <Card sx={{ height: 'fit-content' }}>
     <CardContent>
       <Tooltip title={tooltipContent}>
         <Stack direction={'row'} gap={1} alignItems={'center'}>
           <IconImg src={`${prefix}${icon}`}/>
-          <Timer type={'countdown'} date={time}
-                 placeholder={timerPlaceholder}
-                 lastUpdated={lastUpdated}/>
+          {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer type={'countdown'} date={time}
+                                                                 placeholder={timerPlaceholder}
+                                                                 lastUpdated={lastUpdated}/>}
         </Stack>
       </Tooltip>
     </CardContent>
