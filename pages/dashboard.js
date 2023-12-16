@@ -109,7 +109,9 @@ const baseTrackers = {
           type: 'input',
           props: { label: 'Bosses threshold', value: 1, minValue: 1 },
           checked: true
-        }
+        },
+        { name: 'weeklyBosses', checked: true },
+        { name: 'killRoy', checked: true }
       ]
     }
   },

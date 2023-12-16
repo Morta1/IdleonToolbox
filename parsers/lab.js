@@ -47,13 +47,13 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
       return chip;
     });
   });
-
+  const soupedUpSlots = (account?.gemShopPurchases?.find((value, index) => index === 123) ?? 0) * 2;
   let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || character?.AFKtarget === 'Laboratory' ||
     isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
-    .map((character) => ({
+    .map((character, index) => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
-      y: playersCords?.[character?.playerId]?.y,
+      y: playersCords?.[character?.playerId]?.y
     }));
 
   const chipList = JSON.parse(JSON.stringify(chips));
@@ -144,7 +144,8 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     const p = playersInTubes?.find(({ playerId }) => playerId === index);
     return {
       ...player,
-      lineWidth: p?.lineWidth || player?.lineWidth || 0
+      lineWidth: p?.lineWidth || player?.lineWidth || 0,
+      soupedUp: index < soupedUpSlots
     }
   })
 

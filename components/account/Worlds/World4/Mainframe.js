@@ -15,11 +15,17 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
           if (index > 9) return null;
           const playerName = characters?.[index]?.name;
           const classIndex = characters?.[index]?.classIndex;
-          const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || divinity?.linkedDeities?.[index] === 1 || isGodEnabledBySorcerer(characters?.[index], 1);
+          const connectedByGod = divinity?.linkedDeities?.[index] === 1 || isGodEnabledBySorcerer(characters?.[index], 1);
+          const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || connectedByGod;
           return isUploaded ?
-            <Card sx={{ width: 200 }} variant={'outlined'} key={`${playerCord.x}${playerCord.y}-${index}`}>
+            <Card sx={{ width: 200, border: playerCord?.soupedUp ? '1px solid orange' : '' }} variant={'outlined'}
+                  key={`${playerCord.x}${playerCord.y}-${index}`}>
               <CardContent>
-                <Stack direction={'row'} alignItems={'center'} gap={2}>
+                <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ position: 'relative' }}>
+                  {connectedByGod ? <img style={{ position: 'absolute', top: -16, right: -16 }}
+                                         width={24} height={24}
+                                         src={`${prefix}data/DivGod1.png`}
+                                         alt=""/> : null}
                   <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                   <Stack>
                     <Typography>{playerName}</Typography>

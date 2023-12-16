@@ -39,7 +39,8 @@ export const arcadeAlerts = (account, options) => {
   if (options?.balls?.checked) {
     const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account?.stamps))
       / Math.max(getSecPerBall(account), 1800));
-    alerts.balls = ballsToClaim >= account?.arcade?.maxBalls
+    const onePercent = 5 * account?.arcade?.maxBalls / 100;
+    alerts.balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent
   }
   return alerts;
 }
@@ -170,6 +171,12 @@ export const etcAlerts = (account, options) => {
 
   if (options?.keys?.checked) {
     alerts.keys = areKeysOverdue(account);
+  }
+  if (account?.finishedWorlds?.World1 && options?.weeklyBosses) {
+    alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
+  }
+  if (account?.finishedWorlds?.World1 && options?.killRoy) {
+    alerts.killRoy = account?.accountOptions?.[115] === 0;
   }
   if (!account?.finishedWorlds?.World3) return alerts;
   if (options?.gildedStamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {

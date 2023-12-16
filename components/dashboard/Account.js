@@ -63,6 +63,10 @@ const Account = ({ account, trackers }) => {
             <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
           {trackers?.etc && alerts?.etc?.randomEvents ?
             <Alert title={'You haven\'t done a random event today!'} iconPath={'etc/Mega_Grumblo'}/> : null}
+          {trackers?.etc && alerts?.etc?.weeklyBosses ?
+            <Alert title={'You haven\'t done a weekly (W2) boss fight today!'} iconPath={'data/Trophie'}/> : null}
+          {trackers?.etc && alerts?.etc?.killRoy ?
+            <Alert title={'You haven\'t done a killroy today!'} iconPath={'etc/Killroy'}/> : null}
           {trackers?.cooking && alerts?.cooking?.spices > 0 ?
             <Alert title={`You have ${alerts?.cooking?.spices} spice clicks left!`}
                    iconPath={'data/CookingSpice0'}/> : null}

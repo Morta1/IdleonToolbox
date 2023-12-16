@@ -23,7 +23,7 @@ const Stamps = () => {
     : 0;
   const stampReducer = state?.account?.atoms?.stampReducer;
   const [selectedTab, setSelectedTab] = useState(0);
-  const [stampsGoals, setStampsGoals] = useState();
+  const [stampsGoals, setStampsGoals] = useState({});
   const [stampReducerInput, setStampReducerInput] = useState(stampReducer);
   const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
   const [subtractGreenStacks, setSubtractGreenStacks] = useState(false);
@@ -38,11 +38,17 @@ const Stamps = () => {
   }
 
   const getAccumulatedCost = (index, level, type, stamp) => {
-    const levelDiff = stampsGoals?.[index] - level;
+    const levelDiff = (stampsGoals?.[index] ?? level) - level;
     const costFunc = type === 'gold' ? calculateGoldCost : calculateMaterialCost;
     if (levelDiff <= 0) {
       const cost = costFunc(level, stamp);
-      return type === 'material' ? Math.floor(cost) : cost;
+      if (type === 'material') {
+        if (stamp?.itemReq?.[0]?.rawName?.includes('Equipment')) {
+          return Math.floor(cost * 10);
+        }
+        return Math.floor(cost);
+      }
+      return cost;
     }
     const array = Array(levelDiff || 0).fill(1).map((_, ind) => ind + 1);
     const totalCost = array.reduce((res, levelInd) => {
@@ -157,7 +163,7 @@ const Stamps = () => {
               if (materials?.length > 0) {
                 hasMaterials = materials?.every(({ rawName, type, itemQuantity }) => {
                   if (type === 'Equip') return true;
-                  let ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+                  let ownedMats = state?.account?.storage?.filter(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
                   ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
                   return ownedMats >= itemQuantity * materialCost;
                 })

@@ -219,7 +219,6 @@ const AppProvider = ({ children }) => {
           }
         }
         if (id_token) {
-          console.log('accessToken', accessToken, id_token?.id_token)
           const unsubscribe = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
           if (typeof window?.gtag !== 'undefined') {
             window?.gtag('event', 'login', {

@@ -116,11 +116,14 @@ export const MissingData = ({ name }) => {
   return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
 }
 
-export const CardTitleAndValue = ({ cardSx, title, value, children }) => {
+export const CardTitleAndValue = ({ cardSx, title, value, children, icon }) => {
   return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
     <CardContent>
       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      {value ? <Typography>{value}</Typography> : children}
+      {value ? icon ? <Stack direction={'row'} gap={2}>
+        <img style={{ objectFit: 'contain' }} src={`${prefix}${icon}`} alt=""/>
+        <Typography>{value}</Typography>
+      </Stack> : <Typography>{value}</Typography> : children}
     </CardContent>
   </Card>
 }

@@ -29,7 +29,8 @@ import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '../../../parsers/printer';
 import { calcTotalCritters } from '../../../parsers/traps';
 import Box from '@mui/material/Box';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '../../../components/common/styles';
+import InfoIcon from '@mui/icons-material/Info';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
@@ -101,16 +102,29 @@ const Refinery = () => {
     setSquiresCycles(squiresDataTemp?.cycles);
     setSquiresCooldown(squiresDataTemp?.cooldowns);
     const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
+    const breakdown = [
+      { name: 'Vials', value: redMaltVial / 100 },
+      { name: 'Salt lick', value: saltLickUpgrade / 100 },
+      { name: 'Family', value: amplifiedFamilyBonus / 100 },
+      { name: 'Sigils', value: sigilRefinerySpeed / 100 },
+      { name: 'Stamps', value: stampRefinerySpeed / 100 },
+      { name: 'Shinies', value: shinyRefineryBonus / 100 },
+      { name: 'Const mastery', value: constructionMastery / 100 },
+      { name: 'Lab', value: labCycleBonus },
+    ];
+    // const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery;
 
     const combustion = {
       name: 'Combustion',
-      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + additive / 100) * labCycleBonus)),
-      timePast: refinery?.timePastCombustion + timePassed
+      time: Math.ceil((900 * Math.pow(4, 0)) / ((1 + additive / 100) * labCycleBonus)) - (refinery?.timePastCombustion % 1),
+      timePast: refinery?.timePastCombustion + timePassed,
+      breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
     };
     const synthesis = {
       name: 'Synthesis',
-      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + additive / 100) * labCycleBonus)),
-      timePast: refinery?.timePastSynthesis + timePassed
+      time: Math.ceil((900 * Math.pow(4, 1)) / ((1 + additive / 100) * labCycleBonus)) - (refinery?.timePastSynthesis % 1),
+      timePast: refinery?.timePastSynthesis + timePassed,
+      breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
     }
     setRefineryCycles([combustion, synthesis]);
   }, [state?.lastUpdated]);
@@ -172,18 +186,18 @@ const Refinery = () => {
         </Card>
       })}
       {refineryCycles?.map((cycle, index) => {
-        const { name, time, timePast } = cycle;
-        const minutes = Math.floor(time / 60);
-        const seconds = time % 60;
-        const nextCycle = new Date().getTime() + ((time - timePast) * 1000)
-        const startDate = new Date().getTime() + (time * 1000);
+        const { name, time, timePast, breakdown } = cycle;
+        const minutes = Math.floor((time) / 60);
+        const seconds = Math.floor(time % 60);
         return <Card key={`${name}-${index}`} sx={{ width: 232 }}>
           <CardContent>
-            <Typography sx={{ ...boldSx, color: index === 0 ? 'error.light' : 'success.light' }} mb={1}
-                        variant={'h5'}>{name}</Typography>
-            <Typography sx={boldSx} component={'span'}>Next Cycle In: </Typography>
-            <Timer type={'countdown'} loop={true} startDate={startDate} date={nextCycle}
-                   lastUpdated={state?.lastUpdated}/>
+            <Stack direction={'row'} gap={2} alignItems={'center'}>
+              <Typography sx={{ ...boldSx, color: index === 0 ? 'error.light' : 'success.light' }} mb={1}
+                          variant={'h5'}>{name}</Typography>
+              <Tooltip title={<BreakdownTooltip breakdown={breakdown} notate={'MultiplierInfo'}/>}>
+                <InfoIcon/>
+              </Tooltip>
+            </Stack>
             <Typography sx={boldSx}>Max cycle time: <span
               style={{ fontWeight: 400 }}>{minutes}m:{seconds < 10 ? `0${seconds}` : seconds}s</span></Typography>
             <Typography sx={boldSx}>Cycles: <span
@@ -383,5 +397,17 @@ const PrintingTooltip = ({ isCritter, amount }) => {
 const ItemIcon = styled.img`
   width: 32px;
 `
+
+const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
+  if (!breakdown) return '';
+  return <Stack>
+    {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
+                                                               titleStyle={{ width: titleWidth }}
+                                                               title={name}
+                                                               value={!isNaN(value)
+                                                                 ? notateNumber(value, notate)
+                                                                 : value}/>)}
+  </Stack>
+}
 
 export default Refinery;

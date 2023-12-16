@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.28',
+    gameVer: '1.92',
+    date: '16/12/2023',
+    features: [
+      'Added mutation tab to Gaming page including DNA and mutation cost',
+      'Added refinery speed breakdown to refinery page',
+      'Added the ability to see all challenges in Equinox page',
+      'Added killroy and weekly boss (daily) alerts to dashboard'
+    ],
+    fixes: [
+      'Fixed some calculations in stamps page'
+    ]
+  },
+  {
     ver: '3.2.27',
     gameVer: '1.92',
     date: '12/12/2023',

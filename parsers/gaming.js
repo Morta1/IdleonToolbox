@@ -1,4 +1,4 @@
-import { gamingImports, gamingUpgrades, superbitsUpgrades } from '../data/website-data';
+import { gamingImports, gamingUpgrades, randomList2, superbitsUpgrades } from '../data/website-data';
 import { notateNumber, number2letter } from '../utility/helpers';
 import { getMinorDivinityBonus } from './divinity';
 import { getHighestCharacterSkill } from './misc';
@@ -70,6 +70,16 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     unlocked: superbitsUnlocks?.indexOf(number2letter?.[index]) !== -1,
     ...calcSuperbitBonus(characters, account, index)
   }));
+  const dna = gamingRaw?.[5];
+  const unlockedMutations = gamingRaw?.[4];
+  const evolutionLevel = gamingRaw?.[7];
+  const mutations = getMutations();
+  const mutationCost = (25 + (10 * (evolutionLevel + 1) + Math.pow(evolutionLevel + 1, 2))) * Math.pow(1.3, evolutionLevel);
+  const newMutationChance = getNewMutationChance(unlockedMutations, dna);
+  const mutationChanceBreakpoints = [100, 200, 300, 400, 500].map((bp) => ({
+    value: bp,
+    chance: getNewMutationChance(unlockedMutations, bp)
+  }));
   return {
     bestNugget,
     bits,
@@ -86,8 +96,30 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     acorns,
     nuggetsBreakpoints,
     acornsBreakpoints,
-    superbitsUpgrades: superbitsUpg
+    superbitsUpgrades: superbitsUpg,
+    mutations,
+    unlockedMutations,
+    mutationCost,
+    dna,
+    newMutationChance,
+    mutationChanceBreakpoints
   };
+}
+
+export const getNewMutationChance = (unlockedMutations, dna) => {
+  return Math.floor(1e3 * (0 === unlockedMutations
+    ? Math.min(0.8, (7 * dna) / (100 + dna))
+    : Math.min(0.99, ((42 * dna) / (100 + dna)) * Math.pow(0.31, unlockedMutations)))) / 10
+}
+
+const getMutations = () => {
+  const mutations = ['FunGi', 'Bonsai', 'Cactus', 'Blossom', 'Voraci', 'Berri Bush', 'EverGreen', 'Chemical']
+  const plantsBonuses = randomList2?.[0]?.split(' ');
+  return mutations.map((mutation, index) => ({
+    name: mutation,
+    index,
+    description: plantsBonuses?.[index]?.replace(/₣/g, 'bits')
+  }))
 }
 
 const calcSuperbitBonus = (characters, account, index) => {
