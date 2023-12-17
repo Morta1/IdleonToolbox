@@ -247,9 +247,7 @@ const Refinery = () => {
           <CardContent>
             <Stack direction={'row'} alignItems={'flex-start'} gap={3} flexWrap={'wrap'}>
               <Stack alignItems={'center'} alignSelf={'center'}>
-                <Tooltip title={'hi'}>
-                  <img src={`${prefix}data/${rawName}.png`} alt=""/>
-                </Tooltip>
+                <img src={`${prefix}data/${rawName}.png`} alt=""/>
                 Rank: {rank}
               </Stack>
               <Stack alignSelf={'center'} sx={{ width: { md: 200 } }} gap={.5}>

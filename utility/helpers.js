@@ -167,10 +167,48 @@ export const kFormatter = (num, digits = 1) => {
   return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
 };
 
-export const numberWithCommas = (x) => {
-  if (x === null || x === undefined) return '';
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
+// export const numberWithCommas = (x) => {
+//   if (x === null || x === undefined) return '';
+//   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+// };
+function splitDecimal(numStr, allowNegative = true) {
+  const hasNegation = numStr[0] === '-';
+  const addNegation = hasNegation && allowNegative;
+  numStr = numStr.replace('-', '');
+
+  const parts = numStr.split('.');
+  const beforeDecimal = parts[0];
+  const afterDecimal = parts[1] || '';
+
+  return {
+    beforeDecimal,
+    afterDecimal,
+    hasNegation,
+    addNegation,
+  };
+}
+
+function applyThousandSeparator(
+  str,
+  thousandSeparator,
+) {
+  const thousandsGroupRegex = /(\d)(?=(\d{3})+(?!\d))/g;
+  let index = str.search(/[1-9]/);
+  index = index === -1 ? str.length : index;
+  return (
+    str.substring(0, index) +
+    str.substring(index, str.length).replace(thousandsGroupRegex, '$1' + thousandSeparator)
+  );
+}
+
+export const numberWithCommas = (numStr) => {
+  numStr = String(numStr);
+  const hasDecimalSeparator = numStr.indexOf('.') !== -1;
+  let { beforeDecimal, afterDecimal, addNegation } = splitDecimal(numStr); // eslint-disable-line prefer-const
+  beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
+  numStr = beforeDecimal + ((hasDecimalSeparator && '.') || '') + afterDecimal;
+  return numStr;
+}
 
 export const pascalCase = (str) => {
   return str

@@ -176,7 +176,7 @@ export const etcAlerts = (account, options) => {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
   if (account?.finishedWorlds?.World1 && options?.killRoy) {
-    alerts.killRoy = account?.accountOptions?.[115] === 0;
+    alerts.killRoy = account?.accountOptions?.[113];
   }
   if (!account?.finishedWorlds?.World3) return alerts;
   if (options?.gildedStamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {

@@ -204,6 +204,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
         })}
         <TextField label={'Food lust bosses'} type={'number'} value={foodLust}
                    inputProps={{ min: 0, max: 14 }}
+                   sx={{ width: 130 }}
                    onChange={({ target }) => setFoodLust(target.value)}/>
       </Stack>
       <Stack my={2}>
