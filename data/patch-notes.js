@@ -9,7 +9,7 @@ export const patchNotes = [
     date: '19/12/2023',
     features: [
       <Typography>Added <Link
-        href={'https://idleontoolbox.com/data'}>material tracker</Link> page - Add a material, set your own threshold and keep track of your inventory.</Typography>
+        href={'https://idleontoolbox.com//tools/material-tracker'}>material tracker</Link> page - Add a material, set your own threshold and keep track of your inventory.</Typography>
     ],
     fixes: []
   },
