@@ -23,6 +23,9 @@ const tools = {
   'godPlanner': {
     icon: 'DivGod1'
   },
+  'materialTracker': {
+    icon: 'Refinery1'
+  },
 };
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };

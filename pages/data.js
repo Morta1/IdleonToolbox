@@ -133,6 +133,7 @@ const Data = () => {
           <MenuItem value={'filters'}>Characters page filters</MenuItem>
           <MenuItem value={'trackers'}>Dashboard config</MenuItem>
           <MenuItem value={'planner'}>Item Planner</MenuItem>
+          <MenuItem value={'material-tracker'}>Material tracker</MenuItem>
         </TextField>
         <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
           Clear

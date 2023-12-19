@@ -109,7 +109,7 @@ export const calcTotals = (account, showAlertWhenFull) => {
           res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
         } else {
           const storageItem = calculateItemTotalAmount(storage, item, true, true);
-          res[item] = { boostedValue, atomable: storageItem >= atomThreshold, storageItem };
+          res[item] = { boostedValue, atomable: storageItem >= atomThreshold - (atomThreshold * .01), storageItem };
         }
       }
     })
@@ -123,7 +123,7 @@ export const calcTotals = (account, showAlertWhenFull) => {
 const calcAtoms = (totals = {}, atomThreshold, showAlertWhenFull) => {
   return Object.entries(totals)?.reduce((sum, [key, slot]) => {
     const { boostedValue, atomable, storageItem } = slot;
-    let val, hasAtoms;
+    let val = boostedValue, hasAtoms;
     if (showAlertWhenFull?.checked) {
       hasAtoms = atomable;
     } else {

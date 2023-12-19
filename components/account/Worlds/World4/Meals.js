@@ -151,8 +151,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       const nextLevelBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (level + 1) * baseStat;
       return {
         ...meal,
-        currentLevelBonus: notateNumber(currentBonus),
-        nextLevelBonus: notateNumber(nextLevelBonus),
+        currentLevelBonus: notateNumber(currentBonus, 'MultiplierInfo'),
+        nextLevelBonus: notateNumber(nextLevelBonus, 'MultiplierInfo'),
         bonusDiff: nextLevelBonus - currentBonus,
         diff: (nextLevelBonus - currentBonus) / timeTillNextLevel
       }
@@ -234,7 +234,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                     </CenteredTypography>
                     <CenteredTypography>
                       {currentLevelBonus}% <ArrowForwardIcon fontSize={'small'}/> {nextLevelBonus}%
-                      ({kFormatter(bonusDiff)})
+                      ({notateNumber(bonusDiff, 'MultiplierInfo')})
                     </CenteredTypography>
                     <Typography component={'span'}>
                       Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
@@ -292,7 +292,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       color: multiplier > 1
                         ? 'info.light'
                         : ''
-                    }}>{cleanUnderscore(effect?.replace('{', kFormatter(realEffect)))}</Typography>
+                    }}>{cleanUnderscore(effect?.replace('{', notateNumber(realEffect, 'MultiplierInfo')))}</Typography>
                   {!filters.includes('minimized') ?
                     breakpointTimes?.map(({ bpLevel, bpCost, timeToBp }) => {
                       const timeInMs = timeToBp * 3600 * 1000

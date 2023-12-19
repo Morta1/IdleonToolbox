@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.29',
+    gameVer: '1.92',
+    date: '19/12/2023',
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/data'}>material tracker</Link> page - Add a material, set your own threshold and keep track of your inventory.</Typography>
+    ],
+    fixes: []
+  },
+  {
     ver: '3.2.28',
     gameVer: '1.92',
     date: '16/12/2023',
