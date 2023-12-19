@@ -1,4 +1,13 @@
-import { Autocomplete, Stack, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Card,
+  CardContent,
+  createFilterOptions,
+  Stack,
+  TextField,
+  Typography,
+  useMediaQuery
+} from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '../../utility/helpers';
 import { itemsArray } from '../../data/website-data';
@@ -11,14 +20,25 @@ import { NextSeo } from 'next-seo';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 
+const filterOptions = createFilterOptions({
+  trim: true,
+  limit: 250
+});
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const [value, setValue] = useState('');
   const [threshold, setThreshold] = useState('');
   const [note, setNote] = useState('');
   const [hoverIcons, setHoverIcons] = useState({});
   const [trackedItems, setTrackedItems] = useState(JSON.parse(localStorage.getItem('material-tracker')) || {});
-  const items = useMemo(() => itemsArray.filter(({ itemType }) => itemType !== 'Equip' && itemType !== 'Quest'), []);
+  const items = useMemo(() => itemsArray.filter(({
+                                                   itemType,
+                                                   typeGen,
+                                                   displayName
+                                                 }) => displayName !== 'ERROR' && displayName !== 'Blank' &&
+    displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip' && !typeGen.includes('Quest')
+  ), []);
   const totalOwnedItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters,
     state?.account]);
   const [errors, setErrors] = useState({ material: false, threshold: false });
@@ -72,6 +92,7 @@ const MaterialTracker = () => {
           autoComplete
           options={[value, ...items]}
           filterSelectedOptions
+          filterOptions={filterOptions}
           getOptionLabel={(option) => {
             return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
           }}
@@ -108,7 +129,7 @@ const MaterialTracker = () => {
         <TextField value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
         <Button onClick={handleAddThreshold} sx={{ height: 'fit-content' }} variant={'contained'}>Add threshold</Button>
       </Stack>
-      <Stack direction={'row'} gap={3}>
+      <Stack mt={3} direction={isSm ? 'column' : 'row'} gap={3} flexWrap={'wrap'}>
         {(Object.values(trackedItems))?.map(({ item, threshold, note }, index) => {
           const { amount: quantityOwned, owner } = findQuantityOwned(totalOwnedItems, item?.displayName);
           let color, twoPercentBuffer = threshold * 0.02;
@@ -119,31 +140,44 @@ const MaterialTracker = () => {
           } else {
             color = 'success.main';
           }
-          return <Stack key={`tracked-item-${index}`} direction={'column'} alignItems={'center'}
-                        sx={{ position: 'relative' }}
-                        onMouseEnter={() => setHoverIcons({
-                          ...hoverIcons,
-                          [index]: true
-                        })}
-                        onMouseLeave={() => setHoverIcons({
-                          ...hoverIcons,
-                          [index]: false
-                        })}>
-            {hoverIcons?.[index] ? <IconButton onClick={() => handleDeleteThreshold(item?.rawName)}
-                                               sx={{ position: 'absolute', left: -10 }}>
-              <DeleteForeverIcon/>
-            </IconButton> : null}
-            <img src={`${prefix}data/${item?.rawName}.png`} alt=""/>
-            <Stack direction={'row'} gap={2}>
-              <Typography>{cleanUnderscore(item?.displayName)}</Typography>
-              {note ? <Tooltip title={note}>
-                <InfoIcon/>
-              </Tooltip> : null}
-            </Stack>
-            <Typography
-              color={color}
-              mt={1}>{notateNumber(quantityOwned)}/{notateNumber(threshold)}</Typography>
-          </Stack>
+          return <Card key={`tracked-item-${index}`}>
+            <CardContent>
+              <Stack direction={isSm ? 'row' : 'column'}
+                     alignItems={'center'}
+                     justifyContent={isSm ? 'space-between' : 'flex-start'}
+                     gap={isSm ? 3 : 0}
+                     flexWrap={'wrap'}
+                     sx={{ position: 'relative' }}
+                     onMouseEnter={() => setHoverIcons({
+                       ...hoverIcons,
+                       [index]: true
+                     })}
+                     onMouseLeave={() => setHoverIcons({
+                       ...hoverIcons,
+                       [index]: false
+                     })}>
+                {hoverIcons?.[index] ? <IconButton onClick={() => handleDeleteThreshold(item?.rawName)}
+                                                   sx={{ position: 'absolute', top: isSm ? 0 : -10, left: -10 }}>
+                  <DeleteForeverIcon/>
+                </IconButton> : null}
+                <img style={isSm ? { marginLeft: 16 } : {}} width={48} height={48}
+                     src={`${prefix}data/${item?.rawName}.png`}
+                     alt=""/>
+                <Stack direction={'row'} gap={2}>
+                  {note && isSm ? <Tooltip title={note}>
+                    <InfoIcon/>
+                  </Tooltip> : null}
+                  <Typography>{cleanUnderscore(item?.displayName)}</Typography>
+                  {note && !isSm ? <Tooltip title={note}>
+                    <InfoIcon/>
+                  </Tooltip> : null}
+                </Stack>
+                <Typography
+                  color={color}
+                  mt={isSm ? 0 : 1}>{notateNumber(quantityOwned)}/{notateNumber(threshold)}</Typography>
+              </Stack>
+            </CardContent>
+          </Card>
         })}
       </Stack>
     </>
