@@ -171,7 +171,7 @@ export const etcAlerts = (account, options, characters) => {
   }
   if (options?.materialTracker?.checked) {
     const materials = tryToParse(localStorage.getItem('material-tracker'));
-    if (Object.keys(materials).length > 0) {
+    if (Object.keys(materials || {}).length > 0) {
       const totalOwnedItems = getAllItems(characters, account);
       alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold }) => {
         const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
