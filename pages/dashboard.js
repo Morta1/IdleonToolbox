@@ -101,6 +101,7 @@ const baseTrackers = {
     etc: {
       checked: true,
       options: [
+        { name: 'materialTracker', checked: true},
         { name: 'randomEvents', checked: true },
         { name: 'gildedStamps', checked: true },
         { name: 'keys', checked: true },
@@ -212,11 +213,6 @@ const Dashboard = () => {
             <SettingsIcon/>
           </IconButton>
         </Stack>
-        {/*<Typography component={'div'} variant={'caption'} mb={3} sx={{ fontSize: 15 }}>*/}
-        {/*  * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to*/}
-        {/*  valuable content for all users <FavoriteIcon color={'error'}*/}
-        {/*                                               sx={{ fontSize: 12 }}/>*/}
-        {/*</Typography>*/}
         <Stack gap={2}>
           <Account trackers={config?.account} characters={characters}
                    account={account} lastUpdated={lastUpdated}/>

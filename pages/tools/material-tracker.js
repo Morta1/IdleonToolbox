@@ -2,6 +2,7 @@ import {
   Autocomplete,
   Card,
   CardContent,
+  Chip,
   createFilterOptions,
   Stack,
   TextField,
@@ -27,7 +28,7 @@ const filterOptions = createFilterOptions({
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState([]);
   const [threshold, setThreshold] = useState('');
   const [note, setNote] = useState('');
   const [hoverIcons, setHoverIcons] = useState({});
@@ -45,7 +46,7 @@ const MaterialTracker = () => {
 
   const handleAddThreshold = () => {
     const tempErrors = {};
-    if (!value) {
+    if (value.length === 0) {
       tempErrors.material = true;
     }
     const tempThreshold = threshold?.replace(/,/g, '');
@@ -56,12 +57,19 @@ const MaterialTracker = () => {
       setErrors(tempErrors);
       return;
     }
-    const updated = { ...trackedItems, [value.rawName]: { item: value, threshold: parseInt(tempThreshold), note } };
+    const updated = { ...trackedItems };
+    value.forEach((item) => {
+      updated[item?.rawName] = {
+        item,
+        threshold: parseInt(tempThreshold),
+        note
+      }
+    })
     setTrackedItems(updated)
     // Save to local storage
     localStorage.setItem('material-tracker', JSON.stringify(updated));
     // Reset fields
-    setValue('');
+    setValue([]);
     setThreshold('');
     setNote('');
   }
@@ -81,7 +89,7 @@ const MaterialTracker = () => {
         title="Idleon Toolbox | Material Tracker"
         description="Add a material, set your own threshold and keep track of your inventory."
       />
-      <Stack direction={'row'} gap={3} alignItems={'center'} flexWrap={'wrap'}>
+      <Stack>
         <Autocomplete
           id="material tracker"
           value={value}
@@ -89,12 +97,24 @@ const MaterialTracker = () => {
             setValue(newValue);
             setErrors({ ...errors, material: false })
           }}
-          autoComplete
-          options={[value, ...items]}
+          multiple
+          options={[...items]}
           filterSelectedOptions
+          disableCloseOnSelect
           filterOptions={filterOptions}
           getOptionLabel={(option) => {
             return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
+          }}
+          sx={{ width: isSm ? '100%' : 600, mb: 3, flexShrink: 1 }}
+          renderTags={(tag, getTagProps) => {
+            return tag.map((option, index) => (
+              <Chip
+                key={index}
+                icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`}/>}
+                label={option?.displayName?.replace(/_/g, ' ')}
+                {...getTagProps({ index })}
+              />
+            ))
           }}
           renderOption={(props, option) => {
             if (!option) return null;
@@ -109,18 +129,15 @@ const MaterialTracker = () => {
               <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
             </Stack>
           }}
-          style={{ width: 300 }}
+
           renderInput={(params) => (
             <TextField {...params}
                        error={errors?.material}
-                       InputProps={{
-                         ...params.InputProps,
-                         startAdornment: value?.rawName ? <img width={24} height={24}
-                                                               src={`${prefix}data/${value?.rawName}.png`}/> : null
-                       }}
                        label="Material name" variant="outlined"/>
           )}
         />
+      </Stack>
+      <Stack justifyContent={isSm ? 'space-between' : 'flex-start'} direction={'row'} gap={3} alignItems={'center'} flexWrap={'wrap'}>
         <TextField error={errors?.threshold} value={threshold} onChange={({ target }) => {
           let temp = target.value.replace(/,/g, '');
           setThreshold(numberWithCommas(temp))
@@ -131,7 +148,7 @@ const MaterialTracker = () => {
       </Stack>
       <Stack mt={3} direction={isSm ? 'column' : 'row'} gap={3} flexWrap={'wrap'}>
         {(Object.values(trackedItems))?.map(({ item, threshold, note }, index) => {
-          const { amount: quantityOwned, owner } = findQuantityOwned(totalOwnedItems, item?.displayName);
+          const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
           let color, twoPercentBuffer = threshold * 0.02;
           if (quantityOwned < threshold) {
             color = 'error.light';

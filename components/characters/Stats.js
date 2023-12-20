@@ -39,7 +39,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     return hasUnendingEnergy && hours > 10;
   };
 
-  const isAfk = () => {
+  const isActive = () => {
     const timePassed = new Date().getTime() + (afkTime - lastUpdated);
     const minutes = differenceInMinutes(new Date(), new Date(timePassed));
     return minutes <= 5;
@@ -128,8 +128,9 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <CardContent>
               <Typography color={'info.light'}>Afk time</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1} color={isOvertime() ? 'error.light' : ''}>
-                {!isAfk() ? <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/> :
-                  <Typography color={'success.light'}>Active</Typography>}
+                {isActive() ? <Typography color={'success.light'}>Active</Typography> : <Timer type={'up'}
+                                                                                                date={afkTime}
+                                                                                                lastUpdated={lastUpdated}/>}
                 {isOvertime() ? (
                   <Tooltip title={'This character is afk more than 10 hours with Unending Energy prayer'}>
                     <InfoIcon/>

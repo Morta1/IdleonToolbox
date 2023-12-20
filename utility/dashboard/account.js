@@ -2,11 +2,12 @@ import { getMaxClaimTime, getSecPerBall } from '../../parsers/dungeons';
 import { getBuildCost } from '../../parsers/construction';
 import { vialCostsArray } from '../../parsers/alchemy';
 import { maxNumberOfSpiceClicks } from '../../parsers/cooking';
-import { getDuration } from '../helpers';
+import { getDuration, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '../../parsers/world-4/rift';
 import { items, liquidsShop } from '../../data/website-data';
 import { hasMissingMats } from '../../parsers/refinery';
 import { calcTotals } from '../../parsers/printer';
+import { findQuantityOwned, getAllItems } from '../../parsers/items';
 
 
 export const tasksAlert = (account, options) => {
@@ -162,11 +163,28 @@ export const postOfficeAlerts = (account, options) => {
   }
   return alerts;
 }
-export const etcAlerts = (account, options) => {
+export const etcAlerts = (account, options, characters) => {
   const alerts = {}
 
   if (options?.randomEvents?.checked) {
     alerts.randomEvents = account?.accountOptions?.[137] === 0;
+  }
+  if (options?.materialTracker?.checked) {
+    const materials = tryToParse(localStorage.getItem('material-tracker'));
+    if (Object.keys(materials).length > 0) {
+      const totalOwnedItems = getAllItems(characters, account);
+      alerts.materialTracker = Object.values(materials)?.reduce((res, { item, threshold }) => {
+        const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
+        let text, twoPercentBuffer = threshold * 0.02;
+        if (quantityOwned < threshold) {
+          text = 'below';
+        } else if (quantityOwned <= threshold + twoPercentBuffer) {
+          text = 'close to';
+        }
+        if (!text) return res;
+        return [...res, { item, threshold, quantityOwned, text }];
+      }, []);
+    }
   }
 
   if (options?.keys?.checked) {

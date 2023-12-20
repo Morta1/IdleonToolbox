@@ -20,6 +20,7 @@ import Timer from '../common/Timer';
 import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '../../parsers/character';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
+import { differenceInMinutes } from 'date-fns';
 
 const alertsMap = {
   anvil: anvilAlerts,
@@ -174,10 +175,16 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
   const { afkGains } = useMemo(() => getAfkGain(character, characters, account), [character,
     account]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
-
+  const isActive = () => {
+    const timePassed = new Date().getTime() + (afkTime - lastUpdated);
+    const minutes = differenceInMinutes(new Date(), new Date(timePassed));
+    return minutes <= 5;
+  };
   return <Stack gap={1}>
     <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
-    <TitleAndValue title={'Afk time'} value={<Timer type={'up'} date={afkTime} lastUpdated={lastUpdated}/>}/>
+    <TitleAndValue title={'Afk time'}
+                   value={isActive ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
+                                                                              lastUpdated={lastUpdated}/>}/>
     <Divider flexItem sx={{ background: 'black' }}/>
     <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
     <TitleAndValue title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>

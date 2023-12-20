@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const useAlerts = ({ alertsMap, data, trackers }) => {
+const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
   const [alerts, setAlerts] = useState();
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const useAlerts = ({ alertsMap, data, trackers }) => {
               ...result,
               [option?.name]: option
             }), {});
-            res[trackerName] = alertsMap?.[trackerName](data, optionObject) || {};
+            res[trackerName] = alertsMap?.[trackerName](data, optionObject, extraData) || {};
           }
         }
         return res;

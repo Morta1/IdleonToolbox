@@ -4,12 +4,25 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.30',
+    gameVer: '1.92',
+    date: '20/12/2023',
+    features: [
+      'Added the option to select multiple items to the material tracker page',
+      'Added a material tracker alert to the dashboard under Etc -> Material tracker (in case you don\'t see the error, clear the dashboard config in data page)'
+    ],
+    fixes: [
+      'Fixed a bug with dashboard characters\' afk time not showing "Active" when it should',
+    ]
+  },
+  {
     ver: '3.2.29',
     gameVer: '1.92',
     date: '19/12/2023',
     features: [
       <Typography>Added <Link
-        href={'https://idleontoolbox.com/tools/material-tracker'}>material tracker</Link> page - Add a material, set your own threshold and keep track of your inventory.</Typography>
+        href={'https://idleontoolbox.com/tools/material-tracker'}>material tracker</Link> page - Add a material, set
+        your own threshold and keep track of your inventory.</Typography>
     ],
     fixes: []
   },

@@ -47,8 +47,8 @@ const alertsMap = {
   tasks: tasksAlert
 }
 
-const Account = ({ account, trackers }) => {
-  const alerts = useAlerts({ alertsMap, data: account, trackers });
+const Account = ({ account, characters, trackers }) => {
+  const alerts = useAlerts({ alertsMap, data: account, extraData: characters, trackers });
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
@@ -163,6 +163,13 @@ const Account = ({ account, trackers }) => {
             alerts?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
                                                                                title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
                                                                                iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.etc && alerts?.etc?.materialTracker?.length > 0
+            ?
+            alerts?.etc?.materialTracker?.map(({ item, threshold, quantityOwned, text }, index) => <Alert
+              key={item?.rawName + '' + index}
+              title={`Your ${cleanUnderscore(pascalCase(item?.displayName))} is ${text} the threshold (${notateNumber(quantityOwned)}/${notateNumber(threshold)})`}
+              iconPath={`data/${item?.rawName}`}/>)
+            : null}
           {trackers?.postOffice && alerts?.postOffice?.shipments?.length > 0 ?
             alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}
                                                                      title={`Order streak for shipment #${index + 1} is 0!`}
