@@ -183,7 +183,7 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
   return <Stack gap={1}>
     <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
     <TitleAndValue title={'Afk time'}
-                   value={isActive ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
+                   value={isActive() ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
                                                                               lastUpdated={lastUpdated}/>}/>
     <Divider flexItem sx={{ background: 'black' }}/>
     <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
