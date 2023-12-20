@@ -173,7 +173,7 @@ export const etcAlerts = (account, options, characters) => {
     const materials = tryToParse(localStorage.getItem('material-tracker'));
     if (Object.keys(materials).length > 0) {
       const totalOwnedItems = getAllItems(characters, account);
-      alerts.materialTracker = Object.values(materials)?.reduce((res, { item, threshold }) => {
+      alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold }) => {
         const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
         let text, twoPercentBuffer = threshold * 0.02;
         if (quantityOwned < threshold) {
