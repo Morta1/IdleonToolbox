@@ -30,13 +30,7 @@ const Looty = () => {
     } else {
       setItems(sortByStackSize ? sortedItems : state?.account?.storage);
     }
-  }, [orderByGroup, sortByStackSize])
-
-  useEffect(() => {
-    if (state?.account?.storage) {
-      setItems(sortByStackSize ? sortedItems : state?.account?.storage);
-    }
-  }, [state]);
+  }, [state, orderByGroup, sortByStackSize])
 
   const handleChange = (event) => {
     setSortByStackSize(event.target.checked);
