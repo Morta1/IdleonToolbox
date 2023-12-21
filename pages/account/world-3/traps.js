@@ -1,18 +1,18 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { fillArrayToLength, kFormatter, prefix } from 'utility/helpers';
+import { fillArrayToLength, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
-import { TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '../../../components/common/styles';
 import { NextSeo } from 'next-seo';
 import { calcTotalCritters } from '../../../parsers/traps';
 
 const Traps = () => {
   const { state } = useContext(AppContext);
   const { traps } = state?.account || {};
-  const totalCritters = useMemo(() => calcTotalCritters(traps), [traps]);
+  const totals = useMemo(() => calcTotalCritters(traps), [traps]);
 
   return <>
     <NextSeo
@@ -20,7 +20,7 @@ const Traps = () => {
       description="Keep track of your traps timing, critters amounts and more"
     />
     <Typography variant={'h2'} mb={3}>Traps</Typography>
-    {totalCritters ? <TotalCritters critters={totalCritters} index={'total'}/> : null}
+    {totals ? <Totals hideExp array={totals} index={'total'}/> : null}
     <Stack gap={3}>
       {traps?.map((trapSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
@@ -29,34 +29,46 @@ const Traps = () => {
         const trap = state?.characters?.[index]?.tools?.find(({ name }) => name.includes('Trap'));
         const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
         const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
-        const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank' ? state?.characters?.[index]?.tools?.[4] : null;
-        let maxTraps = usedTrap ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap : trapSlots.length;
+        const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank'
+          ? state?.characters?.[index]?.tools?.[4]
+          : null;
+        let maxTraps = usedTrap
+          ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap
+          : trapSlots.length;
         maxTraps = Math.min(maxTraps, 8);
         const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
-        const charCritters = trapSlots.reduce((total, { crittersQuantity, rawName }) => {
+        const charTotals = trapSlots.reduce((total, { crittersQuantity, trapExp, rawName }) => {
           return {
             ...total,
-            [rawName]: (total?.[rawName] ?? 0) + crittersQuantity
+            [rawName]: {
+              critters: (total?.[rawName]?.critters ?? 0) + crittersQuantity,
+              exp: (total?.[rawName]?.exp ?? 0) + trapExp
+            }
           }
-        }, {})
+        }, {});
         return <React.Fragment key={`printer-row-${index}`}>
           <Card sx={{ width: { lg: 920, xl: 'fit-content' } }}>
             <CardContent>
-              <Stack direction='row' alignItems={'center'} gap={2}>
-                <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
-                       alignItems={'center'} gap={2}>
-                  <Stack alignItems={'center'} justifyContent={'center'}>
-                    <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                    <img style={{ height: 38 }} src={`${prefix}data/${trap?.rawName}.png`} alt=""/>
-                  </Stack>
-                  <Stack>
-                    <Typography className={'character-name'}>{playerName}</Typography>
-                    <Typography variant={'caption'}>Trapping lv. {trappingLevel}</Typography>
-                  </Stack>
-                </Stack>
+              <Stack direction="row" alignItems={'center'} gap={2} flexWrap={'wrap'}>
+                <Card variant={'outlined'}>
+                  <CardContent>
+                    <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
+                           alignItems={'center'} gap={2}>
+                      <Stack alignItems={'center'} justifyContent={'center'}>
+                        <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                        <img style={{ height: 38 }} src={`${prefix}data/${trap?.rawName}.png`} alt=""/>
+                      </Stack>
+                      <Stack>
+                        <Typography className={'character-name'}>{playerName}</Typography>
+                        <Typography variant={'caption'}>Trapping lv. {trappingLevel}</Typography>
+                      </Stack>
+                    </Stack>
+                  </CardContent>
+                </Card>
                 <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={3}>
                   {realTraps?.map((slot, slotIndex) => {
-                    return <Card sx={{ borderColor: slot?.active ? 'success.light' : 'inherit', }} elevation={5}
+                    return <Card sx={{ borderColor: slot?.active ? 'success.light' : 'none' }}
+                                 variant={'outlined'}
                                  key={`${slot?.rawName || 'trap'}-${slotIndex}`}>
                       <CardContent>
                         <Stack sx={{ width: { xs: 65, sm: 80 }, height: 50 }} position={'relative'}
@@ -65,7 +77,8 @@ const Traps = () => {
                           {slot?.name ? <>
                               <Stack direction={'row'}>
                                 <Tooltip
-                                  title={<TrapTooltip {...slot?.trapData} crittersQuantity={slot?.crittersQuantity}/>}>
+                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp}
+                                                      crittersQuantity={slot?.crittersQuantity}/>}>
                                   <FloatingItemIcon src={`${prefix}data/TrapBoxSet${slot?.trapType + 1}.png`} alt=""/>
                                 </Tooltip>
                                 <ItemIcon src={`${prefix}data/${slot?.rawName}.png`} alt=""/>
@@ -78,9 +91,9 @@ const Traps = () => {
                     </Card>
                   })}
                 </Stack>
+                {realTraps?.length > 0 ? <Totals outlined title={'Total critters'} array={charTotals} index={index}/> :
+                  <Card variant={'outlined'}><CardContent>{playerName} has no traps</CardContent></Card>}
               </Stack>
-              {realTraps?.length > 0 ? <TotalCritters critters={charCritters} index={index}/> :
-                <Card variant={'outlined'}><CardContent>{playerName} has no traps</CardContent></Card>}
             </CardContent>
           </Card>
         </React.Fragment>
@@ -89,33 +102,30 @@ const Traps = () => {
   </>;
 };
 
-const TotalCritters = ({ critters, index }) => {
+const Totals = ({ array, index, outlined = false, hideExp }) => {
   return <Stack direction={'row'} mt={2} mb={index === 'total' ? 2 : 1} gap={2}>
-    <Stack
-      sx={{ width: index === 'total' ? 'auto' : 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
-      alignItems={'center'} gap={2}>
-      <Typography className={'character-name'}>Total Critters</Typography>
-    </Stack>
-    <Card elevation={5} sx={{ width: { lg: 920, xl: 'fit-content' } }}>
-      <CardContent>
-        <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
-          {Object.entries(critters).map(([critterName, quantity], totalIndex) => {
-            return <Stack alignItems={'center'} gap={1} key={`total-${index}-${totalIndex}-${critterName}`}
-                          direction={'row'}>
-              <ItemIcon src={`${prefix}data/${critterName}.png`} alt=""/>
-              <Typography>{kFormatter(quantity)}</Typography>
+    <CardTitleAndValue variant={outlined ? 'outlined' : 'elevation'} title={'Totals'}>
+      <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
+        {Object.entries(array).map(([critterName, { critters, exp }], totalIndex) => {
+          return <Stack alignItems={'center'} gap={1} key={`total-${index}-${totalIndex}-${critterName}`}
+                        direction={'row'}>
+            <ItemIcon src={`${prefix}data/${critterName}.png`} alt=""/>
+            <Stack>
+              <Typography variant={'body2'}>Critters: {notateNumber(critters)}</Typography>
+              {hideExp ? null : <Typography variant={'body2'}>Exp: {notateNumber(exp)}</Typography>}
             </Stack>
-          })}
-        </Stack>
-      </CardContent>
-    </Card>
+          </Stack>
+        })}
+      </Stack>
+    </CardTitleAndValue>
   </Stack>
 }
 
-const TrapTooltip = ({ quantity, exp, trapType, crittersQuantity }) => {
+const TrapTooltip = ({ quantity, exp, trapType, crittersQuantity, trapExp }) => {
   return <>
     <TitleAndValue title={'Quantity'} value={`x${quantity}`}/>
     <TitleAndValue title={trapType === 0 ? 'Exp' : 'Shiny'} value={`x${exp}`}/>
+    <TitleAndValue title={'Trap exp'} value={notateNumber(trapExp)}/>
     <TitleAndValue title={'Critters'} value={crittersQuantity}/>
   </>
 }

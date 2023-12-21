@@ -116,8 +116,8 @@ export const MissingData = ({ name }) => {
   return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
 }
 
-export const CardTitleAndValue = ({ cardSx, title, value, children, icon }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
+export const CardTitleAndValue = ({ variant,raised, cardSx, title, value, children, icon }) => {
+  return <Card variant={variant} raised={raised} sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
     <CardContent>
       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
       {value ? icon ? <Stack direction={'row'} gap={2}>

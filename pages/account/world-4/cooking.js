@@ -10,7 +10,7 @@ const Cooking = () => {
   const { state } = useContext(AppContext);
   const { cooking, achievements, sailing } = state?.account || {};
 
-  const totalMealSpeed = useMemo(() => cooking?.kitchens?.reduce((sum, kitchen) => sum + kitchen.mealSpeed, 0), [cooking]);
+  const totalMealSpeed = useMemo(() => cooking?.kitchens?.reduce((sum, kitchen) => sum + (kitchen.status === 3 ? 0 : kitchen.mealSpeed), 0), [cooking]);
 
   return (
     <>

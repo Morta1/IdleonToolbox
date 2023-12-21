@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getRealDateInMs, growth, prefix } from 'utility/helpers';
+import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from '@mui/material';
+import { getRealDateInMs, prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
@@ -10,9 +10,10 @@ import { NextSeo } from 'next-seo';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../../components/Tooltip';
 import { CardTitleAndValue } from '../../../components/common/styles';
-
-const insideDungeonUpgradeMaxLevel = 100;
-const flurboUpgradeMaxLevel = 50;
+import Upgrades from '../../../components/account/Misc/Dungeons/Upgrades';
+import Tabber from '../../../components/common/Tabber';
+import RngItems from '../../../components/account/Misc/Dungeons/RngItems';
+import StatBoosts from '../../../components/account/Misc/Dungeons/StatBoosts';
 
 const Dungeons = () => {
   const { state } = useContext(AppContext);
@@ -57,7 +58,6 @@ const Dungeons = () => {
             {dungeons?.flurbos}
           </Stack>
         </CardTitleAndValue>
-
       </Stack>
 
       <Stack my={2} direction="row" gap={4}>
@@ -93,24 +93,12 @@ const Dungeons = () => {
           ) : null}
         </Accordion>
       </Stack>
-
-      <Stack direction="row" flexWrap={'wrap'} gap={4}>
-        <DungeonUpgrades upgrades={dungeons?.insideUpgrades}/>
-        <DungeonUpgrades isFlurbo upgrades={dungeons?.upgrades}/>
-      </Stack>
+      <Tabber tabs={['Passives', 'Rng Items', 'Stat boosts']}>
+        <Upgrades {...dungeons}/>
+        <RngItems {...dungeons}/>
+        <StatBoosts {...dungeons}/>
+      </Tabber>
     </>
-  );
-};
-
-const CardContainer = ({ column, sx = {}, children }) => {
-  return (
-    <Card sx={sx}>
-      <CardContent sx={{ height: '100%', display: 'flex' }}>
-        <Stack direction={column ? 'column' : 'row'} gap={1} justifyContent="center" alignItems="center">
-          {children}
-        </Stack>
-      </CardContent>
-    </Card>
   );
 };
 
@@ -118,73 +106,5 @@ const CurrencyIcon = styled.img`
   width: 25px;
   object-fit: contain;
 `;
-
-const DungeonUpgrades = ({ isFlurbo, upgrades = [] }) => {
-  const calcBonus = (upgrade) => {
-    return growth(upgrade?.func, upgrade?.level, upgrade?.x1, upgrade?.x2);
-  };
-
-  const calcCostToMax = (level) => {
-    let total = 0;
-    for (let i = level; i < (isFlurbo ? 50 : 100); i++) {
-      total += calcUpgradeCost(i);
-    }
-    return total;
-  };
-
-  const calcUpgradeCost = (level) => {
-    if (isFlurbo) {
-      const baseMath = Math.pow(1.7 * level, 1.05);
-      const moreMath = 1.027 + ((level - 30) / (level + 30)) * 0.01 * Math.floor((level + 970) / 1000);
-      return Math.floor(1 + baseMath * Math.pow(moreMath, level));
-    } else {
-      const baseMath = Math.pow(1.5 * level, 1.04);
-      const moreMath = 1.024 + ((level - 60) / (level + 60)) * 0.01 * Math.floor((level + 940) / 1000);
-      return Math.floor(2 + baseMath * Math.pow(moreMath, level));
-    }
-  };
-
-  return (
-    <Stack>
-      <Typography my={2} variant="h4">
-        {isFlurbo ? 'Flurbo' : 'Dungeon'} Upgrades
-      </Typography>
-      <Stack gap={1}>
-        {upgrades.map((upgrade, index) => {
-          const { level, type, effect } = upgrade;
-          const isMaxed = level >= (isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel);
-          return (
-            <Card key={`${effect}-${index}`} sx={{ width: { md: 450 } }}>
-              <CardContent>
-                <Stack direction="row" justifyContent="space-between" gap={2}>
-                  <Stack>
-                    <Typography>
-                      +{calcBonus(upgrade)}
-                      {type === '%' ? type : ''} {cleanUnderscore(effect)}
-                    </Typography>
-                    <Typography
-                      color={isMaxed ? 'success.light' : ''}>{isMaxed ? 'MAXED' : `Lv. ${level} / ${isFlurbo
-                      ? flurboUpgradeMaxLevel
-                      : insideDungeonUpgradeMaxLevel}`}</Typography>
-                  </Stack>
-                  <Stack direction="row" gap={3}>
-                    <Stack>
-                      <Typography color={'info.light'}>Cost</Typography>
-                      <Typography>{calcUpgradeCost(level)}</Typography>
-                    </Stack>
-                    <Stack>
-                      <Typography color={'info.light'}>Cost to max</Typography>
-                      <Typography>{calcCostToMax(level)}</Typography>
-                    </Stack>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Stack>
-    </Stack>
-  );
-};
 
 export default Dungeons;

@@ -74,7 +74,6 @@ const Refinery = () => {
   const [squiresCooldown, setSquiresCooldown] = useState([]);
   const [refineryCycles, setRefineryCycles] = useState([]);
   const activePrints = useMemo(() => calcTotals(state?.account), [state?.account]);
-  const activeCritters = useMemo(() => calcTotalCritters(state?.account?.traps), [state?.account?.traps]);
 
   useEffect(() => {
     const squires = state?.characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');

@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.31',
+    gameVer: '1.92',
+    date: '21/12/2023',
+    features: [
+      <Typography>Enhanced the <Link
+        href={'https://idleontoolbox.com/account/misc/dungeons'}>dungeons</Link> page - added rng items and stat boosts</Typography>,
+      <Typography>Added group by option to the <Link
+        href={'https://idleontoolbox.com/account/misc/storage'}>storage</Link> page</Typography>,
+      <Typography>Added exp per trap + total exp per character to <Link
+        href={'https://idleontoolbox.com/account/world-3/traps'}>traps</Link> page</Typography>
+    ],
+    fixes: [
+      'Fixed a bug in cooking page where recipe kitchens were calculated as cooking meals',
+    ]
+  },
+  {
     ver: '3.2.30',
     gameVer: '1.92',
     date: '20/12/2023',

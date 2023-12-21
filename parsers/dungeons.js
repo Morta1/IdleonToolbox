@@ -1,5 +1,12 @@
 import { growth, tryToParse } from '../utility/helpers';
-import { ballsBonuses, dungeonFlurboStats, dungeonStats, randomList } from '../data/website-data';
+import {
+  ballsBonuses,
+  dungeonCreditShop,
+  dungeonFlurboStats,
+  dungeonStats,
+  dungeonTraits,
+  randomList
+} from '../data/website-data';
 import { getStampsBonusByEffect } from './stamps';
 import { getBribeBonus } from './bribes';
 import { getVialsBonusByStat } from './alchemy';
@@ -12,7 +19,18 @@ export const getDungeons = (idleonData, accountOptions) => {
 };
 
 const parseDungeons = (dungeonUpgrades, accountOptions) => {
+  const rngItems = dungeonCreditShop?.map((item, index) => ({ ...item, level: dungeonUpgrades?.[0]?.[index] }));
   const dungeonUpgradesRaw = dungeonUpgrades?.[1];
+  const statBoostsRaw = dungeonUpgrades?.[2];
+  let counter = 0;
+  const statBoosts = dungeonTraits?.map((trait) => ({
+    ...trait, bonuses: trait?.bonuses?.map((bonus) => {
+      const isActive = statBoostsRaw?.includes(counter);
+      const bonusIndex = counter;
+      counter++;
+      return { bonus, isActive, bonusIndex }
+    })
+  }));
   const flurbosUpgradesRaw = dungeonUpgrades?.[5];
   const insideUpgrades = dungeonUpgradesRaw?.map((level, index) => ({ ...dungeonStats[index], level }));
   const upgrades = flurbosUpgradesRaw?.map((level, index) => ({ ...dungeonFlurboStats[index], level }));
@@ -39,7 +57,9 @@ const parseDungeons = (dungeonUpgrades, accountOptions) => {
     boostedRuns,
     progress,
     rankReq,
-    rank
+    rank,
+    rngItems,
+    statBoosts
   };
 };
 
