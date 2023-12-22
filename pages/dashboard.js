@@ -101,6 +101,7 @@ const baseTrackers = {
     etc: {
       checked: true,
       options: [
+        { name: 'dungeonTraits', checked: true },
         { name: 'materialTracker', checked: true},
         { name: 'randomEvents', checked: true },
         { name: 'gildedStamps', checked: true },
@@ -112,11 +113,12 @@ const baseTrackers = {
           checked: true
         },
         { name: 'weeklyBosses', checked: true },
-        { name: 'killRoy', checked: true }
+        { name: 'killRoy', checked: true },
       ]
     }
   },
   characters: {
+    cards: { checked: true, options: [{ name: 'cardSet', checked: true }] },
     anvil: {
       checked: true,
       options: [
@@ -171,7 +173,7 @@ const baseTrackers = {
           }
         }
       }]
-    }
+    },
   }
 }
 

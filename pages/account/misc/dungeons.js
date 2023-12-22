@@ -13,7 +13,7 @@ import { CardTitleAndValue } from '../../../components/common/styles';
 import Upgrades from '../../../components/account/Misc/Dungeons/Upgrades';
 import Tabber from '../../../components/common/Tabber';
 import RngItems from '../../../components/account/Misc/Dungeons/RngItems';
-import StatBoosts from '../../../components/account/Misc/Dungeons/StatBoosts';
+import Traits from '../../../components/account/Misc/Dungeons/Traits';
 
 const Dungeons = () => {
   const { state } = useContext(AppContext);
@@ -93,10 +93,10 @@ const Dungeons = () => {
           ) : null}
         </Accordion>
       </Stack>
-      <Tabber tabs={['Passives', 'Rng Items', 'Stat boosts']}>
+      <Tabber tabs={['Passives', 'Rng Items', 'Traits']}>
         <Upgrades {...dungeons}/>
         <RngItems {...dungeons}/>
-        <StatBoosts {...dungeons}/>
+        <Traits {...dungeons}/>
       </Tabber>
     </>
   );

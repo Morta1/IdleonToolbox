@@ -54,29 +54,29 @@ const Account = ({ account, characters, trackers }) => {
       <CardContent>
         {alerts ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
           {trackers?.atomCollider && alerts?.atomCollider?.stampReducer ?
-            <Alert title={`Stamp reducer has reached your threshold (${alerts?.atomCollider?.stampReducerValue}%) !`}
+            <Alert title={`Stamp reducer has reached your threshold (${alerts?.atomCollider?.stampReducerValue}%)`}
                    iconPath={'data/Atom0'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
                    iconPath={'data/CogFLflag'}/> : null}
           {trackers?.alchemy && alerts?.alchemy?.bargainTag ?
-            <Alert title={'You haven\'t use bargain tag even once today!'} iconPath={'data/aShopItems10'}/> : null}
+            <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
           {trackers?.etc && alerts?.etc?.randomEvents ?
-            <Alert title={'You haven\'t done a random event today!'} iconPath={'etc/Mega_Grumblo'}/> : null}
+            <Alert title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.etc && alerts?.etc?.weeklyBosses ?
-            <Alert title={'You haven\'t done a weekly (W2) boss fight today!'} iconPath={'data/Trophie'}/> : null}
+            <Alert title={'You haven\'t done a weekly (W2) boss fight today'} iconPath={'data/Trophie'}/> : null}
           {trackers?.etc && alerts?.etc?.killRoy === 0 || alerts?.etc?.killRoy === 1 ?
             <Alert
               title={alerts?.etc?.killRoy === 0
-                ? 'You haven\'t done a killroy this week!' :
+                ? 'You haven\'t done a killroy this week' :
                 alerts?.etc?.killRoy === 1
-                  ? 'You haven\'t done a killroy this week! (You have 1 killroy left)'
+                  ? 'You haven\'t done a killroy this week (You have 1 killroy left)'
                   : ''} iconPath={'etc/Killroy'}/> : null}
           {trackers?.cooking && alerts?.cooking?.spices > 0 ?
-            <Alert title={`You have ${alerts?.cooking?.spices} spice clicks left!`}
+            <Alert title={`You have ${alerts?.cooking?.spices} spice clicks left`}
                    iconPath={'data/CookingSpice0'}/> : null}
           {trackers?.arcade && alerts?.arcade?.balls ?
-            <Alert title={'Max ball capacity has reached!'} iconPath={'data/PachiBall0'}/> : null}
+            <Alert title={'Max ball capacity has reached'} iconPath={'data/PachiBall0'}/> : null}
           {trackers?.gaming && alerts?.gaming?.sprouts ?
             <Alert title={`Max sprouts capacity has reached (${alerts?.gaming?.sprouts})`}
                    imgStyle={{ objectFit: 'none' }}
@@ -85,19 +85,19 @@ const Account = ({ account, characters, trackers }) => {
             <Alert title={`Sprinkler drops has reached it's capacity (${alerts?.gaming?.drops})`}
                    iconPath={'data/GamingItem0b'}/> : null}
           {trackers?.gaming && alerts?.gaming?.squirrel?.hours >= 1 ?
-            <Alert title={`${alerts?.gaming?.squirrel?.hours} hours has passed since you've clicked the squirrel!`}
+            <Alert title={`${alerts?.gaming?.squirrel?.hours} hours has passed since you've clicked the squirrel`}
                    iconPath={'data/GamingItem2'}/> : null}
           {trackers?.gaming && alerts?.gaming?.shovel?.hours >= 1 ?
-            <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel!`}
+            <Alert title={`${alerts?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel`}
                    iconPath={'data/GamingItem1'}/> : null}
 
           {trackers?.equinox && alerts?.equinox?.bar ?
-            <Alert title={`Your Equinox bar is full !`} iconPath={'data/Quest78'}/> : null}
+            <Alert title={`Your Equinox bar is full`} iconPath={'data/Quest78'}/> : null}
           {trackers?.equinox && alerts?.equinox?.challenges > 0 ?
-            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate !`}
+            <Alert title={`You have ${alerts?.equinox?.challenges} challenges to validate`}
                    iconPath={'data/Quest78'}/> : null}
           {trackers?.equinox && alerts?.equinox?.foodLust ?
-            <Alert title={`Food Lust is maxed !`} iconPath={'etc/Dream_Upgrade_10'}/> : null}
+            <Alert title={`Food Lust is maxed`} iconPath={'etc/Dream_Upgrade_10'}/> : null}
 
           {trackers?.etc && alerts?.etc?.gildedStamps > 0 ?
             <Alert title={`You have ${alerts?.etc?.gildedStamps} available gilded stamps`}
@@ -110,15 +110,15 @@ const Account = ({ account, characters, trackers }) => {
             : null}
           {trackers?.alchemy && alerts?.alchemy?.sigils?.length > 0 ?
             alerts?.alchemy?.sigils?.map(({ name, index }) => <Alert key={name}
-                                                                     title={`${cleanUnderscore(pascalCase(name))} is already unlocked!`}
+                                                                     title={`${cleanUnderscore(pascalCase(name))} is already unlocked`}
                                                                      iconPath={`data/aSiga${index}`}/>) : null}
           {trackers?.alchemy && alerts?.alchemy?.liquids?.length > 0 ?
             alerts?.alchemy?.liquids?.map(({ index }) => <Alert key={'liq' + index}
-                                                                title={`${getNumberWithOrdinal(index + 1)} liquid is full!`}
+                                                                title={`${getNumberWithOrdinal(index + 1)} liquid is full`}
                                                                 iconPath={`data/Liquid${index + 1}_x1`}/>) : null}
           {trackers?.tasks && alerts?.tasks?.length > 0 ?
             alerts?.tasks?.map((world) => <Alert key={'task' + world}
-                                                 title={`Daily task in world ${world + 1} not done yet.`}
+                                                 title={`Daily task in world ${world + 1} not done yet`}
                                                  iconPath={`etc/Merit_${world}`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
             alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {
@@ -151,17 +151,17 @@ const Account = ({ account, characters, trackers }) => {
             : null}
           {trackers?.construction && alerts?.construction?.rankUp?.length > 0 ?
             alerts?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
-                                                                                title={`${cleanUnderscore(saltName)} is ready to rank up!`}
+                                                                                title={`${cleanUnderscore(saltName)} is ready to rank up`}
                                                                                 iconPath={`data/${rawName}`}/>) : null}
           {trackers?.construction && alerts?.construction?.buildings?.length > 0
             ?
             alerts?.construction?.buildings?.map(({ name, index }) => <Alert key={name}
-                                                                             title={`${cleanUnderscore(pascalCase(name))} is ready to be built!`}
+                                                                             title={`${cleanUnderscore(pascalCase(name))} is ready to be built`}
                                                                              iconPath={`data/ConTower${index}`}/>)
             : null}
           {trackers?.etc && alerts?.etc?.keys?.length > 0 ?
             alerts?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
-                                                                               title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready!`}
+                                                                               title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready`}
                                                                                iconPath={`data/${rawName}`}/>) : null}
           {trackers?.etc && alerts?.etc?.materialTracker?.length > 0
             ?
@@ -172,8 +172,12 @@ const Account = ({ account, characters, trackers }) => {
             : null}
           {trackers?.postOffice && alerts?.postOffice?.shipments?.length > 0 ?
             alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}
-                                                                     title={`Order streak for shipment #${index + 1} is 0!`}
+                                                                     title={`Order streak for shipment #${index + 1} is 0`}
                                                                      iconPath={`data/UIlilbox`}/>) : null}
+          {trackers?.etc && alerts?.etc?.dungeonTraits?.length > 0 ?
+            alerts?.etc?.dungeonTraits?.map((traitName, index) => <Alert key={'dungeonTraits' + index}
+                                                                     title={`You haven't selected a trait for ${traitName}`}
+                                                                     iconPath={`data/DungTraitB0`}/>) : null}
           {trackers?.breeding && alerts?.breeding?.shinies?.pets?.length > 0 ?
             alerts?.breeding?.shinies?.pets?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
               const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
@@ -191,7 +195,7 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.alchemy && alerts?.alchemy?.vials?.length > 0 ?
             alerts?.alchemy?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                          vial={vial}
-                                                         title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial!`}
+                                                         title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial`}
                                                          iconPath={`data/${vial?.mainItem}`}/>) : null}
           {trackers?.shops && alerts?.shops?.items?.length > 0 ?
             alerts?.shops?.items?.map((shop, index) => shop?.length > 0 ?

@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.32',
+    gameVer: '1.92',
+    date: '22/12/2023',
+    features: [
+      'Added unselected dungeon trait alert to the dashboard',
+      'Added an alert to notify when a character equips \'Blunder hill\' and is at a level greater than 50.'
+    ],
+    fixes: [
+      'Fixed texts across to site to be more consistent',
+    ]
+  },
+  {
     ver: '3.2.31',
     gameVer: '1.92',
     date: '21/12/2023',

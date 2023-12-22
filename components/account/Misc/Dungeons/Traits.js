@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '../../../../utility/helpers';
 import Tooltip from '../../../Tooltip';
 
-const StatBoosts = ({ statBoosts }) => {
+const Traits = ({ statBoosts }) => {
   return <>
     {statBoosts.map(({ section, levelReq, bonuses }, sectionIndex) => {
       return <Stack my={3} key={section + sectionIndex} direction={'row'} gap={2}>
@@ -25,4 +25,4 @@ const StatBoosts = ({ statBoosts }) => {
   </>
 };
 
-export default StatBoosts;
+export default Traits;

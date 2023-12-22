@@ -186,7 +186,16 @@ export const etcAlerts = (account, options, characters) => {
       }, []);
     }
   }
-
+  if (options?.dungeonTraits?.checked) {
+    const dungeonRank = account?.dungeons?.rank;
+    alerts.dungeonTraits = account?.dungeons?.statBoosts?.reduce((res, { section, levelReq, bonuses }) => {
+      const noneActive = bonuses?.every(({ isActive }) => !isActive);
+      if (dungeonRank > levelReq && noneActive) {
+        return [...res, section];
+      }
+      return res;
+    }, []);
+  }
   if (options?.keys?.checked) {
     alerts.keys = areKeysOverdue(account);
   }

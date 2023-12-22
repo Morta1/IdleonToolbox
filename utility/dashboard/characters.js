@@ -195,3 +195,11 @@ export const hasAvailableToolUpgrade = (character, account) => {
     return alerts;
   }, []);
 }
+
+export const cardsAlert = (account, characters, character, lastUpdated, options) => {
+  const alerts = {}
+  if (options?.cards?.cardSet?.checked) {
+    alerts.cardSet = character?.level >= 50 && character?.cards?.cardSet?.rawName === 'CardSet0';
+  }
+  return alerts
+}

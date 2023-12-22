@@ -1,10 +1,15 @@
+import { tryToParse } from '../utility/helpers';
+
+const url = 'https://profiles.idleontoolbox.workers.dev/api/profiles';
+// const url = 'http://localhost:8787/api/profiles';
 export const uploadProfile = async ({ profile, uid }, token) => {
   try {
     // https://profiles.idleontoolbox.workers.dev
     // http://localhost:8787
-    const response = await fetch('https://profiles.idleontoolbox.workers.dev/api/profiles', {
+    const parsedProfile = parseProfile(profile);
+    const response = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({ profile, uid }),
+      body: JSON.stringify({ profile: parsedProfile, uid }),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': token
@@ -21,7 +26,7 @@ export const getProfile = async ({ mainChar }) => {
   try {
     // https://profiles.idleontoolbox.workers.dev
     // http://localhost:8787
-    const response = await fetch(`https://profiles.idleontoolbox.workers.dev/api/profiles/?profile=${mainChar}`, {
+    const response = await fetch(`${url}/?profile=${mainChar}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -32,5 +37,16 @@ export const getProfile = async ({ mainChar }) => {
   } catch (e) {
     console.error(`${__filename} -> Error has occurred while getting profile for ${mainChar}`);
     throw e;
+  }
+}
+
+const parseProfile = (profile) => {
+  const data = Object.entries(profile.data).reduce((acc, [key, value]) => {
+    acc[key] = tryToParse(value);
+    return acc;
+  }, {});
+  return {
+    ...profile,
+    data
   }
 }

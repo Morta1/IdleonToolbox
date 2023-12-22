@@ -17,11 +17,11 @@ const worldsData = {
       { label: 'slab', icon: 'etc/Slab' },
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'constellations', icon: 'data/StarTitle1' },
-      { label: 'random-events', icon: 'etc/Mega_Grumblo' },
+      { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
       { label: 'guild', icon: 'etc/Guild' },
     ],
   },
-  'premium currency': {
+  'premium-currency': {
     style: { filter: 'hue-rotate(180deg)' },
     icon: 'data/PremiumGem',
     categories: [
@@ -139,7 +139,7 @@ const AccountDrawer = () => {
               <ListItem button selected={isSelected(key)} onClick={() => handleClick(key, categories)}>
                 <img className={'list-img'} width={32} height={32} style={{ objectFit: 'contain', ...style }}
                      src={`${prefix}${icon}.png`} alt=""/>
-                <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalize()}/>
+                <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalizeAllWords()}/>
                 {categories ? accordions?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
               </ListItem>
               {categories ? <Collapse in={accordions?.[key]} timeout="auto" unmountOnExit>

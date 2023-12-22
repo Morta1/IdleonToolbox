@@ -13,7 +13,7 @@ const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
               ...result,
               [option?.name]: option
             }), {});
-            res[trackerName] = alertsMap?.[trackerName](data, optionObject, extraData) || {};
+            res[trackerName] = alertsMap?.[trackerName]?.(data, optionObject, extraData) || {};
           }
         }
         return res;
