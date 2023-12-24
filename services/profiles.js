@@ -1,7 +1,7 @@
 import { tryToParse } from '../utility/helpers';
 
-// const url = 'https://profiles.idleontoolbox.workers.dev/api';
-const url = 'http://localhost:8787/api';
+const url = 'https://profiles.idleontoolbox.workers.dev/api';
+// const url = 'http://localhost:8787/api';
 export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);
