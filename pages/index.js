@@ -12,6 +12,7 @@ import { NextLinkComposed } from '../components/common/NextLinkComposed';
 import Link from '@mui/material/Link';
 import { useFlubber } from '../components/hooks/useFlubber';
 import Box from '@mui/material/Box';
+import { NextSeo } from 'next-seo';
 
 const Home = () => {
   const indexes = useMemo(() => getRandomNumbersArray(6, 6), []);
@@ -40,6 +41,10 @@ const Home = () => {
 
   return (
     <Container>
+      <NextSeo
+        title="Idleon Toolbox | Home"
+        description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
+      />
       <Stack mt={breakpointLg ? 5 : breakpoint ? 1 : 1} direction={'row'} flexWrap={'wrap'}
              sx={{ textAlign: breakpoint ? 'center' : 'inherit' }}
              gap={breakpoint ? 6 : 2}>

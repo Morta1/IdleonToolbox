@@ -1,4 +1,15 @@
-import { Container, Fade, Link, Popover, Stack, TextField, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Container,
+  Fade,
+  FormControlLabel,
+  FormHelperText,
+  Link,
+  Popover,
+  Stack,
+  TextField,
+  Typography
+} from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -13,6 +24,7 @@ import { format, intervalToDuration, isValid } from 'date-fns';
 import { uploadProfile } from '../services/profiles';
 import { AppContext } from '../components/common/context/AppProvider';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { NextSeo } from 'next-seo';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -25,11 +37,13 @@ const Data = () => {
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
+  const [leaderboardConsent, setLeaderboardConsent] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (state?.uid) {
       setLastUpload(localStorage.getItem(`${state?.uid}/lastUpload`));
+      setLeaderboardConsent(localStorage.getItem(`${state?.uid}/leaderboardConsent`) === 'true');
     }
   }, [state?.uid]);
 
@@ -72,6 +86,10 @@ const Data = () => {
     router.reload();
   }
 
+  const handleAllowLeaderboard = (e) => {
+    localStorage.setItem(`${state?.uid}/leaderboardConsent`, !leaderboardConsent);
+    setLeaderboardConsent(!leaderboardConsent)
+  }
   const handleUpdate = async () => {
     const userData = JSON.parse(localStorage.getItem('rawJson'));
     delete userData.data.GemsOwned;
@@ -83,7 +101,7 @@ const Data = () => {
     if (!lastUpload || ((WAIT_TIME - (Date.now() - lastUpload)) < 0)) {
       setLoading(true);
       try {
-        await uploadProfile({ profile: userData, uid: state?.uid }, state?.accessToken);
+        await uploadProfile({ profile: userData, uid: state?.uid, leaderboardConsent }, state?.accessToken);
         setUploaded(true);
         const now = Date.now();
         localStorage.setItem(`${state?.uid}/lastUpload`, now);
@@ -103,6 +121,10 @@ const Data = () => {
   }, anchorEl ? 1000 : null)
 
   return <Container>
+    <NextSeo
+      title="Idleon Toolbox | Data"
+      description="Website settings and profile management"
+    />
     <div>
       <Typography variant={'h4'}>Data</Typography>
       <Typography variant={'body1'}>Use this when asked for data</Typography>
@@ -145,7 +167,9 @@ const Data = () => {
       <Typography variant={'body1'}>* You can update your profile once every 4 hours.</Typography>
       <Typography variant={'body1'} mb={3}>* Gems and bundle information won't be saved</Typography>
       <Typography variant={'body1'} mb={3}>* Your profile
-        link: <Link href={`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`}>https://idleontoolbox.com/?profile={state?.characters?.[0]?.name}</Link> </Typography>
+        link: <Link
+          href={`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`}>https://idleontoolbox.com/?profile={state?.characters?.[0]?.name}</Link>
+      </Typography>
       <div>
         <Stack direction={'row'} alignItems={'center'} gap={2}>
           <LoadingButton disabled={isDisabled}
@@ -155,6 +179,13 @@ const Data = () => {
             <CheckCircleIcon color={'success'}/>
           </Fade>
         </Stack>
+        <FormControlLabel
+          control={<Checkbox name={'mini'} checked={leaderboardConsent}
+                             size={'small'}
+                             onChange={handleAllowLeaderboard}/>}
+          label={'Participate in idleontoolbox leaderboard ranking'}/>
+        <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Leave this box unchecked if you prefer not to participate in the leaderboard.
+To exclude your profile, simply uncheck the box and re-upload your profile.`}</FormHelperText>
         <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
         {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
           update: {format(parseInt(lastUpload), 'MM/dd/yyyy HH:mm:ss')}</Typography> : null}

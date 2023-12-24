@@ -6,15 +6,16 @@ const PlayerBubbles = ({ bubbles }) => {
   const empty = bubbles?.every(({ bubbleName }) => !bubbleName);
   return <>
     <Stack direction={'row'} sx={{ height: 'fit-content' }}>
-      {empty ? <Tooltip title={'Missing Active Bubble'}>
-        <img src={`${prefix}data/aUpgradesG2.png`}
-             style={{ width: 70, height: 70, filter: 'brightness(0)' }}
-             alt=""/>
-      </Tooltip> : null}
-      <Card variant={'outlined'}>
+      {empty ? <Card variant={'outlined'}>
+        <CardContent><Tooltip title={'Missing Active Bubble'}>
+          <img src={`${prefix}data/aUpgradesG2.png`}
+               style={{ width: 42, height: 42, filter: 'brightness(0)' }}
+               alt=""/>
+        </Tooltip></CardContent></Card> : null}
+      {!empty ? <Card variant={'outlined'}>
         <CardContent>
           <Stack direction={'row'} gap={2} flexWrap="wrap" justifyContent={'center'}>
-            {!empty && bubbles?.map((bubble, index) => {
+            {bubbles?.map((bubble, index) => {
               const { bubbleName, rawName } = bubble;
               if (!bubbleName) return null;
               const alteredBubbleName = bubbleName === 'BUG]' ? 'Bug2' : bubbleName;
@@ -27,7 +28,7 @@ const PlayerBubbles = ({ bubbles }) => {
             })}
           </Stack>
         </CardContent>
-      </Card>
+      </Card> : null}
     </Stack>
   </>
 };

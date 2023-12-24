@@ -1,15 +1,13 @@
 import { tryToParse } from '../utility/helpers';
 
-const url = 'https://profiles.idleontoolbox.workers.dev/api/profiles';
-// const url = 'http://localhost:8787/api/profiles';
-export const uploadProfile = async ({ profile, uid }, token) => {
+const url = 'https://profiles.idleontoolbox.workers.dev/api';
+// const url = 'http://localhost:8787/api';
+export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
   try {
-    // https://profiles.idleontoolbox.workers.dev
-    // http://localhost:8787
     const parsedProfile = parseProfile(profile);
-    const response = await fetch(url, {
+    const response = await fetch(`${url}/profiles`, {
       method: 'POST',
-      body: JSON.stringify({ profile: parsedProfile, uid }),
+      body: JSON.stringify({ profile: parsedProfile, uid, leaderboardConsent }),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': token
@@ -24,9 +22,7 @@ export const uploadProfile = async ({ profile, uid }, token) => {
 
 export const getProfile = async ({ mainChar }) => {
   try {
-    // https://profiles.idleontoolbox.workers.dev
-    // http://localhost:8787
-    const response = await fetch(`${url}/?profile=${mainChar}`, {
+    const response = await fetch(`${url}/profiles/?profile=${mainChar}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -36,6 +32,22 @@ export const getProfile = async ({ mainChar }) => {
     return await response?.json();
   } catch (e) {
     console.error(`${__filename} -> Error has occurred while getting profile for ${mainChar}`);
+    throw e;
+  }
+}
+
+export const fetchLeaderboards = async () => {
+  try {
+    const response = await fetch(`${url}/leaderboards`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response) return null
+    return await response?.json();
+  } catch (e) {
+    console.error(`${__filename} -> Error has occurred while getting leaderboards`);
     throw e;
   }
 }

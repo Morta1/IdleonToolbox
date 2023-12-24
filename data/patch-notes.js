@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.33',
+    gameVer: '1.92',
+    date: '24/12/2023',
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/leaderboards'}>leaderboards</Link> page</Typography>,
+      'To participate in the leaderboards, please upload your profile with leaderboard consent.'
+    ],
+    fixes: [
+      'Fixed small bug with player bubbles'
+    ]
+  },
+  {
     ver: '3.2.32',
     gameVer: '1.92',
     date: '22/12/2023',

@@ -15,6 +15,7 @@ const NavItemsList = ({ drawer }) => {
     <ItemsWrapper drawer={drawer}>
       {navItems.map((navItem, index) => {
         if ((!state?.signedIn && !state?.profile && !state?.demo && !state?.manualImport) && !offlinePages.includes(navItem)) return null;
+        if (state?.profile && navItem === 'guilds') return null;
         const pageName = navItem === 'account' ? 'account/misc/general' : navItem === 'tools'
           ? 'tools/card-search'
           : navItem;

@@ -142,7 +142,7 @@ const AppProvider = ({ children }) => {
           unsubscribe = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           setListener({ func: unsubscribe });
         } else {
-          if (router.pathname === '/' || checkOfflineTool() || router.pathname === '/data') return;
+          if (router.pathname === '/' || checkOfflineTool() || router.pathname === '/data' || router.pathname === '/leaderboards') return;
           router.push({ pathname: '/', query: router?.query });
         }
       }
@@ -283,7 +283,16 @@ const AppProvider = ({ children }) => {
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({
       type: 'data',
-      data: { ...parsedData, signedIn: true, manualImport: false, lastUpdated, serverVars, uid, accessToken }
+      data: {
+        ...parsedData,
+        signedIn: true,
+        manualImport: false,
+        profile: false,
+        lastUpdated,
+        serverVars,
+        uid,
+        accessToken
+      }
     });
   };
 
@@ -295,7 +304,7 @@ const AppProvider = ({ children }) => {
   };
 
   const shouldDisplayPage = () => {
-    return value?.state?.account || value?.state?.manualImport || router.pathname === '/' || checkOfflineTool() || router.pathname === '/data';
+    return value?.state?.account || value?.state?.manualImport || router.pathname === '/' || checkOfflineTool() || router.pathname === '/data' || router.pathname === '/leaderboards';
   }
 
   return (
