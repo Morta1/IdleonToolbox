@@ -1,15 +1,9 @@
 import React from 'react';
-import { Divider, List, ListItem, ListItemText, Paper, Stack, Typography } from '@mui/material';
+import { Link, List, ListItem, ListItemText, Paper, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import { notateNumber, prefix } from '../utility/helpers';
 import Box from '@mui/material/Box';
 import styled from '@emotion/styled'; // Grid version 2
-
-const COLORS = {
-  FIRST: '#e1ba1f',
-  SECOND: '#567BB7',
-  THIRD: '#7172B4'
-}
 
 const HIGHLIGHTED_OUTLINED_COLOR = '#007E85';
 const HIGHLIGHTED_BG_COLOR = '#12141c'
@@ -62,7 +56,8 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar }) => {
                 key={`${sectionName}-${index}`}>
                 <ListItemText><PositionCircle inline sx={{ mr: 2 }}>{entry?.index
                   ? entry?.index
-                  : index + 4}</PositionCircle> {entry?.mainChar}</ListItemText>
+                  : index + 4}</PositionCircle> <Link color={'inherit'} underline={'hover'} target={'_blank'}
+                                                      href={`https://idleontoolbox.com?profile=${entry?.mainChar}`}>{entry?.mainChar}</Link></ListItemText>
               </ListItem>
             })}
           </List>
@@ -101,10 +96,10 @@ const TopThree = ({ sectionName, topThree }) => {
           {/*<Typography sx={{ m: 'auto' }}>{index + 1}</Typography>*/}
           <TextWrapper outline={entry?.loggedMainChar}>
             <Stack justifyContent={'center'}>
-              <Typography textAlign={'center'}
-                          sx={{
-                            mt: 'auto'
-                          }}>{entry?.mainChar}</Typography>
+              <Typography textAlign={'center'} sx={{ mt: 'auto' }}>
+                <Link color={'inherit'} underline={'hover'} target={'_blank'}
+                      href={`https://idleontoolbox.com?profile=${entry?.mainChar}`}>{entry?.mainChar}</Link>
+              </Typography>
               <Typography textAlign={'center'}>{notateNumber(entry?.[sectionName])}</Typography>
             </Stack>
           </TextWrapper>

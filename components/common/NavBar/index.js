@@ -17,7 +17,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const NavBar = ({ children }) => {
-  const { dispatch } = useContext(AppContext);
+  const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
@@ -46,6 +46,9 @@ const NavBar = ({ children }) => {
           {!isProd ? <IconButton color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
+          {state?.profile && state?.characters?.[0]?.name
+            ? <Typography variant={'caption'}>Inspecting {state?.characters?.[0]?.name}</Typography>
+            : null}
           <LoginButton/>
         </Toolbar>
       </AppBar>

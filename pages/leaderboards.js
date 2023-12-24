@@ -1,4 +1,4 @@
-import { CircularProgress, Link, Stack, Typography } from '@mui/material';
+import { Card, CardContent, CircularProgress, Stack, Typography } from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
 import React, { useContext, useEffect } from 'react';
@@ -31,8 +31,21 @@ const Leaderboards = () => {
       title="Idleon Toolbox | Leaderboards"
       description="Leaderboards for Idleon MMO"
     />
-    <Typography textAlign={'center'} variant={'h1'}>Leaderboards</Typography>
-    <Typography textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* To participate in the leaderboards, please upload your profile with leaderboard consent.</Typography>
+    <Typography textAlign={'center'}
+                variant={'h2'}>Leaderboards</Typography>
+    <Typography mb={3} textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* To participate
+      in the
+      leaderboards, please upload your profile with leaderboard consent.</Typography>
+    {leaderboards?.general?.totalMoney?.length ? <Card variant={'outlined'} sx={{
+      width: 'fit-content',
+      margin: '16px auto',
+      borderColor: 'success.light'
+    }}>
+      <CardContent sx={{ '&:last-child': { p: 1 } }}>
+        <Typography textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>Uploaded
+          accounts: {leaderboards?.general?.totalMoney?.length}</Typography>
+      </CardContent>
+    </Card> : null}
     {!leaderboards ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack> : error ?
       <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
         tabs={['General', 'Tasks', 'Skills']}>
