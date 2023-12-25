@@ -8,6 +8,17 @@ export const patchNotes = [
     gameVer: '1.92',
     date: '24/12/2023',
     features: [
+      'Added condensed view for the stamps page',
+      'Added an alert for when a character has unspent anvil points'
+    ],
+    fixes: [
+    ]
+  },
+  {
+    ver: '3.2.33',
+    gameVer: '1.92',
+    date: '24/12/2023',
+    features: [
       <Typography>Added <Link
         href={'https://idleontoolbox.com/leaderboards'}>leaderboards</Link> page</Typography>,
       'To participate in the leaderboards, please upload your profile with leaderboard consent.'

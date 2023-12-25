@@ -122,6 +122,7 @@ const baseTrackers = {
     anvil: {
       checked: true,
       options: [
+        { name: 'unspentPoints', checked: true },
         { name: 'missingHammers', checked: true },
         { name: 'anvilOverdue', checked: true },
         { name: 'showAlertBeforeFull', checked: true, category: 'anvil overdue' }
@@ -197,7 +198,6 @@ const Dashboard = () => {
       characters: charactersHasDiff ? baseTrackers?.characters : state?.trackers?.characters
     })
   }, []);
-
   const handleConfigChange = (updatedConfig) => {
     setConfig(updatedConfig);
     dispatch({ type: 'trackers', data: updatedConfig })

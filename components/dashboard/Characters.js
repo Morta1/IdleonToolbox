@@ -99,6 +99,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.anvil && alerts?.anvil?.missingHammers > 0 ?
                 <Alert title={`${name} is missing ${alerts?.anvil?.missingHammers} hammers`}
                        iconPath={'data/GemP1'}/> : null}
+              {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
+                <Alert title={`${name} have ${alerts?.anvil?.unspentPoints} unspent points anvil points`}
+                       iconPath={'data/ClassIcons43'}/> : null}
               {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
                 alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
                   const isFull = diff <= 0;

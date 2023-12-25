@@ -18,6 +18,9 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
     const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
     alerts.missingHamemrs = maxProducts - numOfHammers;
   }
+  if (options?.anvil?.unspentPoints?.checked) {
+    alerts.unspentPoints = character?.anvil?.anvilStats?.availablePoints;
+  }
   if (options?.anvil?.anvilOverdue?.checked) {
     const { anvil: anvilOption } = options || {};
     const {

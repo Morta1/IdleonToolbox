@@ -27,6 +27,8 @@ const Stamps = () => {
   const [stampReducerInput, setStampReducerInput] = useState(stampReducer);
   const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
   const [subtractGreenStacks, setSubtractGreenStacks] = useState(false);
+  const [condenseView, setCondenseView] = useState(false);
+
   const getStamps = () => {
     const stampCategory = Object.keys(state?.account?.stamps)?.[selectedTab];
     return state?.account?.stamps?.[stampCategory];
@@ -123,6 +125,11 @@ const Stamps = () => {
         </CardTitleAndValue>
         <Stack sx={{ mx: 2 }}>
           <FormControlLabel
+            control={<Checkbox name={'mini'} checked={condenseView}
+                               size={'small'}
+                               onChange={() => setCondenseView(!condenseView)}/>}
+            label={'Condense view'}/>
+          <FormControlLabel
             control={<Checkbox name={'mini'}
                                checked={subtractGreenStacks}
                                onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
@@ -180,10 +187,10 @@ const Stamps = () => {
               <Card sx={{
                 overflow: 'visible',
                 position: 'relative',
-                width: 230,
+                width: condenseView ? 150 : 230,
                 border: hasMaterials && hasMoney && hasCharacter && level > 0 ? '1px solid #81c784' : ''
               }}>
-                <CardContent sx={{ '&:last-child': { paddingBottom: 4 } }}>
+                <CardContent sx={{ '&:last-child': { paddingBottom: 4, ...(condenseView && { p: 0 }) } }}>
                   {level > 0 ? <RequirementsWrapper>
                     {!hasMaterials ? <HtmlTooltip title={<>
                       <Typography>Not enough {cleanUnderscore(itemReq?.[0]?.name)}</Typography>
@@ -202,7 +209,11 @@ const Stamps = () => {
                   </RequirementsWrapper> : null}
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack alignItems={'center'}>
-                      <HtmlTooltip title={<StampTooltip {...{ ...stamp, goalLevel, goalBonus }}/>}>
+                      <HtmlTooltip
+                        dark={condenseView}
+                        title={condenseView ? <StampFullDetails itemRequirements={itemRequirements}
+                                                                goalBonus={goalBonus} bestCharacter={bestCharacter}/> :
+                          <StampTooltip {...{ ...stamp, goalLevel, goalBonus }}/>}>
                         <StampIcon width={48} height={48}
                                    level={level}
                                    src={`${prefix}data/${rawName}.png`}
@@ -210,34 +221,16 @@ const Stamps = () => {
                       </HtmlTooltip>
                       <Typography variant={'body1'}>Lv. {level}</Typography>
                     </Stack>
-                    <TextField type={'number'}
-                               sx={{ width: 90 }}
-                               defaultValue={goalLevel}
-                               onChange={(e) => handleGoalChange(e, index)}
-                               label={'Goal'} variant={'outlined'} inputProps={{ min: level || 0 }}/>
+                    {!condenseView
+                      ? <TextField type={'number'}
+                                   sx={{ width: 90 }}
+                                   defaultValue={goalLevel}
+                                   onChange={(e) => handleGoalChange(e, index)}
+                                   label={'Goal'} variant={'outlined'} inputProps={{ min: level || 0 }}/>
+                      : null}
                   </Stack>
-                  {itemRequirements?.map(({ rawName, name, materialCost, isMaterialCost, goldCost }, itemIndex) => {
-                    return <Stack gap={1} mt={2} key={`${rawName}-${name}-${itemIndex}`}>
-                      <Stack gap={2} justifyContent={'center'}
-                             direction={'row'} alignItems={'center'}>
-                        <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
-                        <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
-                        <HtmlTooltip
-                          title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity)
-                            ? 0
-                            : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
-                          <Stack direction="row" alignItems={'center'} gap={1}>
-                            <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
-                                      alt=""/>
-
-                            {materialCost ? notateNumber(materialCost, 'Big') : null}
-                          </Stack>
-                        </HtmlTooltip>
-                      </Stack>
-                      <CoinDisplay title={''}
-                                   money={getCoinsArray(goldCost)}/>
-                    </Stack>
-                  })}
+                  {!condenseView &&
+                    <Info itemRequirements={itemRequirements} goalBonus={goalBonus} bestCharacter={bestCharacter}/>}
                 </CardContent>
               </Card>
             </React.Fragment>
@@ -247,6 +240,43 @@ const Stamps = () => {
     </div>
   );
 };
+
+const Info = ({ itemRequirements, goalBonus, bestCharacter }) => {
+  return itemRequirements?.map(({
+                                  rawName,
+                                  name,
+                                  materialCost,
+                                  isMaterialCost,
+                                  goldCost
+                                }, itemIndex) => {
+    return <Stack gap={1} mt={2} key={`${rawName}-${name}-${itemIndex}`}>
+      <Stack gap={2} justifyContent={'center'}
+             direction={'row'} alignItems={'center'}>
+        <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
+        <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
+        <HtmlTooltip
+          title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity)
+            ? 0
+            : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
+          <Stack direction="row" alignItems={'center'} gap={1}>
+            <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
+                      alt=""/>
+
+            {materialCost ? notateNumber(materialCost, 'Big') : null}
+          </Stack>
+        </HtmlTooltip>
+      </Stack>
+      <CoinDisplay title={''}
+                   money={getCoinsArray(goldCost)}/>
+    </Stack>
+  })
+}
+
+const StampFullDetails = ({ itemRequirements, goalBonus, bestCharacter }) => {
+  return <>
+    <Info itemRequirements={itemRequirements} goalBonus={goalBonus} bestCharacter={bestCharacter}/>
+  </>
+}
 
 const RequirementsWrapper = styled.div`
   display: flex;

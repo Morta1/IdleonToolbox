@@ -1,13 +1,14 @@
 import { Tooltip, tooltipClasses } from '@mui/material';
 import styled from '@emotion/styled';
 
-const HtmlTooltip = styled(({ className, children, followCursor = true, ...props }) => (
+const HtmlTooltip = styled(({ className, children, followCursor = true, dark, ...props }) => (
   <Tooltip followCursor={followCursor} enterTouchDelay={200} {...props}
+           dark={dark}
            classes={{ popper: className }}>{children}</Tooltip>
-))(({ theme }) => ({
+))(({ theme, dark }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: '#d5d5dc',
-    color: 'rgba(0, 0, 0, 0.87)',
+    backgroundColor: dark ? '#222831' : '#d5d5dc',
+    color: dark ? 'white' : 'black',
     maxWidth: 320,
     fontSize: theme.typography.pxToRem(14),
     border: '1px solid #dadde9',

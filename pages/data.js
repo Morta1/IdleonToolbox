@@ -42,6 +42,7 @@ const Data = () => {
 
   useEffect(() => {
     if (state?.uid) {
+      console.log('state?.uid', state?.uid)
       setLastUpload(localStorage.getItem(`${state?.uid}/lastUpload`));
       setLeaderboardConsent(localStorage.getItem(`${state?.uid}/leaderboardConsent`) === 'true');
     }
@@ -107,10 +108,7 @@ const Data = () => {
         localStorage.setItem(`${state?.uid}/lastUpload`, now);
         setLastUpload(now);
       } catch (err) {
-        console.error(err);
-        setError('Error has occurred while uploading profile');
-        // localStorage.removeItem(`${state?.uid}/lastUpload`);
-        // setLastUpload(null);
+        setError(err);
       }
       setLoading(false)
     }

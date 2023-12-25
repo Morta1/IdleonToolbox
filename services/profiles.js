@@ -1,7 +1,7 @@
 import { tryToParse } from '../utility/helpers';
 
-const url = 'https://profiles.idleontoolbox.workers.dev/api';
-// const url = 'http://localhost:8787/api';
+// const url = 'https://profiles.idleontoolbox.workers.dev/api';
+const url = 'http://localhost:8787/api';
 export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);
@@ -13,10 +13,18 @@ export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token)
         'Authorization': token
       }
     });
+    if (response?.status !== 200) {
+      throw response;
+    }
     return response;
   } catch (err) {
-    console.error(`${__filename} -> Error has occurred while uploading profile`);
-    throw err;
+    console.error('Error has occurred: ', err);
+    if (err?.status === 429) {
+      throw 'You have uploaded your profile in the past 4 hours. Please wait until the cooldown is over.'
+    } else if (err?.status === 500 || err?.status === 400) {
+      throw 'An error has occurred while uploading your profile. Please try again later.'
+    }
+    throw 'An error has occurred while uploading your profile. Please try again later.';
   }
 }
 
