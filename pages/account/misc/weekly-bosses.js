@@ -10,7 +10,7 @@ const WeeklyBosses = () => {
   const weeklyBosses = getWeeklyBoss(state?.account);
 
   return weeklyBosses?.length ? <>
-    <Typography variant={'h1'} sx={{ mb: 3 }}>Random Events</Typography>
+    <Typography variant={'h1'} sx={{ mb: 3 }}>Weekly bosses</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {weeklyBosses?.map((boss, index) => {
         return <Card key={'events' + index} sx={{ width: 250 }}>
