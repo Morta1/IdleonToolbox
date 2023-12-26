@@ -42,7 +42,6 @@ const Data = () => {
 
   useEffect(() => {
     if (state?.uid) {
-      console.log('state?.uid', state?.uid)
       setLastUpload(localStorage.getItem(`${state?.uid}/lastUpload`));
       setLeaderboardConsent(localStorage.getItem(`${state?.uid}/leaderboardConsent`) === 'true');
     }

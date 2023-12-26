@@ -13,7 +13,7 @@ const Apocalypses = () => {
   const [filteredCharacters, setFilteredCharacters] = useState([0]);
 
   const handleFilteredCharacters = (event, newCharacters) => {
-    setFilteredCharacters(newCharacters)
+    newCharacters?.length > 0 && setFilteredCharacters(newCharacters)
   };
 
   const handleSelectAll = () => {

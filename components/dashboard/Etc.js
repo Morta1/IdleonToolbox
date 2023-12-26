@@ -3,7 +3,7 @@ import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { getRealDateInMs, notateNumber, prefix } from '../../utility/helpers';
-import { getGiantMobChance, getRandomEvents } from '../../parsers/misc';
+import { getGiantMobChance, getRandomEvents, getRandomWeeklyBoss, getWeeklyBoss } from '../../parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import Trade from '../account/Worlds/World5/Sailing/Trade';
@@ -12,6 +12,7 @@ import { calcHappyHours } from '../../parsers/dungeons';
 import { getBuildCost } from '../../parsers/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '../../parsers/worship';
 import { getAtomBonus } from '../../parsers/atomCollider';
+import WeeklyBoss from '../account/Misc/WeeklyBoss';
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -19,6 +20,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
+  const weeklyBosses = useMemo(() => getWeeklyBoss(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim))
@@ -76,6 +78,19 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </Stack>
         </CardContent>
       </Card> : null}
+      {account?.finishedWorlds?.World1 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
+        <CardContent>
+          <Stack alignItems={'center'} gap={2}>
+            {weeklyBosses?.map((boss, index) => {
+              if (index > 2) return;
+              return <Fragment key={'weekly-bosses' + index}>
+                <WeeklyBoss {...boss}/>
+                <Divider flexItem/>
+              </Fragment>
+            })}
+          </Stack>
+        </CardContent>
+      </Card> : null}
       {account?.finishedWorlds?.World4 ? <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
         <CardContent>
           <Stack alignItems={'center'} gap={2}>
@@ -89,6 +104,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </Stack>
         </CardContent>
       </Card> : null}
+
       {account?.finishedWorlds?.World2 ?
         <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
           <CardContent>

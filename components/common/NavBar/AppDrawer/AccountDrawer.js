@@ -18,6 +18,7 @@ const worldsData = {
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'constellations', icon: 'data/StarTitle1' },
       { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
+      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
       { label: 'guild', icon: 'etc/Guild' },
     ],
   },
@@ -91,9 +92,10 @@ const worldsData = {
     ]
   },
   'world 6': {
-    icon: 'etc/farming-temp',
+    icon: 'etc/sneaking-temp',
     categories: [
       { label: 'farming', icon: 'etc/farming-temp' },
+      { label: 'sneaking', icon: 'etc/sneaking-temp' },
     ]
   }
 };

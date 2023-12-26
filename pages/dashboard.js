@@ -11,6 +11,7 @@ import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '../parsers/shops';
 import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
+import { getRandomWeeklyBoss } from '../parsers/misc';
 
 const baseTrackers = {
   account: {

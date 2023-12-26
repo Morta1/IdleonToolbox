@@ -1,6 +1,15 @@
 import { lavaLog, tryToParse } from '../utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
-import { classFamilyBonuses, companions, items, mapNames, randomList, rawMapNames, slab } from '../data/website-data';
+import {
+  classFamilyBonuses,
+  companions,
+  items,
+  mapNames,
+  randomList,
+  rawMapNames,
+  slab,
+  weeklyBosses
+} from '../data/website-data';
 import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
@@ -451,6 +460,26 @@ export const getGoldenFoodBonus = (foodName, character, account) => {
   if (!goldenFood?.Amount || !goldenFood?.amount) return 0;
   return goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
 };
+
+
+const getBossId = (seed) => {
+  return Math.max(0, Math.min(weeklyBosses?.length - 1, Math.floor((seed / 1e3) * weeklyBosses?.length)))
+}
+
+export const getWeeklyBoss = (account) => {
+  if (!account) return [];
+  const seed = Math.round(Math.floor(account?.timeAway?.GlobalTime / 604800));
+  const weeklyBossesList = []
+  for (let i = 0; i < 40; i++) {
+    const rng = new LavaRand(seed + i);
+    const random = Math.floor(rng.rand() * 1e3);
+    const bossId = getBossId(random);
+    const { bossName } = weeklyBosses?.[bossId] || {};
+    const dateInMs = Math.floor((seed + i) * 604800 * 1000);
+    weeklyBossesList.push({ bossName, date: new Date(dateInMs) });
+  }
+  return weeklyBossesList;
+}
 
 export const getRandomEvents = (account) => {
   if (!account) return [];

@@ -120,7 +120,7 @@ const Buildings = () => {
     <Stack direction={'row'} alignItems="center" gap={3} flexWrap={'wrap'} mb={2}>
       <Box>
         <Typography>Sort by</Typography>
-        <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => setSortBy(newSort)}>
+        <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => newSort?.length > 0 && setSortBy(newSort)}>
           <ToggleButton value={'order'}>Order</ToggleButton>
           <ToggleButton value={'time'}>Time left</ToggleButton>
           <ToggleButton value={'requirement'}>Build cost</ToggleButton>

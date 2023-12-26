@@ -4,7 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
-    ver: '3.2.33',
+    ver: '3.2.35',
+    gameVer: '1.92',
+    date: '26/12/2023',
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/misc/weekly-bosses'}>weekly bosses</Link> page and added them to the dashboard as well</Typography>
+    ],
+    fixes: [
+    ]
+  },
+  {
+    ver: '3.2.34',
     gameVer: '1.92',
     date: '24/12/2023',
     features: [
