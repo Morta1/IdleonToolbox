@@ -38,7 +38,7 @@ const Mutations = ({ account }) => {
         }}>
           <CardContent>
             <Stack direction={'row'} gap={2} alignItems={'center'}>
-              <img style={{ width: 48, height: 48, objectFit: 'contain' }} src={`${prefix}etc/Mutation_${index}.png`}/>
+              <img style={{ width: 48, height: 48, objectFit: 'contain' }} src={`${prefix}etc/Mutation_${index}.png`} alt={''}/>
               <Typography variant={'body1'}>{name}</Typography>
             </Stack>
             <Typography mt={2} variant={'body2'}>{cleanUnderscore(description.replaceAll('|', ' '))}</Typography>

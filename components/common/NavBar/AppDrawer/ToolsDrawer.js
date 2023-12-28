@@ -26,6 +26,9 @@ const tools = {
   'materialTracker': {
     icon: 'Refinery1'
   },
+  'guaranteedDropCalculator': {
+    icon: 'TreeInterior1b'
+  }
 };
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };

@@ -54,24 +54,18 @@ const NavBar = ({ children }) => {
       </AppBar>
     </Box>
     <AppDrawer permanent/>
-    <Box sx={{
-      textAlign: 'center',
-      pt: 1,
+    <Box sx={{ textAlign: 'center', pt: 1, pr: 3, pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 } }}>
+      <Typography component={'div'} variant={'caption'} sx={{ fontSize: 15 }}>
+        * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
+        valuable content for all users <FavoriteIcon color={'error'} sx={{ fontSize: 12 }}/>
+      </Typography>
+    </Box>
+    <Box component={'main'} sx={{
+      pt: 3,
       pr: 3,
       pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
-    }}><Typography component={'div'} variant={'caption'} sx={{ fontSize: 15 }}>
-      * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
-      valuable content for all users <FavoriteIcon color={'error'}
-                                                   sx={{ fontSize: 12 }}/>
-    </Typography></Box>
-    <Box
-      sx={{
-        pt: 3,
-        pr: 3,
-        pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
-        mb: isXs ? '75px' : '110px'
-      }}
-      component={'main'}>
+      mb: isXs ? '75px' : '110px'
+    }}>
       {children}
     </Box>
     <Box

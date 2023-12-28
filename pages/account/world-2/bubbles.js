@@ -16,17 +16,18 @@ import styled from '@emotion/styled';
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import debounce from 'lodash.debounce';
-import { isArtifactAcquired } from '../../../parsers/sailing';
+import { isArtifactAcquired } from '@parsers/sailing';
 import { NextSeo } from 'next-seo';
-import { getBubbleAtomCost, getBubbleBonus, getMaxCauldron, getVialsBonusByStat } from '../../../parsers/alchemy';
+import { getBubbleAtomCost, getBubbleBonus, getMaxCauldron, getVialsBonusByStat } from '@parsers/alchemy';
 import Box from '@mui/material/Box';
 import Tabber from '../../../components/common/Tabber';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 
 const Bubbles = () => {
   const { state } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
+  const [condenseView, setCondenseView] = useState(false);
   const [bargainTag, setBargainTag] = useState(0);
   const [effThreshold, setEffThreshold] = useState(75);
   const [selectedTab, setSelectedTab] = useState(0);
@@ -204,12 +205,19 @@ const Bubbles = () => {
               account={state?.account}/>
       </Box>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
-        <Stack gap={1}>
+        <Stack>
+          <FormControlLabel
+            control={<Checkbox checked={condenseView} onChange={() => setCondenseView(!condenseView)}/>}
+            name={'Condense view'}
+            label="Condense view"/>
           {Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab] !== 'kazam' ?
             <FormControlLabel
               control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
               name={'classDiscount'}
               label="Class Discount"/> : null}
+        </Stack>
+        <Stack gap={1}>
+
 
           <TextField sx={{ width: 150 }}
                      label={'Efficiency threshold'}
@@ -230,14 +238,6 @@ const Bubbles = () => {
                        </InputAdornment>
                      }}/>
         </Stack>
-        {/*<Card sx={{ alignItems: 'center', display: 'flex', height: 'fit-content', p: 3 }}>*/}
-        {/*  <CardContent sx={{ '&:last-child': { px: 1, py: { xs: 1, sm: 0 } }, width: 200 }}>*/}
-        {/*    <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1}>*/}
-        {/*      <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>*/}
-        {/*      <Typography>Alternate particle upgrades left: {state?.account?.accountOptions?.[135]}</Typography>*/}
-        {/*    </Stack>*/}
-        {/*  </CardContent>*/}
-        {/*</Card>*/}
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Particle upgrades'}
                            value={state?.account?.accountOptions?.[135] || '0'}/>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Total bubbles'}>
@@ -262,96 +262,61 @@ const Bubbles = () => {
             const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
             return <React.Fragment key={rawName + '' + bubbleName + '' + index}>
               <Card sx={{
-                width: 330,
+                width: condenseView ? 100 : 330,
                 border: bubbleMaxBonus && effectHardCapPercent >= effThreshold ? '1px solid' : '',
                 borderColor: 'success.main'
               }}>
                 <CardContent>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack alignItems={'center'}>
-                      <HtmlTooltip title={<BubbleTooltip {...{ ...bubble, goalLevel }}/>}>
+                      <HtmlTooltip
+                        dark={condenseView}
+                        title={condenseView ? <AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus}
+                                                              goalBonus={goalBonus}
+                                                              cauldron={cauldron}
+                                                              effectHardCapPercent={effectHardCapPercent}
+                                                              itemReq={itemReq}
+                                                              accumulatedCost={accumulatedCost}
+                                                              account={state?.account}
+                                                              level={level}
+                                                              index={index}
+                                                              bubble={bubble}
+                                                              goalLevel={goalLevel}
+                        /> : <BubbleTooltip {...{
+                          ...bubble,
+                          goalLevel
+                        }}/>}>
                         <BubbleIcon width={48} height={48}
                                     level={level}
                                     src={`${prefix}data/${rawName}.png`}
                                     alt=""/>
                       </HtmlTooltip>
-                      <Typography
-                        variant={'caption'}>Lv. {level}</Typography>
-                      <Typography variant={'caption'}>{cleanUnderscore(bubbleName)}</Typography>
-
-                    </Stack>
-                    <TextField type={'number'}
-                               sx={{ width: 90 }}
-                               defaultValue={goalLevel}
-                               onChange={(e) => handleGoalChange(e, cauldron, index)}
-                               label={'Goal'} variant={'outlined'} inputProps={{ min: level || 0 }}/>
-                  </Stack>
-                  <Stack mt={1.5} direction={'row'} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
-                    <Stack gap={2} justifyContent={'center'}
-                           alignItems={'center'}>
-                      <HtmlTooltip title={'Bubble\'s effect'}>
-                        <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
-                      </HtmlTooltip>
-                      <HtmlTooltip
-                        title={bubbleMaxBonus
-                          ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}`
-                          : ''}>
-                        <Typography>{goalBonus} {bubbleMaxBonus
-                          ? `(${notateNumber(effectHardCapPercent)}%)`
-                          : ''}</Typography>
-                      </HtmlTooltip>
-
-                    </Stack>
-                    {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
-                      if (rawName === 'Blank' || rawName === 'ERROR') return null;
-                      const {
-                        singleLevelCost,
-                        total
-                      } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
-                      const x1Extension = ['sail', 'bits'];
-                      const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
-                        ? `${rawName}_x1`
-                        : rawName;
-                      const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
-                      let amount;
-                      if (rawName.includes('Liquid')) {
-                        const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
-                        amount = state?.account?.alchemy?.liquids?.[liquids?.[rawName]];
-                      } else if (rawName.includes('Bits')) {
-                        amount = state?.account?.gaming?.bits;
-                      } else if (rawName.includes('Sail')) {
-                        amount = state?.account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
-                      } else {
-                        amount = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
-                      }
-                      return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
-                        {atomCost ? <Stack gap={2} alignItems={'center'}>
-                            <Tooltip title={<Typography
-                              color={state?.account?.atoms?.particles > atomCost
-                                ? 'success.light'
-                                : ''}>{Math.floor(state?.account?.atoms?.particles)} / {atomCost}</Typography>}>
-                              <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
-                            </Tooltip>
-                            <HtmlTooltip title={atomCost}>
-                              <Typography>{notateNumber(atomCost, 'Big')}</Typography>
-                            </HtmlTooltip></Stack>
+                      <Stack alignItems={'center'} justifyContent={'center'}>
+                        <Typography
+                          variant={'caption'}>Lv. {level}</Typography>
+                        {!condenseView
+                          ? <Typography variant={'caption'}>{cleanUnderscore(bubbleName)}</Typography>
                           : null}
-                        <Stack gap={2} justifyContent={'center'}
-                               alignItems={'center'}>
-                          <HtmlTooltip title={cleanUnderscore(name)}>
-                            <ItemIcon src={`${prefix}data/${itemName}.png`}
-                                      alt=""/>
-                          </HtmlTooltip>
-                          <Tooltip
-                            title={<Typography color={amount >= total
-                              ? 'success.light'
-                              : ''}>{notateNumber(amount, 'Big')} / {notateNumber(total, 'Big')}</Typography>}>
-                            <Typography>{notateNumber(total, 'Big')}</Typography>
-                          </Tooltip>
-                        </Stack>
                       </Stack>
-                    })}
+                    </Stack>
+                    {!condenseView
+                      ? <TextField type={'number'}
+                                   sx={{ width: 90 }}
+                                   defaultValue={goalLevel}
+                                   onChange={(e) => handleGoalChange(e, cauldron, index)}
+                                   label={'Goal'} variant={'outlined'} inputProps={{ min: level || 0 }}/>
+                      : null}
                   </Stack>
+                  {!condenseView ? <AdditionalInfo bubbleMaxBonus={bubbleMaxBonus}
+                                                   goalBonus={goalBonus}
+                                                   cauldron={cauldron}
+                                                   effectHardCapPercent={effectHardCapPercent}
+                                                   itemReq={itemReq}
+                                                   accumulatedCost={accumulatedCost}
+                                                   account={state?.account}
+                                                   level={level}
+                                                   index={index}
+                  /> : null}
                 </CardContent>
               </Card>
             </React.Fragment>
@@ -361,6 +326,93 @@ const Bubbles = () => {
     </>
   );
 };
+
+const AdditionalInfo = ({
+                          tooltip,
+                          bubbleMaxBonus,
+                          goalBonus,
+                          effectHardCapPercent,
+                          itemReq,
+                          accumulatedCost,
+                          index,
+                          level,
+                          cauldron,
+                          account,
+                          bubble,
+                          goalLevel
+                        }) => {
+  console.log('1')
+  return <Stack mt={1.5} direction={'row'} justifyContent={'center'} gap={3}
+                flexWrap={'wrap'}>
+    {tooltip ? <BubbleTooltip {...{
+      ...bubble,
+      goalLevel
+    }}/> : null}
+    <Stack gap={2} justifyContent={'center'}
+           alignItems={'center'}>
+      <HtmlTooltip title={'Bubble\'s effect'}>
+        <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
+      </HtmlTooltip>
+      <HtmlTooltip
+        title={bubbleMaxBonus
+          ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}`
+          : ''}>
+        <Typography>{goalBonus} {bubbleMaxBonus
+          ? `(${notateNumber(effectHardCapPercent)}%)`
+          : ''}</Typography>
+      </HtmlTooltip>
+    </Stack>
+    {itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
+      if (rawName === 'Blank' || rawName === 'ERROR') return null;
+      const {
+        singleLevelCost,
+        total
+      } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
+      const x1Extension = ['sail', 'bits'];
+      const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
+        ? `${rawName}_x1`
+        : rawName;
+      const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+      let amount;
+      if (rawName.includes('Liquid')) {
+        const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
+        amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
+      } else if (rawName.includes('Bits')) {
+        amount = account?.gaming?.bits;
+      } else if (rawName.includes('Sail')) {
+        amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
+      } else {
+        amount = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+      }
+      return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
+        {atomCost ? <Stack gap={2} alignItems={'center'}>
+            <Tooltip title={<Typography
+              color={account?.atoms?.particles > atomCost
+                ? 'success.light'
+                : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
+              <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
+            </Tooltip>
+            <HtmlTooltip title={atomCost}>
+              <Typography>{notateNumber(atomCost, 'Big')}</Typography>
+            </HtmlTooltip></Stack>
+          : null}
+        <Stack gap={2} justifyContent={'center'}
+               alignItems={'center'}>
+          <HtmlTooltip title={cleanUnderscore(name)}>
+            <ItemIcon src={`${prefix}data/${itemName}.png`}
+                      alt=""/>
+          </HtmlTooltip>
+          <Tooltip
+            title={<Typography color={amount >= total
+              ? 'success.light'
+              : ''}>{notateNumber(amount, 'Big')} / {notateNumber(total, 'Big')}</Typography>}>
+            <Typography>{notateNumber(total, 'Big')}</Typography>
+          </Tooltip>
+        </Stack>
+      </Stack>
+    })}
+  </Stack>
+}
 
 const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
   return <Stack justifyContent={'center'} alignItems={'center'}>

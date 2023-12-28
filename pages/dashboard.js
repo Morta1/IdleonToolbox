@@ -1,17 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import { Box, Stack, Typography, useMediaQuery } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
-import { isProd } from '../utility/helpers';
+import { isProd } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '../parsers/shops';
 import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
-import { getRandomWeeklyBoss } from '../parsers/misc';
+import { CONTENT_PERCENT_SIZE } from '@utility/consts';
+import Timer from '@components/common/Timer';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const baseTrackers = {
   account: {
@@ -103,7 +105,7 @@ const baseTrackers = {
       checked: true,
       options: [
         { name: 'dungeonTraits', checked: true },
-        { name: 'materialTracker', checked: true},
+        { name: 'materialTracker', checked: true },
         { name: 'randomEvents', checked: true },
         { name: 'gildedStamps', checked: true },
         { name: 'keys', checked: true },
@@ -187,6 +189,9 @@ const Dashboard = () => {
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
+  const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
+  const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
+
   useEffect(() => {
     const accountHasDiff = state?.trackers?.account
       ? Object.keys(baseTrackers?.account).length !== Object.keys(state?.trackers?.account).length
@@ -209,12 +214,22 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack direction="row" gap={2} justifyContent={'space-between'}>
-      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : '78%' }}>
+      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
         <Stack direction={'row'} alignItems={'center'} gap={3}>
           <Typography variant={'h2'}>Dashboard</Typography>
           <IconButton title={'Configure alerts'} onClick={() => setOpen(true)}>
             <SettingsIcon/>
           </IconButton>
+        </Stack>
+        <Stack mb={1} mt={'4px'} gap={2} direction={'row'} flexWrap={'wrap'}>
+          <CardTitleAndValue cardSx={{ my: 0 }} title={'Daily Reset'}>
+            <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                   date={dailyReset}/>
+          </CardTitleAndValue>
+          <CardTitleAndValue cardSx={{ my: 0 }} title={'Weekly Reset'}>
+            <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                   date={weeklyReset}/>
+          </CardTitleAndValue>
         </Stack>
         <Stack gap={2}>
           <Account trackers={config?.account} characters={characters}

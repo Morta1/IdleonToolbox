@@ -110,7 +110,7 @@ const MaterialTracker = () => {
             return tag.map((option, index) => (
               <Chip
                 key={index}
-                icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`}/>}
+                icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={''}/>}
                 label={option?.displayName?.replace(/_/g, ' ')}
                 {...getTagProps({ index })}
               />

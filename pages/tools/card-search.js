@@ -8,10 +8,11 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { CardAndBorder } from 'components/common/styles';
 import { NextSeo } from 'next-seo';
 import { Adsense } from '@ctrl/react-adsense';
+import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 
-const categoriesOrder = ["Card Sets", "Blunder_Hills", "Yum_Yum_Desert", "Easy_Resources",
-  "Medium_Resources", "Frostbite_Tundra", "Hard_Resources", 'Hyperion_Nebula', "Smolderin'_Plateau", "Dungeons",
-  "Bosses", "Events"];
+const categoriesOrder = ['Card Sets', 'Blunder_Hills', 'Yum_Yum_Desert', 'Easy_Resources',
+  'Medium_Resources', 'Frostbite_Tundra', 'Hard_Resources', 'Hyperion_Nebula', 'Smolderin\'_Plateau', 'Dungeons',
+  'Bosses', 'Events'];
 
 const additionalEffects = {
   choppin: [stats.BaseWIS, stats.SkillAFKgainrate],
@@ -23,13 +24,13 @@ const additionalEffects = {
   'drop rate': [stats.BaseLUK],
   'card drop': [stats.BaseLUK, stats.TotalDropRate],
   'monster exp': [stats.EXPfrommonsters],
-  dungeon: [stats.BlockChance, stats.RNGitemrarity, stats["tostartwithRNGorb(Passive)"]],
+  dungeon: [stats.BlockChance, stats.RNGitemrarity, stats['tostartwithRNGorb(Passive)']],
   worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP]
 }
 
 export default function CardSearch() {
   const { state } = useContext(AppContext);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
@@ -54,7 +55,7 @@ export default function CardSearch() {
     'Catching',
     'Trapping',
     'Worship',
-    "Accuracy",
+    'Accuracy',
     'Card Drop',
     'Drop Rate',
     'Monster Exp',
@@ -88,13 +89,13 @@ export default function CardSearch() {
         title="Idleon Toolbox | Card Search"
         description="Card search and filter by various tags e.g. Choppin, Catching, Worship, Attack etc"
       />
-      <Stack direction='row' gap={2} justifyContent={'space-between'}>
-        <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : '78%' }}>
+      <Stack direction="row" gap={2} justifyContent={'space-between'}>
+        <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
           <Main>
             <StyledTextField
               InputProps={{
                 endAdornment: (
-                  <StyledInputAdornment onClick={() => setValue("")} position="end">
+                  <StyledInputAdornment onClick={() => setValue('')} position="end">
                     <ClearIcon/>
                   </StyledInputAdornment>
                 ),
@@ -115,12 +116,12 @@ export default function CardSearch() {
                     maxWidth: 150,
                     border: '1px solid gray'
                   }}
-                  key={stat + "" + index}
+                  key={stat + '' + index}
                   size="small"
                   variant="outlined"
                   label={stat}
                   onClick={() => {
-                    setValue(stat === "Show All" ? "" : stat);
+                    setValue(stat === 'Show All' ? '' : stat);
                   }}
                 />
               ))}
@@ -133,7 +134,7 @@ export default function CardSearch() {
                   if (!cardsArr || cardsArr?.length === 0) return null;
                   const isCardSets = cardSet === 'Card Sets';
                   return (
-                    <React.Fragment key={cardSet + "" + cardSetIndex}>
+                    <React.Fragment key={cardSet + '' + cardSetIndex}>
                       {isCardSets ? <Typography my={1} variant={'h4'}>Card Sets</Typography> :
                         <img src={`${prefix}etc/${cardSet}_Card_Header.png`}
                              style={{ margin: '15px 0 10px 0' }}
@@ -144,7 +145,7 @@ export default function CardSearch() {
                           const { displayName } = card;
                           const { stars, amount, nextLevelReq } = state?.account?.cards?.[displayName] || {};
                           return (
-                            <div style={{ position: 'relative' }} key={displayName + "" + index}>
+                            <div style={{ position: 'relative' }} key={displayName + '' + index}>
                               <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
                                              variant={isCardSets ? 'cardSet' : ''} showInfo
                                              {...{ ...card, ...(isCardSets ? {} : { stars }) }}

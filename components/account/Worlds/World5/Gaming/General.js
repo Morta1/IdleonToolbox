@@ -1,10 +1,12 @@
 import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '../../../../../utility/helpers';
-import { CardTitleAndValue } from '../../../../common/styles';
-import Tabber from '../../../../common/Tabber';
+import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { CardTitleAndValue } from '@components/common/styles';
+import Tabber from '@components/common/Tabber';
 import Imports from './Imports';
 import Mutations from './Mutations';
+import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
+import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 
 const General = ({
                    account,
@@ -17,7 +19,9 @@ const General = ({
     sproutsCapacity,
     fertilizerUpgrades,
     envelopes,
-    bestNugget
+    bestNugget,
+    superbitsUpgrades,
+    logBook
   } = account?.gaming;
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
@@ -26,6 +30,7 @@ const General = ({
       <ImgCard title={'Best nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
       <ImgCard title={'Drops'} imgSrc={'etc/GamingDrop'} value={availableDrops}/>
       <ImgCard title={'Envelopes'} imgSrc={'etc/GamingEnvelope'} value={envelopes}/>
+      <ImgCard title={'Log book'} imgSrc={'data/GamingPlanth5'} value={`${logBook?.length} / 72`}/>
     </Stack>
 
     <Stack mt={2} mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -45,9 +50,11 @@ const General = ({
         </Card>
       })}
     </Stack>
-    <Tabber tabs={['Imports', 'Mutations']}>
+    <Tabber tabs={['Imports', 'Superbits', 'Mutations', 'Log book']}>
       <Imports account={account} lastUpdated={lastUpdated}/>
+      <Superbits superbits={superbitsUpgrades}/>
       <Mutations account={account} lastUpdated={lastUpdated}/>
+      <LogBook logBook={account?.gaming?.logBook}/>
     </Tabber>
   </>
 };
@@ -56,7 +63,7 @@ const General = ({
 const ImgCard = ({ title, imgSrc, value }) => {
   return <CardTitleAndValue title={title}>
     <Stack direction={'row'} gap={2}>
-      <img src={`${prefix}${imgSrc}.png`} alt=""/>
+      <img style={{ width: 24, height: 24 }} src={`${prefix}${imgSrc}.png`} alt=""/>
       <Typography>{value}</Typography>
     </Stack>
   </CardTitleAndValue>

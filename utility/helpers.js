@@ -1,5 +1,5 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
-import { drawerPages } from '../components/constants';
+import { drawerPages } from '@components/constants';
 
 export const downloadFile = (data, filename) => {
   const blob = new Blob([data], { type: 'text/json' });
@@ -167,10 +167,6 @@ export const kFormatter = (num, digits = 1) => {
   return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
 };
 
-// export const numberWithCommas = (x) => {
-//   if (x === null || x === undefined) return '';
-//   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-// };
 function splitDecimal(numStr, allowNegative = true) {
   const hasNegation = numStr[0] === '-';
   const addNegation = hasNegation && allowNegative;
@@ -402,7 +398,7 @@ export const sections = [{ name: 'Activity' }, { name: 'Stats' }, { name: 'Bags'
   { name: 'Equipment' }, { name: 'Star Signs' }, { name: 'Post Office' }, { name: 'Anvil Details' },
   { name: 'Inventory' },
   { name: 'Chips' },
-  { name: 'Equipped Bubbles' }, { name: 'Active Skills CD' }, ];
+  { name: 'Equipped Bubbles' }, { name: 'Active Skills CD' },];
 
 export const isProd = process.env.NODE_ENV === 'production';
 
@@ -419,11 +415,7 @@ export const shouldDisplayDrawer = (pathname = '') => {
 }
 
 export const getRealDateInMs = (ms, shouldFormat = true) => {
-  let dateInMs = ms;
-  // const date = new Date(ms);
-  // if (date.isDstObserved()) {
-  //   dateInMs -= 3600 * 1000;
-  // }
+  const dateInMs = ms;
   if (shouldFormat) {
     return isValid(new Date(dateInMs)) && format(dateInMs, 'dd/MM/yyyy HH:mm:ss')
   }
@@ -442,6 +434,17 @@ export const fillMissingTalents = (arr) => {
   return arr.concat(missingNumbers).sort((a, b) => a.talentId - b.talentId);
 }
 
+export const removeDuplicatesByKey = (array, key) => {
+  const uniqueKeys = new Set();
+  return array.filter(obj => {
+    const keyValue = obj[key];
+    if (!uniqueKeys.has(keyValue)) {
+      uniqueKeys.add(keyValue);
+      return true;
+    }
+    return false;
+  });
+}
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 export const prefix = isProd ? '/' : '/';
 

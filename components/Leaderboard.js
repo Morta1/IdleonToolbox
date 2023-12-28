@@ -89,11 +89,9 @@ const TopThree = ({ sectionName, topThree }) => {
               justifyContent: 'center',
             }}>
               <img width={index === 2 ? 20 : 24} height={index === 2 ? 20 : 24} style={{ objectFit: 'contain' }}
-                   src={`${prefix}${img}`}/>
+                   src={`${prefix}${img}`} alt={''}/>
             </Box>
           </Stack>
-          {/*<PositionCircle sx={{ m: 'auto' }}>{index + 1}</PositionCircle>*/}
-          {/*<Typography sx={{ m: 'auto' }}>{index + 1}</Typography>*/}
           <TextWrapper outline={entry?.loggedMainChar}>
             <Stack justifyContent={'center'}>
               <Typography textAlign={'center'} sx={{ mt: 'auto' }}>

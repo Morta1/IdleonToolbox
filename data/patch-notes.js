@@ -4,15 +4,31 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.36',
+    gameVer: '1.92',
+    date: '29/12/2023',
+    features: [
+      <Typography><Link
+        href={'https://idleontoolbox.com/account/misc/weekly-bosses'}>weekly bosses</Link> page is now much more
+        detailed</Typography>,
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/tools/guaranteed-drop-calculator'}>guaranteed drop
+        calculator</Link> page</Typography>,
+      'Added log book to gaming page',
+      'Added condense view to bubbles page'
+    ],
+    fixes: []
+  },
+  {
     ver: '3.2.35',
     gameVer: '1.92',
     date: '26/12/2023',
     features: [
       <Typography>Added <Link
-        href={'https://idleontoolbox.com/account/misc/weekly-bosses'}>weekly bosses</Link> page and added them to the dashboard as well</Typography>
+        href={'https://idleontoolbox.com/account/misc/weekly-bosses'}>weekly bosses</Link> page and added them to the
+        dashboard as well</Typography>
     ],
-    fixes: [
-    ]
+    fixes: []
   },
   {
     ver: '3.2.34',
@@ -22,8 +38,7 @@ export const patchNotes = [
       'Added condensed view for the stamps page',
       'Added an alert for when a character has unspent anvil points'
     ],
-    fixes: [
-    ]
+    fixes: []
   },
   {
     ver: '3.2.33',

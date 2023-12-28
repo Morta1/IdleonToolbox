@@ -1,25 +1,24 @@
 import React, { useContext } from 'react';
-import { AppContext } from '../../../components/common/context/AppProvider';
-import {  getWeeklyBoss } from '../../../parsers/misc';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import WeeklyBoss from '../../../components/account/Misc/WeeklyBoss';
+import { AppContext } from '@components/common/context/AppProvider';
+import { getWeeklyBoss } from '../../../parsers/world-2/weeklyBosses';
+import { Typography } from '@mui/material';
+import Tabber from '../../../components/common/Tabber';
+import WeeklyBoss from '../../../components/account/Worlds/World2/WeeklyBoss';
+import { cleanUnderscore } from '@utility/helpers';
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
 
-  const weeklyBosses = getWeeklyBoss(state?.account);
+  const weeklyBosses = getWeeklyBoss(state?.account, state?.characters);
+  console.log('weeklyBosses', weeklyBosses)
 
   return weeklyBosses?.length ? <>
-    <Typography variant={'h1'} sx={{ mb: 3 }}>Weekly bosses</Typography>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {weeklyBosses?.map((boss, index) => {
-        return <Card key={'events' + index} sx={{ width: 250 }}>
-          <CardContent>
-            <WeeklyBoss {...boss} />
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
+    <Typography variant={'h2'} sx={{ mb: 3 }}>Weekly bosses</Typography>
+    <Tabber tabs={weeklyBosses?.map(({ bossName }) => cleanUnderscore(bossName))}>
+      {weeklyBosses?.map((boss, index) => <WeeklyBoss key={boss?.bossName + index} {...boss}
+                                                      account={state?.account}
+                                                      characters={state?.characters}/>)}
+    </Tabber>
   </> : <div>There is no random event data</div>
 };
 

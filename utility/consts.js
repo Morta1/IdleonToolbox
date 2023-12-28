@@ -1,0 +1,1 @@
+export const CONTENT_PERCENT_SIZE = '85%';

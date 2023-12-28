@@ -15,7 +15,7 @@ const Traits = ({ statBoosts }) => {
             const iconName = isActive ? 'DungTraitA' : 'DungTraitB';
             return <Stack key={'bonus' + index} direction={'row'} gap={2}>
               <Tooltip title={cleanUnderscore(bonus)}>
-                <img src={`${prefix}data/${iconName}${bonusIndex}.png`}/>
+                <img src={`${prefix}data/${iconName}${bonusIndex}.png`} alt={''}/>
               </Tooltip>
             </Stack>
           })}

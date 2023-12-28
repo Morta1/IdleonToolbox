@@ -13,8 +13,7 @@ import {
   mapPortals,
   monsters,
   randomList,
-  starSignByIndexMap,
-  tasks
+  starSignByIndexMap
 } from '../data/website-data';
 import {
   calculateAfkTime,
@@ -361,10 +360,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
   // if (isBarbarian) { // zow
-    character.zow = getBarbarianZowChow(kills, [1e5]);
+  character.zow = getBarbarianZowChow(kills, [1e5]);
   // }
   // if (isBloodBerserker) {
-    character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
+  character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
   // }
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
@@ -408,6 +407,9 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     || character.flatStarTalents?.find(({ skillIndex: sIndex }) => skillIndex === sIndex))
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
+  character.questCompleted = Object.entries(char?.QuestComplete)?.reduce((res, [key, value]) => res + (value ===1
+    ? 1
+    : 0), 0);
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
   return character;
 }

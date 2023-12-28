@@ -1,10 +1,10 @@
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import { format, isValid } from 'date-fns';
 import React from 'react';
 import styled from '@emotion/styled';
 
-const WeeklyBoss = ({ bossName, date }) => {
+const WeeklyBossSimple = ({ bossName, date }) => {
   return <>
     <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
       <IconImg src={`${prefix}etc/${bossName}.png`} alt=""/>
@@ -21,4 +21,4 @@ const IconImg = styled.img`
   object-fit: contain;
 `;
 
-export default WeeklyBoss;
+export default WeeklyBossSimple;

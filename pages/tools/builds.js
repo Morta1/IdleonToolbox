@@ -17,7 +17,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { cleanUnderscore, growth, isProd, prefix } from 'utility/helpers';
+import { cleanUnderscore, growth, isProd, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import AddIcon from '@mui/icons-material/Add';
 import { classes } from 'data/website-data';
@@ -32,6 +32,7 @@ import debounce from 'lodash.debounce';
 import Button from '@mui/material/Button';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { Adsense } from '@ctrl/react-adsense';
+import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 
 const allClasses = Object.keys(allBuilds);
 
@@ -139,7 +140,7 @@ const Builds = () => {
       description="Builds for all classes"
     />
     <Stack direction={'row'} gap={2} justifyContent={'space-between'}>
-      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : '78%' }}>
+      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
         <Typography mt={2} variant={"h2"}>Builds</Typography>
         <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
           <FormControl sx={{ width: 270 }}>

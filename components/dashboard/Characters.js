@@ -44,6 +44,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           name,
           classIndex,
           afkTarget,
+          afkTime,
           postOffice,
         } = character;
         const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
@@ -57,13 +58,22 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};
           return result;
         }, {})
+        const isActive = () => {
+          const timePassed = new Date().getTime() + (afkTime - lastUpdated);
+          const minutes = differenceInMinutes(new Date(), new Date(timePassed));
+          return minutes <= 5;
+        };
         const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
         return <Card key={name} sx={{ width: 300 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
               <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                                                       alt=""/></Box>
-              <Typography>{name}</Typography>
+              <Stack>
+                <Typography>{name}</Typography>
+                {isActive() ? <Typography>Active</Typography> : <Timer variant={'caption'} type={'up'} date={afkTime}
+                                                                       lastUpdated={lastUpdated}/>}
+              </Stack>
               <Stack direction={'row'} alignItems="center" gap={1} style={{ marginLeft: 'auto' }}>
                 <HtmlTooltip title={cleanUnderscore(activity)}>
                   <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"

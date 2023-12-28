@@ -14,6 +14,14 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
+  const logBook = []
+  for (let i = 0; i < 9; i++) {
+    let s = 0;
+    for (let r = number2letter.indexOf((gamingRaw?.[11]).charAt(i)); s < r;) {
+      s += 1;
+      logBook.push(('GamingPlant' + (number2letter[i + 1]) + s + '.png'));
+    }
+  }
   const [, snailLevel, snailEncouragement] = gamingSproutRaw?.[32];
   const envelopes = gamingRaw?.[13];
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
@@ -102,7 +110,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     mutationCost,
     dna,
     newMutationChance,
-    mutationChanceBreakpoints
+    mutationChanceBreakpoints,
+    logBook
   };
 }
 

@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { AppContext } from '../../../components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
-import { MissingData } from '../../../components/common/styles';
+import { MissingData } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
@@ -107,7 +107,7 @@ const Cost = ({ type, cost, title }) => {
     <Typography variant={'body2'}>
       {title}: {cost === 'MAX' ? cost : notateNumber(cost, 'Big')}
     </Typography>
-    <img src={`${prefix}${currencyIcon}.png`}/>
+    <img src={`${prefix}${currencyIcon}.png`} alt={''}/>
   </Stack> : <CoinDisplay title={title}
                           noShadow
                           centered={false}
