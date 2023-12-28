@@ -11,7 +11,7 @@ const COLORS = {
   '(BUFF)': 'info.light',
   '(MISC)': 'warning.light',
 }
-const WeeklyBoss = ({ bossName, shopItems, triplets, date, account, characters }) => {
+const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, characters }) => {
   return (
     <>
       <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
@@ -43,12 +43,13 @@ const WeeklyBoss = ({ bossName, shopItems, triplets, date, account, characters }
       <Stack mb={1} direction={'row'} gap={2} alignItems={'center'}>
         <Stack>
           <Typography variant={'h5'}>Actions</Typography>
-          <Typography variant={'caption'}>Current turn: {account?.accountOptions?.[185] + 1}</Typography>
+          {bossIndex === 0 ? <Typography variant={'caption'}>Current
+            turn: {account?.accountOptions?.[185] + 1}</Typography> : null}
         </Stack>
         <Stack flexWrap={'wrap'} direction={'row'}>
           {triplets?.map(({ task }, index) => index <= 9 ? <IconImg key={'all-moves' + index}
                                                                     style={{
-                                                                      border: account?.accountOptions?.[185] === index
+                                                                      border: bossIndex === 0 && account?.accountOptions?.[185] === index
                                                                         ? '1px solid #81c784'
                                                                         : ''
                                                                     }}
@@ -65,10 +66,11 @@ const WeeklyBoss = ({ bossName, shopItems, triplets, date, account, characters }
               <IconImg src={`${prefix}etc/Req_Icon_${task?.rawName}.png`} alt=""/>
               <Stack>
                 <Typography
-                  color={account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}
+                  color={bossIndex === 0 && account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}
                   variant={'subtitle1'}>{cleanUnderscore(task?.statText?.replace('{', quantity))}</Typography>
-                <Typography color={account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}
-                            variant={'caption'}>Turn: {index + 1}, by: {characters?.[index]?.name}</Typography>
+                <Typography
+                  color={bossIndex === 0 && account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}
+                  variant={'caption'}>Turn: {index + 1}, by: {characters?.[index]?.name}</Typography>
               </Stack>
             </Stack>
             <Stack gap={2}>
