@@ -23,6 +23,7 @@ const General = ({
     superbitsUpgrades,
     logBook
   } = account?.gaming;
+
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard title={'Bits'} imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>

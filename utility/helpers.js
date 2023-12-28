@@ -245,51 +245,46 @@ export const getBitIndex = (e) => {
 }
 export const notateNumber = (e, s) => {
   if (s === 'bits') {
-    if (1e4 > e) {
-      return Math.floor(e);
+    let bits = e, t = 0;
+    for (let i = 0; i < 4; i++) {
+      if (bits > 1e18) {
+        bits /= 1e18;
+        t++;
+      }
     }
-    if (1e5 > e) {
-      return Math.floor((e) / 100) / 10 + 'K'
-    }
-    if (1e6 > e) {
-      return Math.floor(e / 1e3) + 'K';
-    }
-    if (1e7 > e) {
-      return Math.floor((e) / 1e4) / 100 + 'M';
-    }
-    if (1e8 > e) {
-      return Math.floor((e) / 1e5) / 10 + 'M'
-    }
-    if (1e9 > e) {
-      return Math.floor((e) / 1e6) + 'M'
-    }
-    if (1e10 > e) {
-      return Math.floor((e) / 1e7) / 100 + 'B';
-    }
-    if (1e11 > e) {
-      return Math.floor((e) / 1e8) / 10 + 'B'
-    }
-    if (1e12 > e) {
-      return Math.floor((e) / 1e9) + 'B'
-    }
-    if (1e13 > e) {
-      return Math.floor((e) / 1e10) / 100 + 'T'
-    }
-    if (1e14 > e) {
-      return Math.floor((e) / 1e11) / 10 + 'T'
-    }
-    if (1e15 > e) {
-      return Math.floor((e) / 1e12) + 'T'
-    }
-    if (1e16 > e) {
-      return Math.floor(e / 1e13) / 100 + 'Q'
-    }
-    if (1e17 > e) {
-      return Math.floor((e) / 1e14) / 10 + 'Q'
-    }
-    if (1e18 > e) {
-      return Math.floor(e / 1e15) + 'Q'
-    }
+    return 1e4 > bits
+      ? Math.floor(bits)
+      : 1e5 > bits
+        ? Math.floor(bits / 100) / 10 + 'K'
+        : 1e6 > bits
+          ? Math.floor(bits / 1e3) + 'K'
+          : 1e7 > bits
+            ? Math.floor(bits / 1e4) / 100 + 'M'
+            : 1e8 > bits
+              ? Math.floor(bits / 1e5) / 10 + 'M'
+              : 1e9 > bits
+                ? Math.floor(bits / 1e6) + 'M'
+                : 1e10 > bits
+                  ? Math.floor(bits / 1e7) / 100 + 'B'
+                  : 1e11 > bits
+                    ? Math.floor(bits / 1e8) / 10 + 'B'
+                    : 1e12 > bits
+                      ? Math.floor(bits / 1e9) + 'B'
+                      : 1e13 > bits
+                        ? Math.floor(bits / 1e10) / 100 + 'T'
+                        : 1e14 > bits
+                          ? Math.floor(bits / 1e11) / 10 + 'T'
+                          : 1e15 > bits
+                            ? Math.floor(bits / 1e12) + 'T'
+                            : 1e16 > bits
+                              ? Math.floor(bits / 1e13) / 100 + 'Q'
+                              : 1e17 > bits
+                                ? Math.floor(bits / 1e14) / 10 + 'Q'
+                                : 1e18 > bits
+                                  ? Math.floor(bits / 1e15) + 'Q'
+                                  : Math.floor(bits /
+                                    Math.pow(10, Math.floor(lavaLog(bits))) * 100)
+                                  / 100 + 'E' + Math.floor(lavaLog(bits))
   }
   return 'Whole' === s ? (1e4 > e ? '' + Math.floor(e)
       : 1e6 > e ? Math.floor(e / 1e3) + 'K'
