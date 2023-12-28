@@ -1,16 +1,17 @@
 import React, { useContext, useMemo } from 'react';
-import { AppContext } from 'components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import BreedingUpgrades from 'components/account/Worlds/World4/Breeding/BreedingUpgrades';
-import BreedingArena from 'components/account/Worlds/World4/Breeding/BreedingArena';
+import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
+import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
+import Territory from '@components/account/Worlds/World4/Breeding/Territory';
 import { prefix } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '../../../components/account/Worlds/World4/Breeding/Pets';
-import { getJewelBonus, getLabBonus } from '../../../parsers/lab';
-import { getMealsBonusByEffectOrStat } from '../../../parsers/cooking';
-import { getBubbleBonus } from '../../../parsers/alchemy';
-import { getAchievementStatus } from '../../../parsers/achievements';
-import { isMasteryBonusUnlocked } from '../../../parsers/misc';
+import { getJewelBonus, getLabBonus } from '@parsers/lab';
+import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
+import { getBubbleBonus } from '@parsers/alchemy';
+import { getAchievementStatus } from '@parsers/achievements';
+import { isMasteryBonusUnlocked } from '@parsers/misc';
 import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
 
@@ -67,13 +68,14 @@ const Breeding = () => {
       </Stack>
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
         town</Typography>
-      <Tabber tabs={['Pets', 'Upgrades', 'Arena']}>
+      <Tabber tabs={['Pets', 'Upgrades', 'Arena', 'Territory']}>
         <Pets {...state?.account?.breeding} lab={state?.account?.lab}
               lastUpdated={state?.lastUpdated}/>
         <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
                           account={state?.account}
                           meals={state?.account?.cooking?.meals}/>
         <BreedingArena {...state?.account?.breeding}/>
+        <Territory/>
       </Tabber>
     </>
   );

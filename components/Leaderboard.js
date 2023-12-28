@@ -23,7 +23,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar }) => {
         list = list?.map((char, charIndex) => (charIndex === topTenIndex ? {
           ...char,
           loggedMainChar: true,
-          index: topTenIndex
+          index: topTenIndex + 1
         } : char));
         rest = list.slice(3, 10)
       } else {
@@ -32,7 +32,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar }) => {
         if (loggedMainCharIndex !== -1) {
           rest = list.slice(3, 10).concat([{
             ...loggedMainCharEntry,
-            index: loggedMainCharIndex
+            index: loggedMainCharIndex + 1
           }])
         }
       }
