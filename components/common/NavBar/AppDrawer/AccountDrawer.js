@@ -18,7 +18,6 @@ const worldsData = {
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'constellations', icon: 'data/StarTitle1' },
       { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
-      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
       { label: 'guild', icon: 'etc/Guild' },
     ],
   },
@@ -56,6 +55,7 @@ const worldsData = {
       { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'sigils', icon: 'data/LabBonus12' },
       { label: 'islands', icon: 'data/Island1' },
+      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
     ]
   },
   'world 3': {

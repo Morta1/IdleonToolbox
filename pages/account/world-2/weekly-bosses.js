@@ -2,8 +2,8 @@ import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
 import { Typography } from '@mui/material';
-import Tabber from '../../../components/common/Tabber';
-import WeeklyBoss from '../../../components/account/Worlds/World2/WeeklyBoss';
+import Tabber from '@components/common/Tabber';
+import WeeklyBoss from '@components/account/Worlds/World2/WeeklyBoss';
 import { cleanUnderscore } from '@utility/helpers';
 
 const WeeklyBosses = () => {
