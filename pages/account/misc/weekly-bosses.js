@@ -10,7 +10,6 @@ const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
 
   const weeklyBosses = getWeeklyBoss(state?.account, state?.characters);
-  console.log('weeklyBosses', weeklyBosses)
 
   return weeklyBosses?.length ? <>
     <Typography variant={'h2'} sx={{ mb: 3 }}>Weekly bosses</Typography>

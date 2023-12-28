@@ -341,7 +341,6 @@ const AdditionalInfo = ({
                           bubble,
                           goalLevel
                         }) => {
-  console.log('1')
   return <Stack mt={1.5} direction={'row'} justifyContent={'center'} gap={3}
                 flexWrap={'wrap'}>
     {tooltip ? <BubbleTooltip {...{
