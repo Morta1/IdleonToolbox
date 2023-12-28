@@ -3,7 +3,6 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
-import Territory from '@components/account/Worlds/World4/Breeding/Territory';
 import { prefix } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '../../../components/account/Worlds/World4/Breeding/Pets';
