@@ -48,7 +48,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
   }, {});
   const foragingRounds = territoryRaw?.map(([, round]) => round);
   const currentProgress = territoryRaw?.map(([progress]) => progress);
-  const teams = petsRaw?.slice(fenceSlots)?.map(([name, x1, x2, x3]) => {
+  const teams = petsRaw?.slice(27)?.map(([name, x1, x2, x3]) => {
     const gene = petGenes?.[x1];
     const realName = monsters?.[name]?.Name;
     return { name, realName, x1, power: x2, x3, gene };
@@ -64,7 +64,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
       position
     }), 0);
     const teamPower = team?.reduce((sum, teamMember) => sum + getFightPower(teamMember), 0);
-    const anyCombats = team?.some((teamMember) => teamMember?.gene?.abilityType === 1);
+    const anyCombats = team?.some((teamMember) => teamMember?.gene?.abilityType === 0);
     const flashies = anyCombats ? 0 : team?.filter((teamMember) => teamMember?.gene?.name === 'Flashy')?.length;
     const fleeters = team?.filter((teamMember) => teamMember?.gene?.name === 'Fleeter')?.length;
     const fasidiouses = team?.filter((teamMember) => teamMember?.gene?.name === 'Fasidious')?.length;
