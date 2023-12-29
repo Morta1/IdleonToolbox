@@ -9,7 +9,7 @@ const filterOptions = createFilterOptions({
 });
 const GuaranteedDropCalculator = () => {
   const [value, setValue] = useState(null);
-  const items = useMemo(() => Object.values(monsterDrops).flat().filter((monster) => monster?.Type === 'MONSTER_DROP'), []);
+  const items = useMemo(() => Object.values(monsterDrops).flat().filter((monster) => monster?.Type === 'MONSTER_DROP' && monster?.chance > 0), []);
   const [values, setValues] = useState({
     dropRate: '',
     killsWithMultikill: '',
@@ -121,7 +121,7 @@ const GuaranteedDropCalculator = () => {
         kill per kill talents, prayers & bubbles</Typography>
       {results?.length > 0 ? <Stack mt={2}>
         <Typography variant={'h6'}>Results</Typography>
-        {results.map(({ breakpoint, hours }) => <Stack>
+        {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>
           <Typography>x{breakpoint} drop in {notateNumber(hours, 'MultiplierInfo')} hours</Typography>
         </Stack>)}
       </Stack> : null

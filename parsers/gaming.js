@@ -19,8 +19,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     for (let i = 0; i < 9; i++) {
       let s = 0;
       for (let r = number2letter.indexOf((gamingRaw?.[11])?.charAt(i)); s < r;) {
-        s += 1;
         logBook.push(('GamingPlant' + (number2letter[i + 1]) + s + '.png'));
+        s += 1;
       }
     }
   }

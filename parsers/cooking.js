@@ -2,7 +2,7 @@ import { atomsInfo, cookingMenu, monsters, randomList } from '../data/website-da
 import { allProwess, getAllBaseSkillEff, getAllEff } from './character';
 import { getStampsBonusByEffect } from './stamps';
 import { getStatsFromGear } from './items';
-import { tryToParse } from '../utility/helpers';
+import { tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from './postoffice';
 import { getJewelBonus, getLabBonus } from './lab';
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
@@ -13,7 +13,7 @@ import { getShinyBonus } from './breeding';
 import { isSuperbitUnlocked } from './gaming';
 import { getHighestTalentByClass, getVoidWalkerTalentEnhancements } from './talents';
 import { getEquinoxBonus } from './equinox';
-import LavaRand from '../utility/lavaRand';
+import LavaRand from '@utility/lavaRand';
 
 export const spicesNames = [
   'Grasslands',
@@ -56,7 +56,7 @@ const parseCooking = (mealsRaw, territoryRaw, cookingRaw, account) => {
 
 const getSpices = (mealsRaw, territoryRaw, account) => {
   const toClaim = territoryRaw?.reduce((res, territory, index) => {
-    const [progress, amount, , spiceName] = territory;
+    const [progress, , , spiceName, amount] = territory;
     return [
       ...res,
       {

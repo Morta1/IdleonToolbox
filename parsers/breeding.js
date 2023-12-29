@@ -1,4 +1,4 @@
-import { arenaBonuses, petStats, petUpgrades, randomList } from '../data/website-data';
+import { arenaBonuses, monsters, petGenes, petStats, petUpgrades, randomList, territory } from '../data/website-data';
 import { tryToParse } from '../utility/helpers';
 import { getBubbleBonus, getVialsBonusByEffect } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
@@ -10,11 +10,12 @@ export const getBreeding = (idleonData, account) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
   const petsRaw = tryToParse(idleonData?.Pets) || idleonData?.Pets;
   const petsStoredRaw = tryToParse(idleonData?.PetsStored) || idleonData?.PetsStored;
+  const territoryRaw = tryToParse(idleonData?.Territory) || idleonData?.Territory;
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
-  return parseBreeding(breedingRaw, petsRaw, petsStoredRaw, cookingRaw, account);
+  return parseBreeding(breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account);
 }
 
-const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, cookingRaw, account) => {
+const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account) => {
   const eggs = breedingRaw?.[0];
   const deadCells = breedingRaw?.[3]?.[8];
   const speciesUnlocks = breedingRaw?.[1];
@@ -45,10 +46,43 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, cookingRaw, account)
       [petName]: res?.[petName] ? res?.[petName] + 1 : 1
     }
   }, {});
-  const totalKitchenLevels = cookingRaw?.reduce((res, kitchen) => {
-    const [, , , , , , speedLv, fireLv, luckLv] = kitchen;
-    return res + (speedLv + fireLv + luckLv);
-  }, 0);
+  const foragingRounds = territoryRaw?.map(([, round]) => round);
+  const currentProgress = territoryRaw?.map(([progress]) => progress);
+  const teams = petsRaw?.slice(fenceSlots)?.map(([name, x1, x2, x3]) => {
+    const gene = petGenes?.[x1];
+    const realName = monsters?.[name]?.Name;
+    return { name, realName, x1, power: x2, x3, gene };
+  })?.toChunks(4);
+  const territories = territory?.map((territory, index) => {
+    const team = teams[index];
+    const previousTeam = teams[index - 1] || [];
+    const nextTeam = teams[index + 1] || [];
+    const forageSpeed = team?.reduce((sum, teamMember, position) => sum + getForageSpeed({
+      team,
+      previousTeam,
+      teamMember,
+      position
+    }), 0);
+    const teamPower = team?.reduce((sum, teamMember) => sum + getFightPower(teamMember), 0);
+    const anyCombats = team?.some((teamMember) => teamMember?.gene?.abilityType === 1);
+    const flashies = anyCombats ? 0 : team?.filter((teamMember) => teamMember?.gene?.name === 'Flashy')?.length;
+    const fleeters = team?.filter((teamMember) => teamMember?.gene?.name === 'Fleeter')?.length;
+    const fasidiouses = team?.filter((teamMember) => teamMember?.gene?.name === 'Fasidious')?.length;
+    let miasmas = team?.filter((teamMember) => teamMember?.gene?.name === 'Miasma');
+    if (miasmas) {
+      const duplicates = team?.map(({ gene }) => gene?.name)?.every((name, index, arr) => arr.indexOf(index) === name);
+      miasmas = duplicates ? 4 : 1;
+    }
+    const topAndBottomRows = [...team, ...previousTeam, ...nextTeam];
+    const badumdums = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Badumdum')?.length;
+    const tsars = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Tsar')?.length;
+    const f = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
+    const trekkingFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars);
+    const totalForageSpeed = trekkingFightPower < territory.fightPower ? 0 : f;
+    const bonus = 1 + .02 / (team.filter((teamMember) => teamMember?.gene?.name === 'Monolithic').length / 5 + 1);
+    const reqProgress = (territory?.powerReq + foragingRounds?.[index]) * Math.pow(bonus, foragingRounds?.[index])
+    return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }
+  });
   const fencePets = [], passivesTotals = {};
   const pets = petStats?.map((petList, worldIndex) => {
     const speciesUnlocked = speciesUnlocks?.[worldIndex];
@@ -61,6 +95,7 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, cookingRaw, account)
       const passiveValue = Math.round(pet?.baseValue * shinyLevel);
       const petInfo = {
         ...pet,
+        world: 'World' + (worldIndex + 1),
         level: petsLevels?.[worldIndex]?.[petIndex],
         shinyLevel,
         progress: shinyPetsLevels?.[worldIndex]?.[petIndex],
@@ -81,7 +116,6 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, cookingRaw, account)
       return petInfo;
     })
   });
-
   return {
     passivesTotals,
     storedPets,
@@ -95,7 +129,10 @@ const parseBreeding = (breedingRaw, petsRaw, petsStoredRaw, cookingRaw, account)
     petUpgrades: petUpgradesList,
     arenaBonuses,
     unlockedBreedingMulti,
-    pets
+    pets,
+    territories,
+    foragingRounds,
+    currentProgress
   };
 }
 
@@ -225,4 +262,33 @@ export const calcUpgradeBonus = (upgrade, upgradeIndex, account) => {
     return Math.ceil(12 * Math.pow(upgrade?.level, 0.698));
   }
   return 0;
+}
+
+export const getForageSpeed = ({ team, previousTeam, teamMember, position }) => {
+  if (teamMember?.gene?.abilityType === 1) {
+    switch (teamMember?.gene?.name) {
+      case 'Forager':
+        return 2 * teamMember?.power;
+      case 'Targeter':
+        if (previousTeam?.[position]?.gene?.name === 'Targeter')
+          return 5 * teamMember?.power;
+        break;
+      case 'Opticular':
+        if (team?.every((member) => member.power <= teamMember.power))
+          return 3 * teamMember?.power;
+        break;
+      case 'Borger':
+        if (previousTeam.some((member) => member?.gene?.name === 'Forager')) {
+          return 10 * teamMember?.power
+        }
+    }
+    return teamMember?.power;
+  }
+  return 0;
+}
+
+export const getFightPower = (teamMember) => {
+  return teamMember?.gene?.abilityType === 0 ? teamMember?.gene?.name === 'Mercenary'
+    ? 2 * teamMember.power
+    : teamMember.power : 0;
 }

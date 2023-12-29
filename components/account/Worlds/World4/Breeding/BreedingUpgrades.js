@@ -27,7 +27,6 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
     }
     return 0;
   }
-
   return (
     <Stack direction={'row'} flexWrap={'wrap'} justifyContent={'center'} gap={2}>
       {petUpgrades?.map((upgrade, index) => {

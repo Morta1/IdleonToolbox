@@ -107,7 +107,11 @@ export const PlayersList = ({ players, characters }) => {
   return <Stack gap={1} direction={'row'}>
     {players.map(({ index }) => <Tooltip key={name + '-head-' + index}
                                          title={characters?.[index]?.name}>
-      <img src={`${prefix}data/headBIG.png`} alt=""/>
+      <img
+        style={{ width: 24, height: 24 }}
+        src={`${prefix}data/ClassIcons${characters?.[index]?.classIndex}.png`}
+        alt=""
+      />
     </Tooltip>)}
   </Stack>
 }

@@ -7,13 +7,15 @@ import {
   FormControlLabel,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from 'utility/helpers';
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
-import { getJewelBonus, getLabBonus } from '../../../../../parsers/lab';
-import { getShinyBonus, getTimeToLevel } from '../../../../../parsers/breeding';
+import { getJewelBonus, getLabBonus } from '@parsers/lab';
+import { getShinyBonus, getTimeToLevel } from '@parsers/breeding';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
@@ -21,7 +23,13 @@ import InfoIcon from '@mui/icons-material/Info';
 const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingMultipliers, lastUpdated }) => {
   const [minimized, setMinimized] = useState(true);
   const [threshold, setThreshold] = useState(5);
+  const [filterBy, setFilterBy] = useState('');
+  const [filter, setFilter] = useState('worlds');
   const [applyThreshold, setApplyThreshold] = useState(false);
+
+  const handleFilter = (e, newFilter) => {
+    setFilter(newFilter);
+  };
 
   const calcShinyLvMulti = () => {
     const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
@@ -37,6 +45,14 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
       timeLeft: ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7
     })).sort((a, b) => a?.timeLeft - b?.timeLeft)
   }, [fencePets]);
+
+  const groupByPassive = useMemo(() => {
+    if (filter === 'worlds') {
+      return Object.groupBy(pets.flat(), ({ world }) => world)
+    } else {
+      return Object.groupBy(pets.flat(), ({ rawPassive }) => rawPassive)
+    }
+  }, [filter]);
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} my={5}>
@@ -96,26 +112,36 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
                    type={'number'} value={threshold} label={'Pet level threshold'}
                    onChange={(e) => setThreshold(e.target.value)}
                    helperText={'Show pets under this level only'}/>
+        <Stack mt={2} direction={'row'} gap={2}>
+          <ToggleButtonGroup exclusive sx={{ flexWrap: 'wrap' }} value={filter} onChange={handleFilter}>
+            <ToggleButton value="worlds">Worlds</ToggleButton>
+            <ToggleButton value="stats">Stats</ToggleButton>
+          </ToggleButtonGroup>
+          <TextField sx={{ width: 'fit-content' }}
+                     value={filterBy} label={'Filter by category'}
+                     onChange={(e) => setFilterBy(e.target.value)}/>
+        </Stack>
       </Stack>
-      {pets?.map((world, worldIndex) => {
+      {Object.entries(groupByPassive)?.map(([groupName, list], worldIndex) => {
+        if (!groupName.toLowerCase().includes(filterBy.toLowerCase())) return null;
         return <React.Fragment key={`world-${worldIndex}`}>
-          <Typography variant={'h3'}>World {worldIndex + 1}</Typography>
+          <Typography variant={'h3'}>{cleanUnderscore(groupName)}</Typography>
           <Card key={`world-${worldIndex}`}>
             <CardContent>
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-                {world?.map(({
-                               monsterName,
-                               monsterRawName,
-                               icon,
-                               passive,
-                               level,
-                               shinyLevel,
-                               gene,
-                               unlocked,
-                               progress,
-                               goal,
-                               breedingMultipliers
-                             }, index) => {
+                {list?.map(({
+                              monsterName,
+                              monsterRawName,
+                              icon,
+                              passive,
+                              level,
+                              shinyLevel,
+                              gene,
+                              unlocked,
+                              progress,
+                              goal,
+                              breedingMultipliers
+                            }, index) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (applyThreshold && shinyLevel >= threshold) return;
                   const missingIcon = (icon === 'Mface23' || icon === 'Mface21') && monsterRawName !== 'shovelR';

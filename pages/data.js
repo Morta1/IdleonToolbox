@@ -1,5 +1,6 @@
 import {
   Checkbox,
+  Collapse,
   Container,
   Fade,
   FormControlLabel,
@@ -22,9 +23,13 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import NormalTimer from '../components/common/Timer/Normal.js';
 import { format, intervalToDuration, isValid } from 'date-fns';
 import { uploadProfile } from '../services/profiles';
-import { AppContext } from '../components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NextSeo } from 'next-seo';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -39,6 +44,7 @@ const Data = () => {
   const [uploaded, setUploaded] = useState(false);
   const [leaderboardConsent, setLeaderboardConsent] = useState(false);
   const [error, setError] = useState('');
+  const [showRawData, setShowRawData] = useState(false);
 
   useEffect(() => {
     if (state?.uid) {
@@ -130,13 +136,26 @@ const Data = () => {
         IdleonToolbox JSON
       </ButtonStyle>
       <div>
-        <ButtonStyle sx={{ textTransform: 'none', fontSize: 12, mt: 3 }}
-                     variant={'outlined'}
-                     startIcon={<FileCopyIcon/>}
-                     size="small"
-                     onClick={handleCopyRaw}>
-          Raw Game JSON
-        </ButtonStyle>
+        <Stack mt={3} direction={'row'} alignItems={'center'}>
+          <ButtonStyle sx={{ textTransform: 'none', fontSize: 12 }}
+                       variant={'outlined'}
+                       startIcon={<FileCopyIcon/>}
+                       size="small"
+                       onClick={handleCopyRaw}>
+            Raw Game JSON
+          </ButtonStyle>
+          <IconButton onClick={() => setShowRawData(!showRawData)}>
+            <ArrowRightIcon style={{
+              transform: showRawData ? 'rotate(90deg)' : 'rotate(0deg)',
+              transition: 'transform 0.2s ease-in-out'
+            }}/>
+          </IconButton>
+        </Stack>
+        <Collapse in={showRawData} >
+          <div style={{whiteSpace:'pre-wrap',     overflowWrap: 'break-word'}}>
+            {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
+          </div>
+        </Collapse>
       </div>
       <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
     </div>
@@ -198,6 +217,20 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
       </div>
     </> : null
     }
+    {showRawData ? <Box sx={{
+      position: 'fixed',
+      right: 50,
+      bottom: 95
+    }}>
+      <IconButton onClick={() => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth' // Optional: Add smooth scrolling
+        });
+      }} size={'large'}>
+        <ArrowUpwardIcon/>
+      </IconButton>
+    </Box> : null}
   </Container>
 };
 

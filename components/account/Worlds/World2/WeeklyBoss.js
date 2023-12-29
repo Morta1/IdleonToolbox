@@ -103,7 +103,7 @@ const UiIcon = styled.img`
   width: 35px;
   height: 35px;
   object-fit: none;
-  object-position: 0%;
+  object-position: 0;
 `;
 
 const IconImg = styled.img`

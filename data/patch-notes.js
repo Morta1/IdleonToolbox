@@ -4,6 +4,21 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.37',
+    gameVer: '1.92',
+    date: '30/12/2023',
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-4/breeding'}>Territory</Link> tab to the breeding page</Typography>,
+      'Added a toggle to Pets tabs in breeding page to group pets by worlds / stats',
+      'Added an option to see the whole raw json data in the data page',
+    ],
+    fixes: [
+      'Fixed log book',
+      'Fixed a bug in guaranteed drop calculator page',
+    ]
+  },
+  {
     ver: '3.2.36',
     gameVer: '1.92',
     date: '29/12/2023',
