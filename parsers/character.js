@@ -21,7 +21,8 @@ import {
   getGoldenFoodBonus,
   getHighestLevelOfClass,
   getMaterialCapacity,
-  isArenaBonusActive, isBundlePurchased,
+  isArenaBonusActive,
+  isBundlePurchased,
   isCompanionBonusActive
 } from './misc';
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
@@ -541,7 +542,8 @@ export const getDropRate = (character, account, characters) => {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
   let final = dropRate * extraDropRate;
-  if (isBundlePurchased(account?.bundles, 'bun_p')){
+  const hasDrBundle = isBundlePurchased(account?.bundles, 'bun_p');
+  if (hasDrBundle) {
     final *= 1.2
   }
   const breakdown = [
@@ -562,6 +564,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Siege Breaker', value: extraDropRate },
     { name: 'Companion', value: companionDropRate / 100 },
     { name: 'Equinox', value: 5 * equinoxDropRateBonus / 100 },
+    { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 }
     { name: 'Base', value: 1 },
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
