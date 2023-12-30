@@ -564,7 +564,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Siege Breaker', value: extraDropRate },
     { name: 'Companion', value: companionDropRate / 100 },
     { name: 'Equinox', value: 5 * equinoxDropRateBonus / 100 },
-    { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 }
+    { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Base', value: 1 },
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
