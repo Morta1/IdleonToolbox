@@ -7,12 +7,16 @@ import { getStampBonus } from 'parsers/stamps';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '../../../components/common/styles';
 
+const MAX_LEVEL = 100;
+
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
   const { balls, goldBalls, shop } = state?.account?.arcade;
 
   const getCost = (level) => {
-    const multiplier = (state?.account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active) ? 2 : 1;
+    const multiplier = (state?.account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active)
+      ? 2
+      : 1;
     const arcadeStamp = getStampBonus(state?.account?.stamps, 'misc', 'StampC5', 0, multiplier);
     const arcadeStampMath = Math.max(0.6, 1 - arcadeStamp / 100);
     return Math.round(arcadeStampMath * (5 + (3 * level + Math.pow(level, 1.3))));
@@ -56,7 +60,11 @@ const ArcadeShop = () => {
           return <Card sx={{
             width: { xs: 150, md: 350 },
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'column', md: 'row' }
+            flexDirection: { xs: 'column', sm: 'column', md: 'row' },
+            outline: level >= MAX_LEVEL ? '1px solid' : '',
+            outlineColor: (theme) => level >= MAX_LEVEL
+              ? theme.palette.success.light
+              : '',
           }} key={`${iconName}-${index}`}>
             <UpgradeIcon style={{
               margin: 16,
@@ -66,10 +74,10 @@ const ArcadeShop = () => {
             }} src={`${prefix}data/${iconName}.png`}/>
             <CardContent>
               <div style={{ fontWeight: 'bold' }}>Effect: {eff}</div>
-              {level !== 100 ? <div>Lv: {level} / 100</div> :
-                <div className={'done'}>MAXED</div>}
+              {level !== 100 ? <div>Lv: {level} / {MAX_LEVEL}</div> :
+                <div className={'done'}>Maxed</div>}
               <div>Cost: {kFormatter(cost, 2)}</div>
-              <div>Cost to max: {kFormatter(costToMax, 2)}</div>
+              <div>Cost To Max: {kFormatter(costToMax, 2)}</div>
             </CardContent>
           </Card>
         })}

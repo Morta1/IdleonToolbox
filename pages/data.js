@@ -180,7 +180,7 @@ const Data = () => {
     </div>
     {!router.query.profile && state?.characters ? <>
       <Typography variant={'h4'} mt={8}>Profile</Typography>
-      <Typography variant={'body1'}>* You can update your profile once every 4 hours.</Typography>
+      <Typography variant={'body1'}>* You can update your profile once every 4 hours</Typography>
       <Typography variant={'body1'} mb={3}>* Gems and bundle information won't be saved</Typography>
       <Typography variant={'body1'} mb={3}>* Your profile
         link: <Link

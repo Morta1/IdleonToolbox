@@ -159,7 +159,7 @@ const Buildings = () => {
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt=""/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
-                {isMaxed ? <Typography color={'success.light'}>MAXED</Typography> :
+                {isMaxed ? <Typography color={'success.light'}>Maxed</Typography> :
                   <Tooltip title={<>
                     <Typography>Progress: {numberWithCommas(Math.floor(progress))}</Typography>
                     <Typography>Requirement: {numberWithCommas(Math.floor(buildCost))}</Typography>

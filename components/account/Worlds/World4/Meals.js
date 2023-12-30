@@ -169,7 +169,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     <>
       <ToggleButtonGroup sx={{ my: 2, flexWrap: 'wrap' }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
-        <ToggleButton value="hide">Hide capped</ToggleButton>
+        <ToggleButton value="hide">Hide Capped</ToggleButton>
         <ToggleButton value="overflow">
           <Stack direction={'row'} gap={1}>
             <Typography>Overflowing Ladle</Typography>
@@ -208,7 +208,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                    onChange={({ target }) => setFoodLust(target.value)}/>
       </Stack>
       <Stack my={2}>
-        <Typography my={1} variant={'h5'}>Best meal speed contribution</Typography>
+        <Typography my={1} variant={'h5'}>Best Meal Speed Contribution</Typography>
         <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
           {bestSpeedMeal.map((meal, index) => {
             const {
@@ -237,7 +237,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                       ({notateNumber(bonusDiff, 'MultiplierInfo')})
                     </CenteredTypography>
                     <Typography component={'span'}>
-                      Next level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
+                      Next Level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
                       <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                              staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
                     </Typography>
@@ -300,7 +300,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                         key={name + bpLevel} gap={1}
                         flexWrap={'wrap'}>
                         {level >= mealMaxLevel ? <Typography
-                            color={'success.light'}>MAXED</Typography> :
+                            color={'success.light'}>Maxed</Typography> :
                           <Typography
                             sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
                             Progress: {<HtmlTooltip title={parseFloat(amount)}>
@@ -311,7 +311,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
                           </Typography>
                         }
                         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                          <Typography>Next milestone: </Typography>
+                          <Typography>Next Milestone: </Typography>
                           {timeInMs < maxTimeValue
                             ? <Timer
                               date={new Date().getTime() + timeToBp * 3600 * 1000}
@@ -347,14 +347,14 @@ const MealTooltip = ({ level, baseStat, multiplier, effect, achievements, equino
   return (
     <>
       <Typography fontWeight={'bold'}>
-        Next level bonus:&nbsp;
+        Next Level Bonus:&nbsp;
         <Typography component={'span'} sx={{ fontWeight: 400 }}>
           {cleanUnderscore(effect?.replace('{', kFormatter((level + 1) * baseStat * multiplier)))}
         </Typography>
       </Typography>
       <Box>
         <Typography fontWeight={'bold'}>
-          Next level req:&nbsp;
+          Next Level Req:&nbsp;
           <Typography component={'span'} sx={{ fontWeight: 400 }}>
             {numberWithCommas(parseInt(levelCost))}
           </Typography>

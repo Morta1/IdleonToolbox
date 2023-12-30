@@ -38,7 +38,7 @@ const Totals = ({ account }) => {
       <TotalStat text={'Refined Salts'} icon={'TaskSc6'} stat={account?.tasks?.[0]?.[2]?.[0]}/>
       <TotalStat text={'Total Mats Printed'} icon={'PrintSlot'} stat={account?.tasks?.[0]?.[2]?.[3]}/>
       <TotalStat text={'Trashed Cogs'} icon={'Cog3B4'} stat={account?.tasks?.[0]?.[2]?.[1]}/>
-      <TotalStat text={'Plants picked'} icon={'GamingPlant1'} stat={account?.tasks?.[0]?.[4]?.[3]}/>
+      <TotalStat text={'Plants Picked'} icon={'GamingPlant1'} stat={account?.tasks?.[0]?.[4]?.[3]}/>
     </Stack>
   );
 };

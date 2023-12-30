@@ -15,7 +15,7 @@ const Highscores = ({ title, highscore }) => {
             const key = score?.minigame || `${index + 1}`;
             return <div key={`${index}-${index}`}>
               {key ? <Typography variant={'body1'} component={'span'}>{key.capitalize()}: </Typography> : null}
-              <Typography variant={'body1'} component={'span'}>{numberWithCommas(parseInt(realScore))}</Typography>
+              <Typography variant={'body1'} component={'span'}>{!isNaN(realScore) ? numberWithCommas(parseInt(realScore)) : 0}</Typography>
             </div>
           })}
         </CardContent>

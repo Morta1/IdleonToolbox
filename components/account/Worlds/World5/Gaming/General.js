@@ -28,9 +28,9 @@ const General = ({
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard title={'Bits'} imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
       <ImgCard title={'Sprouts'} imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
-      <ImgCard title={'Best nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
+      <ImgCard title={'Best Nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
       <ImgCard title={'Drops'} imgSrc={'etc/GamingDrop'} value={availableDrops}/>
-      <ImgCard title={'Envelopes'} imgSrc={'etc/GamingEnvelope'} value={envelopes}/>
+      <ImgCard title={'Envelopes'} imgSrc={'etc/GamingEnvelope'} value={notateNumber(envelopes)}/>
       <ImgCard title={'Log book'} imgSrc={'data/GamingPlanth5'} value={`${logBook?.length} / 72`}/>
     </Stack>
 

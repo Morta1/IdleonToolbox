@@ -6,13 +6,14 @@ import Tooltip from '../Tooltip';
 import { calcCardBonus } from 'parsers/cards';
 
 export const IconWithText = forwardRef((props, ref) => {
-  const { stat, icon } = props
-  const { img, ...rest } = props;
-  return <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-    <img {...img} src={`${prefix}data/${icon}.png`} alt=""/>
-    <Typography variant={'body1'}
-                component={'span'}>{stat}</Typography>
-  </Stack>
+  const { stat, icon, img, title = '', ...rest } = props
+  return <Tooltip title={title}>
+    <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
+      <img {...img} src={`${prefix}data/${icon}.png`} alt=""/>
+      <Typography variant={'body1'}
+                  component={'span'}>{stat}</Typography>
+    </Stack>
+  </Tooltip>
 })
 IconWithText.displayName = 'IconWithText'
 

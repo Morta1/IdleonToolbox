@@ -16,6 +16,8 @@ export const patchNotes = [
     fixes: [
       'Fixed log book',
       'Fixed a bug in guaranteed drop calculator page',
+      'Fixed drop rate calculations',
+      'Fixed consistency of "Maxed" display across the site (and grammar :))',
     ]
   },
   {

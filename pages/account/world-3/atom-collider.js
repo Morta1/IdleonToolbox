@@ -37,14 +37,30 @@ const AtomCollider = ({}) => {
       </CardTitleAndValue>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {atoms?.map(({ name, desc, level, rawName, baseBonus, cost, nextLeveCost, costToMax, bonus, maxLevel }, index) => {
+      {atoms?.map(({
+                     name,
+                     desc,
+                     level,
+                     rawName,
+                     baseBonus,
+                     cost,
+                     nextLeveCost,
+                     costToMax,
+                     bonus,
+                     maxLevel
+                   }, index) => {
         if (index >= MAX_ATOMS) return;
         const description = cleanUnderscore(desc)
           .replace(/{/g, `${baseBonus * level}`)
           .replace(/[>}]/, notateNumber(bonus, 'Big'))
           .replace('<', level);
         const timeLeft = ((cost - particles) / totals?.atom?.atoms) * 3600 * 1000
-        return <Card key={rawName}>
+        return <Card key={rawName} sx={{
+          outline: level >= maxLevel ? '1px solid' : '',
+          outlineColor: (theme) => level >= maxLevel
+            ? theme.palette.success.light
+            : '',
+        }}>
           <CardContent sx={{ width: 250, height: '100%' }}>
             <Stack direction={'column'} sx={{ height: '100%' }}>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -55,8 +71,8 @@ const AtomCollider = ({}) => {
                   <Typography>Lv. {level} / {maxLevel}</Typography>
                   {level < maxLevel ? <>
                     <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
-                    <Typography variant={'caption'}>Next level cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
-                    <Typography variant={'caption'}>Cost to max: {notateNumber(costToMax, 'Big')}</Typography>
+                    <Typography variant={'caption'}>Next Level Cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
+                    <Typography variant={'caption'}>Cost To Max: {notateNumber(costToMax, 'Big')}</Typography>
                   </> : null}
                 </Stack>
               </Stack>

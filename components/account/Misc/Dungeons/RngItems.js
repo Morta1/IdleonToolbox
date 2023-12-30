@@ -18,13 +18,14 @@ const RngItems = ({ rngItems }) => {
       const baseCost = 1 + .7 * Math.pow(level, 1.5 + .05 * level)
       const costMulti = rarity.indexOf(rarity);
       const cost = Math.floor(baseCost * (1 + (costMulti + 1) * Math.pow(4, (costMulti + 2.348) / 2.348)))
-      return <Card key={name} sx={{ width: 300, border: `1px solid ${rarityColors?.[rarity]}`, opacity: level === -1 ? .5 : 1 }}>
+      return <Card key={name}
+                   sx={{ width: 300, border: `1px solid ${rarityColors?.[rarity]}`, opacity: level === -1 ? .5 : 1 }}>
         <CardContent>
           <img src={`${prefix}data/DungItems${index}.png`} alt={''}/>
           <Typography>{cleanUnderscore(name)}</Typography>
           <Typography>{cleanUnderscore(desc.replace('{', notateNumber(realBonus, 'MultiplierInfo')))}</Typography>
-          {<Typography mt={2}>Lv. {level > 0 ? level : 0} / {maxLevel}</Typography>}
-          {level >0 && level < maxLevel ? <Typography mt={2}>Next lvl cost: {cost}</Typography> : null}
+          {<Typography color={level >= maxLevel ? 'success.light' :''} mt={2}>Lv. {level > 0 ? level : 0} / {maxLevel}</Typography>}
+          {level > 0 && level < maxLevel ? <Typography mt={2}>Next lvl cost: {cost}</Typography> : null}
         </CardContent>
       </Card>
     })}

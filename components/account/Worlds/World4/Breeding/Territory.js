@@ -31,7 +31,7 @@ const Territory = ({ territories, spices }) => {
                 <Stack direction={breakpoint ? 'column' : 'row'} flexWrap={'wrap'}
                        gap={breakpoint ? 2 : 0}
                        justifyContent={breakpoint ? 'flex-start' : 'space-between'}>
-                  <Stack sx={{ width: 160 }} gap={2} direction={breakpoint ? 'row' : 'column'}>
+                  <Stack sx={{ width: 170 }} gap={2} direction={breakpoint ? 'row' : 'column'}>
                     <Stack sx={{ width: '100%', top: 5, left: 5 }}>
                       <Typography variant={'body1'}>{territoryName}</Typography>
                       <Typography variant={'body2'}>{cleanUnderscore(battleName)}</Typography>

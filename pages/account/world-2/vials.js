@@ -14,10 +14,11 @@ const Vials = () => {
   const getVialMastery = () => {
     if (isRiftBonusUnlocked(state?.account?.rift, 'Vial_Mastery')) {
       const maxedVials = state?.account?.alchemy?.vials?.filter(({ level }) => level >= 13);
-      return 1 + (2 * maxedVials?.length) / 100;
+      const vialMastery = 1 + (2 * maxedVials?.length) / 100;
+      return isNaN(vialMastery) ? 0 : vialMastery;
     }
   }
-  
+
   return <>
     <NextSeo
       title="Idleon Toolbox | Vials"

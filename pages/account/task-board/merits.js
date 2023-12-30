@@ -45,7 +45,11 @@ const Merits = () => {
               ? descLine1.replace(/}/, extraStr.split('|')[level])
               : descLine1.replace(/{/, bonusPerLevel * level)) + (descLine2 !== 'Descline2' ? ` ${descLine2}` : '');
             return <Card key={'key' + index} sx={{ width: 400 }}>
-              <CardContent>
+              <CardContent sx={{
+                border: level >= totalLevels ? '1px solid' : '',
+                borderColor: level >= totalLevels ? 'success.light' : '',
+                height: '100%'
+              }}>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
                   <img src={`${prefix}data/${icon}.png`} alt={'merit_icon' + icon}/>
                   <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>

@@ -76,9 +76,9 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const topAndBottomRows = [...team, ...previousTeam, ...nextTeam];
     const badumdums = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Badumdum')?.length;
     const tsars = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Tsar')?.length;
-    const f = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
-    const trekkingFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars);
-    const totalForageSpeed = trekkingFightPower < territory.fightPower ? 0 : f;
+    const math = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
+    const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars);
+    const totalForageSpeed = teamFightPower < territory.fightPower ? 0 :math;
     const bonus = 1 + .02 / (team.filter((teamMember) => teamMember?.gene?.name === 'Monolithic').length / 5 + 1);
     const reqProgress = (territory?.powerReq + foragingRounds?.[index]) * Math.pow(bonus, foragingRounds?.[index])
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }

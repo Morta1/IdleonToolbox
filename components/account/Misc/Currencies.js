@@ -18,8 +18,8 @@ const Currencies = ({
     <CoinDisplay className={'box'} money={money}/>
     <Typography mt={2} mb={1} textAlign={'center'}>Currencies</Typography>
     <Stack flexWrap={'wrap'} gap={1} justifyContent={'center'} direction={'row'}>
-      <IconWithText stat={WorldTeleports} icon={'rtt0'} img={imgStyle}/>
-      <IconWithText stat={ObolFragments} icon={'ObolFrag'} img={imgStyle}/>
+      <IconWithText title={'World Teleports'} stat={WorldTeleports} icon={'rtt0'} img={imgStyle}/>
+      <IconWithText title={'Obol Fragments'} stat={ObolFragments} icon={'ObolFrag'} img={imgStyle}/>
       <HtmlTooltip title={<Stack gap={2}>
         {ColosseumTickets?.allTickets?.map(({
                                               rawName,
@@ -33,8 +33,8 @@ const Currencies = ({
               <IconWithText stat={''} icon={rawName} img={imgStyle}/>
             </Stack>
             <Stack>
-              <TitleAndValue title={'Tickets per day'} value={amountPerDay}/>
-              <TitleAndValue title={'Days since pickup'} value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
+              <TitleAndValue title={'Tickets Per Day'} value={amountPerDay}/>
+              <TitleAndValue title={'Days Since Pickup'} value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
               <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
             </Stack>
           </Stack>
@@ -42,15 +42,15 @@ const Currencies = ({
       </Stack>}>
         <IconWithText stat={ColosseumTickets?.totalAmount} icon={'TixCol'} img={imgStyle}/>
       </HtmlTooltip>
-      <IconWithText stat={SilverPens} icon={'SilverPen'} img={imgStyle}/>
-      <IconWithText stat={gems} icon={'PremiumGem'} img={imgStyle}/>
-      <IconWithText stat={minigamePlays} img={imgStyle}
+      <IconWithText title={'Silver Pen'} stat={SilverPens} icon={'SilverPen'} img={imgStyle}/>
+      <IconWithText title={'Gem'} stat={gems} icon={'PremiumGem'} img={imgStyle}/>
+      <IconWithText title={'Minigame Plays'} stat={minigamePlays} img={imgStyle}
                     icon={'MGp'}/>
       {KeysAll?.map(({ rawName, amount, totalAmount, amountPerDay, daysSincePickup }, index) => {
         return <HtmlTooltip key={`${rawName}-${index}`}
                             title={<Stack>
-                              <TitleAndValue title={'Keys per day'} value={amountPerDay}/>
-                              <TitleAndValue title={'Days since pickup'}
+                              <TitleAndValue title={'Keys Per day'} value={amountPerDay}/>
+                              <TitleAndValue title={'Days Since pickup'}
                                              value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
                               <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
                             </Stack>}>

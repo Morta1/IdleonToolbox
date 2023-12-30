@@ -54,8 +54,8 @@ const Divinity = () => {
                   {godIndex === 2 ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
                   {cost?.cost !== 'MAX' && showCost ? <>
                     <Cost title={'Cost'} {...cost} cost={cost?.cost}/>
-                    <Cost title={'Next level cost'} {...cost} cost={cost?.nextLevelCost}/>
-                    <Cost title={'Cost to max'} {...cost} cost={cost?.costToMax}/>
+                    <Cost title={'Next Level Cost'} {...cost} cost={cost?.nextLevelCost}/>
+                    <Cost title={'Cost To Max'} {...cost} cost={cost?.costToMax}/>
                   </> : null}
                   <Divider sx={{ my: 2 }}/>
                   <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus)}</Typography>

@@ -38,10 +38,16 @@ const Tasks = () => {
             if (level === breakpoints?.length) {
               desc = filler2.split('|').slice(-1)?.[0]?.replace(/{/, notateNumber(stat, 'Big'));
             } else {
-              desc = description.replace(/{/, notateNumber(index === 8 ? breakpoints?.[0] : breakpoints?.[level], 'Big')).replace(/}/, filler1.split('|')?.[level])
+              desc = description.replace(/{/, notateNumber(index === 8
+                ? breakpoints?.[0]
+                : breakpoints?.[level], 'Big')).replace(/}/, filler1.split('|')?.[level])
             }
             return <Card key={'key' + index} sx={{ width: 400 }}>
-              <CardContent>
+              <CardContent sx={{
+                border: level >= breakpoints?.length ? '1px solid' : '',
+                borderColor: level >= breakpoints?.length ? 'success.light' : '',
+                height: '100%'
+              }}>
                 <Stack direction={'row'} alignItems={'center'}>
                   <img src={`${prefix}data/TaskRank${level}.png`} alt={'task-rank-' + level}/>
                   <Typography>{cleanUnderscore(name)} ({level} / {index === 8 ? 1 : breakpoints?.length})</Typography>

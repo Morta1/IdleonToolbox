@@ -511,7 +511,7 @@ export const getDropRate = (character, account, characters) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
   const stampBonus = getStampsBonusByEffect(account?.stamps, '+{%_Drop_Rate');
-  const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
+  const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES', null, true);
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
@@ -535,9 +535,8 @@ export const getDropRate = (character, account, characters) => {
     arcadeBonus +
     companionDropRate +
     stampBonus;
-
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * account?.accountOptions?.[189] + 5 * equinoxDropRateBonus)) / 100 + 1;
+    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus)) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }

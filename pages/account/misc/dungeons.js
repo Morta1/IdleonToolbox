@@ -40,7 +40,7 @@ const Dungeons = () => {
             </Stack>
           </Stack>
         </CardTitleAndValue>
-        <CardTitleAndValue title={'Boosted runs'}>
+        <CardTitleAndValue title={'Boosted Runs'}>
           <Stack direction={'row'} gap={1}>
             <img src={`${prefix}etc/boosted-runs.png`} alt=""/>
             <Typography>{dungeons?.boostedRuns}</Typography>
@@ -64,7 +64,7 @@ const Dungeons = () => {
         <Accordion>
           <AccordionSummary expandIcon={nextHappyHours.length > 1 ? <ExpandMoreIcon/> : null}>
             <Stack direction="row" gap={2}>
-              <Typography>Next happy hour:</Typography>
+              <Typography>Next Happy Hour:</Typography>
               {nextHappyHours?.length > 0 ?
                 <>
                   <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/>

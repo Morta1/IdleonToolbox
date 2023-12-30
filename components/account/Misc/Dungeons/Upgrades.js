@@ -52,25 +52,28 @@ const UpgradeList = ({ isFlurbo, upgrades = [] }) => {
           const isMaxed = level >= (isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel);
           return (
             <Card key={`${effect}-${index}`} sx={{ width: { md: 450 } }}>
-              <CardContent>
+              <CardContent sx={{
+                border: isMaxed ? '1px solid' : '',
+                borderColor: isMaxed ? 'success.light' : '',
+                borderRadius: '6px'
+              }}>
                 <Stack direction="row" justifyContent="space-between" gap={2}>
                   <Stack>
                     <Typography>
                       +{calcBonus(upgrade)}
                       {type === '%' ? type : ''} {cleanUnderscore(effect)}
                     </Typography>
-                    <Typography
-                      color={isMaxed ? 'success.light' : ''}>{isMaxed ? 'MAXED' : `Lv. ${level} / ${isFlurbo
+                    <Typography>{`Lv. ${level} / ${isFlurbo
                       ? flurboUpgradeMaxLevel
                       : insideDungeonUpgradeMaxLevel}`}</Typography>
                   </Stack>
                   <Stack direction="row" gap={3}>
                     <Stack>
-                      <Typography color={'info.light'}>Cost</Typography>
+                      <Typography color={'text.secondary'}>Cost</Typography>
                       <Typography>{calcUpgradeCost(level)}</Typography>
                     </Stack>
                     <Stack>
-                      <Typography color={'info.light'}>Cost to max</Typography>
+                      <Typography color={'text.secondary'}>Cost To Max</Typography>
                       <Typography>{calcCostToMax(level)}</Typography>
                     </Stack>
                   </Stack>

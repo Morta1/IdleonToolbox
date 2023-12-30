@@ -77,7 +77,10 @@ const Forge = () => {
           const costToMax = getCostToMax(level, maxLevel, costMulti);
           const totalCost = getCostToMax(level, maxLevel, costMulti, true);
           return <Card key={`${level}-${index}`} sx={{ width: 'fit-content' }}>
-            <CardContent>
+            <CardContent sx={{
+              border: level >= maxLevel ? '1px solid' : '',
+              borderColor: level >= maxLevel ? 'success.light' : '',
+            }}>
               <Stack direction="row" gap={3} flexWrap={'wrap'}>
                 <Column name={'Lv.'} value={`${level} / ${maxLevel}`}/>
                 <Column style={{ width: 300 }} name={'Description'} value={description}/>
@@ -88,7 +91,7 @@ const Forge = () => {
 
 
                 <Column style={{ minWidth: 120, alignItems: 'flex-start' }}
-                        name={level < maxLevel ? 'Cost to max' : 'Total cost'}
+                        name={level < maxLevel ? 'Cost To Max' : 'Total cost'}
                         value={<CoinDisplay centered={false} title={''} maxCoins={3}
                                             money={getCoinsArray(level < maxLevel ? costToMax : totalCost)}/>}/>
 

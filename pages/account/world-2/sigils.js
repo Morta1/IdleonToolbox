@@ -86,7 +86,6 @@ const Sigils = () => {
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
                     <PlayersList players={characters} characters={state?.characters}/>
-
                   </Stack>
                 </Stack>
                 <Stack mt={2} gap={2}>
@@ -105,7 +104,7 @@ const Sigils = () => {
                     {isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
                                                  lastUpdated={state?.lastUpdated}/> : null}
                   </> : (
-                    <Typography color={'success.main'}>MAXED</Typography>
+                    <Typography color={'success.main'}>Maxed</Typography>
                   )}
                 </Stack>
               </CardContent>

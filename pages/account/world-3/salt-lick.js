@@ -36,7 +36,12 @@ const SaltLick = () => {
         const calculatedBonusCost = calcBonusCost(bonus);
         const costToMax = calcCostToMax(bonus);
         const calculatedBonus = calcBonus(bonus);
-        return <Card key={name + ' ' + index} sx={{ width: { xs: '100%', md: 630 } }}>
+        return <Card key={name + ' ' + index} sx={{ width: { xs: '100%', md: 630 },
+          outline: level >= maxLevel ? '1px solid' : '',
+          outlineColor: (theme) => level >= maxLevel
+            ? theme.palette.success.light
+            : '',
+        }}>
           <CardContent>
             <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} justifyContent={'space-between'}
                    alignItems={'center'} flexWrap={'wrap'}>
@@ -48,7 +53,7 @@ const SaltLick = () => {
                 <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
                 {costToMax > 0 ?
                   <Typography>{kFormatter(totalAmount, 2)} / {kFormatter(calculatedBonusCost, 2)}</Typography> :
-                  <Typography sx={{ alignSelf: 'center', color: 'success.main' }}>MAXED</Typography>}
+                  <Typography sx={{ alignSelf: 'center', color: 'success.main' }}>Maxed</Typography>}
               </Stack>
               {costToMax > 0 ? <Stack justifyContent={'center'} alignItems={'center'}>
                 <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>

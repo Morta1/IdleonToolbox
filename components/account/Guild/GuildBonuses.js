@@ -23,8 +23,8 @@ const GuildBonuses = ({ bonuses }) => {
             </Stack>
             <Stack gap={1}>
               <Typography>level: {level} / {maxLevel}</Typography>
-              <Typography>cost: {notateNumber(gpBaseCost + level * gpIncrease)}</Typography>
-              <Typography>cost to max: {notateNumber(costToMax)}</Typography>
+              <Typography>Cost: {notateNumber(gpBaseCost + level * gpIncrease)}</Typography>
+              <Typography>Cost To Max: {notateNumber(costToMax)}</Typography>
               <Typography
                 sx={{ fontSize: 16 }}>{cleanUnderscore(bonus.replace('{', growth(func, level, x1, x2)))}</Typography>
             </Stack>

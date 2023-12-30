@@ -52,7 +52,7 @@ const Equinox = () => {
           return <Card key={label + `${index}`} sx={{
             width: 350,
             border: current !== -1 ? '1px solid' : '',
-            borderColor: current !== -1 ? 'success.main' : '',
+            borderColor: current !== -1 ? 'success.light' : '',
             opacity: current !== -1 ? 1 : .5
           }}>
             <CardContent>
