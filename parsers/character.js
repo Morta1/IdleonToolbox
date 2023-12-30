@@ -352,20 +352,14 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   // character.constructionSpeed = getPlayerConstructionSpeed(character, account);
   // character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, account);
   const kills = char?.[`KillsLeft2Advance`];
-  const isBarbarian = talentPagesMap[character.class].includes('Barbarian');
-  const isBloodBerserker = talentPagesMap[character.class].includes('Blood_Berserker');
   character.kills = kills?.reduce((res, map, index) => [...res,
     parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
   character.nextPortal = {
     goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
     current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
   };
-  // if (isBarbarian) { // zow
   character.zow = getBarbarianZowChow(kills, [1e5]);
-  // }
-  // if (isBloodBerserker) {
   character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
-  // }
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
@@ -976,49 +970,6 @@ const getTrappingStuff = (type, index, optionsList) => {
     return 0;
   }
   return 1;
-}
-
-export const allProwess = (character, account) => {
-  const prowessBubble = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'PROWESESSARY', false);
-  const starSignProwess = getStarSignBonus(character, account, 'All_Skill_Prowess');
-  const skillProwessMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Sprow')
-  return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
-}
-
-export const getAllBaseSkillEff = (character, account) => {
-  const baseAllEffBox = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 1);
-  const galvanicMotherboard = account?.lab?.playersChips?.[character?.playerId].find((chip) => chip.index === 11)?.baseVal ?? 0;
-  const superSource = getTalentBonus(character?.starTalents, null, 'SUPERSOURCE');
-  const emeraldNavetteBonus = account?.lab?.jewels.filter(jewel => jewel.active && jewel.name === 'Emerald_Navette').reduce((sum, jewel) => sum + (jewel.bonus * jewel.multiplier), 0);
-  return (baseAllEffBox) + galvanicMotherboard + (superSource + emeraldNavetteBonus);
-}
-
-export const getAllEff = (character, characters, account, charactersLevels) => {
-  const highestLevelHunter = getHighestLevelOfClass(charactersLevels, 'Hunter');
-  const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Beast_Master', 'THE_FAMILY_GUY');
-  const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
-  const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
-  const equipmentEffEffectBonus = getStatsFromGear(character, 48, account);
-  const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealEff = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Seff', blackDiamondRhinestone);
-  const groundedMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 11)?.baseVal ?? 0;
-  const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B');
-  const crystalCapybaraBonus = account?.cards?.Crystal_Capybara?.stars + 1 ?? 0;
-  const cardSet = character?.cards?.cardSet?.rawName === 'CardSet2' ? character?.cards?.cardSet?.bonus : 0;
-  const skilledDimwit = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.bonus;
-  const balanceOfProficiency = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.curse;
-  const maestroTransfusion = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
-  let guildSKillEff = 0;
-  if (account?.guild?.guildBonuses?.length > 0) {
-    guildSKillEff = getGuildBonusBonus(account?.guild?.guildBonuses, 6);
-  }
-
-  return (1 + ((amplifiedFamilyBonus) + (equipmentEffEffectBonus + 0)) / 100) *
-    (1 + (mealEff + (groundedMotherboard + 3 * crystalCapybaraBonus)) / 100) *
-    (1 + chaoticTrollBonus / 100) *
-    (1 + (guildSKillEff + (cardSet + skilledDimwit)) / 100) *
-    Math.max(1 - (maestroTransfusion + balanceOfProficiency) / 100, 0.01);
 }
 
 export const getPlayerCapacity = (bag, capacities) => {

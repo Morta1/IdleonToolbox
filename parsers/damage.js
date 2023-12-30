@@ -44,6 +44,7 @@ import { getSaltLickBonus } from './saltLick';
 import { getAchievementStatus } from './achievements';
 import { getGodBlessingBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
+import { getMiningEff } from '@parsers/efficiency';
 
 export const getMaxDamage = (character, characters, account) => {
   const playerInfo = { survivabilityMath: 0 };
@@ -65,6 +66,9 @@ export const getMaxDamage = (character, characters, account) => {
   playerInfo.critChance = getCritChance(character, characters, account, playerInfo);
   playerInfo.hitChance = getHitChance(character, characters, account, playerInfo);
   playerInfo.mastery = getMastery(character, characters, account);
+
+  // efficiencies
+  playerInfo.miningEff = getMiningEff(character, characters, account, playerInfo);
 
   const { baseDamage } = getBaseDamage(character, characters, account, playerInfo, damageFromStat)
   const hpMpDamage = getDamageFromHpMp(character, characters, account, playerInfo, damageFromStat);

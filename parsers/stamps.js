@@ -1,5 +1,6 @@
 import { growth, tryToParse } from '../utility/helpers';
 import { stamps } from '../data/website-data';
+import { getTalentBonus } from '@parsers/talents';
 
 const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
@@ -36,6 +37,10 @@ export const getStampsBonusByEffect = (stamps, effectName, character) => {
 export const getStampBonus = (stamps, stampTree, stampName, character) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
+  let toiletPaperPostage = 1;
+  if (stamp?.stat?.includes('Eff')){
+    toiletPaperPostage = getTalentBonus(character?.starTalents, null, 'TOILET_PAPER_POSTAGE')
+  }
   if (stamp?.skillIndex > 0) {
     if (stamp?.reqItemMultiplicationLevel > 1) {
       const deficitEff = 3;
@@ -46,11 +51,11 @@ export const getStampBonus = (stamps, stampTree, stampName, character) => {
         lvlDiff *= 20 * stamp?.reqItemMultiplicationLevel / 200;
         const reducedLevel = Math.floor(Math.min(lvlDiff, stampLevel));
         const finalLevel = Math.min(reducedLevel, stamp?.level);
-        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
+        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage;
       }
     }
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1);
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage;
 }
 
 export const applyStampsMulti = (stamps, multiplier) => {

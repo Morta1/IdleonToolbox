@@ -21,7 +21,10 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
   const unlockedDeities = divinityRaw?.[25];
   const deities = gods?.map((god, index) => {
       const level = blessingLevels?.[index];
-      const blessingBonus = level * god?.blessingMultiplier;
+      let blessingBonus = level * god?.blessingMultiplier;
+      if (index === 2) {
+        blessingBonus = Math.min(blessingBonus, 500);
+      }
       return {
         ...god,
         rawName: `DivGod${index}`,

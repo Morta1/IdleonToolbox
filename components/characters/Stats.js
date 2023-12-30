@@ -32,6 +32,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     account]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
 
+
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
     const timePassed = new Date().getTime() + (afkTime - lastUpdated);
@@ -90,6 +91,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'C. damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'M. Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+            <Stat title={'Mining Eff'} value={notateNumber(playerInfo?.miningEff)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
             <Stat title={'Cash Multi'} value={`${kFormatter(cashMulti, 2)}%`}
                   breakdown={breakdown} breakdownNotation={'Smaller'}/>
@@ -129,8 +131,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               <Typography color={'info.light'}>Afk time</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1} color={isOvertime() ? 'error.light' : ''}>
                 {isActive() ? <Typography color={'success.light'}>Active</Typography> : <Timer type={'up'}
-                                                                                                date={afkTime}
-                                                                                                lastUpdated={lastUpdated}/>}
+                                                                                               date={afkTime}
+                                                                                               lastUpdated={lastUpdated}/>}
                 {isOvertime() ? (
                   <Tooltip title={'This character is afk more than 10 hours with Unending Energy prayer'}>
                     <InfoIcon/>

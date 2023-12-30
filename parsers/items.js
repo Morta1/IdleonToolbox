@@ -32,15 +32,16 @@ export const calculateItemTotalAmount = (array, itemName, exact, isRawName = fal
   }, 0);
 }
 
-export const getStatsFromGear = (character, bonusIndex, account) => {
-  const { equipment } = character || {};
+export const getStatsFromGear = (character, bonusIndex, account, isTools = false) => {
+  const { equipment, tools } = character || {};
   const silkroadMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 16) ?? 0;
   const silkroadSoftware = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 17) ?? 0;
   const silkroadProcessor = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 18) ?? 0;
+  const array = isTools ? tools : equipment;
   if (isNaN(bonusIndex)) {
-    return equipment?.reduce((res, item) => res + (getStatFromEquipment(item, bonusIndex)), 0);
+    return array?.reduce((res, item) => res + (getStatFromEquipment(item, bonusIndex)), 0);
   }
-  return equipment?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
+  return array?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
       (((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware))
         ? 2
         : 1))
