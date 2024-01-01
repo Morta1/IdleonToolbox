@@ -49,7 +49,7 @@ const Currencies = ({
       {KeysAll?.map(({ rawName, amount, totalAmount, amountPerDay, daysSincePickup }, index) => {
         return <HtmlTooltip key={`${rawName}-${index}`}
                             title={<Stack>
-                              <TitleAndValue title={'Keys Per day'} value={amountPerDay}/>
+                              <TitleAndValue title={'Keys Per Day'} value={amountPerDay}/>
                               <TitleAndValue title={'Days Since Pickup'}
                                              value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
                               <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
