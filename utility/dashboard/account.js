@@ -147,7 +147,7 @@ export const constructionAlerts = (account, options) => {
   }
   if (rankUp?.checked) {
     alerts.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => {
-      const halfPercent = .5 * powerCap / 100;
+      const halfPercent = .2 * powerCap / 100;
       return refined >= powerCap - halfPercent
     });
   }
