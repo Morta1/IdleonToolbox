@@ -47,10 +47,15 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
   }, [fencePets]);
 
   const groupByPassive = useMemo(() => {
-    if (filter === 'worlds') {
-      return Object.groupBy(pets.flat(), ({ world }) => world)
-    } else {
-      return Object.groupBy(pets.flat(), ({ rawPassive }) => rawPassive)
+    try {
+      if (filter === 'worlds') {
+        return Object.groupBy(pets.flat(), ({ world }) => world)
+      } else {
+        return Object.groupBy(pets.flat(), ({ rawPassive }) => rawPassive)
+      }
+    } catch (err) {
+      console.error('Your browser doesn\'t support groupBy, please consider updating it')
+      return {};
     }
   }, [filter]);
 

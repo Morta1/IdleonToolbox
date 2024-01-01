@@ -42,15 +42,15 @@ const Currencies = ({
       </Stack>}>
         <IconWithText stat={ColosseumTickets?.totalAmount} icon={'TixCol'} img={imgStyle}/>
       </HtmlTooltip>
-      <IconWithText title={'Silver Pen'} stat={SilverPens} icon={'SilverPen'} img={imgStyle}/>
-      <IconWithText title={'Gem'} stat={gems} icon={'PremiumGem'} img={imgStyle}/>
+      <IconWithText title={'Silver Pens'} stat={SilverPens} icon={'SilverPen'} img={imgStyle}/>
+      <IconWithText title={'Gems'} stat={gems} icon={'PremiumGem'} img={imgStyle}/>
       <IconWithText title={'Minigame Plays'} stat={minigamePlays} img={imgStyle}
                     icon={'MGp'}/>
       {KeysAll?.map(({ rawName, amount, totalAmount, amountPerDay, daysSincePickup }, index) => {
         return <HtmlTooltip key={`${rawName}-${index}`}
                             title={<Stack>
                               <TitleAndValue title={'Keys Per day'} value={amountPerDay}/>
-                              <TitleAndValue title={'Days Since pickup'}
+                              <TitleAndValue title={'Days Since Pickup'}
                                              value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
                               <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
                             </Stack>}>

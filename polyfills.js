@@ -59,3 +59,23 @@ Date.prototype.stdTimezoneOffset = function () {
 Date.prototype.isDstObserved = function () {
   return this.getTimezoneOffset() < this.stdTimezoneOffset();
 }
+
+if (!Object.prototype.groupBy) {
+  Object.defineProperty(Object.prototype, 'groupBy', {
+    value: function (input, callback) {
+      return input.reduce(function (groups, item) {
+        const key = callback(item);
+
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+
+        groups[key].push(item);
+        return groups;
+      }, {});
+    },
+    enumerable: false, // Make sure it doesn't show up in for...in loops
+    writable: true,
+    configurable: true
+  });
+}
