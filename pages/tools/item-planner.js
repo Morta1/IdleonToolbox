@@ -291,7 +291,7 @@ const ItemPlanner = ({}) => {
                   }}
                   renderOption={(props, option) => {
                     return option ? (
-                      <Stack gap={2} {...props} key={crafts?.[option]?.rawName} direction={'row'}>
+                      <Stack {...props} gap={2} direction={'row'}>
                         <img
                           width={24}
                           height={24}
@@ -300,7 +300,7 @@ const ItemPlanner = ({}) => {
                         />
                         {option?.replace(/_/g, ' ')}
                       </Stack>
-                    ) : <span style={{ height: 0 }} key={'empty'}/>;
+                    ) : <span {...props} style={{ height: 0 }} key={'empty' }/>;
                   }}
                   style={{ width: 300 }}
                   renderInput={(params) => (

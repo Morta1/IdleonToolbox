@@ -60,7 +60,7 @@ Date.prototype.isDstObserved = function () {
   return this.getTimezoneOffset() < this.stdTimezoneOffset();
 }
 
-if (!Object.prototype.groupBy) {
+if (typeof Object.groupBy === 'undefined') {
   Object.defineProperty(Object.prototype, 'groupBy', {
     value: function (input, callback) {
       return input.reduce(function (groups, item) {
