@@ -44,7 +44,6 @@ export default function CardSearch() {
       cardSetsObject[category].totalStars += (stars === 0 && amount > 0 ? 1 : stars > 0 ? stars + 1 : 0);
       return { ...res, [category]: [...(res?.[category] || []), cardDetails] };
     }, {});
-    console.log(cardSetsObject)
     return { ...cards, ['Card Sets']: Object.values(cardSetsObject) };
   }
   const cardsObject = useMemo(() => mapCards(cards, cardSets), [state.account]);
