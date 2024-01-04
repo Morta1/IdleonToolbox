@@ -279,7 +279,7 @@ export const alchemyAlerts = (account, options) => {
 export const sailingAlerts = (account, options) => {
   const alerts = {}
   if (!account?.finishedWorlds?.World4) return alerts;
-  const { captains } = options;
+  const { captains, chests } = options;
   if (captains?.checked) {
     const { captains, shopCaptains } = account?.sailing || {};
     alerts.captains = shopCaptains?.reduce((res, shopCaption) => {
@@ -347,6 +347,9 @@ export const sailingAlerts = (account, options) => {
       }
       return res;
     }, []);
+  }
+  if (chests?.checked) {
+    alerts.chests = account?.sailing?.chests?.length === account?.sailing?.maxChests;
   }
   return alerts;
 }

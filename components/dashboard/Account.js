@@ -120,6 +120,9 @@ const Account = ({ account, characters, trackers }) => {
             alerts?.tasks?.map((world) => <Alert key={'task' + world}
                                                  title={`Daily task in world ${world + 1} not done yet`}
                                                  iconPath={`etc/Merit_${world}`}/>) : null}
+          {/*{trackers?.sailing && alerts?.sailing?.chests > 0 ?<Alert key={'task' + world}*/}
+          {/*                                                          title={`Daily task in world ${world + 1} not done yet`}*/}
+          {/*                                                          iconPath={'npcs/Chesty.gif'}/>: null}*/}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
             alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {
               return <Alert

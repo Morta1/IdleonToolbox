@@ -34,17 +34,17 @@ export default function CardSearch() {
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
   const mapCards = (cardsArray, cardSets) => {
-    // ("CardsTillNextLV"
     const cardSetsObject = Object.values(cardSets).reduce((res, cardSet) => ({
       ...res,
       [cardSet?.name]: ({ ...cardSet, totalStars: 0 })
     }), {});
     const cards = Object.entries(cardsArray)?.reduce((res, [, cardDetails]) => {
       const { category, displayName } = cardDetails;
-      const { stars } = state?.account?.cards?.[displayName] || {};
-      cardSetsObject[category].totalStars += stars + 1 || 0;
+      const { stars, amount } = state?.account?.cards?.[displayName] || {};
+      cardSetsObject[category].totalStars += (stars === 0 && amount > 0 ? 1 : stars > 0 ? stars + 1 : 0);
       return { ...res, [category]: [...(res?.[category] || []), cardDetails] };
     }, {});
+    console.log(cardSetsObject)
     return { ...cards, ['Card Sets']: Object.values(cardSetsObject) };
   }
   const cardsObject = useMemo(() => mapCards(cards, cardSets), [state.account]);
@@ -151,9 +151,9 @@ export default function CardSearch() {
                             nextLevelReq
                           } = state?.account?.cards?.[displayName] || {};
                           if (isCardSets) {
-                            stars = Math.floor(cardsObject?.['Card Sets'][index]?.totalStars / localCardObject[name].length) - 1;
-                            amount = stars;
-                            nextLevelReq = Math.floor(localCardObject[name].length) * (Math.min(5, Math.floor(stars / Math.max(localCardObject[name].length, 1))) + 1)
+                            stars = Math.floor(cardsObject?.['Card Sets'][index]?.totalStars / Math.max(localCardObject[name].length, 1)) - 1;
+                            amount = cardsObject?.['Card Sets'][index]?.totalStars;
+                            nextLevelReq = Math.floor(localCardObject[name].length) * (Math.min(5, Math.floor(cardsObject?.['Card Sets'][index]?.totalStars / Math.max(localCardObject[name].length, 1))) + 1);
                           }
                           return (
                             <div style={{ position: 'relative' }} key={displayName + '' + index}>

@@ -60,7 +60,7 @@ const baseTrackers = {
       ]
     },
     guild: { checked: true, options: [{ name: 'daily', checked: true }, { name: 'weekly', checked: true }] },
-    sailing: { checked: true, options: [{ name: 'captains', checked: true }] },
+    sailing: { checked: true, options: [{ name: 'captains', checked: true }, /*{ name: 'chests', checked: true }*/] },
     breeding: {
       checked: true,
       options: [
