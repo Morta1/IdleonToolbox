@@ -1,7 +1,7 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, groupByKey, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -17,7 +17,7 @@ const Looty = () => {
   useEffect(() => {
     let result
     if (orderByGroup) {
-      const groupedBy = Object.groupBy(state?.account?.storage, ({ Type }) => Type);
+      const groupedBy = groupByKey(state?.account?.storage, ({ Type }) => Type);
       if (sortByStackSize) {
         result = Object.entries(groupedBy).reduce((res, [key, val]) => {
           const sorted = [...val].sort((a, b) => b?.amount - a?.amount);
@@ -63,7 +63,7 @@ const Looty = () => {
   return (
     <Stack>
       <NextSeo
-        title="Idleon Toolbox | Storage"
+        title="Storage | Idleon Toolbox"
         description="A list of your storage items"
       />
       <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>

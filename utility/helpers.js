@@ -234,11 +234,12 @@ export const getCoinsArray = (coins) => {
 };
 
 export const getBitIndex = (e) => {
-  let temp = e, num = 0;
+  let bits = e, num = 0;
+  console.log(bits)
   for (let i = 0; i < 4; i++) {
-    if (temp > 1e18) {
-      temp = temp / 1e18
-      num += 1;
+    if (bits > 1e18) {
+      bits /= 1e18;
+      num++;
     }
   }
   return num;
@@ -440,6 +441,20 @@ export const removeDuplicatesByKey = (array, key) => {
     return false;
   });
 }
+
+export const groupByKey = (array, callback) => {
+  return array.reduce(function (groups, item) {
+    const key = callback(item);
+
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+
+    groups[key].push(item);
+    return groups;
+  }, {})
+}
+
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 export const prefix = isProd ? '/' : '/';
 

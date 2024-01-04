@@ -45,7 +45,7 @@ const GodPlanner = () => {
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <NextSeo
-      title="Idleon Toolbox | God Planner"
+      title="God Planner | Idleon Toolbox"
       description="Watch all of your character's gods minor bonuses"
     />
     <Typography variant={'h2'} mb={3}>God Planner</Typography>

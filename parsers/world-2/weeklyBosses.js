@@ -1,6 +1,6 @@
 import { weeklyBosses, weeklyBossesActions, weeklyBossesShop, weeklyBossesTasks } from '../../data/website-data';
 import LavaRand from '../../utility/lavaRand';
-import { lavaLog } from '../../utility/helpers';
+import { lavaLog } from '@utility/helpers';
 import { getMaxDamage } from '../damage';
 
 const getBossId = (seed) => {
@@ -48,7 +48,7 @@ const getShopItems = (seed) => {
 }
 
 const MAX_ACCUMULATOR_SIZE = 9;
-export const getWeeklyBoss = (account, characters) => {
+export const getWeeklyBoss = (account) => {
   if (!account) return [];
   const seed = Math.round(Math.floor(account?.timeAway?.GlobalTime / 604800));
   const weeklyBossesList = [];
@@ -135,5 +135,4 @@ export const getTaskQuantity = (turn, bossId, account, characters) => {
             : bossId === 23
               ? Math.ceil(lavaLog(character?.kills?.[158]))
               : 0;
-
 }

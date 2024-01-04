@@ -12,7 +12,7 @@ const Construction = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Construction"
+      title="Construction | Idleon Toolbox"
       description="Keep track of your construction board, cogs information and more"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>

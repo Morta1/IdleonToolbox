@@ -28,7 +28,7 @@ const General = ({
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard title={'Bits'} imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
       <ImgCard title={'Sprouts'} imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
-      <ImgCard title={'Best Nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseInt(bestNugget))}/>
+      <ImgCard title={'Best Nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseFloat(bestNugget))}/>
       <ImgCard title={'Drops'} imgSrc={'etc/GamingDrop'} value={availableDrops}/>
       <ImgCard title={'Envelopes'} imgSrc={'etc/GamingEnvelope'} value={notateNumber(envelopes)}/>
       <ImgCard title={'Log book'} imgSrc={'data/GamingPlanth5'} value={`${logBook?.length} / 72`}/>
@@ -45,7 +45,7 @@ const General = ({
             <Typography mt={1}>{cleanUnderscore(description)}</Typography>
             <Stack mt={1} direction={'row'} gap={1} alignItems={'center'}>
               <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`} alt="" style={{ objectFit: 'contain' }}/>
-              <Typography>{cost}</Typography>
+              <Typography>{notateNumber(cost, 'bits')}</Typography>
             </Stack>
           </CardContent>
         </Card>

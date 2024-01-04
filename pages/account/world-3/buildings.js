@@ -113,7 +113,7 @@ const Buildings = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Buildings"
+      title="Buildings | Idleon Toolbox"
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
     <Typography variant={'h2'} mb={3}>Buildings</Typography>

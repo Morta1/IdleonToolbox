@@ -16,7 +16,7 @@ const AtomCollider = ({}) => {
   const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
   return <>
     <NextSeo
-      title="Idleon Toolbox | Atom Collider"
+      title="Atom Collider | Idleon Toolbox"
       description="Atom Collider bonuses and progression"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Atoms</Typography>

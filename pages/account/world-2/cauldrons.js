@@ -39,7 +39,7 @@ const Cauldrons = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Cauldrons"
+        title="Cauldrons | Idleon Toolbox"
         description="Cauldrons progression and stats"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Cauldrons</Typography>

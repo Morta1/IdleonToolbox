@@ -17,7 +17,7 @@ const Tasks = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Tasks"
+        title="Tasks | Idleon Toolbox"
         description="Keep track of your tasks progression"
       />
       <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>

@@ -17,7 +17,7 @@ const Divinity = () => {
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <NextSeo
-      title="Idleon Toolbox | Divinity"
+      title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
@@ -39,6 +39,11 @@ const Divinity = () => {
                        level
                      }, godIndex) => {
         const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex));
+        const highestDivinityCharacter = state?.characters?.reduce((prev, curr) => {
+          const prevBonus = prev?.skillsInfo?.divinity?.level;
+          const currBonus = curr?.skillsInfo?.divinity?.level;
+          return prevBonus > currBonus ? prev : curr;
+        }, state?.characters?.[0]);
         return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
@@ -65,17 +70,21 @@ const Divinity = () => {
                   <Stack direction={'row'} flexWrap={'wrap'} mt={'auto'}>
                     {state?.characters?.map(({
                                                classIndex, name, deityMinorBonus = 0, divStyle,
-                                               secondLinkedDeityIndex, secondDeityMinorBonus = 0
+                                               secondLinkedDeityIndex, secondDeityMinorBonus = 0,
+                                               playerId
                                              }, index) => {
                       const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
                       const isLinked = compBonus || linkedDeities?.[index] === godIndex;
                       const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
+                      if (godIndex === 6 && compBonus &&  highestDivinityCharacter?.playerId !== playerId) return null;
                       return compBonus || isLinked || isSecondLinked ?
                         <Tooltip title={<CharDeityDetails name={name}
                                                           divStyle={divStyle}
                                                           bonus={minorBonus.replace(/{/g, isLinked
                                                             ? getMinorDivinityBonus(state?.characters?.[index], state?.account, godIndex).toFixed(2)
-                                                            : isSecondLinked ? secondDeityMinorBonus.toFixed(2) : 0)}/>}
+                                                            : isSecondLinked
+                                                              ? secondDeityMinorBonus.toFixed(2)
+                                                              : 0)}/>}
                                  key={name}>
                           <img src={`${prefix}data/ClassIcons${classIndex}.png`}
                                alt=""/>

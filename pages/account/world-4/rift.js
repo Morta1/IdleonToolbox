@@ -19,7 +19,7 @@ const Rift = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Rift"
+      title="Rift | Idleon Toolbox"
       description="Keep track of your rift bonuses, tasks and more"
     />
     <Typography variant={'h2'} mb={3}>Rift</Typography>

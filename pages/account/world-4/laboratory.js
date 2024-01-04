@@ -14,7 +14,7 @@ const Laboratory = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Laboratory"
+        title="Laboratory | Idleon Toolbox"
         description="Keep track of your lab upgrades, lab connected players, chips and more"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Laboratory</Typography>

@@ -11,7 +11,7 @@ const Bribes = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Bribes"
+      title="Bribes | Idleon Toolbox"
       description="Keep track of your bribes status"
     />
     <Typography mt={2} mb={3} textAlign={'center'} variant={'h2'}>Bribes</Typography>

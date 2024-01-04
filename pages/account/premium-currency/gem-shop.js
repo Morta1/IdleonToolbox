@@ -67,7 +67,7 @@ const GemShop = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Gem Shop"
+      title="Gem Shop | Idleon Toolbox"
       description="View all gem shop upgrades, bonuses and more"
     />
     <Typography mt={2} mb={2} variant={'h2'}>Gem Shop</Typography>

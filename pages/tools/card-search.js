@@ -33,18 +33,21 @@ export default function CardSearch() {
   const [value, setValue] = useState('');
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
-
   const mapCards = (cardsArray, cardSets) => {
+    // ("CardsTillNextLV"
+    const cardSetsObject = Object.values(cardSets).reduce((res, cardSet) => ({
+      ...res,
+      [cardSet?.name]: ({ ...cardSet, totalStars: 0 })
+    }), {});
     const cards = Object.entries(cardsArray)?.reduce((res, [, cardDetails]) => {
-      const { category } = cardDetails;
+      const { category, displayName } = cardDetails;
+      const { stars } = state?.account?.cards?.[displayName] || {};
+      cardSetsObject[category].totalStars += stars + 1 || 0;
       return { ...res, [category]: [...(res?.[category] || []), cardDetails] };
     }, {});
-    const cardSetArr = Object.entries(cardSets).map(([, cardSetValue]) => {
-      return cardSetValue
-    }, []);
-    return { ...cards, ['Card Sets']: cardSetArr };
+    return { ...cards, ['Card Sets']: Object.values(cardSetsObject) };
   }
-  const cardsObject = useMemo(() => mapCards(cards, cardSets), [cards]);
+  const cardsObject = useMemo(() => mapCards(cards, cardSets), [state.account]);
   const [localCardObject, setLocalCardObject] = useState(cardsObject);
   const preConfiguredStats = [
     'Show All',
@@ -82,11 +85,10 @@ export default function CardSearch() {
     }, {});
     setLocalCardObject(newCards);
   }, [value]);
-
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Card Search"
+        title="Card Search | Idleon Toolbox"
         description="Card search and filter by various tags e.g. Choppin, Catching, Worship, Attack etc"
       />
       <Stack direction="row" gap={2} justifyContent={'space-between'}>
@@ -142,13 +144,24 @@ export default function CardSearch() {
                         />}
                       <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
                         {cardsArr.map((card, index) => {
-                          const { displayName } = card;
-                          const { stars, amount, nextLevelReq } = state?.account?.cards?.[displayName] || {};
+                          const { displayName, name } = card;
+                          let {
+                            stars,
+                            amount,
+                            nextLevelReq
+                          } = state?.account?.cards?.[displayName] || {};
+                          if (isCardSets) {
+                            stars = Math.floor(cardsObject?.['Card Sets'][index]?.totalStars / localCardObject[name].length) - 1;
+                            amount = stars;
+                            nextLevelReq = Math.floor(localCardObject[name].length) * (Math.min(5, Math.floor(stars / Math.max(localCardObject[name].length, 1))) + 1)
+                          }
                           return (
                             <div style={{ position: 'relative' }} key={displayName + '' + index}>
                               <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
                                              variant={isCardSets ? 'cardSet' : ''} showInfo
-                                             {...{ ...card, ...(isCardSets ? {} : { stars }) }}
+                                             {...{
+                                               ...card, stars
+                                             }}
                               />
                             </div>
                           );

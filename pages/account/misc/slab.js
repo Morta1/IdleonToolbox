@@ -23,7 +23,7 @@ const Slab = () => {
 
   return <Stack>
     <NextSeo
-      title="Idleon Toolbox | Slab"
+      title="Slab | Idleon Toolbox"
       description="The Slab consists of a list of items within the game"
     />
     <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Slab</Typography>

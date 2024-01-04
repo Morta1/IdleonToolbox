@@ -33,7 +33,7 @@ const ArcadeShop = () => {
   return (
     <Stack>
       <NextSeo
-        title="Idleon Toolbox | Arcade Shop"
+        title="Arcade Shop | Idleon Toolbox"
         description="Arcade shop upgrades, balls and golden balls"
       />
       <Typography variant={'h2'} mb={3}>Arcade Shop</Typography>

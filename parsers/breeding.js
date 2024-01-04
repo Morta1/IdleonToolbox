@@ -71,7 +71,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     let miasmas = team?.filter((teamMember) => teamMember?.gene?.name === 'Miasma');
     if (miasmas) {
       const duplicates = team?.map(({ gene }) => gene?.name)?.every((name, index, arr) => arr.indexOf(index) === name);
-      miasmas = duplicates ? 4 : 1;
+      miasmas = !duplicates ? 4 : 1;
     }
     const topAndBottomRows = [...team, ...previousTeam, ...nextTeam];
     const badumdums = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Badumdum')?.length;

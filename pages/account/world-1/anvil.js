@@ -17,7 +17,7 @@ const Anvil = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Anvil"
+      title="Anvil | Idleon Toolbox"
       description="Keep track of your characters anvil production"
     />
     <Typography variant={'h2'} mb={3}>Anvil</Typography>

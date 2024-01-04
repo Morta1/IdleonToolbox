@@ -14,7 +14,7 @@ const DeathNote = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Death Note"
+        title="Death Note | Idleon Toolbox"
         description="Keep track of death note progression"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Death Note</Typography>

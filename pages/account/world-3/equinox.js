@@ -19,7 +19,7 @@ const Equinox = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Equinox"
+        title="Equinox | Idleon Toolbox"
         description="Equinox progression"
       />
 

@@ -26,7 +26,7 @@ const SaltLick = () => {
   }
   return <>
     <NextSeo
-      title="Idleon Toolbox | Salt Lick"
+      title="Salt Lick | Idleon Toolbox"
       description="Keep track of your salt lick levels and upgrades"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Salt Lick</Typography>

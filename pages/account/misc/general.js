@@ -16,7 +16,7 @@ const General = () => {
   const { state } = useContext(AppContext);
   return <Box sx={{ width: '100%' }}>
     <NextSeo
-      title="Idleon Toolbox | General"
+      title="General | Idleon Toolbox"
       description="General account information"
     />
     <Stack sx={{ '& > div': { maxWidth: 300 } }} gap={2} justifyContent={'center'} direction={'row'} flexWrap={'wrap'}>

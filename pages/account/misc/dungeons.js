@@ -24,7 +24,7 @@ const Dungeons = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Dungeons"
+        title="Dungeons | Idleon Toolbox"
         description="Dungeon information including happy hour times, currency, upgrades and more"
       />
       <Typography my={2} variant="h2">

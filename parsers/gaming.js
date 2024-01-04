@@ -259,20 +259,20 @@ const calcFertilizerCost = (index, gamingRaw, serverVars) => {
     const baseMath = 1 + (3 * baseValue + Math.pow(baseValue, 2));
     const moreMath = Math.min(1.25, Math.max(1.13, 1 + serverVars?.GamingFertCostExpA / 1e3));
     const finalMath = moreMath + Math.max(0, Math.min(0.15, (0.18 * (baseValue - 50)) / ((baseValue) + 100)));
-    return notateNumber(baseMath * Math.pow(finalMath, baseValue), 'bits');
+    return baseMath * Math.pow(finalMath, baseValue);
   }
   if (index === 1) {
     const baseValue = gamingRaw?.[2];
     const baseMath = 2 + (5 * baseValue + Math.pow(baseValue, 2));
-    return notateNumber(baseMath * Math.pow(1.22, baseValue), 'bits');
+    return baseMath * Math.pow(1.22, baseValue);
   }
   if (index === 2) {
     const baseValue = gamingRaw?.[3];
     if (11 > baseValue) {
       const baseMath = 25 * (baseValue + 1) + Math.pow((baseValue) + 1, 3);
-      return notateNumber(baseMath * Math.pow(5 + 3.7 * baseValue, baseValue), 'bits');
+      return baseMath * Math.pow(5 + 3.7 * baseValue, baseValue);
     }
-    return notateNumber(9999 * Math.pow(10, 63), 'bits');
+    return 9999 * Math.pow(10, 63);
   }
 }
 

@@ -37,7 +37,7 @@ const Apocalypses = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Apocalypses"
+        title="Apocalypses | Idleon Toolbox"
         description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
       />
       <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Apocalypses</Typography>

@@ -36,7 +36,7 @@ const Forge = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Forge"
+      title="Forge | Idleon Toolbox"
       description="Keep track of your forge production"
     />
     <Typography mt={2} mb={2} variant={'h2'}>Forge</Typography>

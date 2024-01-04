@@ -86,7 +86,7 @@ const MaterialTracker = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Material Tracker"
+        title="Material Tracker | Idleon Toolbox"
         description="Add a material, set your own threshold and keep track of your inventory."
       />
       <Stack>

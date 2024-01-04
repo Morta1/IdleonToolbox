@@ -21,7 +21,7 @@ const Vials = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Vials"
+      title="Vials | Idleon Toolbox"
       description="Vials progressions and upgrade requirements"
     />
     <Typography variant={'h2'} mb={3}>Vials</Typography>

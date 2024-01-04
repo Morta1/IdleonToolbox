@@ -77,6 +77,9 @@ export const breedingAlerts = (account, options) => {
     }, [])
     alerts.shinies = { pets: list, threshold: options?.shinies?.props?.value }
   }
+  if (options?.eggs?.checked) {
+    alerts.eggs = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
+  }
   return alerts;
 }
 export const printerAlerts = (account, options) => {

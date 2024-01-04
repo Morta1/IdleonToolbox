@@ -5,7 +5,6 @@ import { Card, CardContent, Stack, TextField, ToggleButton, ToggleButtonGroup, T
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import HtmlTooltip from 'components/Tooltip';
-import Box from '@mui/material/Box';
 import Timer from 'components/common/Timer';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -269,13 +268,14 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             shinyMulti,
             breakpointTimes
           } = meal;
+          console.log('meal', meal)
           const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip
-                    title={<MealTooltip achievements={achievements} equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
+                    title={<MealTooltip achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone} equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
                       {level > 0 ?
@@ -342,24 +342,16 @@ const getTimeAsDays = (time) => {
   return Math.ceil(time * 3600 * 1000 / msPerDay);
 }
 
-const MealTooltip = ({ level, baseStat, multiplier, effect, achievements, equinoxUpgrades }) => {
-  const levelCost = getMealLevelCost(level + 1, achievements, equinoxUpgrades);
+const MealTooltip = ({ level, baseStat, effect, blackDiamondRhinestone, shinyMulti }) => {
+  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (level + 1) * baseStat;
   return (
     <>
       <Typography fontWeight={'bold'}>
         Next Level Bonus:&nbsp;
         <Typography component={'span'} sx={{ fontWeight: 400 }}>
-          {cleanUnderscore(effect?.replace('{', kFormatter((level + 1) * baseStat * multiplier)))}
+          {cleanUnderscore(effect?.replace('{', notateNumber(realEffect, 'MultiplierInfo')))}
         </Typography>
       </Typography>
-      <Box>
-        <Typography fontWeight={'bold'}>
-          Next Level Req:&nbsp;
-          <Typography component={'span'} sx={{ fontWeight: 400 }}>
-            {numberWithCommas(parseInt(levelCost))}
-          </Typography>
-        </Typography>
-      </Box>
     </>
   );
 };

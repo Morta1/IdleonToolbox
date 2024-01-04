@@ -42,7 +42,7 @@ const Home = () => {
   return (
     <Container>
       <NextSeo
-        title="Idleon Toolbox | Home"
+        title="Home | Idleon Toolbox"
         description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
       />
       <Stack mt={breakpointLg ? 5 : breakpoint ? 1 : 1} direction={'row'} flexWrap={'wrap'}

@@ -28,7 +28,7 @@ const Islands = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Islands"
+      title="Islands | Idleon Toolbox"
       description="Islands progressions and available upgrades"
     />
     <Typography variant={'h2'} mb={3}>Islands</Typography>

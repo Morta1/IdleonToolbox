@@ -9,7 +9,7 @@ const Worship = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Worship"
+        title="Worship | Idleon Toolbox"
         description="Keep track of your worship charge and charge rate for all of your characters"
       />
       <Typography variant={'h2'}>Worship</Typography>

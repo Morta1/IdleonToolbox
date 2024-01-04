@@ -28,7 +28,7 @@ const Sailing = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Sailing"
+      title="Sailing | Idleon Toolbox"
       description="Keep track of your artiacts, boats and captains and their bonuses"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Sailing</Typography>

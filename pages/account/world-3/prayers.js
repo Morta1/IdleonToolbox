@@ -21,7 +21,7 @@ const Prayers = () => {
   return (
     <div>
       <NextSeo
-        title="Idleon Toolbox | Prayers"
+        title="Prayers | Idleon Toolbox"
         description="Prayers information"
       />
       <Typography variant={'h2'} mb={3}>Prayers</Typography>

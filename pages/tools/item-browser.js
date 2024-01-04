@@ -35,7 +35,7 @@ const filterOptions = createFilterOptions({
 
 const ItemBrowser = ({}) => {
   const { state } = useContext(AppContext);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const [items, setItems] = useState();
   const [labels, setLabels] = useState();
   const [result, setResult] = useState();
@@ -43,6 +43,7 @@ const ItemBrowser = ({}) => {
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
   const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
   const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account])
+  const totalAmount = Object.values(result || {}).reduce((res, { amount }) => res + amount, 0);
 
   useEffect(() => {
     setLabels(itemsArray);
@@ -72,11 +73,10 @@ const ItemBrowser = ({}) => {
   const handleValueChange = debounce((e) => {
     setValue(e.target.value);
   }, 100)
-
   return (
     <ItemBrowserStyle>
       <NextSeo
-        title="Idleon Toolbox | Item Browser"
+        title="Item Browser | Idleon Toolbox"
         description="Browse all of your existing items with a handy search"
       />
       <Typography my={2} variant={'h2'}>Item Browser</Typography>
@@ -101,7 +101,7 @@ const ItemBrowser = ({}) => {
       <Stack direction={'row'} alignItems={'center'} gap={2}>
         {searchBy === 'name' && labels?.length > 0 ? (
           <Autocomplete
-            id='item-browser'
+            id="item-browser"
             value={value}
             onChange={(event, newValue) => {
               setValue(newValue);
@@ -111,7 +111,7 @@ const ItemBrowser = ({}) => {
             filterSelectedOptions
             filterOptions={filterOptions}
             getOptionLabel={(option) => {
-              return option?.displayName ? option?.displayName?.replace(/_/g, " ") : "";
+              return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
             }}
             renderOption={(props, option) => {
               return <Stack {...props} key={props.id} gap={2} direction={'row'}>
@@ -120,14 +120,14 @@ const ItemBrowser = ({}) => {
                   width={24}
                   height={24}
                   src={`${prefix}data/${option?.rawName}.png`}
-                  alt=''
+                  alt=""
                 />
-                <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, " ")}</Typography>
+                <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
               </Stack>
             }}
             style={{ width: 300 }}
             renderInput={(params) => (
-              <StyledTextField {...params} label='Item Name' variant='outlined'
+              <StyledTextField {...params} label="Item Name" variant="outlined"
               />
             )}
           />
@@ -147,8 +147,8 @@ const ItemBrowser = ({}) => {
             <StyledCheckbox
               checked={includeEquippedItems}
               onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
-              name='Include Equipped Items'
-              color='default'
+              name="Include Equipped Items"
+              color="default"
             />
           }
           label={'Include Equipped Items'}
@@ -183,16 +183,20 @@ const ItemBrowser = ({}) => {
           <CardContent>
             {Object.keys(result)?.map((ownerName, index) => (
               <Stack direction={'row'} gap={2} key={ownerName + index}>
-                <span className={"owner-name"}>{ownerName}</span>
+                <span className={'owner-name'}>{ownerName}</span>
                 {result?.[ownerName]?.amount ? (
-                  <Typography color={'success.light'} className={"amount"}>
+                  <Typography color={'success.light'} className={'amount'}>
                     ({kFormatter(result?.[ownerName]?.amount)})
                   </Typography>
                 ) : (
-                  ""
+                  ''
                 )}
               </Stack>
             ))}
+            {Object.keys(result).length > 1 ? <Typography>
+              Total:
+              <Typography component={'span'} color={'success.light'} mt={1}> {kFormatter(totalAmount)}</Typography>
+            </Typography> : null}
           </CardContent>
         </Card>
       ) : null}

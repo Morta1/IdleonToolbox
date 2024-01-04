@@ -166,7 +166,7 @@ const Refinery = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Refinery"
+      title="Refinery | Idleon Toolbox"
       description="Keep track of your refinery levels, timing, required materials and more"
     />
     <Typography variant={'h2'} mb={3}>Refinery</Typography>

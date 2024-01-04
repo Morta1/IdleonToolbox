@@ -11,7 +11,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, randomFloatBetween } from 'utility/helpers';
+import { cleanUnderscore, groupByKey, notateNumber, prefix, randomFloatBetween } from 'utility/helpers';
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -49,9 +49,9 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
   const groupByPassive = useMemo(() => {
     try {
       if (filter === 'worlds') {
-        return Object.groupBy(pets.flat(), ({ world }) => world)
+        return groupByKey(pets.flat(), ({ world }) => world)
       } else {
-        return Object.groupBy(pets.flat(), ({ rawPassive }) => rawPassive)
+        return groupByKey(pets.flat(), ({ rawPassive }) => rawPassive)
       }
     } catch (err) {
       console.error('Your browser doesn\'t support groupBy, please consider updating it')
@@ -130,7 +130,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
       {Object.entries(groupByPassive)?.map(([groupName, list], worldIndex) => {
         if (!groupName.toLowerCase().includes(filterBy.toLowerCase())) return null;
         return <React.Fragment key={`world-${worldIndex}`}>
-          <Typography variant={'h3'}>{cleanUnderscore(groupName)}</Typography>
+          <Typography variant={'h3'}>{cleanUnderscore(groupName.replace('{', ''))}</Typography>
           <Card key={`world-${worldIndex}`}>
             <CardContent>
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>

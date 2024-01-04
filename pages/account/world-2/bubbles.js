@@ -193,7 +193,7 @@ const Bubbles = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Bubbles"
+        title="Bubbles | Idleon Toolbox"
         description="Keep track of your bubbles level and requirements with a handy calculator"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Bubbles</Typography>

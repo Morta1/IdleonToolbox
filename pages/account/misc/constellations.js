@@ -33,7 +33,7 @@ const Constellations = () => {
 
   return <div>
     <NextSeo
-      title="Idleon Toolbox | Constellations"
+      title="Constellations | Idleon Toolbox"
       description="Constellation and star signs overview"
     />
     <Tabber tabs={tabs}>

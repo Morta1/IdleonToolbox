@@ -38,7 +38,7 @@ const Sigils = () => {
   return (
     <Stack>
       <NextSeo
-        title="Idleon Toolbox | Sigils"
+        title="Sigils | Idleon Toolbox"
         description="Sigils information and progression"
       />
       <Typography variant={'h2'} mb={3}>

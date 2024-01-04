@@ -15,7 +15,7 @@ const Cooking = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Cooking"
+        title="Cooking | Idleon Toolbox"
         description="Keep track of your kitchens and meals progression"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Cooking</Typography>

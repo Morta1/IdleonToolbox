@@ -4,12 +4,31 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.38',
+    gameVer: '1.92',
+    date: '04/01/2023',
+    features: [
+      'Added an option to search a player in the leaderboards',
+      'Added card set information on the cards page',
+      'Added eggs alert to the dashboard',
+      'Added an option to copy weekly bosses data to clipboard',
+      'Added penpals highscore to Account -> General page',
+      'Updated the website\'s tab title in the browser to show the page name first (e.g. "Dungeons | Idleon Toolbox")'
+    ],
+    fixes: [
+      'Fixed a bug in calculating foraging speed in breeding page',
+      'Fixed a visual bugs in gaming page',
+      'Fixed the issue with crushing pages (hopefully)'
+    ]
+  },
+  {
     ver: '3.2.37',
     gameVer: '1.92',
     date: '30/12/2023',
     features: [
       <Typography>Added <Link
-        href={'https://idleontoolbox.com/account/world-4/breeding'}>Territory</Link> tab to the breeding page</Typography>,
+        href={'https://idleontoolbox.com/account/world-4/breeding'}>Territory</Link> tab to the breeding
+        page</Typography>,
       'Added a toggle to Pets tabs in breeding page to group pets by worlds / stats',
       'Added an option to see the whole raw json data in the data page',
     ],

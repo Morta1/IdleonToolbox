@@ -36,7 +36,7 @@ const Breeding = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Breeding"
+        title="Breeding | Idleon Toolbox"
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Breeding</Typography>

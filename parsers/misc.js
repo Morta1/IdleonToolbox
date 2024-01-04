@@ -122,6 +122,7 @@ export const getCurrencies = (idleonData) => {
       KeysAll: getKeysObject(keys)
     };
   }
+
   return {
     WorldTeleports: idleonData?.CYWorldTeleports,
     KeysAll: getKeysObject(keys),

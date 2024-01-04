@@ -74,7 +74,7 @@ const Guild = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Guild"
+      title="Guild | Idleon Toolbox"
       description="Keep track of your guild members, gp, bonuses and more"
     />
     <Stack>

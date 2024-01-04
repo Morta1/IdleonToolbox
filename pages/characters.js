@@ -12,7 +12,7 @@ const Characters = () => {
   const hasPostOfficeFilter = state?.filters?.['Post Office'];
   return <>
     <NextSeo
-      title="Idleon Toolbox | Characters"
+      title="Characters | Idleon Toolbox"
       description="Characters overview for a lot of the game aspects"
     />
     {numberOfCharacters > 0 ? (

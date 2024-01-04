@@ -17,7 +17,7 @@ const Merits = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Merits"
+        title="Merits | Idleon Toolbox"
         description="Keep track of your merit progression"
       />
       <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>

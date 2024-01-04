@@ -84,7 +84,7 @@ const Quests = () => {
   return (
     <>
       <NextSeo
-        title="Idleon Toolbox | Quests"
+        title="Quests | Idleon Toolbox"
         description="Keep track of your characters' quests progression"
       />
       {filteredCharacters ? (

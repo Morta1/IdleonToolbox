@@ -196,7 +196,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character) => ({ ...character, skillsInfo: leaderboard[character?.name] }));
 
-  accountData.highscores = getHighscores(idleonData);
+  accountData.highscores = getHighscores(idleonData, accountData);
   accountData.shopStock = getShops(idleonData);
 
   accountData.forge = getForge(idleonData, accountData);
@@ -220,6 +220,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.currencies.gems = idleonData?.GemsOwned;
   accountData.currencies.KeysAll = enhanceKeysObject(accountData?.currencies?.KeysAll, charactersData, accountData);
   accountData.currencies.ColosseumTickets = enhanceColoTickets(accountData?.currencies?.ColosseumTickets, charactersData, accountData);
+  accountData.currencies.penPals = accountData.accountOptions?.[99] ?? 0
   // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);

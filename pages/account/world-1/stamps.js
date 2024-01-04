@@ -100,7 +100,7 @@ const Stamps = () => {
   return (
     <div>
       <NextSeo
-        title="Idleon Toolbox | Stamps"
+        title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
       />
       <Typography textAlign={'center'} variant={'h2'} mb={3}>Stamps</Typography>

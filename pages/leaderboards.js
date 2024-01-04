@@ -1,16 +1,32 @@
-import { Card, CardContent, CircularProgress, Stack, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Card,
+  CardContent,
+  CircularProgress,
+  createFilterOptions,
+  Stack,
+  TextField,
+  Typography
+} from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
 import React, { useContext, useEffect } from 'react';
-import { AppContext } from '../components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { fetchLeaderboards } from '../services/profiles';
+import Box from '@mui/material/Box';
+
+const filterOptions = createFilterOptions({
+  trim: true,
+  limit: 50
+});
 
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const loggedMainChar = state?.characters?.[0]?.name;
   const [leaderboards, setLeaderboards] = React.useState();
   const [error, setError] = React.useState('');
+  const [searchedChar, setSearchChar] = React.useState('');
 
   useEffect(() => {
     const getLeaderboards = async () => {
@@ -28,7 +44,7 @@ const Leaderboards = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Leaderboards"
+      title="Leaderboards | Idleon Toolbox"
       description="Leaderboards for Idleon MMO"
     />
     <Typography textAlign={'center'}
@@ -46,12 +62,29 @@ const Leaderboards = () => {
           accounts: {leaderboards?.general?.totalMoney?.length}</Typography>
       </CardContent>
     </Card> : null}
+    {leaderboards?.general?.totalMoney?.length ? <Box
+      sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
+      <Autocomplete
+        options={leaderboards?.general?.totalMoney}
+        getOptionLabel={(option) => option.mainChar}
+        id="user-search"
+        filterOptions={filterOptions}
+        sx={{ width: 230 }}
+        value={searchedChar || null}
+        onChange={(event, newValue) => setSearchChar(newValue)}
+        renderInput={(params) => <TextField {...params} label="Search by character name" variant="standard"/>}
+      />
+    </Box> : null}
+
     {!leaderboards ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack> : error ?
       <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
         tabs={['General', 'Tasks', 'Skills']}>
-        <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}/>
-        <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}/>
-        <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}/>
+        <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
+                            searchedChar={searchedChar?.mainChar}/>
+        <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
+                            searchedChar={searchedChar?.mainChar}/>
+        <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
+                            searchedChar={searchedChar?.mainChar}/>
       </Tabber>}
 
   </>

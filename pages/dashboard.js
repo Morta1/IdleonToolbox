@@ -63,7 +63,10 @@ const baseTrackers = {
     sailing: { checked: true, options: [{ name: 'captains', checked: true }] },
     breeding: {
       checked: true,
-      options: [{ name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }]
+      options: [
+        { name: 'eggs', checked: true },
+        { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
+      ]
     },
     printer: {
       checked: true,
@@ -210,7 +213,7 @@ const Dashboard = () => {
   }
   return <>
     <NextSeo
-      title="Idleon Toolbox | Dashboard"
+      title="Dashboard | Idleon Toolbox"
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack direction="row" gap={2} justifyContent={'space-between'}>

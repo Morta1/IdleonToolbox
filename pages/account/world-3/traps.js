@@ -16,7 +16,7 @@ const Traps = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Traps"
+      title="Traps | Idleon Toolbox"
       description="Keep track of your traps timing, critters amounts and more"
     />
     <Typography variant={'h2'} mb={3}>Traps</Typography>

@@ -10,7 +10,7 @@ const Companions = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Companions"
+      title="Companions | Idleon Toolbox"
       description="Detailed information about companions and their bonuses"
     />
     <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Companions</Typography>

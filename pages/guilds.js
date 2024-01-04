@@ -89,7 +89,7 @@ const Guilds = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Guilds"
+      title="Guilds | Idleon Toolbox"
       description="Top guilds in idleon"
     />
     <Typography variant={'h2'}>Guilds Leaderboard</Typography>

@@ -188,7 +188,7 @@ const ItemPlanner = ({}) => {
   return (
     <TodoStyle>
       <NextSeo
-        title="Idleon Toolbox | Item Planner"
+        title="Item Planner | Idleon Toolbox"
         description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
       />
       {!state?.characters && !state?.account ?

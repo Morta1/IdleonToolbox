@@ -93,7 +93,7 @@ const ActiveXpCalculator = () => {
   return (
     <ActiveXpCalculatorStyle>
       <NextSeo
-        title="Idleon Toolbox | Active Exp Calculator"
+        title="Active Exp Calculator | Idleon Toolbox"
         description="Calculate how much experience you get when playing actively"
       />
       <Stack gap={5} flexWrap={'wrap'} sx={{ flexDirection: { xs: 'column-reverse', sm: 'row' } }}>

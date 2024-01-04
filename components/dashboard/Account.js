@@ -176,8 +176,11 @@ const Account = ({ account, characters, trackers }) => {
                                                                      iconPath={`data/UIlilbox`}/>) : null}
           {trackers?.etc && alerts?.etc?.dungeonTraits?.length > 0 ?
             alerts?.etc?.dungeonTraits?.map((traitName, index) => <Alert key={'dungeonTraits' + index}
-                                                                     title={`You haven't selected a trait for ${traitName}`}
-                                                                     iconPath={`data/DungTraitB0`}/>) : null}
+                                                                         title={`You haven't selected a trait for ${traitName}`}
+                                                                         iconPath={`data/DungTraitB0`}/>) : null}
+          {trackers?.breeding && alerts?.breeding?.eggs ? <Alert key={'breeding-eggs'}
+                                                                 title={`Eggs are at full capacity`}
+                                                                 iconPath={`data/PetEgg1`}/> : null}
           {trackers?.breeding && alerts?.breeding?.shinies?.pets?.length > 0 ?
             alerts?.breeding?.shinies?.pets?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
               const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';

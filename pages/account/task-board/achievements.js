@@ -32,7 +32,7 @@ const Achievements = () => {
   return (
     <Box>
       <NextSeo
-        title="Idleon Toolbox | Achievements"
+        title="Achievements | Idleon Toolbox"
         description="Keep track of your achievements progression"
       />
       <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>

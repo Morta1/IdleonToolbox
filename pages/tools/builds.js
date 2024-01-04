@@ -136,7 +136,7 @@ const Builds = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Builds"
+      title="Builds | Idleon Toolbox"
       description="Builds for all classes"
     />
     <Stack direction={'row'} gap={2} justifyContent={'space-between'}>

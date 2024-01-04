@@ -23,7 +23,7 @@ const Printer = () => {
 
   return <>
     <NextSeo
-      title="Idleon Toolbox | Printer"
+      title="Printer | Idleon Toolbox"
       description="Keep track of your printer output with calculated bonuses from various sources"
     />
     <Typography variant={'h2'} mb={3}>Printer</Typography>
