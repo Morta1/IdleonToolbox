@@ -64,7 +64,7 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.etc && alerts?.etc?.randomEvents ?
             <Alert title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.etc && alerts?.etc?.weeklyBosses ?
-            <Alert title={'You haven\'t done a weekly (W2) boss fight today'} iconPath={'data/Trophie'}/> : null}
+            <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/> : null}
           {trackers?.etc && alerts?.etc?.killRoy < 21 ?
             <Alert
               title={alerts?.etc?.killRoy === 0
