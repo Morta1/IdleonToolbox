@@ -87,7 +87,12 @@ const Data = () => {
         }
       })
     } else {
-      localStorage.removeItem(key)
+      if (key === 'last-upload-time') {
+        localStorage.removeItem(`${state?.uid}/lastUpload`);
+        setLastUpload(false);
+      } else {
+        localStorage.removeItem(key)
+      }
     }
     router.reload();
   }
@@ -151,8 +156,8 @@ const Data = () => {
             }}/>
           </IconButton>
         </Stack>
-        <Collapse in={showRawData} >
-          <div style={{whiteSpace:'pre-wrap',     overflowWrap: 'break-word'}}>
+        <Collapse in={showRawData}>
+          <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
             {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
           </div>
         </Collapse>
@@ -172,6 +177,7 @@ const Data = () => {
           <MenuItem value={'trackers'}>Dashboard config</MenuItem>
           <MenuItem value={'planner'}>Item Planner</MenuItem>
           <MenuItem value={'material-tracker'}>Material tracker</MenuItem>
+          <MenuItem value={'last-upload-time'}>Last upload time</MenuItem>
         </TextField>
         <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
           Clear
