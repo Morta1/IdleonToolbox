@@ -131,8 +131,12 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                                                                                           skillIndex,
                                                                                           cooldown
                                                                                         }, index) => (
-                <Alert key={skillIndex + '-' + index} title={cooldown ? <Timer type={'countdown'}
-                                                                               date={cooldown} lastUpdated={lastUpdated}/> : `${cleanUnderscore(pascalCase(name))} is ready`}
+                <Alert key={skillIndex + '-' + index}
+                       style={{ opacity: cooldown > 0 ? .5 : 1 }}
+                       title={cooldown > 0
+                         ? <Timer type={'countdown'}
+                                  date={cooldown} lastUpdated={lastUpdated}/>
+                         : `${cleanUnderscore(pascalCase(name))} is ready`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
               {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({

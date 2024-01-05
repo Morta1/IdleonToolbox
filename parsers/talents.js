@@ -6,14 +6,16 @@ import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 
 
-export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel) => {
+export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, reduceAddedLevels) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
   const talent = talentsObj?.find(({ name }) => name === talentName);
   if (!talent) return 0;
+  let level = useMaxLevel ? talent?.maxLevel : talent?.level;
+  level = reduceAddedLevels ? level - reduceAddedLevels : level;
   if (yBonus) {
-    return growth(talent?.funcY, useMaxLevel ? talent?.maxLevel : talent?.level, talent?.y1, talent?.y2, false) ?? 0
+    return growth(talent?.funcY, level, talent?.y1, talent?.y2, false) ?? 0;
   }
-  return growth(talent?.funcX, useMaxLevel ? talent?.maxLevel : talent?.level, talent?.x1, talent?.x2, false) ?? 0;
+  return growth(talent?.funcX, level, talent?.x1, talent?.x2, false) ?? 0;
 }
 
 export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
@@ -104,10 +106,12 @@ export const getActiveBuffs = (activeBuffs, talents) => {
   return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId))?.filter((talent) => talent);
 }
 
-export const getHighestTalentByClass = (characters, talentTree, className, talentName, yBonus, useMaxLevel) => {
+export const getHighestTalentByClass = (characters, talentTree, className, talentName, yBonus, useMaxLevel, reduceAddedLevels = false) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
-  return classes?.reduce((res, { talents }) => {
-    const talent = getTalentBonus(talents, talentTree, talentName, yBonus, useMaxLevel);
+  return classes?.reduce((res, { talents, addedLevels }) => {
+    const talent = getTalentBonus(talents, talentTree, talentName, yBonus, useMaxLevel, reduceAddedLevels
+      ? addedLevels + 1
+      : false);
     if (talent > res) {
       return talent
     }
@@ -139,7 +143,7 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
   }, { maxLevel: 0 });
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
+export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   let addedLevels = 0;
   if (isCompanionBonusActive(account, 0)) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
@@ -166,7 +170,10 @@ export const applyTalentAddedLevels = (talents, flatTalents, linkedDeity, second
     addedLevels += account?.companions?.list?.at(1)?.bonus;
   }
   addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
+  return addedLevels;
+}
 
+export const applyTalentAddedLevels = (talents, flatTalents, addedLevels) => {
   if (flatTalents) {
     return flatTalents.map((talent) => ({
       ...talent,

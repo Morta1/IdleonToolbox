@@ -33,7 +33,7 @@ import {
   createTalentPage,
   getActiveBuffs,
   getFamilyBonusValue,
-  getHighestTalentByClass,
+  getHighestTalentByClass, getTalentAddedLevels,
   getTalentBonus,
   getTalentBonusIfActive,
   mainStatMap,
@@ -392,8 +392,9 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
     familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
   }
-  character.talents = applyTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+  character.addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels);
   character.activeBuffs = character.activeBuffs?.map(({ name }) => {
     return character.flatTalents?.find(({ name: tName }) => tName === name);
   });
