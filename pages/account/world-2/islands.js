@@ -97,9 +97,9 @@ const Islands = () => {
             return <Card variant={'outlined'} key={'effect-' + index}
                          sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.light' : '' }}>
               <CardContent>
+                {name ? <Typography>{name}</Typography> : null}
                 <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
                        alignItems={isImage ? 'center' : 'flex-start'}>
-                  {name ? <Typography>{name}</Typography> : null}
                   {isImage ? <img style={{ width: 30 }} src={`${prefix}${effect}.png`} alt={''}/> :
                     <Typography>{cleanUnderscore(effect)}</Typography>}
                   <Typography>Cost: {cost} {upgrades ? `(${upgrades})` : ''}</Typography>
