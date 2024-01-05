@@ -83,12 +83,25 @@ export const getIslands = (account) => {
   const bottlesBonus = bribeBonus +
     (10 * baseBottleValue +
       10 * (omarQuests) + bundleBonus);
-  const bottlesPerDay = Math.floor(4 * (1 + bottlesBonus / 100))
+  const bottlesPerDay = Math.floor(4 * (1 + bottlesBonus / 100));
 
+  const numberOfDaysAfk = account.accountOptions?.[160];
+  const trashUpgradeLevel = account.accountOptions?.[163];
+  let bonusPerDays;
+  if (14 > numberOfDaysAfk) {
+    bonusPerDays = .25 + numberOfDaysAfk
+  } else {
+    bonusPerDays = Math.pow(8 * numberOfDaysAfk, .5);
+  }
+  const trashPerDaysAfk = numberOfDaysAfk === 0 ? 0 : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfk, 70) / 100 + trashUpgradeLevel / 5))))
+  const trashPerDay = Math.round(3 * 1.25 * Math.floor(1.01 + (.5 + (Math.min(1, 70) / 100 + trashUpgradeLevel / 5))));
   return {
     islandsUnlocked,
     bottles,
     bottlesPerDay,
+    trashPerDay,
+    trashPerDaysAfk,
+    numberOfDaysAfk,
     list: islands
   }
 }
@@ -97,14 +110,17 @@ const extraIslandDetails = (account, index) => {
   let result = {};
   if (index === 0) {
     const trash = account?.accountOptions?.[161];
-    const names = ['data/StampB47', 'data/StampB32', 'data/StampA38', 'data/StampA39',
+    const iconNames = ['data/StampB47', 'data/StampB32', 'data/StampA38', 'data/StampA39',
       'etc/Trash_Currency', 'etc/Bribe', 'data/Island1', 'data/TalentBook1', 'data/EquipmentNametag6b'];
+    const names = ['Skelefish Stamp', ' Amplestample Stamp', 'Golden Sixes Stamp', 'Stat Wallstreet Stamp',
+      '+20% Garbage Gain', 'Unlock New Bribe Set', '10% Message Bottle Gain', 'Filthy Damage Special Talent Book',
+      'Trash Tuna Nametag']
     const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, account?.accountOptions?.[163]), 135,
       25 * Math.pow(1.5, account?.accountOptions?.[164]), 450, 1500]?.map((cost, index) => {
       const upgrades = index === 4 ? account?.accountOptions?.[163] : index === 6
         ? account?.accountOptions?.[164]
         : null;
-      return { cost: Math.round(cost), effect: names?.[index], upgrades }
+      return { cost: Math.round(cost), effect: iconNames?.[index], upgrades, name: names?.[index] }
     });
     result = { trash, learnMore: true, shop: trashShopPrices }
   } else if (index === 1) {

@@ -235,7 +235,6 @@ export const getCoinsArray = (coins) => {
 
 export const getBitIndex = (e) => {
   let bits = e, num = 0;
-  console.log(bits)
   for (let i = 0; i < 4; i++) {
     if (bits > 1e18) {
       bits /= 1e18;

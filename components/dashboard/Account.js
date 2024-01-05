@@ -8,7 +8,7 @@ import {
   pascalCase,
   prefix,
   randomFloatBetween
-} from '../../utility/helpers';
+} from '@utility/helpers';
 import HtmlTooltip from '../Tooltip';
 import {
   alchemyAlerts,
@@ -20,13 +20,13 @@ import {
   equinoxAlerts,
   etcAlerts,
   gamingAlerts,
-  guildAlerts,
+  guildAlerts, materialTrackerAlerts,
   postOfficeAlerts,
   printerAlerts,
   sailingAlerts,
   shopsAlerts,
   tasksAlert,
-} from '../../utility/dashboard/account';
+} from '@utility/dashboard/account';
 import useAlerts from '../hooks/useAlerts';
 
 const alertsMap = {
@@ -42,6 +42,7 @@ const alertsMap = {
   construction: constructionAlerts,
   postOffice: postOfficeAlerts,
   equinox: equinoxAlerts,
+  materialTracker: materialTrackerAlerts,
   etc: etcAlerts,
   cooking: cookingAlerts,
   tasks: tasksAlert
@@ -166,9 +167,9 @@ const Account = ({ account, characters, trackers }) => {
             alerts?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
                                                                                title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} keys are ready`}
                                                                                iconPath={`data/${rawName}`}/>) : null}
-          {trackers?.etc && alerts?.etc?.materialTracker?.length > 0
+          {trackers?.materialTracker && alerts?.materialTracker?.materialTracker?.length > 0
             ?
-            alerts?.etc?.materialTracker?.map(({ item, threshold, quantityOwned, text }, index) => <Alert
+            alerts?.materialTracker?.materialTracker?.map(({ item, threshold, quantityOwned, text }, index) => <Alert
               key={item?.rawName + '' + index}
               title={`Your ${cleanUnderscore(pascalCase(item?.displayName))} is ${text} the threshold (${notateNumber(quantityOwned)}/${notateNumber(threshold)})`}
               iconPath={`data/${item?.rawName}`}/>)

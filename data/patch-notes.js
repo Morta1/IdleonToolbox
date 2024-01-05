@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.39',
+    gameVer: '1.92',
+    date: '06/01/2023',
+    features: [
+      'Added an option to material tracker in dashboard settings to apply threshold either from above or below',
+      'Added an option to the character dashboard settings to always see talents regardless of their cooldown',
+      'Added an estimated trash per day to the islands page',
+    ],
+    fixes: [
+      'Fixed a bug with displaying crystal countdown progress while skill isn\'t specced'
+    ]
+  },
+  {
     ver: '3.2.38',
     gameVer: '1.92',
     date: '04/01/2023',

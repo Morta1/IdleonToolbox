@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 import HtmlTooltip from '../Tooltip';
 import {
   alchemyAlerts,
-  anvilAlerts, cardsAlert,
+  anvilAlerts,
+  cardsAlert,
   crystalCountdownAlerts,
   obolsAlerts,
   postOfficeAlerts,
@@ -99,7 +100,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
                 <Alert title={`${name} is missing an active bubble`} iconPath={'data/aJarB0'}/> : null}
               {trackers?.cards && alerts?.cards?.cardSet ?
-                <Alert title={`${name} has Blunder hill card set equipped which is for level < 50`} iconPath={'data/CardSet0'}/> : null}
+                <Alert title={`${name} has Blunder hill card set equipped which is for level < 50`}
+                       iconPath={'data/CardSet0'}/> : null}
               {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
                 <Alert title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
                        iconPath={'data/ObolLocked1'}/> : null}
@@ -126,9 +128,11 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                        iconPath={'data/SignStar1b'}/> : null}
               {trackers?.talents && alerts?.talents?.length > 0 ? alerts?.talents?.map(({
                                                                                           name,
-                                                                                          skillIndex
+                                                                                          skillIndex,
+                                                                                          cooldown
                                                                                         }, index) => (
-                <Alert key={skillIndex + '-' + index} title={`${cleanUnderscore(pascalCase(name))} is ready`}
+                <Alert key={skillIndex + '-' + index} title={cooldown ? <Timer type={'countdown'}
+                                                                               date={cooldown} lastUpdated={lastUpdated}/> : `${cleanUnderscore(pascalCase(name))} is ready`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
               {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
@@ -200,7 +204,7 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
     <TitleAndValue title={'Afk time'}
                    value={isActive() ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
-                                                                              lastUpdated={lastUpdated}/>}/>
+                                                                                lastUpdated={lastUpdated}/>}/>
     <Divider flexItem sx={{ background: 'black' }}/>
     <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
     <TitleAndValue title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>

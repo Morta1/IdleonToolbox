@@ -12,11 +12,12 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import { AppContext } from '../../../components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, prefix } from 'utility/helpers';
-import { CardTitleAndValue, CenteredStack, TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, CenteredStack, TitleAndValue } from '@components/common/styles';
 
 
+const trashDisclaimer = 'Estimate disclaimer: Randomly generated data is included in calculation, introducing variability. Figures are approximation, not precise value.'
 const Islands = () => {
   const { state } = useContext(AppContext);
   const { islands } = state?.account || {};
@@ -35,6 +36,9 @@ const Islands = () => {
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       <CardTitleAndValue title={'Bottles'} value={Math.round(islands?.bottles)}/>
       <CardTitleAndValue title={'Bottles/day'} value={islands?.bottlesPerDay}/>
+      <CardTitleAndValue title={'Trash/day *'} value={islands?.trashPerDay}
+                         tooltipTitle={trashDisclaimer}/>
+      <CardTitleAndValue title={'Unclaimed days'} value={islands?.numberOfDaysAfk || '0'}/>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {islands?.list?.map((island, index) => {
@@ -88,13 +92,14 @@ const Islands = () => {
       <DialogTitle>{dialog?.data?.name} shop</DialogTitle>
       <DialogContent>
         <Stack gap={1}>
-          {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked }, index) => {
+          {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked, name }, index) => {
             const isImage = effect.includes('etc') || effect.includes('data');
             return <Card variant={'outlined'} key={'effect-' + index}
                          sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.light' : '' }}>
               <CardContent>
                 <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
                        alignItems={isImage ? 'center' : 'flex-start'}>
+                  {name ? <Typography>{name}</Typography> : null}
                   {isImage ? <img style={{ width: 30 }} src={`${prefix}${effect}.png`} alt={''}/> :
                     <Typography>{cleanUnderscore(effect)}</Typography>}
                   <Typography>Cost: {cost} {upgrades ? `(${upgrades})` : ''}</Typography>

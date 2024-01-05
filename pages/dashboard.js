@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import { isProd } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
-import { getRawShopItems } from '../parsers/shops';
+import { getRawShopItems } from '@parsers/shops';
 import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
@@ -104,11 +104,16 @@ const baseTrackers = {
         { name: 'foodLust', checked: true },
       ]
     },
+    materialTracker: {
+      checked: true, options: [
+        { name: 'applyThresholdFromAbove', checked: false },
+        { name: 'applyThresholdFromBelow', checked: true }
+      ]
+    },
     etc: {
       checked: true,
       options: [
         { name: 'dungeonTraits', checked: true },
-        { name: 'materialTracker', checked: true },
         { name: 'randomEvents', checked: true },
         { name: 'gildedStamps', checked: true },
         { name: 'keys', checked: true },
@@ -179,6 +184,10 @@ const baseTrackers = {
             tasteTest: true
           }
         }
+      }, {
+        category: 'Misc',
+        name: 'alwaysShowTalents',
+        checked: false
       }]
     },
   }

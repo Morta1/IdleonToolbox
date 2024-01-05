@@ -166,28 +166,36 @@ export const postOfficeAlerts = (account, options) => {
   }
   return alerts;
 }
+
+export const materialTrackerAlerts = (account, options, characters) => {
+  const alerts = {}
+  const materials = tryToParse(localStorage.getItem('material-tracker'));
+  if (Object.keys(materials || {}).length > 0) {
+    const { applyThresholdFromBelow, applyThresholdFromAbove } = options || {}
+    const totalOwnedItems = getAllItems(characters, account);
+    alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold }) => {
+      const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
+      let text, twoPercentBuffer = threshold * 0.02;
+      if (applyThresholdFromBelow?.checked && (quantityOwned < threshold)) {
+        text = 'below';
+      } else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
+        text = 'above';
+      } else if ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer))) {
+        text = 'close to';
+      }
+      if (!text) return res;
+      return [...res, { item, threshold, quantityOwned, text }];
+    }, []);
+  }
+
+  return alerts;
+}
+
 export const etcAlerts = (account, options, characters) => {
   const alerts = {}
 
   if (options?.randomEvents?.checked) {
     alerts.randomEvents = account?.accountOptions?.[137] === 0;
-  }
-  if (options?.materialTracker?.checked) {
-    const materials = tryToParse(localStorage.getItem('material-tracker'));
-    if (Object.keys(materials || {}).length > 0) {
-      const totalOwnedItems = getAllItems(characters, account);
-      alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold }) => {
-        const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-        let text, twoPercentBuffer = threshold * 0.02;
-        if (quantityOwned < threshold) {
-          text = 'below';
-        } else if (quantityOwned <= threshold + twoPercentBuffer) {
-          text = 'close to';
-        }
-        if (!text) return res;
-        return [...res, { item, threshold, quantityOwned, text }];
-      }, []);
-    }
   }
   if (options?.dungeonTraits?.checked) {
     const dungeonRank = account?.dungeons?.rank;

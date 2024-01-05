@@ -268,7 +268,6 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
             shinyMulti,
             breakpointTimes
           } = meal;
-          console.log('meal', meal)
           const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>

@@ -121,17 +121,21 @@ export const MissingData = ({ name }) => {
   return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
 }
 
-export const CardTitleAndValue = ({ variant, raised, cardSx, imgStyle, title, value, children, icon }) => {
-  return <Card variant={variant} raised={raised} sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      {value ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-        <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
-        <Typography>{value}</Typography>
-      </Stack> : <Typography>{value}</Typography> : children}
-    </CardContent>
-  </Card>
+export const CardTitleAndValue = ({ variant, raised, cardSx, imgStyle, title, value, children, icon, tooltipTitle }) => {
+  return <Tooltip title={tooltipTitle || ''}>
+    <Card variant={variant} raised={raised} sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
+      <CardContent>
+        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+        {value ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
+          <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
+          <Typography>{value}</Typography>
+        </Stack> : <Typography>{value}</Typography> : children}
+      </CardContent>
+    </Card>
+  </Tooltip>
 }
+
+
 
 export const CenteredStack = ({ direction = 'row', children }) => {
   return <Stack gap={1} direction={direction} alignItems={'center'}>

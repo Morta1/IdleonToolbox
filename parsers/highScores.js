@@ -1,4 +1,4 @@
-const colosseumIndexMapping = { 1: true, 2: true, 3: true, 4: true };
+const colosseumIndexMapping = { 0: 'dewdrop', 1: 'sandstone', 2: 'chillsnap', 3: 'astro' };
 const minigameIndexMapping = { 0: 'chopping', 1: 'fishing', 2: 'catching', 3: 'mining' };
 
 export const getHighscores = (idleonData, account) => {
@@ -7,18 +7,21 @@ export const getHighscores = (idleonData, account) => {
 
   return {
     coloHighscores: parseColosseum(coloHighscores),
-    minigameHighscores: parseMinigame(minigameHighscores).concat([{minigame: 'pen pals', score: account?.accountOptions?.[99] || 0}])
+    minigameHighscores: parseMinigame(minigameHighscores).concat([{
+      name: 'pen pals',
+      score: account?.accountOptions?.[99] || 0
+    }])
   }
 }
 
 const parseColosseum = (coloHighscores) => {
-  return coloHighscores
+  return coloHighscores.slice(1)
     .filter((_, index) => colosseumIndexMapping[index])
-    .map((score) => parseFloat(score));
+    .map((score, index) => ({ name: colosseumIndexMapping[index], score: parseFloat(score) }));
 }
 
 const parseMinigame = (coloHighscores) => {
   return coloHighscores
     .filter((_, index) => minigameIndexMapping[index])
-    .map((score, index) => ({ minigame: minigameIndexMapping[index], score }));
+    .map((score, index) => ({ name: minigameIndexMapping[index], score }));
 }

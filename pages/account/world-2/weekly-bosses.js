@@ -20,7 +20,6 @@ const WeeklyBosses = () => {
 
   const weeklyBosses = useMemo(() => getWeeklyBoss(state?.account, state?.characters), [state?.account,
     state?.characters]);
-  console.log('weeklyBosses', weeklyBosses)
   return weeklyBosses?.length ? <>
     <Stack direction={'row'} gap={2} alignItems={'center'}>
       <Typography variant={'h2'} sx={{ mb: 3 }}>Weekly bosses</Typography>

@@ -1,4 +1,4 @@
-import { Divider, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import ObolsView from 'components/account/Worlds/World2/ObolsView';
 import Currencies from 'components/account/Misc/Currencies';
 import Shrines from 'components/account/Worlds/World3/Shrines';
@@ -9,8 +9,6 @@ import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box'; // Grid version 2
-
-const dividerSx = { marginTop: 4, display: { xs: "flex", sm: "none" } };
 
 const General = () => {
   const { state } = useContext(AppContext);
@@ -25,10 +23,8 @@ const General = () => {
       <Shrines shrines={state?.account?.shrines} shrinesExpBonus={state?.account?.shrinesExpBonus}/>
       <Statues statues={state?.account?.statues} characters={state?.characters}/>
       <Stack gap={1.5}>
-        <Highscores title={'Colosseum Highscores'} highscore={state?.account?.highscores?.coloHighscores}/>
-        <Divider sx={dividerSx}/>
-        <Highscores title={'Minigames Highscores'} highscore={state?.account?.highscores?.minigameHighscores}/>
-        <Divider sx={dividerSx}/>
+        <Highscores title={'Colosseum'} highscore={state?.account?.highscores?.coloHighscores}/>
+        <Highscores title={'Minigame'} highscore={state?.account?.highscores?.minigameHighscores}/>
       </Stack>
       <Totals account={state?.account}/>
     </Stack>

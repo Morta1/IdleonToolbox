@@ -155,9 +155,9 @@ export const isTalentReady = (character, options) => {
     const calculatedCooldown = (1 - cdReduction / 100) * talentCd;
     const actualCd = calculatedCooldown - timePassed;
     const cooldown = actualCd < 0 ? actualCd : new Date().getTime() + actualCd * 1000;
-    if (!isPast(cooldown)) return res;
+    if (!talents?.alwaysShowTalents?.checked && !isPast(cooldown)) return res;
     return [...res,
-      { name: talent?.name, skillIndex: talent?.skillIndex }];
+      { name: talent?.name, skillIndex: talent?.skillIndex, cooldown }];
   }, []);
 }
 export const crystalCooldownSkillsReady = (character) => {
@@ -166,8 +166,8 @@ export const crystalCooldownSkillsReady = (character) => {
       if (data?.index < 10 && name !== 'character') {
         const crystalCountdown = getTalentBonus(character?.talents, 2, 'CRYSTAL_COUNTDOWN');
         const expReq = getExpReq(data?.index, data?.level);
-        const reduction = 100 * (1 - Math.max((1 - crystalCountdown / 100) * expReq, .98 * data?.expReq) / expReq);
-        const ready = crystalCountdown > 0 && reduction === crystalCountdown;
+        const reduction = (1 - data?.expReq / expReq) * 100;
+        const ready = reduction > 0;
         return [...res, {
           name, ...data,
           crystalCountdown,
