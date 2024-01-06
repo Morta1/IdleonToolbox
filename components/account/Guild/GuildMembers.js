@@ -61,7 +61,7 @@ const GuildMembers = ({ members, saves }) => {
           {saves?.map((save, index) => {
             if (save) {
               return <TableCell key={save?.timestamp + index}>
-                {format(save?.timestamp, 'MM/dd/yyyy')}
+                {format(save?.timestamp, 'dd/MM/yyyy HH:mm:ss')}
               </TableCell>
             }
           })}

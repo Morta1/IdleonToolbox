@@ -399,7 +399,6 @@ export const getSkillMasteryBonusByIndex = (skills, rift, riftBonusIndex) => {
 }
 
 export const getExpReq = (skillIndex, t) => {
-
   return 0 === skillIndex ?
     (15 + Math.pow(t, 1.9) + 11 * t) * Math.pow(1.208 - Math.min(0.164, (0.215 * t) / (t + 100)), t) - 15 :
     2 === skillIndex

@@ -61,7 +61,10 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Card variant={'outlined'}>
               <CardContent>
                 <Typography color={'info.light'}>Next Portal</Typography>
-                <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <img width={32} height={32} src={`${prefix}data/${nextPortal?.currentIcon}.png`} alt=""/>
+                  <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
+                </Stack>
               </CardContent>
             </Card>
           ) : null}
@@ -80,20 +83,20 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 </Stack>
               ) : null;
             })}
-            <Stat title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
-            <Stat title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
+            <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)}/>
+            <Stat title={'MP'} value={notateNumber(playerInfo?.maxMp)}/>
             <Stat title={'Kills Per Hour'}
                   value={playerInfo?.finalKillsPerHour > 1e6
                     ? notateNumber(playerInfo?.finalKillsPerHour)
                     : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
             <Stat title={'Defence'} value={notateNumber(playerInfo?.defence)}/>
-            <Stat title={'C. chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
-            <Stat title={'C. damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
+            <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
+            <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
-            <Stat title={'M. Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+            <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
             <Stat title={'Mining Eff'} value={notateNumber(playerInfo?.miningEff)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
-            <Stat title={'Cash Multi'} value={`${kFormatter(cashMulti, 2)}%`}
+            <Stat title={'Cash Multiplier'} value={`${kFormatter(cashMulti, 2)}%`}
                   breakdown={breakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
                   breakdown={drBreakdown} breakdownNotation={'Smaller'}/>
@@ -103,7 +106,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Afk Gains'}
                   value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
                   breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
-            <Stat title={'Non consume chance'}
+            <Stat title={'Non Consume Chance'}
                   value={`${kFormatter(nonConsumeChance, 2)}%`}
             />
             <Stat title={'Money'}

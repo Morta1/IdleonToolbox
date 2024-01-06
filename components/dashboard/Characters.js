@@ -156,7 +156,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                   let { showMaxed, showNonMaxed } = options?.crystalCountdown || {};
                   showMaxed = showMaxed?.checked;
                   showNonMaxed = showNonMaxed?.checked;
-                  const ready = crystalCountdown > 0 && reduction === crystalCountdown;
+                  const ready = crystalCountdown > 0 && reduction >= crystalCountdown;
                   if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
                   return <Alert key={icon + '-' + index + '-' + characterIndex}
                                 style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}

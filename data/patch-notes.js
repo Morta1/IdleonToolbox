@@ -11,9 +11,13 @@ export const patchNotes = [
       'Added an option to material tracker in dashboard settings to apply threshold either from above or below',
       'Added an option to the character dashboard settings to always see talents regardless of their cooldown',
       'Added an estimated trash per day to the islands page',
+      'Added the following leaderboards: Bit, Total Cards, Total Vials, Colosseum and Minigames, Fractal hours, Dungeon credits and Flurbos, Afk time',
+      'Made RNG items display in dungeons page more concise',
     ],
     fixes: [
-      'Fixed a bug with displaying crystal countdown progress while skill isn\'t specced'
+      'Fixed a bug with displaying crystal countdown progress while skill isn\'t specced',
+      'Fixed weekly bosses dashboard alert not disappearing when unchecked',
+      'Grammar :)'
     ]
   },
   {

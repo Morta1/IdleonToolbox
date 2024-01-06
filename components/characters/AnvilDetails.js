@@ -71,9 +71,9 @@ const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, smithin
         </Typography>{' '}
         / {pointsFromCoins + pointsFromMats + smithingLevel})
       </Typography>
-      <Typography variant="caption">Points from mats: {pointsFromMats}</Typography>
-      <Typography variant="caption">Points from coins: {pointsFromCoins}</Typography>
-      <Typography variant="caption">Points smithing: {smithingLevel}</Typography>
+      <Typography variant="caption">Points From Mats: {pointsFromMats}</Typography>
+      <Typography variant="caption">Points From Coins: {pointsFromCoins}</Typography>
+      <Typography variant="caption">Points Smithing: {smithingLevel}</Typography>
     </Stack>
   );
 };

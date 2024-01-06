@@ -78,12 +78,14 @@ const Leaderboards = () => {
 
     {!leaderboards ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack> : error ?
       <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
-        tabs={['General', 'Tasks', 'Skills']}>
+        tabs={['General', 'Tasks', 'Skills', 'Misc']}>
         <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>
         <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>
         <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
+                            searchedChar={searchedChar?.mainChar}/>
+        <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>
       </Tabber>}
 

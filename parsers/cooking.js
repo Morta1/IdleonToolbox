@@ -1,5 +1,4 @@
 import { atomsInfo, cookingMenu, monsters, randomList } from '../data/website-data';
-import { allProwess, getAllBaseSkillEff, getAllEff } from './character';
 import { getStampsBonusByEffect } from './stamps';
 import { getStatsFromGear } from './items';
 import { tryToParse } from '@utility/helpers';
@@ -14,6 +13,8 @@ import { isSuperbitUnlocked } from './gaming';
 import { getHighestTalentByClass, getVoidWalkerTalentEnhancements } from './talents';
 import { getEquinoxBonus } from './equinox';
 import LavaRand from '@utility/lavaRand';
+import account from '@components/dashboard/Account';
+import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
 
 export const spicesNames = [
   'Grasslands',

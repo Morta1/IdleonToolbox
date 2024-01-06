@@ -197,12 +197,12 @@ function applyThousandSeparator(
   );
 }
 
-export const numberWithCommas = (numStr) => {
+export const numberWithCommas = (numStr, isFloat = true) => {
   numStr = String(numStr);
   const hasDecimalSeparator = numStr.indexOf('.') !== -1;
   let { beforeDecimal, afterDecimal, addNegation } = splitDecimal(numStr); // eslint-disable-line prefer-const
   beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
-  numStr = beforeDecimal + ((hasDecimalSeparator && '.') || '') + afterDecimal;
+  numStr = beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
   return numStr;
 }
 

@@ -52,7 +52,7 @@ export const getMaxDamage = (character, characters, account) => {
   const strTalentBonus = getTalentBonus(character?.talents, 1, 'STRENGTH_IN_NUMBERS');
   const intTalentBonus = getTalentBonus(character?.talents, 1, 'KNOWLEDGE_IS_POWER');
   const lukTalentBonus = getTalentBonus(character?.talents, 1, 'LUCKY_HIT');
-  const damageFromStat = character?.stats[mainStat] * (1 + (strTalentBonus + (intTalentBonus + lukTalentBonus)) / 100);
+  const damageFromStat = (character?.stats[mainStat] || 0) * (1 + (strTalentBonus + (intTalentBonus + lukTalentBonus)) / 100);
 
   const { respawnRate } = getRespawnRate(character, account);
   playerInfo.respawnRate = respawnRate;
@@ -705,7 +705,7 @@ const getKillsPerHour = (character, characters, account, playerInfo) => {
   const dEffect = getTalentEffectOnKills(character, account, 'D');
   const kEffect = getTalentEffectOnKills(character, account, 'K');
   const mainStat = mainStatMap?.[character?.class];
-  const charWeapon = character?.equipment?.[1]?.Speed;
+  const charWeapon = character?.equipment?.[1]?.Speed || 0;
   const equipmentBonus = getStatsFromGear(character, 56, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[56]);
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi

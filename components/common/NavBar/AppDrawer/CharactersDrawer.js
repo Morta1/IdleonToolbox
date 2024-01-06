@@ -44,7 +44,7 @@ const CharactersDrawer = () => {
     dispatch({ type: 'displayedCharacters', data: newState })
   };
 
-  const totalLevels = useMemo(() => state?.characters?.reduce((res, { level }) => res + level, 0), [state]);
+  const totalLevels = useMemo(() => state?.characters?.reduce((res, { level }) => res + (level || 0), 0), [state]);
 
   const handleChipClick = (name) => {
     const newChipsState = {

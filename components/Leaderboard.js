@@ -65,7 +65,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                     ? SECONDARY_HIGHLIGHTED_OUTLINED_COLOR
                     : ''
                 }}
-                secondaryAction={<Typography>{notateNumber(entry?.[sectionName])}</Typography>}
+                secondaryAction={<Typography>{notateNumber(entry?.[sectionName], sectionName === 'bits' ? 'bits' : '')}</Typography>}
                 key={`${sectionName}-${index}`}>
                 <ListItemText><PositionCircle inline sx={{ mr: 2 }}>{entry?.index
                   ? entry?.index
@@ -110,7 +110,7 @@ const TopThree = ({ sectionName, topThree }) => {
                 <Link color={'inherit'} underline={'hover'} target={'_blank'}
                       href={`https://idleontoolbox.com?profile=${entry?.mainChar}`}>{entry?.mainChar}</Link>
               </Typography>
-              <Typography textAlign={'center'}>{notateNumber(entry?.[sectionName])}</Typography>
+              <Typography textAlign={'center'}>{notateNumber(entry?.[sectionName], sectionName === 'bits' ? 'bits' : '')}</Typography>
             </Stack>
           </TextWrapper>
         </Wrapper>

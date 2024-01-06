@@ -210,7 +210,7 @@ export const etcAlerts = (account, options, characters) => {
   if (options?.keys?.checked) {
     alerts.keys = areKeysOverdue(account);
   }
-  if (account?.finishedWorlds?.World1 && options?.weeklyBosses) {
+  if (account?.finishedWorlds?.World1 && options?.weeklyBosses?.checked) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
   if (account?.finishedWorlds?.World1 && options?.killRoy) {

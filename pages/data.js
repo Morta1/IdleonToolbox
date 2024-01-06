@@ -210,7 +210,7 @@ const Data = () => {
 To exclude your profile, simply uncheck the box and re-upload your profile.`}</FormHelperText>
         <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
         {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
-          update: {format(parseInt(lastUpload), 'MM/dd/yyyy HH:mm:ss')}</Typography> : null}
+          update: {format(parseInt(lastUpload), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
         {lastUpload ? <Typography variant={'body2'}>Time to next upload</Typography> : null}
         {lastUpload
           ? <NormalTimer

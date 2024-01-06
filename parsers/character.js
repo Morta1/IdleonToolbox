@@ -27,13 +27,14 @@ import {
 } from './misc';
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
 import { getInventory } from './storage';
-import { skillIndexMap } from './parseMaps';
+import { skillIndexMap, skillsMaps } from './parseMaps';
 import {
   applyTalentAddedLevels,
   createTalentPage,
   getActiveBuffs,
   getFamilyBonusValue,
-  getHighestTalentByClass, getTalentAddedLevels,
+  getHighestTalentByClass,
+  getTalentAddedLevels,
   getTalentBonus,
   getTalentBonusIfActive,
   mainStatMap,
@@ -213,7 +214,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
       [statMap[index]]: statValue
     }
   }, {});
-  character.level = character?.stats?.level;
+  character.level = character?.stats?.level || 0;
   // inventory bags used
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
   const bags = Object.keys(rawInvBagsUsed);
@@ -354,9 +355,23 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const kills = char?.[`KillsLeft2Advance`];
   character.kills = kills?.reduce((res, map, index) => [...res,
     parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
+  const isMiningMap = skillsMaps.mining?.[currentMapIndex];
+  const isFishingMap = skillsMaps.fishing?.[currentMapIndex];
+  let current = 0, currentIcon;
+  if (isMiningMap) {
+    current = character.skillsInfo?.mining?.level;
+    currentIcon = 'ClassIconsM';
+  } else if (isFishingMap) {
+    current = character.skillsInfo?.fishing?.level;
+    currentIcon = 'ClassIcons45';
+  } else {
+    current = parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0;
+    currentIcon = 'ClassIconsF';
+  }
   character.nextPortal = {
     goal: mapPortals?.[currentMapIndex]?.[0] ?? 0,
-    current: parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0
+    current,
+    currentIcon
   };
   character.zow = getBarbarianZowChow(kills, [1e5]);
   character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
@@ -841,7 +856,7 @@ export const getAfkGain = (character, characters, account) => {
 
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
   const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  if (monster) {
+  if (monster?.Name !== '_') {
     const highestVoidwalker = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
     const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'FIGHTING_AFK_GAINS', highestVoidwalker);
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 1);
@@ -958,7 +973,10 @@ export const getAfkGain = (character, characters, account) => {
   //     return afkGains;
   //   }
   // }
-  return 1;
+  return {
+    afkGains: 0,
+    breakdown: []
+  }
 }
 
 const getTrappingStuff = (type, index, optionsList) => {

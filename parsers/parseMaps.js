@@ -184,8 +184,12 @@ export const filteredLootyItems = {
   Spice6: true,
   Spice9: true,
   EquipmentHats75: true,
-  Quest70: true,
   Quest71: true,
   StampC13: true,
   TalentPoint5: true
 };
+
+export const skillsMaps = {
+  mining: [6, 7, 9, 10, 11].toSimpleObject(),
+  fishing: [54, 55, 61].toSimpleObject()
+}
