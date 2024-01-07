@@ -29,7 +29,7 @@ export const getRawShopItems = () => {
 }
 
 export const shopMapping = {
-  0: [8, 13,14, 17, 23].toSimpleObject(), // 'Blunder_Hills'
+  0: [3, 8, 13,14, 17, 23].toSimpleObject(), // 'Blunder_Hills'
   1: [2, 8, 9, 13].toSimpleObject(), // 'Encroaching_Forest_Villas'
   2: [0, 1, 2, 3, 4, 8, 9, 10, 18].toSimpleObject(), // 'YumYum_Grotto'
   3: [12].toSimpleObject(), // 'Faraway_Piers'

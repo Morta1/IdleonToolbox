@@ -213,7 +213,7 @@ export const etcAlerts = (account, options, characters) => {
   if (account?.finishedWorlds?.World1 && options?.weeklyBosses?.checked) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
-  if (account?.finishedWorlds?.World1 && options?.killRoy) {
+  if (account?.finishedWorlds?.World1 && options?.killRoy?.checked) {
     alerts.killRoy = account?.accountOptions?.[113];
   }
   if (!account?.finishedWorlds?.World3) return alerts;
