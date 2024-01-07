@@ -6,7 +6,7 @@ export const patchNotes = [
   {
     ver: '3.2.39',
     gameVer: '1.92',
-    date: '06/01/2023',
+    date: '06/01/2024',
     features: [
       'Added an option to material tracker in dashboard settings to apply threshold either from above or below',
       'Added an option to the character dashboard settings to always see talents regardless of their cooldown',
@@ -23,7 +23,7 @@ export const patchNotes = [
   {
     ver: '3.2.38',
     gameVer: '1.92',
-    date: '04/01/2023',
+    date: '04/01/2024',
     features: [
       'Added an option to search a player in the leaderboards',
       'Added card set information on the cards page',
