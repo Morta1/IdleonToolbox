@@ -119,8 +119,6 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500, characters) => {
 
     const newSolution = swapElements(currentSolution, randomIndex1, randomIndex2);
     const newBoard = evaluateBoard(newSolution, characters);
-    // console.log('currentScore', currentScore)
-    // console.log('newBoard score', newBoard?.[stat])
     if (newBoard?.[stat] > currentScore) {
       // If a lower score is better, use "<". If higher is better, use ">".
       best = newBoard;

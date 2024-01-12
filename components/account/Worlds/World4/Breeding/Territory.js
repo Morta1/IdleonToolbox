@@ -1,6 +1,8 @@
 import { Card, CardContent, Container, Stack, Typography, useMediaQuery } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
+import Tooltip from '@components/Tooltip';
+import { monsters } from '../../../../../data/website-data';
 
 const AbilityTypes = {
   0: 'error.light',
@@ -13,20 +15,23 @@ const Territory = ({ territories, spices }) => {
 
   return (
     <Container maxWidth={'xl'}>
+      <Typography variant={'caption'}>* hover over the territory icon to see the enemies</Typography>
       <Stack gap={2}>
         {territories?.map(({
                              territoryName,
                              battleName,
                              background,
                              team,
+                             enemies,
                              reqProgress,
                              currentProgress,
                              forageSpeed
                            }, index) => {
           if (battleName === 'Filler_Filler') return null;
           const spice = spices?.available?.[index];
+          const realEnemies = enemies?.filter(({ health }) => health);
           return <Stack key={battleName} direction={'row'} justifyContent={'center'}>
-            <Card  sx={{ width: '100%' }}>
+            <Card sx={{ width: '100%' }}>
               <CardContent sx={{ position: 'relative' }}>
                 <Stack direction={breakpoint ? 'column' : 'row'} flexWrap={'wrap'}
                        gap={breakpoint ? 2 : 0}
@@ -36,8 +41,10 @@ const Territory = ({ territories, spices }) => {
                       <Typography variant={'body1'}>{territoryName}</Typography>
                       <Typography variant={'body2'}>{cleanUnderscore(battleName)}</Typography>
                     </Stack>
-                    <img style={{ borderRadius: '50%', width: 48, height: 48 }} src={`${prefix}data/${background}`}
-                         alt={''}/>
+                    <Tooltip title={<EnemiesTooltip enemies={realEnemies}/>}>
+                      <img style={{ borderRadius: '50%', width: 48, height: 48 }} src={`${prefix}data/${background}`}
+                           alt={''}/>
+                    </Tooltip>
                   </Stack>
                   <Stack direction={'row'} flexWrap={'wrap'}>
                     <CardTitleAndValue cardSx={{ my: 0, width: 150 }} variant={'outlined'} title={'Spice'}>
@@ -105,5 +112,18 @@ const Territory = ({ territories, spices }) => {
     </Container>
   );
 };
+
+const EnemiesTooltip = ({ enemies }) => {
+  return <Stack flexWrap={'wrap'} gap={1}>
+    <Stack direction={'row'} gap={1}>
+      {enemies?.map(({ name, health }, index) => {
+        const realName = monsters?.[name]?.Name;
+        return <img style={{ width: 42, height: 42, objectFit: 'contain' }} key={'enemy' + index} src={`${prefix}afk_targets/${realName}.png`}
+                    alt={''}/>
+      })}
+
+    </Stack>
+  </Stack>
+}
 
 export default Territory;

@@ -34,9 +34,9 @@ export default function CardSearch() {
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
   const mapCards = (cardsArray, cardSets) => {
-    const cardSetsObject = Object.values(cardSets).reduce((res, cardSet) => ({
+    const cardSetsObject = Object.values(cardSets).reduce((res, cardSet, realIndex) => ({
       ...res,
-      [cardSet?.name]: ({ ...cardSet, totalStars: 0 })
+      [cardSet?.name]: ({ ...cardSet, totalStars: 0, realIndex })
     }), {});
     const cards = Object.entries(cardsArray)?.reduce((res, [, cardDetails]) => {
       const { category, displayName } = cardDetails;
@@ -143,16 +143,16 @@ export default function CardSearch() {
                         />}
                       <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
                         {cardsArr.map((card, index) => {
-                          const { displayName, name } = card;
+                          const { displayName, name, realIndex } = card;
                           let {
                             stars,
                             amount,
                             nextLevelReq
                           } = state?.account?.cards?.[displayName] || {};
                           if (isCardSets) {
-                            stars = Math.floor(cardsObject?.['Card Sets'][index]?.totalStars / Math.max(localCardObject[name].length, 1)) - 1;
-                            amount = cardsObject?.['Card Sets'][index]?.totalStars;
-                            nextLevelReq = Math.floor(localCardObject[name].length) * (Math.min(5, Math.floor(cardsObject?.['Card Sets'][index]?.totalStars / Math.max(localCardObject[name].length, 1))) + 1);
+                            stars = Math.floor(cardsObject?.['Card Sets'][realIndex]?.totalStars / Math.max(cardsObject[name].length, 1)) - 1;
+                            amount = cardsObject?.['Card Sets'][realIndex]?.totalStars;
+                            nextLevelReq = Math.floor(cardsObject[name].length) * (Math.min(5, Math.floor(cardsObject?.['Card Sets'][realIndex]?.totalStars / Math.max(cardsObject[name].length, 1))) + 1);
                           }
                           return (
                             <div style={{ position: 'relative' }} key={displayName + '' + index}>

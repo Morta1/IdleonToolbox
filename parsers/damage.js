@@ -86,10 +86,7 @@ export const getMaxDamage = (character, characters, account) => {
   playerInfo.killPerkill = getKillPerKill(character, characters, account, playerInfo);
 
   playerInfo.finalKillsPerHour = Math.floor(playerInfo.killsPerHour * playerInfo.afkGains * (playerInfo.survivability / 100) * playerInfo.killPerkill);
-  // console.log('Kills Per', ((playerInfo.killsPerHour * playerInfo.survivability * playerInfo.afkGains) / 100) * playerInfo.killPerkill)
-  // console.log('dmg array', [baseDamage, perDamage, percentDamage])
-  // console.log('playerInfo', playerInfo);
-  //   console.log('damage range', notateDamage(playerInfo));
+
 
   return playerInfo;
 }
@@ -253,66 +250,6 @@ const getDamagePercent = (character, characters, account) => {
     * Math.max((1 - curseTalent / 100)
       * (1 - activeDebuff / 100)
       * Math.max(.01, 1 - (prayerCurse + secondPrayerCurse) / 100), .05);
-  // console.log('perWormholeKills', perWormholeKills)
-  // console.log('eclipseSkulls', eclipseSkulls)
-  // console.log('activeBuff', activeBuff)
-  // console.log('starSignBonus', starSignBonus)
-  // console.log('godTalent', godTalent)
-  // console.log('orbTalent', orbTalent)
-  // console.log('equinoxDamageBonus', equinoxDamageBonus)
-  // console.log('shrineBonus', shrineBonus)
-  // console.log('postOfficeBonus', postOfficeBonus)
-  // console.log('secondPostOfficeBonus', secondPostOfficeBonus)
-  // console.log('thirdPostOfficeBonus', thirdPostOfficeBonus)
-  // console.log('amplifiedFamilyBonus', amplifiedFamilyBonus)
-  // console.log('artifactBonus', artifactBonus)
-  // console.log('atomBonus', atomBonus)
-  // console.log('shinyBonus', shinyBonus)
-  // console.log('superbitBonus', superbitBonus)
-  // console.log('skillMasteryBonus', skillMasteryBonus)
-  // console.log('strPercBubbleBonus', strPercBubbleBonus)
-  // console.log('agiPercBubbleBonus', agiPercBubbleBonus)
-  // console.log('wisPercBubbleBonus', wisPercBubbleBonus)
-  // console.log('secondArtifactBonus', secondArtifactBonus)
-  // console.log('thirdArtifactBonus', thirdArtifactBonus)
-  // console.log('strBubbleBonus', strBubbleBonus)
-  // console.log('agiBubbleBonus', agiBubbleBonus)
-  // console.log('wisBubbleBonus', wisBubbleBonus)
-  // console.log('constructMastery', constructMastery)
-  // console.log('talentBonus', talentBonus)
-  // console.log('saltLickBonus', saltLickBonus)
-  // console.log('equipmentBonus', equipmentBonus + obolsBonus)
-  // console.log('labBonus', labBonus)
-  // console.log('secondLabBonus', secondLabBonus)
-  // console.log('jewelBonus', jewelBonus)
-  // console.log('fourthArtifactBonus', fourthArtifactBonus)
-  // console.log('fifthArtifactBonus', fifthArtifactBonus)
-  // console.log('cardBonus', cardBonus)
-  // console.log('cardSetBonus', cardSetBonus)
-  // console.log('arenaBonusUnlock', arenaBonusUnlock)
-  // console.log('secondArenaBonusUnlock', secondArenaBonusUnlock)
-  // console.log('chipBonus', chipBonus)
-  // console.log('mealBonus', mealBonus)
-  // console.log('getAchievementStatus 1', getAchievementStatus(account?.achievements, 58))
-  // console.log('getAchievementStatus 2', getAchievementStatus(account?.achievements, 59))
-  // console.log('getAchievementStatus 3', getAchievementStatus(account?.achievements, 60))
-  // console.log('getAchievementStatus 4', getAchievementStatus(account?.achievements, 62))
-  // console.log('getAchievementStatus 5', getAchievementStatus(account?.achievements, 119))
-  // console.log('getAchievementStatus 6', getAchievementStatus(account?.achievements, 120))
-  // console.log('getAchievementStatus 7', getAchievementStatus(account?.achievements, 121))
-  // console.log('getAchievementStatus 8', getAchievementStatus(account?.achievements, 185))
-  // console.log('getAchievementStatus 9', getAchievementStatus(account?.achievements, 186))
-  // console.log('getAchievementStatus 10', getAchievementStatus(account?.achievements, 187))
-  // console.log('getAchievementStatus 11', getAchievementStatus(account?.achievements, 240))
-  // console.log('getAchievementStatus 12', getAchievementStatus(account?.achievements, 280))
-  // console.log('getAchievementStatus 13', getAchievementStatus(account?.achievements, 297))
-  // console.log('getAchievementStatus 14', getAchievementStatus(account?.achievements, 303))
-  // console.log('godBlessing', godBlessing)
-  // console.log('secondGodBlessing', secondGodBlessing)
-  // console.log('curseTalent', curseTalent)
-  // console.log('activeDebuff', activeDebuff)
-  // console.log('prayerCurse', prayerCurse)
-  // console.log('secondPrayerCurse', secondPrayerCurse)
   return 100 < damage ? 100 + Math.max(Math.pow(damage - 100, .86), 0) : damage;
 }
 const getDamageFromPerX = (character, characters, account, playerInfo, hpMpDamage) => {

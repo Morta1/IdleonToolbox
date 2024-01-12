@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import Artifacts from 'components/account/Worlds/World5/Sailing/Artifacts';
 import LootPile from '../../../components/account/Worlds/World5/Sailing/LootPile';
-import { prefix } from '../../../utility/helpers';
+import { prefix } from '@utility/helpers';
 import Chests from '../../../components/account/Worlds/World5/Sailing/Chests';
 import BoatsAndCaptains from '../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains';
-import { CardTitleAndValue, MissingData } from '../../../components/common/styles';
+import { CardTitleAndValue, MissingData } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import Trades from '../../../components/account/Worlds/World5/Sailing/Trades';
 import Tabber from '../../../components/common/Tabber';
@@ -35,7 +35,7 @@ const Sailing = () => {
     <Stack mb={2} direction={'row'} gap={1}>
       <CardTitleAndValue title={'Chests'}>
         <Stack direction={'row'} gap={2}>
-          <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.gif`} alt=""/>
+          <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.png`} alt=""/>
           <Typography>{chests?.length || 0} / {maxChests}</Typography>
         </Stack>
       </CardTitleAndValue>

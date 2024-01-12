@@ -42,7 +42,10 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
   const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList);
+  const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }) => maxTime);
+  const timeToFullChests = calculateMaxCapacityTime(boatsRoundtrips, maxChests - (chests?.length || 0));
   const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
+
   return {
     maxChests,
     artifacts: artifactsList,
@@ -50,8 +53,26 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
     chests,
     rareTreasureChance,
     trades,
+    timeToFullChests,
     ...captainsAndBoats
   };
+}
+
+const calculateMaxCapacityTime = (roundtripTimes, maxCapacity) => {
+  const minTime = Math.min(...roundtripTimes);
+  const acquisitionRate = maxCapacity / minTime;
+  let accumulatedTime = 0;
+  let chestCount = 0;
+
+  for (const boatTime of roundtripTimes) {
+    accumulatedTime += boatTime;
+    chestCount += acquisitionRate * (accumulatedTime - boatTime);
+    if (chestCount >= maxCapacity) {
+      break;
+    }
+  }
+
+  return accumulatedTime;
 }
 
 const getFutureTrades = ({ boats } = {}, islands, lootPileList, artifactsList, account) => {
@@ -210,6 +231,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters,
   boatObj.resources = getBoatResources(boatObj, lootPile);
   boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed, minimumTravelTime)
+  boatObj.maxTime = ((island?.distance) / boatObj.speed?.value) * 3600 * 1000;
   boatObj.timeLeft = ((island?.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000;
   return boatObj
 }

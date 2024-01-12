@@ -20,7 +20,8 @@ import {
   equinoxAlerts,
   etcAlerts,
   gamingAlerts,
-  guildAlerts, materialTrackerAlerts,
+  guildAlerts,
+  materialTrackerAlerts,
   postOfficeAlerts,
   printerAlerts,
   sailingAlerts,
@@ -121,9 +122,9 @@ const Account = ({ account, characters, trackers }) => {
             alerts?.tasks?.map((world) => <Alert key={'task' + world}
                                                  title={`Daily task in world ${world + 1} not done yet`}
                                                  iconPath={`etc/Merit_${world}`}/>) : null}
-          {/*{trackers?.sailing && alerts?.sailing?.chests > 0 ?<Alert key={'task' + world}*/}
-          {/*                                                          title={`Daily task in world ${world + 1} not done yet`}*/}
-          {/*                                                          iconPath={'npcs/Chesty.gif'}/>: null}*/}
+          {trackers?.sailing && alerts?.sailing?.chests > 0 ? <Alert key={'sailing-chest-alert'}
+                                                                     title={`You've reached to maximum capacity of chests`}
+                                                                     iconPath={'npcs/Chesty'}/> : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
             alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {
               return <Alert
@@ -196,7 +197,7 @@ const Account = ({ account, characters, trackers }) => {
             }) : null}
           {trackers?.printer?.checked && alerts?.printer?.atoms?.length > 0 ?
             alerts?.printer?.atoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}
-                                                                      title={`Printing is at capacity for ${cleanUnderscore(name)}`}
+                                                                      title={`Printing is at maximum (storage) capacity for ${cleanUnderscore(name)}`}
                                                                       atom
                                                                       iconPath={`data/${rawName}`}/>) : null}
           {trackers?.alchemy && alerts?.alchemy?.vials?.length > 0 ?

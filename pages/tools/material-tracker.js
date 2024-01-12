@@ -10,13 +10,13 @@ import {
   useMediaQuery
 } from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '../../utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { itemsArray } from '../../data/website-data';
 import Button from '@mui/material/Button';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../components/Tooltip';
-import { findQuantityOwned, getAllItems } from '../../parsers/items';
-import { AppContext } from '../../components/common/context/AppProvider';
+import { findQuantityOwned, getAllItems } from '@parsers/items';
+import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
@@ -38,7 +38,7 @@ const MaterialTracker = () => {
                                                    typeGen,
                                                    displayName
                                                  }) => displayName !== 'ERROR' && displayName !== 'Blank' &&
-    displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip' && !typeGen.includes('Quest')
+    displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip'
   ), []);
   const totalOwnedItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters,
     state?.account]);

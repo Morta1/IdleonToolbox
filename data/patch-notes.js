@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.40',
+    gameVer: '1.92',
+    date: '12/01/2024',
+    features: [
+      'Updated stamps page (might be a bit buggy)',
+      'Updated the Active Exp Calculator to be able to calculate a selected level',
+      'Added an alert for maximum capacity for sailing chests to the dashboard',
+      'Added missing items to material tracker',
+      'Added enemies to the Territories tab',
+      'Added distinction between the various types of Exp in the quests page'
+    ],
+    fixes: [
+      'Fixed alerts for refinery salts',
+      'Fixed card search stars calculations',
+    ]
+  },
+  {
     ver: '3.2.39',
     gameVer: '1.92',
     date: '06/01/2024',

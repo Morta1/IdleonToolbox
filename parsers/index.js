@@ -6,7 +6,7 @@ import {
 } from './character';
 import { getCards } from './cards';
 import { getObols } from './obols';
-import { applyStampsMulti, getStamps } from './stamps';
+import { applyStampsMulti, getStamps, updateStamps } from './stamps';
 import { applyStatuesMulti, getStatues } from './statues';
 import { getShrineExpBonus, getShrines } from './shrines';
 import { getHighscores } from './highScores';
@@ -118,7 +118,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.guild = getGuild(idleonData, guildData);
   accountData.currencies = getCurrencies(idleonData, accountData);
-  accountData.stamps = getStamps(idleonData);
+  accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
   const { tasks, tasksDescriptions, meritsDescriptions } = getTasks(idleonData)
@@ -237,6 +237,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
     return character;
   })
+  accountData.stamps = updateStamps(accountData, charactersData);
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);

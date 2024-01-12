@@ -77,7 +77,10 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                             }}
                             badgeContent={<StatusIndicator
                               color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>
-                            <Tooltip title={`${characters?.[charIndex]?.name} - ${status === 1 ? 'Completed' : status === -1 ? 'Not yet unlocked' : 'In progress'}`}>
+                            <Tooltip
+                              title={`${characters?.[charIndex]?.name} - ${status === 1 ? 'Completed' : status === -1
+                                ? 'Not yet unlocked'
+                                : 'In progress'}`}>
                               <Avatar
                                 alt=""
                                 src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>
@@ -97,6 +100,33 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
     </Box>
   );
 };
+
+const getExpType = (type) => {
+  switch (type) {
+    case 0:
+      return 'Class';
+    case 1:
+      return 'Mining';
+    case 2:
+      return 'Smithing';
+    case 3:
+      return 'Choppin';
+    case 4:
+      return 'Fishing';
+    case 5:
+      return 'Alchemy';
+    case 6:
+      return 'Catching';
+    case 7:
+      return 'Trapping';
+    case 8:
+      return 'Construction';
+    case 9:
+      return 'Worship';
+    default:
+      return '';
+  }
+}
 
 const QuestTooltip = ({ rewards, itemReq, customArray }) => {
   return <Stack gap={2}>
@@ -125,9 +155,10 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
       <Typography variant={'h6'} fontWeight={'bold'}>Rewards</Typography>
       <Stack direction={'row'} alignItems={'center'} gap={2}>
         {rewards?.map(({ name, rawName, amount }, index) => {
-          let img;
+          let img, expType;
           if (rawName.includes('Experience')) {
             img = 'XP';
+            expType = getExpType(parseInt(rawName?.replace('Experience', '')))
           } else if (rawName.includes('Talent')) {
             img = 'TalentBook1';
           } else if (rawName.includes('Recipes')) {
@@ -141,6 +172,7 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
                   title={cleanUnderscore(name || rawName)}
                   src={`${prefix}data/${img}.png`}
                   alt=""/>
+                {expType ? <Typography variant={'caption'}>{expType} exp</Typography> : null}
                 <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
               </Stack> :
               <div className={'coins'}>

@@ -6,12 +6,16 @@ import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 
 
-export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, reduceAddedLevels) => {
+export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
   const talent = talentsObj?.find(({ name }) => name === talentName);
   if (!talent) return 0;
   let level = useMaxLevel ? talent?.maxLevel : talent?.level;
-  level = reduceAddedLevels ? level - reduceAddedLevels : level;
+  if (useMaxAndAddedLevels) {
+    level = talent?.maxLevel + addedLevels;
+  } else {
+    level = addedLevels ? level - addedLevels : level;
+  }
   if (yBonus) {
     return growth(talent?.funcY, level, talent?.y1, talent?.y2, false) ?? 0;
   }

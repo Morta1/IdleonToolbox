@@ -159,11 +159,16 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                   const ready = crystalCountdown > 0 && reduction >= crystalCountdown;
                   if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
                   return <Alert key={icon + '-' + index + '-' + characterIndex}
-                                style={{ border: '1px solid #fbb9b9', borderRadius: 5, opacity: ready ? 1 : .5 }}
+                                style={{
+                                  border: '1px solid',
+                                  borderColor: ready ? '#66bb6a' : reduction > 0 ? '#d1921e' : '',
+                                  borderRadius: 5,
+                                  opacity: ready || reduction > 0 ? 1 : .5
+                                }}
                                 title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready
                                   ? 'maxed'
-                                  : ''} ${notateNumber(reduction, 'Smaller')}% ${!ready
-                                  ? `(Max: ${notateNumber(crystalCountdown, 'Smaller')})`
+                                  : ''} ${notateNumber(reduction, 'MultiplierInfo')}% ${!ready
+                                  ? `(Max: ${notateNumber(crystalCountdown, 'MultiplierInfo')})`
                                   : ''}`}
                                 iconPath={`data/${icon}`}/>
                 }

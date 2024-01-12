@@ -102,13 +102,6 @@ const Divinity = () => {
 };
 
 const Cost = ({ type, cost, title }) => {
-  if (type === 'coins') {
-    // console.log('cost', cost)
-    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
-    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
-    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
-    // console.log('3.477182763180816e+22', getCoinsArray(3.477182763180816e+22))
-  }
   const currencyIcon = type === 'bits' ? `etc/Bits_${getBitIndex(cost)}` : type === 'sailingGold'
     ? 'data/SailT0'
     : 'etc/Particle';

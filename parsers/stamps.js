@@ -1,16 +1,20 @@
-import { growth, tryToParse } from '../utility/helpers';
-import { stamps } from '../data/website-data';
+import { groupByKey, growth, tryToParse } from '../utility/helpers';
+import { crafts, items, stamps } from '../data/website-data';
 import { getTalentBonus } from '@parsers/talents';
+import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
+import { getHighestCapacityCharacter } from '@parsers/misc';
+import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
+import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 
 const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
-export const getStamps = (idleonData) => {
+export const getStamps = (idleonData, account) => {
   const stampLevelsRaw = tryToParse(idleonData?.StampLv) || idleonData?.StampLevel;
   const stampMaxLevelsRaw = tryToParse(idleonData?.StampLvM) || idleonData?.StampLevelMAX;
-  return parseStamps(stampLevelsRaw, stampMaxLevelsRaw);
+  return parseStamps(stampLevelsRaw, stampMaxLevelsRaw, account);
 }
 
-export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw) => {
+export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   const stampsObject = stampLevelsRaw?.reduce((result, item, index) => ({
     ...result,
     [stampsMapping?.[index]]: Object.keys(item).reduce((res, key, stampIndex) => (key !== 'length' ? [
@@ -19,11 +23,149 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw) => {
       ]
       : res), [])
   }), {});
-  return {
-    combat: stampsObject.combat.map((item, index) => ({ ...stamps['combat'][index], ...item })),
-    skills: stampsObject.skills.map((item, index) => ({ ...stamps['skills'][index], ...item })),
-    misc: stampsObject.misc.map((item, index) => ({ ...stamps['misc'][index], ...item })),
-  };
+  return Object.entries(stampsObject)?.reduce((acc, [category, stampsLevels]) => {
+    const stampList = stampsLevels?.map((stamp, index) => {
+      const stampDetails = stamps[category][index];
+      const requiredItem = stampDetails?.itemReq?.[0];
+      const materials = flattenCraftObject(crafts[requiredItem?.name]);
+      let ownedMats = 0;
+      if (materials.length === 0) {
+        ownedMats = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === requiredItem?.rawName))?.amount;
+      }
+      return { ...stampDetails, ...stamp, materials, ownedMats, itemReq: requiredItem, category }
+    })
+    return { ...acc, [category]: stampList };
+  }, {});
+}
+
+export const updateStamps = (account, characters) => {
+  const stampReducer = account?.atoms?.stampReducer;
+  const flatten = Object.values(account?.stamps).flat().map((stamp) => {
+    const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
+    const goldCost = getGoldCost(stamp?.level, stamp, account);
+    const hasMoney = account?.currencies?.rawMoney >= goldCost;
+    const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer);
+    let hasMaterials;
+    if (stamp?.materials?.length > 0) {
+      hasMaterials = stamp?.materials?.every(({ itemName, type, itemQuantity }) => {
+        if (type === 'Equip') return true;
+        let ownedMats = calculateItemTotalAmount(account?.storage, itemName, true);
+        return ownedMats >= itemQuantity * materialCost;
+      })
+    } else {
+      hasMaterials = stamp?.ownedMats >= materialCost;
+    }
+    const enoughPlayerStorage = bestCharacter?.maxCapacity >= materialCost;
+
+    const newStampData = {
+      ...stamp,
+      bestCharacter,
+      goldCost,
+      materialCost,
+      enoughPlayerStorage,
+      hasMaterials,
+      hasMoney
+    };
+    const futureCosts = getFutureCosts(newStampData, account, stampReducer);
+    return { ...newStampData, futureCosts };
+  });
+  return groupByKey(flatten, ({ category }) => category);
+}
+
+const getFutureCosts = (stamp, account, stampReducer) => {
+  let maxCarryLevel = stamp?.maxLevel;
+  while (getMaterialCost(maxCarryLevel, stamp, account, stampReducer) < stamp?.bestCharacter?.maxCapacity) {
+    maxCarryLevel += stamp?.reqItemMultiplicationLevel;
+  }
+  const reductionIncrement = account?.atoms?.atoms?.[0]?.baseBonus * account?.atoms?.atoms?.[0]?.level;
+  const topTier = stamp?.level + stamp?.reqItemMultiplicationLevel * 3;
+  const futureCosts = [];
+  for (let tier = stamp?.level + stamp?.reqItemMultiplicationLevel; tier <= topTier; tier += stamp?.reqItemMultiplicationLevel) {
+    for (let j = tier === stamp?.level ? stampReducer : 0; j <= 90; j = Math.min(90, j + reductionIncrement)) {
+      let materialCost, goldCost;
+      const futureCost = getMaterialCost(tier - stamp?.reqItemMultiplicationLevel, stamp, account, j);
+      if (j === 90) {
+        if (futureCost < stamp?.bestCharacter?.maxCapacity) {
+          materialCost = (tier - stamp?.reqItemMultiplicationLevel === stamp?.level
+            ? futureCost
+            : getMaterialCostToLevel(stamp?.level, tier, stamp, account, j));
+          goldCost = getGoldCostToLevel(stamp?.level, tier, stamp, account);
+          futureCosts.push({
+            ...stamp?.itemReq,
+            level: tier,
+            goldCost,
+            materialCost,
+            reduction: j
+          });
+        }
+        break;
+      }
+      if (futureCost < stamp?.bestCharacter?.maxCapacity) {
+        materialCost = (tier - stamp?.reqItemMultiplicationLevel === stamp?.level
+          ? futureCost
+          : getMaterialCostToLevel(stamp?.level, tier, stamp, account, j));
+        goldCost = getGoldCostToLevel(stamp?.level, tier, stamp, account);
+        futureCosts.push({
+          ...stamp?.itemReq,
+          level: tier,
+          goldCost,
+          materialCost,
+          reduction: j
+        });
+        break;
+      }
+      if (reductionIncrement === 0) {
+        break;
+      }
+    }
+  }
+  if (futureCosts.length === 0) {
+    const materialCost = getMaterialCost(maxCarryLevel, stamp, account, stampReducer);
+    const goldCost = getGoldCost(maxCarryLevel, stamp, account);
+    futureCosts.push({ ...stamp?.itemReq, level: maxCarryLevel, goldCost, materialCost, reduction: stampReducer });
+  }
+  return futureCosts;
+}
+
+const getGoldCostToLevel = (level, maxLevel, stamp, account) => {
+  let total = getGoldCost(level, stamp, account);
+  for (let i = level; i < maxLevel; i++) {
+    total += getGoldCost(i, stamp, account);
+  }
+  return total
+}
+
+const getGoldCost = (level, stamp, account) => {
+  const reductionVal = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
+  const reductionBribe = account?.bribes?.[0];
+  const realBaseCost = reductionBribe?.done
+    ? stamp?.baseCoinCost * (1 - (reductionBribe?.value / 100))
+    : stamp?.baseCoinCost;
+  const cost = (realBaseCost * Math.pow(stamp?.powCoinBase - (level / (level + 5 * stamp?.reqItemMultiplicationLevel)) * 0.25, level * (10 / stamp?.reqItemMultiplicationLevel))) * Math.max(0.1, 1 - (reductionVal / 100));
+  return Math.floor(cost);
+}
+
+const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0) => {
+  let total = 0;
+  for (let i = level; i < maxLevel; i += stamp?.reqItemMultiplicationLevel) {
+    total += getMaterialCost(i, stamp, account, reduction);
+  }
+  return total
+}
+
+const getMaterialCost = (level, stamp, account, reduction = 0) => {
+  const gildedStamps = isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')
+    ? account?.accountOptions?.[154]
+    : 0
+  const reductionVial = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
+  const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
+  const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
+  return Math.max(1, (stamp?.baseMatCost * ((gildedStamps > 0) ? 0.05 : 1)
+      * stampReducerVal
+      * sigilReduction
+      * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
+    * Math.max(0.1, 1 - (reductionVial / 100)));
 }
 
 export const getStampsBonusByEffect = (stamps, effectName, character) => {
@@ -38,7 +180,7 @@ export const getStampBonus = (stamps, stampTree, stampName, character) => {
   const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
   let toiletPaperPostage = 1;
-  if (stamp?.stat?.includes('Eff')){
+  if (stamp?.stat?.includes('Eff')) {
     toiletPaperPostage = getTalentBonus(character?.starTalents, null, 'TOILET_PAPER_POSTAGE')
   }
   if (stamp?.skillIndex > 0) {

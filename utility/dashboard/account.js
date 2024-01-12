@@ -136,10 +136,9 @@ export const constructionAlerts = (account, options) => {
       const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
       const missingMats = hasMissingMats(saltIndex, rank, cost, account);
       const previousSaltMissingMats = hasMissingMats(previousSaltIndex, previousSalt?.rank, previousSalt?.cost, account);
-
       if (missingMats.length === 1 && missingMats?.[0]?.rawName?.includes('Refinery')
-        || previousSalt?.autoRefinePercentage > 0
-        || previousSaltMissingMats?.active && previousSaltMissingMats?.length > 0) {
+        && previousSalt?.autoRefinePercentage > 0
+        || previousSalt?.active && previousSaltMissingMats?.length > 0) {
         return res;
       }
       if (missingMats.length > 0) {
@@ -357,7 +356,12 @@ export const sailingAlerts = (account, options) => {
     }, []);
   }
   if (chests?.checked) {
-    alerts.chests = account?.sailing?.chests?.length === account?.sailing?.maxChests;
+    const sailingTime = 259200 < account?.accountOptions?.[124]
+      ? Math.floor(account?.accountOptions?.[124] / 8640) / 10
+      : Math.floor(account?.accountOptions?.[124] / 3600);
+    const { maxChests, timeToFullChests } = account?.sailing;
+    const { hours } = getDuration(new Date().getTime(), timeToFullChests);
+    alerts.chests = sailingTime > hours && maxChests > 0;
   }
   return alerts;
 }
@@ -393,7 +397,7 @@ export const gamingAlerts = (account, options) => {
     alerts.drops = account?.gaming?.availableDrops;
   }
   const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
-  if (shovelUnlocked && shovel && account?.gaming?.lastShovelClicked >= 0) {
+  if (options?.shovel?.checked && shovelUnlocked && shovel && account?.gaming?.lastShovelClicked >= 0) {
     const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
     const { hours } = getDuration(new Date().getTime(), timePassed);
     if (hours >= options?.shovel?.props?.value) {
@@ -404,7 +408,7 @@ export const gamingAlerts = (account, options) => {
                                                              name,
                                                              acquired
                                                            }) => name === 'Autumn_Squirrel' && acquired)
-  if (squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
+  if (options?.squirrel?.checked && squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
     const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
     const { hours } = getDuration(new Date().getTime(), timePassed);
     if (hours >= options?.squirrel?.props?.value) {
