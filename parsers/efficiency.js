@@ -42,7 +42,7 @@ export const allProwess = (character, account) => {
 
 export const getNobisectBonus = (character, account, characters, playerInfo) => {
   const mainStat = mainStatMap?.[character?.class];
-  const { strength, wisdom, agility } = character?.stats;
+  const { strength, wisdom, agility } = character?.stats || {};
   const strBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false, mainStat);
   const wisBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'HOCUS_CHOPPUS', false, mainStat);
   const base = Math.max(1, getAllEff(character, characters, account)

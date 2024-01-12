@@ -2,10 +2,14 @@ import { deathNote, mapEnemies, monsters } from '../data/website-data';
 import { isRiftBonusUnlocked } from './world-4/rift';
 
 export const getDeathNote = (charactersData, account) => {
-  const allKills = charactersData?.reduce((res, character) => {
+  const allKills = charactersData?.reduce((result, character) => {
     const { kills } = character;
-    if (res?.length === 0) return kills;
-    return kills?.map((mapKills, innerInd) => mapKills + res[innerInd]);
+    if (kills && kills.length) {
+      kills.forEach((kill, index) => {
+        result[index] = (result[index] || 0) + kill;
+      });
+    }
+    return result;
   }, []);
   return deathNote.reduce((res, { rawName, world }) => {
     const mobIndex = mapEnemies?.[rawName];

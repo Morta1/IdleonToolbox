@@ -563,32 +563,32 @@ export const getItemCapacity = (type = '', character, account) => {
   const allCap = getAllCap(character, account);
 
 
-  return 'bOre' === type || 'bBar' === type || 'cOil' === type ? Math.floor(character?.maxCarryCap.Mining
+  return 'bOre' === type || 'bBar' === type || 'cOil' === type ? Math.floor(character?.maxCarryCap?.Mining
     * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100)
     * (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : 'dFish' === type ? Math.floor(character?.maxCarryCap.Fishing
+    * allCap) : 'dFish' === type ? Math.floor(character?.maxCarryCap?.Fishing
     * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) *
     (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : 'dBugs' === type ? Math.floor(character?.maxCarryCap.Bugs
+    * allCap) : 'dBugs' === type ? Math.floor(character?.maxCarryCap?.Bugs
     * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100)
     * (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : 'bLog' === type || 'bLeaf' === type ? Math.floor(character?.maxCarryCap.Chopping
+    * allCap) : 'bLog' === type || 'bLeaf' === type ? Math.floor(character?.maxCarryCap?.Chopping
     * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) *
     (1 + (allCarryStamps + starSignBonus) / 100) *
-    allCap) : 'cFood' === type ? Math.floor(character?.maxCarryCap.Foods *
+    allCap) : 'cFood' === type ? Math.floor(character?.maxCarryCap?.Foods *
       (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps
         + starSignBonus) / 100) * allCap) :
-    'dCritters' === type ? Math.floor(character?.maxCarryCap.Critters * (1 + (25 * gemshop) / 100) *
+    'dCritters' === type ? Math.floor(character?.maxCarryCap?.Critters * (1 + (25 * gemshop) / 100) *
         (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
-      : 'dSouls' === type ? Math.floor(character?.maxCarryCap.Souls * (1 + (25 * gemshop) / 100) *
+      : 'dSouls' === type ? Math.floor(character?.maxCarryCap?.Souls * (1 + (25 * gemshop) / 100) *
           (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
         : 'dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type ? 999999 : 'bCraft' === type
-          ? Math.floor(character?.maxCarryCap.bCraft
+          ? Math.floor(character?.maxCarryCap?.bCraft
             * (1 + matCapStamps / 100)
             * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100)
             * (1 + talentBonus / 100) * allCap)
           : 'dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type ? 999999 :
-            'fillerz' === type ? character?.maxCarryCap.fillerz : 'd' === type.charAt(0) ? 999999 : 2
+            'fillerz' === type ? character?.maxCarryCap?.fillerz : 'd' === type.charAt(0) ? 999999 : 2
 }
 
 export const getTypeGen = (type) => {

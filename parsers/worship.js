@@ -92,9 +92,9 @@ export const getClosestWorshiper = (characters) => {
 }
 
 export const getChargeWithSyphon = (characters) => {
-  const totalCharge = characters?.reduce((res, { worship }) => res + worship?.currentCharge, 0);
-  const totalChargeRate = characters?.reduce((res, { worship }) => res + worship?.chargeRate, 0);
-  const bestChargeSyphon = getHighestTalentByClass(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y');
+  const totalCharge = characters?.reduce((res, { worship }) => res + (worship?.currentCharge || 0), 0);
+  const totalChargeRate = characters?.reduce((res, { worship }) => res + (worship?.chargeRate || 0), 0);
+  const bestChargeSyphon = getHighestTalentByClass(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y') || 0;
   const bestWizard = getCharacterByHighestTalent(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y');
 
   return {
@@ -102,6 +102,6 @@ export const getChargeWithSyphon = (characters) => {
     totalCharge,
     bestChargeSyphon,
     totalChargeRate,
-    timeToOverCharge: new Date().getTime() + (((bestWizard?.worship?.maxCharge + bestChargeSyphon) - totalCharge) / totalChargeRate * 1000 * 3600)
+    timeToOverCharge: new Date().getTime() + ((((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon) - totalCharge) / totalChargeRate * 1000 * 3600)
   }
 }

@@ -29,7 +29,7 @@ const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
           justifyContent: 'center'
         }}>
 
-          {Object.keys(skills)?.map((skillName, index) => {
+          {Object.keys(skills || {})?.map((skillName, index) => {
             const { level, rank, icon } = skills[skillName];
             if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
             return <Box key={index}>

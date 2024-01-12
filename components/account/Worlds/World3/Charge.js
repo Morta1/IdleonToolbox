@@ -35,8 +35,8 @@ const Charge = () => {
                  lastUpdated={state?.lastUpdated}/>
         </CardTitleAndValue>
         <CardTitleAndValue title={`Best Wizard -${bestWizard?.name}`}>
-          <Typography>Charge with syphon ({(bestWizard?.worship?.maxCharge + bestChargeSyphon)})</Typography>
-          <ProgressBar percent={(totalCharge / (bestWizard?.worship?.maxCharge + bestChargeSyphon)) * 100}
+          <Typography>Charge with syphon ({((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)})</Typography>
+          <ProgressBar percent={(totalCharge / ((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)) * 100}
                        bgColor={'secondary.dark'}/>
           <Timer type={'countdown'}
                  placeholder={'You have overflowing charge'}

@@ -12,7 +12,7 @@ const Talents = ({ talents, starTalents }) => {
   const [specialsTab, setSpecialTabs] = useState(0);
 
   useEffect(() => {
-    const tempTalents = activeTab === 4 ? handleStarTalents(starTalents, specialsTab) : talents[activeTab];
+    const tempTalents = activeTab === 4 ? handleStarTalents(starTalents, specialsTab) : talents?.[activeTab];
     setActiveTalents(tempTalents);
     setSpecialTabs(0);
   }, [activeTab]);
@@ -52,7 +52,7 @@ const Talents = ({ talents, starTalents }) => {
   return <StyledTalents active={activeTab}>
     <Tabs centered
           value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
-      {Object.keys(talents)?.map((tabIndex) => {
+      {Object.keys(talents || {})?.map((tabIndex) => {
         const tabName = talents?.[tabIndex]?.name;
         return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
                     icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`} alt={tabName}/>}

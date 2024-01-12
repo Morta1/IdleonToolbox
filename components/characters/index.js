@@ -18,7 +18,16 @@ import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
 
-const Character = ({ character, account, lastUpdated, filters, cols, characters, showSkillsRankOneOnly, showUnmaxedBoxesOnly }) => {
+const Character = ({
+                     character,
+                     account,
+                     lastUpdated,
+                     filters,
+                     cols,
+                     characters,
+                     showSkillsRankOneOnly,
+                     showUnmaxedBoxesOnly
+                   }) => {
   const {
     name,
     classIndex,
@@ -69,8 +78,11 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters,
       filter: 'Anvil Details'
     },
     { component: <Inventory inventory={inventory} inventorySlots={inventorySlots}/>, filter: 'Inventory' },
-    { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly} />, filter: 'Post Office' },
-    { component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0} playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}/>, filter: 'Chips' },
+    { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly}/>, filter: 'Post Office' },
+    {
+      component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0}
+                        playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}/>, filter: 'Chips'
+    },
     {
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
       filter: 'Equipment'
@@ -78,7 +90,7 @@ const Character = ({ character, account, lastUpdated, filters, cols, characters,
     { component: <PlayerBubbles bubbles={equippedBubbles}/>, filter: 'Equipped Bubbles' },
     {
       component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}
-                                 talents={[...flatTalents, ...flatStarTalents]} afkTime={afkTime}/>,
+                                 talents={[...(flatTalents || []), ...(flatStarTalents || [])]} afkTime={afkTime}/>,
       filter: 'Active Skills CD'
     }
   ];

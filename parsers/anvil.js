@@ -129,7 +129,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   // AnvilPAstats - stats
   // AnvilPAselect - selected
   const { anvil } = character;
-  let { anvilProduction, anvilStats, anvilSelected } = anvil;
+  let { anvilProduction, anvilStats, anvilSelected } = anvil || {};
   let {
     availablePoints,
     pointsFromCoins,
@@ -137,7 +137,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     xpPoints,
     speedPoints,
     capPoints
-  } = anvilStats;
+  } = anvilStats || {};
 
   if (!Array.isArray(anvilSelected)) {
     anvilSelected = [anvilSelected];
@@ -168,7 +168,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   };
 
   const anvilnomicsBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ANVILNOMICS');
-  const isArcher = talentPagesMap[character.class].includes('Archer');
+  const isArcher = talentPagesMap[character?.class]?.includes('Archer');
   const archerMultiBubble = isArcher ? getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ARCHER_OR_BUST') : 1;
   const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
   const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);
@@ -248,7 +248,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
   const bobBuildGuyStarSign = getStarSignBonus(character, account, 'Speed_in_Town');
   const talentTownSpeedBonus = getTalentBonus(character?.talents, 0, 'BROKEN_TIME');
-  stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus);
+  stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus);
 
   let guildCarryBonus = 0;
   let zergPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;

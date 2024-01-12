@@ -11,7 +11,7 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
   const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
   const cdReduction = Math.max(0, cooldownBonus);
   const getCooldowns = (cooldowns) => {
-    return Object.entries(cooldowns)?.reduce((res, [tId, talentCd]) => {
+    return Object.entries(cooldowns || {})?.reduce((res, [tId, talentCd]) => {
       if (!relevantTalents[tId]) return res;
       const talent = talents?.find(({ talentId }) => parseInt(tId) === talentId);
       if (!talent) return res;

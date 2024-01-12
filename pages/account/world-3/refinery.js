@@ -66,7 +66,7 @@ const Refinery = () => {
   const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
   const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
-  const amplifiedFamilyBonus = familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1)
+  const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery;
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);

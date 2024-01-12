@@ -6,7 +6,7 @@ import React from 'react';
 import { CardAndBorder } from '../common/styles';
 
 const EquippedCards = ({ cards }) => {
-  const { equippedCards, cardSet } = cards;
+  const { equippedCards, cardSet } = cards || {};
 
   return <Stack>
     <Typography mb={2} variant={'h5'}>Equipped cards</Typography>

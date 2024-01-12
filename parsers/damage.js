@@ -52,7 +52,7 @@ export const getMaxDamage = (character, characters, account) => {
   const strTalentBonus = getTalentBonus(character?.talents, 1, 'STRENGTH_IN_NUMBERS');
   const intTalentBonus = getTalentBonus(character?.talents, 1, 'KNOWLEDGE_IS_POWER');
   const lukTalentBonus = getTalentBonus(character?.talents, 1, 'LUCKY_HIT');
-  const damageFromStat = (character?.stats[mainStat] || 0) * (1 + (strTalentBonus + (intTalentBonus + lukTalentBonus)) / 100);
+  const damageFromStat = (character?.stats?.[mainStat] || 0) * (1 + (strTalentBonus + (intTalentBonus + lukTalentBonus)) / 100);
 
   const { respawnRate } = getRespawnRate(character, account);
   playerInfo.respawnRate = respawnRate;
@@ -118,7 +118,7 @@ const getMastery = (character, characters, account) => {
 }
 const getDamagePercent = (character, characters, account) => {
   const mainStat = mainStatMap?.[character?.class];
-  const { strength, agility, wisdom, luck } = character?.stats;
+  const { strength, agility, wisdom, luck } = character?.stats || {};
   const wormHoleTalent = getTalentBonus(character?.talents, 3, 'WORMHOLE_EMPEROR');
   const perWormholeKills = 1 + (wormHoleTalent * lavaLog(account?.accountOptions?.[152])) / 100;
   const equinoxDamageBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Matching_Scims');
@@ -259,7 +259,7 @@ const getDamageFromPerX = (character, characters, account, playerInfo, hpMpDamag
   const dmgPerMinigame = getTalentBonus(character?.talents, 1, 'CHOPPIN_IT_UP_EZ', true);
   const dmgPerMinigameBonus = dmgPerMinigame * Math.floor(choppingScore / 25)
   const dmgPerLowestSkill = getTalentBonus(character?.talents, 2, 'SKILLAGE_DAMAGE');
-  const lowestSkill = Math.min(...(Object.entries(character?.skillsInfo)?.filter(([_, { index }]) => index < 9)
+  const lowestSkill = Math.min(...(Object.entries(character?.skillsInfo || {})?.filter(([_, { index }]) => index < 9)
     ?.map(([_, { level }]) => level) || [])) ?? 0;
   const lowestSkillBonus = dmgPerLowestSkill * Math.floor(lowestSkill / 5);
   const dmgPerApoc = getTalentBonus(character?.talents, 2, 'APOCALYPSE_ZOW');
@@ -725,7 +725,7 @@ const getSurvivability = (character, characters, account, playerInfo) => {
 }
 
 const getMonsterDamage = (monster, character, account, playerInfo) => {
-  const { Damages } = monster;
+  const { Damages } = monster || {};
   const base = Damages?.[0] - 2.5 * Math.pow(playerInfo?.defence, 0.8);
   const baseDef = Math.pow(playerInfo?.defence, 1.5) / 100;
   let monsterDamage = base / Math.max(1 + (playerInfo?.defence / Math.max(Damages?.[0], 1)) * baseDef, 1);

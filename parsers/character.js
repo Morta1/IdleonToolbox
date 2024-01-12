@@ -325,7 +325,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.flatStarTalents = flatStarTalents;
 
   const activeBuffs = char?.[`BuffsActive`];
-  character.activeBuffs = getActiveBuffs(activeBuffs, [...flatTalents, ...flatStarTalents]);
+  character.activeBuffs = getActiveBuffs(activeBuffs, [...(flatTalents || []), ...(flatStarTalents || [])]);
 
   character.activePrayers = char?.Prayers?.filter((prayer) => prayer !== -1).map((prayerId) => account?.prayers?.[prayerId])?.filter((p) => p);
   character.postOffice = getPlayerPostOffice(char?.PostOfficeInfo, account);

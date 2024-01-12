@@ -9,8 +9,8 @@ const Equipment = ({ equipment, tools, food, account, character }) => {
   return <Stack>
     <Typography variant={'h5'}>Equipment</Typography>
     <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
-      <EquipmentPage items={equipment.slice(0, 8)} character={character} account={account}/>
-      <EquipmentPage items={equipment.slice(8)} character={character} account={account}/>
+      <EquipmentPage items={equipment?.slice(0, 8)} character={character} account={account}/>
+      <EquipmentPage items={equipment?.slice(8)} character={character} account={account}/>
       <EquipmentPage items={tools} character={character} account={account}/>
       <EquipmentPage items={food} character={character} account={account}/>
     </Stack>
@@ -24,7 +24,7 @@ const EquipmentPage = ({ items, character, account }) => {
       justifyContent: 'center',
       gridTemplateColumns: 'repeat(2, 60px)',
     }}>
-    {items.map((item, itemIndex) => {
+    {items?.map((item, itemIndex) => {
       const { rawName, displayName, amount } = item;
       return itemIndex < 8 ?
         <Card sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 76 }}

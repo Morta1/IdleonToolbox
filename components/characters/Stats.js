@@ -70,7 +70,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
           ) : null}
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
             <Stat title={'Total Stats'} value={getTotalStats(character)}/>
-            {Object.entries(stats)?.map(([statName, statValue], index) => {
+            {Object.entries(stats || {})?.map(([statName, statValue], index) => {
               return statName !== 'level' ? (
                 <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}>
                   <Typography component={'span'}
