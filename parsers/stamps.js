@@ -28,11 +28,9 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
       const stampDetails = stamps[category][index];
       const requiredItem = stampDetails?.itemReq?.[0];
       const materials = flattenCraftObject(crafts[requiredItem?.name]);
-      let ownedMats = 0;
-      if (materials.length === 0) {
-        ownedMats = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === requiredItem?.rawName))?.amount;
-      }
-      return { ...stampDetails, ...stamp, materials, ownedMats, itemReq: requiredItem, category }
+      const ownedMats = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === requiredItem?.rawName))?.amount || 0;
+      const greenStackOwnedMats = Math.max(0, ownedMats - 1e7);
+      return { ...stampDetails, ...stamp, materials, ownedMats, greenStackOwnedMats, itemReq: requiredItem, category }
     })
     return { ...acc, [category]: stampList };
   }, {});
@@ -45,15 +43,13 @@ export const updateStamps = (account, characters) => {
     const goldCost = getGoldCost(stamp?.level, stamp, account);
     const hasMoney = account?.currencies?.rawMoney >= goldCost;
     const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer);
-    let hasMaterials;
+    let hasMaterials, greenStackHasMaterials;
     if (stamp?.materials?.length > 0) {
-      hasMaterials = stamp?.materials?.every(({ itemName, type, itemQuantity }) => {
-        if (type === 'Equip') return true;
-        let ownedMats = calculateItemTotalAmount(account?.storage, itemName, true);
-        return ownedMats >= itemQuantity * materialCost;
-      })
+      hasMaterials = checkHasMaterials(stamp?.materials, materialCost, account);
+      greenStackHasMaterials = checkHasMaterials(stamp?.materials, materialCost, account, true);
     } else {
       hasMaterials = stamp?.ownedMats >= materialCost;
+      greenStackHasMaterials = Math.max(0, stamp?.ownedMats - 1e7) >= materialCost;
     }
     const enoughPlayerStorage = bestCharacter?.maxCapacity >= materialCost;
 
@@ -63,6 +59,7 @@ export const updateStamps = (account, characters) => {
       goldCost,
       materialCost,
       enoughPlayerStorage,
+      greenStackHasMaterials,
       hasMaterials,
       hasMoney
     };
@@ -70,6 +67,15 @@ export const updateStamps = (account, characters) => {
     return { ...newStampData, futureCosts };
   });
   return groupByKey(flatten, ({ category }) => category);
+}
+
+const checkHasMaterials = (materials, materialCost, account, subtractGreenStacks) => {
+  return materials?.every(({ itemName, type, itemQuantity }) => {
+    if (type === 'Equip') return true;
+    let ownedMats = calculateItemTotalAmount(account?.storage, itemName, true);
+    return subtractGreenStacks ? Math.max(0, ownedMats - 1e7) : ownedMats >= itemQuantity * materialCost;
+  })
+
 }
 
 const getFutureCosts = (stamp, account, stampReducer) => {
@@ -81,7 +87,9 @@ const getFutureCosts = (stamp, account, stampReducer) => {
   const topTier = stamp?.level + stamp?.reqItemMultiplicationLevel * 3;
   const futureCosts = [];
   for (let tier = stamp?.level + stamp?.reqItemMultiplicationLevel; tier <= topTier; tier += stamp?.reqItemMultiplicationLevel) {
-    for (let j = tier === stamp?.level ? stampReducer : 0; j <= 90; j = Math.min(90, j + reductionIncrement)) {
+    for (let j = tier === stamp?.level + stamp?.reqItemMultiplicationLevel
+      ? stampReducer
+      : 0; j <= 90; j = Math.min(90, j + reductionIncrement)) {
       let materialCost, goldCost;
       const futureCost = getMaterialCost(tier - stamp?.reqItemMultiplicationLevel, stamp, account, j);
       if (j === 90) {

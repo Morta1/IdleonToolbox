@@ -1,4 +1,4 @@
-import { Avatar, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Avatar, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from '@utility/helpers';
@@ -18,19 +18,20 @@ const Stamps = () => {
     ? state?.account?.accountOptions?.[154]
     : 0;
   const stampReducer = state?.account?.atoms?.stampReducer;
+  const [subtractGreenStacks, setSubtractGreenStacks] = React.useState(false);
 
-  const getBorder = ({ materials, level, hasMoney, hasMaterials, enoughPlayerStorage, reqItemMultiplicationLevel }) => {
+  const getBorder = ({ materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage }) => {
     if (level <= 0) return '';
     if (!hasMoney) {
       return 'warning.light';
-    } else if (!hasMaterials) {
+    } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
       return 'error.light';
     } else if (!enoughPlayerStorage) {
       return '#e3e310'
     } else if (materials.length > 0) {
       return ''
     }
-    return materials.length === 0 && hasMaterials && hasMoney && enoughPlayerStorage
+    return materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage
       ? 'success.light'
       : '';
   }
@@ -54,8 +55,8 @@ const Stamps = () => {
                                                              alt={'m'}
                                                              src={''}>&nbsp;</Avatar></Tooltip>
         <Tooltip title={'Equipments'}><Avatar sx={{ bgcolor: 'grey', width: 24, height: 24 }}
-                                                             alt={'m'}
-                                                             src={''}>&nbsp;</Avatar></Tooltip>
+                                              alt={'m'}
+                                              src={''}>&nbsp;</Avatar></Tooltip>
         <Tooltip title={'Upgradeable'}><Avatar sx={{ bgcolor: 'success.light', width: 24, height: 24 }}
                                                alt={'m'}
                                                src={''}>&nbsp;</Avatar></Tooltip>
@@ -76,6 +77,14 @@ const Stamps = () => {
             {stampReducer ?? 0}%
           </Stack>
         </CardTitleAndValue>
+        <CardTitleAndValue title={'Options'}>
+          <FormControlLabel
+            control={<Checkbox name={'mini'}
+                               checked={subtractGreenStacks}
+                               onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
+                               size={'small'}/>}
+            label={'Subtract Green Stacks'}/>
+        </CardTitleAndValue>
       </Stack>
       <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
         {Object.entries(state?.account?.stamps).map(([category, stamps], categoryIndex) => {
@@ -89,19 +98,22 @@ const Stamps = () => {
                 level,
                 materials,
                 hasMaterials,
+                greenStackHasMaterials,
                 hasMoney,
                 enoughPlayerStorage,
                 reqItemMultiplicationLevel
               } = stamp;
               const border = getBorder(stamp);
               return <Grid xs={4} sm={3} key={rawName + stampIndex}>
-                <Tooltip maxWidth={450} title={<StampInfo {...stamp} />}>
+                <Tooltip maxWidth={450} title={<StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
                   <Card sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: 50,
-                    border: materials.length === 0 && hasMaterials && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
+                    border: materials.length === 0 && (subtractGreenStacks
+                      ? greenStackHasMaterials
+                      : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
                       ? '1px solid'
                       : '',
                     borderColor: border
@@ -139,7 +151,9 @@ const StampInfo = ({
                      materialCost,
                      futureCosts,
                      bestCharacter,
+                     subtractGreenStacks,
                      ownedMats,
+                     greenStackOwnedMats,
                      hasMoney,
                      hasMaterials,
                      enoughPlayerStorage,
@@ -169,7 +183,9 @@ const StampInfo = ({
         </div>
         <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Storage Amount</Typography>
-          <Typography variant={'body2'}>{notateNumber(ownedMats || 0, 'Big')}</Typography>
+          <Typography variant={'body2'}>{notateNumber((subtractGreenStacks
+            ? greenStackOwnedMats
+            : ownedMats) || 0, 'Big')}</Typography>
         </div>
       </Stack>
     </> : null}
