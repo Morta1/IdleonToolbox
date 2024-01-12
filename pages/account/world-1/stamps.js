@@ -60,7 +60,7 @@ const Stamps = () => {
                                                alt={'m'}
                                                src={''}>&nbsp;</Avatar></Tooltip>
       </Stack>
-      <Stack direction={'row'} gap={3} justifyContent={'center'}>
+      <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Gilded stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
             <img src={`${prefix}data/GildedStamp.png`} alt=""/>
