@@ -32,7 +32,6 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
         return null;
     }
   }
-
   return (
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
       <WorldBg src={`${prefix}npcs/${worldName}.png`}
@@ -42,11 +41,16 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                }}
                alt=""/>
       {quests?.[worldName].map((npc, index) => {
+        let forceCompletion;
+        if (npc?.name === 'Picnic_Stowaway') {
+          const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
+          forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0;
+        }
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
             <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt=""/>
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
-            {getQuestIndicator(npc?.questsStatus)}
+            {getQuestIndicator(forceCompletion || npc?.questsStatus)}
           </AccordionSummary>
           <StyledAccordionDetails>
             <Timeline sx={{ m: 0, p: 0 }}>
@@ -93,7 +97,6 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                 </TimelineItem>
               })}
             </Timeline>
-
           </StyledAccordionDetails>
         </StyledAccordion>
       })}
