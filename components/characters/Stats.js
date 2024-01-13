@@ -89,7 +89,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                   value={playerInfo?.finalKillsPerHour > 1e6
                     ? notateNumber(playerInfo?.finalKillsPerHour)
                     : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
-            <Stat title={'Defence'} value={notateNumber(playerInfo?.defence)}/>
+            <Stat title={'Defence'} value={notateNumber(playerInfo?.defence?.value)}
+                  breakdown={playerInfo?.defence?.breakdown}/>
             <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>

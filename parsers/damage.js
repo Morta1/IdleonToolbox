@@ -726,9 +726,9 @@ const getSurvivability = (character, characters, account, playerInfo) => {
 
 const getMonsterDamage = (monster, character, account, playerInfo) => {
   const { Damages } = monster || {};
-  const base = Damages?.[0] - 2.5 * Math.pow(playerInfo?.defence, 0.8);
-  const baseDef = Math.pow(playerInfo?.defence, 1.5) / 100;
-  let monsterDamage = base / Math.max(1 + (playerInfo?.defence / Math.max(Damages?.[0], 1)) * baseDef, 1);
+  const base = Damages?.[0] - 2.5 * Math.pow(playerInfo?.defence?.value, 0.8);
+  const baseDef = Math.pow(playerInfo?.defence?.value, 1.5) / 100;
+  let monsterDamage = base / Math.max(1 + (playerInfo?.defence?.value / Math.max(Damages?.[0], 1)) * baseDef, 1);
   const talentCurse = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const talentBonus = getTalentBonus(character?.talents, 1, 'BRICKY_SKIN');
   if (talentCurse) {
@@ -748,6 +748,7 @@ const getPlayerDefence = (character, characters, account) => {
   const secondCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Defence_from_Equipment');
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'FMJ', false, mainStat === 'strength');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_Defence');
+  const toolBonus = getStatsFromGear(character, 'Defence', account, true);
   const equipmentBonus = getStatsFromGear(character, 'Defence', account);
   const obolsBonus = getObolsBonus(character?.obols, 'Defence');
   const equipmentBonusEtc = getStatsFromGear(character, 50, account);
@@ -770,18 +771,16 @@ const getPlayerDefence = (character, characters, account) => {
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Defence');
   const chipBonus = getPlayerLabChipBonus(character, account, 0);
-  const minorBonus = character?.linkedDeity === 0 ? character?.deityMinorBonus : character?.secondLinkedDeityIndex === 0
-    ? character?.secondDeityMinorBonus
-    : 0;
+  const minorBonus = character?.linkedDeity === 0 ? character?.deityMinorBonus : 0;
 
-  return Math.floor(postOfficeBonus
+  const value = Math.floor(postOfficeBonus
       + cardBonus + Math.min(character?.level,
         bubbleBonus)
       + (stampBonus
         + (equipmentBonusEtc + obolsBonusEtc)
         + arcadeBonus
         + statueBonus)
-      + ((equipmentBonus + obolsBonus)
+      + ((equipmentBonus + obolsBonus + toolBonus)
         * (1 + (bubbleBonus + secondCardBonus) / 100)
         + (mealBonus + talentBonus)))
     * (1 + (shrineBonus + bribeBonus) / 100)
@@ -790,6 +789,34 @@ const getPlayerDefence = (character, characters, account) => {
       ((secondEquipmentBonusEtc + secondObolsBonus) + (starSignBonus
         + (activeBuff + (cardSetBonus + (flurboBonus
           + chipBonus)))))) / 100) * (1 + minorBonus / 100);
+
+  const breakdown = [
+    { name: 'Post Office', value: postOfficeBonus },
+    { name: 'Card Bonus', value: cardBonus + secondCardBonus },
+    { name: 'Cardset Bonus', value: cardSetBonus },
+    { name: 'Flurbo Bonus', value: flurboBonus },
+    { name: 'Minor Divinity Bonus', value: minorBonus },
+    { name: 'Chip Bonus', value: chipBonus },
+    { name: 'Bubble Bonus', value: bubbleBonus },
+    { name: 'Stamp Bonus', value: stampBonus },
+    { name: 'Equip Base Defence ', value: equipmentBonusEtc + obolsBonusEtc },
+    { name: 'Equip Defence', value: equipmentBonus + obolsBonus + toolBonus },
+    { name: 'Equip % Defence', value: secondEquipmentBonusEtc + secondObolsBonus },
+    { name: 'Arcade Bonus', value: arcadeBonus },
+    { name: 'Statue Bonus', value: statueBonus },
+    { name: 'Meal Bonus', value: mealBonus },
+    { name: 'Shrine Bonus', value: shrineBonus },
+    { name: 'Bribe Bonus', value: bribeBonus },
+    { name: 'Prayers', value: prayerCurse + secondPrayerCurse },
+    { name: 'Golden Food', value: goldenFoodBonus },
+    { name: 'Talents Bonus', value: talentBonus + secondTalentBonus },
+    { name: 'Active Talents Bonus', value: activeBuff },
+  ]
+
+  return {
+    value,
+    breakdown
+  }
 }
 
 const getKillPerKill = (character, characters, account, playerInfo) => {

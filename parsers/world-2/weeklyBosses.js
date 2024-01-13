@@ -115,7 +115,7 @@ export const getTaskQuantity = (turn, bossId, account, characters) => {
   if (bossId === 10) return character?.maxHp;
   if (bossId === 11) return character?.maxMp;
   if (bossId === 12) return character?.accuracy;
-  if (bossId === 13) return character?.defence;
+  if (bossId === 13) return character?.defence?.value;
   if (bossId === 14) return 100 * character?.movementSpeed;
   if (bossId === 15) return character?.carryCapBags?.[0]?.capacityPerSlot;
   if (bossId === 16) return character?.questCompleted;

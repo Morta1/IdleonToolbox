@@ -48,9 +48,14 @@ export const getStatueBonus = (statues, statueName, talents) => {
   switch (statue?.name) {
     case 'POWER':
     case 'MINING':
+      talentBonus += (getTalentBonus(talents, 2, 'SHIELDIEST_STATUES') || getTalentBonus(talents, 2, 'STRONGEST_STATUES')) / 100;
+      break;
+    case 'OCEANMAN':
+      talentBonus += getTalentBonus(talents, 2, 'STRONGEST_STATUES') / 100;
+      break;
     case 'DEFENCE':
     case 'THICC_SKIN':
-      talentBonus += (getTalentBonus(talents, 2, 'SHIELDIEST_STATUES') || getTalentBonus(talents, 2, 'STRONGEST_STATUES')) / 100;
+      talentBonus += getTalentBonus(talents, 2, 'SHIELDIEST_STATUES') / 100;
       break;
     case 'SPEED':
     case 'ANVIL':
