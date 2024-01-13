@@ -60,7 +60,9 @@ const Character = ({
                         statsFilter={filters?.['Stats']}
                         character={character}
                         characters={characters}
-                        account={account} lastUpdated={lastUpdated}/>, filter: ['Stats', 'Activity']
+                        account={account}
+                        lastUpdated={lastUpdated}/>,
+      filter: ['Stats', 'Activity']
     },
     { component: <ObolsView obols={obols}/>, filter: 'Obols' },
     { component: <ObolsView obols={obols} obolStats/>, filter: 'Obols Stats' },

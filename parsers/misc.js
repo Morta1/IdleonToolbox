@@ -1,16 +1,6 @@
 import { lavaLog, tryToParse } from '../utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
-import {
-  classFamilyBonuses,
-  companions,
-  items,
-  mapNames,
-  randomList,
-  rawMapNames,
-  slab,
-  weeklyBosses,
-  weeklyBossesActions
-} from '../data/website-data';
+import { classFamilyBonuses, companions, items, mapNames, randomList, rawMapNames, slab } from '../data/website-data';
 import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
@@ -92,8 +82,6 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
 
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
-  const list = randomList?.[17]?.split(' ');
-  const filtered = lootyRaw?.filter((itemName) => !list.includes(itemName))
   const allItems = JSON.parse(JSON.stringify(items)); // Deep clone
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
@@ -107,6 +95,7 @@ export const getLooty = (idleonData) => {
                                           }) => !obtained && !filteredLootyItems?.[rawName])?.length;
   return {
     slabItems,
+    lootyRaw,
     lootedItems: lootyRaw?.length,
     missingItems,
     totalItems: slab?.length,
@@ -656,4 +645,12 @@ export const getCompanions = (companionObject = {}) => {
 
 export const isCompanionBonusActive = (account, index) => {
   return account?.companions?.list?.at(index)?.acquired;
+}
+
+export const getRandomEventItems = (account) => {
+  const list = randomList.slice(82, 87).flat();
+  const uniqueLooty = new Set(account?.looty?.lootyRaw);
+  return list.reduce((count, value) => {
+    return uniqueLooty.has(value) ? count + 1 : count;
+  }, 0);
 }

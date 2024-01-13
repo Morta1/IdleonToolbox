@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.41',
+    gameVer: '1.92',
+    date: '13/01/2024',
+    features: [
+      'Added afk gains description for cooking'
+    ],
+    fixes: [
+      'Fixed afk gains for fighting',
+    ]
+  },
+  {
     ver: '3.2.40',
     gameVer: '1.92',
     date: '12/01/2024',

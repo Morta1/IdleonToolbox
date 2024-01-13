@@ -249,7 +249,7 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
     talentList.push(35);
   }
   if (talentList.indexOf(index) !== -1) {
-    if (index === 42) {
+    if (index === 42 || index === 79) {
       return true;
     }
     if (index === 146) {

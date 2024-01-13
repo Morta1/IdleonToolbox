@@ -153,8 +153,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
   return <Stack direction={'row'} justifyContent={'space-between'}>
     <Typography color={'info.light'}>{title}</Typography>
-    <Tooltip title={breakdown ? <BreakdownTooltip breakdown={breakdown}
-                                                  notate={breakdownNotation}/> : ''}>
+    <Tooltip maxWidth={450} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+                                                                 notate={breakdownNotation}/> : ''}>
       {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
         {processString([{
           regex: /[\[!]/g,
@@ -171,12 +171,15 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
   if (!breakdown) return '';
   return <Stack>
-    {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                               titleStyle={{ width: titleWidth }}
-                                                               title={name}
-                                                               value={!isNaN(value)
-                                                                 ? notateNumber(value, notate)
-                                                                 : value}/>)}
+    {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
+                                                                           key={`${name}-${index}`}>{title}</Typography>
+      : !name ? <Divider sx={{ my: 1, bgcolor: 'black' }} key={`${name}-${index}`}/> : <TitleAndValue
+        key={`${name}-${index}`}
+        titleStyle={{ width: titleWidth }}
+        title={name}
+        value={!isNaN(value)
+          ? notateNumber(value, notate)
+          : value}/>)}
   </Stack>
 }
 

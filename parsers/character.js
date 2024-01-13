@@ -19,8 +19,10 @@ import {
   calculateAfkTime,
   getFoodBonus,
   getGoldenFoodBonus,
+  getHighestLevelOf,
   getHighestLevelOfClass,
   getMaterialCapacity,
+  getRandomEventItems,
   isArenaBonusActive,
   isBundlePurchased,
   isCompanionBonusActive
@@ -37,6 +39,7 @@ import {
   getTalentAddedLevels,
   getTalentBonus,
   getTalentBonusIfActive,
+  getVoidWalkerTalentEnhancements,
   mainStatMap,
   talentPagesMap
 } from './talents';
@@ -200,6 +203,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.class = classes?.[char?.CharacterClass];
   character.afkTime = calculateAfkTime(char?.PlayerAwayTime, account?.timeAway?.GlobalTime);
   character.afkTarget = monsters?.[char?.AFKtarget]?.Name;
+  character.afkType = monsters?.[char?.AFKtarget]?.AFKtype;
+  console.log('character.afkType', character.name, character.afkType)
   character.targetMonster = char?.AFKtarget;
   const currentMapIndex = char?.CurrentMap;
   character.mapIndex = currentMapIndex;
@@ -848,15 +853,99 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   return Math.round(finalSpeed * 100);
 }
 
+const getSkillByTarget = () => {
+
+}
+
 export const getAfkGain = (character, characters, account) => {
-  const { targetMonster } = character;
+  let breakdown = [], gains = 0;
+  const { afkType } = character;
   const { lab, guild, dungeons, accountOptions, bribes, shrines, charactersLevels, tasks } = account;
   const afkGainsTaskBonus = tasks?.[2]?.[1]?.[2] > character?.playerId ? 2 : 0;
-  const monster = monsters?.[targetMonster];
+  const highestLevelBM = getHighestLevelOf(characters, 'Beast_Master')
+  // const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY')
+  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'ALL_SKILL_AFK_GAINS', highestLevelBM);
+  // const amplifiedFamilyBonus = familyBonus * (character?.class === 'Beast_Master' && theFamilyGuy > 0
+  //   ? (1 + theFamilyGuy / 100)
+  //   : 1)
+  const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Skill_AFK_gain_rate');
+  let guildBonus = 0;
+  if (guild?.guildBonuses?.length > 0) {
+    guildBonus = getGuildBonusBonus(guild?.guildBonuses, 7);
+  }
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet5' ? character?.cards?.cardSet?.bonus : 0;
+  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
+  const enhancementBonus = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 79);
+  const sleepinOnTheJob = enhancementBonus ? getTalentBonus(character?.talents, 0, 'SLEEPIN\'_ON_THE_JOB') : 0;
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DREAM_CATCHER');
+  const chipBonus = getPlayerLabChipBonus(character, account, 8);
+  const afkEquipmentBonus = getStatsFromGear(character, 59, account);
+  const afkObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[59])
+  const skillAfkEquipmentBonus = getStatsFromGear(character, 24, account);
+  const skillAfkObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[24])
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
+  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
 
+  const baseAfkGains = afkGainsTaskBonus +
+    (familyBonus +
+      (2 + cardBonus) + (guildBonus
+        + cardSetBonus + (sleepinOnTheJob +
+          (sigilBonus + chipBonus)
+          + ((skillAfkEquipmentBonus + skillAfkObolsBonus) + (afkEquipmentBonus + afkObolsBonus) + (prayerBonus - prayerCurse)))));
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
+  const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'AFK_Gains');
+  const majorBonus = isCompanionBonusActive(account, 0) || character?.linkedDeity === 0 || character?.secondLinkedDeityIndex === 0
+    ? 1
+    : 0;
+  const divinityMinorBonus = characters?.reduce((sum, char) => {
+    if (isCompanionBonusActive(account, 0)) {
+      return sum + getMinorDivinityBonus(char, account, 4, characters);
+    }
+    if (char?.linkedDeity === 4) {
+      return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
+    } else if (char?.secondLinkedDeityIndex === 4) {
+      return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
+    }
+    return sum;
+  }, 0);
+  const compBonus = isCompanionBonusActive(account, 6) && 5;
+  const randomItemsFound = getRandomEventItems(account)
+  const randoEventLooty = getTalentBonus(character?.starTalents, null, 'RANDO_EVENT_LOOTY');
+  const additionalAfkGains =
+    +(arcadeBonus
+      + (flurboBonus
+        + (30 * majorBonus
+          + (divinityMinorBonus
+            + (compBonus
+              + randoEventLooty * randomItemsFound)))));
+  const actualBaseAfkGains = baseAfkGains + additionalAfkGains;
+  breakdown = [
+    { title: 'Base' },
+    { name: '' },
+    { name: 'Tasks', value: afkGainsTaskBonus },
+    { name: 'Family', value: familyBonus },
+    { name: 'Cards', value: cardBonus },
+    { name: 'Guild', value: guildBonus },
+    { name: 'Card Set', value: cardSetBonus },
+    { name: 'Sleepin On The Job (VW Eclipse)', value: sleepinOnTheJob },
+    { name: 'Sigil', value: sigilBonus },
+    { name: 'Chips', value: chipBonus },
+    { name: 'Equipment', value: afkEquipmentBonus + skillAfkEquipmentBonus },
+    { name: 'Obols', value: afkObolsBonus + skillAfkObolsBonus },
+    { name: 'Prayers', value: prayerBonus - prayerCurse },
+    { name: 'Arcade', value: arcadeBonus },
+    { name: 'Dungeons', value: flurboBonus },
+    { name: 'Divinity Major', value: majorBonus * 30 },
+    { name: 'Divinity Minor', value: divinityMinorBonus },
+    { name: 'Companion', value: compBonus },
+    { name: 'Rando Event Looty', value: randoEventLooty * randomItemsFound },
+    { name: '' }
+  ]
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
   const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  if (monster?.Name !== '_') {
+  const firstStarTalentBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
+  // Fighting AFK Gains
+  if (afkType === 'FIGHTING') {
     const highestVoidwalker = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
     const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'FIGHTING_AFK_GAINS', highestVoidwalker);
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 1);
@@ -864,63 +953,29 @@ export const getAfkGain = (character, characters, account) => {
     const secondTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_CASTING');
     const thirdTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_SHOOTING');
     const fourthTalentBonus = getTalentBonus(character?.talents, 0, 'SLEEPIN\'_ON_THE_JOB');
-    const firstStarTalentBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
     const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
     const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
     const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Fighting_AFK_gain_rate');
     const fightEquipmentBonus = getStatsFromGear(character, 20, account);
     const fightObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[20])
-    const afkEquipmentBonus = getStatsFromGear(character, 59, account);
-    const afkObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[59])
+
     const starSignBonus = getStarSignBonus(character, account, 'Fight_AFK_Gain');
     let guildBonus = 0;
     if (guild?.guildBonuses?.length > 0) {
       guildBonus = getGuildBonusBonus(guild?.guildBonuses, 4);
     }
-    const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
-    const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
     const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 7)?.baseVal ?? 0;
-    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
-    const dungeonBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'AFK_Gains');
-    const majorBonus = isCompanionBonusActive(account, 0) || character?.linkedDeity === 0 || character?.secondLinkedDeityIndex === 0
-      ? 1
-      : 0;
-    const divinityMinorBonus = characters?.reduce((sum, char) => {
-      if (isCompanionBonusActive(account, 0)) {
-        return sum + getMinorDivinityBonus(char, account, 4, characters);
-      }
-      if (char?.linkedDeity === 4) {
-        return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
-      } else if (char?.secondLinkedDeityIndex === 4) {
-        return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
-      }
-      return sum;
-    }, 0);
-    const compBonus = isCompanionBonusActive(account, 6) && 5;
-    const base = afkGainsTaskBonus
-      + (arcadeBonus
-        + (dungeonBonus
-          + (30 * majorBonus
-            + divinityMinorBonus + compBonus)));
 
-    let gains = 0.2 + (familyEffBonus + postOfficeBonus
+    gains = 0.2 + (familyEffBonus + postOfficeBonus
       + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
-        + (secondTalentBonus + (firstStarTalentBonus + (base
+        + (secondTalentBonus + (firstStarTalentBonus + (additionalAfkGains
           + (equippedCardBonus + (fourthTalentBonus + ((fightEquipmentBonus + fightObolsBonus) + (afkEquipmentBonus + afkObolsBonus)
             + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
 
-    let math = gains;
-    if (gains < 1.5) {
-      math = Math.min(1.5, gains + shrineAfkGains / 100);
-    }
-    const final = Math.max(.01, math);
-
-    const breakdown = [
-      { name: 'Tasks', value: afkGainsTaskBonus },
-      { name: 'Arcade Shop', value: arcadeBonus },
-      { name: 'Flurbo', value: dungeonBonus },
-      { name: 'Major God', value: 30 * majorBonus },
-      { name: 'Minor God', value: divinityMinorBonus },
+    breakdown = [
+      ...breakdown,
+      { title: 'Fighting' },
+      { name: '' },
       { name: 'Family', value: familyEffBonus },
       { name: 'Post Office', value: postOfficeBonus },
       { name: 'Talents', value: firstTalentBonus + secondTalentBonus + thirdTalentBonus + fourthTalentBonus },
@@ -933,55 +988,47 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Chips', value: chipBonus },
       { name: 'Guild', value: guildBonus },
       { name: 'Starsign', value: starSignBonus },
-      { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0 },
     ]
-
-    return {
-      afkGains: final,
-      breakdown
-    };
+  } else if (afkType === 'COOKING') {
+    const firstTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_SKILLING');
+    const trappingBonus = getTrappingStuff('TrapMGbonus', 8, account)
+    const starSignBonus = getStarSignBonus(character, account, 'Skill_AFK_Gain');
+    const secondTalentBonus = getTalentBonus(character?.talents, 3, 'WAITING_TO_COOL')
+    gains = 0.25
+      + (firstTalentBonus
+        + firstStarTalentBonus
+        + (actualBaseAfkGains
+          + (trappingBonus
+            + (starSignBonus
+              + (bribeAfkGains + secondTalentBonus))))) / 100;
+    breakdown = [
+      ...breakdown,
+      { title: 'Cooking' },
+      { name: '' },
+      { name: 'Talents', value: firstTalentBonus + secondTalentBonus + firstStarTalentBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Trapping Bonus', value: trappingBonus },
+      { name: 'Bribe', value: bribeAfkGains },
+    ]
   }
-  // if (skillName !== 'fighting') {
-  //   let guildAfkGains = 0;
-  //   const amarokBonus = getEquippedCardBonus(character?.cards, 'Z2');
-  //   const bunnyBonus = getEquippedCardBonus(character?.cards, 'F7');
-  //   if (guild?.guildBonuses?.length > 0) {
-  //     guildAfkGains = getGuildBonusBonus(guild?.guildBonuses?.bonuses, 7);
-  //   }
-  //   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet7' ? character?.cards?.cardSet?.bonus : 0;
-  //   const conductiveProcessor = lab?.playersChips.find((chip) => chip.index === 8)?.baseVal ?? 0;
-  //   const equipmentAfkEffectBonus = getStatsFromGear(character, 24, account);
-  //   const equipmentShrineEffectBonus = getStatsFromGear(character, 59, account);
-  //   const zergRushogen = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
-  //   const ruckSack = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
-  //   const nonFightingGains = 2 + (amarokBonus + bunnyBonus) + (guildAfkGains + cardSet +
-  //     (conductiveProcessor + (equipmentAfkEffectBonus + equipmentShrineEffectBonus + (zergRushogen - ruckSack))));
-  //   const dungeonAfkGains = getDungeonStatBonus(dungeons?.upgrades, 'AFK_Gains');
-  //   const arcadeAfkGains = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
-  //   const baseMath = (nonFightingGains) + (arcadeAfkGains + dungeonAfkGains);
-  //
-  //   if ("cooking") {
-  //     const tickTockBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
-  //     const trappingBonus = getTrappingStuff('TrapMGbonus', 8, accountOptions)
-  //     const starSignAfkGains = getStarSignBonus(character, account, 'Skill_AFK_Gain');
-  //     const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
-  //     let afkGains = .25 + (tickTockBonus + (baseMath + (trappingBonus + ((starSignAfkGains) + bribeAfkGains)))) / 100;
-  //     if (afkGains < .8) {
-  //       const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  //       afkGains = Math.min(.8, afkGains + shrineAfkGains / 100);
-  //     }
-  //     return afkGains;
-  //   }
-  // }
+  let math = gains;
+  if (gains < 1.5) {
+    math = Math.min(1.5, gains + shrineAfkGains / 100);
+  }
+  breakdown = [
+    ...breakdown,
+    { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0 },
+  ]
+  const final = Math.max(.01, math);
   return {
-    afkGains: 0,
-    breakdown: []
-  }
+    afkGains: final,
+    breakdown
+  };
 }
 
-const getTrappingStuff = (type, index, optionsList) => {
+const getTrappingStuff = (type, index, account) => {
   if (type === 'TrapMGbonus') {
-    const value = optionsList?.[99];
+    const value = account?.accountOptions?.[99];
     if (value >= 25 * (index + 1)) {
       const parsed = randomList?.[59]?.split(' ')?.map((num) => parseFloat(num));
       return parsed?.[index];
