@@ -42,7 +42,7 @@ import { isSuperbitUnlocked } from './gaming';
 import { constructionMasteryThresholds } from './construction';
 import { getSaltLickBonus } from './saltLick';
 import { getAchievementStatus } from './achievements';
-import { getGodBlessingBonus } from './divinity';
+import { getGodBlessingBonus, getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getMiningEff } from '@parsers/efficiency';
 
@@ -289,8 +289,8 @@ const getDamageFromPerX = (character, characters, account, playerInfo, hpMpDamag
 
   const dmgPerDungeonCredits = getTalentBonus(character?.starTalents, null, 'DUNGEONIC_DAMAGE')
   const dmgPerDungeonCreditsBonus = dmgPerDungeonCredits * lavaLog(account?.accountOptions?.[71]);
-
-  const minorBonus = character?.linkedDeity === 2 ? character?.deityMinorBonus : character?.secondLinkedDeityIndex === 2
+  const hasDoot = isCompanionBonusActive(account, 0);
+  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 2) : character?.linkedDeity === 2 ? character?.deityMinorBonus : character?.secondLinkedDeityIndex === 2
     ? character?.secondDeityMinorBonus
     : 0;
 
@@ -416,7 +416,8 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TotAcc', blackDiamondRhinestone);
-  const minorBonus = character?.linkedDeity === 0 ? character?.deityMinorBonus : 0;
+  const hasDoot = isCompanionBonusActive(account, 0);
+  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0 ? character?.deityMinorBonus : 0;
 
   let accuracy = character?.stats?.[accuracyStat]
     * (1 + bubbleBonus / 100) *
@@ -578,7 +579,8 @@ const getCritDamage = (character, characters, account) => {
   let critDamage;
   if (1e3 > character?.stats?.strength) {
     critDamage = (Math.pow(character?.stats?.strength + 1, 0.37) - 1) / 40;
-  } else {
+  }
+  else {
     critDamage = ((character?.stats?.strength - 1e3) / (character?.stats?.strength + 2500)) * 0.5 + 0.255;
   }
   return 1.2 + (warTalentBonus + statueBonus + (wisTalentBonus
@@ -613,7 +615,8 @@ const getCritChance = (character, characters, account, playerInfo) => {
   let critChance;
   if (1e3 > character?.stats?.agility) {
     critChance = (Math.pow(character?.stats?.agility + 1, 0.37) - 1) / 40;
-  } else {
+  }
+  else {
     critChance = ((character?.stats?.agility - 1e3) / (character?.stats?.agility + 2500)) * 0.5 + 0.255;
   }
 
@@ -719,7 +722,8 @@ const getSurvivability = (character, characters, account, playerInfo) => {
       Math.max(secondStarTalentBonus / (1 + Math.min(50, Math.max(0, postOfficeBonus)) / 100), 100)
     let anotherMath = math / (math + autoRespawnTime / 3600);
     return Math.min(Math.round(100 * anotherMath), 100);
-  } else {
+  }
+  else {
     return 100;
   }
 }
@@ -771,7 +775,11 @@ const getPlayerDefence = (character, characters, account) => {
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Defence');
   const chipBonus = getPlayerLabChipBonus(character, account, 0);
-  const minorBonus = character?.linkedDeity === 0 ? character?.deityMinorBonus : 0;
+  const hasDoot = isCompanionBonusActive(account, 0);
+  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0
+    ? character?.deityMinorBonus
+    : 0;
+
 
   const value = Math.floor(postOfficeBonus
       + cardBonus + Math.min(character?.level,
@@ -832,9 +840,11 @@ const getKillPerKill = (character, characters, account, playerInfo) => {
   let worldBonus = 0;
   if (100 <= character?.mapIndex && 150 > character?.mapIndex) {
     worldBonus = equipmentBonus
-  } else if (150 <= character?.mapIndex && 200 > character?.mapIndex) {
+  }
+  else if (150 <= character?.mapIndex && 200 > character?.mapIndex) {
     worldBonus = secondEquipmentBonus
-  } else if (50 <= character?.mapIndex && 100 > character?.mapIndex) {
+  }
+  else if (50 <= character?.mapIndex && 100 > character?.mapIndex) {
     worldBonus = thirdEquipmentBonus
   }
   const majorBonus = isCompanionBonusActive(account, 0)
