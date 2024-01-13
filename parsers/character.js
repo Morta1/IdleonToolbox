@@ -1,5 +1,6 @@
 import {
   bonuses,
+  cardBonuses,
   carryBags,
   classes,
   classFamilyBonuses,
@@ -25,7 +26,8 @@ import {
   getRandomEventItems,
   isArenaBonusActive,
   isBundlePurchased,
-  isCompanionBonusActive
+  isCompanionBonusActive,
+  isMasteryBonusUnlocked
 } from './misc';
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
 import { getInventory } from './storage';
@@ -104,7 +106,8 @@ export const getCharacters = (idleonData, charsNames) => {
             const det = createIndexedArray(updatedDetails);
             if (arr) {
               arr.splice(0, 0, det);
-            } else {
+            }
+            else {
               arr = [det];
             }
             break;
@@ -120,7 +123,8 @@ export const getCharacters = (idleonData, charsNames) => {
             const det = createIndexedArray(updatedDetails);
             if (arr) {
               arr.splice(1, 0, det);
-            } else {
+            }
+            else {
               arr = [det];
             }
             break;
@@ -365,10 +369,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   if (isMiningMap) {
     current = character.skillsInfo?.mining?.level;
     currentIcon = 'ClassIconsM';
-  } else if (isFishingMap) {
+  }
+  else if (isFishingMap) {
     current = character.skillsInfo?.fishing?.level;
     currentIcon = 'ClassIcons45';
-  } else {
+  }
+  else {
     current = parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0;
     currentIcon = 'ClassIconsF';
   }
@@ -505,7 +511,8 @@ export const getDropRate = (character, account, characters) => {
   let luckMulti;
   if (luck < 1e3) {
     luckMulti = (Math.pow(luck + 1, 0.37) - 1) / 40;
-  } else {
+  }
+  else {
     luckMulti = (luck - 1e3) / (luck + 2500) * 0.5 + 0.297;
   }
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 0);
@@ -828,7 +835,8 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   let agiMulti;
   if (character.stats?.agility < 1000) {
     agiMulti = (Math.pow(character.stats?.agility + 1, .4) - 1) / 40;
-  } else {
+  }
+  else {
     agiMulti = (character.stats?.agility - 1e3) / (character.stats?.agility + 2500) * .5 + .371;
   }
   const statuePower = getStatueBonus(account?.statues, 'StatueG2', character?.talents);
@@ -841,9 +849,11 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   const tipToeQuickness = getTalentBonus(character?.starTalents, null, 'TIPTOE_QUICKNESS');
   if (finalSpeed > 2) {
     finalSpeed = Math.floor(100 * finalSpeed) / 100;
-  } else if (finalSpeed > 1.75) {
+  }
+  else if (finalSpeed > 1.75) {
     finalSpeed = Math.min(2, Math.floor(100 * ((finalSpeed) + tipToeQuickness / 100)) / 100)
-  } else {
+  }
+  else {
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 7);
     const groundedMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 15)?.baseVal ?? 0;
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TUFT_OF_HAIR');
@@ -902,7 +912,8 @@ export const getAfkGain = (character, characters, account) => {
     }
     if (char?.linkedDeity === 4) {
       return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
-    } else if (char?.secondLinkedDeityIndex === 4) {
+    }
+    else if (char?.secondLinkedDeityIndex === 4) {
       return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
     }
     return sum;
@@ -942,7 +953,13 @@ export const getAfkGain = (character, characters, account) => {
   ]
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
   const shrineAfkGains = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  const firstStarTalentBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
+  const tickTockTalentBonus = getTalentBonus(character?.starTalents, null, 'TICK_TOCK');
+  const idleSkillingBonus = getTalentBonus(character?.talents, 0, 'IDLE_SKILLING');
+  const activeAfkerBonus = getTalentBonus(character?.talents, 0, 'ACTIVE_AFK\'ER');
+  const catchingSomeZzzBonus = getTalentBonus(character?.talents, 2, 'CATCHING_SOME_ZZZ\'S');
+  const trappingBonus = getTrappingStuff('TrapMGbonus', 8, account)
+  const starSignBonus = getStarSignBonus(character, account, 'Skill_AFK_Gain');
+
   // Fighting AFK Gains
   if (afkType === 'FIGHTING') {
     const highestVoidwalker = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
@@ -967,7 +984,7 @@ export const getAfkGain = (character, characters, account) => {
 
     gains = 0.2 + (familyEffBonus + postOfficeBonus
       + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
-        + (secondTalentBonus + (firstStarTalentBonus + (additionalAfkGains
+        + (secondTalentBonus + (tickTockTalentBonus + (additionalAfkGains
           + (equippedCardBonus + (fourthTalentBonus + ((fightEquipmentBonus + fightObolsBonus) + (afkEquipmentBonus + afkObolsBonus)
             + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
 
@@ -988,14 +1005,12 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Guild', value: guildBonus },
       { name: 'Starsign', value: starSignBonus },
     ]
-  } else if (afkType === 'COOKING') {
-    const firstTalentBonus = getTalentBonus(character?.talents, 0, 'IDLE_SKILLING');
-    const trappingBonus = getTrappingStuff('TrapMGbonus', 8, account)
-    const starSignBonus = getStarSignBonus(character, account, 'Skill_AFK_Gain');
+  }
+  else if (afkType === 'COOKING') {
     const secondTalentBonus = getTalentBonus(character?.talents, 3, 'WAITING_TO_COOL')
     gains = 0.25
-      + (firstTalentBonus
-        + firstStarTalentBonus
+      + (idleSkillingBonus
+        + tickTockTalentBonus
         + (actualBaseAfkGains
           + (trappingBonus
             + (starSignBonus
@@ -1004,12 +1019,170 @@ export const getAfkGain = (character, characters, account) => {
       ...breakdown,
       { title: 'Cooking' },
       { name: '' },
-      { name: 'Talents', value: firstTalentBonus + secondTalentBonus + firstStarTalentBonus },
+      { name: 'Talents', value: idleSkillingBonus + secondTalentBonus + tickTockTalentBonus },
       { name: 'Starsign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
       { name: 'Bribe', value: bribeAfkGains },
     ]
   }
+  else if (afkType === 'MINING') {
+    const dwarvenSupliesBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 2);
+    const miningCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 2);
+    const cardBonus = miningCardsArePassives
+      ? getCardBonusByEffect(account?.cards, 'Mining_Away_Gains')
+      : getCardBonusByEffect(character?.cards?.equippedCards, 'Mining_Away_Gains')
+
+    const mainStat = mainStatMap?.[character?.class];
+    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
+    gains = 0.25 + (idleSkillingBonus
+      + (dwarvenSupliesBonus
+        + (trappingBonus
+          + tickTockTalentBonus
+          + (actualBaseAfkGains
+            + (cardBonus
+              + (starSignBonus
+                + (bribeAfkGains
+                  + bubbleBonus))))))) / 100;
+
+    breakdown = [
+      ...breakdown,
+      { title: 'Mining' },
+      { name: '' },
+      { name: 'Talents', value: idleSkillingBonus + tickTockTalentBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Trapping Bonus', value: trappingBonus },
+      { name: 'Bribe', value: bribeAfkGains },
+      { name: 'Card', value: cardBonus },
+      { name: 'Post Office', value: dwarvenSupliesBonus },
+      { name: 'Bubble', value: bubbleBonus },
+    ]
+  }
+  else if (afkType === 'CHOPPIN') {
+    const tapedUpTimberBonus = getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 2);
+    const choppingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 2);
+    const cardBonus = choppingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, cardBonuses[36])
+      : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[36]);
+
+    const mainStat = mainStatMap?.[character?.class];
+    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'TREE_SLEEPER', false, mainStat === 'wisdom');
+
+    gains = 0.25 + (activeAfkerBonus
+      + (tapedUpTimberBonus
+        + (trappingBonus
+          + tickTockTalentBonus
+          + (actualBaseAfkGains
+            + (cardBonus
+              + (starSignBonus
+                + (bribeAfkGains
+                  + bubbleBonus))))))) / 100;
+
+    breakdown = [
+      ...breakdown,
+      { title: 'Choppin' },
+      { name: '' },
+      { name: 'Talents', value: activeAfkerBonus + tickTockTalentBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Trapping Bonus', value: trappingBonus },
+      { name: 'Bribe', value: bribeAfkGains },
+      { name: 'Card', value: cardBonus },
+      { name: 'Post Office', value: tapedUpTimberBonus },
+      { name: 'Bubble', value: bubbleBonus },
+    ]
+  }
+  else if (afkType === 'FISHING') {
+    const sealedFishheadsBonus = getPostOfficeBonus(character?.postOffice, 'Sealed_Fishheads', 2);
+    const fishingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 2);
+    const cardBonus = fishingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, cardBonuses[39])
+      : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[39]);
+    const mainStat = mainStatMap?.[character?.class];
+    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
+    const equipmentBonus = getStatsFromGear(character, 64, account);
+    const toolsBonus = getStatsFromGear(character, 64, account, true);
+    const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[64]);
+
+    gains = 0.25 +
+      (idleSkillingBonus
+        + (catchingSomeZzzBonus
+          + (trappingBonus
+            + sealedFishheadsBonus
+            + (tickTockTalentBonus
+              + (actualBaseAfkGains
+                + (cardBonus
+                  + (starSignBonus
+                    + (bribeAfkGains
+                      + (bubbleBonus
+                        + (equipmentBonus + obolsBonus + toolsBonus)))))))))) / 100;
+
+    breakdown = [
+      ...breakdown,
+      { title: 'Fishing' },
+      { name: '' },
+      { name: 'Talents', value: idleSkillingBonus + catchingSomeZzzBonus + tickTockTalentBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Trapping Bonus', value: trappingBonus },
+      { name: 'Bribe', value: bribeAfkGains },
+      { name: 'Card', value: cardBonus },
+      { name: 'Post Office', value: sealedFishheadsBonus },
+      { name: 'Bubble', value: bubbleBonus },
+      { name: 'Equipment', value: equipmentBonus },
+      { name: 'Obols', value: obolsBonus },
+      { name: 'Tools', value: toolsBonus },
+    ]
+  }
+  else if (afkType === 'CATCHING') {
+    const bugHuntingSuppliesBonus = getPostOfficeBonus(character?.postOffice, 'Bug_Hunting_Supplies', 2);
+    const sunsetOnTheHivesBonus = getTalentBonus(character?.talents, 2, 'SUNSET_ON_THE_HIVES');
+    const catchingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 2);
+    const cardBonus = catchingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, cardBonuses[41])
+      : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[41]);
+    const mainStat = mainStatMap?.[character?.class];
+    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'FLY_IN_MIND', false, mainStat === 'agility');
+    gains = 0.25
+      + (sunsetOnTheHivesBonus
+        + (trappingBonus
+          + bugHuntingSuppliesBonus
+          + (tickTockTalentBonus
+            + (actualBaseAfkGains
+              + (cardBonus
+                + (starSignBonus
+                  + (bribeAfkGains
+                    + bubbleBonus))))))) / 100
+
+    breakdown = [
+      ...breakdown,
+      { title: 'Catching' },
+      { name: '' },
+      { name: 'Talents', value: sunsetOnTheHivesBonus + tickTockTalentBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Trapping Bonus', value: trappingBonus },
+      { name: 'Bribe', value: bribeAfkGains },
+      { name: 'Card', value: cardBonus },
+      { name: 'Post Office', value: bugHuntingSuppliesBonus },
+      { name: 'Bubble', value: bubbleBonus },
+    ]
+  }
+  else if (afkType === 'LABORATORY') {
+    gains = 0.25
+      + (tickTockTalentBonus
+        + (actualBaseAfkGains
+          + (trappingBonus
+            + (starSignBonus
+              + bribeAfkGains)))) / 100;
+
+    breakdown = [
+      ...breakdown,
+      { title: 'Laboratory' },
+      { name: '' },
+      { name: 'Talents', value: tickTockTalentBonus },
+      { name: 'Starsign', value: starSignBonus },
+      { name: 'Trapping Bonus', value: trappingBonus },
+      { name: 'Bribe', value: bribeAfkGains },
+    ]
+  }
+
   let math = gains;
   if (gains < 1.5) {
     math = Math.min(1.5, gains + shrineAfkGains / 100);
