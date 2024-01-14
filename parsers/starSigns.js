@@ -77,9 +77,10 @@ export const getStarSignBonus = (character, account, effectName) => {
     bonus,
     active,
     isInfiniteStar
-  }) => effect.includes(effectName) && (active || isInfiniteStar)
-    ? sum + (isInfiniteStar && bonus < 0 ? 0 : bonus)
-    : sum, 0);
+  }) => effect.toLowerCase().includes(effectName.toLowerCase()) && (active || isInfiniteStar)
+      ? sum + (isInfiniteStar && bonus < 0 ? 0 : bonus)
+      : sum
+    , 0);
 }
 
 export const getStarSignsBonuses = (starSigns) => {

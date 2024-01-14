@@ -971,7 +971,7 @@ export const getAfkGain = (character, characters, account) => {
     const fourthTalentBonus = getTalentBonus(character?.talents, 0, 'SLEEPIN\'_ON_THE_JOB');
     const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
     const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
-    const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Fighting_AFK_gain_rate');
+    const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[43]);
     const fightEquipmentBonus = getStatsFromGear(character, 20, account);
     const fightObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[20])
 
@@ -981,10 +981,9 @@ export const getAfkGain = (character, characters, account) => {
       guildBonus = getGuildBonusBonus(guild?.guildBonuses, 4);
     }
     const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 7)?.baseVal ?? 0;
-
     gains = 0.2 + (familyEffBonus + postOfficeBonus
       + firstTalentBonus + bribeBonus + (thirdTalentBonus + cardSetBonus
-        + (secondTalentBonus + (tickTockTalentBonus + (additionalAfkGains
+        + (secondTalentBonus + (tickTockTalentBonus + ((afkGainsTaskBonus + additionalAfkGains)
           + (equippedCardBonus + (fourthTalentBonus + ((fightEquipmentBonus + fightObolsBonus) + (afkEquipmentBonus + afkObolsBonus)
             + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus))))))))))) / 100;
 
