@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, prefix, round } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { isGodEnabledBySorcerer } from '../../../../parsers/lab';
@@ -30,7 +30,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
                   <Stack>
                     <Typography>{playerName}</Typography>
                     <Typography>{playerCord?.lineWidth}px</Typography>
-                    <Typography variant={'caption'}>({playerCord.x},{playerCord.y})</Typography>
+                    <Typography variant={'caption'}>({round(playerCord.x)},{round(playerCord.y)})</Typography>
                   </Stack>
                   {/*<img src={`${prefix}data/head.png`} alt={''}/>*/}
                 </Stack>
