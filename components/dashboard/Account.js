@@ -152,6 +152,7 @@ const Account = ({ account, characters, trackers }) => {
             alerts?.construction?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
                                                                                       title={<RefineryTitle
                                                                                         missingMats={missingMats}/>}
+                                                                                      imgStyle={{ border: '1px solid', borderColor: '#833b3b' }}
                                                                                       iconPath={`data/${rawName}`}/>)
             : null}
           {trackers?.construction && alerts?.construction?.rankUp?.length > 0 ?
@@ -222,9 +223,9 @@ const Account = ({ account, characters, trackers }) => {
   </>
 };
 
-const Alert = ({ title, iconPath, vial, atom, imgStyle = {} }) => {
+const Alert = ({ title, iconPath, vial, atom, style = {}, imgStyle = {} }) => {
   return <HtmlTooltip title={title}>
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ position: 'relative', ...style }}>
       <IconImg style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
       {atom ? <AtomIcon vial={vial} src={`${prefix}etc/Particle.png`} alt=""/> : null}
       {vial ? <img key={`${vial?.name}`}
