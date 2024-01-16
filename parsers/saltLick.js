@@ -4,15 +4,15 @@ import { tryToParse } from '../utility/helpers';
 
 export const getSaltLick = (idleonData, storage) => {
   const saltLickRaw = tryToParse(idleonData?.SaltLick) || idleonData?.SaltLick;
-  return saltLickRaw?.map((level, index) => {
-    const bonus = saltLicks[index];
+  return saltLicks?.map((bonus, index) => {
+    const level = saltLickRaw[index];
     const totalAmount = calculateItemTotalAmount(storage, bonus?.name, true);
     return {
       ...bonus,
       totalAmount,
       level
     }
-  }).filter(({ level }) => level > 0);
+  })
 }
 
 export const getSaltLickBonus = (saltLicks, saltIndex, shouldRound = false) => {
