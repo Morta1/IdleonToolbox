@@ -454,6 +454,14 @@ export const groupByKey = (array, callback) => {
   }, {})
 }
 
+export const removeTrackers = (type, config) => {
+  if (type === 'account') {
+    return config;
+  }
+  else {
+    return config;
+  }
+}
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 export const prefix = isProd ? '/' : '/';
 

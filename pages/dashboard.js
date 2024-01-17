@@ -5,7 +5,7 @@ import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
-import { isProd } from '@utility/helpers';
+import { isProd, removeTrackers } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
@@ -14,6 +14,7 @@ import DashboardSettings from '../components/common/DashboardSettings';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '@components/common/styles';
+import merge from 'lodash.merge';
 
 const baseTrackers = {
   account: {
@@ -205,15 +206,11 @@ const Dashboard = () => {
   const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
 
   useEffect(() => {
-    const accountHasDiff = state?.trackers?.account
-      ? Object.keys(baseTrackers?.account).length !== Object.keys(state?.trackers?.account).length
-      : true;
-    const charactersHasDiff = state?.trackers?.characters
-      ? Object.keys(baseTrackers?.characters).length !== Object.keys(state?.trackers?.characters).length
-      : true;
+    const finalAccountTrackers = removeTrackers('account', merge(baseTrackers?.account, state?.trackers?.account));
+    const finalCharactersTrackers = removeTrackers('characters', merge(baseTrackers?.characters, state?.trackers?.characters));
     setConfig({
-      account: accountHasDiff ? baseTrackers?.account : state?.trackers?.account,
-      characters: charactersHasDiff ? baseTrackers?.characters : state?.trackers?.characters
+      account: finalAccountTrackers,
+      characters: finalCharactersTrackers
     })
   }, []);
   const handleConfigChange = (updatedConfig) => {
