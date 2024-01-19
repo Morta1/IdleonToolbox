@@ -15,7 +15,7 @@ export const patchNotes = [
     ],
     fixes: [
       'Fixed a bug with dashboard resetting to default',
-      'Fixed a bug with charget rate calculation',
+      'Fixed a bug with charge rate calculation',
       'Fixed a bug where 0 money wouldn\'t display anything'
     ]
   },

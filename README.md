@@ -45,3 +45,9 @@ Join our community on Discord for assistance, suggestions, and bug reports. Conn
 toolbox users!
 
 [![Idleon Toolbox Discord](https://img.shields.io/discord/1090610727334719558.svg?colorB=blue&logo=discord&logoColor=white)](https://discord.gg/8Devcj7FzV)
+
+## Contribution
+
+Thank you for your interest in contributing to this project. At the moment, I am not accepting any pull requests on this
+repository. This decision is based on several considerations, including project management needs and resource
+constraints.

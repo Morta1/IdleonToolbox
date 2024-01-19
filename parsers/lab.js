@@ -25,8 +25,8 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
   for (let i = 0; i < cords.length; i += playerCordsChunk) {
     const [x, y] = cords.slice(i, i + playerCordsChunk);
     playersCords = [...playersCords, {
-      x,
-      y,
+      x: Math.round(x),
+      y: Math.round(y),
       playerId: i / 2,
       playerName: charactersData?.[i / 2]?.name,
       class: classes[charactersData?.[i / 2]?.CharacterClass]
@@ -253,7 +253,8 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
       purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, 'Bubonic_Conjuror', 'PURPLE_TUBE')
-    } else {
+    }
+    else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
     }
   }
