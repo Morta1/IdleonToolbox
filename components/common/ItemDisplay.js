@@ -3,6 +3,7 @@ import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
 import { getGoldenFoodBonus } from '../../parsers/misc';
+import React from 'react';
 
 const ItemDisplay = ({
                        character, account,
@@ -37,18 +38,22 @@ const ItemDisplay = ({
                        Cooldown,
                        capacity,
                        capacityPerSlot,
-                       maxCapacity
+                       maxCapacity,
+                       breakdown
                      }) => {
   const getPowerType = (type) => {
     let fixedType = type.toLowerCase();
     if (!fixedType) return 'Weapon Power';
     if (fixedType.includes('mining')) {
       return 'Mining Power';
-    } else if (fixedType.includes('fishin')) {
+    }
+    else if (fixedType.includes('fishin')) {
       return 'Fishing Power';
-    } else if (fixedType.includes('choppin')) {
+    }
+    else if (fixedType.includes('choppin')) {
       return 'Choppin Power';
-    } else if (fixedType.includes('catch')) {
+    }
+    else if (fixedType.includes('catch')) {
       return 'Catching Power';
     }
     return 'Weapon Power'
@@ -96,6 +101,20 @@ const ItemDisplay = ({
         {Upgrade_Slots_Left > 0 ?
           <TitleAndValue title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
       </Stack>}
+    {breakdown ? <>
+      <Divider sx={{ my: 1, bgcolor: 'black' }}/>
+      <Stack>
+        {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
+                                                                               key={`${name}-${index}`}>{title}</Typography>
+          : !name ? <Divider sx={{ my: 1, bgcolor: 'black' }} key={`${name}-${index}`}/> : <TitleAndValue
+            key={`${name}-${index}`}
+            titleStyle={{ width: 120 }}
+            title={name}
+            value={!isNaN(value)
+              ? notateNumber(value, 'Big')
+              : value}/>)}
+      </Stack>
+    </> : null}
   </> : null;
 };
 

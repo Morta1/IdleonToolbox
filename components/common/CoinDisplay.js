@@ -15,7 +15,7 @@ const CoinDisplay = ({
     <Stack flexWrap={'wrap'} justifyContent={centered ? 'center' : 'flex-start'} direction={'row'}
            gap={variant === 'vertical' ? 2.3 : 1}>
       {money?.map(([coinIndex, coin], index) => {
-        return index < maxCoins && Number(coin) > 0 ?
+        return index < maxCoins && Number(coin) >= 0 ?
           <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5} justifyContent={'center'} alignItems={'center'}
                  key={coin + '' + coinIndex}>
             <CoinIcon src={`${prefix}data/Coins${coinIndex}.png`} alt=""/>

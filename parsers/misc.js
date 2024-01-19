@@ -258,7 +258,8 @@ export const getHighestLevelOfClass = (characters, className) => {
   const highest = characters?.reduce((res, { level, class: cName }) => {
     if (res?.[cName]) {
       res[cName] = Math.max(res?.[cName], level);
-    } else {
+    }
+    else {
       res[cName] = level;
     }
     return res;
@@ -299,7 +300,8 @@ export const calculateLeaderboard = (characters) => {
     for (const [skillName, skillLevel] of Object.entries(skillsInfo)) {
       if (!res[skillName]) {
         res[skillName] = { ...res[skillName], [name]: skillLevel };
-      } else {
+      }
+      else {
         const joined = { ...res[skillName], [name]: skillLevel };
         let lowestIndex = Object.keys(joined).length;
         res[skillName] = Object.entries(joined)
@@ -327,7 +329,8 @@ export const calculateTotalSkillsLevel = (characters) => {
     for (const [skillName, skillData] of Object.entries(skillsInfo)) {
       if (res?.[skillName]) {
         res[skillName] = { ...res[skillName], level: res[skillName].level + skillData?.level ?? 0 }
-      } else {
+      }
+      else {
         res[skillName] = { level: skillData?.level, index: skillData?.index - 1, icon: skillData?.icon };
       }
     }
@@ -376,11 +379,14 @@ export const getSkillMasteryBonusByIndex = (skills, rift, riftBonusIndex) => {
     const skillRank = getSkillRankByIndex(skills, index);
     if (riftBonusIndex === 1) {
       sum += 10 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
-    } else if (riftBonusIndex === 3) {
+    }
+    else if (riftBonusIndex === 3) {
       sum += isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
-    } else if (riftBonusIndex === 4) {
+    }
+    else if (riftBonusIndex === 4) {
       sum += 25 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
-    } else if (0 !== index && 2 !== index && 3 !== index && 5 !== index && 6 !== index && 8 !== index && 8 !== index) {
+    }
+    else if (0 !== index && 2 !== index && 3 !== index && 5 !== index && 6 !== index && 8 !== index && 8 !== index) {
       sum += 5 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
     }
     return sum;
@@ -412,7 +418,8 @@ export const getGiantMobChance = (character, account) => {
   let chance;
   if (giantsAlreadySpawned < 5) {
     chance = (1 / ((100 + 50 * Math.pow(giantsAlreadySpawned + 1, 2)) * (1 + glitterbugPrayer / 100))) * (1 + (crescentShrineBonus + giantMobVial) / 100);
-  } else {
+  }
+  else {
     chance = (1 / (2 * Math.pow(giantsAlreadySpawned + 1, 1.95)
         * (1 + glitterbugPrayer / 100)
         * Math.pow(giantsAlreadySpawned + 1, 1.5 + giantsAlreadySpawned / 15)))
@@ -515,7 +522,7 @@ const getEventType = (index) => {
 
 export const getHighestCapacityCharacter = (item, characters, account) => {
   return characters?.reduce((res, character) => {
-    const itemCapacity = item?.itemType === 'Equip' ? 1 : getItemCapacity(item?.typeGen, character, account);
+    const itemCapacity = item?.itemType === 'Equip' ? 1 : getItemCapacity(item?.typeGen, character, account)?.value;
     const maxCapacity = character?.inventorySlots * itemCapacity;
     if (maxCapacity > res?.maxCapacity) {
       res = {
@@ -535,9 +542,18 @@ export const getAllCap = (character, account) => {
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.bonus;
   const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
 
-  return (1 + (guildBonus + talentBonus) / 100)
-    * (1 + shrineBonus / 100) * Math.max(1 - prayerCurse / 100, 0.4)
-    * (1 + (prayerBonus + bribeBonus) / 100);
+  return {
+    value: (1 + (guildBonus + talentBonus) / 100)
+      * (1 + shrineBonus / 100) * Math.max(1 - prayerCurse / 100, 0.4)
+      * (1 + (prayerBonus + bribeBonus) / 100),
+    breakdown: [
+      { value: guildBonus, name: 'Guild' },
+      { value: talentBonus, name: 'Talent' },
+      { value: shrineBonus, name: 'Shrine' },
+      { value: prayerCurse + prayerBonus, name: 'Prayer' },
+      { value: bribeBonus, name: 'Bribe' }
+    ]
+  }
 }
 export const getItemCapacity = (type = '', character, account) => {
   const gemshop = account?.gemShopPurchases?.find((value, index) => index === 58);
@@ -551,33 +567,134 @@ export const getItemCapacity = (type = '', character, account) => {
   const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const allCap = getAllCap(character, account);
 
+  let value, breakdown = [
+    { title: 'Base' },
+    { name: '' },
+    ...allCap?.breakdown,
+    { name: '' }
+  ];
+  if ('bOre' === type || 'bBar' === type || 'cOil' === type) {
+    value = Math.floor(character?.maxCarryCap?.Mining * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Mining' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Mining, name: 'Base Bag' },
+      { value: minCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dFish' === type) {
+    value = Math.floor(character?.maxCarryCap?.Fishing * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Fishing' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Fishing, name: 'Base Bag' },
+      { value: fishCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dBugs' === type) {
+    value = Math.floor(character?.maxCarryCap?.Bugs * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Catching' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Bugs, name: 'Base Bag' },
+      { value: catchCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('bLog' === type || 'bLeaf' === type) {
+    value = Math.floor(character?.maxCarryCap?.Chopping * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Chopping' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Chopping, name: 'Base Bag' },
+      { value: chopCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('cFood' === type) {
+    value = Math.floor(character?.maxCarryCap?.Foods * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Food' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Foods, name: 'Base Bag' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dCritters' === type) {
+    value = Math.floor(character?.maxCarryCap?.Critters * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Critters' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Critters, name: 'Base Bag' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dSouls' === type) {
+    value = Math.floor(character?.maxCarryCap?.Souls * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Souls' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Souls, name: 'Base Bag' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
+    value = 999999;
+  }
+  else if ('bCraft' === type) {
+    value = Math.floor(character?.maxCarryCap?.bCraft * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value);
+    breakdown = [
+      ...breakdown,
+      { title: 'Materials' },
+      { name: '' },
+      { value: character?.maxCarryCap?.bCraft, name: 'Base Bag' },
+      { value: matCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: talentBonus, name: 'Talent' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type) {
+    value = 999999;
+  }
+  else if ('fillerz' === type) {
+    value = character?.maxCarryCap?.fillerz;
+  }
+  else if ('d' === type.charAt(0)) {
+    value = 999999;
+  }
+  else {
+    value = 2;
+  }
 
-  return 'bOre' === type || 'bBar' === type || 'cOil' === type ? Math.floor(character?.maxCarryCap?.Mining
-    * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100)
-    * (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : 'dFish' === type ? Math.floor(character?.maxCarryCap?.Fishing
-    * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) *
-    (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : 'dBugs' === type ? Math.floor(character?.maxCarryCap?.Bugs
-    * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100)
-    * (1 + (allCarryStamps + starSignBonus) / 100)
-    * allCap) : 'bLog' === type || 'bLeaf' === type ? Math.floor(character?.maxCarryCap?.Chopping
-    * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) *
-    (1 + (allCarryStamps + starSignBonus) / 100) *
-    allCap) : 'cFood' === type ? Math.floor(character?.maxCarryCap?.Foods *
-      (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps
-        + starSignBonus) / 100) * allCap) :
-    'dCritters' === type ? Math.floor(character?.maxCarryCap?.Critters * (1 + (25 * gemshop) / 100) *
-        (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
-      : 'dSouls' === type ? Math.floor(character?.maxCarryCap?.Souls * (1 + (25 * gemshop) / 100) *
-          (1 + (allCarryStamps + starSignBonus) / 100) * allCap)
-        : 'dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type ? 999999 : 'bCraft' === type
-          ? Math.floor(character?.maxCarryCap?.bCraft
-            * (1 + matCapStamps / 100)
-            * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100)
-            * (1 + talentBonus / 100) * allCap)
-          : 'dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type ? 999999 :
-            'fillerz' === type ? character?.maxCarryCap?.fillerz : 'd' === type.charAt(0) ? 999999 : 2
+  return {
+    value,
+    breakdown
+  };
 }
 
 export const getTypeGen = (type) => {

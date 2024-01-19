@@ -24,11 +24,14 @@ const Stamps = () => {
     if (level <= 0) return '';
     if (!hasMoney) {
       return 'warning.light';
-    } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
+    }
+    else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
       return 'error.light';
-    } else if (!enoughPlayerStorage) {
+    }
+    else if (!enoughPlayerStorage) {
       return '#e3e310'
-    } else if (materials.length > 0) {
+    }
+    else if (materials.length > 0) {
       return ''
     }
     return materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage
@@ -105,7 +108,7 @@ const Stamps = () => {
               } = stamp;
               const border = getBorder(stamp);
               return <Grid xs={4} sm={3} key={rawName + stampIndex}>
-                <Tooltip maxWidth={450} title={<StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
+                <Tooltip maxWidth={450} dark title={<StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
                   <Card sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -160,13 +163,20 @@ const StampInfo = ({
                      reqItemMultiplicationLevel
                    }) => {
   const bonus = growth(func, level, x1, x2, true) * (multiplier ?? 1);
-
+  const storageColor = enoughPlayerStorage ? 'white' : '#e57373';
+  const materialColor = hasMaterials ? 'white' : '#e57373';
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
     {level > 0 ? <>
-      <CostSection isMaterialCost={false} rawName={rawName} materialCost={materialCost} goldCost={goldCost}
+      <CostSection isMaterialCost={false}
+                   hasMoney={hasMoney}
+                   hasMaterials={hasMaterials}
+                   enoughPlayerStorage={enoughPlayerStorage}
+                   rawName={rawName}
+                   materialCost={materialCost}
+                   goldCost={goldCost}
                    level={level}/>
       <Divider variant={'middle'} sx={{ bgcolor: grey[600], my: 1 }}/>
       {futureCosts?.map((futureCost, index) => {
@@ -179,11 +189,12 @@ const StampInfo = ({
         <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Max capacity</Typography>
           <Typography
+            color={storageColor}
             variant={'body2'}>{bestCharacter?.character} ({notateNumber(bestCharacter?.maxCapacity ?? 0, 'Big')})</Typography>
         </div>
         <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Storage Amount</Typography>
-          <Typography variant={'body2'}>{notateNumber((subtractGreenStacks
+          <Typography color={materialColor} variant={'body2'}>{notateNumber((subtractGreenStacks
             ? greenStackOwnedMats
             : ownedMats) || 0, 'Big')}</Typography>
         </div>
@@ -192,15 +203,30 @@ const StampInfo = ({
   </>
 }
 
-const CostSection = ({ showBoth, isMaterialCost, reduction, rawName, materialCost, goldCost, level }) => {
+const CostSection = ({
+                       showBoth,
+                       isMaterialCost,
+                       reduction,
+                       rawName,
+                       materialCost,
+                       goldCost,
+                       level,
+                       hasMoney,
+                       hasMaterials,
+                     }) => {
+  const moneyColor = showBoth ? 'white' : hasMoney ? 'white' : '#e57373';
   return <Stack direction={'row'} gap={3} alignItems={'center'} justifyContent={'space-between'}>
     {isMaterialCost || showBoth ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
       <Typography variant={'subtitle2'}>{level}</Typography>
       <ItemIcon src={`${prefix}data/${rawName}.png`}
                 alt=""/>
-      <Typography variant={'subtitle2'}>{materialCost ? notateNumber(materialCost, 'Big') : null}</Typography>
+      <Typography variant={'subtitle2'}>{materialCost
+        ? notateNumber(materialCost, 'Big')
+        : null}</Typography>
     </Stack> : null}
-    {!isMaterialCost || showBoth ? <CoinDisplay variant={'horizontal'} title={''} maxCoins={3}
+    {!isMaterialCost || showBoth ? <CoinDisplay style={{ color: moneyColor }}
+                                                variant={'horizontal'}
+                                                title={''} maxCoins={3}
                                                 money={getCoinsArray(goldCost)}/> : null}
     {isMaterialCost || showBoth ? <Typography variant={'subtitle2'}>{reduction}%</Typography> : null}
   </Stack>

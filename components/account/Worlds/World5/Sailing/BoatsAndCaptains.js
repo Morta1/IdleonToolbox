@@ -4,6 +4,8 @@ import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/he
 import styled from '@emotion/styled';
 import Timer from '../../../../common/Timer';
 import Captain from './Captain';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '@components/Tooltip';
 
 const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCaptains, lastUpdated }) => {
   const getShipsOverview = () => {
@@ -55,7 +57,8 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
                      island,
                      distanceTraveled,
                      timeLeft,
-                     resources
+                     resources,
+                     breakpointResources
                    }, index) => <Card
         key={`${rawName}-${index}`}>
         <CardContent sx={{ width: 250 }}>
@@ -80,22 +83,13 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
           <Typography>Speed Value: {notateNumber(speed.raw, 'Big')}</Typography>
           <Typography variant={'caption'}>Next level: {notateNumber(speed.nextLevelValue, 'Big')}</Typography>
           <Divider sx={{ my: 1 }}/>
+          <Info lootLevel={lootLevel} speedLevel={speedLevel} resources={breakpointResources}/>
+          <Divider sx={{ my: 1 }}/>
           <Stack>
             <Typography variant={'caption'}>Base loot: {lootLevel}</Typography>
             <Typography variant={'caption'}>Base speed: {speedLevel}</Typography>
           </Stack>
-          {resources?.length > 0 ? <><Divider sx={{ my: 1 }}/>
-            <Stack>
-              {resources?.map(({ required, amount, rawName }, index) => <Stack key={`${rawName}-${index}`}
-                                                                               direction={'row'}>
-                <img style={{ width: 25, objectFit: 'contain' }}
-                     src={`${prefix}data/${rawName}.png`} alt=""/>
-                <Typography
-                  color={amount >= required
-                    ? 'success.light'
-                    : 'error.light'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
-              </Stack>)}
-            </Stack> </> : null}
+          <Resources inline resources={resources}/>
           <Divider sx={{ my: 1 }}/>
           <Typography>Artifact Odds: {artifactChance}x</Typography>
         </CardContent>
@@ -113,6 +107,43 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
     </Stack>
   </>
 };
+
+const Info = ({ lootLevel, speedLevel, resources }) => {
+  const speedBreakpoint = speedLevel + (7 - (speedLevel % 7));
+  const lootBreakpoint = lootLevel + (8 - (lootLevel % 8));
+  return <Stack direction={'row'} gap={1} alignItems={'center'}>
+    <Stack>
+      <Typography component={'p'}
+                  variant={'caption'}>Speed breakpoint: {speedLevel} / {speedBreakpoint}</Typography>
+      <Typography component={'p'}
+                  variant={'caption'}>Loot breakpoint: {lootLevel} / {lootBreakpoint}</Typography>
+    </Stack>
+    <Stack>
+      <Tooltip dark title={<Resources resources={resources}/>}>
+        <InfoIcon fontSize={'12px'}/>
+      </Tooltip>
+    </Stack>
+  </Stack>
+}
+
+const Resources = ({ resources, inline = false }) => {
+  return <>
+    {resources?.length > 0 ? <>
+      {inline && <Divider sx={{ my: 1 }}/>}
+      <Stack>
+        {resources?.map(({ required, amount, rawName }, index) => <Stack key={`${rawName}-${index}`}
+                                                                         direction={'row'}>
+          <img style={{ width: 25, objectFit: 'contain' }}
+               src={`${prefix}data/${rawName}.png`} alt=""/>
+          <Typography
+            color={amount >= required
+              ? 'success.light'
+              : 'error.light'}>{notateNumber(amount, 'Big')} / {notateNumber(required)}</Typography>
+        </Stack>)}
+      </Stack> </> : null
+    }
+  </>
+}
 
 const BoatWrapper = styled.div`
   position: relative;

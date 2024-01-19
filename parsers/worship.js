@@ -1,7 +1,13 @@
 import { getStampsBonusByEffect } from './stamps';
 import { round, tryToParse } from '../utility/helpers';
 import { getCardBonusByEffect } from './cards';
-import { getCharacterByHighestTalent, getHighestTalentByClass, getTalentBonusIfActive, mainStatMap } from './talents';
+import {
+  getCharacterByHighestTalent,
+  getHighestTalentByClass,
+  getTalentBonus,
+  getTalentBonusIfActive,
+  mainStatMap
+} from './talents';
 import { getPostOfficeBonus } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import { mapNames, randomList, totems } from '../data/website-data';
@@ -54,7 +60,7 @@ export const getChargeRate = (character, account) => {
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.Speed : 0;
   const cardBonus = getCardBonusByEffect(account?.cards, 'Charge_Rate');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Charge_Rate_per_Hour', character);
-  const wizardTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y');
+  const wizardTalentBonus = getTalentBonus(character?.talents, 2, 'NEARBY_OUTLET');
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account)
   if (skullSpeed < 3) {
     return 6 / Math.max(5.7 + Math.pow(4 - skullSpeed, 2.2) - (.9 * Math.pow(character?.skillsInfo?.worship?.level, .5) /

@@ -30,7 +30,7 @@ const Bags = ({ bags, capBags }) => {
                        alt=""/>
                   <Typography variant={'caption'}>{notateNumber(capacityPerSlot)}</Typography>
                 </Stack>
-              </Tooltip>;
+              </Tooltip>
             })}
           </Stack>
         </Stack>

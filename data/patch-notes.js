@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.42',
+    gameVer: '1.92',
+    date: '19/01/2024',
+    features: [
+      'Added loot and speed breakpoints to boats page',
+      'Added an indication for items that are acquired from dungeons (in material tracker, slab page, etc..)',
+      'Added breakdown to capacity bags under characters page (filter bags and hover over the bag to see it)',
+      'Added color to the missing ingredient in stamps page'
+    ],
+    fixes: [
+      'Fixed a bug with dashboard resetting to default',
+      'Fixed a bug with charget rate calculation',
+      'Fixed a bug where 0 money wouldn\'t display anything'
+    ]
+  },
+  {
     ver: '3.2.41',
     gameVer: '1.92',
     date: '13/01/2024',

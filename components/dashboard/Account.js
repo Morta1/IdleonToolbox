@@ -152,7 +152,10 @@ const Account = ({ account, characters, trackers }) => {
             alerts?.construction?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
                                                                                       title={<RefineryTitle
                                                                                         missingMats={missingMats}/>}
-                                                                                      imgStyle={{ border: '1px solid', borderColor: '#833b3b' }}
+                                                                                      imgStyle={{
+                                                                                        border: '1px solid',
+                                                                                        borderColor: '#833b3b'
+                                                                                      }}
                                                                                       iconPath={`data/${rawName}`}/>)
             : null}
           {trackers?.construction && alerts?.construction?.rankUp?.length > 0 ?
@@ -189,7 +192,7 @@ const Account = ({ account, characters, trackers }) => {
                                                                  iconPath={`data/PetEgg1`}/> : null}
           {trackers?.breeding && alerts?.breeding?.shinies?.pets?.length > 0 ?
             alerts?.breeding?.shinies?.pets?.map(({ monsterName, monsterRawName, shinyLevel, icon }, index) => {
-              const missingIcon = icon === 'Mface23' && monsterRawName !== 'shovelR';
+              const missingIcon = (icon === 'Mface23' && monsterRawName !== 'shovelR') || (icon === 'Mface21' && monsterRawName === 'potatoB');
               return <Alert
                 key={monsterName + index}
                 imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}

@@ -231,7 +231,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
     character.carryCapBags = carryCapBags?.map((carryBag) => {
       const typeGen = getTypeGen(carryBag?.Class);
       const capacity = getItemCapacity(typeGen, character, accountData);
-      return { ...carryBag, capacityPerSlot: capacity, maxCapacity: capacity * character?.inventorySlots }
+      return { ...carryBag, capacityPerSlot: capacity?.value, breakdown: capacity?.breakdown,  maxCapacity: capacity * character?.inventorySlots }
     })
     character.constructionSpeed = getPlayerConstructionSpeed(character, accountData);
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);

@@ -19,7 +19,6 @@ const Inventory = ({ inventory, inventorySlots }) => {
             <Typography>{notateNumber(item?.amount)}</Typography>
           </Stack>
         </Tooltip>
-
       })}
     </Stack>
   </Stack>

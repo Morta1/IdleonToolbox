@@ -1,4 +1,4 @@
-import { kFormatter, lavaLog, notateNumber, tryToParse } from '../utility/helpers';
+import { kFormatter, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { artifacts, captainsBonuses, classFamilyBonuses, islands } from '../data/website-data';
 import {
   getHighestCharacterSkill,
@@ -135,7 +135,8 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
     const artifact = artifactsList[artifactsStartIndex + i];
     if (!artifact) {
       baseMath = startingIndex * (1 - chance / artifact?.baseFindChance);
-    } else {
+    }
+    else {
       if (artifact?.acquired === 1) {
         baseMath = startingIndex * (1 - chance / getAncientChances(islandIndex, serverVars));
         startingIndex = baseMath;
@@ -227,8 +228,8 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters,
     distanceTraveled,
   }
 
-
   boatObj.resources = getBoatResources(boatObj, lootPile);
+  boatObj.breakpointResources = getBoatBreakdownResources(boatObj, lootPile);
   boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed, minimumTravelTime)
   boatObj.maxTime = ((island?.distance) / boatObj.speed?.value) * 3600 * 1000;
@@ -301,6 +302,21 @@ const getCaptain = (captain, index, isShop) => {
   return captainObj;
 }
 
+
+const getBoatBreakdownResources = (boat, lootPile) => {
+  let sum = [{ required: 0 }, { required: 0 }];
+  const lootBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
+  const speedBreakpoint = boat?.speedLevel + (7 - (boat?.speedLevel % 7));
+  for (let level = boat?.lootLevel; level < lootBreakpoint; level++) {
+    const [resource] = getBoatResources({ ...boat, lootLevel: level }, lootPile);
+    sum[0] = { ...resource, required: sum[0].required + resource?.required };
+  }
+  for (let level = boat?.speedLevel; level < speedBreakpoint; level++) {
+    const [, resource] = getBoatResources({ ...boat, speedLevel: level }, lootPile);
+    sum[1] = { ...resource, required: sum[1].required + resource?.required };
+  }
+  return sum;
+}
 const getBoatResources = (boat, lootPile) => {
   return [0, 1].map((index) => {
     const boatType = getBoatUpgradeCostType(boat?.boatIndex, index);
@@ -320,11 +336,17 @@ const getBoatUpgradeCost = (boat, itemIndex) => {
   const value = itemIndex === 0 ? boat?.lootLevel : boat?.speedLevel;
   if (boatType === 0) {
     return Math.round((5 + 4 * value) * Math.pow(1.17 - .12 * value / (value + 200), value))
-  } else if (boatType % 2 === 1) {
+  }
+  else if (boatType % 2 === 1) {
     return Math.round((5 + 2 * value) * Math.pow(1.15 - (0.1 * value) / (value + 200), value));
-  } else {
+  }
+  else {
     return Math.round((2 + value) * Math.pow(1.12 - (0.07 * value) / (value + 200), value));
   }
+}
+
+const getFinalBoatSpeed = ({ speedLevel, captainSpeedBonus, baseSpeed }) => {
+  return (10 + (5 + Math.pow(Math.floor(speedLevel / 7), 2)) * speedLevel) * (1 + captainSpeedBonus / 100) * baseSpeed;
 }
 
 const getBoatSpeedValue = (captain, island, speedLevel, baseSpeed, minimumTravelTime) => {
@@ -335,28 +357,76 @@ const getBoatSpeedValue = (captain, island, speedLevel, baseSpeed, minimumTravel
   if (captain?.secondBonusDescription?.includes('Boat_Speed')) {
     captainSpeedBonus += captain?.secondBonus;
   }
-  const boatSpeed = (10 + (5 + Math.pow(Math.floor(speedLevel / 7), 2)) * speedLevel) * (1 + captainSpeedBonus / 100) * baseSpeed;
-  const nextLevelBoatSpeed = (10 + (5 + Math.pow(Math.floor((speedLevel + 1) / 7), 2)) * (speedLevel + 1)) * (1 + captainSpeedBonus / 100) * baseSpeed;
+  const nextBreakpoint = speedLevel + (7 - (speedLevel % 7));
+  const boatSpeed = getFinalBoatSpeed({ speedLevel, captainSpeedBonus, baseSpeed });
+  const nextLevelBoatSpeed = getFinalBoatSpeed({ speedLevel: speedLevel + 1, captainSpeedBonus, baseSpeed });
+  let nextBreakpointValue;
+  if (nextBreakpoint !== speedLevel + 1) {
+    nextBreakpointValue = getFinalBoatSpeed({ speedLevel: nextBreakpoint, captainSpeedBonus, baseSpeed });
+  }
   return {
     raw: boatSpeed,
     value: island ? Math.min(boatSpeed, (island?.distance * 60) / minimumTravelTime) : boatSpeed,
-    nextLevelValue: nextLevelBoatSpeed
+    nextLevelValue: nextLevelBoatSpeed,
+    nextBreakpointValue
   };
+}
+const getFinalBoatLoot = ({
+                            lootLevelMath,
+                            lootLevel,
+                            lootPileSigil,
+                            artifactBonus,
+                            firstCaptainBonus,
+                            secondCaptainBonus,
+                            talentBonus
+                          }) => {
+  return (5 + lootLevelMath * lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
 }
 const getBoatLootValue = (characters, account, artifactsList, boat, captain) => {
   const unendingLootSearch = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'UNENDING_LOOT_SEARCH');
   const talentBonus = 1 + unendingLootSearch / 100;
+  const nextBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)
-  const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2)
+  const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2);
+  const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint) / 8), 2);
   const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex);
   const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
-  const nextLevelValue = (5 + nextLevelMath * (boat?.lootLevel + 1)) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
-  const value = (5 + currentLevelMath * boat?.lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
+  const value = getFinalBoatLoot({
+    lootLevelMath: currentLevelMath,
+    lootLevel: boat?.lootLevel,
+    lootPileSigil,
+    artifactBonus,
+    firstCaptainBonus,
+    secondCaptainBonus,
+    talentBonus
+  });
+  const nextLevelValue = getFinalBoatLoot({
+    lootLevelMath: nextLevelMath,
+    lootLevel: boat?.lootLevel + 1,
+    lootPileSigil,
+    artifactBonus,
+    firstCaptainBonus,
+    secondCaptainBonus,
+    talentBonus
+  });
+  let nextBreakpointValue;
+  if (nextBreakpoint !== boat?.lootLevel + 1) {
+    nextBreakpointValue = getFinalBoatLoot({
+      lootLevelMath: breakpointLevelMath,
+      lootLevel: nextBreakpoint,
+      lootPileSigil,
+      artifactBonus,
+      firstCaptainBonus,
+      secondCaptainBonus,
+      talentBonus
+    });
+  }
   return {
     value: value,
-    nextLevelValue: nextLevelValue
+    nextLevelValue: nextLevelValue,
+    nextBreakpointValue
   }
 }
 
@@ -382,7 +452,8 @@ const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {
   if (captainBonusIndex > 0) return 0;
   if (captainBonusIndex === bonusIndex) {
     return captain?.level * captain?.firstBonusValue;
-  } else if (captainBonusIndex === bonusIndex) {
+  }
+  else if (captainBonusIndex === bonusIndex) {
     return captain?.level * captain?.secondBonusValue;
   }
   return 0;
@@ -392,13 +463,17 @@ const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {
 const getBoatFrame = (totalLevels) => {
   if (totalLevels < 25) {
     return 0;
-  } else if (totalLevels < 50) {
+  }
+  else if (totalLevels < 50) {
     return 1;
-  } else if (totalLevels < 100) {
+  }
+  else if (totalLevels < 100) {
     return 2;
-  } else if (totalLevels < 200) {
+  }
+  else if (totalLevels < 200) {
     return 3;
-  } else {
+  }
+  else {
     return totalLevels < 300 ? 4 : 5
   }
 }
@@ -427,37 +502,46 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
         : highestLevel * artifact?.baseBonus;
       fixedDescription = `${fixedDescription} Total Bonus: ${upgradedForm ? bonus * formMultiplier : bonus}`;
     }
-  } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
+  }
+  else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
     const lootedItems = account?.looty?.rawLootedItems;
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
     const math = artifact?.[multiplierType] * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
-  } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
+  }
+  else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const isGenie = artifact?.name === 'Genie_Lamp';
     const highestSailing = getHighestCharacterSkill(charactersData, 'sailing');
     bonus = isGenie ? highestSailing * artifact?.baseBonus : highestSailing;
     additionalData = `Sailing level: ${highestSailing}`;
-  } else if (artifact?.name === 'Weatherbook') {
+  }
+  else if (artifact?.name === 'Weatherbook') {
     const highestGaming = getHighestCharacterSkill(charactersData, 'gaming');
     additionalData = `Gaming level: ${highestGaming}`;
     bonus = highestGaming * artifact?.baseBonus;
-  } else if (artifact?.name === 'Triagulon') {
+  }
+  else if (artifact?.name === 'Triagulon') {
     const ownedTurkey = account?.cooking?.meals?.[0]?.amount;
     bonus = (artifact?.baseBonus * lavaLog(ownedTurkey));
-  } else if (artifact?.name === 'Opera_Mask') {
+  }
+  else if (artifact?.name === 'Opera_Mask') {
     const sailingGold = lootPile?.[0];
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
-  } else if (artifact?.name === 'Fun_Hippoete') {
+  }
+  else if (artifact?.name === 'Fun_Hippoete') {
     bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate)
-  } else if (artifact?.name === 'The_True_Lantern') {
+  }
+  else if (artifact?.name === 'The_True_Lantern') {
     bonus = artifact?.baseBonus * (lavaLog(account?.atoms?.particles) ?? 0);
-  } else if (artifact?.name === 'Gold_Relic') {
+  }
+  else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];
     const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;
     const test = 1 + ((daysSinceLastSample) * (1 + goldRelicBonus)) / 100;
     additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${notateNumber(test, 'MultiplierInfo').replace('#', '')}x`;
-  } else if (artifact?.name === 'Crystal_Steak') {
+  }
+  else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }) => {
       const mainStat = mainStatMap?.[className];
       return { name, stat: stats?.[mainStat] };
@@ -467,7 +551,8 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
       name,
       bonus: (upgradedForm ? bonus * formMultiplier : bonus) * Math.floor(stat / 100)
     }));
-  } else if (artifact?.name === 'Socrates') {
+  }
+  else if (artifact?.name === 'Socrates') {
     const mainStats = charactersData?.map(({ name, stats }) => {
       return {
         name,
@@ -491,7 +576,8 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
 
   if (acquired === 2 && artifact?.ancientFormDescription === 'The_artifact\'s_main_bonus_is_doubled!') {
     bonus *= 2;
-  } else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
+  }
+  else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
     bonus *= 3;
   }
 

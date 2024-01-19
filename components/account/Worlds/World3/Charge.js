@@ -49,7 +49,6 @@ const Charge = () => {
           const worshipProgress = (worship?.currentCharge / (worship?.maxCharge || worship?.currentCharge)) * 100;
           const skull = tools?.find(({ name }) => name.includes('Skull'));
           const timeLeft = (worship?.maxCharge - worship?.currentCharge) / worship?.chargeRate * 1000 * 3600;
-
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300 }}>
               <CardContent>

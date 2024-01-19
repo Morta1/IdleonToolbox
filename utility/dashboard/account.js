@@ -18,7 +18,8 @@ export const tasksAlert = (account, options) => {
       const ninthTaskNotCompleted = ninthTask?.level === 0;
       if (ninthTaskNotCompleted && options?.tasks?.props?.value?.[worldIndex + 1]) {
         return [...acc, worldIndex];
-      } else {
+      }
+      else {
         return acc;
       }
     }, []);
@@ -101,11 +102,14 @@ export const shopsAlerts = (account, options) => {
   alerts.items = account?.shopStock?.reduce((res, shop, index) => {
     if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
       return [...res, []];
-    } else if (index === 4 && !account?.finishedWorlds?.World2) {
+    }
+    else if (index === 4 && !account?.finishedWorlds?.World2) {
       return [...res, []];
-    } else if (index === 5 && !account?.finishedWorlds?.World3) {
+    }
+    else if (index === 5 && !account?.finishedWorlds?.World3) {
       return [...res, []];
-    } else if (index === 6 && !account?.finishedWorlds?.World4) {
+    }
+    else if (index === 6 && !account?.finishedWorlds?.World4) {
       return [...res, []];
     }
     const filtered = shop?.filter(({ rawName }) => options?.shops?.props?.value?.[rawName])
@@ -177,9 +181,11 @@ export const materialTrackerAlerts = (account, options, characters) => {
       let text, twoPercentBuffer = threshold * 0.02;
       if (applyThresholdFromBelow?.checked && (quantityOwned < threshold)) {
         text = 'below';
-      } else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
+      }
+      else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
         text = 'above';
-      } else if ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer))) {
+      }
+      else if ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer))) {
         text = 'close to';
       }
       if (!text) return res;
@@ -307,7 +313,8 @@ export const sailingAlerts = (account, options) => {
         if (areBonusesEqual || areBonusesSwapped) {
           if (firstBonusIndex === secondBonusIndex) {
             return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-          } else {
+          }
+          else {
             const condition1 = firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
             const condition2 = firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
             return condition1 || condition2;
@@ -318,7 +325,8 @@ export const sailingAlerts = (account, options) => {
           if (isSameValue) {
             if (firstBonusIndex === rCaptain?.firstBonusIndex) {
               return firstBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-            } else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
+            }
+            else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
               return secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
             }
           }
