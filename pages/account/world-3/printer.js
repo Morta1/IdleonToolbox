@@ -4,7 +4,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { growth, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../components/Tooltip';
-import { CardTitleAndValue, TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { getHighestMaxLevelTalentByClass } from '../../../parsers/talents';

@@ -29,7 +29,7 @@ import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '../../../parsers/printer';
 import { calcTotalCritters } from '../../../parsers/traps';
 import Box from '@mui/material/Box';
-import { CardTitleAndValue, TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']

@@ -9,7 +9,7 @@ import { calcHappyHours } from '../../../parsers/dungeons';
 import { NextSeo } from 'next-seo';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../../components/Tooltip';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import Upgrades from '../../../components/account/Misc/Dungeons/Upgrades';
 import Tabber from '../../../components/common/Tabber';
 import RngItems from '../../../components/account/Misc/Dungeons/RngItems';

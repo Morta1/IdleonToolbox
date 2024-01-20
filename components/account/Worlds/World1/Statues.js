@@ -1,7 +1,7 @@
 import { capitalize, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, pascalCase } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
-import { IconWithText, TitleAndValue } from 'components/common/styles';
+import { IconWithText, TitleAndValue } from '@components/common/styles';
 import ProgressBar from 'components/common/ProgressBar';
 import Box from '@mui/material/Box';
 import { getStatueBonus } from '../../../../parsers/statues';

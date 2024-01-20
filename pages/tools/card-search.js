@@ -5,7 +5,7 @@ import { cards, cardSets, stats } from 'data/website-data';
 import ClearIcon from '@mui/icons-material/Clear';
 import styled from '@emotion/styled';
 import { AppContext } from 'components/common/context/AppProvider';
-import { CardAndBorder } from 'components/common/styles';
+import { CardAndBorder } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import { Adsense } from '@ctrl/react-adsense';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
-import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
-import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, growth, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
 import { calcCardBonus } from 'parsers/cards';
@@ -121,7 +121,17 @@ export const MissingData = ({ name }) => {
   return <Typography variant={'h3'}>Your account is missing data for {name}</Typography>
 }
 
-export const CardTitleAndValue = ({ variant, raised, cardSx, imgStyle, title, value, children, icon, tooltipTitle }) => {
+export const CardTitleAndValue = ({
+                                    variant,
+                                    raised,
+                                    cardSx,
+                                    imgStyle,
+                                    title,
+                                    value,
+                                    children,
+                                    icon,
+                                    tooltipTitle
+                                  }) => {
   return <Tooltip title={tooltipTitle || ''}>
     <Card variant={variant} raised={raised} sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
       <CardContent>
@@ -135,6 +145,19 @@ export const CardTitleAndValue = ({ variant, raised, cardSx, imgStyle, title, va
   </Tooltip>
 }
 
+export const Breakdown = ({ breakdown, titleStyle = {}, notation = 'Big' }) => {
+  return <>
+    {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
+                                                                           key={`${name}-${index}`}>{title}</Typography>
+      : !name ? <Divider sx={{ my: 1, bgcolor: 'black' }} key={`${name}-${index}`}/> : <TitleAndValue
+        key={`${name}-${index}`}
+        titleStyle={{ width: 120, ...titleStyle }}
+        title={name}
+        value={!isNaN(value)
+          ? notateNumber(value, notation)
+          : value}/>)}
+  </>
+}
 
 
 export const CenteredStack = ({ direction = 'row', children }) => {

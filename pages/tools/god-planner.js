@@ -6,7 +6,7 @@ import { getBubbleBonus } from '../../parsers/alchemy';
 import { NextSeo } from 'next-seo';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
-import { MissingData } from '../../components/common/styles';
+import { MissingData } from '@components/common/styles';
 import Tooltip from '../../components/Tooltip';
 import { gods } from '../../data/website-data';
 

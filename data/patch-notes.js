@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.43',
+    gameVer: '1.92',
+    date: '20/01/2024',
+    features: [
+      'Added distance and minimum travel time distance (+ breakdown) to the boats page',
+      'Added superbit costs to the superbits page'
+    ],
+    fixes: [
+      'Fixed a bug with food lust not updating data is updated on meals page'
+    ]
+  },
+  {
     ver: '3.2.42',
     gameVer: '1.92',
     date: '19/01/2024',

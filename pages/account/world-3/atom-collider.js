@@ -6,7 +6,7 @@ import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '../../../parsers/printer';
 import Timer from '../../../components/common/Timer';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const MAX_ATOMS = 11;
 

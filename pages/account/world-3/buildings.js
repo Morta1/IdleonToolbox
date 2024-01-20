@@ -9,7 +9,7 @@ import Timer from '../../../components/common/Timer';
 import { getAtomBonus } from '../../../parsers/atomCollider';
 import Tooltip from '../../../components/Tooltip';
 import Box from '@mui/material/Box';
-import { TitleAndValue } from '../../../components/common/styles';
+import { TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 
 const Buildings = () => {

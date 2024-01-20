@@ -9,8 +9,8 @@ import Timer from 'components/common/Timer';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
-import { isArtifactAcquired } from '../../../../parsers/sailing';
-import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
+import { isArtifactAcquired } from '@parsers/sailing';
+import { getJewelBonus, getLabBonus } from '@parsers/lab';
 
 const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
@@ -82,7 +82,10 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     });
   };
   const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed, localEquinoxUpgrades]);
-
+  useEffect(() => {
+    const tempFoodLust = equinoxUpgrades.find(({ name }) => name === 'Food_Lust')?.bonus;
+    setFoodLust(tempFoodLust);
+  }, [characters])
   useEffect(() => {
     const temp = equinoxUpgrades?.map((upgrade) => upgrade?.name === 'Food_Lust'
       ? { ...upgrade, bonus: parseInt(foodLust) }
@@ -117,7 +120,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
     }
     if (filters.includes('amethystRhinestone') && realAmethystRhinestone === 0) {
       setMealSpeed(totalMealSpeed * amethystRhinestone);
-    } else {
+    }
+    else {
       setMealSpeed(totalMealSpeed);
     }
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
@@ -131,7 +135,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
       if (level !== 0) {
         if (a.level >= level) {
           return 1;
-        } else if (b.level >= level) {
+        }
+        else if (b.level >= level) {
           return -1;
         }
       }
@@ -274,7 +279,8 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip
-                    title={<MealTooltip achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone} equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
+                    title={<MealTooltip achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone}
+                                        equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
                       {level > 0 ?

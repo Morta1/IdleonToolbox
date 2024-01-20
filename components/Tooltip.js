@@ -5,7 +5,9 @@ const HtmlTooltip = styled(({ className, children, followCursor = true, dark, ma
   <Tooltip followCursor={followCursor} enterTouchDelay={200} {...props}
            dark={dark}
            classes={{ popper: className }}>{children}</Tooltip>
-))(({ theme, dark, maxWidth }) => ({
+), {
+  shouldForwardProp: (prop) => prop !== 'dark' && prop !== 'maxWidth'
+})(({ theme, dark, maxWidth }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: dark ? '#222831' : '#d5d5dc',
     color: dark ? 'white' : 'black',

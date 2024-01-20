@@ -2,7 +2,7 @@ import { Typography } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import Kitchens from 'components/account/Worlds/World4/Kitchens';
-import Meals from 'components/account/Worlds/World4/Meals';
+import Meals from '@components/account/Worlds/World4/Meals';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 

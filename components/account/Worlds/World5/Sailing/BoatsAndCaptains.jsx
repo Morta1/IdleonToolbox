@@ -1,26 +1,37 @@
 import React, { useMemo } from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import Timer from '../../../../common/Timer';
 import Captain from './Captain';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
+import { Breakdown } from '@components/common/styles';
 
-const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCaptains, lastUpdated }) => {
+const BoatsAndCaptains = ({
+                            boats,
+                            captains,
+                            lootPile,
+                            captainsOnBoats,
+                            shopCaptains,
+                            minimumTravelTime,
+                            minimumTravelTimeBreakdown,
+                            lastUpdated
+                          }) => {
   const getShipsOverview = () => {
     return boats?.reduce((res, boat) => {
       const { island, islandIndex } = boat;
       return {
         ...res,
-        [island?.name]: {
+        [island?.name || 'Not assigned']: {
           islandIndex,
           boats: [...(res?.[island?.name]?.boats || []), boat]
         }
       };
     }, {})
   };
-  const shipOverview = useMemo(() => getShipsOverview(), [boats])
+  const shipOverview = useMemo(() => getShipsOverview(), [boats]);
+
   return <>
     <Typography my={3} variant={'h3'}>Overview</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={3}>
@@ -29,8 +40,8 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
           <CardContent>
             <Stack key={islandName}>
               <Stack direction={'row'} gap={1}>
-                <img style={{ width: 25, objectFit: 'contain' }}
-                     src={`${prefix}data/SailT${(islandIndex * 2) + 1}.png`} alt=""/>
+                {islandName !== 'Not assigned' && <img style={{ width: 25, objectFit: 'contain' }}
+                                                       src={`${prefix}data/SailT${(islandIndex * 2) + 1}.png`} alt=""/>}
                 <Typography>{cleanUnderscore(islandName)}</Typography>
               </Stack>
               <Typography
@@ -71,10 +82,25 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
             <Stack>
               <Typography>Lv. {level}</Typography>
               <Typography variant={'caption'}>Captain {captainMappedIndex}</Typography>
-              <Typography variant={'caption'}>Island - {cleanUnderscore(island?.name)}</Typography>
               <Timer variant={'body1'}
                      type={'countdown'} lastUpdated={lastUpdated}
                      date={new Date().getTime() + timeLeft}/>
+            </Stack>
+          </Stack>
+          <Divider sx={{ my: 1 }}/>
+          <Stack>
+            <Typography variant={'caption'}>Island - {cleanUnderscore(island?.name)}</Typography>
+            <Typography variant={'caption'}>Distance - {island?.distance > 0
+              ? notateNumber(island?.distance)
+              : 0}</Typography>
+            <Stack direction={'row'} gap={1}>
+              <Typography variant={'caption'}>Min Travel Time Distance
+                - {cleanUnderscore(notateNumber(speed.raw * minimumTravelTime / 60))}</Typography>
+              <Tooltip
+                title={<MinimumTravelTime minimumTravelTime={minimumTravelTime}
+                                          breakdown={minimumTravelTimeBreakdown}/>}>
+                <InfoIcon fontSize={'12px'}/>
+              </Tooltip>
             </Stack>
           </Stack>
           <Divider sx={{ my: 1 }}/>
@@ -107,6 +133,16 @@ const BoatsAndCaptains = ({ boats, captains, lootPile, captainsOnBoats, shopCapt
     </Stack>
   </>
 };
+
+const MinimumTravelTime = ({ minimumTravelTime, breakdown }) => {
+  return <>
+    <Typography variant={'subtitle2'}>This is how far the ship travels in {minimumTravelTime} minutes, you want to
+      target islands that have
+      less distance than this.</Typography>
+    <Divider sx={{ my: 1, bgcolor: 'black' }}/>
+    <Breakdown titleStyle={{ fontSize: 16, width: 160 }} breakdown={breakdown}/>
+  </>
+}
 
 const Info = ({ lootLevel, speedLevel, resources }) => {
   const speedBreakpoint = speedLevel + (7 - (speedLevel % 7));

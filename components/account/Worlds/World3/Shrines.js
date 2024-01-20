@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, kFormatter, numberWithCommas } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
-import { IconWithText } from 'components/common/styles';
+import { IconWithText } from '@components/common/styles';
 import ProgressBar from 'components/common/ProgressBar';
 import { mapNames } from '../../../../data/website-data';
 import Timer from '../../../common/Timer';

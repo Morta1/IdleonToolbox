@@ -189,9 +189,11 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
   const highestLevelSiegeBreaker = getHighestLevelOfClass(charactersLevels, 'Siege_Breaker') ?? 0;
+  const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'THE_FAMILY_GUY') ?? 0;
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'FASTER_MINIMUM_BOAT_TRAVEL_TIME', highestLevelSiegeBreaker);
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Lower_Minimum_Travel_Time_for_Sailing');
-  const minimumTravelTime = Math.round(120 / (1 + (familyBonus + shinyBonus) / 100))
+  const amplifiedFamilyBonus = familyBonus * (1 + theFamilyGuy / 100);
+  const minimumTravelTime = Math.round(120 / (1 + (amplifiedFamilyBonus + shinyBonus) / 100));
   const baseSpeed = getBaseSpeed(account, characters, artifactsList);
   let shopCaptains = captainsRaw?.slice(30, 34);
   shopCaptains = shopCaptains.map((captain, index) => getCaptain(captain, index, true))
@@ -207,7 +209,14 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
     captains,
     boats,
     shopCaptains,
-    captainsOnBoats
+    captainsOnBoats,
+    minimumTravelTime,
+    minimumTravelTimeBreakdown: [
+      { name: 'Base', value: 120 },
+      { name: 'Family Bonus', value: familyBonus },
+      { name: 'The Family Guy', value: theFamilyGuy },
+      { name: 'Shiny Bonus', value: shinyBonus }
+    ]
   }
 }
 

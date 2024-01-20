@@ -13,7 +13,8 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLe
   let level = useMaxLevel ? talent?.maxLevel : talent?.level;
   if (useMaxAndAddedLevels) {
     level = talent?.maxLevel + addedLevels;
-  } else {
+  }
+  else {
     level = addedLevels ? level - addedLevels : level;
   }
   if (yBonus) {
@@ -151,10 +152,12 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   let addedLevels = 0;
   if (isCompanionBonusActive(account, 0)) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
-  } else {
+  }
+  else {
     if (linkedDeity === 1) {
       addedLevels += Math.ceil(deityMinorBonus);
-    } else if (secondLinkedDeity === 1) {
+    }
+    else if (secondLinkedDeity === 1) {
       addedLevels += Math.ceil(secondDeityMinorBonus);
     }
   }
@@ -267,7 +270,8 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       let base
       if (stats?.luck < 1e3) {
         base = (Math.pow(stats?.luck + 1, 0.37) - 1) / 30;
-      } else {
+      }
+      else {
         base = ((stats?.luck - 1e3) / (stats?.luck + 2500)) * 0.8 + 0.3963
       }
       const talentBonus = getTalentBonus(character?.talents, 3, 'LUCKY_CHARMS');
@@ -288,7 +292,8 @@ export const getBubonicGreenTube = (character, characters, account) => {
   const affected = bubosCords?.some(({ x }) => x > charCords?.x);
   if (affected) {
     return getHighestTalentByClass(characters, 3, 'Bubonic_Conjuror', 'GREEN_TUBE')
-  } else {
+  }
+  else {
     return 0;
   }
 }

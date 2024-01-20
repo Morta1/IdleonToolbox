@@ -7,7 +7,7 @@ import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers'
 import { NextSeo } from 'next-seo';
 import { yellow } from '@mui/material/colors';
 import Box from '@mui/material/Box';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Equinox = () => {
   const { state } = useContext(AppContext);

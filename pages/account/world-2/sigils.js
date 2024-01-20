@@ -3,7 +3,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { CardTitleAndValue, PlayersList, TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, PlayersList, TitleAndValue } from '@components/common/styles';
 import { isArtifactAcquired } from '../../../parsers/sailing';
 import { NextSeo } from 'next-seo';
 import { getAchievementStatus } from '../../../parsers/achievements';

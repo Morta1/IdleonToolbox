@@ -5,7 +5,7 @@ import Artifacts from 'components/account/Worlds/World5/Sailing/Artifacts';
 import LootPile from '../../../components/account/Worlds/World5/Sailing/LootPile';
 import { prefix } from '@utility/helpers';
 import Chests from '../../../components/account/Worlds/World5/Sailing/Chests';
-import BoatsAndCaptains from '../../../components/account/Worlds/World5/Sailing/BoatsAndCaptains';
+import BoatsAndCaptains from '@components/account/Worlds/World5/Sailing/BoatsAndCaptains';
 import { CardTitleAndValue, MissingData } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import Trades from '../../../components/account/Worlds/World5/Sailing/Trades';
@@ -22,7 +22,9 @@ const Sailing = () => {
     chests,
     captainsOnBoats,
     trades,
-    shopCaptains
+    shopCaptains,
+    minimumTravelTime,
+    minimumTravelTimeBreakdown
   } = state?.account?.sailing || {};
   if (!state?.account?.sailing) return <MissingData name={'sailing'}/>;
 
@@ -58,6 +60,8 @@ const Sailing = () => {
       <Trades trades={trades} lastUpdated={state?.lastUpdated}/>
       <BoatsAndCaptains boats={boats} captains={captains}
                         lootPile={lootPile}
+                        minimumTravelTime={minimumTravelTime}
+                        minimumTravelTimeBreakdown={minimumTravelTimeBreakdown}
                         captainsOnBoats={captainsOnBoats} shopCaptains={shopCaptains}
                         lastUpdated={state?.lastUpdated}/>
       <LootPile lootPile={lootPile}/>

@@ -5,7 +5,7 @@ import { fillArrayToLength, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
-import { CardTitleAndValue, TitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import { calcTotalCritters } from '../../../parsers/traps';
 

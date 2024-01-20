@@ -6,7 +6,7 @@ import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { filteredLootyItems } from '../../../parsers/parseMaps';
 import Image from 'next/image';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Slab = () => {
   const { state } = useContext(AppContext);

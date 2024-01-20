@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { vialCostsArray } from '../../../parsers/alchemy';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 
 const Vials = () => {
