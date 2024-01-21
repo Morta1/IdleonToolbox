@@ -10,6 +10,7 @@ const Talents = ({ talents, starTalents }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
+  const spentTalentPoints = activeTalents?.orderedTalents?.reduce((res, { level = 0 }) => res + level, 0);
 
   useEffect(() => {
     const tempTalents = activeTab === 4 ? handleStarTalents(starTalents, specialsTab) : talents?.[activeTab];
@@ -65,6 +66,7 @@ const Talents = ({ talents, starTalents }) => {
            aria-label={`star-sign-tab`}
            icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
+    <Typography mt={2} component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <div className="talents-wrapper">
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
         const { talentId, level, maxLevel, name } = talentDetails;
@@ -157,7 +159,7 @@ const StyledTalents = styled.div`
 
   .talents-wrapper {
     position: relative;
-    margin-top: 25px;
+    margin-top: 18px;
     display: grid;
     min-height: 245px;
     grid-template-columns: repeat(5, 50px);

@@ -95,7 +95,7 @@ const AppProvider = ({ children }) => {
           throw new Error('Failed to load data from profile api');
         }
         let parsedData;
-        const { parseData } = await import('../../../parsers');
+        const { parseData } = await import('@parsers/index');
         if (!Object.keys(content).includes('serverVars')) {
           parsedData = parseData(content);
         } else {
@@ -132,7 +132,7 @@ const AppProvider = ({ children }) => {
         await handleProfile()
       } else if (router?.query?.demo) {
         const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
-        const { parseData } = await import('../../../parsers');
+        const { parseData } = await import('@parsers/index');
         let parsedData = parseData(data, charNames, companion, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
         dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
@@ -278,7 +278,7 @@ const AppProvider = ({ children }) => {
     })
     const lastUpdated = new Date().getTime();
     localStorage.setItem('rawJson', JSON.stringify({ data, charNames, companion, guildData, serverVars, lastUpdated }));
-    const { parseData } = await import('../../../parsers');
+    const { parseData } = await import('@parsers/index');
     const parsedData = parseData(data, charNames, companion, guildData, serverVars);
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({

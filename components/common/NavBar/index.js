@@ -26,7 +26,7 @@ const NavBar = ({ children }) => {
     try {
       const content = JSON.parse(await navigator.clipboard.readText());
       const { data, charNames, companion, guildData, serverVars } = content;
-      const { parseData } = await import('../../../parsers');
+      const { parseData } = await import('@parsers/index');
       const parsedData = parseData(data, charNames, companion, guildData, serverVars);
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));

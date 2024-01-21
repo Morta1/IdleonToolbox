@@ -2,6 +2,7 @@ import { Autocomplete, Button, Chip, createFilterOptions, Stack, TextField, Typo
 import { notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useMemo, useState } from 'react';
 import { monsterDrops } from '../../data/website-data';
+import { cleanUnderscore } from '../../utility/helpers';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -9,7 +10,7 @@ const filterOptions = createFilterOptions({
 });
 const GuaranteedDropCalculator = () => {
   const [value, setValue] = useState(null);
-  const items = useMemo(() => Object.values(monsterDrops).flat().filter((monster) => monster?.Type === 'MONSTER_DROP' && monster?.chance > 0), []);
+  const items = useMemo(() => Object.values(monsterDrops).flat().filter((monster) => monster?.rawName !== 'COIN' && !monster?.rawName?.includes('DungCredits') && monster?.chance > 0), []);
   const [values, setValues] = useState({
     dropRate: '',
     killsWithMultikill: '',
@@ -23,7 +24,6 @@ const GuaranteedDropCalculator = () => {
     setErrors(prev => ({ ...prev, [name]: false }))
     setValues(prev => ({ ...prev, [name]: numberWithCommas(temp) }))
   }
-
   const handleCalc = () => {
     const tempErrors = {};
     if (!value) {
@@ -88,17 +88,20 @@ const GuaranteedDropCalculator = () => {
           }}
           renderOption={(props, option) => {
             if (!option) return null;
-            return <Stack {...props} key={props.id} gap={2} direction={'row'}>
-              <img
-                key={`img-${props.id}`}
-                width={24}
-                height={24}
-                src={`${prefix}data/${option?.rawName}.png`}
-                alt=""
-              />
-              <Typography
-                key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')} (1
-                / {Math.ceil(1 / option?.chance)})</Typography>
+            return <Stack {...props} key={props.id} sx={{ alignItems: 'flex-start !important' }}>
+              <Stack direction={'row'} gap={2}>
+                <img
+                  key={`img-${props.id}`}
+                  width={24}
+                  height={24}
+                  src={`${prefix}data/${option?.rawName}.png`}
+                  alt=""
+                />
+                <Typography
+                  key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')} (1
+                  / {Math.ceil(1 / option?.chance)})</Typography>
+              </Stack>
+              <Typography variant={'caption'}>{cleanUnderscore(option?.monsterDisplayName)}</Typography>
             </Stack>
           }}
           renderInput={(params) => (

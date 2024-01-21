@@ -64,22 +64,11 @@ import { getIslands } from './world-2/islands';
 import { getEquinox } from './equinox';
 import { getTotems } from './worship';
 
-export const parseData = (idleonData, charNames, companion, guildData, serverVars) => {
+export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
 
   try {
     console.info('%cStart Parsing', 'color:orange');
-    if (idleonData?.PlayerDATABASE) {
-      charNames = Object.keys(idleonData?.PlayerDATABASE);
-      charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
-        (charRes, charData, index) => ({
-          ...charRes,
-          ...Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {})
-        }),
-        {}
-      );
-      idleonData = { ...idleonData, ...charactersData };
-    }
     const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
@@ -98,10 +87,10 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
   }
 };
 
-const serializeData = (idleonData, charsNames, companion, guildData, serverVars) => {
-  let accountData = {},
-    charactersData;
-  const serializedCharactersData = getCharacters(idleonData, charsNames);
+const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
+  const accountData: Account = {};
+  let charactersData: Character[] = [];
+  const serializedCharactersData = getCharacters(idleonData, charNames);
   accountData.companions = getCompanions(companion);
   accountData.bundles = getBundles(idleonData);
   accountData.serverVars = serverVars;
@@ -117,7 +106,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.cards = getCards(idleonData, accountData);
   accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.guild = getGuild(idleonData, guildData);
-  accountData.currencies = getCurrencies(idleonData, accountData);
+  accountData.currencies = getCurrencies(idleonData);
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
@@ -126,18 +115,18 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.tasksDescriptions = tasksDescriptions; //
   accountData.meritsDescriptions = meritsDescriptions; //
   accountData.breeding = getBreeding(idleonData, accountData);
-  accountData.cooking = getCooking(idleonData, accountData, serializedCharactersData);
+  accountData.cooking = getCooking(idleonData, accountData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
   accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
 
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
-  accountData.towers = getTowers(idleonData, accountData);
+  accountData.towers = getTowers(idleonData);
   accountData.shrines = getShrines(idleonData, accountData);
   accountData.statues = getStatues(idleonData, serializedCharactersData);
   accountData.achievements = getAchievements(idleonData);
 
-  accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char) => ({
+  accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char: Character) => ({
     ...char,
     isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4 || isLabEnabledBySorcererRaw(char, 4)
   }))
@@ -151,7 +140,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   const myFirstChemistrySet = getLabBonus(accountData.lab.labBonuses, 10); // vial multi
   accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet);
   if (isRiftBonusUnlocked(accountData.rift, 'Vial_Mastery')) {
-    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }) => level === 13);
+    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }: any) => level === 13);
     const riftVialMulti = 1 + (2 * maxedVials?.length) / 100;
     accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet * riftVialMulti)
   }
@@ -161,7 +150,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
 
   accountData.cooking.meals = applyMealsMulti(accountData.cooking.meals, blackDiamondRhinestone);
 
-  const charactersLevels = serializedCharactersData?.map((char) => {
+  const charactersLevels = serializedCharactersData?.map((char: Character) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
     return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
@@ -169,7 +158,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.constellations = getConstellations(idleonData);
   accountData.charactersLevels = charactersLevels;
 
-  charactersData = serializedCharactersData.map((char) => {
+  charactersData = serializedCharactersData.map((char: Character) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
 
@@ -193,7 +182,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.atoms = getAtoms(idleonData, accountData);
   accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels);
 
-  const leaderboard = calculateLeaderboard(skills);
+  const leaderboard: any = calculateLeaderboard(skills);
   charactersData = charactersData.map((character) => ({ ...character, skillsInfo: leaderboard[character?.name] }));
 
   accountData.highscores = getHighscores(idleonData, accountData);
@@ -202,7 +191,7 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.forge = getForge(idleonData, accountData);
   accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
-  accountData.traps = getTraps(serializedCharactersData, charactersData, accountData);
+  accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
   accountData.islands = getIslands(accountData);
   accountData.deathNote = getDeathNote(charactersData, accountData);
@@ -228,10 +217,15 @@ const serializeData = (idleonData, charsNames, companion, guildData, serverVars)
   accountData.divinity.deities = applyGodCost(accountData);
   charactersData = charactersData?.map((character) => {
     const { carryCapBags } = character;
-    character.carryCapBags = carryCapBags?.map((carryBag) => {
+    character.carryCapBags = carryCapBags?.map((carryBag: any) => {
       const typeGen = getTypeGen(carryBag?.Class);
-      const capacity = getItemCapacity(typeGen, character, accountData);
-      return { ...carryBag, capacityPerSlot: capacity?.value, breakdown: capacity?.breakdown,  maxCapacity: capacity * character?.inventorySlots }
+      const capacity: ValueAndBreakdown = getItemCapacity(typeGen, character, accountData);
+      return {
+        ...carryBag,
+        capacityPerSlot: capacity?.value,
+        breakdown: capacity?.breakdown,
+        maxCapacity: capacity?.value * character?.inventorySlots
+      }
     })
     character.constructionSpeed = getPlayerConstructionSpeed(character, accountData);
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
