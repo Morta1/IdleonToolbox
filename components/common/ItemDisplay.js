@@ -90,10 +90,10 @@ const ItemDisplay = ({
         {mergedDesc.length > 0 ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/> : null}
         {Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
         {Weapon_Power ? <TitleAndValue title={getPowerType(UQ1txt || rawName)} value={Weapon_Power}/> : null}
-        {STR ? <TitleAndValue title={'STR'} value={STR}/> : null}
-        {AGI ? <TitleAndValue title={'AGI'} value={AGI}/> : null}
-        {WIS ? <TitleAndValue title={'WIS'} value={WIS}/> : null}
-        {LUK ? <TitleAndValue title={'LUK'} value={LUK}/> : null}
+        {STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'} value={STR}/> : null}
+        {AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'} value={AGI}/> : null}
+        {WIS ? <TitleAndValue titleStyle={{ color: 'secondary.dark' }} title={'WIS'} value={WIS}/> : null}
+        {LUK ? <TitleAndValue titleStyle={{ color: 'warning.dark' }} title={'LUK'} value={LUK}/> : null}
         {Defence ? <TitleAndValue title={'Defence'} value={Defence}/> : null}
         {Reach ? <TitleAndValue title={'Reach'} value={Reach}/> : null}
         {UQ1txt && UQ1val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ1val}${UQ1txt}`)}/> : null}

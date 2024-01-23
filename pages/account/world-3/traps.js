@@ -7,12 +7,12 @@ import Timer from 'components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
-import { calcTotalCritters } from '../../../parsers/traps';
+import { calcCrittersBonus, calcTotalCritters } from '../../../parsers/traps';
 
 const Traps = () => {
   const { state } = useContext(AppContext);
   const { traps } = state?.account || {};
-  const totals = useMemo(() => calcTotalCritters(traps), [traps]);
+  const totals = useMemo(() => calcTotalCritters(state), [state]);
 
   return <>
     <NextSeo
@@ -36,13 +36,25 @@ const Traps = () => {
           ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap
           : trapSlots.length;
         maxTraps = Math.min(maxTraps, 8);
+        const crittersPercentBonus = calcCrittersBonus({
+          currentCharacterIndex: index,
+          account: state?.account,
+          characters: state?.characters,
+          isExp: false
+        });
+        const expPercentBonus = calcCrittersBonus({
+          currentCharacterIndex: index,
+          account: state?.account,
+          characters: state?.characters,
+          isExp: false
+        });
         const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
         const charTotals = trapSlots.reduce((total, { crittersQuantity, trapExp, rawName }) => {
           return {
             ...total,
             [rawName]: {
-              critters: (total?.[rawName]?.critters ?? 0) + crittersQuantity,
-              exp: (total?.[rawName]?.exp ?? 0) + trapExp
+              critters: (total?.[rawName]?.critters ?? 0) + (crittersQuantity * crittersPercentBonus),
+              exp: (total?.[rawName]?.exp ?? 0) + (trapExp * expPercentBonus)
             }
           }
         }, {});
@@ -77,8 +89,8 @@ const Traps = () => {
                           {slot?.name ? <>
                               <Stack direction={'row'}>
                                 <Tooltip
-                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp}
-                                                      crittersQuantity={slot?.crittersQuantity}/>}>
+                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp * expPercentBonus}
+                                                      crittersQuantity={slot?.crittersQuantity * crittersPercentBonus}/>}>
                                   <FloatingItemIcon src={`${prefix}data/TrapBoxSet${slot?.trapType + 1}.png`} alt=""/>
                                 </Tooltip>
                                 <ItemIcon src={`${prefix}data/${slot?.rawName}.png`} alt=""/>
@@ -126,7 +138,7 @@ const TrapTooltip = ({ quantity, exp, trapType, crittersQuantity, trapExp }) => 
     <TitleAndValue title={'Quantity'} value={`x${quantity}`}/>
     <TitleAndValue title={trapType === 0 ? 'Exp' : 'Shiny'} value={`x${exp}`}/>
     <TitleAndValue title={'Trap exp'} value={notateNumber(trapExp)}/>
-    <TitleAndValue title={'Critters'} value={crittersQuantity}/>
+    <TitleAndValue title={'Critters'} value={notateNumber(crittersQuantity)}/>
   </>
 }
 

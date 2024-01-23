@@ -73,7 +73,7 @@ const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, smithin
       </Typography>
       <Typography variant="caption">Points From Mats: {pointsFromMats}</Typography>
       <Typography variant="caption">Points From Coins: {pointsFromCoins}</Typography>
-      <Typography variant="caption">Points Smithing: {smithingLevel}</Typography>
+      <Typography variant="caption">Points From Smithing: {smithingLevel}</Typography>
     </Stack>
   );
 };

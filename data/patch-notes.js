@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.44',
+    gameVer: '1.92',
+    date: '23/01/2024',
+    features: [
+      'Added the old stamps page',
+      'Added missing calculation for traps critters and exp',
+      'Added the ability to edit materials on the material tracker page',
+      'Added the note from material tracker to the dashboard alert regarding material tracker items'
+    ],
+    fixes: [
+      'Grammar'
+    ]
+  },
+  {
     ver: '3.2.43',
     gameVer: '1.92',
     date: '20/01/2024',

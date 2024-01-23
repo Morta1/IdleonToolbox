@@ -95,7 +95,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
-            <Stat title={'Mining Eff'} value={notateNumber(playerInfo?.miningEff)}/>
+            <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
             <Stat title={'Cash Multiplier'} value={`${kFormatter(cashMulti, 2)}%`}
                   breakdown={breakdown} breakdownNotation={'Smaller'}/>
@@ -104,7 +104,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Respawn Time'}
                   value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
                   breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
-            <Stat title={'Afk Gains'}
+            <Stat title={'AFK Gains'}
                   value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
                   breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'Non Consume Chance'}

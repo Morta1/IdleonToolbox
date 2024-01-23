@@ -11,8 +11,12 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { calcStampLevels } from '@parsers/stamps';
 import Grid from '@mui/material/Unstable_Grid2';
 import { grey } from '@mui/material/colors';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import Link from '@mui/material/Link';
+import { useRouter } from 'next/router';
 
 const Stamps = () => {
+  const router = useRouter();
   const { state } = useContext(AppContext);
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
     ? state?.account?.accountOptions?.[154]
@@ -35,7 +39,7 @@ const Stamps = () => {
       return ''
     }
     return materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage
-      ? 'success.light'
+      ? 'info.light'
       : '';
   }
 
@@ -46,23 +50,33 @@ const Stamps = () => {
         description="Keep track of your stamps levels and requirements"
       />
       <Typography textAlign={'center'} variant={'h4'} mb={3}>Stamps</Typography>
-      <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={1}>* Green border means you have enough
+      <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={1}>* Blue border means you have enough
         material, money and space to
         craft</Typography>
       <Stack direction={'row'} justifyContent={'center'} gap={1}>
-        <Tooltip title={'Missing Money'}><Avatar sx={{ bgcolor: 'warning.light', width: 24, height: 24 }} alt={'m'}
-                                                 src={''}>&nbsp;</Avatar></Tooltip>
-        <Tooltip title={'Missing Materials'}><Avatar sx={{ bgcolor: 'error.light', width: 24, height: 24 }} alt={'m'}
-                                                     src={''}>&nbsp;</Avatar></Tooltip>
-        <Tooltip title={'Not Enough Player Storage'}><Avatar sx={{ bgcolor: '#e3e310', width: 24, height: 24 }}
-                                                             alt={'m'}
-                                                             src={''}>&nbsp;</Avatar></Tooltip>
-        <Tooltip title={'Equipments'}><Avatar sx={{ bgcolor: 'grey', width: 24, height: 24 }}
-                                              alt={'m'}
-                                              src={''}>&nbsp;</Avatar></Tooltip>
-        <Tooltip title={'Upgradeable'}><Avatar sx={{ bgcolor: 'success.light', width: 24, height: 24 }}
-                                               alt={'m'}
-                                               src={''}>&nbsp;</Avatar></Tooltip>
+        <Tooltip title={'Missing Money'}>
+          <Avatar sx={{ bgcolor: 'warning.light', width: 24, height: 24 }} alt={'m'}
+                  src={''}>&nbsp;</Avatar>
+        </Tooltip>
+        <Tooltip title={'Missing Materials'}>
+          <Avatar sx={{ bgcolor: 'error.light', width: 24, height: 24 }} alt={'m'}
+                  src={''}>&nbsp;</Avatar>
+        </Tooltip>
+        <Tooltip title={'Not Enough Player Storage'}>
+          <Avatar sx={{ bgcolor: '#e3e310', width: 24, height: 24 }}
+                  alt={'m'}
+                  src={''}>&nbsp;</Avatar>
+        </Tooltip>
+        <Tooltip title={'Equipments'}>
+          <Avatar sx={{ bgcolor: 'grey', width: 24, height: 24 }}
+                  alt={'m'}
+                  src={''}>&nbsp;</Avatar>
+        </Tooltip>
+        <Tooltip title={'Upgradeable'}>
+          <Avatar sx={{ bgcolor: 'info.light', width: 24, height: 24 }}
+                  alt={'m'}
+                  src={''}>&nbsp;</Avatar>
+        </Tooltip>
       </Stack>
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Gilded stamp'}>
@@ -81,12 +95,22 @@ const Stamps = () => {
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Options'}>
-          <FormControlLabel
-            control={<Checkbox name={'mini'}
-                               checked={subtractGreenStacks}
-                               onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
-                               size={'small'}/>}
-            label={'Subtract Green Stacks'}/>
+          <Stack>
+            <FormControlLabel
+              control={<Checkbox name={'mini'}
+                                 checked={subtractGreenStacks}
+                                 onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
+                                 size={'small'}/>}
+              label={'Subtract Green Stacks'}/>
+            <Link underline={'hover'}
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => router.push({ pathname: 'old-stamps' })}>
+              <Stack direction={'row'} alignItems={'center'} gap={1}>
+                <ArrowRightAltIcon/>
+                <Typography>Old Stamps Page</Typography>
+              </Stack>
+            </Link>
+          </Stack>
         </CardTitleAndValue>
       </Stack>
       <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
@@ -167,7 +191,7 @@ const StampInfo = ({
   const materialColor = hasMaterials ? 'white' : '#e57373';
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
-    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
+    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.light' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
     {level > 0 ? <>
       <CostSection isMaterialCost={false}

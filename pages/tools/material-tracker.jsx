@@ -20,6 +20,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -83,6 +84,17 @@ const MaterialTracker = () => {
     localStorage.setItem('material-tracker', JSON.stringify(updated));
   }
 
+  const handleEdit = (rawName) => {
+    const { threshold, note } = trackedItems?.[rawName];
+    const itemFromItems = items?.find(({ rawName: name }) => name === rawName);
+    const alreadyExist = value?.find(({ rawName: name }) => name === rawName);
+    if (alreadyExist) return;
+    setValue([...value, itemFromItems]);
+    const temp = threshold.toString().replace(/,/g, '');
+    setThreshold(numberWithCommas(temp))
+    setNote(note);
+  }
+
   return (
     <>
       <NextSeo
@@ -137,7 +149,8 @@ const MaterialTracker = () => {
           )}
         />
       </Stack>
-      <Stack justifyContent={isSm ? 'space-between' : 'flex-start'} direction={'row'} gap={3} alignItems={'center'} flexWrap={'wrap'}>
+      <Stack justifyContent={isSm ? 'space-between' : 'flex-start'} direction={'row'} gap={3} alignItems={'center'}
+             flexWrap={'wrap'}>
         <TextField error={errors?.threshold} value={threshold} onChange={({ target }) => {
           let temp = target.value.replace(/,/g, '');
           setThreshold(numberWithCommas(temp))
@@ -146,55 +159,64 @@ const MaterialTracker = () => {
         <TextField value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
         <Button onClick={handleAddThreshold} sx={{ height: 'fit-content' }} variant={'contained'}>Add threshold</Button>
       </Stack>
-      <Stack mt={3} direction={isSm ? 'column' : 'row'} gap={3} flexWrap={'wrap'}>
+      <Stack mt={3} direction={isSm ? 'column' : 'row'} gap={1} flexWrap={'wrap'}>
         {(Object.values(trackedItems))?.map(({ item, threshold, note }, index) => {
           const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
           let color, twoPercentBuffer = threshold * 0.02;
           if (quantityOwned < threshold) {
             color = 'error.light';
-          } else if (quantityOwned <= threshold + twoPercentBuffer) {
+          }
+          else if (quantityOwned <= threshold + twoPercentBuffer) {
             color = 'warning.main';
-          } else {
+          }
+          else {
             color = 'success.main';
           }
-          return <Card key={`tracked-item-${index}`}>
-            <CardContent>
-              <Stack direction={isSm ? 'row' : 'column'}
-                     alignItems={'center'}
-                     justifyContent={isSm ? 'space-between' : 'flex-start'}
-                     gap={isSm ? 3 : 0}
-                     flexWrap={'wrap'}
-                     sx={{ position: 'relative' }}
-                     onMouseEnter={() => setHoverIcons({
-                       ...hoverIcons,
-                       [index]: true
-                     })}
-                     onMouseLeave={() => setHoverIcons({
-                       ...hoverIcons,
-                       [index]: false
-                     })}>
-                {hoverIcons?.[index] ? <IconButton onClick={() => handleDeleteThreshold(item?.rawName)}
-                                                   sx={{ position: 'absolute', top: isSm ? 0 : -10, left: -10 }}>
-                  <DeleteForeverIcon/>
-                </IconButton> : null}
-                <img style={isSm ? { marginLeft: 16 } : {}} width={48} height={48}
-                     src={`${prefix}data/${item?.rawName}.png`}
-                     alt=""/>
-                <Stack direction={'row'} gap={2}>
-                  {note && isSm ? <Tooltip title={note}>
-                    <InfoIcon/>
-                  </Tooltip> : null}
-                  <Typography>{cleanUnderscore(item?.displayName)}</Typography>
-                  {note && !isSm ? <Tooltip title={note}>
-                    <InfoIcon/>
-                  </Tooltip> : null}
+          return <Stack key={`tracked-item-${index}`}
+                        onMouseEnter={() => setHoverIcons({
+                          [index]: true
+                        })}
+                        onMouseLeave={() => setHoverIcons({
+                          [index]: false
+                        })}>
+            <Card>
+              <CardContent>
+                <Stack direction={isSm ? 'row' : 'column'}
+                       alignItems={'center'}
+                       justifyContent={isSm ? 'space-between' : 'flex-start'}
+                       gap={isSm ? 2 : 0}
+                       flexWrap={'wrap'}
+                       sx={{ position: 'relative' }}>
+                  <img style={isSm ? { marginLeft: 16 } : {}} width={48} height={48}
+                       src={`${prefix}data/${item?.rawName}.png`}
+                       alt=""/>
+                  <Stack direction={'row'} gap={2}>
+                    {note && isSm ? <Tooltip title={note}>
+                      <InfoIcon/>
+                    </Tooltip> : null}
+                    <Typography>{cleanUnderscore(item?.displayName)}</Typography>
+                    {note && !isSm ? <Tooltip title={note}>
+                      <InfoIcon/>
+                    </Tooltip> : null}
+                  </Stack>
+                  <Typography
+                    color={color}
+                    mt={isSm ? 0 : 1}>{notateNumber(quantityOwned)}/{notateNumber(threshold)}</Typography>
                 </Stack>
-                <Typography
-                  color={color}
-                  mt={isSm ? 0 : 1}>{notateNumber(quantityOwned)}/{notateNumber(threshold)}</Typography>
-              </Stack>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+            <Stack sx={{ minHeight: 34, mt: 1 }} direction={'row'} justifyContent={'center'}>
+              {hoverIcons?.[index] ? <>
+                <IconButton size={'small'} onClick={() => handleDeleteThreshold(item?.rawName)}>
+                  <DeleteForeverIcon/>
+                </IconButton>
+                <IconButton size={'small'} onClick={() => handleEdit(item?.rawName)}>
+                  <EditIcon/>
+                </IconButton>
+              </> : null}
+
+            </Stack>
+          </Stack>
         })}
       </Stack>
     </>

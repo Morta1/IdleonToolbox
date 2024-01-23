@@ -23,7 +23,7 @@ const Anvil = () => {
     <Typography variant={'h2'} mb={3}>Anvil</Typography>
     <Stack direction={'row'} alignItems={'baseline'} gap={1}>
       <Typography variant={'h4'}>Totals</Typography>
-      <Typography variant={'caption'}>* per hour</Typography>
+      <Typography variant={'caption'}>per hour</Typography>
     </Stack>
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {}).map(([rawName, value], index) => {

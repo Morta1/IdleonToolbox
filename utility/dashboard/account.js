@@ -176,7 +176,7 @@ export const materialTrackerAlerts = (account, options, characters) => {
   if (Object.keys(materials || {}).length > 0) {
     const { applyThresholdFromBelow, applyThresholdFromAbove } = options || {}
     const totalOwnedItems = getAllItems(characters, account);
-    alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold }) => {
+    alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold, note }) => {
       const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
       let text, twoPercentBuffer = threshold * 0.02;
       if (applyThresholdFromBelow?.checked && (quantityOwned < threshold)) {
@@ -189,7 +189,7 @@ export const materialTrackerAlerts = (account, options, characters) => {
         text = 'close to';
       }
       if (!text) return res;
-      return [...res, { item, threshold, quantityOwned, text }];
+      return [...res, { item, threshold, quantityOwned, text, note }];
     }, []);
   }
 

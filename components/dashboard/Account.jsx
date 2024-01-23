@@ -174,10 +174,15 @@ const Account = ({ account, characters, trackers }) => {
                                                                                iconPath={`data/${rawName}`}/>) : null}
           {trackers?.materialTracker && alerts?.materialTracker?.materialTracker?.length > 0
             ?
-            alerts?.materialTracker?.materialTracker?.map(({ item, threshold, quantityOwned, text }, index) => <Alert
-              key={item?.rawName + '' + index}
-              title={`Your ${cleanUnderscore(pascalCase(item?.displayName))} is ${text} the threshold (${notateNumber(quantityOwned)}/${notateNumber(threshold)})`}
-              iconPath={`data/${item?.rawName}`}/>)
+            alerts?.materialTracker?.materialTracker?.map(({ item, threshold, quantityOwned, text, note }, index) =>
+              <Alert
+                key={item?.rawName + '' + index}
+                title={<>
+                  <Typography variant={'subtitle2'}>Your {cleanUnderscore(pascalCase(item?.displayName))} is {text} the
+                    threshold ({notateNumber(quantityOwned)}/{notateNumber(threshold)})</Typography>
+                  {note ? <Typography fontWeight={500} variant={'caption'}>Note: {note}</Typography> : null}
+                </>}
+                iconPath={`data/${item?.rawName}`}/>)
             : null}
           {trackers?.postOffice && alerts?.postOffice?.shipments?.length > 0 ?
             alerts?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}
