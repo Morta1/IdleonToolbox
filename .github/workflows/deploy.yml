@@ -22,7 +22,7 @@ jobs:
         env:
           NODE_ENV: production
         run: |
-          npm install
+          npm install --legacy-peer-deps
           npm run build
 
       - name: Deploy

@@ -26,7 +26,7 @@
     "globby": "^14.0.0",
     "lodash.debounce": "^4.0.8",
     "lodash.merge": "^4.6.2",
-    "next": "14.0.0",
+    "next": "^14.1.0",
     "next-seo": "^5.15.0",
     "react": "^18.2.0",
     "react-countdown-circle-timer": "^3.0.9",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
-    "@types/react": "18.2.21",
+    "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "eslint": "8.13.0",
     "eslint-config-next": "^13.4.1",
