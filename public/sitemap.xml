@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://www.idleontoolbox.com/characters</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/dashboard</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/data</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/guilds</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com</loc><changefreq>hourly</changefreq></url>
@@ -11,11 +10,9 @@
 <url><loc>https://www.idleontoolbox.com/tools/builds</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/tools/card-search</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/tools/god-planner</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/tools/guaranteed-drop-calculator</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/tools/index</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/tools/item-browser</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/tools/item-planner</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/tools/material-tracker</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/misc/apocalypses</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/misc/constellations</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/misc/dungeons</loc><changefreq>hourly</changefreq></url>
@@ -27,13 +24,6 @@
 <url><loc>https://www.idleontoolbox.com/account/misc/storage</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/premium-currency/companions</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/premium-currency/gem-shop</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/task-board/achievements</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/task-board/merits</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/task-board/tasks</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/world-1/anvil</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/world-1/bribes</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/world-1/forge</loc><changefreq>hourly</changefreq></url>
-<url><loc>https://www.idleontoolbox.com/account/world-1/stamps</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-2/arcade-shop</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-2/bubbles</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-2/cauldrons</loc><changefreq>hourly</changefreq></url>
@@ -41,6 +31,9 @@
 <url><loc>https://www.idleontoolbox.com/account/world-2/sigils</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-2/vials</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-2/weekly-bosses</loc><changefreq>hourly</changefreq></url>
+<url><loc>https://www.idleontoolbox.com/account/world-1/anvil</loc><changefreq>hourly</changefreq></url>
+<url><loc>https://www.idleontoolbox.com/account/world-1/bribes</loc><changefreq>hourly</changefreq></url>
+<url><loc>https://www.idleontoolbox.com/account/world-1/forge</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-3/atom-collider</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-3/buildings</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-3/construction</loc><changefreq>hourly</changefreq></url>
@@ -52,6 +45,9 @@
 <url><loc>https://www.idleontoolbox.com/account/world-3/salt-lick</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-3/traps</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-3/worship</loc><changefreq>hourly</changefreq></url>
+<url><loc>https://www.idleontoolbox.com/account/task-board/achievements</loc><changefreq>hourly</changefreq></url>
+<url><loc>https://www.idleontoolbox.com/account/task-board/merits</loc><changefreq>hourly</changefreq></url>
+<url><loc>https://www.idleontoolbox.com/account/task-board/tasks</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-4/breeding</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-4/cooking</loc><changefreq>hourly</changefreq></url>
 <url><loc>https://www.idleontoolbox.com/account/world-4/laboratory</loc><changefreq>hourly</changefreq></url>
