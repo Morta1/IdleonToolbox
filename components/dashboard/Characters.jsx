@@ -15,12 +15,12 @@ import {
   toolsAlerts,
   trapsAlerts,
   worshipAlerts
-} from '../../utility/dashboard/characters';
+} from '@utility/dashboard/characters';
 import InfoIcon from '@mui/icons-material/Info';
 import Timer from '../common/Timer';
 import { TitleAndValue } from '../common/styles';
-import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '../../parsers/character';
-import { getMaxDamage, notateDamage } from '../../parsers/damage';
+import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '@parsers/character';
+import { getMaxDamage, notateDamage } from '@parsers/damage';
 import { differenceInMinutes } from 'date-fns';
 
 const alertsMap = {

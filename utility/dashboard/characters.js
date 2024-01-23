@@ -42,7 +42,7 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
     alerts.anvilOverdue = allProgress?.map(({ date, name, rawName }) => {
       const d = new Date(date - 1);
       return { diff: differenceInMinutes(d, new Date()), name, rawName };
-    }).filter(({ diff }) => anvilOption?.showAlertBeforeFull ? diff <= 60 : diff <= 0);
+    }).filter(({ diff }) => anvilOption?.showAlertBeforeFull?.checked ? diff <= 60 : diff <= 0);
   }
   return alerts;
 }
