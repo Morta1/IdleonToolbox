@@ -65,24 +65,24 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-  const mealBonus = 1 + getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone) / 100;
+  const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account?.stamps, 'Talent_Book_Library_Refresh_Speed')
-  const libraryTowerLevel = towersLevels?.[1];
+  const libraryTowerLevel = towersLevels?.[1] - 1;
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
   let superbitBonus = 0;
   if (superbit) {
     superbitBonus = superbit?.totalBonus;
   }
-  const math = 3600 / ((mealBonus * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
+  const math = 3600 / (((1 + mealBonus / 100) * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + (vialBonus
     + (stampBonus + superbitBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
 
   const breakdown = [
     { name: 'Meal Bonus', value: mealBonus },
     { name: 'Atom Bonus', value: libraryBooker },
-    { name: 'Tower Bonus', value: libraryTowerLevel },
+    { name: 'Tower Bonus', value: 5 * libraryTowerLevel },
     { name: 'Bubble Bonus', value: bubbleBonus },
     { name: 'Vial Bonus', value: vialBonus },
     { name: 'Stamp Bonus', value: stampBonus },
