@@ -20,7 +20,7 @@ import { getStarSignBonus } from './starSigns';
 import { getPlayerFoodBonus } from './character';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
-  const { bookCount, libTime } = calcBookCount(account, characters, idleonData);
+  const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
   const timeAway = account?.timeAway;
   let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
@@ -32,7 +32,8 @@ export const getLibraryBookTimes = (idleonData, characters, account) => {
     { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) }]
   return {
     bookCount,
-    next: getTimeToNextBooks(bookCount, account, characters, idleonData) - libTime,
+    next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
+    breakdown,
     breakpoints
   }
 }
@@ -44,17 +45,18 @@ const calcBookCount = (account, characters, idleonData) => {
   let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
   let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
-  while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)) {
-    libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData);
+  const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
+  while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)?.value) {
+    libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData)?.value;
     bookCount += 1;
   }
-  return { bookCount, libTime };
+  return { bookCount, libTime, breakdown };
 }
 
 const calcTimeToXBooks = (bookCount, maxCount, account, characters, idleonData) => {
   let time = 0;
   for (let i = bookCount; i < maxCount; i++) {
-    time += getTimeToNextBooks(i, account, characters, idleonData);
+    time += getTimeToNextBooks(i, account, characters, idleonData)?.value;
   }
   return time;
 }
@@ -77,7 +79,23 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const math = 3600 / ((mealBonus * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + ((vialBonus)
     + (stampBonus + superbitBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
 
-  return Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100));
+  const breakdown = [
+    { name: 'Meal Bonus', value: mealBonus },
+    { name: 'Atom Bonus', value: libraryBooker },
+    { name: 'Tower Bonus', value: libraryTowerLevel },
+    { name: 'Bubble Bonus', value: bubbleBonus },
+    { name: 'Vial Bonus', value: vialBonus },
+    { name: 'Stamp Bonus', value: stampBonus },
+    { name: 'Superbit Bonus', value: superbitBonus },
+    {
+      name: 'Achievement Bonus',
+      value: Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
+    }
+  ]
+  return {
+    value: Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100)),
+    breakdown
+  };
 }
 
 export const getLooty = (idleonData) => {

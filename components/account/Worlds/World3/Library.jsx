@@ -3,9 +3,11 @@ import Timer from '../../../common/Timer';
 import { Divider, Stack, Typography } from '@mui/material';
 import { getRealDateInMs, prefix } from '../../../../utility/helpers';
 import Tooltip from '../../../Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
+import { Breakdown } from '../../../common/styles';
 
 const Library = ({ libraryTimes, lastUpdated }) => {
-  let { bookCount, next, breakpoints } = libraryTimes || {};
+  let { bookCount, next, breakpoints, breakdown } = libraryTimes || {};
   const nextDate = new Date().getTime() + next * 1000;
   const nextEndDate = getRealDateInMs(nextDate);
 
@@ -13,6 +15,9 @@ const Library = ({ libraryTimes, lastUpdated }) => {
     <Stack direction={'row'} alignItems={'center'} gap={1}>
       <img src={`${prefix}data/Libz.png`} alt=""/>
       <Typography sx={{ fontWeight: 'bold', fontSize: 18 }}>Library</Typography>
+      <Tooltip title={<Breakdown breakdown={breakdown} titleStyle={{width: 170}}/>}>
+        <InfoIcon/>
+      </Tooltip>
     </Stack>
     <h4>Book count: {bookCount}</h4>
     <Stack direction={'row'} gap={1} alignItems={'center'}>
