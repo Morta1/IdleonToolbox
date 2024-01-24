@@ -96,12 +96,6 @@ const Stamps = () => {
         </CardTitleAndValue>
         <CardTitleAndValue title={'Options'}>
           <Stack>
-            <FormControlLabel
-              control={<Checkbox name={'mini'}
-                                 checked={subtractGreenStacks}
-                                 onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
-                                 size={'small'}/>}
-              label={'Subtract Green Stacks'}/>
             <Link underline={'hover'}
                   sx={{ cursor: 'pointer' }}
                   onClick={() => router.push({ pathname: 'old-stamps' })}>
@@ -110,6 +104,12 @@ const Stamps = () => {
                 <Typography>Old Stamps Page</Typography>
               </Stack>
             </Link>
+            <FormControlLabel
+              control={<Checkbox name={'mini'}
+                                 checked={subtractGreenStacks}
+                                 onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
+                                 size={'small'}/>}
+              label={'Subtract Green Stacks'}/>
           </Stack>
         </CardTitleAndValue>
       </Stack>

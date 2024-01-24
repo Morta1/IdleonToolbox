@@ -207,7 +207,7 @@ const Stamps = () => {
               hasMoney
             };
             let bestCharacter = getBestCharacterForCraft(items?.[itemReq?.rawName], state?.characters, state?.account);
-            hasCharacter = bestCharacter?.maxCapacity >= itemRequirements?.[0]?.materialCost;
+            hasCharacter = bestCharacter?.maxCapacity >= itemRequirements?.materialCost;
             return <React.Fragment key={rawName + '' + displayName + '' + index}>
               <Card sx={{
                 overflow: 'visible',
@@ -220,7 +220,7 @@ const Stamps = () => {
                     {!hasMaterials ? <HtmlTooltip title={<>
                       <Typography>Not enough {cleanUnderscore(itemReq?.name)}</Typography>
                       <Typography>You have {notateNumber(ownedMats ?? 0, 'Big')}, you
-                        need {notateNumber(Math.abs((ownedMats ?? 0) - itemRequirements?.[0]?.materialCost), 'Big')}</Typography>
+                        need {notateNumber(Math.abs((ownedMats ?? 0) - itemRequirements?.materialCost), 'Big')}</Typography>
                     </>}>
                       <img width={24} height={24} src={`${prefix}data/${itemReq?.rawName}.png`} alt={''}/>
                     </HtmlTooltip> : null}
