@@ -148,11 +148,14 @@ const Stamps = () => {
                 greenStackHasMaterials,
                 hasMoney,
                 enoughPlayerStorage,
-                reqItemMultiplicationLevel
+                reqItemMultiplicationLevel,
+                displayName
               } = stamp;
               const border = getBorder(stamp);
+              const isBlank = displayName === 'Blank';
               return <Grid xs={4} sm={3} key={rawName + stampIndex}>
-                <Tooltip maxWidth={450} title={<StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
+                <Tooltip maxWidth={450}
+                         title={isBlank ? '' : <StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
                   <Card sx={{
                     display: 'flex',
                     alignItems: 'center',

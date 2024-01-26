@@ -14,7 +14,7 @@ import { crafts, items } from '../../../data/website-data';
 import { getHighestCapacityCharacter } from '../../../parsers/misc';
 import Tabber from '../../../components/common/Tabber';
 import { CardTitleAndValue } from '../../../components/common/styles';
-import { calcStampLevels } from '../../../parsers/stamps';
+import { calcStampLevels, unobtainableStamps } from '../../../parsers/stamps';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
@@ -205,6 +205,7 @@ const Stamps = () => {
             };
             let bestCharacter = getBestCharacterForCraft(items?.[itemReq?.rawName], state?.characters, state?.account);
             hasCharacter = bestCharacter?.maxCapacity >= itemRequirements?.materialCost;
+            const isBlank = displayName === 'Blank';
             return <React.Fragment key={rawName + '' + displayName + '' + index}>
               <Card sx={{
                 overflow: 'visible',
@@ -233,7 +234,8 @@ const Stamps = () => {
                     <Stack alignItems={'center'}>
                       <HtmlTooltip
                         dark={condenseView}
-                        title={condenseView ? <StampFullDetails itemRequirements={itemRequirements}
+                        title={condenseView ? isBlank ? '' : <StampFullDetails itemRequirements={itemRequirements}
+                                                                stampName={displayName}
                                                                 goalBonus={goalBonus} bestCharacter={bestCharacter}/> :
                           <StampTooltip {...{ ...stamp, goalLevel, goalBonus }}/>}>
                         <StampIcon width={48} height={48}
@@ -263,39 +265,43 @@ const Stamps = () => {
   );
 };
 
-const Info = ({ itemRequirements, goalBonus, bestCharacter }) => {
+const Info = ({ itemRequirements, goalBonus, bestCharacter, stampName }) => {
   const {
     rawName,
-    name,
     materialCost,
     isMaterialCost,
     goldCost
   } = itemRequirements
-  return <Stack gap={1} mt={2}>
-    <Stack gap={2} justifyContent={'center'}
-           direction={'row'} alignItems={'center'}>
-      <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
-      <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
-      <HtmlTooltip
-        title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity)
-          ? 0
-          : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
-        <Stack direction="row" alignItems={'center'} gap={1}>
-          <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
-                    alt=""/>
+  return <Stack gap={1} mt={stampName ? 0 : 2}>
+    <Typography>{cleanUnderscore(stampName)}</Typography>
+    {unobtainableStamps[stampName] ? <Typography mt={1}>(Unobtainable)</Typography> : <>
+      <Stack gap={2} justifyContent={'center'}
+             direction={'row'} alignItems={'center'}>
+        <BonusIcon src={`${prefix}data/SignStar3b.png`} alt=""/>
+        <Typography>{isNaN(goalBonus) ? 0 : goalBonus}</Typography>
+        <HtmlTooltip
+          title={`Best to craft with ${bestCharacter?.character ?? 'Nobody'} (Capacity: ${isNaN(bestCharacter?.maxCapacity)
+            ? 0
+            : notateNumber(bestCharacter?.maxCapacity, 'Big')})`}>
+          <Stack direction="row" alignItems={'center'} gap={1}>
+            <ItemIcon hide={!materialCost || !isMaterialCost} src={`${prefix}data/${rawName}.png`}
+                      alt=""/>
 
-          {materialCost ? notateNumber(materialCost, 'Big') : null}
-        </Stack>
-      </HtmlTooltip>
-    </Stack>
-    <CoinDisplay title={''}
-                 money={getCoinsArray(goldCost)}/>
+            {materialCost ? notateNumber(materialCost, 'Big') : null}
+          </Stack>
+        </HtmlTooltip>
+      </Stack>
+      <CoinDisplay title={''}
+                   money={getCoinsArray(goldCost)}/>
+    </>}
+
   </Stack>
 }
 
-const StampFullDetails = ({ itemRequirements, goalBonus, bestCharacter }) => {
+const StampFullDetails = ({ itemRequirements, goalBonus, bestCharacter, stampName }) => {
   return <>
-    <Info itemRequirements={itemRequirements} goalBonus={goalBonus} bestCharacter={bestCharacter}/>
+    <Info itemRequirements={itemRequirements} goalBonus={goalBonus} bestCharacter={bestCharacter}
+          stampName={stampName}/>
   </>
 }
 
@@ -320,6 +326,7 @@ const StampTooltip = ({ func, level, goalLevel, x1, x2, displayName, effect, mul
     <Typography variant={'h5'}>{cleanUnderscore(displayName)}</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
+    {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level !== goalLevel ? <Typography mt={1} sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:
       +{cleanUnderscore(effect.replace(/\+{/, goalBonus))}</Typography> : null}
