@@ -231,4 +231,4 @@ export const calcStampCollected = (allStamps) => {
     : 0), 0), 0)
 }
 
-export const unobtainableStamps = ['Stat_Wallstree_Stamp', 'SpoOoky_Stamp', 'Prayday_Stamp', 'Shiny_Crab_Stamp', 'Amplestample_Stamp','Talent_I_Stamp', 'Talent_V_Stamp', 'Geat_Stamp'].toSimpleObject();
+export const unobtainableStamps = ['Stat_Wallstree_Stamp', 'SpoOoky_Stamp', 'Prayday_Stamp', 'Shiny_Crab_Stamp', 'Amplestample_Stamp','Talent_I_Stamp', 'Talent_V_Stamp', 'Gear_Stamp'].toSimpleObject();
