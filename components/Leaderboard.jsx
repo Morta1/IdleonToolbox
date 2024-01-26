@@ -56,6 +56,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
           <TopThree sectionName={sectionName} topThree={topThree}/>
           <List>
             {rest.map((entry, index) => {
+              const value = entry?.[sectionName] || 0;
               return <ListItem
                 sx={{
                   mb: entry?.loggedMainChar || entry?.searchedChar ? .8 : 0,
@@ -65,7 +66,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                     ? SECONDARY_HIGHLIGHTED_OUTLINED_COLOR
                     : ''
                 }}
-                secondaryAction={<Typography>{notateNumber(entry?.[sectionName], sectionName === 'bits' ? 'bits' : '')}</Typography>}
+                secondaryAction={<Typography>{notateNumber(value, sectionName === 'bits' ? 'bits' : '')}</Typography>}
                 key={`${sectionName}-${index}`}>
                 <ListItemText><PositionCircle inline sx={{ mr: 2 }}>{entry?.index
                   ? entry?.index
@@ -88,6 +89,7 @@ const TopThree = ({ sectionName, topThree }) => {
       const order = index === 0 ? 2 : index === 1 ? 1 : 3;
       const height = index === 0 ? CARD_BASE_HEIGHT : index === 1 ? CARD_BASE_HEIGHT - 10 : CARD_BASE_HEIGHT - 20;
       const img = index === 0 ? 'data/Trophie.png' : index === 1 ? 'data/G2icon40.png' : 'data/G2icon39.png';
+      const value = entry?.[sectionName] || 0;
       return <Grid xs={topThree?.length === 1 ? 12 : 4}
                    order={order}
                    alignSelf={'flex-end'}
@@ -110,7 +112,7 @@ const TopThree = ({ sectionName, topThree }) => {
                 <Link color={'inherit'} underline={'hover'} target={'_blank'}
                       href={`https://idleontoolbox.com?profile=${entry?.mainChar}`}>{entry?.mainChar}</Link>
               </Typography>
-              <Typography textAlign={'center'}>{notateNumber(entry?.[sectionName], sectionName === 'bits' ? 'bits' : '')}</Typography>
+              <Typography textAlign={'center'}>{notateNumber(value, sectionName === 'bits' ? 'bits' : '')}</Typography>
             </Stack>
           </TextWrapper>
         </Wrapper>
