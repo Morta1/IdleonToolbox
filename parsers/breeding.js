@@ -84,6 +84,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }
   });
   const fencePets = [], passivesTotals = {};
+  let totalShinyLevels = 0;
   const pets = petStats?.map((petList, worldIndex) => {
     const speciesUnlocked = speciesUnlocks?.[worldIndex];
     return petList?.map((pet, petIndex) => {
@@ -91,6 +92,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
         ? index + 2
         : sum, 0)
       shinyLevel = shinyPetsLevels?.[worldIndex]?.[petIndex] === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
+      totalShinyLevels += shinyLevel;
       const goal = Math.floor((1 + Math.pow(shinyLevel, 1.6)) * Math.pow(1.7, shinyLevel));
       const passiveValue = Math.round(pet?.baseValue * shinyLevel);
       const petInfo = {
@@ -132,7 +134,8 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     pets,
     territories,
     foragingRounds,
-    currentProgress
+    currentProgress,
+    totalShinyLevels
   };
 }
 

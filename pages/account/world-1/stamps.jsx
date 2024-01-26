@@ -1,5 +1,15 @@
-import { Avatar, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import React, { useContext } from 'react';
+import {
+  Avatar,
+  Card,
+  CardContent,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Stack,
+  Switch,
+  Typography
+} from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
@@ -8,7 +18,7 @@ import Tooltip from 'components/Tooltip'; // Grid version 2
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { CardTitleAndValue } from '@components/common/styles';
-import { calcStampLevels } from '@parsers/stamps';
+import { calcStampLevels, unobtainableStamps, updateStamps } from '@parsers/stamps';
 import Grid from '@mui/material/Unstable_Grid2';
 import { grey } from '@mui/material/colors';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -21,8 +31,15 @@ const Stamps = () => {
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
     ? state?.account?.accountOptions?.[154]
     : 0;
+  const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
   const stampReducer = state?.account?.atoms?.stampReducer;
   const [subtractGreenStacks, setSubtractGreenStacks] = React.useState(false);
+  const [localStamps, setLocalStamps] = useState(state?.account?.stamps);
+
+  useEffect(() => {
+    setLocalStamps(updateStamps(state?.account, state?.characters, forcedGildedStamp));
+  }, [forcedGildedStamp, state]);
+
 
   const getBorder = ({ materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage }) => {
     if (level <= 0) return '';
@@ -105,6 +122,9 @@ const Stamps = () => {
               </Stack>
             </Link>
             <FormControlLabel
+              control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
+              label="Gilded Stamp"/>
+            <FormControlLabel
               control={<Checkbox name={'mini'}
                                  checked={subtractGreenStacks}
                                  onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
@@ -114,7 +134,7 @@ const Stamps = () => {
         </CardTitleAndValue>
       </Stack>
       <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
-        {Object.entries(state?.account?.stamps).map(([category, stamps], categoryIndex) => {
+        {Object.entries(localStamps).map(([category, stamps], categoryIndex) => {
           return <Grid xs={12} md={6} lg={4} container spacing={.5}
                        sx={{ alignContent: 'start', justifyContent: 'center' }}
                        key={category + '' + categoryIndex}>
@@ -132,7 +152,7 @@ const Stamps = () => {
               } = stamp;
               const border = getBorder(stamp);
               return <Grid xs={4} sm={3} key={rawName + stampIndex}>
-                <Tooltip maxWidth={450} dark title={<StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
+                <Tooltip maxWidth={450} title={<StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
                   <Card sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -183,16 +203,16 @@ const StampInfo = ({
                      greenStackOwnedMats,
                      hasMoney,
                      hasMaterials,
-                     enoughPlayerStorage,
-                     reqItemMultiplicationLevel
+                     enoughPlayerStorage
                    }) => {
   const bonus = growth(func, level, x1, x2, true) * (multiplier ?? 1);
-  const storageColor = enoughPlayerStorage ? 'white' : '#e57373';
-  const materialColor = hasMaterials ? 'white' : '#e57373';
+  const storageColor = enoughPlayerStorage ? '' : '#e57373';
+  const materialColor = hasMaterials ? '' : '#e57373';
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
-    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.light' : '' }}
+    <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
+    {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level > 0 ? <>
       <CostSection isMaterialCost={false}
                    hasMoney={hasMoney}
@@ -238,7 +258,7 @@ const CostSection = ({
                        hasMoney,
                        hasMaterials,
                      }) => {
-  const moneyColor = showBoth ? 'white' : hasMoney ? 'white' : '#e57373';
+  const moneyColor = showBoth ? '' : hasMoney ? '' : '#e57373';
   return <Stack direction={'row'} gap={3} alignItems={'center'} justifyContent={'space-between'}>
     {isMaterialCost || showBoth ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
       <Typography variant={'subtitle2'}>{level}</Typography>
@@ -255,12 +275,6 @@ const CostSection = ({
     {isMaterialCost || showBoth ? <Typography variant={'subtitle2'}>{reduction}%</Typography> : null}
   </Stack>
 }
-
-const BonusIcon = styled.img`
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-`
 
 const StampIcon = styled.img`
   opacity: ${({ level }) => level === 0 ? .5 : 1};

@@ -88,7 +88,7 @@ const Cauldrons = () => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w.liquids?.map((cauldron, index) => {
           const { name, regen, capacity, players } = cauldron;
-          const maxLiquid = alchemy?.liquidCauldrons?.[index];
+          const { maxLiquid, decantCap, decantRate } = alchemy?.liquidCauldrons?.[index];
           const currentLiquid = alchemy?.liquids?.[index];
           return <Card key={`${name}-${index}`}>
             <CardContent>
@@ -103,10 +103,23 @@ const Cauldrons = () => {
                   <PlayersList players={players} characters={state?.characters}/>
                 </Stack>
               </Stack>
+              <Typography variant={'caption'}>{Math.round(currentLiquid)} / {maxLiquid}</Typography>
               <ProgressBar bgColor={liquidsColors?.[index]}
                            pre={<img src={`${prefix}data/Liquid${index + 1}_x1.png`} alt=""/>}
                            percent={currentLiquid / maxLiquid * 100}/>
               <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
+                <Card variant={'outlined'}>
+                  <CardContent>
+                    <Typography>Cap Lv.{decantCap?.level}</Typography>
+                    <Typography>{notateNumber(decantCap?.progress)}/{notateNumber(decantCap?.req)}</Typography>
+                  </CardContent>
+                </Card>
+                <Card variant={'outlined'}>
+                  <CardContent>
+                    <Typography>Rate Lv.{decantRate?.level}</Typography>
+                    <Typography>{notateNumber(decantRate?.progress)}/{notateNumber(decantRate?.req)}</Typography>
+                  </CardContent>
+                </Card>
                 <Card variant={'outlined'} sx={{
                   outline: regen >= MAX_LEVELS.liquidsRegen ? '1px solid' : '',
                   outlineColor: (theme) => regen >= MAX_LEVELS.liquidsRegen ? theme.palette.success.light : '',

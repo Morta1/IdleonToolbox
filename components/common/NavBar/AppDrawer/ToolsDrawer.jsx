@@ -17,14 +17,14 @@ const tools = {
   'itemBrowser': {
     icon: 'EquipmentTransparent105'
   },
+  'materialTracker': {
+    icon: 'Refinery1'
+  },
   'activeExpCalculator': {
     icon: 'StatusExp'
   },
   'godPlanner': {
     icon: 'DivGod1'
-  },
-  'materialTracker': {
-    icon: 'Refinery1'
   },
   'guaranteedDropCalculator': {
     icon: 'TreeInterior1b'

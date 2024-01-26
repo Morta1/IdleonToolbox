@@ -76,7 +76,7 @@ const Divinity = () => {
                       const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
                       const isLinked = compBonus || linkedDeities?.[index] === godIndex;
                       const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
-                      if (godIndex === 6 && compBonus &&  highestDivinityCharacter?.playerId !== playerId) return null;
+                      if (godIndex === 6 && compBonus && highestDivinityCharacter?.playerId !== playerId) return null;
                       return compBonus || isLinked || isSecondLinked ?
                         <Tooltip title={<CharDeityDetails name={name}
                                                           divStyle={divStyle}
@@ -107,7 +107,7 @@ const Cost = ({ type, cost, title }) => {
     : 'etc/Particle';
   return type !== 'coins' ? <Stack alignItems={'center'} direction={'row'} gap={1} mt={1}>
     <Typography variant={'body2'}>
-      {title}: {cost === 'MAX' ? cost : notateNumber(cost, 'Big')}
+      {title}: {cost === 'MAX' ? cost : notateNumber(cost, type === 'bits' ? 'bits' : 'Big')}
     </Typography>
     <img src={`${prefix}${currencyIcon}.png`} alt={''}/>
   </Stack> : <CoinDisplay title={title}

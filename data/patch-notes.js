@@ -4,6 +4,27 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.45',
+    gameVer: '1.92',
+    date: '26/01/2024',
+    features: [
+      'Added Character tab to leaderboards page with the following leaderboards: Drop rate, Defence, Accuracy, Hp, Mp',
+      'Added Log Book and Total Shiny Levels leaderboards to General Tab',
+      'Bubbles page now show all bubbles on the same page as 4 columns similar to how they are displayed in-game (old bubbles page also exists)',
+      'Added collect rate for critter quantity and exp',
+      'Added the ability to see the totals of collected exp and traps ',
+      'Added a display for liquids cauldron\'s Cap and Rate on cauldrons  page',
+      'Gilded stamp bonus can now be switched on/off on both new and old stamps page',
+      'Added an indication for unobtainable stamps on the stamp page (you can see this by hovering the stamp)',
+      'Added a tiny progress bar below statues and shrines',
+      'Added a breakdown tooltip to the library in dashboard page.\n'
+    ],
+    fixes: [
+      'Fixed a bug on divinity page where bits weren\'t showing correctly',
+      'Removed weird items from items list on tools pages (NULL, BLANK)'
+    ]
+  },
+  {
     ver: '3.2.44',
     gameVer: '1.92',
     date: '23/01/2024',

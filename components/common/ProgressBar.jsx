@@ -5,7 +5,7 @@ const ProgressBar = ({ percent, bgColor, label = true, sx, boxSx = {}, pre }) =>
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ...boxSx }}>
       {pre}
-      <Box sx={{ width: '100%', mr: 1 }}>
+      <Box sx={{ width: '100%', mr: label ? 1 : 0 }}>
         <LinearProgress
           sx={{
             width: '100%',

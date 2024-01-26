@@ -76,14 +76,16 @@ const Leaderboards = () => {
       />
     </Box> : null}
 
-    {!leaderboards ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack> : error ?
+    {!leaderboards && !error ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack> : error ?
       <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
-        tabs={['General', 'Tasks', 'Skills', 'Misc']}>
+        tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']}>
         <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>
         <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>
         <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
+                            searchedChar={searchedChar?.mainChar}/>
+        <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>
         <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
                             searchedChar={searchedChar?.mainChar}/>

@@ -20,9 +20,9 @@ import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
 import useTimeout from '../components/hooks/useTimeout';
 import LoadingButton from '@mui/lab/LoadingButton';
-import NormalTimer from '../components/common/Timer/Normal.js';
+import NormalTimer from '../components/common/Timer/Normal';
 import { format, intervalToDuration, isValid } from 'date-fns';
-import { uploadProfile } from '../services/profiles';
+import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';
 import { AppContext } from '@components/common/context/AppProvider';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NextSeo } from 'next-seo';
@@ -86,11 +86,13 @@ const Data = () => {
           localStorage.removeItem(key)
         }
       })
-    } else {
+    }
+    else {
       if (key === 'last-upload-time') {
         localStorage.removeItem(`${state?.uid}/lastUpload`);
         setLastUpload(false);
-      } else {
+      }
+      else {
         localStorage.removeItem(key)
       }
     }
@@ -108,11 +110,12 @@ const Data = () => {
     delete userData.data.ServerGemsReceived;
     delete userData.data.BundlesReceived;
     delete userData.data.GemsPacksPurchased;
+    const parsedData = expandLeaderboardInfo(state?.account, state?.characters)
     setUploaded(false);
     if (!lastUpload || ((WAIT_TIME - (Date.now() - lastUpload)) < 0)) {
       setLoading(true);
       try {
-        await uploadProfile({ profile: userData, uid: state?.uid, leaderboardConsent }, state?.accessToken);
+        await uploadProfile({ profile: { ...userData, parsedData }, uid: state?.uid, leaderboardConsent }, state?.accessToken);
         setUploaded(true);
         const now = Date.now();
         localStorage.setItem(`${state?.uid}/lastUpload`, now);

@@ -1,4 +1,4 @@
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from '../../../utility/helpers';
@@ -81,7 +81,7 @@ const Stamps = () => {
     const stampReducerVal = Math.max(0.1, 1 - (stampReducerInput !== stampReducer
       ? stampReducerInput
       : stampReducer) / 100);
-    return (baseMatCost * ((gildedStamps > 0 || forcedGildedStamp) ? 0.05 : 1)
+    return (baseMatCost * (forcedGildedStamp ? 0.05 : 1)
         * stampReducerVal
         * sigilReduction
         * Math.pow(powMatBase, Math.pow(Math.round(level / reqItemMultiplicationLevel) - 1, 0.8)))
@@ -153,11 +153,8 @@ const Stamps = () => {
                                  size={'small'}/>}
               label={'Subtract green stacks'}/>
             <FormControlLabel
-              control={<Checkbox name={'mini'}
-                                 checked={forcedGildedStamp}
-                                 onChange={() => setForcedGildedStamp(!forcedGildedStamp)}
-                                 size={'small'}/>}
-              label={'Force gilded stamp'}/>
+              control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
+              label="Gilded Stamp"/>
             <TextField label={'Stamp Reducer'} value={stampReducerInput}
                        onChange={(e) => setStampReducerInput(e.target.value)} type={'number'}
                        InputProps={{ inputProps: { min: 0, max: 90 } }}/>

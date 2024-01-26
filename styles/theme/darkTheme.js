@@ -1,14 +1,14 @@
-import { createTheme } from "@mui/material/styles";
-import { responsiveFontSizes } from "@mui/material";
+import { createTheme } from '@mui/material/styles';
+import { responsiveFontSizes } from '@mui/material';
 
 let darkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: 'dark',
     multi: '#1073ce',
     multiLight: '#94baee',
     background: {
-      default: "#222831",
-      paper: "#222831"
+      default: '#222831',
+      paper: '#222831'
     },
   },
   components: {
@@ -29,7 +29,7 @@ let darkTheme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          background: "#222831"
+          background: '#222831'
         }
       }
     }

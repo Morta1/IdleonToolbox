@@ -1,9 +1,12 @@
 import { tryToParse } from '@utility/helpers';
+import { getDropRate } from '@parsers/character';
+import { getMaxDamage } from '@parsers/damage';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
 export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);
+    console.log('parsedProfile', parsedProfile)
     const response = await fetch(`${url}/profiles`, {
       method: 'POST',
       body: JSON.stringify({ profile: parsedProfile, uid, leaderboardConsent }),
@@ -20,7 +23,8 @@ export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token)
     console.error('Error has occurred: ', err);
     if (err?.status === 429) {
       throw 'You have uploaded your profile in the past 4 hours. Please wait until the cooldown is over.'
-    } else if (err?.status === 500 || err?.status === 400) {
+    }
+    else if (err?.status === 500 || err?.status === 400) {
       throw 'An error has occurred while uploading your profile. Please try again later.'
     }
     throw 'An error has occurred while uploading your profile. Please try again later.';
@@ -57,6 +61,28 @@ export const fetchLeaderboards = async () => {
     console.error(`${__filename} -> Error has occurred while getting leaderboards`);
     throw e;
   }
+}
+
+export const expandLeaderboardInfo = (account, characters) => {
+  const dropRate = Math.max(...characters.map(character => getDropRate(character, account, characters)?.dropRate || 0));
+  const playersInfo = characters.map(character => getMaxDamage(character, characters, account));
+  const defence = Math.max(...playersInfo.map(({ defence }) => defence?.value));
+  const accuracy = Math.max(...playersInfo.map(({ accuracy }) => accuracy));
+  const hp = Math.max(...playersInfo.map(({ maxHp }) => maxHp));
+  const mp = Math.max(...playersInfo.map(({ maxMp }) => maxMp));
+  return {
+    dropRate: withDefault(dropRate),
+    defence: withDefault(defence),
+    accuracy: withDefault(accuracy),
+    hp: withDefault(hp),
+    mp: withDefault(mp),
+    logBook: withDefault(account?.gaming?.logBook?.length),
+    totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels)
+  }
+}
+
+const withDefault = (value, defaultValue = 0) => {
+  return isNaN(value) ? defaultValue : value;
 }
 
 const parseProfile = (profile) => {

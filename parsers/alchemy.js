@@ -47,7 +47,10 @@ export const getLiquidCauldrons = (account) => {
   const liquids = account?.alchemy?.liquids;
   const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
   return liquids.map((liquidVal, index) => {
-    const brewBonus = getCauldronBrewBonus(index + 4, liquidCauldrons[index * 4][1]); // CauldStatDN1
+    const [decantCapProgress, decantCapLevel] = liquidCauldrons[index * 4];
+    const [decantRateProgress, decantRateLevel] = liquidCauldrons[(index * 4) + 1];
+    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1), getCauldronBrewReq(decantRateLevel + 1)]
+    const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevel); // CauldStatDN1
     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value, index) => index === 106) ?? 0;
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
     let bleachLiquidBonus = 0;
@@ -57,7 +60,8 @@ export const getLiquidCauldrons = (account) => {
     if (account?.accountOptions?.[123] > index) {
       if (bleachLiquidBonus === 0) {
         bleachLiquidBonus = 1;
-      } else {
+      }
+      else {
         bleachLiquidBonus = saltLickBonus / 100 + 2
       }
     }
@@ -79,9 +83,26 @@ export const getLiquidCauldrons = (account) => {
     const secondMath = bleachLiquidBonus + (mealBonus + 5 * skillMasteryBonus) / 100;
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
 
-    return Math.ceil((1 + secondMath) * thirdMath)
+    return {
+      maxLiquid: Math.ceil((1 + secondMath) * thirdMath),
+      decantCap: {
+        level: decantCapLevel,
+        progress: decantCapProgress,
+        req: decantCapReq
+      },
+      decantRate: {
+        level: decantRateLevel,
+        progress: decantRateProgress,
+        req: decantRateReq
+      }
+    }
   });
 }
+
+const getCauldronBrewReq = (level) => {
+  return Math.floor(1.6 + Math.pow(1.25 * level, 1.8));
+}
+
 //
 const getCauldronBrewBonus = (index, cauldronVal) => {
   // a.engine.getGameAttribute("CauldronInfo")[8][0 | t][2][1] - capacity
@@ -278,7 +299,8 @@ const getCauldronStats = (idleonData) => {
   let stats;
   if (idleonData?.CauldUpgLVs && idleonData?.CauldUpgXPs) {
     stats = idleonData?.CauldUpgLVs?.map((lvl, index) => [idleonData?.CauldUpgXPs?.[index], lvl]);
-  } else {
+  }
+  else {
     stats = idleonData?.CauldronInfo?.[8]?.reduce((res, array) => [...res, ...array], []);
   }
   return stats;

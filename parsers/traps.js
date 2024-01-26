@@ -2,12 +2,12 @@ import { items, traps as trapsInfo } from '../data/website-data';
 import { getVialsBonusByStat } from '@parsers/alchemy';
 import { checkCharClass, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 
-export const getTraps = (charactersData) => {
-  return parseTraps(charactersData);
+export const getTraps = (rawCharactersData) => {
+  return parseTraps(rawCharactersData);
 }
 
-const parseTraps = (charactersData) => {
-  return charactersData.map((char) => {
+const parseTraps = (rawCharactersData) => {
+  return rawCharactersData.map((char) => {
     const traps = char?.PldTraps || [];
     return traps.reduce((res, critterInfo) => {
       const [critterId, , timeElapsed, critterName, crittersQuantity, trapType, trapTime, trapExp] = critterInfo;
@@ -29,7 +29,22 @@ const parseTraps = (charactersData) => {
   })
 }
 
-export const calcTotalCritters = ({ account, characters }) => {
+export const calcTotalCritters = (account, { critter, exp }) => {
+  return account?.traps?.reduce((res, trapSlots) => {
+    trapSlots.reduce((total, { crittersQuantity, trapExp, rawName }) => {
+      res = {
+        ...res,
+        [rawName]: {
+          critters: (res?.[rawName]?.critters ?? 0) + (crittersQuantity * critter ?? 1),
+          exp: (res?.[rawName]?.exp ?? 0) + (trapExp * exp ?? 1)
+        }
+      }
+    }, {});
+    return res;
+  }, {});
+}
+
+export const getTrapsBonuses = (account, characters) => {
   const critterBonuses = characters?.map((_, index) => calcCrittersBonus({
     currentCharacterIndex: index,
     account,
@@ -42,25 +57,25 @@ export const calcTotalCritters = ({ account, characters }) => {
     characters,
     isExp: true
   }))
-  return account?.traps?.reduce((res, trapSlots, index) => {
-    trapSlots.reduce((total, { crittersQuantity, trapExp, rawName }) => {
-      res = {
-        ...res,
-        [rawName]: {
-          critters: (res?.[rawName]?.critters ?? 0) + (crittersQuantity * critterBonuses?.[index]),
-          exp: (res?.[rawName]?.exp ?? 0) + (trapExp * expBonuses?.[index])
-        }
-      }
-    }, {});
-    return res;
-  }, {});
+  return {
+    max: {
+      critter: Math.max(...(critterBonuses || [1])),
+      exp: Math.max(...(expBonuses || [1]))
+    },
+    min: {
+      critter: Math.min(...(critterBonuses || [1])),
+      exp: Math.min(...(expBonuses || [1]))
+    }
+  }
 }
 
 export const calcCrittersBonus = ({ currentCharacterIndex, account, characters, isExp }) => {
-  let moreCritters = getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision');
+  let moreCritters = isExp ? 0 : getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision');
   if (checkCharClass(characters?.[currentCharacterIndex]?.class, 'Hunter')) {
     const bestHunter = getCharacterByHighestTalent(characters, 2, 'Hunter', 'EAGLE_EYE', isExp);
-    moreCritters += getTalentBonus(bestHunter?.talents, 2, 'EAGLE_EYE');
+    moreCritters += isExp
+      ? Math.max(40, Math.min(getTalentBonus(bestHunter?.talents, 2, 'EAGLE_EYE', isExp), 99))
+      : Math.max(50, getTalentBonus(bestHunter?.talents, 2, 'EAGLE_EYE'));
   }
   else {
     let highestCritterBonus = 0;

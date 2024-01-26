@@ -36,18 +36,19 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   }, {});
 }
 
-export const updateStamps = (account, characters) => {
+export const updateStamps = (account, characters, gildedStamp = true) => {
   const stampReducer = account?.atoms?.stampReducer;
   const flatten = Object.values(account?.stamps).flat().map((stamp) => {
     const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
     const goldCost = getGoldCost(stamp?.level, stamp, account);
     const hasMoney = account?.currencies?.rawMoney >= goldCost;
-    const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer);
+    const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer, gildedStamp);
     let hasMaterials, greenStackHasMaterials;
     if (stamp?.materials?.length > 0) {
       hasMaterials = checkHasMaterials(stamp?.materials, materialCost, account);
       greenStackHasMaterials = checkHasMaterials(stamp?.materials, materialCost, account, true);
-    } else {
+    }
+    else {
       hasMaterials = stamp?.ownedMats >= materialCost;
       greenStackHasMaterials = Math.max(0, stamp?.ownedMats - 1e7) >= materialCost;
     }
@@ -63,7 +64,7 @@ export const updateStamps = (account, characters) => {
       hasMaterials,
       hasMoney
     };
-    const futureCosts = getFutureCosts(newStampData, account, stampReducer);
+    const futureCosts = getFutureCosts(newStampData, account, stampReducer, gildedStamp);
     return { ...newStampData, futureCosts };
   });
   return groupByKey(flatten, ({ category }) => category);
@@ -78,9 +79,9 @@ const checkHasMaterials = (materials, materialCost, account, subtractGreenStacks
 
 }
 
-const getFutureCosts = (stamp, account, stampReducer) => {
+const getFutureCosts = (stamp, account, stampReducer, gildedStamp) => {
   let maxCarryLevel = stamp?.maxLevel;
-  while (getMaterialCost(maxCarryLevel, stamp, account, stampReducer) < stamp?.bestCharacter?.maxCapacity) {
+  while (getMaterialCost(maxCarryLevel, stamp, account, stampReducer, gildedStamp) < stamp?.bestCharacter?.maxCapacity) {
     maxCarryLevel += stamp?.reqItemMultiplicationLevel;
   }
   const reductionIncrement = account?.atoms?.atoms?.[0]?.baseBonus * account?.atoms?.atoms?.[0]?.level;
@@ -91,12 +92,12 @@ const getFutureCosts = (stamp, account, stampReducer) => {
       ? stampReducer
       : 0; j <= 90; j = Math.min(90, j + reductionIncrement)) {
       let materialCost, goldCost;
-      const futureCost = getMaterialCost(tier - stamp?.reqItemMultiplicationLevel, stamp, account, j);
+      const futureCost = getMaterialCost(tier - stamp?.reqItemMultiplicationLevel, stamp, account, j, gildedStamp);
       if (j === 90) {
         if (futureCost < stamp?.bestCharacter?.maxCapacity) {
           materialCost = (tier - stamp?.reqItemMultiplicationLevel === stamp?.level
             ? futureCost
-            : getMaterialCostToLevel(stamp?.level, tier, stamp, account, j));
+            : getMaterialCostToLevel(stamp?.level, tier, stamp, account, j, gildedStamp));
           goldCost = getGoldCostToLevel(stamp?.level, tier, stamp, account);
           futureCosts.push({
             ...stamp?.itemReq,
@@ -111,7 +112,7 @@ const getFutureCosts = (stamp, account, stampReducer) => {
       if (futureCost < stamp?.bestCharacter?.maxCapacity) {
         materialCost = (tier - stamp?.reqItemMultiplicationLevel === stamp?.level
           ? futureCost
-          : getMaterialCostToLevel(stamp?.level, tier, stamp, account, j));
+          : getMaterialCostToLevel(stamp?.level, tier, stamp, account, j, gildedStamp));
         goldCost = getGoldCostToLevel(stamp?.level, tier, stamp, account);
         futureCosts.push({
           ...stamp?.itemReq,
@@ -128,7 +129,7 @@ const getFutureCosts = (stamp, account, stampReducer) => {
     }
   }
   if (futureCosts.length === 0) {
-    const materialCost = getMaterialCost(maxCarryLevel, stamp, account, stampReducer);
+    const materialCost = getMaterialCost(maxCarryLevel, stamp, account, stampReducer, gildedStamp);
     const goldCost = getGoldCost(maxCarryLevel, stamp, account);
     futureCosts.push({ ...stamp?.itemReq, level: maxCarryLevel, goldCost, materialCost, reduction: stampReducer });
   }
@@ -153,15 +154,15 @@ const getGoldCost = (level, stamp, account) => {
   return Math.floor(cost);
 }
 
-const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0) => {
+const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0, gildedStamp) => {
   let total = 0;
   for (let i = level; i < maxLevel; i += stamp?.reqItemMultiplicationLevel) {
-    total += getMaterialCost(i, stamp, account, reduction);
+    total += getMaterialCost(i, stamp, account, reduction, gildedStamp);
   }
   return total
 }
 
-const getMaterialCost = (level, stamp, account, reduction = 0) => {
+const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
   const gildedStamps = isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')
     ? account?.accountOptions?.[154]
     : 0
@@ -169,7 +170,7 @@ const getMaterialCost = (level, stamp, account, reduction = 0) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
   const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
-  return Math.max(1, (stamp?.baseMatCost * ((gildedStamps > 0) ? 0.05 : 1)
+  return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
       * stampReducerVal
       * sigilReduction
       * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
@@ -227,5 +228,7 @@ export const calcStampCollected = (allStamps) => {
   if (!allStamps) return 0;
   return Object.values(allStamps)?.reduce((res, stamps) => res + stamps?.reduce((stampsCollected, { level }) => stampsCollected + (level > 0
     ? 1
-    : 0), 0), 0);
-};
+    : 0), 0), 0)
+}
+
+export const unobtainableStamps = ['Stat_Wallstree_Stamp', 'SpoOoky_Stamp', 'Prayday_Stamp', 'Shiny_Crab_Stamp', 'Amplestample_Stamp','Talent_I_Stamp', 'Talent_V_Stamp', 'Geat_Stamp'].toSimpleObject();

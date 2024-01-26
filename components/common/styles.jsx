@@ -130,16 +130,19 @@ export const CardTitleAndValue = ({
                                     value,
                                     children,
                                     icon,
-                                    tooltipTitle
+                                    tooltipTitle,
+                                    stackProps
                                   }) => {
   return <Tooltip title={tooltipTitle || ''}>
     <Card variant={variant} raised={raised} sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
       <CardContent>
-        <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-        {value ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-          <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
-          <Typography>{value}</Typography>
-        </Stack> : <Typography>{value}</Typography> : children}
+        <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
+          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
+          {value ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
+            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
+            <Typography>{value}</Typography>
+          </Stack> : <Typography>{value}</Typography> : children}
+        </Stack>
       </CardContent>
     </Card>
   </Tooltip>

@@ -10,25 +10,42 @@ const Shrines = ({ shrines, shrinesExpBonus }) => {
   return (
     <Stack sx={{ height: 'fit-content' }} justifyContent={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
       {shrines?.map((shrine, index) => {
-        const { name, rawName, shrineLevel, desc, bonus } = shrine;
+        const { name, rawName, shrineLevel, desc, bonus, progress } = shrine;
         const affectingCharacters = shrinesExpBonus?.breakdown?.[index]?.reduce((res, { name, value }) => value > 0
           ? [...res, name]
           : res, []);
         const progressPerHour = shrinesExpBonus?.total?.[index];
         const description = cleanUnderscore(desc?.replace('{', kFormatter(bonus, 2)));
-        return <HtmlTooltip
-          title={<ShrineTooltip {...shrine} affectingCharacters={affectingCharacters} progressPerHour={progressPerHour}
-                                description={description}/>} key={name + index}>
-          <IconWithText stat={shrineLevel} icon={rawName} img={{ style: { width: 50, height: 50 } }}/>
-        </HtmlTooltip>
+        const hoursReq = Math.floor(20 * (shrineLevel - 1) + 6 * shrineLevel * Math.pow(1.63, shrineLevel - 1));
+        const timeLeft = (hoursReq - progress) / progressPerHour * 1000 * 3600;
+        return <Stack key={name + index}>
+          <HtmlTooltip
+            title={<ShrineTooltip {...shrine}
+                                  affectingCharacters={affectingCharacters}
+                                  progressPerHour={progressPerHour}
+                                  hoursReq={hoursReq}
+                                  timeLeft={timeLeft}
+                                  description={description}/>}>
+            <IconWithText stat={shrineLevel} icon={rawName} img={{ style: { width: 50, height: 50 } }}/>
+          </HtmlTooltip>
+          <ProgressBar percent={progress / hoursReq * 100} label={false}/>
+        </Stack>
       })}
     </Stack>
   );
 };
 
-const ShrineTooltip = ({ name, description, shrineLevel, progress, mapId, affectingCharacters, progressPerHour }) => {
-  const hoursReq = Math.floor(20 * (shrineLevel - 1) + 6 * shrineLevel * Math.pow(1.63, shrineLevel - 1));
-  const timeLeft = (hoursReq - progress) / progressPerHour * 1000 * 3600;
+const ShrineTooltip = ({
+                         name,
+                         description,
+                         shrineLevel,
+                         progress,
+                         mapId,
+                         affectingCharacters,
+                         progressPerHour,
+                         hoursReq,
+                         timeLeft
+                       }) => {
   return <>
     <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
     <Typography variant={'body1'}>{description}</Typography>

@@ -10,20 +10,22 @@ const Statues = ({ statues, characters }) => {
   return (
     <Stack sx={{ height: 'fit-content' }} flexWrap={'wrap'} direction={'row'} justifyContent={'center'} gap={2}>
       {statues?.map((statue, index) => {
-        const { name, rawName, level } = statue;
+        const { name, rawName, level, bonus, talentMulti, progress } = statue;
+        const calcBonus = level * bonus * talentMulti;
+        const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
         return <Box key={name + index}>
-          <HtmlTooltip title={<StatueTooltip {...statue} statues={statues} characters={characters}/>}>
+          <HtmlTooltip title={<StatueTooltip {...statue} calcBonus={calcBonus} nextLv={nextLv} statues={statues}
+                                             characters={characters}/>}>
             <IconWithText stat={level} icon={rawName} img={{ style: { width: 40, height: 50, objectFit: 'contain' } }}/>
           </HtmlTooltip>
+          <ProgressBar percent={progress / nextLv * 100} label={false}/>
         </Box>;
       })}
     </Stack>
   );
 };
 
-const StatueTooltip = ({ effect, bonus, talentMulti, name, rawName, level, progress, statues, characters }) => {
-  const calcBonus = level * bonus * talentMulti;
-  const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
+const StatueTooltip = ({ effect, talentMulti, name, rawName, progress, statues, characters, calcBonus, nextLv }) => {
   const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', Math.floor(10 * calcBonus) / 10)));
   return <>
     <Typography fontWeight={'bold'} variant={'h5'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
@@ -33,7 +35,6 @@ const StatueTooltip = ({ effect, bonus, talentMulti, name, rawName, level, progr
       variant={'body2'}>{notateNumber(progress, 'Big')} / {notateNumber(nextLv, 'Big')}</Typography>
     <Typography my={2} component={'div'} variant={'caption'}>Voodo
       Statufication: {notateNumber(talentMulti, 'MultiplierInfo')}x</Typography>
-
     <Stack>
       {characters?.map(({ name: cName, talents }) => {
         const bonus = getStatueBonus(statues, rawName, talents);

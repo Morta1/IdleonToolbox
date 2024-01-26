@@ -1,7 +1,6 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { getAchievementStatus } from '../../../../../parsers/achievements';
 import { getTotalKitchenLevels } from '../../../../../parsers/cooking';
 import { calcUpgradeBonus } from '../../../../../parsers/breeding';
 

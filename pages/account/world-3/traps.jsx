@@ -1,5 +1,5 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import React, { useContext, useMemo } from 'react';
+import { Card, CardContent, FormControl, InputLabel, Select, Stack, Typography } from '@mui/material';
+import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { fillArrayToLength, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -7,12 +7,15 @@ import Timer from 'components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
-import { calcCrittersBonus, calcTotalCritters } from '../../../parsers/traps';
+import { calcTotalCritters, getTrapsBonuses } from '../../../parsers/traps';
+import MenuItem from '@mui/material/MenuItem';
 
 const Traps = () => {
   const { state } = useContext(AppContext);
   const { traps } = state?.account || {};
-  const totals = useMemo(() => calcTotalCritters(state), [state]);
+  const [bonus, setBonus] = useState('max');
+  const bonuses = useMemo(() => getTrapsBonuses(state?.account, state?.characters), [state]);
+  const totals = useMemo(() => calcTotalCritters(state?.account, bonuses?.[bonus]), [state, bonus]);
 
   return <>
     <NextSeo
@@ -20,13 +23,27 @@ const Traps = () => {
       description="Keep track of your traps timing, critters amounts and more"
     />
     <Typography variant={'h2'} mb={3}>Traps</Typography>
+    <FormControl>
+      <InputLabel id="demo-simple-select-label">Collect as</InputLabel>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={bonus}
+        label="Collect as"
+        onChange={(e) => setBonus(e.target.value)}
+      >
+        <MenuItem value={'max'}>Hunter</MenuItem>
+        <MenuItem value={'min'}>Non Hunter</MenuItem>
+      </Select>
+    </FormControl>
+    <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(bonuses?.[bonus]?.critter * 100)}% and {Math.round(bonuses?.[bonus]?.exp * 100)}% EXP</Typography>
     {totals ? <Totals hideExp array={totals} index={'total'}/> : null}
     <Stack gap={3}>
       {traps?.map((trapSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const trappingLevel = state?.characters?.[index].skillsInfo?.trapping?.level;
-        const trap = state?.characters?.[index]?.tools?.find(({ name }) => name.includes('Trap'));
+        const trap = state?.characters?.[index]?.tools?.find(({ name }) => name?.includes('Trap'));
         const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
         const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
         const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank'
@@ -36,25 +53,13 @@ const Traps = () => {
           ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap
           : trapSlots.length;
         maxTraps = Math.min(maxTraps, 8);
-        const crittersPercentBonus = calcCrittersBonus({
-          currentCharacterIndex: index,
-          account: state?.account,
-          characters: state?.characters,
-          isExp: false
-        });
-        const expPercentBonus = calcCrittersBonus({
-          currentCharacterIndex: index,
-          account: state?.account,
-          characters: state?.characters,
-          isExp: false
-        });
         const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
         const charTotals = trapSlots.reduce((total, { crittersQuantity, trapExp, rawName }) => {
           return {
             ...total,
             [rawName]: {
-              critters: (total?.[rawName]?.critters ?? 0) + (crittersQuantity * crittersPercentBonus),
-              exp: (total?.[rawName]?.exp ?? 0) + (trapExp * expPercentBonus)
+              critters: (total?.[rawName]?.critters ?? 0) + (crittersQuantity * bonuses?.[bonus]?.critter),
+              exp: (total?.[rawName]?.exp ?? 0) + (trapExp * bonuses?.[bonus]?.exp)
             }
           }
         }, {});
@@ -89,8 +94,8 @@ const Traps = () => {
                           {slot?.name ? <>
                               <Stack direction={'row'}>
                                 <Tooltip
-                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp * expPercentBonus}
-                                                      crittersQuantity={slot?.crittersQuantity * crittersPercentBonus}/>}>
+                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp * bonuses?.[bonus]?.exp}
+                                                      crittersQuantity={slot?.crittersQuantity * bonuses?.[bonus]?.critter}/>}>
                                   <FloatingItemIcon src={`${prefix}data/TrapBoxSet${slot?.trapType + 1}.png`} alt=""/>
                                 </Tooltip>
                                 <ItemIcon src={`${prefix}data/${slot?.rawName}.png`} alt=""/>
