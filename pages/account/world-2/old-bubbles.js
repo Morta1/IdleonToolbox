@@ -3,8 +3,10 @@ import {
   CardContent,
   Checkbox,
   Divider,
+  FormControl,
   FormControlLabel,
-  InputAdornment,
+  InputLabel,
+  Select,
   Stack,
   TextField,
   Tooltip,
@@ -26,13 +28,15 @@ import InfoIcon from '@mui/icons-material/Info';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
+import MenuItem from '@mui/material/MenuItem';
 
+const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
   const [condenseView, setCondenseView] = useState(false);
-  const [bargainTag, setBargainTag] = useState(0);
+  const [bargainTag, setBargainTag] = useState('0');
   const [effThreshold, setEffThreshold] = useState(75);
   const [selectedTab, setSelectedTab] = useState(0);
   const [bubbles, setBubbles] = useState();
@@ -55,10 +59,6 @@ const Bubbles = () => {
     if (selected === 3) {
       setClassDiscount(false);
     }
-  }
-
-  const handleBargainChange = (e) => {
-    setBargainTag(e?.target?.value)
   }
 
   const handleGoalChange = debounce((e, cauldronName, index) => {
@@ -189,10 +189,6 @@ const Bubbles = () => {
   }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
 
-  const calculateBargainTag = () => {
-    return parseFloat((25 * (Math.pow(0.75, bargainTag) - 1) / (0.75 - 1)).toFixed(1));
-  }
-
   const getMaxBonus = (func, x1) => {
     if (!func?.includes('decay')) return null;
     let maxBonus = x1;
@@ -215,15 +211,31 @@ const Bubbles = () => {
               account={state?.account}/>
       </Box>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
-        <Stack>
-          <Link underline={'hover'}
-                sx={{ cursor: 'pointer' }}
-                onClick={() => router.push({ pathname: 'bubbles' })}>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <ArrowRightAltIcon/>
-              <Typography>New Bubbles Page</Typography>
-            </Stack>
-          </Link>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Efficiency Threshold'} stackProps>
+          <TextField sx={{ width: 150 }}
+                     label={''}
+                     value={effThreshold}
+                     type={'number'}
+                     inputProps={{ min: 0, max: 100 }}
+                     onChange={({ target }) => {
+                       localStorage.setItem('effThreshold', target.value);
+                       setEffThreshold(target.value)
+                     }}
+          />
+        </CardTitleAndValue>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={''} stackProps>
+          <FormControl>
+            <InputLabel id="bargain-tag-select-input">Bargain Tag</InputLabel>
+            <Select
+              labelId="bargain-tag-select"
+              id="bargain-tag-select"
+              value={bargainTag}
+              label="Bargain Tag"
+              onChange={(e) => setBargainTag(e.target.value)}
+            >
+              {bargainOptions.map((value, index) => <MenuItem key={'option' + value} value={index}>{value}%</MenuItem>)}
+            </Select>
+          </FormControl>
           <FormControlLabel
             control={<Checkbox checked={condenseView} onChange={() => setCondenseView(!condenseView)}/>}
             name={'Condense view'}
@@ -233,36 +245,19 @@ const Bubbles = () => {
               control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
               name={'classDiscount'}
               label="Class Discount"/> : null}
-        </Stack>
-        <Stack gap={1}>
-
-
-          <TextField sx={{ width: 150 }}
-                     label={'Efficiency threshold'}
-                     value={effThreshold}
-                     type={'number'}
-                     inputProps={{ min: 0, max: 100 }}
-                     onChange={({ target }) => {
-                       localStorage.setItem('effThreshold', target.value);
-                       setEffThreshold(target.value)
-                     }}
-          />
-          <TextField value={bargainTag}
-                     type={'number'}
-                     inputProps={{ min: 0, max: 8 }}
-                     onChange={(e) => handleBargainChange(e)}
-                     helperText={`${calculateBargainTag()}%`}
-                     InputProps={{
-                       startAdornment: <InputAdornment position="start">
-                         <img width={36} height={36}
-                              src={`${prefix}data/aShopItems10.png`} alt=""/>
-                       </InputAdornment>
-                     }}/>
-        </Stack>
-        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Particle upgrades'}
-                           value={state?.account?.accountOptions?.[135] || '0'}/>
-        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Total bubbles'}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
+        </CardTitleAndValue>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={''} stackProps={{ gap: 1 }}>
+          <Link underline={'hover'}
+                sx={{ cursor: 'pointer' }}
+                onClick={() => router.push({ pathname: 'bubbles' })}>
+            <Stack direction={'row'} alignItems={'center'} gap={1}>
+              <ArrowRightAltIcon/>
+              <Typography>New Bubbles Page</Typography>
+            </Stack>
+          </Link>
+          <Typography>Particle Upgrades: {state?.account?.accountOptions?.[135] || '0'}</Typography>
+          <Stack direction={'row'} gap={1}>
+            <Typography>Future Bubbles</Typography>
             {bubbles?.length}
             <HtmlTooltip title={<FutureBubblesTooltip/>}>
               <InfoIcon/>
@@ -314,11 +309,8 @@ const Bubbles = () => {
                                                               level={level}
                                                               index={index}
                                                               bubble={bubble}
-                                                              goalLevel={goalLevel}
-                        /> : <BubbleTooltip {...{
-                          ...bubble,
-                          goalLevel
-                        }}/>}>
+                                                              goalLevel={goalLevel}/> :
+                          <BubbleTooltip {...{ ...bubble, goalLevel }}/>}>
                         <BubbleIcon width={48} height={48}
                                     level={level}
                                     src={`${prefix}data/${rawName}.png`}

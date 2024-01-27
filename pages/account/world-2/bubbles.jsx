@@ -34,9 +34,8 @@ const Bubbles = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
-  const [bargainTag, setBargainTag] = useState(0);
+  const [bargainTag, setBargainTag] = useState('0');
   const [effThreshold, setEffThreshold] = useState(75);
-  const [selectedTab, setSelectedTab] = useState(0);
   const [showMissingLevels, setShowMissingLevels] = useState(true);
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = useMemo(() => state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active, [state?.account?.lab.vials]);
@@ -47,21 +46,6 @@ const Bubbles = () => {
       setEffThreshold(parseInt(fromStorage));
     }
   }, []);
-
-  const handleBargainChange = (e) => {
-    setBargainTag(e?.target?.value)
-  }
-
-  const handleGoalChange = debounce((e, cauldronName, index) => {
-    const { value } = e.target;
-    setBubblesGoals({
-      ...bubblesGoals,
-      [cauldronName]: {
-        ...(bubblesGoals?.[cauldronName] || {}),
-        [index]: !value ? 0 : parseInt(value)
-      }
-    });
-  }, 100);
 
   const calcBubbleMatCost = (bubbleIndex, vialMultiplier = 1, bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
                              undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
@@ -180,10 +164,6 @@ const Bubbles = () => {
   }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
 
-  const calculateBargainTag = () => {
-    return parseFloat((25 * (Math.pow(0.75, bargainTag) - 1) / (0.75 - 1)).toFixed(1));
-  }
-
   const getMaxBonus = (func, x1) => {
     if (!func?.includes('decay')) return null;
     let maxBonus = x1;
@@ -197,7 +177,6 @@ const Bubbles = () => {
         title="Bubbles | Idleon Toolbox"
         description="Keep track of your bubbles level and requirements with a handy calculator"
       />
-      {/*<Typography variant={'h2'} textAlign={'center'} mb={3}>Bubbles</Typography>*/}
       <Stack mb={2} direction={'row'} justifyContent={'center'}>
         <Nblb title={'Next bubble upgrades'} bubbles={upgradeableBubbles?.normal} accumulatedCost={accumulatedCost}
               account={state?.account}/>
@@ -207,11 +186,10 @@ const Bubbles = () => {
       </Stack>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Options'} stackProps={{ gap: 1 }}>
-          {Object.keys(state?.account?.alchemy?.bubbles)?.[selectedTab] !== 'kazam' ?
-            <FormControlLabel
-              control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
-              name={'classDiscount'}
-              label="Class Discount"/> : null}
+          <FormControlLabel
+            control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
+            name={'classDiscount'}
+            label="Class Discount"/>
           <FormControl>
             <InputLabel id="bargain-tag-select-input">Bargain Tag</InputLabel>
             <Select
@@ -221,7 +199,7 @@ const Bubbles = () => {
               label="Bargain Tag"
               onChange={(e) => setBargainTag(e.target.value)}
             >
-              {bargainOptions.map((value) => <MenuItem key={'option' + value} value={value}>{value}%</MenuItem>)}
+              {bargainOptions.map((value, index) => <MenuItem key={'option' + value} value={index}>{value}%</MenuItem>)}
             </Select>
           </FormControl>
         </CardTitleAndValue>
