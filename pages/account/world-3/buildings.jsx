@@ -95,12 +95,20 @@ const Buildings = () => {
         } else if (b?.isMaxed) {
           return -1;
         }
-        const progressA = a?.buildCost - a?.progress;
-        const progressB = b?.buildCost - b?.progress;
-        return progressA - progressB;
+        const buildCostComparison = a?.buildCost - b?.buildCost;
+
+        // If build cost is different, return the comparison result
+        if (buildCostComparison !== 0) {
+          return buildCostComparison;
+        } else {
+          // If build cost is the same, compare progress
+          const progressA = a?.buildCost - a?.progress;
+          const progressB = b?.buildCost - b?.progress;
+          return progressA - progressB;
+        }
       })
     }
-  }, [sortBy]);
+  }, [sortBy, state]);
 
   const getBorderColor = ({ isSlotTrimmed, inProgress }) => {
     if (isSlotTrimmed) {

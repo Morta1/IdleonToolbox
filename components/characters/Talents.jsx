@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { fillMissingTalents, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
-import { Box, Tab, Tabs, Typography } from '@mui/material';
-import { TalentTooltip } from '../common/styles';
+import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Breakdown, TalentTooltip } from '../common/styles';
+import InfoIcon from '@mui/icons-material/Info';
 
-const Talents = ({ talents, starTalents }) => {
+const Talents = ({ talents, starTalents, addedLevels }) => {
+  const { value, breakdown } = addedLevels;
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
@@ -16,7 +18,7 @@ const Talents = ({ talents, starTalents }) => {
     const tempTalents = activeTab === 4 ? handleStarTalents(starTalents, specialsTab) : talents?.[activeTab];
     setActiveTalents(tempTalents);
     setSpecialTabs(0);
-  }, [activeTab]);
+  }, [activeTab, talents]);
 
   const switchSpecials = (tab) => {
     setSpecialTabs(tab);
@@ -67,6 +69,12 @@ const Talents = ({ talents, starTalents }) => {
            icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
     <Typography mt={2} component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
+    <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
+      <Typography component={'div'} variant={'caption'}>Added levels: {value}</Typography>
+      <Tooltip title={<Breakdown titleStyle={{width: 150}} breakdown={breakdown}/>}>
+        <InfoIcon/>
+      </Tooltip>
+    </Stack>
     <div className="talents-wrapper">
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
         const { talentId, level, maxLevel, name } = talentDetails;

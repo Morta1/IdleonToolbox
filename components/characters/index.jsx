@@ -52,7 +52,9 @@ const Character = ({
     afkTime,
     inventory,
     inventorySlots,
-    playerId
+    playerId,
+    addedLevels,
+    addedLevelsBreakdown
   } = character;
   const views = [
     {
@@ -67,7 +69,11 @@ const Character = ({
     { component: <ObolsView obols={obols}/>, filter: 'Obols' },
     { component: <ObolsView obols={obols} obolStats/>, filter: 'Obols Stats' },
     { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: 'Bags' },
-    { component: <Talents talents={talents} starTalents={starTalents}/>, filter: 'Talents' },
+    {
+      component: <Talents talents={talents} starTalents={starTalents}
+                          addedLevels={{ value: addedLevels, breakdown: addedLevelsBreakdown }}/>,
+      filter: 'Talents'
+    },
     { component: <EquippedCards cards={cards}/>, filter: 'Cards' },
     {
       component: <Skills skills={skillsInfo} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,

@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.46',
+    gameVer: '1.92',
+    date: '24/01/2024',
+    features: [
+      'Added talents "Added levels" value and breakdown to talents under characters page',
+      'Added dashboard alerts for using the wrong card set while fighting / skilling',
+    ],
+    fixes: [
+      'Fixed refinery calculation (was missing arcade shop bonus)',
+      'Fixed bubbles page to be grid aligned',
+      'Build cost filter in Account -> Buildings page now shows the correct order'
+    ]
+  },
+  {
     ver: '3.2.45',
     gameVer: '1.92',
     date: '26/01/2024',

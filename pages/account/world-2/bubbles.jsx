@@ -293,7 +293,7 @@ const Bubbles = () => {
                       </Stack>
                       {bubbleMaxBonus ? <Typography
                         fontSize={'0.70rem'}
-                        variant={'caption'}>({notateNumber(effectHardCapPercent)}%)</Typography> : null}
+                        variant={'caption'}>({notateNumber(effectHardCapPercent)}%)</Typography> : <Typography>&nbsp;</Typography>}
                     </Stack>
                   </Stack>
                 </Stack>

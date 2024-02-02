@@ -29,7 +29,8 @@ const Quests = () => {
           };
           if (completed.length === filteredCharacters?.length) {
             completedQuests++;
-          } else if (completed.length > 0) {
+          }
+          else if (completed.length > 0) {
             completedQuests += 0.5;
           }
           if (
@@ -45,10 +46,12 @@ const Quests = () => {
         if (completedQuests === 0) {
           if (inProgressQuests > 0) {
             questsStatus = 0;
-          } else {
+          }
+          else {
             questsStatus = -1;
           }
-        } else {
+        }
+        else {
           questsStatus = completedQuests === npcQuests?.length ? 1 : 0;
         }
         return {
@@ -59,7 +62,7 @@ const Quests = () => {
       });
     }
     setWorldQuests(filteredWorldQuests);
-  }, [filteredCharacters]);
+  }, [filteredCharacters, state]);
 
   const handleFilteredCharacters = (event, newCharacters) => {
     if (newCharacters.length) {
@@ -100,10 +103,10 @@ const Quests = () => {
                   <ToggleButton
                     title={character?.name}
                     value={index}
-                    key={character?.name + "" + index}>
+                    key={character?.name + '' + index}>
                     <img
                       src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                      alt=''
+                      alt=""
                     />
                   </ToggleButton>
                 );
@@ -113,8 +116,8 @@ const Quests = () => {
                                size={'small'}>
               <ToggleButton
                 onClick={handleSelectAll}
-                title='Select all'
-                value={"all"}>
+                title="Select all"
+                value={'all'}>
                 <FormatAlignCenterIcon/>
               </ToggleButton>
             </ToggleButtonGroup>
@@ -124,31 +127,31 @@ const Quests = () => {
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
-              worldName={"Blunder_Hills"}
+              worldName={'Blunder_Hills'}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
-              worldName={"Yum-Yum_Desert"}
+              worldName={'Yum-Yum_Desert'}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
-              worldName={"Frostbite_Tundra"}
+              worldName={'Frostbite_Tundra'}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
-              worldName={"Hyperion_Nebula"}
+              worldName={'Hyperion_Nebula'}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
-              worldName={"Smolderin'_Plateau"}
+              worldName={'Smolderin\'_Plateau'}
             />
           </Stack>
         </>

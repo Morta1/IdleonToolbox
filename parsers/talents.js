@@ -149,7 +149,7 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
 }
 
 export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
-  let addedLevels = 0;
+  let addedLevels = 0, breakdown;
   if (isCompanionBonusActive(account, 0)) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
   }
@@ -161,10 +161,11 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
       addedLevels += Math.ceil(secondDeityMinorBonus);
     }
   }
-
+  breakdown = [{ name: 'God Bonus', value: Math.ceil(addedLevels) }];
   const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'));
+  let symbolAddedLevel = 0;
   if (symbolTalent) {
-    const symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
+    symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
     addedLevels += symbolAddedLevel;
   }
   if (familyEffBonus) {
@@ -177,7 +178,24 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     addedLevels += account?.companions?.list?.at(1)?.bonus;
   }
   addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
-  return addedLevels;
+  breakdown = [
+    ...breakdown,
+    { name: 'Symbol of Beyond', value: symbolAddedLevel },
+    { name: 'Family Bonus', value: Math.floor(familyEffBonus) },
+    { name: 'Achievement Bonus', value: getAchievementStatus(account?.achievements, 291) ? 1 : 0 },
+    {
+      name: 'Companion Bonus',
+      value: isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0
+    },
+    {
+      name: 'Equinox Bonus',
+      value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
+    },
+  ]
+  return {
+    value: addedLevels,
+    breakdown
+  };
 }
 
 export const applyTalentAddedLevels = (talents, flatTalents, addedLevels) => {

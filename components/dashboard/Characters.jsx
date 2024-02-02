@@ -100,8 +100,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
                 <Alert title={`${name} is missing an active bubble`} iconPath={'data/aJarB0'}/> : null}
               {trackers?.cards && alerts?.cards?.cardSet ?
-                <Alert title={`${name} has Blunder hill card set equipped which is for level < 50`}
-                       iconPath={'data/CardSet0'}/> : null}
+                <Alert title={alerts?.cards?.cardSet?.text}
+                       iconPath={`data/${character?.cards?.cardSet?.rawName || 'CardSet0'}`}/> : null}
               {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
                 <Alert title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
                        iconPath={'data/ObolLocked1'}/> : null}

@@ -5,6 +5,7 @@ import { getExpReq, isArenaBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '../../parsers/anvil';
 import { checkCharClass, getTalentBonus, relevantTalents } from '../../parsers/talents';
 import { getAllTools } from '../../parsers/items';
+import { cleanUnderscore } from '@utility/helpers';
 
 export const anvilAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
@@ -119,7 +120,8 @@ export const starSignsAlerts = (account, characters, character, lastUpdated, opt
     const maxStarSigns = account?.starSigns?.reduce((res, { starName, unlocked }) => {
       if (starName.includes('Chronus_Cosmos') && unlocked) {
         return res < 2 ? 2 : res;
-      } else if (starName.includes('Hydron_Cosmos') && unlocked) {
+      }
+      else if (starName.includes('Hydron_Cosmos') && unlocked) {
         return res < 3 ? 3 : res;
       }
       return res;
@@ -202,7 +204,34 @@ export const hasAvailableToolUpgrade = (character, account) => {
 export const cardsAlert = (account, characters, character, lastUpdated, options) => {
   const alerts = {}
   if (options?.cards?.cardSet?.checked) {
-    alerts.cardSet = character?.level >= 50 && character?.cards?.cardSet?.rawName === 'CardSet0';
+    const equippedCardSet = character?.cards?.cardSet;
+    const cardSetEffect = cleanUnderscore(equippedCardSet?.effect).replace('{', '')
+    if (character?.level >= 50 && equippedCardSet?.rawName === 'CardSet0') {
+      alerts.cardSet = {
+        text: `${character.name} has Blunder hill card set equipped which is for level < 50`
+      };
+    }
+    else if (character.afkType === 'FIGHTING' && (equippedCardSet?.rawName === 'CardSet2'
+      || equippedCardSet?.rawName === 'CardSet3'
+      || equippedCardSet?.rawName === 'CardSet5'
+      || equippedCardSet?.rawName === 'CardSet7')) {
+      alerts.cardSet = {
+        text: `${character.name} is fighting but has skilling card set (${cardSetEffect})`
+      };
+    }
+    else if (character.afkType !== 'FIGHTING' && character.afkType !== 'Nothing'
+      && (equippedCardSet?.rawName === 'CardSet4'
+        || equippedCardSet?.rawName === 'CardSet6'
+        || equippedCardSet?.rawName === 'CardSet8'
+        || equippedCardSet?.rawName === 'CardSet7'
+        || equippedCardSet?.rawName === 'CardSet25'
+        || equippedCardSet?.rawName === 'CardSet26'
+      )) {
+      alerts.cardSet = {
+        text: `${character.name} is skilling but has fighting card set (${cardSetEffect})`
+      };
+    }
+    // alerts.cardSet = character?.level >= 50 && character?.cards?.cardSet?.rawName === 'CardSet0';
   }
   return alerts
 }
