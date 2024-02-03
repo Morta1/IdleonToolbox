@@ -7,7 +7,7 @@ import Tooltip from '../../../components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
-import { getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
+import { getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
 import { getAtomColliderThreshold } from '../../../parsers/atomCollider';
 import { calcTotals } from '../../../parsers/printer';
 
@@ -19,7 +19,8 @@ const Printer = () => {
   const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
   const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
-  const highestBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
+  const highestBrr = getCharacterByHighestTalent(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
+  const highestMaxLevelBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
 
   return <>
     <NextSeo
@@ -34,13 +35,14 @@ const Printer = () => {
       <Typography variant={'h4'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
-    <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)} />
+    <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)}/>
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {})?.map(([item, { boostedValue, atomable, atoms }], index) => {
         const isAtom = item === 'atom'
         return <Card key={'total' + item + index}>
           <Tooltip
             title={<TotalTooltip atomable={atomable} item={item} value={boostedValue} atoms={atoms}
+                                 highestMaxLevelBrr={highestMaxLevelBrr}
                                  highestBrr={highestBrr}
                                  atomThreshold={atomThreshold}/>}>
             <CardContent>
@@ -129,20 +131,29 @@ const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
   </Stack>
 }
 
-const TotalTooltip = ({ item, value, atoms, highestBrr }) => {
+const TotalTooltip = ({ item, value, atoms, highestBrr, highestMaxLevelBrr }) => {
   const isAtom = item === 'atom';
   const perDay = value * 24;
-  const printerGoBrrr = growth(highestBrr?.funcX, highestBrr?.maxLevel, highestBrr?.x1, highestBrr?.x2, false);
-  const perPrinterGoBrrr = value * printerGoBrrr;
-
+  const maxPrinterGoBrrr = growth(highestMaxLevelBrr?.funcX, highestMaxLevelBrr?.maxLevel, highestMaxLevelBrr?.x1, highestMaxLevelBrr?.x2, false);
+  const actualPrinterGoBrrr = highestBrr.flatTalents.find(({ name }) => name === 'PRINTER_GO_BRRR');
+  let highestPrinterGoBrr = 0;
+  if (actualPrinterGoBrrr?.level > 0) {
+    highestPrinterGoBrr = growth(actualPrinterGoBrrr?.funcX, actualPrinterGoBrrr?.level, actualPrinterGoBrrr?.x1, actualPrinterGoBrrr?.x2, false)
+  }
   return <Stack gap={1}>
     {item !== 'atom' ? <Stack direction={'row'} gap={1} alignItems={'center'}>
       <img width={30} height={30} src={`${prefix}data/${item}.png`} alt=""/>
       <Typography>{notateNumber(perDay)} / day</Typography>
     </Stack> : null}
-    {printerGoBrrr > 0 ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+    {maxPrinterGoBrrr > 0 && !highestPrinterGoBrr ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2}
+                                                           alignItems={'center'}>
       <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=""/>
-      <Typography>{notateNumber(perPrinterGoBrrr)} / printer go brr ({printerGoBrrr} hours) </Typography>
+      <Typography>{notateNumber(value * maxPrinterGoBrrr)} / printer go brr ({maxPrinterGoBrrr} hours)</Typography>
+    </Stack> : null}
+    {highestPrinterGoBrr > 0 ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
+      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=""/>
+      <Typography>{notateNumber(value * highestPrinterGoBrr)} / printer go brr
+        ({highestPrinterGoBrr} hours)</Typography>
     </Stack> : null}
     {(atoms || isAtom) ?
       <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>

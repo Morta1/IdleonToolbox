@@ -163,9 +163,6 @@ const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0, 
 }
 
 const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
-  const gildedStamps = isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')
-    ? account?.accountOptions?.[154]
-    : 0
   const reductionVial = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
   const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;

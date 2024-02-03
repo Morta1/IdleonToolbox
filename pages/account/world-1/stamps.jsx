@@ -31,7 +31,7 @@ const Stamps = () => {
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
     ? state?.account?.accountOptions?.[154]
     : 0;
-  const [forcedGildedStamp, setForcedGildedStamp] = useState(false);
+  const [forcedGildedStamp, setForcedGildedStamp] = useState(gildedStamps > 0);
   const stampReducer = state?.account?.atoms?.stampReducer;
   const [subtractGreenStacks, setSubtractGreenStacks] = React.useState(false);
   const [localStamps, setLocalStamps] = useState(state?.account?.stamps);
@@ -195,9 +195,9 @@ const StampInfo = ({
                      displayName,
                      level,
                      effect,
+                     rawName,
                      multiplier,
                      goldCost,
-                     rawName,
                      materialCost,
                      futureCosts,
                      bestCharacter,
@@ -206,7 +206,8 @@ const StampInfo = ({
                      greenStackOwnedMats,
                      hasMoney,
                      hasMaterials,
-                     enoughPlayerStorage
+                     enoughPlayerStorage,
+  itemReq
                    }) => {
   const bonus = growth(func, level, x1, x2, true) * (multiplier ?? 1);
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
@@ -217,11 +218,11 @@ const StampInfo = ({
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
     {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level > 0 ? <>
-      <CostSection isMaterialCost={false}
+      <CostSection isMaterialCost={!(hasMoney && hasMaterials && enoughPlayerStorage)}
                    hasMoney={hasMoney}
                    hasMaterials={hasMaterials}
                    enoughPlayerStorage={enoughPlayerStorage}
-                   rawName={rawName}
+                   rawName={itemReq.rawName}
                    materialCost={materialCost}
                    goldCost={goldCost}
                    level={level}/>
@@ -275,7 +276,7 @@ const CostSection = ({
                                                 variant={'horizontal'}
                                                 title={''} maxCoins={3}
                                                 money={getCoinsArray(goldCost)}/> : null}
-    {isMaterialCost || showBoth ? <Typography variant={'subtitle2'}>{reduction}%</Typography> : null}
+    {(isMaterialCost || showBoth) && reduction >= 0 ? <Typography variant={'subtitle2'}>{reduction}%</Typography> : null}
   </Stack>
 }
 
