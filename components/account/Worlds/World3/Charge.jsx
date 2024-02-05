@@ -19,7 +19,7 @@ const Charge = () => {
     totalChargeRate,
     timeToOverCharge,
   } = useMemo(() => getChargeWithSyphon(state?.characters), [state?.characters]);
-
+  console.log('closestToFull?.timeLeft', closestToFull?.timeLeft)
   return (
     <>
       <Typography variant={'caption'}>* make sure you login to every character to "apply" their charge before using
@@ -29,10 +29,11 @@ const Charge = () => {
         <CardTitleAndValue title={'Total Daily Charge'} value={`${Math.round(24 * totalChargeRate)}%`}/>
         <CardTitleAndValue title={'First to full'}>
           <Typography>{closestToFull?.character}</Typography>
-          <Timer type={'countdown'}
-                 placeholder={'You have overflowing charge'}
-                 date={new Date().getTime() + closestToFull?.timeLeft}
-                 lastUpdated={state?.lastUpdated}/>
+          {isFinite(closestToFull?.timeLeft) ? <Timer type={'countdown'}
+                                                      placeholder={'You have overflowing charge'}
+                                                      date={new Date().getTime() + closestToFull?.timeLeft}
+                                                      lastUpdated={state?.lastUpdated}/> :
+            <Typography>Everyone</Typography>}
         </CardTitleAndValue>
         <CardTitleAndValue title={`Best Wizard -${bestWizard?.name}`}>
           <Typography>Charge with syphon ({((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)})</Typography>

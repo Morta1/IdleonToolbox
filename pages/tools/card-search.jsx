@@ -25,7 +25,8 @@ const additionalEffects = {
   'card drop': [stats.BaseLUK, stats.TotalDropRate],
   'monster exp': [stats.EXPfrommonsters],
   dungeon: [stats.BlockChance, stats.RNGitemrarity, stats['tostartwithRNGorb(Passive)']],
-  worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP]
+  worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP],
+  money: [stats.FightingAFKgainrate, stats.TotalDropRate]
 }
 
 export default function CardSearch() {
@@ -56,8 +57,10 @@ export default function CardSearch() {
     'Fishing',
     'Catching',
     'Trapping',
+    'Cooking',
     'Worship',
     'Accuracy',
+    'Money',
     'Card Drop',
     'Drop Rate',
     'Monster Exp',
