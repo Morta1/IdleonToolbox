@@ -108,7 +108,8 @@ const baseTrackers = {
     materialTracker: {
       checked: true, options: [
         { name: 'applyThresholdFromAbove', checked: false },
-        { name: 'applyThresholdFromBelow', checked: true }
+        { name: 'applyThresholdFromBelow', checked: true },
+        { name: 'disable"CloseTo"Alert', checked: true },
       ]
     },
     etc: {

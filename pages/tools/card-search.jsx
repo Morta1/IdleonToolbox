@@ -59,6 +59,8 @@ export default function CardSearch() {
     'Trapping',
     'Cooking',
     'Worship',
+    'Lab',
+    'Crystal Mob',
     'Accuracy',
     'Money',
     'Card Drop',

@@ -185,7 +185,7 @@ export const materialTrackerAlerts = (account, options, characters) => {
       else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
         text = 'above';
       }
-      else if ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer))) {
+      else if (!options?.['disable"CloseTo"Alert']?.checked && ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer)))) {
         text = 'close to';
       }
       if (!text) return res;
