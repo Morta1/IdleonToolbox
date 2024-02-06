@@ -63,6 +63,10 @@ const Account = ({ account, characters, trackers }) => {
                    iconPath={'data/CogFLflag'}/> : null}
           {trackers?.alchemy && alerts?.alchemy?.bargainTag ?
             <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
+          {trackers?.etc && alerts?.etc?.newCharacters ?
+            <Alert title={`You can create ${alerts?.etc?.newCharacters} new character${alerts?.etc?.newCharacters > 1
+              ? 's'
+              : ''}`} iconPath={'etc/CharFam0'}/> : null}
           {trackers?.etc && alerts?.etc?.randomEvents ?
             <Alert title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.etc && alerts?.etc?.weeklyBosses ?

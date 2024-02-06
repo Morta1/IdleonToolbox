@@ -127,6 +127,7 @@ const baseTrackers = {
         },
         { name: 'weeklyBosses', checked: true },
         { name: 'killRoy', checked: true },
+        { name: 'newCharacters', checked: true },
       ]
     }
   },

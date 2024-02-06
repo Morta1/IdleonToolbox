@@ -198,7 +198,24 @@ export const materialTrackerAlerts = (account, options, characters) => {
 
 export const etcAlerts = (account, options, characters) => {
   const alerts = {}
-
+  if (options?.newCharacters?.checked) {
+    const numOfCharacters = characters?.length;
+    const totalLevels = characters?.reduce((sum, { level }) => sum + level, 0);
+    let newCharactersCounter = 0;
+    if (numOfCharacters === 6 && totalLevels >= 330) {
+      newCharactersCounter++;
+    }
+    if (numOfCharacters === 7 && totalLevels >= 470) {
+      newCharactersCounter++;
+    }
+    if (numOfCharacters === 8 && totalLevels >= 600) {
+      newCharactersCounter++;
+    }
+    if (numOfCharacters === 9 && totalLevels >= 900) {
+      newCharactersCounter++;
+    }
+    alerts.newCharacters = newCharactersCounter;
+  }
   if (options?.randomEvents?.checked) {
     alerts.randomEvents = account?.accountOptions?.[137] === 0;
   }
