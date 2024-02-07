@@ -78,7 +78,8 @@ export const createIndexedArray = (object) => {
   for (let i = 0; i <= highest; i++) {
     if (object?.[i]) {
       result[i] = object?.[i];
-    } else {
+    }
+    else {
       result[i] = {};
     }
   }
@@ -91,7 +92,8 @@ export const growth = (func, level, x1, x2, shouldRound = true) => {
     case 'add':
       if (x2 !== 0) {
         result = (((x1 + x2) / x2 + 0.5 * (level - 1)) / (x1 / x2)) * level * x1;
-      } else {
+      }
+      else {
         result = level * x1;
       }
       break;
@@ -381,7 +383,8 @@ export const flatten = (obj, out) => {
   Object.keys(obj).forEach(key => {
     if (typeof obj[key] == 'object') {
       out = flatten(obj[key], out) //recursively call for nested
-    } else {
+    }
+    else {
       out[key] = obj[key] //direct assign for values
     }
   });
@@ -462,6 +465,15 @@ export const removeTrackers = (type, config) => {
     return config;
   }
 }
+
+export const handleCopyToClipboard = async (data) => {
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
 export const prefix = isProd ? '/' : '/';
 

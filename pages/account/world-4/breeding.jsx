@@ -1,10 +1,10 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent, IconButton, Stack, Typography } from '@mui/material';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
 import Territory from '@components/account/Worlds/World4/Breeding/Territory';
-import { prefix } from 'utility/helpers';
+import { handleCopyToClipboard, prefix, tryToParse } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '../../../components/account/Worlds/World4/Breeding/Pets';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -14,6 +14,8 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
 import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
+import Tooltip from '@components/Tooltip';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
@@ -31,6 +33,11 @@ const Breeding = () => {
           + (bubbleBonus
             + (10 * achievement + 15 * skillMasteryBonus)))) / 100) * 1000;
   }
+  const handleCopy = async () => {
+    const data = tryToParse(localStorage.getItem('rawJson'));
+    const breedingData = tryToParse(data?.data?.Breeding);
+    await handleCopyToClipboard(breedingData)
+  }
   const timePerEgg = useMemo(() => calcTimePerEgg(), [state]);
   const now = new Date().getTime();
   return (
@@ -39,7 +46,14 @@ const Breeding = () => {
         title="Breeding | Idleon Toolbox"
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Breeding</Typography>
+      <Stack direction={'row'} gap={2} alignItems={'center'}>
+        <Typography variant={'h2'} mb={3}>Breeding</Typography>
+        <Tooltip title={'Copy breeding data'}>
+          <IconButton onClick={handleCopy}>
+            <ContentCopyIcon/>
+          </IconButton>
+        </Tooltip>
+      </Stack>
       <Stack my={2} direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={2}>
         {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
           return eggLevel > 0 ? <Card key={`egg-${index}`}>
