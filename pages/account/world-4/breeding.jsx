@@ -36,7 +36,7 @@ const Breeding = () => {
   const handleCopy = async () => {
     const data = tryToParse(localStorage.getItem('rawJson'));
     const breedingData = tryToParse(data?.data?.Breeding);
-    await handleCopyToClipboard(breedingData)
+    await handleCopyToClipboard(breedingData, false)
   }
   const timePerEgg = useMemo(() => calcTimePerEgg(), [state]);
   const now = new Date().getTime();

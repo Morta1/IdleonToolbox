@@ -466,9 +466,10 @@ export const removeTrackers = (type, config) => {
   }
 }
 
-export const handleCopyToClipboard = async (data) => {
+export const handleCopyToClipboard = async (data, beautify = true) => {
   try {
-    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    const text = beautify ? JSON.stringify(data, null, 2) : data;
+    await navigator.clipboard.writeText(text);
   } catch (err) {
     console.error(err);
   }
