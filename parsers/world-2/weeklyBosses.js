@@ -38,13 +38,16 @@ const getShopItems = (seed) => {
   let fourthRng = new LavaRand(Math.round(seed + 20));
   let fourthRandom = Math.max(0, Math.min(weeklyBossesShop[1].length - 1, Math.floor(fourthRng.rand() * weeklyBossesShop[1].length)));
   let k = 0;
-  while (thirdRandom === fourthRandom && k < 100) {
-    k += 1;
+  while (thirdRandom === fourthRandom && k < 710) {
+    k += 71;
     fourthRng = new LavaRand(seed + k);
     fourthRandom = Math.max(0, Math.min(weeklyBossesShop[1].length - 1, Math.floor(fourthRng.rand() * weeklyBossesShop[1].length)));
   }
-  return [weeklyBossesShop?.[0]?.[firstRandom], weeklyBossesShop?.[0]?.[secondRandom],
-    weeklyBossesShop?.[1]?.[thirdRandom], weeklyBossesShop?.[1]?.[fourthRandom]]
+  return {
+    shopItems: [weeklyBossesShop?.[0]?.[firstRandom], weeklyBossesShop?.[0]?.[secondRandom],
+      weeklyBossesShop?.[1]?.[thirdRandom], weeklyBossesShop?.[1]?.[fourthRandom]],
+    extraSeed: l + k
+  }
 }
 
 const MAX_ACCUMULATOR_SIZE = 9;
@@ -55,14 +58,14 @@ export const getWeeklyBoss = (account) => {
   for (let i = 0; i < 10; i++) {
     const rng = new LavaRand(seed + i);
     const random = Math.floor(rng.rand() * 1e3);
-    const shopItems = getShopItems(random);
+    const { shopItems, extraSeed } = getShopItems(random);
     const bossId = getBossId(random);
     const tasks = getTasksIds(bossId, random)?.map((taskIndex) => ({
       ...weeklyBossesTasks?.[taskIndex],
       taskIndex
     }));
     const { bossName } = weeklyBosses?.[bossId] || {};
-    let currentSeed = 0;
+    let currentSeed = extraSeed;
     let triplets = [], accumulator = [];
     for (let j = 0; j < 15; j++) {
       const triplet = [];
@@ -94,7 +97,8 @@ export const getWeeklyBoss = (account) => {
       task: tasks?.[index]
     }));
     weeklyBossesList.push({ bossName, shopItems, triplets, date: new Date(dateInMs) });
-  }return weeklyBossesList;
+  }
+  return weeklyBossesList;
 }
 
 export const getTaskQuantity = (turn, bossId, account, characters) => {
