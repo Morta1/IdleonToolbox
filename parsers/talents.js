@@ -164,7 +164,7 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   breakdown = [{ name: 'God Bonus', value: Math.ceil(addedLevels) }];
   const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }) => name.includes('SYMBOLS_OF_BEYOND_'));
   let symbolAddedLevel = 0;
-  if (symbolTalent) {
+  if (symbolTalent && symbolTalent?.level > 0) {
     symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
     addedLevels += symbolAddedLevel;
   }
