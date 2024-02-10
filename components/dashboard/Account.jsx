@@ -71,11 +71,11 @@ const Account = ({ account, characters, trackers }) => {
             <Alert title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.etc && alerts?.etc?.weeklyBosses ?
             <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/> : null}
-          {trackers?.etc && alerts?.etc?.killRoy < 21 ?
+          {trackers?.etc && alerts?.etc?.killRoy === 0 || (alerts?.etc?.killRoy < 21 && account?.finishedWorlds?.World3) ?
             <Alert
               title={alerts?.etc?.killRoy === 0
                 ? 'You haven\'t done a killroy this week' :
-                alerts?.etc?.killRoy > 0 && alerts?.etc?.killRoy < 21
+                alerts?.etc?.killRoy > 0 && alerts?.etc?.killRoy < 21 && account?.finishedWorlds?.World3
                   ? 'You haven\'t done a killroy this week (You have 1 killroy left)'
                   : ''} iconPath={'etc/Killroy'}/> : null}
           {trackers?.cooking && alerts?.cooking?.spices > 0 ?

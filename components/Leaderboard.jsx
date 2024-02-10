@@ -11,6 +11,16 @@ const HIGHLIGHTED_BG_COLOR = '#12141c'
 
 const CARD_BASE_HEIGHT = 125;
 
+const specialNotation = (sectionName, value) => {
+  if (sectionName === 'bits') {
+    return notateNumber(value, 'bits');
+  }
+  else if (sectionName === 'dropRate') {
+    return notateNumber(value, 'MultiplierInfo');
+  }
+  return notateNumber(value)
+}
+
 const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
   return <Grid sx={{ width: '100%', margin: '0 auto' }}
                justifySelf={'center'}
@@ -66,7 +76,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                     ? SECONDARY_HIGHLIGHTED_OUTLINED_COLOR
                     : ''
                 }}
-                secondaryAction={<Typography>{notateNumber(value, sectionName === 'bits' ? 'bits' : '')}</Typography>}
+                secondaryAction={<Typography>{specialNotation(sectionName, value)}</Typography>}
                 key={`${sectionName}-${index}`}>
                 <ListItemText><PositionCircle inline sx={{ mr: 2 }}>{entry?.index
                   ? entry?.index
@@ -112,7 +122,7 @@ const TopThree = ({ sectionName, topThree }) => {
                 <Link color={'inherit'} underline={'hover'} target={'_blank'}
                       href={`https://idleontoolbox.com?profile=${entry?.mainChar}`}>{entry?.mainChar}</Link>
               </Typography>
-              <Typography textAlign={'center'}>{notateNumber(value, sectionName === 'bits' ? 'bits' : '')}</Typography>
+              <Typography textAlign={'center'}>{specialNotation(sectionName, value)}</Typography>
             </Stack>
           </TextWrapper>
         </Wrapper>
