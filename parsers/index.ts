@@ -12,13 +12,7 @@ import { getShrineExpBonus, getShrines } from './shrines';
 import { getHighscores } from './highScores';
 import { getGemShop } from './gemShop';
 import { getShops } from './shops';
-import {
-  applyArtifactBonusOnSigil,
-  applyVialsMulti,
-  getAlchemy,
-  getEquippedBubbles,
-  getLiquidCauldrons
-} from './alchemy';
+import { applyArtifactBonusOnSigil, getAlchemy, getEquippedBubbles, getLiquidCauldrons, updateVials } from './alchemy';
 import { getStorage } from './storage';
 import { getBribes } from './bribes';
 import { getConstellations, getStarSigns } from './starSigns';
@@ -58,7 +52,7 @@ import { applyGodCost, getDivinity } from './divinity';
 import { getArtifacts, getSailing } from './sailing';
 import { getGaming } from './gaming';
 import { getAtoms } from './atomCollider';
-import { getRift, isRiftBonusUnlocked } from './world-4/rift';
+import { getRift } from './world-4/rift';
 import { getPostOfficeShipments } from './postoffice';
 import { getIslands } from './world-2/islands';
 import { getEquinox } from './equinox';
@@ -137,13 +131,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   // Update values for meals, stamps, vials
   const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7); // stamp multi
   accountData.stamps = applyStampsMulti(accountData.stamps, certifiedStampBookMulti);
-  const myFirstChemistrySet = getLabBonus(accountData.lab.labBonuses, 10); // vial multi
-  accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet);
-  if (isRiftBonusUnlocked(accountData.rift, 'Vial_Mastery')) {
-    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }: any) => level === 13);
-    const riftVialMulti = 1 + (2 * maxedVials?.length) / 100;
-    accountData.alchemy.vials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet * riftVialMulti)
-  }
+  accountData.alchemy.vials = updateVials(accountData);
   accountData.equinox = getEquinox(idleonData, accountData);
   const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(accountData.lab.jewels, 16, spelunkerObolMulti);
@@ -162,7 +150,8 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
 
-  accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData)
+  accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
+  accountData.alchemy.vials = updateVials(accountData);
   accountData.finishedWorlds = [1, 2, 3, 4, 5]?.reduce((res, world) => {
     return {
       ...res,

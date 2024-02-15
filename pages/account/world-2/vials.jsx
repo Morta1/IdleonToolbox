@@ -27,7 +27,7 @@ const Vials = () => {
     <Typography variant={'h2'} mb={3}>Vials</Typography>
 
     <CardTitleAndValue title={'Vial mastery bonus'}
-                       value={`${getVialMastery() || 1}x`}>
+                       value={`${(getVialMastery() || 1).toFixed(3)}x`}>
     </CardTitleAndValue>
 
     <Stack direction={'row'} flexWrap={'wrap'}>

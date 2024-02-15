@@ -7,6 +7,7 @@ import { getJewelBonus, getLabBonus } from './lab';
 import { isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
+import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 
 const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
 const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o' };
@@ -49,7 +50,8 @@ export const getLiquidCauldrons = (account) => {
   return liquids.map((liquidVal, index) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons[index * 4];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons[(index * 4) + 1];
-    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1), getCauldronBrewReq(decantRateLevel + 1)]
+    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1),
+      getCauldronBrewReq(decantRateLevel + 1)]
     const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevel); // CauldStatDN1
     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value, index) => index === 106) ?? 0;
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
@@ -243,6 +245,18 @@ export const getVialsBonusByStat = (vials, statName) => {
 export const applyVialsMulti = (vials, multiplier) => {
   return vials?.map((vial) => ({ ...vial, multiplier }));
 };
+
+export const updateVials = (accountData) => {
+  let updatedVials;
+  const myFirstChemistrySet = getLabBonus(accountData.lab.labBonuses, 10); // vial multi
+  updatedVials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet);
+  if (isRiftBonusUnlocked(accountData.rift, 'Vial_Mastery')) {
+    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }) => level === 13);
+    const riftVialMulti = 1 + (2 * maxedVials?.length) / 100;
+    updatedVials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet * riftVialMulti)
+  }
+  return updatedVials;
+}
 
 const getCauldrons = (cauldronsProgress, cauldronsRaw, p2w, bubbles, alchemyActivity) => {
   const playersInCauldrons = alchemyActivity.filter(({ activity }) => activity < 100 && activity !== -1);
