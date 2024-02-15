@@ -46,7 +46,7 @@ const getShopItems = (seed) => {
   return {
     shopItems: [weeklyBossesShop?.[0]?.[firstRandom], weeklyBossesShop?.[0]?.[secondRandom],
       weeklyBossesShop?.[1]?.[thirdRandom], weeklyBossesShop?.[1]?.[fourthRandom]],
-    extraSeed: l + k
+    extraSeed: k
   }
 }
 
