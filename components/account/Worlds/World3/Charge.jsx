@@ -19,7 +19,7 @@ const Charge = () => {
     totalChargeRate,
     timeToOverCharge,
   } = useMemo(() => getChargeWithSyphon(state?.characters), [state?.characters]);
-  console.log('closestToFull?.timeLeft', closestToFull?.timeLeft)
+
   return (
     <>
       <Typography variant={'caption'}>* make sure you login to every character to "apply" their charge before using

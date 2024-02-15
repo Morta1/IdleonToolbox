@@ -6,7 +6,6 @@ const url = process.env.NEXT_PUBLIC_PROFILES_URL;
 export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);
-    console.log('parsedProfile', parsedProfile)
     const response = await fetch(`${url}/profiles`, {
       method: 'POST',
       body: JSON.stringify({ profile: parsedProfile, uid, leaderboardConsent }),
