@@ -112,7 +112,7 @@ export const shopsAlerts = (account, options) => {
     else if (index === 6 && !account?.finishedWorlds?.World4) {
       return [...res, []];
     }
-    const filtered = shop?.filter(({ rawName }) => options?.shops?.props?.value?.[rawName])
+    const filtered = shop?.filter(({ rawName }) => options?.shops?.props?.value?.[rawName]);
     return [...res, filtered];
   }, []);
   return alerts;

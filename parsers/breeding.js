@@ -83,6 +83,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const reqProgress = (territory?.powerReq + foragingRounds?.[index]) * Math.pow(bonus, foragingRounds?.[index])
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }
   });
+
   const fencePets = [], passivesTotals = {};
   let totalShinyLevels = 0;
   const pets = petStats?.map((petList, worldIndex) => {

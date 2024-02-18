@@ -94,9 +94,9 @@ const worldsData = {
   'world 6': {
     icon: 'etc/sneaking-temp',
     categories: [
-      { label: 'farming', icon: 'etc/farming-temp' },
-      { label: 'sneaking', icon: 'etc/sneaking-temp' },
-      { label: 'TBD', icon: 'etc/cloud-temp' },
+      { label: 'farming', icon: 'data/ClassIcons57' },
+      { label: 'sneaking', icon: 'data/ClassIcons58' },
+      { label: 'summoning', icon: 'data/ClassIcons59' },
     ]
   }
 };

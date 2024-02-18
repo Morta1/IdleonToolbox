@@ -89,7 +89,7 @@ const getMeals = (mealsRaw, account) => {
   const mealsQuantityListRaw = mealsRaw?.[2];
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
   return mealsLevelsListRaw?.map((mealLevel, index) => {
-    if (index > 56) return null;
+    if (index > 66) return null;
     return {
       level: mealLevel,
       amount: mealsQuantityListRaw?.[index],

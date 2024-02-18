@@ -14,6 +14,7 @@ const Quests = () => {
   useEffect(() => {
     if (!filteredCharacters) return;
     let filteredWorldQuests = {};
+    console.log(state?.account?.quests)
     for (const [world, worldQuests] of Object.entries(state?.account?.quests)) {
       filteredWorldQuests[world] = worldQuests.map(({ npcQuests, ...rest }) => {
         let clonedNpcQuests = JSON.parse(JSON.stringify(npcQuests));
@@ -152,6 +153,12 @@ const Quests = () => {
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
               worldName={'Smolderin\'_Plateau'}
+            />
+            <WorldQuest
+              quests={worldQuests}
+              totalCharacters={filteredCharacters?.length}
+              characters={state?.characters}
+              worldName={'Spirited_Valley'}
             />
           </Stack>
         </>

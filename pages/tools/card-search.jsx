@@ -11,7 +11,8 @@ import { Adsense } from '@ctrl/react-adsense';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 
 const categoriesOrder = ['Card Sets', 'Blunder_Hills', 'Yum_Yum_Desert', 'Easy_Resources',
-  'Medium_Resources', 'Frostbite_Tundra', 'Hard_Resources', 'Hyperion_Nebula', 'Smolderin\'_Plateau', 'Dungeons',
+  'Medium_Resources', 'Frostbite_Tundra', 'Hard_Resources', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
+  'Spirited_Valley', 'Dungeons',
   'Bosses', 'Events'];
 
 const additionalEffects = {

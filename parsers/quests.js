@@ -364,6 +364,21 @@ export const worldNpcMap = {
   'Tired_Mole': {
     world: 'Smolderin\'_Plateau',
     index: 5
-  }
-
+  },
+  'Lafu_Shi': {
+    world: 'Spirited_Valley',
+    index: 1
+  },
+  'Hoov': {
+    world: 'Spirited_Valley',
+    index: 2
+  },
+  'Woodlin_Elder': {
+    world: 'Spirited_Valley',
+    index: 3
+  },
+  'Sussy_Gene': {
+    world: 'Spirited_Valley',
+    index: 4
+  },
 };

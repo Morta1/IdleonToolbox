@@ -218,7 +218,7 @@ export const pascalCase = (str) => {
 export const getCoinsArray = (coins) => {
   let n = coins;
   const ret = new Map();
-  let i = 18;
+  let i = 26;
   do {
     const expo = Math.pow(10, i);
     if (n > expo) {
@@ -338,7 +338,8 @@ export const worlds = {
   1: 'Yum Yum Desert',
   2: 'Frostbite Tundra',
   3: 'Hyperion Nebula',
-  4: 'Smolderin\' Plateau'
+  4: 'Smolderin\' Plateau',
+  5: 'Spirited Valley'
 };
 
 export const getDuration = (start, end) => {

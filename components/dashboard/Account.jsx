@@ -222,7 +222,7 @@ const Account = ({ account, characters, trackers }) => {
             alerts?.shops?.items?.map((shop, index) => shop?.length > 0 ?
               <Alert key={'shop' + index + shop?.[0]?.rawName}
                      title={<ShopTitle shop={shop}/>}
-                     iconPath={`data/ShopEZ${index}`}/> : null) : null}
+                     iconPath={index === 7 ? `etc/ShopEZ${index}` : `data/ShopEZ${index}`}/> : null) : null}
           {trackers?.guild && alerts?.guild?.daily ?
             <Alert title={`You have ${alerts?.guild?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
                    imgStyle={{ filter: 'sepia(1) hue-rotate(46deg) saturate(1)' }}/> : null}
@@ -235,10 +235,10 @@ const Account = ({ account, characters, trackers }) => {
   </>
 };
 
-const Alert = ({ title, iconPath, vial, atom, style = {}, imgStyle = {} }) => {
+const Alert = ({ title, iconPath, vial, atom, style = {}, imgStyle = {}, onError = () => {} }) => {
   return <HtmlTooltip title={title}>
     <Box sx={{ position: 'relative', ...style }}>
-      <IconImg style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
+      <IconImg onError={onError} style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
       {atom ? <AtomIcon vial={vial} src={`${prefix}etc/Particle.png`} alt=""/> : null}
       {vial ? <img key={`${vial?.name}`}
                    onError={(e) => {

@@ -36,11 +36,11 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
       <WorldBg src={`${prefix}npcs/${worldName}.png`}
                onError={(e) => {
-                 e.target.src = `${prefix}data/Wb5.png`;
+                 e.target.src = `${prefix}data/Wb6.png`;
                  e.target.style.width = 'auto';
                }}
                alt=""/>
-      {quests?.[worldName].map((npc, index) => {
+      {quests?.[worldName]?.map((npc, index) => {
         let forceCompletion;
         if (npc?.name === 'Picnic_Stowaway') {
           const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');

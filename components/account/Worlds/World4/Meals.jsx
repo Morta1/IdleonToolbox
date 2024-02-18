@@ -148,7 +148,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
   }
 
   const getBestMealsSpeedContribute = (meals) => {
-    let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff') && meal?.level < mealMaxLevel);
+    let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
       const { level, baseStat, shinyMulti, timeTillNextLevel } = meal;
       const currentBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
