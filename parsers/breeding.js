@@ -54,7 +54,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     return { name, realName, x1, power: x2, x3, gene };
   })?.toChunks(4);
   const territories = territory?.map((territory, index) => {
-    const team = teams[index];
+    const team = teams[index] || [];
     const previousTeam = teams[index - 1] || [];
     const nextTeam = teams[index + 1] || [];
     const forageSpeed = team?.reduce((sum, teamMember, position) => sum + getForageSpeed({

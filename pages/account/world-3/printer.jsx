@@ -135,7 +135,7 @@ const TotalTooltip = ({ item, value, atoms, highestBrr, highestMaxLevelBrr }) =>
   const isAtom = item === 'atom';
   const perDay = value * 24;
   const maxPrinterGoBrrr = growth(highestMaxLevelBrr?.funcX, highestMaxLevelBrr?.maxLevel, highestMaxLevelBrr?.x1, highestMaxLevelBrr?.x2, false);
-  const actualPrinterGoBrrr = highestBrr.flatTalents.find(({ name }) => name === 'PRINTER_GO_BRRR');
+  const actualPrinterGoBrrr = highestBrr?.flatTalents?.find(({ name }) => name === 'PRINTER_GO_BRRR');
   let highestPrinterGoBrr = 0;
   if (actualPrinterGoBrrr?.level > 0) {
     highestPrinterGoBrr = growth(actualPrinterGoBrrr?.funcX, actualPrinterGoBrrr?.level, actualPrinterGoBrrr?.x1, actualPrinterGoBrrr?.x2, false)
