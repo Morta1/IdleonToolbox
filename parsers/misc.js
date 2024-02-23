@@ -295,11 +295,16 @@ export const getCharacterByHighestLevel = (characters, className) => {
 };
 
 export const getCharacterByHighestSkillLevel = (characters, className, skillName) => {
-  const allClasses = talentPagesMap?.[className];
-  let filteredObjects = characters.filter(obj => allClasses.includes(obj.class));
-  return filteredObjects.reduce((maxObj, currentObj) => {
+  let array;
+  if (className) {
+    const allClasses = talentPagesMap?.[className];
+    array = characters.filter(obj => allClasses.includes(obj.class))
+  } else {
+    array = characters;
+  }
+  return array.reduce((maxObj, currentObj) => {
     return currentObj?.skillsInfo?.[skillName]?.level > maxObj?.skillsInfo?.[skillName]?.level ? currentObj : maxObj;
-  }, filteredObjects[0]);
+  }, array[0]);
 };
 
 export const getHighestLevelCharacter = (characters) => {
