@@ -64,7 +64,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
         })}
       </Stack>
       <Typography variant={'h4'} textAlign={'center'} mb={3}>Totals</Typography>
-      <Stack sx={{ height: 160 }} my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
+      <Stack my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2} flexWrap={'wrap'}>
         {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;
           return <Card key={`${foodName}-${index}-${total}`}>

@@ -53,7 +53,8 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const realName = monsters?.[name]?.Name;
     return { name, realName, x1, power: x2, x3, gene };
   })?.toChunks(4);
-  const territories = territory?.map((territory, index) => {
+  const terri = territory.filter((_, index) => index !== 14);
+  const territories = terri?.map((territory, index) => {
     const team = teams[index] || [];
     const previousTeam = teams[index - 1] || [];
     const nextTeam = teams[index + 1] || [];
@@ -78,7 +79,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const tsars = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Tsar')?.length;
     const math = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
     const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars);
-    const totalForageSpeed = teamFightPower < territory.fightPower ? 0 :math;
+    const totalForageSpeed = teamFightPower < territory.fightPower ? 0 : math;
     const bonus = 1 + .02 / (team.filter((teamMember) => teamMember?.gene?.name === 'Monolithic').length / 5 + 1);
     const reqProgress = (territory?.powerReq + foragingRounds?.[index]) * Math.pow(bonus, foragingRounds?.[index])
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }
@@ -110,7 +111,8 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
       }
       if (passivesTotals?.[pet?.passive]) {
         passivesTotals[pet?.passive] += passiveValue;
-      } else if (passiveValue > 0) {
+      }
+      else if (passiveValue > 0) {
         passivesTotals[pet?.passive] = passiveValue;
       }
       if (fencePetsObject?.[pet?.monsterRawName]) {

@@ -11,12 +11,13 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
-const breakpoints = [-1, 0, 11, 30, 40, 50, 60];
-const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
+const breakpoints = [-1, 0, 11, 30, 40, 50, 60, 70, 80];
+const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
@@ -95,10 +96,14 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
 
   useEffect(() => {
     const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
+    const firstJadeUnlocked = isJadeBonusUnlocked(account, 'Papa_Blob\'s_Quality_Guarantee');
+    const secondJadeUnlocked = isJadeBonusUnlocked(account, 'Chef_Geustloaf\'s_Cutting_Edge_Philosophy');
     if (causticolumnArtifact) {
-      setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus);
+      setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus + (firstJadeUnlocked
+        ? 10
+        : 0) + (secondJadeUnlocked ? 10 : 0));
     }
-  }, [artifacts]);
+  }, [account]);
 
   const handleFilters = (e, newFilters) => {
     setFilters(newFilters);
@@ -277,6 +282,7 @@ const Meals = ({ characters, meals, totalMealSpeed, achievements, artifacts, lab
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
+                {index}
                 <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip
                     title={<MealTooltip achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone}

@@ -164,7 +164,7 @@ const Account = ({ account, characters, trackers }) => {
             : null}
           {trackers?.construction && alerts?.construction?.rankUp?.length > 0 ?
             alerts?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
-                                                                                title={`${cleanUnderscore(saltName)} is ready to rank up`}
+                                                                                title={`${cleanUnderscore(saltName)} is ready to rank up (2% margin of error)`}
                                                                                 iconPath={`data/${rawName}`}/>) : null}
           {trackers?.construction && alerts?.construction?.buildings?.length > 0
             ?

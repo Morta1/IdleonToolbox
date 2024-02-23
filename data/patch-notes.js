@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.48',
+    gameVer: '2',
+    date: '23/02/2024',
+    features: [
+      'Initial support for sneaking skill page including inventory, jade emporium, ninja upgrades and charms',
+      'Added missing monster images',
+      'Added w6 to quests page'
+    ],
+    fixes: [
+      'Fixed a bug with territory tab in breeding page',
+    ]
+  },
+  {
     ver: '3.2.47',
     gameVer: '2',
     date: '18/02/2024',

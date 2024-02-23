@@ -29,14 +29,14 @@ export const getRawShopItems = () => {
 }
 
 export const shopMapping = {
-  0: [3, 8, 13,14, 17, 23].toSimpleObject(), // 'Blunder_Hills'
+  0: [3, 8, 13, 14, 17, 23].toSimpleObject(), // 'Blunder_Hills'
   1: [2, 8, 9, 13].toSimpleObject(), // 'Encroaching_Forest_Villas'
-  2: [0, 1, 2, 3, 4, 8, 9, 10, 18].toSimpleObject(), // 'YumYum_Grotto'
+  2: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 18, 19].toSimpleObject(), // 'YumYum_Grotto'
   3: [12].toSimpleObject(), // 'Faraway_Piers'
   4: [0, 1, 2, 8, 9, 10, 19, 22].toSimpleObject(), // 'Frostbite_Towndra'
   5: [2, 3, 4, 8, 9, 10, 11].toSimpleObject(), // 'Hyperion_Nebula'
   6: [0, 1, 2, 3, 4, 5].toSimpleObject(), // 'Smolderin\'_Plateau',
-  7: [0,  2, 3, 4, 5,6,7].toSimpleObject() // 'Spirited_Valley'
+  7: [0, 2, 3, 4, 5, 6, 7].toSimpleObject() // 'Spirited_Valley'
 };
 
 export const shopNameMapping = {

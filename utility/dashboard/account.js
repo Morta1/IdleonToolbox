@@ -89,7 +89,7 @@ export const printerAlerts = (account, options) => {
   const { includeOakAndCopper, showAlertWhenFull } = options;
   const totals = calcTotals(account, showAlertWhenFull);
   const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
-  alerts.atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
+  alerts.atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => account?.accountOptions?.[132] && !exclusions?.[itemName] && atoms).map(([name, data]) => ({
     name: items?.[name]?.displayName,
     rawName: name,
     ...data
@@ -293,6 +293,7 @@ export const alchemyAlerts = (account, options) => {
   if (options?.vials?.checked) {
     const { subtractGreenStacks } = options || {};
     alerts.vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
+      if (level <= 0) return false;
       const cost = vialCostsArray?.[level];
       let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
       if (subtractGreenStacks?.checked) {

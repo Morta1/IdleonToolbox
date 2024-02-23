@@ -207,7 +207,6 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.class = classes?.[char?.CharacterClass];
   character.afkTime = calculateAfkTime(char?.PlayerAwayTime, account?.timeAway?.GlobalTime);
   character.afkTarget = monsters?.[char?.AFKtarget]?.Name;
-  console.log('character.afkTarget', character.afkTarget)
   character.afkType = monsters?.[char?.AFKtarget]?.AFKtype;
   character.targetMonster = char?.AFKtarget;
   const currentMapIndex = char?.CurrentMap;
@@ -303,7 +302,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   character.skillsInfo = skillsInfoObject.reduce(
     (res, level, index) =>
-      index < 16 ? {
+      index < 19 ? {
         ...res,
         [skillIndexMap[index]?.name]: {
           level: level !== -1 ? level : 0,

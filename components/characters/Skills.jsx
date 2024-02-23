@@ -14,7 +14,7 @@ const getRankColor = (rank) => {
   return colorMap[rank];
 }
 
-const globalSkills = ['gaming', 'sailing', 'breeding'].toSimpleObject();
+const globalSkills = ['gaming', 'sailing', 'breeding', 'farming'].toSimpleObject();
 const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
   return <Stack>
     <Typography variant={'h5'}>Skills</Typography>
@@ -24,7 +24,7 @@ const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
           display: 'grid',
           gridAutoFlow: 'column',
           gap: showSkillsRankOneOnly ? '24px' : 'none',
-          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(4, minmax(45px, 100px))` },
+          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(5, minmax(45px, 100px))` },
           gridTemplateRows: showSkillsRankOneOnly ? null : { xs: 'repeat(3, minmax(45px, 100px))' },
           justifyContent: 'center'
         }}>

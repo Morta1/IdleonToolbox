@@ -150,9 +150,9 @@ const Info = ({ lootLevel, speedLevel, resources }) => {
   return <Stack direction={'row'} gap={1} alignItems={'center'}>
     <Stack>
       <Typography component={'p'}
-                  variant={'caption'}>Speed breakpoint: {speedLevel} / {speedBreakpoint}</Typography>
-      <Typography component={'p'}
                   variant={'caption'}>Loot breakpoint: {lootLevel} / {lootBreakpoint}</Typography>
+      <Typography component={'p'}
+                  variant={'caption'}>Speed breakpoint: {speedLevel} / {speedBreakpoint}</Typography>
     </Stack>
     <Stack>
       <Tooltip dark title={<Resources resources={resources}/>}>

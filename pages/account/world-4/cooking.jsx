@@ -28,6 +28,7 @@ const Cooking = () => {
                lab={state?.account?.lab}
                achievements={achievements}
                totalMealSpeed={totalMealSpeed}
+               account={state?.account}
           artifacts={sailing?.artifacts}
           equinoxUpgrades={state?.account?.equinox?.upgrades}
         />

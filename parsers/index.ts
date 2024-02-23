@@ -57,6 +57,7 @@ import { getPostOfficeShipments } from './postoffice';
 import { getIslands } from './world-2/islands';
 import { getEquinox } from './equinox';
 import { getTotems } from './worship';
+import { getSneaking } from "@parsers/world-6/sneaking";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
@@ -103,7 +104,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.currencies = getCurrencies(idleonData);
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
-  accountData.looty = getLooty(idleonData);
+  accountData.looty = getLooty(idleonData, accountData);
   const { tasks, tasksDescriptions, meritsDescriptions } = getTasks(idleonData)
   accountData.tasks = tasks; //
   accountData.tasksDescriptions = tasksDescriptions; //
@@ -112,7 +113,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.cooking = getCooking(idleonData, accountData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
   accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
-
+  accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData);
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.towers = getTowers(idleonData);
