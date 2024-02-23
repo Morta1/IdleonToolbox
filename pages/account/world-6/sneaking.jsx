@@ -8,12 +8,17 @@ import { CardTitleAndValue } from '@components/common/styles';
 import Charms from '@components/account/Worlds/World6/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/PlayersInventory';
 import Upgrades from '@components/account/Worlds/World6/Upgrades';
+import { NextSeo } from 'next-seo';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
   const { jadeEmporium, jadeCoins, players, inventory, dropList, pristineCharms, upgrades } = state?.account?.sneaking
 
   return <>
+    <NextSeo
+      title="Sneaking | Idleon Toolbox"
+      description="Keep track of your ninja and jade upgrades and much more bonuses"
+    />
     <Typography sx={{ textAlign: 'center' }} variant={'h3'}>Sneaking</Typography>
     <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
     <Tabber tabs={['Inventory', 'Jade Emporium', 'Upgrades', 'Charms']}>
