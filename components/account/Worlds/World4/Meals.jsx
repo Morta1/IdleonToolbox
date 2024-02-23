@@ -282,7 +282,6 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
-                {index}
                 <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip
                     title={<MealTooltip achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone}

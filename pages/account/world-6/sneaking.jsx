@@ -2,12 +2,12 @@ import { Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
-import JadeEmporium from '@components/account/Worlds/World6/JadeEmporium';
+import JadeEmporium from '@components/account/Worlds/World6/sneaking/JadeEmporium';
 import { notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
-import Charms from '@components/account/Worlds/World6/Charms';
-import PlayersInventory from '@components/account/Worlds/World6/PlayersInventory';
-import Upgrades from '@components/account/Worlds/World6/Upgrades';
+import Charms from '@components/account/Worlds/World6/sneaking/Charms';
+import PlayersInventory from '@components/account/Worlds/World6/sneaking/PlayersInventory';
+import Upgrades from '@components/account/Worlds/World6/sneaking/Upgrades';
 import { NextSeo } from 'next-seo';
 
 const Sneaking = () => {

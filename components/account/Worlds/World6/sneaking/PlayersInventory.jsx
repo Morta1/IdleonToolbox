@@ -19,7 +19,7 @@ const PlayersInventory = ({ players, characters, dropList, inventory }) => {
                 <Typography variant={'caption'}>Floor {floor}</Typography>
               </Stack>
               <Stack mt={1} gap={1} direction={'row'}>
-                {dropList[floor].map(({ rawName, description, value, type, subType }, index) => type !== 0 ? <Tooltip
+                {dropList?.[floor - 1]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ? <Tooltip
                   title={cleanUnderscore(getDescription({ description, value, type, subType }))}
                   key={`droplist-${rawName}-${index}`}>
                   <img width={24} src={`${prefix}data/${rawName}.png`} alt={''}/>

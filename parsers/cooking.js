@@ -15,6 +15,7 @@ import { getEquinoxBonus } from './equinox';
 import LavaRand from '@utility/lavaRand';
 import account from '@components/dashboard/Account';
 import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
+import { getCardBonusByEffect } from '@parsers/cards';
 
 export const spicesNames = [
   'Grasslands',
@@ -135,7 +136,8 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
-    } else {
+    }
+    else {
       if (stat !== statName) return sum;
     }
     if (statName === 'PxLine') {
@@ -171,6 +173,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
 
     const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Speed');
     const cookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, 'MealCook');
+    const extraCookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, '6CookSpd');
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff', blackDiamondRhinestone);
@@ -185,7 +188,8 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const bubbleBonus = Math.pow(diamondChef, diamondMeals);
     const firstAchievement = getAchievementStatus(account?.achievements, 225);
     const secondAchievement = getAchievementStatus(account?.achievements, 224);
-
+    const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm', blackDiamondRhinestone);
+    const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
 
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
@@ -209,6 +213,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const mealSpeed = (10 * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, voidWalkerApocalypseBonus)
       * (1 + richelinBonus)
+      * (1 + (marshmallowBonus * Math.ceil(characters?.[0]?.skillsInfo?.farming?.level / 50)) / 100)
       * Math.max(1, bubbleBonus)
       * Math.max(1, voidPlateChefBonus)
       * (1 + superbitBonus / 100)
@@ -218,6 +223,8 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
       * (1 + (cookingSpeedStamps
         + Math.max(0, cookingSpeedFromJewel)) / 100)
       * (1 + cookingSpeedMeals / 100)
+      // * (1 + q._customBlock_Summoning('WinBonus', 15, 0) / 100)
+      * (1 + cardCookingMulti / 100)
       * Math.max(1, amethystRhinestone)
       * (1 + Math.min(6 * trollBonus
         + (20 * firstAchievement + 10 * secondAchievement), 100) / 100)
@@ -384,7 +391,8 @@ export const getChipsAndJewels = (account, size = 10) => {
           ? Math.round(finalRandom - Math.floor(finalRandom / jewels.length) * jewels.length)
           : Math.round(finalRandom - Math.floor(finalRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))))
         rotation.push(isJewel ? jewels[finalIndex] : chips[finalIndex]);
-      } else {
+      }
+      else {
         rotation.push(isJewel ? jewels[index] : chips[index]);
       }
     }

@@ -44,7 +44,11 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     }
   }).slice(0, 28);
   const pristineCharms = rawPristineCharms.map((charm, index) =>
-    ({ ...charm, unlocked: rawSneaking?.[107]?.[index] }))
+    ({
+      ...charm,
+      unlocked: rawSneaking?.[107]?.[index],
+      value: charm?.bonus.includes('}') ? (1 + charm?.x3 / 100) : charm?.x3
+    }))
   return {
     jadeEmporium,
     jadeCoins,
@@ -77,6 +81,6 @@ const getItemValue = ({ type, level, x3, x4 }: { type: number, level: number, x3
 export const isJadeBonusUnlocked = (account: any, bonusName: string) => {
   return account?.sneaking?.jadeEmporium?.find(({ name }: { name: string }) => name === bonusName)?.unlocked;
 }
-export const isPristineCharmBonusUnlocked = (account: any, bonusName: string) => {
-  return account?.sneaking?.pristineCharms?.find(({ name }: { name: string }) => name === bonusName)?.unlocked;
+export const getCharmBonus = (account: any, bonusName: string) => {
+  return account?.sneaking?.pristineCharms?.find(({ name }: { name: string }) => name === bonusName)?.value ?? 1;
 }

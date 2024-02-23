@@ -72,6 +72,7 @@ import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './atomCollider';
+import { getCharmBonus } from '@parsers/world-6/sneaking';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -509,6 +510,8 @@ export const getRespawnRate = (character, account) => {
 }
 
 export const getDropRate = (character, account, characters) => {
+  // _customBlock_TotalStats
+  // "Drop_Rarity" == e
   const { luck } = character?.stats || {};
   let luckMulti;
   if (luck < 1e3) {
@@ -569,6 +572,9 @@ export const getDropRate = (character, account, characters) => {
   if (hasDrBundle) {
     final *= 1.2
   }
+  const charmBonus = getCharmBonus(account, 'Cotton_Candy');
+  final *= charmBonus;
+
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
     { name: 'Talents', value: (firstTalentBonus + secondTalentBonus) / 100 },
@@ -589,6 +595,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Equinox', value: 5 * equinoxDropRateBonus / 100 },
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
+    { name: 'Pristine Charm', value: charmBonus },
     { name: 'Base', value: 1 },
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
