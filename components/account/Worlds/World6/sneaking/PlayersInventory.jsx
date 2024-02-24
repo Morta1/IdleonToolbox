@@ -5,7 +5,7 @@ import Tooltip from '@components/Tooltip';
 const PlayersInventory = ({ players, characters, dropList, inventory }) => {
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 1200 }}>
-      {players.map(({ equipment, floor }, playerIndex) => {
+      {players.map(({ equipment, floor, activityInfo }, playerIndex) => {
         return <Stack direction={'row'} key={'player-' + playerIndex} gap={1} flexWrap={'wrap'}>
           <Card sx={{ display: 'flex', alignItems: 'center', width: 150 }}>
             <CardContent>
@@ -16,14 +16,18 @@ const PlayersInventory = ({ players, characters, dropList, inventory }) => {
                   <Typography>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
                 </Stack>
                 <Divider flexItem orientation={'vertical'}/>
-                <Typography variant={'caption'}>Floor {floor}</Typography>
+                <Stack>
+                  <Typography variant={'caption'}>Floor {floor}</Typography>
+                  <Typography variant={'caption'} color={'error.light'}>{activityInfo < 0 && 'KO\'d'}</Typography>
+                </Stack>
               </Stack>
               <Stack mt={1} gap={1} direction={'row'}>
-                {dropList?.[floor - 1]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ? <Tooltip
-                  title={cleanUnderscore(getDescription({ description, value, type, subType }))}
-                  key={`droplist-${rawName}-${index}`}>
-                  <img width={24} src={`${prefix}data/${rawName}.png`} alt={''}/>
-                </Tooltip> : null)}
+                {dropList?.[floor - 1]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ?
+                  <Tooltip
+                    title={cleanUnderscore(getDescription({ description, value, type, subType }))}
+                    key={`droplist-${rawName}-${index}`}>
+                    <img width={24} src={`${prefix}data/${rawName}.png`} alt={''}/>
+                  </Tooltip> : null)}
               </Stack>
             </CardContent>
           </Card>
@@ -74,8 +78,7 @@ const getDescription = ({ description, value = 0, type, subType }) => {
   if (type === 1) {
     if (subType === 1) {
       desc = `Base damage: ${notateNumber(value)}`
-    }
-    else {
+    } else {
       desc = `Base rate: ${notateNumber(value)}`
     }
   }
