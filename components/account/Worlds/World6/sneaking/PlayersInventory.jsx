@@ -1,13 +1,34 @@
 import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
+import { ninjaExtraInfo } from '../../../../../data/website-data';
 
-const PlayersInventory = ({ players, characters, dropList, inventory }) => {
+const doorMaxHps = ninjaExtraInfo?.[3].split(' ');
+const getActivityIcon = (activityInfo, weaponType) => {
+  if (activityInfo < 0) {
+    return 'KO'
+  } else if (activityInfo !== 0) {
+    if (weaponType === 1) {
+      return 'Breaching'
+    } else if (weaponType === 0) {
+      return 'Untying'
+    } else {
+      return 'Sneaking';
+    }
+  }
+  return 'Tied';
+}
+const PlayersInventory = ({ players, characters, dropList, inventory, doorsCurrentHp }) => {
   return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 1200 }}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 1280 }}>
       {players.map(({ equipment, floor, activityInfo }, playerIndex) => {
+        const weaponType = equipment?.[1]?.rawName !== 'Blank' && equipment?.[1]?.type;
+        const doorHp = (doorMaxHps?.[floor] - doorsCurrentHp?.[floor]);
+        const hasDoor= doorHp > 0;
+        const activityIcon = getActivityIcon(activityInfo, weaponType);
+        const badActivity = activityIcon === 'Breaching' && !hasDoor;
         return <Stack direction={'row'} key={'player-' + playerIndex} gap={1} flexWrap={'wrap'}>
-          <Card sx={{ display: 'flex', alignItems: 'center', width: 150 }}>
+          <Card sx={{ display: 'flex', alignItems: 'center', width: 200 }}>
             <CardContent>
               <Typography>{characters?.[playerIndex]?.name}</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -17,8 +38,23 @@ const PlayersInventory = ({ players, characters, dropList, inventory }) => {
                 </Stack>
                 <Divider flexItem orientation={'vertical'}/>
                 <Stack>
-                  <Typography variant={'caption'}>Floor {floor}</Typography>
-                  <Typography variant={'caption'} color={'error.light'}>{activityInfo < 0 && 'KO\'d'}</Typography>
+                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                    <Tooltip title={badActivity ? 'This floor\'s door is already unlocked' : ''}>
+                      <img style={{
+                        objectFit: 'contain',
+                        border: badActivity ? '1px solid #df4646' : ''
+                      }} width={24} height={24}
+                           src={`${prefix}etc/${activityIcon}_Ninja.png`}
+                           alt={''}/>
+                    </Tooltip>
+                    <Typography variant={'caption'}>Floor {floor}</Typography>
+                  </Stack>
+                  {hasDoor ? <Stack direction={'row'} alignItems={'center'}>
+                    <img width={24} src={`${prefix}data/NjD${floor}.png`} alt={''}/>
+                    <Typography
+                      sx={{ flexBasis: '100%' }}
+                      variant={'caption'}>{notateNumber(doorHp, 'Big')} / {notateNumber(doorMaxHps?.[floor], 'Big')}</Typography>
+                  </Stack> : null}
                 </Stack>
               </Stack>
               <Stack mt={1} gap={1} direction={'row'}>

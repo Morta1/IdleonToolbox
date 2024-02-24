@@ -16,7 +16,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
   const jadeCoins = rawSneaking?.[102]?.[1];
   const ninjaUpgradeLevels = rawSneaking?.[103];
-  console.log('rawSneaking.slice(0, serializedCharactersData?.length)', rawSneaking.slice(0, serializedCharactersData?.length));
+  const doorsCurrentHp = rawSneaking?.[100];
   const playersInfo = rawSneaking.slice(0, serializedCharactersData?.length)?.map(([floor, activityInfo]: [number, number]) => ({ floor, activityInfo }));
   const dropList: any = ninjaExtraInfo.slice(13, 21).map((string: any) => string.split(' ').toChunks(2))
     ?.map((array) => array?.map(([itemName, dropChance]: [string, string]): any => ({
@@ -58,7 +58,8 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     inventory,
     players,
     pristineCharms,
-    dropList
+    dropList,
+    doorsCurrentHp
   };
 }
 

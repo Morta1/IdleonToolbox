@@ -12,7 +12,7 @@ import { NextSeo } from 'next-seo';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
-  const { jadeEmporium, jadeCoins, players, inventory, dropList, pristineCharms, upgrades } = state?.account?.sneaking
+  const { jadeEmporium, jadeCoins, players, inventory, dropList, pristineCharms, upgrades, doorsCurrentHp } = state?.account?.sneaking
 
   return <>
     <NextSeo
@@ -22,7 +22,12 @@ const Sneaking = () => {
     <Typography sx={{ textAlign: 'center' }} variant={'h3'}>Sneaking</Typography>
     <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
     <Tabber tabs={['Inventory', 'Jade Emporium', 'Upgrades', 'Charms']}>
-      <PlayersInventory players={players} dropList={dropList} inventory={inventory} characters={state?.characters}/>
+      <PlayersInventory players={players}
+                        dropList={dropList}
+                        inventory={inventory}
+                        characters={state?.characters}
+                        doorsCurrentHp={doorsCurrentHp}
+      />
       <JadeEmporium upgrades={jadeEmporium}/>
       <Upgrades upgrades={upgrades}/>
       <Charms charms={pristineCharms}/>
