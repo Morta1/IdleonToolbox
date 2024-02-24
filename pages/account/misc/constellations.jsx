@@ -22,7 +22,7 @@ const Constellations = () => {
     const sortAlphaNum = (a, b) => a.indexedStarName.localeCompare(b.indexedStarName, 'en', { numeric: true });
     const sortedSigns = starSigns?.sort(sortAlphaNum);
     const lastItem = sortedSigns?.pop();
-    sortedSigns.splice(21, 0, lastItem);
+    sortedSigns?.splice(21, 0, lastItem);
     return sortedSigns;
   }
 

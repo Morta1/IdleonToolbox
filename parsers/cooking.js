@@ -16,6 +16,7 @@ import LavaRand from '@utility/lavaRand';
 import account from '@components/dashboard/Account';
 import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
 import { getCardBonusByEffect } from '@parsers/cards';
+import { getStarSignBonus } from '@parsers/starSigns';
 
 export const spicesNames = [
   'Grasslands',
@@ -190,7 +191,8 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const secondAchievement = getAchievementStatus(account?.achievements, 224);
     const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm', blackDiamondRhinestone);
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
-
+    // TODO: check how to apply specific character
+    // const starSignBonus = getStarSignBonus(character, account, 'Cooking_SPD');
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
     if (superbit) {
@@ -225,6 +227,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
       * (1 + cookingSpeedMeals / 100)
       // * (1 + q._customBlock_Summoning('WinBonus', 15, 0) / 100)
       * (1 + cardCookingMulti / 100)
+      * (1 + extraCookingSpeedVials / 100)
       * Math.max(1, amethystRhinestone)
       * (1 + Math.min(6 * trollBonus
         + (20 * firstAchievement + 10 * secondAchievement), 100) / 100)

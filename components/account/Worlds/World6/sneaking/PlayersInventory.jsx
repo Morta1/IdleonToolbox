@@ -46,7 +46,7 @@ const PlayersInventory = ({ players, characters, dropList, inventory }) => {
       })}
     </Stack>
     <h4>Inventory</h4>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: 1200 }}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (64 * 13) + (8 * 13) }}>
       {inventory?.map(({ rawName, level, description, value, type, subType }, index) => {
         description = getDescription({ description, value, type, subType });
         return <Tooltip title={description === '0' ? '' : cleanUnderscore(description)}
