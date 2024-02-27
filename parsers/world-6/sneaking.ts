@@ -17,7 +17,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   const jadeCoins = rawSneaking?.[102]?.[1];
   const ninjaUpgradeLevels = rawSneaking?.[103];
   const doorsCurrentHp = rawSneaking?.[100];
-  const playersInfo = rawSneaking.slice(0, serializedCharactersData?.length)?.map(([floor, activityInfo]: [number, number]) => ({ floor, activityInfo }));
+  const playersInfo = rawSneaking?.slice(0, serializedCharactersData?.length)?.map(([floor, activityInfo]: [number, number]) => ({ floor, activityInfo }));
   const dropList: any = ninjaExtraInfo.slice(13, 21).map((string: any) => string.split(' ').toChunks(2))
     ?.map((array) => array?.map(([itemName, dropChance]: [string, string]): any => ({
       ...ninjaEquipment[itemName as keyof typeof ninjaEquipment],
@@ -29,7 +29,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (serializedCharactersData?.length * 4)), true);
   const players = serializedCharactersData.map((_: any, index: number) => ({
     equipment: characterEquipments?.[index],
-    ...playersInfo[index]
+    ...(playersInfo?.[index] || [])
   }));
   const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false);
   const orderedEmporium = jadeUpgrades.map((upgrade, index) => ({
