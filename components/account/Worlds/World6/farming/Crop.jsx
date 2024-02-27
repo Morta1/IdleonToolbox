@@ -13,8 +13,8 @@ const Crop = ({ crop }) => {
         </Stack>
         <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
           {array.map((cropId) => {
-            return <Card key={'crop' + cropId} sx={{ width: 80 }}>
-              <CardContent sx={{'&:last-child': { p: 1 }}}>
+            return <Card key={'crop' + cropId} sx={{ width: 80, opacity: crop?.[cropId] >= 0 ? 1 : .5 }}>
+              <CardContent sx={{ '&:last-child': { p: 1 } }}>
                 <Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
                   <img width={20} height={20} src={`${prefix}data/FarmCrop${cropId}.png`} alt={''}/>
                   {crop?.[cropId] ?? 0}
