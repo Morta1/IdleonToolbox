@@ -227,7 +227,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.msaTotalizer = getTotalizerBonuses(accountData);
-  console.log('accountData.msaTotalizer', accountData.msaTotalizer)
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;

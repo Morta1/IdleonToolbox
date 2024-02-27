@@ -29,7 +29,6 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       value: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
-  console.log('market', market)
   const plot = rawFarmingPlot?.map(([seedType, progress, cropType, x1, cropQuantity, currentOG, cropProgress]: number[]) => {
     const type = Math.round(seedInfo[seedType].cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
