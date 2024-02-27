@@ -152,7 +152,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   charactersData = serializedCharactersData.map((char: Character) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
-
+  accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);
   accountData.finishedWorlds = [1, 2, 3, 4, 5]?.reduce((res, world) => {
@@ -225,7 +225,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   })
   accountData.stamps = updateStamps(accountData, charactersData);
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
-  accountData.farming = updateFarming(charactersData, accountData);
   accountData.msaTotalizer = getTotalizerBonuses(accountData);
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);

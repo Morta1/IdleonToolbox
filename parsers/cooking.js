@@ -213,7 +213,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
 
     const mealSpeed = (10 * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, voidWalkerApocalypseBonus)
-      * Math.max(1, account?.farming?.cropDepot?.meals?.value)
+      * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
       * (1 + richelinBonus)
       * (1 + (marshmallowBonus * Math.ceil(characters?.[0]?.skillsInfo?.farming?.level / 50)) / 100)
       * Math.max(1, bubbleBonus)
