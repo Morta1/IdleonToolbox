@@ -30,7 +30,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
   const plot = rawFarmingPlot?.map(([seedType, progress, cropType, x1, cropQuantity, currentOG, cropProgress]: number[]) => {
-    const type = Math.round(seedInfo[seedType].cropIdMin + cropType);
+    const type = Math.round(seedInfo?.[seedType]?.cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
     return {
       seedType,
