@@ -84,6 +84,8 @@ const Breeding = () => {
         town</Typography>
       <Tabber tabs={['Pets', 'Territory', 'Upgrades', 'Arena']}>
         <Pets {...state?.account?.breeding} lab={state?.account?.lab}
+              account={state?.account}
+              characters={state?.characters}
               lastUpdated={state?.lastUpdated}/>
         <Territory {...state?.account?.breeding} spices={state?.account?.cooking?.spices}/>
         <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}

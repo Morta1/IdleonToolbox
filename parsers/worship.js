@@ -11,16 +11,18 @@ import {
 import { getPostOfficeBonus } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import { mapNames, randomList, totems } from '../data/website-data';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { isSuperbitUnlocked } from '@parsers/gaming';
 
 
 export const getTotems = (idleonData) => {
   const totemInfoRaw = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
   const totemsNames = randomList?.[10]?.split(' ');
-  const totemMapIndexes = [26, 63, 30, 107, 155, 208];
+  const totemMapIndexes = [26, 63, 30, 107, 155, 208, 259];
   return totemsNames?.map((totemName, index) => {
-    const maxWave = totemInfoRaw?.[0]?.[index];
+    const maxWave = totemInfoRaw?.[0]?.[index] ?? 0;
     const waveMulti = (0 === maxWave ? 0 : Math.pow((5 + maxWave) / 10, 2.6))
-    const expReward = Math.floor(15 * Math.pow(index + 1, 2) * Math.pow(waveMulti, 0.9));
+    const expReward = Math.floor(15 * Math.pow(index + 1, 2) * Math.pow(waveMulti, 0.9)) || 0;
     const map = mapNames?.[totemMapIndexes?.[index]];
     const totemInfo = totems?.[index];
     return {
@@ -32,6 +34,40 @@ export const getTotems = (idleonData) => {
       map
     }
   })
+}
+
+export const getTotalizerBonuses = (account) => {
+  const totalizerUnlocked = isSuperbitUnlocked(account, 'MSA_Totalizer');
+  const totalWaves = Math.floor(account?.towers?.totalWaves / 10);
+  return {
+    damage: { name: 'DMG', value: (totalizerUnlocked && totalizerUnlocked?.bonus) || 0 },
+    sailing: { name: 'SPD', value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Sailing')?.bonus) || 0 },
+    classExp: {
+      name: 'Class XP',
+      value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Class_EXP')?.bonus) || 0
+    },
+    cookingSpeed: {
+      name: 'Meal Spd',
+      value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Mealing')?.bonus) || 0
+    },
+    bit: { name: 'Bit', value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Big_Bits')?.bonus) || 0 },
+    skillExp: {
+      name: 'Skill XP',
+      value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus) || 0
+    },
+    farmingExp: {
+      name: 'Farming XP',
+      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_I')) ? totalWaves : 0
+    },
+    jadeCoin: {
+      name: 'Jade Coin',
+      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_II')) ? totalWaves : 0
+    },
+    essence: {
+      name: 'Essence',
+      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_III')) ? totalWaves : 0
+    }
+  };
 }
 
 export const getSoulsReward = ({ waveMulti, minEfficiency, efficiency, foodEffect }) => {

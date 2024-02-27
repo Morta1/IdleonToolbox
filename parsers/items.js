@@ -181,7 +181,7 @@ export const getAllTools = () => {
     ?.filter(({ rawName }) => rawName !== 'EquipmentTools13' && rawName !== 'EquipmentTools10');
   const hatchets = itemsArray?.filter(({ rawName }) => rawName?.match(/EquipmentToolsHatchet[0-9]+/))
     ?.filter(({ rawName }) => rawName !== 'EquipmentToolsHatchet0' &&
-      rawName !== 'EquipmentToolsHatchet3' && rawName !== 'EquipmentToolsHatchet11' && rawName !== 'EquipmentToolsHatchet10');
+      rawName !== 'EquipmentToolsHatchet3' && rawName !== 'EquipmentToolsHatchet11');
   const fishingRods = itemsArray?.filter(({ rawName }) => rawName?.match(/FishingRod[0-9]+/))
     ?.filter(({ rawName }) => rawName !== 'FishingRod1');
   const catchingNets = itemsArray?.filter(({ rawName }) => rawName?.match(/CatchingNet[0-9]+/))

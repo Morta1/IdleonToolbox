@@ -47,7 +47,7 @@ const PlayersInventory = ({ players, characters, dropList, inventory, doorsCurre
                            src={`${prefix}etc/${activityIcon}_Ninja.png`}
                            alt={''}/>
                     </Tooltip>
-                    <Typography variant={'caption'}>Floor {floor}</Typography>
+                    <Typography variant={'caption'}>Floor {floor + 1}</Typography>
                   </Stack>
                   {hasDoor ? <Stack direction={'row'} alignItems={'center'}>
                     <img width={24} src={`${prefix}data/NjD${floor}.png`} alt={''}/>

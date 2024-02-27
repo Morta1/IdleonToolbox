@@ -1,12 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { AppContext } from 'components/common/context/AppProvider';
-import ProgressBar from 'components/common/ProgressBar';
-import { cleanUnderscore, prefix } from 'utility/helpers';
-import Tooltip from '../../../Tooltip';
+import { AppContext } from '@components/common/context/AppProvider';
+import ProgressBar from '@components/common/ProgressBar';
+import { cleanUnderscore, prefix } from '@utility/helpers';
+import Tooltip from '../../../../Tooltip';
 import Box from '@mui/material/Box';
-import Timer from '../../../common/Timer';
-import { getChargeWithSyphon, getClosestWorshiper } from '../../../../parsers/worship';
+import Timer from '../../../../common/Timer';
+import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
 
 const Charge = () => {
   const { state } = useContext(AppContext);

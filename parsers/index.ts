@@ -56,8 +56,9 @@ import { getRift } from './world-4/rift';
 import { getPostOfficeShipments } from './postoffice';
 import { getIslands } from './world-2/islands';
 import { getEquinox } from './equinox';
-import { getTotems } from './worship';
+import { getTotalizerBonuses, getTotems } from './worship';
 import { getSneaking } from "@parsers/world-6/sneaking";
+import { getFarming, updateFarming } from "@parsers/world-6/farming";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
@@ -114,6 +115,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.divinity = getDivinity(idleonData, serializedCharactersData);
   accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
   accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData);
+  accountData.farming = getFarming(idleonData, accountData);
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.towers = getTowers(idleonData);
@@ -223,6 +225,9 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   })
   accountData.stamps = updateStamps(accountData, charactersData);
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
+  accountData.farming = updateFarming(charactersData, accountData);
+  accountData.msaTotalizer = getTotalizerBonuses(accountData);
+  console.log('accountData.msaTotalizer', accountData.msaTotalizer)
   // update lab bonuses
   const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
   const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;

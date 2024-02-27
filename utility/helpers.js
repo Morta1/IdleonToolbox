@@ -126,6 +126,13 @@ export const round = (num) => {
   return Math.round((num + Number.EPSILON) * 100) / 100;
 };
 
+export const createRange = (start, end) => {
+  const result = [];
+  for (let i = start; i <= end; i++) {
+    result.push(i);
+  }
+  return result;
+}
 export const cloneObject = (data) => {
   try {
     return JSON.parse(JSON.stringify(data));

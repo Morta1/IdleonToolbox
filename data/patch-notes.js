@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.50',
+    gameVer: '2.0.1',
+    date: '27/02/2024',
+    features: [
+      'Initial support for farming skill page including plot data, market and crop depot and crop',
+      'Added MSA Totalizer bonuses to worship page (World 3 -> Worship)',
+      'Updated some calculations with farming bonuses',
+      'Added the missing data for the last tower defence totem in worship page',
+      'Updated infinite stars logic to only apply bonuses that are unlocked'
+    ],
+    fixes: [
+      'Fixed missing images',
+      'Fixed sneaking floor to start from 1 instead of 0',
+      'Fixed a bug where the last hatchet didn\'t appear in dashboard alerts'
+    ]
+  },
+  {
     ver: '3.2.49',
     gameVer: '2.0.1',
     date: '24/02/2024',

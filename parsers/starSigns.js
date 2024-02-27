@@ -65,7 +65,7 @@ export const getStarSignBonus = (character, account, effectName) => {
         }))
       }
     }
-    if (infiniteStars && !activeStar) {
+    if (infiniteStars && !activeStar && starSign?.unlocked) {
       starSign = { ...starSign, bonuses: starSign?.bonuses?.map((bonus) => ({ ...bonus, isInfiniteStar })) }
     }
     return activeStar ? activeStar : starSign;

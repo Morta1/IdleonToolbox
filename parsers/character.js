@@ -606,6 +606,7 @@ export const getDropRate = (character, account, characters) => {
 }
 
 export const getCashMulti = (character, account, characters) => {
+  // "MonsterCash" == e
   const { strength, agility, wisdom } = character?.stats || {};
   const cashStrBubble = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
   const cashAgiBubble = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
@@ -664,7 +665,7 @@ export const getCashMulti = (character, account, characters) => {
         + statueBonus / 100)))
     * (1 + labBonus / 100)
     * (1 + prayerBonus / 100)
-    * (1 + divinityMinorBonus / 100)
+    * (1 + (divinityMinorBonus + account?.farming?.cropDepot?.cash?.value) / 100)
     * (1 + (vialBonus
       + ((cashFromEquipment + cashFromObols)
         + (equippedCardBonus
@@ -677,6 +678,7 @@ export const getCashMulti = (character, account, characters) => {
                   + (coinsForCharonBonus
                     + (americanTipperBonus
                       + ((1 + goldFoodBonus / 100) + 5 * achievementBonus)))))))))) / 100);
+
   const breakdown = [
     { name: 'Bubbles*', value: bubbles },
     { name: 'Meal*', value: mealBonus },
@@ -686,6 +688,7 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Lab*', value: labBonus },
     { name: 'Prayers*', value: prayerBonus },
     { name: 'Divinity*', value: divinityMinorBonus },
+    { name: 'Crop Depot*', value: account?.farming?.cropDepot?.cash?.value },
     { name: 'Vials', value: vialBonus },
     { name: 'Equipment', value: cashFromEquipment },
     { name: 'Obols', value: cashFromObols },

@@ -19,8 +19,19 @@ import { getShinyBonus, getTimeToLevel } from '@parsers/breeding';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import { getStarSignBonus } from '@parsers/starSigns';
 
-const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingMultipliers, lastUpdated }) => {
+const Pets = ({
+                pets,
+                account,
+                characters,
+                lab,
+                fencePetsObject,
+                fencePets,
+                passivesTotals,
+                breedingMultipliers,
+                lastUpdated
+              }) => {
   const [minimized, setMinimized] = useState(true);
   const [threshold, setThreshold] = useState(5);
   const [filterBy, setFilterBy] = useState('');
@@ -35,7 +46,15 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
     const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
     const emeraldUlthuriteBonus = getJewelBonus(lab.jewels, 15, spelunkerObolMulti);
     const fasterShinyLevelBonus = getShinyBonus(pets, 'Faster_Shiny_Pet_Lv_Up_Rate');
-    return 1 + (emeraldUlthuriteBonus + fasterShinyLevelBonus) / 100;
+    const starSign = getStarSignBonus(characters?.[0], account, 'Shiny_Pet_LV_spd');
+    // TODO: summoning bonus
+    // (1 + q._customBlock_Summoning('WinBonus', 17, 0) / 100)
+    const summoningBonus = 1;
+    return (1 + (emeraldUlthuriteBonus
+        + (fasterShinyLevelBonus
+          + (account?.farming?.cropDepot?.shiny?.value
+            + starSign))) / 100)
+      * summoningBonus;
   }
   const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
 
@@ -66,7 +85,7 @@ const Pets = ({ pets, lab, fencePetsObject, fencePets, passivesTotals, breedingM
         const amount = fencePetsObject?.[pet?.monsterRawName];
         const timeLeft = ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7;
         const timeLeftToFive = getTimeToLevel(pet, fasterShinyLv, amount, 5);
-        return <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left', }} badgeContent={amount} color="primary"
+        return <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left' }} badgeContent={amount} color="primary"
                       key={'fence' + index}>
           <Card sx={{ width: 200, display: 'flex', alignItems: 'center', p: 0 }}>
             <CardContent sx={{ '&:last-child': { padding: 1 } }}>

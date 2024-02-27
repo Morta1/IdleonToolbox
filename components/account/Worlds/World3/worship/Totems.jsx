@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { AppContext } from '../../../common/context/AppProvider';
+import { AppContext } from '../../../../common/context/AppProvider';
 import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
-import { getSoulsReward } from '../../../../parsers/worship';
+import { getSoulsReward } from '@parsers/worship';
 
 const Totems = () => {
   const { state } = useContext(AppContext);
@@ -26,7 +26,7 @@ const Totems = () => {
               <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
                 <TotemImg src={`${prefix}etc/totem_${index}.png`} alt={'totem' + index}/>
                 <Stack direction={'row'} gap={4} flexWrap={'wrap'}>
-                  <CardTitleAndValue title={'Name'} value={cleanUnderscore(index === 5 ? 'Citric Conflict' : name)}/>
+                  <CardTitleAndValue title={'Name'} value={cleanUnderscore(index === 5 ? 'Citric Conflict' : index === 6 ? 'Breezy Battle' : name)}/>
                   <CardTitleAndValue title={'Map name'} value={cleanUnderscore(map)}/>
                   <CardTitleAndValue title={'Max Wave'} value={maxWave}/>
                   <CardTitleAndValue title={'Exp Per Charge'} value={Math.floor(expReward / chargeReq)}/>

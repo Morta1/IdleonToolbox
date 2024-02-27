@@ -34,6 +34,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false);
   const orderedEmporium = jadeUpgrades.map((upgrade, index) => ({
     ...upgrade,
+    originalIndex: index,
     index: order?.indexOf(index + ''),
     unlocked: jadeEmporiumUnlocks?.indexOf(number2letter?.[index]) !== -1
   }))
@@ -50,6 +51,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
       unlocked: rawSneaking?.[107]?.[index],
       value: charm?.bonus.includes('}') ? (1 + charm?.x3 / 100) : charm?.x3
     }))
+
   return {
     jadeEmporium,
     jadeCoins,
