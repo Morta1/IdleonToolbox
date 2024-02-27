@@ -121,10 +121,8 @@ const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, cost, costE
     extraLv++;
   }
 
-// Convert map to array of objects for easier manipulation
-  const uniqueUpgrades = Array.from(upgradeMap.entries()).map(([type, cost]) => ({ type, cost }));
-  console.log('uniqueUpgrades', uniqueUpgrades)
-  return uniqueUpgrades;
+  // Convert map to array of objects for easier manipulation
+  return Array.from(upgradeMap.entries()).map(([type, cost]) => ({ type, cost }));
 }
 
 const getCropType = ({ index, cropId, cropIdIncrement, level }: any) => {
