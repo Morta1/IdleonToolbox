@@ -206,7 +206,9 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
   accountData.breeding = addBreedingChance(idleonData, accountData);
-  accountData.divinity.deities = applyGodCost(accountData);
+  if (accountData.divinity){
+    accountData.divinity.deities = applyGodCost(accountData);
+  }
   charactersData = charactersData?.map((character) => {
     const { carryCapBags } = character;
     character.carryCapBags = carryCapBags?.map((carryBag: any) => {
