@@ -48,14 +48,12 @@ const Pets = ({
     const emeraldUlthuriteBonus = getJewelBonus(lab.jewels, 15, spelunkerObolMulti);
     const fasterShinyLevelBonus = getShinyBonus(pets, 'Faster_Shiny_Pet_Lv_Up_Rate');
     const starSign = getStarSignBonus(characters?.[0], account, 'Shiny_Pet_LV_spd');
-    // TODO: summoning bonus
-    // (1 + q._customBlock_Summoning('WinBonus', 17, 0) / 100)
-    const summoningBonus = getWinnerBonus(state?.account, '');
+    const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
     return (1 + (emeraldUlthuriteBonus
         + (fasterShinyLevelBonus
           + (account?.farming?.cropDepot?.shiny?.value
             + starSign))) / 100)
-      * summoningBonus;
+      * (1 + summoningBonus / 100);
   }
   const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
 
