@@ -4,11 +4,11 @@ import Tooltip from '@components/Tooltip';
 import { ninjaExtraInfo } from '../../../../../data/website-data';
 
 const doorMaxHps = ninjaExtraInfo?.[3].split(' ');
-const getActivityIcon = (activityInfo, weaponType) => {
+const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   if (activityInfo < 0) {
     return 'KO'
   } else if (activityInfo !== 0) {
-    if (weaponType === 1) {
+    if (weaponType === 1 && hasDoor) {
       return 'Breaching'
     } else if (weaponType === 0) {
       return 'Untying'
@@ -18,15 +18,15 @@ const getActivityIcon = (activityInfo, weaponType) => {
   }
   return 'Tied';
 }
-const PlayersInventory = ({ players, characters, dropList, inventory, doorsCurrentHp }) => {
+const PlayersInventory = ({ players, characters, account, dropList, inventory, doorsCurrentHp }) => {
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 1280 }}>
-      {players.map(({ equipment, floor, activityInfo }, playerIndex) => {
+      {players?.map(({ equipment, floor, activityInfo }, playerIndex) => {
+        // const jade = getJadeRate(characters[playerIndex], account);
         const weaponType = equipment?.[1]?.rawName !== 'Blank' && equipment?.[1]?.type;
         const doorHp = (doorMaxHps?.[floor] - doorsCurrentHp?.[floor]);
-        const hasDoor= doorHp > 0;
-        const activityIcon = getActivityIcon(activityInfo, weaponType);
-        const badActivity = activityIcon === 'Breaching' && !hasDoor;
+        const hasDoor = doorHp > 0;
+        const activityIcon = getActivityIcon(activityInfo, weaponType, hasDoor);
         return <Stack direction={'row'} key={'player-' + playerIndex} gap={1} flexWrap={'wrap'}>
           <Card sx={{ display: 'flex', alignItems: 'center', width: 200 }}>
             <CardContent>
@@ -39,11 +39,8 @@ const PlayersInventory = ({ players, characters, dropList, inventory, doorsCurre
                 <Divider flexItem orientation={'vertical'}/>
                 <Stack>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <Tooltip title={badActivity ? 'This floor\'s door is already unlocked' : ''}>
-                      <img style={{
-                        objectFit: 'contain',
-                        border: badActivity ? '1px solid #df4646' : ''
-                      }} width={24} height={24}
+                    <Tooltip title={''}>
+                      <img style={{ objectFit: 'contain' }} width={24} height={24}
                            src={`${prefix}etc/${activityIcon}_Ninja.png`}
                            alt={''}/>
                     </Tooltip>
@@ -67,7 +64,7 @@ const PlayersInventory = ({ players, characters, dropList, inventory, doorsCurre
               </Stack>
             </CardContent>
           </Card>
-          {equipment.map(({ name, rawName, level, description, value, type, subType }, itemIndex) => {
+          {equipment?.map(({ name, rawName, level, description, value, type, subType }, itemIndex) => {
             description = getDescription({ description, value, type, subType })
             return <Tooltip title={description === '0' ? '' : cleanUnderscore(description)} key={itemIndex + name}>
               <Card sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>

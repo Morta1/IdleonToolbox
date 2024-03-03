@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
-import { MissingData } from '@components/common/styles';
+import { CardTitleAndValue, MissingData } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
@@ -12,7 +12,7 @@ import CoinDisplay from '../../../components/common/CoinDisplay';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
-  const { deities, linkedDeities, unlockedDeities } = state?.account?.divinity || {};
+  const { deities, linkedDeities, unlockedDeities, godRank } = state?.account?.divinity || {};
   const [showCost, setShowCost] = useState(false);
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
@@ -21,6 +21,7 @@ const Divinity = () => {
       description="Keep track of your characters' gods connections and upgrades"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
+    <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost}
                          size={'small'}

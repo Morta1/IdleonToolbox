@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.51',
+    gameVer: '2.0.1',
+    date: '02/03/2024',
+    features: [
+      'Updated the website with version 2.0.2 data and assets',
+      'Initial support for summoning skill page including essences, upgrades and winner bonuses',
+      'Added beanstalk page under Account -> Misc',
+      'Updated bribes',
+      'Updated artifacts',
+      'Added a timer in farming page to countdown to next cycle'
+    ],
+    fixes: [
+      'Fixed star sign / constellation page'
+    ]
+  },
+  {
     ver: '3.2.50',
     gameVer: '2.0.1',
     date: '27/02/2024',
@@ -25,7 +41,7 @@ export const patchNotes = [
     gameVer: '2.0.1',
     date: '24/02/2024',
     features: [
-      'Updated the website with version 2.0.1 data and assets',
+      'Updated the website with version 2.0.1 data and assets'
     ],
     fixes: []
   },
@@ -39,7 +55,7 @@ export const patchNotes = [
       'Added w6 to quests page'
     ],
     fixes: [
-      'Fixed a bug with territory tab in breeding page',
+      'Fixed a bug with territory tab in breeding page'
     ]
   },
   {
@@ -57,7 +73,7 @@ export const patchNotes = [
     date: '24/01/2024',
     features: [
       'Added talents "Added levels" value and breakdown to talents under characters page',
-      'Added dashboard alerts for using the wrong card set while fighting / skilling',
+      'Added dashboard alerts for using the wrong card set while fighting / skilling'
     ],
     fixes: [
       'Fixed refinery calculation (was missing arcade shop bonus)',
@@ -136,7 +152,7 @@ export const patchNotes = [
       'Added afk gains description for cooking'
     ],
     fixes: [
-      'Fixed afk gains for fighting',
+      'Fixed afk gains for fighting'
     ]
   },
   {
@@ -153,7 +169,7 @@ export const patchNotes = [
     ],
     fixes: [
       'Fixed alerts for refinery salts',
-      'Fixed card search stars calculations',
+      'Fixed card search stars calculations'
     ]
   },
   {
@@ -165,7 +181,7 @@ export const patchNotes = [
       'Added an option to the character dashboard settings to always see talents regardless of their cooldown',
       'Added an estimated trash per day to the islands page',
       'Added the following leaderboards: Bit, Total Cards, Total Vials, Colosseum and Minigames, Fractal hours, Dungeon credits and Flurbos, Afk time',
-      'Made RNG items display in dungeons page more concise',
+      'Made RNG items display in dungeons page more concise'
     ],
     fixes: [
       'Fixed a bug with displaying crystal countdown progress while skill isn\'t specced',
@@ -200,13 +216,13 @@ export const patchNotes = [
         href={'https://idleontoolbox.com/account/world-4/breeding'}>Territory</Link> tab to the breeding
         page</Typography>,
       'Added a toggle to Pets tabs in breeding page to group pets by worlds / stats',
-      'Added an option to see the whole raw json data in the data page',
+      'Added an option to see the whole raw json data in the data page'
     ],
     fixes: [
       'Fixed log book',
       'Fixed a bug in guaranteed drop calculator page',
       'Fixed drop rate calculations',
-      'Fixed consistency of "Maxed" display across the site (and grammar :))',
+      'Fixed consistency of "Maxed" display across the site (and grammar :))'
     ]
   },
   {
@@ -268,7 +284,7 @@ export const patchNotes = [
       'Added an alert to notify when a character equips \'Blunder hill\' and is at a level greater than 50.'
     ],
     fixes: [
-      'Fixed texts across to site to be more consistent',
+      'Fixed texts across to site to be more consistent'
     ]
   },
   {
@@ -284,7 +300,7 @@ export const patchNotes = [
         href={'https://idleontoolbox.com/account/world-3/traps'}>traps</Link> page</Typography>
     ],
     fixes: [
-      'Fixed a bug in cooking page where recipe kitchens were calculated as cooking meals',
+      'Fixed a bug in cooking page where recipe kitchens were calculated as cooking meals'
     ]
   },
   {
@@ -296,7 +312,7 @@ export const patchNotes = [
       'Added a material tracker alert to the dashboard under Etc -> Material tracker (in case you don\'t see the error, clear the dashboard config in data page)'
     ],
     fixes: [
-      'Fixed a bug with dashboard characters\' afk time not showing "Active" when it should',
+      'Fixed a bug with dashboard characters\' afk time not showing "Active" when it should'
     ]
   },
   {
@@ -334,7 +350,7 @@ export const patchNotes = [
       'Removed pastebin support'
     ],
     fixes: [
-      'Fixed the calculation of jewel and chips rotations',
+      'Fixed the calculation of jewel and chips rotations'
     ]
   },
   {
@@ -348,7 +364,7 @@ export const patchNotes = [
       'Account -> Stamps show the chance for a gilded stamp'
     ],
     fixes: [
-      'Fixed the calculation of jewel and chips rotations',
+      'Fixed the calculation of jewel and chips rotations'
     ]
   },
   {
@@ -379,7 +395,7 @@ export const patchNotes = [
     features: [
       'Added an option to optimize the construction board by "Player xp rate" - this is highly experimental and might not work as expected so use at your own risk',
       'Added cog stat calculator to construction page',
-      'Added "Plants picked" stat to the totals list in general page',
+      'Added "Plants picked" stat to the totals list in general page'
     ],
     fixes: [
       'Fixed a bug with construction exp calculations',
@@ -414,7 +430,7 @@ export const patchNotes = [
       'Added a timer for counting down until the forge is emptied.',
       'Added a display for the material cost of the next rank of all salts',
       'Added gem shop page under account page with some priority options',
-      'Added more collapsable sections to the account page to make the navigation bar more concise',
+      'Added more collapsable sections to the account page to make the navigation bar more concise'
     ],
     fixes: [
       'Fixed a bug where optimizing construction board was taking locked slots into account',
@@ -427,7 +443,7 @@ export const patchNotes = [
     gameVer: '1.92',
     date: '08/11/2023',
     features: [
-      'Added a prototype for optimizing construction board (under construction tab) - use at your own risk :)',
+      'Added a prototype for optimizing construction board (under construction tab) - use at your own risk :)'
     ],
     fixes: []
   },
@@ -446,7 +462,7 @@ export const patchNotes = [
     date: '03/11/2023',
     features: [],
     fixes: [
-      'Fixed construction calculations',
+      'Fixed construction calculations'
     ]
   },
   {
@@ -652,11 +668,11 @@ export const patchNotes = [
       'Added submitted builds for Blood berserker, Elemental Sorcerer and Bubonic Conjuror',
       'Added the ability to select only one character to display in characters page',
       'Added charge syphon timer to the dashboard ',
-      'Added meals breakpoint for level 40, 50 and 60',
+      'Added meals breakpoint for level 40, 50 and 60'
     ],
     fixes: [
       'Fixed a bug with sorting buildings by time',
-      'Fixed a bug with wrong icon displayed in breeding page',
+      'Fixed a bug with wrong icon displayed in breeding page'
     ]
   },
   {
@@ -667,7 +683,7 @@ export const patchNotes = [
       'Added data and assets from version 1.86',
       'Updated design for Buildings page',
       'Added world 4 and world 5 bosses keys to Account -> General page',
-      'Updated logic and design for upgradable bubbles from NLBL by lithium atom',
+      'Updated logic and design for upgradable bubbles from NLBL by lithium atom'
     ],
     fixes: [
       'Fixed a bug with trimmed slot',
@@ -675,7 +691,7 @@ export const patchNotes = [
       'Fixed a bug with lab and printer caused by doot doot',
       'Fixed display for respawn time at Characters -> Stats',
       'Fixed a display bug for very high damage numbers',
-      'Fixed an overflow bug with money values',
+      'Fixed an overflow bug with money values'
     ]
   },
   {
@@ -762,7 +778,7 @@ export const patchNotes = [
       'Added "Subtract green stacks" to stamps page'
     ],
     fixes: [
-      'Fixed printer calculation and breakdown',
+      'Fixed printer calculation and breakdown'
     ]
   },
   {
@@ -793,7 +809,7 @@ export const patchNotes = [
     date: '06/06/2023',
     features: [
       'Added an overview of islands/captains to Boats And Captains tab in Sailing page',
-      'Added detailed information about statues in account page',
+      'Added detailed information about statues in account page'
     ],
     fixes: []
   },
@@ -802,7 +818,7 @@ export const patchNotes = [
     gameVer: '1.83',
     date: '03/06/2023',
     features: [
-      'Added data and assets from version 1.83',
+      'Added data and assets from version 1.83'
     ],
     fixes: []
   },
@@ -870,7 +886,7 @@ export const patchNotes = [
     date: '25/05/2023',
     features: [
       'Added a "Closest trap" timer to dashboard view',
-      'Added a "Next printer cycle" timer to dashboard view',
+      'Added a "Next printer cycle" timer to dashboard view'
     ],
     fixes: [
       'Fixed cooking speed calc',
@@ -882,7 +898,7 @@ export const patchNotes = [
     gameVer: '1.82',
     date: '24/05/2023',
     features: [
-      'Added concise character information to dashboard ',
+      'Added concise character information to dashboard '
     ],
     fixes: [
       'Some small fixes all over the place :D'
@@ -971,7 +987,7 @@ export const patchNotes = [
       'Added a threshold input for alchemy in dashboard options (for liquids capacity)'
     ],
     fixes: [
-      'Fixed a bug with sigils not displaying in dashboard',
+      'Fixed a bug with sigils not displaying in dashboard'
     ]
   },
   {
@@ -982,7 +998,7 @@ export const patchNotes = [
       'Added countdown timer for sigils'
     ],
     fixes: [
-      'Fixed calculation for atom collider\'s cost calculation',
+      'Fixed calculation for atom collider\'s cost calculation'
     ]
   },
   {
@@ -1033,7 +1049,7 @@ export const patchNotes = [
     gameVer: '1.81',
     date: '09/05/2023',
     features: [
-      'Added timers for egg and shiny levels',
+      'Added timers for egg and shiny levels'
     ],
     fixes: []
   },
@@ -1204,7 +1220,7 @@ export const patchNotes = [
     features: [
       'Added particle cost for bubbles (displayed when required material is higher than 100M)',
       'Added indication of how many particle upgrade left to bubble page',
-      'Added Giant Mob Spawn Chance card to the dashboard (near library timer)',
+      'Added Giant Mob Spawn Chance card to the dashboard (near library timer)'
     ],
     fixes: [
       'Fixed a bug on Item Planner when selecting \'Show Missing Items\'',
@@ -1629,7 +1645,7 @@ export const patchNotes = [
       <Typography>Added forge upgrades tab to the <Link
         href={'https://idleontoolbox.com/account/world-1/forge'}>Forge</Link> page</Typography>,
       <Typography>Added claims counter for spices under to the <Link
-        href={'https://idleontoolbox.com/account/world-4/cooking'}>Cooking</Link> page</Typography>,
+        href={'https://idleontoolbox.com/account/world-4/cooking'}>Cooking</Link> page</Typography>
 
     ],
     fixes: []

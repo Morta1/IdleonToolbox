@@ -12,7 +12,7 @@ import { NextSeo } from 'next-seo';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
-  const { jadeEmporium, jadeCoins, players, inventory, dropList, pristineCharms, upgrades, doorsCurrentHp } = state?.account?.sneaking
+  const { jadeEmporium, jadeCoins, players, inventory, dropList, pristineCharms, upgrades, doorsCurrentHp } = state?.account?.sneaking || {};
 
   return <>
     <NextSeo
@@ -26,6 +26,7 @@ const Sneaking = () => {
                         dropList={dropList}
                         inventory={inventory}
                         characters={state?.characters}
+                        account={state?.account}
                         doorsCurrentHp={doorsCurrentHp}
       />
       <JadeEmporium upgrades={jadeEmporium}/>

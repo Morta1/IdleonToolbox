@@ -17,7 +17,7 @@ const ArcadeShop = () => {
     const multiplier = (state?.account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active)
       ? 2
       : 1;
-    const arcadeStamp = getStampBonus(state?.account?.stamps, 'misc', 'StampC5', 0, multiplier);
+    const arcadeStamp = getStampBonus(state?.account, 'misc', 'StampC5', 0, multiplier);
     const arcadeStampMath = Math.max(0.6, 1 - arcadeStamp / 100);
     return Math.round(arcadeStampMath * (5 + (3 * level + Math.pow(level, 1.3))));
   }

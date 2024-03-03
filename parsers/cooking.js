@@ -171,7 +171,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const cookingSpeedJewelMultiplier = getJewelBonus(account.lab.jewels, 14, spelunkerObolMulti); // meal cooking speed
     const cookingSpeedFromJewel = Math.floor(globalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 0);
 
-    const cookingSpeedStamps = getStampsBonusByEffect(account?.stamps, 'Meal_Cooking_Speed');
+    const cookingSpeedStamps = getStampsBonusByEffect(account, 'Meal_Cooking_Speed');
     const cookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, 'MealCook');
     const extraCookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, '6CookSpd');
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
@@ -238,7 +238,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
-    const recipeSpeedStamps = getStampsBonusByEffect(account?.stamps, 'New_Recipe_Cooking_Speed');
+    const recipeSpeedStamps = getStampsBonusByEffect(account, 'New_Recipe_Cooking_Speed');
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook', blackDiamondRhinestone);
 
     const fireSpeed = 5

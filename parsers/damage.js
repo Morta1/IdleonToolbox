@@ -316,7 +316,7 @@ const getDamageFromHpMp = (character, characters, account, playerInfo, damageFro
   const hpTalentBonus = getTalentBonus(character?.talents, 0, 'MEAT_SHANK');
   const mpTalentBonus = getTalentBonus(character?.talents, 0, 'OVERCLOCKED_ENERGY');
   const bribeBonus = account?.bribes?.[20]?.done ? account?.bribes?.[20]?.value : 0;
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Total_Damage');
+  const stampBonus = getStampsBonusByEffect(account, 'Total_Damage');
 
   return 1 +
     (Math.pow(damageFromStat, .7)
@@ -337,7 +337,7 @@ const getBaseDamage = (character, characters, account, playerInfo, damageFromSta
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Base_Damage')?.bonus ?? 0;
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Nomwich', character, account);
 
-  const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Base_Damage')
+  const stampsBonus = getStampsBonusByEffect(account, 'Base_Damage')
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 0);
   const equipmentBonus = getStatsFromGear(character, 16, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[16]);
@@ -387,7 +387,7 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
   const baseCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_accuracy');
   const equipmentBonus = getStatsFromGear(character, 28, account);
   const goldenFoodBonus = getGoldenFoodBonus('Butter_Bar', character, account) || 0;
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_Accuracy');
+  const stampBonus = getStampsBonusByEffect(account, 'Base_Accuracy');
 
   const baseAccuracy = 2 + vialBonus
     + (postOfficeBonus
@@ -439,7 +439,7 @@ const getMaxMp = (character, characters, account) => {
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_MP');
   const cardPercentBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_MP');
   const mpBubble = 0;
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_MP');
+  const stampBonus = getStampsBonusByEffect(account, 'Base_MP');
   const mpTalentBonus = getTalentBonus(character?.talents, 0, 'MANA_BOOSTER');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Magician_Starterpack', 0);
   const postOfficePercentBonus = getPostOfficeBonus(character?.postOffice, 'Magician_Starterpack', 1);
@@ -466,7 +466,7 @@ const getMaxHp = (character, characters, account) => {
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_HP');
   const cardPercentBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_HP');
   const hpBubble = 0;
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_HP');
+  const stampBonus = getStampsBonusByEffect(account, 'Base_HP');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Locally_Sourced_Organs', 0);
   const postOfficePercentBonus = getPostOfficeBonus(character?.postOffice, 'Locally_Sourced_Organs', 1);
   const hpTalentBonus = getTalentBonus(character?.talents, 0, 'HEALTH_BOOSTER');
@@ -569,7 +569,7 @@ const getCritDamage = (character, characters, account) => {
   const begTalentBonus = getTalentBonus(character?.talents, 0, 'KNUCKLEBUSTER');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'DIVINE_INTERVENTION');
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'BAPPITY_BOOPITY', false, mainStat === 'strength');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Critical_Damage');
+  const stampBonus = getStampsBonusByEffect(account, 'Critical_Damage');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Critical_Damage');
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Circular_Criticals', account)?.curse;
   const equipmentBonus = getStatsFromGear(character, 22, account);
@@ -750,7 +750,7 @@ const getPlayerDefence = (character, characters, account) => {
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_Defence');
   const secondCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Defence_from_Equipment');
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'FMJ', false, mainStat === 'strength');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_Defence');
+  const stampBonus = getStampsBonusByEffect(account, 'Base_Defence');
   const toolBonus = getStatsFromGear(character, 'Defence', account, true);
   const equipmentBonus = getStatsFromGear(character, 'Defence', account);
   const obolsBonus = getObolsBonus(character?.obols, 'Defence');
@@ -887,7 +887,7 @@ const getKillPerKill = (character, characters, account, playerInfo) => {
 const getMultiKillTotal = (character, characters, account, playerInfo) => {
   const starSignBonus = getStarSignBonus(character, account, 'Total_Multikill');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 8);
-  const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Base_Overkill')
+  const stampsBonus = getStampsBonusByEffect(account, 'Base_Overkill')
   const equipmentBonus = getStatsFromGear(character, 29, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[29]);
   const monster = monsters?.[character?.targetMonster];

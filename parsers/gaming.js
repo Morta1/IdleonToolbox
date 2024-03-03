@@ -28,6 +28,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const envelopes = gamingRaw?.[13];
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
   const bits = gamingRaw?.[0];
+  const poingHighscore = gamingRaw?.[10];
   const bestNugget = gamingRaw?.[8];
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);
@@ -114,7 +115,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     dna,
     newMutationChance,
     mutationChanceBreakpoints,
-    logBook
+    logBook,
+    poingHighscore
   };
 }
 

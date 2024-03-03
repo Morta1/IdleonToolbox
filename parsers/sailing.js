@@ -250,7 +250,7 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
   const divinityMinorBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Sailing_Speed_(Passive)');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Sailing_Speed')
+  const stampBonus = getStampsBonusByEffect(account, 'Sailing_Speed')
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Sailing', blackDiamondRhinestone);
@@ -497,8 +497,8 @@ const getLootPile = (lootPile) => {
 
 const getArtifact = (artifact, acquired, lootPile, index, charactersData, account) => {
   let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
-    upgradedForm = acquired === 2 || acquired === 3, formMultiplier = acquired,
-    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : 'baseBonus';
+    upgradedForm = acquired === 2 || acquired === 3 || acquired === 4, formMultiplier = acquired,
+    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : acquired === 4 ? 'sovereignMultiplier' : 'baseBonus';
 
   let fixedDescription = artifact?.description;
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {
@@ -588,6 +588,9 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   }
   else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
     bonus *= 3;
+  }
+  else if (acquired === 3 && artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!') {
+    bonus *= 4;
   }
 
   fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, kFormatter(bonus, 2)).replace(/@/, '');

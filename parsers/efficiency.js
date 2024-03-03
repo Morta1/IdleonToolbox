@@ -61,7 +61,7 @@ export const getNobisectBonus = (character, account, characters, playerInfo) => 
 
 export const getAllBaseSkillEff = (character, account, characters, playerInfo) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Base_Efficiency_for_All_Skills')
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'All_Skill_Efficiency', character);
+  const stampBonus = getStampsBonusByEffect(account, 'All_Skill_Efficiency', character);
   const blessingBonus = getNobisectBonus(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 1);
   const chipBonus = account?.lab?.playersChips?.[character?.playerId].find((chip) => chip.index === 11)?.baseVal ?? 0;
@@ -138,7 +138,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100));
 
   const secondTalentBonus = getTalentBonus(character?.talents, 3, 'SKILL_STRENGTHEN');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Base_Mining', character);
+  const stampBonus = getStampsBonusByEffect(account, 'Base_Mining', character);
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 0);
   const rightHandBonus = getMaestroRightHandBonus(character, 'mining', characters);

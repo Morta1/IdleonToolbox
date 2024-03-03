@@ -9,18 +9,19 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const chronus = useMemo(() => starSigns.filter(({ tree }) => tree === 'chronus'), [starSigns, infiniteStars]);
   const hydron = useMemo(() => starSigns.filter(({ tree }) => tree === 'hydron'), [starSigns, infiniteStars]);
-  infiniteStars = selectedTab === 0 ? infiniteStars : infiniteStars - 34
+  const seraph = useMemo(() => starSigns.filter(({ tree }) => tree === 'seraph'), [starSigns, infiniteStars]);
+  // infiniteStars = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
 
   return (
     <>
-      <Tabber tabs={['chronus', 'hydron']} onTabChange={(selected) => setSelectedTab(selected)}>
+      <Tabber tabs={['chronus', 'hydron', 'seraph']} onTabChange={(selected) => setSelectedTab(selected)}>
         <Stack gap={3}>
           <Grid container>
             <Grid item md={4} sx={{ display: { sm: 'none', md: 'block' } }}>Name</Grid>
             <Grid item xs={8} md={4}>Bonuses</Grid>
             <Grid item xs={2} md={4} pl={5}>Cost</Grid>
           </Grid>
-          {(selectedTab === 0 ? chronus : hydron)?.map((starSign, index) => {
+          {(selectedTab === 0 ? chronus : selectedTab === 1 ? hydron : seraph)?.map((starSign, index) => {
             const { indexedStarName, cost, unlocked, bonuses, description } = starSign;
             return (!indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown')) &&
               <React.Fragment key={name + ' ' + index}>
@@ -33,8 +34,8 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                     {!isMd ?
                       <>
                         <Typography variant={'body1'} component={'span'}>{cleanUnderscore(indexedStarName)}</Typography>
-                        {infiniteStars >= index ?
-                          <img src={`${prefix}data/SignStarInf${selectedTab === 0 ? 0 : 1}.png`} alt=""/> : null}
+                        {unlocked ?
+                          <img src={`${prefix}data/SignStarInf${selectedTab}.png`} alt=""/> : null}
                       </> : null}
                   </Grid>
                   <Grid item sm={7} md={4} display={'flex'} alignItems={'center'} gap={2}>

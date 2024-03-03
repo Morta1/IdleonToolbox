@@ -10,6 +10,9 @@ export const getHighscores = (idleonData, account) => {
     minigameHighscores: parseMinigame(minigameHighscores).concat([{
       name: 'pen pals',
       score: account?.accountOptions?.[99] || 0
+    }, {
+      name: 'poing',
+      score: account?.gaming?.poingHighscore
     }])
   }
 }

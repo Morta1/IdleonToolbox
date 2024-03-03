@@ -77,7 +77,7 @@ export const getLiquidCauldrons = (account) => {
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
     const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
     const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity;
-    const stampBonus = getStampsBonusByEffect(account?.stamps, 'Cap_for_all_Liquids_in_Alchemy');
+    const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
 
 

@@ -59,13 +59,15 @@ import { getEquinox } from './equinox';
 import { getTotalizerBonuses, getTotems } from './worship';
 import { getSneaking } from "@parsers/world-6/sneaking";
 import { getFarming, updateFarming } from "@parsers/world-6/farming";
+import { getSummoning } from "@parsers/world-6/summoning";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
 
   try {
     console.info('%cStart Parsing', 'color:orange');
-    const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars);
+    const processedData = serializeData(idleonData, charNames, companion, guildData, serverVars);
+    const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, processedData);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
     console.info('data', { account: accountData, characters: charactersData })
@@ -83,9 +85,9 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
   }
 };
 
-const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
-  const accountData: Account = {};
-  let charactersData: Character[] = [];
+const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, processedData?: any) => {
+  const accountData: Account = processedData?.accountData || {};
+  let charactersData: Character[] = processedData?.charactersData || [];
   const serializedCharactersData = getCharacters(idleonData, charNames);
   accountData.companions = getCompanions(companion);
   accountData.bundles = getBundles(idleonData);
@@ -112,10 +114,11 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.meritsDescriptions = meritsDescriptions; //
   accountData.breeding = getBreeding(idleonData, accountData);
   accountData.cooking = getCooking(idleonData, accountData);
-  accountData.divinity = getDivinity(idleonData, serializedCharactersData);
+  accountData.divinity = getDivinity(idleonData, serializedCharactersData, accountData);
   accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
-  accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData);
+  accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData, accountData);
   accountData.farming = getFarming(idleonData, accountData);
+  accountData.summoning = getSummoning(idleonData, accountData, serializedCharactersData);
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.towers = getTowers(idleonData);
@@ -155,7 +158,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);
-  accountData.finishedWorlds = [1, 2, 3, 4, 5]?.reduce((res, world) => {
+  accountData.finishedWorlds = [1, 2, 3, 4, 5, 6]?.reduce((res, world) => {
     return {
       ...res,
       [`World${world}`]: isWorldFinished(charactersData, world)
@@ -206,7 +209,9 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
   accountData.breeding = addBreedingChance(idleonData, accountData);
-  accountData.divinity.deities = applyGodCost(accountData);
+  if (accountData.divinity){
+    accountData.divinity.deities = applyGodCost(accountData);
+  }
   charactersData = charactersData?.map((character) => {
     const { carryCapBags } = character;
     character.carryCapBags = carryCapBags?.map((carryBag: any) => {

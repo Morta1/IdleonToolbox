@@ -1,6 +1,15 @@
 import { lavaLog, tryToParse } from '../utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
-import { classFamilyBonuses, companions, items, mapNames, randomList, rawMapNames, slab } from '../data/website-data';
+import {
+  classFamilyBonuses,
+  companions,
+  items,
+  mapNames,
+  ninjaExtraInfo,
+  randomList,
+  rawMapNames,
+  slab
+} from '../data/website-data';
 import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
@@ -18,6 +27,8 @@ import { isPast } from 'date-fns';
 import { getGuildBonusBonus } from './guild';
 import { getStarSignBonus } from './starSigns';
 import { getPlayerFoodBonus } from './character';
+import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getBribeBonus } from '@parsers/bribes';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
@@ -68,7 +79,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Talent_Book_Library_Refresh_Speed')
+  const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
   const libraryTowerLevel = towersLevels?.[1] - 1;
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
@@ -140,7 +151,7 @@ export const getCurrencies = (idleonData) => {
     DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
     DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
     DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
-    minigamePlays: idleonData?.PVMinigamePlays_1,
+    minigamePlays: idleonData?.PVMinigamePlays_1
   };
 };
 
@@ -148,7 +159,7 @@ export const enhanceColoTickets = (tickets, characters, account) => {
   const npcs = {
     0: { name: 'Typhoon', dialogThreshold: 3, daysSinceIndex: 15 },
     1: { name: 'Centurion', dialogThreshold: 4, daysSinceIndex: 35 },
-    2: { name: 'Lonely_Hunter', dialogThreshold: 6, daysSinceIndex: 56 },
+    2: { name: 'Lonely_Hunter', dialogThreshold: 6, daysSinceIndex: 56 }
   }
   const allTickets = Object.entries(npcs).reduce((res, [, npc], index) => {
     // const amountPerDay = getAmountPerDay(npc, characters);
@@ -276,8 +287,7 @@ export const getHighestLevelOfClass = (characters, className) => {
   const highest = characters?.reduce((res, { level, class: cName }) => {
     if (res?.[cName]) {
       res[cName] = Math.max(res?.[cName], level);
-    }
-    else {
+    } else {
       res[cName] = level;
     }
     return res;
@@ -323,8 +333,7 @@ export const calculateLeaderboard = (characters) => {
     for (const [skillName, skillLevel] of Object.entries(skillsInfo)) {
       if (!res[skillName]) {
         res[skillName] = { ...res[skillName], [name]: skillLevel };
-      }
-      else {
+      } else {
         const joined = { ...res[skillName], [name]: skillLevel };
         let lowestIndex = Object.keys(joined).length;
         res[skillName] = Object.entries(joined)
@@ -352,8 +361,7 @@ export const calculateTotalSkillsLevel = (characters) => {
     for (const [skillName, skillData] of Object.entries(skillsInfo)) {
       if (res?.[skillName]) {
         res[skillName] = { ...res[skillName], level: res[skillName].level + skillData?.level ?? 0 }
-      }
-      else {
+      } else {
         res[skillName] = { level: skillData?.level, index: skillData?.index - 1, icon: skillData?.icon };
       }
     }
@@ -402,14 +410,11 @@ export const getSkillMasteryBonusByIndex = (skills, rift, riftBonusIndex) => {
     const skillRank = getSkillRankByIndex(skills, index);
     if (riftBonusIndex === 1) {
       sum += 10 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
-    }
-    else if (riftBonusIndex === 3) {
+    } else if (riftBonusIndex === 3) {
       sum += isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
-    }
-    else if (riftBonusIndex === 4) {
+    } else if (riftBonusIndex === 4) {
       sum += 25 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
-    }
-    else if (0 !== index && 2 !== index && 3 !== index && 5 !== index && 6 !== index && 8 !== index && 8 !== index) {
+    } else if (0 !== index && 2 !== index && 3 !== index && 5 !== index && 6 !== index && 8 !== index && 8 !== index) {
       sum += 5 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
     }
     return sum;
@@ -441,8 +446,7 @@ export const getGiantMobChance = (character, account) => {
   let chance;
   if (giantsAlreadySpawned < 5) {
     chance = (1 / ((100 + 50 * Math.pow(giantsAlreadySpawned + 1, 2)) * (1 + glitterbugPrayer / 100))) * (1 + (crescentShrineBonus + giantMobVial) / 100);
-  }
-  else {
+  } else {
     chance = (1 / (2 * Math.pow(giantsAlreadySpawned + 1, 1.95)
         * (1 + glitterbugPrayer / 100)
         * Math.pow(giantsAlreadySpawned + 1, 1.5 + giantsAlreadySpawned / 15)))
@@ -456,8 +460,7 @@ export const getGiantMobChance = (character, account) => {
   }
 }
 
-export const getGoldenFoodBonus = (foodName, character, account) => {
-  const goldenFood = character?.food?.find(({ name }) => name === foodName);
+export const getGoldenFoodMulti = (character, account) => {
   const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
@@ -465,20 +468,41 @@ export const getGoldenFoodBonus = (foodName, character, account) => {
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
-  const goldenAppleStamp = getStampsBonusByEffect(account?.stamps, 'Effect_from_Golden_Food._Sparkle_sparkle!');
+  const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
   const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false,
     mainStatMap?.[character?.class] === 'strength');
   const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE');
-  const goldenFoodMulti = Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+  const charmBonus = getCharmBonus(account, 'Gumm_Stick');
+  const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zGoldFood', blackDiamondRhinestone);
+  const starSignBonus = getStarSignBonus(character, account, 'Golden_Food');
+  const bribeBonus = getBribeBonus(account?.bribes, 'Gold_from_Lead');
+  return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
         + (goldenAppleStamp
           + (goldenFoodAchievement
             + (goldenFoodBubbleBonus
-              + goldenFoodSigilBonus))))) / 100;
-  if (!goldenFood?.Amount || !goldenFood?.amount) return 0;
-  return goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
+              + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus)))) / 100;
+}
+
+export const getGoldenFoodBonus = (foodName, character, account) => {
+  if (!character) return 0;
+  const goldenFood = character?.food?.find(({ name }) => name === foodName);
+  const goldenFoodMulti = getGoldenFoodMulti(character, account);
+  const baseBonus = !goldenFood?.Amount || !goldenFood?.amount
+    ? 0
+    : goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
+  if (isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
+    const beanstalkData = account?.sneaking?.beanstalkData;
+    const beanstalkGoldenFoods = ninjaExtraInfo[29].split(' ').filter((str) => isNaN(str))
+      .map((gFood, index) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
+    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName }) => displayName === foodName);
+    return baseBonus + beanstalkFood?.Amount * goldenFoodMulti * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData[beanstalkFood?.index])) * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData[beanstalkFood?.index])) / 2.14);
+  }
+  return baseBonus;
 };
 
 
@@ -581,12 +605,12 @@ export const getAllCap = (character, account) => {
 export const getItemCapacity = (type = '', character, account) => {
   const gemshop = account?.gemShopPurchases?.find((value, index) => index === 58);
   const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap');
-  const minCapStamps = getStampsBonusByEffect(account?.stamps, 'Carrying_Capacity_for_Mining_Items', character);
-  const chopCapStamps = getStampsBonusByEffect(account?.stamps, 'Carrying_Capacity_for_Choppin\'_Items', character);
-  const fishCapStamps = getStampsBonusByEffect(account?.stamps, 'Carry_Capacity_for_Fishing_Items', character);
-  const catchCapStamps = getStampsBonusByEffect(account?.stamps, 'Carry_Capacity_for_Catching_Items', character);
-  const matCapStamps = getStampsBonusByEffect(account?.stamps, 'Carrying_Capacity_for_Material_Items', character);
-  const allCarryStamps = getStampsBonusByEffect(account?.stamps, 'Carry_Capacity_for_ALL_item_types!');
+  const minCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Mining_Items', character);
+  const chopCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Choppin\'_Items', character);
+  const fishCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Fishing_Items', character);
+  const catchCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Catching_Items', character);
+  const matCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', character);
+  const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
   const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const allCap = getAllCap(character, account);
 
@@ -608,8 +632,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('dFish' === type) {
+  } else if ('dFish' === type) {
     value = Math.floor(character?.maxCarryCap?.Fishing * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -621,8 +644,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('dBugs' === type) {
+  } else if ('dBugs' === type) {
     value = Math.floor(character?.maxCarryCap?.Bugs * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -634,8 +656,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('bLog' === type || 'bLeaf' === type) {
+  } else if ('bLog' === type || 'bLeaf' === type) {
     value = Math.floor(character?.maxCarryCap?.Chopping * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -647,8 +668,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('cFood' === type) {
+  } else if ('cFood' === type) {
     value = Math.floor(character?.maxCarryCap?.Foods * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -659,8 +679,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('dCritters' === type) {
+  } else if ('dCritters' === type) {
     value = Math.floor(character?.maxCarryCap?.Critters * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -671,8 +690,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('dSouls' === type) {
+  } else if ('dSouls' === type) {
     value = Math.floor(character?.maxCarryCap?.Souls * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -683,11 +701,9 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: allCarryStamps, name: 'All Stamps' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
+  } else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
     value = 999999;
-  }
-  else if ('bCraft' === type) {
+  } else if ('bCraft' === type) {
     value = Math.floor(character?.maxCarryCap?.bCraft * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
@@ -700,17 +716,13 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: talentBonus, name: 'Talent' },
       { value: starSignBonus, name: 'Star Sign' }
     ]
-  }
-  else if ('dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type) {
+  } else if ('dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type) {
     value = 999999;
-  }
-  else if ('fillerz' === type) {
+  } else if ('fillerz' === type) {
     value = character?.maxCarryCap?.fillerz;
-  }
-  else if ('d' === type.charAt(0)) {
+  } else if ('d' === type.charAt(0)) {
     value = 999999;
-  }
-  else {
+  } else {
     value = 2;
   }
 

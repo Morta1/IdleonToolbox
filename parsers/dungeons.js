@@ -75,8 +75,8 @@ export const getDungeonFlurboStatBonus = (upgrades, effectName) => {
   return growth(stat?.func, stat?.level, stat?.x1, stat?.x2, false) ?? 0;
 };
 
-export const getMaxClaimTime = (stamps) => {
-  return Math.ceil(3600 * (48 + Math.min(10, getStampsBonusByEffect(stamps, 'hr_Arcade_Ball_claim_max_time'))));
+export const getMaxClaimTime = (account) => {
+  return Math.ceil(3600 * (48 + Math.min(10, getStampsBonusByEffect(account, 'hr_Arcade_Ball_claim_max_time'))));
 }
 
 export const getSecPerBall = (account) => {
@@ -94,7 +94,7 @@ export const getBallBonus = (account) => {
   }
   const vialArcadeBonus = getVialsBonusByStat(account?.alchemy?.vials, 'arcadeBALLZ');
   const taskArcadeBonus = account?.tasks?.[2]?.[1]?.[7];
-  const stampArcadeBonus = Math.min(50, getStampsBonusByEffect(account?.stamps, 'Arcade_Ball_recharge_rate'));
+  const stampArcadeBonus = Math.min(50, getStampsBonusByEffect(account, 'Arcade_Ball_recharge_rate'));
   return ballBonus + vialArcadeBonus + (5 * taskArcadeBonus) + stampArcadeBonus;
 }
 

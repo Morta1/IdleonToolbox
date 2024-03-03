@@ -13,6 +13,7 @@ import {
   mapNames,
   mapPortals,
   monsters,
+  ninjaExtraInfo,
   randomList,
   starSignByIndexMap
 } from '../data/website-data';
@@ -72,7 +73,14 @@ import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './atomCollider';
-import { getCharmBonus } from '@parsers/world-6/sneaking';
+import {
+  getCharmBonus,
+  getInventoryNinjaItem,
+  getJadeEmporiumBonus,
+  getNinjaEquipmentBonus,
+  getNinjaUpgradeBonus
+} from '@parsers/world-6/sneaking';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -107,8 +115,7 @@ export const getCharacters = (idleonData, charsNames) => {
             const det = createIndexedArray(updatedDetails);
             if (arr) {
               arr.splice(0, 0, det);
-            }
-            else {
+            } else {
               arr = [det];
             }
             break;
@@ -124,8 +131,7 @@ export const getCharacters = (idleonData, charsNames) => {
             const det = createIndexedArray(updatedDetails);
             if (arr) {
               arr.splice(1, 0, det);
-            }
-            else {
+            } else {
               arr = [det];
             }
             break;
@@ -189,7 +195,7 @@ export const getCharacters = (idleonData, charsNames) => {
         }
         return { ...res, [updatedKey]: arr?.length ? arr : updatedDetails }
       }
-      return { ...res, };
+      return { ...res };
     }, {});
     return {
       name: charName,
@@ -259,11 +265,11 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     ]?.reduce(
     (result, item, index) => ({
       ...result,
-      [equipmentMapping?.[index]]: item,
+      [equipmentMapping?.[index]]: item
     }), {});
   const equipapbleAmount = char[`EquipmentQuantity`]?.reduce((result, item, index) => ({
     ...result,
-    [equipmentMapping?.[index]]: item,
+    [equipmentMapping?.[index]]: item
   }), {});
 
   const equipmentStoneData = char[`EquipmentMap`]?.[0];
@@ -311,7 +317,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
           expReq: parseFloat(levelsReqRaw[index]),
           icon: skillIndexMap[index]?.icon,
           index
-        },
+        }
       } : res, {});
   character.skillsInfoArray = Object.entries(character.skillsInfo || {}).reduce((result, [skillName, skillData]) => (
     [...result, { ...skillData, skillName }]), []).sort((a, b) => a.index - b.index);
@@ -370,12 +376,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   if (isMiningMap) {
     current = character.skillsInfo?.mining?.level;
     currentIcon = 'ClassIconsM';
-  }
-  else if (isFishingMap) {
+  } else if (isFishingMap) {
     current = character.skillsInfo?.fishing?.level;
     currentIcon = 'ClassIcons45';
-  }
-  else {
+  } else {
     current = parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0;
     currentIcon = 'ClassIconsF';
   }
@@ -436,6 +440,92 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     : 0), 0);
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
   return character;
+}
+
+const getStealthRate = (character, account) => {
+  const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor; // NjaDN1
+  const sneakingLevel = character?.skillsInfo?.sneaking?.level; // NjaDN3
+  const mainStat = mainStatMap?.[character?.class];
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'STEALTH_CHAPTER', false, mainStat === 'agility');
+  const starSignBonus = getStarSignBonus(character, account, 'Ninja_Twin')
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG27', character?.talents);
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_Stealth_(Passive)');
+  const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Way_of_Stealth');
+  let stealthMulti = 1;
+  account.sneaking.players?.forEach((player, playerIndex) => {
+    player?.equipment?.forEach((item) => {
+      if (item.name === 'Smoke_Bomb') {
+        if (playerFloor === player.floor && character?.playerId !== playerIndex) {
+          stealthMulti += item.value / 100;
+        }
+      }
+      if (item.name === 'Lotus_Flower') {
+        if (playerFloor === player.floor && character?.playerId !== playerIndex) {
+          stealthMulti += item.value / 100;
+        }
+      }
+    })
+  })
+  const ninjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
+  const anotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Silk_Veil');
+  const yetAnotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Rosaries');
+  const math = stealthMulti
+    * (1 + ninjaEquip / 100)
+    * (1 + anotherNinjaEquip / 100)
+    * (1 + yetAnotherNinjaEquip / 100)
+    * (1 + (bubbleBonus
+      + starSignBonus) / 100)
+    * (1 + statueBonus / 100)
+    * (1 + passiveCardBonus / 100)
+
+  return (10 + ninjaUpgradeBonus * sneakingLevel) * math;
+}
+const getDetectionRate = (character, account) => {
+  const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
+  const floorDetectionModifier = ninjaExtraInfo[9].split(' ')[floor];
+  return Math.max(0, Math.min(1, 1 - 1.1 * getStealthRate(character, account)
+    / (getStealthRate(character, account) + parseFloat(floorDetectionModifier))));
+}
+export const getJadeRate = (character, account) => {
+  const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
+  const floorJadeModifier = ninjaExtraInfo[10].split(' ')[floor];
+  const charmBonus = getCharmBonus(account, 'Treat_Sack');
+  const sneakingLevel = character?.skillsInfo?.sneaking?.level;
+  const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Currency_Conduit');
+  // Equipped Ninja Items
+  const sameFloor = account.sneaking.players.filter(({ floor: f }) => f === floor);
+  const floorSolo = sameFloor.length === 1;
+  const ninjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Green_Belt') * (floorSolo ? 3 : 1);
+  const ninjaEquip1 = getNinjaEquipmentBonus(account, character.playerId, 'Black_Belt') * (floorSolo ? 3 : 1);
+  const ninjaEquip2 = getInventoryNinjaItem(account, 'Gold_Coin');
+  const detectionRate = getDetectionRate(character, account);
+  const ninjaEquip3 = getNinjaEquipmentBonus(account, character.playerId, 'Shiny_Smoke') * (detectionRate <= 0 ? 3 : 1);
+  const ninjaEquip4 = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
+  const ninjaEquip5 = getNinjaEquipmentBonus(account, character.playerId, 'Goodie_Bag');
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6Jade');
+  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zJade', blackDiamondRhinestone);
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Jade_Coin_gain_(Passive)');
+  const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
+  const stampBonus = getStampsBonusByEffect(account, '+{%_Jade_Coin_Gain');
+  const farmingBonus = account?.farming?.cropDepot?.jadeCoin?.value;
+  const summoningBonus = getWinnerBonus(account, '<x Jade Gain', false);
+  const msaBonus = account?.msaTotalizer?.jadeCoin?.value;
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'COOL_COIN');
+  const starSignBonus = getStarSignBonus(character, account, 'Jade_Gain')
+  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 1);
+
+  return parseFloat(floorJadeModifier)
+    * (1 + (ninjaUpgradeBonus * sneakingLevel) / 100) * (1 + ninjaEquip / 100) * (1 + ninjaEquip1 / 100)
+    * (1 + charmBonus / 100) * (1 + ninjaEquip2 / 100) * (1 + (vialBonus
+      + mealBonus + passiveCardBonus) / 100) * (1 + (ninjaEquip3 + (ninjaEquip4
+      + ninjaEquip5)) / 100) * (1 + (jadeEmporiumBonus + stampBonus) / 100) * (1 + farmingBonus / 100)
+    * (1 + summoningBonus / 100) *
+    (1 + (msaBonus
+      + sigilBonus) / 100)
+    * (1 + starSignBonus / 100)
+    * (1 + (10 * masteryBonus) / 100);
 }
 
 export const getRespawnRate = (character, account) => {
@@ -499,7 +589,7 @@ export const getRespawnRate = (character, account) => {
     { name: 'Achievement', value: achievementBonus / 100 },
     { name: 'Chip', value: chipBonus / 100 },
     { name: 'Starsigns', value: starSignBonus / 100 },
-    { name: 'Merit', value: meritBonus / 100 },
+    { name: 'Merit', value: meritBonus / 100 }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
 
@@ -516,8 +606,7 @@ export const getDropRate = (character, account, characters) => {
   let luckMulti;
   if (luck < 1e3) {
     luckMulti = (Math.pow(luck + 1, 0.37) - 1) / 40;
-  }
-  else {
+  } else {
     luckMulti = (luck - 1e3) / (luck + 2500) * 0.5 + 0.297;
   }
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 0);
@@ -537,14 +626,14 @@ export const getDropRate = (character, account, characters) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, '+{%_Drop_Rate');
+  const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES', null, true);
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
   const chipBonus = getPlayerLabChipBonus(character, account, 3);
-
+  const summoningBonus = getWinnerBonus(account, '+{% Drop Rate', false);
   const additive =
     firstTalentBonus +
     postOfficeBonus +
@@ -563,7 +652,7 @@ export const getDropRate = (character, account, characters) => {
     companionDropRate +
     stampBonus;
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus)) / 100 + 1;
+    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus)) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
@@ -573,7 +662,7 @@ export const getDropRate = (character, account, characters) => {
     final *= 1.2
   }
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
-  final *= charmBonus;
+  final *= (1 + charmBonus / 100);
 
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
@@ -596,7 +685,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
-    { name: 'Base', value: 1 },
+    { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
@@ -700,7 +789,7 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Arcade', value: arcadeBonus },
     { name: 'Post Office', value: postOfficeBonus },
-    { name: 'Drop Rate*', value: dropRateMulti },
+    { name: 'Drop Rate*', value: dropRateMulti }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   // cashMulti: cashMulti * (1 + dropRateMulti / 100),
@@ -720,7 +809,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const sampleAchievement = getAchievementStatus(account?.achievements, 158);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
   const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
-  const stampBonus = getStampsBonusByEffect(account?.stamps, '3D_Printer_Sampling_Size');
+  const stampBonus = getStampsBonusByEffect(account, '3D_Printer_Sampling_Size');
   const meritBonus = account?.tasks?.[2]?.[2]?.[4];
   const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, 'Voidwalker');
   const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro) || 0;
@@ -761,7 +850,7 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
       monsterFace: MonsterFace,
       name: Name,
       afkType: AFKtype,
-      done: thresholds?.map((threshold) => kills >= threshold),
+      done: thresholds?.map((threshold) => kills >= threshold)
     }
   }).filter(({
                mapName,
@@ -785,7 +874,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const acquiredArtifacts = sailingRaw?.[3];
   const moaiiHead = acquiredArtifacts?.[0] > 0;
   const crystalShrineBonus = getShrineBonus(account?.shrines, 6, character.mapIndex, account.cards, moaiiHead);
-  const crystallinStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC3', character);
+  const crystallinStampBonus = getStampBonus(account, 'misc', 'StampC3', character);
   const poopCard = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'A10');
   const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
   const demonGenie = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'G4');
@@ -800,7 +889,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
     { name: 'Crystals 4 Days', value: crystals4DaysBonus },
     { name: 'Crystallin Stamp', value: crystallinStampBonus },
     { name: 'Poop Card', value: poopCardBonus },
-    { name: 'Demon Genie Card', value: demonGenieBonus },
+    { name: 'Demon Genie Card', value: demonGenieBonus }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
@@ -814,7 +903,7 @@ export const getPlayerFoodBonus = (character, account, isHealth) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
   const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.talents);
   const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Effect_from_Boost_Food', character)
+  const stampBonus = getStampsBonusByEffect(account, 'Effect_from_Boost_Food', character)
   const starSignBonus = getStarSignBonus(character, account, 'All_Food_Effect');
   const cardBonus = getEquippedCardBonus(character?.cards, 'Y5');
   const cardSet = character?.cards?.cardSet?.rawName === 'CardSet1' ? character?.cards?.cardSet?.bonus : 0;
@@ -823,7 +912,7 @@ export const getPlayerFoodBonus = (character, account, isHealth) => {
   if (isHealth) {
     const goldenHealthFood = 1;
     const secondPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 1);
-    const stampBonus = getStampsBonusByEffect(account?.stamps, 'Boost_Health_Effect', character)
+    const stampBonus = getStampsBonusByEffect(account, 'Boost_Health_Effect', character)
     return goldenHealthFood
       + (secondPostOfficeBonus
         + (statuePower
@@ -841,15 +930,14 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   let finalSpeed;
   const featherWeight = getTalentBonus(character?.talents, 0, 'FEATHERWEIGHT');
   const featherFlight = getTalentBonus(character?.talents, 0, 'FEATHER_FLIGHT');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Movement_Speed', character)
+  const stampBonus = getStampsBonusByEffect(account, 'Movement_Speed', character)
   const strafe = getTalentBonusIfActive(character?.activeBuffs, 'STRAFE');
   const foodBonus = getFoodBonus(character, account, 'MoveSpdBoosts')
   let baseMath = foodBonus + featherWeight + stampBonus + strafe;
   let agiMulti;
   if (character.stats?.agility < 1000) {
     agiMulti = (Math.pow(character.stats?.agility + 1, .4) - 1) / 40;
-  }
-  else {
+  } else {
     agiMulti = (character.stats?.agility - 1e3) / (character.stats?.agility + 2500) * .5 + .371;
   }
   const statuePower = getStatueBonus(account?.statues, 'StatueG2', character?.talents);
@@ -862,11 +950,9 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   const tipToeQuickness = getTalentBonus(character?.starTalents, null, 'TIPTOE_QUICKNESS');
   if (finalSpeed > 2) {
     finalSpeed = Math.floor(100 * finalSpeed) / 100;
-  }
-  else if (finalSpeed > 1.75) {
+  } else if (finalSpeed > 1.75) {
     finalSpeed = Math.min(2, Math.floor(100 * ((finalSpeed) + tipToeQuickness / 100)) / 100)
-  }
-  else {
+  } else {
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 7);
     const groundedMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 15)?.baseVal ?? 0;
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TUFT_OF_HAIR');
@@ -925,8 +1011,7 @@ export const getAfkGain = (character, characters, account) => {
     }
     if (char?.linkedDeity === 4) {
       return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
-    }
-    else if (char?.secondLinkedDeityIndex === 4) {
+    } else if (char?.secondLinkedDeityIndex === 4) {
       return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
     }
     return sum;
@@ -1015,10 +1100,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Prayers', value: prayerBonus - prayerCurse },
       { name: 'Chips', value: chipBonus },
       { name: 'Guild', value: guildBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Starsign', value: starSignBonus }
     ]
-  }
-  else if (afkType === 'COOKING') {
+  } else if (afkType === 'COOKING') {
     const secondTalentBonus = getTalentBonus(character?.talents, 3, 'WAITING_TO_COOL')
     gains = 0.25
       + (idleSkillingBonus
@@ -1034,10 +1118,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Talents', value: idleSkillingBonus + secondTalentBonus + tickTockTalentBonus },
       { name: 'Starsign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
-      { name: 'Bribe', value: bribeAfkGains },
+      { name: 'Bribe', value: bribeAfkGains }
     ]
-  }
-  else if (afkType === 'MINING') {
+  } else if (afkType === 'MINING') {
     const dwarvenSupliesBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 2);
     const miningCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 2);
     const cardBonus = miningCardsArePassives
@@ -1066,10 +1149,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: dwarvenSupliesBonus },
-      { name: 'Bubble', value: bubbleBonus },
+      { name: 'Bubble', value: bubbleBonus }
     ]
-  }
-  else if (afkType === 'CHOPPIN') {
+  } else if (afkType === 'CHOPPIN') {
     const tapedUpTimberBonus = getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 2);
     const choppingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 2);
     const cardBonus = choppingCardsArePassives
@@ -1099,10 +1181,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: tapedUpTimberBonus },
-      { name: 'Bubble', value: bubbleBonus },
+      { name: 'Bubble', value: bubbleBonus }
     ]
-  }
-  else if (afkType === 'FISHING') {
+  } else if (afkType === 'FISHING') {
     const sealedFishheadsBonus = getPostOfficeBonus(character?.postOffice, 'Sealed_Fishheads', 2);
     const fishingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 2);
     const cardBonus = fishingCardsArePassives
@@ -1140,10 +1221,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Bubble', value: bubbleBonus },
       { name: 'Equipment', value: equipmentBonus },
       { name: 'Obols', value: obolsBonus },
-      { name: 'Tools', value: toolsBonus },
+      { name: 'Tools', value: toolsBonus }
     ]
-  }
-  else if (afkType === 'CATCHING') {
+  } else if (afkType === 'CATCHING') {
     const bugHuntingSuppliesBonus = getPostOfficeBonus(character?.postOffice, 'Bug_Hunting_Supplies', 2);
     const sunsetOnTheHivesBonus = getTalentBonus(character?.talents, 2, 'SUNSET_ON_THE_HIVES');
     const catchingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 2);
@@ -1173,10 +1253,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: bugHuntingSuppliesBonus },
-      { name: 'Bubble', value: bubbleBonus },
+      { name: 'Bubble', value: bubbleBonus }
     ]
-  }
-  else if (afkType === 'LABORATORY') {
+  } else if (afkType === 'LABORATORY') {
     gains = 0.25
       + (tickTockTalentBonus
         + (actualBaseAfkGains
@@ -1191,7 +1270,7 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Talents', value: tickTockTalentBonus },
       { name: 'Starsign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
-      { name: 'Bribe', value: bribeAfkGains },
+      { name: 'Bribe', value: bribeAfkGains }
     ]
   }
 
@@ -1201,7 +1280,7 @@ export const getAfkGain = (character, characters, account) => {
   }
   breakdown = [
     ...breakdown,
-    { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0 },
+    { name: 'Shrine (< 150)', value: gains < 1.5 ? shrineAfkGains : 0 }
   ]
   const final = Math.max(.01, math);
   return {
@@ -1257,7 +1336,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
   const mainStat = mainStatMap?.[character?.class];
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false, mainStat === 'strength');
-  const stampsBonus = getStampsBonusByEffect(account?.stamps, 'Building_Speed', character);
+  const stampsBonus = getStampsBonusByEffect(account, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
   const equipmentConstructionEffectBonus = getStatsFromGear(character, 30, account);
@@ -1280,7 +1359,7 @@ export const getPlayerConstructionExpPerHour = (character, account) => {
   const secondTalentBonus = getTalentBonus(character?.talents, 1, 'TEMPESTUOUS_EMOTIONS');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
   const statueBonus = getStatueBonus(account?.statues, 'StatueG19', character?.talents);
-  const stampBonus = getStampsBonusByEffect(account?.stamps, '+{%_Construction_Exp_Gain', character);
+  const stampBonus = getStampsBonusByEffect(account, '+{%_Construction_Exp_Gain', character);
   const starSignBonus = getStarSignBonus(character, account, 'Construct_Exp');
   const postOfficeBonus = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   return Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))

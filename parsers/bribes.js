@@ -7,12 +7,13 @@ export const getBribes = (idleonData) => {
 }
 
 const parseBribes = (bribesRaw) => {
-  return bribesRaw?.reduce((res, bribeStatus, index) => {
-    return bribeStatus !== -1 ? [...res, {
-      ...(bribes?.[index] || []),
+  return bribes?.map((bribe, index) => {
+    const bribeStatus = bribesRaw?.[index];
+    return {
+      ...bribe,
       done: bribeStatus === 1
-    }] : res;
-  }, []);
+    };
+  });
 }
 
 export const getBribeBonus = (bribes, bribeName) => {

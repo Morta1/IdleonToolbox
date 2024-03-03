@@ -242,7 +242,7 @@ export const getPlayerAnvil = (character, characters, account) => {
                           + (shinyBonus + superbitBonus))))))))))))));
 
   // ANVIL SPEED MATH;
-  const anvilZoomerBonus = getStampBonus(account?.stamps, 'skills', 'StampB3', character);
+  const anvilZoomerBonus = getStampBonus(account, 'skills', 'StampB3', character);
   const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
   const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'quicc', 'HAMMER_HAMMER', account);
   const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
@@ -263,8 +263,8 @@ export const getPlayerAnvil = (character, characters, account) => {
   const allCapacity = (1 + (guildCarryBonus + telekineticStorageBonus) / 100) * (1 + carryCapShrineBonus / 100) * Math.max(1 - zergPrayerBonus / 100, 0.4)
     * (1 + (ruckSackPrayerBonus + bribeCapBonus) / 100);
 
-  const mattyBagStampBonus = getStampBonus(account?.stamps, 'skills', 'StampB8', character);
-  const masonJarStampBonus = getStampBonus(account?.stamps, 'misc', 'StampC2', character);
+  const mattyBagStampBonus = getStampBonus(account, 'skills', 'StampB8', character);
+  const masonJarStampBonus = getStampBonus(account, 'misc', 'StampC2', character);
   const gemShopCarryBonus = account?.gemShopPurchases?.find((value, index) => index === 58) ?? 0;
   const extraBagsTalentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
   const starSignExtraCap = getStarSignBonus(character, account, 'Carry_Cap');
@@ -297,7 +297,7 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
   const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
   const smithingCards = getCardBonusByEffect(account?.cards, 'Smithing_EXP_(Passive)');
   const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'SmithExp', character);
+  const stampBonus = getStampsBonusByEffect(account, 'SmithExp', character);
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
   let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING');
   const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');

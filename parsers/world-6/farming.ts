@@ -4,6 +4,7 @@ import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getVialsBonusByStat } from "@parsers/alchemy";
 import { getLabBonus } from "@parsers/lab";
+import { getWinnerBonus } from "@parsers/world-6/summoning";
 
 export const getFarming = (idleonData: any, accountData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
@@ -16,6 +17,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const gemVineBonus = account?.gemShopPurchases?.find((value: number, index: number) => index === 139);
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 1);
   const beans = rawFarmingUpgrades?.[1];
+  const instaGrow = rawFarmingUpgrades?.[19];
   const market = marketInfo?.map((upgrade, index) => {
     const { cropId, cropIdIncrement, cost, costExponent, bonusPerLvl, maxLvl, bonus } = upgrade;
     const level = marketLevels?.[index] ?? 0;
@@ -55,7 +57,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     crop: { ...rawFarmingCrop, beans },
     market,
     cropsFound: Object.keys(rawFarmingCrop || {}).length,
-    cropsOnVine
+    cropsOnVine,
+    instaGrow
   };
 }
 
@@ -67,25 +70,24 @@ export const updateFarming = (characters: any, account: any) => {
     const starSignBonus = getStarSignBonus(characters?.[0], account, 'OG_Chance');
     const nextOGChance = Math.pow(0.4, crop?.currentOG + 1)
       * Math.max(1, marketOGChance)
-      * charmOGChange
+      * (1 + charmOGChange / 100)
       * (1 + starSignBonus / 100);
     // Growth
     const marketGrowthRate = getMarketBonus(account?.farming?.market, "NUTRITIOUS_SOIL");
     const marketGrowthPerCrop = getMarketBonus(account?.farming?.market, "SPEED_GMO");
     const cropsAboveThousand = Object.values(account?.farming?.crop)?.filter((value: any) => value >= 1000)?.length;
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
-    // TODO: summoning bonus
-    // const summoningBonus = (1 + 0 / 100);
-    const summoningBonus = 1;
+    const summoningBonus = getWinnerBonus(account, '<x Farming SPD', false);
     const growthRate = Math.max(1, marketGrowthPerCrop * cropsAboveThousand)
-      * (1 + (marketGrowthRate
-        + vialBonus) / 100) * summoningBonus;
+      * (1 + (marketGrowthRate + vialBonus) / 100) * summoningBonus;
+    const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
     const ogMulti = Math.min(1e9, Math.max(1, Math.pow(2, crop?.currentOG)));
     return {
       ...crop,
       nextOGChance,
       growthRate,
-      ogMulti
+      ogMulti,
+      timeLeft
     }
   });
   return {
@@ -140,7 +142,8 @@ const getCropDepotBonuses = (account: any) => {
     jadeCoin: { name: 'Jade Coin', value: 0 },
     cookingSpeed: { name: 'Meal Spd', value: 0 },
     cash: { name: 'Cash', value: 0 },
-    shiny: { name: 'Pet Rate', value: 0 }
+    shiny: { name: 'Pet Rate', value: 0 },
+    critters: { name: 'Critters', value: 0 }
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
     bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
@@ -159,6 +162,9 @@ const getCropDepotBonuses = (account: any) => {
   }
   if (isJadeBonusUnlocked(account, 'Science_Crayon')) {
     bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
+  }
+  if (isJadeBonusUnlocked(account, 'Science_Paintbrush')) {
+    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
   }
   return bonuses;
 }

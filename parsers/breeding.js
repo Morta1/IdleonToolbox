@@ -191,7 +191,7 @@ const getBreedingMulti = (account, breedingRaw, worldIndex, petIndex, unlockedBr
   const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 119) ?? 0;
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'NewPet');
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'PETTING_THE_RIFT', false);
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'New_Pet_Chance');
+  const stampBonus = getStampsBonusByEffect(account, 'New_Pet_Chance');
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Npet', blackDiamondRhinestone);

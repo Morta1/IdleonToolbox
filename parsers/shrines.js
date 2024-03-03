@@ -1,4 +1,4 @@
-import { tryToParse } from '../utility/helpers';
+import { notateNumber, tryToParse } from '../utility/helpers';
 import { shrines } from '../data/website-data';
 import { calcCardBonus, getCardBonusByEffect } from './cards';
 import { isArtifactAcquired } from './sailing';

@@ -11,22 +11,25 @@ import { notateNumber } from '@utility/helpers';
 
 const Farming = () => {
   const { state } = useContext(AppContext);
-  const { market, plot, crop, cropDepot = {} } = state?.account?.farming;
+  const { market, plot, crop, cropDepot = {}, instaGrow } = state?.account?.farming;
   return <>
     <NextSeo
       title="Farming | Idleon Toolbox"
       description="Keep track of your garden with all its bonuses"
     />
+    <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
     <Typography variant={'h5'}>Crop depot</Typography>
-    <Stack direction={'row'} gap={1}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {Object.entries(cropDepot).map(([stat, { name, value }], index) => {
-        const val = notateNumber(value, stat === 'gamingEvo' ? 'MultiplierInfo' : 'Big');
-        return <CardTitleAndValue key={stat} title={name} value={`${val}%`} icon={`etc/Pen_${index}.png`}>
+        const isMulti = stat === 'gamingEvo' || stat === 'cookingSpeed';
+        const isBase = stat === 'critters';
+        const val = notateNumber(value, isMulti ? 'MultiplierInfo' : 'Big');
+        return <CardTitleAndValue key={stat} title={name} value={`${isBase ? '+':''}${val}${isBase ? '' :isMulti ? 'x':'%'}`} icon={`etc/Pen_${index}.png`}>
         </CardTitleAndValue>
       })}
     </Stack>
     <Tabber tabs={['Plot', 'Market', 'Crop']}>
-      <Plot plot={plot} crop={crop}/>
+      <Plot plot={plot} crop={crop} lastUpdated={state?.lastUpdated}/>
       <Market market={market} crop={crop}/>
       <Crop crop={crop}/>
     </Tabber>

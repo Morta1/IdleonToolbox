@@ -1,6 +1,7 @@
 import { isGodEnabledBySorcerer } from './lab';
 import { isCompanionBonusActive } from './misc';
 import { getActiveBubbleBonus } from './alchemy';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 const { tryToParse } = require('../utility/helpers');
 const { gods } = require('../data/website-data');
@@ -19,9 +20,14 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
   const blessingLevels = divinityRaw?.slice(blessingLevelsStartIndex, blessingLevelsStartIndex + gods?.length + 1);
   const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
   const unlockedDeities = divinityRaw?.[25];
+  const godRank = unlockedDeities - 10;
   const deities = gods?.map((god, index) => {
       const level = blessingLevels?.[index];
-      let blessingBonus = level * god?.blessingMultiplier;
+      let emporiumBonus = 1;
+      if (isJadeBonusUnlocked(accountData, 'True_Godly_Blessings')) {
+        emporiumBonus = (1 + 0.05 * Math.max(0, godRank));
+      }
+      let blessingBonus = level * god?.blessingMultiplier * emporiumBonus;
       if (index === 2) {
         blessingBonus = Math.min(blessingBonus, 500);
       }
@@ -39,7 +45,8 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
     linkedStyles,
     deities,
     blessingLevels,
-    unlockedDeities
+    unlockedDeities,
+    godRank
   }
 }
 

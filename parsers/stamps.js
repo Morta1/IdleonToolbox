@@ -5,6 +5,7 @@ import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
 import { getHighestCapacityCharacter } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
+import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
@@ -174,22 +175,26 @@ const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
     * Math.max(0.1, 1 - (reductionVial / 100)));
 }
 
-export const getStampsBonusByEffect = (stamps, effectName, character) => {
-  return stamps && Object.entries(stamps)?.reduce((final, [stampTreeName, stampTree]) => {
+export const getStampsBonusByEffect = (account, effectName, character) => {
+  return account?.stamps && Object.entries(account?.stamps)?.reduce((final, [stampTreeName, stampTree]) => {
     const foundStamps = stampTree?.filter(({ effect }) => effect?.includes(effectName));
-    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(stamps, stampTreeName, rawName, character), 0);
+    const sum = foundStamps?.reduce((stampsSum, { rawName }) => stampsSum + getStampBonus(account, stampTreeName, rawName, character), 0);
     return final + sum;
   }, 0);
 }
 
-export const getStampBonus = (stamps, stampTree, stampName, character) => {
-  const stamp = stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
+export const getStampBonus = (account, stampTree, stampName, character) => {
+  const stamp = account?.stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
-  let toiletPaperPostage = 1;
+  let toiletPaperPostage = 1, charmBonus = 1;
   if (stamp?.stat?.includes('Eff')) {
     toiletPaperPostage = getTalentBonus(character?.starTalents, null, 'TOILET_PAPER_POSTAGE')
   }
-  if (stamp?.skillIndex > 0) {
+  if (stampTree !== 'misc'){
+    charmBonus = getCharmBonus(account, 'Liqorice_Rolle')
+  }
+  const removeLevelReduction = isJadeBonusUnlocked(account, 'Level_Exemption');
+  if (stamp?.skillIndex > 0 && !removeLevelReduction) {
     if (stamp?.reqItemMultiplicationLevel > 1) {
       const deficitEff = 3;
       let stampLevel = stamp?.level * (200 / (20 * stamp?.reqItemMultiplicationLevel));
@@ -199,11 +204,11 @@ export const getStampBonus = (stamps, stampTree, stampName, character) => {
         lvlDiff *= 20 * stamp?.reqItemMultiplicationLevel / 200;
         const reducedLevel = Math.floor(Math.min(lvlDiff, stampLevel));
         const finalLevel = Math.min(reducedLevel, stamp?.level);
-        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage;
+        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage * (1 + charmBonus / 100);
       }
     }
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage;
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage * (1 + charmBonus / 100);
 }
 
 export const applyStampsMulti = (stamps, multiplier) => {

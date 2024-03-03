@@ -7,9 +7,10 @@ export const isWorldFinished = (characters, worldIndex) => {
     1: 'Builder_Bird',
     2: 'Constructor_Crow',
     3: 'Carpenter_Cardinal',
-    4: 'Muhmuguh'
+    4: 'Muhmuguh',
+    5: 'Portale_Peacock'
   }
-  return characters?.some(({ npcDialog }) => worldIndex === 4
+  return characters?.some(({ npcDialog }) => worldIndex === 5
     ? npcDialog?.[worldGatekeeper?.[worldIndex]]
     : npcDialog?.[worldGatekeeper?.[worldIndex]] === 9999);
 }

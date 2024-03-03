@@ -56,13 +56,30 @@ export const starSignsIndicesMap = {
   'The_Overachiever': '15B',
   'Comatose_Major': '16',
   'S._Snoozer_Major': '17',
-  // "Unknown":"18",
-  // "Unknown":"19",
-  // "Unknown":"19B",
-  // "Unknown":"20",
-  // "Unknown":"21",
-  // "Unknown":"22",
-  // "Unknown":"23",
+  'Breedabilli': '18',
+  'Gordonius_Major': '19',
+  'Power_Bowower': '19b',
+  'Scienscion': '20',
+  'Artifosho': '21',
+  'Divividov': '22',
+  'C._Shanti_Minor': '23',
+  'Muscle_Magnus': 'S',
+  'Cropiovo_Minor': 'A1',
+  'Fabarmi': 'A2',
+  'O.G._Signalais': 'A3',
+  'Lightspeed_Frog': 'A4',
+  'Beanbie_Major': 'A5',
+  'Damarian_Major': 'A6',
+  'Lotto_Larrinald': 'A7',
+  'Intellostooge': 'A8',
+  'S._Tealio': 'B1',
+  'Sneekee_E._X.': 'B2',
+  'Jadaciussi': 'B3',
+  'Druipi_Major': 'B4',
+  'Sumo_Magno': 'B5',
+  'Killian_Maximus': 'B6',
+  'Seraph_Cosmos': 'SC',
+  'Glimmer_of_Beyond': 'C1'
 }
 
 // TODO: check if able to pull from Z.js
@@ -85,7 +102,7 @@ export const skillIndexMap = {
   15: { name: 'gaming', icon: 'ClassIcons56' },
   16: { name: 'farming', icon: 'ClassIcons57' },
   17: { name: 'sneaking', icon: 'ClassIcons58' },
-  18: { name: 'summoning', icon: 'ClassIcons59' },
+  18: { name: 'summoning', icon: 'ClassIcons59' }
 };
 
 export const keysMap = {
@@ -93,7 +110,7 @@ export const keysMap = {
   1: { name: 'Efaunt\'s_Tomb_Key', rawName: 'Key2' },
   2: { name: 'Chizoar\'s_Cavern_Key', rawName: 'Key3' },
   3: { name: 'Troll\'s_Enclave_Key', rawName: 'Key4' },
-  4: { name: 'Kruk\'s_Volcano_Key', rawName: 'Key5' },
+  4: { name: 'Kruk\'s_Volcano_Key', rawName: 'Key5' }
 };
 
 export const filteredGemShopItems = [

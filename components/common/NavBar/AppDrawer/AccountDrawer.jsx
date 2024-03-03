@@ -15,6 +15,7 @@ const worldsData = {
       { label: 'quests', icon: 'data/Quest62' },
       { label: 'dungeons', icon: 'data/DungeonA7' },
       { label: 'slab', icon: 'etc/Slab' },
+      { label: 'beanstalk', icon: 'etc/beanstalk1' },
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'constellations', icon: 'data/StarTitle1' },
       { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },

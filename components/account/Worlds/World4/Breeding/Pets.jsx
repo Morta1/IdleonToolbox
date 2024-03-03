@@ -20,6 +20,7 @@ import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { getStarSignBonus } from '@parsers/starSigns';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 const Pets = ({
                 pets,
@@ -49,7 +50,7 @@ const Pets = ({
     const starSign = getStarSignBonus(characters?.[0], account, 'Shiny_Pet_LV_spd');
     // TODO: summoning bonus
     // (1 + q._customBlock_Summoning('WinBonus', 17, 0) / 100)
-    const summoningBonus = 1;
+    const summoningBonus = getWinnerBonus(state?.account, '');
     return (1 + (emeraldUlthuriteBonus
         + (fasterShinyLevelBonus
           + (account?.farming?.cropDepot?.shiny?.value
@@ -123,11 +124,13 @@ const Pets = ({
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
       <Stack>
         <FormControlLabel
+          sx={{width: 'fit-content'}}
           control={<Checkbox name={'mini'} checked={minimized}
                              size={'small'}
                              onChange={() => setMinimized(!minimized)}/>}
           label={'Compact view'}/>
         <FormControlLabel
+          sx={{width: 'fit-content'}}
           control={<Checkbox name={'mini'} checked={applyThreshold}
                              size={'small'}
                              onChange={() => setApplyThreshold(!applyThreshold)}/>}

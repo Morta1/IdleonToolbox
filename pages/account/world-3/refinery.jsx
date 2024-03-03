@@ -54,7 +54,7 @@ const Refinery = () => {
   const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
   const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
   const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
-  const stampRefinerySpeed = getStampsBonusByEffect(stamps, 'Faster_refinery_cycles');
+  const stampRefinerySpeed = getStampsBonusByEffect(state?.account, 'Faster_refinery_cycles');
   const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
   let constructionMastery = 0;
   const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');

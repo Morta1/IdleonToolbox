@@ -14,10 +14,19 @@ const Artifacts = ({ artifacts }) => {
                        description,
                        ancientFormDescription,
                        eldritchFormDescription,
+                       sovereignFormDescription,
                        rawName,
                        acquired,
                        additionalData
                      }, index) => {
+      let bonusDescription = '';
+      if (acquired === 2) {
+        bonusDescription = ancientFormDescription;
+      } else if (acquired === 3) {
+        bonusDescription = ancientFormDescription;
+      } else if (acquired === 4) {
+        bonusDescription = sovereignFormDescription;
+      }
       return <Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}>
         <CardContent>
           <Stack sx={{ width: 200 }}>
@@ -41,11 +50,9 @@ const Artifacts = ({ artifacts }) => {
               <Divider flexItem color={'gold'} sx={{ my: 2 }}/>
               <Typography
                 sx={{
-                  opacity: acquired === 2 || acquired === 3 ? 1 : .5,
-                  color: acquired === 3 ? '#ffa092' : acquired === 2 ? 'gold' : 'white'
-                }}>{cleanUnderscore(acquired === 2 ? ancientFormDescription : acquired === 3
-                ? eldritchFormDescription
-                : '')}</Typography>
+                  opacity: acquired === 2 || acquired === 3 || acquired === 4 ? 1 : .5,
+                  color: acquired === 4 ? '#67dada' : acquired === 3 ? '#ffa092' : acquired === 2 ? 'gold' : 'white'
+                }}>{cleanUnderscore(bonusDescription)}</Typography>
             </Stack>
           </Stack>
         </CardContent>

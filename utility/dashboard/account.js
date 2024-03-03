@@ -39,7 +39,7 @@ export const arcadeAlerts = (account, options) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World1) return alerts;
   if (options?.balls?.checked) {
-    const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account?.stamps))
+    const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account))
       / Math.max(getSecPerBall(account), 1800));
     const onePercent = 5 * account?.arcade?.maxBalls / 100;
     alerts.balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent

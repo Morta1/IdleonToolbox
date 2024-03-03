@@ -82,7 +82,7 @@ export const getMaxCharge = (character, account) => {
   const cardBonus = getCardBonusByEffect(account?.cards, 'Max_Charge');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 1);
   const wizardTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Max_Charge', character);
+  const stampBonus = getStampsBonusByEffect(account, 'Max_Charge', character);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'GOSPEL_LEADER', false, mainStat === 'wisdom');
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account);
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.lvReqToCraft : 0;
@@ -95,7 +95,7 @@ export const getMaxCharge = (character, account) => {
 export const getChargeRate = (character, account) => {
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.Speed : 0;
   const cardBonus = getCardBonusByEffect(account?.cards, 'Charge_Rate');
-  const stampBonus = getStampsBonusByEffect(account?.stamps, 'Charge_Rate_per_Hour', character);
+  const stampBonus = getStampsBonusByEffect(account, 'Charge_Rate_per_Hour', character);
   const wizardTalentBonus = getTalentBonus(character?.talents, 2, 'NEARBY_OUTLET');
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account)
   if (skullSpeed < 3) {

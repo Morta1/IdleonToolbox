@@ -1,7 +1,9 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { prefix } from '@utility/helpers';
+import Timer from '@components/common/Timer';
+import React from 'react';
 
-const Plot = ({ plot }) => {
+const Plot = ({ plot, lastUpdated}) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
     {plot?.map(({
                   seedType,
@@ -15,12 +17,12 @@ const Plot = ({ plot }) => {
                   seedRawName,
                   nextOGChance,
                   currentOG,
-                  ogMulti
+                  ogMulti,
+                  timeLeft
                 }, index) => {
       nextOGChance = Math.min(100, 100 * nextOGChance);
       nextOGChance = nextOGChance >= 10 ? Math.round(nextOGChance) : Math.round(10 * nextOGChance) / 10;
-      // const timeLeft = growthReq - progress / growthRate;
-      return <Card key={'plot-' + index} sx={{width: 200}}>
+      return <Card key={'plot-' + index} sx={{ width: 200 }}>
         <CardContent>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
             <img src={`${prefix}etc/${seedRawName}`} alt={''}/>
@@ -34,7 +36,8 @@ const Plot = ({ plot }) => {
           </Stack>
           <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
           <Typography>Next OG: {nextOGChance}%</Typography>
-          {/*<Typography>Growth: {notateNumber(progress)} / {notateNumber(growthReq)}</Typography>*/}
+          <Timer type={'countdown'} lastUpdated={lastUpdated}
+                 date={new Date().getTime() + timeLeft * 1000}/>
         </CardContent>
       </Card>
     })}
