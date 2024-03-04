@@ -5,6 +5,7 @@ import { getTalentBonus } from './talents';
 import { getSkillMasteryBonusByIndex } from './misc';
 import { calculateItemTotalAmount } from './items';
 import { getAtomColliderThreshold } from './atomCollider';
+import { getCharmBonus } from '@parsers/world-6/sneaking';
 
 export const getPrinter = (idleonData, charactersData, accountData) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
@@ -65,9 +66,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           const isPlayerConnected = connectedPlayers?.find(({ playerId }) => playerId === charIndex);
 
           // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
+          const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
           const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
             * (1 + (highestKingOfRemembrance
-              * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100)
+              * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100)
 
           const multi = (wiredInBonus && isPlayerConnected ?
             (harriepGodIndex.includes(charIndex)
@@ -84,6 +86,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             { name: 'Skill Mastery', value: 1 + skillMasteryBonus / 100 },
             { name: 'Divine Knight', value: 1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100 },
             { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
+            { name: 'Charm', value: 1 + (charmBonus) / 100 },
           ];
 
           return [...result, {

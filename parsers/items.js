@@ -176,6 +176,20 @@ export const getAllItems = (characters, account) => {
   return [...(charItems || []), ...(account?.storage || [])];
 }
 
+export const mergeItemsByOwner = (items) => {
+  const mergedItems = {};
+
+  items.forEach(item => {
+    const key = item.owner + item.displayName;
+    if (mergedItems[key]) {
+      mergedItems[key].amount += item.amount;
+    } else {
+      mergedItems[key] = { ...item };
+    }
+  });
+  return Object.values(mergedItems);
+}
+
 export const getAllTools = () => {
   const pickaxes = itemsArray?.filter(({ rawName }) => rawName?.match(/EquipmentTools[0-9]+/))
     ?.filter(({ rawName }) => rawName !== 'EquipmentTools13' && rawName !== 'EquipmentTools10');

@@ -1,6 +1,12 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { itemsArray } from 'data/website-data';
-import { addEquippedItems, findItemByDescriptionInInventory, findItemInInventory, getAllItems } from 'parsers/items';
+import {
+  addEquippedItems,
+  findItemByDescriptionInInventory,
+  findItemInInventory,
+  getAllItems,
+  mergeItemsByOwner
+} from 'parsers/items';
 import {
   Autocomplete,
   Box,
@@ -50,7 +56,7 @@ const ItemBrowser = ({}) => {
     if (!state?.characters && !state?.account) {
       setItems(itemsArray);
     } else {
-      setItems(includeEquippedItems ? [...(totalItems || []), ...(equippedItems || [])] : totalItems);
+      setItems(includeEquippedItems ? mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]) : totalItems);
     }
   }, [state, includeEquippedItems]);
 

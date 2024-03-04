@@ -5,7 +5,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { items, ninjaExtraInfo } from '../../../data/website-data';
-import { addEquippedItems, findItemInInventory, getAllItems } from '@parsers/items';
+import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/styles';
@@ -28,10 +28,19 @@ const Beanstalk = () => {
   const findItem = useCallback((name) => {
     const equippedItems = addEquippedItems(state?.characters, true);
     const totalItems = getAllItems(state?.characters, state?.account)
-    const totalOwnedItems = [...(totalItems || []), ...(equippedItems || [])];
+    const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
     return findItemInInventory(totalOwnedItems, name)
   }, [state?.account]);
-  const allMultis = state?.characters?.map((character) => getGoldenFoodMulti(character, state?.account));
+  const allCharactersMulti = state?.characters?.map((character) => {
+    const multi = getGoldenFoodMulti(character, state?.account);
+    return {
+      name: character?.name,
+      bonus: multi,
+      value: notateNumber(Math.max(0, 100 * (multi - 1)), 'Small') + '%'
+    }
+  });
+  allCharactersMulti.sort((a, b) => a.bonus - b.bonus);
+  const allMultis = allCharactersMulti.map(({ bonus }) => bonus);
   const highestMulti = notateNumber(Math.max(0, 100 * (Math.max(...allMultis) - 1)), 'Small');
   return <>
     <NextSeo
@@ -41,7 +50,12 @@ const Beanstalk = () => {
     {!unlocked ? <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>You need to unlock beanstalk through W6
       jade emporium</Typography> : null}
     <img src={`${prefix}etc/beanstalk_title.png`} alt={'title'}/>
-    <Typography variant={'h6'}>Total Golden Food Bonus: {highestMulti}%</Typography>
+    <Stack direction={'row'} gap={1}>
+      <Typography variant={'h6'}>Total Golden Food Bonus: {highestMulti}%</Typography>
+      <Tooltip title={<Breakdown breakdown={allCharactersMulti} titleStyle={{ width: 170 }}/>}>
+        <InfoIcon/>
+      </Tooltip>
+    </Stack>
     <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'}>
       {beanstalkGoldenFoods?.map((item) => {
         const { displayName, rawName, active, rank } = item;
@@ -51,7 +65,7 @@ const Beanstalk = () => {
           name: playerName,
           value: amount
         }));
-        breakdown.sort((a,b) => a?.value - b?.value);
+        breakdown.sort((a, b) => a?.value - b?.value);
         return <Card key={rawName} sx={{ width: 270 }}>
           <CardContent>
             <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
@@ -63,8 +77,9 @@ const Beanstalk = () => {
               </Tooltip>
               <Stack direction={'row'} gap={1}>
                 {breakpoints?.[rank] ? <Typography color={total >= breakpoints?.[rank]
-                  ? 'success.light'
-                  : ''}>{notateNumber(total)} / {notateNumber(breakpoints?.[rank])}</Typography> : <Typography>Maxed</Typography>}
+                    ? 'success.light'
+                    : ''}>{notateNumber(total)} / {notateNumber(breakpoints?.[rank])}</Typography> :
+                  <Typography>Maxed</Typography>}
                 <Tooltip title={<Breakdown breakdown={breakdown} titleStyle={{ width: 170 }}/>}>
                   <InfoIcon/>
                 </Tooltip>

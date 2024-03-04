@@ -99,7 +99,7 @@ const BoatsAndCaptains = ({
               <Tooltip
                 title={<MinimumTravelTime minimumTravelTime={minimumTravelTime}
                                           breakdown={minimumTravelTimeBreakdown}/>}>
-                <InfoIcon fontSize={'12px'}/>
+                <InfoIcon fontSize='12px'/>
               </Tooltip>
             </Stack>
           </Stack>
@@ -155,8 +155,8 @@ const Info = ({ lootLevel, speedLevel, resources }) => {
                   variant={'caption'}>Speed breakpoint: {speedLevel} / {speedBreakpoint}</Typography>
     </Stack>
     <Stack>
-      <Tooltip dark title={<Resources resources={resources}/>}>
-        <InfoIcon fontSize={'12px'}/>
+      <Tooltip followCursor={false} placement='right' dark title={<Resources resources={resources}/>}>
+        <InfoIcon fontSize='12px'/>
       </Tooltip>
     </Stack>
   </Stack>
