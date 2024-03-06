@@ -69,9 +69,9 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
   });
   const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * merits?.[3]?.[4]?.bonusPerLevel;
   const buboPlayers = charactersData.filter(({ CharacterClass }) => CharacterClass === 36);
-  let buboPlayer = buboPlayers.reduce((prev, current) => {
-    return prev.SkillLevels[536] > current.SkillLevels[536] ? prev : current;
-  });
+  let buboPlayer = buboPlayers?.reduce((prev, current) => {
+    return prev?.SkillLevels[536] > current?.SkillLevels[536] ? prev : current;
+  }, buboPlayers?.[0]);
   if (buboPlayer) {
     buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }
   }
@@ -270,16 +270,16 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
     // console.log('hasChips', hasChips)
     // console.log('%%%')
-    console.info('Base width', baseLineWidth)
-    console.info('PX from Meal', mealPxBonus)
-    console.info('Line Width from card', lineWidthCards)
-    console.info('Purple Tube Talent', purpleTubeBonus)
-    console.info('Meal Line Percent from meal', mealLinePctBonus)
-    console.info('Chip', conductiveMotherboardBonus)
-    console.info('Pet Arena Bonus', petArenaBonus)
-    console.info('Shiny Bonus', shinyLabBonus)
-    console.info('Souped Tube Bonus', bonusLineWidth)
-    console.info('-----------------------------------')
+    // console.info('Base width', baseLineWidth)
+    // console.info('PX from Meal', mealPxBonus)
+    // console.info('Line Width from card', lineWidthCards)
+    // console.info('Purple Tube Talent', purpleTubeBonus)
+    // console.info('Meal Line Percent from meal', mealLinePctBonus)
+    // console.info('Chip', conductiveMotherboardBonus)
+    // console.info('Pet Arena Bonus', petArenaBonus)
+    // console.info('Shiny Bonus', shinyLabBonus)
+    // console.info('Souped Tube Bonus', bonusLineWidth)
+    // console.info('-----------------------------------')
   }
   return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
     (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + shinyLabBonus + bonusLineWidth)) / 100));
