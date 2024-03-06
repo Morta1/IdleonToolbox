@@ -10,12 +10,14 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLe
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
   const talent = talentsObj?.find(({ name }) => name === talentName);
   if (!talent) return 0;
-  let level = useMaxLevel ? talent?.maxLevel : talent?.level;
-  if (useMaxAndAddedLevels) {
-    level = talent?.maxLevel + addedLevels;
-  }
-  else {
-    level = addedLevels ? level - addedLevels : level;
+  let level = talent?.level;
+  if (talent?.level > 0) {
+    level = useMaxLevel ? talent?.maxLevel : talent?.level;
+    if (useMaxAndAddedLevels) {
+      level = talent?.maxLevel + addedLevels;
+    } else {
+      level = addedLevels ? level - addedLevels : level;
+    }
   }
   if (yBonus) {
     return growth(talent?.funcY, level, talent?.y1, talent?.y2, false) ?? 0;
@@ -79,7 +81,7 @@ export const mainStatMap = {
   Shaman: 'wisdom',
   Bubonic_Conjuror: 'wisdom',
   Wizard: 'wisdom',
-  Elemental_Sorcerer: 'wisdom',
+  Elemental_Sorcerer: 'wisdom'
 }
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {
@@ -89,7 +91,7 @@ export const createTalentPage = (className, pages, talentsObject, maxTalentsObje
         talentId: talentDetails.skillIndex,
         ...talentDetails,
         level: talentsObject[talentDetails.skillIndex] || 0,
-        maxLevel: maxTalentsObject[talentDetails.skillIndex] || -1,
+        maxLevel: maxTalentsObject[talentDetails.skillIndex] || -1
       }
     });
     if (mergeArray) {
@@ -102,7 +104,7 @@ export const createTalentPage = (className, pages, talentsObject, maxTalentsObje
     return {
       ...res,
       flat: [...(res?.flat || []), ...orderedTalents],
-      talents: { ...res?.talents, [index]: { name: className, id: classes?.indexOf(className), orderedTalents } },
+      talents: { ...res?.talents, [index]: { name: className, id: classes?.indexOf(className), orderedTalents } }
     }
   }, { flat: [], talents: {} })
 }
@@ -152,12 +154,10 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   let addedLevels = 0, breakdown;
   if (isCompanionBonusActive(account, 0)) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
-  }
-  else {
+  } else {
     if (linkedDeity === 1) {
       addedLevels += Math.ceil(deityMinorBonus);
-    }
-    else if (secondLinkedDeity === 1) {
+    } else if (secondLinkedDeity === 1) {
       addedLevels += Math.ceil(secondDeityMinorBonus);
     }
   }
@@ -190,7 +190,7 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     {
       name: 'Equinox Bonus',
       value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
-    },
+    }
   ]
   return {
     value: addedLevels,
@@ -288,8 +288,7 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       let base
       if (stats?.luck < 1e3) {
         base = (Math.pow(stats?.luck + 1, 0.37) - 1) / 30;
-      }
-      else {
+      } else {
         base = ((stats?.luck - 1e3) / (stats?.luck + 2500)) * 0.8 + 0.3963
       }
       const talentBonus = getTalentBonus(character?.talents, 3, 'LUCKY_CHARMS');
@@ -310,8 +309,7 @@ export const getBubonicGreenTube = (character, characters, account) => {
   const affected = bubosCords?.some(({ x }) => x > charCords?.x);
   if (affected) {
     return getHighestTalentByClass(characters, 3, 'Bubonic_Conjuror', 'GREEN_TUBE')
-  }
-  else {
+  } else {
     return 0;
   }
 }

@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.52',
+    gameVer: '2.0.1',
+    date: '24/02/2024',
+    features: [],
+    fixes: [
+      'Fixed meal speed calculation',
+      'Fixed lab connection bug',
+      'Fixed a bug where shrines didn\'t show affected players',
+      'Fixed Jade Emporium prices',
+      'Fixed statue bonus calculations',
+      'Fixed a bug where talent additional levels were added to a level 0 talents'
+    ]
+  },
+  {
     ver: '3.2.51',
     gameVer: '2.0.1',
     date: '02/03/2024',

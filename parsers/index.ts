@@ -164,7 +164,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
       [`World${world}`]: isWorldFinished(charactersData, world)
     }
   }, {});
-  accountData.statues = applyStatuesMulti(accountData.statues, charactersData);
+  accountData.statues = applyStatuesMulti(accountData, charactersData);
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   accountData.construction = getConstruction(idleonData, accountData);

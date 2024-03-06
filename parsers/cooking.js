@@ -16,6 +16,8 @@ import LavaRand from '@utility/lavaRand';
 import account from '@components/dashboard/Account';
 import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
 import { getCardBonusByEffect } from '@parsers/cards';
+import { getArcadeBonus } from '@parsers/arcade';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 export const spicesNames = [
   'Grasslands',
@@ -37,7 +39,7 @@ export const spicesNames = [
   'Shores of Eternity',
   'Molten Bay',
   'Smokey Lake',
-  'Wurm Catacombs',
+  'Wurm Catacombs'
 ]
 
 export const getCooking = (idleonData, account) => {
@@ -136,8 +138,7 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
-    }
-    else {
+    } else {
       if (stat !== statName) return sum;
     }
     if (statName === 'PxLine') {
@@ -173,8 +174,9 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
 
     const cookingSpeedStamps = getStampsBonusByEffect(account, 'Meal_Cooking_Speed');
     const cookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, 'MealCook');
+    const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
     const extraCookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, '6CookSpd');
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, 'Meal_Cooking_Speed', null, blackDiamondRhinestone);
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Mcook', blackDiamondRhinestone);
     const diamondChef = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DIAMOND_CHEF', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff', blackDiamondRhinestone);
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
@@ -190,8 +192,10 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const secondAchievement = getAchievementStatus(account?.achievements, 224);
     const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm', blackDiamondRhinestone);
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
+    const winnerBonus = getWinnerBonus(account, '<x Cooking SPD', false)
     // TODO: check how to apply specific character
-    // const starSignBonus = getStarSignBonus(character, account, 'Cooking_SPD');
+    const starSignBonus = 0; // getStarSignBonus(character, account, 'Cooking_SPD');
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
     if (superbit) {
@@ -211,21 +215,25 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
       voidPlateChefBonus = Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals);
     }
 
-    const mealSpeed = (10 * (1 + voidWalkerBonusTalent / 100)
-      * Math.max(1, voidWalkerApocalypseBonus)
+    const mealSpeed = 10 * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
+      * Math.max(1, voidWalkerApocalypseBonus)
       * (1 + richelinBonus)
-      * (1 + (marshmallowBonus * Math.ceil(characters?.[0]?.skillsInfo?.farming?.level / 50)) / 100)
+      * (1 + marshmallowBonus
+        * Math.ceil((characters?.[0]?.skillsInfo?.farming?.level + 1) / 50) / 100)
       * Math.max(1, bubbleBonus)
       * Math.max(1, voidPlateChefBonus)
       * (1 + superbitBonus / 100)
       * (1 + speedLv / 10)
       * (1 + triagulonArtifactBonus / 100)
+      * (1 + arcadeBonus / 100)
+      * (1 + turtleVial / 100)
       * (1 + cookingSpeedVials / 100)
       * (1 + (cookingSpeedStamps
         + Math.max(0, cookingSpeedFromJewel)) / 100)
       * (1 + cookingSpeedMeals / 100)
-      // * (1 + q._customBlock_Summoning('WinBonus', 15, 0) / 100)
+      * (1 + starSignBonus / 100)
+      * (1 + winnerBonus / 100)
       * (1 + cardCookingMulti / 100)
       * (1 + extraCookingSpeedVials / 100)
       * Math.max(1, amethystRhinestone)
@@ -234,7 +242,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
       * (1 + kitchenEffMeals
         * Math.floor((speedLv
           + (fireLv
-            + luckLv)) / 10) / 100));
+            + luckLv)) / 10) / 100);
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
@@ -285,7 +293,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
       status,
       meal: {
         ...(cookingMenu?.[foodIndex] || {}),
-        ...(account?.cooking?.meals?.[foodIndex] || {}),
+        ...(account?.cooking?.meals?.[foodIndex] || {})
       },
       luckLv,
       fireLv,
@@ -394,8 +402,7 @@ export const getChipsAndJewels = (account, size = 10) => {
           ? Math.round(finalRandom - Math.floor(finalRandom / jewels.length) * jewels.length)
           : Math.round(finalRandom - Math.floor(finalRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))))
         rotation.push(isJewel ? jewels[finalIndex] : chips[finalIndex]);
-      }
-      else {
+      } else {
         rotation.push(isJewel ? jewels[index] : chips[index]);
       }
     }

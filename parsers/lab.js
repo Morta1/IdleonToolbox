@@ -34,7 +34,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     }];
   }
   playersCords = playersCords?.filter((player) => player?.playerName);
-  let jewelsList = jewelsRaw?.map((jewel, index) => {
+  let jewelsList = account?.lab?.jewels || jewelsRaw?.map((jewel, index) => {
     return {
       ...(jewels?.[index] || {}),
       acquired: jewel === 1,
@@ -67,9 +67,11 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
       chipList[chipIndex].amount = playerUsedCount;
     }
   });
-
   const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * merits?.[3]?.[4]?.bonusPerLevel;
-  let buboPlayer = charactersData.find(({ CharacterClass }) => CharacterClass === 36);
+  const buboPlayers = charactersData.filter(({ CharacterClass }) => CharacterClass === 36);
+  let buboPlayer = buboPlayers.reduce((prev, current) => {
+    return prev.SkillLevels[536] > current.SkillLevels[536] ? prev : current;
+  });
   if (buboPlayer) {
     buboPlayer = { ...buboPlayer, ...playersCords?.[buboPlayer?.playerId] }
   }
@@ -131,7 +133,10 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
 
   const higherEffects = getJewelBonus(jewelsList, 19);
   const spelunkerObolMulti = getLabBonus(labBonusesList, 8); // gem multi
-  jewelsList = jewelsList.map((jewel) => ({ ...jewel, multiplier: spelunkerObolMulti * (1 + higherEffects / 100) }));
+  jewelsList = jewelsList.map((jewel) => ({
+    ...jewel,
+    multiplier: spelunkerObolMulti + (jewelsList?.[19]?.active ? higherEffects : 0) / 100
+  }));
 
   const totalSpeciesUnlocked = account?.breeding.speciesUnlocks.reduce((sum, world) => sum + world, 0);
   const purpleNaveete = jewelsList?.[1]?.active;
@@ -196,7 +201,7 @@ export const getLabBonus = (labBonuses, index) => {
 }
 
 const getDistance = (x1, y1, x2, y2) => {
-  return 0.9604339 * Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) + 0.397824735 * Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2));
+  return .9604339 * Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) + .397824735 * Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }
 
 const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, index, isJewel) => {
@@ -223,10 +228,7 @@ export const calcPlayerLineWidth = (playersInTubes, labBonuses, jewels, chips, a
       buboPlayer,
       updatedCharactersData
     );
-    return {
-      ...character,
-      lineWidth
-    };
+    return { ...character, lineWidth };
   })
 }
 
@@ -254,28 +256,31 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
     const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
-      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, 'Bubonic_Conjuror', 'PURPLE_TUBE')
-    }
-    else {
+      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, 'Bubonic_Conjuror', 'PURPLE_TUBE', false, true)
+    } else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
     }
   }
 
-  // No Chips
-  // const noChips = Math.floor(((baseLineWidth) + (mealPxBonus + Math.min(lineWidthCards, 50))) * (1 + (purpleTubeBonus + mealLinePctBonus + (20 * petArenaBonus + bonusLineWidth)) / 100))
-
-  // HAS CHIPS
-  // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
-  // console.info('Base width', baseLineWidth)
-  // console.info('PX from Meal', mealPxBonus)
-  // console.info('Line Width from Meal', lineWidthCards)
-  // console.info('Purple Tube Talent', purpleTubeBonus)
-  // console.info('Meal Line Percent from meal', mealLinePctBonus)
-  // console.info('Chip', conductiveMotherboardBonus)
-  // console.info('Pet Arena Bonus', petArenaBonus)
-  // console.info('Shiny Bonus', shinyLabBonus)
-  // console.info('Souped Tube Bonus', bonusLineWidth)
-  // console.info('-----------------------------------')
+  if (playerCords?.name === 'SeppArcher') {
+    // No Chips
+    // const noChips = Math.floor(((baseLineWidth) + (mealPxBonus + Math.min(lineWidthCards, 50))) * (1 + (purpleTubeBonus + mealLinePctBonus + (20 * petArenaBonus + bonusLineWidth)) / 100))
+    // console.log('noChips', noChips)
+    // // HAS CHIPS
+    // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
+    // console.log('hasChips', hasChips)
+    // console.log('%%%')
+    console.info('Base width', baseLineWidth)
+    console.info('PX from Meal', mealPxBonus)
+    console.info('Line Width from card', lineWidthCards)
+    console.info('Purple Tube Talent', purpleTubeBonus)
+    console.info('Meal Line Percent from meal', mealLinePctBonus)
+    console.info('Chip', conductiveMotherboardBonus)
+    console.info('Pet Arena Bonus', petArenaBonus)
+    console.info('Shiny Bonus', shinyLabBonus)
+    console.info('Souped Tube Bonus', bonusLineWidth)
+    console.info('-----------------------------------')
+  }
   return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
     (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + shinyLabBonus + bonusLineWidth)) / 100));
 }
@@ -303,7 +308,7 @@ const checkPlayerConnection = (playersInTubes, connectedPlayers, playerCords) =>
 }
 
 // Check connection for jewels / bonuses
-const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus,winnerBonus, playerCords, acquirable) => {
+const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, playerCords, acquirable) => {
   return array?.reduce((res, object, index) => {
     let newConnection = false;
     const range = getRange(connectionRangeBonus, viralRangeBonus, taskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, index, acquirable);

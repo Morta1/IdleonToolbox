@@ -56,7 +56,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     }
     return {
       ...upgrade,
-      cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(serverVars['A_empoExpon'], index),
+      cost: (300 + 500 * index + Math.pow(index, 3)) * Math.pow(Math.max(1, serverVars['A_empoExpon']), index) * Math.pow(3.07, Math.max(0, index - 28)),
       bonus
     }
   })

@@ -1,6 +1,7 @@
 import { tryToParse } from '../utility/helpers';
 import { statues } from '../data/website-data';
 import { getHighestTalentByClass, getTalentBonus } from './talents';
+import { isArtifactAcquired } from '@parsers/sailing';
 
 export const getStatues = (idleonData, charactersData) => {
   const statuesRaw = tryToParse(idleonData?.StuG) || idleonData?.StatueG;
@@ -35,10 +36,11 @@ const getHighestLevelStatues = (characters, statueIndex) => {
     : current)
 };
 
-export const applyStatuesMulti = (statues, characters) => {
+export const applyStatuesMulti = (account, characters) => {
   const voodoStatusification = getHighestTalentByClass(characters, 3, 'Voidwalker', 'VOODOO_STATUFICATION');
   const talentMulti = 1 + voodoStatusification / 100;
-  return statues?.map((statue) => ({ ...statue, bonus: statue?.bonus, talentMulti }));
+  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
+  return account?.statues?.map((statue) => ({ ...statue, bonus: statue?.bonus, talentMulti, onyxMulti: artifact?.bonus ?? 0 }));
 }
 export const getStatueBonus = (statues, statueName, talents) => {
   const statue = statues?.find(({ rawName }) => rawName === statueName || rawName === statueName.replace('G', 'O'));
@@ -77,5 +79,5 @@ export const getStatueBonus = (statues, statueName, talents) => {
     default:
       talentBonus = 1;
   }
-  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * (statue?.onyxStatue ? 2 : 1);
+  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * (statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1);
 };

@@ -28,7 +28,7 @@ const Tablee = ({ title, rows }) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows.sort((a, b) => b.score - a.score).map((row) => (
+        {rows?.sort((a, b) => b.score - a.score).map((row) => (
           <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
             <TableCell sx={{ p: 1 }} component="th" scope="row">{row.name}</TableCell>
             <TableCell sx={{ p: 1 }} component="th" scope="row">{numberWithCommas(parseInt(row.score))}</TableCell>

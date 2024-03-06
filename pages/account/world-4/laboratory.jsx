@@ -9,7 +9,7 @@ import LabRotation from '../../../components/account/Worlds/World4/LabRotation';
 
 const Laboratory = () => {
   const { state } = useContext(AppContext);
-  const { lab } = state?.account;
+  const { lab } = state?.account || {};
 
   return (
     <>

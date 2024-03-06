@@ -62,10 +62,10 @@ export const getShrineExpBonus = (characters, account) => {
     const goldenFoodBonus = getGoldenFoodBonus('Golden_Cheese', character, account);
     const talentBonus = getTalentBonus(character?.starTalents, null, 'SHRINE_ARCHITECT');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ShrineSpd');
-    account?.shrines?.forEach(({ shrineTowerValue, shrineFactor, mapId, worldTour }, shrineIndex) => {
+    account?.shrines?.forEach((shrine, shrineIndex) => {
+      const { shrineTowerValue, shrineFactor } = shrine;
       const result = { name: character?.name, value: 0 }
-      if (!worldTour && characterMap !== mapId) return result;
-      if (worldTour && Math.floor(characterMap / 50) !== Math.floor(mapId / 50)) return result;
+      if (!isGlobalApplicable(account, shrine, character?.mapIndex)) return result;
       const expBonus = (1 + (50 * superbit) / 100)
         * (1 + (artifactBonus
           + 15 * skillMastery) / 100)
@@ -91,17 +91,24 @@ export const getShrineExpBonus = (characters, account) => {
   }
 }
 
+const isGlobalApplicable = (account, shrine, playerMapId) => {
+  const moaiHead = account?.sailing?.artifacts === true || Array.isArray(account?.sailing?.artifacts) && isArtifactAcquired(account?.sailing?.artifacts, 'Moai_Head');
+  const playerWorld = Math.floor(playerMapId / 50);
+  const shrineWorld = Math.floor(shrine?.mapId / 50);
+  const shrineInTown = shrine?.mapId % 50 === 0;
+  return (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || !!moaiHead
+}
 export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifacts) => {
-  const moaiHead = artifacts === true || Array.isArray(artifacts) && isArtifactAcquired(artifacts, 'Moai_Head');
   const shrine = shrines?.[shrineIndex];
   if (!shrine) {
     return 0;
   }
+  const moaiHead = artifacts === true || Array.isArray(artifacts) && isArtifactAcquired(artifacts, 'Moai_Head');
   const playerWorld = Math.floor(playerMapId / 50);
   const shrineWorld = Math.floor(shrine?.mapId / 50);
   const shrineInTown = shrine?.mapId % 50 === 0;
   const notSameMap = playerMapId !== shrine?.mapId;
-  const globalApplicable = (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || moaiHead;
+  const globalApplicable = (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || !!moaiHead;
   if (shrine?.level === 0 || (notSameMap && !globalApplicable)) {
     return 0;
   }

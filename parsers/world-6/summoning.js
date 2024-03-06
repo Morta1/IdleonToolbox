@@ -67,7 +67,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
 
 export const getWinnerBonus = (account, bonusName, baseValue = true) => {
   const val = baseValue ? 'baseValue' : 'value';
-  return account?.summoning?.winnerBonuses?.find(({ bonus }) => bonus === bonusName)?.[val];
+  return account?.summoning?.winnerBonuses?.find(({ bonus }) => bonus === bonusName)?.[val] ?? 0;
 }
 
 const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
