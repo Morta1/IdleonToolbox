@@ -589,7 +589,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
     bonus *= 3;
   }
-  else if (acquired === 3 && artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!') {
+  else if (acquired === 4 && artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!') {
     bonus *= 4;
   }
 
