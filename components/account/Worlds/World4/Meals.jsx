@@ -16,7 +16,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
-const breakpoints = [-1, 0, 11, 30, 40, 50, 60, 70, 80];
+const breakpoints = [-1, 0, 11, 30, 40, 50, 60, 70, 80, 90];
 const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
