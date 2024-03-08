@@ -1,6 +1,6 @@
 import { tryToParse } from "@utility/helpers";
 import { marketInfo, seedInfo } from '../../data/website-data';
-import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
+import { getCharmBonus, getJadeEmporiumBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getVialsBonusByStat } from "@parsers/alchemy";
 import { getLabBonus } from "@parsers/lab";
@@ -31,7 +31,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       value: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
-  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, x1, cropQuantity, currentOG, cropProgress]: number[]) => {
+  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[]) => {
     const type = Math.round(seedInfo?.[seedType]?.cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
     return {
@@ -41,6 +41,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       cropProgress,
       progress,
       growthReq,
+      isLocked,
       currentOG,
       cropRawName: `FarmCrop${type}.png`,
       seedRawName: `Seed_${seedType}.png`
@@ -48,7 +49,13 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   });
   const marketExtraPlots = getMarketBonus(market, "LAND_PLOTS");
   const cropsOnVine = Math.floor(1 + ((marketExtraPlots + 20 * gemVineBonus) / 100))
-
+  const cropsForBeans = Object.entries(rawFarmingCrop).reduce((sum, [type, amount]: any) => {
+    const seed = seedInfo.find((seed) => parseFloat(type) >= seed.cropIdMin && parseFloat(type) <= seed.cropIdMax);
+    return sum + (parseFloat(amount) * Math.pow(2.5, (seed?.seedId ?? 0)) * Math.pow(1.08, type - (seed?.cropIdMin ?? 0)));
+  }, 0);
+  const jadeUpgrade = isJadeBonusUnlocked(account, 'Deal_Sweetening') ?? 0;
+  const marketBonus = getMarketBonus(market, "MORE_BEENZ");
+  const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + 25 * jadeUpgrade / 100);
   // console.log('plot', plot);
   // console.log('crop', rawFarmingCrop);
   // console.log('market', market);
@@ -58,7 +65,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     market,
     cropsFound: Object.keys(rawFarmingCrop || {}).length,
     cropsOnVine,
-    instaGrow
+    instaGrow,
+    beanTrade
   };
 }
 

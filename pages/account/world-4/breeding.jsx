@@ -83,10 +83,12 @@ const Breeding = () => {
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
         town</Typography>
       <Tabber tabs={['Pets', 'Territory', 'Upgrades', 'Arena']}>
-        <Pets {...state?.account?.breeding} lab={state?.account?.lab}
+        <Pets {...state?.account?.breeding}
+              lab={state?.account?.lab}
               account={state?.account}
               characters={state?.characters}
-              lastUpdated={state?.lastUpdated}/>
+              lastUpdated={state?.lastUpdated}
+        />
         <Territory {...state?.account?.breeding} spices={state?.account?.cooking?.spices}/>
         <BreedingUpgrades petUpgrades={state?.account?.breeding?.petUpgrades}
                           account={state?.account}

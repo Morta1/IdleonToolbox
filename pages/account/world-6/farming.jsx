@@ -11,13 +11,16 @@ import { notateNumber } from '@utility/helpers';
 
 const Farming = () => {
   const { state } = useContext(AppContext);
-  const { market, plot, crop, cropDepot = {}, instaGrow } = state?.account?.farming;
+  const { market, plot, crop, cropDepot = {}, instaGrow, beanTrade } = state?.account?.farming || {};
   return <>
     <NextSeo
       title="Farming | Idleon Toolbox"
       description="Keep track of your garden with all its bonuses"
     />
-    <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
+    <Stack direction={'row'} gap={1}>
+      <CardTitleAndValue title={'Bean trade'} value={notateNumber(beanTrade)} icon={'data/Quest80_x1.png'} imgStyle={{width: 24}}/>
+      <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
+    </Stack>
     <Typography variant={'h5'}>Crop depot</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {Object.entries(cropDepot).map(([stat, { name, value }], index) => {

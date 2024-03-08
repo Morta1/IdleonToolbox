@@ -2,8 +2,9 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import React from 'react';
+import LockIcon from '@mui/icons-material/Lock';
 
-const Plot = ({ plot, lastUpdated}) => {
+const Plot = ({ plot, lastUpdated }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
     {plot?.map(({
                   seedType,
@@ -16,6 +17,7 @@ const Plot = ({ plot, lastUpdated}) => {
                   cropRawName,
                   seedRawName,
                   nextOGChance,
+                  isLocked,
                   currentOG,
                   ogMulti,
                   timeLeft
@@ -33,6 +35,7 @@ const Plot = ({ plot, lastUpdated}) => {
               </Stack>
               <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
             </Stack>
+            {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
           </Stack>
           <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
           <Typography>Next OG: {nextOGChance}%</Typography>
