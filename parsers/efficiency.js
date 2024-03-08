@@ -92,7 +92,7 @@ export const getAllEff = (character, characters, account) => {
   const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Seff', blackDiamondRhinestone);
   const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 11)?.baseVal ?? 0;
-  const cardBonus = account?.cards?.Crystal_Capybara?.stars + 1 ?? 0;
+  const cardBonus = account?.cards?.Crystal_Capybara?.stars ? account?.cards?.Crystal_Capybara?.stars + 1 : 0;
   const masteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 2)
   const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B');
   const companionBonus = isCompanionBonusActive(account, 5) ? 5 : 0
