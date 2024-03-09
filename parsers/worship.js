@@ -111,7 +111,7 @@ export const getChargeRate = (character, account) => {
   }
 };
 
-export const getPlayerWorship = (character, pages, account, playerCharge) => {
+export const getPlayerWorship = (character, account, playerCharge) => {
   const maxCharge = getMaxCharge(character, account)
   const chargeRate = getChargeRate(character, account);
   const afkFor = new Date().getTime() - character.afkTime;

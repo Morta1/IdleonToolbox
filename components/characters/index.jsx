@@ -44,17 +44,13 @@ const Character = ({
     food,
     invBagsUsed,
     carryCapBags,
-    talents,
-    starTalents,
     flatTalents,
     flatStarTalents,
     cooldowns,
     afkTime,
     inventory,
     inventorySlots,
-    playerId,
-    addedLevels,
-    addedLevelsBreakdown
+    playerId
   } = character;
   const views = [
     {
@@ -70,11 +66,12 @@ const Character = ({
     { component: <ObolsView obols={obols} obolStats/>, filter: 'Obols Stats' },
     { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: 'Bags' },
     {
-      component: <Talents talents={talents} starTalents={starTalents}
-                          addedLevels={{ value: addedLevels, breakdown: addedLevelsBreakdown }}/>,
+      component: <Talents {...character}
+                          selectedPreset={character?.selectedTalentPreset ?? 1}
+      />,
       filter: 'Talents'
     },
-    { component: <EquippedCards cards={cards}/>, filter: 'Cards' },
+    { component: <EquippedCards {...character}/>, filter: 'Cards' },
     {
       component: <Skills skills={skillsInfo} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,
       filter: 'Skills'

@@ -85,12 +85,7 @@ export const calcCardBonus = (card) => {
 export const getPlayerCards = (char, account) => {
   if (!char?.[`CSetEq`] && !char?.[`CardEquip`]) return {};
   const cardSet = char?.[`CSetEq`];
-  const equippedCards = char?.[`CardEquip`]
-    ?.map((card) => ({
-      cardName: cards?.[card]?.displayName,
-      ...(account?.cards?.[cards?.[card]?.displayName] || {})
-    }))
-    .filter((_, ind) => ind < 8); //cardEquipMap
+  const equippedCards = getEquippedCardsData(char?.[`CardEquip`], account);
   const cardsSetObject = cardSets[Object.keys(cardSet)?.[0]] || {};
   return {
     cardSet: {
@@ -98,6 +93,13 @@ export const getPlayerCards = (char, account) => {
       bonus: Object.values(cardSet)?.[0],
       stars: calculateCardSetStars(cardsSetObject, Object.values(cardSet)?.[0])
     },
-    equippedCards,
+    equippedCards
   };
+}
+
+export const getEquippedCardsData = (cardsArray, account) => {
+  return cardsArray?.map((card) => ({
+    ...(cards?.[card]?.displayName ? { cardName: cards?.[card]?.displayName } : {}),
+    ...(account?.cards?.[cards?.[card]?.displayName] || {})
+  })).filter((_, ind) => ind < 8);
 }

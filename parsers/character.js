@@ -44,9 +44,16 @@ import {
   getTalentBonusIfActive,
   getVoidWalkerTalentEnhancements,
   mainStatMap,
+  starTalentsPages,
   talentPagesMap
 } from './talents';
-import { calcCardBonus, getCardBonusByEffect, getEquippedCardBonus, getPlayerCards } from './cards';
+import {
+  calcCardBonus,
+  getCardBonusByEffect,
+  getEquippedCardBonus,
+  getEquippedCardsData,
+  getPlayerCards
+} from './cards';
 import { getStampBonus, getStampsBonusByEffect } from './stamps';
 import { getPlayerPostOffice, getPostOfficeBonus, getPostOfficeBoxLevel } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from './alchemy';
@@ -165,6 +172,10 @@ export const getCharacters = (idleonData, charsNames) => {
           }
           case key.includes('SL_'): {
             updatedKey = `SkillLevels`;
+            break;
+          }
+          case key.includes('SLpre_'): {
+            updatedKey = `SkillPreset`;
             break;
           }
           case key.includes('SM_'): {
@@ -322,21 +333,20 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.skillsInfoArray = Object.entries(character.skillsInfo || {}).reduce((result, [skillName, skillData]) => (
     [...result, { ...skillData, skillName }]), []).sort((a, b) => a.index - b.index);
 
+  const [, selectedTalentPreset, selectedCardPreset] = char?.PlayerStuff || [];
+  character.selectedTalentPreset = selectedTalentPreset;
   const talentsObject = char?.[`SkillLevels`];
+  const talentPresetObject = char?.[`SkillPreset`];
   const maxTalentsObject = char?.[`SkillLevelsMAX`];
-  const pages = talentPagesMap?.[character?.class];
   const {
-    flat: flatTalents,
-    talents
-  } = createTalentPage(character?.class, pages, talentsObject, maxTalentsObject);
+    talents, flatTalents, starTalents, flatStarTalents
+  } = createTalentPreset(character?.class, talentsObject, maxTalentsObject);
+  if (talentPresetObject) {
+    character.talentPreset = createTalentPreset(character?.class, talentPresetObject, maxTalentsObject);
+  }
   character.talents = talents;
   character.flatTalents = flatTalents;
-  const {
-    flat: flatStarTalents,
-    talents: orderedStarTalents
-  } = createTalentPage(character?.class, ['Special Talent 1', 'Special Talent 2',
-    'Special Talent 3', 'Special Talent 4', 'Special Talent 5'], talentsObject, maxTalentsObject, true);
-  character.starTalents = orderedStarTalents;
+  character.starTalents = starTalents;
   character.flatStarTalents = flatStarTalents;
 
   const activeBuffs = char?.[`BuffsActive`];
@@ -344,6 +354,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   character.activePrayers = char?.Prayers?.filter((prayer) => prayer !== -1).map((prayerId) => account?.prayers?.[prayerId])?.filter((p) => p);
   character.postOffice = getPlayerPostOffice(char?.PostOfficeInfo, account);
+  character.selectedCardPreset = selectedCardPreset;
+  if (char?.playerId === 1){
+    character.cardPresets = char?.CardPreset?.map((cardPreset) => getEquippedCardsData(cardPreset, account));
+  }
   character.cards = getPlayerCards(char, account);
 
   const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 20);
@@ -360,7 +374,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     ...charObols,
     stats: mergeCharacterAndAccountObols(charObols, account.obols)
   };
-  character.worship = getPlayerWorship(character, pages, account, char?.PlayerStuff?.[0]);
+  character.worship = getPlayerWorship(character, account, char?.PlayerStuff?.[0]);
   character.quests = getPlayerQuests(char?.QuestComplete);
   character.crystalSpawnChance = getPlayerCrystalChance(character, account, idleonData);
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
@@ -427,6 +441,17 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.addedLevels = addedLevels?.value;
   character.talents = applyTalentAddedLevels(talents, null, character.addedLevels);
   character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels);
+  if (talentPresetObject) {
+    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+    character.talentPreset = {
+      ...character.talentPreset,
+      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value),
+      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value),
+      addedLevels: presetAddedLevels?.value,
+      addedLevelsBreakdown: presetAddedLevels?.breakdown
+    }
+  }
+
   character.activeBuffs = character.activeBuffs?.map(({ name }) => {
     return character.flatTalents?.find(({ name: tName }) => tName === name);
   });
@@ -440,6 +465,21 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     : 0), 0);
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
   return character;
+}
+
+const createTalentPreset = (charClass, skillLevels, maxSkillLevels) => {
+  const pages = talentPagesMap?.[charClass];
+  const { flat: flatTalents, talents } = createTalentPage(charClass, pages, skillLevels, maxSkillLevels);
+  const {
+    flat: flatStarTalents,
+    talents: orderedStarTalents
+  } = createTalentPage(charClass, starTalentsPages, skillLevels, maxSkillLevels, true);
+  return {
+    talents,
+    flatTalents,
+    starTalents: orderedStarTalents,
+    flatStarTalents
+  }
 }
 
 const getStealthRate = (character, account) => {
@@ -527,7 +567,6 @@ export const getJadeRate = (character, account) => {
     * (1 + starSignBonus / 100)
     * (1 + (10 * masteryBonus) / 100);
 }
-
 export const getRespawnRate = (character, account) => {
   const { targetMonster } = character;
   const monster = monsters?.[targetMonster];
@@ -598,7 +637,6 @@ export const getRespawnRate = (character, account) => {
     breakdown
   };
 }
-
 export const getDropRate = (character, account, characters) => {
   // _customBlock_TotalStats
   // "Drop_Rarity" == e
@@ -693,7 +731,6 @@ export const getDropRate = (character, account, characters) => {
     breakdown
   };
 }
-
 export const getCashMulti = (character, account, characters) => {
   // "MonsterCash" == e
   const { strength, agility, wisdom } = character?.stats || {};
@@ -799,7 +836,6 @@ export const getCashMulti = (character, account, characters) => {
     breakdown
   }
 }
-
 const getPrinterSampleRate = (character, account, charactersLevels) => {
   const printerSamplingTalent = getTalentBonus(character?.starTalents, null, 'PRINTER_SAMPLING');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
@@ -829,8 +865,6 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
 
   return Math.floor(1e3 * printerSample) / 10;
 }
-
-
 export const getBarbarianZowChow = (allKills, thresholds) => {
   const excludedMaps = [
     'Nothing', 'Z', 'Copper',
@@ -868,7 +902,6 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
     list
   }
 }
-
 export const getPlayerCrystalChance = (character, account, idleonData) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
   const acquiredArtifacts = sailingRaw?.[3];
@@ -898,7 +931,6 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
     breakdown
   }
 }
-
 export const getPlayerFoodBonus = (character, account, isHealth) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
   const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.talents);
@@ -925,7 +957,6 @@ export const getPlayerFoodBonus = (character, account, isHealth) => {
     (equipmentFoodEffectBonus + (stampBonus + ((starSignBonus) +
       (cardBonus + (cardSet + talentBonus))))))) / 100;
 }
-
 export const getPlayerSpeedBonus = (character, characters, account) => {
   let finalSpeed;
   const featherWeight = getTalentBonus(character?.talents, 0, 'FEATHERWEIGHT');
@@ -960,11 +991,6 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   }
   return Math.round(finalSpeed * 100);
 }
-
-const getSkillByTarget = () => {
-
-}
-
 export const getAfkGain = (character, characters, account) => {
   let breakdown = [], gains = 0;
   const { afkType } = character;
@@ -1288,7 +1314,6 @@ export const getAfkGain = (character, characters, account) => {
     breakdown
   };
 }
-
 const getTrappingStuff = (type, index, account) => {
   if (type === 'TrapMGbonus') {
     const value = account?.accountOptions?.[99];
@@ -1300,21 +1325,18 @@ const getTrappingStuff = (type, index, account) => {
   }
   return 1;
 }
-
 export const getPlayerCapacity = (bag, capacities) => {
   if (bag) {
     return getMaterialCapacity(bag, capacities);
   }
   return 50;
 }
-
 export const getSmithingExpMulti = (focusedSoulTalentBonus, happyDudeTalentBonus, smithingCards, blackSmithBoxBonus0, allSkillExp, leftHandOfLearningTalentBonus) => {
   // missing smartas smithing stamp
   const talentsBonus = 1 + (focusedSoulTalentBonus + happyDudeTalentBonus) / 100;
   const cardsBonus = 1 + smithingCards / 100;
   return Math.max(0.1, talentsBonus * cardsBonus * (1 + blackSmithBoxBonus0 / 100) + (allSkillExp + leftHandOfLearningTalentBonus) / 100);
 }
-
 const getNonConsumeChance = (character, account) => {
   const { starSigns, cards, postOffice, talents, equippedBubbles } = character;
   const { lab } = account;
@@ -1330,7 +1352,6 @@ const getNonConsumeChance = (character, account) => {
   const starSingBonus = getStarSignByEffect(starSigns, account, 'chance_to_not');
   return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
 }
-
 export const getPlayerConstructionSpeed = (character, account) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
@@ -1351,7 +1372,6 @@ export const getPlayerConstructionSpeed = (character, account) => {
     ...account?.refinery?.refineryStorage], 'Refinery1', true, true);
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
-
 export const getPlayerConstructionExpPerHour = (character, account) => {
   const playerBuildSpeed = character?.constructionSpeed;
   const activeBubbleBonus = getActiveBubbleBonus(character.equippedBubbles, 'power', 'CALL_ME_BOB', account);

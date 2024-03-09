@@ -1,15 +1,31 @@
 import { calcCardBonus } from '../../parsers/cards';
-import { Grid, Stack, Typography } from '@mui/material';
+import { Grid, Stack, Tab, Tabs, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import Box from '@mui/material/Box';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { CardAndBorder } from '../common/styles';
+import { prefix } from '@utility/helpers';
 
-const EquippedCards = ({ cards }) => {
+const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   const { equippedCards, cardSet } = cards || {};
+  const [cardPreset, setCardPreset] = useState();
+  const [selectedTab, setSelectedTab] = useState(selectedCardPreset);
+
+  useEffect(() => {
+    setCardPreset(cardPresets[selectedTab]);
+  }, [selectedTab, cards])
 
   return <Stack>
     <Typography mb={2} variant={'h5'}>Equipped cards</Typography>
+    <Tabs centered
+          value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
+      {[0, 1, 2, 3, 4, 5, 6]?.map((tabIndex) => {
+        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
+                    icon={<TabIcon src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt={tabIndex}/>}
+                    key={`${tabIndex}-card-tab`}
+                    aria-label={`${tabIndex}-card-tab`}/>
+      })}
+    </Tabs>
     <Stack>
       {cardSet?.rawName ? <Stack mb={3} justifyContent={'center'} direction="row">
         <Box sx={{ position: 'relative' }}>
@@ -17,8 +33,8 @@ const EquippedCards = ({ cards }) => {
         </Box>
       </Stack> : null}
       <Grid container rowGap={3}>
-        {equippedCards?.map((card, index) => {
-          const { cardName, amount } = card;
+        {cardPreset?.map((card, index) => {
+          const { cardName, amount } = card || {};
           const bonus = calcCardBonus(card);
           return <Grid display={'flex'} justifyContent={'center'} key={`${cardName}-${index}`} position={'relative'}
                        xs={3}
@@ -41,5 +57,11 @@ const StyledEmptyCard = styled.div`
   justify-content: center;
   align-items: center;
 `
+
+const TabIcon = ({ src }) => {
+  return <Box sx={{ width: { xs: 30 }, '> img': { width: { xs: 30 } } }}>
+    <img src={src} alt=""/>
+  </Box>
+}
 
 export default EquippedCards;

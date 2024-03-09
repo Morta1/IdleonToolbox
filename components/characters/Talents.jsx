@@ -6,19 +6,25 @@ import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Breakdown, TalentTooltip } from '../common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 
-const Talents = ({ talents, starTalents, addedLevels }) => {
-  const { value, breakdown } = addedLevels;
+const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsBreakdown }) => {
+  const [preset, setSelectedPreset] = useState(0);
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
   const spentTalentPoints = activeTalents?.orderedTalents?.reduce((res, { level = 0 }) => res + level, 0);
 
+  const getPreset = () => {
+    const presetTalents = preset === 1 ? talentPreset?.talents : talents;
+    const presetStarTalents = preset === 1 ? talentPreset?.starTalents : starTalents;
+    return activeTab === 4 ? handleStarTalents(presetStarTalents, specialsTab) : presetTalents?.[activeTab];
+  }
+
   useEffect(() => {
-    const tempTalents = activeTab === 4 ? handleStarTalents(starTalents, specialsTab) : talents?.[activeTab];
-    setActiveTalents(tempTalents);
+    const currentTalentsDisplay = getPreset();
+    setActiveTalents(currentTalentsDisplay);
     setSpecialTabs(0);
-  }, [activeTab, talents]);
+  }, [activeTab, talents, preset]);
 
   const switchSpecials = (tab) => {
     setSpecialTabs(tab);
@@ -53,6 +59,18 @@ const Talents = ({ talents, starTalents, addedLevels }) => {
   }
 
   return <StyledTalents active={activeTab}>
+    <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
+      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
+           aria-label={`star-sign-tab`}
+           label={'In use'}
+           value={0}
+      />
+      <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
+           aria-label={`star-sign-tab`}
+           label={'Preset'}
+           value={1}
+      />
+    </Tabs>
     <Tabs centered
           value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
       {Object.keys(talents || {})?.map((tabIndex) => {
@@ -70,8 +88,8 @@ const Talents = ({ talents, starTalents, addedLevels }) => {
     </Tabs>
     <Typography mt={2} component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
-      <Typography component={'div'} variant={'caption'}>Added levels: {value}</Typography>
-      <Tooltip title={<Breakdown titleStyle={{width: 150}} breakdown={breakdown}/>}>
+      <Typography component={'div'} variant={'caption'}>Added levels: {preset === 0 ? addedLevels : talentPreset?.addedLevels}</Typography>
+      <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={preset === 0 ? addedLevelsBreakdown : talentPreset?.addedLevelsBreakdown}/>}>
         <InfoIcon/>
       </Tooltip>
     </Stack>
