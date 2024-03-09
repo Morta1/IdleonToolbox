@@ -26,6 +26,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   return <Stack>
     <Typography mb={2} variant={'h5'}>Equipped cards</Typography>
     <Tabs centered
+          sx={{mb:1}}
           value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
       {[0, 1, 2, 3, 4, 5, 6]?.map((tabIndex) => {
         return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' }, p:1 }}
