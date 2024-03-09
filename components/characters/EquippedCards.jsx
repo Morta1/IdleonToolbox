@@ -4,15 +4,23 @@ import styled from '@emotion/styled';
 import Box from '@mui/material/Box';
 import React, { useEffect, useState } from 'react';
 import { CardAndBorder } from '../common/styles';
-import { prefix } from '@utility/helpers';
+import { createRange, prefix } from '@utility/helpers';
 
 const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   const { equippedCards, cardSet } = cards || {};
   const [cardPreset, setCardPreset] = useState();
-  const [selectedTab, setSelectedTab] = useState(selectedCardPreset);
+  const [selectedTab, setSelectedTab] = useState(selectedCardPreset ?? 0);
 
   useEffect(() => {
-    setCardPreset(cardPresets[selectedTab]);
+    let preset = cardPresets?.[selectedTab];
+    if (!preset) {
+      if (selectedTab === 0) {
+        preset = equippedCards
+      } else {
+        preset = createRange(0, 7).fill({});
+      }
+    }
+    setCardPreset(preset);
   }, [selectedTab, cards])
 
   return <Stack>

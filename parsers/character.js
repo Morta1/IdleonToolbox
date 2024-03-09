@@ -355,9 +355,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.activePrayers = char?.Prayers?.filter((prayer) => prayer !== -1).map((prayerId) => account?.prayers?.[prayerId])?.filter((p) => p);
   character.postOffice = getPlayerPostOffice(char?.PostOfficeInfo, account);
   character.selectedCardPreset = selectedCardPreset;
-  if (char?.playerId === 1){
-    character.cardPresets = char?.CardPreset?.map((cardPreset) => getEquippedCardsData(cardPreset, account));
-  }
+  character.cardPresets = char?.CardPreset?.map((cardPreset) => getEquippedCardsData(cardPreset, account));
   character.cards = getPlayerCards(char, account);
 
   const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 20);
