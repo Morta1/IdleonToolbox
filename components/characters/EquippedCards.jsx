@@ -28,7 +28,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
     <Tabs centered
           value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
       {[0, 1, 2, 3, 4, 5, 6]?.map((tabIndex) => {
-        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
+        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' }, p:1 }}
                     icon={<TabIcon src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt={tabIndex}/>}
                     key={`${tabIndex}-card-tab`}
                     aria-label={`${tabIndex}-card-tab`}/>
@@ -67,7 +67,7 @@ const StyledEmptyCard = styled.div`
 `
 
 const TabIcon = ({ src }) => {
-  return <Box sx={{ width: { xs: 30 }, '> img': { width: { xs: 30 } } }}>
+  return <Box sx={{ width: { xs: 28 }, '> img': { width: { xs: 28 } } }}>
     <img src={src} alt=""/>
   </Box>
 }
