@@ -54,7 +54,7 @@ const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 
   return <>
     <Typography variant={'h5'}>{pascalCase(cleanUnderscore(name))}</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
-                variant={'body1'}>{cleanUnderscore(desc.replace(/{|\$/g, bonus))}</Typography>
+                variant={'body1'}>{cleanUnderscore(desc.replace(/{|\$/g, notateNumber(bonus, 'MultiplierInfo')))}</Typography>
     <Stack direction={'row'}>
       {itemReq?.map(({ name, rawName }, index) => {
         return name && name !== 'Blank' && name !== 'ERROR' ?
