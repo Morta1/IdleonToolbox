@@ -244,7 +244,7 @@ const Bubbles = () => {
           {Object.entries(state?.account?.alchemy?.bubbles)?.map(([cauldron, bubbles], cauldronIndex) => {
             return <Stack alignItems={'center'} key={cauldron + '' + cauldronIndex}>
               {bubbles?.map((bubble, index) => {
-                if (index > 24) return null;
+                if (index > 29) return null;
                 const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
                 const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
                   ? level
@@ -356,7 +356,8 @@ const AdditionalInfo = ({
           singleLevelCost,
           total
         } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
-        const x1Extension = ['sail', 'bits'];
+        const x1Extension = ['sail', 'bits', 'w6item'];
+        console.log('rawName',rawName)
         const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
           ? `${rawName}_x1`
           : rawName;
@@ -424,7 +425,7 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
             <Stack direction={'row'} justifyContent={'center'} gap={1}>
               {itemReq?.map(({ rawName }, index) => {
                 if (rawName === 'Blank' || rawName === 'ERROR' || rawName.includes('Liquid')) return null;
-                const x1Extension = ['sail', 'bits'];
+                const x1Extension = ['sail', 'bits', 'w6item'];
                 const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
                   ? `${rawName}_x1`
                   : rawName;
