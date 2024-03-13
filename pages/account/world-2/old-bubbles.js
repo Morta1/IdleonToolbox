@@ -268,7 +268,7 @@ const Bubbles = () => {
       <Tabber tabs={Object.keys(state?.account?.alchemy?.bubbles)} onTabChange={handleOnClick}>
         <Stack direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
           {bubbles?.map((bubble, index) => {
-            if (index > 24) return null;
+            if (index > 29) return null;
             const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
             const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
               ? level
