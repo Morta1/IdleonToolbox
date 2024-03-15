@@ -8,6 +8,11 @@ import {
   Badge,
   Checkbox,
   createFilterOptions,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -16,7 +21,7 @@ import {
   RadioGroup,
   Stack,
   TextField,
-  Typography,
+  Typography
 } from '@mui/material';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, downloadFile, numberWithCommas, prefix, tryToParse } from 'utility/helpers';
@@ -36,7 +41,7 @@ import GetAppIcon from '@mui/icons-material/GetApp';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 const filterOptions = createFilterOptions({
-  trim: true,
+  trim: true
 });
 
 const defaultItem = { rawName: 'EquipmentTransparent108' };
@@ -56,6 +61,7 @@ const ItemPlanner = ({}) => {
   const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
   const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account]);
   const inputRef = useRef();
+  const [confirmationDialog, setConfirmationDialog] = useState({ open: false, type: '', data: null });
 
   useEffect(() => {
     if (!state?.characters && !state?.account) {
@@ -174,15 +180,11 @@ const ItemPlanner = ({}) => {
   }
 
   const removeSection = (sectionIndex) => {
-    const sections = planner.sections.filter((_, index) => index !== sectionIndex);
-    setValue({ ...value, [sectionIndex]: '' })
-    dispatch({ type: 'planner', data: { sections } });
+    setConfirmationDialog({ open: true, type: 'section', data: sectionIndex })
   }
 
   const handleResetAll = () => {
-    setValue({ '0': '' })
-    setItem([defaultItem]);
-    dispatch({ type: 'planner', data: { sections: [] } })
+    setConfirmationDialog({ open: true, type: 'sections', data: null })
   }
 
   return (
@@ -300,7 +302,7 @@ const ItemPlanner = ({}) => {
                         />
                         {option?.replace(/_/g, ' ')}
                       </Stack>
-                    ) : <span {...props} style={{ height: 0 }} key={'empty' }/>;
+                    ) : <span {...props} style={{ height: 0 }} key={'empty'}/>;
                   }}
                   style={{ width: 300 }}
                   renderInput={(params) => (
@@ -339,7 +341,7 @@ const ItemPlanner = ({}) => {
                                max={10000}
                                anchorOrigin={{
                                  vertical: 'top',
-                                 horizontal: 'right',
+                                 horizontal: 'right'
                                }}
                                color="primary">
                           <Tooltip
@@ -381,6 +383,40 @@ const ItemPlanner = ({}) => {
           </Accordion>
         }) : <Typography sx={{ mt: 3 }} variant={'h3'}>Please add a section</Typography>}
       </Stack>
+      <Dialog
+        open={confirmationDialog.open}
+        onClose={() => setConfirmationDialog({ ...confirmationDialog, open: false })}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Section deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {confirmationDialog.type === 'section'
+              ? 'Are you sure you would like to delete this section?'
+              : 'Are you sure you would like to delete all sections?'}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmationDialog({ ...confirmationDialog, open: false })}>Close</Button>
+          <Button onClick={() => {
+            if (confirmationDialog.type === 'section') {
+              const sections = planner.sections.filter((_, index) => index !== confirmationDialog.data);
+              setValue({ ...value, [confirmationDialog.data]: '' })
+              dispatch({ type: 'planner', data: { sections } });
+            } else if (confirmationDialog.type === 'sections') {
+              setValue({ '0': '' })
+              setItem([defaultItem]);
+              dispatch({ type: 'planner', data: { sections: [] } });
+            }
+            setConfirmationDialog({ open: false, type: '', data: null })
+          }} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </TodoStyle>
   );
 };
