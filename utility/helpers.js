@@ -225,7 +225,7 @@ export const pascalCase = (str) => {
 export const getCoinsArray = (coins) => {
   let n = coins;
   const ret = new Map();
-  let i = 26;
+  let i = 32;
   do {
     const expo = Math.pow(10, i);
     if (n > expo) {

@@ -112,7 +112,7 @@ const extraIslandDetails = (account, index) => {
     const trash = account?.accountOptions?.[161];
     const iconNames = ['data/StampB47', 'data/StampB32', 'data/StampA38', 'data/StampA39',
       'etc/Trash_Currency', 'etc/Bribe', 'data/Island1', 'data/TalentBook1', 'data/EquipmentNametag6b'];
-    const names = ['Skelefish Stamp', ' Amplestample Stamp', 'Golden Sixes Stamp', 'Stat Wallstreet Stamp',
+    const names = ['Skelefish Stamp', 'Amplestample Stamp', 'Golden Sixes Stamp', 'Stat Wallstreet Stamp',
       '+20% Garbage Gain', 'Unlock New Bribe Set', '10% Message Bottle Gain', 'Filthy Damage Special Talent Book',
       'Trash Tuna Nametag']
     const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, account?.accountOptions?.[163]), 135,
