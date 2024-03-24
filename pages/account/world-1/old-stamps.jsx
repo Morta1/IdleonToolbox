@@ -218,7 +218,7 @@ const Stamps = () => {
                     {!hasMaterials ? <HtmlTooltip title={<>
                       <Typography>Not enough {cleanUnderscore(itemReq?.name)}</Typography>
                       <Typography>You have {notateNumber(ownedMats ?? 0, 'Big')}, you
-                        need {notateNumber(Math.abs((ownedMats ?? 0) - itemRequirements?.materialCost), 'Big')}</Typography>
+                        need {notateNumber(Math.abs((ownedMats ?? 0) - itemRequirements?.materialCost), 'Big')} more</Typography>
                     </>}>
                       <img width={24} height={24} src={`${prefix}data/${itemReq?.rawName}.png`} alt={''}/>
                     </HtmlTooltip> : null}

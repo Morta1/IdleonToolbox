@@ -357,7 +357,6 @@ const AdditionalInfo = ({
           total
         } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
         const x1Extension = ['sail', 'bits', 'w6item'];
-        console.log('rawName',rawName)
         const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
           ? `${rawName}_x1`
           : rawName;

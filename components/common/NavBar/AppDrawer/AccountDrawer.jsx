@@ -82,6 +82,7 @@ const worldsData = {
       { label: 'breeding', icon: 'data/ClassIcons52' },
       { label: 'laboratory', icon: 'data/ClassIcons53' },
       { label: 'rift', icon: 'data/Mface75' },
+      // { label: 'tome', icon: 'etc/tome' },
     ]
   },
   'world 5': {

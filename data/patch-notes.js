@@ -4,10 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.54',
+    gameVer: '2.0.4',
+    date: '24/03/2024',
+    features: ['Updated the website with version 2.0.4 data and assets'],
+    fixes: ['Some fixes']
+  },
+  {
     ver: '3.2.53',
     gameVer: '2.0.3',
     date: '09/03/2024',
-    features: ['Updated the website with version 2.0.3 data and assets', 'Added talents and cards preset view in Characters page'],
+    features: ['Updated the website with version 2.0.3 data and assets',
+      'Added talents and cards preset view in Characters page'],
     fixes: []
   },
   {

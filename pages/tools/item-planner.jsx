@@ -172,7 +172,7 @@ const ItemPlanner = ({}) => {
   }
 
   const addSection = () => {
-    const name = sectionName ? sectionName : `section-${Math.floor(Math.random() * 100)}`;
+    const name = sectionName ? sectionName : `section-${Math.floor(planner?.sections?.length + 1)}`;
     dispatch({
       type: 'planner',
       data: { sections: [...(planner?.sections || []), { items: [], materials: [], name }] }

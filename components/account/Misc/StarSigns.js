@@ -10,7 +10,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
   const chronus = useMemo(() => starSigns.filter(({ tree }) => tree === 'chronus'), [starSigns, infiniteStars]);
   const hydron = useMemo(() => starSigns.filter(({ tree }) => tree === 'hydron'), [starSigns, infiniteStars]);
   const seraph = useMemo(() => starSigns.filter(({ tree }) => tree === 'seraph'), [starSigns, infiniteStars]);
-  // infiniteStars = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
+  infiniteStars = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
 
   return (
     <>
@@ -34,7 +34,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                     {!isMd ?
                       <>
                         <Typography variant={'body1'} component={'span'}>{cleanUnderscore(indexedStarName)}</Typography>
-                        {unlocked ?
+                        {unlocked && index < infiniteStars ?
                           <img src={`${prefix}data/SignStarInf${selectedTab}.png`} alt=""/> : null}
                       </> : null}
                   </Grid>

@@ -60,6 +60,7 @@ import { getTotalizerBonuses, getTotems } from './worship';
 import { getSneaking } from "@parsers/world-6/sneaking";
 import { getFarming, updateFarming } from "@parsers/world-6/farming";
 import { getSummoning } from "@parsers/world-6/summoning";
+import { getTome } from "@parsers/world-4/tome";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
@@ -237,5 +238,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   const fungyFingerBonus = greenMushroomKilled * accountData.lab.labBonuses?.[9]?.bonusOn;
   accountData.lab.labBonuses = applyBonusDesc(accountData.lab.labBonuses, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
   accountData.totems = getTotems(idleonData);
+  accountData.tome = getTome(idleonData, accountData, charactersData)
   return { accountData, charactersData };
 };

@@ -5,8 +5,9 @@ import Tooltip from '../Tooltip';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Breakdown, TalentTooltip } from '../common/styles';
 import InfoIcon from '@mui/icons-material/Info';
+import { checkCharClass } from '@parsers/talents';
 
-const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsBreakdown }) => {
+const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsBreakdown, class: charClass }) => {
   const [preset, setSelectedPreset] = useState(0);
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);

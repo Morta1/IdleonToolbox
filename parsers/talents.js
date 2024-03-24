@@ -53,7 +53,7 @@ export const talentPagesMap = {
   'Archer': ['Calm_Basics', 'Archer'],
   'Bowman': ['Calm_Basics', 'Archer', 'Bowman'],
   'Siege_Breaker': ['Calm_Basics', 'Archer', 'Bowman', 'Siege_Breaker'],
-  'Hunter': ['Calm_Basics', 'Archer', 'Hunter', 'Beast_Master'],
+  'Hunter': ['Calm_Basics', 'Archer', 'Hunter'],
   'Beast_Master': ['Calm_Basics', 'Archer', 'Hunter', 'Beast_Master'],
   'Mage': ['Savvy_Basics', 'Mage'],
   'Shaman': ['Savvy_Basics', 'Mage', 'Shaman'],

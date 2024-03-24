@@ -86,13 +86,11 @@ const Data = () => {
           localStorage.removeItem(key)
         }
       })
-    }
-    else {
+    } else {
       if (key === 'last-upload-time') {
         localStorage.removeItem(`${state?.uid}/lastUpload`);
         setLastUpload(false);
-      }
-      else {
+      } else {
         localStorage.removeItem(key)
       }
     }
@@ -115,7 +113,11 @@ const Data = () => {
     if (!lastUpload || ((WAIT_TIME - (Date.now() - lastUpload)) < 0)) {
       setLoading(true);
       try {
-        await uploadProfile({ profile: { ...userData, parsedData }, uid: state?.uid, leaderboardConsent }, state?.accessToken);
+        await uploadProfile({
+          profile: { ...userData, parsedData },
+          uid: state?.uid,
+          leaderboardConsent
+        }, state?.accessToken);
         setUploaded(true);
         const now = Date.now();
         localStorage.setItem(`${state?.uid}/lastUpload`, now);
@@ -214,15 +216,17 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
         <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
         {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
           update: {format(parseInt(lastUpload), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
-        {lastUpload ? <Typography variant={'body2'}>Time to next upload</Typography> : null}
-        {lastUpload
-          ? <NormalTimer
-            done={(WAIT_TIME - (Date.now() - lastUpload)) < 0}
-            date={intervalToDuration({
-              start: new Date(parseInt(lastUpload)),
-              end: new Date().getTime() - WAIT_TIME
-            })}/>
-          : null}
+        {lastUpload ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+          {lastUpload ? <Typography variant={'body2'}>Time to next upload</Typography> : null}
+          {lastUpload
+            ? <NormalTimer
+              done={(WAIT_TIME - (Date.now() - lastUpload)) < 0}
+              date={intervalToDuration({
+                start: new Date(parseInt(lastUpload)),
+                end: new Date().getTime() - WAIT_TIME
+              })}/>
+            : null}
+        </Stack> : null}
       </div>
     </> : null
     }
@@ -258,11 +262,11 @@ const Popper = ({ anchorEl, handleClose }) => {
     onClose={handleClose}
     anchorOrigin={{
       vertical: 'center',
-      horizontal: 'right',
+      horizontal: 'right'
     }}
     transformOrigin={{
       vertical: 'center',
-      horizontal: 'left',
+      horizontal: 'left'
     }}
   >
     <Typography sx={{ py: 1, px: 2 }}>Copied to clipboard!</Typography>
