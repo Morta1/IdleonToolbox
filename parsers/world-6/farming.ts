@@ -49,7 +49,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   });
   const marketExtraPlots = getMarketBonus(market, "LAND_PLOTS");
   const cropsOnVine = Math.floor(1 + ((marketExtraPlots + 20 * gemVineBonus) / 100))
-  const cropsForBeans = Object.entries(rawFarmingCrop).reduce((sum, [type, amount]: any) => {
+  const cropsForBeans = Object.entries(rawFarmingCrop || {}).reduce((sum, [type, amount]: any) => {
     const seed = seedInfo.find((seed) => parseFloat(type) >= seed.cropIdMin && parseFloat(type) <= seed.cropIdMax);
     return sum + (parseFloat(amount) * Math.pow(2.5, (seed?.seedId ?? 0)) * Math.pow(1.08, type - (seed?.cropIdMin ?? 0)));
   }, 0);

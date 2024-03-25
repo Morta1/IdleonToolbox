@@ -500,7 +500,8 @@ export const getGoldenFoodBonus = (foodName, character, account) => {
     const beanstalkGoldenFoods = ninjaExtraInfo[29].split(' ').filter((str) => isNaN(str))
       .map((gFood, index) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
     const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName }) => displayName === foodName);
-    return baseBonus + beanstalkFood?.Amount * goldenFoodMulti * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData[beanstalkFood?.index])) * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData[beanstalkFood?.index])) / 2.14);
+    return baseBonus + beanstalkFood?.Amount * goldenFoodMulti * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
+      * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index])) / 2.14);
   }
   return baseBonus;
 };
