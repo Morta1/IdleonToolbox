@@ -105,7 +105,7 @@ export const updateFarming = (characters: any, account: any) => {
   }
 }
 
-const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, cost, costExponent }: any) => {
+const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, cost, costExponent, isUnique = true }: any) => {
   const upgradeMap = new Map();
 
   let extraLv = 0;
@@ -120,7 +120,7 @@ const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, cost, costE
 
     const localCost = cost * Math.pow(costExponent, level + extraLv);
 
-    if (upgradeMap.has(type)) {
+    if (upgradeMap.has(type) && isUnique) {
       // If the type exists, add the cost to the existing total
       upgradeMap.set(type, upgradeMap.get(type) + localCost);
     } else {

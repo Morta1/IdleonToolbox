@@ -17,11 +17,11 @@ const Market = ({ market, crop }) => {
             : 'Night Market'}</Typography>
           <Typography mt={2}>{cleanUnderscore(bonus.replace(/{|}/, value))}</Typography>
           {level < maxLvl ? <>
-            {marketIndex < 8 ? <Stack mt={1}>
+            <Stack mt={1}>
               <Typography variant={'caption'}>Next requirement</Typography>
-              <UpgradeReq icon={`FarmCrop${type}`} owned={crop[type]} cost={cost}/>
+              <UpgradeReq icon={marketIndex < 8 ? `FarmCrop${type}` : 'FarmCropBean'} owned={crop[marketIndex < 8 ? type : 'beans']} cost={cost}/>
               <Divider sx={{ mt: 2 }}/>
-            </Stack> : null}
+            </Stack>
             <Stack mt={2}>
               <Typography variant={'caption'}>Future requirements</Typography>
               {nextUpgrades.map(({ type: nextType, cost: nextCost }, index) => {

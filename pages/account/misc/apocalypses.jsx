@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { talentPagesMap } from '@parsers/talents';
 import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
@@ -110,7 +110,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                                   thresholds
                                 }, index) => {
             return !done.every((done) => done) ?
-              <Tooltip title={cleanUnderscore(mapName)} key={`${charName}-${name}-${index}`}>
+              <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(kills)}`} key={`${charName}-${name}-${index}`}>
                 <Card sx={{ width: 120 }} variant={'outlined'}>
                   <CardContent>
                     <Stack alignItems={'center'} gap={1}>

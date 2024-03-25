@@ -11,6 +11,8 @@ import { getSigilBonus, getVialsBonusByStat } from '../../../parsers/alchemy';
 import Timer from '../../../components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
+import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
@@ -22,13 +24,26 @@ const Sigils = () => {
     const gemStore = state?.account?.gemShopPurchases?.find((value, index) => index === 110);
     const sigilBonus = getSigilBonus(alchemy?.p2w?.sigils, 'PEA_POD');
     const vial = getVialsBonusByStat(alchemy?.vials, 'SigSpd');
+    const anotherVial = getVialsBonusByStat(alchemy?.vials, '6turtle');
+    const stampBonus = getStampsBonusByEffect(state?.account, '+{%_Sigil_Charge_rate');
+    const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD', false);
+
     return {
-      value: 1 + ((achievement ? 20 : 0) + (sigilBonus + 20 * gemStore) + vial) / 100,
+      value: (1 + ((achievement ? 20 : 0)
+          + (sigilBonus
+            + (20 * gemStore
+              + (vial
+                + stampBonus)))) / 100)
+        * (1 + winnerBonus / 100)
+        * (1 + anotherVial / 100),
       breakdown: [
         { name: 'Achievement', value: (achievement ? 20 : 0) / 100 },
-        { name: 'Sigil', value: (sigilBonus) / 100 },
+        { name: 'Sigil', value: sigilBonus / 100 },
         { name: 'Gem store', value: (20 * gemStore) / 100 },
-        { name: 'Vial', value: vial / 100 }
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Vial', value: vial / 100 },
+        { name: 'Turtle Vial', value: 1 + anotherVial / 100 },
+        { name: 'Summoning', value: 1 + winnerBonus / 100 }
       ]
     }
   }

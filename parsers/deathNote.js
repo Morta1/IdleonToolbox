@@ -1,7 +1,11 @@
-import { deathNote, mapEnemies, monsters } from '../data/website-data';
+import { deathNote, mapEnemies, monsters, ninjaExtraInfo } from '../data/website-data';
 import { isRiftBonusUnlocked } from './world-4/rift';
+import { tryToParse } from '@utility/helpers';
 
-export const getDeathNote = (charactersData, account) => {
+export const getDeathNote = (idleonData, charactersData, account) => {
+  const rawSneaking = tryToParse(idleonData?.Ninja);
+  const bosses = ninjaExtraInfo?.[30]?.split(' ');
+  const miniBossesKills = rawSneaking?.[105];
   const allKills = charactersData?.reduce((result, character) => {
     const { kills } = character;
     if (kills && kills.length) {
@@ -11,6 +15,16 @@ export const getDeathNote = (charactersData, account) => {
     }
     return result;
   }, []);
+  const miniBosses = bosses.map((rawName, index) => ({
+    rawName,
+    kills: miniBossesKills?.[index]
+  })).reduce((res, { rawName, kills }) => {
+    const rank = getDeathNoteRank(account, kills);
+    return {
+      rank: (res?.rank || 0) + rank,
+      mobs: [...(res?.mobs || []), { rawName, displayName: monsters?.[rawName]?.Name, kills }]
+    }
+  }, {});
   return deathNote.reduce((res, { rawName, world }) => {
     const mobIndex = mapEnemies?.[rawName];
     const kills = allKills?.[mobIndex];
@@ -23,7 +37,7 @@ export const getDeathNote = (charactersData, account) => {
         mobs: [...(res?.[world]?.mobs || []), { rawName, displayName: monsters?.[rawName]?.Name, kills }]
       }
     };
-  }, {});
+  }, { miniBosses });
 }
 
 export const getDeathNoteRank = (account, kills) => {

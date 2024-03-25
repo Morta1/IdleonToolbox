@@ -23,7 +23,7 @@ const DeathNote = () => {
           return <Card key={worldIndex + ' ' + index}>
             <CardContent>
               <Typography variant={'h4'}
-                          style={{ color: worldColor?.[worldIndex] || 'white' }}>{worlds?.[worldIndex]}</Typography>
+                          style={{ color: worldColor?.[worldIndex] || '#e987e6' }}>{worlds?.[worldIndex] || 'Minibosses'}</Typography>
               <Typography mb={2} variant={'h6'}>Multikill Bonus: {rank}%</Typography>
               <Stack>
                 {mobs?.map((mob, innerIndex) => {

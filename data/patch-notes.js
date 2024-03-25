@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.55',
+    gameVer: '2.0.4',
+    date: '25/03/2024',
+    features: ['Added mini bosses to death note page', ],
+    fixes: ['Added missing "next requirement" for beans in "Market" tab under farming page', 'Fixed sigil speed calculations', 'Added missing spirited valley title in quest page']
+  },
+  {
     ver: '3.2.54',
     gameVer: '2.0.4',
     date: '24/03/2024',
