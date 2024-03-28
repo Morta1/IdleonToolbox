@@ -139,12 +139,12 @@ export const constructionAlerts = (account, options) => {
       const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
       const missingMats = hasMissingMats(saltIndex, rank, cost, account);
       const previousSaltMissingMats = hasMissingMats(previousSaltIndex, previousSalt?.rank, previousSalt?.cost, account);
-      if (missingMats.length === 1 && missingMats?.[0]?.rawName?.includes('Refinery')
+      if (missingMats?.length === 1 && missingMats?.[0]?.rawName?.includes('Refinery')
         && previousSalt?.autoRefinePercentage > 0
         || previousSalt?.active && previousSaltMissingMats?.length > 0) {
         return res;
       }
-      if (missingMats.length > 0) {
+      if (missingMats?.length > 0) {
         res = [...res, { rawName, missingMats }]
       }
       return res;

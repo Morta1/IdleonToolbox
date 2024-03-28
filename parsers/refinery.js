@@ -22,7 +22,7 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
   const saltsArray = salts?.reduce((res, salt, index) => {
     const name = `Refinery${index + 1}`
     const [refined, rank, , active, autoRefinePercentage] = salt;
-    const { saltName, cost } = refinery?.[name];
+    const { saltName, cost } = refinery?.[name] || {};
     const componentsWithTotalAmount = cost?.map((item) => {
       let amount = calculateItemTotalAmount(combinedStorage, item?.name, true);
       return {
