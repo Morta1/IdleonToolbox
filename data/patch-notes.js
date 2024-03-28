@@ -4,11 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.56',
+    gameVer: '2.0.4',
+    date: '28/03/2024',
+    features: ['Added available vial attempts dashboard alert', 'Added the 3rd tier of sigil', 'Added checkbox to apocalypse page to hide super chows'],
+    fixes: ['Added the new captain image to dashboard alerts']
+  },
+  {
     ver: '3.2.55',
     gameVer: '2.0.4',
     date: '25/03/2024',
-    features: ['Added mini bosses to death note page', ],
-    fixes: ['Added missing "next requirement" for beans in "Market" tab under farming page', 'Fixed sigil speed calculations', 'Added missing spirited valley title in quest page']
+    features: ['Added mini bosses to death note page'],
+    fixes: ['Added missing "next requirement" for beans in "Market" tab under farming page',
+      'Fixed sigil speed calculations', 'Added missing spirited valley title in quest page']
   },
   {
     ver: '3.2.54',

@@ -38,7 +38,8 @@ const baseTrackers = {
     },
     arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
     alchemy: {
-      checked: true, options: [
+      checked: true,
+      options: [
         { name: 'bargainTag', checked: true },
         { name: 'sigils', checked: true },
         {
@@ -49,6 +50,7 @@ const baseTrackers = {
           checked: true
         },
         { name: 'vials', category: 'vials', checked: true },
+        { name: 'vialsAttempts', checked: true },
         { name: 'subtractGreenStacks', checked: true },
       ]
     },
@@ -57,7 +59,7 @@ const baseTrackers = {
       checked: true, options: [
         { name: 'sprouts', checked: true },
         { name: 'squirrel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true },
-        { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true },
+        { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true }
       ]
     },
     guild: { checked: true, options: [{ name: 'daily', checked: true }, { name: 'weekly', checked: true }] },
@@ -102,14 +104,14 @@ const baseTrackers = {
       checked: true, options: [
         { name: 'bar', checked: true },
         { name: 'challenges', checked: true },
-        { name: 'foodLust', checked: true },
+        { name: 'foodLust', checked: true }
       ]
     },
     materialTracker: {
       checked: true, options: [
         { name: 'applyThresholdFromAbove', checked: false },
         { name: 'applyThresholdFromBelow', checked: true },
-        { name: 'disable"CloseTo"Alert', checked: true },
+        { name: 'disable"CloseTo"Alert', checked: true }
       ]
     },
     etc: {
@@ -127,7 +129,7 @@ const baseTrackers = {
         },
         { name: 'weeklyBosses', checked: true },
         { name: 'killRoy', checked: true },
-        { name: 'newCharacters', checked: true },
+        { name: 'newCharacters', checked: true }
       ]
     }
   },
@@ -192,7 +194,7 @@ const baseTrackers = {
         name: 'alwaysShowTalents',
         checked: false
       }]
-    },
+    }
   }
 }
 

@@ -213,6 +213,9 @@ const Account = ({ account, characters, trackers }) => {
                                                                       title={`Printing is at maximum (storage) capacity for ${cleanUnderscore(name)}`}
                                                                       atom
                                                                       iconPath={`data/${rawName}`}/>) : null}
+          {trackers?.alchemy && alerts?.alchemy?.vialsAttempts ? <Alert key={'vialsAttempts'}
+                                                                               title={`You have available vial attempts`}
+                                                                               iconPath={`data/aVials1`}/> : null}
           {trackers?.alchemy && alerts?.alchemy?.vials?.length > 0 ?
             alerts?.alchemy?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                          vial={vial}

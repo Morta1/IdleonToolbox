@@ -13,11 +13,13 @@ import Tooltip from '../../../components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
   const { alchemy, sailing } = state?.account || {};
   const chilledYarnArtifact = isArtifactAcquired(sailing?.artifacts, 'Chilled_Yarn');
+  const hasJadeBonus = isJadeBonusUnlocked(state?.account, 'Ionized_Sigils');
 
   const getSigilSpeed = () => {
     const achievement = getAchievementStatus(state?.account?.achievements, 112);
@@ -34,8 +36,9 @@ const Sigils = () => {
             + (20 * gemStore
               + (vial
                 + stampBonus)))) / 100)
-        * (1 + winnerBonus / 100)
+        * winnerBonus
         * (1 + anotherVial / 100),
+
       breakdown: [
         { name: 'Achievement', value: (achievement ? 20 : 0) / 100 },
         { name: 'Sigil', value: sigilBonus / 100 },
@@ -43,13 +46,23 @@ const Sigils = () => {
         { name: 'Stamps', value: stampBonus / 100 },
         { name: 'Vial', value: vial / 100 },
         { name: 'Turtle Vial', value: 1 + anotherVial / 100 },
-        { name: 'Summoning', value: 1 + winnerBonus / 100 }
+        { name: 'Summoning', value: winnerBonus }
       ]
     }
   }
 
   const sigilSpeed = useMemo(() => getSigilSpeed(), [state]);
-
+  const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost }) => {
+    if (unlocked === 0) {
+      return boostCost;
+    } else if (unlocked === 1) {
+      if (hasJadeBonus) {
+        return jadeCost
+      }
+    } else if (unlocked === -1) {
+      return unlockCost
+    }
+  }
   return (
     <Stack>
       <NextSeo
@@ -62,7 +75,7 @@ const Sigils = () => {
       <Stack direction={'row'} gap={3}>
         <CardTitleAndValue title={'Sigil Speed'}>
           <Stack direction={'row'} gap={1} justifyContent={'space-between'}>
-            {sigilSpeed?.value}
+            {notateNumber(sigilSpeed?.value,'MultiplierInfo')}
             <Tooltip title={sigilSpeed?.breakdown ? <BreakdownTooltip breakdown={sigilSpeed?.breakdown}
                                                                       notate={'MultiplierInfo'}/> : ''}>
               <InfoIcon/>
@@ -78,12 +91,12 @@ const Sigils = () => {
             progress,
             effect,
             unlocked,
-            unlockCost,
-            boostCost,
+            jadeCost,
             bonus,
             characters
           } = sigil;
-          const cost = unlocked === 0 ? boostCost : unlocked === -1 ? unlockCost : 0;
+          const cost = getSigilCost(sigil);
+          console.log('sigilSpeed?.value', cost - progress, sigilSpeed?.value)
           const timeLeft = (cost - progress) / (characters?.length * sigilSpeed?.value) * 3600 * 1000;
           return (
             <Card
@@ -110,11 +123,9 @@ const Sigils = () => {
                         ? 'info.light'
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
-                  {progress < boostCost ? <>
+                  {progress < jadeCost ? <>
                     <Typography>
-                      Progress: {notateNumber(progress, 'Small')}/{unlocked === 0
-                      ? notateNumber(boostCost, 'Small')
-                      : notateNumber(unlockCost, 'Small')}
+                      Progress: {notateNumber(progress, 'Small')}/{notateNumber(getSigilCost(sigil), 'Small')}
                     </Typography>
                     {isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
                                                  lastUpdated={state?.lastUpdated}/> : null}

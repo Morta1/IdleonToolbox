@@ -1,7 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { talentPagesMap } from '@parsers/talents';
-import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Checkbox,
+  Divider, FormControlLabel,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
@@ -90,6 +99,8 @@ const Apocalypses = () => {
 };
 
 const ApocDisplay = ({ apocName, charName, monsters }) => {
+  const [onlySuperChows, setOnlySuperChows] = useState(false);
+
   const allDone = monsters?.list?.every(({ done }) => done.every((done) => done));
   return <Stack gap={2}>
     <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow'
@@ -98,6 +109,10 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
     {apocName === 'chow' ?
       <Typography component={'div'} variant={'caption'}>* Normal Chow requires 1M kills / Super Chow requires 100M
         kills</Typography> : null}
+    {apocName === 'chow' ? <FormControlLabel
+      control={<Checkbox checked={onlySuperChows} onChange={() => setOnlySuperChows(!onlySuperChows)}/>}
+      name={'onlySuperChows'}
+      label="Hide super chow"/> : null}
     <Card>
       <CardContent>
         {allDone ? <Typography>You're Done</Typography> : monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
@@ -109,6 +124,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                                   done,
                                   thresholds
                                 }, index) => {
+            if (onlySuperChows && kills > 1e6) return;
             return !done.every((done) => done) ?
               <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(kills)}`} key={`${charName}-${name}-${index}`}>
                 <Card sx={{ width: 120 }} variant={'outlined'}>

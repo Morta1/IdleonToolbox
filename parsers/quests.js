@@ -8,7 +8,7 @@ export const isWorldFinished = (characters, worldIndex) => {
     2: 'Constructor_Crow',
     3: 'Carpenter_Cardinal',
     4: 'Muhmuguh',
-    5: 'Portale_Peacock'
+    5: 'Lafu_Shi'
   }
   return characters?.some(({ npcDialog }) => worldIndex === 5
     ? npcDialog?.[worldGatekeeper?.[worldIndex]]
@@ -115,7 +115,7 @@ export const worldNpcMap = {
   },
   'Promotheus': {
     'world': 'Blunder_Hills',
-    index: 6,
+    index: 6
   },
   'Typhoon': {
     'world': 'Blunder_Hills',
@@ -381,5 +381,5 @@ export const worldNpcMap = {
   'Sussy_Gene': {
     world: 'Spirited_Valley',
     index: 4
-  },
+  }
 };

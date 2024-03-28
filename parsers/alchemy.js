@@ -62,8 +62,7 @@ export const getLiquidCauldrons = (account) => {
     if (account?.accountOptions?.[123] > index) {
       if (bleachLiquidBonus === 0) {
         bleachLiquidBonus = 1;
-      }
-      else {
+      } else {
         bleachLiquidBonus = saltLickBonus / 100 + 2
       }
     }
@@ -118,7 +117,7 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
   const playersInLiquids = alchemyActivity.filter(({ activity }, index) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w = {};
-  const [cauldrons, liquids, vials, player] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
+  const [cauldrons, liquids, vials, player, , remainingAttempts] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
   p2w.cauldrons = cauldrons.toChunks(3).map(([speed, newBubble, boostReq], index) => ({
     name: cauldronsIndexMapping[index],
     speed,
@@ -134,6 +133,11 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
   p2w.player = { speed: player?.[0] || 0, extraExp: player?.[1] || 0 };
   p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
+  p2w.vialsAttempts = {
+    current: remainingAttempts[0],
+    max: Math.round(3 + vials?.[0])
+  };
+  console.log('p2w',p2w)
   return p2w;
 }
 
@@ -313,8 +317,7 @@ const getCauldronStats = (idleonData) => {
   let stats;
   if (idleonData?.CauldUpgLVs && idleonData?.CauldUpgXPs) {
     stats = idleonData?.CauldUpgLVs?.map((lvl, index) => [idleonData?.CauldUpgXPs?.[index], lvl]);
-  }
-  else {
+  } else {
     stats = idleonData?.CauldronInfo?.[8]?.reduce((res, array) => [...res, ...array], []);
   }
   return stats;

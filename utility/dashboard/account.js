@@ -8,6 +8,7 @@ import { items, liquidsShop } from '../../data/website-data';
 import { hasMissingMats } from '../../parsers/refinery';
 import { calcTotals } from '../../parsers/printer';
 import { findQuantityOwned, getAllItems } from '../../parsers/items';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 
 export const tasksAlert = (account, options) => {
@@ -18,8 +19,7 @@ export const tasksAlert = (account, options) => {
       const ninthTaskNotCompleted = ninthTask?.level === 0;
       if (ninthTaskNotCompleted && options?.tasks?.props?.value?.[worldIndex + 1]) {
         return [...acc, worldIndex];
-      }
-      else {
+      } else {
         return acc;
       }
     }, []);
@@ -102,14 +102,13 @@ export const shopsAlerts = (account, options) => {
   alerts.items = account?.shopStock?.reduce((res, shop, index) => {
     if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
       return [...res, []];
-    }
-    else if (index === 4 && !account?.finishedWorlds?.World2) {
+    } else if (index === 4 && !account?.finishedWorlds?.World2) {
       return [...res, []];
-    }
-    else if (index === 5 && !account?.finishedWorlds?.World3) {
+    } else if (index === 5 && !account?.finishedWorlds?.World3) {
       return [...res, []];
-    }
-    else if (index === 6 && !account?.finishedWorlds?.World4) {
+    } else if (index === 6 && !account?.finishedWorlds?.World4) {
+      return [...res, []];
+    } else if (index === 6 && !account?.finishedWorlds?.World5) {
       return [...res, []];
     }
     const filtered = shop?.filter(({ rawName }) => options?.shops?.props?.value?.[rawName]);
@@ -181,11 +180,9 @@ export const materialTrackerAlerts = (account, options, characters) => {
       let text, twoPercentBuffer = threshold * 0.02;
       if (applyThresholdFromBelow?.checked && (quantityOwned < threshold)) {
         text = 'below';
-      }
-      else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
+      } else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
         text = 'above';
-      }
-      else if (!options?.['disable"CloseTo"Alert']?.checked && ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer)))) {
+      } else if (!options?.['disable"CloseTo"Alert']?.checked && ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer)))) {
         text = 'close to';
       }
       if (!text) return res;
@@ -284,11 +281,15 @@ export const alchemyAlerts = (account, options) => {
     })).filter(({ current, max }) => max && current >= max * percentage - 5);
   }
   if (options?.sigils?.checked) {
+    const hasJadeBonus = isJadeBonusUnlocked(account, 'Ionized_Sigils');
     alerts.sigils = account?.alchemy?.p2w?.sigils?.filter(({
                                                              characters,
                                                              progress,
-                                                             boostCost
-                                                           }) => characters.length > 0 && progress >= boostCost)
+                                                             boostCost,
+                                                             jadeCost
+                                                           }) => characters.length > 0 && (hasJadeBonus
+      ? progress >= jadeCost
+      : progress >= boostCost))
   }
   if (options?.vials?.checked) {
     const { subtractGreenStacks } = options || {};
@@ -304,6 +305,10 @@ export const alchemyAlerts = (account, options) => {
       const liquidCost = 3 * level;
       return storageQuantity > cost && liquidQuantity > liquidCost;
     });
+  }
+  if (options?.vialsAttempts?.checked) {
+    const { current } = account?.alchemy?.p2w?.vialsAttempts;
+    alerts.vialsAttempts = current > 0;
   }
   return alerts;
 }
@@ -331,8 +336,7 @@ export const sailingAlerts = (account, options) => {
         if (areBonusesEqual || areBonusesSwapped) {
           if (firstBonusIndex === secondBonusIndex) {
             return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-          }
-          else {
+          } else {
             const condition1 = firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
             const condition2 = firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
             return condition1 || condition2;
@@ -343,8 +347,7 @@ export const sailingAlerts = (account, options) => {
           if (isSameValue) {
             if (firstBonusIndex === rCaptain?.firstBonusIndex) {
               return firstBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-            }
-            else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
+            } else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
               return secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
             }
           }
@@ -361,7 +364,7 @@ export const sailingAlerts = (account, options) => {
                                       firstBonusDescription: fbDesc,
                                       secondBonusDescription: sbDesc,
                                       firstBonusValue: fbValue,
-                                      secondBonusValue: sbValue,
+                                      secondBonusValue: sbValue
                                     }) => ({
             captainIndex,
             firstBonusValue: fbValue,
