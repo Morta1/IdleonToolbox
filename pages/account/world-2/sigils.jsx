@@ -96,7 +96,6 @@ const Sigils = () => {
             characters
           } = sigil;
           const cost = getSigilCost(sigil);
-          console.log('sigilSpeed?.value', cost - progress, sigilSpeed?.value)
           const timeLeft = (cost - progress) / (characters?.length * sigilSpeed?.value) * 3600 * 1000;
           return (
             <Card

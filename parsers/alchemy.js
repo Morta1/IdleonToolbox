@@ -137,7 +137,6 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
     current: remainingAttempts[0],
     max: Math.round(3 + vials?.[0])
   };
-  console.log('p2w',p2w)
   return p2w;
 }
 
