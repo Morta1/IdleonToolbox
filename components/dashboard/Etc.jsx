@@ -175,6 +175,7 @@ const TimerCard = ({ tooltipContent, icon, lastUpdated, time, timerPlaceholder =
           <IconImg src={`${prefix}${icon}`}/>
           {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
             type={'countdown'} date={time}
+            sx={{ color: '#f91d1d' }}
             placeholder={timerPlaceholder}
             lastUpdated={lastUpdated}/>}
         </Stack>
