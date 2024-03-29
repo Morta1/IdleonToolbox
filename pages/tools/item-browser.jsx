@@ -56,7 +56,6 @@ const ItemBrowser = ({}) => {
     if (!state?.characters && !state?.account) {
       setItems(itemsArray);
     } else {
-      console.log('totalItems',totalItems)
       setItems(includeEquippedItems ? mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]) : mergeItemsByOwner(totalItems));
     }
   }, [state, includeEquippedItems]);
