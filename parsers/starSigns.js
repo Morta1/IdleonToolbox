@@ -70,17 +70,23 @@ export const getStarSignBonus = (character, account, effectName) => {
     }
     return activeStar ? activeStar : starSign;
   });
-
+  const summoningLevel = character?.skillsInfo?.summoning?.level;
+  const hasSeraphCosmos = starSigns.find(({ starName, unlocked }) => starName === 'Seraph_Cosmos' && unlocked);
   const starSignsBonuses = getStarSignsBonuses(starSigns);
   return starSignsBonuses?.reduce((sum, {
-      effect,
-      bonus,
-      active,
-      isInfiniteStar
-    }) => effect.toLowerCase().includes(effectName.toLowerCase()) && (active || isInfiniteStar)
-      ? sum + (isInfiniteStar && bonus < 0 ? 0 : bonus)
-      : sum
-    , 0);
+    effect,
+    bonus,
+    active,
+    isInfiniteStar
+  }) => {
+    if (effect.toLowerCase().includes(effectName.toLowerCase()) && (active || isInfiniteStar)) {
+      const calculatedBonus = hasSeraphCosmos
+        ? bonus * Math.min(3, Math.pow(1.1, Math.ceil((summoningLevel + 1) / 20)))
+        : bonus;
+      return sum + (isInfiniteStar && bonus < 0 ? 0 : calculatedBonus);
+    }
+    return sum;
+  }, 0);
 }
 
 export const getStarSignsBonuses = (starSigns) => {

@@ -337,6 +337,7 @@ export const constellationIndexes = (str) => {
     ?.split('')
     ?.map((char) => indexes?.[char])
     .sort((a, b) => a - b)
+    .map((ind) => ind + 1)
     .join(',');
 };
 

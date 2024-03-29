@@ -26,11 +26,12 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   return <Stack>
     <Typography mb={2} variant={'h5'}>Equipped cards</Typography>
     <Tabs centered
-          sx={{mb:1}}
+          sx={{ mb: 1 }}
           value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
       {[0, 1, 2, 3, 4, 5, 6]?.map((tabIndex) => {
-        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' }, p:1 }}
-                    icon={<TabIcon src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt={tabIndex}/>}
+        return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' }, p: 1 }}
+                    icon={<TabIcon selected={selectedCardPreset === tabIndex}
+                                   src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt={tabIndex}/>}
                     key={`${tabIndex}-card-tab`}
                     aria-label={`${tabIndex}-card-tab`}/>
       })}
@@ -67,9 +68,9 @@ const StyledEmptyCard = styled.div`
   align-items: center;
 `
 
-const TabIcon = ({ src }) => {
+const TabIcon = ({ src, selected }) => {
   return <Box sx={{ width: { xs: 28 }, '> img': { width: { xs: 28 } } }}>
-    <img src={src} alt=""/>
+    <img style={{ boxShadow: selected ? '0px 0px 10px 0px cyan' : '' }} src={src} alt=""/>
   </Box>
 }
 

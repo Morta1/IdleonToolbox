@@ -69,9 +69,25 @@ const parseForge = (forgeOrderRaw, forgeQuantityRaw, forgeLevels, account) => {
     const timeTillEmpty = Math.round(oreQuantity / oreItem?.Amount) * (oreItem?.Cooldown / (4 * slotSpeed));
     forge = [...forge, {
       isBrimestone,
-      ore: { ...oreItem, rawName: ore, quantity: oreQuantity, timeTillEmpty: timeTillEmpty * 1000 },
-      barrel: { ...barrelItem, rawName: barrel, quantity: barrelQuantity },
-      bar: { ...items?.[bar], rawName: bar, quantity: barQuantity }
+      ore: {
+        ...oreItem,
+        name: oreItem?.displayName,
+        rawName: ore,
+        amount: oreQuantity,
+        quantity: oreQuantity,
+        timeTillEmpty: timeTillEmpty * 1000,
+        owner: 'forge'
+      },
+      barrel: {
+        ...barrelItem,
+        name: barrelItem?.displayName,
+        rawName: barrel, amount: barrelQuantity, quantity: barrelQuantity, owner: 'forge'
+      },
+      bar: {
+        ...items?.[bar],
+        name: items?.[bar]?.displayName,
+        rawName: bar, amount: barQuantity, quantity: barQuantity, owner: 'forge'
+      }
     }]
     index++;
   }

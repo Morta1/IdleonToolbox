@@ -217,7 +217,7 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
         {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
           update: {format(parseInt(lastUpload), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
         {lastUpload ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-          {lastUpload ? <Typography variant={'body2'}>Time to next upload</Typography> : null}
+          {lastUpload ? <Typography variant={'body2'}>Time to next upload: </Typography> : null}
           {lastUpload
             ? <NormalTimer
               done={(WAIT_TIME - (Date.now() - lastUpload)) < 0}

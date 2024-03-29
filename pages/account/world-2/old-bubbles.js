@@ -246,7 +246,7 @@ const Bubbles = () => {
               name={'classDiscount'}
               label="Class Discount"/> : null}
         </CardTitleAndValue>
-        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={''} stackProps={{ gap: 1 }}>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Misc'} stackProps={{ gap: 1 }}>
           <Link underline={'hover'}
                 sx={{ cursor: 'pointer' }}
                 onClick={() => router.push({ pathname: 'bubbles' })}>
