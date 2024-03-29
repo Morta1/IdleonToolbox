@@ -56,13 +56,15 @@ const ItemBrowser = ({}) => {
     if (!state?.characters && !state?.account) {
       setItems(itemsArray);
     } else {
-      setItems(includeEquippedItems ? mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]) : totalItems);
+      console.log('totalItems',totalItems)
+      setItems(includeEquippedItems ? mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]) : mergeItemsByOwner(totalItems));
     }
   }, [state, includeEquippedItems]);
 
   useEffect(() => {
     if (value && searchBy === 'name') {
       const findings = findItemInInventory(items, value?.displayName);
+      console.log('findings',items, findings)
       setResult(findings);
     } else if (value && searchBy === 'description') {
       const findings = findItemByDescriptionInInventory(items, value);

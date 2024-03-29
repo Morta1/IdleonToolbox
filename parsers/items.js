@@ -181,6 +181,7 @@ export const mergeItemsByOwner = (items) => {
   const mergedItems = {};
 
   items.forEach(item => {
+    if (!item.displayName) return;
     const key = item.owner + item.displayName;
     if (mergedItems[key]) {
       mergedItems[key].amount += item.amount;
