@@ -63,7 +63,6 @@ const ItemBrowser = ({}) => {
   useEffect(() => {
     if (value && searchBy === 'name') {
       const findings = findItemInInventory(items, value?.displayName);
-      console.log('findings',items, findings)
       setResult(findings);
     } else if (value && searchBy === 'description') {
       const findings = findItemByDescriptionInInventory(items, value);
