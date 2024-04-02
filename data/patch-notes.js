@@ -7,15 +7,22 @@ export const patchNotes = [
     ver: '3.2.57',
     gameVer: '2.0.5',
     date: '02/04/2024',
-    features: ['Updated the website with version 2.0.5 data and assets', 'Added w3/4/5/6 mini boss counter to the dashboard', 'Updated talent presets to be "Preset 1" and "Preset 2"', 'Applying threshold in breeding - pets now shows the time to reach that threshold for leveling pets'],
+    features: [
+      'Updated the website with version 2.0.5 data and assets',
+      'Added w3/4/5/6 mini boss counter to the dashboard',
+      'Updated talent presets to be "Preset 1" and "Preset 2"',
+      'Applying threshold in breeding - pets now shows the time to reach that threshold for leveling pets'],
     fixes: []
   },
   {
     ver: '3.2.56',
     gameVer: '2.0.4',
     date: '28/03/2024',
-    features: ['Added available vial attempts dashboard alert', 'Added the 3rd tier of sigil',
-      'Added checkbox to apocalypse page to hide super chows'],
+    features: [
+      'Added available vial attempts dashboard alert',
+      'Added the 3rd tier of sigil',
+      'Added checkbox to apocalypse page to hide super chows'
+    ],
     fixes: ['Added the new captain image to dashboard alerts']
   },
   {
