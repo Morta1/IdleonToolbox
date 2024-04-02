@@ -1,4 +1,4 @@
-import { lavaLog, tryToParse } from '../utility/helpers';
+import { createRange, lavaLog, tryToParse } from '../utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   classFamilyBonuses,
@@ -806,4 +806,64 @@ export const getRandomEventItems = (account) => {
   return list.reduce((count, value) => {
     return uniqueLooty.has(value) ? count + 1 : count;
   }, 0);
+}
+const getDays = (name, daysSince) => {
+  const days = {
+    mini3b: Math.min(10, Math.floor(Math.pow((daysSince || 3) - 3, .55))),
+    mini4b: Math.min(8, Math.floor(Math.pow((daysSince || 3) - 3, .5))),
+    mini5a: Math.min(6, Math.floor(Math.pow((daysSince || 3) - 3, .5))),
+    mini6a: Math.min(6, Math.floor(Math.pow((daysSince || 3) - 3, .5)))
+  }
+  return days[name];
+}
+const getDaysTillNext = (name, daysSinceLastKill, currentCount) => {
+  return createRange(1, 100).find(value => {
+    const countOnDay = getDays(name,  daysSinceLastKill + value);
+    if (countOnDay > currentCount) {
+      return value;
+    }
+  })
+}
+
+export const getMiniBossesData = (account) => {
+  const daysSinceSlush = account?.accountOptions?.[96] ?? 0;
+  const daysSinceMush = account?.accountOptions?.[98] ?? 0;
+  const daysSinceMagmus = account?.accountOptions?.[225] ?? 0;
+  const daysSinceSpiritlord = account?.accountOptions?.[226] ?? 0;
+  const currentDays = [
+    getDays('mini3b', daysSinceSlush),
+    getDays('mini4b', daysSinceMush),
+    getDays('mini5a', daysSinceMagmus),
+    getDays('mini6a', daysSinceSpiritlord)
+  ]
+  return [
+    {
+      current: currentDays[0],
+      rawName: 'mini3b',
+      name: 'Dilapidated_Slush',
+      unlocked: account?.finishedWorlds?.World3,
+      daysTillNext: getDaysTillNext('mini3b',daysSinceSlush, currentDays[0])
+    },
+    {
+      current: currentDays[1],
+      rawName: 'mini4b',
+      name: 'Mutated_Mush',
+      unlocked: account?.finishedWorlds?.World2,
+      daysTillNext: getDaysTillNext('mini4b',daysSinceMush, currentDays[1])
+    },
+    {
+      current: currentDays[2],
+      rawName: 'mini5a',
+      name: 'Domeo_Magmus',
+      unlocked: account?.finishedWorlds?.World4,
+      daysTillNext: getDaysTillNext('mini5a',daysSinceMagmus, currentDays[2])
+    },
+    {
+      current: currentDays[3],
+      rawName: 'mini6a',
+      name: 'Demented_Spiritlord',
+      unlocked: account?.finishedWorlds?.World5,
+      daysTillNext: getDaysTillNext('mini6a',daysSinceSpiritlord, currentDays[3])
+    }
+  ].filter(({ unlocked }) => unlocked);
 }

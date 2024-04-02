@@ -9,6 +9,7 @@ import { hasMissingMats } from '../../parsers/refinery';
 import { calcTotals } from '../../parsers/printer';
 import { findQuantityOwned, getAllItems } from '../../parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getMiniBossesData } from '@parsers/misc';
 
 
 export const tasksAlert = (account, options) => {
@@ -240,26 +241,8 @@ export const etcAlerts = (account, options, characters) => {
     alerts.gildedStamps = account?.accountOptions?.[154];
   }
   if (options?.miniBosses?.checked) {
-    const maxedMiniBosses = [];
-    const daysSinceSlush = account?.accountOptions?.[96];
-    const daysSinceMush = account?.accountOptions?.[98];
-    if (daysSinceSlush > 3 && account?.finishedWorlds?.World3) {
-      const currentCount = Math.min(10, Math.floor(Math.pow(daysSinceSlush - 3, .55)));
-      if (currentCount >= options?.miniBosses?.props?.value) maxedMiniBosses.push({
-        rawName: 'mini3b',
-        name: 'Dilapidated_Slush',
-        currentCount
-      });
-    }
-    if (daysSinceMush > 3 && account?.finishedWorlds?.World2) {
-      const currentCount = Math.min(8, Math.floor(Math.pow(daysSinceMush - 3, .5)));
-      if (currentCount >= options?.miniBosses?.props?.value) maxedMiniBosses.push({
-        rawName: 'mini4b',
-        name: 'Mutated_Mush',
-        currentCount
-      });
-    }
-    alerts.miniBosses = maxedMiniBosses.length > 0 ? maxedMiniBosses : null;
+    const minibosses = getMiniBossesData(account).filter(({current}) => current >= options?.miniBosses?.props?.value);
+    alerts.miniBosses = minibosses.length > 0 ? minibosses : null;
   }
   return alerts;
 }

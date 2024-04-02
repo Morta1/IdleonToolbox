@@ -83,7 +83,7 @@ const Pets = ({
         const missingIcon = (pet?.icon === 'Mface23' || pet?.icon === 'Mface21') && pet?.monsterRawName !== 'shovelR';
         const amount = fencePetsObject?.[pet?.monsterRawName];
         const timeLeft = ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7;
-        const timeLeftToFive = getTimeToLevel(pet, fasterShinyLv, amount, 5);
+        const timeLeftToFive = getTimeToLevel(pet, fasterShinyLv, amount, applyThreshold ? threshold : 5);
         return <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left' }} badgeContent={amount} color="primary"
                       key={'fence' + index}>
           <Card sx={{ width: 200, display: 'flex', alignItems: 'center', p: 0 }}>
@@ -102,8 +102,8 @@ const Pets = ({
                            staticTime={pet?.progress === 0}
                            date={new Date().getTime() + (timeLeft)}/>
                   </Stack>
-                  {timeLeftToFive > 0 && timeLeftToFive !== timeLeft ? <Stack direction={'row'} gap={1}>
-                    <Typography component={'span'} variant={'caption'}>To 5:</Typography>
+                  {timeLeftToFive > 0 && timeLeftToFive !== timeLeft ? <Stack flexWrap={'wrap'} direction={'row'} gap={1}>
+                    <Typography component={'span'} variant={'caption'}>To {threshold ?? 5}:</Typography>
                     <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
                            staticTime={pet?.progress === 0}
                            date={new Date().getTime() + (timeLeftToFive)}/>

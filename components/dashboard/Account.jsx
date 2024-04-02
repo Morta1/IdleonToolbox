@@ -110,8 +110,8 @@ const Account = ({ account, characters, trackers }) => {
                    iconPath={'data/GildedStamp'}/> : null}
           {trackers?.etc && alerts?.etc?.miniBosses?.length > 0
             ?
-            alerts?.etc?.miniBosses?.map(({ rawName, name, currentCount }) => <Alert key={rawName}
-                                                                                     title={`You can kill ${currentCount} ${cleanUnderscore(name)}s`}
+            alerts?.etc?.miniBosses?.map(({ rawName, name, current }) => <Alert key={rawName}
+                                                                                     title={`You can kill ${current} ${cleanUnderscore(name)}s`}
                                                                                      iconPath={`etc/${rawName}`}/>)
             : null}
           {trackers?.alchemy && alerts?.alchemy?.sigils?.length > 0 ?

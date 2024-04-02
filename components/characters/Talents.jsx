@@ -5,19 +5,25 @@ import Tooltip from '../Tooltip';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Breakdown, TalentTooltip } from '../common/styles';
 import InfoIcon from '@mui/icons-material/Info';
-import { checkCharClass } from '@parsers/talents';
 
-const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsBreakdown, class: charClass }) => {
-  const [preset, setSelectedPreset] = useState(0);
+const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsBreakdown, selectedTalentPreset }) => {
+  const [preset, setSelectedPreset] = useState(selectedTalentPreset);
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
   const spentTalentPoints = activeTalents?.orderedTalents?.reduce((res, { level = 0 }) => res + level, 0);
-
   const getPreset = () => {
-    const presetTalents = preset === 1 ? talentPreset?.talents : talents;
-    const presetStarTalents = preset === 1 ? talentPreset?.starTalents : starTalents;
+    let presetTalents, presetStarTalents;
+
+    if (selectedTalentPreset === 0) {
+      presetTalents = preset === 0 ? talents : talentPreset?.talents;
+      presetStarTalents = preset === 0 ? starTalents : talentPreset?.starTalents;
+    } else {
+      presetTalents = preset === 0 ? talentPreset?.talents : talents;
+      presetStarTalents = preset === 0 ? talentPreset?.starTalents : starTalents;
+    }
+
     return activeTab === 4 ? handleStarTalents(presetStarTalents, specialsTab) : presetTalents?.[activeTab];
   }
 
@@ -63,12 +69,12 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
     <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
            aria-label={`star-sign-tab`}
-           label={'In use'}
+           label={<span style={{ textShadow: selectedTalentPreset === 0 ? 'cyan 1px 0 10px' : '' }}>Preset 1</span>}
            value={0}
       />
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
            aria-label={`star-sign-tab`}
-           label={'Preset'}
+           label={<span style={{ textShadow: selectedTalentPreset === 1 ? 'cyan 1px 0 10px' : '' }}>Preset 2</span>}
            value={1}
       />
     </Tabs>
@@ -89,8 +95,12 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
     </Tabs>
     <Typography mt={2} component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
-      <Typography component={'div'} variant={'caption'}>Added levels: {preset === 0 ? addedLevels : talentPreset?.addedLevels}</Typography>
-      <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={preset === 0 ? addedLevelsBreakdown : talentPreset?.addedLevelsBreakdown}/>}>
+      <Typography component={'div'} variant={'caption'}>Added levels: {preset === 0
+        ? addedLevels
+        : talentPreset?.addedLevels}</Typography>
+      <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={preset === 0
+        ? addedLevelsBreakdown
+        : talentPreset?.addedLevelsBreakdown}/>}>
         <InfoIcon/>
       </Tooltip>
     </Stack>

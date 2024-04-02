@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import Library from '../account/Worlds/World3/Library';
-import { Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Link, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { getRealDateInMs, notateNumber, prefix } from '@utility/helpers';
-import { getGiantMobChance, getRandomEvents } from '@parsers/misc';
+import { cleanUnderscore, getRealDateInMs, notateNumber, prefix } from '@utility/helpers';
+import { getGiantMobChance, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import Trade from '../account/Worlds/World5/Sailing/Trade';
@@ -19,8 +19,10 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
-  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim))
+  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
+  const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
+  const minibosses = getMiniBossesData(account);
 
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const allBlueActive = account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
@@ -91,6 +93,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
             lastUpdated={lastUpdated} time={nextCompanionClaim}
             icon={'afk_targets/Dog.png'}
             timerPlaceholder={'Go claim!'}
+            showAsError={!allPetsAcquired}
           /></Grid>
         <Grid xs={6}>
           {nextHappyHours?.length > 0 ? <TimerCard
@@ -130,6 +133,29 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </Card> : null}
         </Grid>
       </Grid>
+      <Stack gap={1} sx={{ width: 280 }}>
+        <Card sx={{ width: '100%', height: 'fit-content' }}>
+          <CardContent>
+            <Stack gap={2}>
+              {minibosses.map(({ rawName, name, current, daysTillNext }) => {
+                return <Stack>
+                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                    <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`}/>
+                    <Stack>
+                      <Typography>{cleanUnderscore(name)}</Typography>
+                      <Stack direction={'row'} alignItems={'center'} gap={1}
+                             divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'} flexItem/>}>
+                        <Typography color="text.secondary">Current: {current}</Typography>
+                        <Typography color="text.secondary">+1 in {daysTillNext} days</Typography>
+                      </Stack>
+                    </Stack>
+                  </Stack>
+                </Stack>
+              })}
+            </Stack>
+          </CardContent>
+        </Card>
+      </Stack>
       <Stack gap={1} sx={{ width: 250 }}>
         {events?.length > 0 ? <Card sx={{ width: '100%', height: 'fit-content' }}>
           <CardContent>
@@ -167,7 +193,15 @@ const IconImg = styled.img`
   object-fit: contain;
 `;
 
-const TimerCard = ({ tooltipContent, icon, lastUpdated, time, timerPlaceholder = '', forcePlaceholder }) => {
+const TimerCard = ({
+                     tooltipContent,
+                     icon,
+                     lastUpdated,
+                     time,
+                     timerPlaceholder = '',
+                     forcePlaceholder,
+                     showAsError
+                   }) => {
   return <Card sx={{ height: 'fit-content' }}>
     <CardContent>
       <Tooltip title={tooltipContent}>
@@ -175,7 +209,7 @@ const TimerCard = ({ tooltipContent, icon, lastUpdated, time, timerPlaceholder =
           <IconImg src={`${prefix}${icon}`}/>
           {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
             type={'countdown'} date={time}
-            sx={{ color: '#f91d1d' }}
+            sx={{ color: showAsError ? '#f91d1d' : ' ' }}
             placeholder={timerPlaceholder}
             lastUpdated={lastUpdated}/>}
         </Stack>
