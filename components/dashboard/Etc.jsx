@@ -133,19 +133,22 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </Card> : null}
         </Grid>
       </Grid>
-      <Stack gap={1} sx={{ width: 280 }}>
+      {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 330 }}>
         <Card sx={{ width: '100%', height: 'fit-content' }}>
           <CardContent>
             <Stack gap={2}>
-              {minibosses.map(({ rawName, name, current, daysTillNext }) => {
-                return <Stack>
+              {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
+                return <Stack key={`miniboss-timer-${rawName}`}>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`}/>
                     <Stack>
                       <Typography>{cleanUnderscore(name)}</Typography>
                       <Stack direction={'row'} alignItems={'center'} gap={1}
                              divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'} flexItem/>}>
-                        <Typography color="text.secondary">Current: {current}</Typography>
+                        <Typography component={'span'} color="text.secondary">Current: <Typography
+                          color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed
+                          ? 'Maxed'
+                          : current}</Typography></Typography>
                         <Typography color="text.secondary">+1 in {daysTillNext} days</Typography>
                       </Stack>
                     </Stack>
@@ -155,7 +158,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Stack>
           </CardContent>
         </Card>
-      </Stack>
+      </Stack> : null}
       <Stack gap={1} sx={{ width: 250 }}>
         {events?.length > 0 ? <Card sx={{ width: '100%', height: 'fit-content' }}>
           <CardContent>

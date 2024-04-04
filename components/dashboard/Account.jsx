@@ -18,7 +18,7 @@ import {
   constructionAlerts,
   cookingAlerts,
   equinoxAlerts,
-  etcAlerts,
+  etcAlerts, farmingAlerts,
   gamingAlerts,
   guildAlerts,
   materialTrackerAlerts,
@@ -26,7 +26,7 @@ import {
   printerAlerts,
   sailingAlerts,
   shopsAlerts,
-  tasksAlert,
+  tasksAlert
 } from '@utility/dashboard/account';
 import useAlerts from '../hooks/useAlerts';
 
@@ -46,11 +46,14 @@ const alertsMap = {
   materialTracker: materialTrackerAlerts,
   etc: etcAlerts,
   cooking: cookingAlerts,
-  tasks: tasksAlert
+  tasks: tasksAlert,
+  farming: farmingAlerts
 }
 
 const Account = ({ account, characters, trackers }) => {
   const alerts = useAlerts({ alertsMap, data: account, extraData: characters, trackers });
+  console.log('alerts?.farming?.plots',alerts)
+  console.log('trackers',trackers)
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
@@ -58,6 +61,9 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.atomCollider && alerts?.atomCollider?.stampReducer ?
             <Alert title={`Stamp reducer has reached your threshold (${alerts?.atomCollider?.stampReducerValue}%)`}
                    iconPath={'data/Atom0'}/> : null}
+          {trackers?.farming && alerts?.farming?.plots > 0 ?
+            <Alert title={`${alerts?.farming?.plots} plots are fully grown`}
+                   iconPath={'data/ClassIcons57'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
                    iconPath={'data/CogFLflag'}/> : null}

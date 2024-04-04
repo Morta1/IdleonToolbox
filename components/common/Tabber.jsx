@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 
-const Tabber = ({ tabs, children, onTabChange }) => {
+const Tabber = ({ tabs, children, onTabChange, forceScroll }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
 
@@ -14,13 +14,13 @@ const Tabber = ({ tabs, children, onTabChange }) => {
   return <>
     <Tabs
       centered={!isMd || (isMd && tabs.length < 4)}
-      scrollButtons={true}
+      scrollButtons
       allowScrollButtonsMobile
       sx={{ marginBottom: 3 }}
-      variant={isMd && tabs.length > 4 ? 'scrollable' : 'standard'}
+        variant={(isMd && tabs.length > 4) || forceScroll ? 'scrollable' : 'standard'}
       value={selectedTab} onChange={handleOnClick}>
       {tabs?.map((tab, index) => {
-        return <Tab label={tab} key={`${tab}-${index}`}/>;
+        return <Tab wrapped label={tab} key={`${tab}-${index}`}/>;
       })}
     </Tabs>
     {onTabChange ? children : array?.map((child, index) => {

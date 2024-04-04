@@ -11,6 +11,15 @@ import { findQuantityOwned, getAllItems } from '../../parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 
+export const farmingAlerts = (account, options) => {
+  const alerts = {}
+  if (!account?.finishedWorlds?.World5) return alerts;
+  if (options?.plots?.checked) {
+    console.log('account', account?.farming?.plot)
+    alerts.plots = account?.farming?.plot?.reduce((sum, { currentOG }) => currentOG > 0 ? sum + 1 : sum, 0);
+  }
+  return alerts;
+}
 
 export const tasksAlert = (account, options) => {
   let tasksAlerts = []
@@ -241,7 +250,7 @@ export const etcAlerts = (account, options, characters) => {
     alerts.gildedStamps = account?.accountOptions?.[154];
   }
   if (options?.miniBosses?.checked) {
-    const minibosses = getMiniBossesData(account).filter(({current}) => current >= options?.miniBosses?.props?.value);
+    const minibosses = getMiniBossesData(account).filter(({ current }) => current >= options?.miniBosses?.props?.value);
     alerts.miniBosses = minibosses.length > 0 ? minibosses : null;
   }
   return alerts;

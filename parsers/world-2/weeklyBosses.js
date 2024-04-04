@@ -51,11 +51,11 @@ const getShopItems = (seed) => {
 }
 
 const MAX_ACCUMULATOR_SIZE = 9;
-export const getWeeklyBoss = (account) => {
+export const getWeeklyBoss = (account, weeks = 10) => {
   if (!account) return [];
   const seed = Math.round(Math.floor(account?.timeAway?.GlobalTime / 604800));
   const weeklyBossesList = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < weeks; i++) {
     const rng = new LavaRand(seed + i);
     const random = Math.floor(rng.rand() * 1e3);
     const { shopItems, extraSeed } = getShopItems(random);

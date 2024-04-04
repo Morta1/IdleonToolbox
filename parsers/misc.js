@@ -809,16 +809,16 @@ export const getRandomEventItems = (account) => {
 }
 const getDays = (name, daysSince) => {
   const days = {
-    mini3b: Math.min(10, Math.floor(Math.pow((daysSince || 3) - 3, .55))),
-    mini4b: Math.min(8, Math.floor(Math.pow((daysSince || 3) - 3, .5))),
-    mini5a: Math.min(6, Math.floor(Math.pow((daysSince || 3) - 3, .5))),
-    mini6a: Math.min(6, Math.floor(Math.pow((daysSince || 3) - 3, .5)))
+    mini3b: Math.min(10, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .55))),
+    mini4b: Math.min(8, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .5))),
+    mini5a: Math.min(6, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .5))),
+    mini6a: Math.min(6, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .5)))
   }
   return days[name];
 }
 const getDaysTillNext = (name, daysSinceLastKill, currentCount) => {
   return createRange(1, 100).find(value => {
-    const countOnDay = getDays(name,  daysSinceLastKill + value);
+    const countOnDay = getDays(name, daysSinceLastKill + value);
     if (countOnDay > currentCount) {
       return value;
     }
@@ -830,7 +830,9 @@ export const getMiniBossesData = (account) => {
   const daysSinceMush = account?.accountOptions?.[98] ?? 0;
   const daysSinceMagmus = account?.accountOptions?.[225] ?? 0;
   const daysSinceSpiritlord = account?.accountOptions?.[226] ?? 0;
-  const currentDays = [
+
+  const max = [10, 8, 6, 6];
+  const quantity = [
     getDays('mini3b', daysSinceSlush),
     getDays('mini4b', daysSinceMush),
     getDays('mini5a', daysSinceMagmus),
@@ -838,32 +840,36 @@ export const getMiniBossesData = (account) => {
   ]
   return [
     {
-      current: currentDays[0],
+      current: quantity[0],
+      maxed: quantity[0] >= max[0],
       rawName: 'mini3b',
       name: 'Dilapidated_Slush',
       unlocked: account?.finishedWorlds?.World3,
-      daysTillNext: getDaysTillNext('mini3b',daysSinceSlush, currentDays[0])
+      daysTillNext: getDaysTillNext('mini3b', daysSinceSlush, quantity[0])
     },
     {
-      current: currentDays[1],
+      current: quantity[1],
+      maxed: quantity[1] >= max[1],
       rawName: 'mini4b',
       name: 'Mutated_Mush',
       unlocked: account?.finishedWorlds?.World2,
-      daysTillNext: getDaysTillNext('mini4b',daysSinceMush, currentDays[1])
+      daysTillNext: getDaysTillNext('mini4b', daysSinceMush, quantity[1])
     },
     {
-      current: currentDays[2],
+      current: quantity[2],
+      maxed: quantity[2] >= max[2],
       rawName: 'mini5a',
       name: 'Domeo_Magmus',
       unlocked: account?.finishedWorlds?.World4,
-      daysTillNext: getDaysTillNext('mini5a',daysSinceMagmus, currentDays[2])
+      daysTillNext: getDaysTillNext('mini5a', daysSinceMagmus, quantity[2])
     },
     {
-      current: currentDays[3],
+      current: quantity[3],
+      maxed: quantity[3] >= max[3],
       rawName: 'mini6a',
       name: 'Demented_Spiritlord',
       unlocked: account?.finishedWorlds?.World5,
-      daysTillNext: getDaysTillNext('mini6a',daysSinceSpiritlord, currentDays[3])
+      daysTillNext: getDaysTillNext('mini6a', daysSinceSpiritlord, quantity[3])
     }
   ].filter(({ unlocked }) => unlocked);
 }

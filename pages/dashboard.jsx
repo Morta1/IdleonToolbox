@@ -51,7 +51,7 @@ const baseTrackers = {
         },
         { name: 'vials', category: 'vials', checked: true },
         { name: 'vialsAttempts', checked: true },
-        { name: 'subtractGreenStacks', checked: true },
+        { name: 'subtractGreenStacks', checked: true }
       ]
     },
     cooking: { checked: true, options: [{ name: 'spices', checked: true }] },
@@ -114,6 +114,7 @@ const baseTrackers = {
         { name: 'disable"CloseTo"Alert', checked: true }
       ]
     },
+    farming: { checked: true, options: [{ name: 'plots', checked: true }] },
     etc: {
       checked: true,
       options: [
