@@ -4,7 +4,7 @@ import { getStatsFromGear } from './items';
 import { tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from './postoffice';
 import { getJewelBonus, getLabBonus } from './lab';
-import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
+import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
 import { isArenaBonusActive } from './misc';
 import { getAchievementStatus } from './achievements';
 import { isArtifactAcquired } from './sailing';
@@ -18,6 +18,8 @@ import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getIsland } from '@parsers/world-2/islands';
+import { getStarSignBonus } from '@parsers/starSigns';
 
 export const spicesNames = [
   'Grasslands',
@@ -126,9 +128,10 @@ const getCookingProwess = (character, meals, bubbles) => {
 }
 
 export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
-  let upgradeMath = upgradeLevel + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2);
-  upgradeMath = upgradeMath + Math.pow(Math.max(0, upgradeLevel - 30), 1.2);
-  return Math.ceil(1 + baseMath * upgradeMath * Math.pow(1.02, Math.max(0, (upgradeLevel) - 60)))
+    return 1 + baseMath * (upgradeLevel
+        + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2)
+        + Math.pow(Math.max(0, upgradeLevel - 30), 1.2))
+      * Math.pow(1.02, Math.max(0, upgradeLevel - 60))
 }
 
 
@@ -144,6 +147,7 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     if (statName === 'PxLine') {
       return sum + (level * baseStat ?? 0);
     }
+    console.log('baseStat, level, shinyMealBonus, labBonus', statName, baseStat, level, shinyMealBonus, labBonus)
     return sum + ((1 + (labBonus + shinyMealBonus) / 100) * level * baseStat ?? 0);
   }, 0);
 }
@@ -194,8 +198,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
     const winnerBonus = getWinnerBonus(account, '<x Cooking SPD', false)
-    // TODO: check how to apply specific character
-    const starSignBonus = 0; // getStarSignBonus(character, account, 'Cooking_SPD');
+    const starSignBonus = characters?.reduce((acc, character) => (getStarSignBonus(character, account, 'Cooking_SPD') ?? 0), 0);
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
     if (superbit) {
@@ -215,7 +218,8 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
       voidPlateChefBonus = Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals);
     }
 
-    const mealSpeed = 10 * (1 + voidWalkerBonusTalent / 100)
+    const mealSpeed = 10
+      * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
       * Math.max(1, voidWalkerApocalypseBonus)
       * (1 + richelinBonus)
@@ -233,7 +237,7 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
         + Math.max(0, cookingSpeedFromJewel)) / 100)
       * (1 + cookingSpeedMeals / 100)
       * (1 + starSignBonus / 100)
-      * (1 + winnerBonus / 100)
+      * (winnerBonus || 1)
       * (1 + cardCookingMulti / 100)
       * (1 + extraCookingSpeedVials / 100)
       * Math.max(1, amethystRhinestone)
@@ -271,11 +275,20 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
     const kitchenCostMeals = getMealsBonusByEffectOrStat(account, null, 'KitchC', blackDiamondRhinestone);
     const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
-    const baseMath = 1 /
-      ((1 + kitchenCostVials / 100) *
-        (1 + kitchenCostMeals / 100) *
-        (1 + (isRichelin ? 40 : 0) / 100) *
-        (1 + (0.5 * (arenaBonusActive ? 1 : 0))));
+    const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'GARLIC_GLOVE');
+
+    const fractalIsland = getIsland(account, 'Fractal');
+    const reductionUnlocked = fractalIsland?.shop?.find(({
+                                                           effect,
+                                                           unlocked
+                                                         }) => effect.includes('Kitchen_Upgrade_Costs') && unlocked);
+
+    const baseMath = 1 / ((1 + (kitchenCostVials
+        + sigilBonus) / 100)
+      * (1 + (reductionUnlocked ? 30 : 0) / 100)
+      * (1 + kitchenCostMeals / 100)
+      * (1 + (isRichelin ? 40 : 0) / 100)
+      * (1 + .5 * (arenaBonusActive ? 1 : 0)));
 
     const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
     const fireCost = getSpiceUpgradeCost(baseMath, fireLv);

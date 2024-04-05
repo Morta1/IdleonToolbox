@@ -170,6 +170,7 @@ const extraIslandDetails = (account, index) => {
   return result;
 }
 
-export const isIslandUnlocked = (islands, islandName) => {
-  return islands?.list?.find(({ name }) => name === islandName)?.unlocked;
+export const getIsland = (account, islandName) => {
+  return account?.islands?.list?.find(({ name }) => name === islandName);
 }
+
