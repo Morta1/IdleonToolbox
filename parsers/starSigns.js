@@ -46,7 +46,7 @@ export const getStarSignByEffect = (equippedStarSigns, starEffect) => {
   return allBonuses?.reduce((sum, { effect, bonus }) => effect === starEffect ? sum + bonus : sum, 0);
 }
 
-export const getStarSignBonus = (character, account, effectName) => {
+export const getStarSignBonus = (character, account, effectName, highestSummoningLevel) => {
   const infiniteStarsUnlocked = isRiftBonusUnlocked(account?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
   const starSigns = account?.starSigns?.map((starSign, index) => {
@@ -70,7 +70,7 @@ export const getStarSignBonus = (character, account, effectName) => {
     }
     return activeStar ? activeStar : starSign;
   });
-  const summoningLevel = character?.skillsInfo?.summoning?.level;
+  const summoningLevel = highestSummoningLevel || character?.skillsInfo?.summoning?.level;
   const hasSeraphCosmos = starSigns.find(({ starName, unlocked }) => starName === 'Seraph_Cosmos' && unlocked);
   const starSignsBonuses = getStarSignsBonuses(starSigns);
   return starSignsBonuses?.reduce((sum, {

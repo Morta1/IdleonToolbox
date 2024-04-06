@@ -5,7 +5,7 @@ import { tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from './postoffice';
 import { getJewelBonus, getLabBonus } from './lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
-import { isArenaBonusActive } from './misc';
+import { getHighestCharacterSkill, isArenaBonusActive } from './misc';
 import { getAchievementStatus } from './achievements';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
@@ -197,8 +197,9 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm', blackDiamondRhinestone);
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
-    const winnerBonus = getWinnerBonus(account, '<x Cooking SPD', false)
-    const starSignBonus = characters?.reduce((acc, character) => (getStarSignBonus(character, account, 'Cooking_SPD') ?? 0), 0);
+    const winnerBonus = getWinnerBonus(account, '<x Cooking SPD', false);
+    const highestSummoning = getHighestCharacterSkill(characters, 'summoning');
+    const starSignBonus = characters?.reduce((acc, character) => (getStarSignBonus(character, account, 'Cooking_SPD', highestSummoning) ?? 0), 0);
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
     if (superbit) {
