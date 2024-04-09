@@ -28,6 +28,9 @@ const tools = {
   },
   'guaranteedDropCalculator': {
     icon: 'TreeInterior1b'
+  },
+  'skilling': {
+    icon: 'EquipmentTools5_x1'
   }
 };
 
