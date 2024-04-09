@@ -13,6 +13,7 @@ const Bags = ({ bags, capBags }) => {
         <Stack sx={{ width: 200 }} alignItems={'center'}>
           <Stack direction={'row'} flexWrap={'wrap'}>
             {bags?.map((bag, index) => {
+              if (bag?.displayName === 'Inventory_Bag_I') return;
               return <Tooltip key={bag?.displayName + index} title={<ItemDisplay {...bag}/>}>
                 <Bag exists={bag?.acquired}
                      src={`${prefix}data/${bag?.rawName}.png`} alt=""/>

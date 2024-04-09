@@ -15,6 +15,7 @@ const Chests = ({ chests }) => {
                       artifactChance,
                       ancientChance,
                       eldritchChance,
+                      sovereignChance,
                       rawName,
                       done,
                       acquired,
@@ -33,6 +34,7 @@ const Chests = ({ chests }) => {
                     <Typography>Artifact Chance {artifactChance}%</Typography>
                     <Typography color={'warning.light'}>Ancient Chance {ancientChance}%</Typography>
                     <Typography color={'error.light'}>Eldritch Chance {eldritchChance}%</Typography>
+                    <Typography color={'#67dada'}>Sovereign Chance {sovereignChance}%</Typography>
                   </>}
                 </Stack>
               </Stack>

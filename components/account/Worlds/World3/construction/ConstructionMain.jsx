@@ -94,7 +94,6 @@ const ConstructionMain = () => {
           <ToggleButton value="exp">Exp</ToggleButton>
           <ToggleButton value="playerExp">Player Exp boost</ToggleButton>
           <ToggleButton value="flaggy">Flaggy</ToggleButton>
-          <ToggleButton value="classExp">Class Exp</ToggleButton>
         </ToggleButtonGroup>
         <Stack my={1}>
           <Stack my={1} gap={1} direction={'row'} alignItems={'center'} justifyContent={'center'}>

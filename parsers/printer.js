@@ -16,7 +16,7 @@ export const getPrinter = (idleonData, charactersData, accountData) => {
 const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
   const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, 3);
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
-  const goldRelicBonus = goldRelic?.acquired === 3 ? goldRelic?.eldritchMultiplier : goldRelic?.acquired === 2
+  const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3 ? goldRelic?.eldritchMultiplier : goldRelic?.acquired === 2
     ? goldRelic?.ancientMultiplier
     : 0;
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;

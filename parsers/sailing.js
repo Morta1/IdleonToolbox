@@ -158,6 +158,7 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
     artifactChance: artifactChance > 0.01 ? Math.round(100 * artifactChance) / 100 : 0.01,
     ancientChance: (chance / getAncientChances(islandIndex, serverVars)).toFixed(5),
     eldritchChance: (chance / getEldritchChances(islandIndex, serverVars)).toFixed(5),
+    sovereignChance: (chance / getSovereignChances(islandIndex, serverVars)).toFixed(5),
     island,
     islandIndex,
     treasure,
@@ -175,6 +176,12 @@ const getEldritchChances = (islandsUnlocked, serverVars) => {
   return 3 > islandsUnlocked
     ? 900 + 250 * islandsUnlocked
     : ((1e3 + (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 4;
+}
+
+const getSovereignChances = (islandsUnlocked, serverVars) => {
+  return 5 > islandsUnlocked
+    ? 9e3 + 2e3 * islandsUnlocked
+    : ((1e3 + 1.25 * (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 180;
 }
 
 export const isArtifactAcquired = (artifacts = [], artifactName) => {
