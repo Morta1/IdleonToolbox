@@ -147,7 +147,6 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     if (statName === 'PxLine') {
       return sum + (level * baseStat ?? 0);
     }
-    console.log('baseStat, level, shinyMealBonus, labBonus', statName, baseStat, level, shinyMealBonus, labBonus)
     return sum + ((1 + (labBonus + shinyMealBonus) / 100) * level * baseStat ?? 0);
   }, 0);
 }

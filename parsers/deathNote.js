@@ -19,7 +19,7 @@ export const getDeathNote = (idleonData, charactersData, account) => {
     rawName,
     kills: miniBossesKills?.[index]
   })).reduce((res, { rawName, kills }) => {
-    const rank = getDeathNoteRank(account, kills);
+    const rank = getDeathNoteRank(account, kills, true);
     return {
       rank: (res?.rank || 0) + rank,
       mobs: [...(res?.mobs || []), { rawName, displayName: monsters?.[rawName]?.Name, kills }]
@@ -40,8 +40,12 @@ export const getDeathNote = (idleonData, charactersData, account) => {
   }, { miniBosses });
 }
 
-export const getDeathNoteRank = (account, kills) => {
-  return 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills
+export const getDeathNoteRank = (account, kills, isMiniBosses) => {
+  return isMiniBosses ? (100 > kills ? 0 : 250 > kills ? 1 : 1e3 > kills ? 2 : 5e3 > kills ? 3 : 25e3 > kills
+    ? 4
+    : 1e5 > kills ? 5 : 1e6 > kills
+      ? 7
+      : 10) : 25e3 > kills ? 0 : 1e5 > kills ? 1 : 25e4 > kills ? 2 : 5e5 > kills ? 3 : 1e6 > kills ? 4 : 5e6 > kills
     ? 5
     : 1e8 > kills ? 7 : 1e9 < kills && isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls') ? 20 : 10;
 }

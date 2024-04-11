@@ -14,7 +14,7 @@ const getRankColor = (rank) => {
   return colorMap[rank];
 }
 
-const globalSkills = ['gaming', 'sailing', 'breeding', 'farming'].toSimpleObject();
+const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
 const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
   return <Stack>
     <Typography variant={'h5'}>Skills</Typography>

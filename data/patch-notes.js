@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.59',
+    gameVer: '2.0.5',
+    date: '11/03/2024',
+    features: [''],
+    fixes: ['Fixed death note for minibosses', 'Removed the rank for summoning skill from skills under characters page']
+  },
+  {
     ver: '3.2.58',
     gameVer: '2.0.5',
     date: '04/03/2024',
