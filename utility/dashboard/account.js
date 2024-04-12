@@ -450,3 +450,11 @@ export const equinoxAlerts = (account, options) => {
 
   return alerts;
 }
+export const islandsAlerts = (account, options) => {
+  const { unclaimedDays } = options;
+  const alerts = {};
+  if (unclaimedDays?.checked && account?.islands?.numberOfDaysAfk >= unclaimedDays?.props?.value) {
+    alerts.unclaimedDays = account?.islands?.numberOfDaysAfk;
+  }
+  return alerts;
+}

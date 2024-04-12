@@ -115,6 +115,17 @@ const baseTrackers = {
       ]
     },
     farming: { checked: true, options: [{ name: 'plots', checked: true }] },
+    islands: {
+      checked: true,
+      options: [
+        {
+          name: 'unclaimedDays',
+          type: 'input',
+          props: { label: 'Threshold', value: 1, minValue: 1 },
+          checked: true
+        }
+      ]
+    },
     etc: {
       checked: true,
       options: [

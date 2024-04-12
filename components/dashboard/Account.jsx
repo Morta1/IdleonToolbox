@@ -20,7 +20,7 @@ import {
   equinoxAlerts,
   etcAlerts, farmingAlerts,
   gamingAlerts,
-  guildAlerts,
+  guildAlerts, islandsAlerts,
   materialTrackerAlerts,
   postOfficeAlerts,
   printerAlerts,
@@ -47,13 +47,12 @@ const alertsMap = {
   etc: etcAlerts,
   cooking: cookingAlerts,
   tasks: tasksAlert,
-  farming: farmingAlerts
+  farming: farmingAlerts,
+  islands: islandsAlerts
 }
 
 const Account = ({ account, characters, trackers }) => {
   const alerts = useAlerts({ alertsMap, data: account, extraData: characters, trackers });
-  console.log('alerts?.farming?.plots',alerts)
-  console.log('trackers',trackers)
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
@@ -61,6 +60,9 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.atomCollider && alerts?.atomCollider?.stampReducer ?
             <Alert title={`Stamp reducer has reached your threshold (${alerts?.atomCollider?.stampReducerValue}%)`}
                    iconPath={'data/Atom0'}/> : null}
+          {trackers?.islands && alerts?.islands?.unclaimedDays ?
+            <Alert title={`You haven't your islands' content in ${alerts?.islands?.unclaimedDays} days`}
+                   iconPath={'data/Island1'}/> : null}
           {trackers?.farming && alerts?.farming?.plots > 0 ?
             <Alert title={`${alerts?.farming?.plots} plots are fully grown`}
                    iconPath={'data/ClassIcons57'}/> : null}
