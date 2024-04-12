@@ -15,7 +15,6 @@ export const farmingAlerts = (account, options) => {
   const alerts = {}
   if (!account?.finishedWorlds?.World5) return alerts;
   if (options?.plots?.checked) {
-    console.log('account', account?.farming?.plot)
     alerts.plots = account?.farming?.plot?.reduce((sum, { currentOG }) => currentOG > 0 ? sum + 1 : sum, 0);
   }
   return alerts;
