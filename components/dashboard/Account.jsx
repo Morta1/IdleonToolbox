@@ -61,7 +61,7 @@ const Account = ({ account, characters, trackers }) => {
             <Alert title={`Stamp reducer has reached your threshold (${alerts?.atomCollider?.stampReducerValue}%)`}
                    iconPath={'data/Atom0'}/> : null}
           {trackers?.islands && alerts?.islands?.unclaimedDays ?
-            <Alert title={`You haven't your islands' content in ${alerts?.islands?.unclaimedDays} days`}
+            <Alert title={`You haven't claimed your islands' content in ${alerts?.islands?.unclaimedDays} days`}
                    iconPath={'data/Island1'}/> : null}
           {trackers?.farming && alerts?.farming?.plots > 0 ?
             <Alert title={`${alerts?.farming?.plots} plots are fully grown`}
