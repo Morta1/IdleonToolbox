@@ -61,15 +61,23 @@ export const getStatueBonus = (statues, statueName, talents) => {
       break;
     case 'SPEED':
     case 'ANVIL':
-    case 'BULLSEYE':
-    case 'OL_RELIABLE':
       talentBonus += (getTalentBonus(talents, 2, 'STRAIGHTSHOT_STATUES') || getTalentBonus(talents, 2, 'SHWIFTY_STATUES')) / 100;
+      break;
+    case 'BULLSEYE':
+      talentBonus += getTalentBonus(talents, 2, 'STRAIGHTSHOT_STATUES') / 100;
+      break;
+    case 'OL_RELIABLE':
+      talentBonus += getTalentBonus(talents, 2, 'SHWIFTY_STATUES') / 100;
       break;
     case 'EXP':
     case 'LUMBERBOB':
-    case 'BEHOLDER':
-    case 'CAULDRON':
       talentBonus += (getTalentBonus(talents, 2, 'STARING_STATUES') || getTalentBonus(talents, 2, 'STUPENDOUS_STATUES')) / 100;
+      break;
+    case 'BEHOLDER':
+      talentBonus += getTalentBonus(talents, 2, 'STARING_STATUES') / 100;
+      break;
+    case 'CAULDRON':
+      talentBonus += getTalentBonus(talents, 2, 'STUPENDOUS_STATUES') / 100;
       break;
     case 'EHEXPEE':
     case 'KACHOW':
