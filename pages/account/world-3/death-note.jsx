@@ -11,6 +11,7 @@ const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF
 const DeathNote = () => {
   const { state } = useContext(AppContext);
   const { deathNote } = state?.account || { deathNote: {} };
+  console.log('deathNote',deathNote)
   return (
     <>
       <NextSeo
@@ -27,7 +28,7 @@ const DeathNote = () => {
               <Typography mb={2} variant={'h6'}>Multikill Bonus: {rank}%</Typography>
               <Stack>
                 {mobs?.map((mob, innerIndex) => {
-                  const mobRank = getDeathNoteRank(state?.account, mob.kills);
+                  const mobRank = getDeathNoteRank(state?.account, mob.kills, worldIndex === 'miniBosses');
                   const iconNumber = mobRank - 1 - Math.floor(mobRank / 7) - 2 * Math.floor(mobRank / 10);
                   let skullName = `data/StatusSkull${iconNumber}`;
                   if (mobRank > 10) {
