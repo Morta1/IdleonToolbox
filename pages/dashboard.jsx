@@ -114,7 +114,16 @@ const baseTrackers = {
         { name: 'disable"CloseTo"Alert', checked: true }
       ]
     },
-    farming: { checked: true, options: [{ name: 'plots', checked: true }] },
+    farming: {
+      checked: true, options: [
+        {
+          name: 'plots',
+          type: 'input',
+          props: { label: 'OG Threshold', value: 0, minValue: 0, helperText: '1=x2, 2=x4, 3=x8, 4=x16' },
+          checked: true
+        }
+      ]
+    },
     islands: {
       checked: true,
       options: [

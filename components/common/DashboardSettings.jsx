@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  formHelperTextClasses,
   InputAdornment,
   Stack,
   TextField,
@@ -130,7 +131,7 @@ const BaseField = ({ option, trackerName, onChange, configType }) => {
 }
 
 const ArrayField = ({ option, onChange, configType }) => {
-  const { value, type, } = option?.props;
+  const { value, type } = option?.props;
   return <Stack direction={'row'} flexWrap={'wrap'}>
     {Object.keys(value)?.map((opt, index) => {
       return <FormControlLabel
@@ -149,19 +150,19 @@ const InputField = ({ option, onChange, configType, name, trackerName }) => {
     helperText = '',
     maxValue,
     minValue = 0,
-    endAdornment = '',
+    endAdornment = ''
   } = option?.props;
   return <TextField
     size={'small'}
     label={label.capitalize()}
     type={'number'}
-    sx={{ mt: 1, width: 150 }}
+    sx={{ mt: 1, width: 150, [`.${formHelperTextClasses.root}`]: { m: 0 } }}
     name={name}
     value={value}
     InputProps={{
       endAdornment: endAdornment ? <InputAdornment position="end">{endAdornment}</InputAdornment> : null,
       inputProps: {
-        max: maxValue, min: minValue, autoComplete: 'off',
+        max: maxValue, min: minValue, autoComplete: 'off'
       }
     }}
     onChange={(e) => onChange(e, configType, { ...option, inputVal: true }, trackerName)}
