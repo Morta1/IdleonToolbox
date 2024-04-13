@@ -64,7 +64,7 @@ const Account = ({ account, characters, trackers }) => {
             <Alert title={`You haven't claimed your islands' content in ${alerts?.islands?.unclaimedDays} days`}
                    iconPath={'data/Island1'}/> : null}
           {trackers?.farming && alerts?.farming?.plots?.length > 0 ?
-            <Alert title={`${alerts?.farming?.plots?.length} plots have reached the threshold of ${alerts?.farming?.plots?.[0]?.threshold} (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.farming?.plots?.[0]?.threshold)))})`}
+            <Alert title={`${alerts?.farming?.plots?.length} plots reached the threshold of ${alerts?.farming?.plots?.[0]?.threshold} OGs (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.farming?.plots?.[0]?.threshold)))})`}
                    iconPath={'data/ClassIcons57'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}

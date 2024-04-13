@@ -2,6 +2,7 @@ import { tryToParse } from '../utility/helpers';
 import { atomsInfo } from '../data/website-data';
 import { getBubbleBonus } from './alchemy';
 import { isSuperbitUnlocked } from './gaming';
+import { getStampsBonusByEffect } from '@parsers/stamps';
 
 export const getAtoms = (idleonData, account) => {
   const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
@@ -19,13 +20,16 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'ATOM_SPLIT', false)
     const reduxSuperbit = isSuperbitUnlocked(account, 'Atom_Redux')?.unlocked ?? 0;
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
+    const stampBonusReduction = getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs');
     const maxLevel = Math.round(20 + 10 * (+!!maxLevelSuperbit));
+    console.log('maxLevel', maxLevel)
     const costObject = {
       account,
       atomReductionFromAtom,
       reduxSuperbit,
       bubbleBonus,
       atomColliderLevel,
+      stampBonusReduction,
       atomInfo,
       level
     };
@@ -61,10 +65,12 @@ const getCost = ({
                    reduxSuperbit,
                    bubbleBonus,
                    atomColliderLevel,
+                   stampBonusReduction,
                    atomInfo,
                    level
                  }) => {
-  const baseCost = (1 / (1 + (atomReductionFromAtom + 10 * (reduxSuperbit
+  // 'AtomCost' == e
+  const baseCost = (1 / (1 + (stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit
       ? 1
       : 0) + bubbleBonus + atomColliderLevel / 10 + 7
     * account?.tasks?.[2][4][6]) / 100));
