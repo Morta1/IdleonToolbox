@@ -53,8 +53,8 @@ const worldsData = {
       { label: 'bubbles', icon: 'data/aBrewOptionA0' },
       { label: 'Cauldrons', icon: 'data/aStirringStick0' },
       { label: 'vials', icon: 'data/aVials1' },
-      { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'sigils', icon: 'data/LabBonus12' },
+      { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'islands', icon: 'data/Island1' },
       { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
     ]

@@ -3,7 +3,7 @@ import { marketInfo, seedInfo } from '../../data/website-data';
 import { getCharmBonus, getJadeEmporiumBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getVialsBonusByStat } from "@parsers/alchemy";
-import { getLabBonus } from "@parsers/lab";
+import { getJewelBonus, getLabBonus } from "@parsers/lab";
 import { getWinnerBonus } from "@parsers/world-6/summoning";
 
 export const getFarming = (idleonData: any, accountData: any) => {
@@ -143,7 +143,11 @@ const getCropType = ({ index, cropId, cropIdIncrement, level }: any) => {
 }
 
 const getCropDepotBonuses = (account: any) => {
+  // 'CropSCbonus' == e
   const labBonus = getLabBonus(account?.lab?.labBonuses, 17);
+  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+  const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
+
   let bonuses = {
     damage: { name: 'DMG', value: 0 },
     gamingEvo: { name: 'Gaming Evo', value: 0 },
@@ -154,25 +158,25 @@ const getCropDepotBonuses = (account: any) => {
     critters: { name: 'Critters', value: 0 }
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
-    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
+    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   if (isJadeBonusUnlocked(account, 'Science_Pen')) {
-    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * (1 + labBonus / 100);
+    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   if (isJadeBonusUnlocked(account, 'Science_Marker')) {
-    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
+    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   if (isJadeBonusUnlocked(account, 'Science_Featherpen')) {
-    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * (1 + labBonus / 100);
+    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   if (isJadeBonusUnlocked(account, 'Science_Environmentally_Sourced_Pencil')) {
-    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
+    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   if (isJadeBonusUnlocked(account, 'Science_Crayon')) {
-    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
+    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   if (isJadeBonusUnlocked(account, 'Science_Paintbrush')) {
-    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + labBonus / 100);
+    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
   }
   return bonuses;
 }

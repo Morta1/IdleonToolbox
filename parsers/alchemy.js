@@ -13,6 +13,16 @@ const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam'
 const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o', 3: 'toxic mercury' };
 const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };
 const bigBubblesIndices = { _: 'power', a: 'quicc', b: 'high-iq', c: 'kazam' };
+export const CAULDRONS_MAX_LEVELS = {
+  brewing: 170,
+  liquidsRegen: 100,
+  liquidsCapacity: 80,
+  cauldronsSpeed: 150,
+  cauldronsNewBubble: 125,
+  cauldronsBoostReq: 100,
+  vialsAttempts: 15,
+  vialsRng: 45
+}
 
 export const getAlchemy = (idleonData, account, serializedCharactersData) => {
   const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo) || idleonData?.CauldronInfo;
@@ -75,7 +85,7 @@ export const getLiquidCauldrons = (account) => {
       : '34'}`, blackDiamondRhinestone);
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
     const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
-    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity;
+    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level;
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
 
@@ -120,16 +130,37 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
   const [cauldrons, liquids, vials, player, , remainingAttempts] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
   p2w.cauldrons = cauldrons.toChunks(3).map(([speed, newBubble, boostReq], index) => ({
     name: cauldronsIndexMapping[index],
-    speed,
-    newBubble,
-    boostReq
+    speed: {
+      cost: getP2wCauldronCost('cauldron', 0, speed),
+      costToMax: getCostToMax('cauldron', 0, speed, CAULDRONS_MAX_LEVELS.cauldronsSpeed),
+      level: speed
+    },
+    newBubble: {
+      cost: getP2wCauldronCost('cauldron', 1, newBubble),
+      costToMax: getCostToMax('cauldron', 1, newBubble, CAULDRONS_MAX_LEVELS.cauldronsNewBubble),
+      level: newBubble
+    },
+    boostReq: {
+      cost: getP2wCauldronCost('cauldron', 2, boostReq),
+      costToMax: getCostToMax('cauldron', 2, boostReq, CAULDRONS_MAX_LEVELS.cauldronsBoostReq),
+      level: boostReq
+    }
   }));
   p2w.liquids = liquids.toChunks(2).map(([regen, capacity], index) => ({
     name: liquidsIndex[index],
-    regen,
-    capacity,
+    regen: {
+      cost: getP2wCauldronCost('liquid', 0, regen),
+      costToMax: getCostToMax('liquid', 0, regen, CAULDRONS_MAX_LEVELS.liquidsRegen),
+      level: regen
+    },
+    capacity: {
+      cost: getP2wCauldronCost('liquid', 1, capacity),
+      costToMax: getCostToMax('liquid', 1, capacity, CAULDRONS_MAX_LEVELS.liquidsCapacity),
+      level: capacity
+    },
     players: playersInLiquids?.filter(({ activity }) => activity === liquidMapping?.[index])
   })).filter(({ name }) => name);
+
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
   p2w.player = { speed: player?.[0] || 0, extraExp: player?.[1] || 0 };
   p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
@@ -138,6 +169,30 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
     max: Math.round(3 + vials?.[0])
   };
   return p2w;
+}
+
+const getCostToMax = (type, index, level, maxLevel) => {
+  let total = 0;
+  for (let i = level; i < maxLevel; i++) {
+    total += getP2wCauldronCost(type, index, i);
+  }
+  return total
+}
+
+
+const getP2wCauldronCost = (type, index, level) => {
+  if (type === 'liquid') {
+    return index === 0
+      ? Math.round(2500 * Math.pow(1.19 - (0.135 * level) / (100 + level), level))
+      : Math.round(3500 * Math.pow(1.2 - (0.13 * level) / (100 + level), level))
+  } else if (type === 'cauldron') {
+    return (index === 0
+      ? Math.round(2500 * Math.pow(1.15 - (0.117 * level) / (100 + level), level))
+      : index === 1
+        ? Math.round(3200 * Math.pow(1.18 - (0.145 * level) / (100 + level), level))
+        : Math.round(3750 * Math.pow(1.2 - (0.14 * level) / (100 + level), level)))
+  }
+  return 0;
 }
 
 const getBubbles = (bubbles) => {
@@ -284,7 +339,7 @@ const getCauldrons = (cauldronsProgress, cauldronsRaw, p2w, bubbles, alchemyActi
           [name]: {
             progress,
             level: parseInt(level),
-            req: getCauldronBonus(0, 2, p2w.cauldrons[i / 4]?.boostReq, parseInt(level))
+            req: getCauldronBonus(0, 2, p2w.cauldrons[i / 4]?.boostReq?.level, parseInt(level))
           }
         }
       }

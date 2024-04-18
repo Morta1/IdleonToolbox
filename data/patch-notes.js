@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.60',
+    gameVer: '2.0.5',
+    date: '17/03/2024',
+    features: ['Added upgrade cost and cost to max for cauldrons', 'Added the bonus from "Pure Opal Rhombol" jewel to the crop depot'],
+    fixes: ['Fixed salts dashboard alert']
+  },
+  {
     ver: '3.2.59',
     gameVer: '2.0.5',
     date: '11/03/2024',

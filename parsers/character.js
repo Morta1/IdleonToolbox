@@ -702,7 +702,7 @@ export const getDropRate = (character, account, characters) => {
 
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
-    { name: 'Talents', value: (firstTalentBonus + secondTalentBonus) / 100 },
+    { name: 'Talents', value: (firstTalentBonus + secondTalentBonus + (starTalentBonus * account?.accountOptions?.[189])) / 100 },
     { name: 'Post Office', value: postOfficeBonus / 100 },
     { name: 'Equipment', value: drFromEquipment / 100 },
     { name: 'Obols', value: drFromObols / 100 },
@@ -729,6 +729,7 @@ export const getDropRate = (character, account, characters) => {
     breakdown
   };
 }
+
 export const getCashMulti = (character, account, characters) => {
   // "MonsterCash" == e
   const { strength, agility, wisdom } = character?.stats || {};

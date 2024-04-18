@@ -22,7 +22,7 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
     const stampBonusReduction = getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs');
     const maxLevel = Math.round(20 + 10 * (+!!maxLevelSuperbit));
-    console.log('maxLevel', maxLevel)
+
     const costObject = {
       account,
       atomReductionFromAtom,

@@ -3,12 +3,12 @@ import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '@utility/hel
 
 const Superbits = ({ superbits }) => {
   return <>
-    <Stack gap={1} direction={'row'} flexWrap={'wrap'}>
+    <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
       {superbits?.map(({ name, description, unlocked, bonus, totalBonus, additionalInfo, cost }, index) => {
         return <Card key={name + `${index}`} sx={{
           width: 300,
           border: unlocked ? '1px solid #81c784' : '',
-          opacity: !unlocked ? 0.5 : 1,
+          opacity: !unlocked ? 0.5 : 1
         }}>
           <CardContent>
             <Typography>{cleanUnderscore(name.capitalize())}</Typography>

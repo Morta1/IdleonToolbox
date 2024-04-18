@@ -1,12 +1,14 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '../../../components/common/ProgressBar';
-import { notateNumber, prefix } from '@utility/helpers';
+import { getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import darkTheme from '../../../styles/theme/darkTheme';
 import { PlayersList } from '@components/common/styles';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
+import CoinDisplay from '@components/common/CoinDisplay';
+import { CAULDRONS_MAX_LEVELS } from '@parsers/alchemy';
 
 const cauldronsColors = [
   darkTheme.palette.warning.light,
@@ -22,20 +24,10 @@ const liquidsColors = [
   '#3e2027'
 ];
 
-const MAX_LEVELS = {
-  brewing: 170,
-  liquidsRegen: 100,
-  liquidsCapacity: 80,
-  cauldronsSpeed: 150,
-  cauldronsNewBubble: 125,
-  cauldronsBoostReq: 100,
-  vialsAttempts: 15,
-  vialsRng: 45
-}
-
 const Cauldrons = () => {
   const { state } = useContext(AppContext);
   const { alchemy } = state?.account || {};
+
   return (
     <>
       <NextSeo
@@ -45,7 +37,7 @@ const Cauldrons = () => {
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Cauldrons</Typography>
       <Typography variant={'h4'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {Object.entries(alchemy?.cauldrons)?.map(([name, stats], cauldronIndex) => {
+        {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => {
           return <Card sx={{ width: { md: 450 } }} key={`${name}-${cauldronIndex}`}>
             <CardContent>
               <Stack direction={'row'} gap={1}>
@@ -56,11 +48,11 @@ const Cauldrons = () => {
                            percent={stats.progress / stats.req * 100}/>
               <Typography>{notateNumber(stats.progress, 'Big')} / {notateNumber(stats.req, 'Big')}</Typography>
               <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={2}>
-                {Object.entries(stats.boosts)?.map(([statName, { level, progress, req }], statIndex) => {
+                {Object.entries(stats.boosts || {})?.map(([statName, { level, progress, req }], statIndex) => {
                   return <Card sx={{
                     width: 200,
-                    outline: level >= MAX_LEVELS.brewing ? '1px solid' : '',
-                    outlineColor: (theme) => level >= MAX_LEVELS.brewing ? theme.palette.success.light : '',
+                    outline: level >= CAULDRONS_MAX_LEVELS.brewing ? '1px solid' : '',
+                    outlineColor: (theme) => level >= CAULDRONS_MAX_LEVELS.brewing ? theme.palette.success.light : ''
                   }} variant={'outlined'} key={`${name}-${cauldronIndex}-${statIndex}`}>
                     <CardContent>
                       <Typography component={'span'}
@@ -69,7 +61,7 @@ const Cauldrons = () => {
                                     width: 50,
                                     mr: 1
                                   }}>{statName.capitalize()}</Typography>
-                      <Typography component={'span'}>Lv. {level} / {MAX_LEVELS.brewing}</Typography>
+                      <Typography component={'span'}>Lv. {level} / {CAULDRONS_MAX_LEVELS.brewing}</Typography>
                       <ProgressBar bgColor={cauldronsColors[cauldronIndex]}
                                    percent={progress / req * 100}/>
                       <Typography>{notateNumber(progress, 'Big')} / {notateNumber(req, 'Big')}</Typography>
@@ -120,24 +112,32 @@ const Cauldrons = () => {
                     <Typography>{notateNumber(decantRate?.progress)}/{notateNumber(decantRate?.req)}</Typography>
                   </CardContent>
                 </Card>
-                <Card variant={'outlined'} sx={{
-                  outline: regen >= MAX_LEVELS.liquidsRegen ? '1px solid' : '',
-                  outlineColor: (theme) => regen >= MAX_LEVELS.liquidsRegen ? theme.palette.success.light : '',
-                }}>
-                  <CardContent>
-                    <Typography>Regen</Typography>
-                    <Typography>Lv. {regen} / {MAX_LEVELS.liquidsRegen}</Typography>
-                  </CardContent>
-                </Card>
-                <Card variant={'outlined'} sx={{
-                  outline: capacity >= MAX_LEVELS.liquidsCapacity ? '1px solid' : '',
-                  outlineColor: (theme) => capacity >= MAX_LEVELS.liquidsCapacity ? theme.palette.success.light : '',
-                }}>
-                  <CardContent>
-                    <Typography>Capacity</Typography>
-                    <Typography>Lv. {capacity} / {MAX_LEVELS.liquidsCapacity}</Typography>
-                  </CardContent>
-                </Card>
+                <CostTooltip shouldDisplay={regen?.level < CAULDRONS_MAX_LEVELS.liquidsRegen} cost={regen?.cost} costToMax={regen?.costToMax}>
+                  <Card variant={'outlined'} sx={{
+                    outline: regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen ? '1px solid' : '',
+                    outlineColor: (theme) => regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen
+                      ? theme.palette.success.light
+                      : ''
+                  }}>
+                    <CardContent>
+                      <Typography>Regen</Typography>
+                      <Typography>Lv. {regen?.level} / {CAULDRONS_MAX_LEVELS.liquidsRegen}</Typography>
+                    </CardContent>
+                  </Card>
+                </CostTooltip>
+                <CostTooltip shouldDisplay={capacity?.level < CAULDRONS_MAX_LEVELS.liquidsRegen} cost={capacity?.cost} costToMax={capacity?.costToMax}>
+                  <Card variant={'outlined'} sx={{
+                    outline: capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity ? '1px solid' : '',
+                    outlineColor: (theme) => capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity
+                      ? theme.palette.success.light
+                      : ''
+                  }}>
+                    <CardContent>
+                      <Typography>Capacity</Typography>
+                      <Typography>Lv. {capacity?.level} / {CAULDRONS_MAX_LEVELS.liquidsCapacity}</Typography>
+                    </CardContent>
+                  </Card>
+                </CostTooltip>
               </Stack>
             </CardContent>
           </Card>
@@ -159,35 +159,45 @@ const Cauldrons = () => {
                             }}>{name.capitalize()}</Typography>
               </Stack>
               <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                <Card variant={'outlined'} sx={{
-                  outline: speed >= MAX_LEVELS.cauldronsSpeed ? '1px solid' : '',
-                  outlineColor: (theme) => speed >= MAX_LEVELS.cauldronsSpeed ? theme.palette.success.light : '',
-                }}>
-                  <CardContent>
-                    <Typography>Speed</Typography>
-                    <Typography>Lv. {speed} / {MAX_LEVELS.cauldronsSpeed}</Typography>
-                  </CardContent>
-                </Card>
-                <Card variant={'outlined'} sx={{
-                  outline: newBubble >= MAX_LEVELS.cauldronsNewBubble ? '1px solid' : '',
-                  outlineColor: (theme) => newBubble >= MAX_LEVELS.cauldronsNewBubble
-                    ? theme.palette.success.light
-                    : '',
-                }}>
-                  <CardContent>
-                    <Typography>New Bubble Chance</Typography>
-                    <Typography>Lv. {newBubble} / {MAX_LEVELS.cauldronsNewBubble}</Typography>
-                  </CardContent>
-                </Card>
-                <Card variant={'outlined'} sx={{
-                  outline: boostReq >= MAX_LEVELS.cauldronsBoostReq ? '1px solid' : '',
-                  outlineColor: (theme) => boostReq >= MAX_LEVELS.cauldronsBoostReq ? theme.palette.success.light : '',
-                }}>
-                  <CardContent>
-                    <Typography>Boost Req</Typography>
-                    <Typography>Lv. {boostReq} / {MAX_LEVELS.cauldronsBoostReq}</Typography>
-                  </CardContent>
-                </Card>
+                <CostTooltip shouldDisplay={speed?.level < CAULDRONS_MAX_LEVELS.cauldronsSpeed} cost={speed?.cost} costToMax={speed?.costToMax}>
+                  <Card variant={'outlined'} sx={{
+                    outline: speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed ? '1px solid' : '',
+                    outlineColor: (theme) => speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed
+                      ? theme.palette.success.light
+                      : ''
+                  }}>
+                    <CardContent>
+                      <Typography>Speed</Typography>
+                      <Typography>Lv. {speed?.level} / {CAULDRONS_MAX_LEVELS.cauldronsSpeed}</Typography>
+                    </CardContent>
+                  </Card>
+                </CostTooltip>
+                <CostTooltip shouldDisplay={newBubble?.level < CAULDRONS_MAX_LEVELS.cauldronsNewBubble} cost={newBubble?.cost} costToMax={newBubble?.costToMax}>
+                  <Card variant={'outlined'} sx={{
+                    outline: newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble ? '1px solid' : '',
+                    outlineColor: (theme) => newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble
+                      ? theme.palette.success.light
+                      : ''
+                  }}>
+                    <CardContent>
+                      <Typography>New Bubble Chance</Typography>
+                      <Typography>Lv. {newBubble?.level} / {CAULDRONS_MAX_LEVELS.cauldronsNewBubble}</Typography>
+                    </CardContent>
+                  </Card>
+                </CostTooltip>
+                <CostTooltip shouldDisplay={boostReq?.level < CAULDRONS_MAX_LEVELS.cauldronsBoostReq} cost={boostReq?.cost} costToMax={boostReq?.costToMax}>
+                  <Card variant={'outlined'} sx={{
+                    outline: boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq ? '1px solid' : '',
+                    outlineColor: (theme) => boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq
+                      ? theme.palette.success.light
+                      : ''
+                  }}>
+                    <CardContent>
+                      <Typography>Boost Req</Typography>
+                      <Typography>Lv. {boostReq?.level} / {CAULDRONS_MAX_LEVELS.cauldronsBoostReq}</Typography>
+                    </CardContent>
+                  </Card>
+                </CostTooltip>
               </Stack>
             </CardContent>
           </Card>
@@ -204,8 +214,9 @@ const Cauldrons = () => {
         <Box>
           <Typography my={3} variant={'h5'} mb={3}>Vials</Typography>
           <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-            <Section title={'Attemps'} maxLevel={MAX_LEVELS.vialsAttempts} value={alchemy?.p2w?.vials?.attempts}/>
-            <Section title={'RNG'} maxLevel={MAX_LEVELS.vialsRng} value={alchemy?.p2w?.vials?.rng}/>
+            <Section title={'Attempts'} maxLevel={CAULDRONS_MAX_LEVELS.vialsAttempts}
+                     value={alchemy?.p2w?.vials?.attempts}/>
+            <Section title={'RNG'} maxLevel={CAULDRONS_MAX_LEVELS.vialsRng} value={alchemy?.p2w?.vials?.rng}/>
           </Stack>
         </Box>
       </Stack>
@@ -213,12 +224,23 @@ const Cauldrons = () => {
   );
 };
 
+const CostTooltip = ({ children, shouldDisplay, cost, costToMax }) => {
+  return shouldDisplay ? <Tooltip dark title={<Stack>
+    <Typography variant={'body1'}>Cost</Typography>
+    <CoinDisplay title={''} maxCoins={3} money={getCoinsArray(cost)}/>
+    <Typography variant={'body1'} mt={2}>Cost To Max</Typography>
+    <CoinDisplay title={''} maxCoins={3} money={getCoinsArray(costToMax)}/>
+  </Stack>}>
+    {children}
+  </Tooltip> : children;
+}
+
 const Section = ({ title, value, maxLevel }) => {
   return <Card sx={{
     outline: value >= maxLevel ? '1px solid' : '',
     outlineColor: (theme) => value >= maxLevel
       ? theme.palette.success.light
-      : '',
+      : ''
   }}>
     <CardContent>
       <Typography>{title}</Typography>
