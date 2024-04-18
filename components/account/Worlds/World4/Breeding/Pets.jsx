@@ -21,6 +21,7 @@ import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { Breakdown } from '@components/common/styles';
 
 const Pets = ({
                 pets,
@@ -49,18 +50,27 @@ const Pets = ({
     const fasterShinyLevelBonus = getShinyBonus(pets, 'Faster_Shiny_Pet_Lv_Up_Rate');
     const starSign = getStarSignBonus(characters?.[0], account, 'Shiny_Pet_LV_spd');
     const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
-    return (1 + (emeraldUlthuriteBonus
-        + (fasterShinyLevelBonus
-          + (account?.farming?.cropDepot?.shiny?.value
-            + starSign))) / 100)
-      * (1 + summoningBonus / 100);
+
+    return {
+      value: (1 + (emeraldUlthuriteBonus
+          + (fasterShinyLevelBonus
+            + (account?.farming?.cropDepot?.shiny?.value
+              + starSign))) / 100)
+        * (1 + summoningBonus / 100),
+      breakdown: [
+        { name: 'Jewel bonus', value: emeraldUlthuriteBonus / 100 },
+        { name: 'Shiny bonus', value: fasterShinyLevelBonus / 100 },
+        { name: 'Starsign bonus', value: starSign / 100 },
+        { name: 'Summoning bonus', value: 1 + summoningBonus / 100 }
+      ]
+    };
   }
   const fasterShinyLv = useMemo(() => calcShinyLvMulti(), [pets]);
 
   const fencePetsByTime = useMemo(() => {
     return fencePets?.map((pet) => ({
       ...pet,
-      timeLeft: ((pet?.goal - pet?.progress) / fasterShinyLv / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7
+      timeLeft: ((pet?.goal - pet?.progress) / fasterShinyLv.value / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7
     })).sort((a, b) => a?.timeLeft - b?.timeLeft)
   }, [fencePets]);
 
@@ -102,7 +112,8 @@ const Pets = ({
                            staticTime={pet?.progress === 0}
                            date={new Date().getTime() + (timeLeft)}/>
                   </Stack>
-                  {timeLeftToFive > 0 && timeLeftToFive !== timeLeft ? <Stack flexWrap={'wrap'} direction={'row'} gap={1}>
+                  {timeLeftToFive > 0 && timeLeftToFive !== timeLeft ? <Stack flexWrap={'wrap'} direction={'row'}
+                                                                              gap={1}>
                     <Typography component={'span'} variant={'caption'}>To {threshold ?? 5}:</Typography>
                     <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
                            staticTime={pet?.progress === 0}
@@ -122,13 +133,13 @@ const Pets = ({
     <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
       <Stack>
         <FormControlLabel
-          sx={{width: 'fit-content'}}
+          sx={{ width: 'fit-content' }}
           control={<Checkbox name={'mini'} checked={minimized}
                              size={'small'}
                              onChange={() => setMinimized(!minimized)}/>}
           label={'Compact view'}/>
         <FormControlLabel
-          sx={{width: 'fit-content'}}
+          sx={{ width: 'fit-content' }}
           control={<Checkbox name={'mini'} checked={applyThreshold}
                              size={'small'}
                              onChange={() => setApplyThreshold(!applyThreshold)}/>}
@@ -186,9 +197,18 @@ const Pets = ({
                           <Typography variant={'caption'}>Lv. {level}</Typography>
                           <Typography variant={'caption'} sx={{ opacity: shinyLevel > 0 ? 1 : .6 }}>Shiny
                             Lv. {shinyLevel}</Typography>
-                          <Tooltip title={`Faster Shiny Level Multi: ${fasterShinyLv}x`}>
+
+                          <Stack direction={'row'} alignItems={'center'} gap={1}>
                             <Typography variant={'caption'}>Days {notateNumber(progress)} / {goal}</Typography>
-                          </Tooltip>
+                            <Tooltip title={<Stack>
+                              <Typography>Faster Shiny Level Multi: {fasterShinyLv.value.toFixed(3)}x</Typography>
+                              <Divider sx={{ my: 1, backgroundColor: 'black' }}/>
+                              <Breakdown breakdown={fasterShinyLv.breakdown} notation={'MultiplierInfo'}
+                                         titleStyle={{ width: 170 }}/>
+                            </Stack>}>
+                              <InfoIcon fontSize={'small'}/>
+                            </Tooltip>
+                          </Stack>
                           {<Timer type={'countdown'} lastUpdated={lastUpdated}
                                   staticTime={progress === 0}
                                   date={new Date().getTime() + (timeLeft)}/>}
