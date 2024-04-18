@@ -38,7 +38,7 @@ const Buildings = () => {
     });
   }
 
-
+  console.log('state?.account?.lab.jewels?.[3]', state?.account?.lab.jewels?.[3])
   const b = useMemo(() => {
     return state?.account?.towers?.data?.map((tower) => {
       let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
@@ -128,7 +128,8 @@ const Buildings = () => {
     <Stack direction={'row'} alignItems="center" gap={3} flexWrap={'wrap'} mb={2}>
       <Box>
         <Typography>Sort by</Typography>
-        <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive onChange={(e, newSort) => newSort?.length > 0 && setSortBy(newSort)}>
+        <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive
+                           onChange={(e, newSort) => newSort?.length > 0 && setSortBy(newSort)}>
           <ToggleButton value={'order'}>Order</ToggleButton>
           <ToggleButton value={'time'}>Time left</ToggleButton>
           <ToggleButton value={'requirement'}>Build cost</ToggleButton>
@@ -137,7 +138,10 @@ const Buildings = () => {
       <CardTitleAndValue title={'Build Speed'} value={notateNumber(buildSpeed, 'Big')}/>
       <CardTitleAndValue title={'Trimmed Build Speed'}
                          value={notateNumber((3 + atomBonus / 100) * buildSpeed, 'Big')}
-                         breakdown={[{ name: 'Base (jewel)', value: 3 }, { name: 'Atom', value: atomBonus / 100 }]}
+                         breakdown={[{
+                           name: 'Base (jewel)',
+                           value: state?.account?.lab.jewels?.[3] ? Math.ceil(state?.account?.lab.jewels?.[3]?.bonus * state?.account?.lab.jewels?.[3]?.multiplier) : 3
+                         }, { name: 'Atom', value: atomBonus / 100 }]}
       />
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
