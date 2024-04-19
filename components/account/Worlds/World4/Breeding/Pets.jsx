@@ -178,7 +178,7 @@ const Pets = ({
                               goal,
                               breedingMultipliers
                             }, index) => {
-                  const timeLeft = ((goal - progress) / fasterShinyLv / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
+                  const timeLeft = ((goal - progress) / fasterShinyLv.value / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (applyThreshold && shinyLevel >= threshold) return;
                   const missingIcon = (icon === 'Mface23' || icon === 'Mface21') && monsterRawName !== 'shovelR';
                   const totalChance = breedingMultipliers?.totalChance > 0.1
