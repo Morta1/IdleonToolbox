@@ -29,7 +29,10 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
       const stampDetails = stamps[category][index];
       const requiredItem = stampDetails?.itemReq?.[0];
       const materials = flattenCraftObject(crafts[requiredItem?.name]);
-      const ownedMats = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === requiredItem?.rawName))?.amount || 0;
+      const ownedMats = account?.storage?.reduce((sum, { rawName: storageRawName, amount }) => {
+        if (storageRawName !== requiredItem?.rawName) return sum;
+        return sum + (amount || 0);
+      }, 0);
       const greenStackOwnedMats = Math.max(0, ownedMats - 1e7);
       return { ...stampDetails, ...stamp, materials, ownedMats, greenStackOwnedMats, itemReq: requiredItem, category }
     })

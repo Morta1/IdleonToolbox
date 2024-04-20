@@ -554,8 +554,8 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];
     const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;
-    const test = 1 + ((daysSinceLastSample) * (1 + goldRelicBonus)) / 100;
-    additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${notateNumber(test, 'MultiplierInfo').replace('#', '')}x`;
+    const daysBonus = 1 + ((daysSinceLastSample) * (2 + goldRelicBonus)) / 100;
+    additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${notateNumber(daysBonus, 'MultiplierInfo').replace('#', '')}x`;
   }
   else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }) => {
