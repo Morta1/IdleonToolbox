@@ -61,7 +61,8 @@ const Pets = ({
         { name: 'Jewel bonus', value: emeraldUlthuriteBonus / 100 },
         { name: 'Shiny bonus', value: fasterShinyLevelBonus / 100 },
         { name: 'Starsign bonus', value: starSign / 100 },
-        { name: 'Summoning bonus', value: 1 + summoningBonus / 100 }
+        { name: 'Farming bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
+        { name: 'Summoning bonus', value: summoningBonus / 100 }
       ]
     };
   }
