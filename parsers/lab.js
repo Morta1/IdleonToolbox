@@ -133,9 +133,9 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
 
   const higherEffects = getJewelBonus(jewelsList, 19);
   const spelunkerObolMulti = getLabBonus(labBonusesList, 8); // gem multi
-  jewelsList = jewelsList.map((jewel) => ({
+  jewelsList = jewelsList.map((jewel, index) => ({
     ...jewel,
-    multiplier: spelunkerObolMulti + (jewelsList?.[19]?.active ? higherEffects : 0) / 100
+    multiplier: index === 19 ? 1 : spelunkerObolMulti + (jewelsList?.[19]?.active ? higherEffects : 0) / 100
   }));
 
   const totalSpeciesUnlocked = account?.breeding.speciesUnlocks.reduce((sum, world) => sum + world, 0);

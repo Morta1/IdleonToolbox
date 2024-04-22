@@ -52,15 +52,15 @@ const Tasks = () => {
                   <img src={`${prefix}data/TaskRank${level}.png`} alt={'task-rank-' + level}/>
                   <Typography>{cleanUnderscore(name)} ({level} / {index === 8 ? 1 : breakpoints?.length})</Typography>
                 </Stack>
-                <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>
-                <Typography>{notateNumber(stat, 'Big')}{level < breakpoints.length
+                <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc === '0' ? '...' : desc)}</Typography>
+                <Typography>{notateNumber(stat, 'Big')}{level <= breakpoints.length
                   ? ` / ${notateNumber(req)}`
                   : ''}</Typography>
-                {level < breakpoints?.length ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+                {level <= breakpoints?.length ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                   <img src={`${prefix}etc/Merit_${world}.png`} alt={'cost_merit-' + world}/>
                   <Typography>{meritReward}</Typography>
                 </Stack> : null}
-                {level < breakpoints?.length ? <ProgressBar percent={stat / req * 100}/> : null}
+                {level <= breakpoints?.length ? <ProgressBar percent={stat / req * 100}/> : null}
               </CardContent>
             </Card>
           })}

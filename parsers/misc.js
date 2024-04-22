@@ -283,7 +283,7 @@ export const getHighestLevelOf = (characters, className) => {
   }, 0);
 }
 
-export const getHighestLevelOfClass = (characters, className) => {
+export const getHighestLevelOfClass = (characters, className, exactSearch) => {
   const highest = characters?.reduce((res, { level, class: cName }) => {
     if (res?.[cName]) {
       res[cName] = Math.max(res?.[cName], level);
@@ -292,9 +292,12 @@ export const getHighestLevelOfClass = (characters, className) => {
     }
     return res;
   }, {});
-  const allClasses = talentPagesMap?.[className];
+  let allClasses = talentPagesMap?.[className];
+  if (exactSearch) {
+    allClasses = allClasses.filter((cName) => cName === className);
+  }
   const classAlias = allClasses?.find((cName) => highest?.[cName]);
-  return highest?.[classAlias];
+  return highest?.[classAlias] || 0;
 };
 
 export const getCharacterByHighestLevel = (characters, className) => {
@@ -809,10 +812,10 @@ export const getRandomEventItems = (account) => {
 }
 const getDays = (name, daysSince) => {
   const days = {
-    mini3b: Math.min(10, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .55))),
-    mini4b: Math.min(8, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .5))),
-    mini5a: Math.min(6, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .5))),
-    mini6a: Math.min(6, Math.floor(Math.pow((daysSince <  3 ? 3 : daysSince) - 3, .5)))
+    mini3b: Math.min(10, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .55))),
+    mini4b: Math.min(8, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .5))),
+    mini5a: Math.min(6, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .5))),
+    mini6a: Math.min(6, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .5)))
   }
   return days[name];
 }

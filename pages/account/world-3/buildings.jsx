@@ -38,7 +38,6 @@ const Buildings = () => {
     });
   }
 
-  console.log('state?.account?.lab.jewels?.[3]', state?.account?.lab.jewels?.[3])
   const b = useMemo(() => {
     return state?.account?.towers?.data?.map((tower) => {
       let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
