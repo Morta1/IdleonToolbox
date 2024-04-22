@@ -23,8 +23,7 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
       presetTalents = preset === 0 ? talentPreset?.talents : talents;
       presetStarTalents = preset === 0 ? talentPreset?.starTalents : starTalents;
     }
-
-    return activeTab === 4 ? handleStarTalents(presetStarTalents, specialsTab) : presetTalents?.[activeTab];
+    return activeTab === 4 ? handleStarTalents(presetStarTalents, 0) : presetTalents?.[activeTab];
   }
 
   useEffect(() => {
