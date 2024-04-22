@@ -13,7 +13,7 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
   const spentTalentPoints = activeTalents?.orderedTalents?.reduce((res, { level = 0 }) => res + level, 0);
-  const getPreset = () => {
+  const getPreset = (specialTab = 0) => {
     let presetTalents, presetStarTalents;
 
     if (selectedTalentPreset === 0) {
@@ -23,18 +23,20 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
       presetTalents = preset === 0 ? talentPreset?.talents : talents;
       presetStarTalents = preset === 0 ? talentPreset?.starTalents : starTalents;
     }
-    return activeTab === 4 ? handleStarTalents(presetStarTalents, 0) : presetTalents?.[activeTab];
+    return activeTab === 4 ? handleStarTalents(presetStarTalents, specialTab) : presetTalents?.[activeTab];
   }
 
   useEffect(() => {
-    const currentTalentsDisplay = getPreset();
+    const currentTalentsDisplay = getPreset(specialsTab);
     setActiveTalents(currentTalentsDisplay);
-    setSpecialTabs(0);
+    if (activeTab !== 4){
+      setSpecialTabs(0);
+    }
   }, [activeTab, talents, preset]);
 
   const switchSpecials = (tab) => {
     setSpecialTabs(tab);
-    setActiveTalents(handleStarTalents(starTalents, tab));
+    setActiveTalents(getPreset(tab));
   }
   const getStarTalentPage = (talents, index) => {
     return talents?.slice(index * 13, (index + 1) * 13)
