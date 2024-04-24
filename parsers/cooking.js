@@ -128,10 +128,10 @@ const getCookingProwess = (character, meals, bubbles) => {
 }
 
 export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
-    return 1 + baseMath * (upgradeLevel
-        + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2)
-        + Math.pow(Math.max(0, upgradeLevel - 30), 1.2))
-      * Math.pow(1.02, Math.max(0, upgradeLevel - 60))
+  return 1 + baseMath * (upgradeLevel
+      + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2)
+      + Math.pow(Math.max(0, upgradeLevel - 30), 1.2))
+    * Math.pow(1.02, Math.max(0, upgradeLevel - 60))
 }
 
 
@@ -199,7 +199,15 @@ const parseKitchens = (cookingRaw, atomsRaw, characters, account) => {
     const winnerBonus = getWinnerBonus(account, '<x Cooking SPD', false);
     const highestFarming = getHighestCharacterSkill(characters, 'farming');
     const highestSummoning = getHighestCharacterSkill(characters, 'summoning');
-    const starSignBonus = characters?.reduce((acc, character) => (getStarSignBonus(character, account, 'Cooking_SPD', highestSummoning) ?? 0), 0);
+    let highestCharacterStarSign;
+    const starSignBonus = characters?.reduce((acc, character) => {
+      const bonus = getStarSignBonus(character, account, 'Cooking_SPD', highestSummoning) ?? 0;
+      if (bonus > acc) {
+        highestCharacterStarSign = character.name;
+        return bonus;
+      }
+      return acc;
+    }, 0);
     const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
     let superbitBonus = 0;
     if (superbit) {
@@ -433,7 +441,6 @@ export const getChipsAndJewels = (account, size = 10) => {
 
   for (let i = 0; i < size; i++) {
     const rotation = [];
-
     for (let j = 0; j < 3; j++) {
       const itRng = new LavaRand(Math.round(seed + i + (500 * j)));
       const itRandom = Math.floor(1e3 * itRng.rand());
@@ -457,6 +464,7 @@ export const getChipsAndJewels = (account, size = 10) => {
         rotation.push(isJewel ? jewels[index] : chips[index]);
       }
     }
+
     const dateInMs = Math.floor((seed + i) * 604800 * 1000);
     rotations.push({ items: rotation, date: new Date(dateInMs) });
   }

@@ -68,25 +68,25 @@ const Etc = ({ characters, account, lastUpdated }) => {
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
           lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
         </Grid>
-        <Grid xs={6}>
-          {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <TimerCard
-            tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
-            lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/> : null}
-        </Grid>
-        <Grid xs={6}>
-          {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <TimerCard
+        {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Grid xs={6}>
+          <TimerCard
+          tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
+          lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>
+        </Grid> : null}
+        {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <Grid xs={6}>
+          <TimerCard
             tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestBuilding?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestBuilding?.timeLeft}
-            icon={`data/${closestBuilding?.icon}.png`}/> : null}
-        </Grid>
-        <Grid xs={6}>
-          {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <TimerCard
+            icon={`data/${closestBuilding?.icon}.png`}/>
+        </Grid> : null}
+        {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Grid xs={6}>
+          {closestWorshiper?.timeLeft !== 0 ? <TimerCard
             tooltipContent={`Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}
             timerPlaceholder={'Full!'}
             forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
             icon={'data/WorshipSkull3.png'}/> : null}
-        </Grid>
+        </Grid> : null}
         <Grid xs={6}>
           <TimerCard
             tooltipContent={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}
@@ -94,44 +94,45 @@ const Etc = ({ characters, account, lastUpdated }) => {
             icon={'afk_targets/Dog.png'}
             timerPlaceholder={'Go claim!'}
             showAsError={!allPetsAcquired}
-          /></Grid>
-        <Grid xs={6}>
-          {nextHappyHours?.length > 0 ? <TimerCard
+          />
+        </Grid>
+        {nextHappyHours?.length > 0 ? <Grid xs={6}>
+          <TimerCard
             tooltipContent={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}
             lastUpdated={lastUpdated} time={nextHappyHours?.[0]}
             icon={'etc/Happy_Hour.png'}
             timerPlaceholder={'Go claim!'}
-          /> : null}
-        </Grid>
-        <Grid xs={6}>
-          {account?.finishedWorlds?.World2 ? <TimerCard
+          />
+        </Grid> : null}
+        {account?.finishedWorlds?.World2 ? <Grid xs={6}>
+          <TimerCard
             tooltipContent={`Overflow syphon Charge (${bestWizard?.worship?.maxCharge + bestChargeSyphon}): ` + getRealDateInMs(timeToOverCharge)}
             lastUpdated={lastUpdated} time={timeToOverCharge}
             icon={'data/UISkillIcon475.png'}
             timerPlaceholder={'Overflowing charge'}
-          /> : null}
-        </Grid>
-        <Grid xs={6}>
-          {account?.finishedWorlds?.World2 ? <Card sx={{ width: '100%', height: 'fit-content' }}>
-            <CardContent>
-              <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <Tooltip title={<Stack>
-                  <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
-                  <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
-                  <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
-                  {giantMob?.glitterbugPrayer > 0 ?
-                    <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
-                </Stack>}>
-                  <Stack gap={1} direction={'row'} alignItems={'center'}>
-                    <IconImg src={`${prefix}data/Prayer5.png`}/>
-                    <Typography>1
-                      in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
-                  </Stack>
-                </Tooltip>
-              </Stack>
-            </CardContent>
-          </Card> : null}
-        </Grid>
+          />
+        </Grid> : null}
+        {account?.finishedWorlds?.World2 ? <Grid xs={6}>
+          <Card sx={{ width: '100%', height: 'fit-content' }}>
+          <CardContent>
+            <Stack direction={'row'} alignItems={'center'} gap={2}>
+              <Tooltip title={<Stack>
+                <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
+                <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
+                <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
+                {giantMob?.glitterbugPrayer > 0 ?
+                  <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
+              </Stack>}>
+                <Stack gap={1} direction={'row'} alignItems={'center'}>
+                  <IconImg src={`${prefix}data/Prayer5.png`}/>
+                  <Typography>1
+                    in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
+                </Stack>
+              </Tooltip>
+            </Stack>
+          </CardContent>
+        </Card>
+        </Grid> : null}
       </Grid>
       {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 330 }}>
         <Card sx={{ width: '100%', height: 'fit-content' }}>
@@ -159,7 +160,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </CardContent>
         </Card>
       </Stack> : null}
-      <Stack gap={1} sx={{ width: 250 }}>
+      {events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0) ? <Stack gap={1} sx={{ width: 250 }}>
         {events?.length > 0 ? <Card sx={{ width: '100%', height: 'fit-content' }}>
           <CardContent>
             <Stack gap={2}>
@@ -169,7 +170,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Stack>
           </CardContent>
         </Card> : null}
-        {account?.finishedWorlds?.World4 ? <Card sx={{ width: '100%', height: 'fit-content' }}>
+        {account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0 ? <Card
+          sx={{ width: '100%', height: 'fit-content' }}>
           <CardContent>
             <Stack gap={2}>
               <Trade {...account?.sailing?.trades?.[0]}/>
@@ -178,14 +180,13 @@ const Etc = ({ characters, account, lastUpdated }) => {
             </Stack>
           </CardContent>
         </Card> : null}
-      </Stack>
+      </Stack> : null}
       {account?.finishedWorlds?.World2 ?
         <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
           <CardContent>
             <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
           </CardContent>
         </Card> : null}
-
     </Stack>
   </>
 };

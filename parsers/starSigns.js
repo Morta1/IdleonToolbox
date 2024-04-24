@@ -3,6 +3,7 @@ import { constellations, mapNames, starSigns } from '../data/website-data';
 import { starSignsIndicesMap } from './parseMaps';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { getShinyBonus } from './breeding';
+import { getPlayerLabChipBonus } from '@parsers/lab';
 
 export const getStarSigns = (idleonData) => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
@@ -53,7 +54,7 @@ export const getStarSignBonus = (character, account, effectName, highestSummonin
     let activeStar = character?.starSigns?.find(({ starName: sName }) => sName === starSign?.starName);
     const isInfiniteStar = index < infiniteStars;
     if (activeStar) {
-      const silkroadNanochip = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 15) ?? 0;
+      const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
       const chipMulti = silkroadNanochip ? 2 : 1;
       activeStar = {
         ...activeStar,

@@ -63,7 +63,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           </Card> : null;
         })}
       </Stack>
-      <Typography variant={'h4'} textAlign={'center'} mb={3}>Totals</Typography>
+      <Typography variant={'h4'} textAlign={'center'} >Totals</Typography>
       <Stack my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2} flexWrap={'wrap'}>
         {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;
@@ -90,6 +90,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           </CardContent>
         </Card>
       </Stack>
+      <Typography component={'div'} textAlign={'center'} mb={3} variant={'caption'}>* Using the character with the highest bonus from Gordonius Major star sign</Typography>
       <Stack direction={'row'} sx={{ mt: 4 }} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
         {kitchens?.map((kitchen, kitchenIndex) => {
           if (!kitchen) return null;

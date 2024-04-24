@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.61',
+    gameVer: '2.0.5',
+    date: '24/04/2024',
+    features: [],
+    fixes: ['Fixed cooking speed', 'Fixed some ui bugs in dashboard page', 'Fixed a bug in the calculation of how an unlocked world is determined', 'Added a small disclaimer to the laboratory page regarding px width bug']
+  },
+  {
     ver: '3.2.60',
     gameVer: '2.0.5',
     date: '17/03/2024',

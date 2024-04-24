@@ -18,6 +18,8 @@ const Laboratory = () => {
         description="Keep track of your lab upgrades, lab connected players, chips and more"
       />
       <Typography variant={'h2'} textAlign={'center'} mb={3}>Laboratory</Typography>
+      <Typography variant={'caption'} component={'div'} textAlign={'center'} color={'warning.light'}>* To ensure IT recognizes the connected buffs / jewels, you must position yourself closer to it. If you're too far away, nearing maximum distance, IT may fail to detect it.</Typography>
+      <Typography variant={'caption'} component={'div'} textAlign={'center'} mb={3} color={'warning.light'}>This will be fixed in the future</Typography>
 
       <Tabber tabs={['Main frame', 'Console', 'Chips And Jewels Rotation']}>
         <Mainframe {...lab} characters={state?.characters} divinity={state?.account?.divinity}/>

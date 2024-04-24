@@ -10,9 +10,7 @@ export const isWorldFinished = (characters, worldIndex) => {
     4: 'Muhmuguh',
     5: 'Lafu_Shi'
   }
-  return characters?.some(({ npcDialog }) => worldIndex === 5
-    ? npcDialog?.[worldGatekeeper?.[worldIndex]]
-    : npcDialog?.[worldGatekeeper?.[worldIndex]] === 9999);
+  return characters?.some(({ npcDialog }) => npcDialog?.[worldGatekeeper?.[worldIndex]]);
 }
 
 export const getQuests = (characters) => {

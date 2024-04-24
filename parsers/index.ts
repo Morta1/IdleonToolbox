@@ -162,7 +162,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.finishedWorlds = [1, 2, 3, 4, 5, 6]?.reduce((res, world) => {
     return {
       ...res,
-      [`World${world}`]: isWorldFinished(charactersData, world)
+      [`World${world}`]: !!isWorldFinished(charactersData, world)
     }
   }, {});
   accountData.statues = applyStatuesMulti(accountData, charactersData);
