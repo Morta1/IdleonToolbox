@@ -14,7 +14,16 @@ import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
 
-const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achievements, lab, equinoxUpgrades }) => {
+const Kitchens = ({
+                    spices,
+                    kitchens,
+                    meals,
+                    totalMealSpeed,
+                    lastUpdated,
+                    achievements,
+                    lab,
+                    equinoxUpgrades
+                  }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -63,8 +72,8 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           </Card> : null;
         })}
       </Stack>
-      <Typography variant={'h4'} textAlign={'center'} >Totals</Typography>
-      <Stack my={2} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2} flexWrap={'wrap'}>
+      <Typography variant={'h4'}>Totals</Typography>
+      <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
         {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;
           return <Card key={`${foodName}-${index}-${total}`}>
@@ -90,8 +99,7 @@ const Kitchens = ({ spices, kitchens, meals, totalMealSpeed, lastUpdated, achiev
           </CardContent>
         </Card>
       </Stack>
-      <Typography component={'div'} textAlign={'center'} mb={3} variant={'caption'}>* Using the character with the highest bonus from Gordonius Major star sign</Typography>
-      <Stack direction={'row'} sx={{ mt: 4 }} justifyContent={'center'} gap={3} flexWrap={'wrap'}>
+      <Stack direction={'row'} sx={{ mt: 4 }} gap={3} flexWrap={'wrap'}>
         {kitchens?.map((kitchen, kitchenIndex) => {
           if (!kitchen) return null;
           const isRecipe = kitchen?.status >= 3;

@@ -47,7 +47,7 @@ export const getStarSignByEffect = (equippedStarSigns, starEffect) => {
   return allBonuses?.reduce((sum, { effect, bonus }) => effect === starEffect ? sum + bonus : sum, 0);
 }
 
-export const getStarSignBonus = (character, account, effectName, highestSummoningLevel) => {
+export const getStarSignBonus = (character, account, effectName, forceNanoChip = false) => {
   const infiniteStarsUnlocked = isRiftBonusUnlocked(account?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
   const starSigns = account?.starSigns?.map((starSign, index) => {
@@ -55,7 +55,7 @@ export const getStarSignBonus = (character, account, effectName, highestSummonin
     const isInfiniteStar = index < infiniteStars;
     if (activeStar) {
       const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
-      const chipMulti = silkroadNanochip ? 2 : 1;
+      const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
       activeStar = {
         ...activeStar,
         bonuses: activeStar?.bonuses?.map((bonusObj) => ({
@@ -67,7 +67,7 @@ export const getStarSignBonus = (character, account, effectName, highestSummonin
       }
     }
     if (infiniteStars && !activeStar && starSign?.unlocked) {
-      starSign = { ...starSign, bonuses: starSign?.bonuses?.map((bonus) => ({ ...bonus, isInfiniteStar })) }
+      starSign = { ...starSign, bonuses: starSign?.bonuses?.map((bonus) => ({ ...bonus, isInfiniteStar, bonus: forceNanoChip ? bonus?.bonus * 2 : bonus?.bonus })) }
     }
     return activeStar ? activeStar : starSign;
   });
