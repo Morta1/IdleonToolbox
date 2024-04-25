@@ -224,7 +224,6 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
         || equippedCardSet?.rawName === 'CardSet6'
         || equippedCardSet?.rawName === 'CardSet8'
         || equippedCardSet?.rawName === 'CardSet7'
-        || equippedCardSet?.rawName === 'CardSet25'
         || equippedCardSet?.rawName === 'CardSet26'
       )) {
       alerts.cardSet = {

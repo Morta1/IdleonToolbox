@@ -112,7 +112,7 @@ const Stamps = () => {
         material, money and space to
         craft</Typography>
       <Stack direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Gilded stamp'}>
+        <CardTitleAndValue title={'Gilded Stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
             <img src={`${prefix}data/GildedStamp.png`} alt=""/>
             <Stack>

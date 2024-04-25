@@ -35,7 +35,7 @@ const Tasks = () => {
             if (index >= 9) return null;
             const req = (index === 8 ? breakpoints?.[0] : breakpoints?.[level]) ?? 0;
             let desc;
-            if (level === breakpoints?.length) {
+            if (level === breakpoints?.length && index !== 8) {
               desc = filler2.split('|').slice(-1)?.[0]?.replace(/{/, notateNumber(stat, 'Big'));
             } else {
               desc = description.replace(/{/, notateNumber(index === 8
@@ -52,7 +52,7 @@ const Tasks = () => {
                   <img src={`${prefix}data/TaskRank${level}.png`} alt={'task-rank-' + level}/>
                   <Typography>{cleanUnderscore(name)} ({level} / {index === 8 ? 1 : breakpoints?.length})</Typography>
                 </Stack>
-                <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc === '0' ? '...' : desc)}</Typography>
+                <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>
                 <Typography>{notateNumber(stat, 'Big')}{level <= breakpoints.length
                   ? ` / ${notateNumber(req)}`
                   : ''}</Typography>

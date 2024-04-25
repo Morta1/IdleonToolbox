@@ -71,7 +71,7 @@ export const getStarSignBonus = (character, account, effectName, highestSummonin
     }
     return activeStar ? activeStar : starSign;
   });
-  const summoningLevel = highestSummoningLevel || character?.skillsInfo?.summoning?.level;
+  const summoningLevel = character?.skillsInfo?.summoning?.level;
   const hasSeraphCosmos = starSigns.find(({ starName, unlocked }) => starName === 'Seraph_Cosmos' && unlocked);
   const starSignsBonuses = getStarSignsBonuses(starSigns);
   return starSignsBonuses?.reduce((sum, {

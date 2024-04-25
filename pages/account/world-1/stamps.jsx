@@ -96,7 +96,7 @@ const Stamps = () => {
         </Tooltip>
       </Stack>
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Gilded stamp'}>
+        <CardTitleAndValue title={'Gilded Stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
             <img src={`${prefix}data/GildedStamp.png`} alt=""/>
             <Stack>
@@ -104,6 +104,9 @@ const Stamps = () => {
               <Typography>Chance: {calcStampLevels(state?.account?.stamps) / 100}%</Typography>
             </Stack>
           </Stack>
+          <FormControlLabel
+            control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
+            label="Gilded Stamp"/>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Stamp Reducer'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
@@ -121,9 +124,6 @@ const Stamps = () => {
                 <Typography>Old Stamps Page</Typography>
               </Stack>
             </Link>
-            <FormControlLabel
-              control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
-              label="Gilded Stamp"/>
             <FormControlLabel
               control={<Checkbox name={'mini'}
                                  checked={subtractGreenStacks}

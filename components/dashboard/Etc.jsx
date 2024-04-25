@@ -60,7 +60,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
     bestChargeSyphon,
     timeToOverCharge
   } = useMemo(() => getChargeWithSyphon(characters), [characters]);
-
+  console.log('closestWorshiper', closestWorshiper)
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       <Grid sx={{ width: 360 }} container spacing={1}>
@@ -81,7 +81,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Grid> : null}
         {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Grid xs={6}>
           {closestWorshiper?.timeLeft !== 0 ? <TimerCard
-            tooltipContent={`Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)}
+            tooltipContent={closestWorshiper?.character ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft) : 'Full'}
             timerPlaceholder={'Full!'}
             forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}

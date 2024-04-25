@@ -459,3 +459,12 @@ export const islandsAlerts = (account, options) => {
   }
   return alerts;
 }
+export const summoningAlerts = (account, options) => {
+  const { familiar } = options;
+  const alerts = {};
+  const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
+  if (familiar?.checked && level < maxLvl) {
+    alerts.familiar = { level, maxLvl };
+  }
+  return alerts;
+}

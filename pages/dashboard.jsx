@@ -124,6 +124,14 @@ const baseTrackers = {
         }
       ]
     },
+    summoning: {
+      checked: true, options: [
+        {
+          name: 'familiar',
+          checked: true
+        }
+      ]
+    },
     islands: {
       checked: true,
       options: [

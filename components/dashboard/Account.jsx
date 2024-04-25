@@ -18,14 +18,17 @@ import {
   constructionAlerts,
   cookingAlerts,
   equinoxAlerts,
-  etcAlerts, farmingAlerts,
+  etcAlerts,
+  farmingAlerts,
   gamingAlerts,
-  guildAlerts, islandsAlerts,
+  guildAlerts,
+  islandsAlerts,
   materialTrackerAlerts,
   postOfficeAlerts,
   printerAlerts,
   sailingAlerts,
   shopsAlerts,
+  summoningAlerts,
   tasksAlert
 } from '@utility/dashboard/account';
 import useAlerts from '../hooks/useAlerts';
@@ -48,7 +51,8 @@ const alertsMap = {
   cooking: cookingAlerts,
   tasks: tasksAlert,
   farming: farmingAlerts,
-  islands: islandsAlerts
+  islands: islandsAlerts,
+  summoning: summoningAlerts
 }
 
 const Account = ({ account, characters, trackers }) => {
@@ -63,9 +67,14 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.islands && alerts?.islands?.unclaimedDays ?
             <Alert title={`You haven't claimed your islands' content in ${alerts?.islands?.unclaimedDays} days`}
                    iconPath={'data/Island1'}/> : null}
+          {trackers?.summoning && alerts?.summoning?.familiar ?
+            <Alert
+              title={`Summoning familiar bonus isn't maxed (${alerts?.summoning?.familiar.level}/${alerts?.summoning?.familiar.maxLvl})`}
+              iconPath={'data/SumUpgIc2'}/> : null}
           {trackers?.farming && alerts?.farming?.plots?.length > 0 ?
-            <Alert title={`${alerts?.farming?.plots?.length} plots reached the threshold of ${alerts?.farming?.plots?.[0]?.threshold} OGs (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.farming?.plots?.[0]?.threshold)))})`}
-                   iconPath={'data/ClassIcons57'}/> : null}
+            <Alert
+              title={`${alerts?.farming?.plots?.length} plots reached the threshold of ${alerts?.farming?.plots?.[0]?.threshold} OGs (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.farming?.plots?.[0]?.threshold)))})`}
+              iconPath={'data/ClassIcons57'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
                    iconPath={'data/CogFLflag'}/> : null}
@@ -79,13 +88,15 @@ const Account = ({ account, characters, trackers }) => {
             <Alert title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.etc && alerts?.etc?.weeklyBosses ?
             <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/> : null}
-          {trackers?.etc && alerts?.etc?.killRoy === 0 || (alerts?.etc?.killRoy < 21 && account?.finishedWorlds?.World3) ?
+          {trackers?.etc && alerts?.etc?.killRoy === 0 || (alerts?.etc?.killRoy < 21 && account?.finishedWorlds?.World3)
+            ?
             <Alert
               title={alerts?.etc?.killRoy === 0
                 ? 'You haven\'t done a killroy this week' :
                 alerts?.etc?.killRoy > 0 && alerts?.etc?.killRoy < 21 && account?.finishedWorlds?.World3
                   ? 'You haven\'t done a killroy this week (You have 1 killroy left)'
-                  : ''} iconPath={'etc/Killroy'}/> : null}
+                  : ''} iconPath={'etc/Killroy'}/>
+            : null}
           {trackers?.cooking && alerts?.cooking?.spices > 0 ?
             <Alert title={`You have ${alerts?.cooking?.spices} spice clicks left`}
                    iconPath={'data/CookingSpice0'}/> : null}
@@ -119,8 +130,8 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.etc && alerts?.etc?.miniBosses?.length > 0
             ?
             alerts?.etc?.miniBosses?.map(({ rawName, name, current }) => <Alert key={rawName}
-                                                                                     title={`You can kill ${current} ${cleanUnderscore(name)}s`}
-                                                                                     iconPath={`etc/${rawName}`}/>)
+                                                                                title={`You can kill ${current} ${cleanUnderscore(name)}s`}
+                                                                                iconPath={`etc/${rawName}`}/>)
             : null}
           {trackers?.alchemy && alerts?.alchemy?.sigils?.length > 0 ?
             alerts?.alchemy?.sigils?.map(({ name, index }) => <Alert key={name}
@@ -222,8 +233,8 @@ const Account = ({ account, characters, trackers }) => {
                                                                       atom
                                                                       iconPath={`data/${rawName}`}/>) : null}
           {trackers?.alchemy && alerts?.alchemy?.vialsAttempts ? <Alert key={'vialsAttempts'}
-                                                                               title={`You have available vial attempts`}
-                                                                               iconPath={`data/aVials1`}/> : null}
+                                                                        title={`You have available vial attempts`}
+                                                                        iconPath={`data/aVials1`}/> : null}
           {trackers?.alchemy && alerts?.alchemy?.vials?.length > 0 ?
             alerts?.alchemy?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                          vial={vial}

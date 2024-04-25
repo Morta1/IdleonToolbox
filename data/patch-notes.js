@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.62',
+    gameVer: '2.0.5',
+    date: '25/04/2024',
+    features: ['Added a dashboard alert for Familiar bonus from summoning'],
+    fixes: ['Fixed a bug in tasks page', 'Possible fix for cooking speed']
+  },
+  {
     ver: '3.2.61',
     gameVer: '2.0.5',
     date: '24/04/2024',

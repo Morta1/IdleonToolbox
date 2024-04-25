@@ -28,7 +28,7 @@ const AtomCollider = ({}) => {
           <Typography>{Math.floor(particles)}</Typography>
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Stamp reducer'}>
+      <CardTitleAndValue title={'Stamp Reducer'}>
         <Stack direction={'row'} gap={1}>
           <img src={`${prefix}data/Atom0.png`}
                alt="" style={{ objectFit: 'contain', width: 45 }}/>
