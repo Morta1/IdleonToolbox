@@ -138,7 +138,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
     setBestSpeedMeal(speedMeals);
     setLocalMeals(tempMeals)
-  }, [filters, meals, mealMaxLevel, sortBy, mealSpeed, localEquinoxUpgrades]);
+  }, [filters, meals, mealMaxLevel, sortBy, mealSpeed, localEquinoxUpgrades, totalMealSpeed]);
 
   const sortMealsBy = (meals, index, level = 0) => {
     const mealsCopy = [...defaultMeals];
