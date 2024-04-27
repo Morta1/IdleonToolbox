@@ -71,7 +71,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           return {
             bpCost: levelCost,
             bpLevel: breakpoint,
-            timeToBp: overflow ? timeTillNextLevel / (1 + overflowingLadleBonus / 100) : timeTillNextLevel
+            timeToBp: overflow ? timeTillNextLevel / (1 + overflowingLadleBonus.value / 100) : timeTillNextLevel
           };
         }
         const bpCost = (breakpoint - level) * levelCost;
