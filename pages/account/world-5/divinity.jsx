@@ -20,7 +20,6 @@ const Divinity = () => {
       title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
     />
-    <Typography variant={'h2'} textAlign={'center'} mb={3}>Divinity</Typography>
     <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost}

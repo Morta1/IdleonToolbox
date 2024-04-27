@@ -1,6 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from 'parsers/cooking';
-import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import {
+  cleanUnderscore,
+  getTimeAsDays,
+  growth,
+  kFormatter,
+  notateNumber,
+  numberWithCommas,
+  prefix
+} from 'utility/helpers';
 import { Card, CardContent, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
@@ -13,7 +21,6 @@ import { isArtifactAcquired } from '@parsers/sailing';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
-const msPerDay = 8.64e+7;
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, 11, 30, 40, 50, 60, 70, 80, 90];
@@ -125,8 +132,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     }
     if (filters.includes('amethystRhinestone') && realAmethystRhinestone === 0) {
       setMealSpeed(totalMealSpeed * amethystRhinestone);
-    }
-    else {
+    } else {
       setMealSpeed(totalMealSpeed);
     }
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
@@ -140,8 +146,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       if (level !== 0) {
         if (a.level >= level) {
           return 1;
-        }
-        else if (b.level >= level) {
+        } else if (b.level >= level) {
           return -1;
         }
       }
@@ -309,7 +314,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                       return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Stack
                         key={name + bpLevel} gap={1}
                         flexWrap={'wrap'}>
-                        {level >= mealMaxLevel ? <Typography
+                        {amount >= bpCost ? <Typography
+                          color={'success.light'}>Breakpoint maxed</Typography> : level >= mealMaxLevel ? <Typography
                             color={'success.light'}>Maxed</Typography> :
                           <Typography
                             sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
@@ -347,10 +353,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   );
 };
 
-// Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1
-const getTimeAsDays = (time) => {
-  return Math.ceil(time * 3600 * 1000 / msPerDay);
-}
+
 
 const MealTooltip = ({ level, baseStat, effect, blackDiamondRhinestone, shinyMulti }) => {
   const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (level + 1) * baseStat;

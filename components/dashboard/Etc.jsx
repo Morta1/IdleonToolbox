@@ -60,7 +60,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
     bestChargeSyphon,
     timeToOverCharge
   } = useMemo(() => getChargeWithSyphon(characters), [characters]);
-  console.log('closestWorshiper', closestWorshiper)
+
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       <Grid sx={{ width: 360 }} container spacing={1}>

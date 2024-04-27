@@ -22,7 +22,6 @@ const Traps = () => {
       title="Traps | Idleon Toolbox"
       description="Keep track of your traps timing, critters amounts and more"
     />
-    <Typography variant={'h2'} mb={3}>Traps</Typography>
     <FormControl>
       <InputLabel id="demo-simple-select-label">Collect as</InputLabel>
       <Select

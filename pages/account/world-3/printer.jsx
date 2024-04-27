@@ -27,7 +27,6 @@ const Printer = () => {
       title="Printer | Idleon Toolbox"
       description="Keep track of your printer output with calculated bonuses from various sources"
     />
-    <Typography variant={'h2'} mb={3}>Printer</Typography>
     <Typography variant={'caption'} component={'div'} mb={3}>* hover over items to see boosted values (totals section
       will also show atom per day)</Typography>
 

@@ -31,6 +31,7 @@ const NavBar = ({ children }) => {
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
       console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
+      localStorage.setItem('rawJson', JSON.stringify({ data, charNames, companion, guildData, serverVars, lastUpdated }))
       dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
     } catch (e) {
       console.error('Error while trying to manual import', e);

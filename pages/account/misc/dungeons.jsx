@@ -27,9 +27,6 @@ const Dungeons = () => {
         title="Dungeons | Idleon Toolbox"
         description="Dungeon information including happy hour times, currency, upgrades and more"
       />
-      <Typography my={2} variant="h2">
-        Dungeons
-      </Typography>
       <Stack direction="row" flexWrap={'wrap'} gap={4}>
         <CardTitleAndValue title={'Rank'}>
           <Stack direction={'row'} gap={2}>

@@ -10,7 +10,15 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import {
+  cleanUnderscore,
+  getTimeAsDays,
+  growth,
+  kFormatter,
+  notateNumber,
+  numberWithCommas,
+  prefix
+} from 'utility/helpers';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import { getVialsBonusByEffect } from '@parsers/alchemy';
@@ -111,7 +119,7 @@ const Refinery = () => {
       { name: 'Shinies', value: shinyRefineryBonus / 100 },
       { name: 'Const mastery', value: constructionMastery / 100 },
       { name: 'Arcade', value: arcadeBonus / 100 },
-      { name: 'Lab', value: labCycleBonus },
+      { name: 'Lab', value: labCycleBonus }
     ];
     const combustion = {
       name: 'Combustion',
@@ -139,7 +147,6 @@ const Refinery = () => {
     return (remainingProgress / powerPerCycle) * itemCost;
   }
 
-
   const calcTimeToRankUp = (rank, powerCap, refined, index) => {
     const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
     const cycleByType = index <= 2 ? 900 : 3600;
@@ -149,7 +156,11 @@ const Refinery = () => {
       : 0);
     let timeRequired = ((powerCap - refined) / powerPerCycle) * cycleDuration;
     const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
-    return new Date().getTime() + (timeLeft * 3600 * 1000);
+    const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
+    return {
+      timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),
+      totalTime: new Date().getTime() + (totalTime * 3600 * 1000)
+    };
   };
 
   const getFuelTime = (rank, costs, saltIndex) => {
@@ -170,7 +181,6 @@ const Refinery = () => {
       title="Refinery | Idleon Toolbox"
       description="Keep track of your refinery levels, timing, required materials and more"
     />
-    <Typography variant={'h2'} mb={3}>Refinery</Typography>
     <Stack my={3} direction={'row'} flexWrap={'wrap'} gap={2}>
       {squiresCooldown?.map(({ name, cooldown, talentId }, index) => {
         return <Card className={'squire'} key={name + ' ' + index} sx={{ width: 232 }}>
@@ -243,6 +253,7 @@ const Refinery = () => {
             previousSaltPerHour = previousPowerPerCycle ? previousPowerPerCycle * 3600 / previousCombustionTime : null;
           }
         }
+        const { timeLeft, totalTime } = calcTimeToRankUp(rank, powerCap, refined, saltIndex);
         return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content', pr: 3 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'flex-start'} gap={3} flexWrap={'wrap'}>
@@ -254,6 +265,7 @@ const Refinery = () => {
                 <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
                 <Typography>Power: {numberWithCommas(refined)} / {numberWithCommas(powerCap)}</Typography>
                 <Typography>Auto refine: {autoRefinePercentage}%</Typography>
+                <Typography component={'span'}>Total time: <Timer staticTime date={totalTime} lastUpdated={state?.lastUpdated} /></Typography>
                 <Typography component={'span'}>Rank up: {active ? <Timer
                     type={'countdown'}
                     lastUpdated={state?.lastUpdated}
@@ -263,7 +275,7 @@ const Refinery = () => {
                       color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle
                       ? 'RANK UP'
                       : 'Missing Mats'}</Typography>}
-                    date={calcTimeToRankUp(rank, powerCap, refined, saltIndex)}/> :
+                    date={timeLeft}/> :
                   <Typography component={'span'} color={'error'}>Inactive</Typography>}</Typography>
                 <Typography component={'span'}>Fuel: {fuelTime ? <Timer type={'countdown'}
                                                                         date={new Date().getTime() + fuelTime * 1000}

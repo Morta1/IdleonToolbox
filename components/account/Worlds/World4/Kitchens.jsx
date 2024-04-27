@@ -199,7 +199,7 @@ const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades 
   const timeTillNextLevel = meal?.amount >= levelCost
     ? '0'
     : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
-  const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
+  const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
   const realEffect = (1 + (blackDiamondRhinestone + meal?.shinyMulti) / 100) * meal?.level * meal?.baseStat;
   return <>

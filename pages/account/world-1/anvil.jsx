@@ -20,7 +20,6 @@ const Anvil = () => {
       title="Anvil | Idleon Toolbox"
       description="Keep track of your characters anvil production"
     />
-    <Typography variant={'h2'} mb={3}>Anvil</Typography>
     <Stack direction={'row'} alignItems={'baseline'} gap={1}>
       <Typography variant={'h4'}>Totals</Typography>
       <Typography variant={'caption'}>per hour</Typography>

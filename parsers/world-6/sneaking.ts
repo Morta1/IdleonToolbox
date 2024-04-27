@@ -116,5 +116,5 @@ export const getJadeEmporiumBonus = (account: any, bonusName: string) => {
   return account?.sneaking?.jadeEmporium?.find(({ name }: { name: string }) => name === bonusName)?.bonus;
 }
 export const getCharmBonus = (account: any, bonusName: string) => {
-  return account?.sneaking?.pristineCharms?.find(({ name }: { name: string }) => name === bonusName)?.baseValue ?? 1;
+  return account?.sneaking?.pristineCharms?.find(({ name, unlocked }: { name: string, unlocked: boolean }) => name === bonusName && unlocked)?.baseValue ?? 0;
 }

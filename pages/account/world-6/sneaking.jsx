@@ -19,7 +19,6 @@ const Sneaking = () => {
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
-    <Typography sx={{ textAlign: 'center' }} variant={'h3'}>Sneaking</Typography>
     <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
     <Tabber tabs={['Inventory', 'Jade Emporium', 'Upgrades', 'Charms']}>
       <PlayersInventory players={players}

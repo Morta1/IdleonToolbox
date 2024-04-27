@@ -24,7 +24,6 @@ const Prayers = () => {
         title="Prayers | Idleon Toolbox"
         description="Prayers information"
       />
-      <Typography variant={'h2'} mb={3}>Prayers</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
         {prayers?.map((prayer, index) => {
           const {

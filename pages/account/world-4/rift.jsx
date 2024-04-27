@@ -22,7 +22,6 @@ const Rift = () => {
       title="Rift | Idleon Toolbox"
       description="Keep track of your rift bonuses, tasks and more"
     />
-    <Typography variant={'h2'} mb={3}>Rift</Typography>
     <Tabber tabs={tabs}>
       <Tasks {...rift} characters={state?.characters}/>
       <Bonuses {...rift} account={state?.account}/>

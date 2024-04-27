@@ -171,9 +171,9 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
   return cookingRaw?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
-    const spelunkerObolMulti = getLabBonus(account.lab.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account.lab.jewels, 16, spelunkerObolMulti)
-    const cookingSpeedJewelMultiplier = getJewelBonus(account.lab.jewels, 14, spelunkerObolMulti); // meal cooking speed
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti)
+    const cookingSpeedJewelMultiplier = getJewelBonus(account?.lab?.jewels, 14, spelunkerObolMulti); // meal cooking speed
     const cookingSpeedFromJewel = Math.floor(globalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 0);
 
     const cookingSpeedStamps = getStampsBonusByEffect(account, 'Meal_Cooking_Speed');
@@ -186,8 +186,8 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     const trollCardStars = trollCard?.stars ?? 0;
     const trollBonus = trollCardStars === 0 ? 0 : trollCardStars + 1;
-    const allPurpleActive = account.lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
-    const amethystRhinestone = getJewelBonus(account.lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
+    const allPurpleActive = account?.lab?.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
+    const amethystRhinestone = getJewelBonus(account?.lab?.jewels, 0, spelunkerObolMulti) * allPurpleActive;
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
     const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus ?? 0;
     const richelinBonus = isRichelin ? 2 : 0;
@@ -197,7 +197,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm', blackDiamondRhinestone);
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
-    const winnerBonus = getWinnerBonus(account, '<x Cooking SPD', false);
+    const winnerBonus = getWinnerBonus(account, '<x Cooking SPD');
     const highestFarming = getHighestCharacterSkill(characters, 'farming');
     let starSignBonus;
     if (characters?.[characterIndex]) {
@@ -249,7 +249,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
         + Math.max(0, cookingSpeedFromJewel)) / 100)
       * (1 + cookingSpeedMeals / 100)
       * (1 + starSignBonus / 100)
-      * (winnerBonus || 1)
+      * (1 + winnerBonus / 100)
       * (1 + cardCookingMulti / 100)
       * (1 + extraCookingSpeedVials / 100)
       * Math.max(1, amethystRhinestone)
@@ -259,36 +259,38 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
         * Math.floor((speedLv
           + (fireLv
             + luckLv)) / 10) / 100);
-    // console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
-    // console.log('account?.farming?.cropDepot?.cookingSpeed?.value:', account?.farming?.cropDepot?.cookingSpeed?.value);
-    // console.log('voidWalkerApocalypseBonus:', voidWalkerApocalypseBonus);
-    // console.log('richelinBonus:', richelinBonus);
-    // console.log('marshmallowBonus:', marshmallowBonus);
-    // console.log('highestFarming:', highestFarming);
-    // console.log('bubbleBonus:', bubbleBonus);
-    // console.log('voidPlateChefBonus:', voidPlateChefBonus);
-    // console.log('superbitBonus:', superbitBonus);
-    // console.log('speedLv:', speedLv);
-    // console.log('triagulonArtifactBonus:', triagulonArtifactBonus);
-    // console.log('arcadeBonus:', arcadeBonus);
-    // console.log('turtleVial:', turtleVial);
-    // console.log('cookingSpeedVials:', cookingSpeedVials);
-    // console.log('cookingSpeedStamps:', cookingSpeedStamps);
-    // console.log('cookingSpeedFromJewel:', cookingSpeedFromJewel);
-    // console.log('cookingSpeedMeals:', cookingSpeedMeals);
-    // console.log('starSignBonus:', starSignBonus);
-    // console.log('winnerBonus:', winnerBonus);
-    // console.log('cardCookingMulti:', cardCookingMulti);
-    // console.log('extraCookingSpeedVials:', extraCookingSpeedVials);
-    // console.log('amethystRhinestone:', amethystRhinestone);
-    // console.log('trollBonus:', trollBonus);
-    // console.log('firstAchievement:', firstAchievement);
-    // console.log('secondAchievement:', secondAchievement);
-    // console.log('kitchenEffMeals:', kitchenEffMeals);
-    // console.log('speedLv:', speedLv);
-    // console.log('fireLv:', fireLv);
-    // console.log('luckLv:', luckLv);
-    // console.log('###################');
+    if (characterIndex >= 0){
+      console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
+      console.log('account?.farming?.cropDepot?.cookingSpeed?.value:', account?.farming?.cropDepot?.cookingSpeed?.value);
+      console.log('voidWalkerApocalypseBonus:', voidWalkerApocalypseBonus);
+      console.log('richelinBonus:', richelinBonus);
+      console.log('marshmallowBonus:', marshmallowBonus);
+      console.log('highestFarming:', highestFarming);
+      console.log('bubbleBonus:', bubbleBonus);
+      console.log('voidPlateChefBonus:', voidPlateChefBonus);
+      console.log('superbitBonus:', superbitBonus);
+      console.log('speedLv:', speedLv);
+      console.log('triagulonArtifactBonus:', triagulonArtifactBonus);
+      console.log('arcadeBonus:', arcadeBonus);
+      console.log('turtleVial:', turtleVial);
+      console.log('cookingSpeedVials:', cookingSpeedVials);
+      console.log('cookingSpeedStamps:', cookingSpeedStamps);
+      console.log('cookingSpeedFromJewel:', cookingSpeedFromJewel);
+      console.log('cookingSpeedMeals:', cookingSpeedMeals);
+      console.log('starSignBonus:', starSignBonus);
+      console.log('winnerBonus:', winnerBonus);
+      console.log('cardCookingMulti:', cardCookingMulti);
+      console.log('extraCookingSpeedVials:', extraCookingSpeedVials);
+      console.log('amethystRhinestone:', amethystRhinestone);
+      console.log('trollBonus:', trollBonus);
+      console.log('firstAchievement:', firstAchievement);
+      console.log('secondAchievement:', secondAchievement);
+      console.log('kitchenEffMeals:', kitchenEffMeals);
+      console.log('speedLv:', speedLv);
+      console.log('fireLv:', fireLv);
+      console.log('luckLv:', luckLv);
+      console.log('###################');
+    }
 
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');

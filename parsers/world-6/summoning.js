@@ -2,6 +2,7 @@ import { groupByKey, tryToParse } from '@utility/helpers';
 import { deathNote, summoningBonuses, summoningEnemies, summoningUpgrades } from '../../data/website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
+import { getAchievementStatus } from '@parsers/achievements';
 
 export const getSummoning = (idleonData, accountData, serializedCharactersData) => {
   const rawSummon = tryToParse(idleonData?.Summon);
@@ -42,10 +43,10 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     const rawValue = rawWinnerBonuses?.[bonusId];
     const charmBonus = getCharmBonus(account, 'Crystal_Comb');
     const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
-    const value = bonus?.includes('{')
-      ? 3.5 * rawWinnerBonuses?.[bonusId] * (1 + charmBonus / 100) * (1 + artifactBonus / 100)
-      : 1 + (3.5 * rawWinnerBonuses?.[bonusId] * (1 + charmBonus / 100) * (1 + artifactBonus / 100)) / 100;
-    return { bonusId, bonus, value: rawValue ? value : 0, baseValue: rawValue };
+    const firstAchievement = getAchievementStatus(account?.achievements, 373);
+    const secondAchievement = getAchievementStatus(account?.achievements, 379);
+    const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
+    return { bonusId, bonus, value: rawValue ? 3.5 * rawWinnerBonuses?.[bonusId] * (1 + charmBonus / 100) * (1 + (artifactBonus + (Math.min(10, level * bonusPerLevel) + (firstAchievement + secondAchievement))) / 100) : 0, baseValue: rawValue };
   })
 
   let upgrades = summoningUpgrades.map((upgrade, index) => ({
@@ -65,9 +66,8 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   }
 }
 
-export const getWinnerBonus = (account, bonusName, baseValue = true) => {
-  const val = baseValue ? 'baseValue' : 'value';
-  return account?.summoning?.winnerBonuses?.find(({ bonus }) => bonus === bonusName)?.[val] ?? 0;
+export const getWinnerBonus = (account, bonusName) => {
+  return account?.summoning?.winnerBonuses?.find(({ bonus }) => bonus === bonusName)?.value ?? 0;
 }
 
 const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {

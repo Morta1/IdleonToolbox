@@ -24,12 +24,8 @@ const Vials = () => {
       title="Vials | Idleon Toolbox"
       description="Vials progressions and upgrade requirements"
     />
-    <Typography variant={'h2'} mb={3}>Vials</Typography>
-
     <CardTitleAndValue title={'Vial mastery bonus'}
-                       value={`${(getVialMastery() || 1).toFixed(3)}x`}>
-    </CardTitleAndValue>
-
+                       value={`${(getVialMastery() || 1).toFixed(3)}x`}/>
     <Stack direction={'row'} flexWrap={'wrap'}>
       {state?.account?.alchemy?.vials?.map((vial, index) => {
         const { name, level, mainItem } = vial;

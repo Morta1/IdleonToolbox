@@ -67,7 +67,14 @@ export const getStarSignBonus = (character, account, effectName, forceNanoChip =
       }
     }
     if (infiniteStars && !activeStar && starSign?.unlocked) {
-      starSign = { ...starSign, bonuses: starSign?.bonuses?.map((bonus) => ({ ...bonus, isInfiniteStar, bonus: forceNanoChip ? bonus?.bonus * 2 : bonus?.bonus })) }
+      starSign = {
+        ...starSign,
+        bonuses: starSign?.bonuses?.map((bonus) => ({
+          ...bonus,
+          isInfiniteStar,
+          bonus: starSign?.starName === 'Gordonius_Major' && forceNanoChip ? bonus?.bonus * 2 : bonus?.bonus
+        }))
+      }
     }
     return activeStar ? activeStar : starSign;
   });

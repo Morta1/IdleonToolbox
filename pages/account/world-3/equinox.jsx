@@ -22,8 +22,6 @@ const Equinox = () => {
         title="Equinox | Idleon Toolbox"
         description="Equinox progression"
       />
-
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Equinox</Typography>
       <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Speed'} value={Math.round(equinox.chargeRate) + '/hr'}/>
         <CardTitleAndValue textAlign={'center'} title={'Equinox Progression'}>

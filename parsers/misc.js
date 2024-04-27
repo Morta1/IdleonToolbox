@@ -482,13 +482,16 @@ export const getGoldenFoodMulti = (character, account) => {
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zGoldFood', blackDiamondRhinestone);
   const starSignBonus = getStarSignBonus(character, account, 'Golden_Food');
   const bribeBonus = getBribeBonus(account?.bribes, 'Gold_from_Lead');
+  const achievementBonus = getAchievementStatus(account?.achievements, 380);
+  const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
   return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
         + (goldenAppleStamp
           + (goldenFoodAchievement
             + (goldenFoodBubbleBonus
-              + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus)))) / 100;
+              + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
+            + (2 * achievementBonus + 3 * secondAchievementBonus))))) / 100;
 }
 
 export const getGoldenFoodBonus = (foodName, character, account) => {

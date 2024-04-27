@@ -128,7 +128,9 @@ const baseTrackers = {
       checked: true, options: [
         {
           name: 'familiar',
-          checked: true
+          checked: true,
+          type: 'input',
+          props: { label: 'Threshold', value: 10, minValue: 0, helperText: '' },
         }
       ]
     },

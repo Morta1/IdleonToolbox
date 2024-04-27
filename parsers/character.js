@@ -548,7 +548,7 @@ export const getJadeRate = (character, account) => {
   const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Jade_Coin_Gain');
   const farmingBonus = account?.farming?.cropDepot?.jadeCoin?.value;
-  const summoningBonus = getWinnerBonus(account, '<x Jade Gain', false);
+  const summoningBonus = getWinnerBonus(account, '<x Jade Gain');
   const msaBonus = account?.msaTotalizer?.jadeCoin?.value;
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'COOL_COIN');
   const starSignBonus = getStarSignBonus(character, account, 'Jade_Gain')
@@ -590,6 +590,7 @@ export const getRespawnRate = (character, account) => {
   const worldTwoMeritBonus = account?.tasks?.[2]?.[1]?.[1];
   const worldTwoMeritBonusPerLevel = account?.meritsDescriptions?.[1]?.[1]?.bonusPerLevel;
 
+  // TODO: check this
   const worldThreeMeritBonus = account?.tasks?.[2]?.[1]?.[1];
   const worldThreeMeritBonusPerLevel = account?.meritsDescriptions?.[1]?.[1]?.bonusPerLevel;
 
@@ -669,7 +670,11 @@ export const getDropRate = (character, account, characters) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
   const chipBonus = getPlayerLabChipBonus(character, account, 3);
-  const summoningBonus = getWinnerBonus(account, '+{% Drop Rate', false);
+  const summoningBonus = getWinnerBonus(account, '+{% Drop Rate');
+  const achievementBonus = getAchievementStatus(account?.achievements, 377);
+  const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
+
   const additive =
     firstTalentBonus +
     postOfficeBonus +
@@ -687,8 +692,10 @@ export const getDropRate = (character, account, characters) => {
     arcadeBonus +
     companionDropRate +
     stampBonus;
+  // TODO: missing tome bonus
+
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus)) / 100 + 1;
+    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
@@ -772,6 +779,8 @@ export const getCashMulti = (character, account, characters) => {
   const americanTipperBonus = cashPerCookingLv * getTalentBonus(character?.starTalents, null, 'AMERICAN_TIPPER');
   const goldFoodBonus = getGoldenFoodBonus('Golden_Bread', character, account)
   const achievementBonus = getAchievementStatus(account?.achievements, 235);
+  const secondAchievementBonus = getAchievementStatus(account?.achievements, 350);
+  const thirdAchievementBonus = getAchievementStatus(account?.achievements, 376);
   const { dropRate } = getDropRate(character, account, characters);
   const dropRateMulti = (dropRate < 2 ? dropRate : Math.floor(dropRate < 5 ? dropRate : dropRate + 1)) * 100;
 
@@ -802,7 +811,7 @@ export const getCashMulti = (character, account, characters) => {
                   * (1 + Math.floor(character?.mapIndex / 50))
                   + (coinsForCharonBonus
                     + (americanTipperBonus
-                      + ((1 + goldFoodBonus / 100) + 5 * achievementBonus)))))))))) / 100);
+                      + ((1 + goldFoodBonus / 100) + (5 * achievementBonus + 10 * secondAchievementBonus + 20 * thirdAchievementBonus))))))))))) / 100);
 
   const breakdown = [
     { name: 'Bubbles*', value: bubbles },

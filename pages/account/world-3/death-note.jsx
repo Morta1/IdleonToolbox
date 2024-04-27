@@ -18,7 +18,6 @@ const DeathNote = () => {
         title="Death Note | Idleon Toolbox"
         description="Keep track of death note progression"
       />
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Death Note</Typography>
       <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
         {Object.entries(deathNote)?.map(([worldIndex, { mobs, rank }], index) => {
           return <Card key={worldIndex + ' ' + index}>

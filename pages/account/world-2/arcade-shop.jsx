@@ -36,7 +36,6 @@ const ArcadeShop = () => {
         title="Arcade Shop | Idleon Toolbox"
         description="Arcade shop upgrades, balls and golden balls"
       />
-      <Typography variant={'h2'} mb={3}>Arcade Shop</Typography>
       <Stack direction={'row'} gap={2}>
         <CardTitleAndValue title={'Balls'}>
           <Stack direction={'row'} gap={2}>

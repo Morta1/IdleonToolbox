@@ -70,7 +70,6 @@ const GemShop = () => {
       title="Gem Shop | Idleon Toolbox"
       description="View all gem shop upgrades, bonuses and more"
     />
-    <Typography mt={2} mb={2} variant={'h2'}>Gem Shop</Typography>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       <CardTitleAndValue title={'Gems'} value={state?.account?.currencies?.gems}/>
       <CardTitleAndValue title={'Control'}>

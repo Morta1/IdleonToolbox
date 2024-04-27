@@ -202,7 +202,6 @@ const Bubbles = () => {
         title="Bubbles | Idleon Toolbox"
         description="Keep track of your bubbles level and requirements with a handy calculator"
       />
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Bubbles</Typography>
       <Box sx={{ width: 'fit-content', margin: '24px auto' }}>
         <Nblb title={'Next bubble upgrades'} bubbles={upgradeableBubbles?.normal} accumulatedCost={accumulatedCost}
               account={state?.account}/>

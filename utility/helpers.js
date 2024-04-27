@@ -18,7 +18,11 @@ export const downloadFile = (data, filename) => {
   link.dispatchEvent(evt);
   link.remove()
 }
-
+// Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1
+const msPerDay = 8.64e+7;
+export const getTimeAsDays = (time) => {
+  return Math.ceil(time * 3600 * 1000 / msPerDay);
+}
 export const eventsColors = {
   'Meteorite': '#f8e8b7',
   'Mega_Grumblo': '#e6b471',
@@ -484,6 +488,6 @@ export const handleCopyToClipboard = async (data, beautify = true) => {
   }
 };
 
-export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5'];
+export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6'];
 export const prefix = isProd ? '/' : '/';
 

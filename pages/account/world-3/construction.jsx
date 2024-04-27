@@ -15,9 +15,6 @@ const Construction = () => {
       title="Construction | Idleon Toolbox"
       description="Keep track of your construction board, cogs information and more"
     />
-    <Typography variant={'h2'} textAlign={'center'} mb={3}>
-      Construction
-    </Typography>
     <Tabber tabs={['Main', 'Cog stat calculator']}>
       <ConstructionMain/>
       <CogStatCalculator/>

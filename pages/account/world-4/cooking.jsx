@@ -9,6 +9,8 @@ import { tryToParse } from '@utility/helpers';
 import { parseKitchens } from '@parsers/cooking';
 import MenuItem from '@mui/material/MenuItem';
 import { getPlayerLabChipBonus } from '@parsers/lab';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '@components/Tooltip';
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
@@ -19,7 +21,8 @@ const Cooking = () => {
 
   useEffect(() => {
     const hasChip = getPlayerLabChipBonus(selectedCharacter, state?.account, 15);
-    setEnableNanoChip(!!hasChip);
+    const hasGordonius = selectedCharacter?.starSigns?.find(({starName}) => starName === 'Gordonius_Major')?.unlocked;
+    setEnableNanoChip(!!hasChip && !!hasGordonius);
   }, [selectedCharacter]);
 
   const kitchens = useMemo(() => {
@@ -45,8 +48,7 @@ const Cooking = () => {
         title="Cooking | Idleon Toolbox"
         description="Keep track of your kitchens and meals progression"
       />
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Cooking</Typography>
-      <Stack my={3} direction={'row'} gap={2}>
+      <Stack my={3} direction={'row'} gap={2} alignItems={'center'}>
         <FormControl sx={{ width: 170 }}>
           <InputLabel id="selected-character">Character</InputLabel>
           <Select
@@ -58,17 +60,22 @@ const Cooking = () => {
               setSelectedCharacter(characters?.[e.target.value])
             }}
           >
-            {characters.map((character) => <MenuItem key={'option' + character.name}
-                                                     value={character?.playerId}>{character.name}</MenuItem>)}
+            {characters?.map((character) => <MenuItem key={'option' + character.name}
+                                                      value={character?.playerId}>{character.name}</MenuItem>)}
           </Select>
         </FormControl>
-        <FormControlLabel
-          control={<Checkbox name={'enableNanoChip'} checked={enableNanoChip}
-                             disabled={!!getPlayerLabChipBonus(selectedCharacter, state?.account, 15)}
-                             size={'small'}
-          />}
-          onChange={(e) => setEnableNanoChip(!enableNanoChip)}
-          label={'Enable nano chip'}/>
+        <Stack direction={'row'} alignItems={'center'}>
+          <FormControlLabel
+            control={<Checkbox name={'enableNanoChip'}
+                               checked={enableNanoChip}
+                               size={'small'}
+            />}
+            onChange={(e) => setEnableNanoChip(!enableNanoChip)}
+            label={'Enable nano chip'}/>
+          <Tooltip title={'Enabling nano chip assumes you have gordonius major star sign *active*'}>
+            <InfoIcon fontSize={'small'}></InfoIcon>
+          </Tooltip>
+        </Stack>
       </Stack>
       <Tabber tabs={['Kitchens', 'Meals']}>
         <Kitchens {...cooking}

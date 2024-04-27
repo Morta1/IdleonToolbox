@@ -1,10 +1,11 @@
 import { tryToParse } from "@utility/helpers";
 import { marketInfo, seedInfo } from '../../data/website-data';
-import { getCharmBonus, getJadeEmporiumBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
+import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getVialsBonusByStat } from "@parsers/alchemy";
 import { getJewelBonus, getLabBonus } from "@parsers/lab";
 import { getWinnerBonus } from "@parsers/world-6/summoning";
+import { getAchievementStatus } from "@parsers/achievements";
 
 export const getFarming = (idleonData: any, accountData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
@@ -55,10 +56,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   }, 0);
   const jadeUpgrade = isJadeBonusUnlocked(account, 'Deal_Sweetening') ?? 0;
   const marketBonus = getMarketBonus(market, "MORE_BEENZ");
-  const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + 25 * jadeUpgrade / 100);
-  // console.log('plot', plot);
-  // console.log('crop', rawFarmingCrop);
-  // console.log('market', market);
+  const achievementBonus = getAchievementStatus(account?.achievements, 363)
+  const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + 25 * jadeUpgrade / 100) + 5 * achievementBonus;
   return {
     plot,
     crop: { ...rawFarmingCrop, beans },
@@ -76,18 +75,20 @@ export const updateFarming = (characters: any, account: any) => {
     const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
     const charmOGChange = getCharmBonus(account, 'Taffy_Disc');
     const starSignBonus = getStarSignBonus(characters?.[0], account, 'OG_Chance');
+    const achievementBonus = getAchievementStatus(account?.achievements, 365)
     const nextOGChance = Math.pow(0.4, crop?.currentOG + 1)
       * Math.max(1, marketOGChance)
       * (1 + charmOGChange / 100)
-      * (1 + starSignBonus / 100);
+      * (1 + starSignBonus / 100)
+      * (1 + (15 * achievementBonus) / 100);
     // Growth
     const marketGrowthRate = getMarketBonus(account?.farming?.market, "NUTRITIOUS_SOIL");
     const marketGrowthPerCrop = getMarketBonus(account?.farming?.market, "SPEED_GMO");
     const cropsAboveThousand = Object.values(account?.farming?.crop)?.filter((value: any) => value >= 1000)?.length;
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
-    const summoningBonus = getWinnerBonus(account, '<x Farming SPD', false);
+    const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
     const growthRate = Math.max(1, marketGrowthPerCrop * cropsAboveThousand)
-      * (1 + (marketGrowthRate + vialBonus) / 100) * summoningBonus;
+      * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
     const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
     const ogMulti = Math.min(1e9, Math.max(1, Math.pow(2, crop?.currentOG)));
     return {

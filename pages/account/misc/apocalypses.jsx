@@ -49,7 +49,6 @@ const Apocalypses = () => {
         title="Apocalypses | Idleon Toolbox"
         description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
       />
-      <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Apocalypses</Typography>
       <Stack direction={'row'} my={2} justifyContent={'center'} flexWrap={'wrap'}>
         <ToggleButtonGroup
           size={'small'}

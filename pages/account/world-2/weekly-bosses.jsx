@@ -9,6 +9,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Tooltip from '@components/Tooltip';
 import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
@@ -23,14 +24,9 @@ const WeeklyBosses = () => {
 
   const weeklyBosses = useMemo(() => getWeeklyBoss(state?.account, weeks), [state?.account, weeks]);
   return weeklyBosses?.length ? <>
-    <Stack direction={'row'} gap={2} alignItems={'center'}>
-      <Typography variant={'h2'} sx={{ mb: 3 }}>Weekly bosses</Typography>
-      <Tooltip title={'Copy weekly bosses data'}>
-        <IconButton onClick={() => handleCopy(weeklyBosses)}>
-          <ContentCopyIcon/>
-        </IconButton>
-      </Tooltip>
-      <Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>Add more bosses</Button>
+    <Stack direction={'row'} gap={2} mb={3} alignItems={'center'}>
+      <Button onClick={() => handleCopy(weeklyBosses)}><ContentCopyIcon sx={{mr: 1}}/> Copy boss data</Button>
+      <Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more bosses</Button>
     </Stack>
     <Tabber forceScroll={weeks > 10} tabs={weeklyBosses?.map(({ bossName, date }) => <Stack>
       <Typography variant={'body1'} sx={{textTransform:'none'}}>{cleanUnderscore(bossName)}</Typography>

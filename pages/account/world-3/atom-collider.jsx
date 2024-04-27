@@ -19,7 +19,6 @@ const AtomCollider = ({}) => {
       title="Atom Collider | Idleon Toolbox"
       description="Atom Collider bonuses and progression"
     />
-    <Typography variant={'h2'} textAlign={'center'} mb={3}>Atoms</Typography>
     <Stack direction={'row'} gap={2}>
       <CardTitleAndValue title={'Particles'}>
         <Stack direction={'row'} gap={2}>

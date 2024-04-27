@@ -1,10 +1,10 @@
-import { AppContext } from 'components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 import React, { forwardRef, useContext, useMemo, useState } from 'react';
 import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from 'utility/helpers';
-import HtmlTooltip from 'components/Tooltip';
+import { cleanUnderscore, prefix } from '@utility/helpers';
+import HtmlTooltip from '@components/Tooltip';
 import { NextSeo } from 'next-seo';
-import { filteredLootyItems } from '../../../parsers/parseMaps';
+import { filteredLootyItems } from '@parsers/parseMaps';
 import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
 
@@ -26,7 +26,6 @@ const Slab = () => {
       title="Slab | Idleon Toolbox"
       description="The Slab consists of a list of items within the game"
     />
-    <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Slab</Typography>
     <Stack direction={'row'} gap={3}>
       <CardTitleAndValue title={'Looted items'}
                          value={`${state?.account?.looty?.lootedItems} / ${state?.account?.looty?.totalItems}`}/>

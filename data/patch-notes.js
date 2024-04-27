@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.63',
+    gameVer: '2.0.6',
+    date: '27/04/2024',
+    features: [
+      'Updated the website with version 2.0.6 data and assets',
+      'Added world 6 achievements and tasks',
+      'Updated world 6 achievement bonuses to all relevant stats',
+      'Added a threshold input to the Summoning -> Familiar dashboard alert',
+      'Added a "Total Time" stat to the refinery page - to show how long it takes to get from 0% to 100%',
+      'Moved Slab page to W5 category',
+      'Moved Beanstalk page to W5 category',
+      'Removed page titles from all pages as they don\'t add any value and and take up space'
+    ],
+    fixes: ['Fixed cooking speed']
+  },
+  {
     ver: '3.2.62',
     gameVer: '2.0.5',
     date: '25/04/2024',

@@ -16,6 +16,7 @@ import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
 import Tooltip from '@components/Tooltip';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Button from '@mui/material/Button';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
@@ -47,12 +48,7 @@ const Breeding = () => {
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
       <Stack direction={'row'} gap={2} alignItems={'center'}>
-        <Typography variant={'h2'} mb={3}>Breeding</Typography>
-        <Tooltip title={'Copy breeding data'}>
-          <IconButton onClick={handleCopy}>
-            <ContentCopyIcon/>
-          </IconButton>
-        </Tooltip>
+        <Button onClick={handleCopy}><ContentCopyIcon sx={{mr: 1}}/>Copy breeding data</Button>
       </Stack>
       <Stack my={2} direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={2}>
         {state?.account?.breeding?.eggs?.map((eggLevel, index) => {

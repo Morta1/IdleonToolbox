@@ -9,6 +9,7 @@ export const getTasks = (idleonData) => {
     tryToParse(idleonData?.TaskZZ3),
     tryToParse(idleonData?.TaskZZ4),
     tryToParse(idleonData?.TaskZZ5),
+    tryToParse(idleonData?.TaskZZ6),
   ];
 
   const tasksDescriptions = tasks?.map((worldTasks, worldIndex) => {

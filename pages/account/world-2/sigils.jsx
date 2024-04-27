@@ -28,15 +28,14 @@ const Sigils = () => {
     const vial = getVialsBonusByStat(alchemy?.vials, 'SigSpd');
     const anotherVial = getVialsBonusByStat(alchemy?.vials, '6turtle');
     const stampBonus = getStampsBonusByEffect(state?.account, '+{%_Sigil_Charge_rate');
-    const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD', false);
-
+    const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD');
     return {
       value: (1 + ((achievement ? 20 : 0)
           + (sigilBonus
             + (20 * gemStore
               + (vial
                 + stampBonus)))) / 100)
-        * winnerBonus
+        * (1 + winnerBonus / 100)
         * (1 + anotherVial / 100),
 
       breakdown: [
@@ -69,9 +68,6 @@ const Sigils = () => {
         title="Sigils | Idleon Toolbox"
         description="Sigils information and progression"
       />
-      <Typography variant={'h2'} mb={3}>
-        Sigils
-      </Typography>
       <Stack direction={'row'} gap={3}>
         <CardTitleAndValue title={'Sigil Speed'}>
           <Stack direction={'row'} gap={1} justifyContent={'space-between'}>

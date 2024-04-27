@@ -463,7 +463,7 @@ export const summoningAlerts = (account, options) => {
   const { familiar } = options;
   const alerts = {};
   const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
-  if (familiar?.checked && level < maxLvl) {
+  if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
     alerts.familiar = { level, maxLvl };
   }
   return alerts;

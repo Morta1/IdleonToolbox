@@ -14,8 +14,7 @@ const Bribes = () => {
       title="Bribes | Idleon Toolbox"
       description="Keep track of your bribes status"
     />
-    <Typography mt={2} mb={3} textAlign={'center'} variant={'h2'}>Bribes</Typography>
-    <Stack gap={3}>
+    <Stack gap={3} mt={3}>
       {state?.account?.bribes?.map((bribe, index) => {
         const { name, desc, price, done, value } = bribe;
         const money = getCoinsArray(price);

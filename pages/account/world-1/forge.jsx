@@ -39,7 +39,6 @@ const Forge = () => {
       title="Forge | Idleon Toolbox"
       description="Keep track of your forge production"
     />
-    <Typography mt={2} mb={2} variant={'h2'}>Forge</Typography>
     <Tabber tabs={['Slots', 'Upgrades']}>
       <Grid container gap={2}>
         {state?.account?.forge?.list?.map(({ ore, barrel, bar, isBrimestone }, index) => {

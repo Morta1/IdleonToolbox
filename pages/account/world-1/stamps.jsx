@@ -66,10 +66,6 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
       />
-      <Typography textAlign={'center'} variant={'h4'} mb={3}>Stamps</Typography>
-      <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={1}>* Blue border means you have enough
-        material, money and space to
-        craft</Typography>
       <Stack direction={'row'} justifyContent={'center'} gap={1}>
         <Tooltip title={'Missing Money'}>
           <Avatar sx={{ bgcolor: 'warning.light', width: 24, height: 24 }} alt={'m'}
@@ -95,6 +91,9 @@ const Stamps = () => {
                   src={''}>&nbsp;</Avatar>
         </Tooltip>
       </Stack>
+      <Typography textAlign={'center'} component={'div'} variant={'caption'} mt={1}>* Blue border means you have enough
+        material, money and space to
+        craft</Typography>
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Gilded Stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>

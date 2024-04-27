@@ -13,10 +13,8 @@ const Gaming = () => {
       title="Gaming | Idleon Toolbox"
       description="Keep track of your gaming upgrades including dirty shovel and autumn squirrel timers"
     />
-    <Typography variant={'h2'} textAlign={'center'} mb={3}>Gaming</Typography>
     <General account={state?.account} lastUpdated={state?.lastUpdated}/>
   </>
 };
-
 
 export default Gaming;

@@ -107,8 +107,7 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
       />
-      <Typography textAlign={'center'} variant={'h2'} mb={3}>Stamps</Typography>
-      <Typography textAlign={'center'} component={'div'} variant={'caption'} mb={3}>* Green border means you have enough
+      <Typography textAlign={'center'} component={'div'} variant={'caption'} >* Green border means you have enough
         material, money and space to
         craft</Typography>
       <Stack direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>

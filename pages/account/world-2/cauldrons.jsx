@@ -34,7 +34,6 @@ const Cauldrons = () => {
         title="Cauldrons | Idleon Toolbox"
         description="Cauldrons progression and stats"
       />
-      <Typography variant={'h2'} textAlign={'center'} mb={3}>Cauldrons</Typography>
       <Typography variant={'h4'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => {

@@ -47,8 +47,6 @@ const Beanstalk = () => {
       title="Beanstalk | Idleon Toolbox"
       description="Keep track on your golden food bonuses on the beanstalk"
     />
-    {!unlocked ? <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>You need to unlock beanstalk through W6
-      jade emporium</Typography> : null}
     <img src={`${prefix}etc/beanstalk_title.png`} alt={'title'}/>
     <Stack direction={'row'} gap={1}>
       <Typography variant={'h6'}>Total Golden Food Bonus: {highestMulti}%</Typography>
@@ -56,6 +54,8 @@ const Beanstalk = () => {
         <InfoIcon/>
       </Tooltip>
     </Stack>
+    {!unlocked ? <Typography textAlign={'center'} mt={2} mb={2} variant={'caption'}>* You need to unlock beanstalk through W6
+      jade emporium to get the beanstalk bonuses</Typography> : null}
     <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'}>
       {beanstalkGoldenFoods?.map((item) => {
         const { displayName, rawName, active, rank } = item;

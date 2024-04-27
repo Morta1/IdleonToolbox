@@ -14,8 +14,6 @@ const worldsData = {
       { label: 'storage', icon: 'data/InvStorage42' },
       { label: 'quests', icon: 'data/Quest62' },
       { label: 'dungeons', icon: 'data/DungeonA7' },
-      { label: 'slab', icon: 'etc/Slab' },
-      { label: 'beanstalk', icon: 'etc/beanstalk1' },
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'constellations', icon: 'data/StarTitle1' },
       { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
@@ -56,7 +54,7 @@ const worldsData = {
       { label: 'sigils', icon: 'data/LabBonus12' },
       { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'islands', icon: 'data/Island1' },
-      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
+      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' }
     ]
   },
   'world 3': {
@@ -90,7 +88,8 @@ const worldsData = {
     categories: [
       { label: 'sailing', icon: 'data/ClassIcons54' },
       { label: 'divinity', icon: 'data/ClassIcons55' },
-      { label: 'gaming', icon: 'data/ClassIcons56' }
+      { label: 'gaming', icon: 'data/ClassIcons56' },
+      { label: 'slab', icon: 'etc/Slab' }
     ]
   },
   'world 6': {
@@ -99,6 +98,7 @@ const worldsData = {
       { label: 'farming', icon: 'data/ClassIcons57' },
       { label: 'sneaking', icon: 'data/ClassIcons58' },
       { label: 'summoning', icon: 'data/ClassIcons59' },
+      { label: 'beanstalk', icon: 'etc/beanstalk1' }
     ]
   }
 };

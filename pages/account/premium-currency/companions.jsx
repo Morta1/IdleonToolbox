@@ -13,7 +13,6 @@ const Companions = () => {
       title="Companions | Idleon Toolbox"
       description="Detailed information about companions and their bonuses"
     />
-    <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>Companions</Typography>
     <Accordion defaultExpanded={false} sx={{ mb: 3, width: 'fit-content' }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Summary</AccordionSummary>
       <AccordionDetails>

@@ -33,7 +33,6 @@ const Sailing = () => {
       title="Sailing | Idleon Toolbox"
       description="Keep track of your artiacts, boats and captains and their bonuses"
     />
-    <Typography variant={'h2'} textAlign={'center'} mb={3}>Sailing</Typography>
     <Stack mb={2} direction={'row'} gap={1}>
       <CardTitleAndValue title={'Chests'}>
         <Stack direction={'row'} gap={2}>

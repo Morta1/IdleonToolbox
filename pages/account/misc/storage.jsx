@@ -66,9 +66,6 @@ const Looty = () => {
         title="Storage | Idleon Toolbox"
         description="A list of your storage items"
       />
-      <Typography textAlign={'center'} mt={2} mb={2} variant={'h2'}>
-        Storage
-      </Typography>
       <Stack>
         <Stack mb={3} direction={'row'} flexWrap={'wrap'}>
           <FormControlLabel
