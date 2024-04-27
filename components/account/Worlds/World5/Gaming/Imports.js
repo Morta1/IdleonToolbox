@@ -28,7 +28,6 @@ const Imports = ({ account, lastUpdated }) => {
   } = account?.gaming || {};
   return (
     <>
-      <Typography variant={'h3'} my={3}>Imports</Typography>
       <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
         {imports?.map(({
                          boxName,

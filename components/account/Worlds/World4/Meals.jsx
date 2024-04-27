@@ -41,17 +41,17 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
-    return bloodBerserkers.reduce((res, { talents }) => {
+    return bloodBerserkers.reduce((res, { talents, name }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
       const lv = overflowingLadle?.level > overflowingLadle?.maxLevel
         ? overflowingLadle?.level
         : overflowingLadle?.maxLevel;
       const bonus = growth(overflowingLadle?.funcX, lv, overflowingLadle?.x1, overflowingLadle?.x2, false);
-      if (bonus > res) {
-        return bonus
+      if (bonus > res.value) {
+        return { value: bonus, character: name };
       }
       return res;
-    }, 0);
+    }, { value: 0, character: '' });
   }
   const overflowingLadleBonus = useMemo(() => getHighestOverflowingLadle(), [characters]);
   const calcMeals = (meals, overflow) => {
@@ -61,7 +61,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       const levelCost = getMealLevelCost(level, achievements, localEquinoxUpgrades);
       let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
       if (overflow) {
-        timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus / 100);
+        timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus.value / 100);
       }
       const breakpointTimes = breakpoints.map((breakpoint) => {
         if (breakpoint === 0 || breakpoint === -1) {
@@ -77,7 +77,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
         const bpCost = (breakpoint - level) * levelCost;
         let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, localEquinoxUpgrades);
         if (overflow) {
-          timeToBp = timeToBp / (1 + overflowingLadleBonus / 100)
+          timeToBp = timeToBp / (1 + overflowingLadleBonus.value / 100)
         }
         return { bpCost, timeToBp, bpLevel: breakpoint };
       })
@@ -125,7 +125,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       }
     })
     if (filters.includes('overflow')) {
-      tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus)
+      tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus.value)
     }
     if (filters.includes('hide')) {
       tempMeals = tempMeals.filter((meal) => meal?.level < mealMaxLevel);
@@ -188,7 +188,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           <Stack direction={'row'} gap={1}>
             <Typography>Overflowing Ladle</Typography>
             <Tooltip
-              title={`Blood Berserker Talent: Ladles gives ${kFormatter(overflowingLadleBonus, 2)}% more afk time`}>
+              title={`Blood Berserker Talent: Ladles gives ${kFormatter(overflowingLadleBonus.value, 2)}% more afk time (using ${overflowingLadleBonus.character})`}>
               <InfoIcon/>
             </Tooltip>
           </Stack>
@@ -352,7 +352,6 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     </>
   );
 };
-
 
 
 const MealTooltip = ({ level, baseStat, effect, blackDiamondRhinestone, shinyMulti }) => {

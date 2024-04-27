@@ -18,7 +18,7 @@ const Farming = () => {
       description="Keep track of your garden with all its bonuses"
     />
     <Stack direction={'row'} gap={1}>
-      <CardTitleAndValue title={'Bean trade'} value={notateNumber(beanTrade)} icon={'data/Quest80_x1.png'} imgStyle={{width: 24}}/>
+      <CardTitleAndValue title={'Bean Trade'} value={notateNumber(beanTrade)} icon={'data/Quest80_x1.png'} imgStyle={{width: 24}}/>
       <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
     </Stack>
     <Typography variant={'h5'}>Crop depot</Typography>

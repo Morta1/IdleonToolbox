@@ -14,7 +14,7 @@ const Companions = () => {
       description="Detailed information about companions and their bonuses"
     />
     <Accordion defaultExpanded={false} sx={{ mb: 3, width: 'fit-content' }}>
-      <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Summary</AccordionSummary>
+      <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Details</AccordionSummary>
       <AccordionDetails>
         <Stack direction={'row'} gap={3}>
           <Card sx={{ my: 3 }} variant={'outlined'}>

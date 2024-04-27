@@ -107,17 +107,22 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
       />
-      <Typography textAlign={'center'} component={'div'} variant={'caption'} >* Green border means you have enough
+      <Typography textAlign={'center'} component={'div'} variant={'caption'}>* Green border means you have enough
         material, money and space to
         craft</Typography>
       <Stack direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Gilded Stamp'}>
-          <Stack alignItems={'center'} direction={'row'} gap={2}>
-            <img src={`${prefix}data/GildedStamp.png`} alt=""/>
-            <Stack>
-              <Typography>Owned: {gildedStamps}</Typography>
-              <Typography>Chance: {calcStampLevels(state?.account?.stamps) / 100}%</Typography>
+          <Stack alignItems={'center'} gap={2}>
+            <Stack alignItems={'center'} direction={'row'} gap={2}>
+              <img src={`${prefix}data/GildedStamp.png`} alt=""/>
+              <Stack>
+                <Typography>Owned: {gildedStamps}</Typography>
+                <Typography>Chance: {calcStampLevels(state?.account?.stamps) / 100}%</Typography>
+              </Stack>
             </Stack>
+            <FormControlLabel
+              control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
+              label="Gilded Stamp"/>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Stamp Reducer'}>
@@ -151,9 +156,6 @@ const Stamps = () => {
                                  onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
                                  size={'small'}/>}
               label={'Subtract green stacks'}/>
-            <FormControlLabel
-              control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
-              label="Gilded Stamp"/>
             <TextField label={'Stamp Reducer'} value={stampReducerInput}
                        onChange={(e) => setStampReducerInput(e.target.value)} type={'number'}
                        InputProps={{ inputProps: { min: 0, max: 90 } }}/>
@@ -187,8 +189,7 @@ const Stamps = () => {
                 ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
                 return ownedMats >= itemQuantity * materialCost;
               })
-            }
-            else {
+            } else {
               ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === itemReqRawName))?.amount;
               ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
               hasMaterials = ownedMats >= materialCost;
@@ -234,8 +235,9 @@ const Stamps = () => {
                       <HtmlTooltip
                         dark={condenseView}
                         title={condenseView ? isBlank ? '' : <StampFullDetails itemRequirements={itemRequirements}
-                                                                stampName={displayName}
-                                                                goalBonus={goalBonus} bestCharacter={bestCharacter}/> :
+                                                                               stampName={displayName}
+                                                                               goalBonus={goalBonus}
+                                                                               bestCharacter={bestCharacter}/> :
                           <StampTooltip {...{ ...stamp, goalLevel, goalBonus }}/>}>
                         <StampIcon width={48} height={48}
                                    level={level}

@@ -82,7 +82,7 @@ const Forge = () => {
             }}>
               <Stack direction="row" gap={3} flexWrap={'wrap'}>
                 <Column name={'Lv.'} value={`${level} / ${maxLevel}`}/>
-                <Column style={{ width: 300 }} name={'Description'} value={description}/>
+                <Column style={{ width: 300 }} name={'Description'} value={description.capitalize()}/>
                 <Column style={{ width: 120 }} name={'Cost'}
                         value={level < maxLevel ? <CoinDisplay centered={false} title={''} maxCoins={3}
                                                                money={getCoinsArray(cost)}/> :
