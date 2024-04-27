@@ -14,7 +14,7 @@ export const patchNotes = [
       'Added a threshold input to the Summoning -> Familiar dashboard alert',
       'Added a "Total Time" stat to the refinery page - to show how long it takes to get from 0% to 100%',
       'Moved Slab page to W5 category',
-      'Moved Beanstalk page to W5 category',
+      'Moved Beanstalk page to W6 category',
       'Removed page titles from all pages as they don\'t add any value and and take up space'
     ],
     fixes: ['Fixed cooking speed']
