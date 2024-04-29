@@ -32,6 +32,7 @@ const Tasks = () => {
                                                               breakpoints,
                                                               meritReward
                                                             }, index) => {
+            console.log('meritReward', meritReward)
             if (index >= 9) return null;
             const req = (index === 8 ? breakpoints?.[0] : breakpoints?.[level]) ?? 0;
             let desc;
@@ -58,7 +59,7 @@ const Tasks = () => {
                   : ''}</Typography>
                 {level <= breakpoints?.length ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                   <img src={`${prefix}etc/Merit_${world}.png`} alt={'cost_merit-' + world}/>
-                  <Typography>{meritReward}</Typography>
+                  <Typography>{index === 8 ? 0 : meritReward}</Typography>
                 </Stack> : null}
                 {level <= breakpoints?.length ? <ProgressBar percent={stat / req * 100}/> : null}
               </CardContent>

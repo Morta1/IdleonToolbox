@@ -81,7 +81,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Grid> : null}
         {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Grid xs={6}>
           {closestWorshiper?.timeLeft !== 0 ? <TimerCard
-            tooltipContent={closestWorshiper?.character ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft) : 'Full'}
+            tooltipContent={closestWorshiper?.character ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft) : 'All characters charge is full'}
             timerPlaceholder={'Full!'}
             forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
