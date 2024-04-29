@@ -32,7 +32,6 @@ const Tasks = () => {
                                                               breakpoints,
                                                               meritReward
                                                             }, index) => {
-            console.log('meritReward', meritReward)
             if (index >= 9) return null;
             const req = (index === 8 ? breakpoints?.[0] : breakpoints?.[level]) ?? 0;
             let desc;
