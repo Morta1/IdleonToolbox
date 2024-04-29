@@ -399,7 +399,7 @@ const parseSigils = (sigilsRaw, alchemyActivity, serializedCharactersData) => {
           ...sigilData,
           unlocked,
           progress,
-          bonus: unlocked === 1 ? sigilData?.boostBonus : unlocked === 0 ? sigilData?.unlockBonus : 0,
+          bonus: unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0 ? sigilData?.unlockBonus : 0,
           characters: charactersInSigil
         }
       ];
