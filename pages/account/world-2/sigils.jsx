@@ -56,7 +56,7 @@ const Sigils = () => {
       return boostCost;
     } else if (unlocked === 1) {
       if (hasJadeBonus) {
-        return jadeCost
+        return jadeCost;
       }
     } else if (unlocked === -1) {
       return unlockCost
@@ -104,7 +104,7 @@ const Sigils = () => {
             >
               <CardContent>
                 <Stack gap={1} direction={'row'} alignItems={'center'}>
-                  <SigilIcon maxLevel={unlocked === 1} className={'icon'} src={`${prefix}data/aSiga${index}.png`}
+                  <SigilIcon unlocked={unlocked} className={'icon'} src={`${prefix}data/aSiga${index}.png`}
                              alt=""/>
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
@@ -118,9 +118,9 @@ const Sigils = () => {
                         ? 'info.light'
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
-                  {progress < jadeCost ? <>
+                  {progress < jadeCost && unlocked < 2 ? <>
                     <Typography>
-                      Progress: {notateNumber(progress, 'Small')}/{notateNumber(getSigilCost(sigil), 'Small')}
+                      Progress: {notateNumber(progress, 'Small')}/{notateNumber(cost, 'Small')}
                     </Typography>
                     {isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
                                                  lastUpdated={state?.lastUpdated}/> : null}
@@ -139,7 +139,7 @@ const Sigils = () => {
 
 const SigilIcon = styled.img`
   object-fit: contain;
-  filter: hue-rotate(${({ maxLevel }) => (maxLevel ? '200deg' : '0deg')});
+  filter: hue-rotate(${({ unlocked }) => (unlocked === 2 ? '130deg' : unlocked === 1 ? '200deg' : '0deg')});
 `;
 
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
