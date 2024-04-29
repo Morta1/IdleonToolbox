@@ -132,7 +132,7 @@ export const getLooty = (idleonData) => {
   };
 };
 
-export const getCurrencies = (idleonData) => {
+export const getCurrencies = (account, idleonData) => {
   const keys = idleonData?.CurrenciesOwned?.['KeysAll'] || idleonData?.CYKeysAll;
   if (idleonData?.CurrenciesOwned) {
     return {
@@ -151,7 +151,7 @@ export const getCurrencies = (idleonData) => {
     DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
     DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
     DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
-    minigamePlays: idleonData?.PVMinigamePlays_1
+    minigamePlays: account?.accountOptions?.[33] ?? 0
   };
 };
 
