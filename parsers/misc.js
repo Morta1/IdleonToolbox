@@ -884,7 +884,7 @@ export const getMiniBossesData = (account) => {
 
 export const getKillRoy = (idleonData, charactersData, accountData) => {
   const killRoyKills = tryToParse(idleonData?.KRbest);
-  const totalKills = Object.values(killRoyKills).reduce((sum, num) => sum + num, 0);
+  const totalKills = Object.values(killRoyKills || {}).reduce((sum, num) => sum + num, 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills, 0.4)) / 100;
   return {
     list: deathNote.map((monster) => {
