@@ -28,7 +28,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
       dropChance
     })));
   const upgrades = ninjaUpgrades?.map((upgrade, index) =>
-    ({ ...upgrade, level: ninjaUpgradeLevels?.[index], value: ninjaUpgradeLevels?.[index] * (upgrade.modifier ?? 1) }));
+    ({ ...upgrade, level: ninjaUpgradeLevels?.[index + 1], value: ninjaUpgradeLevels?.[index + 1] * (upgrade.modifier ?? 1) }));
   const order = (ninjaExtraInfo[24] as string).split(" ");
   const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false);
   const goldScroll = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Scroll');
