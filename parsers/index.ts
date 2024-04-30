@@ -32,10 +32,10 @@ import {
   getBundles,
   getCompanions,
   getCurrencies,
-  getItemCapacity,
+  getItemCapacity, getKillRoy,
   getLibraryBookTimes,
   getLooty,
-  getTypeGen,
+  getTypeGen
 } from './misc';
 import { getSaltLick } from './saltLick';
 import { getDungeons } from './dungeons';
@@ -191,6 +191,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.quests = getQuests(charactersData);
   accountData.islands = getIslands(accountData);
   accountData.deathNote = getDeathNote(idleonData, charactersData, accountData);
+  accountData.killroy = getKillRoy(idleonData, charactersData, accountData);
   // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);
 

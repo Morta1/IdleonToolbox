@@ -28,6 +28,9 @@ const specialBonuses = {
   sailing: '+15%_BOAT_SAILING_SPEED',
   divinity: '+15%_DIVINITY_PTS_GAINED',
   gaming: '1.15X_GAMING_BITS_GAINED',
+  sneaking: '1.10X_JADE_COIN_GAIN',
+  farming: '1.15X_CROP_EVO_CHANCE',
+  summoning: '1.10X_ESSENCE_GAIN'
 }
 
 const thresholds = [0, 0, 300, 400, 500, 750, 1000];

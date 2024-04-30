@@ -3,8 +3,10 @@ import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   classFamilyBonuses,
   companions,
+  deathNote,
   items,
   mapNames,
+  monsters,
   ninjaExtraInfo,
   randomList,
   rawMapNames,
@@ -878,4 +880,21 @@ export const getMiniBossesData = (account) => {
       daysTillNext: getDaysTillNext('mini6a', daysSinceSpiritlord, quantity[3])
     }
   ].filter(({ unlocked }) => unlocked);
+}
+
+export const getKillRoy = (idleonData, charactersData, accountData) => {
+  const killRoyKills = tryToParse(idleonData?.KRbest);
+  const totalKills = Object.values(killRoyKills).reduce((sum, num) => sum + num, 0);
+  const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills, 0.4)) / 100;
+  return {
+    list: deathNote.map((monster) => {
+      const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}` };
+      return killRoyKills?.[monster.rawName] ? ({
+        ...monsterWithIcon,
+        killRoyKills: killRoyKills?.[monster.rawName] ?? 0
+      }) : monsterWithIcon
+    }),
+    totalKills,
+    totalDamageMulti
+  };
 }

@@ -7,13 +7,19 @@ export const getHighscores = (idleonData, account) => {
 
   return {
     coloHighscores: parseColosseum(coloHighscores),
-    minigameHighscores: parseMinigame(minigameHighscores).concat([{
-      name: 'pen pals',
-      score: account?.accountOptions?.[99] || 0
-    }, {
-      name: 'poing',
-      score: account?.gaming?.poingHighscore
-    }])
+    minigameHighscores: parseMinigame(minigameHighscores).concat([
+      {
+        name: 'pen pals',
+        score: account?.accountOptions?.[99] || 0
+      }, {
+        name: 'poing',
+        score: account?.gaming?.poingHighscore
+      },
+      {
+        name: 'hoops',
+        score: account?.accountOptions?.[242] || 0
+      }
+    ])
   }
 }
 

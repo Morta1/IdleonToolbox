@@ -18,7 +18,6 @@ import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
-import debounce from 'lodash.debounce';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { NextSeo } from 'next-seo';
 import { getBubbleAtomCost, getBubbleBonus, getMaxCauldron, getVialsBonusByStat } from '@parsers/alchemy';

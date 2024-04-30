@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.64',
+    gameVer: '2.0.7',
+    date: '30/04/2024',
+    features: [
+      'Updated the website with version 2.0.7 data and assets',
+      'Added hoops mini game high score to Account -> General page',
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-4/killroy-prime'}>Killroy Prime</Link> page under Account - World 4</Typography>
+    ],
+    fixes: [
+      'Fixed sneaking, farming and summoning skill mastery on Rift page'
+    ]
+  },
+  {
     ver: '3.2.63',
     gameVer: '2.0.6',
     date: '27/04/2024',
