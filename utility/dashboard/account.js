@@ -210,16 +210,19 @@ export const etcAlerts = (account, options, characters) => {
     const numOfCharacters = characters?.length;
     const totalLevels = characters?.reduce((sum, { level }) => sum + level, 0);
     let newCharactersCounter = 0;
-    if (numOfCharacters === 6 && totalLevels >= 330) {
+    if (numOfCharacters === 5 && totalLevels >= 300) {
       newCharactersCounter++;
     }
-    if (numOfCharacters === 7 && totalLevels >= 470) {
+    if (numOfCharacters === 6 && totalLevels >= 500) {
       newCharactersCounter++;
     }
-    if (numOfCharacters === 8 && totalLevels >= 600) {
+    if (numOfCharacters === 7 && totalLevels >= 750) {
       newCharactersCounter++;
     }
-    if (numOfCharacters === 9 && totalLevels >= 900) {
+    if (numOfCharacters === 8 && totalLevels >= 1100) {
+      newCharactersCounter++;
+    }
+    if (numOfCharacters === 9 && totalLevels >= 1500) {
       newCharactersCounter++;
     }
     alerts.newCharacters = newCharactersCounter;
