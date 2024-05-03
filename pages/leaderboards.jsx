@@ -49,20 +49,22 @@ const Leaderboards = () => {
     />
     <Typography textAlign={'center'}
                 variant={'h2'}>Leaderboards</Typography>
-    <Typography mb={3} textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* To participate
+    <Typography textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* To participate
       in the
       leaderboards, please upload your profile with leaderboard consent.</Typography>
-    {leaderboards?.general?.totalMoney?.length ? <Card variant={'outlined'} sx={{
+    <Typography mb={3} textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* Leaderboards
+      contains the top 1000 players of each category</Typography>
+    {leaderboards?.totalUsers ? <Card variant={'outlined'} sx={{
       width: 'fit-content',
       margin: '16px auto',
       borderColor: 'success.light'
     }}>
       <CardContent sx={{ '&:last-child': { p: 1 } }}>
         <Typography textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>Uploaded
-          accounts: {leaderboards?.general?.totalMoney?.length}</Typography>
+          accounts: {leaderboards?.totalUsers}</Typography>
       </CardContent>
     </Card> : null}
-    {leaderboards?.general?.totalMoney?.length ? <Box
+    {leaderboards?.totalUsers ? <Box
       sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
       <Autocomplete
         options={leaderboards?.general?.totalMoney}
@@ -76,20 +78,22 @@ const Leaderboards = () => {
       />
     </Box> : null}
 
-    {!leaderboards && !error ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack> : error ?
-      <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
-        tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']}>
-        <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
-                            searchedChar={searchedChar?.mainChar}/>
-        <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
-                            searchedChar={searchedChar?.mainChar}/>
-        <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
-                            searchedChar={searchedChar?.mainChar}/>
-        <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
-                            searchedChar={searchedChar?.mainChar}/>
-        <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
-                            searchedChar={searchedChar?.mainChar}/>
-      </Tabber>}
+    {!leaderboards && !error
+      ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack>
+      : error ?
+        <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
+          tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']}>
+          <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
+                              searchedChar={searchedChar?.mainChar}/>
+          <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
+                              searchedChar={searchedChar?.mainChar}/>
+          <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
+                              searchedChar={searchedChar?.mainChar}/>
+          <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
+                              searchedChar={searchedChar?.mainChar}/>
+          <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
+                              searchedChar={searchedChar?.mainChar}/>
+        </Tabber>}
 
   </>
 };

@@ -168,7 +168,7 @@ export const crystalCooldownSkillsReady = (character) => {
       if (data?.index < 10 && name !== 'character') {
         const crystalCountdown = getTalentBonus(character?.talents, 2, 'CRYSTAL_COUNTDOWN', null, null, character.addedLevels, true);
         const expReq = getExpReq(data?.index, data?.level);
-        const reduction = (1 - data?.expReq / expReq) * 100;
+        const reduction = Math.min((1 - data?.expReq / expReq) * 100, 0);
         const ready = reduction > 0;
         return [...res, {
           name, ...data,

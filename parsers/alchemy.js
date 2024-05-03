@@ -288,7 +288,7 @@ export const getVialsBonusByEffect = (vials, effectName, statName) => {
     const { func, level, x1, x2, desc, stat, multiplier = 1 } = vial;
     if (effectName && !desc.includes(effectName)) return sum;
     if (statName && !stat.includes(statName)) return sum;
-    return sum + (growth(func, level, x1, x2) ?? 0) * multiplier;
+    return sum + (growth(func, level, x1, x2, false) ?? 0) * multiplier;
   }, 0);
 };
 

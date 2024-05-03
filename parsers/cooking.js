@@ -127,8 +127,8 @@ const getCookingProwess = (character, meals, bubbles) => {
   return allProwess(character, meals, bubbles);
 }
 
-export const getSpiceUpgradeCost = (baseMath, upgradeLevel) => {
-  return 1 + baseMath * (upgradeLevel
+export const getSpiceUpgradeCost = (upgradeLevel) => {
+  return (upgradeLevel
       + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2)
       + Math.pow(Math.max(0, upgradeLevel - 30), 1.2))
     * Math.pow(1.02, Math.max(0, upgradeLevel - 60))
@@ -316,7 +316,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
 
     // Spices Cost
-    const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Kitchen_Upgrading_Cost');
+    const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, null, 'Kcosts');
     const kitchenCostMeals = getMealsBonusByEffectOrStat(account, null, 'KitchC', blackDiamondRhinestone);
     const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'GARLIC_GLOVE');
@@ -334,9 +334,9 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       * (1 + (isRichelin ? 40 : 0) / 100)
       * (1 + .5 * (arenaBonusActive ? 1 : 0)));
 
-    const speedCost = getSpiceUpgradeCost(baseMath, speedLv);
-    const fireCost = getSpiceUpgradeCost(baseMath, fireLv);
-    const luckCost = getSpiceUpgradeCost(baseMath, luckLv);
+    const speedCost = 1 + baseMath * getSpiceUpgradeCost(speedLv);
+    const fireCost = 1 + baseMath * getSpiceUpgradeCost(fireLv);
+    const luckCost = 1 + baseMath * getSpiceUpgradeCost(luckLv);
 
     const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
     const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.split(' ')[spiceValue]));

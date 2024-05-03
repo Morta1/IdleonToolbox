@@ -138,7 +138,7 @@ const Kitchens = ({
                   <Typography>{kitchen?.mealLuck.toFixed(2) ?? 0}x</Typography>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={thirdSpiceIndex >= 20 ? 'Unknown' : spicesNames[thirdSpiceIndex]}>
-                      <SpiceIcon src={`${prefix}data/${thirdSpiceIndex >= 20
+                      <SpiceIcon src={`${prefix}data/${thirdSpiceIndex >= 21
                         ? 'CookingSpiceNA'
                         : `CookingSpice${thirdSpiceIndex}`}.png`} alt={''}/>
                     </Tooltip>
