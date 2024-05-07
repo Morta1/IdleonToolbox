@@ -24,7 +24,7 @@ const baseTrackers = {
         name: 'tasks',
         type: 'array',
         category: 'Worlds',
-        props: { value: [1, 2, 3, 4, 5].toSimpleObject() },
+        props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() },
         checked: true
       }]
     },
@@ -130,7 +130,7 @@ const baseTrackers = {
           name: 'familiar',
           checked: true,
           type: 'input',
-          props: { label: 'Threshold', value: 10, minValue: 0, helperText: '' },
+          props: { label: 'Threshold', value: 10, minValue: 0, helperText: '' }
         }
       ]
     },

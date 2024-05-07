@@ -128,7 +128,7 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
                             alt=""/>
               </div> : null}
           </div> :
-          <Tooltip key={talentId + '' + index} title={talentId ? <TalentTooltip {...talentDetails}/> : ''}>
+          <Tooltip key={talentId + '' + index} title={talentId >= 0 ? <TalentTooltip {...talentDetails}/> : ''}>
             <div className={'talent-wrapper'}>
               {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/> : <TalentIcon
                 src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>}
