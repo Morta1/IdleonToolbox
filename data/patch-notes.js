@@ -14,9 +14,7 @@ export const patchNotes = [
       'Added an indication of your max meal level under cooking -> meals',
       'Updated material tracker ui a little bit + updated its alerts in the dashboard'
     ],
-    fixes: [
-      'Fixed a bug calculating shiny level multi caused by miscalculating star sign'
-    ]
+    fixes: ['Fixed a bug calculating shiny level multi caused by miscalculating star sign']
   },
   {
     ver: '3.2.64',
