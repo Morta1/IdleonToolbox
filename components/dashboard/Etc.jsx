@@ -141,16 +141,16 @@ const Etc = ({ characters, account, lastUpdated }) => {
               {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
                 return <Stack key={`miniboss-timer-${rawName}`}>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`}/>
+                    <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`} alt={''}/>
                     <Stack>
                       <Typography>{cleanUnderscore(name)}</Typography>
                       <Stack direction={'row'} alignItems={'center'} gap={1}
                              divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'} flexItem/>}>
                         <Typography component={'span'} color="text.secondary">Current: <Typography
                           color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed
-                          ? 'Maxed'
+                          ? `Maxed (${current})`
                           : current}</Typography></Typography>
-                        <Typography color="text.secondary">+1 in {daysTillNext} days</Typography>
+                        {!maxed ? <Typography color="text.secondary">+1 in {daysTillNext} days</Typography> : null}
                       </Stack>
                     </Stack>
                   </Stack>

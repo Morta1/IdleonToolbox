@@ -16,7 +16,7 @@ export const getFarming = (idleonData: any, accountData: any) => {
 
 const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, account: any) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: number, index: number) => index === 139);
-  const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 1);
+  const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1];
   const instaGrow = rawFarmingUpgrades?.[19];
   const market = marketInfo?.map((upgrade, index) => {
@@ -192,4 +192,13 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
     costToMax += cost * Math.pow(costExponent, i)
   }
   return costToMax ?? 0;
+}
+
+export const getTotalCrop = (plot: any[]) => {
+  return plot?.reduce((total, { cropQuantity, cropRawName }) => {
+    return {
+      ...total,
+      [cropRawName]: (total?.[cropRawName] || 0) + cropQuantity
+    }
+  }, {});
 }

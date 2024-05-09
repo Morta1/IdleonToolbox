@@ -4,6 +4,21 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.65',
+    gameVer: '2.0.7',
+    date: '09/05/2024',
+    features: [
+      'Added a dashboard alert for total crops',
+      'Added a dashboard alert for using the wrong divinity style',
+      'Added total crops display under farming -> plot',
+      'Added an indication of your max meal level under cooking -> meals',
+      'Updated material tracker ui a little bit + updated its alerts in the dashboard'
+    ],
+    fixes: [
+      'Fixed a bug calculating shiny level multi caused by miscalculating star sign'
+    ]
+  },
+  {
     ver: '3.2.64',
     gameVer: '2.0.7',
     date: '30/04/2024',
@@ -11,7 +26,8 @@ export const patchNotes = [
       'Updated the website with version 2.0.7 data and assets',
       'Added hoops mini game high score to Account -> General page',
       <Typography>Added <Link
-        href={'https://idleontoolbox.com/account/world-4/killroy-prime'}>Killroy Prime</Link> page under Account - World 4</Typography>
+        href={'https://idleontoolbox.com/account/world-4/killroy-prime'}>Killroy Prime</Link> page under Account - World
+        4</Typography>
     ],
     fixes: [
       'Fixed sneaking, farming and summoning skill mastery on Rift page'
@@ -45,13 +61,16 @@ export const patchNotes = [
     gameVer: '2.0.5',
     date: '24/04/2024',
     features: [],
-    fixes: ['Fixed cooking speed', 'Fixed some ui bugs in dashboard page', 'Fixed a bug in the calculation of how an unlocked world is determined', 'Added a small disclaimer to the laboratory page regarding px width bug']
+    fixes: ['Fixed cooking speed', 'Fixed some ui bugs in dashboard page',
+      'Fixed a bug in the calculation of how an unlocked world is determined',
+      'Added a small disclaimer to the laboratory page regarding px width bug']
   },
   {
     ver: '3.2.60',
     gameVer: '2.0.5',
     date: '17/03/2024',
-    features: ['Added upgrade cost and cost to max for cauldrons', 'Added the bonus from "Pure Opal Rhombol" jewel to the crop depot'],
+    features: ['Added upgrade cost and cost to max for cauldrons',
+      'Added the bonus from "Pure Opal Rhombol" jewel to the crop depot'],
     fixes: ['Fixed salts dashboard alert']
   },
   {

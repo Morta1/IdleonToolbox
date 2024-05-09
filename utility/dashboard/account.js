@@ -2,7 +2,7 @@ import { getMaxClaimTime, getSecPerBall } from '../../parsers/dungeons';
 import { getBuildCost } from '../../parsers/construction';
 import { vialCostsArray } from '../../parsers/alchemy';
 import { maxNumberOfSpiceClicks } from '../../parsers/cooking';
-import { getDuration, tryToParse } from '../helpers';
+import { cleanUnderscore, getDuration, notateNumber, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '../../parsers/world-4/rift';
 import { items, liquidsShop } from '../../data/website-data';
 import { hasMissingMats } from '../../parsers/refinery';
@@ -18,6 +18,10 @@ export const farmingAlerts = (account, options) => {
     alerts.plots = account?.farming?.plot?.filter(({ currentOG }) => options?.plots?.props?.value > 0
       ? currentOG >= options?.plots?.props?.value
       : currentOG > 0).map((plot) => ({ ...plot, threshold: options?.plots?.props?.value }));
+  }
+  if (options?.totalCrops?.checked) {
+    const totalCrops = account?.farming?.plot?.reduce((sum, { cropQuantity }) => sum + cropQuantity, 0);
+    alerts.totalCrops = totalCrops >= options?.totalCrops?.props?.value ? options?.totalCrops?.props?.value : 0;
   }
   return alerts;
 }
@@ -180,24 +184,51 @@ export const postOfficeAlerts = (account, options) => {
   return alerts;
 }
 
+function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
+  const nearly = includeNearly ? '(nearly) ' : '';
+  const lowerPercent = lowerBound * (percent / 100);
+  const upperPercent = upperBound * (percent / 100);
+  if (lowerBound && !upperBound && (includeNearly
+    ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
+    : amount < lowerBound)) {
+    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
+  } else if (!lowerBound && upperBound && (includeNearly
+    ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
+    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
+  } else if (lowerBound && upperBound && lowerBound < upperBound) {
+    if ((includeNearly ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent) : amount < lowerBound) ||
+      (includeNearly ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
+    }
+  } else if (lowerBound && upperBound && lowerBound > upperBound) {
+    if ((includeNearly ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent) : amount >= upperBound) &&
+      (includeNearly ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount <= lowerBound)) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}inside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
+    }
+  }
+
+  return null; // No alert needed
+}
+
 export const materialTrackerAlerts = (account, options, characters) => {
   const alerts = {}
   const materials = tryToParse(localStorage.getItem('material-tracker'));
   if (Object.keys(materials || {}).length > 0) {
-    const { applyThresholdFromBelow, applyThresholdFromAbove } = options || {}
     const totalOwnedItems = getAllItems(characters, account);
-    alerts.materialTracker = Object.values(materials || {})?.reduce((res, { item, threshold, note }) => {
+    alerts.materialTracker = Object.values(materials || {})?.reduce((res, {
+      item,
+      lowerBound,
+      upperBound,
+      includeNearly,
+      note
+    }) => {
       const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-      let text, twoPercentBuffer = threshold * 0.02;
-      if (applyThresholdFromBelow?.checked && (quantityOwned < threshold)) {
-        text = 'below';
-      } else if (applyThresholdFromAbove?.checked && (quantityOwned > threshold)) {
-        text = 'above';
-      } else if (!options?.['disable"CloseTo"Alert']?.checked && ((applyThresholdFromBelow?.checked && (quantityOwned <= threshold + twoPercentBuffer)) || (applyThresholdFromAbove?.checked && (quantityOwned >= threshold + twoPercentBuffer)))) {
-        text = 'close to';
+      let text = checkBound(cleanUnderscore(item?.displayName), quantityOwned, lowerBound, upperBound, includeNearly, 12);
+      if (!lowerBound && !upperBound) {
+        text = `You have ${notateNumber(quantityOwned)} ${cleanUnderscore(item?.displayName)}`;
       }
       if (!text) return res;
-      return [...res, { item, threshold, quantityOwned, text, note }];
+      return [...res, { item, quantityOwned, text, note }];
     }, []);
   }
 
