@@ -196,13 +196,13 @@ function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent
     ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
     return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
   } else if (lowerBound && upperBound && lowerBound < upperBound) {
-    if ((includeNearly ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent) : amount < lowerBound) ||
-      (includeNearly ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
+    if ((includeNearly ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent) : amount <= lowerBound) ||
+      (includeNearly ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount >= upperBound)) {
       return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
     }
   } else if (lowerBound && upperBound && lowerBound > upperBound) {
-    if ((includeNearly ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent) : amount >= upperBound) &&
-      (includeNearly ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount <= lowerBound)) {
+    if ((includeNearly ? Math.abs(amount - lowerBound) < Math.abs(lowerPercent) : amount > upperBound) ||
+      (includeNearly ? Math.abs(amount - upperBound) < Math.abs(upperPercent) : amount < lowerBound)) {
       return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}inside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
     }
   }
