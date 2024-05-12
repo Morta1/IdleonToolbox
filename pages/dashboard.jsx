@@ -295,7 +295,9 @@ const Dashboard = () => {
         sx={{
           backgroundColor: isProd ? '' : '#d73333',
           width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-          height: 600
+          height: 600,
+          position: 'sticky',
+          top: 100
         }}>
         {showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"

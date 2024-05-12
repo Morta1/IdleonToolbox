@@ -5,7 +5,9 @@ import {
   Checkbox,
   Chip,
   createFilterOptions,
-  FormControlLabel, List, ListItem,
+  FormControlLabel,
+  List,
+  ListItem,
   Stack,
   TextField,
   Typography,
@@ -57,7 +59,7 @@ const MaterialTracker = () => {
     }
     const tempLowerBound = bounds?.lowerBound?.replace(/,/g, '');
     const tempUpperBound = bounds?.upperBound?.replace(/,/g, '');
-    if (tempLowerBound === tempUpperBound) {
+    if (tempLowerBound && tempUpperBound && tempLowerBound === tempUpperBound) {
       tempErrors.lowerBound = true;
       tempErrors.upperBound = true;
     }
@@ -178,7 +180,7 @@ const MaterialTracker = () => {
       </Stack>
       <Stack mt={2} gap={1}>
         <FormControlLabel
-          sx={{width: 'fit-content'}}
+          sx={{ width: 'fit-content' }}
           control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
           label="Show an alert when value is near the bounds"
         />
@@ -188,9 +190,12 @@ const MaterialTracker = () => {
       <Stack>
         <Typography mt={2} variant={'caption'}>Conditions:</Typography>
         <List dense={true}>
-          <ListItem><Typography variant={'caption'}>Only lower bound set - alert when the item is below the bound</Typography></ListItem>
-          <ListItem><Typography variant={'caption'}>Only upper bound set - alert when the item is above the bound</Typography></ListItem>
-          <ListItem><Typography variant={'caption'}>Upper &gt; Lower - alert when the item is outside bounds</Typography></ListItem>
+          <ListItem><Typography variant={'caption'}>Only lower bound set - alert when the item is below the
+            bound</Typography></ListItem>
+          <ListItem><Typography variant={'caption'}>Only upper bound set - alert when the item is above the
+            bound</Typography></ListItem>
+          <ListItem><Typography variant={'caption'}>Upper &gt; Lower - alert when the item is outside
+            bounds</Typography></ListItem>
           <ListItem><Typography variant={'caption'}>Upper &lt; Lower - alert when the item is inside bounds</Typography></ListItem>
         </List>
         <Typography variant={'caption'} mt={2}>* Exceeding the set bounds will trigger an alert in the
