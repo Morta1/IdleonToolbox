@@ -1,4 +1,4 @@
-const colosseumIndexMapping = { 0: 'dewdrop', 1: 'sandstone', 2: 'chillsnap', 3: 'astro' };
+const colosseumIndexMapping = { 0: 'dewdrop', 1: 'sandstone', 2: 'chillsnap', 3: 'astro', 4: 'molten', 5: 'whimsical' };
 const minigameIndexMapping = { 0: 'chopping', 1: 'fishing', 2: 'catching', 3: 'mining' };
 
 export const getHighscores = (idleonData, account) => {
