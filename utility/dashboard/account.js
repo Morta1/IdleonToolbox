@@ -184,6 +184,11 @@ export const postOfficeAlerts = (account, options) => {
   return alerts;
 }
 
+function isNearRange(value, lowerBound, upperBound, nearPercentage) {
+  const lowerRange = lowerBound + (lowerBound * nearPercentage / 100);
+  const upperRange = upperBound + (upperBound * nearPercentage / 100);
+  return value <= lowerRange || value >= upperRange;
+}
 function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
   const nearly = includeNearly ? '(nearly) ' : '';
   const lowerPercent = lowerBound * (percent / 100);
@@ -196,14 +201,8 @@ function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent
     ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
     return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
   } else if (lowerBound && upperBound && lowerBound < upperBound) {
-    if ((includeNearly ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent) : amount <= lowerBound) ||
-      (includeNearly ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount >= upperBound)) {
+    if ((includeNearly ? isNearRange(amount, lowerBound, upperBound, percent) : (amount <= lowerBound || amount >= upperBound))) {
       return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
-    }
-  } else if (lowerBound && upperBound && lowerBound > upperBound) {
-    if ((includeNearly ? Math.abs(amount - lowerBound) < Math.abs(lowerPercent) : amount > upperBound) ||
-      (includeNearly ? Math.abs(amount - upperBound) < Math.abs(upperPercent) : amount < lowerBound)) {
-      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}inside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
     }
   }
 
@@ -223,7 +222,7 @@ export const materialTrackerAlerts = (account, options, characters) => {
       note
     }) => {
       const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-      let text = checkBound(cleanUnderscore(item?.displayName), quantityOwned, lowerBound, upperBound, includeNearly, 12);
+      let text = checkBound(cleanUnderscore(item?.displayName), quantityOwned, lowerBound, upperBound, includeNearly, 5);
       if (!lowerBound && !upperBound) {
         text = `You have ${notateNumber(quantityOwned)} ${cleanUnderscore(item?.displayName)}`;
       }
