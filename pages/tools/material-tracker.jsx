@@ -196,7 +196,6 @@ const MaterialTracker = () => {
             bound</Typography></ListItem>
           <ListItem><Typography variant={'caption'}>Upper &gt; Lower - alert when the item is outside
             bounds</Typography></ListItem>
-          <ListItem><Typography variant={'caption'}>Upper &lt; Lower - alert when the item is inside bounds</Typography></ListItem>
         </List>
         <Typography variant={'caption'} mt={2}>* Exceeding the set bounds will trigger an alert in the
           dashboard</Typography>
