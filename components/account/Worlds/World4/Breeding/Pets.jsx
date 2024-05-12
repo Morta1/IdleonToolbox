@@ -48,7 +48,13 @@ const Pets = ({
     const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
     const emeraldUlthuriteBonus = getJewelBonus(lab.jewels, 15, spelunkerObolMulti);
     const fasterShinyLevelBonus = getShinyBonus(pets, 'Faster_Shiny_Pet_Lv_Up_Rate');
-    const starSign = getStarSignBonus(characters?.[0], account, 'Shiny_Pet_LV_spd');
+    const starSign = characters?.reduce((acc, character) => {
+      const bonus = getStarSignBonus(character, account, 'Shiny_Pet_LV_spd') ?? 0;
+      if (bonus > acc) {
+        return bonus;
+      }
+      return acc;
+    }, 0);
     const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
 
     return {

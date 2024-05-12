@@ -75,6 +75,10 @@ const Account = ({ account, characters, trackers }) => {
             <Alert
               title={`${alerts?.farming?.plots?.length} plots reached the threshold of ${alerts?.farming?.plots?.[0]?.threshold} OGs (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.farming?.plots?.[0]?.threshold)))})`}
               iconPath={'data/ClassIcons57'}/> : null}
+          {trackers?.farming && alerts?.farming?.totalCrops > 0 ?
+            <Alert
+              title={`You have ${alerts?.farming?.totalCrops} crops ready to be collected`}
+              iconPath={'data/FarmPlant6'}/> : null}
           {trackers?.construction && alerts?.construction?.flags?.length > 0 ?
             <Alert title={`There are ${alerts?.construction?.flags?.length} flags finished in construction board`}
                    iconPath={'data/CogFLflag'}/> : null}
@@ -197,12 +201,11 @@ const Account = ({ account, characters, trackers }) => {
                                                                                iconPath={`data/${rawName}`}/>) : null}
           {trackers?.materialTracker && alerts?.materialTracker?.materialTracker?.length > 0
             ?
-            alerts?.materialTracker?.materialTracker?.map(({ item, threshold, quantityOwned, text, note }, index) =>
+            alerts?.materialTracker?.materialTracker?.map(({ item, quantityOwned, text, note }, index) =>
               <Alert
                 key={item?.rawName + '' + index}
                 title={<>
-                  <Typography variant={'subtitle2'}>Your {cleanUnderscore(pascalCase(item?.displayName))} is {text} the
-                    threshold ({notateNumber(quantityOwned)}/{notateNumber(threshold)})</Typography>
+                  <Typography variant={'subtitle2'}>{text}</Typography>
                   {note ? <Typography fontWeight={500} variant={'caption'}>Note: {note}</Typography> : null}
                 </>}
                 iconPath={`data/${item?.rawName}`}/>)

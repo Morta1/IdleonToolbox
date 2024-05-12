@@ -7,7 +7,7 @@ import {
   alchemyAlerts,
   anvilAlerts,
   cardsAlert,
-  crystalCountdownAlerts,
+  crystalCountdownAlerts, getDivinityAlert,
   obolsAlerts,
   postOfficeAlerts,
   starSignsAlerts,
@@ -34,7 +34,8 @@ const alertsMap = {
   crystalCountdown: crystalCountdownAlerts,
   tools: toolsAlerts,
   talents: talentsAlerts,
-  cards: cardsAlert
+  cards: cardsAlert,
+  divinityStyle: getDivinityAlert
 }
 
 const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
@@ -91,6 +92,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.worship && alerts?.worship?.unendingEnergy ?
                 <Alert title={`${name} has unending energy prayer and is afk for more than 10 hours`}
                        iconPath={'data/Prayer2'}/> : null}
+              {trackers?.divinityStyle && Object.keys(alerts?.divinityStyle).length ?
+                <Alert title={`${name} ${alerts?.divinityStyle?.text}`} iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}
               {trackers?.worship && alerts?.worship?.chargeOverdue ?
                 <Alert title={`${name} worship is full`} iconPath={'data/ClassIcons50'}/> : null}
               {trackers?.traps && alerts?.traps?.trapsOverdue ?

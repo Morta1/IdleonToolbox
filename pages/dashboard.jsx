@@ -121,6 +121,12 @@ const baseTrackers = {
           type: 'input',
           props: { label: 'OG Threshold', value: 0, minValue: 0, helperText: '1=x2, 2=x4, 3=x8, 4=x16' },
           checked: true
+        },
+        {
+          name: 'totalCrops',
+          type: 'input',
+          props: { label: 'Crop Threshold', value: 1, minValue: 1, helperText: '' },
+          checked: false
         }
       ]
     },
@@ -202,6 +208,7 @@ const baseTrackers = {
       ]
     },
     tools: { checked: true, options: [] },
+    divinityStyle: { checked: true, options: [] },
     talents: {
       checked: true,
       options: [{
