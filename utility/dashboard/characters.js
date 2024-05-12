@@ -1,7 +1,7 @@
 import { differenceInHours, differenceInMinutes, isPast } from 'date-fns';
 import { getPostOfficeBonus } from '../../parsers/postoffice';
 import { items, randomList } from '../../data/website-data';
-import { getExpReq, isArenaBonusActive } from '../../parsers/misc';
+import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '../../parsers/anvil';
 import { checkCharClass, getTalentBonus, relevantTalents } from '../../parsers/talents';
 import { getAllTools } from '../../parsers/items';
@@ -201,9 +201,10 @@ export const hasAvailableToolUpgrade = (character, account) => {
 }
 
 export const getDivinityAlert = (account, characters, character) => {
-  if ((character?.afkTarget === 'Divinity') && character?.skillsInfo?.divinity?.level >= 80) {
+  const isMeditating = character?.afkTarget === 'Divinity' || isCompanionBonusActive(account, 0) || (character?.afkTarget === 'Laboratory' && account?.divinity?.linkedDeities?.[character?.playerId] === 4);
+  if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
-  } else if (character?.skillsInfo?.divinity?.level >= 40 && character?.afkTarget !== 'Divinity') {
+  } else if (!isMeditating && character?.skillsInfo?.divinity?.level >= 40 && character?.divStyle?.name !== 'TranQi') {
     return { text: 'doesn\'t have tranQi style equipped', icon: 'Div_Style_5' };
   }
   return null;

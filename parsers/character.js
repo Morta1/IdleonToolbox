@@ -676,7 +676,6 @@ export const getDropRate = (character, account, characters) => {
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
 
-  console.log('summoningBonus', summoningBonus)
   const additive =
     firstTalentBonus +
     postOfficeBonus +
