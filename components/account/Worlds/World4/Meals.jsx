@@ -181,6 +181,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
 
   return (
     <>
+      <ToggleButton sx={{mr:2, '&:disabled':{color: '#FFFFFF'}}} value={'maxLevel'} disabled>Meal max level: {mealMaxLevel}</ToggleButton>
       <ToggleButtonGroup sx={{ my: 2, flexWrap: 'wrap' }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
         <ToggleButton value="hide">Hide Capped</ToggleButton>

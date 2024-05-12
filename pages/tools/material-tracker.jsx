@@ -2,8 +2,10 @@ import {
   Autocomplete,
   Card,
   CardContent,
+  Checkbox,
   Chip,
   createFilterOptions,
+  FormControlLabel, List, ListItem,
   Stack,
   TextField,
   Typography,
@@ -21,6 +23,7 @@ import { NextSeo } from 'next-seo';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
+import Box from '@mui/material/Box';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -30,7 +33,8 @@ const MaterialTracker = () => {
   const { state } = useContext(AppContext);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const [value, setValue] = useState([]);
-  const [threshold, setThreshold] = useState('');
+  const [includeNearly, setIncludeNearly] = useState(false);
+  const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [hoverIcons, setHoverIcons] = useState({});
   const [trackedItems, setTrackedItems] = useState(JSON.parse(localStorage.getItem('material-tracker')) || {});
@@ -41,20 +45,23 @@ const MaterialTracker = () => {
                                                  }) => displayName !== 'ERROR' && displayName !== 'Blank' &&
     displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip'
   ), []);
+
   const totalOwnedItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters,
     state?.account]);
-  const [errors, setErrors] = useState({ material: false, threshold: false });
+  const [errors, setErrors] = useState({ material: false, lowerBound: false, upperBound: false });
 
-  const handleAddThreshold = () => {
+  const handleAddTracker = () => {
     const tempErrors = {};
     if (value.length === 0) {
       tempErrors.material = true;
     }
-    const tempThreshold = threshold?.replace(/,/g, '');
-    if (!threshold || isNaN(tempThreshold)) {
-      tempErrors.threshold = true;
+    const tempLowerBound = bounds?.lowerBound?.replace(/,/g, '');
+    const tempUpperBound = bounds?.upperBound?.replace(/,/g, '');
+    if (tempLowerBound === tempUpperBound) {
+      tempErrors.lowerBound = true;
+      tempErrors.upperBound = true;
     }
-    if (tempErrors?.material || tempErrors?.threshold) {
+    if (tempErrors?.material || tempErrors?.lowerBound || tempErrors?.upperBound) {
       setErrors(tempErrors);
       return;
     }
@@ -62,7 +69,9 @@ const MaterialTracker = () => {
     value.forEach((item) => {
       updated[item?.rawName] = {
         item,
-        threshold: parseInt(tempThreshold),
+        lowerBound: tempLowerBound ? parseInt(tempLowerBound) : '',
+        upperBound: tempUpperBound ? parseInt(tempUpperBound) : '',
+        includeNearly,
         note
       }
     })
@@ -71,11 +80,11 @@ const MaterialTracker = () => {
     localStorage.setItem('material-tracker', JSON.stringify(updated));
     // Reset fields
     setValue([]);
-    setThreshold('');
+    setBounds({ lowerBound: '', upperBound: '' });
     setNote('');
   }
 
-  const handleDeleteThreshold = (rawName) => {
+  const handleDeleteTracker = (rawName) => {
     const updated = { ...trackedItems };
     delete updated[rawName];
     setTrackedItems(updated);
@@ -85,13 +94,17 @@ const MaterialTracker = () => {
   }
 
   const handleEdit = (rawName) => {
-    const { threshold, note } = trackedItems?.[rawName];
+    const { lowerBound, upperBound, note } = trackedItems?.[rawName];
     const itemFromItems = items?.find(({ rawName: name }) => name === rawName);
     const alreadyExist = value?.find(({ rawName: name }) => name === rawName);
     if (alreadyExist) return;
     setValue([...value, itemFromItems]);
-    const temp = threshold.toString().replace(/,/g, '');
-    setThreshold(numberWithCommas(temp))
+    const tempLowerBound = lowerBound.toString().replace(/,/g, '');
+    const tempUpperBound = upperBound.toString().replace(/,/g, '');
+    setBounds({
+      lowerBound: numberWithCommas(tempLowerBound || ''),
+      upperBound: numberWithCommas(tempUpperBound || '')
+    })
     setNote(note);
   }
 
@@ -101,7 +114,7 @@ const MaterialTracker = () => {
         title="Material Tracker | Idleon Toolbox"
         description="Add a material, set your own threshold and keep track of your inventory."
       />
-      <Stack>
+      <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
         <Autocomplete
           id="material tracker"
           value={value}
@@ -117,7 +130,7 @@ const MaterialTracker = () => {
           getOptionLabel={(option) => {
             return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
           }}
-          sx={{ width: isSm ? '100%' : 600, mb: 3, flexShrink: 1 }}
+          sx={{ width: isSm ? '100%' : 600, flexShrink: 1 }}
           renderTags={(tag, getTagProps) => {
             return tag.map((option, index) => (
               <Chip
@@ -151,70 +164,97 @@ const MaterialTracker = () => {
       </Stack>
       <Stack justifyContent={isSm ? 'space-between' : 'flex-start'} direction={'row'} gap={3} alignItems={'center'}
              flexWrap={'wrap'}>
-        <TextField error={errors?.threshold} value={threshold} onChange={({ target }) => {
+        <TextField error={errors?.lowerBound} value={bounds?.lowerBound} onChange={({ target }) => {
           let temp = target.value.replace(/,/g, '');
-          setThreshold(numberWithCommas(temp))
-          setErrors({ ...errors, threshold: false })
-        }} label="Threshold"/>
+          setBounds({ ...bounds, lowerBound: numberWithCommas(temp) })
+          setErrors({ ...errors, lowerBound: false })
+        }} label="Lower bound"/>
+        <TextField error={errors?.upperBound} value={bounds?.upperBound} onChange={({ target }) => {
+          let temp = target.value.replace(/,/g, '');
+          setBounds({ ...bounds, upperBound: numberWithCommas(temp) })
+          setErrors({ ...errors, upperBound: false })
+        }} label="Upper bound"/>
         <TextField value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
-        <Button onClick={handleAddThreshold} sx={{ height: 'fit-content' }} variant={'contained'}>Add threshold</Button>
+      </Stack>
+      <Stack mt={2} gap={1}>
+        <FormControlLabel
+          sx={{width: 'fit-content'}}
+          control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
+          label="Show an alert when value is near the bounds"
+        />
+        <Button onClick={handleAddTracker} sx={{ height: 'fit-content', width: 'fit-content' }} variant={'contained'}>Add
+          tracker</Button>
+      </Stack>
+      <Stack>
+        <Typography mt={2} variant={'caption'}>Conditions:</Typography>
+        <List dense={true}>
+          <ListItem><Typography variant={'caption'}>Only lower bound set - alert when the item is below the bound</Typography></ListItem>
+          <ListItem><Typography variant={'caption'}>Only upper bound set - alert when the item is above the bound</Typography></ListItem>
+          <ListItem><Typography variant={'caption'}>Upper &gt; Lower - alert when the item is outside bounds</Typography></ListItem>
+          <ListItem><Typography variant={'caption'}>Upper &lt; Lower - alert when the item is inside bounds</Typography></ListItem>
+        </List>
+        <Typography variant={'caption'} mt={2}>* Exceeding the set bounds will trigger an alert in the
+          dashboard</Typography>
+        <Typography variant={'caption'}>* Leaving the bounds inputs blank will always show the material in the
+          dashboard</Typography>
       </Stack>
       <Stack mt={3} direction={isSm ? 'column' : 'row'} gap={1} flexWrap={'wrap'}>
-        {(Object.values(trackedItems))?.map(({ item, threshold, note }, index) => {
+        {(Object.values(trackedItems))?.map(({ item, lowerBound, upperBound, note }, index) => {
           const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
-          let color, twoPercentBuffer = threshold * 0.02;
-          if (quantityOwned < threshold) {
-            color = 'error.light';
-          }
-          else if (quantityOwned <= threshold + twoPercentBuffer) {
-            color = 'warning.main';
-          }
-          else {
-            color = 'success.main';
-          }
           return <Stack key={`tracked-item-${index}`}
-                        onMouseEnter={() => setHoverIcons({
-                          [index]: true
-                        })}
-                        onMouseLeave={() => setHoverIcons({
-                          [index]: false
-                        })}>
-            <Card>
+                        onMouseEnter={() => setHoverIcons({ [index]: true })}
+                        onMouseLeave={() => setHoverIcons({ [index]: false })}>
+            <Card sx={{ width: isSm ? '100%' : 220 }}>
               <CardContent>
-                <Stack direction={isSm ? 'row' : 'column'}
+                <Stack direction={'row'}
                        alignItems={'center'}
-                       justifyContent={isSm ? 'space-between' : 'flex-start'}
-                       gap={isSm ? 2 : 0}
+                       gap={isSm ? 2 : 1}
                        flexWrap={'wrap'}
                        sx={{ position: 'relative' }}>
-                  <img style={isSm ? { marginLeft: 16 } : {}} width={48} height={48}
+                  <img style={{ marginLeft: -8 }} width={48} height={48}
                        src={`${prefix}data/${item?.rawName}.png`}
                        alt=""/>
-                  <Stack direction={'row'} gap={2}>
-                    {note && isSm ? <Tooltip title={note}>
-                      <InfoIcon/>
-                    </Tooltip> : null}
-                    <Typography>{cleanUnderscore(item?.displayName)}</Typography>
-                    {note && !isSm ? <Tooltip title={note}>
-                      <InfoIcon/>
-                    </Tooltip> : null}
+                  <Stack>
+                    <Stack direction={'row'} gap={2}>
+                      {note && isSm ? <Tooltip title={note}>
+                        <InfoIcon/>
+                      </Tooltip> : null}
+                      <Typography sx={{
+                        width: note ? 80 : 120,
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                      }}>{cleanUnderscore(item?.displayName)}</Typography>
+                      {note && !isSm ? <Tooltip title={note}>
+                        <InfoIcon/>
+                      </Tooltip> : null}
+                    </Stack>
+                    <Typography sx={{ fontSize: 14 }}>Owned: {notateNumber(quantityOwned)}</Typography>
                   </Stack>
+                </Stack>
+                <Stack sx={{ width: '100%' }} direction={'row'} justifyContent={'space-between'}
+                       alignItems={'center'}>
                   <Typography
-                    color={color}
-                    mt={isSm ? 0 : 1}>{notateNumber(quantityOwned)}/{notateNumber(threshold)}</Typography>
+                    sx={{ fontWeight: 500, fontSize: 14 }}
+                    color={'text.secondary'}
+                  >{lowerBound ? notateNumber(lowerBound) : 'X'}</Typography>
+                  <Box sx={{ color: 'text.secondary' }}>~</Box>
+                  <Typography
+                    sx={{ fontWeight: 500, fontSize: 14 }}
+                    color={'text.secondary'}
+                  >{upperBound ? notateNumber(upperBound) : 'X'}</Typography>
                 </Stack>
               </CardContent>
             </Card>
             <Stack sx={{ minHeight: 34, mt: 1 }} direction={'row'} justifyContent={'center'}>
               {hoverIcons?.[index] ? <>
-                <IconButton size={'small'} onClick={() => handleDeleteThreshold(item?.rawName)}>
+                <IconButton size={'small'} onClick={() => handleDeleteTracker(item?.rawName)}>
                   <DeleteForeverIcon/>
                 </IconButton>
                 <IconButton size={'small'} onClick={() => handleEdit(item?.rawName)}>
                   <EditIcon/>
                 </IconButton>
               </> : null}
-
             </Stack>
           </Stack>
         })}

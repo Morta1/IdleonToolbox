@@ -120,8 +120,7 @@ export const starSignsAlerts = (account, characters, character, lastUpdated, opt
     const maxStarSigns = account?.starSigns?.reduce((res, { starName, unlocked }) => {
       if (starName.includes('Chronus_Cosmos') && unlocked) {
         return res < 2 ? 2 : res;
-      }
-      else if (starName.includes('Hydron_Cosmos') && unlocked) {
+      } else if (starName.includes('Hydron_Cosmos') && unlocked) {
         return res < 3 ? 3 : res;
       }
       return res;
@@ -201,6 +200,15 @@ export const hasAvailableToolUpgrade = (character, account) => {
   }, []);
 }
 
+export const getDivinityAlert = (account, characters, character) => {
+  if ((character?.afkTarget === 'Divinity') && character?.skillsInfo?.divinity?.level >= 80) {
+    return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
+  } else if (character?.skillsInfo?.divinity?.level >= 40 && character?.afkTarget !== 'Divinity') {
+    return { text: 'doesn\'t have tranQi style equipped', icon: 'Div_Style_5' };
+  }
+  return null;
+};
+
 export const cardsAlert = (account, characters, character, lastUpdated, options) => {
   const alerts = {}
   if (options?.cards?.cardSet?.checked) {
@@ -210,16 +218,14 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
       alerts.cardSet = {
         text: `${character.name} has Blunder hill card set equipped which is for level < 50`
       };
-    }
-    else if (character.afkType === 'FIGHTING' && (equippedCardSet?.rawName === 'CardSet2'
+    } else if (character.afkType === 'FIGHTING' && (equippedCardSet?.rawName === 'CardSet2'
       || equippedCardSet?.rawName === 'CardSet3'
       || equippedCardSet?.rawName === 'CardSet5'
       || equippedCardSet?.rawName === 'CardSet7')) {
       alerts.cardSet = {
         text: `${character.name} is fighting but has skilling card set (${cardSetEffect})`
       };
-    }
-    else if (character.afkType !== 'FIGHTING' && character.afkType !== 'Nothing'
+    } else if (character.afkType !== 'FIGHTING' && character.afkType !== 'Nothing'
       && (equippedCardSet?.rawName === 'CardSet4'
         || equippedCardSet?.rawName === 'CardSet6'
         || equippedCardSet?.rawName === 'CardSet8'

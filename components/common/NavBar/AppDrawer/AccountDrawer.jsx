@@ -68,7 +68,7 @@ const worldsData = {
       { label: 'deathNote', icon: 'data/ConTower2' },
       { label: 'worship', icon: 'data/WorshipSkull1' },
       { label: 'prayers', icon: `data/PrayerSel` },
-      { label: 'Traps', icon: 'data/ClassIcons47' },
+      { label: 'Traps', icon: 'data/TrapBoxSet1' },
       { label: 'saltLick', icon: 'data/ConTower3' },
       { label: 'construction', icon: 'data/ClassIcons49' }
     ]
