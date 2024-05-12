@@ -5,9 +5,10 @@ import React from 'react';
 export const patchNotes = [
   {
     ver: '3.2.65',
-    gameVer: '2.0.7',
+    gameVer: '2.0.8',
     date: '09/05/2024',
     features: [
+      'Updated the website with version 2.0.8 data (this patch might miss some assets)',
       'Added a dashboard alert for total crops',
       'Added a dashboard alert for using the wrong divinity style',
       'Added total crops display under farming -> plot',
