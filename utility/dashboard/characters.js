@@ -210,6 +210,16 @@ export const getDivinityAlert = (account, characters, character) => {
   return null;
 };
 
+export const getEquipmentAlert = (account, characters, character, lastUpdated, options) => {
+  const alerts = {};
+  if (options?.equipment?.availableUpgradesSlots?.checked) {
+    alerts.availableUpgradesSlots = [...(character?.equipment || []), ...(character?.tools || [])].reduce((result, item) => {
+      return item?.Upgrade_Slots_Left > 0 ? [...result, item] : result;
+    }, [])
+  }
+  return alerts;
+};
+
 export const cardsAlert = (account, characters, character, lastUpdated, options) => {
   const alerts = {}
   if (options?.cards?.cardSet?.checked) {

@@ -232,7 +232,8 @@ const baseTrackers = {
         name: 'alwaysShowTalents',
         checked: false
       }]
-    }
+    },
+    equipment: { checked: true, options: [{ name: 'availableUpgradesSlots', checked: true }] }
   }
 }
 

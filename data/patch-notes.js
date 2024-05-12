@@ -13,7 +13,8 @@ export const patchNotes = [
       'Added a dashboard alert for using the wrong divinity style',
       'Added total crops display under farming -> plot',
       'Added an indication of your max meal level under cooking -> meals',
-      'Updated material tracker ui a little bit + updated its alerts in the dashboard'
+      'Updated material tracker ui a little bit + updated its alerts in the dashboard',
+      'Added an alert for when you have available upgrade slots on your items'
     ],
     fixes: ['Fixed a bug calculating shiny level multi caused by miscalculating star sign']
   },

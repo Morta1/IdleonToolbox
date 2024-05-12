@@ -7,7 +7,9 @@ import {
   alchemyAlerts,
   anvilAlerts,
   cardsAlert,
-  crystalCountdownAlerts, getDivinityAlert,
+  crystalCountdownAlerts,
+  getDivinityAlert,
+  getEquipmentAlert,
   obolsAlerts,
   postOfficeAlerts,
   starSignsAlerts,
@@ -35,7 +37,8 @@ const alertsMap = {
   tools: toolsAlerts,
   talents: talentsAlerts,
   cards: cardsAlert,
-  divinityStyle: getDivinityAlert
+  divinityStyle: getDivinityAlert,
+  equipment: getEquipmentAlert
 }
 
 const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
@@ -47,7 +50,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           classIndex,
           afkTarget,
           afkTime,
-          postOffice,
+          postOffice
         } = character;
         const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
           const optionObject = data?.options?.reduce((result, option) => ({
@@ -93,7 +96,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} has unending energy prayer and is afk for more than 10 hours`}
                        iconPath={'data/Prayer2'}/> : null}
               {trackers?.divinityStyle && Object.keys(alerts?.divinityStyle).length ?
-                <Alert title={`${name} ${alerts?.divinityStyle?.text}`} iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}
+                <Alert title={`${name} ${alerts?.divinityStyle?.text}`}
+                       iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}
               {trackers?.worship && alerts?.worship?.chargeOverdue ?
                 <Alert title={`${name} worship is full`} iconPath={'data/ClassIcons50'}/> : null}
               {trackers?.traps && alerts?.traps?.trapsOverdue ?
@@ -117,6 +121,21 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
                 <Alert title={`${name} has ${alerts?.anvil?.unspentPoints} unspent points anvil points`}
                        iconPath={'data/ClassIcons43'}/> : null}
+              {trackers?.anvil && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
+                alerts?.equipment?.availableUpgradesSlots?.map(({ displayName, rawName, Upgrade_Slots_Left }, index) => {
+                  return <Alert key={`slots-${name}-${characterIndex}-${rawName}-${index}`}
+                                title={`${cleanUnderscore(displayName)} has ${Upgrade_Slots_Left} available upgrade slots`}
+                                extra={<Box style={{
+                                  position: 'absolute',
+                                  width: 5,
+                                  height: 5,
+                                  top: -2,
+                                  right: -2,
+                                  borderRadius: '50%',
+                                  backgroundColor: '#d62727'
+                                }}/>}
+                                iconPath={`data/${rawName}`}/>;
+                }) : null}
               {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
                 alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
                   const isFull = diff <= 0;
@@ -184,10 +203,13 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
   </>
 };
 
-const Alert = ({ title, iconPath, style = {} }) => {
-  return <HtmlTooltip title={title}>
-    <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>
-  </HtmlTooltip>
+const Alert = ({ title, iconPath, style = {}, extra }) => {
+  return <Stack sx={{ position: 'relative' }}>
+    <HtmlTooltip title={title}>
+      <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>
+    </HtmlTooltip>
+    {extra}
+  </Stack>
 }
 
 const CharacterInfo = ({ account, characters, character, lastUpdated }) => {

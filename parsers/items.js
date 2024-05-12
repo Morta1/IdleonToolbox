@@ -42,10 +42,9 @@ export const getStatsFromGear = (character, bonusIndex, account, isTools = false
     return array?.reduce((res, item) => res + (getStatFromEquipment(item, bonusIndex)), 0);
   }
   return array?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
-      (((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware))
-        ? 2
-        : 1))
-    , 0)
+    ((!isTools && ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)))
+      ? 2
+      : 1)), 0)
 }
 
 export const getStatFromEquipment = (item, statName) => {
@@ -71,7 +70,10 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
     return item ? [...res, {
       name: items?.[item]?.displayName, rawName: item,
       owner,
-      ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult }),
+      ...(item === 'Blank' ? {} : {
+        ...items?.[item], ...stoneResult,
+        Upgrade_Slots_Left: (items?.[item]?.Upgrade_Slots_Left ?? 0) + (stoneResult?.Upgrade_Slots_Left ?? 0)
+      }),
       misc
     }] : res
   }, []);

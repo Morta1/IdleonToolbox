@@ -677,6 +677,8 @@ export const getDropRate = (character, account, characters) => {
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
+  const tomeBonus = 0; // TODO: missing tome bonus
+
   const additive =
     firstTalentBonus +
     postOfficeBonus +
@@ -694,12 +696,10 @@ export const getDropRate = (character, account, characters) => {
     shinyBonus +
     arcadeBonus +
     companionDropRate +
-    stampBonus
-  ;
-  // TODO: missing tome bonus
+    stampBonus;
 
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
+    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus + tomeBonus + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
