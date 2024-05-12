@@ -731,7 +731,8 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
-    { name: 'Golden food', value: goldenFoodBonus },
+    { name: 'Golden food', value: goldenFoodBonus / 100 },
+    { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
