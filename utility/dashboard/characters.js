@@ -201,7 +201,7 @@ export const hasAvailableToolUpgrade = (character, account) => {
 }
 
 export const getDivinityAlert = (account, characters, character) => {
-  const isMeditating = character?.afkTarget === 'Divinity' || isCompanionBonusActive(account, 0) || (character?.afkTarget === 'Laboratory' && account?.divinity?.linkedDeities?.[character?.playerId] === 4);
+  const isMeditating = character?.afkTarget === 'Divinity' || (character?.afkTarget === 'Laboratory' && (account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isCompanionBonusActive(account, 0)));
   if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
   } else if (!isMeditating && character?.skillsInfo?.divinity?.level >= 40 && character?.divStyle?.name !== 'TranQi') {
