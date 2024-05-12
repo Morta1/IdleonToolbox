@@ -651,6 +651,7 @@ export const getDropRate = (character, account, characters) => {
   const secondTalentBonus = getTalentBonus(character?.talents, 1, 'CURSE_OF_MR_LOOTY_BOOTY');
   const starTalentBonus = getTalentBonus(character?.starTalents, null, 'BOSS_BATTLE_SPILLOVER');
   const drFromEquipment = getStatsFromGear(character, 2, account);
+  const drFromTools = getStatsFromGear(character, 2, account, true);
   const drFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
@@ -663,6 +664,7 @@ export const getDropRate = (character, account, characters) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TROVE');
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Drop_Rate');
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
+  const starSignRarityBonus = getStarSignBonus(character, account, 'Drop_Rarity');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES', null, true);
   const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
@@ -675,15 +677,15 @@ export const getDropRate = (character, account, characters) => {
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
-
   const additive =
     firstTalentBonus +
     postOfficeBonus +
-    (drFromEquipment + drFromObols) +
+    (drFromEquipment + drFromObols + drFromTools) +
     bubbleBonus +
     cardBonus +
     secondTalentBonus +
     starSignBonus +
+    starSignRarityBonus +
     guildBonus +
     cardSetBonus +
     shrineBonus +
@@ -706,15 +708,18 @@ export const getDropRate = (character, account, characters) => {
   if (hasDrBundle) {
     final *= 1.2
   }
+  const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
+  if (ninjaMasteryDropRate){
+    final += .3;
+  }
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= (1 + charmBonus / 100);
-
 
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
     { name: 'Talents', value: (firstTalentBonus + secondTalentBonus + (starTalentBonus * account?.accountOptions?.[189])) / 100 },
     { name: 'Post Office', value: postOfficeBonus / 100 },
-    { name: 'Equipment', value: drFromEquipment / 100 },
+    { name: 'Equipment', value: (drFromEquipment + drFromTools) / 100 },
     { name: 'Obols', value: drFromObols / 100 },
     { name: 'Bubble', value: bubbleBonus / 100 },
     { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
@@ -723,7 +728,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Sigil', value: sigilBonus / 100 },
     { name: 'Shiny', value: shinyBonus / 100 },
     { name: 'Arcade', value: arcadeBonus / 100 },
-    { name: 'Starsign', value: starSignBonus / 100 },
+    { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
     { name: 'Guild', value: guildBonus / 100 },
     { name: 'Siege Breaker', value: extraDropRate },
     { name: 'Companion', value: companionDropRate / 100 },
@@ -731,6 +736,8 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
+    { name: 'Summoning', value: summoningBonus / 100 },
+    { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? .3 : 0 },
     { name: 'Golden food', value: goldenFoodBonus / 100 },
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Base', value: 1 }
