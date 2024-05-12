@@ -91,7 +91,7 @@ const Pets = ({
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} my={5}>
       {fencePetsByTime?.map((pet, index) => {
-        const missingIcon = (pet?.icon === 'Mface23' || pet?.icon === 'Mface21') && pet?.monsterRawName !== 'shovelR';
+        const missingIcon = (pet?.icon === 'Mface23' || pet?.icon === 'Mface21' || pet?.icon === 'Mface31') && pet?.monsterRawName !== 'shovelR';
         const amount = fencePetsObject?.[pet?.monsterRawName];
         const timeLeft = ((pet?.goal - pet?.progress) / fasterShinyLv.value / (fencePetsObject?.[pet?.monsterRawName] || 1)) * 8.64e+7;
         const timeLeftToFive = getTimeToLevel(pet, fasterShinyLv.value, amount, applyThreshold ? threshold : 5);
@@ -181,7 +181,7 @@ const Pets = ({
                             }, index) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv.value / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (applyThreshold && shinyLevel >= threshold) return;
-                  const missingIcon = (icon === 'Mface23' || icon === 'Mface21') && monsterRawName !== 'shovelR';
+                  const missingIcon = (icon === 'Mface23' || icon === 'Mface21' || icon === 'Mface31') && monsterRawName !== 'shovelR';
                   const totalChance = breedingMultipliers?.totalChance > 0.1
                     ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
                     : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;

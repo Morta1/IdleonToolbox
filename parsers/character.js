@@ -674,7 +674,9 @@ export const getDropRate = (character, account, characters) => {
   const achievementBonus = getAchievementStatus(account?.achievements, 377);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
 
+  console.log('summoningBonus', summoningBonus)
   const additive =
     firstTalentBonus +
     postOfficeBonus +
@@ -691,11 +693,12 @@ export const getDropRate = (character, account, characters) => {
     shinyBonus +
     arcadeBonus +
     companionDropRate +
-    stampBonus;
+    stampBonus
+  ;
   // TODO: missing tome bonus
 
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
+    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
@@ -707,6 +710,7 @@ export const getDropRate = (character, account, characters) => {
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= (1 + charmBonus / 100);
 
+
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
     { name: 'Talents', value: (firstTalentBonus + secondTalentBonus + (starTalentBonus * account?.accountOptions?.[189])) / 100 },
@@ -714,7 +718,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Equipment', value: drFromEquipment / 100 },
     { name: 'Obols', value: drFromObols / 100 },
     { name: 'Bubble', value: bubbleBonus / 100 },
-    { name: 'Cards', value: (cardBonus + cardSetBonus) / 100 },
+    { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
     { name: 'Shrine', value: shrineBonus / 100 },
     { name: 'Prayers', value: prayerBonus / 100 },
     { name: 'Sigil', value: sigilBonus / 100 },
@@ -728,6 +732,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
+    { name: 'Golden food', value: goldenFoodBonus },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
