@@ -220,7 +220,6 @@ export const getEquipmentAlert = (account, characters, character, lastUpdated, o
         : result;
     }, [])
   }
-  console.log(alerts.availableUpgradesSlots)
   return alerts;
 };
 
