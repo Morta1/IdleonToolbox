@@ -71,6 +71,10 @@ const Account = ({ account, characters, trackers }) => {
             <Alert
               title={`Summoning familiar bonus isn't maxed (${alerts?.summoning?.familiar.level}/${alerts?.summoning?.familiar.maxLvl})`}
               iconPath={'data/SumUpgIc2'}/> : null}
+          {trackers?.farming && alerts?.farming?.missingPlots?.length > 0 ?
+            <Alert
+              title={`You have ${alerts?.farming?.missingPlots?.length} seeds available to be planted`}
+              iconPath={'data/FarmPlant1'}/> : null}
           {trackers?.farming && alerts?.farming?.plots?.length > 0 ?
             <Alert
               title={`${alerts?.farming?.plots?.length} plots reached the threshold of ${alerts?.farming?.plots?.[0]?.threshold} OGs (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.farming?.plots?.[0]?.threshold)))})`}

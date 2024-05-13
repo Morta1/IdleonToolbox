@@ -22,10 +22,11 @@ export const farmingAlerts = (account, options) => {
   if (options?.totalCrops?.checked) {
     const totalCrops = account?.farming?.plot?.reduce((sum, {
       cropQuantity,
-      currentOG
-    }) => sum + (cropQuantity * (currentOG ?? 1)), 0);
+      ogMulti
+    }) => sum + (cropQuantity * (ogMulti)), 0);
     alerts.totalCrops = totalCrops >= options?.totalCrops?.props?.value ? totalCrops : 0;
   }
+  alerts.missingPlots = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
   return alerts;
 }
 
