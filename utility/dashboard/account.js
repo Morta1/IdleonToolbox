@@ -1,13 +1,13 @@
-import { getMaxClaimTime, getSecPerBall } from '../../parsers/dungeons';
-import { getBuildCost } from '../../parsers/construction';
-import { vialCostsArray } from '../../parsers/alchemy';
-import { maxNumberOfSpiceClicks } from '../../parsers/cooking';
+import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
+import { getBuildCost } from '@parsers/construction';
+import { vialCostsArray } from '@parsers/alchemy';
+import { maxNumberOfSpiceClicks } from '@parsers/cooking';
 import { cleanUnderscore, getDuration, notateNumber, tryToParse } from '../helpers';
-import { isRiftBonusUnlocked } from '../../parsers/world-4/rift';
+import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '../../data/website-data';
-import { hasMissingMats } from '../../parsers/refinery';
-import { calcTotals } from '../../parsers/printer';
-import { findQuantityOwned, getAllItems } from '../../parsers/items';
+import { hasMissingMats } from '@parsers/refinery';
+import { calcTotals } from '@parsers/printer';
+import { findQuantityOwned, getAllItems } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 
@@ -20,8 +20,11 @@ export const farmingAlerts = (account, options) => {
       : currentOG > 0).map((plot) => ({ ...plot, threshold: options?.plots?.props?.value }));
   }
   if (options?.totalCrops?.checked) {
-    const totalCrops = account?.farming?.plot?.reduce((sum, { cropQuantity }) => sum + cropQuantity, 0);
-    alerts.totalCrops = totalCrops >= options?.totalCrops?.props?.value ? options?.totalCrops?.props?.value : 0;
+    const totalCrops = account?.farming?.plot?.reduce((sum, {
+      cropQuantity,
+      currentOG
+    }) => sum + (cropQuantity * (currentOG ?? 1)), 0);
+    alerts.totalCrops = totalCrops >= options?.totalCrops?.props?.value ? totalCrops : 0;
   }
   return alerts;
 }
@@ -189,6 +192,7 @@ function isNearRange(value, lowerBound, upperBound, nearPercentage) {
   const upperRange = upperBound + (upperBound * nearPercentage / 100);
   return value <= lowerRange || value >= upperRange;
 }
+
 function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
   const nearly = includeNearly ? '(nearly) ' : '';
   const lowerPercent = lowerBound * (percent / 100);
@@ -201,7 +205,9 @@ function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent
     ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
     return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
   } else if (lowerBound && upperBound && lowerBound < upperBound) {
-    if ((includeNearly ? isNearRange(amount, lowerBound, upperBound, percent) : (amount <= lowerBound || amount >= upperBound))) {
+    if ((includeNearly
+      ? isNearRange(amount, lowerBound, upperBound, percent)
+      : (amount <= lowerBound || amount >= upperBound))) {
       return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
     }
   }
