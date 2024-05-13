@@ -66,7 +66,7 @@ const worldsData = {
       { label: 'Equinox', icon: 'data/Quest78' },
       { label: 'buildings', icon: 'data/ConTower7' },
       { label: 'deathNote', icon: 'data/ConTower2' },
-      { label: 'worship', icon: 'data/WorshipSkull1' },
+      { label: 'worship', icon: 'data/ClassIcons50' },
       { label: 'prayers', icon: `data/PrayerSel` },
       { label: 'Traps', icon: 'data/TrapBoxSet1' },
       { label: 'saltLick', icon: 'data/ConTower3' },
