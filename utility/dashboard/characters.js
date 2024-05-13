@@ -213,8 +213,9 @@ export const getDivinityAlert = (account, characters, character) => {
 export const getEquipmentAlert = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
   if (options?.equipment?.availableUpgradesSlots?.checked) {
-    alerts.availableUpgradesSlots = [...(character?.equipment || []), ...(character?.tools || [])].reduce((result, item) => {
-      return item?.Upgrade_Slots_Left > 0 ? [...result, item] : result;
+    alerts.availableUpgradesSlots = [...(character?.equipment || []),
+      ...(character?.tools || [])].reduce((result, item) => {
+      return item?.Upgrade_Slots_Left > 0 && item?.Type !== 'PREMIUM_HELMET' ? [...result, item] : result;
     }, [])
   }
   return alerts;
