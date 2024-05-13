@@ -195,7 +195,8 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
 }
 
 export const getTotalCrop = (plot: any[]) => {
-  return plot?.reduce((total, { cropQuantity, cropRawName, ogMulti }) => {
+  return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti }) => {
+    if (seedType === -1) return total;
     return {
       ...total,
       [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * (ogMulti))
