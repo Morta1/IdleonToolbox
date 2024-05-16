@@ -194,7 +194,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
             </Tooltip>
           </Stack>
         </ToggleButton>
-        <ToggleButton value="amethystRhinestone">
+        {realAmethystRhinestone === 0 ? <ToggleButton value="amethystRhinestone">
           <Stack direction={'row'} gap={1}>
             <Typography>Amethyst Rhinestone</Typography>
             <Tooltip
@@ -202,7 +202,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
               <InfoIcon/>
             </Tooltip>
           </Stack>
-        </ToggleButton>
+        </ToggleButton> : null}
       </ToggleButtonGroup>
       <Stack direction={'row'} alignItems={'center'} gap={3}>
         <TextField sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
