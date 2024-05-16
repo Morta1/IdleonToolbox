@@ -898,3 +898,15 @@ export const getKillRoy = (idleonData, charactersData, accountData) => {
     totalDamageMulti
   };
 }
+
+export const calcTotalQuestCompleted = (characters) => {
+  const mappedQuests = characters.reduce((result, { questComplete }) => {
+    Object.entries(questComplete)?.forEach(([key, value]) => {
+      if (!result[key] && value === 1) {
+        result[key] = 1;
+      }
+    }, 0)
+    return result;
+  }, {});
+  return Object.values(mappedQuests).reduce((sum, level) => sum + level, 0);
+}

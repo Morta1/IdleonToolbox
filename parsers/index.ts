@@ -181,6 +181,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   const leaderboard: any = calculateLeaderboard(skills);
   charactersData = charactersData.map((character) => ({ ...character, skillsInfo: leaderboard[character?.name] }));
 
+  accountData.accountLevel = charactersData?.reduce((sum, { level }) => sum + level, 0);
   accountData.highscores = getHighscores(idleonData, accountData);
   accountData.shopStock = getShops(idleonData);
 
@@ -200,6 +201,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
     return res + parseFloat(char?.money)
   }, 0);
   const money = bankMoney + playersMoney;
+  accountData.talentPoints = idleonData?.CYTalentPoints;
   accountData.currencies.rawMoney = money;
   accountData.currencies.money = getCoinsArray(money);
   accountData.currencies.gems = idleonData?.GemsOwned;

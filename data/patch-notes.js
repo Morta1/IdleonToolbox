@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.66',
+    gameVer: '2.0.8',
+    date: '16/05/2024',
+    features: [
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-4/tome'}>Tome</Link> page under Account - World
+        4</Typography>,
+      'Added a column to the refinery page to show how much of a a material you own'
+    ],
+    fixes: ['Fixed breeding foraging speed calculations', 'Fixed a bug where some alerts wouldn\'t turn off']
+  },
+  {
     ver: '3.2.65',
     gameVer: '2.0.8',
     date: '09/05/2024',

@@ -28,7 +28,11 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
       dropChance
     })));
   const upgrades = ninjaUpgrades?.map((upgrade, index) =>
-    ({ ...upgrade, level: ninjaUpgradeLevels?.[index + 1], value: ninjaUpgradeLevels?.[index + 1] * (upgrade.modifier ?? 1) }));
+    ({
+      ...upgrade,
+      level: ninjaUpgradeLevels?.[index + 1],
+      value: ninjaUpgradeLevels?.[index + 1] * (upgrade.modifier ?? 1)
+    }));
   const order = (ninjaExtraInfo[24] as string).split(" ");
   const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false);
   const goldScroll = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Scroll');
@@ -40,12 +44,19 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     })),
     ...(playersInfo?.[index] || [])
   }));
-  const orderedEmporium = jadeUpgrades.map((upgrade, index) => ({
-    ...upgrade,
-    originalIndex: index,
-    index: order?.indexOf(index + ''),
-    unlocked: jadeEmporiumUnlocks?.indexOf(number2letter?.[index]) !== -1
-  }))
+  let totalJadeEmporiumUnlocked = 0
+  const orderedEmporium = jadeUpgrades.map((upgrade, index) => {
+    const unlocked = jadeEmporiumUnlocks?.indexOf(number2letter?.[index]) !== -1;
+    if (unlocked){
+      totalJadeEmporiumUnlocked += 1;
+    }
+    return {
+      ...upgrade,
+      originalIndex: index,
+      index: order?.indexOf(index + ''),
+      unlocked
+    };
+  })
   orderedEmporium.sort((a, b) => a.index - b.index);
   const jadeEmporium = orderedEmporium.map((upgrade, index) => {
     let bonus;
@@ -77,7 +88,8 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     pristineCharms,
     dropList,
     doorsCurrentHp,
-    beanstalkData
+    beanstalkData,
+    totalJadeEmporiumUnlocked
   };
 }
 const parseNinjaItems = (array: any, doChunks: boolean) => {
@@ -116,5 +128,12 @@ export const getJadeEmporiumBonus = (account: any, bonusName: string) => {
   return account?.sneaking?.jadeEmporium?.find(({ name }: { name: string }) => name === bonusName)?.bonus;
 }
 export const getCharmBonus = (account: any, bonusName: string) => {
-  return account?.sneaking?.pristineCharms?.find(({ name, unlocked }: { name: string, unlocked: boolean }) => name === bonusName && unlocked)?.baseValue ?? 0;
+  return account?.sneaking?.pristineCharms?.find(({ name, unlocked }: {
+    name: string,
+    unlocked: boolean
+  }) => name === bonusName && unlocked)?.baseValue ?? 0;
+}
+
+export const calcTotalBeanstalkLevel = (beanstalk: []) => {
+  return beanstalk?.reduce((res, level) => res + level, 0)
 }

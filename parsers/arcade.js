@@ -23,12 +23,13 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
       iconName: `PachiShopICON${index}`
     }
   });
-
+  const totalUpgradeLevels = arcadeShopList?.reduce((res, { level }) => res + level, 0);
   return {
     shop: arcadeShopList,
     balls,
     goldBalls,
-    maxBalls
+    maxBalls,
+    totalUpgradeLevels
   }
 }
 

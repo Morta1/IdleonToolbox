@@ -35,3 +35,7 @@ export const getAchievementStatus = (achievements, achievementIndex) => {
       return achievements?.[achievementIndex]?.completed ? 1 : 0;
   }
 }
+
+export const calcTotalAchievements = (achievements) => {
+  return achievements.reduce((sum, { completed }) => completed ? sum + 1 : sum, 0);
+}

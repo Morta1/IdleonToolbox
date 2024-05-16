@@ -9,7 +9,7 @@ export const getTasks = (idleonData) => {
     tryToParse(idleonData?.TaskZZ3),
     tryToParse(idleonData?.TaskZZ4),
     tryToParse(idleonData?.TaskZZ5),
-    tryToParse(idleonData?.TaskZZ6),
+    tryToParse(idleonData?.TaskZZ6)
   ];
 
   const tasksDescriptions = tasks?.map((worldTasks, worldIndex) => {
@@ -45,4 +45,11 @@ export const getTasks = (idleonData) => {
 
 const parseTasks = (tasksRaw) => {
   return tasksRaw;
+}
+
+export const calcTotalTasks = (tasks) => {
+  return tasks?.[1]?.reduce((sum, worldTasks) => {
+    const worldSum = worldTasks.reduce((sum, amount) => sum + amount, 0);
+    return sum + worldSum;
+  }, 0);
 }

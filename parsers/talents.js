@@ -1,9 +1,18 @@
 import { growth } from '../utility/helpers';
-import { classes, talents } from '../data/website-data';
+import { classes, classFamilyBonuses, talents } from '../data/website-data';
 import { getAchievementStatus } from './achievements';
-import { isCompanionBonusActive } from './misc';
+import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
 import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
+import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
+import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getGuildBonusBonus } from '@parsers/guild';
+import { getDungeonFlurboStatBonus } from '@parsers/dungeons';
+import { getCardBonusByEffect } from '@parsers/cards';
+import { getSigilBonus } from '@parsers/alchemy';
+import { getShinyBonus } from '@parsers/breeding';
+import { getBribeBonus } from '@parsers/bribes';
+import { getIsland } from '@parsers/world-2/islands';
 
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels) => {
@@ -325,4 +334,57 @@ export const relevantTalents = {
   45: true, // VOID_SPEED_RERUN,
   370: true, // ARENA_SPIRIT
   145: true // TASTE_TEST
+}
+
+export const calcTalentMaxLevel = (characters) => {
+  const mappedLevels = characters.reduce((result, { flatTalents, flatStarTalents }) => {
+    [...flatTalents, ...flatStarTalents].forEach(({ skillIndex, maxLevel }) => {
+      if (!result?.[skillIndex] || (maxLevel > result?.[skillIndex])) {
+        result[skillIndex] = maxLevel;
+      }
+    })
+    return result;
+  }, {});
+  return Object.values(mappedLevels).reduce((sum, level) => sum + level, 0);
+}
+export const calcTotalStarTalent = (characters, account) => {
+  const levels = characters.reduce((result, character) => {
+    const basePoints = character.skillsInfoArray.reduce((sum, { level }, index) => index > 0 && index <= 9 ? sum + level : sum, -3);
+    const talentBonus = getTalentBonus(character?.talents, 0, 'STAR_PLAYER');
+    const secondTalentBonus = getTalentBonus(character?.starTalents, null, 'STONKS!');
+    const thirdTalentBonus = getTalentBonus(character?.talents, 1, 'SUPERNOVA_PLAYER');
+    const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, 'Elemental_Sorcerer', true);
+    let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS', highestLevelElementalSorc);
+    if (character?.class === 'Elemental_Sorcerer') {
+      familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
+      const familyBonus = getFamilyBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS');
+      familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
+    }
+    const stampBonus = getStampsBonusByEffect(account, 'Talent_Points_for_Star_Tab')
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 11);
+    const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Talent_Pts');
+    const cardPassiveBonus = getCardBonusByEffect(account?.cards, 'Star_Talent_Pts_(Passive)');
+    const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TWO_STARZ');
+    const achievement = getAchievementStatus(account?.achievements, 212);
+    const secondAchievement = getAchievementStatus(account?.achievements, 289);
+    const thirdAchievement = getAchievementStatus(account?.achievements, 305);
+    const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Star_Talent_Pts');
+    const bribeBonus = getBribeBonus(account?.bribes, 'Star_Scraper');
+    const fractalIsland = getIsland(account, 'Fractal');
+    const fractalBonusUnlocked = fractalIsland?.shop?.find(({
+                                                           effect,
+                                                           unlocked
+                                                         }) => effect.includes('Star_Talent_Pts') && unlocked);
+    const totalStarPoints = Math.floor(character?.level
+      - 1 + (basePoints + talentBonus + (account?.talentPoints?.[5]
+        + familyEffBonus + (secondTalentBonus + (stampBonus
+          + (thirdTalentBonus + (Math.floor(guildBonus) + (flurboBonus + (cardPassiveBonus
+            + (sigilBonus + (10 * achievement + (20 * secondAchievement + (20 * thirdAchievement
+              + (shinyBonus + (bribeBonus + 100 * (fractalBonusUnlocked ? 1 : 0))))))))))))))))
+    return {
+      ...result,
+      [character.name]: totalStarPoints
+    };
+  }, {});
+  return Math.max(...Object.values(levels));
 }

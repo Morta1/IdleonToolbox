@@ -677,7 +677,7 @@ export const getDropRate = (character, account, characters) => {
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
-  const tomeBonus = 0; // TODO: missing tome bonus
+  const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
 
   const additive =
     firstTalentBonus +
@@ -709,7 +709,7 @@ export const getDropRate = (character, account, characters) => {
     final *= 1.2
   }
   const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
-  if (ninjaMasteryDropRate){
+  if (ninjaMasteryDropRate) {
     final += .3;
   }
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
@@ -717,7 +717,10 @@ export const getDropRate = (character, account, characters) => {
 
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
-    { name: 'Talents', value: (firstTalentBonus + secondTalentBonus + (starTalentBonus * account?.accountOptions?.[189])) / 100 },
+    {
+      name: 'Talents',
+      value: (firstTalentBonus + secondTalentBonus + (starTalentBonus * account?.accountOptions?.[189])) / 100
+    },
     { name: 'Post Office', value: postOfficeBonus / 100 },
     { name: 'Equipment', value: (drFromEquipment + drFromTools) / 100 },
     { name: 'Obols', value: drFromObols / 100 },
@@ -736,6 +739,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
+    { name: 'Tome', value: tomeBonus / 100 },
     { name: 'Summoning', value: summoningBonus / 100 },
     { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? .3 : 0 },
     { name: 'Golden food', value: goldenFoodBonus / 100 },
@@ -1405,4 +1409,8 @@ export const getPlayerConstructionExpPerHour = (character, account) => {
   return Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
     * (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus + (stampBonus + (starSignBonus + Math.max(0, 0.5 *
       ((postOfficeBonus) - 100)))))))) / 100));
+}
+
+export const calcPostOfficeOrders = (characters) => {
+  return characters?.reduce((sum, { postOffice }) => sum + postOffice?.totalOrders, 0)
 }

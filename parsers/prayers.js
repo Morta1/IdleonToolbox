@@ -46,3 +46,7 @@ export const calcPrayerCost = (prayer) => {
     ? 1.3
     : 1.12, level - 5)))
 }
+
+export const calcTotalPrayersLevel = (prayers) => {
+  return prayers?.reduce((res, { level }) => res + level, 0)
+}

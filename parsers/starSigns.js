@@ -102,3 +102,7 @@ export const getStarSignsBonuses = (starSigns) => {
     .flatMap((arr) => arr)
     .filter((arr) => arr)
 }
+
+export const calcTotalConstellations = (constellations) => {
+  return constellations?.reduce((sum, {done}) => done ? sum + 1 : sum,0);
+}

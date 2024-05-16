@@ -39,8 +39,12 @@ export const getInventory = (inventoryArr, inventoryQuantityArr, owner, chestSto
         rawName: itemName,
         amount: parseInt(inventoryQuantityArr?.[index]),
         misc: cleanUnderscore(misc.trim()),
-        description: cleanUnderscore(description.trim()),
+        description: cleanUnderscore(description.trim())
       }
     ] : res
   }, []);
 };
+
+export const calcTotalItemInStorage = (storage, itemName) => {
+  return storage?.reduce((sum, { rawName, amount }) => rawName === itemName ? sum + amount : sum, 0);
+}

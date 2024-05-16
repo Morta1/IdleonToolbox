@@ -118,7 +118,7 @@ export const getArtifacts = (idleonData, charactersData, account) => {
 const getChests = (chestsRaw, artifactsList, serverVars) => {
   return chestsRaw?.map((chest) => ({
     ...getArtifactChance(chest, artifactsList, serverVars),
-    rawName: `SailChest${chest?.[3]}`,
+    rawName: `SailChest${chest?.[3]}`
   }))
 }
 
@@ -135,8 +135,7 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
     const artifact = artifactsList[artifactsStartIndex + i];
     if (!artifact) {
       baseMath = startingIndex * (1 - chance / artifact?.baseFindChance);
-    }
-    else {
+    } else {
       if (artifact?.acquired === 1) {
         baseMath = startingIndex * (1 - chance / getAncientChances(islandIndex, serverVars));
         startingIndex = baseMath;
@@ -162,7 +161,7 @@ const getArtifactChance = (chest, artifactsList, serverVars) => {
     island,
     islandIndex,
     treasure,
-    possibleArtifacts,
+    possibleArtifacts
   };
 }
 
@@ -241,7 +240,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters,
     boatIndex,
     island,
     islandIndex,
-    distanceTraveled,
+    distanceTraveled
   }
 
   boatObj.resources = getBoatResources(boatObj, lootPile);
@@ -302,7 +301,7 @@ const getCaptain = (captain, index, isShop) => {
     secondBonusDescription: captainsBonuses?.[secondBonusIndex]?.bonus,
     firstBonusValue,
     secondBonusValue,
-    exp: notateNumber(Math.floor(exp), 'Big'),
+    exp: notateNumber(Math.floor(exp), 'Big')
   }
   const firstBonus = getCaptainDisplayBonus(captainObj, firstBonusValue);
   const secondBonus = getCaptainDisplayBonus(captainObj, secondBonusValue);
@@ -352,11 +351,9 @@ const getBoatUpgradeCost = (boat, itemIndex) => {
   const value = itemIndex === 0 ? boat?.lootLevel : boat?.speedLevel;
   if (boatType === 0) {
     return Math.round((5 + 4 * value) * Math.pow(1.17 - .12 * value / (value + 200), value))
-  }
-  else if (boatType % 2 === 1) {
+  } else if (boatType % 2 === 1) {
     return Math.round((5 + 2 * value) * Math.pow(1.15 - (0.1 * value) / (value + 200), value));
-  }
-  else {
+  } else {
     return Math.round((2 + value) * Math.pow(1.12 - (0.07 * value) / (value + 200), value));
   }
 }
@@ -468,8 +465,7 @@ const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {
   if (captainBonusIndex > 0) return 0;
   if (captainBonusIndex === bonusIndex) {
     return captain?.level * captain?.firstBonusValue;
-  }
-  else if (captainBonusIndex === bonusIndex) {
+  } else if (captainBonusIndex === bonusIndex) {
     return captain?.level * captain?.secondBonusValue;
   }
   return 0;
@@ -479,17 +475,13 @@ const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {
 const getBoatFrame = (totalLevels) => {
   if (totalLevels < 25) {
     return 0;
-  }
-  else if (totalLevels < 50) {
+  } else if (totalLevels < 50) {
     return 1;
-  }
-  else if (totalLevels < 100) {
+  } else if (totalLevels < 100) {
     return 2;
-  }
-  else if (totalLevels < 200) {
+  } else if (totalLevels < 200) {
     return 3;
-  }
-  else {
+  } else {
     return totalLevels < 300 ? 4 : 5
   }
 }
@@ -505,7 +497,9 @@ const getLootPile = (lootPile) => {
 const getArtifact = (artifact, acquired, lootPile, index, charactersData, account) => {
   let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
     upgradedForm = acquired === 2 || acquired === 3 || acquired === 4, formMultiplier = acquired,
-    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : acquired === 4 ? 'sovereignMultiplier' : 'baseBonus';
+    multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : acquired === 4
+      ? 'sovereignMultiplier'
+      : 'baseBonus';
 
   let fixedDescription = artifact?.description;
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {
@@ -518,46 +512,37 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
         : highestLevel * artifact?.baseBonus;
       fixedDescription = `${fixedDescription} Total Bonus: ${upgradedForm ? bonus * formMultiplier : bonus}`;
     }
-  }
-  else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
+  } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
     const lootedItems = account?.looty?.rawLootedItems;
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
     const math = artifact?.[multiplierType] * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
-  }
-  else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
+  } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const isGenie = artifact?.name === 'Genie_Lamp';
     const highestSailing = getHighestCharacterSkill(charactersData, 'sailing');
     bonus = isGenie ? highestSailing * artifact?.baseBonus : highestSailing;
     additionalData = `Sailing level: ${highestSailing}`;
-  }
-  else if (artifact?.name === 'Weatherbook') {
+  } else if (artifact?.name === 'Weatherbook') {
     const highestGaming = getHighestCharacterSkill(charactersData, 'gaming');
     additionalData = `Gaming level: ${highestGaming}`;
     bonus = highestGaming * artifact?.baseBonus;
-  }
-  else if (artifact?.name === 'Triagulon') {
+  } else if (artifact?.name === 'Triagulon') {
     const ownedTurkey = account?.cooking?.meals?.[0]?.amount;
     bonus = (artifact?.baseBonus * lavaLog(ownedTurkey));
-  }
-  else if (artifact?.name === 'Opera_Mask') {
+  } else if (artifact?.name === 'Opera_Mask') {
     const sailingGold = lootPile?.[0];
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
-  }
-  else if (artifact?.name === 'Fun_Hippoete') {
+  } else if (artifact?.name === 'Fun_Hippoete') {
     bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate)
-  }
-  else if (artifact?.name === 'The_True_Lantern') {
+  } else if (artifact?.name === 'The_True_Lantern') {
     bonus = artifact?.baseBonus * (lavaLog(account?.atoms?.particles) ?? 0);
-  }
-  else if (artifact?.name === 'Gold_Relic') {
+  } else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];
     const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;
     const daysBonus = 1 + ((daysSinceLastSample) * (2 + goldRelicBonus)) / 100;
     additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${notateNumber(daysBonus, 'MultiplierInfo').replace('#', '')}x`;
-  }
-  else if (artifact?.name === 'Crystal_Steak') {
+  } else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }) => {
       const mainStat = mainStatMap?.[className];
       return { name, stat: stats?.[mainStat] };
@@ -567,8 +552,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
       name,
       bonus: (upgradedForm ? bonus * formMultiplier : bonus) * Math.floor(stat / 100)
     }));
-  }
-  else if (artifact?.name === 'Socrates') {
+  } else if (artifact?.name === 'Socrates') {
     const mainStats = charactersData?.map(({ name, stats }) => {
       return {
         name,
@@ -585,18 +569,16 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
         strength: Math.floor(multiplier * strength),
         agility: Math.floor(multiplier * agility),
         wisdom: Math.floor(multiplier * wisdom),
-        luck: Math.floor(multiplier * luck),
+        luck: Math.floor(multiplier * luck)
       }
     });
   }
 
   if (acquired === 2 && artifact?.ancientFormDescription === 'The_artifact\'s_main_bonus_is_doubled!') {
     bonus *= 2;
-  }
-  else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
+  } else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
     bonus *= 3;
-  }
-  else if (acquired === 4 && artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!') {
+  } else if (acquired === 4 && artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!') {
     bonus *= 4;
   }
 
@@ -609,4 +591,11 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     acquired,
     rawName: `Arti${index}`
   }
+}
+
+export const calcTotalBoatLevels = (boats) => {
+  return boats?.reduce((res, { level }) => res + level, 0);
+}
+export const calcArtifactsAcquired = (boats) => {
+  return boats?.reduce((res, { acquired }) => res + acquired, 0);
 }

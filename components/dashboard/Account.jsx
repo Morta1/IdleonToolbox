@@ -154,7 +154,7 @@ const Account = ({ account, characters, trackers }) => {
                                                  title={`Daily task in world ${world + 1} not done yet`}
                                                  iconPath={`etc/Merit_${world}`}/>) : null}
           {trackers?.sailing && alerts?.sailing?.chests > 0 ? <Alert key={'sailing-chest-alert'}
-                                                                     title={`You've reached to maximum capacity of chests`}
+                                                                     title={`You've reached the maximum capacity of chests`}
                                                                      iconPath={'npcs/Chesty'}/> : null}
           {trackers?.sailing && alerts?.sailing?.captains?.length > 0 ?
             alerts?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {

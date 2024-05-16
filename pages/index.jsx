@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
 import Instructions from 'components/common/Instructions';
-import { getRandomNumbersArray, prefix } from '../utility/helpers'
+import { getRandomNumbersArray, isProd, prefix } from '../utility/helpers'
 import useInterval from '../components/hooks/useInterval';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
 import Button from '@mui/material/Button';
@@ -13,11 +13,13 @@ import Link from '@mui/material/Link';
 import { useFlubber } from '../components/hooks/useFlubber';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
+import { Adsense } from '@ctrl/react-adsense';
 
 const Home = () => {
   const indexes = useMemo(() => getRandomNumbersArray(6, 6), []);
   const breakpoint = useMediaQuery('(max-width: 1245px)', { noSsr: true });
   const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
+  const showSideAds = useMediaQuery('(min-width: 1650px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);
@@ -45,6 +47,35 @@ const Home = () => {
         title="Home | Idleon Toolbox"
         description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
       />
+      {showSideAds ? <>
+        <div style={{
+          height: 600,
+          backgroundColor: isProd ? '' : '#d73333',
+          width: 160,
+          position: 'absolute',
+          top: 100,
+          left: 50
+        }}>
+          <Adsense
+            client="ca-pub-1842647313167572"
+            slot="8673408690"
+          />
+        </div>
+        <div style={{
+          height: 600,
+          backgroundColor: isProd ? '' : '#d73333',
+          width: 160,
+          position: 'absolute',
+          top: 100,
+          right: 50
+        }}>
+          <Adsense
+            client="ca-pub-1842647313167572"
+            slot="6626749728"
+          />
+        </div>
+      </> : null}
+
       <Stack mt={breakpointLg ? 5 : breakpoint ? 1 : 1} direction={'row'} flexWrap={'wrap'}
              sx={{ textAlign: breakpoint ? 'center' : 'inherit' }}
              gap={breakpoint ? 6 : 2}>
@@ -95,18 +126,22 @@ const Home = () => {
           </Box>
         </Stack>
       </Stack>
-      {/*  <Adsense*/}
-      {/*    style={{ display: 'inline-block', height: 90, maxHeight: 90 }}*/}
-      {/*    client="ca-pub-1842647313167572"*/}
-      {/*    slot="7203005854"*/}
-      {/*    format={''}*/}
-      {/*  />*/}
-      {/*</div>*/}
-      <motion.div style={{ marginTop: breakpoint ? 0 : 80 }} transition={{ duration: .8 }}
+      <Stack alignItems={'center'} mt={5}>
+        {!showSideAds ? <div
+          style={{ display: 'flex', width: 728, backgroundColor: isProd ? '' : '#d73333', height: 90 }}>
+          <Adsense
+            style={{ display: 'inline-block', width: 728, height: 90 }}
+            client="ca-pub-1842647313167572"
+            slot="1982542104"
+            format={'fixed'}
+          />
+        </div> : null}
+      </Stack>
+      <motion.div style={{ marginTop: breakpoint ? 0 : 50 }} transition={{ duration: .8 }}
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}>
         <Typography variant={'h4'} mt={2}>IT Patch Notes</Typography>
-        <Link to={{ pathname: '/patch-notes', }}
+        <Link to={{ pathname: '/patch-notes' }}
               onMouseEnter={() => handleAnimation(true)}
               onMouseLeave={() => handleAnimation()}
               sx={{ my: 2, display: 'inline-flex', alignItems: 'center', gap: 1 }}

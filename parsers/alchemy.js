@@ -428,3 +428,16 @@ export const vialCostsArray = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5
 export const getBubbleAtomCost = (bubbleIndex, cost) => {
   return Math.floor(cost / 1e9 * (bubbleIndex + 1) * Math.pow(1.04, bubbleIndex) * 100)
 }
+
+export const calcBubbleLevels = (allBubbles) => {
+  if (!allBubbles) return 0;
+  return Object.values(allBubbles)?.reduce((res, bubbles) => res + bubbles?.reduce((bubbleLevels, { level }) => bubbleLevels + level, 0), 0);
+};
+export const calcVialsLevels = (vials) => {
+  if (!vials) return 0;
+  return Object.values(vials)?.reduce((res, { level }) => res + level, 0);
+};
+export const calcSigilsLevels = (sigils) => {
+  if (!sigils) return 0;
+  return Object.values(sigils)?.reduce((res, { unlocked }) => res + (unlocked + 1), 0);
+};

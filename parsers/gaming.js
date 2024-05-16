@@ -30,6 +30,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const bits = gamingRaw?.[0];
   const poingHighscore = gamingRaw?.[10];
   const bestNugget = gamingRaw?.[8];
+  const totalPlantsPicked = gamingSproutRaw?.[28]?.[1];
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);
   const lastAcornClicked = gamingSproutRaw?.[27]?.[1];
@@ -116,7 +117,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     newMutationChance,
     mutationChanceBreakpoints,
     logBook,
-    poingHighscore
+    poingHighscore,
+    totalPlantsPicked
   };
 }
 

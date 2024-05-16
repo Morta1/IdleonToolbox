@@ -116,3 +116,8 @@ export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifac
   const cardBonus = calcCardBonus(chaoticChizoarCard) ?? 0;
   return shrine?.bonus * (1 + cardBonus / 100);
 }
+
+export  const calcShrineLevels = (allShrines) => {
+  if (!allShrines) return 0;
+  return Object.values(allShrines)?.reduce((res, { shrineLevel }) => res + shrineLevel, 0);
+};

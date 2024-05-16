@@ -89,3 +89,13 @@ export const getStatueBonus = (statues, statueName, talents) => {
   }
   return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * (statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1);
 };
+
+export const calcStatueLevels = (allStatues) => {
+  if (!allStatues) return 0;
+  return Object.values(allStatues)?.reduce((res, { level }) => res + level, 0);
+};
+
+export const calcTotalOnyx = (account) => {
+  if (account?.accountOptions?.[69] < 2) return 0;
+  return account?.statues?.reduce((res, { onyxStatue }) => res + (onyxStatue ? 1 : 0), 0);
+}

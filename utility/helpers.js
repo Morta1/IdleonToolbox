@@ -334,6 +334,32 @@ export const notateNumber = (e, s) => {
                                 : 1e24 > e ? Math.ceil(e / 1e21) + 'QQQ'
                                   : Math.floor((e / Math.pow(10, Math.floor(lavaLog(e)))) * 100) / 100 + ('E' + Math.floor(lavaLog(e)))
 }
+export const commaNotation = (number) => {
+  // Initialize variables
+  let formattedNumber = '';
+  const roundedNumberAsString = '' + Math.round(number);
+
+  // Initialize CommaDT1 and CommaDT2
+
+  // Calculate number of commas needed
+  const numberOfCommas = Math.floor((roundedNumberAsString.length - 1) / 3) + 1;
+
+  // Calculate number of digits after last comma
+  const digitsAfterLastComma = roundedNumberAsString.length - 3 * Math.floor((roundedNumberAsString.length - 1) / 3);
+
+  // Iterate over the number of commas and format the number
+  for (let i = 0; i < numberOfCommas; i++) {
+    if (i === 0) {
+      formattedNumber = roundedNumberAsString.substring(0, digitsAfterLastComma);
+    } else {
+      formattedNumber += ',' + roundedNumberAsString.substring(digitsAfterLastComma + 3 * (i - 1), digitsAfterLastComma + 3 * i);
+    }
+  }
+
+  // Return formatted number
+  return formattedNumber;
+}
+
 
 export const constellationIndexes = (str) => {
   const indexes = { _: 0, a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7, h: 8, i: 9 };

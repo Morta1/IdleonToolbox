@@ -58,3 +58,12 @@ export const getEclipseSkullsBonus = (account) => {
     return sum + eclipses;
   }, 0)
 }
+
+export const calcTotalKillsDigits = (deathNote) => {
+  const deathNoteCopy = JSON.parse(JSON.stringify(deathNote));
+  delete deathNoteCopy.miniBosses;
+  return Object.values(deathNoteCopy).reduce((sum, { mobs }) => {
+    const digits = mobs.reduce((sum, {kills}) => sum + Math.ceil(kills).toString().length, 0);
+    return sum + digits;
+  }, 0)
+}

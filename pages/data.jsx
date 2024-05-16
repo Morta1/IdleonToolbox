@@ -30,6 +30,7 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import Popper from '@components/common/Popper';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -250,27 +251,5 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
 const ButtonStyle = styled(Button)`
   text-transform: none;
 `
-
-const Popper = ({ anchorEl, handleClose }) => {
-  const open = Boolean(anchorEl)
-  const id = open ? 'simple-popover' : undefined;
-  return <Popover
-    sx={{ ml: 1 }}
-    id={id}
-    open={open}
-    anchorEl={anchorEl}
-    onClose={handleClose}
-    anchorOrigin={{
-      vertical: 'center',
-      horizontal: 'right'
-    }}
-    transformOrigin={{
-      vertical: 'center',
-      horizontal: 'left'
-    }}
-  >
-    <Typography sx={{ py: 1, px: 2 }}>Copied to clipboard!</Typography>
-  </Popover>
-}
 
 export default Data;

@@ -70,9 +70,11 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const fleeters = team?.filter((teamMember) => teamMember?.gene?.name === 'Fleeter')?.length;
     const fasidiouses = team?.filter((teamMember) => teamMember?.gene?.name === 'Fasidious')?.length;
     let miasmas = team?.filter((teamMember) => teamMember?.gene?.name === 'Miasma');
-    if (miasmas) {
+    if (miasmas.length) {
       const duplicates = team?.map(({ gene }) => gene?.name)?.every((name, index, arr) => arr.indexOf(index) === name);
       miasmas = !duplicates ? 4 : 1;
+    } else {
+      miasmas = 1;
     }
     const topAndBottomRows = [...team, ...previousTeam, ...nextTeam];
     const badumdums = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Badumdum')?.length;
@@ -94,7 +96,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
         ? index + 2
         : sum, 0)
       shinyLevel = shinyPetsLevels?.[worldIndex]?.[petIndex] === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
-      totalShinyLevels += shinyLevel;
+      totalShinyLevels += shinyLevel === 0 ? 1 : shinyLevel;
       const goal = Math.floor((1 + Math.pow(shinyLevel, 1.6)) * Math.pow(1.7, shinyLevel));
       const passiveValue = Math.round(pet?.baseValue * shinyLevel);
       const petInfo = {
@@ -111,8 +113,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
       }
       if (passivesTotals?.[pet?.passive]) {
         passivesTotals[pet?.passive] += passiveValue;
-      }
-      else if (passiveValue > 0) {
+      } else if (passiveValue > 0) {
         passivesTotals[pet?.passive] = passiveValue;
       }
       if (fencePetsObject?.[pet?.monsterRawName]) {
@@ -144,10 +145,12 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
 
 export const addBreedingChance = (idleonData, account) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
+  let totalBreedabilityLv = 0;
   const pets = account?.breeding?.pets?.map((petList, worldIndex) => {
     return petList?.map((pet, petIndex) => {
       const totalKitchenLevels = getTotalKitchenLevels(account?.cooking?.kitchens)
       const breedingMultipliers = getBreedingMulti(account, breedingRaw, worldIndex, petIndex, account?.breeding?.unlockedBreedingMulti, totalKitchenLevels);
+      totalBreedabilityLv += Math.min(9, Math.floor(Math.pow(breedingMultipliers?.second - 1, .8)) + 1);
       return {
         ...pet,
         breedingMultipliers
@@ -156,7 +159,8 @@ export const addBreedingChance = (idleonData, account) => {
   })
   return {
     ...account?.breeding,
-    pets
+    pets,
+    totalBreedabilityLv
   }
 }
 const getBaseBreedChance = (breedingRaw, worldIndex, petIndex) => {
@@ -297,4 +301,10 @@ export const getFightPower = (teamMember) => {
   return teamMember?.gene?.abilityType === 0 ? teamMember?.gene?.name === 'Mercenary'
     ? 2 * teamMember.power
     : teamMember.power : 0;
+}
+
+export const calcHighestPower = (breeding) => {
+  const teams = breeding?.territories?.reduce((result, { team }) => ([...result, ...team]), []);
+  const mappedPets = [...breeding?.storedPets, ...teams].map(({ power }) => power);
+  return Math.max(...mappedPets);
 }

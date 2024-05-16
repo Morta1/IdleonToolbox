@@ -468,3 +468,7 @@ export const getChipsAndJewels = (account, size = 10) => {
 
   return rotations;
 }
+
+export const calcTotalMeals = (meals) => {
+  return meals?.reduce((res, { level }) => res + level, 0);
+}

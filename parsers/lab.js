@@ -163,6 +163,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     jewels: jewelsList,
     chips: chipList,
     labBonuses: labBonusesList,
+    totalRawChips: chipRepo.reduce((res, amount) => res + amount, 0),
     currentRotation
   };
 }
@@ -261,26 +262,6 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
     }
   }
-
-  if (playerCords?.name === 'SeppArcher') {
-    // No Chips
-    // const noChips = Math.floor(((baseLineWidth) + (mealPxBonus + Math.min(lineWidthCards, 50))) * (1 + (purpleTubeBonus + mealLinePctBonus + (20 * petArenaBonus + bonusLineWidth)) / 100))
-    // console.log('noChips', noChips)
-    // // HAS CHIPS
-    // const hasChips = Math.floor(baseLineWidth * (1 + ((purpleTubeBonus + mealLinePctBonus) + (conductiveMotherboardBonus + (20 * petArenaBonus + bonusLineWidth))) / 100))
-    // console.log('hasChips', hasChips)
-    // console.log('%%%')
-    // console.info('Base width', baseLineWidth)
-    // console.info('PX from Meal', mealPxBonus)
-    // console.info('Line Width from card', lineWidthCards)
-    // console.info('Purple Tube Talent', purpleTubeBonus)
-    // console.info('Meal Line Percent from meal', mealLinePctBonus)
-    // console.info('Chip', conductiveMotherboardBonus)
-    // console.info('Pet Arena Bonus', petArenaBonus)
-    // console.info('Shiny Bonus', shinyLabBonus)
-    // console.info('Souped Tube Bonus', bonusLineWidth)
-    // console.info('-----------------------------------')
-  }
   return Math.floor((baseLineWidth + mealPxBonus + Math.min(lineWidthCards, 50)) *
     (1 + ((purpleTubeBonus + mealLinePctBonus) + ((conductiveMotherboardBonus) + (20 * petArenaBonus) + shinyLabBonus + bonusLineWidth)) / 100));
 }
@@ -327,4 +308,3 @@ export const getPlayerLabChipBonus = (character, account, chipIndex) => {
     return chip?.index === chipIndex ? sum + chip?.baseVal : sum;
   }, 0)
 }
-

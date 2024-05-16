@@ -53,11 +53,12 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           postOffice
         } = character;
         const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
+          const {options, ...rest} = data;
           const optionObject = data?.options?.reduce((result, option) => ({
             ...result,
             [option?.name]: option
           }), {});
-          return { ...result, [trackerName]: optionObject }
+          return { ...result, [trackerName]: { ...rest, ...optionObject } }
         }, {});
         const alerts = Object.keys(options)?.reduce((result, trackerName) => {
           result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};

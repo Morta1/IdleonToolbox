@@ -13,6 +13,11 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const upgradesLevels = rawSummon?.[0];
   const essences = rawSummon?.[2];
   const whiteBattleOrder = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
+  const { familiarsOwned } = (rawSummon?.[4] ?? []).reduce((acc, currentValue, index) => {
+    acc.familiarsOwned += acc.multiplier * currentValue;
+    acc.multiplier *= index + 3;
+    return acc;
+  }, { familiarsOwned: 0, multiplier: 1 });
   const careerWins = {
     0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
   };
@@ -46,23 +51,35 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     const firstAchievement = getAchievementStatus(account?.achievements, 373);
     const secondAchievement = getAchievementStatus(account?.achievements, 379);
     const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
-    return { bonusId, bonus, value: rawValue ? 3.5 * rawWinnerBonuses?.[bonusId] * (1 + charmBonus / 100) * (1 + (artifactBonus + (Math.min(10, level * bonusPerLevel) + (firstAchievement + secondAchievement))) / 100) : 0, baseValue: rawValue };
+    return {
+      bonusId,
+      bonus,
+      value: rawValue
+        ? 3.5 * rawWinnerBonuses?.[bonusId] * (1 + charmBonus / 100) * (1 + (artifactBonus + (Math.min(10, level * bonusPerLevel) + (firstAchievement + secondAchievement))) / 100)
+        : 0,
+      baseValue: rawValue
+    };
   })
-
-  let upgrades = summoningUpgrades.map((upgrade, index) => ({
-    ...upgrade,
-    originalIndex: index,
-    level: upgradesLevels?.[index],
-    value: upgradesLevels?.[index] * upgrade.bonusQty,
-    totalCost: upgrade?.cost * Math.pow(upgrade?.costExponent, upgradesLevels?.[index])
-  }));
+  let totalUpgradesLevels = 0;
+  let upgrades = summoningUpgrades.map((upgrade, index) => {
+    totalUpgradesLevels += upgradesLevels?.[index];
+    return {
+      ...upgrade,
+      originalIndex: index,
+      level: upgradesLevels?.[index],
+      value: upgradesLevels?.[index] * upgrade.bonusQty,
+      totalCost: upgrade?.cost * Math.pow(upgrade?.costExponent, upgradesLevels?.[index])
+    }
+  });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
 
   return {
     upgrades,
     winnerBonuses,
-    essences
+    essences,
+    totalUpgradesLevels,
+    familiarsOwned
   }
 }
 

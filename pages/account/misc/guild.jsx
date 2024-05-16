@@ -9,11 +9,13 @@ import { numberWithCommas, prefix, tryToParse } from '../../../utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
 import { format } from 'date-fns';
 import Box from '@mui/material/Box';
+import Popper from '@components/common/Popper';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
   const { guild } = state?.account;
   const [dataTimestamp, setDataTimestamp] = useState([]);
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -51,7 +53,8 @@ const Guild = () => {
     setError('')
   }
 
-  const exportToJson = async () => {
+  const exportToJson = async (e) => {
+    setAnchorEl(e.currentTarget)
     try {
       const exportedData = {
         date: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
@@ -103,6 +106,7 @@ const Guild = () => {
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
               <Button variant={'contained'} onClick={exportToJson}>Export</Button>
+              <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
               <Button variant={'contained'} color={'warning'} onClick={onClear}>Clear
                 all</Button>
             </Stack>

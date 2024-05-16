@@ -112,3 +112,7 @@ export const getAtomColliderThreshold = (threshold) => {
   return 0 === threshold ? 15e6 : 1 === threshold
     ? 25e6 : 2 === threshold ? 1e8 : 3 === threshold ? 25e7 : 105e7;
 }
+
+export const calcTotalAtomLevels = (atoms) => {
+  return atoms?.reduce((sum, {level}) => sum + level, 0);
+}

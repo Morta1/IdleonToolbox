@@ -81,7 +81,7 @@ const worldsData = {
       { label: 'laboratory', icon: 'data/ClassIcons53' },
       { label: 'rift', icon: 'data/Mface75' },
       { label: 'killroyPrime', icon: 'etc/KillroyPrime' },
-      // { label: 'tome', icon: 'etc/tome' },
+      { label: 'tome', icon: 'etc/Tome_0' },
     ]
   },
   'world 5': {

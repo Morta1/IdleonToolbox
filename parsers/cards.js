@@ -103,3 +103,8 @@ export const getEquippedCardsData = (cardsArray, account) => {
     ...(account?.cards?.[cards?.[card]?.displayName] || {})
   })).filter((_, ind) => ind < 8);
 }
+
+export const calcCardsLevels = (cards) => {
+  if (!cards) return 0;
+  return Object.values(cards)?.reduce((res, { stars }) => res + (stars + 1), 0);
+};

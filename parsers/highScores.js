@@ -34,3 +34,10 @@ const parseMinigame = (coloHighscores) => {
     .filter((_, index) => minigameIndexMapping[index])
     .map((score, index) => ({ name: minigameIndexMapping[index], score }));
 }
+
+export const calcColoTotalScore = (colo) => {
+  return colo?.reduce((res, { score }) => res + score, 0);
+}
+export const calcMinigameTotalScore = (colo) => {
+  return colo?.reduce((res, { score }, index) => res + (index < 5 ? score : 0), 0);
+}

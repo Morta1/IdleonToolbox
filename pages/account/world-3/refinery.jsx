@@ -10,15 +10,7 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import {
-  cleanUnderscore,
-  getTimeAsDays,
-  growth,
-  kFormatter,
-  notateNumber,
-  numberWithCommas,
-  prefix
-} from 'utility/helpers';
+import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
 import { getVialsBonusByEffect } from '@parsers/alchemy';
@@ -265,7 +257,8 @@ const Refinery = () => {
                 <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
                 <Typography>Power: {numberWithCommas(refined)} / {numberWithCommas(powerCap)}</Typography>
                 <Typography>Auto refine: {autoRefinePercentage}%</Typography>
-                <Typography component={'span'}>Total time: <Timer staticTime date={totalTime} lastUpdated={state?.lastUpdated} /></Typography>
+                <Typography component={'span'}>Total time: <Timer staticTime date={totalTime}
+                                                                  lastUpdated={state?.lastUpdated}/></Typography>
                 <Typography component={'span'}>Rank up: {active ? <Timer
                     type={'countdown'}
                     lastUpdated={state?.lastUpdated}
@@ -286,11 +279,12 @@ const Refinery = () => {
               {isXs ? null : <Divider sx={{ mx: 2 }} orientation={'vertical'} flexItem/>}
               <Stack>
                 <Stack direction={'row'} justifyContent={'center'} gap={5}>
-                  <Typography sx={{ width: 50, textAlign: 'center' }} fontWeight={'bold'}>Cycle</Typography>
-                  <Typography sx={{ width: 50, textAlign: 'center' }} fontWeight={'bold'}>Hour</Typography>
-                  <Typography sx={{ width: 50, textAlign: 'center' }} fontWeight={'bold'}>Rankup</Typography>
+                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Cycle</Typography>
+                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Hour</Typography>
+                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Rankup</Typography>
+                  <Typography sx={{ width: 60, textAlign: 'center' }} fontWeight={'bold'}>Owned</Typography>
                 </Stack>
-                <Stack flexWrap={'wrap'} direction={'row'} sx={{ width: 250 }} gap={1} alignItems={'center'}
+                <Stack flexWrap={'wrap'} direction={'row'} sx={{ width: 350 }} gap={1} alignItems={'center'}
                        justifyContent={'center'}>
                   {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
                     const cost = calcCost(rank, quantity, rawName, saltIndex);
@@ -307,7 +301,7 @@ const Refinery = () => {
                     gainValuePerHour = isCritter ? 0 : isSalt
                       ? previousSaltPerHour
                       : (activePrints?.[rawName]?.boostedValue || 0);
-                    return <Box display="grid" gridTemplateColumns="repeat(3, 60px)" gap={5}
+                    return <Box display="grid" gridTemplateColumns="repeat(4, 60px)" gap={5}
                                 key={`${rawName}-${index}`}>
                       <Tooltip
                         title={<PrintingTooltip isCritter={isCritter} amount={gainValuePerCycle}/>}>
@@ -340,6 +334,7 @@ const Refinery = () => {
                                   secondaryError={nextLevelCost > totalAmount}
                         />
                       </Tooltip>
+                      <ItemCell rawName={rawName} mainValue={totalAmount}/>
                     </Box>
                   })}
                 </Stack>
