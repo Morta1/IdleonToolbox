@@ -126,18 +126,7 @@ const Home = () => {
           </Box>
         </Stack>
       </Stack>
-      <Stack alignItems={'center'} mt={5}>
-        {!showSideAds ? <div
-          style={{ display: 'flex', width: 728, backgroundColor: isProd ? '' : '#d73333', height: 90 }}>
-          <Adsense
-            style={{ display: 'inline-block', width: 728, height: 90 }}
-            client="ca-pub-1842647313167572"
-            slot="1982542104"
-            format={'fixed'}
-          />
-        </div> : null}
-      </Stack>
-      <motion.div style={{ marginTop: breakpoint ? 0 : 50 }} transition={{ duration: .8 }}
+      <motion.div style={{ marginTop: breakpoint ? 0 : 80 }} transition={{ duration: .8 }}
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}>
         <Typography variant={'h4'} mt={2}>IT Patch Notes</Typography>
