@@ -458,7 +458,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     || character.flatStarTalents?.find(({ skillIndex: sIndex }) => skillIndex === sIndex))
   character.npcDialog = char?.NPCdialogue;
   character.questComplete = char?.QuestComplete;
-  character.questCompleted = Object.entries(char?.QuestComplete)?.reduce((res, [key, value]) => res + (value === 1
+  character.questCompleted = Object.entries(char?.QuestComplete || {})?.reduce((res, [key, value]) => res + (value === 1
     ? 1
     : 0), 0);
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);

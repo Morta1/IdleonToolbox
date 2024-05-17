@@ -338,7 +338,7 @@ export const relevantTalents = {
 
 export const calcTalentMaxLevel = (characters) => {
   const mappedLevels = characters.reduce((result, { flatTalents, flatStarTalents }) => {
-    [...flatTalents, ...flatStarTalents].forEach(({ skillIndex, maxLevel }) => {
+    [...(flatTalents || []), ...(flatStarTalents || [])].forEach(({ skillIndex, maxLevel }) => {
       if (!result?.[skillIndex] || (maxLevel > result?.[skillIndex])) {
         result[skillIndex] = maxLevel;
       }
@@ -349,7 +349,9 @@ export const calcTalentMaxLevel = (characters) => {
 }
 export const calcTotalStarTalent = (characters, account) => {
   const levels = characters.reduce((result, character) => {
-    const basePoints = character.skillsInfoArray.reduce((sum, { level }, index) => index > 0 && index <= 9 ? sum + level : sum, -3);
+    const basePoints = character?.skillsInfoArray?.reduce((sum, { level }, index) => index > 0 && index <= 9
+      ? sum + level
+      : sum, -3);
     const talentBonus = getTalentBonus(character?.talents, 0, 'STAR_PLAYER');
     const secondTalentBonus = getTalentBonus(character?.starTalents, null, 'STONKS!');
     const thirdTalentBonus = getTalentBonus(character?.talents, 1, 'SUPERNOVA_PLAYER');
@@ -372,9 +374,9 @@ export const calcTotalStarTalent = (characters, account) => {
     const bribeBonus = getBribeBonus(account?.bribes, 'Star_Scraper');
     const fractalIsland = getIsland(account, 'Fractal');
     const fractalBonusUnlocked = fractalIsland?.shop?.find(({
-                                                           effect,
-                                                           unlocked
-                                                         }) => effect.includes('Star_Talent_Pts') && unlocked);
+                                                              effect,
+                                                              unlocked
+                                                            }) => effect.includes('Star_Talent_Pts') && unlocked);
     const totalStarPoints = Math.floor(character?.level
       - 1 + (basePoints + talentBonus + (account?.talentPoints?.[5]
         + familyEffBonus + (secondTalentBonus + (stampBonus

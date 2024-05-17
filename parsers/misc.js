@@ -901,7 +901,7 @@ export const getKillRoy = (idleonData, charactersData, accountData) => {
 
 export const calcTotalQuestCompleted = (characters) => {
   const mappedQuests = characters.reduce((result, { questComplete }) => {
-    Object.entries(questComplete)?.forEach(([key, value]) => {
+    Object.entries(questComplete||{})?.forEach(([key, value]) => {
       if (!result[key] && value === 1) {
         result[key] = 1;
       }
