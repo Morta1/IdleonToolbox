@@ -12,7 +12,7 @@ export const downloadFile = (data, filename) => {
   const evt = new MouseEvent('click', {
     view: window,
     bubbles: true,
-    cancelable: true,
+    cancelable: true
   });
 
   link.dispatchEvent(evt);
@@ -82,8 +82,7 @@ export const createIndexedArray = (object) => {
   for (let i = 0; i <= highest; i++) {
     if (object?.[i]) {
       result[i] = object?.[i];
-    }
-    else {
+    } else {
       result[i] = {};
     }
   }
@@ -96,8 +95,7 @@ export const growth = (func, level, x1, x2, shouldRound = true) => {
     case 'add':
       if (x2 !== 0) {
         result = (((x1 + x2) / x2 + 0.5 * (level - 1)) / (x1 / x2)) * level * x1;
-      }
-      else {
+      } else {
         result = level * x1;
       }
       break;
@@ -193,13 +191,13 @@ function splitDecimal(numStr, allowNegative = true) {
     beforeDecimal,
     afterDecimal,
     hasNegation,
-    addNegation,
+    addNegation
   };
 }
 
 function applyThousandSeparator(
   str,
-  thousandSeparator,
+  thousandSeparator
 ) {
   const thousandsGroupRegex = /(\d)(?=(\d{3})+(?!\d))/g;
   let index = str.search(/[1-9]/);
@@ -235,7 +233,7 @@ export const getCoinsArray = (coins) => {
   while (n.length > 0 && i < highestCoinIndex) {
     if (n.length < 2) {
       ret.set(i, Number(n));
-      n = "";
+      n = '';
       break;
     }
     const quantity = Number(n.slice(-2));
@@ -432,8 +430,7 @@ export const flatten = (obj, out) => {
   Object.keys(obj).forEach(key => {
     if (typeof obj[key] == 'object') {
       out = flatten(obj[key], out) //recursively call for nested
-    }
-    else {
+    } else {
       out[key] = obj[key] //direct assign for values
     }
   });
@@ -445,7 +442,7 @@ export const sections = [{ name: 'Activity' }, { name: 'Stats' }, { name: 'Bags'
   { name: 'Equipment' }, { name: 'Star Signs' }, { name: 'Post Office' }, { name: 'Anvil Details' },
   { name: 'Inventory' },
   { name: 'Chips' },
-  { name: 'Equipped Bubbles' }, { name: 'Active Skills CD' },];
+  { name: 'Equipped Bubbles' }, { name: 'Active Skills CD' }];
 
 export const isProd = process.env.NODE_ENV === 'production';
 
@@ -509,8 +506,7 @@ export const groupByKey = (array, callback) => {
 export const removeTrackers = (type, config) => {
   if (type === 'account') {
     return config;
-  }
-  else {
+  } else {
     return config;
   }
 }

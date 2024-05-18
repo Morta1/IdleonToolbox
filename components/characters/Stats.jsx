@@ -112,7 +112,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             />
             <Stat title={'Money'}
                   value={<CoinDisplay title={''}
-                                      money={getCoinsArray(character?.money)}/>}
+                                      money={getCoinsArray(character?.money ? character?.money : 0)}/>}
             />
           </Stack>
 

@@ -198,7 +198,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
 
   const bankMoney = parseFloat(idleonData?.MoneyBANK);
   const playersMoney = charactersData?.reduce((res, char) => {
-    return res + parseFloat(char?.money)
+    return res + parseFloat(char?.money ? char?.money : 0)
   }, 0);
   const money = bankMoney + playersMoney;
   accountData.talentPoints = idleonData?.CYTalentPoints;
