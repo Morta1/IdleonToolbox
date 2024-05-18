@@ -70,10 +70,7 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
     return item ? [...res, {
       name: items?.[item]?.displayName, rawName: item,
       owner,
-      ...(item === 'Blank' ? {} : {
-        ...items?.[item], ...stoneResult,
-        Upgrade_Slots_Left: (items?.[item]?.Upgrade_Slots_Left ?? 0) + (stoneResult?.Upgrade_Slots_Left ?? 0)
-      }),
+      ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult }),
       misc
     }] : res
   }, []);
