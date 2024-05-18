@@ -606,7 +606,7 @@ export const getAllCap = (character, account) => {
       { value: guildBonus, name: 'Guild' },
       { value: talentBonus, name: 'Talent' },
       { value: shrineBonus, name: 'Shrine' },
-      { value: prayerCurse + prayerBonus, name: 'Prayer' },
+      { value: prayerBonus + (-prayerCurse), name: 'Prayer' },
       { value: bribeBonus, name: 'Bribe' }
     ]
   }

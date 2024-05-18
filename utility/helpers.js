@@ -227,22 +227,32 @@ export const pascalCase = (str) => {
 };
 
 export const getCoinsArray = (coins) => {
-  let n = coins;
-  const ret = new Map();
-  let i = 32;
-  do {
-    const expo = Math.pow(10, i);
-    if (n > expo) {
-      const num = Math.floor(n / expo);
-      ret.set(Math.round(i / 2) + 1, num);
-      n = n % expo;
-    }
-    i -= 2;
-  } while (i >= 0);
+  const highestCoinIndex = 15;
+  let n = BigInt(Math.floor(coins)).toString();
 
-  if (ret.size === -0) {
+  let ret = new Map();
+  let i = 1;
+  while (n.length > 0 && i < highestCoinIndex) {
+    if (n.length < 2) {
+      ret.set(i, Number(n));
+      n = "";
+      break;
+    }
+    const quantity = Number(n.slice(-2));
+    ret.set(i, quantity);
+    n = n.slice(0, -2);
+    i += 1
+  }
+
+  if (n.length > 0) {
+    ret.set(highestCoinIndex, Number(n));
+  }
+
+  if (ret.size === 0) {
     ret.set(1, 0);
   }
+
+  ret = new Map([...ret].sort((a, b) => a[0] - b[0]).reverse())
   return Array.from(ret);
 };
 
