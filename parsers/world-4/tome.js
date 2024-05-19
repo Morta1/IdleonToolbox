@@ -26,7 +26,8 @@ export const getTome = (idleonData, account, characters) => {
   const tomeQuantities = calcTomeQuantity(account, characters, idleonData);
   let totalPoints = 0;
   const tome = tomeData.map((bonus, index) => {
-    const tomeLvReq = 50 * index + (10 * Math.max(0, index - 30) + 10 * Math.max(0, index - 50)) + 500;
+    const realIndex = indexes.indexOf(index.toString());
+    const tomeLvReq = 50 * realIndex + (10 * Math.max(0, realIndex - 30) + 10 * Math.max(0, realIndex - 50)) + 500;
     const quantity = tomeQuantities?.[index] || 0;
     const pointsPercent = calcPointsPercent(bonus, quantity);
     const color = .4 > pointsPercent ? '#ffc277' : .75 > pointsPercent ? '#d6dbe0' : .999 > pointsPercent
@@ -37,13 +38,16 @@ export const getTome = (idleonData, account, characters) => {
     return {
       ...bonus,
       tomeLvReq,
-      index: indexes.indexOf(index.toString()),
+      index: realIndex,
       quantity: tomeQuantities?.[index] || 0,
       points,
       color
     }
   });
-  const bonuses = bonusNames.map((name, index) => ({ name: name.replace('+{%', ''), bonus: getTomeBonus(account, totalPoints, index) }))
+  const bonuses = bonusNames.map((name, index) => ({
+    name: name.replace('+{%', ''),
+    bonus: getTomeBonus(account, totalPoints, index)
+  }))
   tome.sort((a, b) => a.index - b.index);
   return {
     tome,
@@ -178,10 +182,3 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account.arcade?.totalUpgradeLevels);
   return quantities;
 }
-
-// [5546, 2481, 1005, 51398, 263, 5188, 354, 185, 9.040726648675453e+23, 0, 9, 19023, 0, 878553.9674305557,
-//   4745182120237.706, 1721, 25.881203206784598, 41, 12.482487991009778, 32, 0, 77, 19648, 565, 39, 0, 14550, 413, 0, 0,
-//   1000, 814565, 3749391, 88293, 556153, 94720, 0, 379, 619, 32, 119, 217, 1552, 0, 79, 57, 128523.70867501429, 1000,
-//   6347, 312, 2653, 123, 119, 257860475.11674148, 1, 18, 1000, 2931, 2, 17764, 82, 46864933819.20349, 15, 13,
-//   299121.2109449716, 1257, 1.557941270876819e+68, 2048, 79, 4, 904, 0, 12, 60, 38, 392, 213, 0, 1231.551289711351, 0,
-//   894]
