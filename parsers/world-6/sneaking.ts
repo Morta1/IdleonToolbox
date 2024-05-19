@@ -12,12 +12,20 @@ export const getSneaking = (idleonData: any, serverVars: any, serializedCharacte
   return parseSneaking(rawSneaking, serverVars, serializedCharactersData, account)
 }
 
+const doorMaxHps = (ninjaExtraInfo?.[3] as string).split(' ');
+
 const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersData: any, account: any) => {
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
   const jadeCoins = rawSneaking?.[102]?.[1];
   const ninjaUpgradeLevels = rawSneaking?.[103];
   const beanstalkData = rawSneaking?.[104];
   const doorsCurrentHp = rawSneaking?.[100];
+  const unlockedFloors = doorMaxHps.reduce((sum, doorHp, index) => {
+    const updatedDoorHp = (account?.accountOptions?.[231] < account?.accountOptions?.[232]
+      ? 0
+      : parseFloat(doorHp));
+    return sum + ((updatedDoorHp - doorsCurrentHp[index] <= 0) ? 1 : 0);
+  }, 1)
   const playersInfo = rawSneaking?.slice(0, serializedCharactersData?.length)?.map(([floor, activityInfo]: [number, number]) => ({
     floor,
     activityInfo
@@ -47,7 +55,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   let totalJadeEmporiumUnlocked = 0
   const orderedEmporium = jadeUpgrades.map((upgrade, index) => {
     const unlocked = jadeEmporiumUnlocks?.indexOf(number2letter?.[index]) !== -1;
-    if (unlocked){
+    if (unlocked) {
       totalJadeEmporiumUnlocked += 1;
     }
     return {
@@ -89,7 +97,8 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     dropList,
     doorsCurrentHp,
     beanstalkData,
-    totalJadeEmporiumUnlocked
+    totalJadeEmporiumUnlocked,
+    unlockedFloors
   };
 }
 const parseNinjaItems = (array: any, doChunks: boolean) => {

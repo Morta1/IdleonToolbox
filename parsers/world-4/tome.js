@@ -167,7 +167,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(calcTotalBeanstalkLevel(account?.sneaking?.beanstalkData));
   quantities.push(account?.summoning?.totalUpgradesLevels);
   quantities.push(0); // Best Endless Summoning Round - account.accountOptions?.[232] > 0 ? 12 * account.accountOptions?.[232] : 0
-  quantities.push(account.accountOptions?.[232] > 0 ? 12 * account.accountOptions?.[232] : 0);
+  quantities.push(account?.sneaking?.unlockedFloors);
   quantities.push(account?.summoning?.familiarsOwned);
   quantities.push(account?.sneaking?.totalJadeEmporiumUnlocked);
   quantities.push(calcMinigameTotalScore(account?.highscores?.minigameHighscores));
@@ -176,7 +176,6 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account.accountOptions?.[221]);
   quantities.push(account.accountOptions?.[222]);
   quantities.push(account.arcade?.totalUpgradeLevels);
-
   return quantities;
 }
 
