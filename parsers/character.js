@@ -735,7 +735,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Guild', value: guildBonus / 100 },
     { name: 'Siege Breaker', value: extraDropRate },
     { name: 'Companion', value: companionDropRate / 100 },
-    { name: 'Equinox', value: 5 * equinoxDropRateBonus / 100 },
+    { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
