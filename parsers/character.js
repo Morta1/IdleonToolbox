@@ -704,13 +704,15 @@ export const getDropRate = (character, account, characters) => {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
   let final = dropRate * extraDropRate;
-  const hasDrBundle = isBundlePurchased(account?.bundles, 'bun_p');
-  if (hasDrBundle) {
-    final *= 1.2
-  }
+
   const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
   if (ninjaMasteryDropRate) {
     final += .3;
+  }
+
+  const hasDrBundle = isBundlePurchased(account?.bundles, 'bun_p');
+  if (hasDrBundle) {
+    final *= 1.2
   }
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= (1 + charmBonus / 100);
