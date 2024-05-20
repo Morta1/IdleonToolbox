@@ -507,7 +507,8 @@ export const getGoldenFoodBonus = (foodName, character, account) => {
     const beanstalkData = account?.sneaking?.beanstalkData;
     const beanstalkGoldenFoods = ninjaExtraInfo[29].split(' ').filter((str) => isNaN(str))
       .map((gFood, index) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
-    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName }) => displayName === foodName);
+    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }) => displayName === foodName & active);
+    if (!beanstalkFood) return baseBonus;
     return baseBonus + beanstalkFood?.Amount * goldenFoodMulti * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
       * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index])) / 2.14);
   }
