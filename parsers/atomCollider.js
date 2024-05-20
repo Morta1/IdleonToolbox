@@ -14,7 +14,7 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
   const localAtoms = atomsRaw ?? [];
   const particles = divinityRaw?.[39];
   const atoms = atomsInfo?.map((atomInfo, index) => {
-    const level = localAtoms?.[index];
+    const level = localAtoms?.[index] ?? 0;
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
     const atomReductionFromAtom = atomsRaw?.[9] ?? 0;
     const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'ATOM_SPLIT', false)

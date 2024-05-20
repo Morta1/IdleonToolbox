@@ -55,9 +55,9 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
   })?.toChunks(4);
   const terri = territory.filter((_, index) => index !== 14);
   const territories = terri?.map((territory, index) => {
-    const team = teams[index] || [];
-    const previousTeam = teams[index - 1] || [];
-    const nextTeam = teams[index + 1] || [];
+    const team = teams?.[index] || [];
+    const previousTeam = teams?.[index - 1] || [];
+    const nextTeam = teams?.[index + 1] || [];
     const forageSpeed = team?.reduce((sum, teamMember, position) => sum + getForageSpeed({
       team,
       previousTeam,
@@ -165,25 +165,25 @@ export const addBreedingChance = (idleonData, account) => {
 }
 const getBaseBreedChance = (breedingRaw, worldIndex, petIndex) => {
   const baseChances = randomList[54].split(' ');
-  return petIndex + 2 > breedingRaw[1][worldIndex]
+  return petIndex + 2 > breedingRaw?.[1]?.[worldIndex]
     ? 1 / Math.max(1, baseChances[petStats[worldIndex][petIndex].passiveIndex])
     : 1
 }
 
 const getBreedingMulti = (account, breedingRaw, worldIndex, petIndex, unlockedBreedingMulti, totalKitchenLevels) => {
-  const first = 1 + Math.ceil(100 * Math.pow(breedingRaw[(4 + worldIndex) | 0][petIndex] / 10, 1.9)) / 100;
+  const first = 1 + Math.ceil(100 * Math.pow(breedingRaw?.[(4 + worldIndex) | 0][petIndex] / 10, 1.9)) / 100;
   const second = (unlockedBreedingMulti?.second
-    ? 1 + Math.log(Math.max(1, Math.pow(breedingRaw[(worldIndex + 13) | 0][petIndex] + 1, 0.725)))
+    ? 1 + Math.log(Math.max(1, Math.pow(breedingRaw?.[(worldIndex + 13) | 0][petIndex] + 1, 0.725)))
     : 1)
   const third = (unlockedBreedingMulti?.third
-    ? 1 + (0.25 * Math.pow(breedingRaw[0][0], 1.4) + Math.pow(breedingRaw[0][0] / 3, 6))
+    ? 1 + (0.25 * Math.pow(breedingRaw?.[0]?.[0], 1.4) + Math.pow(breedingRaw?.[0]?.[0] / 3, 6))
     : 1);
   const fourth = (unlockedBreedingMulti?.fourth
     ? (0 === worldIndex
       ? 1
       : 1 + 0.1 * worldIndex
-      + Math.max(1, Math.min(3, 1 + 0.15 * (breedingRaw[2][7])))
-      * Math.pow((breedingRaw[1][(worldIndex - 1) | 0])
+      + Math.max(1, Math.min(3, 1 + 0.15 * (breedingRaw?.[2]?.[7])))
+      * Math.pow((breedingRaw?.[1]?.[(worldIndex - 1) | 0])
         / (petStats[worldIndex - 1].length -
           petStats[worldIndex - 1].length / 2), 3))
     : 1)
@@ -305,6 +305,6 @@ export const getFightPower = (teamMember) => {
 
 export const calcHighestPower = (breeding) => {
   const teams = breeding?.territories?.reduce((result, { team }) => ([...result, ...team]), []);
-  const mappedPets = [...breeding?.storedPets, ...teams].map(({ power }) => power);
+  const mappedPets = [...(breeding?.storedPets || []), ...teams].map(({ power }) => power);
   return Math.max(...mappedPets);
 }

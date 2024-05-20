@@ -161,7 +161,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.gaming?.totalPlantsPicked);
   quantities.push(calcArtifactsAcquired(account?.sailing?.artifacts));
   quantities.push(account?.sailing?.lootPile?.[0]?.amount);
-  quantities.push(Math.max(...account?.sailing?.captains?.map(({ level }) => level)));
+  quantities.push(Math.max(...(account?.sailing?.captains?.map(({ level }) => level) || [])));
   quantities.push(Math.max(account?.gaming?.snailLevel, account.accountOptions?.[210]));
   quantities.push(account?.gaming?.bestNugget);
   quantities.push(account?.looty?.lootyRaw?.length);

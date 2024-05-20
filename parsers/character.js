@@ -667,7 +667,7 @@ export const getDropRate = (character, account, characters) => {
   const starSignRarityBonus = getStarSignBonus(character, account, 'Drop_Rarity');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES', null, true);
-  const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139])) / 100;
+  const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0)) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
@@ -699,7 +699,7 @@ export const getDropRate = (character, account, characters) => {
     stampBonus;
 
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * account?.accountOptions?.[189] + equinoxDropRateBonus + summoningBonus + tomeBonus + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
+    + (additive + (starTalentBonus * (account?.accountOptions?.[189] ?? 0) + equinoxDropRateBonus + summoningBonus + tomeBonus + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }

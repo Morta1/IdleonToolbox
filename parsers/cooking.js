@@ -148,7 +148,7 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
       return sum + (level * baseStat ?? 0);
     }
     return sum + ((1 + (labBonus + shinyMealBonus) / 100) * level * baseStat ?? 0);
-  }, 0);
+  }, 0) ?? 0;
 }
 
 export const getKitchens = (idleonData, characters, account) => {

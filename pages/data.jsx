@@ -6,10 +6,10 @@ import {
   FormControlLabel,
   FormHelperText,
   Link,
-  Popover,
   Stack,
   TextField,
-  Typography
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
@@ -31,6 +31,8 @@ import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Popper from '@components/common/Popper';
+import { isProd } from '@utility/helpers';
+import { Adsense } from '@ctrl/react-adsense';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -46,6 +48,8 @@ const Data = () => {
   const [leaderboardConsent, setLeaderboardConsent] = useState(false);
   const [error, setError] = useState('');
   const [showRawData, setShowRawData] = useState(false);
+  const showWideSideBanner = useMediaQuery('(min-width: 1200px)', { noSsr: true });
+  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
   useEffect(() => {
     if (state?.uid) {
@@ -244,6 +248,24 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
       }} size={'large'}>
         <ArrowUpwardIcon/>
       </IconButton>
+    </Box> : null}
+    {showWideSideBanner || showNarrowSideBanner ? <Box
+      sx={{
+        backgroundColor: isProd ? '' : '#d73333',
+        width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
+        height: 600,
+        position: 'absolute',
+        top: 150,
+        right: 100
+      }}>
+      {showWideSideBanner ? <Adsense
+        client="ca-pub-1842647313167572"
+        slot="9767369641"
+      /> : null}
+      {showNarrowSideBanner && !showWideSideBanner ? <Adsense
+        client="ca-pub-1842647313167572"
+        slot="7851151731"
+      /> : null}
     </Box> : null}
   </Container>
 };

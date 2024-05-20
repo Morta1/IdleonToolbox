@@ -120,8 +120,7 @@ const GuaranteedDropCalculator = () => {
                    label={'Multikill bonus %'}/>
         <Button variant={'contained'} onClick={handleCalc}>Run</Button>
       </Stack>
-      <Typography variant={'caption'}>* Doesn't count values from 2x kills lab bonus/god on w5 (divide by 4 if both),
-        kill per kill talents, prayers & bubbles</Typography>
+      <Typography variant={'caption'}>* This does not include values from the 2x kills lab bonus or the god bonus in W5 (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
       {results?.length > 0 ? <Stack mt={2}>
         <Typography variant={'h6'}>Results</Typography>
         {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>

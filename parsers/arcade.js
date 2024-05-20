@@ -14,7 +14,7 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
     / Math.max(1, getSecPerBall(account)));
   const arcadeShopList = arcadeShop?.map((upgrade, index) => {
     const { x1, x2, func } = upgrade;
-    const level = arcadeRaw?.[index];
+    const level = arcadeRaw?.[index] ?? 0;
     return {
       ...upgrade,
       level,

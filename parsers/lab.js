@@ -158,7 +158,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
   })
   return {
     playersCords,
-    playersChips,
+    playersChips: playersChips ?? [],
     connectedPlayers,
     jewels: jewelsList,
     chips: chipList,
@@ -198,7 +198,7 @@ export const getJewelBonus = (jewels, index, multiplier = 1) => {
 
 export const getLabBonus = (labBonuses, index) => {
   const bonus = labBonuses?.find(bonus => bonus.index === index) || {};
-  return bonus?.active ? bonus?.bonusOn : bonus?.bonusOff;
+  return (bonus?.active ? bonus?.bonusOn : bonus?.bonusOff) ?? 0;
 }
 
 const getDistance = (x1, y1, x2, y2) => {
@@ -306,5 +306,5 @@ const checkConnection = (array, connectionRangeBonus, viralRangeBonus, taskConne
 export const getPlayerLabChipBonus = (character, account, chipIndex) => {
   return account?.lab?.playersChips?.[character?.playerId]?.reduce((sum, chip) => {
     return chip?.index === chipIndex ? sum + chip?.baseVal : sum;
-  }, 0)
+  }, 0) ?? 0;
 }

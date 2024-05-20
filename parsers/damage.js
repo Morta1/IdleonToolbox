@@ -119,12 +119,12 @@ const getDamagePercent = (character, characters, account) => {
   const mainStat = mainStatMap?.[character?.class];
   const { strength, agility, wisdom, luck } = character?.stats || {};
   const wormHoleTalent = getTalentBonus(character?.talents, 3, 'WORMHOLE_EMPEROR');
-  const perWormholeKills = 1 + (wormHoleTalent * lavaLog(account?.accountOptions?.[152])) / 100;
+  const perWormholeKills = 1 + (wormHoleTalent * lavaLog(account?.accountOptions?.[152] ?? 0)) / 100;
   const equinoxDamageBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Matching_Scims');
   const eclipseSkulls = getEclipseSkullsBonus(account) * 5;
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_Damage');
-  const unlockedGods = account?.divinity?.unlockedDeities;
+  const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
   const godTalent = getHighestTalentByClass(characters, 3, 'Elemental_Sorcerer', 'GODS_CHOSEN_CHILDREN', false, true);
   const orbTalent = getHighestTalentByClass(characters, 3, 'Voidwalker', 'POWER_ORB');
   const shrineBonus = getShrineBonus(account?.shrines, 0, character?.mapIndex, account?.cards, account?.sailing?.artifacts);

@@ -52,8 +52,8 @@ export const getNobisectBonus = (character, account, characters, playerInfo) => 
       + (wisdom
         + agility)) / 3, 0.5) / 7);
   const nubisect = account?.divinity?.deities?.[2];
-  return nubisect?.level
-    * nubisect?.blessingMultiplier
+  return (nubisect?.level ?? 0)
+    * (nubisect?.blessingMultiplier ?? 0)
     * Math.min(1.8, Math.max(0.1, 4
       * Math.pow(((base + 1e4)
         / Math.max(10 * base + 10, 1)) * 0.01, 2)));
@@ -113,7 +113,7 @@ export const getAllEff = (character, characters, account) => {
       + (chipBonus
         + 3 * cardBonus)
       + (masteryBonus
-        + account?.accountOptions?.[180])) / 100)
+        + (account?.accountOptions?.[180] ?? 0))) / 100)
     * (1 + (chaoticTrollBonus
       + companionBonus) / 100)
     * (1 + (guildBonus
