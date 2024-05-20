@@ -67,12 +67,19 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
     if (it?.UQ2txt) {
       misc += ` ${it?.UQ2txt}`;
     }
-    return item ? [...res, {
+    const resultItem = {
       name: items?.[item]?.displayName, rawName: item,
       owner,
       ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult }),
       misc
-    }] : res
+    };
+    if (resultItem?.Premiumified){
+      delete resultItem.UQ1txt;
+      delete resultItem.UQ2txt;
+      delete resultItem.UQ1val;
+      delete resultItem.UQ2val;
+    }
+    return item ? [...res, resultItem] : res
   }, []);
 }
 
