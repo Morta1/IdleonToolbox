@@ -240,7 +240,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
       [statMap[index]]: statValue
     }
   }, {});
-  character.level = character?.stats?.level || 0;
+  character.level = char?.[`Lv0`]?.[0] || 0;
   // inventory bags used
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
   const bags = Object.keys(rawInvBagsUsed);
