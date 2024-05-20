@@ -20,7 +20,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     .reduce((result: any, [key, data]) => key.includes('NjGem') ? [...result, data] : [], [])
     .map((data: any, index: number) => {
       const unlocked = gemStonesUnlocked?.[index];
-      const baseValue = account?.accountOptions?.[233 + index];
+      const baseValue = account?.accountOptions?.[233 + index] ?? 0;
       const bonus = baseValue < .5 ? 0 : getGemstoneBonus({ ...data, baseValue }, index, 0);
       return {
         ...data,
