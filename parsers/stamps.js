@@ -189,7 +189,7 @@ export const getStampsBonusByEffect = (account, effectName, character) => {
 export const getStampBonus = (account, stampTree, stampName, character) => {
   const stamp = account?.stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
   if (!stamp) return 0;
-  let toiletPaperPostage = 1, charmBonus = 1;
+  let toiletPaperPostage = 1, charmBonus = 0;
   if (stamp?.stat?.includes('Eff')) {
     toiletPaperPostage = getTalentBonus(character?.starTalents, null, 'TOILET_PAPER_POSTAGE')
   }
