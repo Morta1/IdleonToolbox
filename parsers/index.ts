@@ -150,7 +150,9 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
     return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
   accountData.starSigns = getStarSigns(idleonData);
-  accountData.constellations = getConstellations(idleonData);
+  const { constellations, rawConstellationsDone } = getConstellations(idleonData)
+  accountData.constellations = constellations;
+  accountData.rawConstellationsDone = rawConstellationsDone;
   accountData.charactersLevels = charactersLevels;
 
   charactersData = serializedCharactersData.map((char: Character) => {

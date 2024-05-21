@@ -12,7 +12,8 @@ export const getStarSigns = (idleonData) => {
 
 export const getConstellations = (idleonData) => {
   const constellationsRaw = tryToParse(idleonData?.SSprog) || idleonData?.StarSignProg;
-  return parseConstellations(constellationsRaw);
+  const constellations = parseConstellations(constellationsRaw);
+  return { constellations, rawConstellationsDone: constellationsRaw.reduce((sum, [, done]) => sum + done, 0) }
 }
 
 export const parseStarSigns = (starSignsRaw) => {
@@ -104,5 +105,5 @@ export const getStarSignsBonuses = (starSigns) => {
 }
 
 export const calcTotalConstellations = (constellations) => {
-  return constellations?.reduce((sum, {done}) => done ? sum + 1 : sum,0);
+  return constellations?.reduce((sum, { done }) => done ? sum + 1 : sum, 0);
 }

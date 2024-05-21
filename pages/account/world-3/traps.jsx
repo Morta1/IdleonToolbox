@@ -42,7 +42,7 @@ const Traps = () => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const trappingLevel = state?.characters?.[index].skillsInfo?.trapping?.level;
-        const trap = state?.characters?.[index]?.tools?.find(({ name }) => name?.includes('Trap'));
+        const trap = state?.characters?.[index]?.tools?.find(({ Type }) => Type === "TRAP_BOX_SET");
         const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
         const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
         const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank'
@@ -83,6 +83,7 @@ const Traps = () => {
                 </Card>
                 <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={3}>
                   {realTraps?.map((slot, slotIndex) => {
+                    console.log('slot', slot)
                     return <Card sx={{ borderColor: slot?.active ? 'success.light' : 'none' }}
                                  variant={'outlined'}
                                  key={`${slot?.rawName || 'trap'}-${slotIndex}`}>

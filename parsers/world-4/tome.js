@@ -7,7 +7,6 @@ import { calcTotalQuestCompleted } from '@parsers/misc';
 import { calcTotalTasks } from '@parsers/tasks';
 import { calcTotalAchievements } from '@parsers/achievements';
 import { calcObolsFound, calcTrophiesFound } from '@parsers/items';
-import { calcTotalConstellations } from '@parsers/starSigns';
 import { calcBubbleLevels, calcSigilsLevels, calcVialsLevels, getBubbleBonus } from '@parsers/alchemy';
 import { calcTotalKillsDigits } from '@parsers/deathNote';
 import { calcTotalAtomLevels } from '@parsers/atomCollider';
@@ -33,7 +32,7 @@ export const getTome = (idleonData, account, characters) => {
     const color = .4 > pointsPercent ? '#ffc277' : .75 > pointsPercent ? '#d6dbe0' : .999 > pointsPercent
       ? 'gold'
       : '#56ccff';
-    const points = pointsPercent * bonus?.x3;
+    const points = Math.ceil(pointsPercent * bonus?.x3);
     totalPoints += account?.accountLevel > tomeLvReq ? points : 0;
     return {
       ...bonus,
@@ -118,7 +117,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(1 / account.accountOptions?.[202]); // crystal spawn
   quantities.push(account?.dungeons?.rank);
   quantities.push(account.accountOptions?.[200]); // highest drop multi
-  quantities.push(calcTotalConstellations(account?.constellations)); // TODO: CHECK
+  quantities.push(account?.rawConstellationsDone);
   quantities.push(account.accountOptions?.[203]); // Gravestone damage
   quantities.push(calcObolsFound(account?.looty));
   quantities.push(calcBubbleLevels(account?.alchemy?.bubbles));
@@ -167,7 +166,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.looty?.lootyRaw?.length);
   quantities.push(account?.gaming?.bits);
   quantities.push(Math.pow(2, account.accountOptions?.[219]));
-  quantities.push(Object.keys(account?.farming?.crop).length); // TODO: CHECK
+  quantities.push(account?.farming?.cropsFound);
   quantities.push(calcTotalBeanstalkLevel(account?.sneaking?.beanstalkData));
   quantities.push(account?.summoning?.totalUpgradesLevels);
   quantities.push(0); // Best Endless Summoning Round - account.accountOptions?.[232] > 0 ? 12 * account.accountOptions?.[232] : 0
