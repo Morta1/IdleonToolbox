@@ -294,6 +294,9 @@ export const etcAlerts = (account, options, characters) => {
     const minibosses = getMiniBossesData(account).filter(({ current }) => current >= options?.miniBosses?.props?.value);
     alerts.miniBosses = minibosses.length > 0 ? minibosses : null;
   }
+  if (options?.gemsFromBosses?.checked) {
+    alerts.gemsFromBosses = account?.accountOptions?.[195] <= 300;
+  }
   return alerts;
 }
 export const alchemyAlerts = (account, options) => {
