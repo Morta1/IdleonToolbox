@@ -95,7 +95,7 @@ const Account = ({ account, characters, trackers }) => {
           {trackers?.etc && alerts?.etc?.randomEvents ?
             <Alert title={'You haven\'t done a random event today'} iconPath={'etc/Mega_Grumblo'}/> : null}
           {trackers?.etc && alerts?.etc?.gemsFromBosses ?
-            <Alert title={`you can kill ${300 - account?.accountOptions?.[195]} more bosses for gems`} iconPath={'data/PremiumGem'}/> : null}
+            <Alert title={`You can kill ${300 - account?.accountOptions?.[195]} more bosses for gems`} iconPath={'data/PremiumGem'}/> : null}
           {trackers?.etc && alerts?.etc?.weeklyBosses ?
             <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/> : null}
           {trackers?.etc && alerts?.etc?.killRoy === 0 || (alerts?.etc?.killRoy < 21 && account?.finishedWorlds?.World3)
