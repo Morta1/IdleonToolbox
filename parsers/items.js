@@ -9,7 +9,7 @@ export const addStoneDataToEquip = (baseItem, stoneData) => {
     const baseItemStat = baseItem?.[statName];
     const stoneStat = stoneData?.[statName];
     let sum = baseItemStat;
-    if (isNaN(stoneStat) || stoneStat < 0) return { ...res, [statName]: stoneStat };
+    if (isNaN(stoneStat)) return { ...res, [statName]: stoneStat };
     sum = (baseItemStat || 0) + ((stoneData?.['UQ1txt'] && baseItem?.Type !== 'KEYCHAIN' && baseItem?.['UQ1txt'] !== stoneData?.['UQ1txt'])
       ? 0
       : stoneStat);
@@ -59,6 +59,10 @@ export const getStatFromEquipment = (item, statName) => {
 export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
+    if (owner === 'MortasNinth') {
+      console.log('Result,', stoneResult)
+      console.log(items?.[item], stoneData?.[itemIndex])
+    }
     let misc = '';
     const it = { ...items?.[item], ...stoneResult };
     if (it?.UQ1txt) {
