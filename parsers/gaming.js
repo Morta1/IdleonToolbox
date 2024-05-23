@@ -29,6 +29,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
   const bits = gamingRaw?.[0];
   const poingHighscore = gamingRaw?.[10];
+  const poingMulti = Math.max(1 + Math.pow(poingHighscore, 0.5) / 100, 1);
   const bestNugget = gamingRaw?.[8];
   const totalPlantsPicked = gamingSproutRaw?.[28]?.[1];
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
@@ -118,6 +119,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     mutationChanceBreakpoints,
     logBook,
     poingHighscore,
+    poingMulti,
     totalPlantsPicked
   };
 }

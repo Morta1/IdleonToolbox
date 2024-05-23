@@ -78,6 +78,9 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
       delete resultItem.UQ2txt;
       delete resultItem.UQ1val;
       delete resultItem.UQ2val;
+      delete resultItem.Defence;
+      delete resultItem.Weapon_Power;
+      delete resultItem.Reach;
     }
     return item ? [...res, resultItem] : res
   }, []);

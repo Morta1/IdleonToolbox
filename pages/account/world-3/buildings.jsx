@@ -38,6 +38,18 @@ const Buildings = () => {
     });
   }
 
+  const getMaterialCostsToMax = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
+    let costs = [];
+    for (let i = level; i < maxLevel; i++) {
+      const [firstCost, secondCost] = getMaterialCosts(itemReq, i, maxLevel, bonusInc, costCruncher);
+      costs[0] = { ...(costs?.[0] ?? firstCost), amount: (costs?.[0]?.amount || 0) + firstCost?.amount }
+      if (secondCost) {
+        costs[1] = { ...(costs?.[1] ?? secondCost), amount: (costs?.[1]?.amount || 0) + secondCost?.amount }
+      }
+    }
+    return costs;
+  }
+
   const b = useMemo(() => {
     return state?.account?.towers?.data?.map((tower) => {
       let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
@@ -57,6 +69,8 @@ const Buildings = () => {
       const trimmedSlotSpeed = (3 + atomBonus / 100) * buildSpeed;
       const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
       const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
+      const itemsMax = getMaterialCostsToMax(itemReq, level, maxLevel, bonusInc, costCruncher);
+
       return {
         ...tower,
         maxLevel,
@@ -66,6 +80,7 @@ const Buildings = () => {
         progress,
         buildCost,
         items,
+        itemsMax,
         trimmedSlotSpeed,
         trimmedTimeLeft
       }
@@ -138,7 +153,9 @@ const Buildings = () => {
                          value={notateNumber((3 + atomBonus / 100) * buildSpeed, 'Big')}
                          breakdown={[{
                            name: 'Base (jewel)',
-                           value: state?.account?.lab.jewels?.[3] ? Math.ceil(state?.account?.lab.jewels?.[3]?.bonus * state?.account?.lab.jewels?.[3]?.multiplier) : 3
+                           value: state?.account?.lab.jewels?.[3]
+                             ? Math.ceil(state?.account?.lab.jewels?.[3]?.bonus * state?.account?.lab.jewels?.[3]?.multiplier)
+                             : 3
                          }, { name: 'Atom', value: atomBonus / 100 }]}
       />
     </Stack>
@@ -153,6 +170,7 @@ const Buildings = () => {
           isSlotTrimmed,
           isMaxed,
           items,
+          itemsMax,
           buildCost,
           timeLeft,
           trimmedTimeLeft
@@ -178,7 +196,7 @@ const Buildings = () => {
                   </Tooltip>}
 
               </Stack>
-              {!isMaxed ? <Stack gap={2} divider={<Divider flexItem/>}>
+              {!isMaxed ? <Stack gap={1} divider={<Divider flexItem/>}>
                 <Stack>
                   {!isMaxed
                     ? <TitleAndValue title={'Non-trimmed'}
@@ -198,16 +216,10 @@ const Buildings = () => {
                     : null}
 
                 </Stack>
-                {isMaxed ? null : <Stack direction={'row'} gap={3} alignItems={'center'}>
-                  <Stack direction={'row'} gap={1}>
-                    {items?.map(({ rawName, amount }, itemIndex) => {
-                      return <Stack alignItems={'center'} key={`${name}-${rawName}-${itemIndex}`}>
-                        <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                        <Typography>{notateNumber(amount, 'Big')}</Typography>
-                      </Stack>
-                    })}
-                  </Stack>
-                </Stack>}
+                <Stack direction={'row'} divider={<Divider orientation={'vertical'} flexItem/>} gap={2}>
+                  <ReqItemsDisplay title={'Next'} isMaxed={isMaxed} items={items}/>
+                  <ReqItemsDisplay title={'Max'} isMaxed={isMaxed} items={itemsMax}/>
+                </Stack>
               </Stack> : null}
             </Stack>
           </CardContent>
@@ -216,6 +228,21 @@ const Buildings = () => {
     </Stack>
   </>;
 };
+
+const ReqItemsDisplay = ({ title, isMaxed, items }) => {
+  if (isMaxed) return null;
+  return <Stack>
+    <Typography variant={'body2'} color={'text.secondary'}>{title}</Typography>
+    <Stack direction={'row'} gap={1}>
+      {items?.map(({ rawName, amount }, itemIndex) => {
+        return <Stack alignItems={'center'} key={`${name}-${rawName}-${itemIndex}`}>
+          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+          <Typography>{notateNumber(amount, 'Big')}</Typography>
+        </Stack>
+      })}
+    </Stack>
+  </Stack>
+}
 
 const TowerIcon = styled.img`
   width: 50px;

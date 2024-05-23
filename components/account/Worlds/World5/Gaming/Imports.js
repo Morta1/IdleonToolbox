@@ -9,13 +9,8 @@ import React from 'react';
 
 const Imports = ({ account, lastUpdated }) => {
   const {
-    bits,
     snailLevel,
     snailEncouragement,
-    availableSprouts,
-    availableDrops,
-    sproutsCapacity,
-    fertilizerUpgrades,
     imports,
     lastShovelClicked,
     goldNuggets,
@@ -23,8 +18,9 @@ const Imports = ({ account, lastUpdated }) => {
     acorns,
     nuggetsBreakpoints,
     acornsBreakpoints,
-    envelopes,
-    bestNugget
+    bestNugget,
+    poingHighscore,
+    poingMulti
   } = account?.gaming || {};
   return (
     <>
@@ -52,7 +48,12 @@ const Imports = ({ account, lastUpdated }) => {
                   <Typography>{cleanUnderscore(name)} ({cleanUnderscore(boxName)})</Typography>
                 </Stack>
                 <Divider sx={{ my: 2 }}/>
-                {majorBonus ? <><Typography> {cleanUnderscore(majorBonus.split('|').join(' '))}</Typography>
+                {majorBonus || index === 6 ? <>
+                  {index === 6 ? <>
+                      <Typography>Highscore: {poingHighscore}</Typography>
+                      <Typography>Multiplier: x{notateNumber(poingMulti,'MultiplierInfo')}</Typography>
+                    </> :
+                    <Typography>{cleanUnderscore(majorBonus.split('|').join(' '))}</Typography>}
                   <Divider sx={{ my: 2 }}/> </> : null}
                 <Typography>{cleanUnderscore(minorBonus)}</Typography>
                 <Stack mt={1} direction={'row'} gap={1} alignItems={'center'}>

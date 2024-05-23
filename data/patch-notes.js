@@ -4,6 +4,21 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.67',
+    gameVer: '2.0.8',
+    date: '23/05/2024',
+    features: [
+      'Added gemstones to sneaking page',
+      'Added max cost for buildings page',
+      'Added poing mini game score and multi to gaming page under Imports tab',
+      'Added an alert for acquiring gems from killing bosses'
+    ],
+    fixes: [
+      'Fixed calculation for number of bubbles from NBLB',
+      'Fixed drop rate calculations (with small margin of error)'
+    ]
+  },
+  {
     ver: '3.2.66',
     gameVer: '2.0.8',
     date: '16/05/2024',
