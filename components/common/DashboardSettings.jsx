@@ -9,7 +9,8 @@ import {
   InputAdornment,
   Stack,
   TextField,
-  Typography
+  Typography,
+  typographyClasses
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -21,27 +22,28 @@ import { prefix } from '../../utility/helpers';
 import Tabber from './Tabber';
 
 const DashboardSettings = ({ open, onClose, config, onChange }) => {
-  const handleSettingChange = (e, configType, option, trackerName) => {
+  const handleSettingChange = (e, configType, option, trackerName, section) => {
     const tempConfig = JSON.parse(JSON.stringify(config));
     const nameClicked = e?.target?.name;
+    const sectionRef = section ? tempConfig[configType][section] : tempConfig[configType];
     if (option?.type === 'array') {
-      const value = tempConfig[configType][option?.name].options[option?.optionIndex].props.value[nameClicked];
-      tempConfig[configType][option?.name].options[option?.optionIndex].props.value[nameClicked] = !value;
+      const value = sectionRef[option?.name].options[option?.optionIndex].props.value[nameClicked];
+      sectionRef[option?.name].options[option?.optionIndex].props.value[nameClicked] = !value;
     } else if (option?.type === 'input') {
       if (option?.inputVal) {
-        tempConfig[configType][trackerName].options[option?.optionIndex].props.value = e?.target?.value;
+        sectionRef[trackerName].options[option?.optionIndex].props.value = e?.target?.value;
       } else {
-        const value = tempConfig[configType][trackerName].options[option?.optionIndex]?.checked;
-        tempConfig[configType][trackerName].options[option?.optionIndex].checked = !value;
+        const value = sectionRef[trackerName].options[option?.optionIndex]?.checked;
+        sectionRef[trackerName].options[option?.optionIndex].checked = !value;
       }
     } else {
       if (option) {
-        const value = tempConfig[configType][trackerName].options[option?.optionIndex]?.checked;
-        tempConfig[configType][trackerName].options[option?.optionIndex].checked = !value
+        const value = sectionRef[trackerName].options[option?.optionIndex]?.checked;
+        sectionRef[trackerName].options[option?.optionIndex].checked = !value
       } else {
-        const value = tempConfig[configType][nameClicked]?.checked;
-        tempConfig[configType][nameClicked].checked = !value;
-        tempConfig[configType][nameClicked].options = tempConfig[configType][nameClicked].options.map((option) => {
+        const value = sectionRef[nameClicked]?.checked;
+        sectionRef[nameClicked].checked = !value;
+        sectionRef[nameClicked].options = sectionRef[nameClicked].options.map((option) => {
           if (option?.type === 'array') {
             const updatedValue = Object.entries(option.props.value)?.reduce((result, [key]) => {
               return { ...result, [key]: !value }
@@ -63,17 +65,29 @@ const DashboardSettings = ({ open, onClose, config, onChange }) => {
     <DialogContent>
       <Tabber tabs={['Account', 'Character']}>
         <Box>
-          <Fields config={config?.account} configType={'account'} onChange={handleSettingChange}/>
+          <FieldsByType config={config?.account} configType={'account'} onChange={handleSettingChange}/>
         </Box>
         <Box>
-          <Fields config={config?.characters} configType={'characters'} onChange={handleSettingChange}/>
+          <FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}/>
         </Box>
       </Tabber>
     </DialogContent>
   </Dialog>
 };
 
-const Fields = ({ config, onChange, configType }) => {
+const FieldsByType = ({ config, onChange, configType }) => {
+  if (configType === 'characters') {
+    return <Fields config={config} onChange={onChange} configType={configType}/>
+  }
+  return config && Object.entries(config)?.map(([section, fields], index) => {
+    return <React.Fragment key={`tracker-${index}`}>
+      <Typography variant={'caption'} color={'text.secondary'}>{section}</Typography>
+      <Fields config={fields} onChange={onChange} configType={configType} section={section}/>
+    </React.Fragment>;
+  })
+}
+
+const Fields = ({ config, onChange, configType, section }) => {
   const [showId, setShowId] = useState(null);
 
   const handleArrowClick = (trackerName) => {
@@ -84,10 +98,9 @@ const Fields = ({ config, onChange, configType }) => {
     return <Box key={`tracker-${trackerName}-${index}`}>
       <Stack direction={'row'} justifyContent={'space-between'}>
         <FormControlLabel
-          control={<Checkbox name={trackerName} checked={data?.checked}
-                             size={'small'}
-          />}
-          onChange={(e) => onChange(e, configType)}
+          sx={{ [`.${typographyClasses.root}`]: { fontSize: 14 } }}
+          control={<Checkbox name={trackerName} checked={data?.checked} size={'small'}/>}
+          onChange={(e) => onChange(e, configType, null, null, section)}
           label={trackerName?.camelToTitleCase()}/>
         {data?.options?.length > 0 ? <IconButton size={'small'}
                                                  onClick={() => handleArrowClick(trackerName)}>
@@ -101,7 +114,9 @@ const Fields = ({ config, onChange, configType }) => {
                               trackerName={trackerName}
                               option={{ ...option, optionIndex }}
                               configType={configType}
-                              onChange={onChange}/>
+                              onChange={onChange}
+                              section={section}
+            />
           })}
         </Stack>
       </Collapse>
@@ -109,41 +124,44 @@ const Fields = ({ config, onChange, configType }) => {
   })
 }
 
-const BaseField = ({ option, trackerName, onChange, configType }) => {
+const BaseField = ({ option, trackerName, onChange, configType, section }) => {
   const { type, props } = option || {};
   return <>
     {option?.category ? <Typography variant={'caption'}>{option?.category?.camelToTitleCase()}</Typography> : null}
     <Stack direction={'row'}>
       {type !== 'array' ? <FormControlLabel
-        sx={{ minWidth: props?.type === 'img' ? 'inherit' : 100 }}
+        sx={{ minWidth: props?.type === 'img' ? 'inherit' : 100, [`.${typographyClasses.root}`]: { fontSize: 14 } }}
         control={<Checkbox name={option?.name}
                            checked={option?.checked}
                            size={'small'}
         />}
-        onChange={(e) => onChange(e, configType, option, trackerName)}
+        onChange={(e) => onChange(e, configType, option, trackerName, section)}
         label={<>
           <Typography>{option?.name?.camelToTitleCase()}</Typography>
         </>}/> : null}
       {type === 'input' ?
-        <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}/> : null}
-      {type === 'array' ? <ArrayField option={option} configType={configType} onChange={onChange}/> : null}
+        <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
+                    section={section}/> : null}
+      {type === 'array'
+        ? <ArrayField option={option} configType={configType} onChange={onChange} section={section}/>
+        : null}
     </Stack></>
 }
 
-const ArrayField = ({ option, onChange, configType }) => {
+const ArrayField = ({ option, onChange, configType, section }) => {
   const { value, type } = option?.props;
   return <Stack direction={'row'} flexWrap={'wrap'}>
     {Object.keys(value)?.map((opt, index) => {
       return <FormControlLabel
         key={`${opt}-${index}`}
-        onChange={(e) => onChange(e, configType, option)}
+        onChange={(e) => onChange(e, configType, option, null, section)}
         control={<Checkbox name={opt} checked={value?.[opt]} size={'small'}/>}
         label={type === 'img' ? <img width={24} height={24} src={`${prefix}data/${opt}.png`}
                                      alt=""/> : opt.camelToTitleCase()}/>
     })}
   </Stack>
 }
-const InputField = ({ option, onChange, configType, name, trackerName }) => {
+const InputField = ({ option, onChange, configType, name, trackerName, section }) => {
   const {
     label,
     value,
@@ -165,7 +183,7 @@ const InputField = ({ option, onChange, configType, name, trackerName }) => {
         max: maxValue, min: minValue, autoComplete: 'off'
       }
     }}
-    onChange={(e) => onChange(e, configType, { ...option, inputVal: true }, trackerName)}
+    onChange={(e) => onChange(e, configType, { ...option, inputVal: true }, trackerName, section)}
     helperText={helperText}/>
 }
 

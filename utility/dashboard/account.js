@@ -11,6 +11,524 @@ import { findQuantityOwned, getAllItems } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 
+export const getOptions = (data) => {
+  return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
+    const fieldOptions = fieldData?.options?.reduce((result, option) => ({
+      ...result,
+      [option?.name]: option
+    }), {})
+    return {
+      ...res,
+      [fieldName]: fieldOptions
+    }
+  }, {});
+}
+
+export const getGeneralAlerts = (account, fields, options, characters) => {
+  const alerts = {}
+  if (fields?.tasks?.checked) {
+    alerts.tasks = account?.tasksDescriptions?.reduce((acc, tasks, worldIndex) => {
+      const ninthTask = tasks?.[8];
+      const ninthTaskNotCompleted = ninthTask?.level === 0;
+      if (ninthTaskNotCompleted && options?.tasks?.tasks?.props?.value?.[worldIndex + 1]) {
+        return [...acc, worldIndex];
+      } else {
+        return acc;
+      }
+    }, []);
+  }
+  if (fields?.materialTracker?.checked) {
+    const materials = tryToParse(localStorage.getItem('material-tracker'));
+    if (Object.keys(materials || {}).length > 0) {
+      const totalOwnedItems = getAllItems(characters, account);
+      alerts.materialTracker = Object.values(materials || {})?.reduce((res, {
+        item,
+        lowerBound,
+        upperBound,
+        includeNearly,
+        note
+      }) => {
+        const { amount: quantityOwned } = findQuantityOwned(totalOwnedItems, item?.displayName);
+        let text = checkBound(cleanUnderscore(item?.displayName), quantityOwned, lowerBound, upperBound, includeNearly, 5);
+        if (!lowerBound && !upperBound) {
+          text = `You have ${notateNumber(quantityOwned)} ${cleanUnderscore(item?.displayName)}`;
+        }
+        if (!text) return res;
+        return [...res, { item, quantityOwned, text, note }];
+      }, []);
+    }
+  }
+  if (fields?.guild?.checked && account?.accountOptions?.[37]) {
+    const { daily, weekly } = options?.guild || {};
+    if (daily?.checked) {
+      alerts.guild = {
+        daily: account?.guild?.guildTasks?.daily?.filter(({
+                                                            requirement,
+                                                            progress
+                                                          }) => progress < requirement)?.length
+      };
+    }
+    if (weekly?.checked) {
+      alerts.guild = {
+        ...(alerts.guild || {}),
+        weekly: account?.guild?.guildTasks?.weekly?.filter(({
+                                                              requirement,
+                                                              progress
+                                                            }) => progress < requirement)?.length
+      }
+    }
+  }
+  if (fields?.shops?.checked) {
+    alerts.shops = {
+      items: account?.shopStock?.reduce((res, shop, index) => {
+        if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
+          return [...res, []];
+        } else if (index === 4 && !account?.finishedWorlds?.World2) {
+          return [...res, []];
+        } else if (index === 5 && !account?.finishedWorlds?.World3) {
+          return [...res, []];
+        } else if (index === 6 && !account?.finishedWorlds?.World4) {
+          return [...res, []];
+        } else if (index === 6 && !account?.finishedWorlds?.World5) {
+          return [...res, []];
+        }
+        const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
+        return [...res, filtered];
+      }, [])
+    };
+  }
+  if (fields?.etc?.checked) {
+    const etc = {};
+    if (options?.etc?.dungeonTraits?.checked) {
+      const dungeonRank = account?.dungeons?.rank;
+      etc.dungeonTraits = account?.dungeons?.statBoosts?.reduce((res, { section, levelReq, bonuses }) => {
+        const noneActive = bonuses?.every(({ isActive }) => !isActive);
+        if (dungeonRank > levelReq && noneActive) {
+          return [...res, section];
+        }
+        return res;
+      }, []);
+    }
+    if (options?.etc?.randomEvents?.checked) {
+      etc.randomEvents = account?.accountOptions?.[137] === 0;
+    }
+    if (options?.etc?.keys?.checked) {
+      etc.keys = areKeysOverdue(account);
+    }
+    if (options?.etc?.miniBosses?.checked) {
+      const minibosses = getMiniBossesData(account).filter(({ current }) => current >= options?.etc?.miniBosses?.props?.value);
+      etc.miniBosses = minibosses.length > 0 ? minibosses : null;
+    }
+    if (options?.etc?.newCharacters?.checked) {
+      const numOfCharacters = characters?.length;
+      const totalLevels = characters?.reduce((sum, { level }) => sum + level, 0);
+      let newCharactersCounter = 0;
+      if (numOfCharacters === 5 && totalLevels >= 300) {
+        newCharactersCounter++;
+      }
+      if (numOfCharacters === 6 && totalLevels >= 500) {
+        newCharactersCounter++;
+      }
+      if (numOfCharacters === 7 && totalLevels >= 750) {
+        newCharactersCounter++;
+      }
+      if (numOfCharacters === 8 && totalLevels >= 1100) {
+        newCharactersCounter++;
+      }
+      if (numOfCharacters === 9 && totalLevels >= 1500) {
+        newCharactersCounter++;
+      }
+      etc.newCharacters = newCharactersCounter;
+    }
+    if (options?.etc?.gemsFromBosses?.checked) {
+      alerts.gemsFromBosses = account?.accountOptions?.[195] <= 300;
+    }
+    alerts.etc = etc;
+  }
+  return alerts;
+};
+export const getWorld1Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
+    if (options?.stamps?.gildedStamps?.checked) {
+      alerts.stamps = { gildedStamps: account?.accountOptions?.[154] };
+    }
+  }
+  return alerts;
+};
+export const getWorld2Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World1) return alerts;
+  if (fields?.alchemy?.checked) {
+    const alchemy = {};
+    if (options?.alchemy?.bargainTag?.checked) {
+      const { x1, x2, index } = liquidsShop?.find(({ name }) => name === 'BARGAIN_TAG') || {};
+      const math = Math.round(x1 * Math.pow(x2, account?.alchemy?.multiplierArray?.[index]));
+      alchemy.bargainTag = math === 1;
+    }
+    if (options?.alchemy?.liquids?.checked) {
+      const liquidsProgress = account?.alchemy?.liquids;
+      const percentage = options?.alchemy?.liquids?.props?.value / 100;
+      alchemy.liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
+        current: liquidsProgress?.[index],
+        max: maxLiquid,
+        index
+      })).filter(({ current, max }) => max && current >= max * percentage - 5);
+    }
+    if (options?.alchemy?.sigils?.checked) {
+      const hasJadeBonus = isJadeBonusUnlocked(account, 'Ionized_Sigils');
+      alchemy.sigils = account?.alchemy?.p2w?.sigils?.filter(({
+                                                                characters,
+                                                                progress,
+                                                                boostCost,
+                                                                jadeCost
+                                                              }) => characters.length > 0 && (hasJadeBonus
+        ? progress >= jadeCost
+        : progress >= boostCost))
+    }
+    if (options?.alchemy?.vials?.checked) {
+      const { subtractGreenStacks } = options?.alchemy || {};
+      alchemy.vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
+        if (level <= 0) return false;
+        const cost = vialCostsArray?.[level];
+        let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
+        if (subtractGreenStacks?.checked) {
+          storageQuantity -= 1e7;
+        }
+        const liquidIndex = parseInt(itemReq?.[1]?.name.split('\d')?.[1] || 0);
+        const liquidQuantity = account?.alchemy?.liquids?.[liquidIndex - 1];
+        const liquidCost = 3 * level;
+        return storageQuantity > cost && liquidQuantity > liquidCost;
+      });
+    }
+    if (options?.alchemy?.vialsAttempts?.checked) {
+      const { current } = account?.alchemy?.p2w?.vialsAttempts;
+      alchemy.vialsAttempts = current > 0;
+    }
+    alerts.alchemy = alchemy;
+  }
+  if (fields?.islands?.checked) {
+    const islands = {};
+    if (options?.islands?.unclaimedDays?.checked && account?.islands?.numberOfDaysAfk >= options?.islands?.unclaimedDays?.props?.value) {
+      islands.unclaimedDays = account?.islands?.numberOfDaysAfk;
+    }
+    alerts.islands = islands;
+  }
+  if (fields?.postOffice?.checked) {
+    const postOffice = {};
+    if (options?.postOffice?.postOffice?.checked) {
+      postOffice.shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
+        return options?.postOffice?.postOffice?.props?.value?.[index + 1] && streak <= 0
+      });
+    }
+    alerts.postOffice = postOffice;
+  }
+  if (fields?.arcade?.checked) {
+    const arcade = {};
+    if (options?.arcade?.balls?.checked && account?.finishedWorlds?.World1) {
+      const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account))
+        / Math.max(getSecPerBall(account), 1800));
+      const onePercent = 5 * account?.arcade?.maxBalls / 100;
+      arcade.balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent
+    }
+    alerts.arcade = arcade;
+  }
+  if (fields?.weeklyBosses?.checked) {
+    alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
+  }
+  if (fields?.killRoy?.checked) {
+    alerts.killRoy = account?.accountOptions?.[113];
+  }
+  return alerts;
+};
+export const getWorld3Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World2) return alerts;
+  if (fields?.printer?.checked) {
+    const printer = {};
+    const { includeOakAndCopper, showAlertWhenFull } = options?.printer || {};
+    const totals = calcTotals(account, showAlertWhenFull);
+    const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
+    printer.atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => account?.accountOptions?.[132] && !exclusions?.[itemName] && atoms).map(([name, data]) => ({
+      name: items?.[name]?.displayName,
+      rawName: name,
+      ...data
+    }));
+    alerts.printer = printer;
+  }
+  if (fields?.construction?.checked) {
+    const construction = {};
+    const { materials, rankUp, flags, buildings } = options?.construction || {};
+    if (flags?.checked) {
+      construction.flags = account?.construction?.board?.filter(({
+                                                                   flagPlaced,
+                                                                   currentAmount,
+                                                                   requiredAmount
+                                                                 }) => flagPlaced && currentAmount === requiredAmount);
+    }
+    if (buildings?.checked) {
+      construction.buildings = account?.towers?.data?.filter((tower) => {
+        const cost = getBuildCost(account?.towers, tower?.level, tower?.bonusInc, tower?.index);
+        return tower?.progress >= cost;
+      });
+    }
+    if (materials?.checked) {
+      construction.materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
+        const previousSaltIndex = saltIndex > 0 ? saltIndex - 1 : null;
+        const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
+        const missingMats = hasMissingMats(saltIndex, rank, cost, account);
+        const previousSaltMissingMats = hasMissingMats(previousSaltIndex, previousSalt?.rank, previousSalt?.cost, account);
+        if (missingMats?.length === 1 && missingMats?.[0]?.rawName?.includes('Refinery')
+          && previousSalt?.autoRefinePercentage > 0
+          || previousSalt?.active && previousSaltMissingMats?.length > 0) {
+          return res;
+        }
+        if (missingMats?.length > 0) {
+          res = [...res, { rawName, missingMats }]
+        }
+        return res;
+      }, []);
+    }
+    if (rankUp?.checked) {
+      construction.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => {
+        const percent = .98 * powerCap / 100;
+        return refined >= powerCap - percent
+      });
+    }
+    alerts.construction = construction;
+  }
+  if (fields?.equinox?.checked) {
+    const equinox = account?.equinox;
+    const foodLustUpgrade = equinox?.upgrades[9];
+    const { bar, challenges, foodLust } = options?.equinox;
+    const equinoxAlerts = {};
+
+    if (bar) equinoxAlerts.bar = equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
+    if (challenges) equinoxAlerts.challenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
+    if (foodLust) equinoxAlerts.foodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
+
+    alerts.equinox = equinoxAlerts;
+  }
+  if (fields?.atomCollider?.checked) {
+    const atomCollider = {};
+    atomCollider.stampReducer = account?.atoms?.stampReducer >= options?.atomCollider?.stampReducer?.props?.value;
+    atomCollider.stampReducerValue = options?.atomCollider?.stampReducer?.props?.value;
+    alerts.atomCollider = atomCollider;
+  }
+  return alerts;
+};
+export const getWorld4Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World3) return alerts;
+  if (fields?.breeding?.checked) {
+    const breeding = {};
+    const { shinies, eggs } = options?.breeding || {};
+    if (shinies?.checked) {
+      const list = account?.breeding?.pets?.reduce((res, world) => {
+        const pets = world?.filter(({
+                                      monsterRawName,
+                                      shinyLevel
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]
+          && shinyLevel >= shinies?.props?.value);
+        return [...res, ...pets];
+      }, [])
+      breeding.shinies = { pets: list, threshold: shinies?.props?.value }
+    }
+    if (eggs?.checked) {
+      breeding.eggs = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
+    }
+    alerts.breeding = breeding;
+  }
+  if (fields?.cooking?.checked) {
+    const cooking = {};
+    if (options?.cooking?.spices?.checked) {
+      cooking.spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
+    }
+    alerts.cooking = cooking;
+  }
+  return alerts;
+};
+export const getWorld5Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World4) return alerts;
+  if (fields?.gaming?.checked) {
+    const gaming = {};
+    const { shovel, sprouts, squirrel } = options?.gaming || {};
+    if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
+      gaming.sprouts = account?.gaming?.availableSprouts;
+    }
+    if (sprouts?.checked && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
+      gaming.drops = account?.gaming?.availableDrops;
+    }
+    const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
+    if (shovel?.checked && shovelUnlocked && shovel && account?.gaming?.lastShovelClicked >= 0) {
+      const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
+      const { hours } = getDuration(new Date().getTime(), timePassed);
+      if (hours >= shovel?.props?.value) {
+        gaming.shovel = getDuration(new Date().getTime(), timePassed);
+      }
+    }
+    const squirrelUnlocked = account?.gaming?.imports?.find(({
+                                                               name,
+                                                               acquired
+                                                             }) => name === 'Autumn_Squirrel' && acquired)
+    if (squirrel?.checked && squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
+      const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
+      const { hours } = getDuration(new Date().getTime(), timePassed);
+      if (hours >= squirrel?.props?.value) {
+        gaming.squirrel = getDuration(new Date().getTime(), timePassed);
+      }
+    }
+    alerts.gaming = gaming;
+  }
+  if (fields?.sailing?.checked) {
+    const sailing = {};
+    const { captains, chests } = options?.sailing || {};
+    if (captains?.checked) {
+      const { captains, shopCaptains } = account?.sailing || {};
+      sailing.captains = shopCaptains?.reduce((res, shopCaption) => {
+        const {
+          captainType,
+          firstBonusIndex,
+          secondBonusIndex,
+          firstBonusValue,
+          secondBonusValue,
+          firstBonusDescription,
+          secondBonusDescription
+        } = shopCaption;
+        const matches = captains?.filter((rCaptain) => {
+          const areBonusesEqual = rCaptain?.firstBonusIndex === firstBonusIndex && rCaptain?.secondBonusIndex === secondBonusIndex;
+          const areBonusesSwapped = rCaptain?.secondBonusIndex === firstBonusIndex && rCaptain?.firstBonusIndex === secondBonusIndex;
+          const atLeastOneBonusIsEqual = rCaptain?.firstBonusIndex === firstBonusIndex || rCaptain?.firstBonusIndex === secondBonusIndex;
+
+          if (areBonusesEqual || areBonusesSwapped) {
+            if (firstBonusIndex === secondBonusIndex) {
+              return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+            } else {
+              const condition1 = firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
+              const condition2 = firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
+              return condition1 || condition2;
+            }
+          }
+          if (atLeastOneBonusIsEqual) {
+            const isSameValue = rCaptain?.firstBonusIndex === rCaptain?.secondBonusIndex;
+            if (isSameValue) {
+              if (firstBonusIndex === rCaptain?.firstBonusIndex) {
+                return firstBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+              } else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
+                return secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
+              }
+            }
+          }
+          return false;
+        });
+        if (matches?.length > 0 && captainType !== -1) {
+          const isSameValue = firstBonusIndex === secondBonusIndex;
+          const temp = {
+            captain: shopCaption,
+            isSameValue,
+            badCaptains: matches.map(({
+                                        captainIndex,
+                                        firstBonusDescription: fbDesc,
+                                        secondBonusDescription: sbDesc,
+                                        firstBonusValue: fbValue,
+                                        secondBonusValue: sbValue
+                                      }) => ({
+              captainIndex,
+              firstBonusValue: fbValue,
+              secondBonusValue: sbValue,
+              bonus: isSameValue
+                ? fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue + sbValue) + '%')
+                : [fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue) + '%'),
+                  sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
+            }))?.sort((a, b) => (b?.firstBonusValue + b?.secondBonusValue) - (a?.firstBonusValue + a?.secondBonusValue)),
+            bonus: isSameValue
+              ? firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue + secondBonusValue) + '%')
+              : [firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue) + '%'),
+                secondBonusDescription?.substring(secondBonusDescription?.indexOf('%')).replace('%', (secondBonusValue) + '%')]
+          }
+          return [...res, temp];
+        }
+        return res;
+      }, []);
+    }
+    if (chests?.checked) {
+      const sailingTime = 259200 < account?.accountOptions?.[124]
+        ? Math.floor(account?.accountOptions?.[124] / 8640) / 10
+        : Math.floor(account?.accountOptions?.[124] / 3600);
+      const { maxChests, timeToFullChests } = account?.sailing;
+      const { hours } = getDuration(new Date().getTime(), timeToFullChests);
+      sailing.chests = sailingTime > hours && maxChests > 0;
+    }
+    alerts.sailing = sailing;
+  }
+  return alerts;
+};
+export const getWorld6Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World5) return alerts;
+  if (fields?.farming?.checked) {
+    const farming = {};
+    const { plots, totalCrops, missingPlots } = options?.farming || {};
+    if (plots?.checked) {
+      farming.plots = account?.farming?.plot?.filter(({ currentOG }) => plots?.props?.value > 0
+        ? currentOG >= plots?.props?.value
+        : currentOG > 0).map((plot) => ({ ...plot, threshold: plots?.props?.value }));
+    }
+    if (totalCrops?.checked) {
+      const totalCrops = account?.farming?.plot?.reduce((sum, {
+        cropQuantity,
+        ogMulti
+      }) => sum + (cropQuantity * (ogMulti)), 0);
+      farming.totalCrops = totalCrops >= totalCrops?.props?.value ? totalCrops : 0;
+    }
+    if (missingPlots?.checked) {
+      farming.missingPlots = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
+    }
+    alerts.farming = farming;
+  }
+  if (fields?.summoning?.checked) {
+    const summoning = {};
+    const { familiar } = options?.summoning;
+    const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
+    if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
+      summoning.familiar = { level, maxLvl };
+    }
+    alerts.summoning = summoning;
+  }
+  return alerts;
+};
+
+function isNearRange(value, lowerBound, upperBound, nearPercentage) {
+  const lowerRange = lowerBound + (lowerBound * nearPercentage / 100);
+  const upperRange = upperBound + (upperBound * nearPercentage / 100);
+  return value <= lowerRange || value >= upperRange;
+}
+
+function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
+  const nearly = includeNearly ? '(nearly) ' : '';
+  const lowerPercent = lowerBound * (percent / 100);
+  const upperPercent = upperBound * (percent / 100);
+  if (lowerBound && !upperBound && (includeNearly
+    ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
+    : amount < lowerBound)) {
+    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
+  } else if (!lowerBound && upperBound && (includeNearly
+    ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
+    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
+  } else if (lowerBound && upperBound && lowerBound < upperBound) {
+    if ((includeNearly
+      ? isNearRange(amount, lowerBound, upperBound, percent)
+      : (amount <= lowerBound || amount >= upperBound))) {
+      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
+    }
+  }
+
+  return null; // No alert needed
+}
+
+// -------------------------
+
 export const farmingAlerts = (account, options) => {
   const alerts = {}
   if (!account?.finishedWorlds?.World5) return alerts;
@@ -29,7 +547,6 @@ export const farmingAlerts = (account, options) => {
   alerts.missingPlots = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
   return alerts;
 }
-
 export const tasksAlert = (account, options) => {
   let tasksAlerts = []
   if (options?.tasks?.checked) {
@@ -186,34 +703,6 @@ export const postOfficeAlerts = (account, options) => {
     });
   }
   return alerts;
-}
-
-function isNearRange(value, lowerBound, upperBound, nearPercentage) {
-  const lowerRange = lowerBound + (lowerBound * nearPercentage / 100);
-  const upperRange = upperBound + (upperBound * nearPercentage / 100);
-  return value <= lowerRange || value >= upperRange;
-}
-
-function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent) {
-  const nearly = includeNearly ? '(nearly) ' : '';
-  const lowerPercent = lowerBound * (percent / 100);
-  const upperPercent = upperBound * (percent / 100);
-  if (lowerBound && !upperBound && (includeNearly
-    ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
-    : amount < lowerBound)) {
-    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
-  } else if (!lowerBound && upperBound && (includeNearly
-    ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
-    return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
-  } else if (lowerBound && upperBound && lowerBound < upperBound) {
-    if ((includeNearly
-      ? isNearRange(amount, lowerBound, upperBound, percent)
-      : (amount <= lowerBound || amount >= upperBound))) {
-      return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}outside of the configured range (${notateNumber(lowerBound)} - ${notateNumber(upperBound)})`;
-    }
-  }
-
-  return null; // No alert needed
 }
 
 export const materialTrackerAlerts = (account, options, characters) => {
@@ -503,8 +992,8 @@ export const islandsAlerts = (account, options) => {
   return alerts;
 }
 export const summoningAlerts = (account, options) => {
-  const { familiar } = options;
   const alerts = {};
+  const { familiar } = options;
   const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
   if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
     alerts.familiar = { level, maxLvl };

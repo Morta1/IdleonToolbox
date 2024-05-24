@@ -13,6 +13,7 @@ import { getBuildCost } from '@parsers/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
 import { getAtomBonus } from '@parsers/atomCollider';
 import Grid from '@mui/material/Unstable_Grid2';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
@@ -23,6 +24,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
+  const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
+  const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
 
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const allBlueActive = account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
@@ -63,6 +66,16 @@ const Etc = ({ characters, account, lastUpdated }) => {
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+      <Stack gap={2}>
+        <CardTitleAndValue cardSx={{ my: 0, width: 120 }} title={'Daily Reset'}>
+          <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                 date={dailyReset}/>
+        </CardTitleAndValue>
+        <CardTitleAndValue cardSx={{ my: 0, width: 120 }} title={'Weekly Reset'}>
+          <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+                 date={weeklyReset}/>
+        </CardTitleAndValue>
+      </Stack>
       <Grid sx={{ width: 360 }} container spacing={1}>
         <Grid xs={6}>{account?.finishedWorlds?.World2 ? <TimerCard
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
