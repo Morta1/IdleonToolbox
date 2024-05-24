@@ -57,7 +57,7 @@ const baseTrackers = {
     'World 1': {
       stamps: {
         checked: true,
-        options: [{ name:'gildedStamps', checked: true }]
+        options: [{ name: 'gildedStamps', checked: true }]
       }
     },
     'World 2': {
@@ -261,7 +261,7 @@ const Dashboard = () => {
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState();
-  const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || []);
+  const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account', 'characters', 'timers']);
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
@@ -298,15 +298,9 @@ const Dashboard = () => {
       <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
         <Stack mb={1} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
           <ToggleButtonGroup value={filters} onChange={handleFilters}>
-            <ToggleButton value="account" aria-label="bold">
-              Account
-            </ToggleButton>
-            <ToggleButton value="characters" aria-label="italic">
-              Characters
-            </ToggleButton>
-            <ToggleButton value="timers" aria-label="underlined">
-              Timers
-            </ToggleButton>
+            <ToggleButton sx={{ textTransform: 'none' }} value="account">Account</ToggleButton>
+            <ToggleButton sx={{ textTransform: 'none' }} value="characters">Characters</ToggleButton>
+            <ToggleButton sx={{ textTransform: 'none' }} value="timers">Timers</ToggleButton>
           </ToggleButtonGroup>
           <Button variant={'outlined'} sx={{ textTransform: 'none' }} startIcon={<SettingsIcon/>}
                   onClick={() => setOpen(true)}>
