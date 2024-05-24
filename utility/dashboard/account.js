@@ -37,7 +37,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         return acc;
       }
     }, []);
-    if (allTasks.length > 0) {
+    if (allTasks?.length > 0) {
       alerts.tasks = allTasks;
     }
   }
@@ -179,7 +179,7 @@ export const getWorld1Alerts = (account, fields, options) => {
   const alerts = {};
   if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
     if (options?.stamps?.gildedStamps?.checked) {
-      if (account?.accountOptions?.[154] > 123123) {
+      if (account?.accountOptions?.[154] > 0) {
         alerts.stamps = { gildedStamps: account?.accountOptions?.[154] };
       }
     }
@@ -264,9 +264,12 @@ export const getWorld2Alerts = (account, fields, options) => {
   if (fields?.postOffice?.checked) {
     const postOffice = {};
     if (options?.postOffice?.postOffice?.checked) {
-      postOffice.shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
+      const shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
         return options?.postOffice?.postOffice?.props?.value?.[index + 1] && streak <= 0
       });
+      if (shipments.length > 0){
+        postOffice.shipments = shipments;
+      }
     }
     if (Object.keys(postOffice).length > 0) {
       alerts.postOffice = postOffice;
@@ -278,7 +281,10 @@ export const getWorld2Alerts = (account, fields, options) => {
       const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account))
         / Math.max(getSecPerBall(account), 1800));
       const onePercent = 5 * account?.arcade?.maxBalls / 100;
-      arcade.balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent
+      const balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent;
+      if (balls){
+        arcade.balls = balls;
+      }
     }
     if (Object.keys(arcade).length > 0) {
       alerts.arcade = arcade;
@@ -287,7 +293,7 @@ export const getWorld2Alerts = (account, fields, options) => {
   if (fields?.weeklyBosses?.checked && account?.accountOptions?.[190] === 0) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
-  if (fields?.killRoy?.checked && account?.accountOptions?.[113]) {
+  if (fields?.killRoy?.checked && account?.accountOptions?.[113] === 0 || account?.accountOptions?.[113] < 21) {
     alerts.killRoy = account?.accountOptions?.[113];
   }
   return alerts;

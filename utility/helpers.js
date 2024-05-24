@@ -520,6 +520,19 @@ export const handleCopyToClipboard = async (data, beautify = true) => {
   }
 };
 
+export const handleDownload = (jsonData, fileName) => {
+  const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${fileName}.json`;
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6'];
 export const prefix = isProd ? '/' : '/';
 

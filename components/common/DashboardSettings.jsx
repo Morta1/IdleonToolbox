@@ -18,10 +18,12 @@ import React, { useState } from 'react';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
-import { prefix } from '../../utility/helpers';
+import { handleDownload, prefix } from '../../utility/helpers';
 import Tabber from './Tabber';
+import Button from '@mui/material/Button';
+import FileUploadButton from '@components/common/DownloadButton';
 
-const DashboardSettings = ({ open, onClose, config, onChange }) => {
+const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
   const handleSettingChange = (e, configType, option, trackerName, section) => {
     const tempConfig = JSON.parse(JSON.stringify(config));
     const nameClicked = e?.target?.name;
@@ -59,7 +61,16 @@ const DashboardSettings = ({ open, onClose, config, onChange }) => {
 
   return <Dialog open={open} onClose={onClose} fullWidth>
     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      Dashboard configurations
+      <Stack gap={2} direction={'row'}>
+        <Typography variant={'h6'}>Configuration</Typography>
+        <FileUploadButton onFileUpload={(data) => {
+          if (data?.account && data?.characters) {
+            onFileUpload(data);
+          }
+        }}>Import</FileUploadButton>
+        <Button onClick={() => handleDownload(config, 'it-dashboard-config')} variant={'outlined'}
+                size={'small'}>Export</Button>
+      </Stack>
       <IconButton onClick={onClose}><CloseIcon/></IconButton>
     </DialogTitle>
     <DialogContent>

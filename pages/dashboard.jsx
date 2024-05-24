@@ -291,6 +291,11 @@ const Dashboard = () => {
     return filters.includes(filter)
   }
 
+  const handleFileUpload = (data) => {
+    setConfig(data);
+    dispatch({ type: 'trackers', data });
+  }
+
   return <>
     <NextSeo
       title="Dashboard | Idleon Toolbox"
@@ -317,7 +322,7 @@ const Dashboard = () => {
           {isDisplayed('timers') ? <Etc characters={characters} account={account} lastUpdated={lastUpdated}/> : null}
         </Stack>
       </Stack>
-      <DashboardSettings onChange={handleConfigChange} open={open} onClose={() => setOpen(false)} config={config}/>
+      <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open} onClose={() => setOpen(false)} config={config}/>
       {showWideSideBanner || showNarrowSideBanner ? <Box
         sx={{
           backgroundColor: isProd ? '' : '#d73333',

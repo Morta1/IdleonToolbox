@@ -3,7 +3,7 @@ import { getOptions } from '@utility/dashboard/account';
 
 
 const checkIfSectionEmpty = (fields) => {
-  return Object.entries(fields)?.reduce((res, [name, val]) => res && !val?.checked, true);
+  return Object.entries(fields)?.reduce((res, [, val]) => res && !val?.checked, true);
 }
 
 const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
