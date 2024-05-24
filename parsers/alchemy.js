@@ -441,3 +441,58 @@ export const calcSigilsLevels = (sigils) => {
   if (!sigils) return 0;
   return Object.values(sigils)?.reduce((res, { unlocked }) => res + (unlocked + 1), 0);
 };
+
+const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
+  const bubblesArrays = Object.values(acc?.alchemy?.bubbles || {})
+    .map((array) => array.filter(({
+                                    level,
+                                    index
+                                  }) => level >= 5 && index < maxBubbleIndex)
+      .sort((a, b) => a.level - b.level));
+  const bubblePerCauldron = Math.ceil(numberOfBubbles / 4);
+  const lowestBubbles = [];
+  for (let j = 0; j < bubblesArrays.length; j++) {
+    const bubblesArray = bubblesArrays[j];
+    lowestBubbles.push(bubblesArray.slice(0, bubblePerCauldron));
+  }
+  return lowestBubbles.flat();
+}
+
+export const getUpgradeableBubbles = (acc) => {
+  let upgradeableBubblesAmount = 3;
+  const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
+  if (!noBubbleLeftBehind) return null;
+  const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
+    return bubbles.map((bubble, bubbleIndex) => {
+      return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
+    });
+  });
+
+  const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
+  const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
+  const jewel = acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone');
+  if (jewel) {
+    upgradeableBubblesAmount++;
+  }
+  const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
+  const multi = amberiteArtifact?.acquired || 1;
+  if (amberiteArtifact) {
+    upgradeableBubblesAmount += amberiteArtifact?.baseBonus * multi;
+  }
+  const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
+  if (moreBubblesFromMerit > 0) {
+    upgradeableBubblesAmount += moreBubblesFromMerit;
+  }
+  const normal = sorted.slice(0, upgradeableBubblesAmount);
+  const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount);
+  return {
+    normal,
+    atomBubbles,
+    breakdown: [
+      { name: 'Base', value: 3 },
+      { name: 'Artifact', value: amberiteArtifact?.baseBonus * multi },
+      { name: 'Merit', value: moreBubblesFromMerit },
+      { name: 'Jewel', value: jewel ? 1 : 0 }
+    ]
+  };
+}

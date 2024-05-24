@@ -18,10 +18,15 @@ import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
-import { isArtifactAcquired } from '@parsers/sailing';
 import { NextSeo } from 'next-seo';
-import { getBubbleAtomCost, getBubbleBonus, getMaxCauldron, getVialsBonusByStat } from '@parsers/alchemy';
-import { CardTitleAndValue } from '@components/common/styles';
+import {
+  getBubbleAtomCost,
+  getBubbleBonus,
+  getMaxCauldron,
+  getUpgradeableBubbles,
+  getVialsBonusByStat
+} from '@parsers/alchemy';
+import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuItem from '@mui/material/MenuItem';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -51,8 +56,7 @@ const Bubbles = () => {
                              shopBargainBought, smrtAchievement, multiBubble) => {
     if (isLiquid) {
       return baseCost + Math.floor(bubbleLvl / 20);
-    }
-    else {
+    } else {
       const first = bubbleIndex < 15 ?
         baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl) :
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
@@ -113,53 +117,6 @@ const Bubbles = () => {
   const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
     bargainTag, classDiscount]);
 
-  const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
-    const bubblesArrays = Object.values(acc?.alchemy?.bubbles || {})
-      .map((array) => array.filter(({
-                                      level,
-                                      index
-                                    }) => level >= 5 && index < maxBubbleIndex)
-        .sort((a, b) => a.level - b.level));
-    const bubblePerCauldron = Math.ceil(numberOfBubbles / 4);
-    const lowestBubbles = [];
-    for (let j = 0; j < bubblesArrays.length; j++) {
-      const bubblesArray = bubblesArrays[j];
-      lowestBubbles.push(bubblesArray.slice(0, bubblePerCauldron));
-    }
-    return lowestBubbles.flat();
-  }
-
-  const getUpgradeableBubbles = (acc) => {
-    let upgradeableBubblesAmount = 3;
-    const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
-    if (!noBubbleLeftBehind) return null;
-    const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
-      return bubbles.map((bubble, bubbleIndex) => {
-        return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
-      });
-    });
-
-    const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
-    const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
-    if (acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone')?.active) {
-      upgradeableBubblesAmount++;
-    }
-    const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
-    if (amberiteArtifact) {
-      let multi = amberiteArtifact?.acquired || 1;
-      upgradeableBubblesAmount += amberiteArtifact?.baseBonus * multi;
-    }
-    const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
-    if (moreBubblesFromMerit > 0) {
-      upgradeableBubblesAmount += moreBubblesFromMerit;
-    }
-    const normal = sorted.slice(0, upgradeableBubblesAmount);
-    const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount);
-    return {
-      normal,
-      atomBubbles
-    };
-  }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
 
   const getMaxBonus = (func, x1) => {
@@ -177,7 +134,7 @@ const Bubbles = () => {
       />
       <Stack mb={2} direction={'row'} justifyContent={'center'}>
         <Nblb title={'Next bubble upgrades'} bubbles={upgradeableBubbles?.normal} accumulatedCost={accumulatedCost}
-              account={state?.account}/>
+              account={state?.account} breakdown={upgradeableBubbles?.breakdown}/>
         <Divider orientation={'vertical'} flexItem sx={{ mx: 2 }}/>
         <Nblb lithium bubbles={upgradeableBubbles?.atomBubbles} accumulatedCost={accumulatedCost}
               account={state?.account}/>
@@ -239,7 +196,7 @@ const Bubbles = () => {
       </Stack>
       <Container>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(25%, 1fr))' }}>
-          {Object.entries(state?.account?.alchemy?.bubbles)?.map(([cauldron, bubbles], cauldronIndex) => {
+          {Object.entries(state?.account?.alchemy?.bubbles || {})?.map(([cauldron, bubbles], cauldronIndex) => {
             return <Stack alignItems={'center'} key={cauldron + '' + cauldronIndex}>
               {bubbles?.map((bubble, index) => {
                 if (index > 29) return null;
@@ -290,8 +247,9 @@ const Bubbles = () => {
                           variant={'caption'}>({Math.ceil(thresholdObj?.thresholdMissingLevels)})</Typography> : null}
                       </Stack>
                       {bubbleMaxBonus ? <Typography
-                        fontSize={'0.70rem'}
-                        variant={'caption'}>({notateNumber(effectHardCapPercent)}%)</Typography> : <Typography>&nbsp;</Typography>}
+                          fontSize={'0.70rem'}
+                          variant={'caption'}>({notateNumber(effectHardCapPercent)}%)</Typography> :
+                        <Typography>&nbsp;</Typography>}
                     </Stack>
                   </Stack>
                 </Stack>
@@ -363,14 +321,11 @@ const AdditionalInfo = ({
         if (rawName.includes('Liquid')) {
           const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
           amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
-        }
-        else if (rawName.includes('Bits')) {
+        } else if (rawName.includes('Bits')) {
           amount = account?.gaming?.bits;
-        }
-        else if (rawName.includes('Sail')) {
+        } else if (rawName.includes('Sail')) {
           amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
-        }
-        else {
+        } else {
           amount = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
         }
         return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
@@ -404,11 +359,16 @@ const AdditionalInfo = ({
   </Stack>
 }
 
-const Nblb = ({ title, bubbles, lithium, accumulatedCost, account }) => {
+const Nblb = ({ title, bubbles, lithium, accumulatedCost, account, breakdown }) => {
   return <Stack justifyContent={'center'} alignItems={'center'}>
-    <Typography>{title}</Typography>
-    {lithium ? <Typography variant={'caption'}>* 15% chance to be upgraded by lithium (atom
-      collider)</Typography> : null}
+    <Stack mb={1} direction={'row'} gap={1} alignItems={'center'}>
+      <Typography>{title}</Typography>
+      {lithium ? <Typography variant={'caption'}>* 15% chance to be upgraded by lithium (atom
+        collider)</Typography> : null}
+      {breakdown ? <HtmlTooltip title={<Breakdown breakdown={breakdown}/>}>
+        <InfoIcon/>
+      </HtmlTooltip> : null}
+    </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
       {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron }, tIndex) => {
         const {

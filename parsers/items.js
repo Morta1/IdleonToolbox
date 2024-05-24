@@ -59,10 +59,6 @@ export const getStatFromEquipment = (item, statName) => {
 export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
-    if (owner === 'MortasNinth') {
-      console.log('Result,', stoneResult)
-      console.log(items?.[item], stoneData?.[itemIndex])
-    }
     let misc = '';
     const it = { ...items?.[item], ...stoneResult };
     if (it?.UQ1txt) {

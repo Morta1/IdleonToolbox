@@ -20,7 +20,13 @@ import HtmlTooltip from 'components/Tooltip';
 import debounce from 'lodash.debounce';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { NextSeo } from 'next-seo';
-import { getBubbleAtomCost, getBubbleBonus, getMaxCauldron, getVialsBonusByStat } from '@parsers/alchemy';
+import {
+  getBubbleAtomCost,
+  getBubbleBonus,
+  getMaxCauldron,
+  getUpgradeableBubbles,
+  getVialsBonusByStat
+} from '@parsers/alchemy';
 import Box from '@mui/material/Box';
 import Tabber from '../../../components/common/Tabber';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -139,53 +145,6 @@ const Bubbles = () => {
   const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
     bargainTag, classDiscount]);
 
-  const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
-    const bubblesArrays = Object.values(acc?.alchemy?.bubbles || {})
-      .map((array) => array.filter(({
-                                      level,
-                                      index
-                                    }) => level >= 5 && index < maxBubbleIndex)
-        .sort((a, b) => a.level - b.level));
-    const bubblePerCauldron = Math.ceil(numberOfBubbles / 4);
-    const lowestBubbles = [];
-    for (let j = 0; j < bubblesArrays.length; j++) {
-      const bubblesArray = bubblesArrays[j];
-      lowestBubbles.push(bubblesArray.slice(0, bubblePerCauldron));
-    }
-    return lowestBubbles.flat();
-  }
-
-  const getUpgradeableBubbles = (acc) => {
-    let upgradeableBubblesAmount = 3;
-    const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
-    if (!noBubbleLeftBehind) return null;
-    const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
-      return bubbles.map((bubble, bubbleIndex) => {
-        return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
-      });
-    });
-
-    const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
-    const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
-    if (acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone')?.active) {
-      upgradeableBubblesAmount++;
-    }
-    const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
-    if (amberiteArtifact) {
-      let multi = amberiteArtifact?.acquired || 1;
-      upgradeableBubblesAmount += amberiteArtifact?.baseBonus * multi;
-    }
-    const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
-    if (moreBubblesFromMerit > 0) {
-      upgradeableBubblesAmount += moreBubblesFromMerit;
-    }
-    const normal = sorted.slice(0, upgradeableBubblesAmount);
-    const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount);
-    return {
-      normal,
-      atomBubbles
-    };
-  }
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
 
   const getMaxBonus = (func, x1) => {
