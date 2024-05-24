@@ -7,7 +7,7 @@ import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '../../data/website-data';
 import { hasMissingMats } from '@parsers/refinery';
 import { calcTotals } from '@parsers/printer';
-import { findQuantityOwned, getAllItems } from '@parsers/items';
+import { findItemInInventory, findQuantityOwned, getAllItems } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 
@@ -186,7 +186,7 @@ export const getWorld1Alerts = (account, fields, options) => {
   }
   return alerts;
 };
-export const getWorld2Alerts = (account, fields, options) => {
+export const getWorld2Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World1) return alerts;
   if (fields?.alchemy?.checked) {
@@ -244,7 +244,14 @@ export const getWorld2Alerts = (account, fields, options) => {
     }
     if (options?.alchemy?.vialsAttempts?.checked) {
       const { current } = account?.alchemy?.p2w?.vialsAttempts;
-      if (current > 0) {
+      const totalItems = getAllItems(characters, account);
+      const lockedVials = account?.alchemy?.vials?.filter(({ level }) => level === 0);
+      const hasItems = lockedVials.filter(({ itemReq }) => {
+        const item = itemReq?.[0]?.name;
+        const hasItems = findItemInInventory(totalItems, item);
+        return Object.keys(hasItems).length > 0;
+      });
+      if (hasItems.length > 0) {
         alchemy.vialsAttempts = current > 0;
       }
     }
@@ -267,7 +274,7 @@ export const getWorld2Alerts = (account, fields, options) => {
       const shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
         return options?.postOffice?.postOffice?.props?.value?.[index + 1] && streak <= 0
       });
-      if (shipments.length > 0){
+      if (shipments.length > 0) {
         postOffice.shipments = shipments;
       }
     }
@@ -282,7 +289,7 @@ export const getWorld2Alerts = (account, fields, options) => {
         / Math.max(getSecPerBall(account), 1800));
       const onePercent = 5 * account?.arcade?.maxBalls / 100;
       const balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent;
-      if (balls){
+      if (balls) {
         arcade.balls = balls;
       }
     }
@@ -572,7 +579,7 @@ export const getWorld5Alerts = (account, fields, options) => {
       const { maxChests, timeToFullChests } = account?.sailing;
       const { hours } = getDuration(new Date().getTime(), timeToFullChests);
       const availableChests = sailingTime > hours && maxChests > 0;
-      if (availableChests > 0){
+      if (availableChests > 0) {
         sailing.chests = availableChests;
       }
     }
