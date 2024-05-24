@@ -25,23 +25,27 @@ export const getOptions = (data) => {
 }
 
 export const getGeneralAlerts = (account, fields, options, characters) => {
-  const alerts = {}
+  const alerts = {};
   if (fields?.tasks?.checked) {
-    alerts.tasks = account?.tasksDescriptions?.reduce((acc, tasks, worldIndex) => {
+    const { tasks: tasksOptions } = options?.tasks
+    const allTasks = account?.tasksDescriptions?.reduce((acc, tasks, worldIndex) => {
       const ninthTask = tasks?.[8];
       const ninthTaskNotCompleted = ninthTask?.level === 0;
-      if (ninthTaskNotCompleted && options?.tasks?.tasks?.props?.value?.[worldIndex + 1]) {
+      if (ninthTaskNotCompleted && tasksOptions?.props?.value?.[worldIndex + 1]) {
         return [...acc, worldIndex];
       } else {
         return acc;
       }
     }, []);
+    if (allTasks.length > 0) {
+      alerts.tasks = allTasks;
+    }
   }
   if (fields?.materialTracker?.checked) {
     const materials = tryToParse(localStorage.getItem('material-tracker'));
     if (Object.keys(materials || {}).length > 0) {
       const totalOwnedItems = getAllItems(characters, account);
-      alerts.materialTracker = Object.values(materials || {})?.reduce((res, {
+      const allMaterials = Object.values(materials || {})?.reduce((res, {
         item,
         lowerBound,
         upperBound,
@@ -56,68 +60,85 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         if (!text) return res;
         return [...res, { item, quantityOwned, text, note }];
       }, []);
+      if (allMaterials.length > 0) {
+        alerts.materialTracker = allMaterials;
+      }
     }
   }
   if (fields?.guild?.checked && account?.accountOptions?.[37]) {
     const { daily, weekly } = options?.guild || {};
     if (daily?.checked) {
-      alerts.guild = {
-        daily: account?.guild?.guildTasks?.daily?.filter(({
-                                                            requirement,
-                                                            progress
-                                                          }) => progress < requirement)?.length
-      };
+      const dailyTasks = account?.guild?.guildTasks?.daily?.filter(({
+                                                                      requirement,
+                                                                      progress
+                                                                    }) => progress < requirement)?.length;
+      if (dailyTasks) {
+        alerts.guild = { daily: dailyTasks };
+      }
     }
     if (weekly?.checked) {
-      alerts.guild = {
-        ...(alerts.guild || {}),
-        weekly: account?.guild?.guildTasks?.weekly?.filter(({
-                                                              requirement,
-                                                              progress
-                                                            }) => progress < requirement)?.length
+      const weeklyTasks = account?.guild?.guildTasks?.weekly?.filter(({
+                                                                        requirement,
+                                                                        progress
+                                                                      }) => progress < requirement)?.length;
+      if (weeklyTasks) {
+        alerts.guild = { ...(alerts.guild || {}), weekly: weeklyTasks }
       }
     }
   }
   if (fields?.shops?.checked) {
-    alerts.shops = {
-      items: account?.shopStock?.reduce((res, shop, index) => {
-        if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
-          return [...res, []];
-        } else if (index === 4 && !account?.finishedWorlds?.World2) {
-          return [...res, []];
-        } else if (index === 5 && !account?.finishedWorlds?.World3) {
-          return [...res, []];
-        } else if (index === 6 && !account?.finishedWorlds?.World4) {
-          return [...res, []];
-        } else if (index === 6 && !account?.finishedWorlds?.World5) {
-          return [...res, []];
-        }
-        const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
-        return [...res, filtered];
-      }, [])
-    };
+    const allShops = account?.shopStock?.reduce((res, shop, index) => {
+      if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
+        return [...res, []];
+      } else if (index === 4 && !account?.finishedWorlds?.World2) {
+        return [...res, []];
+      } else if (index === 5 && !account?.finishedWorlds?.World3) {
+        return [...res, []];
+      } else if (index === 6 && !account?.finishedWorlds?.World4) {
+        return [...res, []];
+      } else if (index === 6 && !account?.finishedWorlds?.World5) {
+        return [...res, []];
+      }
+      const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
+      return [...res, filtered];
+    }, []);
+    const boughtEverything = allShops?.flat()?.length;
+    if (!boughtEverything) {
+      alerts.shops = { items: allShops };
+    }
   }
   if (fields?.etc?.checked) {
     const etc = {};
     if (options?.etc?.dungeonTraits?.checked) {
       const dungeonRank = account?.dungeons?.rank;
-      etc.dungeonTraits = account?.dungeons?.statBoosts?.reduce((res, { section, levelReq, bonuses }) => {
+      const traits = account?.dungeons?.statBoosts?.reduce((res, { section, levelReq, bonuses }) => {
         const noneActive = bonuses?.every(({ isActive }) => !isActive);
         if (dungeonRank > levelReq && noneActive) {
           return [...res, section];
         }
         return res;
       }, []);
+      if (traits.length > 0) {
+        etc.dungeonTraits = traits;
+      }
     }
     if (options?.etc?.randomEvents?.checked) {
-      etc.randomEvents = account?.accountOptions?.[137] === 0;
+      const remainingEvents = account?.accountOptions?.[137] === 0;
+      if (remainingEvents) {
+        etc.randomEvents = remainingEvents;
+      }
     }
     if (options?.etc?.keys?.checked) {
-      etc.keys = areKeysOverdue(account);
+      const overdue = areKeysOverdue(account);
+      if (overdue.length > 0) {
+        etc.keys = overdue;
+      }
     }
     if (options?.etc?.miniBosses?.checked) {
       const minibosses = getMiniBossesData(account).filter(({ current }) => current >= options?.etc?.miniBosses?.props?.value);
-      etc.miniBosses = minibosses.length > 0 ? minibosses : null;
+      if (minibosses.length > 0) {
+        etc.miniBosses = minibosses;
+      }
     }
     if (options?.etc?.newCharacters?.checked) {
       const numOfCharacters = characters?.length;
@@ -138,12 +159,19 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       if (numOfCharacters === 9 && totalLevels >= 1500) {
         newCharactersCounter++;
       }
-      etc.newCharacters = newCharactersCounter;
+      if (newCharactersCounter > 0) {
+        etc.newCharacters = newCharactersCounter;
+      }
     }
     if (options?.etc?.gemsFromBosses?.checked) {
-      alerts.gemsFromBosses = account?.accountOptions?.[195] <= 300;
+      const availableKills = account?.accountOptions?.[195] <= 300;
+      if (availableKills) {
+        alerts.gemsFromBosses = account?.accountOptions?.[195] <= 300;
+      }
     }
-    alerts.etc = etc;
+    if (Object.keys(etc).length > 0) {
+      alerts.etc = etc;
+    }
   }
   return alerts;
 };
@@ -151,7 +179,9 @@ export const getWorld1Alerts = (account, fields, options) => {
   const alerts = {};
   if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
     if (options?.stamps?.gildedStamps?.checked) {
-      alerts.stamps = { gildedStamps: account?.accountOptions?.[154] };
+      if (account?.accountOptions?.[154] > 123123) {
+        alerts.stamps = { gildedStamps: account?.accountOptions?.[154] };
+      }
     }
   }
   return alerts;
@@ -164,31 +194,39 @@ export const getWorld2Alerts = (account, fields, options) => {
     if (options?.alchemy?.bargainTag?.checked) {
       const { x1, x2, index } = liquidsShop?.find(({ name }) => name === 'BARGAIN_TAG') || {};
       const math = Math.round(x1 * Math.pow(x2, account?.alchemy?.multiplierArray?.[index]));
-      alchemy.bargainTag = math === 1;
+      if (math === 1) {
+        alchemy.bargainTag = math === 1;
+      }
     }
     if (options?.alchemy?.liquids?.checked) {
       const liquidsProgress = account?.alchemy?.liquids;
       const percentage = options?.alchemy?.liquids?.props?.value / 100;
-      alchemy.liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
+      const liquids = account?.alchemy?.liquidCauldrons?.map((maxLiquid, index) => ({
         current: liquidsProgress?.[index],
         max: maxLiquid,
         index
       })).filter(({ current, max }) => max && current >= max * percentage - 5);
+      if (liquids.length > 0) {
+        alchemy.liquids = liquids
+      }
     }
     if (options?.alchemy?.sigils?.checked) {
       const hasJadeBonus = isJadeBonusUnlocked(account, 'Ionized_Sigils');
-      alchemy.sigils = account?.alchemy?.p2w?.sigils?.filter(({
-                                                                characters,
-                                                                progress,
-                                                                boostCost,
-                                                                jadeCost
-                                                              }) => characters.length > 0 && (hasJadeBonus
+      const sigils = account?.alchemy?.p2w?.sigils?.filter(({
+                                                              characters,
+                                                              progress,
+                                                              boostCost,
+                                                              jadeCost
+                                                            }) => characters.length > 0 && (hasJadeBonus
         ? progress >= jadeCost
-        : progress >= boostCost))
+        : progress >= boostCost));
+      if (sigils.length > 0) {
+        alchemy.sigils = sigils;
+      }
     }
     if (options?.alchemy?.vials?.checked) {
       const { subtractGreenStacks } = options?.alchemy || {};
-      alchemy.vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
+      const vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
         if (level <= 0) return false;
         const cost = vialCostsArray?.[level];
         let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
@@ -200,19 +238,28 @@ export const getWorld2Alerts = (account, fields, options) => {
         const liquidCost = 3 * level;
         return storageQuantity > cost && liquidQuantity > liquidCost;
       });
+      if (vials.length > 0) {
+        alchemy.vials = vials;
+      }
     }
     if (options?.alchemy?.vialsAttempts?.checked) {
       const { current } = account?.alchemy?.p2w?.vialsAttempts;
-      alchemy.vialsAttempts = current > 0;
+      if (current > 0) {
+        alchemy.vialsAttempts = current > 0;
+      }
     }
-    alerts.alchemy = alchemy;
+    if (Object.keys(alchemy).length > 0) {
+      alerts.alchemy = alchemy;
+    }
   }
   if (fields?.islands?.checked) {
     const islands = {};
     if (options?.islands?.unclaimedDays?.checked && account?.islands?.numberOfDaysAfk >= options?.islands?.unclaimedDays?.props?.value) {
       islands.unclaimedDays = account?.islands?.numberOfDaysAfk;
     }
-    alerts.islands = islands;
+    if (Object.keys(islands).length > 0) {
+      alerts.islands = islands;
+    }
   }
   if (fields?.postOffice?.checked) {
     const postOffice = {};
@@ -221,22 +268,26 @@ export const getWorld2Alerts = (account, fields, options) => {
         return options?.postOffice?.postOffice?.props?.value?.[index + 1] && streak <= 0
       });
     }
-    alerts.postOffice = postOffice;
+    if (Object.keys(postOffice).length > 0) {
+      alerts.postOffice = postOffice;
+    }
   }
   if (fields?.arcade?.checked) {
     const arcade = {};
-    if (options?.arcade?.balls?.checked && account?.finishedWorlds?.World1) {
+    if (options?.arcade?.balls?.checked) {
       const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account))
         / Math.max(getSecPerBall(account), 1800));
       const onePercent = 5 * account?.arcade?.maxBalls / 100;
       arcade.balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent
     }
-    alerts.arcade = arcade;
+    if (Object.keys(arcade).length > 0) {
+      alerts.arcade = arcade;
+    }
   }
-  if (fields?.weeklyBosses?.checked) {
+  if (fields?.weeklyBosses?.checked && account?.accountOptions?.[190] === 0) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
-  if (fields?.killRoy?.checked) {
+  if (fields?.killRoy?.checked && account?.accountOptions?.[113]) {
     alerts.killRoy = account?.accountOptions?.[113];
   }
   return alerts;
@@ -249,31 +300,39 @@ export const getWorld3Alerts = (account, fields, options) => {
     const { includeOakAndCopper, showAlertWhenFull } = options?.printer || {};
     const totals = calcTotals(account, showAlertWhenFull);
     const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
-    printer.atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => account?.accountOptions?.[132] && !exclusions?.[itemName] && atoms).map(([name, data]) => ({
+    const atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => account?.accountOptions?.[132] && !exclusions?.[itemName] && atoms).map(([name, data]) => ({
       name: items?.[name]?.displayName,
       rawName: name,
       ...data
     }));
-    alerts.printer = printer;
+    if (atoms.length > 0) {
+      alerts.printer = printer;
+    }
   }
   if (fields?.construction?.checked) {
     const construction = {};
     const { materials, rankUp, flags, buildings } = options?.construction || {};
     if (flags?.checked) {
-      construction.flags = account?.construction?.board?.filter(({
-                                                                   flagPlaced,
-                                                                   currentAmount,
-                                                                   requiredAmount
-                                                                 }) => flagPlaced && currentAmount === requiredAmount);
+      const flags = account?.construction?.board?.filter(({
+                                                            flagPlaced,
+                                                            currentAmount,
+                                                            requiredAmount
+                                                          }) => flagPlaced && currentAmount === requiredAmount);
+      if (flags.length > 0) {
+        construction.flags = flags
+      }
     }
     if (buildings?.checked) {
-      construction.buildings = account?.towers?.data?.filter((tower) => {
+      const buildings = account?.towers?.data?.filter((tower) => {
         const cost = getBuildCost(account?.towers, tower?.level, tower?.bonusInc, tower?.index);
         return tower?.progress >= cost;
       });
+      if (buildings.length > 0) {
+        construction.buildings = buildings
+      }
     }
     if (materials?.checked) {
-      construction.materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
+      const materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
         const previousSaltIndex = saltIndex > 0 ? saltIndex - 1 : null;
         const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
         const missingMats = hasMissingMats(saltIndex, rank, cost, account);
@@ -288,14 +347,22 @@ export const getWorld3Alerts = (account, fields, options) => {
         }
         return res;
       }, []);
+      if (materials.length > 0) {
+        construction.materials = materials
+      }
     }
     if (rankUp?.checked) {
-      construction.rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => {
+      const rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => {
         const percent = .98 * powerCap / 100;
         return refined >= powerCap - percent
       });
+      if (rankUp.length > 0) {
+        construction.rankUp = rankUp
+      }
     }
-    alerts.construction = construction;
+    if (Object.keys(construction).length > 0) {
+      alerts.construction = construction;
+    }
   }
   if (fields?.equinox?.checked) {
     const equinox = account?.equinox;
@@ -303,17 +370,39 @@ export const getWorld3Alerts = (account, fields, options) => {
     const { bar, challenges, foodLust } = options?.equinox;
     const equinoxAlerts = {};
 
-    if (bar) equinoxAlerts.bar = equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
-    if (challenges) equinoxAlerts.challenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
-    if (foodLust) equinoxAlerts.foodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
-
-    alerts.equinox = equinoxAlerts;
+    if (bar) {
+      const isFull = equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
+      if (isFull) {
+        equinoxAlerts.bar = isFull;
+      }
+    }
+    if (challenges) {
+      const hasChallenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
+      if (hasChallenges > 0) {
+        equinoxAlerts.challenges = hasChallenges;
+      }
+    }
+    if (foodLust) {
+      const hasFoodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
+      if (hasFoodLust) {
+        equinoxAlerts.foodLust = hasFoodLust;
+      }
+    }
+    if (Object.keys(equinoxAlerts).length > 0) {
+      alerts.equinox = equinoxAlerts;
+    }
   }
   if (fields?.atomCollider?.checked) {
     const atomCollider = {};
-    atomCollider.stampReducer = account?.atoms?.stampReducer >= options?.atomCollider?.stampReducer?.props?.value;
-    atomCollider.stampReducerValue = options?.atomCollider?.stampReducer?.props?.value;
-    alerts.atomCollider = atomCollider;
+    const stampReducer = account?.atoms?.stampReducer >= options?.atomCollider?.stampReducer?.props?.value;
+    const stampReducerValue = options?.atomCollider?.stampReducer?.props?.value;
+    if (stampReducer) {
+      atomCollider.stampReducer = stampReducer;
+      atomCollider.stampReducerValue = stampReducerValue;
+    }
+    if (Object.keys(atomCollider).length > 0) {
+      alerts.atomCollider = atomCollider;
+    }
   }
   return alerts;
 };
@@ -332,19 +421,32 @@ export const getWorld4Alerts = (account, fields, options) => {
           && shinyLevel >= shinies?.props?.value);
         return [...res, ...pets];
       }, [])
-      breeding.shinies = { pets: list, threshold: shinies?.props?.value }
+      const shiniesObj = { pets: list, threshold: shinies?.props?.value }
+      if (list.length > 0) {
+        breeding.shinies = shiniesObj;
+      }
     }
     if (eggs?.checked) {
-      breeding.eggs = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
+      const eggsAvailable = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
+      if (eggsAvailable.length > 0) {
+        breeding.eggs = eggsAvailable
+      }
     }
-    alerts.breeding = breeding;
+    if (Object.keys(breeding).length > 0) {
+      alerts.breeding = breeding;
+    }
   }
   if (fields?.cooking?.checked) {
     const cooking = {};
     if (options?.cooking?.spices?.checked) {
-      cooking.spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
+      const spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
+      if (spices > 0) {
+        cooking.spices = spices;
+      }
     }
-    alerts.cooking = cooking;
+    if (Object.keys(cooking).length > 0) {
+      alerts.cooking = cooking;
+    }
   }
   return alerts;
 };
@@ -379,14 +481,16 @@ export const getWorld5Alerts = (account, fields, options) => {
         gaming.squirrel = getDuration(new Date().getTime(), timePassed);
       }
     }
-    alerts.gaming = gaming;
+    if (Object.keys(gaming).length > 0) {
+      alerts.gaming = gaming;
+    }
   }
   if (fields?.sailing?.checked) {
     const sailing = {};
     const { captains, chests } = options?.sailing || {};
     if (captains?.checked) {
       const { captains, shopCaptains } = account?.sailing || {};
-      sailing.captains = shopCaptains?.reduce((res, shopCaption) => {
+      const relevantCaptains = shopCaptains?.reduce((res, shopCaption) => {
         const {
           captainType,
           firstBonusIndex,
@@ -451,6 +555,9 @@ export const getWorld5Alerts = (account, fields, options) => {
         }
         return res;
       }, []);
+      if (relevantCaptains.length > 0) {
+        sailing.captains = relevantCaptains;
+      }
     }
     if (chests?.checked) {
       const sailingTime = 259200 < account?.accountOptions?.[124]
@@ -458,9 +565,14 @@ export const getWorld5Alerts = (account, fields, options) => {
         : Math.floor(account?.accountOptions?.[124] / 3600);
       const { maxChests, timeToFullChests } = account?.sailing;
       const { hours } = getDuration(new Date().getTime(), timeToFullChests);
-      sailing.chests = sailingTime > hours && maxChests > 0;
+      const availableChests = sailingTime > hours && maxChests > 0;
+      if (availableChests > 0){
+        sailing.chests = availableChests;
+      }
     }
-    alerts.sailing = sailing;
+    if (Object.keys(sailing).length > 0) {
+      alerts.sailing = sailing;
+    }
   }
   return alerts;
 };
@@ -498,6 +610,18 @@ export const getWorld6Alerts = (account, fields, options) => {
   }
   return alerts;
 };
+export const areKeysOverdue = (account) => {
+  const keys = account?.currencies?.KeysAll;
+  const tickets = account?.currencies?.ColosseumTickets?.allTickets;
+
+  const keysAlerts = keys?.filter(({ daysSincePickup }) => {
+    return daysSincePickup >= 3;
+  })
+  const ticketsAlerts = tickets?.filter(({ daysSincePickup }, index) => {
+    return (index === 0 || account?.finishedWorlds?.[`World${index}`]) && daysSincePickup >= 3;
+  });
+  return [...(keysAlerts || []), ...(ticketsAlerts || [])];
+}
 
 function isNearRange(value, lowerBound, upperBound, nearPercentage) {
   const lowerRange = lowerBound + (lowerBound * nearPercentage / 100);
@@ -927,18 +1051,6 @@ export const cookingAlerts = (account, options) => {
     alerts.spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
   }
   return alerts;
-}
-export const areKeysOverdue = (account) => {
-  const keys = account?.currencies?.KeysAll;
-  const tickets = account?.currencies?.ColosseumTickets?.allTickets;
-
-  const keysAlerts = keys?.filter(({ daysSincePickup }) => {
-    return daysSincePickup >= 3;
-  })
-  const ticketsAlerts = tickets?.filter(({ daysSincePickup }, index) => {
-    return (index === 0 || account?.finishedWorlds?.[`World${index}`]) && daysSincePickup >= 3;
-  });
-  return [...(keysAlerts || []), ...(ticketsAlerts || [])];
 }
 export const gamingAlerts = (account, options) => {
   if (!account?.finishedWorlds?.World4) return false;

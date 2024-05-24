@@ -23,7 +23,7 @@ const baseTrackers = {
           name: 'tasks',
           type: 'array',
           category: 'Worlds',
-          props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() },
+          props: { value: [1, 2, 3, 4].toSimpleObject() },
           checked: true
         }]
       },
@@ -46,7 +46,7 @@ const baseTrackers = {
           {
             name: 'miniBosses',
             type: 'input',
-            props: { label: 'Bosses threshold', value: 1, minValue: 1 },
+            props: { label: 'Bosses threshold', value: 2, minValue: 2 },
             checked: true
           },
           { name: 'newCharacters', checked: true },
@@ -90,7 +90,8 @@ const baseTrackers = {
         ]
       },
       postOffice: {
-        checked: true, options: [{
+        checked: true,
+        options: [{
           name: 'postOffice',
           type: 'array',
           category: 'shipments streak',
@@ -261,7 +262,8 @@ const Dashboard = () => {
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState();
-  const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account', 'characters', 'timers']);
+  const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
+    'characters', 'timers']);
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 

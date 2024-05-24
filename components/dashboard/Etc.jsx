@@ -67,12 +67,12 @@ const Etc = ({ characters, account, lastUpdated }) => {
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       <Stack gap={2}>
-        <CardTitleAndValue cardSx={{ my: 0, width: 120 }} title={'Daily Reset'}>
-          <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+        <CardTitleAndValue cardSx={{ my: 0, width: 172 }} title={'Daily Reset'}>
+          <Timer type={'countdown'} lastUpdated={lastUpdated}
                  date={dailyReset}/>
         </CardTitleAndValue>
-        <CardTitleAndValue cardSx={{ my: 0, width: 120 }} title={'Weekly Reset'}>
-          <Timer variant={'caption'} type={'countdown'} lastUpdated={lastUpdated}
+        <CardTitleAndValue cardSx={{ my: 0, width: 172 }} title={'Weekly Reset'}>
+          <Timer type={'countdown'} lastUpdated={lastUpdated}
                  date={weeklyReset}/>
         </CardTitleAndValue>
       </Stack>
@@ -83,8 +83,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Grid>
         {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Grid xs={6}>
           <TimerCard
-          tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
-          lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>
+            tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
+            lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>
         </Grid> : null}
         {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ? <Grid xs={6}>
           <TimerCard
@@ -94,7 +94,9 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Grid> : null}
         {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <Grid xs={6}>
           {closestWorshiper?.timeLeft !== 0 ? <TimerCard
-            tooltipContent={closestWorshiper?.character ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft) : 'All characters charge is full'}
+            tooltipContent={closestWorshiper?.character
+              ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)
+              : 'All characters charge is full'}
             timerPlaceholder={'Full!'}
             forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
@@ -127,24 +129,24 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </Grid> : null}
         {account?.finishedWorlds?.World2 ? <Grid xs={6}>
           <Card sx={{ width: '100%', height: 'fit-content' }}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <Tooltip title={<Stack>
-                <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
-                <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
-                <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
-                {giantMob?.glitterbugPrayer > 0 ?
-                  <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
-              </Stack>}>
-                <Stack gap={1} direction={'row'} alignItems={'center'}>
-                  <IconImg src={`${prefix}data/Prayer5.png`}/>
-                  <Typography>1
-                    in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
-                </Stack>
-              </Tooltip>
-            </Stack>
-          </CardContent>
-        </Card>
+            <CardContent>
+              <Stack direction={'row'} alignItems={'center'} gap={2}>
+                <Tooltip title={<Stack>
+                  <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
+                  <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
+                  <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
+                  {giantMob?.glitterbugPrayer > 0 ?
+                    <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
+                </Stack>}>
+                  <Stack gap={1} direction={'row'} alignItems={'center'}>
+                    <IconImg src={`${prefix}data/Prayer5.png`}/>
+                    <Typography>1
+                      in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
+                  </Stack>
+                </Tooltip>
+              </Stack>
+            </CardContent>
+          </Card>
         </Grid> : null}
       </Grid>
       {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 330 }}>
@@ -154,7 +156,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
               {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
                 return <Stack key={`miniboss-timer-${rawName}`}>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`} alt={''}/>
+                    <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`}
+                         alt={''}/>
                     <Stack>
                       <Typography>{cleanUnderscore(name)}</Typography>
                       <Stack direction={'row'} alignItems={'center'} gap={1}
@@ -173,7 +176,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </CardContent>
         </Card>
       </Stack> : null}
-      {events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0) ? <Stack gap={1} sx={{ width: 250 }}>
+      {events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0) ? <Stack gap={1}
+                                                                                                               sx={{ width: 250 }}>
         {events?.length > 0 ? <Card sx={{ width: '100%', height: 'fit-content' }}>
           <CardContent>
             <Stack gap={2}>

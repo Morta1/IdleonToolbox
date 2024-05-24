@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { getOptions } from '@utility/dashboard/account';
 
+
+const checkIfSectionEmpty = (fields) => {
+  return Object.entries(fields)?.reduce((res, [name, val]) => res && !val?.checked, true);
+}
+
 const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
   const [alerts, setAlerts] = useState();
+  const [emptyAlertRows, setEmptyAlertRows] = useState({});
 
   useEffect(() => {
     const anyTracker = trackers && Object.values(trackers).some((tracker) => tracker);
     if (anyTracker) {
+      const tempEmptyAlertRows = {}
       const tempAlerts = Object.entries(trackers || {}).reduce((result, [section, fields]) => {
         const sectionAlerts = Object.values(fields || {}).reduce((res, val) => {
           if (val?.checked) {
@@ -18,19 +25,22 @@ const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
           }
           return res;
         }, {});
+        const alertsAreEmpty = Object.keys(sectionAlerts).length === 0;
+        tempEmptyAlertRows[section] = checkIfSectionEmpty(fields) || alertsAreEmpty;
         return {
           ...result,
           [section]: sectionAlerts
         }
       }, {})
-      const anythingToShow = Object.values(tempAlerts).some((alert) => Array.isArray(alert) ? alert.length > 0 : alert)
-      setAlerts(anythingToShow ? tempAlerts : null);
+      const nothingToShow = Object.values(tempEmptyAlertRows).every((val) => val);
+      setEmptyAlertRows(tempEmptyAlertRows);
+      setAlerts(nothingToShow ? null : tempAlerts);
     } else {
       setAlerts(null)
     }
   }, [data, trackers]);
 
-  return alerts;
+  return { alerts, emptyAlertRows };
 };
 
 export default useAlerts;
