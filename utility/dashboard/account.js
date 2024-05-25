@@ -319,7 +319,7 @@ export const getWorld3Alerts = (account, fields, options) => {
       ...data
     }));
     if (atoms.length > 0) {
-      alerts.printer = printer;
+      alerts.printer = atoms;
     }
   }
   if (fields?.construction?.checked) {
