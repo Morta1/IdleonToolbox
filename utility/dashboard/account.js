@@ -300,7 +300,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   if (fields?.weeklyBosses?.checked && account?.accountOptions?.[190] === 0) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
-  if (fields?.killRoy?.checked && account?.accountOptions?.[113] === 0 || account?.accountOptions?.[113] < 21) {
+  if (fields?.killRoy?.checked && (account?.accountOptions?.[113] === 0 || account?.accountOptions?.[113] < 21)) {
     alerts.killRoy = account?.accountOptions?.[113];
   }
   return alerts;
@@ -596,21 +596,32 @@ export const getWorld6Alerts = (account, fields, options) => {
     const farming = {};
     const { plots, totalCrops, missingPlots } = options?.farming || {};
     if (plots?.checked) {
-      farming.plots = account?.farming?.plot?.filter(({ currentOG }) => plots?.props?.value > 0
+      const availablePots = account?.farming?.plot?.filter(({ currentOG }) => plots?.props?.value > 0
         ? currentOG >= plots?.props?.value
         : currentOG > 0).map((plot) => ({ ...plot, threshold: plots?.props?.value }));
+      if (availablePots.length > 0) {
+        farming.plots = availablePots;
+      }
     }
     if (totalCrops?.checked) {
       const totalCrops = account?.farming?.plot?.reduce((sum, {
         cropQuantity,
         ogMulti
       }) => sum + (cropQuantity * (ogMulti)), 0);
-      farming.totalCrops = totalCrops >= totalCrops?.props?.value ? totalCrops : 0;
+      const availableCrops = totalCrops >= totalCrops?.props?.value ? totalCrops : 0;
+      if (availableCrops > 0) {
+        farming.totalCrops = availableCrops;
+      }
     }
     if (missingPlots?.checked) {
-      farming.missingPlots = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
+      const missingPlots = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
+      if (missingPlots?.length > 0) {
+        farming.missingPlots = missingPlots;
+      }
     }
-    alerts.farming = farming;
+    if (Object.keys(farming).length > 0) {
+      alerts.farming = farming;
+    }
   }
   if (fields?.summoning?.checked) {
     const summoning = {};
@@ -619,7 +630,9 @@ export const getWorld6Alerts = (account, fields, options) => {
     if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
       summoning.familiar = { level, maxLvl };
     }
-    alerts.summoning = summoning;
+    if (Object.keys(summoning).length > 0) {
+      alerts.summoning = summoning;
+    }
   }
   return alerts;
 };
