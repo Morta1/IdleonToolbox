@@ -36,7 +36,7 @@ export const shopMapping = {
   4: [0, 1, 2, 8, 9, 10, 19, 22].toSimpleObject(), // 'Frostbite_Towndra'
   5: [2, 3, 4, 8, 9, 10, 11].toSimpleObject(), // 'Hyperion_Nebula'
   6: [0, 1, 2, 3, 4, 5].toSimpleObject(), // 'Smolderin\'_Plateau',
-  7: [0, 2, 3, 4, 5, 6, 7].toSimpleObject() // 'Spirited_Valley'
+  7: [0, 1, 2, 3, 4, 5, 6, 7].toSimpleObject() // 'Spirited_Valley'
 };
 
 export const shopNameMapping = {

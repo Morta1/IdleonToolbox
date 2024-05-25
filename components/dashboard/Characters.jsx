@@ -53,7 +53,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           postOffice
         } = character;
         const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
-          const {options, ...rest} = data;
+          const { options, ...rest } = data;
           const optionObject = data?.options?.reduce((result, option) => ({
             ...result,
             [option?.name]: option
@@ -123,7 +123,11 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} has ${alerts?.anvil?.unspentPoints} unspent points anvil points`}
                        iconPath={'data/ClassIcons43'}/> : null}
               {trackers?.anvil && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
-                alerts?.equipment?.availableUpgradesSlots?.map(({ displayName, rawName, Upgrade_Slots_Left }, index) => {
+                alerts?.equipment?.availableUpgradesSlots?.map(({
+                                                                  displayName,
+                                                                  rawName,
+                                                                  Upgrade_Slots_Left
+                                                                }, index) => {
                   return <Alert key={`slots-${name}-${characterIndex}-${rawName}-${index}`}
                                 title={`${cleanUnderscore(displayName)} has ${Upgrade_Slots_Left} available upgrade slots`}
                                 extra={<Box style={{
