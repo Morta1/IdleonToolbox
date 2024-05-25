@@ -103,7 +103,6 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       return [...res, filtered];
     }, []);
     const boughtEverything = allShops?.flat()?.length;
-    console.log('boughtEverything', boughtEverything)
     if (boughtEverything > 0) {
       alerts.shops = { items: allShops };
     }
@@ -131,7 +130,6 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
     }
     if (options?.etc?.keys?.checked) {
       const overdue = areKeysOverdue(account);
-      console.log('areKeysOverdue', overdue)
       if (overdue.length > 0) {
         etc.keys = overdue;
       }
