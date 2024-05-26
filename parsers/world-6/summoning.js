@@ -1,8 +1,18 @@
-import { groupByKey, tryToParse } from '@utility/helpers';
-import { deathNote, summoningBonuses, summoningEnemies, summoningUpgrades } from '../../data/website-data';
+import { groupByKey, notateNumber, tryToParse } from '@utility/helpers';
+import { deathNote, monsters, summoningBonuses, summoningEnemies, summoningUpgrades } from '../../data/website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
+
+const summonEssenceColor = {
+  white: 0,
+  green: 1,
+  yellow: 2,
+  blue: 3,
+  purple: 4,
+  red: 5,
+  cyan: 6
+}
 
 export const getSummoning = (idleonData, accountData, serializedCharactersData) => {
   const rawSummon = tryToParse(idleonData?.Summon);
@@ -11,17 +21,33 @@ export const getSummoning = (idleonData, accountData, serializedCharactersData) 
 
 const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const upgradesLevels = rawSummon?.[0];
+  const wonBattles = rawSummon?.[1];
   const essences = rawSummon?.[2];
+  const whiteBattleIcons = ['piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
+    'Hedgehog'];
   const whiteBattleOrder = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
+  const allBattles = [[], [], [], [], [], [], [], []];
   const { familiarsOwned } = (rawSummon?.[4] ?? []).reduce((acc, currentValue, index) => {
     acc.familiarsOwned += acc.multiplier * currentValue;
     acc.multiplier *= index + 3;
     return acc;
   }, { familiarsOwned: 0, multiplier: 1 });
-  const careerWins = {
-    0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0
-  };
-  const rawWinnerBonuses = rawSummon?.[1]?.reduce((acc, enemyId) => {
+  const careerWins = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+  whiteBattleOrder.forEach((enemyId, index) => {
+    const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
+    if (monsterData) {
+      const extraData = getBattleData(enemyId, monsterData, wonBattles);
+      allBattles[0].push({ ...monsterData, ...extraData, icon: `afk_targets/${whiteBattleIcons?.[index]}` });
+    }
+  });
+  deathNote.forEach(({ rawName, world }) => {
+    const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === rawName);
+    if (monsterData) {
+      const extraData = getBattleData(rawName, monsterData, wonBattles);
+      allBattles[world + 1].push({ ...monsterData, ...extraData });
+    }
+  })
+  const rawWinnerBonuses = wonBattles?.reduce((acc, enemyId) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
     if (monsterData) {
       const bonus = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
@@ -72,6 +98,10 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData);
+  const armyHealth = getArmyHealth(upgrades);
+  const armyDamage = getArmyDamage(upgrades);
+  console.log('armyHealth', armyHealth);
+  console.log('armyDamage', armyDamage);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
 
   return {
@@ -79,7 +109,39 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     winnerBonuses,
     essences,
     totalUpgradesLevels,
-    familiarsOwned
+    familiarsOwned,
+    allBattles,
+    armyHealth,
+    armyDamage
+  }
+}
+const getArmyHealth = (upgrades) => {
+  const additiveArmyHealth = [1, 10, 35, 37].reduce((sum, bonusIndex) => {
+    const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
+    return sum + hpBonus?.value
+  }, 0);
+  const multi = upgrades.find(({ originalIndex }) => originalIndex === 20);
+  return 1 * (1 + additiveArmyHealth) * (1 + multi?.value / 100);
+}
+const getArmyDamage = (upgrades) => {
+  const additiveArmyDamage = [3, 12, 21, 31].reduce((sum, bonusIndex) => {
+    const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
+    return sum + hpBonus?.value
+  }, 0);
+  const multi = upgrades.find(({ originalIndex }) => originalIndex === 43);
+  return 1 * (1 + additiveArmyDamage) * (1 + multi?.value / 100)
+}
+const getBattleData = (enemyId, monsterData, wonBattles) => {
+  const icon = `data/mface${monsters?.[enemyId]?.MonsterFace}`;
+  const won = wonBattles.includes(enemyId);
+  const { bonus, bonusId } = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
+  const base = 3.5 * monsterData?.bonusQty;
+  const actualBonus = bonus.includes('<') ? notateNumber(1 + base / 100, 'MultiplierInfo') : notateNumber(base, 'Big');
+  const resultBonus = { bonusId, bonus: bonus.replace(/[<{]/, actualBonus) };
+  return {
+    bonus: resultBonus,
+    won,
+    icon
   }
 }
 

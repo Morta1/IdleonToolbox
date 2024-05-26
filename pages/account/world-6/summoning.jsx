@@ -7,10 +7,11 @@ import Upgrades from '@components/account/Worlds/World6/summoning/Upgrades';
 import { notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Stack } from '@mui/material';
+import Battles from '@components/account/Worlds/World6/summoning/Battles';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
-  const { winnerBonuses, upgrades, essences } = state?.account?.summoning || {};
+  const { winnerBonuses, upgrades, essences, allBattles, armyHealth, armyDamage } = state?.account?.summoning || {};
   return <>
     <NextSeo
       title="Summoning | Idleon Toolbox"
@@ -23,9 +24,10 @@ const Summoning = () => {
         </CardTitleAndValue>
       })}
     </Stack>
-    <Tabber tabs={['Upgrades', 'Winner Bonuses']}>
+    <Tabber tabs={['Upgrades', 'Winner Bonuses', 'Battles']}>
       <Upgrades upgrades={upgrades}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
+      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}/>
     </Tabber>
   </>
 };

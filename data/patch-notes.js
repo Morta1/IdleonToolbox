@@ -8,7 +8,8 @@ export const patchNotes = [
     gameVer: '2.0.9',
     date: '26/05/2024',
     features: [
-      'Updated the website with version 2.0.9 data and assets'
+      'Updated the website with version 2.0.9 data and assets',
+      'Added Battles tab to the summoning page including the army health and damage'
     ],
     fixes: [
       'Fixed some bugs with alerts'
