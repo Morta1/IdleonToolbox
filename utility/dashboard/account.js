@@ -321,7 +321,6 @@ export const getWorld3Alerts = (account, fields, options) => {
     if (atoms.length > 0) {
       printer.atoms = atoms;
     }
-    console.log('atoms', atoms)
     if (Object.keys(printer).length > 0) {
       alerts.printer = printer;
     }
