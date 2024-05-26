@@ -441,7 +441,7 @@ export const getWorld4Alerts = (account, fields, options) => {
     }
     if (eggs?.checked) {
       const eggsAvailable = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
-      if (eggsAvailable.length > 0) {
+      if (eggsAvailable) {
         breeding.eggs = eggsAvailable
       }
     }

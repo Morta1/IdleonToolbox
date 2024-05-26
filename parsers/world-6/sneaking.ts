@@ -38,12 +38,14 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   const ninjaUpgradeLevels = rawSneaking?.[103];
   const beanstalkData = rawSneaking?.[104];
   const doorsCurrentHp = rawSneaking?.[100];
-  const unlockedFloors = doorMaxHps.reduce((sum, doorHp, index) => {
+  const currentUnlockedFloors = doorMaxHps.reduce((sum, doorHp, index) => {
     const updatedDoorHp = (account?.accountOptions?.[231] < account?.accountOptions?.[232]
       ? 0
       : parseFloat(doorHp));
     return sum + ((updatedDoorHp - doorsCurrentHp?.[index] <= 0) ? 1 : 0);
-  }, 1)
+  }, 1);
+  const ninjaMastery = account.accountOptions?.[231];
+  const unlockedFloors = ninjaMastery === 0 ? Math.min(12, currentUnlockedFloors) : 12;
   const playersInfo = rawSneaking?.slice(0, serializedCharactersData?.length)?.map(([floor, activityInfo]: [number, number]) => ({
     floor,
     activityInfo

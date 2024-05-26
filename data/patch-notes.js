@@ -4,6 +4,29 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.69',
+    gameVer: '2.0.9',
+    date: '26/05/2024',
+    features: [
+      'Updated the website with version 2.0.9 data and assets'
+    ],
+    fixes: [
+      'Fixed some bugs with alerts'
+    ]
+  },
+  {
+    ver: '3.2.68',
+    gameVer: '2.0.8',
+    date: '25/05/2024',
+    features: [
+      'Updated the dashboard\'s layout: alerts are now organized by worlds / general. Rows will disappear when there are no longer alerts to show in them',
+      'Added bubble breakdown in bubble page',
+      'Added import / export button inside "Configure alerts" dialog',
+      'Vial attempts will now show only if you have the materials available'
+    ],
+    fixes: []
+  },
+  {
     ver: '3.2.67',
     gameVer: '2.0.8',
     date: '23/05/2024',
