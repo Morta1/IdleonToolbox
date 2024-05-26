@@ -19,7 +19,7 @@ const Summoning = () => {
     />
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {essences?.map((value, index) => {
-        if (index > 5) return null;
+        if (index > 6) return null;
         return <CardTitleAndValue key={index} value={notateNumber(value)} icon={`data/SummC${index + 1}.png`}>
         </CardTitleAndValue>
       })}
