@@ -100,8 +100,6 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData);
   const armyHealth = getArmyHealth(upgrades);
   const armyDamage = getArmyDamage(upgrades);
-  console.log('armyHealth', armyHealth);
-  console.log('armyDamage', armyDamage);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
 
   return {
