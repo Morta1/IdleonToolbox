@@ -63,7 +63,9 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.General?.etc?.keys?.length > 0
                 ?
                 alerts?.General?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
-                                                                                            title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} ${rawName.includes('Tix') ? 'tickets' : 'keys'} are ready`}
+                                                                                            title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} ${rawName.includes('Tix')
+                                                                                              ? 'tickets'
+                                                                                              : 'keys'} are ready`}
                                                                                             iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.General?.materialTracker?.length > 0
@@ -117,13 +119,13 @@ const Account = ({ account, characters, trackers }) => {
                 ?
                 <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/>
                 : null}
-              {alerts?.['World 2']?.killRoy === 0 || (alerts?.['World 2']?.killRoy < 21 && account?.finishedWorlds?.World3)
+              {alerts?.['World 2']?.killRoy
                 ?
                 <Alert
                   title={alerts?.['World 2']?.killRoy === 0
-                    ? 'You haven\'t done a killroy this week' :
-                    alerts?.['World 2']?.killRoy > 0 && alerts?.['World 2']?.killRoy < 21 && account?.finishedWorlds?.World3
-                      ? 'You haven\'t done a killroy this week (You have 1 killroy left)'
+                    ? `You haven't done a killroy this week (${account?.killroy?.killRoyClasses.join(', ')})` :
+                    alerts?.['World 2']?.killRoy > 0 && account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21) && account?.finishedWorlds?.World3
+                      ? `You haven\'t done a killroy this week (${account?.killroy?.killRoyClasses.join(', ')})`
                       : ''} iconPath={'etc/Killroy'}/>
                 : null}
               {alerts?.['World 2']?.arcade?.balls ?

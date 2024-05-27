@@ -883,10 +883,13 @@ export const getMiniBossesData = (account) => {
   ].filter(({ unlocked }) => unlocked);
 }
 
-export const getKillRoy = (idleonData, charactersData, accountData) => {
+export const getKillRoy = (idleonData, charactersData, accountData, serverVars) => {
   const killRoyKills = tryToParse(idleonData?.KRbest);
   const totalKills = Object.values(killRoyKills || {}).reduce((sum, num) => sum + num, 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills, 0.4)) / 100;
+  const unlockedThirdKillRoy = accountData?.accountOptions?.[227] === 1;
+  const rooms = unlockedThirdKillRoy ? 3 : 2;
+  const killRoyClasses = getKillRoyClasses(rooms, accountData, serverVars);
   return {
     list: deathNote.map((monster) => {
       const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}` };
@@ -896,13 +899,15 @@ export const getKillRoy = (idleonData, charactersData, accountData) => {
       }) : monsterWithIcon
     }),
     totalKills,
-    totalDamageMulti
+    totalDamageMulti,
+    rooms,
+    killRoyClasses
   };
 }
 
 export const calcTotalQuestCompleted = (characters) => {
   const mappedQuests = characters.reduce((result, { questComplete }) => {
-    Object.entries(questComplete||{})?.forEach(([key, value]) => {
+    Object.entries(questComplete || {})?.forEach(([key, value]) => {
       if (!result[key] && value === 1) {
         result[key] = 1;
       }
@@ -910,4 +915,27 @@ export const calcTotalQuestCompleted = (characters) => {
     return result;
   }, {});
   return Object.values(mappedQuests).reduce((sum, level) => sum + level, 0);
+}
+
+export const getKillRoyClasses = (rooms, account, serverVars) => {
+  const classes = [];
+  const done = account?.accountOptions?.[113];
+  const skipConditions = {
+    1: [0],
+    21: [0, 1],
+    321: [0, 1, 2]
+  };
+  for (let i = 0; i < rooms; i++) {
+    if (skipConditions[done] && skipConditions[done].includes(i)) {
+      continue;
+    }
+    const seed = Math.round(Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800) + (50 * i + serverVars.KillroySwap))
+    const rng = new LavaRand(seed);
+    const random = 3 * rng.rand();
+    const classIndex = Math.max(0, Math.min(3, Math.ceil(random - Math.floor(i / 2))));
+    classes.push(classIndex);
+  }
+
+  return classes.map((classIndex) => {
+    return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'  });
 }

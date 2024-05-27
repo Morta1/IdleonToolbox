@@ -194,7 +194,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.quests = getQuests(charactersData);
   accountData.islands = getIslands(accountData);
   accountData.deathNote = getDeathNote(idleonData, charactersData, accountData);
-  accountData.killroy = getKillRoy(idleonData, charactersData, accountData);
+  accountData.killroy = getKillRoy(idleonData, charactersData, accountData, serverVars);
   // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);
 
