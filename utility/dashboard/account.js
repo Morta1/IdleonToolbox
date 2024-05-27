@@ -607,19 +607,19 @@ export const getWorld6Alerts = (account, fields, options) => {
       }
     }
     if (totalCrops?.checked) {
-      const totalCrops = account?.farming?.plot?.reduce((sum, {
+      const totalCropsLocal = account?.farming?.plot?.reduce((sum, {
         cropQuantity,
         ogMulti
       }) => sum + (cropQuantity * (ogMulti)), 0);
-      const availableCrops = totalCrops >= totalCrops?.props?.value ? totalCrops : 0;
+      const availableCrops = totalCropsLocal >= totalCrops?.props?.value ? totalCropsLocal : 0;
       if (availableCrops > 0) {
         farming.totalCrops = availableCrops;
       }
     }
     if (missingPlots?.checked) {
-      const missingPlots = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
-      if (missingPlots?.length > 0) {
-        farming.missingPlots = missingPlots;
+      const missingPlotsLocal = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
+      if (missingPlotsLocal?.length > 0) {
+        farming.missingPlots = missingPlotsLocal;
       }
     }
     if (Object.keys(farming).length > 0) {
