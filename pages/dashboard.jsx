@@ -86,7 +86,8 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Threshold', value: 1, minValue: 1 },
             checked: true
-          }
+          },
+          { name: 'shimmerIsland', checked: true },
         ]
       },
       postOffice: {
@@ -160,6 +161,17 @@ const baseTrackers = {
       sailing: { checked: true, options: [{ name: 'captains', checked: true }, { name: 'chests', checked: true }] }
     },
     'World 6': {
+      sneaking: {
+        checked: true,
+        options: [
+          {
+            name: 'lastLooted',
+            type: 'input',
+            props: { label: 'Last looted', value: 120, minValue: 0, helperText: 'in minutes' },
+            checked: true
+          }
+        ]
+      },
       farming: {
         checked: true,
         options: [

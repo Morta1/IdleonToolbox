@@ -1,6 +1,7 @@
 import { tryToParse } from '@utility/helpers';
 import { getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
+import { calcTotalBoatLevels } from '@parsers/sailing';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
 export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
@@ -69,6 +70,8 @@ export const expandLeaderboardInfo = (account, characters) => {
   const accuracy = Math.max(...playersInfo.map(({ accuracy }) => accuracy));
   const hp = Math.max(...playersInfo.map(({ maxHp }) => maxHp));
   const mp = Math.max(...playersInfo.map(({ maxMp }) => maxMp));
+  const greenMushroomKills = account?.deathNote?.[0]?.mobs?.[0]?.kills || 0;
+  const totalBoats = calcTotalBoatLevels(account?.sailing?.boats);
   return {
     dropRate: withDefault(dropRate),
     defence: withDefault(defence),
@@ -76,7 +79,9 @@ export const expandLeaderboardInfo = (account, characters) => {
     hp: withDefault(hp),
     mp: withDefault(mp),
     logBook: withDefault(account?.gaming?.logBook?.length),
-    totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels)
+    totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels),
+    greenMushroomKills,
+    totalBoats
   }
 }
 

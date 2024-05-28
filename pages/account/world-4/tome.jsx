@@ -16,7 +16,10 @@ const Tome = () => {
       description="Keep track of your tome bonuses and highscores"
     />
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Tome</Typography>
-    <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+      <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)}/>
+      <CardTitleAndValue title={'Rank'} imgOnly icon={`data/TomeTop${state?.account?.tome?.top}.png`}/>
+    </Stack>
     <Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active
       character.</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>

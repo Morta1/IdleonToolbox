@@ -35,6 +35,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   });
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
   const jadeCoins = rawSneaking?.[102]?.[1];
+  const lastLooted = rawSneaking?.[102]?.[2];
   const ninjaUpgradeLevels = rawSneaking?.[103];
   const beanstalkData = rawSneaking?.[104];
   const doorsCurrentHp = rawSneaking?.[100];
@@ -119,7 +120,8 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     beanstalkData,
     totalJadeEmporiumUnlocked,
     unlockedFloors,
-    gemStones
+    gemStones,
+    lastLooted
   };
 }
 const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus: number) => {

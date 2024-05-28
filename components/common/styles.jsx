@@ -125,6 +125,7 @@ export const CardTitleAndValue = ({
                                     variant,
                                     raised,
                                     cardSx,
+                                    imgOnly,
                                     imgStyle,
                                     title,
                                     value,
@@ -138,9 +139,9 @@ export const CardTitleAndValue = ({
       <CardContent>
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-          {value ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
+          {(value || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
             <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
-            <Typography>{value}</Typography>
+            {value ? <Typography>{value}</Typography> : null}
           </Stack> : <Typography>{value}</Typography> : children}
         </Stack>
       </CardContent>

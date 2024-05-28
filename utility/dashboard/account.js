@@ -264,6 +264,9 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.islands?.unclaimedDays?.checked && account?.islands?.numberOfDaysAfk >= options?.islands?.unclaimedDays?.props?.value) {
       islands.unclaimedDays = account?.islands?.numberOfDaysAfk;
     }
+    if (options?.islands?.shimmerIsland?.checked) {
+      islands.shimmerIsland = account?.accountOptions?.[182] === 0;
+    }
     if (Object.keys(islands).length > 0) {
       alerts.islands = islands;
     }
@@ -596,6 +599,17 @@ export const getWorld5Alerts = (account, fields, options) => {
 export const getWorld6Alerts = (account, fields, options) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World5) return alerts;
+  if (fields?.sneaking?.checked) {
+    const sneaking = {};
+    const { lastLooted } = options?.sneaking || {};
+    const minutesSinceLooted = account?.sneaking?.lastLooted / 60;
+    if (minutesSinceLooted >= lastLooted?.props?.value) {
+      sneaking.lastLooted = true;
+    }
+    if (Object.keys(sneaking).length > 0) {
+      alerts.sneaking = sneaking;
+    }
+  }
   if (fields?.farming?.checked) {
     const farming = {};
     const { plots, totalCrops, missingPlots } = options?.farming || {};

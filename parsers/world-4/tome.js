@@ -19,7 +19,7 @@ import { calcTotalBeanstalkLevel } from '@parsers/world-6/sneaking';
 import { calcTotalPrayersLevel } from '@parsers/prayers';
 import { lavaLog } from '@utility/helpers';
 
-export const getTome = (idleonData, account, characters) => {
+export const getTome = (idleonData, account, characters, serverVars) => {
   const indexes = ninjaExtraInfo[32].split(' ');
   const bonusNames = ninjaExtraInfo[33].split(' ');
   const tomeQuantities = calcTomeQuantity(account, characters, idleonData);
@@ -48,10 +48,13 @@ export const getTome = (idleonData, account, characters) => {
     bonus: getTomeBonus(account, totalPoints, index)
   }))
   tome.sort((a, b) => a.index - b.index);
+  const tops = serverVars?.TomePct || [];
+  const top = tops.reduce((res, topScore, index) => totalPoints > topScore ? index : res, -1);
   return {
     tome,
     bonuses,
-    totalPoints
+    totalPoints,
+    top
   };
 }
 
@@ -101,7 +104,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(calcCardsLevels(account?.cards));
   quantities.push(calcTalentMaxLevel(characters)); // TODO: CHECK
   quantities.push(calcTotalQuestCompleted(characters));
-  quantities.push(account?.accountLevel); // TODO: WEIRD
+  quantities.push(account?.accountLevel);
   quantities.push(calcTotalTasks(account?.tasks));
   quantities.push(calcTotalAchievements(account?.achievements));
   quantities.push(account.accountOptions?.[198]);
@@ -165,7 +168,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.gaming?.bestNugget);
   quantities.push(account?.looty?.lootyRaw?.length);
   quantities.push(account?.gaming?.bits);
-  quantities.push(Math.pow(2, account.accountOptions?.[219]));
+  quantities.push(Math.pow(2, account.accountOptions?.[219])); // Highest Crop OG
   quantities.push(account?.farming?.cropsFound);
   quantities.push(calcTotalBeanstalkLevel(account?.sneaking?.beanstalkData));
   quantities.push(account?.summoning?.totalUpgradesLevels);
@@ -176,8 +179,9 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(calcMinigameTotalScore(account?.highscores?.minigameHighscores));
   quantities.push(calcTotalPrayersLevel(account?.prayers));
   quantities.push(0); // unknown?
-  quantities.push(account.accountOptions?.[221]);
-  quantities.push(account.accountOptions?.[222]);
+  quantities.push(account.accountOptions?.[221]); // Largest Magic Bean Trade
+  quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
+
   quantities.push(account.arcade?.totalUpgradeLevels);
   return quantities;
 }

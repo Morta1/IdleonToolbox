@@ -96,6 +96,7 @@ const getMeals = (mealsRaw, account) => {
   return mealsLevelsListRaw?.map((mealLevel, index) => {
     if (index > 66) return null;
     return {
+      index,
       level: mealLevel,
       amount: mealsQuantityListRaw?.[index],
       shinyMulti: shinyMealBonus,

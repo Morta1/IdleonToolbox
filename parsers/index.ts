@@ -32,7 +32,8 @@ import {
   getBundles,
   getCompanions,
   getCurrencies,
-  getItemCapacity, getKillRoy,
+  getItemCapacity,
+  getKillRoy,
   getLibraryBookTimes,
   getLooty,
   getTypeGen
@@ -80,7 +81,7 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
       window.gtag('event', 'error', {
         event_category: 'error',
         event_label: 'engagement',
-        value: JSON.stringify(err),
+        value: JSON.stringify(err)
       })
     }
   }
@@ -214,7 +215,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
   accountData.breeding = addBreedingChance(idleonData, accountData);
-  if (accountData.divinity){
+  if (accountData.divinity) {
     accountData.divinity.deities = applyGodCost(accountData);
   }
   charactersData = charactersData?.map((character) => {
@@ -242,6 +243,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   const fungyFingerBonus = greenMushroomKilled * accountData.lab.labBonuses?.[9]?.bonusOn;
   accountData.lab.labBonuses = applyBonusDesc(accountData.lab.labBonuses, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
   accountData.totems = getTotems(idleonData);
-  accountData.tome = getTome(idleonData, accountData, charactersData)
+  accountData.tome = getTome(idleonData, accountData, charactersData, serverVars)
   return { accountData, charactersData };
 };

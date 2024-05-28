@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.70',
+    gameVer: '2.0.9',
+    date: '28/05/2024',
+    features: [
+      'Added "no meal left behind" to meals tab under cooking',
+      'Added shimmer island alert for unclaimed reward',
+      'Added a "last looted" alert to sneaking to get alerted when you haven\'t looted for X minutes',
+      'Added the class names you need to do killroy with for the killroy alert',
+      'Added tome ranking to the tome page',
+      'Added god rank, jade coins, white essence, highest crop og leaderboards (will take effect immediately)',
+      'Added total green mushroom kills, total boats leaderboard (will take effect after you upload your profile again)'
+    ],
+    fixes: [
+      'Fixed a bug with calculating account level in leaderboard'
+    ]
+  },
+  {
     ver: '3.2.69',
     gameVer: '2.0.9',
     date: '26/05/2024',

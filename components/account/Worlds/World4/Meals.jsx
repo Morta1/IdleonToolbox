@@ -179,9 +179,35 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     setSortBy(e.target.value);
   }
 
+  const getNoMealLeftBehind = (mealMaxLevel) => {
+    const bonusActivated = isJadeBonusUnlocked(account, 'No_Meal_Left_Behind');
+    if (bonusActivated) {
+      const mealToUpgrade = 1;
+      const sortedMeals = meals.filter(meal => meal.level > 5 && meal.level < mealMaxLevel).sort((meal1, meal2) => {
+        if (meal1.level === meal2.level) {
+          return meal1.index > meal2.index ? -1 : 1
+        }
+        return meal1.level < meal2.level ? -1 : 1
+      });
+
+      return sortedMeals.slice(0, mealToUpgrade).at(0);
+    }
+    return null;
+  }
+  const noMealLeftBehind = useMemo(() => getNoMealLeftBehind(mealMaxLevel), [meals, mealMaxLevel]);
+
   return (
     <>
-      <ToggleButton sx={{mr:2, '&:disabled':{color: '#FFFFFF'}}} value={'maxLevel'} disabled>Meal max level: {mealMaxLevel}</ToggleButton>
+      <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>Meal max
+        level: {mealMaxLevel}</ToggleButton>
+      {noMealLeftBehind ? <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>
+        <Stack direction={'row'} alignItems={'center'}>
+          <Typography>NMLB:</Typography>
+          <img style={{ marginTop: -30, marginRight: -20 }} src={`${prefix}data/${noMealLeftBehind.rawName}.png`}
+               alt=""/>
+          {noMealLeftBehind.name}
+        </Stack>
+      </ToggleButton> : null}
       <ToggleButtonGroup sx={{ my: 2, flexWrap: 'wrap' }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
         <ToggleButton value="hide">Hide Capped</ToggleButton>

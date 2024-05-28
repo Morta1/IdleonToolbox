@@ -113,6 +113,10 @@ const Account = ({ account, characters, trackers }) => {
                 <Alert
                   title={`You haven't claimed your islands' content in ${alerts?.['World 2']?.islands?.unclaimedDays} days`}
                   iconPath={'data/Island1'}/> : null}
+              {alerts?.['World 2']?.islands?.shimmerIsland ?
+                <Alert
+                  title={'You haven\'t claimed your shimmer\'s trial reward this week'}
+                  iconPath={'etc/Shimmer_Currency'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
               {alerts?.['World 2']?.weeklyBosses
@@ -124,7 +128,9 @@ const Account = ({ account, characters, trackers }) => {
                 <Alert
                   title={alerts?.['World 2']?.killRoy === 0
                     ? `You haven't done a killroy this week (${account?.killroy?.killRoyClasses.join(', ')})` :
-                    alerts?.['World 2']?.killRoy > 0 && account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21) && account?.finishedWorlds?.World3
+                    alerts?.['World 2']?.killRoy > 0 && account?.accountOptions?.[113] < (account?.killroy?.rooms === 3
+                      ? 321
+                      : 21) && account?.finishedWorlds?.World3
                       ? `You haven\'t done a killroy this week (${account?.killroy?.killRoyClasses.join(', ')})`
                       : ''} iconPath={'etc/Killroy'}/>
                 : null}
@@ -284,6 +290,10 @@ const Account = ({ account, characters, trackers }) => {
           {!emptyAlertRows?.['World 6'] ? <Stack direction={'row'} gap={4}>
             <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>World 6</Typography>
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.['World 6']?.sneaking?.lastLooted ?
+                <Alert
+                  title={`You haven't looted rewards from sneaking for ${Math.floor(account?.sneaking?.lastLooted / 60)} minutes`}
+                  iconPath={'data/NjUpgI14'}/> : null}
               {alerts?.['World 6']?.summoning?.familiar ?
                 <Alert
                   title={`Summoning familiar bonus isn't maxed (${alerts?.['World 6']?.summoning?.familiar.level}/${alerts?.['World 6']?.summoning?.familiar.maxLvl})`}
