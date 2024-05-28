@@ -21,6 +21,7 @@ export const getSummoning = (idleonData, accountData, serializedCharactersData) 
 
 const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const upgradesLevels = rawSummon?.[0];
+  const totalUpgradesLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
   const wonBattles = rawSummon?.[1];
   const essences = rawSummon?.[2];
   const whiteBattleIcons = ['piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
@@ -86,9 +87,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       baseValue: rawValue
     };
   })
-  let totalUpgradesLevels = 0;
   let upgrades = summoningUpgrades.map((upgrade, index) => {
-    totalUpgradesLevels += upgradesLevels?.[index];
     return {
       ...upgrade,
       originalIndex: index,
@@ -98,8 +97,8 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData);
-  const armyHealth = getArmyHealth(upgrades);
-  const armyDamage = getArmyDamage(upgrades);
+  const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels);
+  const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
 
   return {
@@ -113,21 +112,38 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     armyDamage
   }
 }
-const getArmyHealth = (upgrades) => {
+const getArmyHealth = (upgrades, totalUpgradesLevels) => {
   const additiveArmyHealth = [1, 10, 35, 37].reduce((sum, bonusIndex) => {
     const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value
   }, 0);
-  const multi = upgrades.find(({ originalIndex }) => originalIndex === 20);
-  return 1 * (1 + additiveArmyHealth) * (1 + multi?.value / 100);
+  const firstMulti = upgrades.find(({ originalIndex }) => originalIndex === 20);
+  const secondMulti = upgrades.find(({ originalIndex }) => originalIndex === 50);
+  const moreAdditive = upgrades.find(({ originalIndex }) => originalIndex === 59)
+  const thirdMulti = upgrades.find(({ originalIndex }) => originalIndex === 61);
+
+  return 1 * (1 + (additiveArmyHealth))
+    * (1 + firstMulti?.value / 100)
+    * (1 + (secondMulti?.value + moreAdditive?.value) / 100)
+    * (1 + (thirdMulti?.value * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100)
+
 }
-const getArmyDamage = (upgrades) => {
+const getArmyDamage = (upgrades, totalUpgradesLevels) => {
   const additiveArmyDamage = [3, 12, 21, 31].reduce((sum, bonusIndex) => {
     const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value
   }, 0);
-  const multi = upgrades.find(({ originalIndex }) => originalIndex === 43);
-  return 1 * (1 + additiveArmyDamage) * (1 + multi?.value / 100)
+  const firstMulti = upgrades.find(({ originalIndex }) => originalIndex === 43);
+  const secondMulti = upgrades.find(({ originalIndex }) => originalIndex === 51);
+  const moreAdditive = upgrades.find(({ originalIndex }) => originalIndex === 56)
+  const thirdMulti = upgrades.find(({ originalIndex }) => originalIndex === 47);
+  const fourthMulti = upgrades.find(({ originalIndex }) => originalIndex === 60);
+
+  return 1 * (1 + (additiveArmyDamage))
+    * (1 + firstMulti?.value / 100)
+    * (1 + (secondMulti?.value + moreAdditive?.value) / 100)
+    * (1 + (thirdMulti?.value * 0) / 100)
+    * (1 + (fourthMulti?.value * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100)
 }
 const getBattleData = (enemyId, monsterData, wonBattles) => {
   const icon = `data/mface${monsters?.[enemyId]?.MonsterFace}`;
