@@ -264,7 +264,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.islands?.unclaimedDays?.checked && account?.islands?.numberOfDaysAfk >= options?.islands?.unclaimedDays?.props?.value) {
       islands.unclaimedDays = account?.islands?.numberOfDaysAfk;
     }
-    if (options?.islands?.shimmerIsland?.checked) {
+    if (options?.islands?.shimmerIsland?.checked && account?.accountOptions?.[182] === 0) {
       islands.shimmerIsland = account?.accountOptions?.[182] === 0;
     }
     if (Object.keys(islands).length > 0) {
@@ -303,7 +303,6 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   if (fields?.weeklyBosses?.checked && account?.accountOptions?.[190] === 0) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
-  console.log('account?.accountOptions?.[113]', account?.accountOptions?.[113])
   if (fields?.killRoy?.checked && (account?.accountOptions?.[113] === 0
     || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21) && account?.finishedWorlds?.World3))) {
     alerts.killRoy = true;
@@ -547,7 +546,7 @@ export const getWorld5Alerts = (account, fields, options) => {
           }
           return false;
         });
-        if (matches?.length > 0 && captainType !== -1) {
+        if (matches?.length > 0 || captainType === -1) {
           const isSameValue = firstBonusIndex === secondBonusIndex;
           const temp = {
             captain: shopCaption,

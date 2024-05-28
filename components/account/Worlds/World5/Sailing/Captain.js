@@ -21,7 +21,7 @@ const Captain = ({
                  }) => {
   return <Card>
     <CardContent sx={{ width: 250, minHeight: !shop ? 220 : 120 }}>
-      {captainType >= 0 ? <>
+      <>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Stack gap={1}>
             <img style={{ width: 25, height: 25, objectFit: 'contain' }}
@@ -55,10 +55,7 @@ const Captain = ({
           {secondBonus > 0 ? <Typography
             variant={'caption'}>{cleanUnderscore(secondBonusDescription)} ({secondBonus / level})</Typography> : null}
         </Stack>
-      </> : <Stack alignItems={'center'} justifyContent={'center'}>
-        <Typography>EMPTY</Typography>
-      </Stack>}
-    </CardContent>
+      </>    </CardContent>
   </Card>
 };
 
