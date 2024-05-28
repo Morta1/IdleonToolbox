@@ -110,6 +110,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.cards && alerts?.cards?.cardSet ?
                 <Alert title={alerts?.cards?.cardSet?.text}
                        iconPath={`data/${character?.cards?.cardSet?.rawName || 'CardSet0'}`}/> : null}
+              {trackers?.cards && alerts?.cards?.passiveCards ?
+                <Alert title={`${name} has a passive card equipped`}
+                       iconPath={`etc/PassiveCard`}/> : null}
               {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
                 <Alert title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
                        iconPath={'data/ObolLocked1'}/> : null}

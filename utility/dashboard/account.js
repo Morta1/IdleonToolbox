@@ -303,8 +303,9 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   if (fields?.weeklyBosses?.checked && account?.accountOptions?.[190] === 0) {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
+  console.log('account?.accountOptions?.[113]', account?.accountOptions?.[113])
   if (fields?.killRoy?.checked && (account?.accountOptions?.[113] === 0
-    || account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21))) {
+    || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21) && account?.finishedWorlds?.World3))) {
     alerts.killRoy = true;
   }
   return alerts;

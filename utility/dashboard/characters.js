@@ -251,7 +251,15 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
         text: `${character.name} is skilling but has fighting card set (${cardSetEffect})`
       };
     }
+    const hasPassiveCardsEquipped = character?.cards?.equippedCards?.filter(({ effect }) => effect?.includes('(Passive)'));
+    if (hasPassiveCardsEquipped.length > 0) {
+      alerts.passiveCards = true;
+    }
+    // const hasEmptySlots = character?.cards?.equippedCards?.filter(({ cardName }) => !cardName);
+    // if (hasEmptySlots) {
+    //   alerts.emptyCards = true;
+    // }
     // alerts.cardSet = character?.level >= 50 && character?.cards?.cardSet?.rawName === 'CardSet0';
   }
-  return alerts
+  return alerts;
 }
