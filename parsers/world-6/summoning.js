@@ -195,6 +195,10 @@ const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
       case 54:
         totalBonus = upgrade.value * careerWins[6];
         break;
+      case 49:
+      case 57:
+        totalBonus = upgrade.value;
+        break;
       case 30:
       case 40:
       case 65:
