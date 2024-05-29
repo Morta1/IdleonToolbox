@@ -408,6 +408,23 @@ export const getDuration = (start, end) => {
   }
 };
 
+export const totalHoursBetweenDates = (start, end) => {
+  try {
+    const duration = intervalToDuration({ start, end });
+
+    // Convert years, months, and days into hours
+    const yearsToHours = duration.years * 365.25 * 24; // considering leap years
+    const monthsToHours = duration.months * 30.44 * 24; // average month length
+    const daysToHours = duration.days * 24;
+
+    // Calculate the total hours
+    return yearsToHours + monthsToHours + daysToHours + duration.hours;
+  } catch (e) {
+    console.error('totalHoursBetweenDates -> Error occurred when trying to format date', start, end);
+    return {};
+  }
+}
+
 export const fillArrayToLength = (length, array, defaultValue = {}) => {
   return [...new Array(length)].map((item, index) => {
     return array ? array?.[index] || defaultValue : defaultValue;

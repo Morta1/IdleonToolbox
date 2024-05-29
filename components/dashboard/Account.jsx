@@ -251,13 +251,13 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.['World 5']?.gaming?.drops ?
                 <Alert title={`Sprinkler drops has reached it's capacity (${alerts?.['World 5']?.gaming?.drops})`}
                        iconPath={'data/GamingItem0b'}/> : null}
-              {alerts?.['World 5']?.gaming?.squirrel?.hours >= 1 ?
+              {alerts?.['World 5']?.gaming?.squirrel >= 1 ?
                 <Alert
-                  title={`${alerts?.['World 5']?.gaming?.squirrel?.hours} hours has passed since you've clicked the squirrel`}
+                  title={`${alerts?.['World 5']?.gaming?.squirrel} hours has passed since you've clicked the squirrel`}
                   iconPath={'data/GamingItem2'}/> : null}
-              {alerts?.['World 5']?.gaming?.shovel?.hours >= 1 ?
+              {alerts?.['World 5']?.gaming?.shovel >= 1 ?
                 <Alert
-                  title={`${alerts?.['World 5']?.gaming?.shovel?.hours} hours has passed since you've clicked the shovel`}
+                  title={`${alerts?.['World 5']?.gaming?.shovel} hours has passed since you've clicked the shovel`}
                   iconPath={'data/GamingItem1'}/> : null}
 
               {alerts?.['World 5']?.sailing?.chests > 0 ? <Alert key={'sailing-chest-alert'}

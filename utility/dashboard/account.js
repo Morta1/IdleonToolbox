@@ -2,7 +2,7 @@ import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/construction';
 import { vialCostsArray } from '@parsers/alchemy';
 import { maxNumberOfSpiceClicks } from '@parsers/cooking';
-import { cleanUnderscore, getDuration, notateNumber, tryToParse } from '../helpers';
+import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '../../data/website-data';
 import { hasMissingMats } from '@parsers/refinery';
@@ -304,7 +304,9 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
   }
   if (fields?.killRoy?.checked && (account?.accountOptions?.[113] === 0
-    || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21) && account?.finishedWorlds?.World3))) {
+    || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3
+      ? 321
+      : 21) && account?.finishedWorlds?.World3))) {
     alerts.killRoy = true;
   }
   return alerts;
@@ -485,9 +487,9 @@ export const getWorld5Alerts = (account, fields, options) => {
     const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
     if (shovel?.checked && shovelUnlocked && shovel && account?.gaming?.lastShovelClicked >= 0) {
       const timePassed = new Date().getTime() - account?.gaming?.lastShovelClicked * 1000;
-      const { hours } = getDuration(new Date().getTime(), timePassed);
+      const hours = totalHoursBetweenDates(new Date().getTime(), timePassed);
       if (hours >= shovel?.props?.value) {
-        gaming.shovel = getDuration(new Date().getTime(), timePassed);
+        gaming.shovel = totalHoursBetweenDates(new Date().getTime(), timePassed);
       }
     }
     const squirrelUnlocked = account?.gaming?.imports?.find(({
@@ -496,9 +498,9 @@ export const getWorld5Alerts = (account, fields, options) => {
                                                              }) => name === 'Autumn_Squirrel' && acquired)
     if (squirrel?.checked && squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
       const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
-      const { hours } = getDuration(new Date().getTime(), timePassed);
+      const hours = totalHoursBetweenDates(new Date().getTime(), timePassed);
       if (hours >= squirrel?.props?.value) {
-        gaming.squirrel = getDuration(new Date().getTime(), timePassed);
+        gaming.squirrel = totalHoursBetweenDates(new Date().getTime(), timePassed);
       }
     }
     if (Object.keys(gaming).length > 0) {
@@ -594,6 +596,7 @@ export const getWorld5Alerts = (account, fields, options) => {
       alerts.sailing = sailing;
     }
   }
+  console.log(alerts)
   return alerts;
 };
 export const getWorld6Alerts = (account, fields, options) => {
