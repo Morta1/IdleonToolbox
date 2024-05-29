@@ -87,7 +87,7 @@ const baseTrackers = {
             props: { label: 'Threshold', value: 1, minValue: 1 },
             checked: true
           },
-          { name: 'shimmerIsland', checked: true },
+          { name: 'shimmerIsland', checked: true }
         ]
       },
       postOffice: {
@@ -110,6 +110,10 @@ const baseTrackers = {
         options: [
           { name: 'includeOakAndCopper', category: 'atoms', checked: false },
           { name: 'showAlertWhenFull', checked: false }]
+      },
+      library: {
+        checked: true,
+        options: [{ name: 'books', checked: true }]
       },
       construction: {
         checked: true, options: [
@@ -140,6 +144,17 @@ const baseTrackers = {
         checked: true,
         options: [
           { name: 'eggs', checked: true },
+          {
+            name: 'eggsRarity',
+            type: 'input',
+            props: {
+              label: 'Eggs rarity',
+              value: 1,
+              minValue: 1,
+              helperText: '1=Copper, 2=Iron, 3=Gold'
+            },
+            checked: false
+          },
           { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
         ]
       },
@@ -334,7 +349,8 @@ const Dashboard = () => {
           {isDisplayed('timers') ? <Etc characters={characters} account={account} lastUpdated={lastUpdated}/> : null}
         </Stack>
       </Stack>
-      <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open} onClose={() => setOpen(false)} config={config}/>
+      <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
+                         onClose={() => setOpen(false)} config={config}/>
       {showWideSideBanner || showNarrowSideBanner ? <Box
         sx={{
           backgroundColor: isProd ? '' : '#d73333',

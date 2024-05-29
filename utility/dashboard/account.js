@@ -426,6 +426,16 @@ export const getWorld3Alerts = (account, fields, options) => {
       alerts.atomCollider = atomCollider;
     }
   }
+  if (fields?.library?.checked) {
+    const library = {};
+    const { books } = options?.library || {};
+    if (books?.checked && account?.libraryTimes?.bookCount >= 20) {
+      library.books = account?.libraryTimes?.bookCount;
+    }
+    if (Object.keys(library).length > 0) {
+      alerts.library = library;
+    }
+  }
   return alerts;
 };
 export const getWorld4Alerts = (account, fields, options) => {
@@ -433,7 +443,7 @@ export const getWorld4Alerts = (account, fields, options) => {
   if (!account?.finishedWorlds?.World3) return alerts;
   if (fields?.breeding?.checked) {
     const breeding = {};
-    const { shinies, eggs } = options?.breeding || {};
+    const { shinies, eggs, eggsRarity } = options?.breeding || {};
     if (shinies?.checked) {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
@@ -452,6 +462,12 @@ export const getWorld4Alerts = (account, fields, options) => {
       const eggsAvailable = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
       if (eggsAvailable) {
         breeding.eggs = eggsAvailable
+      }
+    }
+    if (eggsRarity?.checked) {
+      const hasRarity = account?.breeding?.eggs?.some((rarity) => eggsRarity?.props?.value >= rarity);
+      if (hasRarity) {
+        breeding.eggsRarity = eggsRarity?.props?.value > 9 ? 9 : eggsRarity?.props?.value;
       }
     }
     if (Object.keys(breeding).length > 0) {
@@ -596,7 +612,6 @@ export const getWorld5Alerts = (account, fields, options) => {
       alerts.sailing = sailing;
     }
   }
-  console.log(alerts)
   return alerts;
 };
 export const getWorld6Alerts = (account, fields, options) => {

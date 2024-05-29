@@ -162,11 +162,16 @@ const Account = ({ account, characters, trackers }) => {
                                                                           vial={vial}
                                                                           title={`You have enough materials to upgrade ${cleanUnderscore(vial?.name)} vial`}
                                                                           iconPath={`data/${vial?.mainItem}`}/>) : null}
+
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 3'] ? <Stack direction={'row'} gap={4}>
             <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>World 3</Typography>
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.['World 3']?.library?.books ?
+                <Alert
+                  title={`Library has ${account?.libraryTimes?.bookCount} books ready`}
+                  iconPath={'data/Libz'}/> : null}
               {alerts?.['World 3']?.atomCollider?.stampReducer ?
                 <Alert
                   title={`Stamp reducer has reached your threshold (${alerts?.['World 3']?.atomCollider?.stampReducerValue}%)`}
@@ -225,6 +230,11 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.['World 4']?.breeding?.eggs ? <Alert key={'breeding-eggs'}
                                                             title={`Eggs are at full capacity`}
                                                             iconPath={`data/PetEgg1`}/> : null}
+              {alerts?.['World 4']?.breeding?.eggsRarity
+                ? <Alert key={'breeding-eggsRarity'}
+                         title={`You have reached your desired rarity level of ${alerts?.['World 4']?.breeding?.eggsRarity} with at least one egg`}
+                         iconPath={`data/PetEgg${alerts?.['World 4']?.breeding?.eggsRarity}`}/>
+                : null}
               {alerts?.['World 4']?.breeding?.shinies?.pets?.length > 0 ?
                 alerts?.['World 4']?.breeding?.shinies?.pets?.map(({
                                                                      monsterName,

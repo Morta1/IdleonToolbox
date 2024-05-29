@@ -222,7 +222,7 @@ const Refinery = () => {
           label="Show next level cost"/>
       </CardTitleAndValue>
     </Stack>
-    <Stack gap={3} justifyContent={'center'}>
+    <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
         const progressPercentage = refined / powerCap * 100;
