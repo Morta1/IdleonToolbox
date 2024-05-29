@@ -21,6 +21,7 @@ const Upgrades = ({ upgrades }) => {
             return <Card key={'upgrade-' + index} sx={{ width: 220, opacity: unlocked ? 1 : .5 }}>
               <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Stack direction={'row'} gap={1}>
+                  {originalIndex}
                   <img width={42} height={42} src={`${prefix}data/SumUpgIc${originalIndex}.png`} alt={''}/>
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>

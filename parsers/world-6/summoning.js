@@ -92,9 +92,17 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       ...upgrade,
       originalIndex: index,
       level: upgradesLevels?.[index],
-      value: upgradesLevels?.[index] * upgrade.bonusQty,
-      totalCost: upgrade?.cost * Math.pow(upgrade?.costExponent, upgradesLevels?.[index])
+      value: upgradesLevels?.[index] * upgrade.bonusQty
     }
+  });
+  upgrades = upgrades.map((upgrade, index) => {
+    const costDeflation = upgrades.find(({ originalIndex }) => originalIndex === 49);
+    const costCrashing = upgrades.find(({ originalIndex }) => originalIndex === 57);
+    const cost = (1 / (1 + costDeflation?.value / 100))
+      * (1 / (1 + costCrashing?.value / 100))
+      * upgrade?.cost
+      * Math.pow(upgrade?.costExponent, upgradesLevels?.[index]);
+    return { ...upgrade, totalCost: cost }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData);
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels);
@@ -164,7 +172,8 @@ export const getWinnerBonus = (account, bonusName) => {
 }
 
 const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
-  const allWins = Object.values(careerWins).reduce((sum, wins) => sum + wins, 0)
+  const allWins = Object.values(careerWins).reduce((sum, wins) => sum + wins, 0);
+  const totalUpgrades = upgrades.reduce((sum, { level }) => sum + level, 0);
   return upgrades.map((upgrade) => {
     let totalBonus = '';
     switch (upgrade.originalIndex) {
@@ -183,12 +192,27 @@ const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
       case 38:
         totalBonus = upgrade.value * careerWins[3];
         break;
+      case 54:
+        totalBonus = upgrade.value * careerWins[6];
+        break;
       case 30:
       case 40:
       case 65:
       case 66:
       case 67:
+      case 46:
+      case 52:
+      case 58:
         totalBonus = upgrade.value * (serializedCharactersData?.[0]?.Lv0?.[18] ?? 1);
+        break;
+      case 60:
+      case 61:
+        totalBonus = upgrade.value * (totalUpgrades / 100);
+        break;
+      case 62:
+      case 63:
+      case 64:
+        totalBonus = 0;
         break;
       default:
         break;
