@@ -7,6 +7,8 @@ import { CardTitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 
+const ranks = ['50%', '25%', '10%', '5%', '1%', '0.5%', '0.1%'];
+
 const Tome = () => {
   const { state } = useContext(AppContext);
 
@@ -18,7 +20,15 @@ const Tome = () => {
     <Typography variant={'h2'} textAlign={'center'} mb={3}>Tome</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)}/>
-      <CardTitleAndValue title={'Rank'} imgOnly icon={`data/TomeTop${state?.account?.tome?.top}.png`}/>
+      <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
+        {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1} key={ranks?.[index]}
+                                                                  divider={<>-</>}>
+          <Typography sx={{width: 40}}>{ranks?.[index]}</Typography>
+          <Typography>{commaNotation(score)}</Typography>
+        </Stack>)}
+      </Stack>}>
+        <InfoIcon/>
+      </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`}/>
     </Stack>
     <Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active
       character.</Typography>

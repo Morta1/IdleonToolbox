@@ -54,6 +54,7 @@ export const getTome = (idleonData, account, characters, serverVars) => {
     tome,
     bonuses,
     totalPoints,
+    tops,
     top
   };
 }
