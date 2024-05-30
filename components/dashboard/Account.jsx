@@ -274,16 +274,16 @@ const Account = ({ account, characters, trackers }) => {
                                                                  title={`You've reached the maximum capacity of chests`}
                                                                  iconPath={'npcs/Chesty'}/> : null}
               {alerts?.['World 5']?.sailing?.captains?.length > 0 ?
-                alerts?.['World 5']?.sailing?.captains?.map(({ captain, bonus, badCaptains }) => {
+                alerts?.['World 5']?.sailing?.captains?.map(({ captain, bonus, badCaptains, enderCaptain }) => {
                   return <Alert
                     key={'captain' + captain?.captainIndex}
                     title={<Stack>
                       <Typography sx={{ mb: 1 }}>Captain <Typography
                         component={'span'}
                         sx={{ fontWeight: 'bold' }}>{captain?.captainIndex}</Typography> with {cleanUnderscore(bonus)} from
-                        the shop is better
-                        than {badCaptains.length} of
-                        your captains</Typography>
+                        the shop is {enderCaptain ? 'an ender captain (hidden +25% loot and artifact)' : `better 
+                        than ${badCaptains.length} of
+                        your captains`}</Typography>
                       <Stack>
                         {badCaptains?.map(({ captainIndex, bonus }) => {
                           return <Typography key={`cap-${captainIndex}`}><Typography

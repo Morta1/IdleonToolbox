@@ -118,7 +118,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         }
         return res;
       }, []);
-      if (traits.length > 0) {
+      if (traits?.length > 0) {
         etc.dungeonTraits = traits;
       }
     }
@@ -564,11 +564,12 @@ export const getWorld5Alerts = (account, fields, options) => {
           }
           return false;
         });
-        if (matches?.length > 0 || captainType === -1) {
+        if ((matches?.length > 0 && captainType !== -1) || captainType === 6) {
           const isSameValue = firstBonusIndex === secondBonusIndex;
           const temp = {
             captain: shopCaption,
             isSameValue,
+            enderCaptain: captainType === 6,
             badCaptains: matches.map(({
                                         captainIndex,
                                         firstBonusDescription: fbDesc,
