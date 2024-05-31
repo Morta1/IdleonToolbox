@@ -69,7 +69,49 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   };
 }
 
+const getCropsWithStockEqualOrGreaterThan = (cropDepot: any, stockLimit: number): number => {
+  return Object.values(cropDepot)?.filter((value: any) => value >= stockLimit).length;
+}
+
+const getMarketUpgradeBonusValue = (marketUpgrades: any[], cropDepot: any, upgradeId: number): number => {
+  const upgrade = marketUpgrades.find((upgrade: any, index) => index === upgradeId);
+
+  if (upgrade) {
+    switch (upgradeId) {
+      case 7:
+        // No bonus there yet
+        return 0;
+      case 9: // GMO
+        return getMarketUpgradeBonusValue(marketUpgrades, cropDepot, 15) * Math.pow(1 + upgrade.level * upgrade.bonusPerLvl / 100, getCropsWithStockEqualOrGreaterThan(cropDepot, 200));
+      case 11:
+        return 1 + (upgrade.level * upgrade.bonusPerLvl) / 100;
+      case 10: //GMO
+        return getMarketUpgradeBonusValue(marketUpgrades, cropDepot, 15) * (1 + upgrade.level * upgrade.bonusPerLvl * getCropsWithStockEqualOrGreaterThan(cropDepot, 1000) / 100);
+      case 12: //GMO
+        return getMarketUpgradeBonusValue(marketUpgrades, cropDepot, 15) * (1 + upgrade.level * upgrade.bonusPerLvl * getCropsWithStockEqualOrGreaterThan(cropDepot, 2500) / 100);
+      case 13:
+        // No bonus there yet
+        return 0;
+      case 14: //GMO
+        return getMarketUpgradeBonusValue(marketUpgrades, cropDepot, 15) * (1 + (upgrade.level * upgrade.bonusPerLvl * getCropsWithStockEqualOrGreaterThan(cropDepot, 10000)) / 100);
+      case 15: //GMO
+        return 1 + (upgrade.level * upgrade.bonusPerLvl * getCropsWithStockEqualOrGreaterThan(cropDepot, 100000)) / 100;
+      default:
+        return upgrade.bonus.includes('}') ? (1 + (upgrade.level * upgrade.bonusPerLvl) / 100) : upgrade.level * upgrade.bonusPerLvl;
+    }
+  } else {
+    return 0;
+  }
+}
+
 export const updateFarming = (characters: any, account: any) => {
+  const newMarket = account?.farming?.market?.map((upgrade: any, index: number) => {
+    console.log(upgrade.name, index)
+    return {
+      ...upgrade,
+      value: getMarketUpgradeBonusValue(account?.farming?.market, account?.farming?.crop, index)
+    }
+  });
   const newPlot = account?.farming?.plot?.map((crop: any) => {
     // OG Chance
     const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
@@ -82,12 +124,11 @@ export const updateFarming = (characters: any, account: any) => {
       * (1 + starSignBonus / 100)
       * (1 + (15 * achievementBonus) / 100);
     // Growth
-    const marketGrowthRate = getMarketBonus(account?.farming?.market, "NUTRITIOUS_SOIL");
-    const marketGrowthPerCrop = getMarketBonus(account?.farming?.market, "SPEED_GMO");
-    const cropsAboveThousand = Object.values(account?.farming?.crop)?.filter((value: any) => value >= 1000)?.length;
+    const marketGrowthRate = getMarketBonus(newMarket, "NUTRITIOUS_SOIL");
+    const speedGMO = getMarketBonus(newMarket, "SPEED_GMO");
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
     const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
-    const growthRate = Math.max(1, marketGrowthPerCrop * cropsAboveThousand)
+    const growthRate = Math.max(1, speedGMO)
       * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
     const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
     const ogMulti = Math.min(1e9, Math.max(1, Math.pow(2, crop?.currentOG)));
@@ -102,7 +143,8 @@ export const updateFarming = (characters: any, account: any) => {
   return {
     ...(account?.farming || {}),
     plot: newPlot,
-    cropDepot: getCropDepotBonuses(account)
+    cropDepot: getCropDepotBonuses(account),
+    market: newMarket
   }
 }
 

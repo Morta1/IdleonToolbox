@@ -153,7 +153,7 @@ export const isTalentReady = (character, options) => {
       [name.camelToTitleCase()?.replace(/ /g, '_')?.toUpperCase()]: val
     }), {});
     if (!talent || !configTalents?.[talent?.name]) return res;
-    const calculatedCooldown = (1 - cdReduction / 100) * talentCd;
+    const calculatedCooldown = talentCd;
     const actualCd = calculatedCooldown - timePassed;
     const cooldown = actualCd < 0 ? actualCd : new Date().getTime() + actualCd * 1000;
     if (!talents?.alwaysShowTalents?.checked && !isPast(cooldown)) return res;
