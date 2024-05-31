@@ -106,7 +106,6 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any[], cropDepot: any, upgra
 
 export const updateFarming = (characters: any, account: any) => {
   const newMarket = account?.farming?.market?.map((upgrade: any, index: number) => {
-    console.log(upgrade.name, index)
     return {
       ...upgrade,
       value: getMarketUpgradeBonusValue(account?.farming?.market, account?.farming?.crop, index)
