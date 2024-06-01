@@ -154,6 +154,12 @@ const Account = ({ account, characters, trackers }) => {
                                                                                       title={`Order streak for shipment #${index + 1} is 0`}
                                                                                       iconPath={`data/UIlilbox`}/>)
                 : null}
+              {alerts?.['World 2']?.postOffice?.shields?.length > 0
+                ?
+                alerts?.['World 2']?.postOffice?.shields?.map(({ index }) => <Alert key={'shipment' + index}
+                                                                                    title={`You're about to lose your shield on shipment #${index + 1}`}
+                                                                                    iconPath={`etc/PostOffice_Shield`}/>)
+                : null}
               {alerts?.['World 2']?.alchemy?.vialsAttempts ? <Alert key={'vialsAttempts'}
                                                                     title={`You have available vial attempts`}
                                                                     iconPath={`data/aVials1`}/> : null}

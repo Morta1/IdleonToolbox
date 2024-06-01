@@ -37,11 +37,12 @@ export const getPostOfficeShipments = (idleonData) => {
   const postOfficeRaw = tryToParse(idleonData?.PostOfficeInfo1) || idleonData?.PostOfficeInfo1;
   const postOfficeArrays = createArrayOfArrays(postOfficeRaw)
   return postOfficeArrays?.map((shipment, index) => {
-    const [totalShipments, streak,] = shipment;
+    const [totalShipments, streak, shield] = shipment;
     return {
       index,
       totalShipments,
-      streak
+      streak,
+      shield
     }
   })
 }

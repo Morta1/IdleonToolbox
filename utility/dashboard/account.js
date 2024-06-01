@@ -281,6 +281,14 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
         postOffice.shipments = shipments;
       }
     }
+    if (options?.postOffice?.shields?.checked) {
+      const shields = account?.postOfficeShipments?.filter(({ shield }) => {
+        return options?.postOffice?.shields?.props?.value && shield === 1
+      });
+      if (shields.length > 0) {
+        postOffice.shields = shields;
+      }
+    }
     if (Object.keys(postOffice).length > 0) {
       alerts.postOffice = postOffice;
     }

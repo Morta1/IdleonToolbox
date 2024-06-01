@@ -98,7 +98,12 @@ const baseTrackers = {
           category: 'shipments streak',
           props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() },
           checked: true
-        }]
+        },
+          {
+            name: 'shields', type: 'array',
+            category: 'shields', checked: true, props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() }
+          }
+        ]
       },
       arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
       weeklyBosses: { checked: true, options: [] },

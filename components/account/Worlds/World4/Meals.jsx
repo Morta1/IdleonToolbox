@@ -23,7 +23,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 const maxTimeValue = 9.007199254740992e+15;
 let DEFAULT_MEAL_MAX_LEVEL = 30;
-const breakpoints = [-1, 0, 11, 30, 40, 50, 60, 70, 80, 90];
+const breakpoints = [-1, 0, -2, 11, 30, 40, 50, 60, 70, 80, 90];
 const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = React.useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -38,6 +38,26 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   const allPurpleActive = lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
   const realAmethystRhinestone = getJewelBonus(lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
   const amethystRhinestone = 4.5;
+
+  const getNoMealLeftBehind = (baseMeals, mealMaxLevel, returnArray) => {
+    const bonusActivated = isJadeBonusUnlocked(account, 'No_Meal_Left_Behind');
+    if (bonusActivated) {
+      const mealToUpgrade = 1;
+      const sortedMeals = baseMeals.filter(meal => meal.level > 5 && meal.level < mealMaxLevel).sort((meal1, meal2) => {
+        if (meal1.level === meal2.level) {
+          return meal1.index > meal2.index ? -1 : 1
+        }
+        return meal1.level < meal2.level ? -1 : 1
+      });
+      if (returnArray) {
+        return sortedMeals;
+      }
+      return sortedMeals.slice(0, mealToUpgrade).at(0);
+    }
+    return null;
+  }
+  const noMealLeftBehind = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel), [meals, mealMaxLevel]);
+  const noMealLeftBehindArray = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel, true), [meals, mealMaxLevel]);
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
@@ -121,7 +141,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     breakpoints.forEach((breakpoint, index) => {
       if (sortBy === breakpoint) {
         const mealsCopy = [...defaultMeals];
-        tempMeals = sortMealsBy(mealsCopy, index, breakpoint);
+        if (sortBy === -2) {
+          tempMeals = getNoMealLeftBehind(mealsCopy, mealMaxLevel, true);
+        } else {
+          tempMeals = sortMealsBy(mealsCopy, index, breakpoint);
+        }
       }
     })
     if (filters.includes('overflow')) {
@@ -179,23 +203,6 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     setSortBy(e.target.value);
   }
 
-  const getNoMealLeftBehind = (mealMaxLevel) => {
-    const bonusActivated = isJadeBonusUnlocked(account, 'No_Meal_Left_Behind');
-    if (bonusActivated) {
-      const mealToUpgrade = 1;
-      const sortedMeals = meals.filter(meal => meal.level > 5 && meal.level < mealMaxLevel).sort((meal1, meal2) => {
-        if (meal1.level === meal2.level) {
-          return meal1.index > meal2.index ? -1 : 1
-        }
-        return meal1.level < meal2.level ? -1 : 1
-      });
-
-      return sortedMeals.slice(0, mealToUpgrade).at(0);
-    }
-    return null;
-  }
-  const noMealLeftBehind = useMemo(() => getNoMealLeftBehind(mealMaxLevel), [meals, mealMaxLevel]);
-
   return (
     <>
       <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>Meal max
@@ -203,9 +210,9 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       {noMealLeftBehind ? <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>
         <Stack direction={'row'} alignItems={'center'}>
           <Typography>NMLB:</Typography>
-          <img style={{ marginTop: -30, marginRight: -20 }} src={`${prefix}data/${noMealLeftBehind.rawName}.png`}
+          <img style={{ marginTop: -30, marginRight: -10 }} src={`${prefix}data/${noMealLeftBehind.rawName}.png`}
                alt=""/>
-          {noMealLeftBehind.name}
+          {cleanUnderscore(noMealLeftBehind.name)}
         </Stack>
       </ToggleButton> : null}
       <ToggleButtonGroup sx={{ my: 2, flexWrap: 'wrap' }} value={filters} onChange={handleFilters}>
@@ -233,11 +240,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       <Stack direction={'row'} alignItems={'center'} gap={3}>
         <TextField sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
           {breakpoints?.map((val) => (<MenuItem key={val} value={val}>
-            {val === -1 ? 'Order' : val === 0 ? 'Time' : `Time to ${val}`}
+            {val === -1 ? 'Order' : val === 0 ? 'Time' : val === -2 ? 'NMLB' : `Time to ${val}`}
           </MenuItem>))}
         </TextField>
         {breakpoints?.map((breakpoint) => {
-          if (breakpoint === 0 || breakpoint === -1) return null;
+          if (breakpoint === 0 || breakpoint === -1 || breakpoint === -2) return null;
           return sortBy === breakpoint && !localMeals?.some(({ level, amount }) => amount > 0 && level < breakpoint) ?
             <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than
               level {breakpoint}
