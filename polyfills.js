@@ -5,7 +5,7 @@ String.prototype.capitalize = function () {
 
 String.prototype.camelToTitleCase = function () {
   if (!this) return '';
-  const str = this.replace(/([A-Z"])/g, ' $1')
+  const str = this.replace(/([A-Z0-9"])/g, ' $1')
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 String.prototype.capitalizeAllWords = function () {

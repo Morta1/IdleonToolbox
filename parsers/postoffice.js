@@ -34,14 +34,17 @@ export const getPostOfficeBoxLevel = (postOffice, boxName) => {
 }
 
 export const getPostOfficeShipments = (idleonData) => {
-  const postOfficeRaw = tryToParse(idleonData?.PostOfficeInfo1) || idleonData?.PostOfficeInfo1;
-  const postOfficeArrays = createArrayOfArrays(postOfficeRaw)
+  const ordersRaw = tryToParse(idleonData?.PostOfficeInfo0) || idleonData?.PostOfficeInfo0;
+  const ordersArrays = createArrayOfArrays(ordersRaw)
+  const shipmentsRaw = tryToParse(idleonData?.PostOfficeInfo1) || idleonData?.PostOfficeInfo1;
+  const postOfficeArrays = createArrayOfArrays(shipmentsRaw)
   return postOfficeArrays?.map((shipment, index) => {
     const [totalShipments, streak, shield] = shipment;
     return {
       index,
       totalShipments,
       streak,
+      completedAnOrder: ordersArrays?.[index]?.[2],
       shield
     }
   })

@@ -1,5 +1,6 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
 import { drawerPages } from '@components/constants';
+import merge from 'lodash.merge';
 
 export const downloadFile = (data, filename) => {
   const blob = new Blob([data], { type: 'text/json' });
@@ -520,12 +521,28 @@ export const groupByKey = (array, callback) => {
   }, {})
 }
 
-export const removeTrackers = (type, config) => {
-  if (type === 'account') {
-    return config;
-  } else {
-    return config;
+export const migrateConfig = (type, baseConfig, userConfig, baseVersion, userVersion) => {
+  console.log(baseVersion, userVersion)
+  if (baseVersion !== userVersion) {
+    if (type === 'account') {
+      return merge(baseConfig, renameSettingInPostOffice(userConfig));
+    } else {
+      return merge(baseConfig, userConfig);
+    }
   }
+  return merge(baseConfig, userConfig);
+}
+
+function renameSettingInPostOffice(obj) {
+  if (obj?.['World 2']?.postOffice && obj?.['World 2']?.postOffice.options) {
+    obj['World 2'].postOffice.options = obj?.['World 2']?.postOffice.options.map(option => {
+      if (option.name === 'shields') {
+        return { ...option, name: 'dailyShipments', category: 'dailyShipments' };
+      }
+      return option;
+    }).filter((option) => option.name !== 'postOffice');
+  }
+  return obj;
 }
 
 export const handleCopyToClipboard = async (data, beautify = true) => {

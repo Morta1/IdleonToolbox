@@ -4,17 +4,17 @@ import { Box, Stack, ToggleButton, ToggleButtonGroup, useMediaQuery } from '@mui
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { isProd, removeTrackers, tryToParse } from '@utility/helpers';
+import { isProd, migrateConfig, tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
 import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
-import merge from 'lodash.merge';
 import Button from '@mui/material/Button';
 
 const baseTrackers = {
+  version: 1,
   account: {
     General: {
       tasks: {
@@ -92,17 +92,12 @@ const baseTrackers = {
       },
       postOffice: {
         checked: true,
-        options: [{
-          name: 'postOffice',
-          type: 'array',
-          category: 'shipments streak',
-          props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() },
-          checked: true
-        },
+        options: [
           {
-            name: 'shields', type: 'array',
-            category: 'shields', checked: true, props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() }
-          }
+            name: 'dailyShipments', type: 'array',
+            category: 'dailyShipments', checked: true, props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() }
+          },
+          { name: 'showAlertOnlyWhen0Shields', checked: false, helperText: 'Daily shipments alert' }
         ]
       },
       arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
@@ -300,8 +295,8 @@ const Dashboard = () => {
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
   useEffect(() => {
-    const finalAccountTrackers = removeTrackers('account', merge(baseTrackers?.account, state?.trackers?.account));
-    const finalCharactersTrackers = removeTrackers('characters', merge(baseTrackers?.characters, state?.trackers?.characters));
+    const finalAccountTrackers = migrateConfig('account', baseTrackers?.account, state?.trackers?.account, baseTrackers?.version, state?.trackers?.version);
+    const finalCharactersTrackers = migrateConfig('characters', baseTrackers?.characters, state?.trackers?.characters, baseTrackers?.version, state?.trackers?.version);
     setConfig({
       account: finalAccountTrackers,
       characters: finalCharactersTrackers

@@ -135,7 +135,7 @@ const Account = ({ account, characters, trackers }) => {
                       : ''} iconPath={'etc/Killroy'}/>
                 : null}
               {alerts?.['World 2']?.arcade?.balls ?
-                <Alert title={'Max ball capacity has reached'} iconPath={'data/PachiBall0'}/> : null}
+                <Alert title={'Max ball capacity has been reached'} iconPath={'data/PachiBall0'}/> : null}
               {alerts?.['World 2']?.alchemy?.sigils?.length > 0
                 ?
                 alerts?.['World 2']?.alchemy?.sigils?.map(({ name, index }) => <Alert key={name}
@@ -148,17 +148,17 @@ const Account = ({ account, characters, trackers }) => {
                                                                                  title={`${getNumberWithOrdinal(index + 1)} liquid is full`}
                                                                                  iconPath={`data/Liquid${index + 1}_x1`}/>)
                 : null}
-              {alerts?.['World 2']?.postOffice?.shipments?.length > 0
+              {/*{alerts?.['World 2']?.postOffice?.shipments?.length > 0*/}
+              {/*  ?*/}
+              {/*  alerts?.['World 2']?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}*/}
+              {/*                                                                        title={`Order streak for shipment #${index + 1} is 0`}*/}
+              {/*                                                                        iconPath={`data/UIlilbox`}/>)*/}
+              {/*  : null}*/}
+              {alerts?.['World 2']?.postOffice?.dailyShipments?.length > 0
                 ?
-                alerts?.['World 2']?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}
-                                                                                      title={`Order streak for shipment #${index + 1} is 0`}
-                                                                                      iconPath={`data/UIlilbox`}/>)
-                : null}
-              {alerts?.['World 2']?.postOffice?.shields?.length > 0
-                ?
-                alerts?.['World 2']?.postOffice?.shields?.map(({ index }) => <Alert key={'shipment' + index}
-                                                                                    title={`You're about to lose your shield on shipment #${index + 1}`}
-                                                                                    iconPath={`etc/PostOffice_Shield`}/>)
+                alerts?.['World 2']?.postOffice?.dailyShipments?.map(({ index }) => <Alert key={'shipment' + index}
+                                                                                           title={`You haven't completed an order for shipment #${index + 1} today`}
+                                                                                           iconPath={`data/UIlilbox`}/>)
                 : null}
               {alerts?.['World 2']?.alchemy?.vialsAttempts ? <Alert key={'vialsAttempts'}
                                                                     title={`You have available vial attempts`}

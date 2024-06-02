@@ -272,21 +272,24 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     }
   }
   if (fields?.postOffice?.checked) {
+    const { showAlertOnlyWhen0Shields, postOffice: postOfficeOption, dailyShipments } = options?.postOffice;
     const postOffice = {};
-    if (options?.postOffice?.postOffice?.checked) {
+    if (postOfficeOption?.checked) {
       const shipments = account?.postOfficeShipments?.filter(({ streak }, index) => {
-        return options?.postOffice?.postOffice?.props?.value?.[index + 1] && streak <= 0
+        return postOfficeOption?.props?.value?.[index + 1] && streak <= 0
       });
       if (shipments.length > 0) {
         postOffice.shipments = shipments;
       }
     }
-    if (options?.postOffice?.shields?.checked) {
-      const shields = account?.postOfficeShipments?.filter(({ shield }) => {
-        return options?.postOffice?.shields?.props?.value && shield === 1
+    if (dailyShipments?.checked) {
+      const uncompletedDailyShipments = account?.postOfficeShipments?.filter(({ shields, completedAnOrder }, index) => {
+        return (showAlertOnlyWhen0Shields?.checked
+          ? shields === 0
+          : true) && dailyShipments?.props?.value?.[index + 1] && !completedAnOrder
       });
-      if (shields.length > 0) {
-        postOffice.shields = shields;
+      if (uncompletedDailyShipments.length > 0) {
+        postOffice.dailyShipments = uncompletedDailyShipments;
       }
     }
     if (Object.keys(postOffice).length > 0) {
@@ -473,9 +476,9 @@ export const getWorld4Alerts = (account, fields, options) => {
       }
     }
     if (eggsRarity?.checked) {
-      const hasRarity = account?.breeding?.eggs?.some((rarity) => eggsRarity?.props?.value >= rarity);
+      const hasRarity = account?.breeding?.eggs?.some((rarity) => parseInt(eggsRarity?.props?.value) <= rarity);
       if (hasRarity) {
-        breeding.eggsRarity = eggsRarity?.props?.value > 9 ? 9 : eggsRarity?.props?.value;
+        breeding.eggsRarity = parseInt(eggsRarity?.props?.value) > 9 ? 9 : eggsRarity?.props?.value;
       }
     }
     if (Object.keys(breeding).length > 0) {

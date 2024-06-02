@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  FormHelperText,
   formHelperTextClasses,
   InputAdornment,
   Stack,
@@ -24,13 +25,13 @@ import Button from '@mui/material/Button';
 import FileUploadButton from '@components/common/DownloadButton';
 
 const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
-  const handleSettingChange = (e, configType, option, trackerName, section) => {
+  const handleSettingChange = (e, configType, option, trackerName, section, category) => {
     const tempConfig = JSON.parse(JSON.stringify(config));
     const nameClicked = e?.target?.name;
     const sectionRef = section ? tempConfig[configType][section] : tempConfig[configType];
     if (option?.type === 'array') {
-      const value = sectionRef[option?.name].options[option?.optionIndex].props.value[nameClicked];
-      sectionRef[option?.name].options[option?.optionIndex].props.value[nameClicked] = !value;
+      const value = sectionRef[trackerName || option?.name].options[option?.optionIndex].props.value[nameClicked];
+      sectionRef[trackerName || option?.name].options[option?.optionIndex].props.value[nameClicked] = !value;
     } else if (option?.type === 'input') {
       if (option?.inputVal) {
         sectionRef[trackerName].options[option?.optionIndex].props.value = e?.target?.value;
@@ -140,32 +141,37 @@ const BaseField = ({ option, trackerName, onChange, configType, section }) => {
   return <>
     {option?.category ? <Typography variant={'caption'}>{option?.category?.camelToTitleCase()}</Typography> : null}
     <Stack direction={'row'}>
-      {type !== 'array' ? <FormControlLabel
-        sx={{ minWidth: props?.type === 'img' ? 'inherit' : 100, [`.${typographyClasses.root}`]: { fontSize: 14 } }}
-        control={<Checkbox name={option?.name}
-                           checked={option?.checked}
-                           size={'small'}
-        />}
-        onChange={(e) => onChange(e, configType, option, trackerName, section)}
-        label={<>
-          <Typography>{option?.name?.camelToTitleCase()}</Typography>
-        </>}/> : null}
+      {type !== 'array' ? <Stack>
+        <FormControlLabel
+          sx={{ minWidth: props?.type === 'img' ? 'inherit' : 100, [`.${typographyClasses.root}`]: { fontSize: 14 } }}
+          control={<Checkbox name={option?.name}
+                             checked={option?.checked}
+                             size={'small'}
+          />}
+          onChange={(e) => onChange(e, configType, option, trackerName, section)}
+          label={<>
+            <Typography>{option?.name?.camelToTitleCase()}</Typography>
+          </>}
+        />
+        {option?.helperText ? <FormHelperText sx={{ ml: 3, mt:0 }}>{option?.helperText}</FormHelperText> : null}
+      </Stack> : null}
       {type === 'input' ?
         <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
                     section={section}/> : null}
       {type === 'array'
-        ? <ArrayField option={option} configType={configType} onChange={onChange} section={section}/>
+        ? <ArrayField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
+                      section={section}/>
         : null}
     </Stack></>
 }
 
-const ArrayField = ({ option, onChange, configType, section }) => {
+const ArrayField = ({ option, onChange, configType, trackerName, section }) => {
   const { value, type } = option?.props;
   return <Stack direction={'row'} flexWrap={'wrap'}>
     {Object.keys(value)?.map((opt, index) => {
       return <FormControlLabel
         key={`${opt}-${index}`}
-        onChange={(e) => onChange(e, configType, option, null, section)}
+        onChange={(e) => onChange(e, configType, option, trackerName, section)}
         control={<Checkbox name={opt} checked={value?.[opt]} size={'small'}/>}
         label={type === 'img' ? <img width={24} height={24} src={`${prefix}data/${opt}.png`}
                                      alt=""/> : opt.camelToTitleCase()}/>
