@@ -75,7 +75,8 @@ const baseTrackers = {
           },
           { name: 'vials', category: 'vials', checked: true },
           { name: 'vialsAttempts', checked: true },
-          { name: 'subtractGreenStacks', checked: true }
+          { name: 'subtractGreenStacks', checked: true },
+          { name: 'alternateParticles', checked: true }
         ]
       },
       islands: {

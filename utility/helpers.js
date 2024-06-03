@@ -522,7 +522,6 @@ export const groupByKey = (array, callback) => {
 }
 
 export const migrateConfig = (type, baseConfig, userConfig, baseVersion, userVersion) => {
-  console.log(baseVersion, userVersion)
   if (baseVersion !== userVersion) {
     if (type === 'account') {
       return merge(baseConfig, renameSettingInPostOffice(userConfig));

@@ -16,7 +16,7 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
     amount: refineryStorageQuantityRaw?.[index],
     owner: 'refinery'
   }] : res, []);
-  const combinedStorage = [...storage, ...refineryStorage];
+  const combinedStorage = [...storage, ...(refineryStorage || [])];
   const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
   const salts = refineryRaw?.slice(3, 3 + refineryRaw?.[0]?.[0]);
   const saltsArray = salts?.reduce((res, salt, index) => {

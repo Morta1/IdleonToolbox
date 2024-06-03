@@ -314,7 +314,7 @@ const parseTowers = (towersRaw, totemInfo) => {
   const maxWaves = totemInfo?.[0];
   const totalWaves = maxWaves?.reduce((sum, maxWave) => sum + maxWave, 0);
   const towersLength = Object.keys(towers).length;
-  const inProgress = towersRaw.slice(54, 62);
+  const inProgress = towersRaw?.slice(54, 62);
   let wizardOverLevels = 0;
   let totalLevels = 0;
   const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
@@ -329,7 +329,7 @@ const parseTowers = (towersRaw, totemInfo) => {
       ...towerData,
       name: towerName,
       level,
-      nextLevel: (level + 1) === towersRaw[towerData.index + towersLength],
+      nextLevel: (level + 1) === towersRaw?.[towerData.index + towersLength],
       progress: towersRaw?.[towerData?.index + 12 + towersLength * 2],
       inProgress: inProgress?.includes(towerData?.index),
       slot: inProgress?.findIndex((ind) => ind === towerData?.index)

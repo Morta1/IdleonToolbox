@@ -1396,7 +1396,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const talentBonus = getTalentBonus(character?.talents, 2, 'REDOX_RATES', false, true);
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const redSaltAmount = calculateItemTotalAmount([...account?.storage,
-    ...account?.refinery?.refineryStorage], 'Refinery1', true, true);
+    ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
 export const getPlayerConstructionExpPerHour = (character, account) => {

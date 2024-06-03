@@ -35,7 +35,7 @@ export const createObolsWithUpgrades = (charItems, stoneData) => {
   return charItems.reduce((res, item, itemIndex) => {
     const { rawName } = item;
     if (rawName === 'Blank') return [...res, item];
-    const stoneResult = addStoneDataToEquip(items?.[rawName], stoneData[itemIndex]);
+    const stoneResult = addStoneDataToEquip(items?.[rawName], stoneData?.[itemIndex]);
     return rawName ? [...res, {
       ...(rawName === 'Blank' ? {} : { ...item, ...items?.[rawName], ...stoneResult })
     }] : res

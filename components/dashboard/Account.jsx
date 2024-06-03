@@ -119,6 +119,8 @@ const Account = ({ account, characters, trackers }) => {
                   iconPath={'etc/Shimmer_Currency'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
+              {alerts?.['World 2']?.alchemy?.alternateParticles ?
+                <Alert title={`You have ${alerts?.['World 2']?.alchemy?.alternateParticles} alternate particles upgrades available`} iconPath={'etc/Particle'}/> : null}
               {alerts?.['World 2']?.weeklyBosses
                 ?
                 <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/>
@@ -237,6 +239,7 @@ const Account = ({ account, characters, trackers }) => {
                                                             title={`Eggs are at full capacity`}
                                                             iconPath={`data/PetEgg1`}/> : null}
               {alerts?.['World 4']?.breeding?.eggsRarity
+
                 ? <Alert key={'breeding-eggsRarity'}
                          title={`You have reached your desired rarity level of ${alerts?.['World 4']?.breeding?.eggsRarity} with at least one egg`}
                          iconPath={`data/PetEgg${alerts?.['World 4']?.breeding?.eggsRarity}`}/>

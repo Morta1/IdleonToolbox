@@ -255,6 +255,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
         alchemy.vialsAttempts = current > 0;
       }
     }
+    if (options?.alchemy?.alternateParticles?.checked) {
+      if (account?.accountOptions?.[135] > 0) {
+        alchemy.alternateParticles = account?.accountOptions?.[135];
+      }
+    }
     if (Object.keys(alchemy).length > 0) {
       alerts.alchemy = alchemy;
     }

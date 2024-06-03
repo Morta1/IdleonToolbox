@@ -155,7 +155,7 @@ const getArmyDamage = (upgrades, totalUpgradesLevels) => {
 }
 const getBattleData = (enemyId, monsterData, wonBattles) => {
   const icon = `data/mface${monsters?.[enemyId]?.MonsterFace}`;
-  const won = wonBattles.includes(enemyId);
+  const won = wonBattles?.includes(enemyId);
   const { bonus, bonusId } = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
   const base = 3.5 * monsterData?.bonusQty;
   const actualBonus = bonus.includes('<') ? notateNumber(1 + base / 100, 'MultiplierInfo') : notateNumber(base, 'Big');

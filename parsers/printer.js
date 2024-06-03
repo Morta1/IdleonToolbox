@@ -34,7 +34,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
 
   const skillMasteryBonus = getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3);
 
-  const printData = rawPrinter.slice(5, rawPrinter.length); // REMOVE 5 '0' ELEMENTS
+  const printData = rawPrinter?.slice(5, rawPrinter?.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
   // There are 14 items per character
   // Every 2 items represent an item and it's value in the printer.
@@ -44,7 +44,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   const extraChunk = 10;
 
   return charactersData.map((charData, charIndex) => {
-    let relevantPrinterData = printData.slice(
+    let relevantPrinterData = printData?.slice(
       charIndex * chunk,
       charIndex * chunk + chunk
     );
@@ -56,7 +56,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
       relevantPrinterData.splice(-4, 0, relevantExtraPrinterData);
       relevantPrinterData = relevantPrinterData.flat();
     }
-    return relevantPrinterData.reduce(
+    return relevantPrinterData?.reduce(
       (result, printItem, sampleIndex, array) => {
         if (sampleIndex % 2 === 0) {
           const sample = array

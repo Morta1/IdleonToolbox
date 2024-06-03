@@ -1,11 +1,11 @@
 import { calculateItemTotalAmount } from './items';
 import { saltLicks } from '../data/website-data';
-import { tryToParse } from '../utility/helpers';
+import { round, tryToParse } from '../utility/helpers';
 
 export const getSaltLick = (idleonData, storage) => {
   const saltLickRaw = tryToParse(idleonData?.SaltLick) || idleonData?.SaltLick;
   return saltLicks?.map((bonus, index) => {
-    const level = saltLickRaw[index];
+    const level = saltLickRaw?.[index];
     const totalAmount = calculateItemTotalAmount(storage, bonus?.name, true);
     return {
       ...bonus,
