@@ -327,7 +327,7 @@ const Account = ({ account, characters, trackers }) => {
                   iconPath={'data/ClassIcons57'}/> : null}
               {alerts?.['World 6']?.farming?.totalCrops > 0 ?
                 <Alert
-                  title={`You have ${alerts?.farming?.totalCrops} crops ready to be collected`}
+                  title={`You have ${alerts?.['World 6']?.farming?.totalCrops} crops ready to be collected`}
                   iconPath={'data/FarmPlant6'}/> : null}
 
             </Stack>
