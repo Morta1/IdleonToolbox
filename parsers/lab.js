@@ -7,6 +7,7 @@ import { getShinyBonus } from './breeding';
 import { getHighestTalentByClass } from './talents';
 import { getEquinoxBonus } from './equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { calculateItemTotalAmount } from '@parsers/items';
 
 export const getLab = (idleonData, charactersData, account, updatedCharactersData) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -307,4 +308,18 @@ export const getPlayerLabChipBonus = (character, account, chipIndex) => {
   return account?.lab?.playersChips?.[character?.playerId]?.reduce((sum, chip) => {
     return chip?.index === chipIndex ? sum + chip?.baseVal : sum;
   }, 0) ?? 0;
+}
+
+export const getRequirementAmount = (name, rawName, account) => {
+  let totalAmount;
+  if (rawName.includes('Spice')) {
+    const spice = account?.cooking?.spices?.available?.find(({ rawName: sRawName }) => sRawName === rawName);
+    totalAmount = spice?.amount || 0;
+  } else if (rawName.includes('CookingM')) {
+    const meal = account?.cooking?.meals?.find(({ name: mName }) => mName === name)
+    totalAmount = meal?.amount || 0;
+  } else {
+    totalAmount = calculateItemTotalAmount(account?.storage, rawName, true, true);
+  }
+  return totalAmount;
 }

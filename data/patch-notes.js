@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.71',
+    gameVer: '2.0.9',
+    date: '06/06/2024',
+    features: [
+      'Added a dashboard alert for unclaimed jewels / chips (if you have enough resource to buy them)'
+    ],
+    fixes: [
+      'Fixed the calculation for the jewel and chip rotations',
+      'Fixed a bug with calculating max cost of buildings',
+      'Fixed breeding foraging costs calculation',
+      'Fixed a bug with world 2 alert (vials attempts)'
+    ]
+  },
+  {
     ver: '3.2.70',
     gameVer: '2.0.9',
     date: '28/05/2024',

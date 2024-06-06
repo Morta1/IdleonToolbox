@@ -38,10 +38,10 @@ const Buildings = () => {
     });
   }
 
-  const getMaterialCostsToMax = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
+  const getMaterialCostsToMax = (itemReq, iterations, level, maxLevel, bonusInc, costCruncher) => {
     let costs = [];
-    for (let i = level; i < maxLevel; i++) {
-      const [firstCost, secondCost] = getMaterialCosts(itemReq, i, maxLevel, bonusInc, costCruncher);
+    for (let i = 0; i < iterations; i++) {
+      const [firstCost, secondCost] = getMaterialCosts(itemReq, level + i, maxLevel, bonusInc, costCruncher);
       costs[0] = { ...(costs?.[0] ?? firstCost), amount: (costs?.[0]?.amount || 0) + firstCost?.amount }
       if (secondCost) {
         costs[1] = { ...(costs?.[1] ?? secondCost), amount: (costs?.[1]?.amount || 0) + secondCost?.amount }
@@ -53,6 +53,7 @@ const Buildings = () => {
   const b = useMemo(() => {
     return state?.account?.towers?.data?.map((tower) => {
       let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
+      const fakeMaxLevel = maxLevel;
       const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
       const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
       const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
@@ -69,7 +70,12 @@ const Buildings = () => {
       const trimmedSlotSpeed = (3 + atomBonus / 100) * buildSpeed;
       const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
       const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
-      const itemsMax = getMaterialCostsToMax(itemReq, level, maxLevel, bonusInc, costCruncher);
+      const iterations = maxLevel - level;
+      if (tower?.name === 'Clover_Shrine') {
+        console.log('123')
+      }
+      const itemsMax = getMaterialCostsToMax(itemReq, iterations, level, fakeMaxLevel, bonusInc, costCruncher);
+
 
       return {
         ...tower,

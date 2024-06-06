@@ -120,7 +120,9 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
               {alerts?.['World 2']?.alchemy?.alternateParticles ?
-                <Alert title={`You have ${alerts?.['World 2']?.alchemy?.alternateParticles} alternate particles upgrades available`} iconPath={'etc/Particle'}/> : null}
+                <Alert
+                  title={`You have ${alerts?.['World 2']?.alchemy?.alternateParticles} alternate particles upgrades available`}
+                  iconPath={'etc/Particle'}/> : null}
               {alerts?.['World 2']?.weeklyBosses
                 ?
                 <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/>
@@ -232,6 +234,20 @@ const Account = ({ account, characters, trackers }) => {
           {!emptyAlertRows?.['World 4'] ? <Stack direction={'row'} gap={4}>
             <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>World 4</Typography>
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.['World 4']?.laboratory?.chipsRotation?.length > 0
+                ?
+                alerts?.['World 4']?.laboratory?.chipsRotation?.map(({ rawName, name }, index) => <Alert
+                  key={rawName + index}
+                  title={`You can claim ${cleanUnderscore(name)} in chip repository`}
+                  iconPath={`data/${rawName}`}/>)
+                : null}
+              {alerts?.['World 4']?.laboratory?.jewelsRotation?.length > 0
+                ?
+                alerts?.['World 4']?.laboratory?.jewelsRotation?.map(({ rawName, name }, index) => <Alert
+                  key={rawName + index}
+                  title={`You can claim ${cleanUnderscore(name)} in jewel repository`}
+                  iconPath={`data/${rawName}`}/>)
+                : null}
               {alerts?.['World 4']?.cooking?.spices > 0 ?
                 <Alert title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}

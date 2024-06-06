@@ -1,7 +1,7 @@
 import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/construction';
 import { vialCostsArray } from '@parsers/alchemy';
-import { maxNumberOfSpiceClicks } from '@parsers/cooking';
+import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/cooking';
 import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '../../data/website-data';
@@ -10,6 +10,7 @@ import { calcTotals } from '@parsers/printer';
 import { findItemInInventory, findQuantityOwned, getAllItems } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
+import { getRequirementAmount } from '@parsers/lab';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -251,7 +252,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
         const hasItems = findItemInInventory(totalItems, item);
         return Object.keys(hasItems).length > 0;
       });
-      if (hasItems.length > 0) {
+      if (current > 0 && hasItems.length > 0) {
         alchemy.vialsAttempts = current > 0;
       }
     }
@@ -500,6 +501,28 @@ export const getWorld4Alerts = (account, fields, options) => {
     }
     if (Object.keys(cooking).length > 0) {
       alerts.cooking = cooking;
+    }
+  }
+  if (fields?.laboratory?.checked) {
+    const laboratory = {};
+    let labRotation = getChipsAndJewels(account, 1)?.at(0)?.items || [];
+    labRotation = labRotation?.map((rotationItem, ind) => ({
+      ...rotationItem,
+      claimed: rotationItem?.index === account?.lab?.currentRotation?.[ind],
+      requirementsMet: rotationItem?.requirements?.reduce((res, item) => {
+        return res && (getRequirementAmount(item?.name, item?.rawName, account) > item?.amount)
+      }, true)
+    }));
+    const chips = labRotation.slice(0, 2);
+    const jewels = labRotation.slice(2);
+    if (options?.laboratory?.chipsRotation?.checked && chips.some(({ claimed, requirementsMet }) => !claimed && requirementsMet)) {
+      laboratory.chipsRotation = chips;
+    }
+    if (options?.laboratory?.jewelsRotation?.checked && jewels.some(({ claimed, requirementsMet, acquired }) => !claimed && !acquired && requirementsMet)) {
+      laboratory.jewelsRotation = jewels;
+    }
+    if (Object.keys(laboratory).length > 0) {
+      alerts.laboratory = laboratory;
     }
   }
   return alerts;
@@ -1036,7 +1059,9 @@ export const alchemyAlerts = (account, options) => {
   }
   if (options?.vialsAttempts?.checked) {
     const { current } = account?.alchemy?.p2w?.vialsAttempts;
-    alerts.vialsAttempts = current > 0;
+    if (current > 0) {
+      alerts.vialsAttempts = current > 0;
+    }
   }
   return alerts;
 }

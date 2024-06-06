@@ -19,6 +19,7 @@ import styled from '@emotion/styled';
 import Tooltip from '../../../Tooltip';
 import { calculateItemTotalAmount } from '../../../../parsers/items';
 import MenuItem from '@mui/material/MenuItem';
+import { getRequirementAmount } from '@parsers/lab';
 
 const LabRotation = () => {
   const { state } = useContext(AppContext);
@@ -122,21 +123,11 @@ const LabRotation = () => {
                             </Stack>
                           </Tooltip>
                           {rotationIndex === 0 && index === currentRotation?.[itemsIndex] ? <Typography
-                            sx={{ ml: '50px' }} color={'error.light'}>SOLD
-                            OUT</Typography> : <span>&nbsp;</span>}
+                            sx={{ ml: '50px' }} color={'error.light'}>SOLD OUT</Typography> : <span>&nbsp;</span>}
                         </Stack>
                         <Stack direction={'row'} gap={2}>
                           {requirements?.map(({ name, rawName, amount }, reqIndex) => {
-                            let totalAmount;
-                            if (rawName.includes('Spice')) {
-                              const spice = state?.account?.cooking?.spices?.available?.find(({ rawName: sRawName }) => sRawName === rawName);
-                              totalAmount = spice?.amount || 0;
-                            } else if (rawName.includes('CookingM')) {
-                              const meal = state?.account?.cooking?.meals?.find(({ name: mName }) => mName === name)
-                              totalAmount = meal?.amount || 0;
-                            } else {
-                              totalAmount = calculateItemTotalAmount(state?.account?.storage, rawName, true, true);
-                            }
+                            const totalAmount = getRequirementAmount(name, rawName, state?.account);
                             return <Stack alignItems={'center'} gap={1} key={`req-${rawName}-${reqIndex}`}>
                               <Tooltip title={cleanUnderscore(name)}>
                                 <Icon src={`${prefix}data/${rawName}.png`} alt=""/>

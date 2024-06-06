@@ -159,7 +159,13 @@ const baseTrackers = {
           { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
         ]
       },
-      cooking: { checked: true, options: [{ name: 'spices', checked: true }] }
+      cooking: { checked: true, options: [{ name: 'spices', checked: true }] },
+      laboratory: {
+        checked: true, options: [
+          { name: 'chipsRotation', checked: true },
+          { name: 'jewelsRotation', checked: true }
+        ]
+      }
     },
     'World 5': {
       gaming: {

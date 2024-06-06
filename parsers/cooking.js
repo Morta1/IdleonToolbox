@@ -20,6 +20,7 @@ import { getArcadeBonus } from '@parsers/arcade';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 export const spicesNames = [
   'Grasslands',
@@ -433,37 +434,57 @@ export const getChipsAndJewels = (account, size = 10) => {
   const { serverVars, timeAway, lab } = account || {};
   const chips = lab?.chips;
   const jewels = lab?.jewels;
+
   const seed = Math.floor(timeAway?.GlobalTime / 604800);
-
   const rotations = [];
-
   for (let i = 0; i < size; i++) {
-    const rotation = [];
-    for (let j = 0; j < 3; j++) {
-      const itRng = new LavaRand(Math.round(seed + i + (500 * j)));
-      const itRandom = Math.floor(1e3 * itRng.rand());
-      const isJewel = j === 2;
-      const index = isJewel
-        ? Math.round(itRandom - Math.floor(itRandom / jewels.length) * jewels.length)
-        : Math.round(itRandom - Math.floor(itRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))));
-      const extraRng = new LavaRand(Math.round(seed + (2 * j - 1)))
-      const extraRandom = Math.floor(1e3 * extraRng.rand());
-      const extraIndex = isJewel
-        ? Math.round(extraRandom - Math.floor(extraRandom / jewels.length) * jewels.length)
-        : Math.round(extraRandom - Math.floor(extraRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))))
-      if (extraIndex === index) {
-        const finalRng = new LavaRand(Math.round(seed + (500 * j) + 765 * (j + 1)));
-        const finalRandom = Math.floor(1e3 * finalRng.rand());
-        const finalIndex = isJewel
-          ? Math.round(finalRandom - Math.floor(finalRandom / jewels.length) * jewels.length)
-          : Math.round(finalRandom - Math.floor(finalRandom / (chips.length - (10 * (1 - j)))) * (chips.length - (10 * (1 - j))))
-        rotation.push(isJewel ? jewels[finalIndex] : chips[finalIndex]);
-      } else {
-        rotation.push(isJewel ? jewels[index] : chips[index]);
+    let rotation = [];
+    const firstRng = new LavaRand(Math.round((seed + i)));
+    const firstRandom = Math.floor(1E3 * firstRng.rand());
+    rotation.push(Math.round(firstRandom - Math.floor(firstRandom / (chips.length - 10)) * (chips.length - 10)));
+    const secondRng = new LavaRand(Math.round((seed + i) + 500));
+    const secondRandom = Math.floor(1E3 * secondRng.rand());
+    rotation.push(Math.round(secondRandom - Math.floor(secondRandom / chips.length) * chips.length));
+    const thirdRng = new LavaRand(Math.round((seed + i) + 1E3));
+    const thirdRandom = Math.floor(1E3 * thirdRng.rand());
+    rotation.push(Math.round(thirdRandom - Math.floor(thirdRandom / jewels.length) * jewels.length));
+    for (let b = 0; 3 > b; b++) {
+      const tempRotation = [];
+      for (let f = 0; 2 > f; f++) {
+        const anotherRng = new LavaRand(Math.round((seed + i) + 500 * b + (-1 + 2 * f)));
+        const anotherRandom = Math.floor(1E3 * anotherRng.rand());
+        const index = 2 === b
+          ? Math.round(anotherRandom - Math.floor(anotherRandom / jewels.length) * jewels.length)
+          : Math.round(anotherRandom - Math.floor(anotherRandom / (chips.length - 10 * (1 - b))) * (chips.length - Math.round(10 * (1 - b))));
+        tempRotation.push(index);
+      }
+      if (tempRotation[0] === rotation[b])
+        for (let e = 0; 100 > e; e++) {
+          const yetAnotherRng = new LavaRand(Math.round((seed + i) + 500 * b + 765 * (e + 1)));
+          const yetAnotherRandom = Math.floor(1E3 * yetAnotherRng.rand());
+          const index = 2 === b
+            ? Math.round(yetAnotherRandom - Math.floor(yetAnotherRandom / jewels.length) * jewels.length)
+            : Math.round(yetAnotherRandom - Math.floor(yetAnotherRandom / (chips.length - 10 * (1 - b))) * (chips.length - Math.round(10 * (1 - b))));
+          if (tempRotation[0] !== index && tempRotation[1] !== index) {
+            rotation[b] = index;
+            break
+          }
+        }
+    }
+
+    for (let b = 0; 3 > b; b++) {
+      if (-1 !== serverVars.ChipRepo[b]) {
+        rotation[b] = serverVars.ChipRepo[b];
+      }
+      const unlocked = isJadeBonusUnlocked(account, 'Laboratory_Bling');
+      if (18 <= rotation[b] && 20 >= rotation[b] && unlocked) {
+        rotation[b] = Math.max(1, rotation[b] - 10)
       }
     }
 
     const dateInMs = Math.floor((seed + i) * 604800 * 1000);
+    rotation = rotation.map((rotationIndex, index) => index === 2 ? jewels[rotationIndex] : chips[rotationIndex])
+
     rotations.push({ items: rotation, date: new Date(dateInMs) });
   }
 
