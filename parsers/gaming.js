@@ -15,13 +15,14 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 
 const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
   const logBook = []
-  if (gamingRaw?.[11]) {
-    for (let i = 0; i < 9; i++) {
-      let s = 0;
-      for (let r = number2letter.indexOf((gamingRaw?.[11])?.charAt(i)); s < r;) {
-        logBook.push(('GamingPlant' + (number2letter[i + 1]) + s + '.png'));
-        s += 1;
-      }
+  const baseValue = 'hhhhhhhhh';
+  for (let i = 0; i < 9; i++) {
+    let s = 0;
+    for (let r = number2letter.indexOf((baseValue)?.charAt(i)); s < r; s++) {
+      logBook.push({
+        rawName: ('GamingPlant' + (number2letter[i + 1]) + s + '.png'),
+        unlocked: s < number2letter.indexOf((gamingRaw?.[11])?.charAt(i))
+      });
     }
   }
   const [, snailLevel, snailEncouragement] = gamingSproutRaw?.[32];
@@ -63,7 +64,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
       } : {}),
       ...(index === 2 ? {
         acornShop
-      } : {}),
+      } : {})
     }
   }).filter((_, index) => index < 8);
   const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => {
@@ -145,24 +146,19 @@ const calcSuperbitBonus = (characters, account, index) => {
   if (index === 0) {
     bonus = account?.achievements?.filter(({ completed }) => completed)?.length ?? 0;
     totalBonus = Math.pow(1.03, bonus);
-  }
-  else if (index === 3 || index === 11 || index === 16) {
+  } else if (index === 3 || index === 11 || index === 16) {
     bonus = Math.floor(account?.towers?.totalWaves / 10);
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
-  }
-  else if (index === 13) {
+  } else if (index === 13) {
     bonus = Math.floor(account?.towers?.totalWaves / 10) * 10;
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
-  }
-  else if (index === 7) {
+  } else if (index === 7) {
     bonus = Math.floor(account?.towers?.totalWaves / 10);
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
-  }
-  else if (index === 20) {
+  } else if (index === 20) {
     bonus = Math.floor(account?.towers?.totalWaves / 10) * 50;
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
-  }
-  else if (index === 12) {
+  } else if (index === 12) {
     // skill level doesn't update if the character is away for a long time
     const highestGaming = getHighestCharacterSkill(characters, 'gaming');
     totalBonus = Math.floor(highestGaming);
@@ -241,8 +237,7 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
     return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'bits');
-  }
-  else if (index === 1) {
+  } else if (index === 1) {
     const baseValue = gamingRaw?.[2];
     const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
     const godBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters) ?? 0;
@@ -254,8 +249,7 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
     const final = (growTime * growChance) / 60;
     const time = Math.floor(100 * (final)) / 100;
     return time > 60 ? `${Math.floor(100 * time / 60) / 100} Hr` : `${(Math.floor(10 * time) / 10)} Min`;
-  }
-  else if (index === 2) {
+  } else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value, index) => index === 133) ?? 0;
     return notateNumber(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))));
@@ -317,8 +311,7 @@ export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredS
 
     if (midValue < desiredSuccessChance) {
       low = mid + 1; // Increment low by 1 to ensure progress
-    }
-    else {
+    } else {
       high = mid;
     }
   }

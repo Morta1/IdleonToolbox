@@ -471,7 +471,7 @@ export const getUpgradeableBubbles = (acc) => {
   const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15);
   const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
   const jewel = acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone');
-  if (jewel) {
+  if (jewel?.acquired) {
     upgradeableBubblesAmount++;
   }
   const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
@@ -490,9 +490,9 @@ export const getUpgradeableBubbles = (acc) => {
     atomBubbles,
     breakdown: [
       { name: 'Base', value: 3 },
-      { name: 'Artifact', value: amberiteArtifact?.baseBonus * multi },
+      { name: 'Artifact', value: (amberiteArtifact?.baseBonus || 0) * multi },
       { name: 'Merit', value: moreBubblesFromMerit },
-      { name: 'Jewel', value: jewel ? 1 : 0 }
+      { name: 'Jewel', value: jewel?.acquired ? 1 : 0 }
     ]
   };
 }
