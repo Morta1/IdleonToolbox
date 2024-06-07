@@ -11,6 +11,7 @@ import { findItemInInventory, findQuantityOwned, getAllItems } from '@parsers/it
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/lab';
+import { getProductDoubler } from '@parsers/world-6/farming';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -515,10 +516,17 @@ export const getWorld4Alerts = (account, fields, options) => {
     }));
     const chips = labRotation.slice(0, 2);
     const jewels = labRotation.slice(2);
-    if (options?.laboratory?.chipsRotation?.checked && chips.some(({ claimed, requirementsMet }) => !claimed && requirementsMet)) {
+    if (options?.laboratory?.chipsRotation?.checked && chips.some(({
+                                                                     claimed,
+                                                                     requirementsMet
+                                                                   }) => !claimed && requirementsMet)) {
       laboratory.chipsRotation = chips;
     }
-    if (options?.laboratory?.jewelsRotation?.checked && jewels.some(({ claimed, requirementsMet, acquired }) => !claimed && !acquired && requirementsMet)) {
+    if (options?.laboratory?.jewelsRotation?.checked && jewels.some(({
+                                                                       claimed,
+                                                                       requirementsMet,
+                                                                       acquired
+                                                                     }) => !claimed && !acquired && requirementsMet)) {
       laboratory.jewelsRotation = jewels;
     }
     if (Object.keys(laboratory).length > 0) {
@@ -683,7 +691,11 @@ export const getWorld6Alerts = (account, fields, options) => {
       const totalCropsLocal = account?.farming?.plot?.reduce((sum, {
         cropQuantity,
         ogMulti
-      }) => sum + (cropQuantity * (ogMulti)), 0);
+      }) => {
+        const { productDoubler, multi } = getProductDoubler(account?.farming?.market);
+        const doublerMulti = productDoubler > 100 && multi >= 2;
+        return sum + (cropQuantity * ogMulti * (doublerMulti ? multi : 1));
+      }, 0);
       const availableCrops = totalCropsLocal >= totalCrops?.props?.value ? totalCropsLocal : 0;
       if (availableCrops > 0) {
         farming.totalCrops = availableCrops;

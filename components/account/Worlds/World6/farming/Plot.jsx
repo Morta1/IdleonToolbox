@@ -3,24 +3,35 @@ import { prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
-import { getTotalCrop } from '@parsers/world-6/farming';
+import { getProductDoubler, getTotalCrop } from '@parsers/world-6/farming';
 import { CardTitleAndValue } from '@components/common/styles';
 
-const Plot = ({ plot, lastUpdated }) => {
-  const totals = getTotalCrop(plot);
+const Plot = ({ plot, market, lastUpdated }) => {
+  const { productDoubler, percent, multi } = getProductDoubler(market) || {};
+  const totals = getTotalCrop(plot, market);
   return <>
-    <CardTitleAndValue title={'Totals'}>
+    <CardTitleAndValue title={`Totals${productDoubler > 100 && multi >= 2 ? ` (x${multi})` : ''}`}>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {Object.entries(totals || {}).map(([icon, quantity]) => {
           return <Card variant={'outlined'} key={icon}>
             <CardContent>
-              <Stack  direction={'row'} gap={1}>
+              <Stack direction={'row'} gap={1}>
                 <Typography>{quantity}</Typography>
                 <img width={20} height={20} src={`${prefix}data/${icon}`} alt={''}/>
               </Stack>
             </CardContent>
           </Card>
         })}
+      </Stack>
+      <Stack mt={1}>
+        {productDoubler < 100 ? <Typography variant={'caption'}
+                                            color={'text.secondary'}>*
+          Doesn't include your {productDoubler}% chance to
+          x2 the quantity collected</Typography> : percent > 0 ? <Typography variant={'caption'}
+                                                                             color={'text.secondary'}>* Doesn't
+          include your {percent}% chance to
+          x{parseInt(multi) + 1} the quantity
+          collected</Typography> : null}
       </Stack>
     </CardTitleAndValue>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

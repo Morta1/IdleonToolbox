@@ -236,12 +236,21 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
   return costToMax ?? 0;
 }
 
-export const getTotalCrop = (plot: any[]) => {
+export const getTotalCrop = (plot: any[], market: any[]) => {
   return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti }) => {
     if (seedType === -1) return total;
+    const { productDoubler, multi } = getProductDoubler(market);
+    const doublerMulti = productDoubler > 100 && multi >= 2;
     return {
       ...total,
-      [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * (ogMulti))
+      [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * (doublerMulti ? multi : 1))
     }
   }, {});
+}
+
+export const getProductDoubler = (market: any[]): { productDoubler: any, percent: number, multi: number } => {
+  const productDoubler = (market?.[5]?.value || 0);
+  const multi = productDoubler / 100;
+  const percent = productDoubler % 100;
+  return { productDoubler, percent, multi: Math.max(2, Math.floor(multi) + 1) };
 }

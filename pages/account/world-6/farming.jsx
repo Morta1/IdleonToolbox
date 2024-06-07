@@ -32,7 +32,7 @@ const Farming = () => {
       })}
     </Stack>
     <Tabber tabs={['Plot', 'Market', 'Crop']}>
-      <Plot plot={plot} crop={crop} lastUpdated={state?.lastUpdated}/>
+      <Plot plot={plot} crop={crop} market={market} lastUpdated={state?.lastUpdated}/>
       <Market market={market} crop={crop}/>
       <Crop crop={crop}/>
     </Tabber>
