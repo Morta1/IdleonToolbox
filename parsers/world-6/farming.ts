@@ -121,6 +121,7 @@ export const updateFarming = (characters: any, account: any) => {
       * Math.max(1, marketOGChance)
       * (1 + charmOGChange / 100)
       * (1 + starSignBonus / 100)
+      * (1 + (2 * account?.tasks?.[2]?.[5]?.[2]) / 100)
       * (1 + (15 * achievementBonus) / 100);
     // Growth
     const marketGrowthRate = getMarketBonus(newMarket, "NUTRITIOUS_SOIL");
