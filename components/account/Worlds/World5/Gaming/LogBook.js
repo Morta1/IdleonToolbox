@@ -3,7 +3,7 @@ import { prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 
 const LogBook = ({ logBook }) => {
-  const owned = logBook.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
+  const owned = logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
   return <>
     <CardTitleAndValue title={''}
                        value={`${owned} / ${logBook?.length}`}></CardTitleAndValue>
