@@ -131,13 +131,15 @@ export const updateFarming = (characters: any, account: any) => {
     const growthRate = Math.max(1, speedGMO)
       * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
     const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
+    const maxTimeLeft = crop?.growthReq / growthRate;
     const ogMulti = Math.min(1e9, Math.max(1, Math.pow(2, crop?.currentOG)));
     return {
       ...crop,
       nextOGChance,
       growthRate,
       ogMulti,
-      timeLeft
+      timeLeft,
+      maxTimeLeft
     }
   });
   return {

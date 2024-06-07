@@ -484,6 +484,21 @@ export const getRealDateInMs = (ms, shouldFormat = true) => {
   return dateInMs;
 }
 
+export const msToDate = (ms) => {
+  // Calculate the number of hours, minutes, and seconds
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+  // Format each component to be two digits
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(seconds).padStart(2, '0');
+
+  // Return the formatted string
+  return `${formattedHours}h:${formattedMinutes}m:${formattedSeconds}s`;
+}
+
 export const fillMissingTalents = (arr) => {
   const talentIds = arr.map(obj => obj.talentId);
   const minTalentId = Math.min(...talentIds);
