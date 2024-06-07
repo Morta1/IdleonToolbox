@@ -590,7 +590,6 @@ export const getRespawnRate = (character, account) => {
   const worldTwoMeritBonus = account?.tasks?.[2]?.[1]?.[1];
   const worldTwoMeritBonusPerLevel = account?.meritsDescriptions?.[1]?.[1]?.bonusPerLevel;
 
-  // TODO: check this
   const worldThreeMeritBonus = account?.tasks?.[2]?.[1]?.[1];
   const worldThreeMeritBonusPerLevel = account?.meritsDescriptions?.[1]?.[1]?.bonusPerLevel;
 
@@ -601,11 +600,15 @@ export const getRespawnRate = (character, account) => {
   const worldFiveMeritBonus = account?.tasks?.[2]?.[4]?.[1];
   const worldFiveMeritBonusPerLevel = account?.meritsDescriptions?.[4]?.[1]?.bonusPerLevel;
 
+  const worldSixMeritBonus = account?.tasks?.[2]?.[5]?.[1];
+  const worldSixMeritBonusPerLevel = account?.meritsDescriptions?.[5]?.[1]?.bonusPerLevel;
+
   const meritBonus = (worldIndex === 1 || isRift) ? worldOneMeritBonus * worldOneMeritBonusPerLevel
     : worldIndex === 2 ? worldTwoMeritBonus * worldTwoMeritBonusPerLevel
       : worldIndex === 3 ? worldThreeMeritBonus * worldThreeMeritBonusPerLevel
         : worldIndex === 4 ? worldFourMeritBonus * worldFourMeritBonusPerLevel
-          : worldIndex === 5 ? worldFiveMeritBonus * worldFiveMeritBonusPerLevel : 0;
+          : worldIndex === 5 ? worldFiveMeritBonus * worldFiveMeritBonusPerLevel :
+            worldIndex === 6 ? worldSixMeritBonus * worldSixMeritBonusPerLevel : 0;
 
   const achievementBonus = (worldIndex === 1 || isRift) ? worldOneAchievement
     : worldIndex === 2 ? worldTwoAchievement
