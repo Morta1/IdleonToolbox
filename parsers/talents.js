@@ -22,7 +22,7 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLe
   let level = talent?.level;
   if (talent?.level > 0) {
     level = useMaxLevel ? talent?.maxLevel : talent?.level;
-    if (useMaxAndAddedLevels) {
+    if (useMaxAndAddedLevels && talent?.level > talent?.maxLevel) {
       level = talent?.maxLevel + addedLevels;
     } else {
       level = addedLevels ? level - addedLevels : level;
