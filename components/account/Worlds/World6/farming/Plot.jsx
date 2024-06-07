@@ -27,11 +27,11 @@ const Plot = ({ plot, market, lastUpdated }) => {
         {productDoubler < 100 ? <Typography variant={'caption'}
                                             color={'text.secondary'}>*
           Doesn't include your {productDoubler}% chance to
-          x2 the quantity collected</Typography> : percent > 0 ? <Typography variant={'caption'}
+          x2 the quantity collected from product doubler</Typography> : percent > 0 ? <Typography variant={'caption'}
                                                                              color={'text.secondary'}>* Doesn't
           include your {percent}% chance to
           x{parseInt(multi) + 1} the quantity
-          collected</Typography> : null}
+          collected from product doubler</Typography> : null}
       </Stack>
     </CardTitleAndValue>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
