@@ -21,7 +21,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     for (let r = number2letter.indexOf((baseValue)?.charAt(i)); s < r; s++) {
       logBook.push({
         rawName: ('GamingPlant' + (number2letter[i + 1]) + s + '.png'),
-        unlocked: s < number2letter.indexOf((gamingRaw?.[11])?.charAt(i))
+        unlocked:  gamingRaw?.[11] ? s < number2letter.indexOf((gamingRaw?.[11])?.charAt(i)) : false
       });
     }
   }
