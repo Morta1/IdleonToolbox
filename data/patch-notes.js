@@ -8,7 +8,8 @@ export const patchNotes = [
     gameVer: '2.0.10',
     date: '06/06/2024',
     features: [
-      'Updated the website with version 2.0.10 data and assets'
+      'Updated the website with version 2.0.10 data and assets',
+      'Added owl page under world 1 (bonuses aren\'t applied across the site yet)'
     ],
     fixes: []
   },
