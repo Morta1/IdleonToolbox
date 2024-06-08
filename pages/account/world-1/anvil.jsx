@@ -71,7 +71,7 @@ const Anvil = () => {
                   <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
                 <Stack>
-                  <Typography className={'character-name'}>{playerName}</Typography>
+                  <Typography data-cy={`player-name-${playerName}`} className={'character-name'}>{playerName}</Typography>
                   <Typography variant={'caption'}>Smithing lv. {smithingLevel}</Typography>
                   <Typography variant={'caption'}
                               color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel} / {pointsFromCoins + pointsFromMats + smithingLevel}</Typography>

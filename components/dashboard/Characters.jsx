@@ -70,7 +70,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           return minutes <= 5;
         };
         const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
-        return <Card key={name} sx={{ width: 300 }}>
+        return <Card key={name} sx={{ width: 300 }} data-cy={`character-${name}`}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
               <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}

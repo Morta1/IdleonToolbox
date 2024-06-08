@@ -252,7 +252,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
       };
     }
     const hasPassiveCardsEquipped = character?.cards?.equippedCards?.filter(({ effect }) => effect?.includes('(Passive)'));
-    if (hasPassiveCardsEquipped.length > 0) {
+    if (hasPassiveCardsEquipped?.length > 0) {
       alerts.passiveCards = true;
     }
     // const hasEmptySlots = character?.cards?.equippedCards?.filter(({ cardName }) => !cardName);

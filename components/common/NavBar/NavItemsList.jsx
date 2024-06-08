@@ -27,6 +27,7 @@ const NavItemsList = ({ drawer }) => {
                                  borderRadius: drawer ? 'inherit' : 2,
                                  p: drawer ? '8px 16px' : '0 8px'
                                }}
+                               data-cy={`nav-item-${pageName}`}
                                dense={!drawer}
                                size="medium">
           <ListItemText component={'span'} disableTypography

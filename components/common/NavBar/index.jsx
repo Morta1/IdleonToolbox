@@ -44,7 +44,7 @@ const NavBar = ({ children }) => {
         <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}>
           <AppDrawer/>
           <NavItemsList/>
-          {!isProd ? <IconButton color="inherit" onClick={handlePaste}>
+          {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
           {state?.profile && state?.characters?.[0]?.name

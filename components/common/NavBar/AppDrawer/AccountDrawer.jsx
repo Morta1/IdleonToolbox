@@ -142,7 +142,7 @@ const AccountDrawer = () => {
           const { icon, categories, style } = value;
           return (
             <React.Fragment key={key + ' ' + index}>
-              <ListItem button selected={isSelected(key)} onClick={() => handleClick(key, categories)}>
+              <ListItem data-cy={key} button selected={isSelected(key)} onClick={() => handleClick(key, categories)}>
                 <img className={'list-img'} width={32} height={32} style={{ objectFit: 'contain', ...style }}
                      src={`${prefix}${icon}.png`} alt=""/>
                 <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalizeAllWords()}/>
@@ -153,6 +153,7 @@ const AccountDrawer = () => {
                   const label = category?.label.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
                   return (
                     <ListItem selected={isSelected(label)}
+                              data-cy={label}
                               key={category + ' ' + categoryIndex}
                               style={{ paddingLeft: nestedOptionPadding }}
                               button
