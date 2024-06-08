@@ -35,16 +35,16 @@
     "react-dom": "^18.2.0",
     "react-process-string": "^1.2.0",
     "react-transition-group": "^4.4.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "cypress": "^13.11.0",
+    "husky": "^9.0.11"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
-    "cypress": "^13.11.0",
     "eslint": "8.13.0",
     "eslint-config-next": "^13.4.1",
-    "eslint-plugin-cypress": "^3.3.0",
-    "husky": "^9.0.11"
+    "eslint-plugin-cypress": "^3.3.0"
   }
 }
