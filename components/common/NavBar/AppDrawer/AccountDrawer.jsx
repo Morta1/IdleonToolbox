@@ -42,7 +42,8 @@ const worldsData = {
       { label: 'anvil', icon: 'data/ClassIcons43' },
       { label: 'forge', icon: 'data/ForgeD' },
       { label: 'bribes', icon: 'data/BribeW' },
-      { label: 'stamps', icon: 'data/StampA34' }
+      { label: 'stamps', icon: 'data/StampA34' },
+      { label: 'owl', icon: 'etc/Owl' },
     ]
   },
   'world 2': {
