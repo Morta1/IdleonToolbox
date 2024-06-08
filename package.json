@@ -10,7 +10,7 @@
     "postbuild": "node utility/generate-sitemap.mjs",
     "test": "cypress run",
     "lint": "next lint",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.7.0",
