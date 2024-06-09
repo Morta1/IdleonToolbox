@@ -2,7 +2,7 @@ import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 
 const MyComponent = () => {
@@ -36,7 +36,7 @@ const MyComponent = () => {
             <Stack mt={'auto'} direction={'row'} justifyContent={'space-between'}>
               <Typography>Lv. {level}</Typography>
               <Stack direction={'row'} gap={1}>
-                <Typography>{commaNotation(cost)}</Typography>
+                <Typography>{cost < 9999999 ? commaNotation(Math.ceil(cost)) : notateNumber(cost, 'Big')}</Typography>
                 <img src={`${prefix}etc/Feather.png`} alt={''}/>
               </Stack>
             </Stack>

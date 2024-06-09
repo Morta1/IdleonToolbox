@@ -88,6 +88,7 @@ import {
   getNinjaUpgradeBonus
 } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getOwlBonus } from '@parsers/world-1/owl';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -681,6 +682,7 @@ export const getDropRate = (character, account, characters) => {
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
+  const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
 
   const additive =
     firstTalentBonus +
@@ -702,7 +704,9 @@ export const getDropRate = (character, account, characters) => {
     stampBonus;
 
   let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * (account?.accountOptions?.[189] ?? 0) + equinoxDropRateBonus + summoningBonus + tomeBonus + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus))) / 100 + 1;
+    + (additive + (starTalentBonus * (account?.accountOptions?.[189] ?? 0)
+      + equinoxDropRateBonus + summoningBonus + tomeBonus
+      + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus) + owlBonus)) / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
@@ -745,6 +749,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus },
     { name: 'Tome', value: tomeBonus / 100 },
+    { name: 'Owl', value: owlBonus / 100 },
     { name: 'Summoning', value: summoningBonus / 100 },
     { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? .3 : 0 },
     { name: 'Golden food', value: goldenFoodBonus / 100 },

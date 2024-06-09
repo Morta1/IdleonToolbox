@@ -90,3 +90,7 @@ const getMegaFeather = (account, i) => {
     ? (account?.accountOptions?.[262]) - 9
     : 1) : 0;
 }
+
+export const getOwlBonus = (bonuses, bonusName) => {
+  return bonuses?.find(({ name }) => name === bonusName)?.bonus;
+}
