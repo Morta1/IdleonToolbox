@@ -104,6 +104,12 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.['World 1']?.stamps?.gildedStamps > 0 ?
                 <Alert title={`You have ${alerts?.['World 1']?.stamps?.gildedStamps} available gilded stamps`}
                        iconPath={'data/GildedStamp'}/> : null}
+              {alerts?.['World 1']?.owl?.featherRestart ?
+                <Alert title={`Feather restart can be upgraded`}
+                       iconPath={'etc/Owl_4'}/> : null}
+              {alerts?.['World 1']?.owl?.megaFeatherRestart ?
+                <Alert title={`Mega feather restart can be upgraded`}
+                       iconPath={'etc/Owl_8'}/> : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 2'] ? <Stack direction={'row'} gap={4}>

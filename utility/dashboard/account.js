@@ -180,10 +180,31 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
 export const getWorld1Alerts = (account, fields, options) => {
   const alerts = {};
   if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
+    const stamps = {};
     if (options?.stamps?.gildedStamps?.checked) {
       if (account?.accountOptions?.[154] > 0) {
-        alerts.stamps = { gildedStamps: account?.accountOptions?.[154] };
+        stamps.gildedStamps = account?.accountOptions?.[154];
       }
+    }
+    if (Object.keys(stamps).length > 0) {
+      alerts.stamps = stamps;
+    }
+  }
+  if (fields?.owl?.checked && account?.accountOptions?.[253] > 0) {
+    const owl = {};
+    const { nextLvReq, feathers, upgrades } = account?.owl;
+    const featherRestart = upgrades?.[4];
+    const megaFeatherRestart = upgrades?.[8];
+    const featherRestartAvailable = featherRestart?.nextLvReq < nextLvReq && feathers >= featherRestart?.cost;
+    const megaFeatherRestartAvailable = featherRestart?.nextLvReq < nextLvReq && feathers >= megaFeatherRestart?.cost;
+    if (options?.owl?.featherRestart?.checked && featherRestartAvailable) {
+      owl.featherRestart = true;
+    }
+    if (options?.owl?.megaFeatherRestart?.checked && megaFeatherRestartAvailable) {
+      owl.megaFeatherRestart = true;
+    }
+    if (Object.keys(owl).length > 0) {
+      alerts.owl = owl;
     }
   }
   return alerts;

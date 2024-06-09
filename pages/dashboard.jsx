@@ -58,6 +58,10 @@ const baseTrackers = {
       stamps: {
         checked: true,
         options: [{ name: 'gildedStamps', checked: true }]
+      },
+      owl: {
+        checked: true,
+        options: [{ name: 'featherRestart', checked: true }, { name: 'megaFeatherRestart', checked: true }]
       }
     },
     'World 2': {
@@ -294,7 +298,6 @@ const baseTrackers = {
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
-  console.log(account?.accountOptions?.[253]);
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState();
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
