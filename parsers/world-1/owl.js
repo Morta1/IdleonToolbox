@@ -7,6 +7,7 @@ export const getOwl = (idleonData, accountData) => {
 // Feaz0
 const parseOwl = (account) => {
   const feathers = account?.accountOptions?.[253];
+  const progress = account?.accountOptions?.[263];
   const upgrades = owlData.map((upgrade, i) => {
     const commonFactor = (1 / (1 + (10 * account?.accountOptions?.[257]) / 100))
       * (1 / (1 + (20 * (account?.accountOptions?.[261])) / 100))
@@ -16,7 +17,7 @@ const parseOwl = (account) => {
     const cost = 0 === i
       ? commonFactor
       * (account?.accountOptions?.[254 + i])
-      * Math.pow(Math.max(1.05, (upgrade?.x2) - 0.025 * getMegaFeather(account, 8)), (account?.accountOptions?.[254 + i | 0]))
+      * Math.pow(Math.max(1.05, (upgrade?.x2) - 0.025 * getMegaFeather(account, 8)), (account?.accountOptions?.[254 + i]))
       : commonFactor
       * Math.pow((upgrade?.x2), (account?.accountOptions?.[254 + i]));
     const level = account?.accountOptions?.[254 + i]
@@ -28,6 +29,9 @@ const parseOwl = (account) => {
       nextLvReq
     }
   });
+  const nextLvReqIndex = upgrades?.findIndex(({ level }) => level <= 0);
+  const nextLvReq = owlData?.[nextLvReqIndex]?.x3 || 0;
+
   const featherRate = (1 + 9 * getMegaFeather(account, 0))
     * ((account?.accountOptions?.[254])
       + (5 * (account?.accountOptions?.[259])
@@ -36,7 +40,7 @@ const parseOwl = (account) => {
           + 4 * getMegaFeather(account, 4) * (account?.accountOptions?.[261]))))
     * (1 + (5 * (account?.accountOptions?.[256])) / 100) * Math.pow(3 + 2
       * getMegaFeather(account, 6), (account?.accountOptions?.[258]))
-    * (1 + ((account?.accountOptions?.[264]) * (account?.accountOptions?.[260])) / 100);
+    * (1 + ((account?.accountOptions?.[264]) * (account?.accountOptions?.[260])) / 100) + account?.accountOptions?.[264];
   const totalFeatherBonus = 100 * getMegaFeather(account, 1)
     + (100 * getMegaFeather(account, 3)
       + (100 * getMegaFeather(account, 5)
@@ -73,13 +77,18 @@ const parseOwl = (account) => {
     {
       name: 'All Stats',
       bonus: 2 * (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 5) / 6))
+    },
+    {
+      name: 'Shiny Feather',
+      bonus: account?.accountOptions?.[264]
     }
   ]
-
   return {
     upgrades,
     bonuses,
     feathers,
+    progress,
+    nextLvReq,
     restartMulti: Math.pow(3 + 2
       * getMegaFeather(account, 6), (account?.accountOptions?.[258] + 1))
   }

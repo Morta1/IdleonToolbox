@@ -16,14 +16,19 @@ const MyComponent = () => {
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Feathers'} value={commaNotation(owl?.feathers || 0)} icon={'etc/Owlb_0.png'}/>
+      <CardTitleAndValue title={'Feathers/sec'} value={commaNotation(owl?.bonuses?.[0]?.bonus)} icon={'etc/Owlb_0.png'}/>
+      <CardTitleAndValue title={'Feathers/hour'} value={commaNotation(owl?.bonuses?.[0]?.bonus * 60 * 60)} icon={'etc/Owlb_0.png'}/>
+      <CardTitleAndValue title={'Next Lv'} value={owl?.nextLvReq > 0 ? `${notateNumber(owl?.progress)}/${notateNumber(owl?.nextLvReq)}` : 'Done'}/>
+    </Stack>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {owl?.bonuses.map(({ name, bonus, percentage }, index) => {
+        if (index === 0) return;
         return <CardTitleAndValue key={name} title={name}
                                   value={`${!percentage ? '+' : ''}${commaNotation(bonus)}${percentage ? '%' : ''}`}
                                   icon={`etc/Owlb_${index}.png`}>
         </CardTitleAndValue>
       })}
     </Stack>
-
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {owl?.upgrades?.map(({ name, desc, level, cost }, index) => {
         return <Card key={'upgrade-' + index} sx={{ width: 350, mt: 1 }}>
