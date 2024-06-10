@@ -4,7 +4,19 @@ export const getOwl = (idleonData, accountData) => {
   return parseOwl(accountData);
 }
 
-// Feaz0
+const megaFeathersDesc = [
+  'Multiplies_all_Feather_generation_by_10x._Multiplicative,_so_extra_powerful!',
+  'Boosts_all_of_Orion\'s_Bonuses_by_double_their_base_amount.',
+  'All_upgrades_cost_1%_less_feathers_per_LV_of_Feather_Generation.',
+  'Instead_of_double,_all_of_Orion\'s_Bonuses_are_now_triple.',
+  'The_Feather_Cheapener_upgrades_now_give_+2_and_+4_Feathers/sec_each_LV,_respectively.',
+  'Forget_triple,_Orion\'s_Bonuses_are_now_quadruple!',
+  'The_upgrade_Feather_Restart_now_gives_a_5x_feather_bonus_instead_of_the_previous_3x.',
+  'Quadruple?_Pfft_more_like_Noobruple,_Orion\'s_Bonuses_are_now_Quintuple_at_big,_that\'s_5x!',
+  'The_cost_of_Feather_Generation_upgrade_now_goes_up_25%_slower.',
+  'Orion\'s_bonuses_are_now_{x_higher_than_they_were_at_first.'
+]
+
 const parseOwl = (account) => {
   const feathers = account?.accountOptions?.[253];
   const progress = account?.accountOptions?.[263];
@@ -82,13 +94,19 @@ const parseOwl = (account) => {
       name: 'Shiny Feather',
       bonus: account?.accountOptions?.[264]
     }
-  ]
+  ];
+  const megaFeathers = megaFeathersDesc.map((description, index) => ({
+    description,
+    unlocked: index + 1 <= account?.accountOptions?.[262],
+    ...(index === 9 ? { amount: account?.accountOptions?.[262] - 9 } : {})
+  }));
   return {
     upgrades,
     bonuses,
     feathers,
     progress,
     nextLvReq,
+    megaFeathers,
     restartMulti: Math.pow(3 + 2
       * getMegaFeather(account, 6), (account?.accountOptions?.[258] + 1))
   }
