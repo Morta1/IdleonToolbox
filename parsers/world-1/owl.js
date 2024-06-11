@@ -95,6 +95,7 @@ const parseOwl = (account) => {
       bonus: account?.accountOptions?.[264]
     }
   ];
+  console.log('account?.accountOptions?.[262]', account?.accountOptions?.[262])
   const megaFeathers = megaFeathersDesc.map((description, index) => ({
     description,
     unlocked: index + 1 <= account?.accountOptions?.[262],

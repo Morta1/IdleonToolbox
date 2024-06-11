@@ -8,7 +8,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 const MyComponent = () => {
   const { state } = useContext(AppContext);
   const { owl } = state?.account || {};
-
+  console.log(owl?.megaFeathers)
   return <>
     <NextSeo
       title="Owl | Idleon Toolbox"
@@ -35,7 +35,6 @@ const MyComponent = () => {
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {owl?.megaFeathers?.map(({ description, unlocked, amount }, index) => {
-        if (index === 0) return;
         return <CardTitleAndValue cardSx={{my: 1}} value={amount > 0 ? amount : ''} tooltipTitle={cleanUnderscore(description)} key={'mega' + index} icon={`data/Feaz${index}.png`}
                                   imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
       })}
