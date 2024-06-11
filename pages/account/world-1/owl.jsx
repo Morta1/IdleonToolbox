@@ -8,17 +8,17 @@ import { CardTitleAndValue } from '@components/common/styles';
 const MyComponent = () => {
   const { state } = useContext(AppContext);
   const { owl } = state?.account || {};
-
+  const notation = (val) => val < 9999999 ? commaNotation(Math.ceil(val)) : notateNumber(val, 'Big')
   return <>
     <NextSeo
       title="Owl | Idleon Toolbox"
       description="Keep track of your owl upgrades and progress"
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers'} value={commaNotation(owl?.feathers || 0)} icon={'etc/Owlb_0.png'}/>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers/sec'} value={commaNotation(owl?.bonuses?.[0]?.bonus)}
+      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers'} value={notation(owl?.feathers || 0)} icon={'etc/Owlb_0.png'}/>
+      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers/sec'} value={notation(owl?.bonuses?.[0]?.bonus)}
                          icon={'etc/Owlb_0.png'}/>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers/hour'} value={commaNotation(owl?.bonuses?.[0]?.bonus * 60 * 60)}
+      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers/hour'} value={notation(owl?.bonuses?.[0]?.bonus * 60 * 60)}
                          icon={'etc/Owlb_0.png'}/>
       <CardTitleAndValue cardSx={{my: 1}} title={'Next Lv'} value={owl?.nextLvReq > 0
         ? `${notateNumber(owl?.progress)}/${notateNumber(owl?.nextLvReq)}`
