@@ -8,7 +8,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 const MyComponent = () => {
   const { state } = useContext(AppContext);
   const { owl } = state?.account || {};
-  console.log(owl?.megaFeathers)
+
   return <>
     <NextSeo
       title="Owl | Idleon Toolbox"
