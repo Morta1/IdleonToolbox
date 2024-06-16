@@ -9,7 +9,8 @@ export const patchNotes = [
     date: '06/06/2024',
     features: [
       'Added a threshold filter to the bubbles page',
-      'Added a "unobtainable" filter to the slab page + removed un-obtainable dungeon items'
+      'Added a "unobtainable" filter to the slab page + removed un-obtainable dungeon items',
+      'Added feather restart and mega feather restart timers to the dashboard'
     ],
     fixes: [
       'Fixed owl alerts',

@@ -34,13 +34,14 @@ const MyComponent = () => {
       })}
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {owl?.megaFeathers?.map(({ description, unlocked, amount }, index) => {
-        return <CardTitleAndValue cardSx={{my: 1}} value={amount > 0 ? amount : ''} tooltipTitle={cleanUnderscore(description)} key={'mega' + index} icon={`data/Feaz${index}.png`}
+      {owl?.megaFeathers?.map(({ description, unlocked, amount, totalBonus }, index) => {
+        return <CardTitleAndValue cardSx={{my: 1}} value={amount > 0 ? amount : ''} tooltipTitle={cleanUnderscore(description.replace('{',  totalBonus)) } key={'mega' + index} icon={`data/Feaz${index}.png`}
                                   imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
       })}
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {owl?.upgrades?.map(({ name, desc, level, cost }, index) => {
+        console.log('desc', desc)
         return <Card key={'upgrade-' + index} sx={{ width: 350, mt: 1 }}>
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Stack direction={'row'} gap={2}>

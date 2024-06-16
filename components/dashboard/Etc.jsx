@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Link, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getRealDateInMs, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
 import { getGiantMobChance, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
@@ -15,12 +15,16 @@ import { getAtomBonus } from '@parsers/atomCollider';
 import Grid from '@mui/material/Unstable_Grid2';
 import { CardTitleAndValue } from '@components/common/styles';
 
+const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated }) => {
   const giantMob = getGiantMobChance(characters?.[0], account);
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
+  const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
+  const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
+  console.log((account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000)
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
@@ -147,6 +151,38 @@ const Etc = ({ characters, account, lastUpdated }) => {
               </Stack>
             </CardContent>
           </Card>
+        </Grid> : null}
+        {account?.accountOptions?.[253] > 0 ? <Grid xs={6}>
+          {nextFeatherRestart < maxTimeValue ? <TimerCard
+            tooltipContent={'Next feather restart claim: ' + getRealDateInMs(nextFeatherRestart)}
+            lastUpdated={lastUpdated}
+            time={nextFeatherRestart}
+            icon={'etc/Owl_4.png'}
+            timerPlaceholder={'Feather restart available'}
+          /> : <Card>
+            <CardContent>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
+                <IconImg src={`${prefix}etc/Owl_8.png`}/>
+                {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
+              </Stack>
+            </CardContent>
+          </Card>}
+        </Grid> : null}
+        {account?.accountOptions?.[253] > 0 ? <Grid xs={6}>
+          {nextMegaFeatherRestart < maxTimeValue ? <TimerCard
+            tooltipContent={'Next mega feather claim: ' + getRealDateInMs(nextMegaFeatherRestart)}
+            lastUpdated={lastUpdated}
+            time={nextMegaFeatherRestart}
+            icon={'etc/Owl_8.png'}
+            timerPlaceholder={'Mega feather restart available'}
+          /> : <Card>
+            <CardContent>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
+                <IconImg src={`${prefix}etc/Owl_8.png`}/>
+                {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
+              </Stack>
+            </CardContent>
+          </Card>}
         </Grid> : null}
       </Grid>
       {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 330 }}>

@@ -59,7 +59,6 @@ const parseOwl = (account) => {
         + (100 * getMegaFeather(account, 7)
           + (100 * Math.min(1, getMegaFeather(account, 9))
             + 50 * Math.max(0, getMegaFeather(account, 9) - 1)))));
-
   const bonuses = [
     { name: 'Feather/sec', bonus: featherRate },
     {
@@ -98,7 +97,10 @@ const parseOwl = (account) => {
   const megaFeathers = megaFeathersDesc.map((description, index) => ({
     description,
     unlocked: index + 1 <= account?.accountOptions?.[262],
-    ...(index === 9 ? { amount: account?.accountOptions?.[262] - 10 } : {})
+    ...(index === 9 ? {
+      amount: account?.accountOptions?.[262] - 10,
+      totalBonus: 1 + totalFeatherBonus / 100
+    } : {})
   }));
   return {
     upgrades,
@@ -107,6 +109,7 @@ const parseOwl = (account) => {
     progress,
     nextLvReq,
     megaFeathers,
+    featherRate,
     restartMulti: Math.pow(3 + 2
       * getMegaFeather(account, 6), (account?.accountOptions?.[258] + 1))
   }
