@@ -29,7 +29,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       cost: cost * Math.pow(costExponent, level),
       nextUpgrades: getNextUpgradesReq({ index, cropId, cropIdIncrement, level, cost, costExponent }),
       costToMax: calcCostToMax({ level, maxLvl, cost, costExponent }),
-      value: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
+      baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
   const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[]) => {

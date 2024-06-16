@@ -3,7 +3,6 @@ describe('template spec', () => {
   const testAccount = (accountFixture) => {
     cy.visit('http://localhost:3001');
     cy.fixture(accountFixture).then((userFixture) => {
-      console.log('userFixture', userFixture)
       cy.setClipboard(JSON.stringify(userFixture));
       cy.get('[data-cy="paste-data"]').click();
       cy.get('[data-cy="nav-item-dashboard"]').click();

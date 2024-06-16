@@ -3,7 +3,18 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 
 const Market = ({ market, crop }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-    {market?.map(({ name, level, maxLvl, bonus, value, costToMax, type, cost, nextUpgrades }, marketIndex) => {
+    {market?.map(({
+                    name,
+                    level,
+                    maxLvl,
+                    bonus,
+                    value,
+                    baseValue,
+                    costToMax,
+                    type,
+                    cost,
+                    nextUpgrades
+                  }, marketIndex) => {
       return <Card sx={{ width: 250 }}
                    key={'upgrade' + marketIndex}>
         <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -15,11 +26,16 @@ const Market = ({ market, crop }) => {
                       color={marketIndex < 8 ? 'warning.light' : 'secondary.main'}>{marketIndex < 8
             ? 'Day market'
             : 'Night Market'}</Typography>
-          <Typography mt={2}>{cleanUnderscore(bonus.replace(/{|}/, value))}</Typography>
+          <Typography mt={2}>{cleanUnderscore(bonus.replace(/{/, marketIndex < 8
+            ? value
+            : baseValue)).replace(/}/, marketIndex < 8
+            ? value
+            : Math.round(100 * baseValue) / 100)}</Typography>
           {level < maxLvl ? <>
             <Stack mt={1}>
               <Typography variant={'caption'}>Next requirement</Typography>
-              <UpgradeReq icon={marketIndex < 8 ? `FarmCrop${type}` : 'FarmCropBean'} owned={crop[marketIndex < 8 ? type : 'beans']} cost={cost}/>
+              <UpgradeReq icon={marketIndex < 8 ? `FarmCrop${type}` : 'FarmCropBean'}
+                          owned={crop[marketIndex < 8 ? type : 'beans']} cost={cost}/>
               <Divider sx={{ mt: 2 }}/>
             </Stack>
             <Stack mt={2}>

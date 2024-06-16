@@ -18,7 +18,6 @@ import styled from '@emotion/styled';
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import debounce from 'lodash.debounce';
-import { isArtifactAcquired } from '@parsers/sailing';
 import { NextSeo } from 'next-seo';
 import {
   getBubbleAtomCost,
@@ -45,6 +44,7 @@ const Bubbles = () => {
   const [bargainTag, setBargainTag] = useState('0');
   const [effThreshold, setEffThreshold] = useState(75);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [hidePastThreshold, setHidePastThreshold] = useState(false);
   const [bubbles, setBubbles] = useState();
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = useMemo(() => state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active, [state?.account?.lab.vials]);
@@ -169,6 +169,11 @@ const Bubbles = () => {
       </Box>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Efficiency Threshold'} stackProps>
+          <FormControlLabel
+            control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastThreshold}
+                               onChange={() => setHidePastThreshold(!hidePastThreshold)}/>}
+            name={'classDiscount'}
+            label="Hide past threshold"/>
           <TextField sx={{ width: 150 }}
                      label={''}
                      value={effThreshold}
@@ -242,6 +247,7 @@ const Bubbles = () => {
                 effectHardCapPercent: thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
               }
             }
+            if ((!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0) && hidePastThreshold) return null;
             return <React.Fragment key={rawName + '' + bubbleName + '' + index}>
               <Card sx={{
                 width: condenseView ? 100 : 330,
@@ -360,7 +366,7 @@ const AdditionalInfo = ({
           singleLevelCost,
           total
         } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
-        const x1Extension = ['sail', 'bits'];
+        const x1Extension = ['sail', 'bits', 'w6item'];
         const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
           ? `${rawName}_x1`
           : rawName;
@@ -369,14 +375,19 @@ const AdditionalInfo = ({
         if (rawName.includes('Liquid')) {
           const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
           amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
-        }
-        else if (rawName.includes('Bits')) {
+        } else if (rawName.includes('Bits')) {
           amount = account?.gaming?.bits;
-        }
-        else if (rawName.includes('Sail')) {
+        } else if (rawName.includes('Sail')) {
           amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
-        }
-        else {
+        } else if (rawName.includes('W6item')) {
+          const crops = { 'W6item1': 4, 'W6item2': 30, 'W6item3': 46, 'W6item4': 72, 'W6item5': 99 };
+          const essences = { 'W6item6': 0, 'W6item7': 1, 'W6item8': 2, 'W6item9': 3, 'W6item10': 4 };
+          if (crops?.[rawName]) {
+            amount = account?.farming?.crop?.[crops?.[rawName]];
+          } else if (essences?.hasOwnProperty(rawName)) {
+            amount = account?.summoning?.essences?.[essences?.[rawName]];
+          }
+        } else {
           amount = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
         }
         return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>

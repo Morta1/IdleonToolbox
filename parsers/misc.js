@@ -118,12 +118,14 @@ export const getLooty = (idleonData) => {
     name: allItems?.[name]?.displayName,
     rawName: name,
     obtained: lootyRaw?.includes(name),
-    onRotation: filteredGemShopItems?.[name]
+    onRotation: filteredGemShopItems?.[name],
+    unobtainable: filteredLootyItems?.[name],
   }))
   const missingItems = slabItems?.filter(({
                                             obtained,
-                                            rawName
-                                          }) => !obtained && !filteredLootyItems?.[rawName])?.length;
+                                            rawName,
+                                            unobtainable
+                                          }) => !obtained && !unobtainable)?.length;
   return {
     slabItems,
     lootyRaw,

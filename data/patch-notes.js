@@ -8,6 +8,19 @@ export const patchNotes = [
     gameVer: '2.0.10',
     date: '06/06/2024',
     features: [
+      'Added a threshold filter to the bubbles page',
+      'Added a "unobtainable" filter to the slab page + removed un-obtainable dungeon items'
+    ],
+    fixes: [
+      'Fixed owl alerts',
+      'Fixed farming market displayed values'
+    ]
+  },
+  {
+    ver: '3.2.72',
+    gameVer: '2.0.10',
+    date: '06/06/2024',
+    features: [
       'Updated the website with version 2.0.10 data and assets',
       'Added owl page under world 1 (bonuses aren\'t applied across the site yet)'
     ],
