@@ -13,13 +13,13 @@ const Library = ({ libraryTimes, lastUpdated }) => {
 
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/Libz.png`} alt=""/>
-      <Typography sx={{ fontWeight: 'bold', fontSize: 18 }}>Library</Typography>
-      <Tooltip title={<Breakdown breakdown={breakdown} titleStyle={{width: 170}}/>}>
-        <InfoIcon/>
+      <img width={24} src={`${prefix}data/Libz.png`} alt=""/>
+      <Typography sx={{ fontWeight: 'bold', fontSize: 16 }}>Library</Typography>
+      <Tooltip title={<Breakdown breakdown={breakdown} titleStyle={{ width: 170 }}/>}>
+        <InfoIcon fontSize={'small'}/>
       </Tooltip>
     </Stack>
-    <h4>Book count: {bookCount}</h4>
+    <Typography sx={{ my: 1 }}>Book count: {bookCount}</Typography>
     <Stack direction={'row'} gap={1} alignItems={'center'}>
       <Typography sx={{ width: 130 }}>Next book in: </Typography> {next > 0 ?
       <Tooltip title={'End date: ' + nextEndDate}>

@@ -15,9 +15,11 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { format, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
+import { useRouter } from 'next/router';
 
 const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated }) => {
+  const router = useRouter();
   const giantMob = getGiantMobChance(characters?.[0], account);
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
@@ -30,7 +32,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const minibosses = getMiniBossesData(account);
   const dailyReset = new Date().getTime() + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = new Date().getTime() + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
-
+  const allBossesMax = minibosses.every(({ maxed }) => maxed);
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const allBlueActive = account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
     const jewelTrimmedSlot = account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
@@ -124,7 +126,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
         {events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0) ? <Stack
           gap={1}>
           {events?.length > 0 ? <Tooltip dark title={<RandomEvent {...events?.[0]} />}>
-            <Stack direction={'row'} gap={2}>
+            <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/misc/random-events' })} direction={'row'} gap={2}>
               <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt=""/>
               {isValid(events?.[0]?.date) ? format(events?.[0]?.date, 'dd/MM/yyyy HH:mm:ss') : null}
             </Stack>
@@ -132,7 +134,9 @@ const Etc = ({ characters, account, lastUpdated }) => {
           <Divider/>
           {account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0 ? <Tooltip
             title={<Trade {...account?.sailing?.trades?.[0]}/>}>
-            <Stack direction={'row'} gap={.5}>
+            <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
+                   direction={'row'}
+                   gap={.5}>
               <Stack direction={'row'}>
                 <img src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt=""/>/
                 <img src={`${prefix}data/SailT0.png`} alt=""/>
@@ -151,7 +155,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
             lastUpdated={lastUpdated}
             time={nextFeatherRestart}
             icon={'etc/Owl_4.png'}
-            timerPlaceholder={'Feather restart available'}
+            timerPlaceholder={'Restart available'}
           /> : <Card>
             <CardContent>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
@@ -168,14 +172,10 @@ const Etc = ({ characters, account, lastUpdated }) => {
             time={nextMegaFeatherRestart}
             icon={'etc/Owl_8.png'}
             timerPlaceholder={'Mega feather restart available'}
-          /> : <Card>
-            <CardContent>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <IconImg src={`${prefix}etc/Owl_8.png`}/>
-                {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
-              </Stack>
-            </CardContent>
-          </Card>}
+          /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <IconImg src={`${prefix}etc/Owl_8.png`}/>
+            {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
+          </Stack>}
         </> : null}
       </Section>
       <Section title={'World 3'}>
@@ -204,33 +204,32 @@ const Etc = ({ characters, account, lastUpdated }) => {
         </> : null}
         {account?.finishedWorlds?.World2 && <></>}
       </Section>
-      {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 330 }}>
-        <Card sx={{ width: '100%', height: 'fit-content' }}>
-          <CardContent>
-            <Stack gap={2}>
-              {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
-                return <Stack key={`miniboss-timer-${rawName}`}>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img width={56} height={56} style={{ objectFit: 'contain' }} src={`${prefix}etc/${rawName}.png`}
-                         alt={''}/>
-                    <Stack>
-                      <Typography>{cleanUnderscore(name)}</Typography>
-                      <Stack direction={'row'} alignItems={'center'} gap={1}
-                             divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'} flexItem/>}>
-                        <Typography component={'span'} color="text.secondary">Current: <Typography
-                          color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed
-                          ? `Maxed (${current})`
-                          : current}</Typography></Typography>
-                        {!maxed ? <Typography color="text.secondary">+1 in {daysTillNext} days</Typography> : null}
-                      </Stack>
+      <Section title={'Bosses'}>
+        {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
+          <Stack gap={2}>
+            {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
+              return <Stack key={`miniboss-timer-${rawName}`}>
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <IconImg src={`${prefix}etc/${rawName}.png`} alt={''}/>
+                  <Stack>
+                    <Typography>{cleanUnderscore(name)}</Typography>
+                    <Stack direction={'row'} alignItems={'center'} gap={1}
+                           divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'}
+                                             flexItem/>}>
+                      <Typography component={'span'} color="text.secondary">Current: <Typography
+                        color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed
+                        ? `Maxed (${current})`
+                        : current}</Typography></Typography>
+                      {!maxed ? <Typography color="text.secondary">+1 in {daysTillNext} days</Typography> : null}
                     </Stack>
                   </Stack>
                 </Stack>
-              })}
-            </Stack>
-          </CardContent>
-        </Card>
-      </Stack> : null}
+              </Stack>
+            })}
+          </Stack>
+        </Stack> : null}
+
+      </Section>
       {account?.finishedWorlds?.World2 ?
         <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
           <CardContent>
