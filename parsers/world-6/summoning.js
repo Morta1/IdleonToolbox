@@ -181,7 +181,7 @@ const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
         totalBonus = upgrade.value * allWins;
         break;
       case 11:
-        totalBonus = upgrade.value * careerWins[0];
+        totalBonus = upgrade.value * careerWins[1];
         break;
       case 18:
         totalBonus = upgrade.value * careerWins[1];
