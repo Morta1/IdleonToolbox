@@ -185,7 +185,7 @@ export const calcTimeToRankUp = (account, characters, lastUpdated, refineryData,
   };
 };
 
-export const calcCost = (rank, quantity, item, index) => {
+export const calcCost = (refinery, rank, quantity, item, index) => {
   const isSalt = item?.includes('Refinery');
   return Math.floor(Math.pow(rank, (isSalt && index <= refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
 };

@@ -66,7 +66,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
                                                 rawName,
                                                 quantity,
                                                 totalAmount
-                                              }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex));
+                                              }) => totalAmount >= calcCost(account?.refinery, rank, quantity, rawName, saltIndex));
     const { squiresCycles } = getRefineryCycles(account, characters, lastUpdated);
     const { timeLeft } = calcTimeToRankUp(account, characters, lastUpdated, { squiresCycles }, false, rank, powerCap, refined, saltIndex);
     if ((closestSalt?.timeLeft === 0 || timeLeft < closestSalt?.timeLeft) && hasMaterialsForCycle) {

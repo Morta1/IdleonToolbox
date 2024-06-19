@@ -51,7 +51,7 @@ const Refinery = () => {
   const getFuelTime = (rank, costs, saltIndex) => {
     const timeArray = [];
     costs.forEach((cost) => {
-      const baseCost = calcCost(rank, cost?.quantity, cost?.rawName, saltIndex);
+      const baseCost = calcCost(state?.account?.refinery, rank, cost?.quantity, cost?.rawName, saltIndex);
       if (baseCost > cost?.totalAmount) {
         timeArray.push(0)
       }
@@ -123,7 +123,7 @@ const Refinery = () => {
                                                     rawName,
                                                     quantity,
                                                     totalAmount
-                                                  }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex));
+                                                  }) => totalAmount >= calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex));
         const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
         let fuelTime, combustionTime, saltPerHour, previousSaltPerHour, previousPowerPerCycle, gainValuePerHour,
           gainValuePerCycle;
@@ -183,8 +183,8 @@ const Refinery = () => {
                 <Stack flexWrap={'wrap'} direction={'row'} sx={{ width: 350 }} gap={1} alignItems={'center'}
                        justifyContent={'center'}>
                   {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
-                    const cost = calcCost(rank, quantity, rawName, saltIndex);
-                    const nextLevelCost = calcCost(rank + 1, quantity, rawName, saltIndex);
+                    const cost = calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex);
+                    const nextLevelCost = calcCost(state?.account?.refinery,rank + 1, quantity, rawName, saltIndex);
                     const nextLevelPerHour = nextLevelCost * 3600 / combustionTime;
                     const nextLevelRankUp = calcResourceToRankUp(rank + 1, refined, powerCap, nextLevelCost);
                     const costPerHour = cost * 3600 / combustionTime;
