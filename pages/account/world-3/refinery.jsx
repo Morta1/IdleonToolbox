@@ -10,27 +10,17 @@ import {
 } from '@mui/material';
 import React, { forwardRef, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, growth, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
-import { getVialsBonusByEffect } from '@parsers/alchemy';
-import { getPostOfficeBonus } from '@parsers/postoffice';
 import ProgressBar from 'components/common/ProgressBar';
-import { getStampsBonusByEffect } from '@parsers/stamps';
-import { getHighestLevelOfClass } from '@parsers/misc';
-import { getFamilyBonusBonus } from '@parsers/family';
-import { classFamilyBonuses } from '../../../data/website-data';
-import { getHighestTalentByClass } from '@parsers/talents';
 import { NextSeo } from 'next-seo';
-import { getShinyBonus } from '@parsers/breeding';
-import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { constructionMasteryThresholds } from '@parsers/construction';
 import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/printer';
 import Box from '@mui/material/Box';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
-import { getArcadeBonus } from '@parsers/arcade';
+import { calcCost, calcResourceToRankUp, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
@@ -38,37 +28,7 @@ const boldSx = { fontWeight: 'bold' };
 const Refinery = () => {
   const { state } = useContext(AppContext);
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
-  const {
-    refinery,
-    alchemy,
-    saltLick,
-    lab,
-    stamps,
-    charactersLevels,
-    breeding,
-    rift,
-    towers
-  } = state?.account;
-  const vials = alchemy?.vials;
-  const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
-  const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
-  const labCycleBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active ? 3 : 1;
-  const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
-  const stampRefinerySpeed = getStampsBonusByEffect(state?.account, 'Faster_refinery_cycles');
-  const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
-  let constructionMastery = 0;
-  const isConstructUnlocked = isRiftBonusUnlocked(rift, 'Construct_Mastery');
-  if (isConstructUnlocked) {
-    constructionMastery = towers?.totalLevels >= constructionMasteryThresholds?.[0]
-      ? Math.floor(towers?.totalLevels / 10)
-      : 0
-  }
-  const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Refinery_Speed')?.bonus ?? 0;
-  const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
-  const theFamilyGuy = getHighestTalentByClass(state?.characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
-  const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
-  const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
-  const additive = redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery + arcadeBonus;
+  const { refinery } = state?.account;
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);
   const [showNextLevelCost, setShowNextLevelCost] = useState(false);
@@ -77,83 +37,16 @@ const Refinery = () => {
   const activePrints = useMemo(() => calcTotals(state?.account), [state?.account]);
 
   useEffect(() => {
-    const squires = state?.characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');
-    const squiresDataTemp = squires.reduce((res, character) => {
-      const { name, talents, cooldowns, postOffice, afkTime } = character;
-      const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
-      const cdReduction = Math.max(0, cooldownBonus);
-      const refineryThrottle = talents?.[2]?.orderedTalents.find((talent) => talent?.name === 'REFINERY_THROTTLE');
-      let cyclesNum = 0;
-      if (refineryThrottle?.maxLevel > 0) {
-        cyclesNum = growth(refineryThrottle?.funcX, refineryThrottle?.maxLevel, refineryThrottle?.x1, refineryThrottle?.x2) || 0;
-      }
+    const {
+      squiresCycles,
+      squiresCooldowns,
+      cycles
+    } = getRefineryCycles(state?.account, state?.characters, state?.lastUpdated);
 
-      const timePassed = (new Date().getTime() - afkTime) / 1000;
-      const calculatedCooldown = (1 - cdReduction / 100) * (cooldowns?.[130]);
-      const actualCd = calculatedCooldown - timePassed;
-      return {
-        cycles: res?.cycles + cyclesNum,
-        cooldowns: [...res?.cooldowns, {
-          name,
-          cooldown: actualCd < 0 ? actualCd : new Date().getTime() + (actualCd * 1000)
-        }]
-      };
-    }, { cycles: 0, cooldowns: [] });
-    setSquiresCycles(squiresDataTemp?.cycles);
-    setSquiresCooldown(squiresDataTemp?.cooldowns);
-    const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
-    const breakdown = [
-      { name: 'Vials', value: redMaltVial / 100 },
-      { name: 'Salt lick', value: saltLickUpgrade / 100 },
-      { name: 'Family', value: amplifiedFamilyBonus / 100 },
-      { name: 'Sigils', value: sigilRefinerySpeed / 100 },
-      { name: 'Stamps', value: stampRefinerySpeed / 100 },
-      { name: 'Shinies', value: shinyRefineryBonus / 100 },
-      { name: 'Const mastery', value: constructionMastery / 100 },
-      { name: 'Arcade', value: arcadeBonus / 100 },
-      { name: 'Lab', value: labCycleBonus }
-    ];
-    const combustion = {
-      name: 'Combustion',
-      time: Math.ceil(900 / ((1 + additive / 100) * labCycleBonus)) - (refinery?.timePastCombustion % 1),
-      timePast: refinery?.timePastCombustion + timePassed,
-      breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
-    };
-    const synthesis = {
-      name: 'Synthesis',
-      time: Math.ceil(3600 / ((1 + additive / 100) * labCycleBonus)) - (refinery?.timePastSynthesis % 1),
-      timePast: refinery?.timePastSynthesis + timePassed,
-      breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
-    }
-    setRefineryCycles([combustion, synthesis]);
+    setSquiresCycles(squiresCycles);
+    setSquiresCooldown(squiresCooldowns);
+    setRefineryCycles(cycles);
   }, [state?.lastUpdated]);
-
-  const calcCost = (rank, quantity, item, index) => {
-    const isSalt = item?.includes('Refinery');
-    return Math.floor(Math.pow(rank, (isSalt && index <= refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
-  };
-
-  const calcResourceToRankUp = (rank, refined, powerCap, itemCost) => {
-    const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
-    const remainingProgress = powerCap - refined;
-    return (remainingProgress / powerPerCycle) * itemCost;
-  }
-
-  const calcTimeToRankUp = (rank, powerCap, refined, index) => {
-    const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
-    const cycleByType = index <= 2 ? 900 : 3600;
-    const cycleDuration = index <= 2 ? refineryCycles?.[0]?.time : refineryCycles?.[1]?.time;
-    const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (additive) / 100))) + (includeSquireCycles
-      ? (squiresCycles ?? 0)
-      : 0);
-    let timeRequired = ((powerCap - refined) / powerPerCycle) * cycleDuration;
-    const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
-    const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
-    return {
-      timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),
-      totalTime: new Date().getTime() + (totalTime * 3600 * 1000)
-    };
-  };
 
   const getFuelTime = (rank, costs, saltIndex) => {
     const timeArray = [];
@@ -245,7 +138,10 @@ const Refinery = () => {
             previousSaltPerHour = previousPowerPerCycle ? previousPowerPerCycle * 3600 / previousCombustionTime : null;
           }
         }
-        const { timeLeft, totalTime } = calcTimeToRankUp(rank, powerCap, refined, saltIndex);
+        const {
+          timeLeft,
+          totalTime
+        } = calcTimeToRankUp(state?.account, state?.characters, state?.lastUpdated, { squiresCycles }, includeSquireCycles, rank, powerCap, refined, saltIndex);
         return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content', pr: 3 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'flex-start'} gap={3} flexWrap={'wrap'}>

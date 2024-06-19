@@ -16,6 +16,7 @@ import { format, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { useRouter } from 'next/router';
+import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
 
 const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated }) => {
@@ -51,7 +52,28 @@ const Etc = ({ characters, account, lastUpdated }) => {
     }
     return closestBuilding;
   }, { timeLeft: 0, icon: '' });
-
+  const closestSalt = account?.refinery?.salts?.reduce((closestSalt, {
+    active,
+    rank,
+    cost,
+    rawName,
+    powerCap,
+    refined,
+    autoRefinePercentage
+  }, saltIndex) => {
+    if (!active || autoRefinePercentage !== 0) return closestBuilding;
+    const hasMaterialsForCycle = cost?.every(({
+                                                rawName,
+                                                quantity,
+                                                totalAmount
+                                              }) => totalAmount >= calcCost(rank, quantity, rawName, saltIndex));
+    const { squiresCycles } = getRefineryCycles(account, characters, lastUpdated);
+    const { timeLeft } = calcTimeToRankUp(account, characters, lastUpdated, { squiresCycles }, false, rank, powerCap, refined, saltIndex);
+    if ((closestSalt?.timeLeft === 0 || timeLeft < closestSalt?.timeLeft) && hasMaterialsForCycle) {
+      return { timeLeft, icon: rawName }
+    }
+    return closestSalt
+  }, { timeLeft: 0, icon: '' });
   const closestTrap = account?.traps?.reduce((closestTrap, traps) => {
     const times = traps?.map(({ timeLeft }) => timeLeft);
     if (times.length === 0) return closestTrap;
@@ -126,7 +148,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
         {events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0) ? <Stack
           gap={1}>
           {events?.length > 0 ? <Tooltip dark title={<RandomEvent {...events?.[0]} />}>
-            <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/misc/random-events' })} direction={'row'} gap={2}>
+            <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/misc/random-events' })}
+                   direction={'row'} gap={2}>
               <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt=""/>
               {isValid(events?.[0]?.date) ? format(events?.[0]?.date, 'dd/MM/yyyy HH:mm:ss') : null}
             </Stack>
@@ -202,7 +225,11 @@ const Etc = ({ characters, account, lastUpdated }) => {
             lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
             icon={'data/WorshipSkull3.png'}/> : null}
         </> : null}
-        {account?.finishedWorlds?.World2 && <></>}
+        {account?.finishedWorlds?.World2 && closestSalt?.timeLeft !== 0 ?
+          <TimerCard
+            tooltipContent={'Closest salt: ' + getRealDateInMs(closestSalt?.timeLeft)}
+            lastUpdated={lastUpdated} time={closestSalt?.timeLeft}
+            icon={`data/${closestSalt?.icon}.png`}/> : null}
       </Section>
       <Section title={'Bosses'}>
         {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
