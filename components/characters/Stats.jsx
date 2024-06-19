@@ -120,11 +120,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <CardContent>
               <Typography color={'info.light'}>Crystal Chance</Typography>
               <Stack direction={'row'} gap={1}>
-                <Typography>{(1 / crystalSpawnChance?.value) < 100
-                  ?
-                  `${notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%`
-                  : `1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}</Typography>
-                <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={crystalSpawnChance?.breakdown}/>}>
+                <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}</Typography>
+                <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={crystalSpawnChance?.breakdown} notate={'MultiplierInfo'}/>}>
                   <InfoIcon/>
                 </Tooltip>
               </Stack>
@@ -179,7 +176,7 @@ const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
         titleStyle={{ width: titleWidth }}
         title={name}
         value={!isNaN(value)
-          ? notateNumber(value, notate)
+          ? notateNumber(value, notate)?.replace('.00', '')
           : value}/>)}
   </Stack>
 }

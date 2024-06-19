@@ -61,7 +61,7 @@ const Etc = ({ characters, account, lastUpdated }) => {
     refined,
     autoRefinePercentage
   }, saltIndex) => {
-    if (!active || autoRefinePercentage !== 0) return closestBuilding;
+    if (!active || autoRefinePercentage !== 0) return closestSalt;
     const hasMaterialsForCycle = cost?.every(({
                                                 rawName,
                                                 quantity,
