@@ -701,12 +701,17 @@ export const getDropRate = (character, account, characters) => {
     shinyBonus +
     arcadeBonus +
     companionDropRate +
-    stampBonus;
+    stampBonus +
+    starTalentBonus * (account?.accountOptions?.[189] ?? 0) +
+    equinoxDropRateBonus +
+    summoningBonus +
+    tomeBonus +
+    passiveCardBonus +
+    goldenFoodBonus +
+    (6 * achievementBonus + 4 * secondAchievementBonus) +
+    owlBonus;
 
-  let dropRate = 1.4 * luckMulti
-    + (additive + (starTalentBonus * (account?.accountOptions?.[189] ?? 0)
-      + equinoxDropRateBonus + summoningBonus + tomeBonus
-      + passiveCardBonus + goldenFoodBonus + (6 * achievementBonus + 4 * secondAchievementBonus) + owlBonus)) / 100 + 1;
+  let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
@@ -747,7 +752,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
-    { name: 'Pristine Charm', value: charmBonus },
+    { name: 'Pristine Charm', value: charmBonus / 100 },
     { name: 'Tome', value: tomeBonus / 100 },
     { name: 'Owl', value: owlBonus / 100 },
     { name: 'Summoning', value: summoningBonus / 100 },
