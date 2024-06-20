@@ -8,7 +8,8 @@ import styled from '@emotion/styled';
 const chipSlotReq = [5, 10, 15, 25, 35, 50, 75];
 const Chips = ({ playerChips, playerLabLevel }) => {
   return (
-    <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} justifyContent={'center'} gap={3}>
+    <Stack sx={{ height: 'fit-content', maxWidth: 250 }} direction={'row'} alignItems={'center'} flexWrap={'wrap'}
+           justifyContent={'center'} gap={3}>
       {playerChips?.map((chip, chipIndex) => {
         const isSlotAvailable = playerLabLevel >= chipSlotReq[chipIndex];
         return <Card elevation={5} key={`${chip?.name}-${chipIndex}`}>
