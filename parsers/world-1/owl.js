@@ -38,10 +38,11 @@ const parseOwl = (account) => {
       ...upgrade,
       cost,
       level,
-      nextLvReq
+      nextLvReq,
+      unlocked: progress > upgrade?.x3
     }
   });
-  const nextLvReqIndex = upgrades?.findIndex(({ level }) => level <= 0);
+  const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
   const nextLvReq = owlData?.[nextLvReqIndex]?.x3 || 0;
 
   const featherRate = (1 + 9 * getMegaFeather(account, 0))

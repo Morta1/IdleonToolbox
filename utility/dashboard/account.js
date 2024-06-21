@@ -348,6 +348,23 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       : 21) && account?.finishedWorlds?.World3))) {
     alerts.killRoy = true;
   }
+  if (fields?.kangaroo?.checked && account?.accountOptions?.[267] > 0) {
+    const kangaroo = {};
+    if (options?.kangaroo?.shinyThreshold?.checked && account?.kangaroo?.shinyProgress > options?.kangaroo?.shinyThreshold?.props?.value) {
+      kangaroo.shinyThreshold = options?.kangaroo?.shinyThreshold?.props?.value;
+    }
+    const fisherooReset = account?.kangaroo?.upgrades?.find(({ unlocked, name }) => name === 'Fisheroo_Reset' && unlocked);
+    if (options?.kangaroo?.fisherooReset?.checked && fisherooReset) {
+      kangaroo.fisherooReset = true;
+    }
+    const greatestCatch = account?.kangaroo?.upgrades?.find(({ unlocked, name }) => name === 'Greatest_Catch' && unlocked);
+    if (options?.kangaroo?.greatestCatch?.checked && greatestCatch) {
+      kangaroo.greatestCatch = true;
+    }
+    if (Object.keys(kangaroo).length > 0) {
+      alerts.kangaroo = kangaroo;
+    }
+  }
   return alerts;
 };
 export const getWorld3Alerts = (account, fields, options) => {

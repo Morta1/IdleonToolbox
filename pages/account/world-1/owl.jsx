@@ -40,9 +40,8 @@ const MyComponent = () => {
       })}
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {owl?.upgrades?.map(({ name, desc, level, cost }, index) => {
-        console.log('desc', desc)
-        return <Card key={'upgrade-' + index} sx={{ width: 350, mt: 1 }}>
+      {owl?.upgrades?.map(({ name, desc, level, cost, unlocked }, index) => {
+        return <Card key={'upgrade-' + index} sx={{ width: 350, mt: 1, opacity: unlocked ? 1 : .5 }}>
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Stack direction={'row'} gap={2}>
               <img src={`${prefix}etc/Owl_${index}.png`} alt={''}/>

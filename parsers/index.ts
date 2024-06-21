@@ -63,6 +63,7 @@ import { getFarming, updateFarming } from "@parsers/world-6/farming";
 import { getSummoning } from "@parsers/world-6/summoning";
 import { getTome } from "@parsers/world-4/tome";
 import { getOwl } from "@parsers/world-1/owl";
+import { getKangaroo } from "@parsers/world-2/kangaroo";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
@@ -246,5 +247,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.totems = getTotems(idleonData);
   accountData.tome = getTome(idleonData, accountData, charactersData, serverVars);
   accountData.owl = getOwl(idleonData, accountData)
+  accountData.kangaroo = getKangaroo(idleonData, accountData)
   return { accountData, charactersData };
 };

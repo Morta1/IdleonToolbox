@@ -115,6 +115,18 @@ const Account = ({ account, characters, trackers }) => {
           {!emptyAlertRows?.['World 2'] ? <Stack direction={'row'} gap={4}>
             <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>World 2</Typography>
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.['World 2']?.kangaroo?.shinyThreshold ?
+                <Alert
+                  title={`You have reached your shiny % threshold of ${alerts?.['World 2']?.kangaroo?.shinyThreshold}% (${Math.round(account?.kangaroo?.shinyProgress)}%)`}
+                  iconPath={'etc/KShiny'}/> : null}
+              {alerts?.['World 2']?.kangaroo?.fisherooReset ?
+                <Alert
+                  title={'Fisheroo Reset can be upgraded'}
+                  iconPath={'etc/KUpga_6'}/> : null}
+              {alerts?.['World 2']?.kangaroo?.greatestCatch ?
+                <Alert
+                  title={'Greatest Catch can be upgraded'}
+                  iconPath={'etc/KUpga_11'}/> : null}
               {alerts?.['World 2']?.islands?.unclaimedDays ?
                 <Alert
                   title={`You haven't claimed your islands' content in ${alerts?.['World 2']?.islands?.unclaimedDays} days`}

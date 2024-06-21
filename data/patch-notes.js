@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.73',
+    gameVer: '2.0.11',
+    date: '22/06/2024',
+    features: [
+      'Updated the website with version 2.0.11 data and assets',
+      <Typography>Added <Link
+        href={'https://idleontoolbox.com/account/world-2/kangaroo'}>poopy kangaroo</Link> page under Account - World
+        2</Typography>,
+      'Added 3 kangaroo alerts to the dashboard: shiny % threshold, fisheroo reset, greatest catch'
+    ],
+    fixes: []
+  },
+  {
     ver: '3.2.72',
     gameVer: '2.0.10',
     date: '06/06/2024',

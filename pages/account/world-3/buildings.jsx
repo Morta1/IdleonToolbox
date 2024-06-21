@@ -71,9 +71,6 @@ const Buildings = () => {
       const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
       const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
       const iterations = maxLevel - level;
-      if (tower?.name === 'Clover_Shrine') {
-        console.log('123')
-      }
       const itemsMax = getMaterialCostsToMax(itemReq, iterations, level, fakeMaxLevel, bonusInc, costCruncher);
 
 

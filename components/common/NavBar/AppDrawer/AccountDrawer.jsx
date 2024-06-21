@@ -55,7 +55,8 @@ const worldsData = {
       { label: 'sigils', icon: 'data/LabBonus12' },
       { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'islands', icon: 'data/Island1' },
-      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' }
+      { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
+      { label: 'kangaroo', icon: 'data/RooA' },
     ]
   },
   'world 3': {

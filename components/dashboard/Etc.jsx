@@ -28,6 +28,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
+  const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.progress) / account?.kangaroo?.fishRate / 60 * 1000;
+  const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.progress) / account?.kangaroo?.fishRate / 60 * 1000;
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
@@ -174,23 +176,19 @@ const Etc = ({ characters, account, lastUpdated }) => {
       <Section title={'World 1'}>
         {account?.accountOptions?.[253] > 0 ? <>
           {nextFeatherRestart < maxTimeValue ? <TimerCard
-            tooltipContent={'Next feather restart claim: ' + getRealDateInMs(nextFeatherRestart)}
+            tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
             lastUpdated={lastUpdated}
             time={nextFeatherRestart}
             icon={'etc/Owl_4.png'}
             timerPlaceholder={'Restart available'}
-          /> : <Card>
-            <CardContent>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <IconImg src={`${prefix}etc/Owl_8.png`}/>
-                {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
-              </Stack>
-            </CardContent>
-          </Card>}
+          /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <IconImg src={`${prefix}etc/Owl_8.png`}/>
+            {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
+          </Stack>}
         </> : null}
         {account?.accountOptions?.[253] > 0 ? <>
           {nextMegaFeatherRestart < maxTimeValue ? <TimerCard
-            tooltipContent={'Next mega feather claim: ' + getRealDateInMs(nextMegaFeatherRestart)}
+            tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
             lastUpdated={lastUpdated}
             time={nextMegaFeatherRestart}
             icon={'etc/Owl_8.png'}
@@ -201,6 +199,28 @@ const Etc = ({ characters, account, lastUpdated }) => {
           </Stack>}
         </> : null}
       </Section>
+      {account?.kangaroo?.fish > 0 ? <Section title={'World 2'}>
+        {nextFisherooReset < maxTimeValue ? <TimerCard
+          tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
+          lastUpdated={lastUpdated}
+          time={nextFisherooReset}
+          icon={'etc/KUpga_6.png'}
+          timerPlaceholder={'Restart available'}
+        /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+          <IconImg src={`${prefix}etc/KUpga_6.png`}/>
+          {notateNumber(getTimeAsDays(nextFisherooReset))} days
+        </Stack>}
+        {nextGreatestCatch < maxTimeValue ? <TimerCard
+          tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextGreatestCatch)}
+          lastUpdated={lastUpdated}
+          time={nextGreatestCatch}
+          icon={'etc/KUpga_11.png'}
+          timerPlaceholder={'Restart available'}
+        /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+          <IconImg src={`${prefix}etc/KUpga_11.png`}/>
+          {notateNumber(getTimeAsDays(nextGreatestCatch))} days
+        </Stack>}
+      </Section> : null}
       <Section title={'World 3'}>
         {account?.finishedWorlds?.World2 ? <TimerCard
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}

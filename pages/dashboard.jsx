@@ -107,7 +107,19 @@ const baseTrackers = {
       },
       arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
       weeklyBosses: { checked: true, options: [] },
-      killRoy: { checked: true, options: [] }
+      killRoy: { checked: true, options: [] },
+      kangaroo: {
+        checked: true,
+        options: [
+          {
+            name: 'shinyThreshold',
+            type: 'input',
+            props: { label: 'Shiny Catch %', value: 100, minValue: 100 },
+            checked: true
+          },
+          { name: 'fisherooReset', checked: true },
+          { name: 'greatestCatch', checked: true }]
+      }
     },
     'World 3': {
       printer: {
