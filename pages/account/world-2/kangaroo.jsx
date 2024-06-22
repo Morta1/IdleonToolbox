@@ -23,7 +23,7 @@ const Kangaroo = () => {
                          stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
         <Section title={'Fish'} value={notation(kangaroo?.fish)} icon={'etc/KFish.png'}/>
         <Section title={'Fish/m'} value={notation(kangaroo?.bonuses?.[0]?.bonus)} icon={'etc/KFish.png'}/>
-        <Section title={'Fish/h'} value={notation(kangaroo?.bonuses?.[0]?.bonus * 60 * 60)}
+        <Section title={'Fish/h'} value={notation(kangaroo?.bonuses?.[0]?.bonus * 60)}
                  icon={'etc/KFish.png'}/>
         <Section title={'Next upg.'} value={kangaroo?.nextLvReq > 0
           ? `${notateNumber(kangaroo?.progress)}/${notateNumber(kangaroo?.nextLvReq)}`

@@ -27,9 +27,7 @@ const baseTrackers = {
           checked: true
         }]
       },
-      materialTracker: {
-        checked: true, options: []
-      },
+      materialTracker: { checked: true, options: [] },
       guild: { checked: true, options: [{ name: 'daily', checked: true }, { name: 'weekly', checked: true }] },
       shops: {
         checked: true,
@@ -304,6 +302,37 @@ const baseTrackers = {
       }]
     },
     equipment: { checked: true, options: [{ name: 'availableUpgradesSlots', checked: true }] }
+  },
+  timers: {
+    General: {
+      daily: { checked: true, options: [] },
+      weekly: { checked: true, options: [] },
+      companions: { checked: true, options: [] },
+      syphonCharge: { checked: true, options: [] },
+      closestFullWorship: { checked: true, options: [] },
+      dungeonHappyHour: { checked: true, options: [] },
+      randomEvents: { checked: true, options: [] },
+      sailingTrades: { checked: true, options: [] }
+    },
+    Etc: {
+      library: { checked: true, options: [] },
+      minibosses: { checked: true, options: [] }
+    },
+    'World 1': {
+      featherRestart: { checked: true, options: [] },
+      megaFeatherRestart: { checked: true, options: [] },
+    },
+    'World 2': {
+      fisherooReset: { checked: true, options: [] },
+      greatestCatch: { checked: true, options: [] },
+    },
+    'World 3': {
+      printer: { checked: true, options: [] },
+      closestTrap: { checked: true, options: [] },
+      closestBuilding: { checked: true, options: [] },
+      closestFullWorship: { checked: true, options: [] },
+      closestSalt:  { checked: true, options: [] },
+    }
   }
 }
 
@@ -320,9 +349,12 @@ const Dashboard = () => {
   useEffect(() => {
     const finalAccountTrackers = migrateConfig('account', baseTrackers?.account, state?.trackers?.account, baseTrackers?.version, state?.trackers?.version);
     const finalCharactersTrackers = migrateConfig('characters', baseTrackers?.characters, state?.trackers?.characters, baseTrackers?.version, state?.trackers?.version);
+    const finalTimersTrackers = migrateConfig('timers', baseTrackers?.timers, state?.trackers?.timers, baseTrackers?.version, state?.trackers?.version);
+
     setConfig({
       account: finalAccountTrackers,
-      characters: finalCharactersTrackers
+      characters: finalCharactersTrackers,
+      timers: finalTimersTrackers
     })
   }, []);
 
@@ -369,7 +401,7 @@ const Dashboard = () => {
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
                                                    account={account} lastUpdated={lastUpdated}/> : null}
-          {isDisplayed('timers') ? <Etc characters={characters} account={account} lastUpdated={lastUpdated}/> : null}
+          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers} lastUpdated={lastUpdated}/> : null}
         </Stack>
       </Stack>
       <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}

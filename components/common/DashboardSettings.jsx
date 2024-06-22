@@ -75,13 +75,10 @@ const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) =>
       <IconButton onClick={onClose}><CloseIcon/></IconButton>
     </DialogTitle>
     <DialogContent>
-      <Tabber tabs={['Account', 'Character']}>
-        <Box>
-          <FieldsByType config={config?.account} configType={'account'} onChange={handleSettingChange}/>
-        </Box>
-        <Box>
-          <FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}/>
-        </Box>
+      <Tabber tabs={['Account', 'Character','Timers']}>
+        <Box><FieldsByType config={config?.account} configType={'account'} onChange={handleSettingChange}/></Box>
+        <Box><FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}/></Box>
+        <Box><FieldsByType config={config?.timers} configType={'timers'} onChange={handleSettingChange}/></Box>
       </Tabber>
     </DialogContent>
   </Dialog>
@@ -153,7 +150,7 @@ const BaseField = ({ option, trackerName, onChange, configType, section }) => {
             <Typography>{option?.name?.camelToTitleCase()}</Typography>
           </>}
         />
-        {option?.helperText ? <FormHelperText sx={{ ml: 3, mt:0 }}>{option?.helperText}</FormHelperText> : null}
+        {option?.helperText ? <FormHelperText sx={{ ml: 3, mt: 0 }}>{option?.helperText}</FormHelperText> : null}
       </Stack> : null}
       {type === 'input' ?
         <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}

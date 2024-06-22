@@ -26,7 +26,7 @@ const General = () => {
         <Highscores title={'Colosseum'} highscore={state?.account?.highscores?.coloHighscores}/>
         <Highscores title={'Minigame'} highscore={state?.account?.highscores?.minigameHighscores}/>
       </Stack>
-      <Totals account={state?.account}/>
+      <Totals account={state?.account} characters={state?.characters}/>
     </Stack>
   </Box>
 };

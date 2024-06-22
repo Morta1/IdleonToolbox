@@ -1,6 +1,6 @@
 import { deathNote, mapEnemies, monsters, ninjaExtraInfo } from '../data/website-data';
 import { isRiftBonusUnlocked } from './world-4/rift';
-import { tryToParse } from '@utility/helpers';
+import { lavaLog, tryToParse } from '@utility/helpers';
 
 export const getDeathNote = (idleonData, charactersData, account) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -61,9 +61,8 @@ export const getEclipseSkullsBonus = (account) => {
 
 export const calcTotalKillsDigits = (deathNote) => {
   const deathNoteCopy = JSON.parse(JSON.stringify(deathNote));
-  delete deathNoteCopy.miniBosses;
   return Object.values(deathNoteCopy).reduce((sum, { mobs }) => {
-    const digits = mobs.reduce((sum, {kills}) => sum + Math.ceil(kills).toString().length, 0);
+    const digits = mobs.reduce((sum, { kills }) => sum + Math.ceil(lavaLog(kills)), 0);
     return sum + digits;
   }, 0)
 }

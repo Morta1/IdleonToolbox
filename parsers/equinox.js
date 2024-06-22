@@ -12,23 +12,24 @@ export const getEquinox = (idleonData, account) => {
 
 const parseEquinox = (weeklyBoss, dream, account) => {
   const totalUpgrade = dream.slice(2, 13).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  const completedClouds = Object.keys(weeklyBoss).filter(key => key.startsWith('d_')).reduce((obj, key) => {
+  const clouds = Object.keys(weeklyBoss).filter(key => key.startsWith('d_')).reduce((obj, key) => {
     obj[key.substring(2)] = weeklyBoss[key];
     return obj;
   }, {});
+  const completedClouds = Object.values(clouds).reduce((sum, key) => sum + (key === -1 ? 1 : 0), 0)
   let nbChallengeActive = dream[2];
   const challenges = equinoxChallenges.map(({ label, goal, reward }, index) => ({
     label,
     goal,
     reward,
-    current: completedClouds[index] || 0,
-    active: completedClouds[index] !== -1 && 0 < nbChallengeActive--,
+    current: clouds[index] || 0,
+    active: clouds[index] !== -1 && 0 < nbChallengeActive--
   }));
   const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 13), account.accountOptions);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q') ? 50 : 0;
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
 
-  const chargeRate = Math.round(60 * (1 + (bundleBonus) / 100) * (1 + (eqBarVial + 10 * (completedClouds[3] === -1) + 15 * (completedClouds[9] === -1) + 20 * (completedClouds[14] === -1) + 25 * (completedClouds[19] === -1) + 30 * (completedClouds[22] === -1) + 35 * (completedClouds[24] === -1) + 40 * (completedClouds[29] === -1)) / 100))
+  const chargeRate = Math.round(60 * (1 + (bundleBonus) / 100) * (1 + (eqBarVial + 10 * (clouds[3] === -1) + 15 * (clouds[9] === -1) + 20 * (clouds[14] === -1) + 25 * (clouds[19] === -1) + 30 * (clouds[22] === -1) + 35 * (clouds[24] === -1) + 40 * (clouds[29] === -1)) / 100))
   const chargeRequired = Math.round((120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade));
   const currentCharge = dream?.[0];
   const timeToFull = new Date().getTime() + ((chargeRequired - currentCharge) / chargeRate * 1000 * 3600);
@@ -40,7 +41,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     timeToFull,
     challenges,
     upgrades,
-    completedClouds: Object.keys(completedClouds)?.length
+    completedClouds
   };
 }
 
@@ -57,7 +58,7 @@ const parseEquinoxUpgrades = (challenges, dream, accountOptions) => {
       desc: description?.replace('{}', bonus * dream[index] || 0).replace('{', '').replace('}', dream[index] || 0).split('_@_'),
       lvl: dream[index] || 0,
       maxLvl: maxLevel + increasedMaxLvl.filter(reward => reward.includes(name)).reduce((accumulator, currentValue) => accumulator + (parseInt(currentValue.match(/\d+/)[0], 10)), 0),
-      unlocked: index <= nbChallengeUnlocked,
+      unlocked: index <= nbChallengeUnlocked
     }
   });
 };

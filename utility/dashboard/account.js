@@ -354,11 +354,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       kangaroo.shinyThreshold = options?.kangaroo?.shinyThreshold?.props?.value;
     }
     const fisherooReset = account?.kangaroo?.upgrades?.find(({ unlocked, name }) => name === 'Fisheroo_Reset' && unlocked);
-    if (options?.kangaroo?.fisherooReset?.checked && fisherooReset) {
+    if (options?.kangaroo?.fisherooReset?.checked && fisherooReset && account?.kangaroo?.fish >= fisherooReset?.cost) {
       kangaroo.fisherooReset = true;
     }
     const greatestCatch = account?.kangaroo?.upgrades?.find(({ unlocked, name }) => name === 'Greatest_Catch' && unlocked);
-    if (options?.kangaroo?.greatestCatch?.checked && greatestCatch) {
+    if (options?.kangaroo?.greatestCatch?.checked && greatestCatch && account?.kangaroo?.fish >= greatestCatch?.cost) {
       kangaroo.greatestCatch = true;
     }
     if (Object.keys(kangaroo).length > 0) {

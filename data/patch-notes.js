@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.7 4',
+    gameVer: '2.0.11',
+    date: '23/06/2024',
+    features: ['Added timers tab to the dashboard configurations - you can now customize your timers view!'],
+    fixes: [
+      'Fixed a bug in tome death note and equinox clouds calculations',
+      'Fixed a bug in logbooks counters',
+      'Fixed a bug in fish per hour calculation'
+    ]
+  },
+  {
     ver: '3.2.73',
     gameVer: '2.0.11',
     date: '22/06/2024',

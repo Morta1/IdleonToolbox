@@ -397,10 +397,12 @@ export const getDuration = (start, end) => {
     if (duration?.years) {
       const daysInYear = getDaysInYear(new Date());
       duration.days = duration.days + daysInYear * duration?.years;
+      duration.years = 0;
     }
     if (duration?.months) {
       const daysInMonth = getDaysInMonth(new Date());
       duration.days = duration.days + daysInMonth * duration?.months;
+      duration.months = 0;
     }
     return duration;
   } catch (err) {
@@ -479,7 +481,9 @@ export const shouldDisplayDrawer = (pathname = '') => {
 export const getRealDateInMs = (ms, shouldFormat = true) => {
   const dateInMs = ms;
   if (shouldFormat) {
-    return isValid(new Date(dateInMs)) && format(dateInMs, 'dd/MM/yyyy HH:mm:ss')
+    return isValid(new Date(dateInMs))
+      ? format(dateInMs, 'dd/MM/yyyy HH:mm:ss')
+      : `${notateNumber(getTimeAsDays(dateInMs))} days`;
   }
   return dateInMs;
 }

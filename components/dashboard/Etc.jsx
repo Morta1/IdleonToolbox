@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
-import { getGiantMobChance, getMiniBossesData, getRandomEvents } from '@parsers/misc';
+import { cleanUnderscore, getDuration, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
+import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import { calcHappyHours } from '@parsers/dungeons';
@@ -11,7 +11,6 @@ import { getBuildCost } from '@parsers/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
 import { getAtomBonus } from '@parsers/atomCollider';
 import Grid from '@mui/material/Unstable_Grid2';
-import { CardTitleAndValue } from '@components/common/styles';
 import { format, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
@@ -19,17 +18,24 @@ import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
 
 const maxTimeValue = 9.007199254740992e+15;
-const Etc = ({ characters, account, lastUpdated }) => {
+const Etc = ({ characters, account, lastUpdated, trackers }) => {
+  const emptyAlerts = Object.entries(trackers || {}).reduce((res, [alertName, data]) => {
+    const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
+    return { ...res, [alertName]: allEmpty };
+  }, {});
   const router = useRouter();
-  const giantMob = getGiantMobChance(characters?.[0], account);
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
+  const mfDuration = nextMegaFeatherRestart < maxTimeValue && getDuration(new Date().getTime(), nextMegaFeatherRestart);
+  const mfReasonableDuration = mfDuration?.days ? mfDuration?.days < 365 : false;
   const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.progress) / account?.kangaroo?.fishRate / 60 * 1000;
   const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.progress) / account?.kangaroo?.fishRate / 60 * 1000;
+  const gcDuration = nextGreatestCatch < maxTimeValue && getDuration(new Date().getTime(), nextGreatestCatch);
+  const gcReasonableDuration = gcDuration?.days ? gcDuration?.days < 365 : false;
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
@@ -96,42 +102,25 @@ const Etc = ({ characters, account, lastUpdated }) => {
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      <Stack gap={2}>
-        <CardTitleAndValue cardSx={{ my: 0, width: 172 }} title={'Daily Reset'}>
-          <Timer type={'countdown'} lastUpdated={lastUpdated}
-                 date={dailyReset}/>
-        </CardTitleAndValue>
-        <CardTitleAndValue cardSx={{ my: 0, width: 172 }} title={'Weekly Reset'}>
-          <Timer type={'countdown'} lastUpdated={lastUpdated}
-                 date={weeklyReset}/>
-        </CardTitleAndValue>
-      </Stack>
-      <Section title={'General'}>
-        <TimerCard
+      {!emptyAlerts?.General && <Section title={'General'}>
+        {trackers?.General?.daily?.checked && <TimerCard
+          lastUpdated={lastUpdated}
+          time={dailyReset}
+          icon={'etc/Daily.png'}
+        />}
+        {trackers?.General?.weekly?.checked && <TimerCard
+          lastUpdated={lastUpdated}
+          time={weeklyReset}
+          icon={'etc/Weekly.png'}
+        />}
+        {trackers?.General?.companions?.checked && <TimerCard
           tooltipContent={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}
           lastUpdated={lastUpdated} time={nextCompanionClaim}
           icon={'afk_targets/Dog.png'}
           timerPlaceholder={'Go claim!'}
           showAsError={!allPetsAcquired}
-        />
-        {account?.finishedWorlds?.World2 ? <>
-          <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <Tooltip title={<Stack>
-              <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
-              <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
-              <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
-              {giantMob?.glitterbugPrayer > 0 ?
-                <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
-            </Stack>}>
-              <Stack gap={1} direction={'row'} alignItems={'center'}>
-                <IconImg src={`${prefix}data/Prayer5.png`}/>
-                <Typography>1
-                  in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
-              </Stack>
-            </Tooltip>
-          </Stack>
-        </> : null}
-        {account?.finishedWorlds?.World2 ? <>
+        />}
+        {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 ? <>
           <TimerCard
             tooltipContent={`Overflow syphon Charge (${bestWizard?.worship?.maxCharge + bestChargeSyphon}): ` + getRealDateInMs(timeToOverCharge)}
             lastUpdated={lastUpdated} time={timeToOverCharge}
@@ -139,7 +128,19 @@ const Etc = ({ characters, account, lastUpdated }) => {
             timerPlaceholder={'Overflowing charge'}
           />
         </> : null}
-        {nextHappyHours?.length > 0 ? <>
+        {trackers?.General?.closestFullWorship?.checked && account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0
+          ? <>
+            {closestWorshiper?.timeLeft !== 0 ? <TimerCard
+              tooltipContent={closestWorshiper?.character
+                ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)
+                : 'All characters charge is full'}
+              timerPlaceholder={'Full!'}
+              forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
+              lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
+              icon={'data/WorshipSkull3.png'}/> : null}
+          </>
+          : null}
+        {trackers?.General?.dungeonHappyHour?.checked && nextHappyHours?.length > 0 ? <>
           <TimerCard
             tooltipContent={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}
             lastUpdated={lastUpdated} time={nextHappyHours?.[0]}
@@ -147,111 +148,118 @@ const Etc = ({ characters, account, lastUpdated }) => {
             timerPlaceholder={'Go claim!'}
           />
         </> : null}
-        {events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0) ? <Stack
-          gap={1}>
-          {events?.length > 0 ? <Tooltip dark title={<RandomEvent {...events?.[0]} />}>
-            <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/misc/random-events' })}
-                   direction={'row'} gap={2}>
-              <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt=""/>
-              {isValid(events?.[0]?.date) ? format(events?.[0]?.date, 'dd/MM/yyyy HH:mm:ss') : null}
-            </Stack>
-          </Tooltip> : null}
-          <Divider/>
-          {account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0 ? <Tooltip
-            title={<Trade {...account?.sailing?.trades?.[0]}/>}>
-            <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
-                   direction={'row'}
-                   gap={.5}>
-              <Stack direction={'row'}>
-                <img src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt=""/>/
-                <img src={`${prefix}data/SailT0.png`} alt=""/>
+        {(trackers?.General?.randomEvents?.checked || trackers?.General?.sailingTrades?.checked) && (events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0))
+          ? <Stack
+            gap={1}>
+            {trackers?.General?.randomEvents?.checked && events?.length > 0 ? <Tooltip dark title={
+              <RandomEvent {...events?.[0]} />}>
+              <div>
+                <Stack sx={{ cursor: 'pointer' }}
+                       onClick={() => router.push({ pathname: '/account/misc/random-events' })}
+                       direction={'row'} gap={2}>
+                  <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt=""/>
+                  {isValid(events?.[0]?.date) ? format(events?.[0]?.date, 'dd/MM/yyyy HH:mm:ss') : null}
+                </Stack>
+                <Divider sx={{ mt: 1 }}/>
+              </div>
+            </Tooltip> : null}
+            {trackers?.General?.sailingTrades?.checked && account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0
+              ? <Tooltip
+                title={<Trade {...account?.sailing?.trades?.[0]}/>}>
+                <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
+                       direction={'row'}
+                       gap={.5}>
+                  <Stack direction={'row'}>
+                    <img src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt=""/>/
+                    <img src={`${prefix}data/SailT0.png`} alt=""/>
+                  </Stack>
+                  {isValid(new Date(account?.sailing?.trades?.[0]?.date))
+                    ? format(new Date(account?.sailing?.trades?.[0]?.date), 'dd/MM/yyyy HH:mm:ss')
+                    : null}
+                </Stack>
+              </Tooltip>
+              : null}
+          </Stack>
+          : null}
+      </Section>}
+      {(!emptyAlerts?.['World 1'] || !emptyAlerts?.['World 2']) &&<Stack gap={1}>
+        {!emptyAlerts?.['World 1'] && <Section title={'World 1'}>
+          {trackers?.['World 1']?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
+            {nextFeatherRestart < maxTimeValue ? <TimerCard
+              tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
+              lastUpdated={lastUpdated}
+              time={nextFeatherRestart}
+              icon={'etc/Owl_4.png'}
+              timerPlaceholder={'Restart available'}
+            /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/Owl_4.png`}/>
+              <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
+            </Stack>}
+          </> : null}
+          {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
+            {!mfReasonableDuration ? <Tooltip title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
+                <IconImg src={`${prefix}etc/Owl_8.png`}/>
+                <Typography>A long time</Typography>
               </Stack>
-              {isValid(new Date(account?.sailing?.trades?.[0]?.date))
-                ? format(new Date(account?.sailing?.trades?.[0]?.date), 'dd/MM/yyyy HH:mm:ss')
-                : null}
-            </Stack>
-          </Tooltip> : null}
-        </Stack> : null}
-      </Section>
-      <Section title={'World 1'}>
-        {account?.accountOptions?.[253] > 0 ? <>
-          {nextFeatherRestart < maxTimeValue ? <TimerCard
-            tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
+            </Tooltip> : <TimerCard
+              tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
+              lastUpdated={lastUpdated}
+              time={nextMegaFeatherRestart}
+              icon={'etc/Owl_8.png'}
+              timerPlaceholder={'Mega feather restart available'}
+            />}
+          </> : null}
+        </Section>}
+        {!emptyAlerts?.['World 2'] && account?.kangaroo?.fish > 0 ? <Section title={'World 2'}>
+          {trackers?.['World 2']?.fisherooReset?.checked ? nextFisherooReset < maxTimeValue ? <TimerCard
+            tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
             lastUpdated={lastUpdated}
-            time={nextFeatherRestart}
-            icon={'etc/Owl_4.png'}
+            time={nextFisherooReset}
+            icon={'etc/KUpga_6.png'}
             timerPlaceholder={'Restart available'}
           /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <IconImg src={`${prefix}etc/Owl_8.png`}/>
-            {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
-          </Stack>}
-        </> : null}
-        {account?.accountOptions?.[253] > 0 ? <>
-          {nextMegaFeatherRestart < maxTimeValue ? <TimerCard
-            tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
+            <IconImg src={`${prefix}etc/KUpga_6.png`}/>
+            <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
+          </Stack> : null}
+          {trackers?.['World 2']?.greatestCatch?.checked ? !gcReasonableDuration ? <Tooltip
+            title={'Next greatest catch: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/KUpga_11.png`}/>
+              <Typography>A long time</Typography>
+            </Stack>
+          </Tooltip> : <TimerCard
+            tooltipContent={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}
             lastUpdated={lastUpdated}
-            time={nextMegaFeatherRestart}
-            icon={'etc/Owl_8.png'}
-            timerPlaceholder={'Mega feather restart available'}
-          /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <IconImg src={`${prefix}etc/Owl_8.png`}/>
-            {notateNumber(getTimeAsDays(nextMegaFeatherRestart))} days
-          </Stack>}
-        </> : null}
-      </Section>
-      {account?.kangaroo?.fish > 0 ? <Section title={'World 2'}>
-        {nextFisherooReset < maxTimeValue ? <TimerCard
-          tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
-          lastUpdated={lastUpdated}
-          time={nextFisherooReset}
-          icon={'etc/KUpga_6.png'}
-          timerPlaceholder={'Restart available'}
-        /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
-          <IconImg src={`${prefix}etc/KUpga_6.png`}/>
-          {notateNumber(getTimeAsDays(nextFisherooReset))} days
-        </Stack>}
-        {nextGreatestCatch < maxTimeValue ? <TimerCard
-          tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextGreatestCatch)}
-          lastUpdated={lastUpdated}
-          time={nextGreatestCatch}
-          icon={'etc/KUpga_11.png'}
-          timerPlaceholder={'Restart available'}
-        /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
-          <IconImg src={`${prefix}etc/KUpga_11.png`}/>
-          {notateNumber(getTimeAsDays(nextGreatestCatch))} days
-        </Stack>}
-      </Section> : null}
-      <Section title={'World 3'}>
-        {account?.finishedWorlds?.World2 ? <TimerCard
+            time={nextGreatestCatch}
+            icon={'etc/KUpga_11.png'}
+            timerPlaceholder={'Restart available'}
+          /> : null}
+        </Section> : null}
+      </Stack>}
+      {!emptyAlerts?.['World 3'] && <Section title={'World 3'}>
+        {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerCard
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
           lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
-        {account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Grid>
+        {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Grid>
           <TimerCard
             tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
             lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>
         </Grid> : null}
-        {account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0 ?
+        {trackers?.['World 3']?.closestBuilding?.checked && account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0
+          ?
           <TimerCard
             tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestBuilding?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestBuilding?.timeLeft}
-            icon={`data/${closestBuilding?.icon}.png`}/> : null}
-        {account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0 ? <>
-          {closestWorshiper?.timeLeft !== 0 ? <TimerCard
-            tooltipContent={closestWorshiper?.character
-              ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)
-              : 'All characters charge is full'}
-            timerPlaceholder={'Full!'}
-            forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
-            lastUpdated={lastUpdated} time={new Date().getTime() + closestWorshiper?.timeLeft}
-            icon={'data/WorshipSkull3.png'}/> : null}
-        </> : null}
-        {account?.finishedWorlds?.World2 && closestSalt?.timeLeft !== 0 ?
+            icon={`data/${closestBuilding?.icon}.png`}/>
+          : null}
+        {trackers?.['World 3']?.closestSalt?.checked && account?.finishedWorlds?.World2 && closestSalt?.timeLeft !== 0 ?
           <TimerCard
             tooltipContent={'Closest salt: ' + getRealDateInMs(closestSalt?.timeLeft)}
             lastUpdated={lastUpdated} time={closestSalt?.timeLeft}
             icon={`data/${closestSalt?.icon}.png`}/> : null}
-      </Section>
-      <Section title={'Bosses'}>
+      </Section>}
+      {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
         {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
           <Stack gap={2}>
             {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
@@ -275,9 +283,8 @@ const Etc = ({ characters, account, lastUpdated }) => {
             })}
           </Stack>
         </Stack> : null}
-
-      </Section>
-      {account?.finishedWorlds?.World2 ?
+      </Section>}
+      {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2 ?
         <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
           <CardContent>
             <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
@@ -295,11 +302,11 @@ const IconImg = styled.img`
 
 const SectionTitle = ({ title }) => <Typography textAlign={'center'}>{title}</Typography>;
 
-const Section = ({ title, children }) => <Card>
+const Section = ({ title, children }) => <Card sx={{ height: 'fit-content' }}>
   <CardContent>
-    <Stack flexWrap={'wrap'} gap={1} sx={{ maxHeight: 350 }} divider={<Divider flexItem/>}>
+    <Stack flexWrap={'wrap'} gap={1} divider={<Divider flexItem/>}>
       <SectionTitle title={title}/>
-      <Stack flexWrap={'wrap'} gap={1} divider={<Divider/>}>
+      <Stack gap={1} divider={<Divider/>}>
         {children}
       </Stack>
     </Stack>

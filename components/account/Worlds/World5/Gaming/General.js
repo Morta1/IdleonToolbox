@@ -8,10 +8,7 @@ import Mutations from './Mutations';
 import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
 import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 
-const General = ({
-                   account,
-                   lastUpdated
-                 }) => {
+const General = ({ account, lastUpdated }) => {
   const {
     bits,
     availableSprouts,
@@ -23,15 +20,17 @@ const General = ({
     superbitsUpgrades,
     logBook
   } = account?.gaming;
+  const ownedLogBooks = logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
 
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard title={'Bits'} imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>
       <ImgCard title={'Sprouts'} imgSrc={'etc/Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}/>
-      <ImgCard title={'Best Nugget'} imgSrc={'etc/GamingNugget'} value={numberWithCommas(parseFloat(bestNugget), false)}/>
+      <ImgCard title={'Best Nugget'} imgSrc={'etc/GamingNugget'}
+               value={numberWithCommas(parseFloat(bestNugget), false)}/>
       <ImgCard title={'Drops'} imgSrc={'etc/GamingDrop'} value={availableDrops}/>
       <ImgCard title={'Envelopes'} imgSrc={'etc/GamingEnvelope'} value={notateNumber(envelopes)}/>
-      <ImgCard title={'Log book'} imgSrc={'data/GamingPlanth5'} value={`${logBook?.length} / 72`}/>
+      <ImgCard title={'Log book'} imgSrc={'data/GamingPlanth5'} value={`${ownedLogBooks} / 72`}/>
     </Stack>
 
     <Stack mt={2} mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -55,7 +54,7 @@ const General = ({
       <Imports account={account} lastUpdated={lastUpdated}/>
       <Superbits superbits={superbitsUpgrades}/>
       <Mutations account={account} lastUpdated={lastUpdated}/>
-      <LogBook logBook={account?.gaming?.logBook}/>
+      <LogBook logBook={account?.gaming?.logBook} ownedLogBooks={ownedLogBooks}/>
     </Tabber>
   </>
 };
