@@ -330,7 +330,6 @@ const baseTrackers = {
       printer: { checked: true, options: [] },
       closestTrap: { checked: true, options: [] },
       closestBuilding: { checked: true, options: [] },
-      closestFullWorship: { checked: true, options: [] },
       closestSalt:  { checked: true, options: [] },
     }
   }

@@ -11,7 +11,7 @@ import { getBuildCost } from '@parsers/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
 import { getAtomBonus } from '@parsers/atomCollider';
 import Grid from '@mui/material/Unstable_Grid2';
-import { format, isValid } from 'date-fns';
+import { format, isPast, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { useRouter } from 'next/router';
@@ -32,8 +32,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const mfDuration = nextMegaFeatherRestart < maxTimeValue && getDuration(new Date().getTime(), nextMegaFeatherRestart);
   const mfReasonableDuration = mfDuration?.days ? mfDuration?.days < 365 : false;
-  const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.progress) / account?.kangaroo?.fishRate / 60 * 1000;
-  const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.progress) / account?.kangaroo?.fishRate / 60 * 1000;
+  const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate / 60 * 1000;
+  const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate / 60 * 1000;
   const gcDuration = nextGreatestCatch < maxTimeValue && getDuration(new Date().getTime(), nextGreatestCatch);
   const gcReasonableDuration = gcDuration?.days ? gcDuration?.days < 365 : false;
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
@@ -197,7 +197,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             </Stack>}
           </> : null}
           {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
-            {!mfReasonableDuration ? <Tooltip title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+            {!isPast(nextMegaFeatherRestart) && !mfReasonableDuration ? <Tooltip title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <IconImg src={`${prefix}etc/Owl_8.png`}/>
                 <Typography>A long time</Typography>
@@ -222,8 +222,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             <IconImg src={`${prefix}etc/KUpga_6.png`}/>
             <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
           </Stack> : null}
-          {trackers?.['World 2']?.greatestCatch?.checked ? !gcReasonableDuration ? <Tooltip
-            title={'Next greatest catch: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+          {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && !gcReasonableDuration ? <Tooltip
+            title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <IconImg src={`${prefix}etc/KUpga_11.png`}/>
               <Typography>A long time</Typography>
