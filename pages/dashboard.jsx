@@ -413,9 +413,12 @@ const Dashboard = () => {
           position: 'sticky',
           top: 100
         }}>
-        {showWideSideBanner ? <Adsense
+        {showWideSideBanner ? Math.random() < .5 ? <Adsense
           client="ca-pub-1842647313167572"
-          slot="2700532291"
+          slot="8794950741"
+        /> : <Adsense
+          client="ca-pub-1842647313167572"
+          slot="5621992495"
         /> : null}
         {showNarrowSideBanner && !showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"

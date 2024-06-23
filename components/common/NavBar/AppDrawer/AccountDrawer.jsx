@@ -2,7 +2,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Collapse, Divider, List, ListItem, ListItemText, Stack } from '@mui/material';
 import React, { useState } from 'react';
-import { prefix } from '../../../../utility/helpers';
+import { prefix } from '@utility/helpers';
 import { useRouter } from 'next/router';
 import Kofi from '../../Kofi';
 
@@ -17,15 +17,15 @@ const worldsData = {
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'constellations', icon: 'data/StarTitle1' },
       { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
-      { label: 'guild', icon: 'etc/Guild' },
-    ],
+      { label: 'guild', icon: 'etc/Guild' }
+    ]
   },
   'premium-currency': {
     style: { filter: 'hue-rotate(180deg)' },
     icon: 'data/PremiumGem',
     categories: [
       { label: 'gemShop', icon: 'data/PremiumGem' },
-      { label: 'companions', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
+      { label: 'companions', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } }
     ]
   },
   'task board': {
@@ -33,7 +33,7 @@ const worldsData = {
     categories: [
       { label: 'achievements', icon: 'data/TaskAchBorder1' },
       { label: 'tasks', icon: 'etc/TasksStar' },
-      { label: 'merits', icon: 'etc/Merit_4' },
+      { label: 'merits', icon: 'etc/Merit_4' }
     ]
   },
   'world 1': {
@@ -43,7 +43,7 @@ const worldsData = {
       { label: 'forge', icon: 'data/ForgeD' },
       { label: 'bribes', icon: 'data/BribeW' },
       { label: 'stamps', icon: 'data/StampA34' },
-      { label: 'owl', icon: 'etc/Owl' },
+      { label: 'owl', icon: 'etc/Owl' }
     ]
   },
   'world 2': {
@@ -56,7 +56,7 @@ const worldsData = {
       { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'islands', icon: 'data/Island1' },
       { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
-      { label: 'kangaroo', icon: 'data/RooA' },
+      { label: 'kangaroo', icon: 'data/RooA' }
     ]
   },
   'world 3': {
@@ -83,7 +83,7 @@ const worldsData = {
       { label: 'laboratory', icon: 'data/ClassIcons53' },
       { label: 'rift', icon: 'data/Mface75' },
       { label: 'killroyPrime', icon: 'etc/KillroyPrime' },
-      { label: 'tome', icon: 'etc/Tome_0' },
+      { label: 'tome', icon: 'etc/Tome_0' }
     ]
   },
   'world 5': {
@@ -126,7 +126,7 @@ const AccountDrawer = () => {
       window.gtag('event', 'handle_nav', {
         event_category: url,
         event_label: 'engagement',
-        value: 1,
+        value: 1
       })
     }
     router.push({ pathname: url, query: router.query });
