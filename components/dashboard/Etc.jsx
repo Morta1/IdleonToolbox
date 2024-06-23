@@ -31,11 +31,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const mfDuration = nextMegaFeatherRestart < maxTimeValue && getDuration(new Date().getTime(), nextMegaFeatherRestart);
-  const mfReasonableDuration = mfDuration?.days ? mfDuration?.days < 365 : false;
+  const mfLongDuration = mfDuration?.days ? mfDuration?.days > 365 : false;
   const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate / 60 * 1000;
   const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate / 60 * 1000;
   const gcDuration = nextGreatestCatch < maxTimeValue && getDuration(new Date().getTime(), nextGreatestCatch);
-  const gcReasonableDuration = gcDuration?.days ? gcDuration?.days < 365 : false;
+  const gcLongDuration = gcDuration?.days ? gcDuration?.days > 365 : false;
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
@@ -197,7 +197,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             </Stack>}
           </> : null}
           {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
-            {!isPast(nextMegaFeatherRestart) && !mfReasonableDuration ? <Tooltip title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+            {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <IconImg src={`${prefix}etc/Owl_8.png`}/>
                 <Typography>A long time</Typography>
@@ -222,7 +222,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             <IconImg src={`${prefix}etc/KUpga_6.png`}/>
             <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
           </Stack> : null}
-          {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && !gcReasonableDuration ? <Tooltip
+          {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
             title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <IconImg src={`${prefix}etc/KUpga_11.png`}/>
