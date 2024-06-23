@@ -166,9 +166,10 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       }
     }
     if (options?.etc?.gemsFromBosses?.checked) {
-      const availableKills = account?.accountOptions?.[195] <= 300;
+      const availableKills = account?.accountOptions?.[195] < 300;
+      console.log(account?.accountOptions?.[195])
       if (availableKills) {
-        alerts.gemsFromBosses = account?.accountOptions?.[195] <= 300;
+        alerts.gemsFromBosses = account?.accountOptions?.[195] < 300;
       }
     }
     if (Object.keys(etc).length > 0) {
