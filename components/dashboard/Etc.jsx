@@ -104,11 +104,13 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {!emptyAlerts?.General && <Section title={'General'}>
         {trackers?.General?.daily?.checked && <TimerCard
+          tooltipContent={'Daily reset'}
           lastUpdated={lastUpdated}
           time={dailyReset}
           icon={'etc/Daily.png'}
         />}
         {trackers?.General?.weekly?.checked && <TimerCard
+          tooltipContent={'Weekly reset'}
           lastUpdated={lastUpdated}
           time={weeklyReset}
           icon={'etc/Weekly.png'}
