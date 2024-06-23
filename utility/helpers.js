@@ -389,7 +389,11 @@ export const worlds = {
   5: 'Spirited Valley'
 };
 
+const maxTimeValue = 9.007199254740992e+15;
 export const getDuration = (start, end) => {
+  if (start > maxTimeValue || end > maxTimeValue) {
+    return {};
+  }
   try {
     const parsedStartTime = new Date(start);
     const parsedEndTime = new Date(end);

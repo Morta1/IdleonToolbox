@@ -30,12 +30,12 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
-  const mfDuration = nextMegaFeatherRestart < maxTimeValue && getDuration(new Date().getTime(), nextMegaFeatherRestart);
-  const mfLongDuration = mfDuration?.days ? mfDuration?.days > 365 : false;
+  const mfDuration = getDuration(new Date().getTime(), nextMegaFeatherRestart);
+  const mfLongDuration = nextMegaFeatherRestart > maxTimeValue || mfDuration?.days > 365;
   const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate / 60 * 1000;
   const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate / 60 * 1000;
-  const gcDuration = nextGreatestCatch < maxTimeValue && getDuration(new Date().getTime(), nextGreatestCatch);
-  const gcLongDuration = gcDuration?.days ? gcDuration?.days > 365 : false;
+  const gcDuration = getDuration(new Date().getTime(), nextGreatestCatch);
+  const gcLongDuration = nextGreatestCatch > maxTimeValue || gcDuration?.days > 365;
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
@@ -184,7 +184,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           </Stack>
           : null}
       </Section>}
-      {(!emptyAlerts?.['World 1'] || !emptyAlerts?.['World 2']) &&<Stack gap={1}>
+      {(!emptyAlerts?.['World 1'] || !emptyAlerts?.['World 2']) && <Stack gap={1}>
         {!emptyAlerts?.['World 1'] && <Section title={'World 1'}>
           {trackers?.['World 1']?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
             {nextFeatherRestart < maxTimeValue ? <TimerCard
@@ -199,7 +199,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             </Stack>}
           </> : null}
           {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
-            {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+            {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
+              title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <IconImg src={`${prefix}etc/Owl_8.png`}/>
                 <Typography>A long time</Typography>
