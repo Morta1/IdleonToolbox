@@ -1,4 +1,4 @@
-import { lavaLog, tryToParse } from '../utility/helpers';
+import { lavaLog, notateNumber, tryToParse } from '../utility/helpers';
 import { getDeityLinkedIndex } from './divinity';
 import { isArtifactAcquired } from './sailing';
 import { getTalentBonus } from './talents';
@@ -16,9 +16,11 @@ export const getPrinter = (idleonData, charactersData, accountData) => {
 const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
   const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, 3);
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
-  const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3 ? goldRelic?.eldritchMultiplier : goldRelic?.acquired === 2
-    ? goldRelic?.ancientMultiplier
-    : 0;
+  const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3
+    ? goldRelic?.eldritchMultiplier
+    : goldRelic?.acquired === 2
+      ? goldRelic?.ancientMultiplier
+      : 0;
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
   const daysSinceLastSample = accountData?.accountOptions?.[125];
@@ -32,7 +34,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
     return res;
   }, 0);
 
-  const skillMasteryBonus = getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3);
+  const isSkillMasteryUnlocked = accountData?.currentRift > 15;
+  const skillMasteryBonus = isSkillMasteryUnlocked
+    ? getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3)
+    : 0;
 
   const printData = rawPrinter?.slice(5, rawPrinter?.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
@@ -80,13 +85,14 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
               : extraPrinting)
 
           boostedValue *= multi;
+
           const breakdown = [
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
             { name: 'Harriep God', value: harriepGodIndex.includes(charIndex) ? 3 : 0 },
             { name: 'Skill Mastery', value: 1 + skillMasteryBonus / 100 },
-            { name: 'Divine Knight', value: 1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100 },
+            { name: 'Divine Knight', value: notateNumber(1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100, 'MultiplierInfo') },
             { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
-            { name: 'Charm', value: 1 + (charmBonus) / 100 },
+            { name: 'Charm', value: 1 + (charmBonus) / 100 }
           ];
 
           return [...result, {
