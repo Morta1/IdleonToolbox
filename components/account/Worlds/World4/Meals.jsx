@@ -21,7 +21,8 @@ import { isArtifactAcquired } from '@parsers/sailing';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
-const maxTimeValue = 9.007199254740992e+15;
+const maxTimeValue = 8.64e15;
+
 let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, -2, 11, 30, 40, 50, 60, 70, 80, 90];
 const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
@@ -83,6 +84,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus.value / 100);
       }
+
       const breakpointTimes = breakpoints.map((breakpoint) => {
         if (breakpoint === 0 || breakpoint === -1) {
           const timeTillNextLevel = amount >= levelCost
@@ -268,6 +270,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
               bonusDiff,
               timeTillNextLevel
             } = meal;
+
             return <Card key={`${name}-${index}`} sx={{ width: 340 }}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
@@ -285,7 +288,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                       ({notateNumber(bonusDiff, 'MultiplierInfo')})
                     </CenteredTypography>
                     <Typography component={'span'}>
-                      Next Level: {timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
+                      Next Level: {new Date().getTime() + timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
                       <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                              staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
                     </Typography>
@@ -362,7 +365,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                         }
                         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                           <Typography>Next Milestone: </Typography>
-                          {timeInMs < maxTimeValue
+                          {new Date().getTime() + timeInMs < maxTimeValue
                             ? <Timer
                               date={new Date().getTime() + timeToBp * 3600 * 1000}
                               staticTime={true}/>
