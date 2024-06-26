@@ -37,7 +37,7 @@ const Kangaroo = () => {
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
         <Section title={'Progress'} value={`${notation(kangaroo?.shinyProgress)}%`} icon={'etc/KShiny.png'}/>
-        <Section title={'Shiny/m'} value={notation(kangaroo?.shinyRate)} icon={'etc/KShiny.png'}/>
+        <Section title={'Shiny/m'} value={notation(kangaroo?.shinyRate * 60)} icon={'etc/KShiny.png'}/>
       </CardTitleAndValue>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.bonuses.map(({ name, bonus, percentage }, index) => {
