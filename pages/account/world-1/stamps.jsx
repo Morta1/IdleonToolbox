@@ -18,7 +18,7 @@ import Tooltip from 'components/Tooltip'; // Grid version 2
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { CardTitleAndValue } from '@components/common/styles';
-import { calcStampLevels, unobtainableStamps, updateStamps } from '@parsers/stamps';
+import { calcStampLevels, getStampBonus, unobtainableStamps, updateStamps } from '@parsers/stamps';
 import Grid from '@mui/material/Unstable_Grid2';
 import { grey } from '@mui/material/colors';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -39,7 +39,6 @@ const Stamps = () => {
   useEffect(() => {
     setLocalStamps(updateStamps(state?.account, state?.characters, forcedGildedStamp));
   }, [forcedGildedStamp, state]);
-
 
   const getBorder = ({ materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage }) => {
     if (level <= 0) return '';
@@ -133,7 +132,7 @@ const Stamps = () => {
         </CardTitleAndValue>
       </Stack>
       <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
-        {Object.entries(localStamps).map(([category, stamps], categoryIndex) => {
+        {Object.entries(localStamps || {}).map(([category, stamps], categoryIndex) => {
           return <Grid xs={12} md={6} lg={4} container spacing={.5}
                        sx={{ alignContent: 'start', justifyContent: 'center' }}
                        key={category + '' + categoryIndex}>
@@ -148,13 +147,15 @@ const Stamps = () => {
                 hasMoney,
                 enoughPlayerStorage,
                 reqItemMultiplicationLevel,
-                displayName
+                displayName,
+                bestCharacter
               } = stamp;
+              const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
               const border = getBorder(stamp);
               const isBlank = displayName === 'Blank';
               return <Grid xs={4} sm={3} key={rawName + stampIndex}>
                 <Tooltip maxWidth={450}
-                         title={isBlank ? '' : <StampInfo {...stamp} subtractGreenStacks={subtractGreenStacks}/>}>
+                         title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus} subtractGreenStacks={subtractGreenStacks}/>}>
                   <Card sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -206,9 +207,9 @@ const StampInfo = ({
                      hasMoney,
                      hasMaterials,
                      enoughPlayerStorage,
-  itemReq
+                      itemReq,
+                      bonus
                    }) => {
-  const bonus = growth(func, level, x1, x2, true) * (multiplier ?? 1);
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
   return <>

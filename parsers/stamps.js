@@ -42,7 +42,7 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
 
 export const updateStamps = (account, characters, gildedStamp = true) => {
   const stampReducer = account?.atoms?.stampReducer;
-  const flatten = Object.values(account?.stamps).flat().map((stamp) => {
+  const flatten = Object.values(account?.stamps || {}).flat().map((stamp) => {
     const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
     const goldCost = getGoldCost(stamp?.level, stamp, account);
     const hasMoney = account?.currencies?.rawMoney >= goldCost;

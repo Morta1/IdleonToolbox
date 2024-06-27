@@ -14,7 +14,7 @@ import { crafts, items } from '../../../data/website-data';
 import { getHighestCapacityCharacter } from '../../../parsers/misc';
 import Tabber from '../../../components/common/Tabber';
 import { CardTitleAndValue } from '../../../components/common/styles';
-import { calcStampLevels, unobtainableStamps } from '../../../parsers/stamps';
+import { calcStampLevels, getStampBonus, unobtainableStamps } from '../../../parsers/stamps';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
@@ -206,6 +206,7 @@ const Stamps = () => {
             let bestCharacter = getBestCharacterForCraft(items?.[itemReq?.rawName], state?.characters, state?.account);
             hasCharacter = bestCharacter?.maxCapacity >= itemRequirements?.materialCost;
             const isBlank = displayName === 'Blank';
+            const bonus = getStampBonus(state?.account, Object.keys(state?.account?.stamps || {})?.[selectedTab], rawName, bestCharacter);
             return <React.Fragment key={rawName + '' + displayName + '' + index}>
               <Card sx={{
                 overflow: 'visible',
@@ -238,7 +239,7 @@ const Stamps = () => {
                                                                                stampName={displayName}
                                                                                goalBonus={goalBonus}
                                                                                bestCharacter={bestCharacter}/> :
-                          <StampTooltip {...{ ...stamp, goalLevel, goalBonus }}/>}>
+                          <StampTooltip {...{ ...stamp, goalLevel, goalBonus, bonus }}/>}>
                         <StampIcon width={48} height={48}
                                    level={level}
                                    src={`${prefix}data/${rawName}.png`}
@@ -321,8 +322,7 @@ const BonusIcon = styled.img`
   height: 32px;
   object-fit: contain;
 `
-const StampTooltip = ({ func, level, goalLevel, x1, x2, displayName, effect, multiplier = 1, goalBonus }) => {
-  const bonus = growth(func, level, x1, x2, true) * multiplier;
+const StampTooltip = ({ level, goalLevel, displayName, effect, multiplier = 1, goalBonus, bonus }) => {
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)}</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
