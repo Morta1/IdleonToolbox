@@ -97,10 +97,12 @@ const parseKangaroo = (account) => {
     }
   });
 
-  const shinyRate = getResetBonuses(account, 1)
+  const baseShinyRate = getResetBonuses(account, 1)
     * account?.accountOptions?.[270] * (1 + (getMegaFish(account, 9) * account?.accountOptions?.[268]) / 100)
     * Math.max(1, 1 + 0.5 * (account?.accountOptions?.[275] - 5) * getMegaFish(account, 5));
+  const shinyRate = .05 * baseShinyRate * 1200;
   const shinyReq = 7200 / (1 + (4 * account?.accountOptions?.[276]) / 100);
+  const shinyRatePercent =  100 * Math.max(0, shinyRate / shinyReq)
   const shinyProgress = 100 * Math.max(0, account?.accountOptions?.[289] / shinyReq);
 
   const totalFishRate = 50 * getMegaFish(account, 1)
@@ -195,7 +197,8 @@ const parseKangaroo = (account) => {
     allMultipliers,
     tarUpgrades,
     shinyProgress,
-    shinyRate
+    shinyRate,
+    shinyRatePercent
   }
 }
 

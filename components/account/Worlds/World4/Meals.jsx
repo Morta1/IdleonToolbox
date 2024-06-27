@@ -55,7 +55,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       }
       return sortedMeals.slice(0, mealToUpgrade).at(0);
     }
-    return null;
+    return baseMeals;
   }
   const noMealLeftBehind = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel), [meals, mealMaxLevel]);
   const noMealLeftBehindArray = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel, true), [meals, mealMaxLevel]);

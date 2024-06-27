@@ -37,7 +37,7 @@ const Kangaroo = () => {
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
         <Section title={'Progress'} value={`${notation(kangaroo?.shinyProgress)}%`} icon={'etc/KShiny.png'}/>
-        <Section title={'Shiny/m'} value={notation(kangaroo?.shinyRate * 60)} icon={'etc/KShiny.png'}/>
+        <Section title={'Shiny/m'} value={`${notation(kangaroo?.shinyRatePercent)}%`} icon={'etc/KShiny.png'}/>
       </CardTitleAndValue>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.bonuses.map(({ name, bonus, percentage }, index) => {
@@ -57,7 +57,7 @@ const Kangaroo = () => {
           <Typography variant={'h5'} mb={1}>Multi</Typography>
           <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                              stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-            <Section title={'Total multi'} value={`${kangaroo?.totalMulti.replace('.00','')}x`}/>
+            <Section title={'Total multi'} value={`${kangaroo?.totalMulti.replace('.00', '')}x`}/>
             {kangaroo?.allMultipliers?.map(({ multi, amount }, multiIndex) => <Section key={'multi' + multiIndex}
                                                                                        title={amount}
                                                                                        icon={`data/RooFishS${multiIndex}.png`}
