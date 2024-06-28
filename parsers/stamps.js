@@ -207,11 +207,11 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
         lvlDiff *= 20 * stamp?.reqItemMultiplicationLevel / 200;
         const reducedLevel = Math.floor(Math.min(lvlDiff, stampLevel));
         const finalLevel = Math.min(reducedLevel, stamp?.level);
-        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage * (1 + charmBonus / 100);
+        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier || 1) * (toiletPaperPostage || 1) * (1 + charmBonus / 100);
       }
     }
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier ?? 1) * toiletPaperPostage * (1 + charmBonus / 100);
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier || 1) * (toiletPaperPostage || 1) * (1 + charmBonus / 100);
 }
 
 export const applyStampsMulti = (stamps, multiplier) => {

@@ -189,13 +189,9 @@ const Stamps = () => {
 };
 
 const StampInfo = ({
-                     func,
-                     x1,
-                     x2,
                      displayName,
                      level,
                      effect,
-                     rawName,
                      multiplier,
                      goldCost,
                      materialCost,
@@ -215,7 +211,7 @@ const StampInfo = ({
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
-                variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, bonus))}</Typography>
+                variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00','')))}</Typography>
     {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level > 0 ? <>
       <CostSection isMaterialCost={!(hasMoney && hasMaterials && enoughPlayerStorage)}
