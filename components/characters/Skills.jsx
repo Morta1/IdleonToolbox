@@ -16,14 +16,21 @@ const getRankColor = (rank) => {
 
 const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
 const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
+  const hasRankOne = Object.keys(skills || {})?.filter((skillName) => skills[skillName]?.rank === 1)?.length > 0;
+  if (showSkillsRankOneOnly && !hasRankOne) return null;
+
   return <Stack>
     <Typography variant={'h5'}>Skills</Typography>
     <Card>
       <CardContent>
         <Box sx={{
-          display: 'grid',
+          display: showSkillsRankOneOnly ? 'flex' : 'grid',
           gridAutoFlow: 'column',
           gap: showSkillsRankOneOnly ? '24px' : 'none',
+          ...(showSkillsRankOneOnly ? {
+            maxWidth: 500,
+            flexWrap: 'wrap'
+          } : {}),
           gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(5, minmax(45px, 100px))` },
           gridTemplateRows: showSkillsRankOneOnly ? null : { xs: 'repeat(3, minmax(45px, 100px))' },
           justifyContent: 'center'
