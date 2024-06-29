@@ -50,7 +50,8 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
     cauldrons,
     cauldronsInfo,
     multiplierArray: alchemyRaw?.[10],
-    liquids: alchemyRaw?.[6]
+    liquids: alchemyRaw?.[6],
+    activities: alchemyActivity
   };
 };
 

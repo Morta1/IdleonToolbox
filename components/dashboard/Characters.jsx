@@ -107,6 +107,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} is missing a trap`} iconPath={'data/ClassIcons48'}/> : null}
               {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
                 <Alert title={`${name} is missing an active bubble`} iconPath={'data/aJarB0'}/> : null}
+              {trackers?.alchemy && alerts?.alchemy?.noActivity ?
+                <Alert title={`${name} is not doing any alchemy activity`} iconPath={'etc/NoAlcActivity'}/> : null}
               {trackers?.cards && alerts?.cards?.cardSet ?
                 <Alert title={alerts?.cards?.cardSet?.text}
                        iconPath={`data/${character?.cards?.cardSet?.rawName || 'CardSet0'}`}/> : null}

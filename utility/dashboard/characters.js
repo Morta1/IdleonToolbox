@@ -92,6 +92,9 @@ export const alchemyAlerts = (account, characters, character, lastUpdated, optio
     const maxEquippedBubbles = arenaBonusUnlock ? 3 : 2;
     alerts.missingBubbles = character?.equippedBubbles?.length < maxEquippedBubbles;
   }
+  if (account?.alchemy?.activities?.[character?.playerId]?.activity === -1) {
+    alerts.noActivity = true;
+  }
   return alerts;
 }
 export const obolsAlerts = (account, characters, character, lastUpdated, options) => {
