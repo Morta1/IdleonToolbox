@@ -375,7 +375,7 @@ export const getWorld3Alerts = (account, fields, options) => {
     const { includeOakAndCopper, showAlertWhenFull } = options?.printer || {};
     const totals = calcTotals(account, showAlertWhenFull);
     const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
-    const atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => account?.accountOptions?.[132] && !exclusions?.[itemName] && atoms).map(([name, data]) => ({
+    const atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
       name: items?.[name]?.displayName,
       rawName: name,
       ...data
