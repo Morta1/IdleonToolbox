@@ -120,7 +120,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <CardContent>
               <Typography color={'info.light'}>Crystal Chance</Typography>
               <Stack direction={'row'} gap={1}>
-                <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}</Typography>
+                <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`} ({notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>
                 <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={crystalSpawnChance?.breakdown} notate={'MultiplierInfo'}/>}>
                   <InfoIcon/>
                 </Tooltip>
