@@ -116,6 +116,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           icon={'etc/Weekly.png'}
         />}
         {trackers?.General?.companions?.checked && <TimerCard
+          page={'account/premium-currency/companions'}
           tooltipContent={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}
           lastUpdated={lastUpdated} time={nextCompanionClaim}
           icon={'afk_targets/Dog.png'}
@@ -124,6 +125,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         />}
         {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 ? <>
           <TimerCard
+            page={'account/world-3/worship'}
             tooltipContent={`Overflow syphon Charge (${bestWizard?.worship?.maxCharge + bestChargeSyphon}): ` + getRealDateInMs(timeToOverCharge)}
             lastUpdated={lastUpdated} time={timeToOverCharge}
             icon={'data/UISkillIcon475.png'}
@@ -133,6 +135,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.General?.closestFullWorship?.checked && account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0
           ? <>
             {closestWorshiper?.timeLeft !== 0 ? <TimerCard
+              page={'account/world-3/worship'}
               tooltipContent={closestWorshiper?.character
                 ? `Closest full worship - ${closestWorshiper?.character}: ` + getRealDateInMs(new Date().getTime() + closestWorshiper?.timeLeft)
                 : 'All characters charge is full'}
@@ -144,6 +147,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           : null}
         {trackers?.General?.dungeonHappyHour?.checked && nextHappyHours?.length > 0 ? <>
           <TimerCard
+            page={'account/misc/dungeons'}
             tooltipContent={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}
             lastUpdated={lastUpdated} time={nextHappyHours?.[0]}
             icon={'etc/Happy_Hour.png'}
@@ -188,24 +192,28 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {!emptyAlerts?.['World 1'] && <Section title={'World 1'}>
           {trackers?.['World 1']?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
             {nextFeatherRestart < maxTimeValue ? <TimerCard
+              page={'account/world-1/owl'}
               tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
               lastUpdated={lastUpdated}
               time={nextFeatherRestart}
               icon={'etc/Owl_4.png'}
               timerPlaceholder={'Restart available'}
-            /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+            /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: 'account/world-1/owl' })}>
               <IconImg src={`${prefix}etc/Owl_4.png`}/>
               <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
             </Stack>}
           </> : null}
           {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
             {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
+              sx={{ cursor: 'pointer' }}
+              onClick={() => router.push({ pathname: 'account/world-1/owl' })}
               title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <IconImg src={`${prefix}etc/Owl_8.png`}/>
                 <Typography>A long time</Typography>
               </Stack>
             </Tooltip> : <TimerCard
+              page={'account/world-1/owl'}
               tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
               lastUpdated={lastUpdated}
               time={nextMegaFeatherRestart}
@@ -216,22 +224,24 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         </Section>}
         {!emptyAlerts?.['World 2'] && account?.kangaroo?.fish > 0 ? <Section title={'World 2'}>
           {trackers?.['World 2']?.fisherooReset?.checked ? nextFisherooReset < maxTimeValue ? <TimerCard
+            page={'account/world-2/kangaroo'}
             tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
             lastUpdated={lastUpdated}
             time={nextFisherooReset}
             icon={'etc/KUpga_6.png'}
             timerPlaceholder={'Restart available'}
-          /> : <Stack direction={'row'} gap={1} alignItems={'center'}>
+          /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
             <IconImg src={`${prefix}etc/KUpga_6.png`}/>
             <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
           </Stack> : null}
           {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
             title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
-            <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
               <IconImg src={`${prefix}etc/KUpga_11.png`}/>
               <Typography>A long time</Typography>
             </Stack>
           </Tooltip> : <TimerCard
+            page={'account/world-2/kangaroo'}
             tooltipContent={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}
             lastUpdated={lastUpdated}
             time={nextGreatestCatch}
@@ -242,22 +252,25 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Stack>}
       {!emptyAlerts?.['World 3'] && <Section title={'World 3'}>
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerCard
+          page={'account/world-3/printer'}
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
           lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
-        {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ? <Grid>
-          <TimerCard
+        {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ? <TimerCard
+            page={'account/world-3/traps'}
             tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
             lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>
-        </Grid> : null}
+          : null}
         {trackers?.['World 3']?.closestBuilding?.checked && account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0
           ?
           <TimerCard
+            page={'account/world-3/buildings'}
             tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestBuilding?.timeLeft)}
             lastUpdated={lastUpdated} time={new Date().getTime() + closestBuilding?.timeLeft}
             icon={`data/${closestBuilding?.icon}.png`}/>
           : null}
         {trackers?.['World 3']?.closestSalt?.checked && account?.finishedWorlds?.World2 && closestSalt?.timeLeft !== 0 ?
           <TimerCard
+            page={'account/world-3/refinery'}
             tooltipContent={'Closest salt: ' + getRealDateInMs(closestSalt?.timeLeft)}
             lastUpdated={lastUpdated} time={closestSalt?.timeLeft}
             icon={`data/${closestSalt?.icon}.png`}/> : null}
@@ -323,10 +336,14 @@ const TimerCard = ({
                      time,
                      timerPlaceholder = '',
                      forcePlaceholder,
-                     showAsError
+                     showAsError,
+                     page
                    }) => {
+  const router = useRouter();
+
   return <Tooltip title={tooltipContent}>
-    <Stack direction={'row'} gap={1} alignItems={'center'}>
+    <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
+           onClick={() => page && router.push({ pathname: page })}>
       <IconImg src={`${prefix}${icon}`}/>
       {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}

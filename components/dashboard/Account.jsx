@@ -170,12 +170,6 @@ const Account = ({ account, characters, trackers }) => {
                                                                                  title={`${getNumberWithOrdinal(index + 1)} liquid is full`}
                                                                                  iconPath={`data/Liquid${index + 1}_x1`}/>)
                 : null}
-              {/*{alerts?.['World 2']?.postOffice?.shipments?.length > 0*/}
-              {/*  ?*/}
-              {/*  alerts?.['World 2']?.postOffice?.shipments?.map(({ index }) => <Alert key={'shipment' + index}*/}
-              {/*                                                                        title={`Order streak for shipment #${index + 1} is 0`}*/}
-              {/*                                                                        iconPath={`data/UIlilbox`}/>)*/}
-              {/*  : null}*/}
               {alerts?.['World 2']?.postOffice?.dailyShipments?.length > 0
                 ?
                 alerts?.['World 2']?.postOffice?.dailyShipments?.map(({ index }) => <Alert key={'shipment' + index}
