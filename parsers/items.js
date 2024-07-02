@@ -74,10 +74,14 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
       misc
     };
     if (resultItem?.Premiumified){
-      delete resultItem.UQ1txt;
-      delete resultItem.UQ2txt;
-      delete resultItem.UQ1val;
-      delete resultItem.UQ2val;
+      if (!resultItem.UQ1txt){
+        delete resultItem.UQ1val;
+      }
+      if (!resultItem.UQ2txt){
+        delete resultItem.UQ2val;
+      }
+      // delete resultItem.UQ1txt;
+      // delete resultItem.UQ2txt;
       delete resultItem.Defence;
       delete resultItem.Weapon_Power;
       delete resultItem.Reach;
