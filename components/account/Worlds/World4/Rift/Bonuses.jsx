@@ -26,7 +26,7 @@ const Bonuses = ({ list, currentRift, account }) => {
   }
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
     {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon, riftDescription }, index) => {
-      if (index > 50 || !riftBonus) return;
+      if (index > 60 || !riftBonus) return;
       const { totalBonusText, totalBonus } = getTotalBonus(riftBonus);
       return <Card key={`${monsterName}-${index}`} sx={{
         width: 300,
