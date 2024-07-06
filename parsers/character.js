@@ -367,7 +367,6 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
       chipBoost: 2
     })
     : card);
-  character.anvil = getAnvil(char);
   const charObols = getObols(char, false);
   character.obols = {
     ...charObols,
@@ -463,6 +462,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     ? 1
     : 0), 0);
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
+  character.anvil = getAnvil(char, character);
   return character;
 }
 

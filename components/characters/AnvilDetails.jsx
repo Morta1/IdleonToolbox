@@ -60,20 +60,21 @@ const MaterialIcon = styled.img`
   height: 30px;
 `;
 
-const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, smithingLevel = 0 }) => {
+const PointsTitle = ({ availablePoints, pointsFromCoins, pointsFromMats, pointsFromAcme, smithingLevel = 0 }) => {
   const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'error.light' : 'secondary';
   return (
     <Stack mb={1}>
       <Typography my={1} variant={'h6'}>
         Points (
         <Typography variant={'h6'} component={'span'} color={color}>
-          {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel}
+          {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel + pointsFromAcme}
         </Typography>{' '}
-        / {pointsFromCoins + pointsFromMats + smithingLevel})
+        / {pointsFromCoins + pointsFromMats + smithingLevel + pointsFromAcme})
       </Typography>
       <Typography variant="caption">Points From Mats: {pointsFromMats}</Typography>
       <Typography variant="caption">Points From Coins: {pointsFromCoins}</Typography>
       <Typography variant="caption">Points From Smithing: {smithingLevel}</Typography>
+      <Typography variant="caption">Points From acme: {pointsFromAcme}</Typography>
     </Stack>
   );
 };

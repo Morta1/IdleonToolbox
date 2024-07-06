@@ -98,8 +98,13 @@ export const getAnvilExp = (xpPoints, smithingExpMulti) => {
   return Math.min(20 + ((baseMath - 20) / (baseMath - 20 + 70)) * 50, 75);
 }
 
-export const getAnvil = (char) => {
+export const getAnvil = (char, character) => {
   const anvilProduction = char?.[`AnvilPA`];
+  const basePointsFromAcme = getTalentBonus(character?.talents, 1, 'ACME_ANVIL');
+  let pointsFromAcme = 0;
+  if (basePointsFromAcme) {
+    pointsFromAcme = char?.['SkillLevels']?.[281] + basePointsFromAcme * Math.floor(character?.skillsInfo?.smithing?.level / 10);
+  }
   const [availablePoints,
     pointsFromCoins,
     pointsFromMats,
@@ -110,9 +115,10 @@ export const getAnvil = (char) => {
     availablePoints,
     pointsFromCoins,
     pointsFromMats,
+    pointsFromAcme,
     xpPoints,
     speedPoints,
-    capPoints,
+    capPoints
   }
   const anvilSelected = char?.[`AnvilPAselect`];
 
@@ -134,6 +140,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     availablePoints,
     pointsFromCoins,
     pointsFromMats,
+    pointsFromAcme,
     xpPoints,
     speedPoints,
     capPoints
@@ -162,6 +169,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     availablePoints,
     pointsFromCoins,
     pointsFromMats,
+    pointsFromAcme,
     xpPoints,
     speedPoints,
     capPoints
@@ -211,9 +219,10 @@ export const getPlayerAnvil = (character, characters, account) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Skill_EXP');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   let godBonus = 0;
+  console.log('1')
   const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
   if (flutterbisIndexes?.[character?.playerId] !== -1) {
-    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7)
+    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7) || 0;
   }
 
   // "AllSkillxpz" == e
@@ -288,7 +297,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     guild: account?.guild?.guildBonuses?.length > 0,
     stats,
     production,
-    selected: selectedProducts,
+    selected: selectedProducts
   };
 }
 
