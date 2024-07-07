@@ -34,11 +34,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
     return res;
   }, 0);
 
-  const isSkillMasteryUnlocked = accountData?.currentRift > 15;
+  const isSkillMasteryUnlocked = accountData?.rift?.currentRift > 15;
   const skillMasteryBonus = isSkillMasteryUnlocked
     ? getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3)
     : 0;
-
   const printData = rawPrinter?.slice(5, rawPrinter?.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
   // There are 14 items per character
