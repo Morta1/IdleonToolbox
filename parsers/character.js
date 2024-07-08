@@ -89,6 +89,7 @@ import {
 } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getOwlBonus } from '@parsers/world-1/owl';
+import { getLandRankBonus } from '@parsers/world-6/farming';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -683,6 +684,7 @@ export const getDropRate = (character, account, characters) => {
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
+  const landRankBonus = getLandRankBonus(account?.farming?.ranks, 'Seed_of_Loot');
 
   const additive =
     firstTalentBonus +
@@ -709,7 +711,9 @@ export const getDropRate = (character, account, characters) => {
     passiveCardBonus +
     goldenFoodBonus +
     (6 * achievementBonus + 4 * secondAchievementBonus) +
-    owlBonus;
+    owlBonus +
+    landRankBonus +
+    9;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -759,6 +763,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? .3 : 0 },
     { name: 'Golden food', value: goldenFoodBonus / 100 },
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
+    { name: 'Land rank', value: landRankBonus },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))

@@ -8,10 +8,11 @@ import Plot from '@components/account/Worlds/World6/farming/Plot';
 import Crop from '@components/account/Worlds/World6/farming/Crop';
 import { CardTitleAndValue } from '@components/common/styles';
 import { notateNumber } from '@utility/helpers';
+import RankDatabase from '@components/account/Worlds/World6/farming/RankDatabase';
 
 const Farming = () => {
   const { state } = useContext(AppContext);
-  const { market, plot, crop, cropDepot = {}, instaGrow, beanTrade } = state?.account?.farming || {};
+  const { market, plot, crop, cropDepot = {}, instaGrow, beanTrade, ranks, totalPoints, usedPoints } = state?.account?.farming || {};
   return <>
     <NextSeo
       title="Farming | Idleon Toolbox"
@@ -20,6 +21,7 @@ const Farming = () => {
     <Stack direction={'row'} gap={1}>
       <CardTitleAndValue title={'Bean Trade'} value={Math.round(beanTrade)} icon={'data/Quest80_x1.png'} imgStyle={{width: 24}}/>
       <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
+      <CardTitleAndValue title={'Ranks pts'} value={`${usedPoints}/${totalPoints}`}/>
     </Stack>
     <Typography variant={'h5'}>Crop depot</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
@@ -31,9 +33,10 @@ const Farming = () => {
         </CardTitleAndValue>
       })}
     </Stack>
-    <Tabber tabs={['Plot', 'Market', 'Crop']}>
-      <Plot plot={plot} crop={crop} market={market} lastUpdated={state?.lastUpdated}/>
+    <Tabber tabs={['Plot', 'Market', 'Rank database', 'Crop']}>
+      <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}/>
       <Market market={market} crop={crop}/>
+      <RankDatabase ranks={ranks} />
       <Crop crop={crop}/>
     </Tabber>
   </>

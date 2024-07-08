@@ -1,5 +1,5 @@
 import { tryToParse } from "@utility/helpers";
-import { marketInfo, seedInfo } from '../../data/website-data';
+import { marketInfo, ninjaExtraInfo, seedInfo } from '../../data/website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getVialsBonusByStat } from "@parsers/alchemy";
@@ -11,10 +11,11 @@ export const getFarming = (idleonData: any, accountData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
   const rawFarmingPlot = tryToParse(idleonData?.FarmPlot);
   const rawFarmingCrop = tryToParse(idleonData?.FarmCrop);
-  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, accountData);
+  const rawFarmingRanks = tryToParse(idleonData?.FarmRank);
+  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData);
 }
 
-const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, account: any) => {
+const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: number, index: number) => index === 139);
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1];
@@ -56,8 +57,37 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   }, 0);
   const jadeUpgrade = isJadeBonusUnlocked(account, 'Deal_Sweetening') ?? 0;
   const marketBonus = getMarketBonus(market, "MORE_BEENZ");
-  const achievementBonus = getAchievementStatus(account?.achievements, 363)
+  const achievementBonus = getAchievementStatus(account?.achievements, 363);
   const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + (25 * jadeUpgrade + 5 * achievementBonus) / 100);
+  const [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
+  const totalPoints = farmingRanks?.reduce((sum: number, level: number) => sum + level, 0)
+  const usedPoints = upgradesLevels?.reduce((sum: number, level: number) => sum + level, 0);
+  const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
+  const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
+  const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
+  const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
+    const name = names?.[index];
+    const rank = farmingRanks?.[index];
+    const progress = ranksProgress?.[index];
+    const base = bases?.[index];
+    const upgradeLevel = upgradesLevels?.[index];
+    const unlockAt = unlocks?.[index];
+    const requirement = (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
+    const bonus = 4 === index || 9 === index || 14 === index || 19 === index
+      ? Math.min(base, base * upgradeLevel)
+      : (1.7 * base * upgradeLevel) / (upgradeLevel + 80)
+
+    return {
+      name,
+      rank,
+      progress,
+      requirement,
+      description,
+      bonus,
+      upgradeLevel,
+      unlockAt
+    }
+  });
   return {
     plot,
     crop: { ...rawFarmingCrop, beans },
@@ -65,8 +95,19 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     cropsFound: Object.keys(rawFarmingCrop || {}).length,
     cropsOnVine,
     instaGrow,
-    beanTrade
+    beanTrade,
+    ranks,
+    totalPoints,
+    usedPoints
   };
+}
+
+const getRanksTotalBonus = (ranks: any, index: number) => {
+  return 0 === index ? (1 + ranks?.[3]?.bonus / 100) * (1 + ranks?.[10]?.bonus / 100) * (1 + ranks?.[15]?.bonus / 100)
+    : 1 === index ? ranks?.[8]?.bonus + ranks?.[17]?.bonus
+      : 2 === index ? ranks?.[6]?.bonus + ranks?.[13]?.bonus
+        : 3 === index ? ranks?.[7]?.bonus + (ranks?.[11]?.bonus + ranks?.[18]?.bonus)
+          : 4 === index ? ranks?.[5]?.bonus + (ranks?.[12]?.bonus + ranks?.[16]?.bonus) : 1;
 }
 
 const getCropsWithStockEqualOrGreaterThan = (cropDepot: any, stockLimit: number): number => {
@@ -123,6 +164,7 @@ export const updateFarming = (characters: any, account: any) => {
       * (1 + starSignBonus / 100)
       * (1 + (2 * account?.tasks?.[2]?.[5]?.[2]) / 100)
       * (1 + (15 * achievementBonus) / 100);
+
     // Growth
     const marketGrowthRate = getMarketBonus(newMarket, "NUTRITIOUS_SOIL");
     const speedGMO = getMarketBonus(newMarket, "SPEED_GMO");
@@ -230,6 +272,10 @@ const getMarketBonus = (market: any, bonusName: string) => {
   return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.value ?? 0;
 }
 
+export const getLandRank = (ranks: any, bonusName: string) => {
+  return (ranks?.find(({ name }: { name: string }) => name === bonusName) as any);
+}
+
 const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
   let costToMax = 0;
   for (let i = level; i < maxLvl; i++) {
@@ -238,14 +284,16 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
   return costToMax ?? 0;
 }
 
-export const getTotalCrop = (plot: any[], market: any[]) => {
-  return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti }) => {
+export const getTotalCrop = (plot: any[], market: any[], ranks: any[]) => {
+  return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti }, index) => {
     if (seedType === -1) return total;
     const { productDoubler, multi } = getProductDoubler(market);
     const doublerMulti = productDoubler > 100 && multi >= 2;
+    const productionBoost = getLandRank(ranks, 'Production_Boost');
+    const rankMulti = productionBoost?.upgradeLevel > 0 ? (1 + getRanksTotalBonus(ranks, 1) / 100) * (1 + productionBoost?.bonus * (ranks?.[index]?.rank ?? 0) / 100) : 1;
     return {
       ...total,
-      [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * (doublerMulti ? multi : 1))
+      [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * (doublerMulti ? multi : 1) * rankMulti)
     }
   }, {});
 }

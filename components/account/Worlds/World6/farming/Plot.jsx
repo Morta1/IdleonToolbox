@@ -8,9 +8,9 @@ import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 
-const Plot = ({ plot, market, lastUpdated }) => {
+const Plot = ({ plot, market, ranks, lastUpdated }) => {
   const { productDoubler, percent, multi } = getProductDoubler(market) || {};
-  const totals = getTotalCrop(plot, market);
+  const totals = getTotalCrop(plot, market, ranks);
   return <>
     <CardTitleAndValue title={`Totals${productDoubler > 100 && multi >= 2 ? ` (x${multi})` : ''}`}>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
@@ -18,7 +18,7 @@ const Plot = ({ plot, market, lastUpdated }) => {
           return <Card variant={'outlined'} key={icon}>
             <CardContent>
               <Stack direction={'row'} gap={1}>
-                <Typography>{quantity}</Typography>
+                <Typography>{Math.round(quantity)}</Typography>
                 <img width={20} height={20} src={`${prefix}data/${icon}`} alt={''}/>
               </Stack>
             </CardContent>
@@ -57,7 +57,7 @@ const Plot = ({ plot, market, lastUpdated }) => {
                   }, index) => {
         nextOGChance = Math.min(100, 100 * nextOGChance);
         nextOGChance = nextOGChance >= 10 ? Math.round(nextOGChance) : Math.round(10 * nextOGChance) / 10;
-        return <Card key={'plot-' + index} sx={{ width: 200, mt:1 }}>
+        return <Card key={'plot-' + index} sx={{ width: 200, mt: 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <img src={`${prefix}etc/${seedRawName}`} alt={''}/>
@@ -65,11 +65,13 @@ const Plot = ({ plot, market, lastUpdated }) => {
                 <Stack direction={'row'} gap={1}>
                   <Typography>{cropQuantity}</Typography>
                   <img width={20} height={20} src={`${prefix}data/${cropRawName}`} alt={''}/>
-                  <Tooltip title={<Typography style={{ fontWeight: 400 }}>Max time: {msToDate(maxTimeLeft * 1000)}</Typography>}>
+                  <Tooltip title={<Typography style={{ fontWeight: 400 }}>Max
+                    time: {msToDate(maxTimeLeft * 1000)}</Typography>}>
                     <InfoIcon fontSize={'small'}/>
                   </Tooltip>
                 </Stack>
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
+                <Typography variant={'caption'}>Rank {ranks?.[index]?.rank}</Typography>
               </Stack>
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>

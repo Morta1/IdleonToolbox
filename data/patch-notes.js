@@ -4,7 +4,14 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
-    ver: '3.2.7 4',
+    ver: '3.2.75',
+    gameVer: '2.0.12',
+    date: '08/07/2024',
+    features: ['Added ranks to farming page'],
+    fixes: []
+  },
+  {
+    ver: '3.2.74',
     gameVer: '2.0.11',
     date: '23/06/2024',
     features: ['Added timers tab to the dashboard configurations - you can now customize your timers view!'],
