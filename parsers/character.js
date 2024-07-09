@@ -89,7 +89,7 @@ import {
 } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getOwlBonus } from '@parsers/world-1/owl';
-import { getLandRankBonus } from '@parsers/world-6/farming';
+import { getLandRank } from '@parsers/world-6/farming';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -684,7 +684,7 @@ export const getDropRate = (character, account, characters) => {
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
-  const landRankBonus = getLandRankBonus(account?.farming?.ranks, 'Seed_of_Loot');
+  const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
 
   const additive =
     firstTalentBonus +
