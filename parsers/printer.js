@@ -3,7 +3,6 @@ import { getDeityLinkedIndex } from './divinity';
 import { isArtifactAcquired } from './sailing';
 import { getTalentBonus } from './talents';
 import { getSkillMasteryBonusByIndex } from './misc';
-import { calculateItemTotalAmount } from './items';
 import { getAtomColliderThreshold } from './atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 
@@ -26,7 +25,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   const daysSinceLastSample = accountData?.accountOptions?.[125];
   const orbOfRemembranceKills = accountData?.accountOptions?.[138];
   const divineKnights = charactersData?.filter((character) => character?.class === 'Divine_Knight');
-  const highestKingOfRemembrance = divineKnights?.reduce((res, { talents ,addedLevels }) => {
+  const highestKingOfRemembrance = divineKnights?.reduce((res, { talents, addedLevels }) => {
     const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
     if (kingOfRemembrance > res) {
       return kingOfRemembrance
@@ -89,7 +88,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
             { name: 'Harriep God', value: harriepGodIndex.includes(charIndex) ? 3 : 0 },
             { name: 'Skill Mastery', value: 1 + skillMasteryBonus / 100 },
-            { name: 'Divine Knight', value: notateNumber(1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100, 'MultiplierInfo') },
+            {
+              name: 'Divine Knight',
+              value: notateNumber(1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100, 'MultiplierInfo')
+            },
             { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
             { name: 'Charm', value: 1 + (charmBonus) / 100 }
           ];
@@ -116,7 +118,7 @@ export const calcTotals = (account, showAlertWhenFull) => {
         if (res?.[item]) {
           res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
         } else {
-          const storageItem = calculateItemTotalAmount(storage, item, true, true);
+          const storageItem = storage.find(({ rawName }) => rawName === item)?.amount;
           res[item] = { boostedValue, atomable: storageItem >= atomThreshold - (atomThreshold * .01), storageItem };
         }
       }
