@@ -3,6 +3,8 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
 import styled from '@emotion/styled';
 import { getSkillRankColor } from '../../../../../parsers/misc';
+import Tooltip from '@components/Tooltip';
+import { TitleAndValue } from '@components/common/styles';
 
 const defaultBonuses = [
   '+25%_{_EXP_GAIN',
@@ -11,7 +13,7 @@ const defaultBonuses = [
   '+10%_ALL_SKILL_EXP',
   '+5%_ALL_SKILL_EFFICIENCY',
   '+1%_PRINTER_OUTPUT',
-  '+25%_ALL_SKILL_EXP',
+  '+25%_ALL_SKILL_EXP'
 ];
 
 const specialBonuses = {
@@ -34,7 +36,7 @@ const specialBonuses = {
 }
 
 const thresholds = [0, 0, 300, 400, 500, 750, 1000];
-const SkillMastery = ({ totalSkillsLevels }) => {
+const SkillMastery = ({ totalSkillsLevels, characters }) => {
   return <>
     <Typography variant={'h5'}>Skill level thresholds</Typography>
     <Stack sx={{ my: 2 }} direction={'row'} gap={2}>
@@ -52,12 +54,14 @@ const SkillMastery = ({ totalSkillsLevels }) => {
         return <Card key={`${skillName}-${index}`} sx={{
           width: 250,
           minHeight: 200,
-          display: 'flex',
+          display: 'flex'
         }}>
           <CardContent sx={{ width: 300 }}>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <SkillIcon src={`${prefix}data/${icon}.png`}
-                         alt=""/>
+              <Tooltip title={<SkillBreakdown characters={characters} skillName={skillName}/>}>
+                <SkillIcon src={`${prefix}data/${icon}.png`}
+                           alt=""/>
+              </Tooltip>
               <Stack>
                 <Typography>{cleanUnderscore(skillName.capitalize())}</Typography>
                 <Typography variant={'caption'} component={'span'} sx={{ color, fontWeight: 'bold' }}>Total
@@ -81,6 +85,18 @@ const SkillMastery = ({ totalSkillsLevels }) => {
     </Stack>
   </>
 };
+
+const SkillBreakdown = ({ characters, skillName }) => {
+  const charactersSkills = characters.reduce((res, char) => ([
+    ...res,
+    { name: char?.name, level: char?.skillsInfo?.[skillName]?.level }
+  ]), [])
+  return <Stack>
+    {charactersSkills?.map(({ name, level }) => {
+      return <TitleAndValue key={name} title={name} value={`Lv. ${level}`}/>
+    })}
+  </Stack>
+}
 
 const SkillIcon = styled.img`
 
