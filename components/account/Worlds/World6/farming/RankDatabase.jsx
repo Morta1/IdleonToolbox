@@ -5,7 +5,7 @@ import React from 'react';
 const RankDatabase = ({ ranks }) => {
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {ranks?.map(({ rank, name, upgradeLevel, description, bonus, progress, requirement, unlockAt }, index) => {
+      {ranks?.map(({ name, upgradeLevel, description, bonus, progress, requirement, unlockAt }, index) => {
         const filter = 99 < upgradeLevel || 0 === (index + 1) % 5 || (24 < upgradeLevel
           ? 'grayscale(1)'
           : .5 < upgradeLevel && 'hue-rotate(330deg)')
@@ -15,11 +15,10 @@ const RankDatabase = ({ ranks }) => {
               <img src={`${prefix}data/RankUpg${index}.png`} style={{ filter }} alt={''}/>
               <Stack>
                 <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
-                <Typography variant={'body1'}>Rank {rank}</Typography>
-                {upgradeLevel > 0 ? <Typography
-                  variant={'body1'}>{notateNumber(progress)} / {notateNumber(requirement)}</Typography> : <Typography>
+                <Typography variant={'body1'}>Lv. {upgradeLevel}</Typography>
+                {upgradeLevel <= 0 ? <Typography>
                   Unlocks at {unlockAt}
-                </Typography>}
+                </Typography> : null}
               </Stack>
             </Stack>
             <Typography mt={1}

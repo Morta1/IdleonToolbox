@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { msToDate, prefix } from '@utility/helpers';
+import { msToDate, notateNumber, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
@@ -71,7 +71,9 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
                   </Tooltip>
                 </Stack>
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
-                <Typography variant={'caption'}>Rank {ranks?.[index]?.rank}</Typography>
+                <Typography variant={'caption'}>Rank {ranks?.[index]?.rank || 0}</Typography>
+                {ranks?.[index]?.upgradeLevel > 0 ? <Typography
+                  variant={'caption'}>{notateNumber(ranks?.[index]?.progress)} / {notateNumber(ranks?.[index]?.requirement)}</Typography> : null}
               </Stack>
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>
