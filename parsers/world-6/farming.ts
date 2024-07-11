@@ -88,8 +88,6 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const marketBonus = getMarketBonus(market, "MORE_BEENZ");
   const achievementBonus = getAchievementStatus(account?.achievements, 363);
   const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + (25 * jadeUpgrade + 5 * achievementBonus) / 100);
-
-  console.log('ranks', ranks)
   return {
     plot,
     crop: { ...rawFarmingCrop, beans },
@@ -287,12 +285,12 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
 }
 
 export const getTotalCrop = (plot: any[], market: any[], ranks: any[]) => {
-  return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti }, index) => {
+  return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti, rank }) => {
     if (seedType === -1) return total;
     const { productDoubler, multi } = getProductDoubler(market);
     const doublerMulti = productDoubler > 100 && multi >= 2;
     const productionBoost = getLandRank(ranks, 'Production_Boost');
-    const rankMulti = productionBoost?.upgradeLevel > 0 ? (1 + getRanksTotalBonus(ranks, 1) / 100) * (1 + productionBoost?.bonus * (ranks?.[index]?.rank ?? 0) / 100) : 1;
+    const rankMulti = productionBoost?.upgradeLevel > 0 ? Math.min(100, Math.round((1 + getRanksTotalBonus(ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100))) : 1;
     return {
       ...total,
       [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * (doublerMulti ? multi : 1) * rankMulti)

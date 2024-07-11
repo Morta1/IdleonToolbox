@@ -353,11 +353,17 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.kangaroo?.shinyThreshold?.checked && account?.kangaroo?.shinyProgress > options?.kangaroo?.shinyThreshold?.props?.value) {
       kangaroo.shinyThreshold = options?.kangaroo?.shinyThreshold?.props?.value;
     }
-    const fisherooReset = account?.kangaroo?.upgrades?.find(({ unlocked, name }) => name === 'Fisheroo_Reset' && unlocked);
+    const fisherooReset = account?.kangaroo?.upgrades?.find(({
+                                                               unlocked,
+                                                               name
+                                                             }) => name === 'Fisheroo_Reset' && unlocked);
     if (options?.kangaroo?.fisherooReset?.checked && fisherooReset && account?.kangaroo?.fish >= fisherooReset?.cost) {
       kangaroo.fisherooReset = true;
     }
-    const greatestCatch = account?.kangaroo?.upgrades?.find(({ unlocked, name }) => name === 'Greatest_Catch' && unlocked);
+    const greatestCatch = account?.kangaroo?.upgrades?.find(({
+                                                               unlocked,
+                                                               name
+                                                             }) => name === 'Greatest_Catch' && unlocked);
     if (options?.kangaroo?.greatestCatch?.checked && greatestCatch && account?.kangaroo?.fish >= greatestCatch?.cost) {
       kangaroo.greatestCatch = true;
     }
@@ -728,12 +734,15 @@ export const getWorld6Alerts = (account, fields, options) => {
     if (totalCrops?.checked) {
       const totalCropsLocal = account?.farming?.plot?.reduce((sum, {
         cropQuantity,
-        ogMulti
-      }, index) => {
+        ogMulti,
+        rank
+      }) => {
         const { productDoubler, multi } = getProductDoubler(account?.farming?.market);
         const doublerMulti = productDoubler > 100 && multi >= 2;
         const productionBoost = getLandRank(account?.farming?.ranks, 'Production_Boost');
-        const rankMulti = productionBoost?.upgradeLevel > 0 ? (1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100) * (1 + productionBoost?.bonus * (account?.farming?.ranks?.[index]?.rank ?? 0) / 100) : 1;
+        const rankMulti = productionBoost?.upgradeLevel > 0
+          ? Math.min(100, Math.round((1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100)))
+          : 1;
         return sum + (cropQuantity * ogMulti * (doublerMulti ? multi : 1) * rankMulti);
       }, 0);
       const availableCrops = totalCropsLocal >= totalCrops?.props?.value ? totalCropsLocal : 0;
