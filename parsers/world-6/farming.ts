@@ -33,10 +33,39 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
-  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[]) => {
+  const [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
+  const totalPoints = farmingRanks?.reduce((sum: number, level: number) => sum + level, 0)
+  const usedPoints = upgradesLevels?.reduce((sum: number, level: number) => sum + level, 0);
+  const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
+  const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
+  const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
+  const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
+    const name = names?.[index];
+    const base = bases?.[index];
+    const upgradeLevel = upgradesLevels?.[index];
+    const unlockAt = unlocks?.[index];
+    const bonus = 4 === index || 9 === index || 14 === index || 19 === index
+      ? Math.min(base, base * upgradeLevel)
+      : (1.7 * base * upgradeLevel) / (upgradeLevel + 80)
+
+    return {
+      name,
+      description,
+      bonus,
+      upgradeLevel,
+      unlockAt
+    }
+  });
+  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[], index: number) => {
     const type = Math.round(seedInfo?.[seedType]?.cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
+    const rank = farmingRanks?.[index];
+    const rankProgress = ranksProgress?.[index];
+    const rankRequirement = (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
     return {
+      rank,
+      rankProgress,
+      rankRequirement,
       seedType,
       cropType: type,
       cropQuantity,
@@ -59,35 +88,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const marketBonus = getMarketBonus(market, "MORE_BEENZ");
   const achievementBonus = getAchievementStatus(account?.achievements, 363);
   const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + (25 * jadeUpgrade + 5 * achievementBonus) / 100);
-  const [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
-  const totalPoints = farmingRanks?.reduce((sum: number, level: number) => sum + level, 0)
-  const usedPoints = upgradesLevels?.reduce((sum: number, level: number) => sum + level, 0);
-  const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
-  const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
-  const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
-  const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
-    const name = names?.[index];
-    const rank = farmingRanks?.[index];
-    const progress = ranksProgress?.[index];
-    const base = bases?.[index];
-    const upgradeLevel = upgradesLevels?.[index];
-    const unlockAt = unlocks?.[index];
-    const requirement = (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
-    const bonus = 4 === index || 9 === index || 14 === index || 19 === index
-      ? Math.min(base, base * upgradeLevel)
-      : (1.7 * base * upgradeLevel) / (upgradeLevel + 80)
 
-    return {
-      name,
-      rank,
-      progress,
-      requirement,
-      description,
-      bonus,
-      upgradeLevel,
-      unlockAt
-    }
-  });
+  console.log('ranks', ranks)
   return {
     plot,
     crop: { ...rawFarmingCrop, beans },
@@ -102,7 +104,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   };
 }
 
-const getRanksTotalBonus = (ranks: any, index: number) => {
+export const getRanksTotalBonus = (ranks: any, index: number) => {
   return 0 === index ? (1 + ranks?.[3]?.bonus / 100) * (1 + ranks?.[10]?.bonus / 100) * (1 + ranks?.[15]?.bonus / 100)
     : 1 === index ? ranks?.[8]?.bonus + ranks?.[17]?.bonus
       : 2 === index ? ranks?.[6]?.bonus + ranks?.[13]?.bonus

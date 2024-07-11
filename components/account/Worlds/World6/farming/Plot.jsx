@@ -39,6 +39,9 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
     </CardTitleAndValue>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {plot?.map(({
+                    rank,
+                    rankProgress,
+                    rankRequirement,
                     seedType,
                     progress,
                     growthReq,
@@ -71,9 +74,9 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
                   </Tooltip>
                 </Stack>
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
-                <Typography variant={'caption'}>Rank {ranks?.[index]?.rank || 0}</Typography>
+                <Typography variant={'caption'}>Rank {rank || 0}</Typography>
                 {ranks?.[index]?.upgradeLevel > 0 ? <Typography
-                  variant={'caption'}>{notateNumber(ranks?.[index]?.progress)} / {notateNumber(ranks?.[index]?.requirement)}</Typography> : null}
+                  variant={'caption'}>{notateNumber(rankProgress)} / {notateNumber(rankRequirement)}</Typography> : null}
               </Stack>
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>

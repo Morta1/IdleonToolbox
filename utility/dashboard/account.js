@@ -11,7 +11,7 @@ import { findItemInInventory, findQuantityOwned, getAllItems } from '@parsers/it
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/lab';
-import { getProductDoubler } from '@parsers/world-6/farming';
+import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -732,7 +732,9 @@ export const getWorld6Alerts = (account, fields, options) => {
       }) => {
         const { productDoubler, multi } = getProductDoubler(account?.farming?.market);
         const doublerMulti = productDoubler > 100 && multi >= 2;
-        return sum + (cropQuantity * ogMulti * (doublerMulti ? multi : 1));
+        const productionBoost = getLandRank(account?.farming?.ranks, 'Production_Boost');
+        const rankMulti = productionBoost?.upgradeLevel > 0 ? (1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100) * (1 + productionBoost?.bonus * (account?.farming?.ranks?.[index]?.rank ?? 0) / 100) : 1;
+        return sum + (cropQuantity * ogMulti * (doublerMulti ? multi : 1) * rankMulti);
       }, 0);
       const availableCrops = totalCropsLocal >= totalCrops?.props?.value ? totalCropsLocal : 0;
       if (availableCrops > 0) {
