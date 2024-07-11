@@ -120,8 +120,7 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any[], cropDepot: any, upgra
   if (upgrade) {
     switch (upgradeId) {
       case 7:
-        // No bonus there yet
-        return 0;
+        return upgrade.level * upgrade.bonusPerLvl;
       case 9: // GMO
         return getMarketUpgradeBonusValue(marketUpgrades, cropDepot, 15) * Math.pow(1 + upgrade.level * upgrade.bonusPerLvl / 100, getCropsWithStockEqualOrGreaterThan(cropDepot, 200));
       case 11:
@@ -287,13 +286,13 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
 export const getTotalCrop = (plot: any[], market: any[], ranks: any[]) => {
   return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti, rank }) => {
     if (seedType === -1) return total;
-    const { productDoubler, multi } = getProductDoubler(market);
-    const doublerMulti = productDoubler > 100 && multi >= 2;
+    const { productDoubler } = getProductDoubler(market);
     const productionBoost = getLandRank(ranks, 'Production_Boost');
-    const rankMulti = productionBoost?.upgradeLevel > 0 ? Math.min(100, Math.round((1 + getRanksTotalBonus(ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100))) : 1;
+    const finalMulti = Math.min(100, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100))) * (1 + getRanksTotalBonus(ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100)));
+
     return {
       ...total,
-      [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * (doublerMulti ? multi : 1) * rankMulti)
+      [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * finalMulti)
     }
   }, {});
 }

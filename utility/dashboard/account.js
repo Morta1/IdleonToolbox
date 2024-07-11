@@ -737,13 +737,11 @@ export const getWorld6Alerts = (account, fields, options) => {
         ogMulti,
         rank
       }) => {
-        const { productDoubler, multi } = getProductDoubler(account?.farming?.market);
-        const doublerMulti = productDoubler > 100 && multi >= 2;
+        const { productDoubler } = getProductDoubler(account?.farming?.market);
         const productionBoost = getLandRank(account?.farming?.ranks, 'Production_Boost');
-        const rankMulti = productionBoost?.upgradeLevel > 0
-          ? Math.min(100, Math.round((1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100)))
-          : 1;
-        return sum + (cropQuantity * ogMulti * (doublerMulti ? multi : 1) * rankMulti);
+        const finalMulti = Math.min(100, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100))) * (1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100)));
+
+        return sum + (cropQuantity * ogMulti * finalMulti);
       }, 0);
       const availableCrops = totalCropsLocal >= totalCrops?.props?.value ? totalCropsLocal : 0;
       if (availableCrops > 0) {
