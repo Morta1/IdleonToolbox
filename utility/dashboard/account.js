@@ -729,7 +729,7 @@ export const getWorld6Alerts = (account, fields, options) => {
       const totalCropsLocal = account?.farming?.plot?.reduce((sum, {
         cropQuantity,
         ogMulti
-      }) => {
+      }, index) => {
         const { productDoubler, multi } = getProductDoubler(account?.farming?.market);
         const doublerMulti = productDoubler > 100 && multi >= 2;
         const productionBoost = getLandRank(account?.farming?.ranks, 'Production_Boost');
