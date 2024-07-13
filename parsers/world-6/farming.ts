@@ -151,6 +151,18 @@ export const updateFarming = (characters: any, account: any) => {
       value: getMarketUpgradeBonusValue(account?.farming?.market, account?.farming?.crop, index)
     }
   });
+  // Growth
+  const marketGrowthRate = getMarketBonus(newMarket, "NUTRITIOUS_SOIL");
+  const speedGMO = getMarketBonus(newMarket, "SPEED_GMO");
+  const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
+  const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
+  const growthRate = Math.max(1, speedGMO)
+    * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
+
+  const maxTimes = [0, 1, 2, 3, 4, 5].map((seedType) => {
+    const growthReq = 14400 * Math.pow(1.5, seedType);
+    return growthReq / growthRate;
+  })
   const newPlot = account?.farming?.plot?.map((crop: any) => {
     // OG Chance
     const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
@@ -164,13 +176,6 @@ export const updateFarming = (characters: any, account: any) => {
       * (1 + (2 * account?.tasks?.[2]?.[5]?.[2]) / 100)
       * (1 + (15 * achievementBonus) / 100);
 
-    // Growth
-    const marketGrowthRate = getMarketBonus(newMarket, "NUTRITIOUS_SOIL");
-    const speedGMO = getMarketBonus(newMarket, "SPEED_GMO");
-    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
-    const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
-    const growthRate = Math.max(1, speedGMO)
-      * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
     const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
     const maxTimeLeft = crop?.growthReq / growthRate;
     const ogMulti = Math.min(1e9, Math.max(1, Math.pow(2, crop?.currentOG)));
@@ -187,7 +192,8 @@ export const updateFarming = (characters: any, account: any) => {
     ...(account?.farming || {}),
     plot: newPlot,
     cropDepot: getCropDepotBonuses(account),
-    market: newMarket
+    market: newMarket,
+    maxTimes
   }
 }
 

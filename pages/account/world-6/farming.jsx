@@ -12,14 +12,26 @@ import RankDatabase from '@components/account/Worlds/World6/farming/RankDatabase
 
 const Farming = () => {
   const { state } = useContext(AppContext);
-  const { market, plot, crop, cropDepot = {}, instaGrow, beanTrade, ranks, totalPoints, usedPoints } = state?.account?.farming || {};
+  const {
+    market,
+    plot,
+    crop,
+    maxTimes,
+    cropDepot = {},
+    instaGrow,
+    beanTrade,
+    ranks,
+    totalPoints,
+    usedPoints
+  } = state?.account?.farming || {};
   return <>
     <NextSeo
       title="Farming | Idleon Toolbox"
       description="Keep track of your garden with all its bonuses"
     />
     <Stack direction={'row'} gap={1}>
-      <CardTitleAndValue title={'Bean Trade'} value={Math.round(beanTrade)} icon={'data/Quest80_x1.png'} imgStyle={{width: 24}}/>
+      <CardTitleAndValue title={'Bean Trade'} value={Math.round(beanTrade)} icon={'data/Quest80_x1.png'}
+                         imgStyle={{ width: 24 }}/>
       <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
       <CardTitleAndValue title={'Ranks pts'} value={`${usedPoints}/${totalPoints}`}/>
     </Stack>
@@ -29,15 +41,17 @@ const Farming = () => {
         const isMulti = stat === 'gamingEvo' || stat === 'cookingSpeed';
         const isBase = stat === 'critters';
         const val = notateNumber(value, isMulti ? 'MultiplierInfo' : 'Big');
-        return <CardTitleAndValue key={stat} title={name} value={`${isBase ? '+':''}${val}${isBase ? '' :isMulti ? 'x':'%'}`} icon={`etc/Pen_${index}.png`}>
+        return <CardTitleAndValue key={stat} title={name}
+                                  value={`${isBase ? '+' : ''}${val}${isBase ? '' : isMulti ? 'x' : '%'}`}
+                                  icon={`etc/Pen_${index}.png`}>
         </CardTitleAndValue>
       })}
     </Stack>
     <Tabber tabs={['Plot', 'Market', 'Rank database', 'Crop']}>
       <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}/>
       <Market market={market} crop={crop}/>
-      <RankDatabase ranks={ranks} />
-      <Crop crop={crop}/>
+      <RankDatabase ranks={ranks}/>
+      <Crop crop={crop} maxTimes={maxTimes}/>
     </Tabber>
   </>
 };

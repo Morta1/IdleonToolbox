@@ -497,14 +497,22 @@ export const msToDate = (ms) => {
   const hours = Math.floor(ms / (1000 * 60 * 60));
   const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+  const milliseconds = Math.floor(ms % 1000);
 
   // Format each component to be two digits
   const formattedHours = String(hours).padStart(2, '0');
   const formattedMinutes = String(minutes).padStart(2, '0');
   const formattedSeconds = String(seconds).padStart(2, '0');
+  const formattedMilliseconds = String(milliseconds).padStart(3, '0');
 
-  // Return the formatted string
-  return `${formattedHours}h:${formattedMinutes}m:${formattedSeconds}s`;
+  // Determine the formatted string based on the time
+  if (ms < 60000) {
+    // Include milliseconds if the time is under one minute
+    return `${formattedSeconds}s:${formattedMilliseconds}ms`;
+  } else {
+    // Regular format for time above one minute
+    return `${formattedHours}h:${formattedMinutes}m:${formattedSeconds}s`;
+  }
 }
 
 export const fillMissingTalents = (arr) => {
