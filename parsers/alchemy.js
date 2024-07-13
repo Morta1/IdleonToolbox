@@ -450,7 +450,7 @@ const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
                                     index
                                   }) => level >= 5 && index < maxBubbleIndex)
       .sort((a, b) => a.level - b.level));
-  const bubblePerCauldron = Math.ceil(numberOfBubbles / 4);
+  const bubblePerCauldron = Math.ceil(Math.min(10, numberOfBubbles) / 4);
   const lowestBubbles = [];
   for (let j = 0; j < bubblesArrays.length; j++) {
     const bubblesArray = bubblesArrays[j];
