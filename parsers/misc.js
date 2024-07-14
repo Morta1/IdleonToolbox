@@ -82,15 +82,22 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
-  const libraryTowerLevel = towersLevels?.[1] - 1;
+  const libraryTowerLevel = towersLevels?.[1];
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
   let superbitBonus = 0;
   if (superbit) {
     superbitBonus = superbit?.totalBonus;
   }
-  const math = 3600 / (((1 + mealBonus / 100) * (1 + libraryBooker / 100) * (1 + (5 * libraryTowerLevel + bubbleBonus + (vialBonus
-    + (stampBonus + superbitBonus + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))))) / 100))) * 4;
+  const math = Math.round(4 * (3600 / ((1 + mealBonus / 100)
+      * (1 + libraryBooker / 100) *
+      (1 + (5 * libraryTowerLevel
+        + bubbleBonus
+        + (vialBonus
+          + (stampBonus
+            + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
+            + superbitBonus))) / 100)))
+    * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
 
   const breakdown = [
     { name: 'Meal Bonus', value: mealBonus },
@@ -106,7 +113,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
     }
   ]
   return {
-    value: Math.round(math * (1 + (10 * Math.pow(bookCount, 1.4)) / 100)),
+    value: math,
     breakdown
   };
 }
@@ -119,7 +126,7 @@ export const getLooty = (idleonData) => {
     rawName: name,
     obtained: lootyRaw?.includes(name),
     onRotation: filteredGemShopItems?.[name],
-    unobtainable: filteredLootyItems?.[name],
+    unobtainable: filteredLootyItems?.[name]
   }))
   const missingItems = slabItems?.filter(({
                                             obtained,
@@ -939,5 +946,6 @@ export const getKillRoyClasses = (rooms, account, serverVars) => {
   }
 
   return classes.map((classIndex) => {
-    return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'  });
+    return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'
+  });
 }

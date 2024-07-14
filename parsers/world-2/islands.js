@@ -24,6 +24,7 @@ const shimmerIslandTrials = [
   'Get_as_much_Choppin_Efficiency_(number_of_digits)_as_you_can.',
   'Get_as_much_Fishing_Efficiency_(number_of_digits)_as_you_can.',
   'Get_as_much_Catching_Efficiency_(number_of_digits)_as_you_can.',
+  'Claim_as_much_Guild_GP_this_week_as_you_can.',
 ];
 
 const shimmerIslandShop = [

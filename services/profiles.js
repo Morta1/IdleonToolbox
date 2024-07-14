@@ -23,8 +23,7 @@ export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token)
     console.error('Error has occurred: ', err);
     if (err?.status === 429) {
       throw 'You have uploaded your profile in the past 4 hours. Please wait until the cooldown is over.'
-    }
-    else if (err?.status === 500 || err?.status === 400) {
+    } else if (err?.status === 500 || err?.status === 400) {
       throw 'An error has occurred while uploading your profile. Please try again later.'
     }
     throw 'An error has occurred while uploading your profile. Please try again later.';
@@ -72,13 +71,14 @@ export const expandLeaderboardInfo = (account, characters) => {
   const mp = Math.max(...playersInfo.map(({ maxMp }) => maxMp));
   const greenMushroomKills = account?.deathNote?.[0]?.mobs?.[0]?.kills || 0;
   const totalBoats = calcTotalBoatLevels(account?.sailing?.boats);
+  const logbooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + unlocked, 0);
   return {
     dropRate: withDefault(dropRate),
     defence: withDefault(defence),
     accuracy: withDefault(accuracy),
     hp: withDefault(hp),
     mp: withDefault(mp),
-    logBook: withDefault(account?.gaming?.logBook?.length),
+    logBook: logbooks,
     totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels),
     greenMushroomKills,
     totalBoats
