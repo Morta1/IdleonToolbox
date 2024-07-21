@@ -28,7 +28,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       level,
       type: getCropType({ index, cropId, cropIdIncrement, level }),
       cost: cost * Math.pow(costExponent, level),
-      nextUpgrades: getNextUpgradesReq({ index, cropId, cropIdIncrement, level, cost, costExponent }),
+      nextUpgrades: getNextUpgradesReq({ index, cropId, cropIdIncrement, level, maxLvl, cost, costExponent }),
       costToMax: calcCostToMax({ level, maxLvl, cost, costExponent }),
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
@@ -197,12 +197,12 @@ export const updateFarming = (characters: any, account: any) => {
   }
 }
 
-const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, cost, costExponent, isUnique = true }: any) => {
+const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, maxLvl, cost, costExponent, isUnique = true }: any) => {
   const upgradeMap = new Map();
 
   let extraLv = 0;
 
-  while (upgradeMap.size < 4) {
+  while (upgradeMap.size < 4 && (level + extraLv < maxLvl)) {
     const type = getCropType({
       index,
       cropId,

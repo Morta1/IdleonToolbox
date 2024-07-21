@@ -59,7 +59,7 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
                     maxTimeLeft
                   }, index) => {
         nextOGChance = Math.min(100, 100 * nextOGChance);
-        nextOGChance = nextOGChance >= 10 ? Math.round(nextOGChance) : Math.round(10 * nextOGChance) / 10;
+        nextOGChance = nextOGChance >= 10 ? nextOGChance : 10 * nextOGChance / 10;
         return <Card key={'plot-' + index} sx={{ width: 200, mt: 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
@@ -81,7 +81,7 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>
             <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
-            <Typography>Next OG: {nextOGChance}%</Typography>
+            <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000','')}%</Typography>
             <Timer type={'countdown'} lastUpdated={lastUpdated}
                    date={new Date().getTime() + timeLeft * 1000}/>
           </CardContent>
