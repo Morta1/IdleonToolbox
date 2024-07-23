@@ -197,24 +197,43 @@ const getP2wCauldronCost = (type, index, level) => {
 }
 
 const getBubbles = (bubbles) => {
+  const etc = {
+    0: {
+      5: '', // max hp
+      7: 'Pickaxes_and_Fishing_Rods'
+    },
+    1: {
+      5: '', // movement speed
+      6: 'Catching_Nets_and_Traps'
+    },
+    2: {
+      5: '', // max MP
+      6: 'Hatchets_and_Worship_Skulls'
+    },
+    3: {
+      7: '', // max liquid
+      25: '' // CORPIUS_MAPPER
+    }
+  };
   return bubbles?.reduce(
-    (res, array, index) =>
-      index <= 3
+    (res, array, cauldronIndex) =>
+      cauldronIndex <= 3
         ? {
           ...res,
-          [cauldronsIndexMapping?.[index]]: Object.keys(array)?.reduce(
-            (res, key, bubbleIndex) =>
-              key !== 'length'
-                ? [
-                  ...res,
-                  {
-                    level: parseInt(array?.[key]) || 0,
-                    index: bubbleIndex,
-                    rawName: `aUpgrades${cauldronsTextMapping[index]}${bubbleIndex}`,
-                    ...cauldrons[cauldronsIndexMapping?.[index]][key]
-                  }
-                ]
-                : res,
+          [cauldronsIndexMapping?.[cauldronIndex]]: Object.keys(array)?.reduce(
+            (res, key, bubbleIndex) => key !== 'length'
+              ? [
+                ...res,
+                {
+                  level: parseInt(array?.[key]) || 0,
+                  index: bubbleIndex,
+                  rawName: `aUpgrades${cauldronsTextMapping[cauldronIndex]}${bubbleIndex}`,
+                  ...cauldrons[cauldronsIndexMapping?.[cauldronIndex]][key],
+                  desc: cauldrons[cauldronsIndexMapping?.[cauldronIndex]][key]?.desc.replace('$', etc?.[cauldronIndex]?.[bubbleIndex])
+                }
+              ]
+              : res
+            ,
             []
           )
         }
@@ -400,7 +419,9 @@ const parseSigils = (sigilsRaw, alchemyActivity, serializedCharactersData) => {
           ...sigilData,
           unlocked,
           progress,
-          bonus: unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0 ? sigilData?.unlockBonus : 0,
+          bonus: unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
+            ? sigilData?.unlockBonus
+            : 0,
           characters: charactersInSigil
         }
       ];

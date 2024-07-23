@@ -457,7 +457,7 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
   const goalBonus = growth(func, goalLevel, x1, x2, true);
   return <>
     <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(bubbleName)}</Typography>
-    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/, bonus))}</Typography>
+    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, bonus))}</Typography>
     {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:
       +{goalBonus}</Typography> : null}
