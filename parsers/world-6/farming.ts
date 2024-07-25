@@ -274,7 +274,7 @@ const getCropDepotBonuses = (account: any) => {
 }
 
 const getMarketBonus = (market: any, bonusName: string) => {
-  return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.baseValue ?? 0;
+  return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.value ?? 0;
 }
 
 export const getLandRank = (ranks: any, bonusName: string) => {
