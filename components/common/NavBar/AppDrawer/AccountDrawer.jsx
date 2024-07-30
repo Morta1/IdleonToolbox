@@ -57,7 +57,7 @@ const worldsData = {
       { label: 'islands', icon: 'data/Island1' },
       { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
       { label: 'kangaroo', icon: 'data/RooA' },
-      { label: 'Vote Ballot', icon: 'etc/VoteBallot' }
+      { label: 'voteBallot', icon: 'etc/VoteBallot' }
     ]
   },
   'world 3': {
