@@ -17,6 +17,7 @@ import Tabber from '../../../components/common/Tabber';
 import Tooltip from '@components/Tooltip';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Button from '@mui/material/Button';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
@@ -28,11 +29,12 @@ const Breeding = () => {
     const bubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'EGG_INK', false);
     const achievement = getAchievementStatus(state?.account?.achievements, 220);
     const skillMasteryBonus = isMasteryBonusUnlocked(state?.account?.rift, state?.account?.totalSkillsLevels?.breeding?.rank, 1);
+    const voteBonus = getVoteBonus(state?.account, 16) || 1;
     return 7200 / (1 +
       (emeraldRhinestoneBonus
         + (mealBonus
           + (bubbleBonus
-            + (10 * achievement + 15 * skillMasteryBonus)))) / 100) * 1000;
+            + (10 * achievement + 15 * skillMasteryBonus * voteBonus)))) / 100) * 1000;
   }
   const handleCopy = async () => {
     const data = tryToParse(localStorage.getItem('rawJson'));

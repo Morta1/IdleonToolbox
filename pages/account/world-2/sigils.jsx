@@ -14,6 +14,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
@@ -29,6 +30,8 @@ const Sigils = () => {
     const anotherVial = getVialsBonusByStat(alchemy?.vials, '6turtle');
     const stampBonus = getStampsBonusByEffect(state?.account, '+{%_Sigil_Charge_rate');
     const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD');
+    const voteBonus = getVoteBonus(state?.account, 17);
+
     return {
       value: (1 + ((achievement ? 20 : 0)
           + (sigilBonus
@@ -36,7 +39,8 @@ const Sigils = () => {
               + (vial
                 + stampBonus)))) / 100)
         * (1 + winnerBonus / 100)
-        * (1 + anotherVial / 100),
+        * (1 + anotherVial / 100)
+        * (1 + voteBonus / 100),
 
       breakdown: [
         { name: 'Achievement', value: (achievement ? 20 : 0) / 100 },
@@ -45,7 +49,8 @@ const Sigils = () => {
         { name: 'Stamps', value: stampBonus / 100 },
         { name: 'Vial', value: vial / 100 },
         { name: 'Turtle Vial', value: 1 + anotherVial / 100 },
-        { name: 'Summoning', value: winnerBonus }
+        { name: 'Summoning', value: winnerBonus },
+        { name: 'Vote', value: voteBonus },
       ]
     }
   }

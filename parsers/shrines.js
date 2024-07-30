@@ -7,6 +7,7 @@ import { getGoldenFoodBonus, isMasteryBonusUnlocked } from './misc';
 import { getPostOfficeBonus } from './postoffice';
 import { getTalentBonus } from './talents';
 import { getVialsBonusByEffect } from './alchemy';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 const startingIndex = 18;
 
@@ -62,6 +63,7 @@ export const getShrineExpBonus = (characters, account) => {
     const goldenFoodBonus = getGoldenFoodBonus('Golden_Cheese', character, account);
     const talentBonus = getTalentBonus(character?.starTalents, null, 'SHRINE_ARCHITECT');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ShrineSpd');
+    const voteBonus = getVoteBonus(account, 19);
     account?.shrines?.forEach((shrine, shrineIndex) => {
       const { shrineTowerValue, shrineFactor } = shrine;
       const result = { name: character?.name, value: 0 }
@@ -69,6 +71,7 @@ export const getShrineExpBonus = (characters, account) => {
       const expBonus = (1 + (50 * superbit) / 100)
         * (1 + (artifactBonus
           + 15 * skillMastery) / 100)
+        * (1 + voteBonus / 100)
         * (1 + (10 * shrineTowerValue) / 100)
         * (1 + (shrineFactor
           + (postOfficeBonus

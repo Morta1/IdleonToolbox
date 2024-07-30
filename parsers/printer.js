@@ -5,6 +5,7 @@ import { getTalentBonus } from './talents';
 import { getSkillMasteryBonusByIndex } from './misc';
 import { getAtomColliderThreshold } from './atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 export const getPrinter = (idleonData, charactersData, accountData) => {
   const rawPrinter = tryToParse(idleonData?.Print) || idleonData?.Printer;
@@ -70,9 +71,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
 
           // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
           const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
+          const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
           const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
             * (1 + (highestKingOfRemembrance
-              * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100)
+              * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100) * voteBonus
 
           const multi = (wiredInBonus && isPlayerConnected ?
             (harriepGodIndex.includes(charIndex)
@@ -93,7 +95,8 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
               value: notateNumber(1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100, 'MultiplierInfo')
             },
             { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
-            { name: 'Charm', value: 1 + (charmBonus) / 100 }
+            { name: 'Charm', value: 1 + (charmBonus) / 100 },
+            { name: 'Vote', value: voteBonus },
           ];
 
           return [...result, {

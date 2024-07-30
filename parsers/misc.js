@@ -31,6 +31,7 @@ import { getStarSignBonus } from './starSigns';
 import { getPlayerFoodBonus } from './character';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getBribeBonus } from '@parsers/bribes';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
@@ -495,6 +496,7 @@ export const getGoldenFoodMulti = (character, account) => {
   const bribeBonus = getBribeBonus(account?.bribes, 'Gold_from_Lead');
   const achievementBonus = getAchievementStatus(account?.achievements, 380);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
+  const voteBonus = getVoteBonus(account, 26);
   return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
@@ -502,7 +504,7 @@ export const getGoldenFoodMulti = (character, account) => {
           + (goldenFoodAchievement
             + (goldenFoodBubbleBonus
               + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-            + (2 * achievementBonus + 3 * secondAchievementBonus))))) / 100;
+            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus))))) / 100;
 }
 
 export const getGoldenFoodBonus = (foodName, character, account) => {

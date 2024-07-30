@@ -3,6 +3,7 @@ import { notateNumber, number2letter } from '../utility/helpers';
 import { getMinorDivinityBonus } from './divinity';
 import { getHighestCharacterSkill } from './misc';
 import { getEquinoxBonus } from './equinox';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 const { tryToParse } = require('../utility/helpers');
 
@@ -90,7 +91,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const evolutionLevel = gamingRaw?.[7];
   const mutations = getMutations();
   const mutationCost = (25 + (10 * (evolutionLevel + 1) + Math.pow(evolutionLevel + 1, 2))) * Math.pow(1.3, evolutionLevel);
-  const newMutationChance = getNewMutationChance(unlockedMutations, dna);
+  const voteBonus = (1 + getVoteBonus(account, 21) / 100);
+  const newMutationChance = getNewMutationChance(unlockedMutations, dna, voteBonus);
   const mutationChanceBreakpoints = [100, 200, 300, 400, 500].map((bp) => ({
     value: bp,
     chance: getNewMutationChance(unlockedMutations, bp)
@@ -125,10 +127,10 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   };
 }
 
-export const getNewMutationChance = (unlockedMutations, dna) => {
+export const getNewMutationChance = (unlockedMutations, dna, voteBonus) => {
   return Math.floor(1e3 * (0 === unlockedMutations
-    ? Math.min(0.8, (7 * dna) / (100 + dna))
-    : Math.min(0.99, ((42 * dna) / (100 + dna)) * Math.pow(0.31, unlockedMutations)))) / 10
+    ? Math.min(0.8, (7 * dna) / (100 + dna) * voteBonus)
+    : Math.min(0.99, ((42 * dna) / (100 + dna)) * Math.pow(0.31, unlockedMutations) * voteBonus))) / 10
 }
 
 const getMutations = () => {

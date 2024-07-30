@@ -90,6 +90,8 @@ import {
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getOwlBonus } from '@parsers/world-1/owl';
 import { getLandRank } from '@parsers/world-6/farming';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getKangarooBonus } from '@parsers/world-2/kangaroo';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -685,6 +687,7 @@ export const getDropRate = (character, account, characters) => {
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
   const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
+  const voteBonus = getVoteBonus(account, 27);
 
   const additive =
     firstTalentBonus +
@@ -713,7 +716,8 @@ export const getDropRate = (character, account, characters) => {
     (6 * achievementBonus + 4 * secondAchievementBonus) +
     owlBonus +
     landRankBonus +
-    9;
+    + voteBonus
+    + 9;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -764,6 +768,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Golden food', value: goldenFoodBonus / 100 },
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Land rank', value: landRankBonus },
+    { name: 'Vote', value: voteBonus },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
@@ -819,6 +824,8 @@ export const getCashMulti = (character, account, characters) => {
   const thirdAchievementBonus = getAchievementStatus(account?.achievements, 376);
   const { dropRate } = getDropRate(character, account, characters);
   const dropRateMulti = (dropRate < 2 ? dropRate : Math.floor(dropRate < 5 ? dropRate : dropRate + 1)) * 100;
+  const voteBonus = getVoteBonus(account, 34);
+  const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Cash');
 
   const bubbles = (cashStrBubble
     * Math.floor(strength / 250)
@@ -829,7 +836,7 @@ export const getCashMulti = (character, account, characters) => {
 
   const cashMulti = (1 + (bubbles) / 100)
     * (1 + (mealBonus
-      + artifactBonus) / 100)
+      + artifactBonus + kangarooBonus + voteBonus) / 100)
     * (1 + (0.5 * arenaBonusUnlock
       + (secondArenaBonusUnlock
         + statueBonus / 100)))
@@ -870,6 +877,8 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Arcade', value: arcadeBonus },
     { name: 'Post Office', value: postOfficeBonus },
+    { name: 'Kangaroo', value: kangarooBonus },
+    { name: 'Vote', value: voteBonus },
     { name: 'Drop Rate*', value: dropRateMulti }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))

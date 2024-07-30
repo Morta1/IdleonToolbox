@@ -64,6 +64,7 @@ import { getSummoning } from "@parsers/world-6/summoning";
 import { getTome } from "@parsers/world-4/tome";
 import { getOwl } from "@parsers/world-1/owl";
 import { getKangaroo } from "@parsers/world-2/kangaroo";
+import { getVoteBallot } from "@parsers/world-2/voteBallot";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
   let accountData, charactersData;
@@ -246,7 +247,8 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.lab.labBonuses = applyBonusDesc(accountData.lab.labBonuses, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
   accountData.totems = getTotems(idleonData);
   accountData.tome = getTome(idleonData, accountData, charactersData, serverVars);
-  accountData.owl = getOwl(idleonData, accountData)
-  accountData.kangaroo = getKangaroo(idleonData, accountData)
+  accountData.owl = getOwl(idleonData, accountData);
+  accountData.kangaroo = getKangaroo(idleonData, accountData);
+  accountData.voteBallot = getVoteBallot(idleonData, accountData);
   return { accountData, charactersData };
 };

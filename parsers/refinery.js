@@ -11,6 +11,7 @@ import { getArcadeBonus } from '@parsers/arcade';
 import { getHighestLevelOfClass } from '@parsers/misc';
 import { getHighestTalentByClass } from '@parsers/talents';
 import { getFamilyBonusBonus } from '@parsers/family';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 export const getRefinery = (idleonData, storage, tasks) => {
   const refineryRaw = tryToParse(idleonData?.Refinery) || idleonData?.Refinery;
@@ -99,6 +100,8 @@ export const getRefineryCycleBonuses = (account, characters) => {
   const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
+  const voteBonus = getVoteBonus(account, 33);
+
   const bonusBreakdown = [
     { name: 'Vials', value: redMaltVial / 100 },
     { name: 'Salt lick', value: saltLickUpgrade / 100 },
@@ -107,11 +110,13 @@ export const getRefineryCycleBonuses = (account, characters) => {
     { name: 'Stamps', value: stampRefinerySpeed / 100 },
     { name: 'Shinies', value: shinyRefineryBonus / 100 },
     { name: 'Const mastery', value: constructionMastery / 100 },
-    { name: 'Arcade', value: arcadeBonus / 100 }
+    { name: 'Arcade', value: arcadeBonus / 100 },
+    { name: 'Vote', value: voteBonus / 100 },
   ]
   return {
     bonusBreakdown,
-    bonus: redMaltVial + saltLickUpgrade + amplifiedFamilyBonus + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery + arcadeBonus
+    bonus: redMaltVial + saltLickUpgrade + amplifiedFamilyBonus
+      + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery + arcadeBonus + voteBonus
   }
 }
 export const getRefineryCycles = (account, characters, lastUpdated) => {

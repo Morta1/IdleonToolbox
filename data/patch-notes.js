@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.76',
+    gameVer: '2.0.13',
+    date: '30/07/2024',
+    features: ['Updated the website with version 2.0.13 data and assets', 'Added vote ballot page'],
+    fixes: []
+  },
+  {
     ver: '3.2.75',
     gameVer: '2.0.12',
     date: '08/07/2024',

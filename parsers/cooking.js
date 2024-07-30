@@ -21,6 +21,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 export const spicesNames = [
   'Grasslands',
@@ -232,11 +233,14 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       voidPlateChefBonus = Math.pow(1 + atomsInfo?.[voidPlateChefIndex]?.baseBonus * voidPlateChefLevel / 100, voidMeals);
     }
 
+    const voteBonus = getVoteBonus(account, 13);
+
     const mealSpeed = 10
       * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
       * Math.max(1, voidWalkerApocalypseBonus)
       * (1 + richelinBonus)
+      * (1 + voteBonus / 100)
       * (1 + marshmallowBonus
         * Math.ceil((highestFarming + 1) / 50) / 100)
       * Math.max(1, bubbleBonus)
@@ -301,6 +305,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
 
     const fireSpeed = 5
       * (1 + (isRichelin ? 1 : 0))
+      * (1 + voteBonus / 100)
       * Math.max(1, bubbleBonus)
       * Math.max(1, voidPlateChefBonus)
       * (1 + superbitBonus / 100)
