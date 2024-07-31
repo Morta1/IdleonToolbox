@@ -26,7 +26,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     current: clouds[index] || 0,
     active: clouds[index] !== -1 && 0 < nbChallengeActive--
   }));
-  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 13), account.accountOptions);
+  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 14), account.accountOptions);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q') ? 50 : 0;
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);

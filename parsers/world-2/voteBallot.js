@@ -8,7 +8,7 @@ export const getVoteBallot = (idleonData, accountData) => {
 const parseVoteBallot = (idleonData, accountData) => {
   const { votePercent, voteCategories } = accountData?.serverVars || {};
   const [selectedCategory, ...currentCategories] = voteCategories || [];
-  const voteMulti = getEquinoxBonus(accountData?.equinox?.upgrades, 'Voter_Rights') || 1;
+  const voteMulti = 1 + getEquinoxBonus(accountData?.equinox?.upgrades, 'Voter_Rights') / 100;
   const bonuses = ninjaExtraInfo[38].split(' ').toChunks(3).map((bonus, index) => {
     const bonusIndex = currentCategories.findIndex((ind) => ind === index);
     return {
