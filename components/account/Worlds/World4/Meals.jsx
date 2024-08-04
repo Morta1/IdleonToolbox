@@ -79,7 +79,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
-      const levelCost = getMealLevelCost(level, achievements, localEquinoxUpgrades);
+      const levelCost = getMealLevelCost(level, achievements, localEquinoxUpgrades, account);
       let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
       if (overflow) {
         timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus.value / 100);
@@ -97,7 +97,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           };
         }
         const bpCost = (breakpoint - level) * levelCost;
-        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, localEquinoxUpgrades);
+        let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, localEquinoxUpgrades, account);
         if (overflow) {
           timeToBp = timeToBp / (1 + overflowingLadleBonus.value / 100)
         }

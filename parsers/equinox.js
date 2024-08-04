@@ -3,6 +3,7 @@ import { tryToParse } from '../utility/helpers';
 import { getVialsBonusByStat } from 'parsers/alchemy';
 import { isBundlePurchased } from './misc';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import account from '@components/dashboard/Account';
 
 export const getEquinox = (idleonData, account) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -31,7 +32,8 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
 
-  const chargeRate = Math.round(60 * (1 + voteBonus / 100) * (1 + (bundleBonus) / 100) * (1 + (eqBarVial + 10 * (clouds[3] === -1) + 15 * (clouds[9] === -1) + 20 * (clouds[14] === -1) + 25 * (clouds[19] === -1) + 30 * (clouds[22] === -1) + 35 * (clouds[24] === -1) + 40 * (clouds[29] === -1)) / 100))
+  const chargeRate = Math.round(60 * (1 + voteBonus / 100) * (1 + (bundleBonus) / 100) *
+    (1 + (eqBarVial + 10 * (clouds[3] === -1) + 15 * (clouds[9] === -1) + 20 * (clouds[14] === -1) + 25 * (clouds[19] === -1) + 30 * (clouds[22] === -1) + 35 * (clouds[24] === -1) + 40 * (clouds[29] === -1)) / 100))
   const chargeRequired = Math.round((120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade));
   const currentCharge = dream?.[0];
   const timeToFull = new Date().getTime() + ((chargeRequired - currentCharge) / chargeRate * 1000 * 3600);
@@ -49,7 +51,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
 
 const parseEquinoxUpgrades = (challenges, dream, accountOptions) => {
   const increasedMaxLvl = challenges.filter(challenge => challenge.current === -1 && challenge.reward.includes('Max_LV')).map(challenge => challenge.reward);
-  const nbChallengeUnlocked = challenges.filter(challenge => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length
+  const nbChallengeUnlocked = challenges.filter(challenge => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length;
   return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
     const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
       ? Math.min(parseInt(dream[index]), accountOptions?.[193])

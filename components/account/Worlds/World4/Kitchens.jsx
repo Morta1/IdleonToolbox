@@ -22,7 +22,8 @@ const Kitchens = ({
                     lastUpdated,
                     achievements,
                     lab,
-                    equinoxUpgrades
+                    equinoxUpgrades,
+                    account
                   }) => {
   const calcTotals = (kitchens) => {
     return kitchens?.reduce((res, kitchen) => {
@@ -80,12 +81,12 @@ const Kitchens = ({
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip placement={'top'}
                        title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}
-                                           lab={lab} equinoxUpgrades={equinoxUpgrades}/>}>
+                                           lab={lab} equinoxUpgrades={equinoxUpgrades} account={account}/>}>
                 <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
               </Tooltip>
               <div>{notateNumber(total, 'Big')}/hr</div>
               <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}
-                           equinoxUpgrades={equinoxUpgrades}/>
+                           equinoxUpgrades={equinoxUpgrades} account={account}/>
             </CardContent>
           </Card>
         })}
@@ -178,7 +179,7 @@ const Kitchens = ({
                 <Tooltip placement={'top'}
                          title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed}
                                              lab={lab}
-                                             meal={kitchen?.meal} equinoxUpgrades={equinoxUpgrades}/>}>
+                                             meal={kitchen?.meal} equinoxUpgrades={equinoxUpgrades} account={account}/>}>
                   <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
                 </Tooltip>
                 <div>{notateNumber(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>
@@ -192,9 +193,9 @@ const Kitchens = ({
 };
 
 
-const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades }) => {
-  const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades);
-  const levelCost = getMealLevelCost(meal?.level, achievements, equinoxUpgrades);
+const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades, account }) => {
+  const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades, account);
+  const levelCost = getMealLevelCost(meal?.level, achievements, equinoxUpgrades, account);
   const diamondCost = (11 - meal?.level) * levelCost;
   const timeTillNextLevel = meal?.amount >= levelCost
     ? '0'

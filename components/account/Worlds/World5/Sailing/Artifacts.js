@@ -23,7 +23,7 @@ const Artifacts = ({ artifacts }) => {
       if (acquired === 2) {
         bonusDescription = ancientFormDescription;
       } else if (acquired === 3) {
-        bonusDescription = ancientFormDescription;
+        bonusDescription = eldritchFormDescription;
       } else if (acquired === 4) {
         bonusDescription = sovereignFormDescription;
       }

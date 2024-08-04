@@ -166,9 +166,6 @@ export const filteredLootyItems = [
   'EquipmentCape1',
   'EquipmentHats72',
   'EquipmentHats55',
-  'EquipmentHats42',
-  'EquipmentHats63',
-  'EquipmentHats66',
   'MaxCapBagFi0',
   'MaxCapBagB0',
   'MaxCapBagTr0',
@@ -178,8 +175,6 @@ export const filteredLootyItems = [
   'Spice0',
   'Spice6',
   'Spice9',
-  'EquipmentHats75',
-  'Quest71',
   'StampC13',
   'TalentPoint5',
   // Dungeon unobtainable

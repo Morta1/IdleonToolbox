@@ -454,19 +454,19 @@ export const getWorld3Alerts = (account, fields, options) => {
     const { bar, challenges, foodLust } = options?.equinox;
     const equinoxAlerts = {};
 
-    if (bar) {
+    if (bar?.checked) {
       const isFull = equinox?.currentCharge >= equinox?.chargeRequired && equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
       if (isFull) {
         equinoxAlerts.bar = isFull;
       }
     }
-    if (challenges) {
+    if (challenges?.checked) {
       const hasChallenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
       if (hasChallenges > 0) {
         equinoxAlerts.challenges = hasChallenges;
       }
-    }
-    if (foodLust) {
+    }``
+    if (foodLust?.checked) {
       const hasFoodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
       if (hasFoodLust) {
         equinoxAlerts.foodLust = hasFoodLust;

@@ -86,6 +86,7 @@ const Cooking = () => {
                   totalMealSpeed={totalMealSpeed}
                   lab={state?.account?.lab}
                   equinoxUpgrades={state?.account?.equinox?.upgrades}
+                  account={state?.account}
         />
         <Meals characters={state?.characters}
                {...cooking}

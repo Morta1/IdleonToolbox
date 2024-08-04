@@ -404,23 +404,25 @@ export const getMealsFromSpiceValues = (spiceValues, valueOfSpices) => {
 }
 
 
-export const calcMealTime = (maxLevel, meal, totalMealSpeed, achievements, equinoxUpgrades) => {
+export const calcMealTime = (maxLevel, meal, totalMealSpeed, achievements, equinoxUpgrades, account) => {
   const { amount, level, cookReq } = meal;
   if (level >= maxLevel) return 0;
   let amountNeeded = 0;
   for (let i = level; i < maxLevel; i++) {
-    amountNeeded += getMealLevelCost(i, achievements, equinoxUpgrades);
+    amountNeeded += getMealLevelCost(i, achievements, equinoxUpgrades, account);
   }
   amountNeeded -= amount;
   if (amountNeeded < 0) return 0;
   return calcTimeToNextLevel(amountNeeded, cookReq, totalMealSpeed);
 }
 
-export const getMealLevelCost = (level, achievements, equinoxUpgrades) => {
-  const baseMath = 1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100))
-  const morBaseMath = baseMath * (10 + (level + Math.pow(level, 2)));
-  const equinox = Math.max(0.01, Math.pow(0.8, getEquinoxBonus(equinoxUpgrades, 'Food_Lust')))
-  return morBaseMath * Math.pow(1.2 + 0.05 * level, level) * equinox;
+export const getMealLevelCost = (level, achievements, equinoxUpgrades, account) => {
+  const foodLustChallenge = account?.equinox?.challenges.find(challenge => challenge.current === -1
+    && challenge.reward.includes('\'Food_Lust\'_Equinox_Upg_now_reduces_cost_by_-42%_per_stack')) ? 1 : 0;
+  return (1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100)))
+    * Math.max(0.001, Math.pow(Math.max(0.58, 0.8 - 0.22 * foodLustChallenge), getEquinoxBonus(equinoxUpgrades, 'Food_Lust')))
+    * (10 + (level + Math.pow(level, 2)))
+    * Math.pow(1.2 + 0.05 * level, level)
 }
 
 export const calcTimeToNextLevel = (amountNeeded, cookReq, totalMealSpeed) => {
