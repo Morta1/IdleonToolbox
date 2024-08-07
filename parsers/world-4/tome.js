@@ -179,7 +179,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.sneaking?.totalJadeEmporiumUnlocked);
   quantities.push(calcMinigameTotalScore(account?.highscores?.minigameHighscores));
   quantities.push(calcTotalPrayersLevel(account?.prayers));
-  quantities.push(0); // unknown?
+  quantities.push(account?.farming?.totalRanks); // total land ranks
   quantities.push(account.accountOptions?.[221]); // Largest Magic Bean Trade
   quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
 

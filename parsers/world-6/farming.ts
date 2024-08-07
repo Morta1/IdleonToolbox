@@ -98,7 +98,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     beanTrade,
     ranks,
     totalPoints,
-    usedPoints
+    usedPoints,
+    totalRanks: farmingRanks?.reduce((sum:number, rank:number) => sum + rank, 0)
   };
 }
 
