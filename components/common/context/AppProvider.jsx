@@ -99,8 +99,8 @@ const AppProvider = ({ children }) => {
         if (!Object.keys(content).includes('serverVars')) {
           parsedData = parseData(content);
         } else {
-          const { data, charNames, companion, guildData, serverVars, lastUpdated } = content;
-          parsedData = parseData(data, charNames, companion, guildData, serverVars);
+          const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime } = content;
+          parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime);
           parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() }
           localStorage.setItem('rawJson', JSON.stringify({
             data,
@@ -284,7 +284,7 @@ const AppProvider = ({ children }) => {
       companion,
       guildData,
       serverVars,
-      accountCreateTimeInSeconds: accountCreateTimeInSeconds * 1000,
+      accountCreateTime: accountCreateTimeInSeconds * 1000,
       lastUpdated
     }));
     const { parseData } = await import('@parsers/index');
@@ -300,7 +300,8 @@ const AppProvider = ({ children }) => {
         lastUpdated,
         serverVars,
         uid,
-        accessToken
+        accessToken,
+        accountCreateTime: accountCreateTimeInSeconds * 1000
       }
     });
   };
