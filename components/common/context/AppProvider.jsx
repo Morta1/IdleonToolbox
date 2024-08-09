@@ -264,7 +264,7 @@ const AppProvider = ({ children }) => {
     }
   };
 
-  const handleCloudUpdate = async (data, charNames, companion, guildData, serverVars, uid, accessToken) => {
+  const handleCloudUpdate = async (data, charNames, companion, guildData, serverVars, accountCreateTime, uid, accessToken) => {
     if (router?.query?.profile) {
       const { profile, ...rest } = router.query
       router.replace({ query: rest })
@@ -276,10 +276,19 @@ const AppProvider = ({ children }) => {
       guildData,
       serverVars
     })
+    const accountCreateTimeInSeconds = accountCreateTime?.seconds;
     const lastUpdated = new Date().getTime();
-    localStorage.setItem('rawJson', JSON.stringify({ data, charNames, companion, guildData, serverVars, lastUpdated }));
+    localStorage.setItem('rawJson', JSON.stringify({
+      data,
+      charNames,
+      companion,
+      guildData,
+      serverVars,
+      accountCreateTimeInSeconds: accountCreateTimeInSeconds * 1000,
+      lastUpdated
+    }));
     const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(data, charNames, companion, guildData, serverVars);
+    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTimeInSeconds * 1000);
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({
       type: 'data',

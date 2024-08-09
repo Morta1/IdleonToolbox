@@ -1,10 +1,12 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Collapse, Divider, List, ListItem, ListItemText, Stack } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { prefix } from '@utility/helpers';
 import { useRouter } from 'next/router';
 import Kofi from '../../Kofi';
+import { AppContext } from '@components/common/context/AppProvider';
+import { format } from 'date-fns';
 
 const worldsData = {
   'misc': {
@@ -110,6 +112,7 @@ const worldsData = {
 const nestedOptionPadding = 35;
 
 const AccountDrawer = () => {
+  const { state } = useContext(AppContext);
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
 
@@ -141,6 +144,7 @@ const AccountDrawer = () => {
     <Stack sx={{ height: '100%' }}>
       <Divider/>
       <List>
+        {state?.account?.accountCreateTime ? <ListItem>Account created at: {format(state?.account?.accountCreateTime, 'dd/MM/yyyy HH:mm:ss')}</ListItem> : null}
         {Object.entries(worldsData).map(([key, value], index) => {
           const { icon, categories, style } = value;
           return (

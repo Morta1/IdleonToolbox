@@ -66,13 +66,13 @@ import { getOwl } from "@parsers/world-1/owl";
 import { getKangaroo } from "@parsers/world-2/kangaroo";
 import { getVoteBallot } from "@parsers/world-2/voteBallot";
 
-export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>) => {
+export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
   let accountData, charactersData;
 
   try {
     console.info('%cStart Parsing', 'color:orange');
-    const processedData = serializeData(idleonData, charNames, companion, guildData, serverVars);
-    const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, processedData);
+    const processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
+    const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
     console.info('data', { account: accountData, characters: charactersData })
@@ -90,10 +90,11 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
   }
 };
 
-const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, processedData?: any) => {
+const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number, processedData?: any) => {
   const accountData: Account = processedData?.accountData || {};
   let charactersData: Character[] = processedData?.charactersData || [];
   const serializedCharactersData = getCharacters(idleonData, charNames);
+  accountData.accountCreateTime = accountCreateTime;
   accountData.companions = getCompanions(companion);
   accountData.bundles = getBundles(idleonData);
   accountData.serverVars = serverVars;

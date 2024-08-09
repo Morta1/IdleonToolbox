@@ -30,7 +30,7 @@ const signInWithToken = async (token, type) => {
     const provider = new OAuthProvider('apple.com');
     credential = provider.credential({
       idToken: token?.id_token,
-      rawNonce: token?.nonce,
+      rawNonce: token?.nonce
     });
   } else if (type === 'google') {
     credential = GoogleAuthProvider.credential(token, null);
@@ -107,6 +107,11 @@ const subscribe = async (uid, accessToken, callback) => {
     }
   }
   if (charNames?.length > 0) {
+    const docSnapshot = await getDoc(doc(firestore, '_data', uid));
+    let createTime;
+    if (docSnapshot.exists()) {
+      createTime = docSnapshot._document.createTime.toTimestamp();
+    }
     return onSnapshot(doc(firestore, '_data', uid),
       { includeMetadataChanges: true }, async (doc) => {
         if (doc.exists()) {
@@ -118,7 +123,7 @@ const subscribe = async (uid, accessToken, callback) => {
             stats: tryToParse(cloudsave?.Guild),
             members: Object.values(guild?.m || {}),
             points: guild?.p
-          }, serverVars, uid, accessToken);
+          }, serverVars, createTime, uid, accessToken);
         }
       }, (err) => {
         console.error('Error has occurred on subscribe', err);
@@ -159,7 +164,7 @@ export const getGuilds = async (callback) => {
       return {
         ...details,
         totalGp: (value?.p || 0) + details?.totalStatCost,
-        members: Object.values(value?.m || {}),
+        members: Object.values(value?.m || {})
       }
     });
     const finalResult = guildsWithData.sort((a, b) => b?.totalGp - a?.totalGp)?.filter(({ members }) => members?.length > 10);
