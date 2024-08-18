@@ -5,6 +5,7 @@ import {
   Checkbox,
   Chip,
   createFilterOptions,
+  Divider,
   FormControlLabel,
   List,
   ListItem,
@@ -14,7 +15,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, handleDownload, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { itemsArray } from '../../data/website-data';
 import Button from '@mui/material/Button';
 import InfoIcon from '@mui/icons-material/Info';
@@ -26,6 +27,8 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import Box from '@mui/material/Box';
+import FileUploadButton from '@components/common/DownloadButton';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -47,14 +50,16 @@ const MaterialTracker = () => {
                                                  }) => displayName !== 'ERROR' && displayName !== 'Blank' &&
     displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip'
   ), []);
-
   const totalOwnedItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters,
     state?.account]);
   const [errors, setErrors] = useState({ material: false, lowerBound: false, upperBound: false });
 
-  const handleAddTracker = () => {
+  const handleAddTracker = (allGreenStacks) => {
+    const greenStacks = totalOwnedItems.filter(({ amount }) => amount >= 10e6);
     const tempErrors = {};
-    if (value.length === 0) {
+    if (value.length > 0 || (allGreenStacks && greenStacks.length > 0)) {
+      tempErrors.material = false;
+    } else {
       tempErrors.material = true;
     }
     const tempLowerBound = bounds?.lowerBound?.replace(/,/g, '');
@@ -68,7 +73,7 @@ const MaterialTracker = () => {
       return;
     }
     const updated = { ...trackedItems };
-    value.forEach((item) => {
+    (allGreenStacks ? greenStacks : value).forEach((item) => {
       updated[item?.rawName] = {
         item,
         lowerBound: tempLowerBound ? parseInt(tempLowerBound) : '',
@@ -116,6 +121,15 @@ const MaterialTracker = () => {
         title="Material Tracker | Idleon Toolbox"
         description="Add a material, set your own threshold and keep track of your inventory."
       />
+      <CardTitleAndValue title={'Utility'}>
+        <Stack direction={'row'} alignItems={'center'} gap={2}>
+          <FileUploadButton onFileUpload={(data) => {
+            setTrackedItems(data);
+          }}>Import</FileUploadButton>
+          <Button onClick={() => handleDownload(trackedItems, 'it-material-tracker')} variant={'outlined'}
+                  size={'small'}>Export</Button>
+        </Stack>
+      </CardTitleAndValue>
       <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
         <Autocomplete
           id="material tracker"
@@ -184,8 +198,15 @@ const MaterialTracker = () => {
           control={<Checkbox checked={includeNearly} onChange={() => setIncludeNearly(!includeNearly)}/>}
           label="Show an alert when value is near the bounds"
         />
-        <Button onClick={handleAddTracker} sx={{ height: 'fit-content', width: 'fit-content' }} variant={'contained'}>Add
-          tracker</Button>
+        <Stack direction={'row'} alignItems={'center'}
+               divider={<Divider orientation={'vertical'} flexItem sx={{ bgcolor: 'grey' }}/>} gap={2}>
+          <Button onClick={() => handleAddTracker()} sx={{ height: 'fit-content', width: 'fit-content' }}
+                  variant={'contained'}>Add
+            tracker</Button>
+          <Button onClick={() => handleAddTracker(true)} sx={{ height: 'fit-content', width: 'fit-content' }}
+                  variant={'contained'}
+                  color={'secondary'}>Add tracker for all greenstacks</Button>
+        </Stack>
       </Stack>
       <Stack>
         <Typography mt={2} variant={'caption'}>Conditions:</Typography>

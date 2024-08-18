@@ -329,8 +329,8 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.arcade?.balls?.checked) {
       const ballsToClaim = Math.floor(Math.min(account?.timeAway?.GlobalTime - account?.timeAway?.Arcade, getMaxClaimTime(account))
         / Math.max(getSecPerBall(account), 1800));
-      const onePercent = 5 * account?.arcade?.maxBalls / 100;
-      const balls = ballsToClaim >= account?.arcade?.maxBalls - onePercent;
+      const percent = 5 * account?.arcade?.maxBalls / 100;
+      const balls = ballsToClaim >= account?.arcade?.maxBalls - percent;
       if (balls) {
         arcade.balls = balls;
       }

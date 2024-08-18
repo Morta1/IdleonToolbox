@@ -1,4 +1,7 @@
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Checkbox,
   Collapse,
   Container,
@@ -33,11 +36,14 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Popper from '@components/common/Popper';
 import { isProd } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useTheme } from '@emotion/react';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 const Data = () => {
   const router = useRouter();
+  const theme = useTheme();
   const { state } = useContext(AppContext);
   const [key, setKey] = useState('all');
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -146,32 +152,43 @@ const Data = () => {
     <div>
       <Typography variant={'h4'}>Data</Typography>
       <Typography variant={'body1'}>Use this when asked for data</Typography>
-      <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>}
+      <ButtonStyle sx={{ mb: 2 }} component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>}
                    onClick={handleCopyITRaw}>
         IdleonToolbox JSON
       </ButtonStyle>
-      <div>
-        <Stack mt={3} direction={'row'} alignItems={'center'}>
-          <ButtonStyle sx={{ textTransform: 'none', fontSize: 12 }}
-                       variant={'outlined'}
-                       startIcon={<FileCopyIcon/>}
-                       size="small"
-                       onClick={handleCopyRaw}>
-            Raw Game JSON
-          </ButtonStyle>
-          <IconButton onClick={() => setShowRawData(!showRawData)}>
-            <ArrowRightIcon style={{
-              transform: showRawData ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 0.2s ease-in-out'
-            }}/>
-          </IconButton>
-        </Stack>
-        <Collapse in={showRawData}>
-          <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-            {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
-          </div>
-        </Collapse>
-      </div>
+      <Accordion disableGutters
+                 sx={{
+                   maxWidth: 500,
+                   '&:before': { display: 'none' },
+                   border: `1px solid ${theme.palette.divider}`,
+                   '&:not(:last-child)': {
+                     borderBottom: 0
+                   }
+                 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Advanced</AccordionSummary>
+        <AccordionDetails sx={{ backgroundColor: 'rgb(22, 22, 22)', p: 3 }}>
+          <Stack direction={'row'} alignItems={'center'}>
+            <ButtonStyle sx={{ textTransform: 'none', fontSize: 12 }}
+                         variant={'outlined'}
+                         startIcon={<FileCopyIcon/>}
+                         size="small"
+                         onClick={handleCopyRaw}>
+              Raw Game JSON
+            </ButtonStyle>
+            <IconButton onClick={() => setShowRawData(!showRawData)}>
+              <ArrowRightIcon style={{
+                transform: showRawData ? 'rotate(90deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease-in-out'
+              }}/>
+            </IconButton>
+          </Stack>
+          <Collapse in={showRawData}>
+            <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+              {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
+            </div>
+          </Collapse>
+        </AccordionDetails>
+      </Accordion>
       <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
     </div>
     <Typography variant={'h4'} mt={8}>Local Storage</Typography>

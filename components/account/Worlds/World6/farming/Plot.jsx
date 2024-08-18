@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { msToDate, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
@@ -18,7 +18,7 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
           return <Card variant={'outlined'} key={icon}>
             <CardContent>
               <Stack direction={'row'} gap={1}>
-                <Typography>{Math.round(quantity)}</Typography>
+                <Typography>{commaNotation(Math.round(quantity))}</Typography>
                 <img width={20} height={20} src={`${prefix}data/${icon}`} alt={''}/>
               </Stack>
             </CardContent>

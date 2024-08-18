@@ -80,8 +80,7 @@ export const getMaxClaimTime = (account) => {
 }
 
 export const getSecPerBall = (account) => {
-  return 4e3 /
-    (1 + (getBallBonus(account) + getBribeBonus(account?.bribes, 'Weighted_Marbles')) / 100)
+  return 4e3 / (1 + (getBallBonus(account) + getBribeBonus(account?.bribes, 'Weighted_Marbles')) / 100)
 }
 
 export const getBallBonus = (account) => {
