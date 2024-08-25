@@ -1,4 +1,4 @@
-import { createRange, lavaLog, tryToParse } from '../utility/helpers';
+import { createRange, lavaLog, number2letter, tryToParse } from '../utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   classFamilyBonuses,
@@ -950,4 +950,8 @@ export const getKillRoyClasses = (rooms, account, serverVars) => {
   return classes.map((classIndex) => {
     return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'
   });
+}
+
+export const getEventShopBonus = (account, bonusId) => {
+  return -1 !== (account?.accountOptions?.[311])?.indexOf(number2letter[bonusId]);
 }

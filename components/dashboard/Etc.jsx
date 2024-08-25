@@ -191,7 +191,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       {(!emptyAlerts?.['World 1'] || !emptyAlerts?.['World 2']) && <Stack gap={1}>
         {!emptyAlerts?.['World 1'] && <Section title={'World 1'}>
           {trackers?.['World 1']?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
-            {nextFeatherRestart < maxTimeValue ? <TimerCard
+            {!isFinite(nextFeatherRestart) ? <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/Owl_4.png`}/>
+              <Typography>A long time</Typography>
+            </Stack> : nextFeatherRestart < maxTimeValue ? <TimerCard
               page={'account/world-1/owl'}
               tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
               lastUpdated={lastUpdated}
@@ -277,7 +280,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Section>}
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
         {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
-          <Stack gap={2}>
+          <Stack gap={2}
+                 sx={{ cursor: 'pointer' }}
+                 onClick={() => router.push({ pathname: '/account/world-3/death-note' })}
+          >
             {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
               return <Stack key={`miniboss-timer-${rawName}`}>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>

@@ -10,7 +10,7 @@ export const getArcade = (idleonData, account, serverVars) => {
 const parseArcade = (arcadeRaw, account, serverVars) => {
   const balls = account?.accountOptions?.[74];
   const goldBalls = account?.accountOptions?.[75];
-  const maxBalls = Math.round(getMaxClaimTime(account) / Math.max(1, getSecPerBall(account)));
+  const maxBalls = Math.round(getMaxClaimTime(account) / Math.max(1800, getSecPerBall(account)));
   const arcadeShopList = arcadeShop?.map((upgrade, index) => {
     const { x1, x2, func } = upgrade;
     const level = arcadeRaw?.[index] ?? 0;
