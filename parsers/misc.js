@@ -953,5 +953,6 @@ export const getKillRoyClasses = (rooms, account, serverVars) => {
 }
 
 export const getEventShopBonus = (account, bonusId) => {
-  return -1 !== (account?.accountOptions?.[311])?.indexOf(number2letter[bonusId]);
+  if (!account?.accountOptions?.[311]) return false;
+  return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]);
 }
