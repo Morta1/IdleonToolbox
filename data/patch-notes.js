@@ -6,7 +6,7 @@ export const patchNotes = [
   {
     ver: '3.2.77',
     gameVer: '2.0.13',
-    date: '30/07/2024',
+    date: '04/09/2024',
     features: [
       'Added green stacks leaderboard under General',
       'Added some more description to the login dialog to hopefully prevent repeated questions',
