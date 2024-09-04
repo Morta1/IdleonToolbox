@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Link, Stack, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import PasswordIcon from '@mui/icons-material/Password';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -14,7 +14,7 @@ import { AppContext } from '../context/AppProvider';
 const methods = [
   { name: 'email', icon: <PasswordIcon/> },
   { name: 'gmail', icon: <GoogleIcon/> },
-  { name: 'apple', icon: <AppleIcon/> },
+  { name: 'apple', icon: <AppleIcon/> }
 ]
 const LoginDialog = ({ open, onClose }) => {
   const { dispatch, setWaitingForAuth, waitingForAuth } = useContext(AppContext);
@@ -37,8 +37,11 @@ const LoginDialog = ({ open, onClose }) => {
   return <Dialog fullWidth={true} maxWidth={'sm'} open={open} onClose={handleClose}>
     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
       <Stack>
-        <Typography>Login</Typography>
-        <Typography variant={'caption'}>using your idleon credentials</Typography>
+        <Typography variant={'h6'}>Login</Typography>
+        <Typography variant={'body2'}>Use the same credentials as your idleon account</Typography>
+        <Link sx={{ fontSize: 14, width:'fit-content' }} href={'https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/'}
+              target={'_blank'}>Can't remember
+          your email?</Link>
       </Stack>
       <IconButton onClick={handleClose}><CloseIcon/></IconButton>
     </DialogTitle>

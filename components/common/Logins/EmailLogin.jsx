@@ -1,4 +1,4 @@
-import { Stack, TextField, Typography } from '@mui/material';
+import { Card, CardContent, Paper, Stack, TextField, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { signInWithEmailPassword } from '../../../firebase';
 import { AppContext } from '../context/AppProvider';
@@ -36,7 +36,8 @@ const EmailLogin = () => {
       try {
         data = await signInWithEmailPassword({ email, password });
       } catch (error) {
-        dispatch({ type: 'loginError', data: error?.stack })
+        setWaitingForAuth(false);
+        dispatch({ type: 'loginError', data: error?.message })
       }
       dispatch({ type: 'login', data: { loginData: data, loginType: 'email' } })
     } else {
@@ -56,7 +57,11 @@ const EmailLogin = () => {
                  label={'Password'}
                  inputProps={{ type: 'password', autoComplete: 'off' }}/>
       <LoadingButton onClick={handleSubmit} loading={waitingForAuth} variant={'contained'}>Login</LoadingButton>
-      <Typography color={'error'} variant={'body1'}>{state?.loginError || error}</Typography>
+      {(state?.loginError || error) ? <Card raised sx={{bgcolor: '#c02222'}}>
+        <CardContent >
+          <Typography variant={'body1'}>{state?.loginError || error}</Typography>
+        </CardContent>
+      </Card> : null}
     </Stack>
   );
 };

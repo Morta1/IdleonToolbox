@@ -53,11 +53,11 @@ const signInWithToken = async (token, type) => {
 const signInWithEmailPassword = async ({ email, password } = {}) => {
   const auth = getAuth(app);
   const result = await signInWithEmailAndPassword(auth, email, password).catch(function (error) {
-    // Handle Errors here.
     const errorCode = error.code;
     if (errorCode === 'auth/account-exists-with-different-credential') {
       throw new Error('Email already associated with another account.')
-      // Handle account linking here, if using.
+    } else if (errorCode === 'auth/invalid-email' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-password' || errorCode === 'auth/wrong-password') {
+      throw new Error('Username or password is incorrect')
     } else {
       console.error('Error while trying to sign in with credentials: ', error);
       throw new Error(error)

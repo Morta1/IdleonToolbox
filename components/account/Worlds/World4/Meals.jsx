@@ -167,6 +167,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   }, [filters, meals, mealMaxLevel, sortBy, mealSpeed, localEquinoxUpgrades, totalMealSpeed]);
 
   const sortMealsBy = (meals, index, level = 0) => {
+    if (index === 0) return defaultMeals;
     const mealsCopy = [...defaultMeals];
     mealsCopy.sort((a, b) => {
       if (level !== 0) {
@@ -351,7 +352,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                       return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Stack
                         key={name + bpLevel} gap={1}
                         flexWrap={'wrap'}>
-                        {amount >= bpCost ? <Typography
+                        {amount >= bpCost && bpLevel !== -2 ? <Typography
                           color={'success.light'}>Breakpoint maxed</Typography> : level >= mealMaxLevel ? <Typography
                             color={'success.light'}>Maxed</Typography> :
                           <Typography
