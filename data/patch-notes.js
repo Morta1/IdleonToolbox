@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.77',
+    gameVer: '2.0.13',
+    date: '30/07/2024',
+    features: [
+      'Added green stacks leaderboard under General',
+      'Added some more description to the login dialog to hopefully prevent repeated questions',
+      'Fixed a bug where meals appeared on a different order.',
+      'Fixed calculations for bean trade in farming page',
+    ],
+    fixes: []
+  },
+  {
     ver: '3.2.76',
     gameVer: '2.0.13',
     date: '30/07/2024',
