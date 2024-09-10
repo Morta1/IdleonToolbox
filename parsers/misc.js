@@ -928,7 +928,18 @@ export const calcTotalQuestCompleted = (characters) => {
   return Object.values(mappedQuests).reduce((sum, level) => sum + level, 0);
 }
 
-export const getKillRoyClasses = (rooms, account, serverVars) => {
+export const getKillroySchedule = (account, serverVars) => {
+  const unlockedThirdKillRoy = account?.accountOptions?.[227] === 1;
+  const rooms = unlockedThirdKillRoy ? 3 : 2;
+  const schedule = [];
+  for (let i = 0; i < 20; i++) {
+    schedule.push(getKillRoyClasses(rooms, account, serverVars, true, i));
+  }
+
+  return schedule;
+}
+
+export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditions = false, iteration = 0) => {
   const classes = [];
   const done = account?.accountOptions?.[113];
   const skipConditions = {
@@ -936,17 +947,26 @@ export const getKillRoyClasses = (rooms, account, serverVars) => {
     21: [0, 1],
     321: [0, 1, 2]
   };
+  const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800);
   for (let i = 0; i < rooms; i++) {
-    if (skipConditions[done] && skipConditions[done].includes(i)) {
+    if (!ignoreSkipConditions && skipConditions[done] && skipConditions[done].includes(i)) {
       continue;
     }
-    const seed = Math.round(Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800) + (50 * i + serverVars.KillroySwap))
+    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
     const rng = new LavaRand(seed);
     const random = 3 * rng.rand();
     const classIndex = Math.max(0, Math.min(3, Math.ceil(random - Math.floor(i / 2))));
     classes.push(classIndex);
   }
-
+  if (ignoreSkipConditions) {
+    return {
+      classes: classes.map((classIndex) => ({
+        className: classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage',
+        classIndex: classIndex === 0 ? 1 : classIndex === 1 ? 6 : classIndex === 2 ? 18 : 30,
+      })),
+      date: Math.floor((baseSeed + iteration - 1) * 604800 * 1000)
+    };
+  }
   return classes.map((classIndex) => {
     return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'
   });

@@ -159,7 +159,6 @@ export const updateFarming = (characters: any, account: any) => {
   const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
   const growthRate = Math.max(1, speedGMO)
     * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
-  console.log('growthRate', growthRate)
   const maxTimes = [0, 1, 2, 3, 4, 5].map((seedType) => {
     const growthReq = 14400 * Math.pow(1.5, seedType);
     return growthReq / growthRate;
