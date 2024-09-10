@@ -5,6 +5,7 @@ import {
   companions,
   deathNote,
   items,
+  mapEnemiesArray,
   mapNames,
   monsters,
   ninjaExtraInfo,
@@ -928,25 +929,27 @@ export const calcTotalQuestCompleted = (characters) => {
   return Object.values(mappedQuests).reduce((sum, level) => sum + level, 0);
 }
 
-export const getKillroySchedule = (account, serverVars) => {
+export const getKillroySchedule = (account, characters, serverVars) => {
   const unlockedThirdKillRoy = account?.accountOptions?.[227] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;
   const schedule = [];
   for (let i = 0; i < 20; i++) {
-    schedule.push(getKillRoyClasses(rooms, account, serverVars, true, i));
+    schedule.push(getKillRoyClasses(rooms, account, serverVars, true, i, characters));
   }
 
   return schedule;
 }
 
-export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditions = false, iteration = 0) => {
+export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditions = false, iteration = 0, characters) => {
   const classes = [];
+  const monstersList = [];
   const done = account?.accountOptions?.[113];
   const skipConditions = {
     1: [0],
     21: [0, 1],
     321: [0, 1, 2]
   };
+  const unlockedMap = characters?.some(({ kills }) => kills?.[200] >= 0);
   const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800);
   for (let i = 0; i < rooms; i++) {
     if (!ignoreSkipConditions && skipConditions[done] && skipConditions[done].includes(i)) {
@@ -958,15 +961,45 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
     const classIndex = Math.max(0, Math.min(3, Math.ceil(random - Math.floor(i / 2))));
     classes.push(classIndex);
   }
+  for (let i = 0; i < rooms; i++) {
+    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const rng = new LavaRand(seed);
+    const random = Math.floor(1e3 * rng.rand());
+    if (random < 300 || i === 0) {
+      const monsterList = randomList[Math.round(68 + i)].split(' ');
+      const baseIndex = Math.floor(random / monsterList.length);
+      const monsterIndex = Math.round(random - baseIndex * monsterList.length);
+      monstersList.push(monsterList[monsterIndex]);
+    } else {
+      if (random < 400 && unlockedMap) {
+        const monsterList = randomList[72].split(' ');
+        const baseIndex = Math.floor(random / monsterList.length);
+        const monsterIndex = Math.round(i - baseIndex * monsterList.length);
+        monstersList.push(monsterList[monsterIndex])
+      } else if (random < 500 && account?.summoning?.killroyStat?.[2] >= 4) {
+        const monsterList = randomList[99].split(' ');
+        const baseIndex = Math.floor(random / monsterList.length);
+        const monsterIndex = Math.round(i - baseIndex * monsterList.length);
+        monstersList.push(monsterList[monsterIndex]);
+      } else {
+        const monsterList = randomList[69 + i].split(' ');
+        const baseIndex = Math.floor(random / monsterList.length);
+        const monsterIndex = Math.round(random - baseIndex * monsterList.length);
+        monstersList.push(monsterList[monsterIndex]);
+      }
+    }
+  }
   if (ignoreSkipConditions) {
     return {
+      monsters: monstersList.map((mapName) => monsters[mapEnemiesArray[rawMapNames.indexOf(mapName)]]?.MonsterFace),
       classes: classes.map((classIndex) => ({
         className: classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage',
-        classIndex: classIndex === 0 ? 1 : classIndex === 1 ? 6 : classIndex === 2 ? 18 : 30,
+        classIndex: classIndex === 0 ? 1 : classIndex === 1 ? 6 : classIndex === 2 ? 18 : 30
       })),
       date: Math.floor((baseSeed + iteration - 1) * 604800 * 1000)
     };
   }
+
   return classes.map((classIndex) => {
     return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'
   });

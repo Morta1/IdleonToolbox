@@ -22,6 +22,7 @@ export const getSummoning = (idleonData, accountData, serializedCharactersData) 
 const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const upgradesLevels = rawSummon?.[0];
   const totalUpgradesLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
+  const killroyStat = rawSummon?.[3];
   const wonBattles = rawSummon?.[1];
   const essences = rawSummon?.[2];
   const whiteBattleIcons = ['piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
@@ -117,7 +118,8 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     familiarsOwned,
     allBattles,
     armyHealth,
-    armyDamage
+    armyDamage,
+    killroyStat
   }
 }
 const getArmyHealth = (upgrades, totalUpgradesLevels) => {

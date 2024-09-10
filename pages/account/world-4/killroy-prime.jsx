@@ -11,7 +11,7 @@ import { format, isValid } from 'date-fns';
 const MyComponent = () => {
   const { state } = useContext(AppContext);
   const { killroy } = state?.account || { deathNote: {} };
-  const schedule = getKillroySchedule(state?.account, state?.account?.serverVars);
+  const schedule = getKillroySchedule(state?.account, state?.characters, state?.account?.serverVars);
   return <>
     <NextSeo
       title="Killroy | Idleon Toolbox"
@@ -35,19 +35,23 @@ const MyComponent = () => {
         })}
       </Stack>
       <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-        {schedule?.map(({ classes, date }, classesIndex) => {
-          return <Card key={`schedule-${classesIndex}`} sx={{ width: 300 }}>
+        {schedule?.map(({ classes, date, monsters }, classesIndex) => {
+          return <Card key={`schedule-${classesIndex}`} sx={{ width: 330 }}>
             <CardContent>
               <Typography sx={{ ml: 1, mb: 2 }}>{isValid(date)
                 ? format(date, 'dd/MM/yyyy HH:mm:ss')
                 : null}</Typography>
               <Stack direction={'row'} gap={1}>
                 {classes.map(({ className, classIndex }, classIdIndex) => {
+                  const monsterFaceId = monsters?.[classIdIndex];
                   return <React.Fragment key={`schedule-${classesIndex}-classId-${classIdIndex}`}>
                     <Card variant={'outlined'}>
                       <CardContent>
                         <Stack alignItems={'center'}>
-                          <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                          <Stack direction={'row'} alignItems={'center'}>
+                            <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                            <img src={`${prefix}data/Mface${monsterFaceId}.png`} alt=""/>
+                          </Stack>
                           <Typography>{className}</Typography>
                         </Stack>
                       </CardContent>
