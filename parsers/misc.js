@@ -974,15 +974,15 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
       if (random < 400 && unlockedMap) {
         const monsterList = randomList[72].split(' ');
         const baseIndex = Math.floor(random / monsterList.length);
-        const monsterIndex = Math.round(i - baseIndex * monsterList.length);
+        const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex])
       } else if (random < 500 && account?.summoning?.killroyStat?.[2] >= 4) {
         const monsterList = randomList[99].split(' ');
         const baseIndex = Math.floor(random / monsterList.length);
-        const monsterIndex = Math.round(i - baseIndex * monsterList.length);
+        const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex]);
       } else {
-        const monsterList = randomList[69 + i].split(' ');
+        const monsterList = randomList[Math.round(69 + i)].split(' ');
         const baseIndex = Math.floor(random / monsterList.length);
         const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex]);
