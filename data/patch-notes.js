@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    ver: '3.2.78',
+    gameVer: '2.0.13',
+    date: '14/09/2024',
+    features: ['Added killroy\'s upgrades and moved killroy page to world 2'],
+    fixes: []
+  },
+  {
     ver: '3.2.77',
     gameVer: '2.0.13',
     date: '04/09/2024',
@@ -11,7 +18,7 @@ export const patchNotes = [
       'Added green stacks leaderboard under General',
       'Added some more description to the login dialog to hopefully prevent repeated questions',
       'Fixed a bug where meals appeared on a different order.',
-      'Fixed calculations for bean trade in farming page',
+      'Fixed calculations for bean trade in farming page'
     ],
     fixes: []
   },

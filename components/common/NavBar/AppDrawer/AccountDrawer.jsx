@@ -57,6 +57,7 @@ const worldsData = {
       { label: 'sigils', icon: 'data/LabBonus12' },
       { label: 'arcadeShop', icon: 'data/PachiBall1' },
       { label: 'islands', icon: 'data/Island1' },
+      { label: 'killroy', icon: 'etc/Killroy_Skull' },
       { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
       { label: 'kangaroo', icon: 'data/RooA' },
       { label: 'voteBallot', icon: 'etc/VoteBallot' }
@@ -85,7 +86,6 @@ const worldsData = {
       { label: 'breeding', icon: 'data/ClassIcons52' },
       { label: 'laboratory', icon: 'data/ClassIcons53' },
       { label: 'rift', icon: 'data/Mface75' },
-      { label: 'killroyPrime', icon: 'etc/KillroyPrime' },
       { label: 'tome', icon: 'etc/Tome_0' }
     ]
   },

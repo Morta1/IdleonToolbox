@@ -896,12 +896,44 @@ export const getMiniBossesData = (account) => {
 }
 
 export const getKillRoy = (idleonData, charactersData, accountData, serverVars) => {
+  const skulls = accountData?.accountOptions?.[105];
   const killRoyKills = tryToParse(idleonData?.KRbest);
   const totalKills = Object.values(killRoyKills || {}).reduce((sum, num) => sum + num, 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills, 0.4)) / 100;
   const unlockedThirdKillRoy = accountData?.accountOptions?.[227] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;
   const killRoyClasses = getKillRoyClasses(rooms, accountData, serverVars);
+  const upgrades = [
+    {
+      level: accountData?.accountOptions?.[106],
+      description: 'Increases your maximum time in room. Base time is 100 seconds.',
+      upgrade: '+1 Second Timer'
+    },
+    {
+      level: accountData?.accountOptions?.[107],
+      description: 'Increases chance for Talent Point drop, depends on how many Talent Point drops already got',
+      upgrade: '+ Talent Drops'
+    },
+    {
+      level: accountData?.accountOptions?.[108],
+      description: 'Increases chance of dropping skulls by mobs',
+      upgrade: '+1% Bonus Skulls'
+    },
+    {
+      level: accountData?.accountOptions?.[109],
+      description: 'Faster Respawn',
+    },
+    {
+      level: accountData?.accountOptions?.[110],
+      description: 'Mobs can drop Dungeon Credits now',
+      upgrade: 'Dungeon Drops'
+    },
+    {
+      level: accountData?.accountOptions?.[111],
+      description: 'Mobs can drop Pearls now',
+      upgrade: 'Pearl Drops'
+    }
+  ];
   return {
     list: deathNote.map((monster) => {
       const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}` };
@@ -913,7 +945,9 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
     totalKills,
     totalDamageMulti,
     rooms,
-    killRoyClasses
+    killRoyClasses,
+    upgrades,
+    skulls
   };
 }
 
