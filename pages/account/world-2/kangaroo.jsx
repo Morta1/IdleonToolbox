@@ -15,7 +15,7 @@ const Kangaroo = () => {
 
   return <>
     <NextSeo
-      title="Poopy The Kangaroo | Idleon Toolbox"
+      title="Poppy The Kangaroo | Idleon Toolbox"
       description="Keep track of your kangaroo upgrades and progress"
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
