@@ -27,7 +27,6 @@ const VoteBallot = () => {
         }}>
           <CardContent>
             <Stack direction={'row'} gap={2}>
-              {index}
               <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={''}/>
               <Stack>
                 <Typography>{cleanUnderscore(bonus?.[0].replace('{', bonus?.bonus).replace('}', 1 + bonus?.bonus / 100))}</Typography>
