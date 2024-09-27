@@ -5,6 +5,7 @@ import {
   companions,
   deathNote,
   items,
+  killRoySkullShop,
   mapEnemiesArray,
   mapNames,
   monsters,
@@ -921,7 +922,7 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
     },
     {
       level: accountData?.accountOptions?.[109],
-      description: 'Faster Respawn',
+      description: 'Faster Respawn'
     },
     {
       level: accountData?.accountOptions?.[110],
@@ -934,6 +935,12 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
       upgrade: 'Pearl Drops'
     }
   ];
+  const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => ({
+    ...upgrade,
+    level: accountData?.accountOptions?.[227 + i],
+    description: upgrade?.description?.replace('{', Math.floor(getKillRoyShopBonus(accountData, (i === 0 || i === 1) ? 0 : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3) * 100) / 100),
+  }));
+
   return {
     list: deathNote.map((monster) => {
       const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}` };
@@ -942,6 +949,7 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
         killRoyKills: killRoyKills?.[monster.rawName] ?? 0
       }) : monsterWithIcon
     }),
+    permanentUpgrades,
     totalKills,
     totalDamageMulti,
     rooms,
@@ -949,6 +957,16 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
     upgrades,
     skulls
   };
+}
+
+const getKillRoyShopBonus = (account, index) => {
+  return 0 === index
+    ? 1 + (account?.accountOptions?.[228]) / (300 + (account?.accountOptions?.[228]))
+    : 1 === index
+      ? 1 + ((account?.accountOptions?.[229]) / (300 + (account?.accountOptions?.[229]))) * 9
+      : 2 === index
+        ? 1 + ((account?.accountOptions?.[230]) / (300 + (account?.accountOptions?.[230]))) * 2
+        : 1
 }
 
 export const calcTotalQuestCompleted = (characters) => {

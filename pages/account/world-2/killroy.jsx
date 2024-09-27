@@ -9,6 +9,7 @@ import Tabber from '@components/common/Tabber';
 import Monsters from '@components/account/Worlds/World2/Killroy/Monsters';
 import Schedule from '@components/account/Worlds/World2/Killroy/Schedule';
 import Upgrades from '@components/account/Worlds/World2/Killroy/Upgrades';
+import PermanentUpgrades from '@components/account/Worlds/World2/Killroy/PermanentUpgrades';
 
 const MyComponent = () => {
   const { state } = useContext(AppContext);
@@ -22,11 +23,12 @@ const MyComponent = () => {
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
       <CardTitleAndValue title={'Skulls'} value={notateNumber(killroy?.skulls)} icon={'etc/Killroy_Skull.png'}/>
       <CardTitleAndValue title={'Total Kills'} value={notateNumber(killroy.totalKills)} />
-      <CardTitleAndValue title={'Total Damage Multi'} value={`${killroy.totalDamageMulti}x`}/>
+      <CardTitleAndValue title={'Total Damage Multi'} value={`${Math.floor(100 * killroy.totalDamageMulti) / 100}x`}/>
     </Stack>
-    <Tabber tabs={['Schedule', 'Upgrades', 'Monsters']}>
+    <Tabber tabs={['Schedule', 'Upgrades', 'Permanent Upgrades', 'Monsters']}>
       <Schedule schedule={schedule}/>
       <Upgrades killroy={killroy}/>
+      <PermanentUpgrades killroy={killroy}/>
       <Monsters killroy={killroy}/>
     </Tabber>
   </>
