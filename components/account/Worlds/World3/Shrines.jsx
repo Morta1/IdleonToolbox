@@ -57,7 +57,7 @@ const ShrineTooltip = ({
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>Affected by:</Typography>
     <Typography variant={'body1'}>{affectingCharacters?.join(', ')}</Typography>
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>{progressPerHour.toFixed(2)}/hr</Typography>
-    <Typography variant={'inherit'} mt={1}>{convertMsToHHMM(new Date().getTime() + timeLeft)}</Typography>
+    <Typography variant={'inherit'} mt={1}>{convertMsToHHMM(timeLeft)}</Typography>
     <Timer date={new Date().getTime() + timeLeft} staticTime={true}/>
   </>
 }
