@@ -57,8 +57,19 @@ const ShrineTooltip = ({
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>Affected by:</Typography>
     <Typography variant={'body1'}>{affectingCharacters?.join(', ')}</Typography>
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>{progressPerHour.toFixed(2)}/hr</Typography>
+    <Typography variant={'inherit'} mt={1}>{convertMsToHHMM(new Date().getTime() + timeLeft)}</Typography>
     <Timer date={new Date().getTime() + timeLeft} staticTime={true}/>
   </>
 }
 
+const convertMsToHHMM = (ms) => {
+  let hours = Math.floor(ms / 3600000); // 1 Hour = 3600000 ms
+  let minutes = Math.floor((ms % 3600000) / 60000); // 1 Minute = 60000 ms
+
+  // Ensure that the values have two digits by adding a leading zero if necessary
+  hours = hours.toString().padStart(2, '0');
+  minutes = minutes.toString().padStart(2, '0');
+
+  return `${hours}h:${minutes}m`;
+}
 export default Shrines;
