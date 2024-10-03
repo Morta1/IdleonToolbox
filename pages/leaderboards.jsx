@@ -10,10 +10,10 @@ import {
 } from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { fetchLeaderboards } from '../services/profiles';
+import { fetchLeaderboard } from '../services/profiles';
 import Box from '@mui/material/Box';
 
 const filterOptions = createFilterOptions({
@@ -21,17 +21,19 @@ const filterOptions = createFilterOptions({
   limit: 50
 });
 
+const tabs = ['general', 'tasks', 'skills', 'character', 'misc'];
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const loggedMainChar = state?.characters?.[0]?.name;
-  const [leaderboards, setLeaderboards] = React.useState();
+  const [leaderboards, setLeaderboards] = useState(null);
   const [error, setError] = React.useState('');
-  const [searchedChar, setSearchChar] = React.useState('');
+  const [searchedChar, setSearchChar] = useState('');
+  const [selectedTab, setSelectedTab] = useState('general');
 
   useEffect(() => {
     const getLeaderboards = async () => {
       try {
-        const tempLeaderboards = await fetchLeaderboards();
+        const tempLeaderboards = await fetchLeaderboard(selectedTab);
         setLeaderboards(tempLeaderboards);
         setError('');
       } catch (e) {
@@ -40,7 +42,7 @@ const Leaderboards = () => {
     };
 
     getLeaderboards();
-  }, []);
+  }, [selectedTab]);
 
   return <>
     <NextSeo
@@ -77,24 +79,27 @@ const Leaderboards = () => {
         renderInput={(params) => <TextField {...params} label="Search by character name" variant="standard"/>}
       />
     </Box> : null}
-
+    <Tabber
+      tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']} onTabChange={(selected) => {
+      setSelectedTab(tabs?.[selected]);
+      setLeaderboards(null);
+      setError('');
+    }}>
+      <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
+                          searchedChar={searchedChar?.mainChar}/>
+      <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
+                          searchedChar={searchedChar?.mainChar}/>
+      <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
+                          searchedChar={searchedChar?.mainChar}/>
+      <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
+                          searchedChar={searchedChar?.mainChar}/>
+      <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
+                          searchedChar={searchedChar?.mainChar}/>
+    </Tabber>
     {!leaderboards && !error
       ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack>
       : error ?
-        <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : <Tabber
-          tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']}>
-          <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
-                              searchedChar={searchedChar?.mainChar}/>
-          <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
-                              searchedChar={searchedChar?.mainChar}/>
-          <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
-                              searchedChar={searchedChar?.mainChar}/>
-          <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
-                              searchedChar={searchedChar?.mainChar}/>
-          <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
-                              searchedChar={searchedChar?.mainChar}/>
-        </Tabber>}
-
+        <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : null}
   </>
 };
 

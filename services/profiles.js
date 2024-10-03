@@ -46,9 +46,9 @@ export const getProfile = async ({ mainChar }) => {
   }
 }
 
-export const fetchLeaderboards = async () => {
+export const fetchLeaderboard = async (leaderboard) => {
   try {
-    const response = await fetch(`${url}/leaderboards`, {
+    const response = await fetch(`${url}/leaderboards?leaderboard=${leaderboard}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
