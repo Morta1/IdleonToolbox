@@ -185,7 +185,7 @@ export const calcTimeToRankUp = (account, characters, lastUpdated, refineryData,
   const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
   const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
   return {
-    timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),
+    timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000) - account?.timeAway?.GlobalTime,
     totalTime: new Date().getTime() + (totalTime * 3600 * 1000)
   };
 };
