@@ -260,15 +260,15 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
         {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ? <TimerCard
             page={'account/world-3/traps'}
-            tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
-            lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>
+            tooltipContent={'Closest trap: ' + getRealDateInMs(account?.timeAway?.GlobalTime * 1000 - new Date().getTime() + closestTrap)}
+            lastUpdated={lastUpdated} time={account?.timeAway?.GlobalTime * 1000 - new Date().getTime() + closestTrap} icon={'data/TrapBoxSet1.png'}/>
           : null}
         {trackers?.['World 3']?.closestBuilding?.checked && account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0
           ?
           <TimerCard
             page={'account/world-3/buildings'}
-            tooltipContent={'Closest building: ' + getRealDateInMs(new Date().getTime() + closestBuilding?.timeLeft)}
-            lastUpdated={lastUpdated} time={new Date().getTime() + closestBuilding?.timeLeft}
+            tooltipContent={'Closest building: ' + getRealDateInMs(account?.timeAway?.GlobalTime * 1000 + closestBuilding?.timeLeft)}
+            lastUpdated={lastUpdated} time={account?.timeAway?.GlobalTime * 1000 + closestBuilding?.timeLeft}
             icon={`data/${closestBuilding?.icon}.png`}/>
           : null}
         {trackers?.['World 3']?.closestSalt?.checked && account?.finishedWorlds?.World2 && closestSalt?.timeLeft !== 0 ?
