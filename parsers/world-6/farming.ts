@@ -33,7 +33,16 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
-  const [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
+  let [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
+  if (!Array.isArray(farmingRanks)) {
+    farmingRanks = []
+  }
+  if (!Array.isArray(ranksProgress)) {
+    ranksProgress = []
+  }
+  if (!Array.isArray(upgradesLevels)) {
+    upgradesLevels = []
+  }
   const totalPoints = farmingRanks?.reduce((sum: number, level: number) => sum + level, 0)
   const usedPoints = upgradesLevels?.reduce((sum: number, level: number) => sum + level, 0);
   const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
