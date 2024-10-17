@@ -34,7 +34,7 @@ import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Popper from '@components/common/Popper';
-import { isProd } from '@utility/helpers';
+import { isProd, tryToParse } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTheme } from '@emotion/react';
@@ -73,7 +73,7 @@ const Data = () => {
   const handleCopyITRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget)
-      await navigator.clipboard.writeText(localStorage.getItem('rawJson'));
+      await navigator.clipboard.writeText(JSON.stringify(tryToParse(localStorage.getItem('rawJson')), null, 2));
     } catch (err) {
       console.error(err);
     }
