@@ -83,7 +83,7 @@ const Data = () => {
     try {
       setAnchorEl(e.currentTarget)
       const data = JSON.parse(localStorage.getItem('rawJson'));
-      await navigator.clipboard.writeText(JSON.stringify(data?.data));
+      await navigator.clipboard.writeText(JSON.stringify(data?.data, null, 2));
     } catch (err) {
       console.error(err);
     }

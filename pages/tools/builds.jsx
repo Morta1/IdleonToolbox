@@ -124,7 +124,7 @@ const Builds = () => {
         ...customBuild,
         class: build?.className,
         tabs: Object.values(customBuild?.tabs)
-      }));
+      }, null, 2));
     } catch (err) {
       console.error(err);
     }
