@@ -10,7 +10,6 @@ import { calcHappyHours } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
 import { getAtomBonus } from '@parsers/atomCollider';
-import Grid from '@mui/material/Unstable_Grid2';
 import { format, isPast, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
@@ -201,7 +200,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               time={nextFeatherRestart}
               icon={'etc/Owl_4.png'}
               timerPlaceholder={'Restart available'}
-            /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: 'account/world-1/owl' })}>
+            /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+                        onClick={() => router.push({ pathname: 'account/world-1/owl' })}>
               <IconImg src={`${prefix}etc/Owl_4.png`}/>
               <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
             </Stack>}
@@ -233,13 +233,20 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             time={nextFisherooReset}
             icon={'etc/KUpga_6.png'}
             timerPlaceholder={'Restart available'}
-          /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
+          /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
+                                                         sx={{ cursor: 'pointer' }}
+                                                         onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
+            <IconImg src={`${prefix}etc/KUpga_11.png`}/>
+            <Typography>A long time</Typography>
+          </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+                            onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
             <IconImg src={`${prefix}etc/KUpga_6.png`}/>
             <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
           </Stack> : null}
           {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
             title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
-            <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
+            <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+                   onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
               <IconImg src={`${prefix}etc/KUpga_11.png`}/>
               <Typography>A long time</Typography>
             </Stack>
@@ -258,7 +265,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           page={'account/world-3/printer'}
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
           lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
-        {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ? <TimerCard
+        {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ?
+          <TimerCard
             page={'account/world-3/traps'}
             tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
             lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'}/>

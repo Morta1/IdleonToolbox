@@ -5,13 +5,14 @@ import {
   Card,
   CardContent,
   Checkbox,
-  Divider, FormControlLabel,
+  Divider,
+  FormControlLabel,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
@@ -23,25 +24,30 @@ const Apocalypses = () => {
 
   const handleFilteredCharacters = (event, newCharacters) => {
     newCharacters?.length > 0 && setFilteredCharacters(newCharacters)
+    localStorage.setItem('apocalypseCharacters', JSON.stringify(newCharacters));
   };
 
   const handleSelectAll = () => {
     const allSelected = filteredCharacters?.length === state?.characters?.length;
-    const chars = Array.from(
-      Array(allSelected ? 1 : state?.characters?.length).keys()
-    );
+    const chars = Array.from(Array(allSelected ? 1 : state?.characters?.length).keys());
     setFilteredCharacters(chars);
   };
+
   useEffect(() => {
-    if (state?.characters) {
-      const localManiacs = state?.characters?.filter((character) => {
-        const isBarbarian = talentPagesMap[character?.class]?.includes('Barbarian');
-        const isBloodBerserker = talentPagesMap[character?.class]?.includes('Blood_Berserker');
-        return isBarbarian || isBloodBerserker;
-      });
-      setFilteredCharacters(localManiacs?.map(({ playerId }) => playerId))
+    const chars = tryToParse(localStorage.getItem('apocalypseCharacters'));
+    if (chars) {
+      setFilteredCharacters(tryToParse(localStorage.getItem('apocalypseCharacters')));
+    } else {
+      if (state?.characters) {
+        const localManiacs = state?.characters?.filter((character) => {
+          const isBarbarian = talentPagesMap[character?.class]?.includes('Barbarian');
+          const isBloodBerserker = talentPagesMap[character?.class]?.includes('Blood_Berserker');
+          return isBarbarian || isBloodBerserker;
+        });
+        setFilteredCharacters(localManiacs?.map(({ playerId }) => playerId))
+      }
     }
-  }, [state]);
+  }, []);
 
   return (
     <>
@@ -125,7 +131,8 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                                 }, index) => {
             if (onlySuperChows && kills > 1e6) return;
             return !done.every((done) => done) ?
-              <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(kills)}`} key={`${charName}-${name}-${index}`}>
+              <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(kills)}`}
+                       key={`${charName}-${name}-${index}`}>
                 <Card sx={{ width: 120 }} variant={'outlined'}>
                   <CardContent>
                     <Stack alignItems={'center'} gap={1}>

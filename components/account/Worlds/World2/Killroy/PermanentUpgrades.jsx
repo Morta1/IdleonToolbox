@@ -11,7 +11,7 @@ const Upgrades = ({ killroy }) => {
           <Stack direction={'row'} gap={2}>
             <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Skull_Shop_Item_${index}.png`} alt=""/>
             <Stack>
-              <Typography>Lv. {level}</Typography>
+              {level > 0 ? <Typography>Upgrades: {level}</Typography> : <>&nbsp;</>}
               <Divider sx={{ my: 1 }}/>
               <Typography>{cleanUnderscore(description.replace('{', 1 + level / 100))}</Typography>
             </Stack>

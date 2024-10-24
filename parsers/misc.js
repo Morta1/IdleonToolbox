@@ -539,7 +539,6 @@ export const getRandomEvents = (account) => {
     const eventRng = new LavaRand(actualSeed);
     const eventRandom = eventRng.rand();
     const eventType = getEventType(eventRandom);
-
     const mapRng = new LavaRand(actualSeed + 1);
     const mapRandom = mapRng.rand();
     const eventMaps = getEventMaps(eventType);
@@ -557,7 +556,7 @@ export const getRandomEvents = (account) => {
     }
     eventList.push({ mapName, eventName, date: dateInMs })
   }
-  return eventList
+  return eventList;
 }
 
 const getEventMaps = (eventType) => {
@@ -937,8 +936,19 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
   ];
   const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => ({
     ...upgrade,
-    level: accountData?.accountOptions?.[227 + i],
-    description: upgrade?.description?.replace('{', Math.floor(getKillRoyShopBonus(accountData, (i === 0 || i === 1) ? 0 : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3) * 100) / 100),
+    level: i === 0 ? accountData?.accountOptions?.[227]
+      : (i === 1)
+      ? accountData?.accountOptions?.[228]
+      : (i === 2)
+      ? 0
+      : (i === 3)
+        ? accountData?.accountOptions?.[229]
+        : (i === 4)
+          ? accountData?.accountOptions?.[230]
+          : 1,
+    description: upgrade?.description?.replace('{', Math.floor(getKillRoyShopBonus(accountData, (i === 0 || i === 1)
+      ? 0
+      : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3) * 100) / 100)
   }));
 
   return {

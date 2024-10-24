@@ -21,10 +21,10 @@ const additionalEffects = {
   mining: [stats.BaseSTR, stats.SkillAFKgainrate, stats.BaseHP, stats.BoostFoodEffect],
   fishing: [stats.BaseSTR, stats.SkillAFKgainrate, stats.BaseHP, stats.BoostFoodEffect],
   trapping: [stats.BaseAGI, stats.SkillAFKgainrate, stats.ShinyCritterChance],
-  damage: [stats.WeaponPower, stats.CriticalChance],
-  'drop rate': [stats.BaseLUK],
+  damage: [stats.WeaponPower, stats.CriticalChance, stats['Dmg,Drop,andEXP']],
+  'drop rate': [stats.BaseLUK, stats['Dmg,Drop,andEXP']],
   'card drop': [stats.BaseLUK, stats.TotalDropRate],
-  'monster exp': [stats.EXPfrommonsters],
+  'monster exp': [stats.EXPfrommonsters, stats['Dmg,Drop,andEXP']],
   dungeon: [stats.BlockChance, stats.RNGitemrarity, stats['tostartwithRNGorb(Passive)']],
   worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP],
   money: [stats.FightingAFKgainrate, stats.TotalDropRate]

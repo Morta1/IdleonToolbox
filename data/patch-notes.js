@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.79',
+    'gameVer': '2.0.13',
+    'date': '24/10/2024',
+    'features': [
+      'The Apocalypse page will now save your last displayed characters.',
+      'Player inventory in Sneaking page will now show item levels above 99.',
+      'Characters\' talents will now be highlighted in red when their max level isn\'t maxed by the library.'
+    ],
+    'fixes': [
+      'Fixed a bug where card search didn\'t include set bonuses in the search.',
+      'Fixed a visual bug with the Fisheroo timer.',
+      'Fixed a visual bug in the gem shop page showing the wrong gem price.',
+      'Fixed a visual bug in the Kill Roy permanent upgrades tab.'
+    ]
+  },
+  {
     ver: '3.2.78',
     gameVer: '2.0.13',
     date: '14/09/2024',

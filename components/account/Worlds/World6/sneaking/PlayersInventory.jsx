@@ -70,6 +70,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
               <Card sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
                 <CardContent>
                   <Badge anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                         max={999}
                          badgeContent={level ?? ' '}
                          color="primary"
                          key={itemIndex + name}>
@@ -91,6 +92,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
           <Card>
             <CardContent>
               <Badge
+                max={999}
                 size={'small'}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 badgeContent={level ?? ' '}
@@ -107,7 +109,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
 
 const getDescription = ({ description, value = 0, type, subType }) => {
   let desc;
-  desc = description?.replace(/{/g, notateNumber(value, 'Big')).replace(/}/g, notateNumber(1 + value / 100, 'MultiplierInfo'));
+  desc = description?.replace(/{/g, value >= 0 ? notateNumber(value, 'Big') : 0).replace(/}/g, notateNumber(1 + value / 100, 'MultiplierInfo'));
   if (type === 1) {
     if (subType === 1) {
       desc = `Base damage: ${notateNumber(value)}`

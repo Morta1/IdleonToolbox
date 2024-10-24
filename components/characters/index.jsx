@@ -68,6 +68,7 @@ const Character = ({
     {
       component: <Talents {...character}
                           selectedPreset={character?.selectedTalentPreset ?? 1}
+                          account={account}
       />,
       filter: 'Talents'
     },

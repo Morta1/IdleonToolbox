@@ -5,8 +5,21 @@ import Tooltip from '../Tooltip';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Breakdown, TalentTooltip } from '../common/styles';
 import InfoIcon from '@mui/icons-material/Info';
+import { isArtifactAcquired } from '@parsers/sailing';
+import { getAtomBonus } from '@parsers/atomCollider';
+import { getAchievementStatus } from '@parsers/achievements';
+import { getSaltLickBonus } from '@parsers/saltLick';
+import { merits, randomList } from '../../data/website-data';
 
-const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsBreakdown, selectedTalentPreset }) => {
+const Talents = ({
+                   talents,
+                   starTalents,
+                   talentPreset,
+                   addedLevels,
+                   addedLevelsBreakdown,
+                   selectedTalentPreset,
+                   account
+                 }) => {
   const [preset, setSelectedPreset] = useState(selectedTalentPreset);
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
@@ -29,7 +42,7 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
   useEffect(() => {
     const currentTalentsDisplay = getPreset(specialsTab);
     setActiveTalents(currentTalentsDisplay);
-    if (activeTab !== 4){
+    if (activeTab !== 4) {
       setSpecialTabs(0);
     }
   }, [activeTab, talents, preset]);
@@ -66,6 +79,9 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
     return ''
   }
 
+  const selectedAddedLevels = preset === 0 ? addedLevels : talentPreset?.addedLevels;
+  const selectedAddedLevelsBreakdown = preset === 0 ? addedLevelsBreakdown : talentPreset?.addedLevelsBreakdown;
+
   return <StyledTalents active={activeTab}>
     <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
@@ -96,12 +112,8 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
     </Tabs>
     <Typography mt={2} component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
-      <Typography component={'div'} variant={'caption'}>Added levels: {preset === 0
-        ? addedLevels
-        : talentPreset?.addedLevels}</Typography>
-      <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={preset === 0
-        ? addedLevelsBreakdown
-        : talentPreset?.addedLevelsBreakdown}/>}>
+      <Typography component={'div'} variant={'caption'}>Added levels: {selectedAddedLevels}</Typography>
+      <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={selectedAddedLevelsBreakdown}/>}>
         <InfoIcon/>
       </Tooltip>
     </Stack>
@@ -109,7 +121,23 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
         const { talentId, level, maxLevel, name } = talentDetails;
         if (index >= 15) return null;
+        // if (-1 < this._SkillIconSelected)
+        const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')
+        const winnerBonus = 0;
+        const atomBonus = getAtomBonus(account, 'Oxygen_-_Library_Booker');
+        const achievementBonus = getAchievementStatus(account?.achievements, 145);
+        const saltLickBonus = getSaltLickBonus(account?.saltLick, 4);
+        const unavailableLibraryBook = randomList?.[16]?.split(' ').map((num) => Number(num));
+        const isBookUnavailable = unavailableLibraryBook.includes(talentId);
+        const maxBookLevel = Math.round(125 + artifact?.bonus
+          + winnerBonus
+          + 10 * Math.min(atomBonus, 1)
+          + (Math.min(5, Math.max(0, 5 * achievementBonus))
+            + saltLickBonus + merits?.[2]?.[2]?.bonusPerLevel
+            * account?.tasks?.[2]?.[2]?.[2]));
+        const hardMaxed = isBookUnavailable ? true : maxLevel >= maxBookLevel;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
+
         return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
           <div key={talentId + '' + index} className={`blank ${(index === 10 || index === 14) && 'arrow'}`}>
             {(index !== 10 && index !== 14) && <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
@@ -132,7 +160,15 @@ const Talents = ({ talents, starTalents, talentPreset, addedLevels, addedLevelsB
             <div className={'talent-wrapper'}>
               {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/> : <TalentIcon
                 src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>}
-              <Typography fontSize={12}>{levelText}&nbsp;</Typography>
+              <Typography fontSize={12} sx={{
+                ...(!hardMaxed ? {
+                  fontWeight: 500,
+                  textShadow: '0px 0px 15px #fd5f2f',
+                  color: '#fd5f2f'
+                } : {})
+              }}>
+                {levelText}
+              </Typography>
             </div>
           </Tooltip>;
       })}
@@ -163,7 +199,6 @@ const StyledTalents = styled.div`
     margin-top: 10px;
     grid-template-columns: repeat(auto-fill, 50px);
     grid-template-rows: 50px;
-    column-gap: 2px;
     justify-content: center;
 
     .active {
@@ -202,6 +237,7 @@ const StyledTalents = styled.div`
     min-height: 245px;
     grid-template-columns: repeat(5, 50px);
     row-gap: 10px;
+    column-gap: 5px;
     justify-content: center;
     margin-bottom: 10px;
   }

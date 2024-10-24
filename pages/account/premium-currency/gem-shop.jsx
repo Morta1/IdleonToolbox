@@ -133,7 +133,7 @@ const GemShop = () => {
                             borderColor: purchased === maxPurchases ? 'success.main' : ''
                           }}>
                       <CardContent sx={{ height: '100%', display: 'flex', position: 'relative' }}>
-                        <Stack>
+                        <Stack sx={{width:'100%'}}>
                           <Stack gap={1} direction={'row'} alignItems={'center'}>
                             {!rawName.includes(';') ? <img width={32} src={`${prefix}data/${rawName}.png`}
                                                            alt={rawName}/> : null}

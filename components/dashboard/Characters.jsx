@@ -199,8 +199,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                                 }}
                                 title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready
                                   ? 'maxed'
-                                  : ''} ${notateNumber(reduction, 'MultiplierInfo')}% ${!ready
-                                  ? `(Max: ${notateNumber(crystalCountdown, 'MultiplierInfo')})`
+                                  : ''} ${Math.round(reduction * 100) / 100}% ${!ready
+                                  ? `(Max: ${Math.round(crystalCountdown * 100) / 100})`
                                   : ''}`}
                                 iconPath={`data/${icon}`}/>
                 }
