@@ -135,7 +135,7 @@ const Talents = ({
           + (Math.min(5, Math.max(0, 5 * achievementBonus))
             + saltLickBonus + merits?.[2]?.[2]?.bonusPerLevel
             * account?.tasks?.[2]?.[2]?.[2]));
-        const hardMaxed = isBookUnavailable ? true : maxLevel >= maxBookLevel;
+        const hardMaxed = isBookUnavailable || activeTab === 4 ? true : maxLevel >= maxBookLevel;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
 
         return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
