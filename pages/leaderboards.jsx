@@ -43,7 +43,6 @@ const Leaderboards = () => {
 
     getLeaderboards();
   }, [selectedTab]);
-
   return <>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"
@@ -69,7 +68,7 @@ const Leaderboards = () => {
     {leaderboards?.totalUsers ? <Box
       sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
       <Autocomplete
-        options={leaderboards?.general?.totalMoney}
+        options={Object.values(leaderboards?.[selectedTab] || {})?.[0] || []}
         getOptionLabel={(option) => option.mainChar}
         id="user-search"
         filterOptions={filterOptions}
