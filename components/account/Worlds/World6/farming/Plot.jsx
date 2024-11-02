@@ -60,7 +60,6 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
                   }, index) => {
         nextOGChance = Math.min(100, 100 * nextOGChance);
         nextOGChance = nextOGChance >= 10 ? nextOGChance : 10 * nextOGChance / 10;
-        console.log('ranks?.[index]', ranks?.[index])
         return <Card key={'plot-' + index} sx={{ width: 200, mt: 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
