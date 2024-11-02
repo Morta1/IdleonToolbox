@@ -60,6 +60,7 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
                   }, index) => {
         nextOGChance = Math.min(100, 100 * nextOGChance);
         nextOGChance = nextOGChance >= 10 ? nextOGChance : 10 * nextOGChance / 10;
+        console.log('ranks?.[index]', ranks?.[index])
         return <Card key={'plot-' + index} sx={{ width: 200, mt: 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
@@ -75,8 +76,8 @@ const Plot = ({ plot, market, ranks, lastUpdated }) => {
                 </Stack>
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
                 <Typography variant={'caption'}>Rank {rank || 0}</Typography>
-                {ranks?.[index]?.upgradeLevel > 0 ? <Typography
-                  variant={'caption'}>{notateNumber(rankProgress)} / {notateNumber(rankRequirement)}</Typography> : null}
+                <Typography
+                  variant={'caption'}>{rankProgress ? notateNumber(rankProgress) : 0} / {rankRequirement ? notateNumber(rankRequirement) : 0}</Typography>
               </Stack>
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>

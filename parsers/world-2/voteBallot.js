@@ -24,7 +24,7 @@ const parseVoteBallot = (idleonData, accountData) => {
   return {
     bonuses,
     voteMulti,
-    selectedBonus: bonuses?.[selectedCategory]
+    selectedBonus: { ...bonuses?.[selectedCategory], index: selectedCategory }
   }
 }
 

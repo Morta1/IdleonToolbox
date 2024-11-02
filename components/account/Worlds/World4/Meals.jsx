@@ -86,7 +86,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       }
 
       const breakpointTimes = breakpoints.map((breakpoint) => {
-        if (breakpoint === 0 || breakpoint === -1) {
+        if (breakpoint === 0 || breakpoint === -1 || breakpoint === -2) {
           const timeTillNextLevel = amount >= levelCost
             ? '0'
             : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
