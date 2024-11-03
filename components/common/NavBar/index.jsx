@@ -15,12 +15,14 @@ import { AppContext } from '../context/AppProvider';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import AdPopup from '@components/common/AdPopup';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
+  const showPopupAd = localStorage.getItem('showPopupAd');
 
   const handlePaste = async () => {
     try {
@@ -61,6 +63,7 @@ const NavBar = ({ children }) => {
         valuable content for all users <FavoriteIcon color={'error'} sx={{ fontSize: 12 }}/>
       </Typography>
     </Box>
+    {!isXs && showPopupAd === 'true' ? <AdPopup/> : null}
     <Box component={'main'} sx={{
       pt: 3,
       pr: 3,
