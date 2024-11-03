@@ -8,7 +8,6 @@ const AdPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useInterval(() => {
-    console.log('interval', isVisible)
     if (isVisible) return;
     setIsVisible(true);
   }, 5000);

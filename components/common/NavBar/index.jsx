@@ -15,14 +15,14 @@ import { AppContext } from '../context/AppProvider';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import AdPopup from '@components/common/AdPopup';
+import AdBlockerPopup from '@components/common/AdBlockerPopup';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
-  const showPopupAd = localStorage.getItem('showPopupAd');
+  const showAdBlockerPopup = localStorage.getItem('showAdBlockerPopup');
 
   const handlePaste = async () => {
     try {
@@ -57,13 +57,13 @@ const NavBar = ({ children }) => {
       </AppBar>
     </Box>
     <AppDrawer permanent/>
-    <Box sx={{ textAlign: 'center', pt: 1, pr: 3, pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 } }}>
+    {showAdBlockerPopup !== 'true' ? <Box sx={{ textAlign: 'center', pt: 1, pr: 3, pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 } }}>
       <Typography component={'div'} variant={'caption'} sx={{ fontSize: 15 }}>
         * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
         valuable content for all users <FavoriteIcon color={'error'} sx={{ fontSize: 12 }}/>
       </Typography>
-    </Box>
-    {!isXs && showPopupAd === 'true' ? <AdPopup/> : null}
+    </Box> : null}
+    {showAdBlockerPopup === 'true' ? <AdBlockerPopup/> : null}
     <Box component={'main'} sx={{
       pt: 3,
       pr: 3,
