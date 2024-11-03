@@ -57,13 +57,7 @@ const NavBar = ({ children }) => {
       </AppBar>
     </Box>
     <AppDrawer permanent/>
-    {showAdBlockerPopup !== 'true' ? <Box sx={{ textAlign: 'center', pt: 1, pr: 3, pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 } }}>
-      <Typography component={'div'} variant={'caption'} sx={{ fontSize: 15 }}>
-        * Please consider disabling your ad-blocker to show your support for the platform, ensuring free access to
-        valuable content for all users <FavoriteIcon color={'error'} sx={{ fontSize: 12 }}/>
-      </Typography>
-    </Box> : null}
-    {showAdBlockerPopup === 'true' ? <AdBlockerPopup/> : null}
+    <AdBlockerPopup/>
     <Box component={'main'} sx={{
       pt: 3,
       pr: 3,
