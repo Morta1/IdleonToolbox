@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, getCoinsArray, growth, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import CoinDisplay from 'components/common/CoinDisplay';
 import Tooltip from 'components/Tooltip'; // Grid version 2
@@ -44,14 +44,11 @@ const Stamps = () => {
     if (level <= 0) return '';
     if (!hasMoney) {
       return 'warning.light';
-    }
-    else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
+    } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
       return 'error.light';
-    }
-    else if (!enoughPlayerStorage) {
+    } else if (!enoughPlayerStorage) {
       return '#e3e310'
-    }
-    else if (materials.length > 0) {
+    } else if (materials.length > 0) {
       return ''
     }
     return materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage
@@ -155,8 +152,10 @@ const Stamps = () => {
               const isBlank = displayName === 'Blank';
               return <Grid xs={4} sm={3} key={rawName + stampIndex}>
                 <Tooltip maxWidth={450}
-                         title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus} subtractGreenStacks={subtractGreenStacks}/>}>
+                         title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
+                                                          subtractGreenStacks={subtractGreenStacks}/>}>
                   <Card sx={{
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -167,7 +166,10 @@ const Stamps = () => {
                       ? '1px solid'
                       : '',
                     borderColor: border
-                  }} variant={'outlined'}>
+                  }}
+                        variant={'outlined'}
+                        onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
+                  >
                     <CardContent sx={{ '&:last-child': { p: 0 } }}>
                       <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
                         <StampIcon width={40} height={40}
@@ -203,15 +205,15 @@ const StampInfo = ({
                      hasMoney,
                      hasMaterials,
                      enoughPlayerStorage,
-                      itemReq,
-                      bonus
+                     itemReq,
+                     bonus
                    }) => {
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
   return <>
     <Typography variant={'h5'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
-                variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00','')))}</Typography>
+                variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
     {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level > 0 ? <>
       <CostSection isMaterialCost={!(hasMoney && hasMaterials && enoughPlayerStorage)}
@@ -255,8 +257,7 @@ const CostSection = ({
                        materialCost,
                        goldCost,
                        level,
-                       hasMoney,
-                       hasMaterials,
+                       hasMoney
                      }) => {
   const moneyColor = showBoth ? '' : hasMoney ? '' : '#e57373';
   return <Stack direction={'row'} gap={3} alignItems={'center'} justifyContent={'space-between'}>
@@ -272,7 +273,9 @@ const CostSection = ({
                                                 variant={'horizontal'}
                                                 title={''} maxCoins={3}
                                                 money={getCoinsArray(goldCost)}/> : null}
-    {(isMaterialCost || showBoth) && reduction >= 0 ? <Typography variant={'subtitle2'}>{reduction}%</Typography> : null}
+    {(isMaterialCost || showBoth) && reduction >= 0
+      ? <Typography variant={'subtitle2'}>{reduction}%</Typography>
+      : null}
   </Stack>
 }
 
