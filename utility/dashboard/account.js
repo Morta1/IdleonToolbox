@@ -465,7 +465,8 @@ export const getWorld3Alerts = (account, fields, options) => {
       if (hasChallenges > 0) {
         equinoxAlerts.challenges = hasChallenges;
       }
-    }``
+    }
+    ``
     if (foodLust?.checked) {
       const hasFoodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
       if (hasFoodLust) {
@@ -702,6 +703,44 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     if (Object.keys(sailing).length > 0) {
       alerts.sailing = sailing;
+    }
+  }
+  if (fields?.hole?.checked) {
+    const hole = {};
+    const { buckets, motherlode, bravery, theBell, theHarp, theHive, grotto } = options?.hole || {};
+    const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
+    const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
+    const anySedimentFull = restSediments?.filter(({
+                                                     current,
+                                                     max
+                                                   }) => current >= 0 && current >= (buckets?.props?.value || max));
+    if (buckets?.checked && !expandWhenFull && anySedimentFull.length > 0) {
+      hole.buckets = true;
+    }
+    const isMaxedOres = account?.hole?.caverns?.motherlode?.ores?.maxed;
+    if (motherlode?.checked && isMaxedOres) {
+      hole.motherlodeMaxed = isMaxedOres;
+    }
+    const isMaxedBugs = account?.hole?.caverns?.theHive?.bugs?.maxed;
+    if (theHive?.checked && isMaxedBugs) {
+      hole.hiveMaxed = isMaxedBugs;
+    }
+    if (bravery?.checked && account?.hole?.caverns?.bravery?.timeForNextFight <= 0) {
+      hole.bravery = true;
+    }
+    const readyBells = account?.hole?.caverns?.theBell?.bells?.filter(({ exp, expReq }) => exp >= expReq);
+    if (theBell?.checked && readyBells?.length > 0) {
+      hole.theWell = true;
+    }
+    const powerThresholdReached = theHarp?.props?.value >= account?.hole?.caverns?.theHarp?.power;
+    if (theHarp?.checked && powerThresholdReached) {
+      hole.theHarp = powerThresholdReached;
+    }
+    if (grotto?.checked && account?.hole?.caverns?.grotto?.mushroomKillsLeft <= 0) {
+      hole.grotto = true;
+    }
+    if (Object.keys(hole).length > 0) {
+      alerts.hole = hole;
     }
   }
   return alerts;

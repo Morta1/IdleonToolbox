@@ -332,6 +332,30 @@ const Account = ({ account, characters, trackers }) => {
                     </Stack>}
                     iconPath={`etc/Captain_${captain?.captainType}`}/>
                 }) : null}
+              {alerts?.['World 5']?.hole?.buckets ?
+                <Alert title={`One of your sediments has reached the threshold`}
+                       imgStyle={{ objectFit: 'cover' }}
+                       iconPath={'data/HoleWellBucket0'}/> : null}
+              {alerts?.['World 5']?.hole?.motherlodeMaxed ?
+                <Alert title={`You can break a layer in the motherlode cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'data/Motherlode_x1'}/> : null}
+              {alerts?.['World 5']?.hole?.bravery ?
+                <Alert title={`You can hear a story in the bravery cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'etc/Bravery_Statue'}/> : null}
+              {alerts?.['World 5']?.hole?.theBell ?
+                <Alert title={`One of your cavern bells is ready`}
+                       iconPath={'etc/TheBell'}/> : null}
+              {alerts?.['World 5']?.hole?.theHarp ?
+                <Alert title={`Harp power has reached the threshold`}
+                       iconPath={'etc/TheHarp'}/> : null}
+              {alerts?.['World 5']?.hole?.hiveMaxed ?
+                <Alert title={`You can break a layer in the hive cavern`}
+                       iconPath={'etc/TheHive'}/> : null}
+              {alerts?.['World 5']?.hole?.grotto ?
+                <Alert title={`You can kill the monarch`}
+                       iconPath={'etc/Grotto'}/> : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 6'] ? <Stack direction={'row'} gap={4}>

@@ -194,7 +194,28 @@ const baseTrackers = {
           { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true }
         ]
       },
-      sailing: { checked: true, options: [{ name: 'captains', checked: true }, { name: 'chests', checked: true }] }
+      sailing: { checked: true, options: [{ name: 'captains', checked: true }, { name: 'chests', checked: true }] },
+      hole: {
+        checked: true,
+        options: [
+          {
+            name: 'buckets', type: 'input',
+            props: { label: 'Sediment threshold', value: 1000, minValue: 1, helperText: 'Set 0 for max' },
+            checked: true
+          },
+          { name: 'motherlode', checked: true },
+          { name: 'bravery', checked: true },
+          { name: 'theWell', checked: true },
+          {
+            name: 'theHarp',
+            checked: true,
+            type: 'input',
+            props: { label: 'Power threshold', value: 100, minValue: 1, helperText: '%' }
+          },
+          { name: 'theHive', checked: true },
+          { name: 'grotto', checked: true },
+        ]
+      }
     },
     'World 6': {
       sneaking: {
@@ -320,17 +341,17 @@ const baseTrackers = {
     },
     'World 1': {
       featherRestart: { checked: true, options: [] },
-      megaFeatherRestart: { checked: true, options: [] },
+      megaFeatherRestart: { checked: true, options: [] }
     },
     'World 2': {
       fisherooReset: { checked: true, options: [] },
-      greatestCatch: { checked: true, options: [] },
+      greatestCatch: { checked: true, options: [] }
     },
     'World 3': {
       printer: { checked: true, options: [] },
       closestTrap: { checked: true, options: [] },
       closestBuilding: { checked: true, options: [] },
-      closestSalt:  { checked: true, options: [] },
+      closestSalt: { checked: true, options: [] }
     }
   }
 }
@@ -400,7 +421,8 @@ const Dashboard = () => {
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
                                                    account={account} lastUpdated={lastUpdated}/> : null}
-          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers} lastUpdated={lastUpdated}/> : null}
+          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
+                                        lastUpdated={lastUpdated}/> : null}
         </Stack>
       </Stack>
       <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}

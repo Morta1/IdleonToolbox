@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
@@ -38,7 +38,6 @@ const AdBlockerPopup = () => {
 
     // Check for ad blocker whenever the pathname changes
     checkAdsBlocked((adsBlocked) => {
-      console.log('adsBlocked', adsBlocked);
       setIsAdBlockDetected(adsBlocked);
     });
   }, [router.pathname]);

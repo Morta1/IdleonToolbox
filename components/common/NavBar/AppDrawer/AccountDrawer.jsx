@@ -95,6 +95,7 @@ const worldsData = {
       { label: 'sailing', icon: 'data/ClassIcons54' },
       { label: 'divinity', icon: 'data/ClassIcons55' },
       { label: 'gaming', icon: 'data/ClassIcons56' },
+      { label: 'hole', icon: 'data/Quest90' },
       { label: 'slab', icon: 'etc/Slab' }
     ]
   },

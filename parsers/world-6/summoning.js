@@ -1,5 +1,13 @@
 import { groupByKey, notateNumber, tryToParse } from '@utility/helpers';
-import { deathNote, monsters, summoningBonuses, summoningEnemies, summoningUpgrades } from '../../data/website-data';
+import {
+  deathNote,
+  endlessIndexes,
+  endlessValues,
+  monsters,
+  summoningBonuses,
+  summoningEnemies,
+  summoningUpgrades
+} from '../../data/website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
@@ -20,6 +28,7 @@ export const getSummoning = (idleonData, accountData, serializedCharactersData) 
 }
 
 const parseSummoning = (rawSummon, account, serializedCharactersData) => {
+  const highestEndlessLevel = account?.accountOptions?.[319];
   const upgradesLevels = rawSummon?.[0];
   const totalUpgradesLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
   const killroyStat = rawSummon?.[3];
@@ -49,7 +58,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       allBattles[world + 1].push({ ...monsterData, ...extraData });
     }
   })
-  const rawWinnerBonuses = wonBattles?.reduce((acc, enemyId) => {
+  let rawWinnerBonuses = wonBattles?.reduce((acc, enemyId) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
     if (monsterData) {
       const bonus = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
@@ -72,22 +81,25 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     }
     return acc;
   }, {});
-  const winnerBonuses = summoningBonuses.map(({ bonusId, bonus }) => {
-    const rawValue = rawWinnerBonuses?.[bonusId];
-    const charmBonus = getCharmBonus(account, 'Crystal_Comb');
-    const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
-    const firstAchievement = getAchievementStatus(account?.achievements, 373);
-    const secondAchievement = getAchievementStatus(account?.achievements, 379);
-    const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
+  for (let index = 0; index < highestEndlessLevel; index++) {
+    // Wrap the index every 40 elements
+    const wrappedIndex = index % 40;
+    // Calculate the bonus index based on SummonEnemies[9]
+    const bonusIndex = Math.round(Number(endlessIndexes[wrappedIndex]) - 1);
+    // Update the SummWinBonus at the calculated bonus index
+    rawWinnerBonuses[bonusIndex] = (Number(rawWinnerBonuses[bonusIndex]) || 0) + Number(endlessValues[wrappedIndex]);
+  }
+  const winnerBonuses = summoningBonuses.map(({ bonusId, bonus }, index) => {
+    const rawValue = rawWinnerBonuses?.[index];
+    const calcVal = getLocalWinnerBonus(rawWinnerBonuses, account, index);
+
     return {
       bonusId,
       bonus,
-      value: rawValue
-        ? 3.5 * rawWinnerBonuses?.[bonusId] * (1 + charmBonus / 100) * (1 + (artifactBonus + (Math.min(10, level * bonusPerLevel) + (firstAchievement + secondAchievement))) / 100)
-        : 0,
+      value: calcVal,
       baseValue: rawValue
     };
-  })
+  });
   let upgrades = summoningUpgrades.map((upgrade, index) => {
     return {
       ...upgrade,
@@ -119,9 +131,52 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     allBattles,
     armyHealth,
     armyDamage,
-    killroyStat
+    killroyStat,
+    highestEndlessLevel
   }
 }
+
+const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
+   const rawValue = rawWinnerBonuses?.[index] || 0;
+  const charmBonus = getCharmBonus(account, 'Crystal_Comb');
+  const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
+  const firstAchievement = getAchievementStatus(account?.achievements, 373);
+  const secondAchievement = getAchievementStatus(account?.achievements, 379);
+  const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
+  let val;
+  if (index === 20 || index === 22 || index === 24 || index === 31) {
+    val = rawValue;
+  } else if (index === 19) {
+    val = 3.5 * rawValue *
+      (1 + charmBonus / 100) *
+      (1 + (artifactBonus +
+        Math.min(10, level * bonusPerLevel) +
+        firstAchievement +
+        secondAchievement) / 100);
+  } else if (index >= 20 && index <= 33) {
+    const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
+    const multi = multiCalc === 0 ? 0 : multiCalc;
+    val = rawValue *
+      (1 + charmBonus / 100) *
+      (1 + (artifactBonus +
+        Math.min(10, level * bonusPerLevel) +
+        firstAchievement +
+        secondAchievement +
+        multi) / 100);
+  } else {
+    const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
+    const multi = multiCalc === 0 ? 0 : (1 + multiCalc / 100);
+    val = 3.5 * rawValue *
+      (1 + charmBonus / 100) *
+      (1 + (artifactBonus +
+        Math.min(10, level * bonusPerLevel) +
+        firstAchievement +
+        secondAchievement +
+        multi) / 100);
+  }
+  return val;
+}
+
 const getArmyHealth = (upgrades, totalUpgradesLevels) => {
   const additiveArmyHealth = [1, 10, 35, 37].reduce((sum, bonusIndex) => {
     const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};

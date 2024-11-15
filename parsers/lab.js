@@ -50,9 +50,10 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     });
   });
   const soupedUpSlots = (account?.gemShopPurchases?.find((value, index) => index === 123) ?? 0) * 2;
-  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || character?.AFKtarget === 'Laboratory' ||
+  const holeMajikConnected = account?.hole?.godsLinks?.find(({ index }) => index === 1);
+  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || holeMajikConnected || character?.AFKtarget === 'Laboratory' ||
     isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
-    .map((character, index) => ({
+    .map((character) => ({
       ...character,
       x: playersCords?.[character?.playerId]?.x,
       y: playersCords?.[character?.playerId]?.y

@@ -6,22 +6,33 @@ import { AppContext } from '@components/common/context/AppProvider';
 import Upgrades from '@components/account/Worlds/World6/summoning/Upgrades';
 import { notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
-import { Stack } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 import Battles from '@components/account/Worlds/World6/summoning/Battles';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
-  const { winnerBonuses, upgrades, essences, allBattles, armyHealth, armyDamage } = state?.account?.summoning || {};
+  const {
+    winnerBonuses,
+    upgrades,
+    essences,
+    allBattles,
+    armyHealth,
+    armyDamage,
+    highestEndlessLevel
+  } = state?.account?.summoning || {};
   return <>
     <NextSeo
       title="Summoning | Idleon Toolbox"
       description="Keep track of your summoning bonuses"
     />
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} my={3}>
+      <CardTitleAndValue value={highestEndlessLevel}
+                         icon={'etc/Endless_Summoning.png'} imgStyle={{ width: 25 }} cardSx={{ my: 0 }}/>
+      <Divider sx={{ borderRightWidth: 'medium' }} flexItem orientation={'vertical'}/>
       {essences?.map((value, index) => {
         if (index > 6) return null;
-        return <CardTitleAndValue key={index} value={notateNumber(value)} icon={`data/SummC${index + 1}.png`}>
-        </CardTitleAndValue>
+        return <CardTitleAndValue key={index} value={notateNumber(value)} icon={`data/SummC${index + 1}.png`}
+                                  cardSx={{ my: 0 }}/>
       })}
     </Stack>
     <Tabber tabs={['Upgrades', 'Winner Bonuses', 'Battles']}>

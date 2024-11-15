@@ -65,6 +65,7 @@ import { getTome } from "@parsers/world-4/tome";
 import { getOwl } from "@parsers/world-1/owl";
 import { getKangaroo } from "@parsers/world-2/kangaroo";
 import { getVoteBallot } from "@parsers/world-2/voteBallot";
+import { getHole } from "@parsers/world-5/hole";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
   let accountData, charactersData;
@@ -99,6 +100,8 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.bundles = getBundles(idleonData);
   accountData.serverVars = serverVars;
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
+  accountData.gemShopPurchases = getGemShop(idleonData);
+  accountData.hole = getHole(idleonData, accountData);
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
   accountData.alchemy = getAlchemy(idleonData, accountData, serializedCharactersData);
@@ -108,7 +111,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.dungeons = getDungeons(idleonData, accountData.accountOptions);
   accountData.prayers = getPrayers(idleonData, accountData.storage);
   accountData.cards = getCards(idleonData, accountData);
-  accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.guild = getGuild(idleonData, guildData);
   accountData.currencies = getCurrencies(accountData, idleonData);
   accountData.stamps = getStamps(idleonData, accountData);

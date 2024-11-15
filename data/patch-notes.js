@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.80',
+    'gameVer': '2.0.21',
+    'date': '15/11/2024',
+    'features': [
+      'Added hole page under Account -> world 5 with all villagers and their content',
+      'Added relevant alerts to the dashboard',
+      'Added winner bonuses from endless summoning update'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.2.79',
     'gameVer': '2.0.13',
     'date': '24/10/2024',

@@ -341,7 +341,10 @@ export const notateNumber = (e, s) => {
                             : 1e19 > e ? Math.ceil(e / 1e15) + 'Q'
                               : 1e22 > e ? Math.ceil(e / 1e18) + 'QQ'
                                 : 1e24 > e ? Math.ceil(e / 1e21) + 'QQQ'
-                                  : Math.floor((e / Math.pow(10, Math.floor(lavaLog(e)))) * 100) / 100 + ('E' + Math.floor(lavaLog(e)))
+                                  : 'TinyE' === s
+                                    ? '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 10) / 10 + ('e' + Math.floor(lavaLog(e)))
+                                    : '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 100) / 100 + ('E' + Math.floor(lavaLog(e)))
+
 }
 export const commaNotation = (number) => {
   // Initialize variables
@@ -434,7 +437,7 @@ export const totalHoursBetweenDates = (start, end) => {
 
 export const fillArrayToLength = (length, array, defaultValue = {}) => {
   return [...new Array(length)].map((item, index) => {
-    return array ? array?.[index] || defaultValue : defaultValue;
+    return array !== undefined ? array?.[index] ?? defaultValue : defaultValue;
   });
 };
 

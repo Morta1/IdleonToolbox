@@ -77,6 +77,7 @@ const calcTimeToXBooks = (bookCount, maxCount, account, characters, idleonData) 
   return time;
 }
 
+//  "BookReqTime"
 export const getTimeToNextBooks = (bookCount, account, characters, idleonData) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
