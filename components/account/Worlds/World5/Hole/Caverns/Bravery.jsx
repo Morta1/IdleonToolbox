@@ -1,6 +1,6 @@
 import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
 
 const Bravery = ({ hole }) => {
@@ -15,13 +15,13 @@ const Bravery = ({ hole }) => {
       <CardTitleAndValue title={'Max retelling'} icon={'etc/Bravery_Retelling.png'} imgStyle={{ width: 24, height: 24 }}
                          value={`${hole?.caverns?.bravery?.maxRetelling}`}/>
       <CardTitleAndValue title={'Opal chance'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.bravery?.opalChance * 100}%`}/>
+                         value={`${notateNumber(hole?.caverns?.bravery?.opalChance * 100,'MultiplierInfo')}%`}/>
       <CardTitleAndValue title={'Hours'}
                          value={`${commaNotation(hole?.caverns?.bravery?.hours)}`}/>
       <CardTitleAndValue title={'Reward multi'}
                          value={`${hole?.caverns?.bravery?.rewardMulti < 1 ? '0' : Math.round(10 * hole?.caverns?.bravery?.rewardMulti) / 10}x`}/>
       <CardTitleAndValue title={'Next fight in'}
-                         value={msToDate(hole?.caverns?.bravery?.timeForNextFight * 1000)}/>
+                         value={hole?.caverns?.bravery?.timeForNextFight > 0 ? msToDate(hole?.caverns?.bravery?.timeForNextFight * 1000) : 'Now!'}/>
       <CardTitleAndValue title={'Next hour reward'}
                          value={`${commaNotation(hole?.caverns?.bravery?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.bravery?.nextHourBreakpoint?.reward)}`}/>
       <CardTitleAndValue title={'Enemy HP'} tooltipTitle={<Breakdown breakdown={hole?.caverns?.bravery?.hps}/>}
@@ -29,7 +29,7 @@ const Bravery = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.bravery?.bonuses?.map(({ description, level }, index) => {
+      {hole?.caverns?.bravery?.bonuses?.splice(0, 10).map(({ description, level }, index) => {
         return <Card key={`bonus-${index}`}>
           <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
             <Typography>Lv. {level}</Typography>

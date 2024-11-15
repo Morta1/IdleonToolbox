@@ -733,7 +733,6 @@ export const getWorld5Alerts = (account, fields, options) => {
       hole.theWell = true;
     }
     const powerThresholdReached = account?.hole?.caverns?.theHarp?.power >= theHarp?.props?.value;
-    console.log(powerThresholdReached)
     if (theHarp?.checked && powerThresholdReached) {
       hole.theHarp = powerThresholdReached;
     }

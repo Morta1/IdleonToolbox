@@ -20,7 +20,8 @@ export const getTheHarp = (holesObject, accountData) => {
     const level = holesObject?.harpRelated?.[2 * index];
     const exp = holesObject?.harpRelated?.[2 * index + 1];
     const expReq = getStringExpReq(holesObject, index);
-    const owned = getHarpNoteProduced({ index, holesObject, stringTypes, power, accountData });
+    const ind = index === 0 || index === 1 ? 0 : index === 3 ? 1 : index === 5 ? 2 : index === 4 ? 4 : 0;
+    const owned = getHarpNoteProduced({ index: ind, holesObject, stringTypes, power, accountData });
     const bonus = getHarpStringBonus(holesObject, index);
     let result;
     if (index === 0) {
@@ -56,7 +57,7 @@ export const getTheHarp = (holesObject, accountData) => {
   };
 }
 
-const getHarpNoteProduced = ({ holesObject, stringTypes, power, accountData }) => {
+const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountData }) => {
   return ((power / 100)
     * getHarpStringAllBonus(holesObject, stringTypes, power)
     * Math.max(1, getBucketBonus({ ...holesObject, t: 41, i: 1 })
@@ -70,7 +71,7 @@ const getHarpNoteProduced = ({ holesObject, stringTypes, power, accountData }) =
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 3 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 8 }) / 100)
     * (1 + getBellBonus({ holesObject, t: 2 }) / 100)
-    * (1 + accountData?.gemShopPurchases?.[2] / 2));
+    * (1 + accountData?.gemShopPurchases?.[2] / 2)) / Math.pow(4, index);
 }
 
 const getHarpPowerPerHour = (holesObject) => {

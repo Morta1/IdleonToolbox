@@ -10,7 +10,7 @@ export const getBravery = (holesObject) => {
   const max = getBraveryMaxDamage(holesObject);
   const rewardMulti = getMonumentMultiReward(holesObject, 0);
   const timeForNextFight = 72E3 * (1 - rewardMulti);
-  const opalChance = Math.min(0.4, Math.pow(0.4, holesObject?.bellImprovementMethods?.[3]) * (1 + getMonumentHourBonus({
+  const opalChance = Math.min(0.4, Math.pow(0.4, holesObject?.opalsPerCavern?.[3]) * (1 + getMonumentHourBonus({
     holesObject,
     t: 0,
     i: 5

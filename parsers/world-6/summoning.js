@@ -117,7 +117,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       * Math.pow(upgrade?.costExponent, upgradesLevels?.[index]);
     return { ...upgrade, totalCost: cost }
   });
-  upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData);
+  upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData, highestEndlessLevel);
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
@@ -228,7 +228,7 @@ export const getWinnerBonus = (account, bonusName) => {
   return account?.summoning?.winnerBonuses?.find(({ bonus }) => bonus === bonusName)?.value ?? 0;
 }
 
-const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
+const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData, highestEndlessLevel) => {
   const allWins = Object.values(careerWins).reduce((sum, wins) => sum + wins, 0);
   const totalUpgrades = upgrades.reduce((sum, { level }) => sum + level, 0);
   return upgrades.map((upgrade) => {
@@ -273,7 +273,7 @@ const updateTotalBonuses = (upgrades, careerWins, serializedCharactersData) => {
       case 62:
       case 63:
       case 64:
-        totalBonus = 0;
+        totalBonus = upgrade.value * highestEndlessLevel;
         break;
       default:
         break;

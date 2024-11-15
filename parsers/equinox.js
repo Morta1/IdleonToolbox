@@ -34,8 +34,8 @@ const parseEquinox = (weeklyBoss, dream, account) => {
 
   const base = (1 + (eqBarVial + (10 * (clouds[3] === -1) + (15 * (clouds[9] === -1) + (20 * (clouds[14] === -1) + (25 * (clouds[19] === -1) + (30 * (clouds[22] === -1) + (35 * (clouds[24] === -1) + 40 * (clouds[29] === -1)))))))) / 100);
   const chargeRate = (bundleBonus
-    ? Math.round(90 * (1 + voteBonus / 100) * (1 + 0.5 * eventShopBonus) * base)
-    : Math.round(60 * (1 + voteBonus / 100) * (1 + 0.5 * eventShopBonus) * base))
+    ? Math.round(90 * (1 + voteBonus / 100) * (1 + account?.accountOptions?.[320] / 10) * (1 + 0.5 * eventShopBonus) * base)
+    : Math.round(60 * (1 + voteBonus / 100) * (1 + account?.accountOptions?.[320] / 10) * (1 + 0.5 * eventShopBonus) * base))
 
   const chargeRequired = Math.round((120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade));
   const currentCharge = dream?.[0];
