@@ -21,7 +21,7 @@ const TheWell = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theWell?.sediments?.map(({ current, max }, index) => {
+      {hole?.caverns?.theWell?.sediments?.map(({ current = 0, max = 0 } = {}, index) => {
         const isRockLayer = index === 0;
         const rocks = notateNumber(current * -1, 'TinyE') + ''
         const maxReq = isNaN(max) ? '' : `/${notateNumber(max, 'TinyE')}`;
