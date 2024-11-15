@@ -29,7 +29,7 @@ const Bonuses = ({ hole }) => {
             let desc = description.replace('}', Math.round(100 * (1 + bonus / 100)) / 100)
               .replace('{', bonus)
               .replace('|', Math.round(bonus * hole?.cosmoSchematics));
-            if (majikIndex === 2 && bonusIndex === 0){
+            if (majikIndex === 2 && bonusIndex === 0 && godsLinks?.length > 0 && !hasDoot){
               desc = desc.replace('@_Y', `${godsLinks?.[0]?.name},`);
               desc = desc.replace('@_Z', godsLinks?.[1]?.name);
             }

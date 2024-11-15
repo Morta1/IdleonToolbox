@@ -11,9 +11,9 @@ const Bravery = ({ hole }) => {
       <CardTitleAndValue title={'Swords'} icon={'data/HoleBraverySword.png'} imgStyle={{ width: 24, height: 24 }}
                          value={hole?.caverns?.bravery?.ownedSwords}/>
       <CardTitleAndValue title={'Max rethrows'} icon={'etc/Bravery_Rethrow.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.caverns?.bravery?.maxRethrow}/>
+                         value={`${hole?.caverns?.bravery?.maxRethrow}`}/>
       <CardTitleAndValue title={'Max retelling'} icon={'etc/Bravery_Retelling.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.caverns?.bravery?.maxRetelling}/>
+                         value={`${hole?.caverns?.bravery?.maxRetelling}`}/>
       <CardTitleAndValue title={'Opal chance'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
                          value={`${hole?.caverns?.bravery?.opalChance * 100}%`}/>
       <CardTitleAndValue title={'Hours'}
