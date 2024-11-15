@@ -1,7 +1,7 @@
 import React from 'react';
 import { Divider, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, fillArrayToLength } from '@utility/helpers';
+import { commaNotation, fillArrayToLength, msToDate } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { cavernNames } from '@parsers/world-5/hole';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
@@ -23,13 +23,15 @@ const getCavernColor = (index) => {
 }
 
 const Explore = ({ hole }) => {
+  const [explore] = hole?.villagers || [];
   const caverns = fillArrayToLength(10);
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={hole?.villagers?.[0]?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${hole?.villagers?.[0]?.exp} / ${hole?.villagers?.[0]?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(hole?.villagers?.[0]?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Opals invested'} value={hole?.villagers?.[0]?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Level'} value={explore?.level}/>
+      <CardTitleAndValue title={'Exp'} value={`${explore?.exp} / ${explore?.expReq}`}/>
+      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(explore?.expRate)} / hr`}/>
+      <CardTitleAndValue title={'Time to level'} value={explore?.timeLeft >= 0 ? msToDate(explore?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
     </Stack>

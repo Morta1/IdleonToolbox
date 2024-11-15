@@ -204,7 +204,12 @@ const baseTrackers = {
             checked: true
           },
           { name: 'motherlode', checked: true },
-          { name: 'bravery', checked: true },
+          {
+            name: 'bravery',
+            checked: true,
+            type: 'input',
+            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
+          },
           { name: 'theWell', checked: true },
           {
             name: 'theHarp',
@@ -213,7 +218,7 @@ const baseTrackers = {
             props: { label: 'Power threshold', value: 100, minValue: 1, helperText: '%' }
           },
           { name: 'theHive', checked: true },
-          { name: 'grotto', checked: true },
+          { name: 'grotto', checked: true }
         ]
       }
     },

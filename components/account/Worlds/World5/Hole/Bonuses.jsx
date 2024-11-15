@@ -1,18 +1,21 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, msToDate, prefix } from '@utility/helpers';
 
 import React, { Fragment } from 'react';
 
 const majiksName = ['Hole', 'Village', 'idleon'];
 
 const Bonuses = ({ hole }) => {
+  const [,,bonuses] = hole?.villagers || [];
+
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={hole?.villagers?.[2]?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${hole?.villagers?.[2]?.exp} / ${hole?.villagers?.[2]?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(hole?.villagers?.[2]?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Opals invested'} value={hole?.villagers?.[2]?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Level'} value={bonuses?.level}/>
+      <CardTitleAndValue title={'Exp'} value={`${bonuses?.exp} / ${bonuses?.expReq}`}/>
+      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(bonuses?.expRate)} / hr`}/>
+      <CardTitleAndValue title={'Time to level'} value={bonuses?.timeLeft >= 0 ? msToDate(bonuses?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Opals invested'} value={bonuses?.opalInvested} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>

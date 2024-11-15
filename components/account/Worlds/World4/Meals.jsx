@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from 'parsers/cooking';
 import {
-  cleanUnderscore,
+  cleanUnderscore, commaNotation,
   getTimeAsDays,
   growth,
   kFormatter,
@@ -20,6 +20,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 const maxTimeValue = 8.64e15;
 
@@ -188,8 +189,9 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
       const { level, baseStat, shinyMulti, timeTillNextLevel } = meal;
-      const currentBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
-      const nextLevelBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (level + 1) * baseStat;
+      const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
+      const currentBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * level * baseStat;
+      const nextLevelBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (level + 1) * baseStat;
       return {
         ...meal,
         currentLevelBonus: notateNumber(currentBonus, 'MultiplierInfo'),
@@ -321,13 +323,17 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
             shinyMulti,
             breakpointTimes
           } = meal;
-          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * level * baseStat;
+          const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
+          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * level * baseStat;
+          const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
+          // this._DT1 = 1E7 > this._DN ? G.replace(G.replace("" + h.string(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][3]), "{", "" + r._customBlock_CommaNotation(this._DN)), "+", "{")
+          //   : G.replace(G.replace("" + h.string(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][3]), "{", "" + k._customBlock_NotateNumber(this._DN, "Big")), "+", "{")
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip
-                    title={<MealTooltip achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone}
+                    title={<MealTooltip account={account} achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone}
                                         equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -345,7 +351,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                       color: multiplier > 1
                         ? 'info.light'
                         : ''
-                    }}>{cleanUnderscore(effect?.replace('{', notateNumber(realEffect, 'MultiplierInfo')))}</Typography>
+                    }}>{cleanUnderscore(effect?.replace('{', effectNotation))}</Typography>
                   {!filters.includes('minimized') ?
                     breakpointTimes?.map(({ bpLevel, bpCost, timeToBp }) => {
                       const timeInMs = timeToBp * 3600 * 1000
@@ -392,14 +398,16 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
 };
 
 
-const MealTooltip = ({ level, baseStat, effect, blackDiamondRhinestone, shinyMulti }) => {
-  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (level + 1) * baseStat;
+const MealTooltip = ({ account, level, baseStat, effect, blackDiamondRhinestone, shinyMulti }) => {
+  const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
+  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (level + 1) * baseStat;
+  const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
   return (
     <>
       <Typography fontWeight={'bold'}>
         Next Level Bonus:&nbsp;
         <Typography component={'span'} sx={{ fontWeight: 400 }}>
-          {cleanUnderscore(effect?.replace('{', notateNumber(realEffect, 'MultiplierInfo')))}
+          {cleanUnderscore(effect?.replace('{', effectNotation))}
         </Typography>
       </Typography>
     </>

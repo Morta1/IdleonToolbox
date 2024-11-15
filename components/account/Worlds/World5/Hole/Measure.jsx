@@ -1,15 +1,17 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 
 const Measure = ({ hole }) => {
+  const [,,,measure] = hole?.villagers || [];
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={hole?.villagers?.[3]?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${hole?.villagers?.[3]?.exp} / ${hole?.villagers?.[3]?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(hole?.villagers?.[3]?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Opals invested'} value={hole?.villagers?.[3]?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Level'} value={measure?.level}/>
+      <CardTitleAndValue title={'Exp'} value={`${measure?.exp} / ${measure?.expReq}`}/>
+      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(measure?.expRate)} / hr`}/>
+      <CardTitleAndValue title={'Time to level'} value={measure?.timeLeft >= 0 ? msToDate(measure?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>

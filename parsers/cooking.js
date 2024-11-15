@@ -143,6 +143,7 @@ export const getSpiceUpgradeCost = (upgradeLevel) => {
 
 export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBonus = 0) => {
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
+  const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
   return account?.cooking?.meals?.reduce((sum, meal) => {
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
@@ -153,7 +154,7 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     if (statName === 'PxLine') {
       return sum + (level * baseStat ?? 0);
     }
-    return sum + ((1 + (labBonus + shinyMealBonus) / 100) * level * baseStat ?? 0);
+    return sum + ((1 + (labBonus + shinyMealBonus) / 100) * (1 + winBonus / 100) * level * baseStat ?? 0);
   }, 0) ?? 0;
 }
 

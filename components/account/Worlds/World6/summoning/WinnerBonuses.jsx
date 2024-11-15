@@ -6,7 +6,6 @@ const WinnerBonuses = ({ winnerBonuses }) => {
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {winnerBonuses?.map(({ rawName, name, bonus, bonusId, x3, unlocked, value }, index) => {
-        console.log(bonus, value)
         bonus = rawBonusIds.includes(bonusId)
           ? bonus.replace('{', notateNumber(value, 'Big'))
           : bonus.replace('<', notateNumber(1 + value / 100, 'MultiplierInfo'));

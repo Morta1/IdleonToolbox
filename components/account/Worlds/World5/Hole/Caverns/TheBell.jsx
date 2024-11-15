@@ -41,7 +41,7 @@ const TheBell = ({ hole }) => {
           <CardContent
             sx={{ width: 300, height: 140, opacity: hole?.caverns?.theBell?.bellMethodsOwned > index ? 1 : 0 }}>
             <Typography>Lv. {level}</Typography>
-            <Typography>{cleanUnderscore(description.replace('{', bonus))}</Typography>
+            <Typography>{cleanUnderscore(description.replace('{', notateNumber(bonus, 'Big')))}</Typography>
             <Box sx={{ mt: 1 }}>
               {costType === 'money' ? <CoinDisplay title={''}
                                                    noShadow

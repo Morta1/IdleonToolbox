@@ -165,7 +165,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         multi) / 100);
   } else {
     const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
-    const multi = multiCalc === 0 ? 0 : (1 + multiCalc / 100);
+    const multi = multiCalc === 0 ? 0 : multiCalc;
     val = 3.5 * rawValue *
       (1 + charmBonus / 100) *
       (1 + (artifactBonus +

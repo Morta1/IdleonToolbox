@@ -1,20 +1,28 @@
 import { CardTitleAndValue } from '@components/common/styles';
-import React from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import React, { useState } from 'react';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 
 const Engineer = ({ hole }) => {
+  const [,engineer] = hole?.villagers || [];
+  const [showAll, setShowAll] = useState(false);
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={hole?.villagers?.[1]?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${hole?.villagers?.[1]?.exp} / ${hole?.villagers?.[1]?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(hole?.villagers?.[1]?.expRate)} / hr`}/>
+      <CardTitleAndValue title={'Level'} value={engineer?.level}/>
+      <CardTitleAndValue title={'Exp'} value={`${engineer?.exp} / ${engineer?.expReq}`}/>
+      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(engineer?.expRate)} / hr`}/>
+      <CardTitleAndValue title={'Time to level'} value={engineer?.timeLeft >= 0 ? msToDate(engineer?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / 56`}/>
-      <CardTitleAndValue title={'Opals invested'} value={hole?.villagers?.[1]?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
+    <FormControlLabel
+      control={<Checkbox checked={showAll} onChange={() => setShowAll(!showAll)}/>}
+      name={'Show all challenges'}
+      label="Show all challenges"/>
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {hole?.engineerBonuses?.map(({ index, name, description, unlocked, owned, cost, x2 }, order) => {
+        if (!showAll && unlocked) return null;
         const img = x2 >= 10 ? `HoleHarpNote${x2 - 10}` : `HoleWellFill${x2 + 1}`;
         return <Card key={`upgrade-${index}`}>
           <CardContent sx={{ width: 400, opacity: hole?.unlockedSchematics > order ? 1 : 0.5 }}>

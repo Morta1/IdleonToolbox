@@ -96,12 +96,14 @@ const parseHole = (holeRaw, accountData) => {
     const expReq = getVillagerExpReq(level, index);
     const opalInvested = opalsInvested?.[index];
     const expRate = getVillagerExpPerHour(holesObject, accountData, index)
+    const timeLeft = (expReq - exp) / expRate * 1000 * 3600;
     return {
       exp: exp < 1e6 ? commaNotation(exp) : notateNumber(exp, 'Big'),
       expReq: expReq < 1e6 ? commaNotation(expReq) : notateNumber(expReq, 'Big'),
       level,
       opalInvested,
-      expRate
+      expRate,
+      timeLeft
     }
   });
   const unlockedCaverns = Math.min(10, villagersLevels?.[0]);
@@ -306,7 +308,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t) => {
                   + (cardBonus
                     + (getBellBonus({ holesObject, t: 1 })
                       + getMeasurementBonus({ holesObject, accountData, t: 0 })
-                      + getWinnerBonus(accountData, 'Villager EXP')))))))))) / 100);
+                      + getWinnerBonus(accountData, '+{% Villager EXP')))))))))) / 100);
 }
 const getVillagerExpReq = (level, index) => {
   return 1 === level && 0 === index ? 5 : 0 === index

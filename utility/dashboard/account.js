@@ -725,7 +725,7 @@ export const getWorld5Alerts = (account, fields, options) => {
     if (theHive?.checked && isMaxedBugs) {
       hole.hiveMaxed = isMaxedBugs;
     }
-    if (bravery?.checked && account?.hole?.caverns?.bravery?.timeForNextFight <= 0) {
+    if (bravery?.checked && account?.hole?.caverns?.bravery?.rewardMulti >= bravery?.props?.value) {
       hole.bravery = true;
     }
     const readyBells = account?.hole?.caverns?.theBell?.bells?.filter(({ exp, expReq }) => exp >= expReq);
