@@ -1,10 +1,9 @@
 import { groupByKey, notateNumber, tryToParse } from '@utility/helpers';
 import {
   deathNote,
-  endlessIndexes,
-  endlessValues,
   monsters,
   summoningBonuses,
+  summoningEndless,
   summoningEnemies,
   summoningUpgrades
 } from '../../data/website-data';
@@ -37,7 +36,8 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const whiteBattleIcons = ['piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
     'Hedgehog'];
   const whiteBattleOrder = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
-  const allBattles = [[], [], [], [], [], [], [], []];
+  const sliceIndex = summoningEnemies.findIndex(({ enemyId }) => enemyId === 'Pet1') + whiteBattleOrder.length - 1;
+  const allBattles = [[], [], [], [], [], [], [], [], [], []];
   const { familiarsOwned } = (rawSummon?.[4] ?? []).reduce((acc, currentValue, index) => {
     acc.familiarsOwned += acc.multiplier * currentValue;
     acc.multiplier *= index + 3;
@@ -51,6 +51,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       allBattles[0].push({ ...monsterData, ...extraData, icon: `afk_targets/${whiteBattleIcons?.[index]}` });
     }
   });
+  // 9 === this._GenINFO[146]
   deathNote.forEach(({ rawName, world }) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === rawName);
     if (monsterData) {
@@ -82,12 +83,9 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     return acc;
   }, {});
   for (let index = 0; index < highestEndlessLevel; index++) {
-    // Wrap the index every 40 elements
     const wrappedIndex = index % 40;
-    // Calculate the bonus index based on SummonEnemies[9]
-    const bonusIndex = Math.round(Number(endlessIndexes[wrappedIndex]) - 1);
-    // Update the SummWinBonus at the calculated bonus index
-    rawWinnerBonuses[bonusIndex] = (Number(rawWinnerBonuses[bonusIndex]) || 0) + Number(endlessValues[wrappedIndex]);
+    const bonusIndex = Math.round(Number(summoningEndless.bonusIds[wrappedIndex]) - 1);
+    rawWinnerBonuses[bonusIndex] = (Number(rawWinnerBonuses[bonusIndex]) || 0) + Number(summoningEndless.bonusQuantities[wrappedIndex]);
   }
   const winnerBonuses = summoningBonuses.map(({ bonusId, bonus }, index) => {
     const rawValue = rawWinnerBonuses?.[index];
@@ -118,8 +116,8 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     return { ...upgrade, totalCost: cost }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData, highestEndlessLevel);
-  const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels);
-  const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels);
+  const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
+  const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
 
   return {
@@ -136,8 +134,32 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   }
 }
 
+export const getEndlessBattles = (battles = 100, highestEndlessLevel) => {
+  const endlessBattles = [];
+  for (let i = 0; i < battles; i++) {
+    const index = i % 40;
+    const difficultyIndex = getEndlessModifier(i, 0, 0);
+    const bonusId = summoningEndless.bonusIds?.[index];
+    const bonus = summoningBonuses?.[bonusId - 1];
+    const bonusQty = summoningEndless.bonusQuantities[index];
+    const actualBonus = bonus?.bonus?.includes('<') ? notateNumber(1 + bonusQty / 100, 'MultiplierInfo') : notateNumber(bonusQty, 'Big');
+    bonus.bonus = bonus?.bonus?.replace(/[<{]/, actualBonus);
+    const riftIndex = summoningEnemies.findIndex((enemy) => enemy.enemyId.includes('rift1'));
+    const monsterId = Math.round(riftIndex + Math.min(4, Math.floor(i / 20)));
+    const [name, ...rest] = summoningEndless.difficultiesText?.[difficultyIndex].split('|');
+    const monster = summoningEnemies?.[monsterId];
+    endlessBattles.push({ ...monster, bonus, bonusQty, difficulty: { name, sentence: rest.join('_') }, won: highestEndlessLevel > i, icon: `etc/${monster?.enemyId}_monster` });
+  }
+  return endlessBattles;
+}
+const getEndlessModifier = (endlessLevel, t, i) => {
+  return 99 === i
+    ? (t === getEndlessModifier(endlessLevel, 0, 0) ? 1 : 0)
+    : summoningEndless.difficulties[Math.round(endlessLevel - 40 * Math.floor(endlessLevel / 40))]
+}
+
 const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
-   const rawValue = rawWinnerBonuses?.[index] || 0;
+  const rawValue = rawWinnerBonuses?.[index] || 0;
   const charmBonus = getCharmBonus(account, 'Crystal_Comb');
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
   const firstAchievement = getAchievementStatus(account?.achievements, 373);
@@ -177,38 +199,48 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   return val;
 }
 
-const getArmyHealth = (upgrades, totalUpgradesLevels) => {
+const getArmyHealth = (upgrades, totalUpgradesLevels, account) => {
   const additiveArmyHealth = [1, 10, 35, 37].reduce((sum, bonusIndex) => {
     const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value
   }, 0);
-  const firstMulti = upgrades.find(({ originalIndex }) => originalIndex === 20);
-  const secondMulti = upgrades.find(({ originalIndex }) => originalIndex === 50);
-  const moreAdditive = upgrades.find(({ originalIndex }) => originalIndex === 59)
-  const thirdMulti = upgrades.find(({ originalIndex }) => originalIndex === 61);
+  const firstMulti = upgrades.find(({ originalIndex }) => originalIndex === 20)?.value || 0;
+  const secondMulti = upgrades.find(({ originalIndex }) => originalIndex === 50)?.value || 0;
+  const moreAdditive = upgrades.find(({ originalIndex }) => originalIndex === 59)?.value || 0;
+  const thirdMulti = upgrades.find(({ originalIndex }) => originalIndex === 61)?.value || 0;
+  const endlessMulti = upgrades.find(({ originalIndex }) => originalIndex === 63)?.value || 0;
 
-  return 1 * (1 + (additiveArmyHealth))
-    * (1 + firstMulti?.value / 100)
-    * (1 + (secondMulti?.value + moreAdditive?.value) / 100)
-    * (1 + (thirdMulti?.value * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100)
+  return 1 * (1 + additiveArmyHealth)
+    * (1 + firstMulti / 100)
+    * (1 + (secondMulti
+      + (moreAdditive
+        + endlessMulti
+        * account?.accountOptions?.[319])) / 100)
+    * (1 + (thirdMulti
+      * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);
 
 }
-const getArmyDamage = (upgrades, totalUpgradesLevels) => {
+const getArmyDamage = (upgrades, totalUpgradesLevels, account) => {
   const additiveArmyDamage = [3, 12, 21, 31].reduce((sum, bonusIndex) => {
     const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value
   }, 0);
-  const firstMulti = upgrades.find(({ originalIndex }) => originalIndex === 43);
-  const secondMulti = upgrades.find(({ originalIndex }) => originalIndex === 51);
-  const moreAdditive = upgrades.find(({ originalIndex }) => originalIndex === 56)
-  const thirdMulti = upgrades.find(({ originalIndex }) => originalIndex === 47);
-  const fourthMulti = upgrades.find(({ originalIndex }) => originalIndex === 60);
+  const firstMulti = upgrades.find(({ originalIndex }) => originalIndex === 43)?.value || 0;
+  const secondMulti = upgrades.find(({ originalIndex }) => originalIndex === 51)?.value || 0;
+  const moreAdditive = upgrades.find(({ originalIndex }) => originalIndex === 56)?.value || 0;
+  const thirdMulti = upgrades.find(({ originalIndex }) => originalIndex === 47)?.value || 0;
+  const fourthMulti = upgrades.find(({ originalIndex }) => originalIndex === 60)?.value || 0;
+  const endlessMulti = upgrades.find(({ originalIndex }) => originalIndex === 64)?.value || 0;
 
   return 1 * (1 + (additiveArmyDamage))
-    * (1 + firstMulti?.value / 100)
-    * (1 + (secondMulti?.value + moreAdditive?.value) / 100)
-    * (1 + (thirdMulti?.value * 0) / 100)
-    * (1 + (fourthMulti?.value * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100)
+    * (1 + firstMulti / 100)
+    * (1 + (secondMulti
+      + (moreAdditive
+        + endlessMulti
+        * account?.accountOptions?.[319])) / 100)
+    * (1 + (thirdMulti * 0) / 100)
+    * (1 + (fourthMulti
+      * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);
 }
 const getBattleData = (enemyId, monsterData, wonBattles) => {
   const icon = `data/mface${monsters?.[enemyId]?.MonsterFace}`;

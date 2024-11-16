@@ -357,6 +357,9 @@ const baseTrackers = {
       closestTrap: { checked: true, options: [] },
       closestBuilding: { checked: true, options: [] },
       closestSalt: { checked: true, options: [] }
+    },
+    'World 5': {
+      monument: { checked: true, options: [] },
     }
   }
 }

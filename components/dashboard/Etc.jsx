@@ -286,6 +286,16 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             lastUpdated={lastUpdated} time={closestSalt?.timeLeft}
             icon={`data/${closestSalt?.icon}.png`}/> : null}
       </Section>}
+      {!emptyAlerts?.['World 5'] && <Section title={'World 5'}>
+        {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?
+          <TimerCard
+            page={'account/world-5/hole'}
+            tooltipContent={`Next fight: ${ account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? 'now!' : getRealDateInMs(account?.hole?.caverns?.bravery?.timeForNextFight)}`}
+            lastUpdated={lastUpdated} time={account?.hole?.caverns?.bravery?.timeForNextFight}
+            timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? 'Fight!' : ''}
+            icon={`etc/Bravery_Statue.png`}/> : null}
+      </Section>}
+
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
         {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
           <Stack gap={2}
@@ -321,7 +331,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           </CardContent>
         </Card> : null}
     </Stack>
-  </>
+    </>
 };
 
 const IconImg = styled.img`

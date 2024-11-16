@@ -971,7 +971,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
   const breakdown = [
     { name: 'Cmon Out Crystals', value: cmonOutCrystalsBonus },
-    { name: 'Crystal Shrine Bonus', value: crystalShrineBonus },
+    { name: 'Crystal Shrine Crescent', value: crystalShrineBonus },
     { name: 'Post Office', value: nonPredatoryBoxBonus },
     { name: 'Crystals 4 Days', value: crystals4DaysBonus },
     { name: 'Crystallin Stamp', value: crystallinStampBonus },

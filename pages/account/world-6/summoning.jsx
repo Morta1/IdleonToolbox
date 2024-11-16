@@ -38,7 +38,7 @@ const Summoning = () => {
     <Tabber tabs={['Upgrades', 'Winner Bonuses', 'Battles']}>
       <Upgrades upgrades={upgrades}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
-      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}/>
+      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel}/>
     </Tabber>
   </>
 };

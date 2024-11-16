@@ -1,7 +1,8 @@
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import React, { useState } from 'react';
 import { CardTitleAndValue } from '@components/common/styles';
+import { getEndlessBattles } from '@parsers/world-6/summoning';
 
 const COLOR_MAP = {
   0: 'White',
@@ -10,12 +11,13 @@ const COLOR_MAP = {
   3: 'Blue',
   4: 'Purple',
   5: 'Red',
-  6: 'Cyan'
+  6: 'Cyan',
+  9: 'Endless'
 }
 
-const Battles = ({ battles, armyHealth, armyDamage }) => {
+const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel }) => {
   const [hide, setHide] = useState(true);
-
+  battles[9] = getEndlessBattles(100, highestEndlessLevel);
   return <>
     <Stack direction={'row'} gap={2}>
       <CardTitleAndValue value={armyDamage < 1e7 ? commaNotation(armyDamage) : notateNumber(armyDamage)}
@@ -59,6 +61,11 @@ const Battles = ({ battles, armyHealth, armyDamage }) => {
                     <Stack>
                       <Typography variant={'body1'}>{cleanUnderscore(territoryName)}</Typography>
                       <Typography mt={1} variant={'body2'}>{bonus?.bonus}</Typography>
+                      {difficulty?.name ? <>
+                        <Divider sx={{ my: 2 }}></Divider>
+                        <Typography variant={'subtitle1'}>{cleanUnderscore(difficulty?.name)}</Typography>
+                        <Typography variant={'body2'}>{cleanUnderscore(difficulty?.sentence)}</Typography>
+                      </> : null}
                     </Stack>
                   </Stack>
                 </CardContent>
