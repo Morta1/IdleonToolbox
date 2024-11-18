@@ -707,6 +707,7 @@ export const getWorld5Alerts = (account, fields, options) => {
   }
   if (fields?.hole?.checked) {
     const hole = {};
+    if (!account?.finishedWorlds?.World4) return alerts;
     const { buckets, motherlode, bravery, theBell, theHarp, theHive, grotto } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;

@@ -146,10 +146,22 @@ const parseHole = (holeRaw, accountData) => {
     })
   })
   const cosmoSchematics = getCosSchematic(holesObject);
+  const sediments = [0, 2, 5, 7];
+  const notes = [1, 3, 4, 6];
   const measurements = holesInfo?.[54]?.split(' ').map((description, index) => {
-    const bonus = getMeasurementBonus({ holesObject, accountData, t: index })
+    const bonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][index]) })
-    return { description, bonus, multi, level: holesObject?.measurementBuffLevels[index] };
+    const cost = (250 + 50 * (measurementBuffLevels[index])) * Math.pow(1.6, index) * Math.pow(1.1, measurementBuffLevels[index]);
+    console.log(holesInfo[50])
+    const itemReqIndex = holesInfo[50]?.split(' ')[index];
+    const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);
+    let icon;
+    if (sediments.includes(index)) {
+      icon = 'HoleWellFill' + (Number(itemReqIndex) + 1);
+    } else if (notes.includes(index)) {
+      icon = 'HoleHarpNote' + (Number(itemReqIndex) - 10);
+    }
+    return { description, bonus, multi, level: holesObject?.measurementBuffLevels[index], cost, owned, icon };
   });
   return {
     villagers,

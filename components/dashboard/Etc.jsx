@@ -290,8 +290,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?
           <TimerCard
             page={'account/world-5/hole'}
-            tooltipContent={`Next fight: ${ account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? 'now!' : getRealDateInMs(account?.hole?.caverns?.bravery?.timeForNextFight)}`}
-            lastUpdated={lastUpdated} time={account?.hole?.caverns?.bravery?.timeForNextFight}
+            tooltipContent={`Next fight: ${account?.hole?.caverns?.bravery?.timeForNextFight < 0
+              ? 'now!'
+              : getRealDateInMs(account?.hole?.caverns?.bravery?.timeForNextFight)}`}
+            lastUpdated={lastUpdated}
+            time={new Date().getTime() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000}
             timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? 'Fight!' : ''}
             icon={`etc/Bravery_Statue.png`}/> : null}
       </Section>}
@@ -331,7 +334,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           </CardContent>
         </Card> : null}
     </Stack>
-    </>
+  </>
 };
 
 const IconImg = styled.img`

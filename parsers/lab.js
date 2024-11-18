@@ -165,7 +165,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     jewels: jewelsList,
     chips: chipList,
     labBonuses: labBonusesList,
-    totalRawChips: chipRepo.reduce((res, amount) => res + amount, 0),
+    totalRawChips: chipRepo.reduce((res, amount) => res + Math.max(0, amount), 0),
     currentRotation
   };
 }

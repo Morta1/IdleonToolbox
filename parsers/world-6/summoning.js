@@ -27,7 +27,7 @@ export const getSummoning = (idleonData, accountData, serializedCharactersData) 
 }
 
 const parseSummoning = (rawSummon, account, serializedCharactersData) => {
-  const highestEndlessLevel = account?.accountOptions?.[319];
+  const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   const upgradesLevels = rawSummon?.[0];
   const totalUpgradesLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
   const killroyStat = rawSummon?.[3];
@@ -36,7 +36,6 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const whiteBattleIcons = ['piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
     'Hedgehog'];
   const whiteBattleOrder = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
-  const sliceIndex = summoningEnemies.findIndex(({ enemyId }) => enemyId === 'Pet1') + whiteBattleOrder.length - 1;
   const allBattles = [[], [], [], [], [], [], [], [], [], []];
   const { familiarsOwned } = (rawSummon?.[4] ?? []).reduce((acc, currentValue, index) => {
     acc.familiarsOwned += acc.multiplier * currentValue;
@@ -130,7 +129,8 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     armyHealth,
     armyDamage,
     killroyStat,
-    highestEndlessLevel
+    highestEndlessLevel,
+    totalWins: allBattles?.flat()?.reduce((sum, {won})=> sum + (won ? 1 : 0) ,0) + highestEndlessLevel
   }
 }
 

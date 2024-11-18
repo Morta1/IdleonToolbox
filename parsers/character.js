@@ -92,6 +92,7 @@ import { getOwlBonus } from '@parsers/world-1/owl';
 import { getLandRank } from '@parsers/world-6/farming';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
+import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -688,7 +689,7 @@ export const getDropRate = (character, account, characters) => {
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
   const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
   const voteBonus = getVoteBonus(account, 27);
-
+  const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 46, i: 0 });
   const additive =
     firstTalentBonus +
     postOfficeBonus +
@@ -716,8 +717,8 @@ export const getDropRate = (character, account, characters) => {
     (6 * achievementBonus + 4 * secondAchievementBonus) +
     owlBonus +
     landRankBonus +
-    + voteBonus
-    + 9;
+    voteBonus +
+    bucketBonus;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {

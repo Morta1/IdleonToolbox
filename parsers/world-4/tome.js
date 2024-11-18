@@ -173,7 +173,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.farming?.cropsFound);
   quantities.push(calcTotalBeanstalkLevel(account?.sneaking?.beanstalkData));
   quantities.push(account?.summoning?.totalUpgradesLevels);
-  quantities.push(0); // Best Endless Summoning Round - account.accountOptions?.[232] > 0 ? 12 * account.accountOptions?.[232] : 0
+  quantities.push(account?.summoning?.totalWins); // Best Endless Summoning Round - account.accountOptions?.[232] > 0 ? 12 * account.accountOptions?.[232] : 0
   quantities.push(account?.sneaking?.unlockedFloors);
   quantities.push(account?.summoning?.familiarsOwned);
   quantities.push(account?.sneaking?.totalJadeEmporiumUnlocked);
@@ -182,7 +182,6 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.farming?.totalRanks); // total land ranks
   quantities.push(account.accountOptions?.[221]); // Largest Magic Bean Trade
   quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
-
   quantities.push(account.arcade?.totalUpgradeLevels);
   return quantities;
 }

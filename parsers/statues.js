@@ -40,7 +40,14 @@ export const applyStatuesMulti = (account, characters) => {
   const voodoStatusification = getHighestTalentByClass(characters, 3, 'Voidwalker', 'VOODOO_STATUFICATION');
   const talentMulti = 1 + voodoStatusification / 100;
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
-  return account?.statues?.map((statue) => ({ ...statue, bonus: statue?.bonus, talentMulti, onyxMulti: artifact?.bonus ?? 0 }));
+  const statues = account?.statues?.map((statue) => ({
+    ...statue,
+    bonus: statue?.bonus,
+    talentMulti,
+    onyxMulti: artifact?.bonus ?? 0
+  }));
+  const dragonStatueMulti = getStatueBonus(account?.statues, 'StatueG29');
+  return statues.map((statue) => ({ ...statue, dragonMulti: dragonStatueMulti }))
 }
 export const getStatueBonus = (statues, statueName, talents) => {
   const statue = statues?.find(({ rawName }) => rawName === statueName || rawName === statueName.replace('G', 'O'));
@@ -87,7 +94,9 @@ export const getStatueBonus = (statues, statueName, talents) => {
     default:
       talentBonus = 1;
   }
-  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * (statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1);
+  const onyxMulti = statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1;
+  const dragonMulti = statue?.dragonMulti ? 1 + statue?.dragonMulti / 100 : 1;
+  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * onyxMulti * dragonMulti;
 };
 
 export const calcStatueLevels = (allStatues) => {
