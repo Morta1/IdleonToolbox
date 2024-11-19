@@ -152,7 +152,6 @@ const parseHole = (holeRaw, accountData) => {
     const bonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][index]) })
     const cost = (250 + 50 * (measurementBuffLevels[index])) * Math.pow(1.6, index) * Math.pow(1.1, measurementBuffLevels[index]);
-    console.log(holesInfo[50])
     const itemReqIndex = holesInfo[50]?.split(' ')[index];
     const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);
     let icon;
