@@ -54,7 +54,7 @@ const Leaderboards = () => {
       in the
       leaderboards, please upload your profile with leaderboard consent.</Typography>
     <Typography mb={3} textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* Leaderboards
-      contains the top 1000 players of each category</Typography>
+      contains the top 100 players of each category</Typography>
     {leaderboards?.totalUsers ? <Card variant={'outlined'} sx={{
       width: 'fit-content',
       margin: '16px auto',

@@ -147,12 +147,6 @@ export const getLooty = (idleonData) => {
   };
 };
 
-export const eventShopPurchased = (account, t) => {
-  return -1 !== ('' + account?.accountOptions?.[311]).indexOf(number2letter[t])
-    ? 1
-    : 0
-}
-
 export const getCurrencies = (account, idleonData) => {
   const keys = idleonData?.CurrenciesOwned?.['KeysAll'] || idleonData?.CYKeysAll;
   if (idleonData?.CurrenciesOwned) {

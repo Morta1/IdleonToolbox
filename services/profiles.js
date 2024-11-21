@@ -81,6 +81,7 @@ export const expandLeaderboardInfo = (account, characters) => {
     mp: withDefault(mp),
     logBook: logbooks,
     totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels),
+    looty: withDefault(account?.looty?.lootedItems, 0),
     greenMushroomKills,
     totalBoats
   }
