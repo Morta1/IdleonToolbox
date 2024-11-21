@@ -4,6 +4,26 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.81',
+    'gameVer': '2.0.22',
+    'date': '21/11/2024',
+    'features': [
+      'Updated the website with version 2.0.22 data',
+      'Added missing "max points" for majiks bonuses',
+      'Added missing bravery bonuses',
+      'Added talent tab name in talents display'
+    ],
+    'fixes': [
+      'Fixed the well motherlode and the hive alert to be displayed correctly',
+      'Fixed anvil exp and speed calculations',
+      'Fixed Paying Respect being treated as skilling',
+      'Fixed a bug with calculating material cost in the old stamps page',
+      'Fixed dragon statue calculations',
+      'Fixed Time To Full calculation in The Well',
+      'Fixed Vote multiplier calculation'
+    ]
+  },
+  {
     'ver': '3.2.80',
     'gameVer': '2.0.21',
     'date': '15/11/2024',

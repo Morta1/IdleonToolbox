@@ -18,8 +18,8 @@ const Engineer = ({ hole }) => {
     </Stack>
     <FormControlLabel
       control={<Checkbox checked={showAll} onChange={() => setShowAll(!showAll)}/>}
-      name={'Show all challenges'}
-      label="Show all challenges"/>
+      name={'Show all schematics'}
+      label="Show all schematics"/>
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {hole?.engineerBonuses?.map(({ index, name, description, unlocked, owned, cost, x2 }, order) => {
         if (!showAll && unlocked) return null;

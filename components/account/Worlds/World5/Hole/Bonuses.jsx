@@ -4,7 +4,7 @@ import { cleanUnderscore, commaNotation, msToDate, prefix } from '@utility/helpe
 
 import React, { Fragment } from 'react';
 
-const majiksName = ['Hole', 'Village', 'idleon'];
+const majiksName = ['Hole', 'Village', 'Idleon'];
 
 const Bonuses = ({ hole }) => {
   const [,,bonuses] = hole?.villagers || [];
@@ -28,7 +28,7 @@ const Bonuses = ({ hole }) => {
           <img style={{ width: 30 }} src={`${prefix}data/HoleUIcosmoUpg${letter}1.png`} alt={`majik`}/>
         </Stack>
         <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-          {majik.map(({ description, bonus, level, hasDoot, godsLinks }, bonusIndex) => {
+          {majik.map(({ description, bonus, level, hasDoot, godsLinks, maxLevel }, bonusIndex) => {
             let desc = description.replace('}', Math.round(100 * (1 + bonus / 100)) / 100)
               .replace('{', bonus)
               .replace('|', Math.round(bonus * hole?.cosmoSchematics));
@@ -41,7 +41,7 @@ const Bonuses = ({ hole }) => {
               <Card key={`bonus-${bonusIndex}`}>
                 <CardContent sx={{ width: 300, height: 170 }}>
                   <Typography>{cleanUnderscore(desc)}</Typography>
-                  <Typography mt={2}>Points invested: {level}</Typography>
+                  <Typography mt={2}>Points invested: {level} / {maxLevel}</Typography>
                   {majikIndex === 2 && bonusIndex === 0 && hasDoot ? <Typography>+{bonus}% All stats</Typography> : null}
                 </CardContent>
               </Card>

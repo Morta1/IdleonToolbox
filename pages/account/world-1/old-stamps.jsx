@@ -50,7 +50,7 @@ const Stamps = () => {
       const cost = costFunc(level, stamp);
       if (type === 'material') {
         if (stamp?.itemReq?.rawName?.includes('Equipment')) {
-          return Math.floor(cost * 10);
+          return Math.max(1, Math.floor(cost));
         }
         return Math.floor(cost);
       }

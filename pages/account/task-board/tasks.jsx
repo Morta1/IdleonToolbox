@@ -38,10 +38,11 @@ const Tasks = () => {
             if (level === breakpoints?.length && index !== 8) {
               desc = filler2.split('|').slice(-1)?.[0]?.replace(/{/, notateNumber(stat, 'Big'));
             } else {
-              desc = description.replace(/{/, notateNumber(index === 8
+              desc = description.replace(/{/g, notateNumber(index === 8
                 ? breakpoints?.[0]
-                : breakpoints?.[level], 'Big')).replace(/}/, filler1.split('|')?.[level])
+                : breakpoints?.[level], 'Big')).replace(/}/g, filler1.split('|')?.[level])
             }
+            const percent = stat / req * 100;
             return <Card key={'key' + index} sx={{ width: 400 }}>
               <CardContent sx={{
                 border: level >= breakpoints?.length ? '1px solid' : '',
@@ -60,7 +61,7 @@ const Tasks = () => {
                   <img src={`${prefix}etc/Merit_${world}.png`} alt={'cost_merit-' + world}/>
                   <Typography>{index === 8 ? 0 : meritReward}</Typography>
                 </Stack> : null}
-                {level <= breakpoints?.length ? <ProgressBar percent={stat / req * 100}/> : null}
+                {level <= breakpoints?.length ? <ProgressBar percent={!isNaN(percent) && percent !== Infinity ? percent : 100}/> : null}
               </CardContent>
             </Card>
           })}

@@ -29,7 +29,6 @@ const Upgrades = ({ upgrades }) => {
                 </Stack>
                 <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
                 <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
-                {originalIndex}
               </CardContent>
             </Card>
           })}

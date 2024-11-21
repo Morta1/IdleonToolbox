@@ -243,7 +243,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
       alerts.cardSet = {
         text: `${character.name} is fighting but has skilling card set (${cardSetEffect})`
       };
-    } else if (character.afkType !== 'FIGHTING' && character.afkType !== 'Nothing'
+    } else if (character.afkType !== 'FIGHTING' && character.afkType !== 'Nothing' && character.afkType !== 'Paying_Respect'
       && (equippedCardSet?.rawName === 'CardSet4'
         || equippedCardSet?.rawName === 'CardSet6'
         || equippedCardSet?.rawName === 'CardSet8'

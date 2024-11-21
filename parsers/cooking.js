@@ -276,7 +276,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
         * Math.floor((speedLv
           + (fireLv
             + luckLv)) / 10) / 100);
-    // if (characterIndex >= 0){
+    // if (characterIndex === 1){
     //   console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
     //   console.log('account?.farming?.cropDepot?.cookingSpeed?.value:', account?.farming?.cropDepot?.cookingSpeed?.value);
     //   console.log('voidWalkerApocalypseBonus:', voidWalkerApocalypseBonus);
@@ -296,7 +296,10 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     //   console.log('cookingSpeedMeals:', cookingSpeedMeals);
     //   console.log('starSignBonus:', starSignBonus);
     //   console.log('winnerBonus:', winnerBonus);
+    //   console.log('monumentBonus:', monumentBonus);
+    //   console.log('bucketBonus:', bucketBonus);
     //   console.log('cardCookingMulti:', cardCookingMulti);
+    //   console.log('lampBonus:', lampBonus);
     //   console.log('extraCookingSpeedVials:', extraCookingSpeedVials);
     //   console.log('amethystRhinestone:', amethystRhinestone);
     //   console.log('trollBonus:', trollBonus);

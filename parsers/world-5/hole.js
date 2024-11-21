@@ -120,6 +120,7 @@ const parseHole = (holeRaw, accountData) => {
 
   const majiksRaw = [holeMajiks, villageMajiks, idleonMajiks];
   let godsLinks = [];
+
   const majiks = cosmoUpgrades.map((majik, majikIndex) => {
     return majik.map((bonusRaw, bonusIndex) => {
       let hasDoot;
@@ -136,9 +137,11 @@ const parseHole = (holeRaw, accountData) => {
         }
 
       }
+      const maxLevel =  holesInfo?.[56 + majikIndex]?.[bonusIndex];
       return {
         ...bonusRaw,
-        level: majiksRaw?.[majikIndex]?.[bonusIndex],
+        level: Math.max(0, majiksRaw?.[majikIndex]?.[bonusIndex] - 1),
+        maxLevel,
         bonus: getCosmoBonus({ majik: majiksRaw?.[majikIndex], t: majikIndex, i: bonusIndex }),
         godsLinks,
         hasDoot

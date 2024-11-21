@@ -6,6 +6,7 @@ const TheWell = ({ hole }) => {
   const fillRate = hole?.caverns?.theWell?.fillRate < 1e9 ?
     commaNotation(hole?.caverns?.theWell?.fillRate)
     : notateNumber(hole?.caverns?.theWell?.fillRate, 'Big')
+
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Opal cost'} icon={'data/HoleWellFill1.png'}
@@ -25,7 +26,7 @@ const TheWell = ({ hole }) => {
         const isRockLayer = index === 0;
         const rocks = notateNumber(current * -1, 'TinyE') + ''
         const maxReq = isNaN(max) ? '' : `/${notateNumber(max, 'TinyE')}`;
-        const timeToFull = (max - current) / hole?.caverns?.theWell?.fillRate * 1000 * 3600;
+        const timeToFull = (max - current) / (hole?.caverns?.theWell?.fillRate * hole?.caverns?.theWell?.buckets?.length) * 1000 * 3600;
         return <CardTitleAndValue key={`sediment-${index}`}
                                   cardSx={{ my: 0, width: 270, opacity: !max && !isRockLayer ? .5 : 1 }}
                                   title={isRockLayer ? 'Rocks' : !isRockLayer && max

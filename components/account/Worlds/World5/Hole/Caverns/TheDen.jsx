@@ -11,7 +11,7 @@ const TheDen = ({ hole }) => {
       <CardTitleAndValue title={'Next opal'} icon={'data/Opal.png'}
                          imgStyle={{ width: 24, height: 24 }}
                          value={commaNotation(hole?.caverns?.theDen?.nextOpalAt)}/>
-      <CardTitleAndValue title={'Next opal'}
+      <CardTitleAndValue title={'Multi'}
                          value={`${notateNumber(hole?.caverns?.theDen?.ampMulti, 'MultiplierInfo')}x`}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>

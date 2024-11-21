@@ -33,7 +33,7 @@ const Bravery = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.bravery?.bonuses.slice(0, 8).map(({ description, level }, index) => {
+      {hole?.caverns?.bravery?.bonuses.slice(0, 10).map(({ description, level }, index) => {
         return <Card key={`bonus-${index}`}>
           <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
             <Typography>Lv. {level}</Typography>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import {
-  cleanUnderscore,
+  cleanUnderscore, commaNotation,
   getNumberWithOrdinal,
   notateNumber,
   pascalCase,
@@ -379,7 +379,7 @@ const Account = ({ account, characters, trackers }) => {
                   iconPath={'data/ClassIcons57'}/> : null}
               {alerts?.['World 6']?.farming?.totalCrops > 0 ?
                 <Alert
-                  title={`You have ${alerts?.['World 6']?.farming?.totalCrops} crops ready to be collected`}
+                  title={`You have ${commaNotation(alerts?.['World 6']?.farming?.totalCrops)} crops ready to be collected`}
                   iconPath={'data/FarmPlant6'}/> : null}
 
             </Stack>

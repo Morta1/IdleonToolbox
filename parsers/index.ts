@@ -101,7 +101,6 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.serverVars = serverVars;
   accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
   accountData.gemShopPurchases = getGemShop(idleonData);
-  accountData.hole = getHole(idleonData, accountData);
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
   accountData.alchemy = getAlchemy(idleonData, accountData, serializedCharactersData);
@@ -127,6 +126,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData, accountData);
   accountData.farming = getFarming(idleonData, accountData);
   accountData.summoning = getSummoning(idleonData, accountData, serializedCharactersData);
+  accountData.hole = getHole(idleonData, accountData);
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.towers = getTowers(idleonData);

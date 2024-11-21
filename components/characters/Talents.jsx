@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fillMissingTalents, prefix } from 'utility/helpers';
+import { cleanUnderscore, fillMissingTalents, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
@@ -110,7 +110,9 @@ const Talents = ({
            aria-label={`star-sign-tab`}
            icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
-    <Typography mt={2} component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
+    {activeTab === 4 ? <Typography variant={'caption'} mt={2} style={{ opacity: activeTab === 4 ? 1 : 0 }}>Specials {specialsTab + 1}</Typography> :
+      <Typography variant={'caption'} mt={2}>{cleanUnderscore(talents?.[activeTab]?.name)}</Typography>}
+    <Typography  component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
       <Typography component={'div'} variant={'caption'}>Added levels: {selectedAddedLevels}</Typography>
       <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={selectedAddedLevelsBreakdown}/>}>
@@ -172,9 +174,6 @@ const Talents = ({
             </div>
           </Tooltip>;
       })}
-    </div>
-    <div className="star-talents-arrows">
-      <span style={{ opacity: activeTab === 4 ? 1 : 0 }}>Specials {specialsTab + 1}</span>
     </div>
   </StyledTalents>
 };

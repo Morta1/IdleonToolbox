@@ -715,15 +715,16 @@ export const getWorld5Alerts = (account, fields, options) => {
                                                      current,
                                                      max
                                                    }) => current >= 0 && current >= (buckets?.props?.value || max));
+    const brokenLayersToday = account?.accountOptions?.[318];
     if (buckets?.checked && !expandWhenFull && anySedimentFull.length > 0) {
       hole.buckets = true;
     }
     const isMaxedOres = account?.hole?.caverns?.motherlode?.ores?.maxed;
-    if (motherlode?.checked && isMaxedOres) {
+    if (motherlode?.checked && brokenLayersToday < 5 && isMaxedOres) {
       hole.motherlodeMaxed = isMaxedOres;
     }
     const isMaxedBugs = account?.hole?.caverns?.theHive?.bugs?.maxed;
-    if (theHive?.checked && isMaxedBugs) {
+    if (theHive?.checked && brokenLayersToday < 5 && isMaxedBugs) {
       hole.hiveMaxed = isMaxedBugs;
     }
     if (bravery?.checked && account?.hole?.caverns?.bravery?.rewardMulti >= bravery?.props?.value) {
