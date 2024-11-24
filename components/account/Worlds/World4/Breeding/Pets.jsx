@@ -15,13 +15,14 @@ import { cleanUnderscore, groupByKey, notateNumber, prefix, randomFloatBetween }
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
-import { getShinyBonus, getTimeToLevel } from '@parsers/breeding';
+import { calcUpgradeBonus, getShinyBonus, getTimeToLevel } from '@parsers/breeding';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { Breakdown } from '@components/common/styles';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 
 const Pets = ({
                 pets,
@@ -56,19 +57,24 @@ const Pets = ({
       return acc;
     }, 0);
     const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
+    const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1 });
+    const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[12], 12, account);
 
     return {
       value: (1 + (emeraldUlthuriteBonus
           + (fasterShinyLevelBonus
             + (account?.farming?.cropDepot?.shiny?.value
-              + starSign))) / 100)
-        * (1 + summoningBonus / 100),
+              + starSign + breedingBonus))) / 100)
+        * (1 + summoningBonus / 100)
+        * (1 + lampBonus / 100),
       breakdown: [
         { name: 'Jewel bonus', value: emeraldUlthuriteBonus / 100 },
         { name: 'Shiny bonus', value: fasterShinyLevelBonus / 100 },
         { name: 'Starsign bonus', value: starSign / 100 },
         { name: 'Farming bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
-        { name: 'Summoning bonus', value: summoningBonus / 100 }
+        { name: 'Summoning bonus', value: summoningBonus / 100 },
+        { name: 'Breeding bonus', value: breedingBonus / 100 },
+        { name: 'Lamp bonus', value: lampBonus / 100 }
       ]
     };
   }

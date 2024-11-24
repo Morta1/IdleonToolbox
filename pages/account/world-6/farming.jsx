@@ -48,7 +48,7 @@ const Farming = () => {
       })}
     </Stack>
     <Tabber tabs={['Plot', 'Market', 'Rank database', 'Crop']}>
-      <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}/>
+      <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated} account={state?.account}/>
       <Market market={market} crop={crop}/>
       <RankDatabase ranks={ranks}/>
       <Crop crop={crop} maxTimes={maxTimes}/>

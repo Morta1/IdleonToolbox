@@ -47,6 +47,7 @@ export const applyStatuesMulti = (account, characters) => {
     onyxMulti: artifact?.bonus ?? 0
   }));
   const dragonStatueMulti = getStatueBonus(statues, 'StatueG29');
+  console.log('statues', statues)
   return statues.map((statue) => ({ ...statue, dragonMulti: dragonStatueMulti }))
 }
 export const getStatueBonus = (statues, statueName, talents) => {
@@ -95,7 +96,7 @@ export const getStatueBonus = (statues, statueName, talents) => {
       talentBonus = 1;
   }
   const onyxMulti = statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1;
-  const dragonMulti = statue?.dragonMulti ? 1 + statue?.dragonMulti / 100 : 1;
+  const dragonMulti = statue?.dragonMulti && statue?.name !== 'DRAGON' ? 1 + statue?.dragonMulti / 100 : 1;
   return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * onyxMulti * dragonMulti;
 };
 

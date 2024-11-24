@@ -8,9 +8,9 @@ import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 
-const Plot = ({ plot, market, ranks, lastUpdated }) => {
+const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
   const { productDoubler, percent, multi } = getProductDoubler(market) || {};
-  const totals = getTotalCrop(plot, market, ranks);
+  const totals = getTotalCrop(plot, market, ranks, account);
   return <>
     <CardTitleAndValue title={`Totals${productDoubler > 100 && multi >= 2 ? ` (x${multi})` : ''}`}>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>

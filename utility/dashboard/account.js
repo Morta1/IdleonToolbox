@@ -215,6 +215,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   if (fields?.alchemy?.checked) {
     const alchemy = {};
     if (options?.alchemy?.bargainTag?.checked) {
+      console.log('liquidsShop', liquidsShop)
       const { x1, x2, index } = liquidsShop?.find(({ name }) => name === 'BARGAIN_TAG') || {};
       const math = Math.round(x1 * Math.pow(x2, account?.alchemy?.multiplierArray?.[index]));
       if (math === 1) {

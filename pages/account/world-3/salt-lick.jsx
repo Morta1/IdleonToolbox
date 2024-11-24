@@ -29,7 +29,7 @@ const SaltLick = () => {
       title="Salt Lick | Idleon Toolbox"
       description="Keep track of your salt lick levels and upgrades"
     />
-    <Stack alignItems={'center'} gap={3}>
+    <Stack gap={3}>
       {saltLick?.map((bonus, index) => {
         const { desc, name, level, maxLevel, rawName, totalAmount } = bonus;
         const calculatedBonusCost = calcBonusCost(bonus);

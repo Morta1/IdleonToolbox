@@ -10,19 +10,18 @@ import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { isProd, shouldDisplayDrawer } from '../../../utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
-import { Typography, useMediaQuery } from '@mui/material';
+import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
+import Pin from '@components/common/favorites/Pin';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
-  const showAdBlockerPopup = localStorage.getItem('showAdBlockerPopup');
 
   const handlePaste = async () => {
     try {
@@ -33,7 +32,14 @@ const NavBar = ({ children }) => {
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
       console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
-      localStorage.setItem('rawJson', JSON.stringify({ data, charNames, companion, guildData, serverVars, lastUpdated }))
+      localStorage.setItem('rawJson', JSON.stringify({
+        data,
+        charNames,
+        companion,
+        guildData,
+        serverVars,
+        lastUpdated
+      }))
       dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
     } catch (e) {
       console.error('Error while trying to manual import', e);
@@ -64,6 +70,8 @@ const NavBar = ({ children }) => {
       pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
       mb: isXs ? '75px' : '110px'
     }}>
+      {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Stack
+        direction={'row'} sx={{ justifyContent: 'flex-start' }}><Pin/> </Stack> : null}
       {children}
     </Box>
     <Box

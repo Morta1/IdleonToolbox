@@ -837,7 +837,9 @@ export const getCashMulti = (character, account, characters) => {
 
   const cashMulti = (1 + (bubbles) / 100)
     * (1 + (mealBonus
-      + artifactBonus + kangarooBonus + voteBonus) / 100)
+      + artifactBonus
+      + kangarooBonus
+      + voteBonus) / 100)
     * (1 + (0.5 * arenaBonusUnlock
       + (secondArenaBonusUnlock
         + statueBonus / 100)))

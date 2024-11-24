@@ -2,8 +2,9 @@ import React, { useContext } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
 import { drawerWidth, navItems, offlinePages } from '../../constants';
 import { useRouter } from 'next/router';
-import { List, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { List, ListItemButton, ListItemText, Stack, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
+import PinnedPages from '@components/common/favorites/PinnedPages';
 
 const NavItemsList = ({ drawer }) => {
   const { state } = useContext(AppContext);
@@ -34,6 +35,7 @@ const NavItemsList = ({ drawer }) => {
                         sx={{ fontWeight: 'bold', fontSize: 14 }}>{navItem.toUpperCase()}</ListItemText>
         </ListItemButton>
       })}
+      <PinnedPages text={'Pinned pages'}/>
     </ItemsWrapper>
   </Stack>
 };

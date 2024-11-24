@@ -6,6 +6,7 @@ import { getVialsBonusByStat } from "@parsers/alchemy";
 import { getJewelBonus, getLabBonus } from "@parsers/lab";
 import { getWinnerBonus } from "@parsers/world-6/summoning";
 import { getAchievementStatus } from "@parsers/achievements";
+import { getVoteBonus } from "@parsers/world-2/voteBallot";
 
 export const getFarming = (idleonData: any, accountData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
@@ -65,6 +66,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       unlockAt
     }
   });
+
   const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[], index: number) => {
     const type = Math.round(seedInfo?.[seedType]?.cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
@@ -108,7 +110,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     ranks,
     totalPoints,
     usedPoints,
-    totalRanks: farmingRanks?.reduce((sum:number, rank:number) => sum + rank, 0)
+    totalRanks: farmingRanks?.reduce((sum: number, rank: number) => sum + rank, 0)
   };
 }
 
@@ -206,7 +208,16 @@ export const updateFarming = (characters: any, account: any) => {
   }
 }
 
-const getNextUpgradesReq = ({ index, cropId, cropIdIncrement, level, maxLvl, cost, costExponent, isUnique = true }: any) => {
+const getNextUpgradesReq = ({
+                              index,
+                              cropId,
+                              cropIdIncrement,
+                              level,
+                              maxLvl,
+                              cost,
+                              costExponent,
+                              isUnique = true
+                            }: any) => {
   const upgradeMap = new Map();
 
   let extraLv = 0;
@@ -298,13 +309,18 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
   return costToMax ?? 0;
 }
 
-export const getTotalCrop = (plot: any[], market: any[], ranks: any[]) => {
+export const getTotalCrop = (plot: any[], market: any[], ranks: any[], account: any) => {
   return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti, rank }) => {
     if (seedType === -1) return total;
     const { productDoubler } = getProductDoubler(market);
     const productionBoost = getLandRank(ranks, 'Production_Boost');
-    const finalMulti = Math.min(100, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100))) * (1 + getRanksTotalBonus(ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100)));
-
+    const voteBonus = getVoteBonus(account, 29);
+    const speedGMO = getMarketBonus(account?.farming?.market, "VALUE_GMO", 'value');
+    const finalMulti = Math.min(1e4, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100)))
+      * (1 + getRanksTotalBonus(ranks, 1) / 100)
+      * Math.max(1, speedGMO)
+      * (1 + (productionBoost?.bonus * (rank ?? 0)
+        + voteBonus) / 100)));
     return {
       ...total,
       [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * finalMulti)

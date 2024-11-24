@@ -272,6 +272,9 @@ export const calcUpgradeBonus = (upgrade, upgradeIndex, account) => {
   if (11 === upgradeIndex) {
     return Math.ceil(12 * Math.pow(upgrade?.level, 0.698));
   }
+  if (12 === upgradeIndex) {
+    return 5 * upgrade?.level;
+  }
   return 0;
 }
 

@@ -30,6 +30,9 @@ function appReducer(state, action) {
     case 'filters': {
       return { ...state, filters: action.data };
     }
+    case 'pinnedPages': {
+      return { ...state, pinnedPages: action.data };
+    }
     case 'planner': {
       return { ...state, planner: action.data };
     }
@@ -66,13 +69,15 @@ const AppProvider = ({ children }) => {
   function init() {
     if (typeof window !== 'undefined') {
       const filters = localStorage.getItem('filters');
+      const pinnedPages = localStorage.getItem('pinnedPages') || [];
       const displayedCharacters = localStorage.getItem('displayedCharacters');
       const trackers = localStorage.getItem('trackers');
       const godPlanner = localStorage.getItem('godPlanner');
       const manualImport = localStorage.getItem('manualImport') || false;
       const lastUpdated = localStorage.getItem('lastUpdated') || false;
       const planner = localStorage.getItem('planner');
-      const objects = [{ filters }, { displayedCharacters }, { planner }, { manualImport }, { lastUpdated },
+      const objects = [{ pinnedPages }, { filters }, { displayedCharacters }, { planner }, { manualImport },
+        { lastUpdated },
         { trackers }, { godPlanner }, { showRankOneOnly: false }, { showUnmaxedBoxesOnly: false }];
       return objects.reduce((res, obj) => {
         try {
@@ -158,6 +163,9 @@ const AppProvider = ({ children }) => {
     if (state?.filters) {
       localStorage.setItem('filters', JSON.stringify(state.filters));
     }
+    if (state?.pinnedPages) {
+      localStorage.setItem('pinnedPages', JSON.stringify(state.pinnedPages));
+    }
     if (state?.displayedCharacters) {
       localStorage.setItem('displayedCharacters', JSON.stringify(state.displayedCharacters));
     }
@@ -179,6 +187,7 @@ const AppProvider = ({ children }) => {
     }
   }, [
     state?.trackers,
+    state?.pinnedPages,
     state?.filters,
     state?.displayedCharacters,
     state?.planner,

@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.82',
+    'gameVer': '2.0.22',
+    'date': '24/11/2024',
+    'features': ['Added the ability to pin your favorite pages for easy and quick navigation'],
+    'fixes': [
+      'Fixed farming total crop calculation',
+      'Fixed shiny multi rate calculation',
+      'Fixed chip rotation calculation',
+      'Fixed dragon statue enhancing itself'
+    ]
+  },
+  {
     'ver': '3.2.81',
     'gameVer': '2.0.22',
     'date': '21/11/2024',
