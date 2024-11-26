@@ -134,7 +134,8 @@ const AccountDrawer = () => {
         value: 1
       })
     }
-    router.push({ pathname: url, query: router.query });
+    const { t, nt, ...updatedQuery } = router.query;
+    router.push({ pathname: url, query: updatedQuery });
   }
 
   const isSelected = (label) => {
@@ -145,7 +146,8 @@ const AccountDrawer = () => {
     <Stack sx={{ height: '100%' }}>
       <Divider/>
       <List>
-        {state?.account?.accountCreateTime ? <ListItem>Account created at: {format(state?.account?.accountCreateTime, 'dd/MM/yyyy HH:mm:ss')}</ListItem> : null}
+        {state?.account?.accountCreateTime ? <ListItem>Account created
+          at: {format(state?.account?.accountCreateTime, 'dd/MM/yyyy HH:mm:ss')}</ListItem> : null}
         {Object.entries(worldsData).map(([key, value], index) => {
           const { icon, categories, style } = value;
           return (

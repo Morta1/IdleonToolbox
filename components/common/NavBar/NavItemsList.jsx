@@ -2,13 +2,15 @@ import React, { useContext } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
 import { drawerWidth, navItems, offlinePages } from '../../constants';
 import { useRouter } from 'next/router';
-import { List, ListItemButton, ListItemText, Stack, useMediaQuery } from '@mui/material';
+import { List, ListItemButton, ListItemText, Stack } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import PinnedPages from '@components/common/favorites/PinnedPages';
 
 const NavItemsList = ({ drawer }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
+  const { t, nt, ...updateQuery } = router?.query || {};
+
   return <Stack
     direction={drawer ? 'column' : 'row'}
     justifyContent={drawer ? 'flex-start' : 'center'}
@@ -23,7 +25,7 @@ const NavItemsList = ({ drawer }) => {
         return <ListItemButton component={NextLinkComposed}
                                selected={router?.pathname.includes(navItem)}
                                key={`${navItem}-${index}`}
-                               to={{ pathname: `/${pageName}`, query: router?.query }}
+                               to={{ pathname: `/${pageName}`, query: updateQuery }}
                                sx={{
                                  borderRadius: drawer ? 'inherit' : 2,
                                  p: drawer ? '8px 16px' : '0 8px'

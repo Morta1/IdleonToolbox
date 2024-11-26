@@ -29,9 +29,19 @@ const PinnedPages = ({}) => {
     }
   };
 
-  const handleNavigation = (url) => {
+  const handleNavigation = (url, tab, nestedTab) => {
     setAnchorEl(null);
-    router.push({ pathname: url })
+    let query = { profile: router.query.profile }
+    if (router.query.profile) {
+      query.profile = router.query.profile;
+    }
+    if (tab) {
+      query.t = tab;
+      if (nestedTab) {
+        query.nt = nestedTab;
+      }
+    }
+    router.push({ pathname: url, query });
   }
 
   return (
@@ -63,9 +73,11 @@ const PinnedPages = ({}) => {
       </ListItemButton>
       {isXs ? <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List>
-          {pinnedPages?.map(({ name, url }, index) => {
+          {pinnedPages?.map(({ name, url, tab, nestedTab }, index) => {
             return <ListItemButton sx={{ pl: '35px' }} key={`${name}-${index}`}
-                                   onClick={() => handleNavigation(url)}>{name.replace('-', ' ').capitalizeAllWords()}</ListItemButton>
+                                   onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
+              ? ` - ${tab}`
+              : ''}{nestedTab ? ` - ${nestedTab}` : ''}</ListItemButton>
           })}
           {!pinnedPages?.length && <ListItemButton dense disabled>You don't have any pinned pages</ListItemButton>}
         </List>
@@ -79,9 +91,11 @@ const PinnedPages = ({}) => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       >
-        {pinnedPages?.map(({ name, url }, index) => {
+        {pinnedPages?.map(({ name, url, tab, nestedTab }, index) => {
           return <MenuItem dense key={`${name}-${index}`}
-                           onClick={() => handleNavigation(url)}>{name.replace('-', ' ').capitalizeAllWords()}</MenuItem>
+                           onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
+            ? ` - ${tab}`
+            : ''}{nestedTab ? ` - ${nestedTab}` : ''}</MenuItem>
         })}
         {!pinnedPages?.length && <MenuItem dense disabled={true}>You don't have any pinned pages</MenuItem>}
       </Menu>}

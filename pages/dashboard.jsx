@@ -4,7 +4,7 @@ import { Box, Stack, ToggleButton, ToggleButtonGroup, useMediaQuery } from '@mui
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { isProd, migrateConfig, tryToParse } from '@utility/helpers';
+import { isProd, tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
@@ -12,9 +12,10 @@ import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import Button from '@mui/material/Button';
+import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 1,
+  version: 2,
   account: {
     General: {
       tasks: {
@@ -66,8 +67,9 @@ const baseTrackers = {
       alchemy: {
         checked: true,
         options: [
-          { name: 'bargainTag', checked: true },
-          { name: 'sigils', checked: true },
+          { name: 'bargainTag', checked: true, category: 'liquidShop' },
+          { name: 'gems', checked: true },
+          { name: 'sigils', checked: true, category: 'sigils' },
           {
             name: 'liquids',
             category: 'liquids',
@@ -359,7 +361,7 @@ const baseTrackers = {
       closestSalt: { checked: true, options: [] }
     },
     'World 5': {
-      monument: { checked: true, options: [] },
+      monument: { checked: true, options: [] }
     }
   }
 }
@@ -375,14 +377,12 @@ const Dashboard = () => {
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
   useEffect(() => {
-    const finalAccountTrackers = migrateConfig('account', baseTrackers?.account, state?.trackers?.account, baseTrackers?.version, state?.trackers?.version);
-    const finalCharactersTrackers = migrateConfig('characters', baseTrackers?.characters, state?.trackers?.characters, baseTrackers?.version, state?.trackers?.version);
-    const finalTimersTrackers = migrateConfig('timers', baseTrackers?.timers, state?.trackers?.timers, baseTrackers?.version, state?.trackers?.version);
-
+    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
     setConfig({
-      account: finalAccountTrackers,
-      characters: finalCharactersTrackers,
-      timers: finalTimersTrackers
+      account: migratedConfig.account,
+      characters: migratedConfig.characters,
+      timers: migratedConfig.timers,
+      version: baseTrackers?.version || 1
     })
   }, []);
 
@@ -402,8 +402,9 @@ const Dashboard = () => {
   }
 
   const handleFileUpload = (data) => {
-    setConfig(data);
-    dispatch({ type: 'trackers', data });
+    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
+    setConfig(migratedConfig);
+    dispatch({ type: 'trackers', migratedConfig });
   }
 
   return <>

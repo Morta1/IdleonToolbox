@@ -205,6 +205,7 @@ const Data = () => {
           <MenuItem value={'planner'}>Item Planner</MenuItem>
           <MenuItem value={'material-tracker'}>Material tracker</MenuItem>
           <MenuItem value={'last-upload-time'}>Last upload time</MenuItem>
+          <MenuItem value={'pinnedPages'}>Pinned Pages</MenuItem>
         </TextField>
         <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
           Clear

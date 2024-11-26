@@ -137,6 +137,8 @@ const Account = ({ account, characters, trackers }) => {
                   iconPath={'etc/Shimmer_Currency'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
+              {alerts?.['World 2']?.alchemy?.gems ?
+                <Alert title={'You haven\'t bought alchemy gems even once today'} iconPath={'data/PremiumGem'}/> : null}
               {alerts?.['World 2']?.alchemy?.alternateParticles ?
                 <Alert
                   title={`You have ${alerts?.['World 2']?.alchemy?.alternateParticles} alternate particles upgrades available`}

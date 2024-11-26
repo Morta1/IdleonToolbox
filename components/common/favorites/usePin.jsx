@@ -5,18 +5,28 @@ import { AppContext } from '@components/common/context/AppProvider';
 const usePin = () => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
-  const isPinned = state.pinnedPages?.find(({ name }) => router.pathname.includes(name));
+  const isPinned = state.pinnedPages?.find(({ name, tab, nestedTab }) => router.pathname.includes(name)
+    && (tab ? router.query?.t?.includes(tab) : true)
+    && (nestedTab ? router.query?.nt?.includes(nestedTab) : true));
 
   const togglePin = () => {
     const pageName = router.pathname.split('/').at(-1);
-    const exist = state?.pinnedPages?.find(({ name }) => name === pageName);
+    const { t, nt } = router.query;
+    const exist = state?.pinnedPages?.find(({ name, tab, nestedTab }) =>
+      name === pageName &&
+      (tab ?? null) === (t ?? null) &&
+      (nestedTab ?? null) === (nt ?? null)
+    );
     let updatePinnedPages = [...(state?.pinnedPages || [])];
     if (exist) {
-      updatePinnedPages = updatePinnedPages.filter(({ name }) => name !== pageName);
+      updatePinnedPages = updatePinnedPages.filter(({ name, tab, nestedTab }) =>
+        !(name === pageName &&
+          (tab ?? null) === (t ?? null) &&
+          (nestedTab ?? null) === (nt ?? null)));
     } else {
-      updatePinnedPages.push({ name: pageName, url: router.pathname })
+      updatePinnedPages.push({ name: pageName, tab: t, nestedTab: nt, url: router.pathname })
     }
-    localStorage.setItem('state.pinnedPages', JSON.stringify(updatePinnedPages));
+    localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
     dispatch({ type: 'pinnedPages', data: updatePinnedPages });
   }
 

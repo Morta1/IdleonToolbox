@@ -11,6 +11,7 @@ const Hole = () => {
 
   return <>
     <Tabber
+      clearOnChange={['nt']}
       tabs={['Explore', 'Engineer', 'Bonuses', 'Measure']}
       icons={['etc/Villager_0','etc/Villager_1', 'etc/Villager_2', 'etc/Villager_3']}
     >

@@ -14,14 +14,6 @@ import TheLamp from '@components/account/Worlds/World5/Hole/Caverns/TheLamp';
 import TheHive from '@components/account/Worlds/World5/Hole/Caverns/TheHive';
 import Grotto from '@components/account/Worlds/World5/Hole/Caverns/Grotto';
 
-const getCavernColor = (index) => {
-  if (index >= 0 && index < 5) {
-    return 'purple';
-  } else if (index >= 5 && index < 10) {
-    return 'yellow';
-  }
-}
-
 const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
   const caverns = fillArrayToLength(10);
@@ -37,6 +29,7 @@ const Explore = ({ hole }) => {
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Tabber
+      queryKey={'nt'}
       iconsOnly
       tabs={cavernNames}
       icons={caverns.map((a, index) => `etc/Cavern_${index}`)}
