@@ -4,7 +4,7 @@ export const migrateToVersion2 = (config = {}) => {
     dashboardConfig = {};
   }
 
-  if (dashboardConfig.account['World 2'].alchemy) {
+  if (dashboardConfig?.account?.['World 2']?.alchemy) {
     let alchemyOptions = dashboardConfig.account['World 2'].alchemy.options.map((option) => {
       const { name, category } = option;
       if (name === 'bargainTag' && !category) {
@@ -27,7 +27,7 @@ export const migrateToVersion2 = (config = {}) => {
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   let migratedConfig;
-  if (!userConfig) {
+  if (!Object.keys(userConfig || {}).length) {
     migratedConfig = baseTrackers;
   } else {
     if ((!userConfig?.version || userConfig?.version === 1)) {
