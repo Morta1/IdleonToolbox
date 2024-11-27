@@ -26,9 +26,7 @@ export const migrateToVersion2 = (config = {}) => {
 }
 
 export const migrateConfig = (baseTrackers, userConfig) => {
-  let migratedConfig;
-  console.log('baseTrackers', baseTrackers);
-  console.log('userConfig', userConfig);
+  let migratedConfig = userConfig;
   if (!Object.keys(userConfig || {}).length) {
     migratedConfig = baseTrackers;
   } else {
