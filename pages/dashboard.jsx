@@ -378,6 +378,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
+    console.log('migratedConfig',migratedConfig);
     setConfig({
       account: migratedConfig.account,
       characters: migratedConfig.characters,
