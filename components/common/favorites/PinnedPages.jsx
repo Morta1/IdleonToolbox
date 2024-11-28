@@ -31,7 +31,7 @@ const PinnedPages = ({}) => {
 
   const handleNavigation = (url, tab, nestedTab) => {
     setAnchorEl(null);
-    let query = { profile: router.query.profile }
+    let query = {}
     if (router.query.profile) {
       query.profile = router.query.profile;
     }

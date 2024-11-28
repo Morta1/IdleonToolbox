@@ -28,10 +28,12 @@ const WeeklyBosses = () => {
       <Button onClick={() => handleCopy(weeklyBosses)}><ContentCopyIcon sx={{mr: 1}}/> Copy boss data</Button>
       <Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more bosses</Button>
     </Stack>
-    <Tabber forceScroll={weeks > 10} tabs={weeklyBosses?.map(({ bossName, date }) => <Stack>
-      <Typography variant={'body1'} sx={{textTransform:'none'}}>{cleanUnderscore(bossName)}</Typography>
-      <Typography variant={'caption'} sx={{textTransform:'none'}}>{isValid(date) ? format(date, 'dd/MM/yyyy HH:mm:ss') : null}</Typography>
-    </Stack>)}>
+    <Tabber forceScroll={weeks > 10}
+            tabs={weeklyBosses?.map(({ bossName, date }, index) => cleanUnderscore(bossName))}
+            components={weeklyBosses?.map(({ bossName, date }, index) => <Stack key={'boss-'+index}>
+              <Typography variant={'body1'} sx={{textTransform:'none'}}>{cleanUnderscore(bossName)}</Typography>
+              <Typography variant={'caption'} sx={{textTransform:'none'}}>{isValid(date) ? format(date, 'dd/MM/yyyy HH:mm:ss') : null}</Typography>
+            </Stack>)}>
       {weeklyBosses?.map((boss, bossIndex) => <WeeklyBoss key={boss?.bossName + bossIndex}
                                                           {...boss}
                                                           bossIndex={bossIndex}
@@ -42,3 +44,4 @@ const WeeklyBosses = () => {
 };
 
 export default WeeklyBosses;
+

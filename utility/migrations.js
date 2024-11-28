@@ -26,6 +26,7 @@ export const migrateToVersion2 = (config = {}) => {
 }
 
 export const migrateConfig = (baseTrackers, userConfig) => {
+  if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
   if (!Object.keys(userConfig || {}).length) {
     migratedConfig = baseTrackers;

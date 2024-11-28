@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 
 const Tabber = ({
                   tabs,
+                  components,
                   icons,
                   children,
                   onTabChange,
@@ -52,7 +53,7 @@ const Tabber = ({
       sx={{ marginBottom: 3 }}
       variant={(isMd && tabs.length >= 4) || forceScroll ? 'scrollable' : 'standard'}
       value={selectedTab} onChange={handleOnClick}>
-      {tabs?.map((tab, index) => {
+      {(components ?? tabs)?.map((tab, index) => {
         return <Tab iconPosition="start" icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`}/> : null}
                     wrapped label={iconsOnly ? '' : tab} sx={{ minWidth: 62 }} key={`${tab}-${index}`}/>;
       })}
