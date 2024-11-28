@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.83',
+    'gameVer': '2.0.22',
+    'date': '28/11/2024',
+    'features': [
+      'Added a time to full tooltip to calculate time to full for X buckets',
+      'Added tome total points leader and (re-)added slab leaderboard'
+    ],
+    'fixes': [
+      'Fix an issue with import dashboard settings',
+      'Fixed an issue with missing images on Summoning -> Battles page',
+      'Fixed a calculation error for summoning bonuses'
+    ]
+  },
+  {
     'ver': '3.2.82',
     'gameVer': '2.0.22',
     'date': '24/11/2024',

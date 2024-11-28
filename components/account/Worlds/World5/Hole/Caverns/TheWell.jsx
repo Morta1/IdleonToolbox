@@ -1,6 +1,15 @@
 import { Card, CardContent, Divider, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, fillArrayToLength, msToDate, notateNumber, prefix } from '@utility/helpers';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '@components/Tooltip';
+
+const getTTF = (sediment, theWell) => {
+  const ttf = fillArrayToLength(theWell?.buckets?.length);
+  return ttf.map((_, index) => {
+    return (sediment?.max - sediment?.current) / (theWell?.fillRate * (index + 1)) * 1000 * 3600;
+  });
+}
 
 const TheWell = ({ hole }) => {
   const fillRate = hole?.caverns?.theWell?.fillRate < 1e9 ?
@@ -22,15 +31,26 @@ const TheWell = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theWell?.sediments?.map(({ current = 0, max = 0 } = {}, index) => {
+      {hole?.caverns?.theWell?.sediments?.map((sediment, index) => {
+        const { current = 0, max = 0 } = sediment || {};
         const isRockLayer = index === 0;
         const rocks = notateNumber(current * -1, 'TinyE') + ''
         const maxReq = isNaN(max) ? '' : `/${notateNumber(max, 'TinyE')}`;
+        const ttfs = getTTF(sediment, hole?.caverns?.theWell);
         const timeToFull = (max - current) / (hole?.caverns?.theWell?.fillRate * hole?.caverns?.theWell?.buckets?.length) * 1000 * 3600;
         return <CardTitleAndValue key={`sediment-${index}`}
                                   cardSx={{ my: 0, width: 270, opacity: !max && !isRockLayer ? .5 : 1 }}
                                   title={isRockLayer ? 'Rocks' : !isRockLayer && max
-                                    ? `Time to full: ${msToDate(timeToFull)}`
+                                    ? <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                                      Time to full: {msToDate(timeToFull)}
+                                      <Tooltip title={<Stack>
+                                        {ttfs.map((ttf, index) => <div key={`ttf-${index}`}>{index + 1} Bucket{index > 0
+                                          ? 's'
+                                          : ''}: {msToDate(ttf)}</div>)}
+                                      </Stack>}>
+                                        <InfoIcon/>
+                                      </Tooltip>
+                                    </Stack>
                                     : 'Locked'}
                                   value={isRockLayer
                                     ? rocks

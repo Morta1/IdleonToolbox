@@ -72,6 +72,7 @@ export const expandLeaderboardInfo = (account, characters) => {
   const mp = Math.max(...playersInfo.map(({ maxMp }) => maxMp));
   const greenMushroomKills = account?.deathNote?.[0]?.mobs?.[0]?.kills || 0;
   const totalBoats = calcTotalBoatLevels(account?.sailing?.boats);
+  const totalTomePoints = account?.tome?.totalPoints;
   const logbooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + unlocked, 0);
   return {
     dropRate: withDefault(dropRate),
@@ -81,9 +82,10 @@ export const expandLeaderboardInfo = (account, characters) => {
     mp: withDefault(mp),
     logBook: logbooks,
     totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels),
-    looty: withDefault(account?.looty?.lootedItems, 0),
+    slab: withDefault(account?.looty?.lootedItems, 0),
     greenMushroomKills,
-    totalBoats
+    totalBoats,
+    totalTomePoints: withDefault(totalTomePoints, 0)
   }
 }
 

@@ -54,8 +54,11 @@ const Tabber = ({
       variant={(isMd && tabs.length >= 4) || forceScroll ? 'scrollable' : 'standard'}
       value={selectedTab} onChange={handleOnClick}>
       {(components ?? tabs)?.map((tab, index) => {
-        return <Tab iconPosition="start" icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`}/> : null}
-                    wrapped label={iconsOnly ? '' : tab} sx={{ minWidth: 62 }} key={`${tab}-${index}`}/>;
+        return <Tab iconPosition="start"
+                    icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`}/> : null}
+                    wrapped label={iconsOnly ? '' : tab}
+                    sx={{ minWidth: 62 }}
+                    key={`${tab?.[index]}-${index}`}/>;
       })}
     </Tabs>
     {onTabChange ? children : array?.map((child, index) => {

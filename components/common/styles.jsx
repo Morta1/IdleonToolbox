@@ -139,7 +139,7 @@ export const CardTitleAndValue = ({
     <Card variant={variant} raised={raised} sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
       <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {} }}>
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
-          {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography> : null}
+          {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom component={'span'}>{title}</Typography> : null}
           {(value || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
             <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
             {value ? <Typography>{value}</Typography> : null}

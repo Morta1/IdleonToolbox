@@ -33,7 +33,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const killroyStat = rawSummon?.[3];
   const wonBattles = rawSummon?.[1];
   const essences = rawSummon?.[2];
-  const whiteBattleIcons = ['piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
+  const whiteBattleIcons = ['Piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
     'Hedgehog'];
   const whiteBattleOrder = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
   const allBattles = [[], [], [], [], [], [], [], [], [], []];
@@ -60,7 +60,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   })
   let rawWinnerBonuses = wonBattles?.reduce((acc, enemyId) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
-    if (monsterData) {
+    if (monsterData && monsterData?.bonusId < 20) {
       const bonus = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
       if (bonus) {
         if (acc[monsterData.bonusId]) {
@@ -243,7 +243,7 @@ const getArmyDamage = (upgrades, totalUpgradesLevels, account) => {
       * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);
 }
 const getBattleData = (enemyId, monsterData, wonBattles) => {
-  const icon = `data/mface${monsters?.[enemyId]?.MonsterFace}`;
+  const icon = `data/Mface${monsters?.[enemyId]?.MonsterFace}`;
   const won = wonBattles?.includes(enemyId);
   const { bonus, bonusId } = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId);
   const base = 3.5 * monsterData?.bonusQty;

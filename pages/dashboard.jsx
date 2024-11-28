@@ -403,7 +403,7 @@ const Dashboard = () => {
   }
 
   const handleFileUpload = (data) => {
-    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
+    const migratedConfig = migrateConfig(baseTrackers, data);
     setConfig(migratedConfig);
     dispatch({ type: 'trackers', migratedConfig });
   }

@@ -1,15 +1,13 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
-import { IconButton, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import Tabber from '@components/common/Tabber';
 import WeeklyBoss from '@components/account/Worlds/World2/WeeklyBoss';
 import { cleanUnderscore } from '@utility/helpers';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import Tooltip from '@components/Tooltip';
 import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
-import { CardTitleAndValue } from '@components/common/styles';
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);

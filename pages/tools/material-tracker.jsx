@@ -106,8 +106,8 @@ const MaterialTracker = () => {
     const alreadyExist = value?.find(({ rawName: name }) => name === rawName);
     if (alreadyExist) return;
     setValue([...value, itemFromItems]);
-    const tempLowerBound = lowerBound.toString().replace(/,/g, '');
-    const tempUpperBound = upperBound.toString().replace(/,/g, '');
+    const tempLowerBound = (lowerBound || '').toString().replace(/,/g, '');
+    const tempUpperBound = (upperBound || '').toString().replace(/,/g, '');
     setBounds({
       lowerBound: numberWithCommas(tempLowerBound || ''),
       upperBound: numberWithCommas(tempUpperBound || '')
