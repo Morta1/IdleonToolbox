@@ -13,6 +13,7 @@ import TheHarp from '@components/account/Worlds/World5/Hole/Caverns/TheHarp';
 import TheLamp from '@components/account/Worlds/World5/Hole/Caverns/TheLamp';
 import TheHive from '@components/account/Worlds/World5/Hole/Caverns/TheHive';
 import Grotto from '@components/account/Worlds/World5/Hole/Caverns/Grotto';
+import Justice from '@components/account/Worlds/World5/Hole/Caverns/Justice';
 
 const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
@@ -43,6 +44,8 @@ const Explore = ({ hole }) => {
       <TheLamp hole={hole} />
       <TheHive hole={hole} />
       <Grotto hole={hole} />
+      <Justice hole={hole} />
+
     </Tabber>
   </>
 };

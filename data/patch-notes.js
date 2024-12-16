@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.84',
+    'gameVer': '2.0.25',
+    'date': '16/12/2024',
+    'features': [
+      'Updated the website with version 2.0.25 data and assets'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.2.83',
     'gameVer': '2.0.22',
     'date': '28/11/2024',
@@ -13,7 +22,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Fix an issue with import dashboard settings',
-      'Fixed an issue with missing images on Summoning -> Battles page',
+      'Fixed an issue with missing images' +
+      ' on Summoning -> Battles page',
       'Fixed a calculation error for summoning bonuses'
     ]
   },

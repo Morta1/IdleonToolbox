@@ -14,7 +14,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
 
   return (
     <>
-      <Tabber tabs={['chronus', 'hydron', 'seraph']} onTabChange={(selected) => setSelectedTab(selected)}>
+      <Tabber queryKey={'nt'} tabs={['chronus', 'hydron', 'seraph']} onTabChange={(selected) => setSelectedTab(selected)}>
         <Stack gap={3}>
           <Grid container>
             <Grid item md={4} sx={{ display: { sm: 'none', md: 'block' } }}>Name</Grid>

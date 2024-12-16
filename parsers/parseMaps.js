@@ -125,7 +125,6 @@ export const filteredGemShopItems = [
 ].toSimpleObject();
 
 export const filteredLootyItems = [
-  'Quest30',
   'Quest42',
   'Quest49',
   'Quest50',

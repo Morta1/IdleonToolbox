@@ -125,6 +125,10 @@ export const lavaLog = (num) => {
   return Math.log(Math.max(num, 1)) / 2.303;
 };
 
+export const lavaLog2 = (num) => {
+  return Math.log(Math.max(num, 1)) / Math.log(2);
+};
+
 export const round = (num) => {
   return Math.round((num + Number.EPSILON) * 100) / 100;
 };

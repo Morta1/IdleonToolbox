@@ -12,6 +12,7 @@ import { getGrotto } from '@parsers/world-5/caverns/grotto';
 import { isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getJustice } from '@parsers/world-5/caverns/justice';
 
 export const getHole = (idleonData, accountData) => {
   const holeRaw = tryToParse(idleonData?.Holes) || idleonData?.Holes;
@@ -117,6 +118,7 @@ const parseHole = (holeRaw, accountData) => {
   const theLamp = getLamp(holesObject, accountData, unlockedCaverns);
   const theHive = getHive(holesObject);
   const grotto = getGrotto(holesObject);
+  const justice = getJustice(holesObject);
 
   const majiksRaw = [holeMajiks, villageMajiks, idleonMajiks];
   let godsLinks = [];
@@ -181,7 +183,8 @@ const parseHole = (holeRaw, accountData) => {
       theHarp,
       theLamp,
       theHive,
-      grotto
+      grotto,
+      justice
     },
     holesObject,
     majiks,

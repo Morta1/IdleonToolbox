@@ -15,7 +15,7 @@ const VoteBallot = () => {
       description="Keep track of the vote bonuses"
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Vote multi'} value={`${voteBallot?.voteMulti}x`}/>
+      <CardTitleAndValue title={'Bonus multi'} value={`${voteBallot?.voteMulti}x`}/>
       <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`}/>
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

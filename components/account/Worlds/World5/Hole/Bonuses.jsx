@@ -29,10 +29,14 @@ const Bonuses = ({ hole }) => {
         </Stack>
         <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
           {majik.map(({ description, bonus, level, hasDoot, godsLinks, maxLevel }, bonusIndex) => {
+            console.log('description', description)
             let desc = description.replace('}', Math.round(100 * (1 + bonus / 100)) / 100)
               .replace('{', bonus)
               .replace('|', Math.round(bonus * hole?.cosmoSchematics));
-            if (majikIndex === 2 && bonusIndex === 0 && godsLinks?.length > 0 && !hasDoot){
+            if (hasDoot){
+              desc = desc.replace('@_Y', '').replace('@_Z', '');
+            }
+            else if (majikIndex === 2 && bonusIndex === 0 && godsLinks?.length > 0 && !hasDoot){
               desc = desc.replace('@_Y', `${godsLinks?.[0]?.name},`);
               desc = desc.replace('@_Z', godsLinks?.[1]?.name);
             }
@@ -42,7 +46,7 @@ const Bonuses = ({ hole }) => {
                 <CardContent sx={{ width: 300, height: 170 }}>
                   <Typography>{cleanUnderscore(desc)}</Typography>
                   <Typography mt={2}>Points invested: {level} / {maxLevel}</Typography>
-                  {majikIndex === 2 && bonusIndex === 0 && hasDoot ? <Typography>+{bonus}% All stats</Typography> : null}
+                  {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0 ? <Typography>+{bonus}% All stats</Typography> : null}
                 </CardContent>
               </Card>
             </Stack>

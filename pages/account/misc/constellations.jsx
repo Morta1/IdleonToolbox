@@ -36,7 +36,7 @@ const Constellations = () => {
       title="Constellations | Idleon Toolbox"
       description="Constellation and star signs overview"
     />
-    <Tabber tabs={tabs}>
+    <Tabber tabs={tabs} clearOnChange={['nt']}>
       <ConstellationsComp constellations={state?.account?.constellations}/>
       <StarSigns starSigns={stars} infiniteStars={infiniteStars}/>
     </Tabber>
