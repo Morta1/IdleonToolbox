@@ -10,6 +10,8 @@ const TheLamp = ({ hole }) => {
 
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+      <CardTitleAndValue title={'Wishes'}
+                         value={theLamp?.currentWishes}/>
       <CardTitleAndValue title={'Wish per day'}
                          value={Math.round(100 * theLamp?.wishPerDay) / 100}/>
     </Stack>

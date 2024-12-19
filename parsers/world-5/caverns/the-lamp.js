@@ -22,7 +22,8 @@ export const getLamp = (holesObject, accountData, unlockedCaverns) => {
     }
     return { ...wish, cost, futureCosts, description: desc };
   });
-  return { wishes, wishPerDay };
+  const currentWishes = holesObject?.extraCalculations?.[25];
+  return { wishes, wishPerDay, currentWishes };
 }
 
 const getWishPerDay = (holesObject, accountData, unlockedCaverns) => {
