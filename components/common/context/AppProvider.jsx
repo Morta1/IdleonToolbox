@@ -278,13 +278,13 @@ const AppProvider = ({ children }) => {
       const { profile, ...rest } = router.query
       router.replace({ query: rest })
     }
-    console.info('rawData', {
-      data,
-      charNames,
-      companion,
-      guildData,
-      serverVars
-    })
+    // console.info('rawData', {
+    //   data,
+    //   charNames,
+    //   companion,
+    //   guildData,
+    //   serverVars
+    // })
     const accountCreateTimeInSeconds = accountCreateTime?.seconds;
     const lastUpdated = new Date().getTime();
     localStorage.setItem('rawJson', JSON.stringify({

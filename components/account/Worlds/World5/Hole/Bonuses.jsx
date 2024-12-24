@@ -29,7 +29,6 @@ const Bonuses = ({ hole }) => {
         </Stack>
         <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
           {majik.map(({ description, bonus, level, hasDoot, godsLinks, maxLevel }, bonusIndex) => {
-            console.log('description', description)
             let desc = description.replace('}', Math.round(100 * (1 + bonus / 100)) / 100)
               .replace('{', bonus)
               .replace('|', Math.round(bonus * hole?.cosmoSchematics));

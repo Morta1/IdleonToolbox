@@ -31,7 +31,7 @@ const NavBar = ({ children }) => {
       const parsedData = parseData(data, charNames, companion, guildData, serverVars);
       const lastUpdated = new Date().getTime();
       localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
-      console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
+      // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
       localStorage.setItem('rawJson', JSON.stringify({
         data,
         charNames,

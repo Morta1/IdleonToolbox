@@ -26,7 +26,6 @@ import FileUploadButton from '@components/common/DownloadButton';
 
 const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
   const handleSettingChange = (e, configType, option, trackerName, section, category) => {
-    console.log('handle change', configType, option, trackerName, section, category);
     const tempConfig = JSON.parse(JSON.stringify(config));
     const nameClicked = e?.target?.name;
     const sectionRef = section ? tempConfig[configType][section] : tempConfig[configType];

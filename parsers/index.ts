@@ -71,13 +71,11 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
   let accountData, charactersData;
 
   try {
-    console.info('%cStart Parsing', 'color:orange');
     const processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
     const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
-    console.info('data', { account: accountData, characters: charactersData })
-    console.info('%cParsed successfully', 'color: green');
+    // console.info('data', { account: accountData, characters: charactersData })
     return { account: accountData, characters: charactersData };
   } catch (err) {
     console.error('Error while parsing data', err);
