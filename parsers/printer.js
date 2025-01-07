@@ -2,7 +2,7 @@ import { lavaLog, notateNumber, tryToParse } from '../utility/helpers';
 import { getDeityLinkedIndex } from './divinity';
 import { isArtifactAcquired } from './sailing';
 import { getTalentBonus } from './talents';
-import { getSkillMasteryBonusByIndex } from './misc';
+import { getEventShopBonus, getSkillMasteryBonusByIndex } from './misc';
 import { getAtomColliderThreshold } from './atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -75,6 +75,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
             * (1 + (highestKingOfRemembrance
               * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100) * voteBonus
+          * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100);
 
           const multi = (wiredInBonus && isPlayerConnected ?
             (harriepGodIndex.includes(charIndex)

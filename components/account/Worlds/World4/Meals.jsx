@@ -113,10 +113,12 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     });
   };
   const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed, localEquinoxUpgrades]);
+
   useEffect(() => {
     const tempFoodLust = equinoxUpgrades.find(({ name }) => name === 'Food_Lust')?.bonus;
     setFoodLust(tempFoodLust);
   }, [characters])
+
   useEffect(() => {
     const temp = equinoxUpgrades?.map((upgrade) => upgrade?.name === 'Food_Lust'
       ? { ...upgrade, bonus: parseInt(foodLust) }
@@ -326,6 +328,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
           const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * level * baseStat;
           const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
+          // q._customBlock_CookingR("CookingMealBonusMultioo", 0, 0) * c.asNumber(a.engine.getGameAttribute("Meals")[0][this._DN5 | 0]) * c.asNumber(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][2]),
+          // "PxLine" == a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][5] && (this._DN = c.asNumber(a.engine.getGameAttribute("Meals")[0][this._DN5 | 0]) * c.asNumber(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][2])),
           // this._DT1 = 1E7 > this._DN ? G.replace(G.replace("" + h.string(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][3]), "{", "" + r._customBlock_CommaNotation(this._DN)), "+", "{")
           //   : G.replace(G.replace("" + h.string(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][3]), "{", "" + k._customBlock_NotateNumber(this._DN, "Big")), "+", "{")
           return (

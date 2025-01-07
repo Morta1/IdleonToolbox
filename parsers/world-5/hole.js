@@ -9,7 +9,7 @@ import { getTheHarp } from '@parsers/world-5/caverns/the-harp';
 import { getLamp } from '@parsers/world-5/caverns/the-lamp';
 import { getHive } from '@parsers/world-5/caverns/the-hive';
 import { getGrotto } from '@parsers/world-5/caverns/grotto';
-import { isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJustice } from '@parsers/world-5/caverns/justice';
@@ -309,8 +309,12 @@ const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }) => {
 const getVillagerExpPerHour = (holesObject, accountData, t) => {
   const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u');
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
+  const eventBonus = getEventShopBonus(accountData, 6);
+
   return (100 + getBucketBonus({ ...holesObject, t: 0, i: 25 }))
     * Math.max(1, 1 + (50 * (hasBundle ? 1 : 0)) / 100)
+    * Math.max(1, (1 + (25 * eventBonus) / 100)
+      * (1 + (50 * (hasBundle ? 1 : 0)) / 100))
     * (holesObject?.opalsInvested[t])
     * (1 + (holesObject?.unlockedWishes[t]))
     * (1 + (getMonumentBonus({ holesObject, t: 0, i: 3 })

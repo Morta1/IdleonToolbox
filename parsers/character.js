@@ -18,7 +18,7 @@ import {
   starSignByIndexMap
 } from '../data/website-data';
 import {
-  calculateAfkTime,
+  calculateAfkTime, getEventShopBonus,
   getFoodBonus,
   getGoldenFoodBonus,
   getHighestLevelOf,
@@ -1076,6 +1076,7 @@ export const getAfkGain = (character, characters, account) => {
   const skillAfkObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[24])
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
+  const eventBonus = getEventShopBonus(account, 5);
 
   const baseAfkGains = afkGainsTaskBonus +
     (familyBonus +
@@ -1102,6 +1103,8 @@ export const getAfkGain = (character, characters, account) => {
   const compBonus = isCompanionBonusActive(account, 6) && 5;
   const randomItemsFound = getRandomEventItems(account)
   const randoEventLooty = getTalentBonus(character?.starTalents, null, 'RANDO_EVENT_LOOTY');
+  // const summoningBonus = getWinnerBonus(account, '+{% AFK Gains');
+
   const additionalAfkGains =
     +(arcadeBonus
       + (flurboBonus
@@ -1130,6 +1133,7 @@ export const getAfkGain = (character, characters, account) => {
     { name: 'Divinity Minor', value: divinityMinorBonus },
     { name: 'Companion', value: compBonus },
     { name: 'Rando Event Looty', value: randoEventLooty * randomItemsFound },
+    // { name: 'Event bonus', value: 20 * eventBonus },
     { name: '' }
   ]
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;

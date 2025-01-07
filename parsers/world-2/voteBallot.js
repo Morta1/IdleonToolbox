@@ -2,6 +2,7 @@ import { getEquinoxBonus } from '@parsers/equinox';
 import { ninjaExtraInfo } from '../../data/website-data';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getEventShopBonus } from '@parsers/misc';
 
 export const getVoteBallot = (idleonData, accountData) => {
   return parseVoteBallot(idleonData, accountData);
@@ -12,7 +13,7 @@ const parseVoteBallot = (idleonData, accountData) => {
   const [selectedCategory, ...currentCategories] = voteCategories || [];
   const voteMulti = 1 + (getEquinoxBonus(accountData?.equinox?.upgrades, 'Voter_Rights') +
     (getCosmoBonus({ majik: accountData?.hole?.holesObject?.idleonMajiks, t: 2, i: 3 })
-      + getWinnerBonus(accountData, '+{% Ballot Bonus'))) / 100;
+      + getWinnerBonus(accountData, '+{% Ballot Bonus') + (17 * getEventShopBonus(accountData, 7)))) / 100;
 
   const bonuses = ninjaExtraInfo[38].split(' ').toChunks(3).map((bonus, index) => {
     const bonusIndex = currentCategories.findIndex((ind) => ind === index);

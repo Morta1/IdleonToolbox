@@ -3,7 +3,7 @@ import { calcStampLevels } from '@parsers/stamps';
 import { calcStatueLevels, calcTotalOnyx } from '@parsers/statues';
 import { calcCardsLevels } from '@parsers/cards';
 import { calcTalentMaxLevel, calcTotalStarTalent } from '@parsers/talents';
-import { calcTotalQuestCompleted } from '@parsers/misc';
+import { calcTotalQuestCompleted, getEventShopBonus } from '@parsers/misc';
 import { calcTotalTasks } from '@parsers/tasks';
 import { calcTotalAchievements } from '@parsers/achievements';
 import { calcObolsFound, calcTrophiesFound } from '@parsers/items';
@@ -73,7 +73,9 @@ const getTomeBonus = (account, totalPoints, index) => {
           ? 2 * Math.pow(Math.floor(Math.max(0, totalPoints - 8e3) / 100), 0.7) : 0)
         : 3 === index ? strTomeBonus * multiplier
           : 4 === index ? agiTomeBonus * multiplier
-            : 5 === index ? wisTomeBonus * multiplier : 0
+            : 5 === index ? wisTomeBonus * multiplier
+              : 6 === index && getEventShopBonus(account, 0) ? 4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
+              : 0
 }
 
 const calcPointsPercent = (bonus, quantity) => {
