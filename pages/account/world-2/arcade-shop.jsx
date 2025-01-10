@@ -39,13 +39,19 @@ const ArcadeShop = () => {
       <Stack direction={'row'} gap={2}>
         <CardTitleAndValue title={'Balls'}>
           <Stack direction={'row'} gap={2}>
-            <BallIcon gold={false} src={`${prefix}data/PachiBall0.png`} alt=""/>
+            <BallIcon src={`${prefix}data/PachiBall0.png`} alt=""/>
             <Typography>{balls}</Typography>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Gold balls'}>
           <Stack direction={'row'} gap={2}>
-            <BallIcon gold={true} src={`${prefix}data/PachiBall1.png`} alt=""/>
+            <BallIcon gold src={`${prefix}data/PachiBall1.png`} alt=""/>
+            <Typography>{goldBalls}</Typography>
+          </Stack>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Royal balls'}>
+          <Stack direction={'row'} gap={2}>
+            <BallIcon blue src={`${prefix}data/PachiBall1.png`} alt=""/>
             <Typography>{goldBalls}</Typography>
           </Stack>
         </CardTitleAndValue>
@@ -61,9 +67,10 @@ const ArcadeShop = () => {
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'column', md: 'row' },
             outline: level >= MAX_LEVEL ? '1px solid' : '',
-            outlineColor: (theme) => level >= MAX_LEVEL
+            outlineColor: (theme) => level <= MAX_LEVEL
               ? theme.palette.success.light
-              : '',
+              : level > 100 ? theme.palette.info.dark
+              : ''
           }} key={`${iconName}-${index}`}>
             <UpgradeIcon style={{
               margin: 16,
@@ -73,8 +80,9 @@ const ArcadeShop = () => {
             }} src={`${prefix}data/${iconName}.png`}/>
             <CardContent>
               <div style={{ fontWeight: 'bold' }}>Effect: {eff}</div>
-              {level !== 100 ? <div>Lv: {level} / {MAX_LEVEL}</div> :
-                <div className={'done'}>Maxed</div>}
+              {level < 100 ? <div>Lv: {level} / {MAX_LEVEL}</div> :
+                level > 100 ? <div className={'done'}>Super!</div> :
+                  <div className={'done'}>Maxed</div>}
               <div>Cost: {kFormatter(cost, 2)}</div>
               <div>Cost To Max: {kFormatter(costToMax, 2)}</div>
             </CardContent>
@@ -93,7 +101,7 @@ const UpgradeIcon = styled.img`
 const BallIcon = styled.img`
   width: 24px;
   height: 24px;
-  ${({ gold }) => gold ? `filter: hue-rotate(70deg) brightness(2);` : ''}
+  ${({ gold, blue }) => blue ? `filter: hue-rotate(230deg) brightness(2);` : gold ? `filter: hue-rotate(70deg) brightness(2);` : ''}
 `
 
 export default ArcadeShop;

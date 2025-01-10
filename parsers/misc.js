@@ -598,7 +598,8 @@ export const getHighestCapacityCharacter = (item, characters, account) => {
       res = {
         capacityPerSlot: itemCapacity,
         maxCapacity,
-        character: character?.name
+        character: character?.name,
+        skillsInfoArray: character?.skillsInfoArray
       }
     }
     return res;

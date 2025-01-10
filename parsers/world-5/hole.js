@@ -152,7 +152,7 @@ const parseHole = (holeRaw, accountData) => {
   })
   const cosmoSchematics = getCosSchematic(holesObject);
   const sediments = [0, 2, 5, 7];
-  const notes = [1, 3, 4, 6];
+  const notes = [1, 3, 4, 6, 8];
   const measurements = holesInfo?.[54]?.split(' ').map((description, index) => {
     const bonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][index]) })
