@@ -49,6 +49,7 @@ const Refinery = () => {
   }, [state?.lastUpdated]);
 
   const getFuelTime = (rank, costs, saltIndex) => {
+    if (!costs) return [];
     const timeArray = [];
     costs.forEach((cost) => {
       const baseCost = calcCost(state?.account?.refinery, rank, cost?.quantity, cost?.rawName, saltIndex);
@@ -118,6 +119,7 @@ const Refinery = () => {
     <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
+        console.log('cost', cost)
         const progressPercentage = refined / powerCap * 100;
         const hasMaterialsForCycle = cost?.every(({
                                                     rawName,

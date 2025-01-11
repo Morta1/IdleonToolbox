@@ -122,6 +122,7 @@ const Bubbles = () => {
 
   const getAccumulatedBubbleCost = (index, level, baseCost, isLiquid, cauldronName) => {
     const levelDiff = (bubblesGoals?.[cauldronName]?.[index] ?? 0) - level;
+    if (isNaN(levelDiff)) return { singleLevelCost: 0, total: 0 };
     if (levelDiff <= 0) {
       const cost = calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index);
       return { singleLevelCost: cost, total: cost };
