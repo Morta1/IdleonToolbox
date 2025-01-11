@@ -249,8 +249,8 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
     const growTime = 5e3 / ((1 + (2 * baseValue) / 100) * baseMath * (1 + moreMath * (baseValue2)));
     const growChance = 1 / calcSproutGrowChance(gamingRaw);
     const final = (growTime * growChance) / 60;
-    const time = Math.floor(100 * (final)) / 100;
-    return time > 60 ? `${Math.floor(100 * time / 60) / 100} Hr` : `${(Math.floor(10 * time) / 10)} Min`;
+    const time = 100 * final / 100;
+    return time > 60 ? `${100 * time / 60 / 100} Hr` : `${( Math.trunc(time * 1000) / 1000)} Min`;
   } else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value, index) => index === 133) ?? 0;
