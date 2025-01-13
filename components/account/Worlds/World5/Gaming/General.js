@@ -21,7 +21,7 @@ const General = ({ account, lastUpdated }) => {
     logBook
   } = account?.gaming;
   const ownedLogBooks = logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
-
+  
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <ImgCard title={'Bits'} imgSrc={`etc/Bits_${getBitIndex(bits)}`} value={notateNumber(bits, 'bits')}/>

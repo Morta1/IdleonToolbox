@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 2,
+  version: 3,
   account: {
     General: {
       tasks: {
@@ -220,7 +220,13 @@ const baseTrackers = {
             props: { label: 'Power threshold', value: 100, minValue: 1, helperText: '%' }
           },
           { name: 'theHive', checked: true },
-          { name: 'grotto', checked: true }
+          { name: 'grotto', checked: true },
+          {
+            name: 'justice',
+            checked: true,
+            type: 'input',
+            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
+          }
         ]
       }
     },
@@ -361,7 +367,8 @@ const baseTrackers = {
       closestSalt: { checked: true, options: [] }
     },
     'World 5': {
-      monument: { checked: true, options: [] }
+      monument: { checked: true, options: [] },
+      justice: { checked: true, options: [] }
     }
   }
 }

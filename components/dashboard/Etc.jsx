@@ -297,6 +297,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             time={new Date().getTime() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000}
             timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? 'Fight!' : ''}
             icon={`etc/Bravery_Statue.png`}/> : null}
+        {trackers?.['World 5']?.justice?.checked && account?.finishedWorlds?.World4 ?
+          <TimerCard
+            page={'account/world-5/hole'}
+            tooltipContent={`Next fight: ${account?.hole?.caverns?.justice?.timeForNextFight < 0
+              ? 'now!'
+              : getRealDateInMs(account?.hole?.caverns?.justice?.timeForNextFight)}`}
+            lastUpdated={lastUpdated}
+            time={new Date().getTime() + account?.hole?.caverns?.justice?.timeForNextFight * 1000}
+            timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0 ? 'Fight!' : ''}
+            icon={`data/Justice_Monument_x1.png`}/> : null}
+
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>

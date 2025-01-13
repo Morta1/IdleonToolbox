@@ -715,7 +715,7 @@ export const getWorld5Alerts = (account, fields, options) => {
   if (fields?.hole?.checked) {
     const hole = {};
     if (!account?.finishedWorlds?.World4) return alerts;
-    const { buckets, motherlode, bravery, theBell, theHarp, theHive, grotto } = options?.hole || {};
+    const { buckets, motherlode, bravery, justice, theBell, theHarp, theHive, grotto } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
     const anySedimentFull = restSediments?.filter(({
@@ -736,6 +736,9 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     if (bravery?.checked && account?.hole?.caverns?.bravery?.rewardMulti >= bravery?.props?.value) {
       hole.bravery = true;
+    }
+    if (justice?.checked && account?.hole?.caverns?.justice?.rewardMulti >= justice?.props?.value) {
+      hole.justice = true;
     }
     const readyBells = account?.hole?.caverns?.theBell?.bells?.filter(({ exp, expReq }) => exp >= expReq);
     if (theBell?.checked && readyBells?.length > 0) {
