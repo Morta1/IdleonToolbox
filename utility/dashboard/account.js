@@ -172,7 +172,6 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       }
     }
     if (options?.etc?.familyObols?.checked) {
-      console.log(account?.obols)
       const missingObols = account?.obols?.list?.filter(({ displayName, levelReq }) => !displayName && account?.accountLevel >= levelReq);
       if (missingObols) {
         etc.familyObols = missingObols?.length;
