@@ -295,7 +295,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               : getRealDateInMs(account?.hole?.caverns?.bravery?.timeForNextFight)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? 'Fight!' : ''}
+            timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? `Fight! (${Math.round(10 * account?.hole?.caverns?.bravery?.rewardMulti) / 10}x)` : ''}
             icon={`etc/Bravery_Statue.png`}/> : null}
         {trackers?.['World 5']?.justice?.checked && account?.finishedWorlds?.World4 ?
           <TimerCard
@@ -305,7 +305,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               : getRealDateInMs(account?.hole?.caverns?.justice?.timeForNextFight)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.justice?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0 ? 'Fight!' : ''}
+            timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0 ? `Fight! (${Math.round(10 * account?.hole?.caverns?.justice?.rewardMulti) / 10}x)` : ''}
             icon={`data/Justice_Monument_x1.png`}/> : null}
 
       </Section>}
