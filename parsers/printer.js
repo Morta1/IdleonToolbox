@@ -98,6 +98,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
             { name: 'Charm', value: 1 + (charmBonus) / 100 },
             { name: 'Vote', value: voteBonus },
+            { name: 'Winter event', value: 1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100 },
           ];
 
           return [...result, {

@@ -40,6 +40,9 @@ const Account = ({ account, characters, trackers }) => {
           {!emptyAlertRows?.General ? <Stack direction={'row'} gap={4}>
             <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>General</Typography>
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.General?.etc?.familyObols ?
+                <Alert title={`You have ${alerts?.General?.etc?.familyObols} empty family obol slots`}
+                       iconPath={'data/ObolEmpty1'}/> : null}
               {alerts?.General?.gemsFromBosses ?
                 <Alert title={`You can kill ${300 - account?.accountOptions?.[195]} more bosses for gems`}
                        iconPath={'data/PremiumGem'}/> : null}

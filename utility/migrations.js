@@ -50,6 +50,22 @@ export const migrateToVersion3 = (config) => {
   dashboardConfig.version = 3;
   return dashboardConfig
 }
+
+export const migrateToVersion4 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+  if (dashboardConfig?.account?.General?.etc?.options?.length === 6) {
+    dashboardConfig.account.General.etc.options = [
+      ...dashboardConfig.account.General.etc.options,
+      { name: 'familyObols', checked: true }
+    ]
+  }
+
+  dashboardConfig.version = 4;
+  return dashboardConfig
+}
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -58,8 +74,12 @@ export const migrateConfig = (baseTrackers, userConfig) => {
   } else {
     if ((!userConfig?.version || userConfig?.version === 1)) {
       migratedConfig = migrateToVersion2(userConfig);
-    } else if (migratedConfig?.version === 2) {
+    }
+    if (migratedConfig?.version === 2) {
       migratedConfig = migrateToVersion3(migratedConfig);
+    }
+    if (migratedConfig?.version === 3) {
+      migratedConfig = migrateToVersion4(migratedConfig);
     }
   }
   return migratedConfig;

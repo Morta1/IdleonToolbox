@@ -135,7 +135,7 @@ export const starSignsAlerts = (account, characters, character, lastUpdated, opt
 export const crystalCountdownAlerts = (account, characters, character, lastUpdated, options) => {
   return crystalCooldownSkillsReady(character, options)
 }
-export const toolsAlerts = (account, characters, character, lastUpdated, options) => {
+export const toolsAlerts = (account, characters, character) => {
   return hasAvailableToolUpgrade(character, account)
 }
 export const talentsAlerts = (account, characters, character, lastUpdated, options) => {

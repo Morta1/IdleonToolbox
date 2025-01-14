@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 3,
+  version: 4,
   account: {
     General: {
       tasks: {
@@ -49,7 +49,8 @@ const baseTrackers = {
             checked: true
           },
           { name: 'newCharacters', checked: true },
-          { name: 'gemsFromBosses', checked: true }
+          { name: 'gemsFromBosses', checked: true },
+          { name: 'familyObols', checked: true }
         ]
       }
     },

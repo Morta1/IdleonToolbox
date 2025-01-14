@@ -171,6 +171,12 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         alerts.gemsFromBosses = account?.accountOptions?.[195] < 300;
       }
     }
+    if (options?.etc?.familyObols?.checked) {
+      const missingObols = account?.obols?.list?.filter(({ displayName }) => !displayName);
+      if (missingObols) {
+        etc.familyObols = missingObols?.length;
+      }
+    }
     if (Object.keys(etc).length > 0) {
       alerts.etc = etc;
     }
