@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 4,
+  version: 5,
   account: {
     General: {
       tasks: {
@@ -365,7 +365,8 @@ const baseTrackers = {
       printer: { checked: true, options: [] },
       closestTrap: { checked: true, options: [] },
       closestBuilding: { checked: true, options: [] },
-      closestSalt: { checked: true, options: [] }
+      closestSalt: { checked: true, options: [] },
+      equinox: { checked: true, options: [] }
     },
     'World 5': {
       monument: { checked: true, options: [] },

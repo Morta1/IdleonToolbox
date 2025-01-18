@@ -66,6 +66,23 @@ export const migrateToVersion4 = (config) => {
   dashboardConfig.version = 4;
   return dashboardConfig
 }
+
+export const migrateToVersion5 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+  if (dashboardConfig?.timers?.['World 3'] && !dashboardConfig?.timers?.['World 3']?.equinox) {
+    dashboardConfig.timers['World 3'] = {
+      ...dashboardConfig?.timers?.['World 3'],
+      equinox: { checked: true, options: [] }
+    }
+  }
+
+  dashboardConfig.version = 5;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -80,6 +97,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 3) {
       migratedConfig = migrateToVersion4(migratedConfig);
+    }
+    if (migratedConfig?.version === 4) {
+      migratedConfig = migrateToVersion5(migratedConfig);
     }
   }
   return migratedConfig;
