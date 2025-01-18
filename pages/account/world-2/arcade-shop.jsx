@@ -11,7 +11,7 @@ const MAX_LEVEL = 100;
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
-  const { balls, goldBalls, shop } = state?.account?.arcade;
+  const { balls, goldBalls, shop } = state?.account?.arcade || {};
 
   const getCost = (level) => {
     const multiplier = (state?.account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active)
