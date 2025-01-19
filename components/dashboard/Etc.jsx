@@ -35,6 +35,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate * 60 * 1000;
   const gcDuration = getDuration(new Date().getTime(), nextGreatestCatch);
   const gcLongDuration = nextGreatestCatch > maxTimeValue || gcDuration?.days > 365;
+  const nextEquinox = new Date().getTime() + (account?.equinox?.chargeRequired - account?.equinox?.currentCharge) / account?.equinox?.chargeRate;
+  const showEquinoxError = account?.equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
   const minibosses = getMiniBossesData(account);
@@ -285,6 +287,12 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             tooltipContent={'Closest salt: ' + getRealDateInMs(closestSalt?.timeLeft)}
             lastUpdated={lastUpdated} time={closestSalt?.timeLeft}
             icon={`data/${closestSalt?.icon}.png`}/> : null}
+        {trackers?.['World 3']?.equinox?.checked && account?.finishedWorlds?.World2 ? <TimerCard
+          page={'account/world-3/equinox'}
+          timerPlaceholder={'Full!'}
+          showAsError={showEquinoxError}
+          tooltipContent={showEquinoxError ? 'Full!' : 'Next level: ' + getRealDateInMs(nextEquinox)}
+          lastUpdated={lastUpdated} time={nextEquinox} icon={'data/Quest78.png'}/> : null}
       </Section>}
       {!emptyAlerts?.['World 5'] && <Section title={'World 5'}>
         {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?

@@ -11,6 +11,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { getSaltLickBonus } from '@parsers/saltLick';
 import { merits, randomList } from '../../data/website-data';
 
+
 const Talents = ({
                    talents,
                    starTalents,
@@ -20,6 +21,7 @@ const Talents = ({
                    selectedTalentPreset,
                    account
                  }) => {
+  const STAR_TAB_INDEX = Object.keys(talents || {}).length === 5 ? 5 : 4;
   const [preset, setSelectedPreset] = useState(selectedTalentPreset);
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
@@ -36,13 +38,13 @@ const Talents = ({
       presetTalents = preset === 0 ? talentPreset?.talents : talents;
       presetStarTalents = preset === 0 ? talentPreset?.starTalents : starTalents;
     }
-    return activeTab === 4 ? handleStarTalents(presetStarTalents, specialTab) : presetTalents?.[activeTab];
+    return activeTab === STAR_TAB_INDEX ? handleStarTalents(presetStarTalents, specialTab) : presetTalents?.[activeTab];
   }
 
   useEffect(() => {
     const currentTalentsDisplay = getPreset(specialsTab);
     setActiveTalents(currentTalentsDisplay);
-    if (activeTab !== 4) {
+    if (activeTab !== STAR_TAB_INDEX) {
       setSpecialTabs(0);
     }
   }, [activeTab, talents, preset]);
@@ -106,11 +108,11 @@ const Talents = ({
                     key={`${tabName}-${tabIndex}`}/>
       })}
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-           onClick={() => setActiveTab(4)}
+           onClick={() => setActiveTab(STAR_TAB_INDEX)}
            aria-label={`star-sign-tab`}
            icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
-    {activeTab === 4 ? <Typography variant={'caption'} mt={2} style={{ opacity: activeTab === 4 ? 1 : 0 }}>Specials {specialsTab + 1}</Typography> :
+    {activeTab === STAR_TAB_INDEX ? <Typography variant={'caption'} mt={2} style={{ opacity: activeTab === 4 ? 1 : 0 }}>Specials {specialsTab + 1}</Typography> :
       <Typography variant={'caption'} mt={2}>{cleanUnderscore(talents?.[activeTab]?.name)}</Typography>}
     <Typography  component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
@@ -137,7 +139,7 @@ const Talents = ({
           + (Math.min(5, Math.max(0, 5 * achievementBonus))
             + saltLickBonus + merits?.[2]?.[2]?.bonusPerLevel
             * account?.tasks?.[2]?.[2]?.[2]));
-        const hardMaxed = isBookUnavailable || activeTab === 4 ? true : maxLevel >= maxBookLevel;
+        const hardMaxed = isBookUnavailable || activeTab === STAR_TAB_INDEX ? true : maxLevel >= maxBookLevel;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
 
         return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
