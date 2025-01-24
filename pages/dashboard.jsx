@@ -155,7 +155,11 @@ const baseTrackers = {
           props: { label: 'Threshold', value: 90, maxValue: 90, minValue: 0, endAdornment: '%' },
           checked: true
         }]
-      }
+      },
+      traps: {
+        checked: true,
+        options: [{ name: 'trapsOverdue', checked: true }]
+      },    
     },
     'World 4': {
       breeding: {

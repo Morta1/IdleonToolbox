@@ -238,6 +238,8 @@ const Account = ({ account, characters, trackers }) => {
                                                                                               title={`${cleanUnderscore(pascalCase(name))} is ready to be built`}
                                                                                               iconPath={`data/ConTower${index}`}/>)
                 : null}
+              {alerts?.['World 3']?.traps?.overdue > 0 ?
+                <Alert title={`${alerts?.['World 3']?.traps?.overdue} traps are overdue`} iconPath={'data/TrapBoxSet1'}/> : null}
               {alerts?.['World 3']?.printer?.atoms?.length > 0
                 ?
                 alerts?.['World 3']?.printer?.atoms?.map(({ name, rawName }) => <Alert key={'printer-atoms-' + rawName}

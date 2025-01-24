@@ -1,3 +1,4 @@
+import { isPast } from 'date-fns';
 import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/construction';
 import { vialCostsArray } from '@parsers/alchemy';
@@ -511,6 +512,14 @@ export const getWorld3Alerts = (account, fields, options) => {
     if (Object.keys(library).length > 0) {
       alerts.library = library;
     }
+  }
+  if (fields?.traps?.checked) {
+    const traps = {};
+    const { trapsOverdue } = options?.traps || {};
+    if (trapsOverdue?.checked) {
+      traps.overdue = account?.traps?.flat().filter((slot) => isPast(slot?.timeLeft)).length;
+    }
+    alerts.traps = traps;
   }
   return alerts;
 };
