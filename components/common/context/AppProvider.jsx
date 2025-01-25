@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useReducer, useState } from 'react';
+import { createContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { checkUserStatus, signInWithToken, subscribe, userSignOut } from '../../../firebase';
 // import { parseData } from '../../../parsers';
 import demoJson from '../../../data/raw.json';
@@ -64,7 +64,7 @@ const AppProvider = ({ children }) => {
   const router = useRouter();
   const [authCounter, setAuthCounter] = useState(0);
   const [waitingForAuth, setWaitingForAuth] = useState(false);
-  const [listener, setListener] = useState({ func: null });
+  const unsubscribeRef = useRef(null);
 
   function init() {
     if (typeof window !== 'undefined') {
@@ -130,8 +130,6 @@ const AppProvider = ({ children }) => {
         router.push({ pathname: '/', query: router.query });
       }
     }
-
-    let unsubscribe;
     (async () => {
       if (router?.query?.profile) {
         await handleProfile()
@@ -144,8 +142,9 @@ const AppProvider = ({ children }) => {
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {
-          unsubscribe = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
-          setListener({ func: unsubscribe });
+          console.log('12312312')
+          const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
+          unsubscribeRef.current = unsub;
         } else {
           if (router.pathname === '/' || checkOfflineTool() || router.pathname === '/data' || router.pathname === '/leaderboards') return;
           router.push({ pathname: '/', query: router?.query });
@@ -154,8 +153,9 @@ const AppProvider = ({ children }) => {
     })();
 
     return () => {
-      typeof unsubscribe === 'function' && unsubscribe();
-      typeof listener.func === 'function' && listener.func();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
     };
   }, []);
 
@@ -228,7 +228,8 @@ const AppProvider = ({ children }) => {
           }
         }
         if (id_token) {
-          const unsubscribe = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
+          const unsub = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
+          unsubscribeRef.current = unsub;
           if (typeof window?.gtag !== 'undefined') {
             window?.gtag('event', 'login', {
               action: 'login',
@@ -236,7 +237,6 @@ const AppProvider = ({ children }) => {
               value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
             });
           }
-          setListener({ func: unsubscribe });
           setWaitingForAuth(false);
           setAuthCounter(0);
         } else if (authCounter > 8) {
@@ -253,7 +253,9 @@ const AppProvider = ({ children }) => {
   );
 
   const logout = (manualImport, data) => {
-    typeof listener.func === 'function' && listener.func();
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
     userSignOut();
     if (typeof window?.gtag !== 'undefined') {
       window?.gtag('event', 'logout', {

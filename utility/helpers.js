@@ -122,7 +122,7 @@ export const growth = (func, level, x1, x2, shouldRound = true) => {
 };
 
 export const lavaLog = (num) => {
-  return Math.log(Math.max(num, 1)) / 2.303;
+  return Math.log(Math.max(num, 1)) / 2.30259;
 };
 
 export const lavaLog2 = (num) => {
@@ -532,7 +532,7 @@ export const fillMissingTalents = (arr) => {
     .filter(num => !talentIds.includes(num))
     .map(talentId => ({ talentId }));
 
-  return arr.concat(missingNumbers).sort((a, b) => a.talentId - b.talentId);
+  return arr.concat(missingNumbers)
 }
 
 export const removeDuplicatesByKey = (array, key) => {

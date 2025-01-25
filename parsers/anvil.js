@@ -196,7 +196,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   const starSignBonus = getStarSignBonus(character, account, 'Skill_EXP_gain');
   const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Skill_EXP_(Passive)')
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Ham', character, account);
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Ham', character, account, characters);
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
   const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
   const greenTubeEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 536);

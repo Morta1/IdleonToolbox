@@ -142,7 +142,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 0);
   const rightHandBonus = getMaestroRightHandBonus(character, 'mining', characters);
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Peanut', character, account) || 1;
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Peanut', character, account, characters) || 1;
   const thirdTalentBonus = getTalentBonus(character?.talents, 0, 'BRUTE_EFFICIENCY');
   const etcFromTools = getStatsFromGear(character, 10, account, true);
   const etcFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[10]);

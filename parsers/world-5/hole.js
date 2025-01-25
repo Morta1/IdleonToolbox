@@ -13,6 +13,8 @@ import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@p
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJustice } from '@parsers/world-5/caverns/justice';
+import { getGrimoireBonus } from '@parsers/grimoire';
+import { getArcadeBonus } from '@parsers/arcade';
 
 export const getHole = (idleonData, accountData) => {
   const holeRaw = tryToParse(idleonData?.Holes) || idleonData?.Holes;
@@ -310,6 +312,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t) => {
   const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u');
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
   const eventBonus = getEventShopBonus(accountData, 6);
+  const grimoireBonus = 1 + getGrimoireBonus(accountData?.grimoire?.upgrades, 29) / 100;
+  const arcadeBonus = 1 + (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0) / 100;
 
   return (100 + getBucketBonus({ ...holesObject, t: 0, i: 25 }))
     * Math.max(1, 1 + (50 * (hasBundle ? 1 : 0)) / 100)
@@ -317,6 +321,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t) => {
       * (1 + (50 * (hasBundle ? 1 : 0)) / 100))
     * (holesObject?.opalsInvested[t])
     * (1 + (holesObject?.unlockedWishes[t]))
+    * arcadeBonus
+    * grimoireBonus
     * (1 + (getMonumentBonus({ holesObject, t: 0, i: 3 })
       + (getMonumentBonus({ holesObject, t: 1, i: 3 })
         + (getMeasurementBonus({ holesObject, accountData, t: 7 })

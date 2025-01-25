@@ -66,15 +66,16 @@ import { getOwl } from "@parsers/world-1/owl";
 import { getKangaroo } from "@parsers/world-2/kangaroo";
 import { getVoteBallot } from "@parsers/world-2/voteBallot";
 import { getHole } from "@parsers/world-5/hole";
+import { getGrimoire } from "@parsers/grimoire";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
-  let accountData, charactersData;
-
   try {
-    const processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
-    const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
-    accountData = parsed?.accountData;
-    charactersData = parsed?.charactersData;
+    let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
+    let parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
+    const accountData = parsed?.accountData;
+    const charactersData = parsed?.charactersData;
+    processedData = null;
+    parsed = null;
     // console.info('data', { account: accountData, characters: charactersData })
     return { account: accountData, characters: charactersData };
   } catch (err) {
@@ -89,10 +90,10 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
   }
 };
 
-const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number, processedData?: any) => {
+const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number, processedData?: any): any => {
   const accountData: Account = processedData?.accountData || {};
   let charactersData: Character[] = processedData?.charactersData || [];
-  const serializedCharactersData = getCharacters(idleonData, charNames);
+  let serializedCharactersData = getCharacters(idleonData, charNames);
   accountData.accountCreateTime = accountCreateTime;
   accountData.companions = getCompanions(companion);
   accountData.bundles = getBundles(idleonData);
@@ -122,7 +123,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.divinity = getDivinity(idleonData, serializedCharactersData, accountData);
   accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
   accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData, accountData);
-  accountData.farming = getFarming(idleonData, accountData);
+  accountData.farming = getFarming(idleonData, accountData, processedData?.charactersData);
   accountData.summoning = getSummoning(idleonData, accountData, serializedCharactersData);
   accountData.hole = getHole(idleonData, accountData);
   // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
@@ -150,7 +151,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
 
   accountData.cooking.meals = applyMealsMulti(accountData.cooking.meals, blackDiamondRhinestone);
 
-  const charactersLevels = serializedCharactersData?.map((char: Character) => {
+  let charactersLevels = serializedCharactersData?.map((char: Character) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
     return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
@@ -163,6 +164,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   charactersData = serializedCharactersData.map((char: Character) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
+  accountData.grimoire = getGrimoire(idleonData, charactersData, accountData);
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);
@@ -251,5 +253,9 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.owl = getOwl(idleonData, accountData);
   accountData.kangaroo = getKangaroo(idleonData, accountData);
   accountData.voteBallot = getVoteBallot(idleonData, accountData);
+
+  // Cleanup unnecessary data
+  serializedCharactersData = null;
+  charactersLevels = null;
   return { accountData, charactersData };
 };

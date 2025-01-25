@@ -293,7 +293,7 @@ const getDamageFromPerX = (character, characters, account, playerInfo, hpMpDamag
     ? character?.secondDeityMinorBonus
     : 0;
 
-  const secondGoldenFoodBonus = getGoldenFoodBonus('Golden_Kebabs', character, account) || 1;
+  const secondGoldenFoodBonus = getGoldenFoodBonus('Golden_Kebabs', character, account, characters) || 1;
 
   const damage = hpMpDamage * (1 + dmgPerSmithing
       * (character?.skillsInfo?.smithing?.level / 12) / 100)
@@ -335,7 +335,7 @@ const getBaseDamage = (character, characters, account, playerInfo, damageFromSta
   const baseWp = getTalentBonus(character?.talents, 0, 'SHARPENED_AXE');
   const weaponPower = getWeaponPower(character, characters, account);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Base_Damage')?.bonus ?? 0;
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Nomwich', character, account);
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Nomwich', character, account, characters);
 
   const stampsBonus = getStampsBonusByEffect(account, 'Base_Damage')
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 0);
@@ -386,7 +386,7 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 0);
   const baseCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_accuracy');
   const equipmentBonus = getStatsFromGear(character, 28, account);
-  const goldenFoodBonus = getGoldenFoodBonus('Butter_Bar', character, account) || 0;
+  const goldenFoodBonus = getGoldenFoodBonus('Butter_Bar', character, account, characters) || 0;
   const stampBonus = getStampsBonusByEffect(account, 'Base_Accuracy');
 
   const baseAccuracy = 2 + vialBonus
@@ -487,7 +487,7 @@ const getMaxHp = (character, characters, account) => {
   const equipmentBonus = getStatsFromGear(character, 15, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[15]);
   const shrineBonus = getShrineBonus(account?.shrines, 1, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Jam', character, account) || 1;
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Jam', character, account, characters) || 1;
 
   const flatHp = 15 + cardBonus
     + hpBubble + (stampBonus
@@ -769,7 +769,7 @@ const getPlayerDefence = (character, characters, account) => {
   const bribeBonus = account?.bribes?.[22]?.done ? account?.bribes?.[22]?.value : 0;
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Beefy_For_Real', account)?.curse;
   const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Pain', account)?.curse;
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Meat_Pie', character, account);
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Meat_Pie', character, account, characters);
   const starSignBonus = getStarSignBonus(character, account, 'Defence');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Defence');

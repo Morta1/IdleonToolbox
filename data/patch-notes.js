@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.86',
+    'gameVer': '2.0.26',
+    'date': '23/01/2024',
+    'features': [
+      'Added "wow" apocalypse to apocalypses pages',
+      'Added grimoire page',
+      'Implemented (hopefully) all grimore bonuses across the site',
+      'Added 100 and 110 breakpoints to meals order',
+      'Added an option to stamps alert to only show gilded stamp when stamp reducer is 0'
+    ],
+    'fixes': [
+      'Fixed equinox timer in the dashboard page',
+      'Fixed star talents order',
+      "Fixed a bug where pocket divinity wasn't taken into account for talent added levels"
+    ]
+  },
+  {
     'ver': '3.2.85',
     'gameVer': '2.0.26',
     'date': '19/01/2024',

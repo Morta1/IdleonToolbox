@@ -172,7 +172,10 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       }
     }
     if (options?.etc?.familyObols?.checked) {
-      const missingObols = account?.obols?.list?.filter(({ displayName, levelReq }) => !displayName && account?.accountLevel >= levelReq);
+      const missingObols = account?.obols?.list?.filter(({
+                                                           displayName,
+                                                           levelReq
+                                                         }) => !displayName && account?.accountLevel >= levelReq);
       if (missingObols) {
         etc.familyObols = missingObols?.length;
       }
@@ -188,7 +191,7 @@ export const getWorld1Alerts = (account, fields, options) => {
   if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
     const stamps = {};
     if (options?.stamps?.gildedStamps?.checked) {
-      if (account?.accountOptions?.[154] > 0) {
+      if (account?.accountOptions?.[154] > 0 && (options?.stamps?.showGildedWhenNoAtomDiscount?.checked ? account?.atoms?.stampReducer <= 0 : true)) {
         stamps.gildedStamps = account?.accountOptions?.[154];
       }
     }

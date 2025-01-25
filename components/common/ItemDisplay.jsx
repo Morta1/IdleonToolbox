@@ -6,7 +6,8 @@ import { getGoldenFoodBonus } from '../../parsers/misc';
 import React from 'react';
 
 const ItemDisplay = ({
-                       character, account,
+                       character,
+                       account,
                        Type,
                        description,
                        lvReqToEquip,

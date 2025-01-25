@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 5,
+  version: 6,
   account: {
     General: {
       tasks: {
@@ -57,7 +57,7 @@ const baseTrackers = {
     'World 1': {
       stamps: {
         checked: true,
-        options: [{ name: 'gildedStamps', checked: true }]
+        options: [{ name: 'gildedStamps', checked: true }, { name: 'showGildedWhenNoAtomDiscount', checked: false }]
       },
       owl: {
         checked: true,
@@ -453,11 +453,11 @@ const Dashboard = () => {
           position: 'sticky',
           top: 100
         }}>
-        {showWideSideBanner ? <Adsense
+        {isProd && showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"
           slot="2700532291"
         /> : null}
-        {showNarrowSideBanner && !showWideSideBanner ? <Adsense
+        {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"
           slot="8040203474"
         /> : null}

@@ -144,7 +144,7 @@ export const getSpiceUpgradeCost = (upgradeLevel) => {
 export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBonus = 0) => {
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
   const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-  return account?.cooking?.meals?.reduce((sum, meal) => {
+  return account?.cooking?.meals?.reduce((sum, meal, index) => {
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
@@ -154,13 +154,18 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     if (statName === 'PxLine') {
       return sum + (level * baseStat ?? 0);
     }
-    return sum + ((1 + (labBonus + shinyMealBonus) / 100) * (1 + winBonus / 100) * level * baseStat ?? 0);
+    const ribbonBonus = getRibbonBonus(account?.grimoire?.ribbons?.[28 + index]);
+    return sum + ((1 + (labBonus + shinyMealBonus) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat ?? 0);
   }, 0) ?? 0;
+}
+
+export const getRibbonBonus = (t) => {
+  return 1 + Math.floor(5 * t + Math.floor(t / 2) * (4 + 6.5 * Math.floor(t / 5))) / 100;
 }
 
 export const getKitchens = (idleonData, characters, account) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
-  const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
+  const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms;
   return parseKitchens(cookingRaw, atomsRaw, characters, account);
 }
 

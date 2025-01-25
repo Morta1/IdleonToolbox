@@ -167,7 +167,8 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
 export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   // "AllTalentLV" == e
   let addedLevels = 0, breakdown;
-  if (isCompanionBonusActive(account, 0)) {
+  const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 1);
+  if (isCompanionBonusActive(account, 0) || pocketLinked) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
   } else {
     if (linkedDeity === 1) {
@@ -196,6 +197,7 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     addedLevels += 5;
   }
   addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
+
   breakdown = [
     ...breakdown,
     { name: 'Symbol of Beyond', value: symbolAddedLevel },
@@ -211,7 +213,7 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     },
     {
       name: 'Ninja mastery',
-      value: 5
+      value: account.accountOptions?.[232] >= 3 ? 5 : 0
     }
   ]
   return {

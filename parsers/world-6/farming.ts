@@ -7,16 +7,18 @@ import { getJewelBonus, getLabBonus } from "@parsers/lab";
 import { getWinnerBonus } from "@parsers/world-6/summoning";
 import { getAchievementStatus } from "@parsers/achievements";
 import { getVoteBonus } from "@parsers/world-2/voteBallot";
+import { getGrimoireBonus } from "@parsers/grimoire";
+import { getHighestTalentByClass } from "@parsers/talents";
 
-export const getFarming = (idleonData: any, accountData: any) => {
+export const getFarming = (idleonData: any, accountData: any, charactersData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
   const rawFarmingPlot = tryToParse(idleonData?.FarmPlot);
   const rawFarmingCrop = tryToParse(idleonData?.FarmCrop);
   const rawFarmingRanks = tryToParse(idleonData?.FarmRank);
-  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData);
+  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData);
 }
 
-const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any) => {
+const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: number, index: number) => index === 139);
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1];
@@ -49,14 +51,15 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
   const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
   const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
+  const apocalypseWow = getHighestTalentByClass(charactersData, 4, 'Death_Bringer', 'DANK_RANKS') ?? 0;
   const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
     const name = names?.[index];
     const base = bases?.[index];
     const upgradeLevel = upgradesLevels?.[index];
     const unlockAt = unlocks?.[index];
     const bonus = 4 === index || 9 === index || 14 === index || 19 === index
-      ? Math.min(base, base * upgradeLevel)
-      : (1.7 * base * upgradeLevel) / (upgradeLevel + 80)
+      ? Math.max(1, apocalypseWow) * base * upgradeLevel
+      : Math.max(1, apocalypseWow) * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80))
 
     return {
       name,
@@ -169,7 +172,8 @@ export const updateFarming = (characters: any, account: any) => {
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
   const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
   const growthRate = Math.max(1, speedGMO)
-    * (1 + (marketGrowthRate + vialBonus) / 100) * (1 + summoningBonus / 100);
+    * (1 + (marketGrowthRate + vialBonus) / 100)
+    * (1 + summoningBonus / 100);
   const maxTimes = [0, 1, 2, 3, 4, 5].map((seedType) => {
     const growthReq = 14400 * Math.pow(1.5, seedType);
     return growthReq / growthRate;
@@ -259,7 +263,7 @@ const getCropDepotBonuses = (account: any) => {
   const labBonus = getLabBonus(account?.lab?.labBonuses, 17);
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
-
+  const grimoireBonus = 1 + getGrimoireBonus(account?.grimoire?.upgrades, 22) / 100;
   let bonuses = {
     damage: { name: 'DMG', value: 0 },
     gamingEvo: { name: 'Gaming Evo', value: 0 },
@@ -270,25 +274,25 @@ const getCropDepotBonuses = (account: any) => {
     critters: { name: 'Critters', value: 0 }
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
-    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Pen')) {
-    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Marker')) {
-    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Featherpen')) {
-    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Environmentally_Sourced_Pencil')) {
-    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Crayon')) {
-    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Paintbrush')) {
-    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100);
+    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   return bonuses;
 }

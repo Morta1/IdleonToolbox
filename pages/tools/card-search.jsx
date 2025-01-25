@@ -187,11 +187,11 @@ export default function CardSearch() {
             width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
             height: 600
           }}>
-          {showWideSideBanner ? <Adsense
+          {isProd && showWideSideBanner ? <Adsense
             client="ca-pub-1842647313167572"
             slot="8677007036"
           /> : null}
-          {showNarrowSideBanner && !showWideSideBanner ? <Adsense
+          {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
             client="ca-pub-1842647313167572"
             slot="3679847131"
           /> : null}

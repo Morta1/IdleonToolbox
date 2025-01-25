@@ -56,10 +56,10 @@ const Home = () => {
           top: 100,
           left: 50
         }}>
-          <Adsense
+          {isProd && <Adsense
             client="ca-pub-1842647313167572"
             slot="8673408690"
-          />
+          />}
         </div>
         <div style={{
           height: 600,
@@ -69,10 +69,10 @@ const Home = () => {
           top: 100,
           right: 50
         }}>
-          <Adsense
+          {isProd && <Adsense
             client="ca-pub-1842647313167572"
             slot="6626749728"
-          />
+          />}
         </div>
       </> : null}
 

@@ -142,8 +142,8 @@ export const CardTitleAndValue = ({
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom component={'span'}>{title}</Typography> : null}
           {(value || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
             <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
-            {value ? <Typography>{value}</Typography> : null}
-          </Stack> : <Typography>{value}</Typography> : children}
+            {value ? <Typography component={'div'}>{value}</Typography> : null}
+          </Stack> : <Typography component={'div'}>{value}</Typography> : children}
         </Stack>
       </CardContent>
     </Card>

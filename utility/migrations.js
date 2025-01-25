@@ -83,6 +83,22 @@ export const migrateToVersion5 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion6 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+  if (dashboardConfig?.account?.['World 1'] && dashboardConfig?.account?.['World 1']?.stamps?.options?.length === 1) {
+    dashboardConfig.account['World 1'].stamps.options = [
+      ...dashboardConfig.account['World 1'].stamps.options,
+      { name: 'showGildedWhenNoAtomDiscount', checked: false }
+    ]
+  }
+
+  dashboardConfig.version = 6;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -100,6 +116,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 4) {
       migratedConfig = migrateToVersion5(migratedConfig);
+    }
+    if (migratedConfig?.version === 5) {
+      migratedConfig = migrateToVersion6(migratedConfig);
     }
   }
   return migratedConfig;

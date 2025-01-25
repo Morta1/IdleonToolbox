@@ -60,7 +60,7 @@ export const getShrineExpBonus = (characters, account) => {
     }
     const skillMastery = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.construction?.rank, 1) || 0;
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Construction_Container', 1);
-    const goldenFoodBonus = getGoldenFoodBonus('Golden_Cheese', character, account);
+    const goldenFoodBonus = getGoldenFoodBonus('Golden_Cheese', character, account, characters);
     const talentBonus = getTalentBonus(character?.starTalents, null, 'SHRINE_ARCHITECT');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ShrineSpd');
     const voteBonus = getVoteBonus(account, 19);

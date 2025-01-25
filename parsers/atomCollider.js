@@ -3,6 +3,7 @@ import { atomsInfo } from '../data/website-data';
 import { getBubbleBonus } from './alchemy';
 import { isSuperbitUnlocked } from './gaming';
 import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getGrimoireBonus } from '@parsers/grimoire';
 
 export const getAtoms = (idleonData, account) => {
   const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
@@ -70,11 +71,10 @@ const getCost = ({
                    level
                  }) => {
   // 'AtomCost' == e
-  const baseCost = (1 / (1 + (stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit
-      ? 1
-      : 0) + bubbleBonus + atomColliderLevel / 10 + 7
-    * account?.tasks?.[2][4][6]) / 100));
-  return baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level)
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 51);
+  const baseCost = (1 / (1 + (stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit ? 1 : 0)
+    + grimoireBonus + bubbleBonus + atomColliderLevel / 10 + 7 * account?.tasks?.[2][4][6]) / 100));
+  return baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
 }
 const getCostToMax = (costObject) => {
   let total = 0;
@@ -114,5 +114,5 @@ export const getAtomColliderThreshold = (threshold) => {
 }
 
 export const calcTotalAtomLevels = (atoms) => {
-  return atoms?.reduce((sum, {level}) => sum + level, 0);
+  return atoms?.reduce((sum, { level }) => sum + level, 0);
 }

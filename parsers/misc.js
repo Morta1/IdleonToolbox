@@ -14,7 +14,7 @@ import {
   rawMapNames,
   slab
 } from '../data/website-data';
-import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { checkCharClass, getHighestTalentByClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
@@ -478,7 +478,7 @@ export const getGiantMobChance = (character, account) => {
   }
 }
 
-export const getGoldenFoodMulti = (character, account) => {
+export const getGoldenFoodMulti = (character, account, characters) => {
   const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
@@ -500,6 +500,10 @@ export const getGoldenFoodMulti = (character, account) => {
   const achievementBonus = getAchievementStatus(account?.achievements, 380);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
   const voteBonus = getVoteBonus(account, 26);
+  // select first death bringer
+  const deathBringer = characters?.find((character) => character?.class === 'Death_Bringer');
+  const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
+
   return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
@@ -507,13 +511,13 @@ export const getGoldenFoodMulti = (character, account) => {
           + (goldenFoodAchievement
             + (goldenFoodBubbleBonus
               + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus))))) / 100;
+            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * deathBringer?.wow?.finished?.at(0)))))) / 100;
 }
 
-export const getGoldenFoodBonus = (foodName, character, account) => {
+export const getGoldenFoodBonus = (foodName, character, account, characters) => {
   if (!character) return 0;
   const goldenFood = character?.food?.find(({ name }) => name === foodName);
-  const goldenFoodMulti = getGoldenFoodMulti(character, account);
+  const goldenFoodMulti = getGoldenFoodMulti(character, account, characters);
   const baseBonus = !goldenFood?.Amount || !goldenFood?.amount
     ? 0
     : goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);

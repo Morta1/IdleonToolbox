@@ -119,7 +119,6 @@ const Refinery = () => {
     <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
-        console.log('cost', cost)
         const progressPercentage = refined / powerCap * 100;
         const hasMaterialsForCycle = cost?.every(({
                                                     rawName,

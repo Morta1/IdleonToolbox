@@ -60,6 +60,7 @@ const Timer = forwardRef(({
         let duration = getDuration(new Date().getTime(), startDate);
         return setTime({ ...duration });
       }
+      return;
     }
     seconds -= 1;
     if (seconds === -1) {

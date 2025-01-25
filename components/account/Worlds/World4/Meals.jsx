@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { calcMealTime, calcTimeToNextLevel, getMealLevelCost } from 'parsers/cooking';
+import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, getRibbonBonus } from 'parsers/cooking';
 import {
-  cleanUnderscore, commaNotation,
+  cleanUnderscore,
+  commaNotation,
   getTimeAsDays,
   growth,
   kFormatter,
@@ -21,13 +22,14 @@ import { isArtifactAcquired } from '@parsers/sailing';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getGrimoireBonus } from '@parsers/grimoire';
 
 const maxTimeValue = 8.64e15;
 
 let DEFAULT_MEAL_MAX_LEVEL = 30;
-const breakpoints = [-1, 0, -2, 11, 30, 40, 50, 60, 70, 80, 90];
+const breakpoints = [-1, 0, -2, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110];
 const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
-  const [filters, setFilters] = React.useState(() => []);
+  const [filters, setFilters] = useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
@@ -130,11 +132,10 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
     const firstJadeUnlocked = isJadeBonusUnlocked(account, 'Papa_Blob\'s_Quality_Guarantee');
     const secondJadeUnlocked = isJadeBonusUnlocked(account, 'Chef_Geustloaf\'s_Cutting_Edge_Philosophy');
-    if (causticolumnArtifact) {
-      setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + causticolumnArtifact?.bonus + (firstJadeUnlocked
-        ? 10
-        : 0) + (secondJadeUnlocked ? 10 : 0));
-    }
+    const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 26);
+    setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + grimoireBonus + (causticolumnArtifact?.bonus ?? 0) + (firstJadeUnlocked
+      ? 10
+      : 0) + (secondJadeUnlocked ? 10 : 0))
   }, [account]);
 
   const handleFilters = (e, newFilters) => {
@@ -190,10 +191,12 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   const getBestMealsSpeedContribute = (meals) => {
     let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
-      const { level, baseStat, shinyMulti, timeTillNextLevel } = meal;
+      const { level, baseStat, shinyMulti, timeTillNextLevel, index } = meal;
       const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-      const currentBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * level * baseStat;
-      const nextLevelBonus = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (level + 1) * baseStat;
+      const ribbonBonus = getRibbonBonus(account?.grimoire?.ribbons?.[28 + index]);
+      const base = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * baseStat;
+      const currentBonus = base * level;
+      const nextLevelBonus = base * (level + 1);
       return {
         ...meal,
         currentLevelBonus: notateNumber(currentBonus, 'MultiplierInfo'),
@@ -276,7 +279,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
               timeTillNextLevel
             } = meal;
 
-            return <Card key={`${name}-${index}`} sx={{ width: 340 }}>
+            return <Card key={`${name}-${index}`} sx={{ width: 350 }}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <MealAndPlate>
@@ -323,21 +326,21 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
             baseStat,
             multiplier,
             shinyMulti,
-            breakpointTimes
+            breakpointTimes,
+            index: mealIndex
           } = meal;
           const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * level * baseStat;
-          const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
-          // q._customBlock_CookingR("CookingMealBonusMultioo", 0, 0) * c.asNumber(a.engine.getGameAttribute("Meals")[0][this._DN5 | 0]) * c.asNumber(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][2]),
-          // "PxLine" == a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][5] && (this._DN = c.asNumber(a.engine.getGameAttribute("Meals")[0][this._DN5 | 0]) * c.asNumber(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][2])),
-          // this._DT1 = 1E7 > this._DN ? G.replace(G.replace("" + h.string(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][3]), "{", "" + r._customBlock_CommaNotation(this._DN)), "+", "{")
-          //   : G.replace(G.replace("" + h.string(a.engine.getGameAttribute("CustomLists").h.MealINFO[this._DN5 | 0][3]), "{", "" + k._customBlock_NotateNumber(this._DN, "Big")), "+", "{")
+          const ribbonIndex = account?.grimoire?.ribbons?.[28 + mealIndex];
+          const ribbonBonus = getRibbonBonus(ribbonIndex);
+          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat;
+          const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big');
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <Tooltip
-                    title={<MealTooltip account={account} achievements={achievements} blackDiamondRhinestone={blackDiamondRhinestone}
+                    title={<MealTooltip account={account} achievements={achievements}
+                                        blackDiamondRhinestone={blackDiamondRhinestone}
                                         equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
                     <MealAndPlate>
                       <img src={`${prefix}data/${rawName}.png`} alt=""/>
@@ -345,9 +348,12 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                         <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
                     </MealAndPlate>
                   </Tooltip>
-                  <Typography>
-                    {cleanUnderscore(name)} (Lv. {level})
-                  </Typography>
+                  <Stack>
+                    <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
+                    {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x`}>
+                      <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}/>
+                    </Tooltip> : null}
+                  </Stack>
                 </Stack>
                 <Stack mt={2} gap={1}>
                   <Typography
@@ -402,9 +408,10 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
 };
 
 
-const MealTooltip = ({ account, level, baseStat, effect, blackDiamondRhinestone, shinyMulti }) => {
+const MealTooltip = ({ account, level, baseStat, effect, blackDiamondRhinestone, shinyMulti, index }) => {
   const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (level + 1) * baseStat;
+  const ribbonBonus = getRibbonBonus(account?.grimoire?.ribbons?.[28 + index]);
+  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (level + 1) * ribbonBonus * baseStat;
   const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
   return (
     <>

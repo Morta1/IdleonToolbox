@@ -18,7 +18,8 @@ import {
   starSignByIndexMap
 } from '../data/website-data';
 import {
-  calculateAfkTime, getEventShopBonus,
+  calculateAfkTime,
+  getEventShopBonus,
   getFoodBonus,
   getGoldenFoodBonus,
   getHighestLevelOf,
@@ -93,6 +94,7 @@ import { getLandRank } from '@parsers/world-6/farming';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getGrimoireBonus } from '@parsers/grimoire';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -406,6 +408,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   };
   character.zow = getBarbarianZowChow(kills, [1e5]);
   character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
+  character.wow = getBarbarianZowChow(kills, [1e9]);
   const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
@@ -674,8 +677,8 @@ export const getDropRate = (character, account, characters) => {
   const starSignBonus = getStarSignBonus(character, account, 'Drop_Rate');
   const starSignRarityBonus = getStarSignBonus(character, account, 'Drop_Rarity');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
-  const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES', null, true);
-  const extraDropRate = 1 + (thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0)) / 100;
+  const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
+  const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
@@ -683,13 +686,15 @@ export const getDropRate = (character, account, characters) => {
   const summoningBonus = getWinnerBonus(account, '+{% Drop Rate');
   const achievementBonus = getAchievementStatus(account?.achievements, 377);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account);
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account, characters);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
   const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
   const voteBonus = getVoteBonus(account, 27);
   const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 46, i: 0 });
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
+
   const additive =
     firstTalentBonus +
     postOfficeBonus +
@@ -708,7 +713,7 @@ export const getDropRate = (character, account, characters) => {
     arcadeBonus +
     companionDropRate +
     stampBonus +
-    starTalentBonus * (account?.accountOptions?.[189] ?? 0) +
+    (starTalentBonus * (account?.accountOptions?.[189] ?? 0)) +
     equinoxDropRateBonus +
     summoningBonus +
     tomeBonus +
@@ -718,7 +723,53 @@ export const getDropRate = (character, account, characters) => {
     owlBonus +
     landRankBonus +
     voteBonus +
-    bucketBonus;
+    bucketBonus +
+    grimoireBonus;
+  // ((t = a.engine.getGameAttribute('DNSM')), (i = v._customBlock_TotalStats('LUK')),
+  //   (t.h.DropRateLUK = i), 1e3 > c.asNumber(a.engine.getGameAttribute('DNSM').h.DropRateLUK)
+  //   ?
+  //   ((t = a.engine.getGameAttribute('DNSM')), (i = (Math.pow(c.asNumber(a.engine.getGameAttribute('DNSM').h.DropRateLUK) + 1, 0.37) - 1) / 40))
+  //   : ((t = a.engine.getGameAttribute('DNSM')), (i = ((c.asNumber(a.engine.getGameAttribute('DNSM').h.DropRateLUK) - 1e3)
+  //     / (c.asNumber(a.engine.getGameAttribute('DNSM').h.DropRateLUK) + 2500)) * 0.5 + 0.297)), (t.h.DropRateLUK = i),
+  //   (t = a.engine.getGameAttribute('DNSM').h.TotStatMAP), (i = 1.4 * c.asNumber(a.engine.getGameAttribute('DNSM').h.DropRateLUK)
+  //   + (k._customBlock_GetTalentNumber(1, 279) + (c.asNumber(a.engine.getGameAttribute('DNSM').h.BoxRewards.h.DropRate) +
+  //     (w._customBlock_EtcBonuses('2') + (c.asNumber(a.engine.getGameAttribute('DNSM').h.AlchBubbles.h.DropRate) +
+  //       (w._customBlock_CardBonusREAL(10) + (k._customBlock_GetTalentNumber(1, 24) +
+  //         (c.asNumber(a.engine.getGameAttribute('DNSM').h.StarSigns.h.Drop)
+  //           + (q._customBlock_GuildBonuses(10) + (q._customBlock_CardSetBonuses(0, '5')
+  //             + (q._customBlock_CardSetBonuses(0, '6') + (q._customBlock_Shrine(4) +
+  //               (q._customBlock_prayersReal(7, 0) + (q._customBlock_Labb('SigilBonus', 'Blank', 11, 0)
+  //                 + (q._customBlock_Breeding('ShinyBonusS', 'Nah', 0, -1) + (q._customBlock_ArcadeBonus(27)
+  //                   + (n._customBlock_Companions(3) + (k._customBlock_StampBonusOfTypeX('DropRate')
+  //                     + (k._customBlock_GetTalentNumber(1, 655)
+  //                       * c.asNumber(a.engine.getGameAttribute('OptionsListAccount')[189])
+  //                       + (5 * c.asNumber(a.engine.getGameAttribute('Dream')[10]) +
+  //                         (n._customBlock_Summoning('WinBonus', 9, 0) +
+  //                           (n._customBlock_Summoning('TomeBonus', 2, 0)
+  //                             + (Math.min(1.5 * v._customBlock_RunCodeOfTypeXforThingY('CardLv', 'mini5a'), 10)
+  //                               + (r._customBlock_GoldFoodBonuses('DropRatez') +
+  //                                 (6 * q._customBlock_AchieveStatus(377) + 4 * q._customBlock_AchieveStatus(381)
+  //                                   + (n._customBlock_Summoning('OwlBonuses', 4, 0) +
+  //                                     (n._customBlock_FarmingStuffs('LankRankUpgBonus', 9, 0)
+  //                                       + (n._customBlock_Summoning('VotingBonusz', 27, 0) +
+  //                                         (n._customBlock_Holes('B_UPG', 46, 0) +
+  //                                           (n._customBlock_FarmingStuffs('CropSCbonus', 7, 0) +
+  //                                             n._customBlock_Summoning('GrimoireUpgBonus', 44, 0)))))))))))))))))))))))))))))) / 100 + 1),
+  //   (t.h[e] = i), c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e]),
+  // 5 > c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e]) && ((t = a.engine.getGameAttribute('DNSM').h.TotStatMAP),
+  //   (i = Math.min(5, c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e]) + r._customBlock_chipBonuses('dr') / 100)),
+  //   (t.h[e] = i)), -1 != q._customBlock_Dungon() && ((t = a.engine.getGameAttribute('DNSM').h.TotStatMAP),
+  //   (i = 1 + (v._customBlock_TotalStats('LUK') + q._customBlock_DungeonStat('DropRarity')) / 100), (t.h[e] = i)
+  // ), -1 == q._customBlock_Dungon() && (1 == a.engine.getGameAttribute('BundlesReceived').h.bun_v &&
+  // ((t = a.engine.getGameAttribute('DNSM').h.TotStatMAP), (i = c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e]) + 2)
+  //   , (t.h[e] = i)), (t = a.engine.getGameAttribute('DNSM').h.TotStatMAP), (i = c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e])
+  //   * q._customBlock_WorkbenchStuff('AdditionExtraEXPnDR', 0, 0)), (t.h[e] = i),
+  // 1 <= c.asNumber(a.engine.getGameAttribute('OptionsListAccount')[232]) &&
+  // ((t = a.engine.getGameAttribute('DNSM').h.TotStatMAP), (i = c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e]) + 0.3),
+  //   (t.h[e] = i)), 1 == a.engine.getGameAttribute('BundlesReceived').h.bun_p && ((t = a.engine.getGameAttribute('DNSM').h.TotStatMAP),
+  //   (i = 1.2 * c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e])), (t.h[e] = i)),
+  //   (t = a.engine.getGameAttribute('DNSM').h.TotStatMAP), (i = c.asNumber(a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e])
+  //   * (1 + n._customBlock_Ninja('PristineBon', 3, 0) / 100)), (t.h[e] = i)), a.engine.getGameAttribute('DNSM').h.TotStatMAP.h[e])
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -770,6 +821,8 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Land rank', value: landRankBonus },
     { name: 'Vote', value: voteBonus },
+    { name: 'Bucket', value: bucketBonus },
+    { name: 'Grimoire', value: grimoireBonus },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
@@ -819,7 +872,7 @@ export const getCashMulti = (character, account, characters) => {
   const coinsForCharonBonus = multikill * getTalentBonus(character?.starTalents, null, 'COINS_FOR_CHARON');
   const cashPerCookingLv = character?.skillsInfo?.cooking?.level / 10;
   const americanTipperBonus = cashPerCookingLv * getTalentBonus(character?.starTalents, null, 'AMERICAN_TIPPER');
-  const goldFoodBonus = getGoldenFoodBonus('Golden_Bread', character, account)
+  const goldFoodBonus = getGoldenFoodBonus('Golden_Bread', character, account, characters)
   const achievementBonus = getAchievementStatus(account?.achievements, 235);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 350);
   const thirdAchievementBonus = getAchievementStatus(account?.achievements, 376);

@@ -90,11 +90,12 @@ const Apocalypses = () => {
       <Stack gap={4}>
         {filteredCharacters.length === 0 ? <Typography variant={'h3'} sx={{ textAlign: 'center' }}>Please select at
           least one character</Typography> : null}
-        {state?.characters?.map(({ name, zow, chow, playerId }, index) => {
+        {state?.characters?.map(({ name, zow, chow, wow, playerId }, index) => {
           if (filteredCharacters?.indexOf(playerId) === -1) return null;
           return <Stack key={`${name}-zow-chow`} gap={4}>
             <ApocDisplay apocName={'zow'} charName={name} key={`${name}-zow`} monsters={zow}/>
             <ApocDisplay apocName={'chow'} charName={name} key={`${name}-chow`} monsters={chow}/>
+            <ApocDisplay apocName={'wow'} charName={name} key={`${name}-wow`} monsters={wow}/>
             {index < filteredCharacters.length - 1 ? <Divider my={5}/> : null}
           </Stack>
         })}
@@ -108,12 +109,14 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
 
   const allDone = monsters?.list?.every(({ done }) => done.every((done) => done));
   return <Stack gap={2}>
-    <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow'
+    <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow' || apocName === 'wow'
       ? monsters.finished.at(0)
       : monsters?.finished?.join('/') ?? 0} monsters</Typography>
     {apocName === 'chow' ?
       <Typography component={'div'} variant={'caption'}>* Normal Chow requires 1M kills / Super Chow requires 100M
         kills</Typography> : null}
+    {apocName === 'wow' ?
+      <Typography component={'div'} variant={'caption'}>* Wow requires 1 billion kills</Typography> : null}
     {apocName === 'chow' ? <FormControlLabel
       control={<Checkbox checked={onlySuperChows} onChange={() => setOnlySuperChows(!onlySuperChows)}/>}
       name={'onlySuperChows'}

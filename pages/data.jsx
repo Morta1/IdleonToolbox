@@ -46,7 +46,7 @@ const Data = () => {
   const theme = useTheme();
   const { state } = useContext(AppContext);
   const [key, setKey] = useState('all');
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -276,11 +276,11 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
         top: 150,
         right: 100
       }}>
-      {showWideSideBanner ? <Adsense
+      {isProd && showWideSideBanner ? <Adsense
         client="ca-pub-1842647313167572"
         slot="9767369641"
       /> : null}
-      {showNarrowSideBanner && !showWideSideBanner ? <Adsense
+      {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
         client="ca-pub-1842647313167572"
         slot="7851151731"
       /> : null}
