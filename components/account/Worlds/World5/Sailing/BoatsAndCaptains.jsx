@@ -123,7 +123,8 @@ const BoatsAndCaptains = ({
     </Stack>
     <Typography my={3} variant={'h3'}>Captains shop</Typography>
     <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={1}>
-      {shopCaptains?.map((captain, index) => <Captain shop key={index} {...captain}
+      {shopCaptains?.map((captain, index) => <Captain shop key={index}
+                                                      {...captain}
                                                       lootPile={lootPile}
                                                       captainsOnBoats={captainsOnBoats}/>)}
     </Stack>

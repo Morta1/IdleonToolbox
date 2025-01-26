@@ -32,10 +32,10 @@ const Captain = ({
           </Stack>
           <img style={{ width: 40, height: 50, objectFit: 'contain' }}
                src={`${prefix}etc/Captain_${captainType}.png`} alt=""/>
-          <Stack>
+          {!shop ? <Stack>
             <Typography>{captainIndex}</Typography>
             <Typography variant={'caption'}>Boat {captainsOnBoats?.[captainIndex] + 1}</Typography>
-          </Stack>
+          </Stack> : null}
         </Stack>
         <Divider sx={{ my: 1 }}/>
         <Stack>
