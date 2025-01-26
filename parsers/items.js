@@ -142,7 +142,7 @@ export const findItemByDescriptionInInventory = (arr, desc) => {
 export const flattenCraftObject = (craft) => {
   if (!craft) return [];
   const uniques = {};
-  const tempCraft = JSON.parse(JSON.stringify(craft));
+  const tempCraft = structuredClone((craft));
 
   const flatten = (innerCraft, unique) => {
     return innerCraft?.reduce((result, nextCraft) => {

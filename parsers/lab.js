@@ -59,7 +59,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
       y: playersCords?.[character?.playerId]?.y
     }));
 
-  const chipList = JSON.parse(JSON.stringify(chips));
+  const chipList = structuredClone(chips);
   chipRepo?.map((chipCount, chipIndex) => {
     if (chipIndex < chips.length) {
       const playerUsedCount = playersChips.flatMap(chips => chips).reduce((sum, chip) => sum + (chip.index === chipList[chipIndex].index
@@ -83,7 +83,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
 
   let foundNewConnection = true;
   let counter = 0;
-  let labBonusesList = JSON.parse(JSON.stringify(labBonuses));
+  let labBonusesList =  structuredClone(labBonuses);
   let connectedPlayers = [];
   while (foundNewConnection) {
     foundNewConnection = false;

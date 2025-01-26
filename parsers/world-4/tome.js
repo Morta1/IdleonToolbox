@@ -50,7 +50,16 @@ export const getTome = (idleonData, account, characters, serverVars) => {
   }))
   tome.sort((a, b) => a.index - b.index);
   const tops = serverVars?.TomePct || [];
-  const top = tops.reduce((res, topScore, index) => totalPoints > topScore ? index : res, -1);
+  let top = -1; // Initialize result to -1 as in the reduce case
+
+  for (let index = 0; index < tops.length; index++) {
+    const topScore = tops[index];
+    if (totalPoints > topScore) {
+      top = index;
+    } else {
+      break; // Exit the loop once the condition is met
+    }
+  }
   return {
     tome,
     bonuses,
@@ -78,7 +87,7 @@ const getTomeBonus = (account, totalPoints, index) => {
           : 4 === index ? agiTomeBonus * multiplier
             : 5 === index ? wisTomeBonus * multiplier
               : 6 === index && getEventShopBonus(account, 0) ? 4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
-              : 0
+                : 0
 }
 
 const calcPointsPercent = (bonus, quantity) => {

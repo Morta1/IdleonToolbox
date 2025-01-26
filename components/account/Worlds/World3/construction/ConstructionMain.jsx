@@ -79,7 +79,7 @@ const ConstructionMain = () => {
 
   const handleOptimize = () => {
     setCurrent(state?.account?.construction)
-    const base = JSON.parse(JSON.stringify(state?.account?.construction?.baseBoard));
+    const base = structuredClone((state?.account?.construction?.baseBoard));
     const opt = optimizeArrayWithSwaps(base, stat, computeTime, state?.characters);
     setMoves({ list: opt?.moves, current: 0 })
     setOptimized(opt);

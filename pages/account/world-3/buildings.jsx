@@ -93,7 +93,7 @@ const Buildings = () => {
   const sortedBuildings = useMemo(() => {
     if (sortBy === 'order') return b;
     else if (sortBy === 'time') {
-      const towers = JSON.parse(JSON.stringify(b));
+      const towers = structuredClone((b));
       return towers?.sort((a, b) => {
         const timeLeftA = a?.isSlotTrimmed ? a?.trimmedTimeLeft : a?.timeLeft;
         const timeLeftB = b?.isSlotTrimmed ? b?.trimmedTimeLeft : b?.timeLeft;
@@ -105,7 +105,7 @@ const Buildings = () => {
         return timeLeftA - timeLeftB;
       })
     } else if (sortBy === 'requirement') {
-      const towers = JSON.parse(JSON.stringify(b));
+      const towers = structuredClone((b));
       return towers?.sort((a, b) => {
         if (a?.isMaxed) {
           return 1;

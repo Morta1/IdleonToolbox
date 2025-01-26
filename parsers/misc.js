@@ -124,7 +124,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
 
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
-  const allItems = JSON.parse(JSON.stringify(items)); // Deep clone
+  const allItems = structuredClone((items)); // Deep clone
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
     rawName: name,

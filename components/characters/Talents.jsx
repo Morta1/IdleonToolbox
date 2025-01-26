@@ -58,7 +58,7 @@ const Talents = ({
   }
 
   const handleStarTalents = (tab, tabIndex) => {
-    const clonedTalents = JSON.parse(JSON.stringify(tab?.orderedTalents));
+    const clonedTalents = structuredClone((tab?.orderedTalents));
     const filledTalents = fillMissingTalents(clonedTalents);
     let tempTalents = getStarTalentPage(filledTalents, tabIndex);
     // fill for a full talent page

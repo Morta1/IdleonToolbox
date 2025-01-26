@@ -16,7 +16,7 @@ const Quests = () => {
     let filteredWorldQuests = {};
     for (const [world, worldQuests] of Object.entries(state?.account?.quests)) {
       filteredWorldQuests[world] = worldQuests.map(({ npcQuests, ...rest }) => {
-        let clonedNpcQuests = JSON.parse(JSON.stringify(npcQuests));
+        let clonedNpcQuests = structuredClone((npcQuests));
         let completedQuests = 0;
         let inProgressQuests = 0;
         for (const [questIndex, value] of Object.entries(clonedNpcQuests)) {

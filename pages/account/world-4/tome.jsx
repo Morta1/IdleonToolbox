@@ -21,7 +21,7 @@ const Tome = () => {
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)}/>
       <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
-        {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1} key={ranks?.[index]}
+        {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1} key={'rank'+ranks?.[index]}
                                                                   divider={<>-</>}>
           <Typography sx={{width: 40}}>{ranks?.[index]}</Typography>
           <Typography>{commaNotation(score)}</Typography>
@@ -45,7 +45,7 @@ const Tome = () => {
         const formattedQuantity = quantity > 1e9 && x2 === 1 ? notateNumber(quantity, 'Big') : x4 === 1
           ? Math.round(100 * quantity) / 100
           : commaNotation(quantity);
-        return <Card key={index} sx={{ width: 300 }}>
+        return <Card key={'tome-bonus'+ index} sx={{ width: 300 }}>
           <CardContent sx={{
             display: 'flex',
             flexDirection: 'column',

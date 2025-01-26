@@ -142,7 +142,7 @@ export const createRange = (start, end) => {
 }
 export const cloneObject = (data) => {
   try {
-    return JSON.parse(JSON.stringify(data));
+    return structuredClone(data);
   } catch (err) {
     return data;
   }

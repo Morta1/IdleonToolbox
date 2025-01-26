@@ -142,7 +142,6 @@ const AppProvider = ({ children }) => {
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {
-          console.log('12312312')
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
         } else {
