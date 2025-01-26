@@ -76,7 +76,6 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     const charactersData = parsed?.charactersData;
     processedData = null;
     parsed = null;
-    // console.info('data', { account: accountData, characters: charactersData })
     return { account: accountData, characters: charactersData };
   } catch (err) {
     console.error('Error while parsing data', err);

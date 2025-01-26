@@ -125,6 +125,7 @@ const AppProvider = ({ children }) => {
           lastUpdated
         };
         dispatch({ type: 'data', data: { ...importData, lastUpdated } })
+        parsedData = null;
       } catch (e) {
         console.error('Failed to load data from profile api', e);
         router.push({ pathname: '/', query: router.query });
@@ -139,6 +140,7 @@ const AppProvider = ({ children }) => {
         let parsedData = parseData(data, charNames, companion, guildData, serverVars);
         parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
         dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
+        parsedData = null;
       } else if (!state?.signedIn) {
         const user = await checkUserStatus();
         if (!state?.account && user) {
@@ -298,7 +300,7 @@ const AppProvider = ({ children }) => {
       lastUpdated
     }));
     const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTimeInSeconds * 1000);
+    let parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTimeInSeconds * 1000);
     localStorage.setItem('manualImport', JSON.stringify(false));
     dispatch({
       type: 'data',
@@ -314,6 +316,7 @@ const AppProvider = ({ children }) => {
         accountCreateTime: accountCreateTimeInSeconds * 1000
       }
     });
+    parsedData = null;
   };
 
   const checkOfflineTool = () => {
