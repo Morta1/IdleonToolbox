@@ -403,7 +403,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                           </HtmlTooltip>}
                           </Typography>
                         }
-                        {level < bpLevel ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                        {level < mealMaxLevel ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                           <Typography>Next Milestone: </Typography>
                           {new Date().getTime() + timeInMs < maxTimeValue
                             ? <Timer
