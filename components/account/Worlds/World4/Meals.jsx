@@ -23,6 +23,7 @@ import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getGrimoireBonus } from '@parsers/grimoire';
+import { checkCharClass } from '@parsers/talents';
 
 const maxTimeValue = 8.64e15;
 
@@ -64,7 +65,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   const noMealLeftBehindArray = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel, true), [meals, mealMaxLevel]);
 
   const getHighestOverflowingLadle = () => {
-    const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
+    const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class,'Blood_Berserker'));
     return bloodBerserkers.reduce((res, { talents, name }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
       const lv = overflowingLadle?.level > overflowingLadle?.maxLevel

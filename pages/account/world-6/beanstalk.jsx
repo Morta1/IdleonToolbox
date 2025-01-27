@@ -32,7 +32,7 @@ const Beanstalk = () => {
     return findItemInInventory(totalOwnedItems, name)
   }, [state?.account]);
   const allCharactersMulti = state?.characters?.map((character) => {
-    const multi = getGoldenFoodMulti(character, state?.account);
+    const multi = getGoldenFoodMulti(character, state?.account, state?.characters);
     return {
       name: character?.name,
       bonus: multi,
