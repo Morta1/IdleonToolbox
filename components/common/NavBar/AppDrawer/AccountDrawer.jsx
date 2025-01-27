@@ -8,6 +8,8 @@ import Kofi from '../../Kofi';
 import { AppContext } from '@components/common/context/AppProvider';
 import { format } from 'date-fns';
 
+import ListItemButton from '@mui/material/ListItemButton';
+
 const worldsData = {
   'misc': {
     icon: 'data/CharSlot',
@@ -140,11 +142,12 @@ const AccountDrawer = () => {
   }
 
   const isSelected = (label) => {
+    console.log('router.pathname', router.pathname, label, router.pathname.includes(label))
     return router.pathname.includes(label);
   }
 
   return (
-    <Stack sx={{ height: '100%' }}>
+    (<Stack sx={{ height: '100%' }}>
       <Divider/>
       <List>
         {state?.account?.accountCreateTime ? <ListItem>Account created
@@ -152,23 +155,26 @@ const AccountDrawer = () => {
         {Object.entries(worldsData).map(([key, value], index) => {
           const { icon, categories, style } = value;
           return (
-            <React.Fragment key={key + ' ' + index}>
-              <ListItem data-cy={key} button selected={isSelected(key)} onClick={() => handleClick(key, categories)}>
+            (<React.Fragment key={key + ' ' + index}>
+              <ListItemButton
+                data-cy={key}
+                selected={isSelected(key?.split(' ')?.join('-'))}
+                onClick={() => handleClick(key, categories)}>
                 <img className={'list-img'} width={32} height={32} style={{ objectFit: 'contain', ...style }}
                      src={`${prefix}${icon}.png`} alt=""/>
                 <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalizeAllWords()}/>
                 {categories ? accordions?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
-              </ListItem>
+              </ListItemButton>
               {categories ? <Collapse in={accordions?.[key]} timeout="auto" unmountOnExit>
                 {categories?.map((category, categoryIndex) => {
                   const label = category?.label.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
                   return (
-                    <ListItem selected={isSelected(label)}
-                              data-cy={label}
-                              key={category + ' ' + categoryIndex}
-                              style={{ paddingLeft: nestedOptionPadding }}
-                              button
-                              onClick={() => handleLabelClick(key, label)}>
+                    (<ListItemButton
+                      selected={isSelected(label)}
+                      data-cy={label}
+                      key={category + ' ' + categoryIndex}
+                      style={{ paddingLeft: nestedOptionPadding }}
+                      onClick={() => handleLabelClick(key, label)}>
                       <img className={'list-img'} width={32} height={32}
                            style={{ objectFit: 'contain', ...category?.style }}
                            src={`${prefix}${category.icon}.png`}
@@ -180,11 +186,11 @@ const AccountDrawer = () => {
                           .join(' ')
                           .capitalize()}
                       />
-                    </ListItem>
+                    </ListItemButton>)
                   );
                 })}
               </Collapse> : null}
-            </React.Fragment>
+            </React.Fragment>)
           );
         })}
       </List>
@@ -196,7 +202,7 @@ const AccountDrawer = () => {
         </ListItem>
       </List>
       <Divider/>
-    </Stack>
+    </Stack>)
   );
 };
 

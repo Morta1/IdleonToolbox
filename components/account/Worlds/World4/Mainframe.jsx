@@ -96,7 +96,7 @@ const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
           ? 'multi'
           : ''
       }}>{cleanUnderscore(effect?.replace(/}/g, bonus * multiplier)).split('@')[0]}</Typography>
-  </>
+  </>;
 }
 
 const Map = ({ playersCords, labBonuses, jewels }) => {

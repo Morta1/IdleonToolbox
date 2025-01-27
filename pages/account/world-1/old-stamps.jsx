@@ -331,7 +331,7 @@ const StampTooltip = ({ level, goalLevel, displayName, effect, multiplier = 1, g
     {level !== goalLevel ? <Typography mt={1} sx={{ color: level > 0 && multiplier > 1 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:
       +{cleanUnderscore(effect.replace(/\+{/, goalBonus))}</Typography> : null}
-  </>
+  </>;
 }
 
 const StampIcon = styled.img`

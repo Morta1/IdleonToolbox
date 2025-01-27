@@ -188,7 +188,7 @@ const ItemPlanner = ({}) => {
   }
 
   return (
-    <TodoStyle>
+    (<TodoStyle>
       <NextSeo
         title="Item Planner | Idleon Toolbox"
         description="Useful tool to keep track of your crafting projects by tracking existing and missing materials"
@@ -260,127 +260,129 @@ const ItemPlanner = ({}) => {
       </Stack>
       <Stack sx={{ mt: 2 }}>
         {planner?.sections?.length > 0 ? planner?.sections?.map(({ items, materials, name }, sectionIndex) => {
-          return <Accordion key={`accordion-${sectionIndex}`}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon/>}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>{name || `Accordion-${sectionIndex}`}</Typography>
+          return (
+            (<Accordion key={`accordion-${sectionIndex}`}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon/>}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>{name || `Accordion-${sectionIndex}`}</Typography>
 
-            </AccordionSummary>
-            <AccordionDetails>
-              <Button onClick={() => removeSection(sectionIndex)}>
-                <RemoveIcon/> Remove Section
-              </Button>
-              <div className={'controls'}>
-                <div className="preview">
-                  {item?.[sectionIndex] ? <img
-                    src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
-                    alt=""
-                  /> : null}
-                </div>
-                <Autocomplete
-                  id="item-locator"
-                  value={value?.[sectionIndex]}
-                  onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
-                  autoComplete
-                  options={[value?.[sectionIndex], ...labels]}
-                  filterSelectedOptions
-                  filterOptions={filterOptions}
-                  getOptionLabel={(option) => {
-                    return option ? option?.replace(/_/g, ' ') : '';
-                  }}
-                  renderOption={(props, option) => {
-                    return option ? (
-                      <Stack {...props} gap={2} direction={'row'}>
-                        <img
-                          width={24}
-                          height={24}
-                          src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
-                          alt=""
-                        />
-                        {option?.replace(/_/g, ' ')}
-                      </Stack>
-                    ) : <span {...props} style={{ height: 0 }} key={'empty'}/>;
-                  }}
-                  style={{ width: 300 }}
-                  renderInput={(params) => (
-                    <StyledTextField {...params} label="Item Name" variant="outlined"/>
-                  )}
-                />
-                <StyledTextField
-                  value={itemCount}
-                  width={'100px'}
-                  inputProps={{ min: 1 }}
-                  onChange={(e) => setItemCount(e?.target?.value)}
-                  type={'number'}
-                  label={'Item Count'}
-                  variant={'outlined'}/>
-                <Button color={'primary'} variant={'contained'}
-                        onClick={() => onAddItem(sectionIndex, item?.[sectionIndex], itemCount)}
-                        title={'Add Item'}>
-                  Add
+              </AccordionSummary>
+              <AccordionDetails>
+                <Button onClick={() => removeSection(sectionIndex)}>
+                  <RemoveIcon/> Remove Section
                 </Button>
-              </div>
-              <div className={'content'}>
-                <div className={'items-wrapper'}>
-                  <span className={'title'}>Tracked Items</span>
-                  <div className={'items'}>
-                    {items?.map((item, index) => {
-                      return <div className={'item-wrapper'} key={sectionIndex + '' + item?.itemName + '' + index}
-                                  onMouseEnter={() => setButtons({
-                                    ...buttons,
-                                    [`${sectionIndex}-${index}`]: true
-                                  })}
-                                  onMouseLeave={() => setButtons({
-                                    ...buttons,
-                                    [`${sectionIndex}-${index}`]: false
-                                  })}>
-                        <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
-                               max={10000}
-                               anchorOrigin={{
-                                 vertical: 'top',
-                                 horizontal: 'right'
-                               }}
-                               color="primary">
-                          <Tooltip
-                            title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
-                            <img key={item?.rawName + ' ' + index}
-                                 src={`${prefix}data/${item?.rawName}.png`}
-                                 alt=""/>
-                          </Tooltip>
-                        </Badge>
-                        {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
-                          <IconButton type={'bottom'} size={'small'}
-                                      onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
-                            <AddIcon/>
-                          </IconButton>
-                          <IconButton type={'bottom'} size={'small'}
-                                      onClick={() => onRemoveItem(sectionIndex, item, 1)}>
-                            <RemoveIcon/>
-                          </IconButton>
-                          <IconButton size={'small'}
-                                      onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity, true)}>
-                            <DeleteForeverIcon/>
-                          </IconButton>
-                        </div> : null}
-                      </div>
-                    })}
+                <div className={'controls'}>
+                  <div className="preview">
+                    {item?.[sectionIndex] ? <img
+                      src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
+                      alt=""
+                    /> : null}
+                  </div>
+                  <Autocomplete
+                    id="item-locator"
+                    value={value?.[sectionIndex]}
+                    onChange={(event, newValue) => onItemChange(newValue, sectionIndex)}
+                    autoComplete
+                    options={[value?.[sectionIndex], ...labels]}
+                    filterSelectedOptions
+                    filterOptions={filterOptions}
+                    getOptionLabel={(option) => {
+                      return option ? option?.replace(/_/g, ' ') : '';
+                    }}
+                    renderOption={(props, option) => {
+                      return option ? (
+                        <Stack {...props} gap={2} direction={'row'}>
+                          <img
+                            width={24}
+                            height={24}
+                            src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
+                            alt=""
+                          />
+                          {option?.replace(/_/g, ' ')}
+                        </Stack>
+                      ) : <span {...props} style={{ height: 0 }} key={'empty'}/>;
+                    }}
+                    style={{ width: 300 }}
+                    renderInput={(params) => (
+                      <StyledTextField {...params} label="Item Name" variant="outlined"/>
+                    )}
+                  />
+                  <StyledTextField
+                    value={itemCount}
+                    width={'100px'}
+                    inputProps={{ min: 1 }}
+                    onChange={(e) => setItemCount(e?.target?.value)}
+                    type={'number'}
+                    label={'Item Count'}
+                    variant={'outlined'}/>
+                  <Button color={'primary'} variant={'contained'}
+                          onClick={() => onAddItem(sectionIndex, item?.[sectionIndex], itemCount)}
+                          title={'Add Item'}>
+                    Add
+                  </Button>
+                </div>
+                <div className={'content'}>
+                  <div className={'items-wrapper'}>
+                    <span className={'title'}>Tracked Items</span>
+                    <div className={'items'}>
+                      {items?.map((item, index) => {
+                        return <div className={'item-wrapper'} key={sectionIndex + '' + item?.itemName + '' + index}
+                                    onMouseEnter={() => setButtons({
+                                      ...buttons,
+                                      [`${sectionIndex}-${index}`]: true
+                                    })}
+                                    onMouseLeave={() => setButtons({
+                                      ...buttons,
+                                      [`${sectionIndex}-${index}`]: false
+                                    })}>
+                          <Badge badgeContent={numberWithCommas(item?.itemQuantity)}
+                                 max={10000}
+                                 anchorOrigin={{
+                                   vertical: 'top',
+                                   horizontal: 'right'
+                                 }}
+                                 color="primary">
+                            <Tooltip
+                              title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
+                              <img key={item?.rawName + ' ' + index}
+                                   src={`${prefix}data/${item?.rawName}.png`}
+                                   alt=""/>
+                            </Tooltip>
+                          </Badge>
+                          {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
+                            <IconButton type={'bottom'} size={'small'}
+                                        onClick={() => onAddItem(sectionIndex, { ...item, itemQuantity: 1 }, 1)}>
+                              <AddIcon/>
+                            </IconButton>
+                            <IconButton type={'bottom'} size={'small'}
+                                        onClick={() => onRemoveItem(sectionIndex, item, 1)}>
+                              <RemoveIcon/>
+                            </IconButton>
+                            <IconButton size={'small'}
+                                        onClick={() => onRemoveItem(sectionIndex, item, item?.itemQuantity, true)}>
+                              <DeleteForeverIcon/>
+                            </IconButton>
+                          </div> : null}
+                        </div>
+                      })}
+                    </div>
+                  </div>
+                  <div className={'crafts-container'}>
+                    <span className={'title'}>Required Materials</span>
+                    {myItems?.length > 0 ?
+                      <ItemsList itemsList={materials}
+                                 account={state?.account}
+                                 inventoryItems={myItems}
+                                 itemDisplay={itemDisplay}
+                      /> : null}
                   </div>
                 </div>
-                <div className={'crafts-container'}>
-                  <span className={'title'}>Required Materials</span>
-                  {myItems?.length > 0 ?
-                    <ItemsList itemsList={materials}
-                               account={state?.account}
-                               inventoryItems={myItems}
-                               itemDisplay={itemDisplay}
-                    /> : null}
-                </div>
-              </div>
-            </AccordionDetails>
-          </Accordion>
+              </AccordionDetails>
+            </Accordion>)
+          );
         }) : <Typography sx={{ mt: 3 }} variant={'h3'}>Please add a section</Typography>}
       </Stack>
       <Dialog
@@ -417,7 +419,7 @@ const ItemPlanner = ({}) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </TodoStyle>
+    </TodoStyle>)
   );
 };
 

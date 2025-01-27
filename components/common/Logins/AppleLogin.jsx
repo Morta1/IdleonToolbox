@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { appleAuthorize, getAppleCode } from '../../../logins/apple';
 import { AppContext } from '../context/AppProvider';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 
 const AppleLogin = () => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
@@ -30,8 +30,8 @@ const AppleLogin = () => {
     </Typography>
     <Typography textAlign={'center'} variant={'caption'}>* please make sure you enable pop-ups in your
       browser</Typography>
-    <LoadingButton loading={waitingForAuth} sx={{ mt: 3 }} onClick={handleAppleLogin}
-                   variant={'contained'}>Login</LoadingButton>
+    <Button loading={waitingForAuth} sx={{ mt: 3 }} onClick={handleAppleLogin}
+                   variant={'contained'}>Login</Button>
     <Typography mt={2} color={'error'} variant={'body1'}>{state?.loginError}</Typography>
   </Stack>
 };

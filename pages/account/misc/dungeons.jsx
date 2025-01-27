@@ -62,13 +62,15 @@ const Dungeons = () => {
           <AccordionSummary expandIcon={nextHappyHours.length > 1 ? <ExpandMoreIcon/> : null}>
             <Stack direction="row" gap={2}>
               <Typography>Next Happy Hour:</Typography>
-              {nextHappyHours?.length > 0 ?
-                <>
-                  <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/>
-                  <Tooltip title={getRealDateInMs(nextHappyHours?.[0])}>
-                    <InfoIcon fontSize={'small'}/>
-                  </Tooltip>
-                </> : 'waiting for lava to set them'}
+              <Stack direction={'row'} alignItems={'center'} gap={1}>
+                {nextHappyHours?.length > 0 ?
+                  <>
+                    <Timer type={'countdown'} date={nextHappyHours?.[0]} lastUpdated={state?.lastUpdated}/>
+                    <Tooltip title={getRealDateInMs(nextHappyHours?.[0])}>
+                      <InfoIcon fontSize={'small'}/>
+                    </Tooltip>
+                  </> : 'waiting for lava to set them'}
+              </Stack>
             </Stack>
           </AccordionSummary>
           {nextHappyHours.length > 1 ? (

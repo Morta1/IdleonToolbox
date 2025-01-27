@@ -22,7 +22,6 @@ import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
 import useTimeout from '../components/hooks/useTimeout';
-import LoadingButton from '@mui/lab/LoadingButton';
 import NormalTimer from '../components/common/Timer/Normal';
 import { format, intervalToDuration, isValid } from 'date-fns';
 import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';
@@ -222,9 +221,9 @@ const Data = () => {
       </Typography>
       <div>
         <Stack direction={'row'} alignItems={'center'} gap={2}>
-          <LoadingButton disabled={isDisabled}
+          <Button disabled={isDisabled}
                          loading={loading} onClick={handleUpdate}
-                         variant={'contained'}>Upload my profile</LoadingButton>
+                         variant={'contained'}>Upload my profile</Button>
           <Fade in={uploaded}>
             <CheckCircleIcon color={'success'}/>
           </Fade>

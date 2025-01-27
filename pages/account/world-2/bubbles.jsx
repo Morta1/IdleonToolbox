@@ -12,7 +12,7 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
@@ -462,7 +462,7 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
     {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:
       +{goalBonus}</Typography> : null}
-  </>
+  </>;
 }
 
 const FutureBubblesTooltip = () => {

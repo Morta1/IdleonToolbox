@@ -81,53 +81,55 @@ const GodPlanner = () => {
                         }, charIndex) => {
         const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'BIG_P', false);
         const divinityLevel = skillsInfo?.divinity?.level
-        return <Card key={charName}>
-          <CardContent>
-            <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
-              <Stack sx={{ width: 130 }} direction={'column'} alignItems={'center'}>
-                <img src={`${prefix}data/ClassIcons${classIndex}.png`}
-                     alt=""/>
-                <Typography>{charName}</Typography>
+        return (
+          (<Card key={charName}>
+            <CardContent>
+              <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
+                <Stack sx={{ width: 130 }} direction={'column'} alignItems={'center'}>
+                  <img src={`${prefix}data/ClassIcons${classIndex}.png`}
+                       alt=""/>
+                  <Typography>{charName}</Typography>
+                </Stack>
+                {account?.divinity?.deities?.map(({
+                                                    name,
+                                                    rawName,
+                                                    majorBonus,
+                                                    minorBonus,
+                                                    blessing,
+                                                    blessingMultiplier,
+                                                    blessingBonus,
+                                                    minorBonusMultiplier
+                                                  }, godIndex) => {
+                  const isLinked = account?.divinity?.linkedDeities?.[charIndex] === godIndex;
+                  const isSecondLinked = secondLinkedDeityIndex === godIndex;
+                  const realGodIndex = gods?.[godIndex]?.godIndex;
+                  const multiplier = gods?.[realGodIndex]?.minorBonusMultiplier;
+                  const bonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, (bigP && bubbleBonus)) * multiplier;
+                  const bonusDesc = minorBonus.replace(/{/g, bonus.toFixed(2));
+                  return <Tooltip key={rawName} title={<CharDeityDetails name={name} bonus={bonusDesc}/>}>
+                    <Card variant={'outlined'}
+                          onClick={() => handleClick({ charName, playerId, godName: rawName })}
+                          sx={{
+                            width: 80,
+                            cursor: 'pointer',
+                            border: isLinked || isSecondLinked ? "1px solid #81c784" : "",
+                          }}>
+                      <CardContent sx={{ '&:last-child': { padding: 1 } }}>
+                        <Stack alignItems={'center'} justifyContent={'center'}>
+                          <img width={24} height={24} src={`${prefix}data/${rawName}.png`} alt=""/>
+                          {bonus.toFixed(2)}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Tooltip>
+                })}
               </Stack>
-              {account?.divinity?.deities?.map(({
-                                                  name,
-                                                  rawName,
-                                                  majorBonus,
-                                                  minorBonus,
-                                                  blessing,
-                                                  blessingMultiplier,
-                                                  blessingBonus,
-                                                  minorBonusMultiplier
-                                                }, godIndex) => {
-                const isLinked = account?.divinity?.linkedDeities?.[charIndex] === godIndex;
-                const isSecondLinked = secondLinkedDeityIndex === godIndex;
-                const realGodIndex = gods?.[godIndex]?.godIndex;
-                const multiplier = gods?.[realGodIndex]?.minorBonusMultiplier;
-                const bonus = (divinityLevel / (60 + divinityLevel)) * Math.max(1, (bigP && bubbleBonus)) * multiplier;
-                const bonusDesc = minorBonus.replace(/{/g, bonus.toFixed(2));
-                return <Tooltip key={rawName} title={<CharDeityDetails name={name} bonus={bonusDesc}/>}>
-                  <Card variant={'outlined'}
-                        onClick={() => handleClick({ charName, playerId, godName: rawName })}
-                        sx={{
-                          width: 80,
-                          cursor: 'pointer',
-                          border: isLinked || isSecondLinked ? "1px solid #81c784" : "",
-                        }}>
-                    <CardContent sx={{ '&:last-child': { padding: 1 } }}>
-                      <Stack alignItems={'center'} justifyContent={'center'}>
-                        <img width={24} height={24} src={`${prefix}data/${rawName}.png`} alt=""/>
-                        {bonus.toFixed(2)}
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Tooltip>
-              })}
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>)
+        );
       })}
     </Stack>
-  </>
+  </>;
 };
 
 const CharDeityDetails = ({ name, bonus }) => {

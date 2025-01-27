@@ -54,48 +54,50 @@ const AtomCollider = ({}) => {
           .replace(/[>}]/, notateNumber(bonus, 'Big'))
           .replace('<', level);
         const timeLeft = ((cost - particles) / totals?.atom?.atoms) * 3600 * 1000
-        return <Card key={rawName} sx={{
-          outline: level >= maxLevel ? '1px solid' : '',
-          outlineColor: (theme) => level >= maxLevel
-            ? theme.palette.success.light
-            : '',
-        }}>
-          <CardContent sx={{ width: 250, height: '100%' }}>
-            <Stack direction={'column'} sx={{ height: '100%' }}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <img src={`${prefix}data/${rawName}.png`}
-                     alt="" width={64} height={64} style={{ objectFit: 'contain' }}/>
-                <Stack>
-                  <Typography>{cleanUnderscore(name)}</Typography>
-                  <Typography>Lv. {level} / {maxLevel}</Typography>
-                  {level < maxLevel ? <>
-                    <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
-                    <Typography variant={'caption'}>Next Level Cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
-                    <Typography variant={'caption'}>Cost To Max: {notateNumber(costToMax, 'Big')}</Typography>
-                  </> : null}
+        return (
+          (<Card key={rawName} sx={{
+            outline: level >= maxLevel ? '1px solid' : '',
+            outlineColor: (theme) => level >= maxLevel
+              ? theme.palette.success.light
+              : '',
+          }}>
+            <CardContent sx={{ width: 250, height: '100%' }}>
+              <Stack direction={'column'} sx={{ height: '100%' }}>
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <img src={`${prefix}data/${rawName}.png`}
+                       alt="" width={64} height={64} style={{ objectFit: 'contain' }}/>
+                  <Stack>
+                    <Typography>{cleanUnderscore(name)}</Typography>
+                    <Typography>Lv. {level} / {maxLevel}</Typography>
+                    {level < maxLevel ? <>
+                      <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
+                      <Typography variant={'caption'}>Next Level Cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
+                      <Typography variant={'caption'}>Cost To Max: {notateNumber(costToMax, 'Big')}</Typography>
+                    </> : null}
+                  </Stack>
                 </Stack>
+                <Divider sx={{ my: 2 }}/>
+                <Typography sx={{ mb: 2 }} variant={'body1'} component={'div'}>
+                  {processString([{
+                    regex: /Total bonus.*/,
+                    fn: (key, result) => {
+                      return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
+                    }
+                  }])(description)}
+                </Typography>
+                {level < maxLevel && totals?.atom?.atoms > 0 ? <Box sx={{ marginTop: 'auto' }}>
+                  <Timer type={'countdown'}
+                         placeholder={<Typography color={'success.light'}>Ready!</Typography>}
+                         date={new Date().getTime() + timeLeft}
+                         lastUpdated={state?.lastUpdated}/>
+                </Box> : null}
               </Stack>
-              <Divider sx={{ my: 2 }}/>
-              <Typography sx={{ mb: 2 }} variant={'body1'} component={'div'}>
-                {processString([{
-                  regex: /Total bonus.*/,
-                  fn: (key, result) => {
-                    return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
-                  }
-                }])(description)}
-              </Typography>
-              {level < maxLevel && totals?.atom?.atoms > 0 ? <Box sx={{ marginTop: 'auto' }}>
-                <Timer type={'countdown'}
-                       placeholder={<Typography color={'success.light'}>Ready!</Typography>}
-                       date={new Date().getTime() + timeLeft}
-                       lastUpdated={state?.lastUpdated}/>
-              </Box> : null}
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>)
+        );
       })}
     </Stack>
-  </>
+  </>;
 };
 
 export default AtomCollider;

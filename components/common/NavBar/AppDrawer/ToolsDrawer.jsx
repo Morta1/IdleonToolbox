@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { AppContext } from '../../context/AppProvider';
 import Kofi from '../../Kofi';
 
+import ListItemButton from "@mui/material/ListItemButton";
+
 const tools = {
   'cardSearch': {
     icon: '2CardsA0'
@@ -54,7 +56,7 @@ const ToolsDrawer = () => {
   }
 
   return (
-    <Stack sx={{ height: '100%' }}>
+    (<Stack sx={{ height: '100%' }}>
       <Divider/>
       <List>
         {Object.entries(tools).map(([key, value], index) => {
@@ -63,12 +65,12 @@ const ToolsDrawer = () => {
           const keyUri = key.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
           const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
           return (
-            <React.Fragment key={key + ' ' + index}>
-              <ListItem button selected={isSelected(key)} onClick={() => handleClick(keyUri)}>
+            (<React.Fragment key={key + ' ' + index}>
+              <ListItemButton selected={isSelected(key)} onClick={() => handleClick(keyUri)}>
                 <img className={'list-img'} width={32} src={`/data/${icon}.png`} alt=""/>
                 <ListItemText style={{ marginLeft: 10 }} primary={formattedKey}/>
-              </ListItem>
-            </React.Fragment>
+              </ListItemButton>
+            </React.Fragment>)
           );
         })}
       </List>
@@ -80,7 +82,7 @@ const ToolsDrawer = () => {
         </ListItem>
       </List>
       <Divider/>
-    </Stack>
+    </Stack>)
   );
 };
 

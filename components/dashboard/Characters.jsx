@@ -244,28 +244,30 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     const minutes = differenceInMinutes(new Date(), new Date(timePassed));
     return minutes <= 5;
   };
-  return <Stack gap={1}>
-    <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
-    <TitleAndValue title={'Afk time'}
-                   value={isActive() ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
-                                                                                lastUpdated={lastUpdated}/>}/>
-    <Divider flexItem sx={{ background: 'black' }}/>
-    <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
-    <TitleAndValue title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
-    <TitleAndValue title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
-    <TitleAndValue title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
-    <TitleAndValue title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
-    <Divider flexItem sx={{ background: 'black' }}/>
-    <TitleAndValue title={'Cash multi'} value={`${notateNumber(cashMulti)}%`}/>
-    <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
-    <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>
-    <TitleAndValue title={'Afk gains'} value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
-    <TitleAndValue title={'Crystal Chance'} value={(1 / crystalSpawnChance?.value) < 100
-      ?
-      `${notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%`
-      : `1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}/>
-    <TitleAndValue title={'Non consume chance'} value={`${kFormatter(nonConsumeChance, 2)}%`}/>
-  </Stack>
+  return (
+    (<Stack gap={1}>
+      <TitleAndValue title={name} value={`lv. ${stats?.level || 0}`}/>
+      <TitleAndValue title={'Afk time'}
+                     value={isActive() ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
+                                                                                  lastUpdated={lastUpdated}/>}/>
+      <Divider flexItem sx={{ background: 'black' }}/>
+      <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
+      <TitleAndValue title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
+      <TitleAndValue title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
+      <TitleAndValue title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
+      <TitleAndValue title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
+      <Divider flexItem sx={{ background: 'black' }}/>
+      <TitleAndValue title={'Cash multi'} value={`${notateNumber(cashMulti)}%`}/>
+      <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
+      <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>
+      <TitleAndValue title={'Afk gains'} value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
+      <TitleAndValue title={'Crystal Chance'} value={(1 / crystalSpawnChance?.value) < 100
+        ?
+        `${notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%`
+        : `1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}/>
+      <TitleAndValue title={'Non consume chance'} value={`${kFormatter(nonConsumeChance, 2)}%`}/>
+    </Stack>)
+  );
 }
 
 const IconImg = styled.img`

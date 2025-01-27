@@ -44,61 +44,63 @@ const Divinity = () => {
           const currBonus = curr?.skillsInfo?.divinity?.level;
           return prevBonus > currBonus ? prev : curr;
         }, state?.characters?.[0]);
-        return <Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
-          <CardContent>
-            <Stack alignItems={'center'} gap={1}>
-              <img src={`${prefix}data/${rawName}.png`} alt=""/>
-              <Stack gap={1} justifyContent={'space-between'} sx={{ minHeight: 250 }}>
-                <Stack>
-                  <Typography>{name}</Typography>
-                  <Typography variant={'body2'}>Lv. {level} / 100</Typography>
-                  <Divider sx={{ my: 2 }}/>
-                  <Typography variant={'body1'}>
-                    Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus))}
-                  </Typography>
-                  {godIndex === 2 ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
-                  {cost?.cost !== 'MAX' && showCost ? <>
-                    <Cost title={'Cost'} {...cost} cost={cost?.cost}/>
-                    <Cost title={'Next Level Cost'} {...cost} cost={cost?.nextLevelCost}/>
-                    <Cost title={'Cost To Max'} {...cost} cost={cost?.costToMax}/>
-                  </> : null}
-                  <Divider sx={{ my: 2 }}/>
-                  <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus)}</Typography>
-                </Stack>
-                {hasLinks ? <>
-                  <Divider sx={{ my: 2 }}/>
-                  <Stack direction={'row'} flexWrap={'wrap'} mt={'auto'}>
-                    {state?.characters?.map(({
-                                               classIndex, name, deityMinorBonus = 0, divStyle,
-                                               secondLinkedDeityIndex, secondDeityMinorBonus = 0,
-                                               playerId
-                                             }, index) => {
-                      const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
-                      const isLinked = compBonus || linkedDeities?.[index] === godIndex;
-                      const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
-                      if (godIndex === 6 && compBonus && highestDivinityCharacter?.playerId !== playerId) return null;
-                      return compBonus || isLinked || isSecondLinked ?
-                        <Tooltip title={<CharDeityDetails name={name}
-                                                          divStyle={divStyle}
-                                                          bonus={minorBonus.replace(/{/g, isLinked
-                                                            ? getMinorDivinityBonus(state?.characters?.[index], state?.account, godIndex).toFixed(2)
-                                                            : isSecondLinked
-                                                              ? secondDeityMinorBonus.toFixed(2)
-                                                              : 0)}/>}
-                                 key={name}>
-                          <img src={`${prefix}data/ClassIcons${classIndex}.png`}
-                               alt=""/>
-                        </Tooltip> : null;
-                    })}
+        return (
+          (<Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
+            <CardContent>
+              <Stack alignItems={'center'} gap={1}>
+                <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                <Stack gap={1} justifyContent={'space-between'} sx={{ minHeight: 250 }}>
+                  <Stack>
+                    <Typography>{name}</Typography>
+                    <Typography variant={'body2'}>Lv. {level} / 100</Typography>
+                    <Divider sx={{ my: 2 }}/>
+                    <Typography variant={'body1'}>
+                      Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus))}
+                    </Typography>
+                    {godIndex === 2 ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
+                    {cost?.cost !== 'MAX' && showCost ? <>
+                      <Cost title={'Cost'} {...cost} cost={cost?.cost}/>
+                      <Cost title={'Next Level Cost'} {...cost} cost={cost?.nextLevelCost}/>
+                      <Cost title={'Cost To Max'} {...cost} cost={cost?.costToMax}/>
+                    </> : null}
+                    <Divider sx={{ my: 2 }}/>
+                    <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus)}</Typography>
                   </Stack>
-                </> : null}
+                  {hasLinks ? <>
+                    <Divider sx={{ my: 2 }}/>
+                    <Stack direction={'row'} flexWrap={'wrap'} mt={'auto'}>
+                      {state?.characters?.map(({
+                                                 classIndex, name, deityMinorBonus = 0, divStyle,
+                                                 secondLinkedDeityIndex, secondDeityMinorBonus = 0,
+                                                 playerId
+                                               }, index) => {
+                        const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
+                        const isLinked = compBonus || linkedDeities?.[index] === godIndex;
+                        const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
+                        if (godIndex === 6 && compBonus && highestDivinityCharacter?.playerId !== playerId) return null;
+                        return compBonus || isLinked || isSecondLinked ?
+                          <Tooltip title={<CharDeityDetails name={name}
+                                                            divStyle={divStyle}
+                                                            bonus={minorBonus.replace(/{/g, isLinked
+                                                              ? getMinorDivinityBonus(state?.characters?.[index], state?.account, godIndex).toFixed(2)
+                                                              : isSecondLinked
+                                                                ? secondDeityMinorBonus.toFixed(2)
+                                                                : 0)}/>}
+                                   key={name}>
+                            <img src={`${prefix}data/ClassIcons${classIndex}.png`}
+                                 alt=""/>
+                          </Tooltip> : null;
+                      })}
+                    </Stack>
+                  </> : null}
+                </Stack>
               </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>)
+        );
       })}
     </Stack>
-  </>
+  </>;
 };
 
 const Cost = ({ type, cost, title }) => {
@@ -122,7 +124,7 @@ const CharDeityDetails = ({ name, bonus, divStyle }) => {
     <Typography>Minor bonus: {cleanUnderscore(bonus)}</Typography>
     <Typography mt={1} sx={{ fontWeight: 'bold' }}>Style: {divStyle?.name}</Typography>
     <Typography>{cleanUnderscore(divStyle?.description.replace(/@/, ''))}</Typography>
-  </>
+  </>;
 }
 
 export default Divinity;

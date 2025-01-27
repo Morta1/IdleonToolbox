@@ -59,36 +59,36 @@ const GuaranteedDropCalculator = () => {
     }
   }
 
-  return (
-    <>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
-        <Autocomplete
-          id="drop calc"
-          value={value}
-          onChange={(event, newValue) => {
-            setValue(newValue);
-            setErrors({ ...errors, material: false })
-          }}
-          options={[...items]}
-          filterSelectedOptions
-          filterOptions={filterOptions}
-          getOptionLabel={(option) => {
-            return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
-          }}
-          sx={{ width: 300 }}
-          renderTags={(tag, getTagProps) => {
-            return tag.map((option, index) => (
-              <Chip
-                key={index}
-                icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={''}/>}
-                label={option?.displayName?.replace(/_/g, ' ')}
-                {...getTagProps({ index })}
-              />
-            ))
-          }}
-          renderOption={(props, option) => {
-            if (!option) return null;
-            return <Stack {...props} key={props.id} sx={{ alignItems: 'flex-start !important' }}>
+  return (<>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
+      <Autocomplete
+        id="drop calc"
+        value={value}
+        onChange={(event, newValue) => {
+          setValue(newValue);
+          setErrors({ ...errors, material: false })
+        }}
+        options={[...items]}
+        filterSelectedOptions
+        filterOptions={filterOptions}
+        getOptionLabel={(option) => {
+          return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
+        }}
+        sx={{ width: 300 }}
+        renderTags={(tag, getTagProps) => {
+          return tag.map((option, index) => (
+            <Chip
+              key={index}
+              icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={''}/>}
+              label={option?.displayName?.replace(/_/g, ' ')}
+              {...getTagProps({ index })}
+            />
+          ));
+        }}
+        renderOption={(props, option) => {
+          if (!option) return null;
+          return (
+            (<Stack {...props} key={props.id} sx={{ alignItems: 'flex-start !important' }}>
               <Stack direction={'row'} gap={2}>
                 <img
                   key={`img-${props.id}`}
@@ -102,33 +102,33 @@ const GuaranteedDropCalculator = () => {
                   / {Math.ceil(1 / option?.chance)})</Typography>
               </Stack>
               <Typography variant={'caption'}>{cleanUnderscore(option?.monsterDisplayName)}</Typography>
-            </Stack>
-          }}
-          renderInput={(params) => (
-            <TextField {...params}
-                       error={errors?.material}
-                       label="Material name" variant="outlined"/>
-          )}
-        />
-        <TextField error={errors?.dropRate} onChange={handleChange} name={'dropRate'} value={values.dropRate}
-                   label={'Drop rate'}/>
-        <TextField error={errors?.killsWithMultikill} onChange={handleChange} name={'killsWithMultikill'}
-                   value={values.killsWithMultikill}
-                   label={'Kills with multi kill'}/>
-        <TextField error={errors?.multiKillBonus} onChange={handleChange} name={'multiKillBonus'}
-                   value={values.multiKillBonus}
-                   label={'Multikill bonus %'}/>
-        <Button variant={'contained'} onClick={handleCalc}>Run</Button>
-      </Stack>
-      <Typography variant={'caption'}>* This does not include values from the 2x kills lab bonus or the god bonus in W5 (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
-      {results?.length > 0 ? <Stack mt={2}>
-        <Typography variant={'h6'}>Results</Typography>
-        {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>
-          <Typography>x{breakpoint} drop in {notateNumber(hours, 'MultiplierInfo')} hours</Typography>
-        </Stack>)}
-      </Stack> : null
-      }    </>
-  );
+            </Stack>)
+          );
+        }}
+        renderInput={(params) => (
+          <TextField {...params}
+                     error={errors?.material}
+                     label="Material name" variant="outlined"/>
+        )}
+      />
+      <TextField error={errors?.dropRate} onChange={handleChange} name={'dropRate'} value={values.dropRate}
+                 label={'Drop rate'}/>
+      <TextField error={errors?.killsWithMultikill} onChange={handleChange} name={'killsWithMultikill'}
+                 value={values.killsWithMultikill}
+                 label={'Kills with multi kill'}/>
+      <TextField error={errors?.multiKillBonus} onChange={handleChange} name={'multiKillBonus'}
+                 value={values.multiKillBonus}
+                 label={'Multikill bonus %'}/>
+      <Button variant={'contained'} onClick={handleCalc}>Run</Button>
+    </Stack>
+    <Typography variant={'caption'}>* This does not include values from the 2x kills lab bonus or the god bonus in W5 (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
+    {results?.length > 0 ? <Stack mt={2}>
+      <Typography variant={'h6'}>Results</Typography>
+      {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>
+        <Typography>x{breakpoint} drop in {notateNumber(hours, 'MultiplierInfo')} hours</Typography>
+      </Stack>)}
+    </Stack> : null
+    }    </>);
 };
 
 export default GuaranteedDropCalculator;

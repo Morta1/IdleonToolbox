@@ -17,7 +17,6 @@ import { format, isValid } from 'date-fns';
 import { cleanUnderscore, notateNumber, prefix } from '../../../../utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../Tooltip';
-import { calculateItemTotalAmount } from '../../../../parsers/items';
 import MenuItem from '@mui/material/MenuItem';
 import { getRequirementAmount } from '@parsers/lab';
 
@@ -57,7 +56,7 @@ const LabRotation = () => {
               />
               {option?.name?.replace(/_/g, ' ')}
             </Stack>
-          ) : <span style={{ height: 0 }} key={'empty' + option?.index}/>
+          ) : <span style={{ height: 0 }} key={'empty' + option?.index}/>;
         }}
         renderInput={(params) => <TextField {...params} label="Filter by jewel or chip"/>}
       />
@@ -88,69 +87,71 @@ const LabRotation = () => {
             return null;
           }
         }
-        return <Card key={'rotation' + rotationIndex} sx={{ width: 'fit-content' }}>
-          <CardContent sx={{ '&:last-child': { p: 3 } }}>
-            <Stack key={'rotation' + rotationIndex} gap={2} flexWrap={'wrap'}>
-              <Typography sx={{ textAlign: 'center' }} variant={'h6'}>{isValid(date)
-                ? format(date, 'dd/MM/yyyy HH:mm:ss')
-                : null}</Typography>
-              <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                {items?.map(({
-                               name,
-                               requirements = [],
-                               rawName,
-                               index,
-                               bonus,
-                               effect,
-                               baseVal,
-                               acquired,
-                               amount: chipCount
-                             }, itemsIndex) => {
-                  const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
-                  const { currentRotation } = state?.account?.lab;
-                  return <Card variant={'outlined'} key={'items' + itemsIndex}
-                               sx={{
-                                 width: 250,
-                                 borderColor: acquired || chipCount > chipThreshold ? 'success.light' : ''
-                               }}>
-                    <CardContent sx={{ '&:last-child': { p: 3 } }}>
-                      <Stack alignItems={'center'} gap={2}>
-                        <Stack>
-                          <Tooltip title={cleanUnderscore(desc)}>
-                            <Stack direction={'row'} alignItems={'center'} gap={1}>
-                              <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt=""/>
-                              <Typography>{cleanUnderscore(name)}</Typography>
-                            </Stack>
-                          </Tooltip>
-                          {rotationIndex === 0 && index === currentRotation?.[itemsIndex] ? <Typography
-                            sx={{ ml: '50px' }} color={'error.light'}>SOLD OUT</Typography> : <span>&nbsp;</span>}
+        return (
+          (<Card key={'rotation' + rotationIndex} sx={{ width: 'fit-content' }}>
+            <CardContent sx={{ '&:last-child': { p: 3 } }}>
+              <Stack key={'rotation' + rotationIndex} gap={2} flexWrap={'wrap'}>
+                <Typography sx={{ textAlign: 'center' }} variant={'h6'}>{isValid(date)
+                  ? format(date, 'dd/MM/yyyy HH:mm:ss')
+                  : null}</Typography>
+                <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                  {items?.map(({
+                                 name,
+                                 requirements = [],
+                                 rawName,
+                                 index,
+                                 bonus,
+                                 effect,
+                                 baseVal,
+                                 acquired,
+                                 amount: chipCount
+                               }, itemsIndex) => {
+                    const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
+                    const { currentRotation } = state?.account?.lab;
+                    return <Card variant={'outlined'} key={'items' + itemsIndex}
+                                 sx={{
+                                   width: 250,
+                                   borderColor: acquired || chipCount > chipThreshold ? 'success.light' : ''
+                                 }}>
+                      <CardContent sx={{ '&:last-child': { p: 3 } }}>
+                        <Stack alignItems={'center'} gap={2}>
+                          <Stack>
+                            <Tooltip title={cleanUnderscore(desc)}>
+                              <Stack direction={'row'} alignItems={'center'} gap={1}>
+                                <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt=""/>
+                                <Typography>{cleanUnderscore(name)}</Typography>
+                              </Stack>
+                            </Tooltip>
+                            {rotationIndex === 0 && index === currentRotation?.[itemsIndex] ? <Typography
+                              sx={{ ml: '50px' }} color={'error.light'}>SOLD OUT</Typography> : <span>&nbsp;</span>}
+                          </Stack>
+                          <Stack direction={'row'} gap={2}>
+                            {requirements?.map(({ name, rawName, amount }, reqIndex) => {
+                              const totalAmount = getRequirementAmount(name, rawName, state?.account);
+                              return <Stack alignItems={'center'} gap={1} key={`req-${rawName}-${reqIndex}`}>
+                                <Tooltip title={cleanUnderscore(name)}>
+                                  <Icon src={`${prefix}data/${rawName}.png`} alt=""/>
+                                </Tooltip>
+                                <Tooltip title={`${notateNumber(amount)} / ${notateNumber(totalAmount)}`}>
+                                  <Typography color={amount < totalAmount
+                                    ? 'success.light'
+                                    : 'error.light'}>{notateNumber(amount)}</Typography>
+                                </Tooltip>
+                              </Stack>
+                            })}
+                          </Stack>
                         </Stack>
-                        <Stack direction={'row'} gap={2}>
-                          {requirements?.map(({ name, rawName, amount }, reqIndex) => {
-                            const totalAmount = getRequirementAmount(name, rawName, state?.account);
-                            return <Stack alignItems={'center'} gap={1} key={`req-${rawName}-${reqIndex}`}>
-                              <Tooltip title={cleanUnderscore(name)}>
-                                <Icon src={`${prefix}data/${rawName}.png`} alt=""/>
-                              </Tooltip>
-                              <Tooltip title={`${notateNumber(amount)} / ${notateNumber(totalAmount)}`}>
-                                <Typography color={amount < totalAmount
-                                  ? 'success.light'
-                                  : 'error.light'}>{notateNumber(amount)}</Typography>
-                              </Tooltip>
-                            </Stack>
-                          })}
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                })}
+                      </CardContent>
+                    </Card>
+                  })}
+                </Stack>
               </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>)
+        );
       })}
     </Stack>
-  </>
+  </>;
 };
 
 const Icon = styled.img`

@@ -61,7 +61,7 @@ const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 
           </Stack> : null
       })}
     </Stack>
-  </>
+  </>;
 }
 
 const ItemIcon = styled.img`

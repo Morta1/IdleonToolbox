@@ -149,21 +149,23 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 };
 
 const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
-  return <Stack direction={'row'} justifyContent={'space-between'}>
-    <Typography color={'info.light'}>{title}</Typography>
-    <Tooltip maxWidth={450} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
-                                                                 notate={breakdownNotation}/> : ''}>
-      {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
-        {processString([{
-          regex: /[\[!]/g,
-          fn: (key, match) => {
-            const modifier = match.at(0);
-            return <DamageIcon key={key} src={`${prefix}etc/Damage_${modifier === '[' ? 'M' : 'T'}.png`} alt=""/>
-          }
-        }])(value)}
-      </Typography>}
-    </Tooltip>
-  </Stack>
+  return (
+    (<Stack direction={'row'} justifyContent={'space-between'}>
+      <Typography color={'info.light'}>{title}</Typography>
+      <Tooltip maxWidth={450} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+                                                                   notate={breakdownNotation}/> : ''}>
+        {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
+          {processString([{
+            regex: /[\[!]/g,
+            fn: (key, match) => {
+              const modifier = match.at(0);
+              return <DamageIcon key={key} src={`${prefix}etc/Damage_${modifier === '[' ? 'M' : 'T'}.png`} alt=""/>
+            }
+          }])(value)}
+        </Typography>}
+      </Tooltip>
+    </Stack>)
+  );
 }
 
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {

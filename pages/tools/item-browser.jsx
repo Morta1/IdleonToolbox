@@ -80,7 +80,7 @@ const ItemBrowser = ({}) => {
     setValue(e.target.value);
   }, 100)
   return (
-    <ItemBrowserStyle>
+    (<ItemBrowserStyle>
       <NextSeo
         title="Item Browser | Idleon Toolbox"
         description="Browse all of your existing items with a handy search"
@@ -120,16 +120,18 @@ const ItemBrowser = ({}) => {
               return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
             }}
             renderOption={(props, option) => {
-              return <Stack {...props} key={props.id} gap={2} direction={'row'}>
-                <img
-                  key={`img-${props.id}`}
-                  width={24}
-                  height={24}
-                  src={`${prefix}data/${option?.rawName}.png`}
-                  alt=""
-                />
-                <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
-              </Stack>
+              return (
+                (<Stack {...props} key={props.id} gap={2} direction={'row'}>
+                  <img
+                    key={`img-${props.id}`}
+                    width={24}
+                    height={24}
+                    src={`${prefix}data/${option?.rawName}.png`}
+                    alt=""
+                  />
+                  <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
+                </Stack>)
+              );
             }}
             style={{ width: 300 }}
             renderInput={(params) => (
@@ -206,7 +208,7 @@ const ItemBrowser = ({}) => {
           </CardContent>
         </Card>
       ) : null}
-    </ItemBrowserStyle>
+    </ItemBrowserStyle>)
   );
 };
 

@@ -19,7 +19,7 @@ import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { CardTitleAndValue } from '@components/common/styles';
 import { calcStampLevels, getStampBonus, unobtainableStamps, updateStamps } from '@parsers/stamps';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import { grey } from '@mui/material/colors';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
@@ -57,7 +57,7 @@ const Stamps = () => {
   }
 
   return (
-    <div>
+    (<div>
       <NextSeo
         title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
@@ -130,63 +130,79 @@ const Stamps = () => {
       </Stack>
       <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
         {Object.entries(localStamps || {}).map(([category, stamps], categoryIndex) => {
-          return <Grid xs={12} md={6} lg={4} container spacing={.5}
-                       sx={{ alignContent: 'start', justifyContent: 'center' }}
-                       key={category + '' + categoryIndex}>
-            <Typography sx={{ flexBasis: '100%' }} variable={'subtitle2'}>{category.capitalize()}</Typography>
-            {stamps.map((stamp, stampIndex) => {
-              const {
-                rawName,
-                level,
-                materials,
-                hasMaterials,
-                greenStackHasMaterials,
-                hasMoney,
-                enoughPlayerStorage,
-                reqItemMultiplicationLevel,
-                displayName,
-                bestCharacter
-              } = stamp;
-              const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
-              const border = getBorder(stamp);
-              const isBlank = displayName === 'Blank';
-              return <Grid xs={4} sm={3} key={rawName + stampIndex}>
-                <Tooltip maxWidth={450}
-                         title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
-                                                          subtractGreenStacks={subtractGreenStacks}/>}>
-                  <Card sx={{
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: 50,
-                    border: materials.length === 0 && (subtractGreenStacks
-                      ? greenStackHasMaterials
-                      : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
-                      ? '1px solid'
-                      : '',
-                    borderColor: border
-                  }}
-                        variant={'outlined'}
-                        onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
-                  >
-                    <CardContent sx={{ '&:last-child': { p: 0 } }}>
-                      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
-                        <StampIcon width={40} height={40}
-                                   level={level}
-                                   src={`${prefix}data/${rawName}.png`}
-                                   alt=""/>
-                        <Typography>{level}</Typography>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </Tooltip>
-              </Grid>
-            })}
-          </Grid>
+          return (
+            <Grid
+              container
+              spacing={.5}
+              sx={{ alignContent: 'start', justifyContent: 'center' }}
+              key={category + '' + categoryIndex}
+              size={{
+                xs: 12,
+                md: 6,
+                lg: 4
+              }}>
+              <Typography sx={{ flexBasis: '100%' }} variable={'subtitle2'}>{category.capitalize()}</Typography>
+              {stamps.map((stamp, stampIndex) => {
+                const {
+                  rawName,
+                  level,
+                  materials,
+                  hasMaterials,
+                  greenStackHasMaterials,
+                  hasMoney,
+                  enoughPlayerStorage,
+                  reqItemMultiplicationLevel,
+                  displayName,
+                  bestCharacter
+                } = stamp;
+                const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
+                const border = getBorder(stamp);
+                const isBlank = displayName === 'Blank';
+                return (
+                  <Grid
+                    key={rawName + stampIndex}
+                    size={{
+                      xs: 4,
+                      sm: 3
+                    }}>
+                    <Tooltip maxWidth={450}
+                             title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
+                                                              subtractGreenStacks={subtractGreenStacks}/>}>
+                      <Card sx={{
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: 50,
+                        border: materials.length === 0 && (subtractGreenStacks
+                          ? greenStackHasMaterials
+                          : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
+                          ? '1px solid'
+                          : '',
+                        borderColor: border
+                      }}
+                            variant={'outlined'}
+                            onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
+                      >
+                        <CardContent sx={{ '&:last-child': { p: 0 } }}>
+                          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
+                            <StampIcon width={40} height={40}
+                                       level={level}
+                                       src={`${prefix}data/${rawName}.png`}
+                                       alt=""/>
+                            <Typography>{level}</Typography>
+                          </Stack>
+                        </CardContent>
+                      </Card>
+                    </Tooltip>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          );
         })}
       </Grid>
-    </div>
+    </div>)
   );
 };
 
@@ -246,7 +262,7 @@ const StampInfo = ({
         </div>
       </Stack>
     </> : null}
-  </>
+  </>;
 }
 
 const CostSection = ({

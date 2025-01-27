@@ -2,7 +2,7 @@ import { Card, CardContent, Paper, Stack, TextField, Typography } from '@mui/mat
 import React, { useContext, useState } from 'react';
 import { signInWithEmailPassword } from '../../../firebase';
 import { AppContext } from '../context/AppProvider';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 
 const EmailLogin = () => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
@@ -56,7 +56,7 @@ const EmailLogin = () => {
                  onKeyDown={handleKeyDown}
                  label={'Password'}
                  inputProps={{ type: 'password', autoComplete: 'off' }}/>
-      <LoadingButton onClick={handleSubmit} loading={waitingForAuth} variant={'contained'}>Login</LoadingButton>
+      <Button onClick={handleSubmit} loading={waitingForAuth} variant={'contained'}>Login</Button>
       {(state?.loginError || error) ? <Card raised sx={{bgcolor: '#c02222'}}>
         <CardContent >
           <Typography variant={'body1'}>{state?.loginError || error}</Typography>

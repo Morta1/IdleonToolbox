@@ -36,7 +36,7 @@ const ChipTooltip = ({ name, bonus, baseVal }) => {
     <Typography mb={1} fontWeight={'bold'}
                 variant={'h6'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
     <Typography>{cleanUnderscore(bonus?.replace(/{/g, baseVal))}</Typography>
-  </>
+  </>;
 }
 
 export default Chips;

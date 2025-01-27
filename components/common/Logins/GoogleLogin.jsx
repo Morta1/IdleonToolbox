@@ -2,7 +2,7 @@ import { CircularProgress, Stack, Typography } from '@mui/material';
 import Link from '@mui/material/Link';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppProvider';
-import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
 import { getUserAndDeviceCode } from '../../../logins/google';
 
 const googleDeviceUrl = 'https://www.google.com/device';
@@ -55,9 +55,9 @@ const GoogleLogin = () => {
                 width={'fit-content'}>
       {userCode ? userCode : <CircularProgress sx={{ textAlign: 'center' }} size={14}/>}
     </Typography>
-    <LoadingButton loading={clicked || !userCode} variant={'contained'} onClick={handleCopyAndOpenUrl}>
+    <Button loading={clicked || !userCode} variant={'contained'} onClick={handleCopyAndOpenUrl}>
       <span>Copy code and open Url</span>
-    </LoadingButton>
+    </Button>
     <Typography mt={2} color={'error'} variant={'body1'}>{state?.loginError}</Typography>
   </Stack>
 };

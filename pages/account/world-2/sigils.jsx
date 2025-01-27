@@ -68,7 +68,7 @@ const Sigils = () => {
     }
   }
   return (
-    <Stack>
+    (<Stack>
       <NextSeo
         title="Sigils | Idleon Toolbox"
         description="Sigils information and progression"
@@ -99,14 +99,14 @@ const Sigils = () => {
           const cost = getSigilCost(sigil);
           const timeLeft = (cost - progress) / (characters?.length * sigilSpeed?.value) * 3600 * 1000;
           return (
-            <Card
-              sx={{
-                border: characters?.length > 0 ? '2px solid lightblue' : '',
-                opacity: unlocked === -1 ? 0.5 : 1,
-                width: { xs: 160, md: 250 }
-              }}
-              key={`${name}-${index}`}
-            >
+            (<Card
+                sx={{
+                  border: characters?.length > 0 ? '2px solid lightblue' : '',
+                  opacity: unlocked === -1 ? 0.5 : 1,
+                  width: { xs: 160, md: 250 }
+                }}
+                key={`${name}-${index}`}
+              >
               <CardContent>
                 <Stack gap={1} direction={'row'} alignItems={'center'}>
                   <SigilIcon unlocked={unlocked} className={'icon'} src={`${prefix}data/aSiga${index}.png`}
@@ -134,11 +134,11 @@ const Sigils = () => {
                   )}
                 </Stack>
               </CardContent>
-            </Card>
+            </Card>)
           );
         })}
       </Stack>
-    </Stack>
+    </Stack>)
   );
 };
 

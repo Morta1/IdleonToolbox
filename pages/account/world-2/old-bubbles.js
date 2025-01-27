@@ -506,7 +506,7 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
     {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:
       +{goalBonus}</Typography> : null}
-  </>
+  </>;
 }
 
 const FutureBubblesTooltip = () => {

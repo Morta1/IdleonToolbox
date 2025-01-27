@@ -38,7 +38,7 @@ const BubbleTooltip = ({ bubbleName, desc, func, level, x1, x2 }) => {
   return <>
     <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(bubbleName)}</Typography>
     <Typography>{cleanUnderscore(desc).replace(/({}?)|\$/g, effect)}</Typography>
-  </>
+  </>;
 }
 
 export default PlayerBubbles;

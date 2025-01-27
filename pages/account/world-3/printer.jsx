@@ -118,16 +118,18 @@ const Printer = () => {
 };
 
 const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
-  return <Stack>
-    <TitleAndValue boldTitle title={'Base value'} value={notateNumber(value, 'Big')}/>
-    <TitleAndValue boldTitle title={'Boosted value'} value={notateNumber(boostedValue, 'Big')}/>
-    {breakdown.length > 0 ? <Stack>
-      <Divider flexItem sx={{ my: 1, backgroundColor: 'black' }}/>
-      {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
-                                                          key={name}
-                                                          value={`${value.toString().match(/^-?\d+(?:\.\d{0,3})?/)?.[0]}x`}/>)}
-    </Stack> : null}
-  </Stack>
+  return (
+    (<Stack>
+      <TitleAndValue boldTitle title={'Base value'} value={notateNumber(value, 'Big')}/>
+      <TitleAndValue boldTitle title={'Boosted value'} value={notateNumber(boostedValue, 'Big')}/>
+      {breakdown.length > 0 ? <Stack>
+        <Divider flexItem sx={{ my: 1, backgroundColor: 'black' }}/>
+        {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
+                                                            key={name}
+                                                            value={`${value.toString().match(/^-?\d+(?:\.\d{0,3})?/)?.[0]}x`}/>)}
+      </Stack> : null}
+    </Stack>)
+  );
 }
 
 const TotalTooltip = ({ item, value, atoms, highestBrr, highestMaxLevelBrr }) => {

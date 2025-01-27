@@ -55,33 +55,35 @@ const Grimoire = () => {
                       }, index) => {
         if (name === 'Ripped_Page') return null;
         const desc = description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
-        return <Card key={name + index}>
-          <CardContent sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: 370,
-            minHeight: 250,
-            height: '100%',
-            opacity: unlocked ? 1 : .5
-          }}>
-            <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-              <img style={{ width: 32, height: 32 }} src={`${prefix}data/GrimoireUpg${index}.png`}/>
-              <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({level})</Typography>
-            </Stack>
-            <Divider sx={{ my: 1 }}/>
-            <Typography>{cleanUnderscore(desc.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
-              <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Bone${boneType}_x1.png`}/>
-              <Typography>Cost: {notateNumber(bones?.[boneType] || 0)} / {notateNumber(cost, 'Big')}</Typography>
-            </Stack>
-            <Divider sx={{ my: 1 }}/>
-            <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>
-          </CardContent>
-        </Card>
+        return (
+          (<Card key={name + index}>
+            <CardContent sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: 370,
+              minHeight: 250,
+              height: '100%',
+              opacity: unlocked ? 1 : .5
+            }}>
+              <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+                <img style={{ width: 32, height: 32 }} src={`${prefix}data/GrimoireUpg${index}.png`}/>
+                <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({level})</Typography>
+              </Stack>
+              <Divider sx={{ my: 1 }}/>
+              <Typography>{cleanUnderscore(desc.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
+              <Divider sx={{ my: 1 }}/>
+              <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
+                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Bone${boneType}_x1.png`}/>
+                <Typography>Cost: {notateNumber(bones?.[boneType] || 0)} / {notateNumber(cost, 'Big')}</Typography>
+              </Stack>
+              <Divider sx={{ my: 1 }}/>
+              <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>
+            </CardContent>
+          </Card>)
+        );
       })}
     </Stack>
-  </>
+  </>;
 };
 
 export default Grimoire;
