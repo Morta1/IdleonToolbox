@@ -35,7 +35,7 @@ import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } f
 import { getInventory } from './storage';
 import { skillIndexMap, skillsMaps } from './parseMaps';
 import {
-  applyTalentAddedLevels,
+  applyTalentAddedLevels, checkCharClass,
   createTalentPage,
   getActiveBuffs,
   getFamilyBonusValue,
@@ -417,7 +417,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     character.deityMinorBonus = getMinorDivinityBonus(character, account);
   }
   let secondLinkedDeity;
-  if (character?.class === 'Elemental_Sorcerer') {
+  if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
     const polytheism = char?.SkillLevels?.[505];
     const gIndex = polytheism % 10;
     const god = gods?.[gIndex];
@@ -436,7 +436,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
   const highestLevelElementalSorc = getHighestLevelOfClass(charactersLevels, 'Elemental_Sorcerer', true);
   let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
-  if (character?.class === 'Elemental_Sorcerer') {
+  if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
     familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
     const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
     familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);

@@ -1,7 +1,7 @@
 import { lavaLog, notateNumber, tryToParse } from '../utility/helpers';
 import { getDeityLinkedIndex } from './divinity';
 import { isArtifactAcquired } from './sailing';
-import { getTalentBonus } from './talents';
+import { checkCharClass, getTalentBonus } from './talents';
 import { getEventShopBonus, getSkillMasteryBonusByIndex } from './misc';
 import { getAtomColliderThreshold } from './atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
@@ -25,7 +25,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   const connectedPlayers = accountData?.lab?.connectedPlayers;
   const daysSinceLastSample = accountData?.accountOptions?.[125];
   const orbOfRemembranceKills = accountData?.accountOptions?.[138];
-  const divineKnights = charactersData?.filter((character) => character?.class === 'Divine_Knight');
+  const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class,'Divine_Knight'));
   const highestKingOfRemembrance = divineKnights?.reduce((res, { talents, addedLevels }) => {
     const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
     if (kingOfRemembrance > res) {

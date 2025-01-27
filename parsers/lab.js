@@ -4,7 +4,7 @@ import { getMealsBonusByEffectOrStat } from './cooking';
 import { getCardBonusByEffect } from './cards';
 import { isArenaBonusActive, isCompanionBonusActive } from './misc';
 import { getShinyBonus } from './breeding';
-import { getHighestTalentByClass } from './talents';
+import { checkCharClass, getHighestTalentByClass } from './talents';
 import { getEquinoxBonus } from './equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount } from '@parsers/items';
@@ -178,7 +178,7 @@ export const isLabEnabledBySorcererRaw = (charData, godIndex) => {
 }
 
 export const isGodEnabledBySorcerer = (character, godIndex) => {
-  if (character?.class === 'Elemental_Sorcerer') {
+  if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
     const polytheism = character.flatTalents?.find(({ talentId }) => talentId === 505);
     return polytheism?.level % 10 === godIndex;
   }

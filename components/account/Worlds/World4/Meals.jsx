@@ -27,7 +27,7 @@ import { getGrimoireBonus } from '@parsers/grimoire';
 const maxTimeValue = 8.64e15;
 
 let DEFAULT_MEAL_MAX_LEVEL = 30;
-const breakpoints = [-1, 0, -2, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110];
 const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -144,16 +144,20 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
 
   useEffect(() => {
     let tempMeals = defaultMeals;
-    breakpoints.forEach((breakpoint, index) => {
-      if (sortBy === breakpoint) {
-        const mealsCopy = [...defaultMeals];
-        if (sortBy === -2) {
-          tempMeals = getNoMealLeftBehind(mealsCopy, mealMaxLevel, true);
-        } else {
-          tempMeals = sortMealsBy(mealsCopy, index, breakpoint);
+    if (sortBy === -3) {
+      tempMeals = sortMealsBy(null, -3);
+    } else {
+      breakpoints.forEach((breakpoint, index) => {
+        if (sortBy === breakpoint) {
+          const mealsCopy = [...defaultMeals];
+          if (sortBy === -2) {
+            tempMeals = getNoMealLeftBehind(mealsCopy, mealMaxLevel, true);
+          } else {
+            tempMeals = sortMealsBy(mealsCopy, index, breakpoint);
+          }
         }
-      }
-    })
+      })
+    }
     if (filters.includes('overflow')) {
       tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus.value)
     }
@@ -173,6 +177,24 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   const sortMealsBy = (meals, index, level = 0) => {
     if (index === 0) return defaultMeals;
     const mealsCopy = [...defaultMeals];
+    if (index === -3) {
+      mealsCopy.sort((a, b) => {
+        const aRibbonIndex = account?.grimoire?.ribbons?.[28 + a.index];
+        const bRibbonIndex = account?.grimoire?.ribbons?.[28 + b.index];
+        // Handle undefined values
+        if (aRibbonIndex === 0 && bRibbonIndex === 0) {
+          return 0; // Both are undefined, no change in order
+        }
+        if (aRibbonIndex === 0) {
+          return 1; // a goes after b
+        }
+        if (bRibbonIndex === 0) {
+          return -1; // b goes after a
+        }
+        return aRibbonIndex - bRibbonIndex;
+      });
+      return mealsCopy;
+    }
     mealsCopy.sort((a, b) => {
       if (level !== 0) {
         if (a.level >= level) {
@@ -250,11 +272,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       <Stack direction={'row'} alignItems={'center'} gap={3}>
         <TextField sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
           {breakpoints?.map((val) => (<MenuItem key={val} value={val}>
-            {val === -1 ? 'Order' : val === 0 ? 'Time' : val === -2 ? 'NMLB' : `Time to ${val}`}
+            {val === -1 ? 'Order' : val === 0 ? 'Time' : val === -2 ? 'NMLB' : val === -3 ? 'Ribbon' : `Time to ${val}`}
           </MenuItem>))}
         </TextField>
         {breakpoints?.map((breakpoint) => {
-          if (breakpoint === 0 || breakpoint === -1 || breakpoint === -2) return null;
+          if (breakpoint === 0 || breakpoint === -1 || breakpoint === -2 || breakpoint === -3) return null;
           return sortBy === breakpoint && !localMeals?.some(({ level, amount }) => amount > 0 && level < breakpoint) ?
             <Typography key={'breakpoint-max' + breakpoint} sx={{ color: '#ffa726' }}>All meals are higher than
               level {breakpoint}
@@ -380,7 +402,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                           </HtmlTooltip>}
                           </Typography>
                         }
-                        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                        {level < bpLevel ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                           <Typography>Next Milestone: </Typography>
                           {new Date().getTime() + timeInMs < maxTimeValue
                             ? <Timer
@@ -388,7 +410,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                               staticTime={true}/>
                             : `${notateNumber(getTimeAsDays(timeToBp), 'Big')} days`
                           }
-                        </Stack>
+                        </Stack> : null}
                         <Stack direction={'row'} alignItems={'center'} gap={1}>
                           <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
                           <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>

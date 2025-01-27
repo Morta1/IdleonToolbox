@@ -298,7 +298,7 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       return true;
     }
     if (index === 146) {
-      const bloodBerserkers = characters?.filter((character) => character?.class === 'Blood_Berserker');
+      const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class, 'Blood_Berserker'));
       const lastBerserker = bloodBerserkers.at(-1);
       if (!lastBerserker) return Math.pow(1.1, 0);
       const superChows = lastBerserker?.chow.finished?.[1];
@@ -369,7 +369,7 @@ export const calcTotalStarTalent = (characters, account) => {
     const thirdTalentBonus = getTalentBonus(character?.talents, 1, 'SUPERNOVA_PLAYER');
     const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, 'Elemental_Sorcerer', true);
     let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS', highestLevelElementalSorc);
-    if (character?.class === 'Elemental_Sorcerer') {
+    if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
       familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
       const familyBonus = getFamilyBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS');
       familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);

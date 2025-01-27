@@ -9,7 +9,7 @@ import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { constructionMasteryThresholds } from '@parsers/construction';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getHighestLevelOfClass } from '@parsers/misc';
-import { getHighestTalentByClass } from '@parsers/talents';
+import { checkCharClass, getHighestTalentByClass } from '@parsers/talents';
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
@@ -127,7 +127,7 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
-  const squires = characters?.filter((character) => character?.class === 'Squire' || character?.class === 'Divine_Knight');
+  const squires = characters?.filter((character) => checkCharClass(character?.class,'Squire') || checkCharClass(character?.class,'Divine_Knight'));
   const squiresDataTemp = squires.reduce((res, character) => {
     const { name, talents, cooldowns, postOffice, afkTime } = character;
     const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);

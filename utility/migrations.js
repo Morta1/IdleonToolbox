@@ -99,6 +99,22 @@ export const migrateToVersion6 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion7 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+  if (dashboardConfig?.account?.['World 3'] && !dashboardConfig?.account?.['World 3']?.traps) {
+    dashboardConfig.account['World 3'].traps = {
+      checked: true,
+      options: [{ name: 'trapsOverdue', checked: true }]
+    }
+  }
+
+  dashboardConfig.version = 7;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -119,6 +135,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 5) {
       migratedConfig = migrateToVersion6(migratedConfig);
+    }
+    if (migratedConfig?.version === 6) {
+      migratedConfig = migrateToVersion7(migratedConfig);
     }
   }
   return migratedConfig;

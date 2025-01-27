@@ -135,7 +135,7 @@ const getDamagePercent = (character, characters, account) => {
   const highestLevelBb = getHighestLevelOf(characters, 'Blood_Berserker')
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY')
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DAMAGE', highestLevelBb);
-  const amplifiedFamilyBonus = familyBonus * (character?.class === 'Blood_Berserker' && theFamilyGuy > 0
+  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class,'Blood_Berserker') && theFamilyGuy > 0
     ? (1 + theFamilyGuy / 100)
     : 1)
   const firstArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Crystal_Steak');

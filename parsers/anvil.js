@@ -178,7 +178,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   };
 
   const anvilnomicsBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ANVILNOMICS');
-  const isArcher = talentPagesMap[character?.class]?.includes('Archer');
+  const isArcher = checkCharClass(character?.class,'Archer');
   const archerMultiBubble = isArcher ? getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ARCHER_OR_BUST') : 1;
   const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
   const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);

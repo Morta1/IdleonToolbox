@@ -12,6 +12,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
+import { isPast } from 'date-fns';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -514,6 +515,14 @@ export const getWorld3Alerts = (account, fields, options) => {
     if (Object.keys(library).length > 0) {
       alerts.library = library;
     }
+  }
+  if (fields?.traps?.checked) {
+    const traps = {};
+    const { trapsOverdue } = options?.traps || {};
+    if (trapsOverdue?.checked) {
+      traps.overdue = account?.traps?.flat().filter((slot) => isPast(slot?.timeLeft)).length;
+    }
+    alerts.traps = traps;
   }
   return alerts;
 };

@@ -2,6 +2,7 @@ import { lampWishes } from '../../../data/website-data';
 import { getCosmoBonus, getMeasurementBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { notateNumber } from '@utility/helpers';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 
 export const getLamp = (holesObject, accountData, unlockedCaverns) => {
   const wishPerDay = getWishPerDay(holesObject, accountData, unlockedCaverns);
@@ -31,7 +32,8 @@ const getWishPerDay = (holesObject, accountData, unlockedCaverns) => {
     ? 0
     : 1 + (getMeasurementBonus({ holesObject, accountData, t: 4 })
     + (getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 2 })
-      + getBellBonus({ holesObject, t: 3 }))) / 100;
+      + (getBellBonus({ holesObject, t: 3 })
+        + getMonumentBonus({ holesObject, t: 1, i: 7 })))) / 100;
 }
 
 const getFutureWishCosts = (curLevel, maxLevel, index) => {

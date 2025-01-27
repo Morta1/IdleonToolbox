@@ -482,7 +482,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
-  const isShaman = talentPagesMap[character?.class]?.includes('Shaman');
+  const isShaman = checkCharClass(character?.class,'Shaman');
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
@@ -501,7 +501,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
   const voteBonus = getVoteBonus(account, 26);
   // select first death bringer
-  const deathBringer = characters?.find((character) => character?.class === 'Death_Bringer');
+  const deathBringer = characters?.find((character) => checkCharClass(character?.class,'Death_Bringer'));
   const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
 
   return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)

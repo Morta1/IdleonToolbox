@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 6,
+  version: 7,
   account: {
     General: {
       tasks: {
@@ -155,6 +155,10 @@ const baseTrackers = {
           props: { label: 'Threshold', value: 90, maxValue: 90, minValue: 0, endAdornment: '%' },
           checked: true
         }]
+      },
+      traps: {
+        checked: true,
+        options: [{ name: 'trapsOverdue', checked: true }]
       }
     },
     'World 4': {

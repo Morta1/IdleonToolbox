@@ -245,7 +245,8 @@ const Account = ({ account, characters, trackers }) => {
                                                                                        atom
                                                                                        iconPath={`data/${rawName}`}/>)
                 : null}
-
+              {alerts?.['World 3']?.traps?.overdue > 0 ?
+                <Alert title={`${alerts?.['World 3']?.traps?.overdue} traps are overdue`} iconPath={'data/TrapBoxSet1'}/> : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 4'] ? <Stack direction={'row'} gap={4}>
