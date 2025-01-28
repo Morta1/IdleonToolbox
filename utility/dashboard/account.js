@@ -525,7 +525,9 @@ export const getWorld3Alerts = (account, fields, options) => {
     if (trapsOverdue?.checked && isTrapOverdue) {
       traps.overdue = isTrapOverdue;
     }
-    alerts.traps = traps;
+    if (Object.keys(traps).length > 0) {
+      alerts.traps = traps;
+    }
   }
   return alerts;
 };
