@@ -142,7 +142,6 @@ const AccountDrawer = () => {
   }
 
   const isSelected = (label) => {
-    console.log('router.pathname', router.pathname, label, router.pathname.includes(label))
     return router.pathname.includes(label);
   }
 

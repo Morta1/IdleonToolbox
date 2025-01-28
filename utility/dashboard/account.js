@@ -177,7 +177,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
                                                            displayName,
                                                            levelReq
                                                          }) => !displayName && account?.accountLevel >= levelReq);
-      if (missingObols) {
+      if (missingObols?.length > 0) {
         etc.familyObols = missingObols?.length;
       }
     }
