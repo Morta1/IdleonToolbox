@@ -192,7 +192,9 @@ export const getWorld1Alerts = (account, fields, options) => {
   if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
     const stamps = {};
     if (options?.stamps?.gildedStamps?.checked) {
-      if (account?.accountOptions?.[154] > 0 && (options?.stamps?.showGildedWhenNoAtomDiscount?.checked ? account?.atoms?.stampReducer <= 0 : true)) {
+      if (account?.accountOptions?.[154] > 0 && (options?.stamps?.showGildedWhenNoAtomDiscount?.checked
+        ? account?.atoms?.stampReducer <= 0
+        : true)) {
         stamps.gildedStamps = account?.accountOptions?.[154];
       }
     }
@@ -519,8 +521,9 @@ export const getWorld3Alerts = (account, fields, options) => {
   if (fields?.traps?.checked) {
     const traps = {};
     const { trapsOverdue } = options?.traps || {};
-    if (trapsOverdue?.checked) {
-      traps.overdue = account?.traps?.flat().filter((slot) => isPast(slot?.timeLeft)).length;
+    const isTrapOverdue = account?.traps?.flat().filter((slot) => isPast(slot?.timeLeft)).length;
+    if (trapsOverdue?.checked && isTrapOverdue) {
+      traps.overdue = isTrapOverdue;
     }
     alerts.traps = traps;
   }
