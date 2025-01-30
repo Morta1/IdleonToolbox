@@ -10,8 +10,8 @@ const Measure = ({ hole }) => {
       <CardTitleAndValue title={'Level'} value={measure?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${measure?.exp} / ${measure?.expReq}`}/>
       <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(measure?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Time to level'} value={measure?.timeLeft >= 0 ? msToDate(measure?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Time to level'} value={measure?.timeLeft >= 0 && measure?.expRate > 0 ? msToDate(measure?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>

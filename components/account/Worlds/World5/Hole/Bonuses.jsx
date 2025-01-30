@@ -14,8 +14,8 @@ const Bonuses = ({ hole }) => {
       <CardTitleAndValue title={'Level'} value={bonuses?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${bonuses?.exp} / ${bonuses?.expReq}`}/>
       <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(bonuses?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Time to level'} value={bonuses?.timeLeft >= 0 ? msToDate(bonuses?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={bonuses?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Time to level'} value={bonuses?.timeLeft >= 0 && bonuses?.expRate ? msToDate(bonuses?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Opals invested'} value={bonuses?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>

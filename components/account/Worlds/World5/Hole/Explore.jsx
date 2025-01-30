@@ -23,8 +23,8 @@ const Explore = ({ hole }) => {
       <CardTitleAndValue title={'Level'} value={explore?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${explore?.exp} / ${explore?.expReq}`}/>
       <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(explore?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Time to level'} value={explore?.timeLeft >= 0 ? msToDate(explore?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Time to level'} value={explore?.timeLeft >= 0 && explore?.expRate > 0 ? msToDate(explore?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
     </Stack>

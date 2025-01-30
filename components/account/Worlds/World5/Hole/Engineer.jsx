@@ -11,9 +11,9 @@ const Engineer = ({ hole }) => {
       <CardTitleAndValue title={'Level'} value={engineer?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${engineer?.exp} / ${engineer?.expReq}`}/>
       <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(engineer?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Time to level'} value={engineer?.timeLeft >= 0 ? msToDate(engineer?.timeLeft) : '0'}/>
+      <CardTitleAndValue title={'Time to level'} value={engineer?.timeLeft >= 0 && engineer?.expRate > 0 ? msToDate(engineer?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / 56`}/>
-      <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested} icon={'data/Opal.png'}
+      <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <FormControlLabel

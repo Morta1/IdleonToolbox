@@ -46,7 +46,7 @@ const parseHole = (holeRaw, accountData) => {
     ,// 20
     wishesUsed = [], // 21
     measurementBuffLevels = [], // 22
-    unlockedWishes = [] // 23
+    parallelVillagersGemShop = [] // 23
   ] = holeRaw || [];
   const holesObject = {
     charactersCavernLocation,
@@ -71,9 +71,8 @@ const parseHole = (holeRaw, accountData) => {
     harpRelated,
     wishesUsed,
     measurementBuffLevels,
-    unlockedWishes
+    parallelVillagersGemShop
   }
-
   const lampWishesList = lampWishes.map((wish, index) => {
     return {
       ...wish,
@@ -307,24 +306,23 @@ const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }) => {
       * Math.pow(1.23, Math.min(Math.max(0, (index - 16) / 2), 14));
 }
 const getVillagerExpPerHour = (holesObject, accountData, t) => {
-  const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u');
+  const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u')?.owned;
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
   const eventBonus = getEventShopBonus(accountData, 6);
-  const grimoireBonus = 1 + getGrimoireBonus(accountData?.grimoire?.upgrades, 29) / 100;
-  const arcadeBonus = 1 + (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0) / 100;
+  const grimoireBonus = getGrimoireBonus(accountData?.grimoire?.upgrades, 29);
+  const arcadeBonus = (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0);
 
   return (100 + getBucketBonus({ ...holesObject, t: 0, i: 25 }))
-    * Math.max(1, 1 + (50 * (hasBundle ? 1 : 0)) / 100)
     * Math.max(1, (1 + (25 * eventBonus) / 100)
       * (1 + (50 * (hasBundle ? 1 : 0)) / 100))
-    * (holesObject?.opalsInvested[t])
-    * (1 + (holesObject?.unlockedWishes[t]))
-    * arcadeBonus
-    * grimoireBonus
+    * holesObject?.opalsInvested[t]
+    * (1 + (holesObject?.parallelVillagersGemShop[t] ?? 0))
+    * (1 + arcadeBonus / 100)
+    * (1 + grimoireBonus / 100)
     * (1 + (getMonumentBonus({ holesObject, t: 0, i: 3 })
       + (getMonumentBonus({ holesObject, t: 1, i: 3 })
         + (getMeasurementBonus({ holesObject, accountData, t: 7 })
-          + (Math.floor((holesObject?.opalsInvested[t]) / 10)
+          + (Math.floor(holesObject?.opalsInvested[t] / 10)
             * getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 0 })
             + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 1 })
               * getCosSchematic(holesObject)
@@ -332,8 +330,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t) => {
                 + (getBucketBonus({ ...holesObject, t: 48, i: 0 })
                   + (cardBonus
                     + (getBellBonus({ holesObject, t: 1 })
-                      + getMeasurementBonus({ holesObject, accountData, t: 0 })
-                      + getWinnerBonus(accountData, '+{% Villager EXP')))))))))) / 100);
+                      + (getMeasurementBonus({ holesObject, accountData, t: 0 })
+                        + getWinnerBonus(accountData, '+{% Villager EXP'))))))))))) / 100);
 }
 const getVillagerExpReq = (level, index) => {
   return 1 === level && 0 === index ? 5 : 0 === index
