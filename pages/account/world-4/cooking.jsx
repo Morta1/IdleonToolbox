@@ -1,5 +1,5 @@
-import { Checkbox, FormControl, FormControlLabel, InputLabel, Select, Stack, Typography } from '@mui/material';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { Checkbox, FormControl, FormControlLabel, InputLabel, Select, Stack } from '@mui/material';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import Kitchens from 'components/account/Worlds/World4/Kitchens';
 import Meals from '@components/account/Worlds/World4/Meals';
@@ -15,14 +15,19 @@ import Tooltip from '@components/Tooltip';
 const Cooking = () => {
   const { state } = useContext(AppContext);
   const { cooking, achievements, sailing } = state?.account || {};
-  const characters = state?.characters?.map(({ name, playerId }) => ({ name, playerId }));
+  const characters = state?.characters?.map(({ name, playerId, starSigns }) => ({ name, playerId, starSigns }));
   const [selectedCharacter, setSelectedCharacter] = useState(characters?.[0]);
   const [enableNanoChip, setEnableNanoChip] = useState(false);
 
+  const hasNanoAndGordonius = useCallback(
+    () => {
+      const hasChip = getPlayerLabChipBonus(selectedCharacter, state?.account, 15);
+      const hasGordonius = selectedCharacter?.starSigns?.find(({ starName }) => starName === 'Gordonius_Major');
+      return !!hasChip && !!hasGordonius;
+    }, [selectedCharacter]);
+
   useEffect(() => {
-    const hasChip = getPlayerLabChipBonus(selectedCharacter, state?.account, 15);
-    const hasGordonius = selectedCharacter?.starSigns?.find(({starName}) => starName === 'Gordonius_Major')?.unlocked;
-    setEnableNanoChip(!!hasChip && !!hasGordonius);
+    setEnableNanoChip(hasNanoAndGordonius());
   }, [selectedCharacter]);
 
   const kitchens = useMemo(() => {
@@ -67,6 +72,7 @@ const Cooking = () => {
         <Stack direction={'row'} alignItems={'center'}>
           <FormControlLabel
             control={<Checkbox name={'enableNanoChip'}
+                               disabled={hasNanoAndGordonius()}
                                checked={enableNanoChip}
                                size={'small'}
             />}
