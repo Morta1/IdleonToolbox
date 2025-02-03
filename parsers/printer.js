@@ -15,6 +15,7 @@ export const getPrinter = (idleonData, charactersData, accountData) => {
 
 const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
   const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, 3);
+  const pocketLinked = accountData?.hole?.godsLinks?.find(({ index }) => index === 3);
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
   const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3
     ? goldRelic?.eldritchMultiplier
@@ -78,10 +79,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100);
 
           const multi = (wiredInBonus && isPlayerConnected ?
-            (harriepGodIndex.includes(charIndex)
+            ((harriepGodIndex.includes(charIndex) || pocketLinked)
               ? 6 * extraPrinting
               : 2 * extraPrinting)
-            : harriepGodIndex.includes(charIndex)
+            : (harriepGodIndex.includes(charIndex) || pocketLinked)
               ? 3 * extraPrinting
               : extraPrinting)
 
@@ -89,7 +90,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
 
           const breakdown = [
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
-            { name: 'Harriep God', value: harriepGodIndex.includes(charIndex) ? 3 : 0 },
+            { name: 'Harriep God', value: (harriepGodIndex.includes(charIndex) || pocketLinked) ? 3 : 0 },
             { name: 'Skill Mastery', value: 1 + skillMasteryBonus / 100 },
             {
               name: 'Divine Knight',

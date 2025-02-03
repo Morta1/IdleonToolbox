@@ -194,7 +194,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(calcMinigameTotalScore(account?.highscores?.minigameHighscores));
   quantities.push(calcTotalPrayersLevel(account?.prayers));
   quantities.push(account?.farming?.totalRanks); // total land ranks
-  quantities.push(account.accountOptions?.[221]); // Largest Magic Bean Trade
+  quantities.push(parseFloat(account.accountOptions?.[221])); // Largest Magic Bean Trade
   quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
   quantities.push(account.arcade?.totalUpgradeLevels);
   return quantities;
