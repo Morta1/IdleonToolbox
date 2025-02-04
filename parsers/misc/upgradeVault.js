@@ -7,7 +7,6 @@ export const getUpgradeVault = (idleonData, accountData) => {
 }
 
 export const parseUpgradeVault = (upgradeVaultRaw, accountData) => {
-  console.log('upgradeVaultRaw', upgradeVaultRaw)
   const totalUpgradeLevels = upgradeVaultRaw?.reduce((sum, level) => sum + level, 0);
   let upgrades = upgradeVault.map((upgrade, index) => {
     return {
@@ -25,7 +24,7 @@ export const parseUpgradeVault = (upgradeVaultRaw, accountData) => {
     }
   })
   const nextUnlock = upgrades?.find(({ unlocked }) => !unlocked);
-  console.log(nextUnlock)
+
   return {
     upgrades,
     totalUpgradeLevels,
