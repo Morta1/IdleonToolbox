@@ -2,6 +2,7 @@ import { tryToParse } from '../utility/helpers';
 import { statues } from '../data/website-data';
 import { getHighestTalentByClass, getTalentBonus } from './talents';
 import { isArtifactAcquired } from '@parsers/sailing';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getStatues = (idleonData, charactersData) => {
   const statuesRaw = tryToParse(idleonData?.StuG) || idleonData?.StatueG;
@@ -23,7 +24,8 @@ export const parseStatues = (statuesRaw, charactersData) => {
           rawName: `Statue${onyxStatue ? 'O' : goldStatue ? 'G' : ''}${parseInt(statueIndex) + 1}`,
           level,
           progress,
-          onyxStatue
+          onyxStatue,
+          statueIndex
         }
       ];
     }, [])
@@ -47,7 +49,15 @@ export const applyStatuesMulti = (account, characters) => {
     onyxMulti: artifact?.bonus ?? 0
   }));
   const dragonStatueMulti = getStatueBonus(statues, 'StatueG29');
-  return statues.map((statue) => ({ ...statue, dragonMulti: dragonStatueMulti }))
+  const upgradeVaultBonusIndexes = [0, 1, 2, 6];
+
+  return statues.map((statue) => {
+    let upgradeVaultMulti = 1;
+    if (upgradeVaultBonusIndexes.includes(statue.statueIndex)){
+      upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 25)
+    }
+    return { ...statue, dragonMulti: dragonStatueMulti, upgradeVaultMulti };
+  })
 }
 export const getStatueBonus = (statues, statueName, talents) => {
   const statue = statues?.find(({ rawName }) => rawName === statueName || rawName === statueName.replace('G', 'O'));
@@ -94,9 +104,11 @@ export const getStatueBonus = (statues, statueName, talents) => {
     default:
       talentBonus = 1;
   }
+
   const onyxMulti = statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1;
   const dragonMulti = statue?.dragonMulti && statue?.name !== 'DRAGON' ? 1 + statue?.dragonMulti / 100 : 1;
-  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * onyxMulti * dragonMulti;
+  const upgradeVaultMulti = statue?.upgradeVaultMulti > 1 ? 1 + statue?.upgradeVaultMulti / 100 : 1;
+  return statue?.level * statue?.bonus * talentBonus * statue?.talentMulti * onyxMulti * dragonMulti * upgradeVaultMulti;
 };
 
 export const calcStatueLevels = (allStatues) => {

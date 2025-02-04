@@ -13,6 +13,7 @@ import { getSigilBonus } from '@parsers/alchemy';
 import { getShinyBonus } from '@parsers/breeding';
 import { getBribeBonus } from '@parsers/bribes';
 import { getIsland } from '@parsers/world-2/islands';
+import { getGrimoireBonus } from '@parsers/grimoire';
 
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels) => {
@@ -197,6 +198,7 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     addedLevels += 5;
   }
   addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
+  addedLevels += getGrimoireBonus(account?.grimoire?.upgrades, 39);
 
   breakdown = [
     ...breakdown,
@@ -210,6 +212,10 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     {
       name: 'Equinox Bonus',
       value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
+    },
+    {
+      name: 'Grimoire Bonus',
+      value: getGrimoireBonus(account?.grimoire?.upgrades, 39)
     },
     {
       name: 'Ninja mastery',

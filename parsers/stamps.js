@@ -6,6 +6,7 @@ import { getHighestCapacityCharacter } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
@@ -211,7 +212,11 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
       }
     }
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier || 1) * (toiletPaperPostage || 1) * (1 + charmBonus / 100);
+  let upgradeVaultMulti = 0;
+  if (stamp?.stat === "BaseDmg" || stamp?.stat === "BaseHp" || stamp?.stat === "BaseAcc" || stamp?.stat === "BaseDef"){
+    upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16);
+  }
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier || 1) * (toiletPaperPostage || 1) * (1 + charmBonus / 100) * (1 + upgradeVaultMulti / 100);
 }
 
 export const applyStampsMulti = (stamps, multiplier) => {

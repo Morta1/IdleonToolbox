@@ -2,7 +2,8 @@ import { anvilProducts, anvilUpgradeCost } from '../data/website-data';
 import {
   getGoldenFoodBonus,
   getSkillMasteryBonusByIndex,
-  getSpeedBonusFromAgility, isCompanionBonusActive,
+  getSpeedBonusFromAgility,
+  isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from './misc';
 import { getBribeBonus } from './bribes';
@@ -13,8 +14,7 @@ import {
   getHighestTalentByClass,
   getTalentBonus,
   getTalentBonusIfActive,
-  getVoidWalkerTalentEnhancements,
-  talentPagesMap
+  getVoidWalkerTalentEnhancements
 } from './talents';
 import { getStarSignBonus } from './starSigns';
 import { getCardBonusByEffect, getEquippedCardBonus } from './cards';
@@ -34,9 +34,10 @@ import { getShinyBonus } from './breeding';
 import { isSuperbitUnlocked } from './gaming';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
-export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0) => {
-  const boxAndStatueMath = 1 + ((poBoxBonus + statueBonus) / 100);
+export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0, upgradeVaultBonus = 0) => {
+  const boxAndStatueMath = 1 + ((poBoxBonus + statueBonus + upgradeVaultBonus) / 100);
   const agilityBonus = getSpeedBonusFromAgility(agility);
   return (1 + (stampBonus + (2 * speedPoints)) / 100)
     * boxAndStatueMath
@@ -178,7 +179,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   };
 
   const anvilnomicsBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ANVILNOMICS');
-  const isArcher = checkCharClass(character?.class,'Archer');
+  const isArcher = checkCharClass(character?.class, 'Archer');
   const archerMultiBubble = isArcher ? getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'ARCHER_OR_BUST') : 1;
   const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
   const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);
@@ -222,7 +223,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   const winnerBonus = getWinnerBonus(account, '+{% Skill EXP');
   const companionBonus = isCompanionBonusActive(account, 9) ? 20 : 0;
-  const bucketBonus = getBucketBonus({...account?.hole?.holesObject, t: 49, i: 10});
+  const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 49, i: 10 });
   let godBonus = 0;
   const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
   if (flutterbisIndexes?.[character?.playerId] !== -1) {
@@ -252,7 +253,7 @@ export const getPlayerAnvil = (character, characters, account) => {
                     + (10 * firstAchievementBonus + (25 * secondAchievementBonus
                       + (10 * thirdAchievementBonus
                         + (smithingSkillMasteryBonus + (allSkillMasteryBonus
-                          + (shinyBonus + superbitBonus) + companionBonus +  winnerBonus + bucketBonus)))))))))))));
+                          + (shinyBonus + superbitBonus) + companionBonus + winnerBonus + bucketBonus)))))))))))));
 
   // ANVIL SPEED MATH;
   const anvilZoomerBonus = getStampBonus(account, 'skills', 'StampB3', character);
@@ -261,7 +262,8 @@ export const getPlayerAnvil = (character, characters, account) => {
   const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
   const bobBuildGuyStarSign = getStarSignBonus(character, account, 'Speed_in_Town');
   const talentTownSpeedBonus = getTalentBonus(character?.talents, 0, 'BROKEN_TIME');
-  stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus);
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 24);
+  stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus, upgradeVaultBonus);
 
   let guildCarryBonus = 0;
   let zergPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;

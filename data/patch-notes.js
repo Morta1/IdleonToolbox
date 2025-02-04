@@ -5,6 +5,13 @@ import React from 'react';
 export const patchNotes = [
   {
     'ver': '3.2.86',
+    'gameVer': '2.0.27',
+    'date': '04/02/2024',
+    'features': ['Updated the website with version 2.0.27 data, assets and upgrade vault page'],
+    'fixes': []
+  },
+  {
+    'ver': '3.2.86',
     'gameVer': '2.0.26',
     'date': '23/01/2024',
     'features': [
@@ -17,7 +24,7 @@ export const patchNotes = [
     'fixes': [
       'Fixed equinox timer in the dashboard page',
       'Fixed star talents order',
-      "Fixed a bug where pocket divinity wasn't taken into account for talent added levels"
+      'Fixed a bug where pocket divinity wasn\'t taken into account for talent added levels'
     ]
   },
   {

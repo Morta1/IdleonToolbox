@@ -95,6 +95,7 @@ import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { getGrimoireBonus } from '@parsers/grimoire';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -694,6 +695,7 @@ export const getDropRate = (character, account, characters) => {
   const voteBonus = getVoteBonus(account, 27);
   const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 46, i: 0 });
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
 
   const additive =
     firstTalentBonus +
@@ -724,7 +726,8 @@ export const getDropRate = (character, account, characters) => {
     landRankBonus +
     voteBonus +
     bucketBonus +
-    grimoireBonus;
+    grimoireBonus +
+    upgradeVaultBonus;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -778,6 +781,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Vote', value: voteBonus },
     { name: 'Bucket', value: bucketBonus },
     { name: 'Grimoire', value: grimoireBonus },
+    { name: 'Upgrade vault', value: upgradeVaultBonus },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))

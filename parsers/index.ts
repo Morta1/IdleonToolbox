@@ -67,6 +67,7 @@ import { getKangaroo } from "@parsers/world-2/kangaroo";
 import { getVoteBallot } from "@parsers/world-2/voteBallot";
 import { getHole } from "@parsers/world-5/hole";
 import { getGrimoire } from "@parsers/grimoire";
+import { getUpgradeVault } from "@parsers/misc/upgradeVault";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
   try {
@@ -252,6 +253,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.owl = getOwl(idleonData, accountData);
   accountData.kangaroo = getKangaroo(idleonData, accountData);
   accountData.voteBallot = getVoteBallot(idleonData, accountData);
+  accountData.upgradeVault = getUpgradeVault(idleonData, accountData);
 
   // Cleanup unnecessary data
   serializedCharactersData = null;

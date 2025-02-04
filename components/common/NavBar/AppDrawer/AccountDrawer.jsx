@@ -21,6 +21,7 @@ const worldsData = {
       { label: 'apocalypses', icon: 'data/UISkillIcon110' },
       { label: 'grimoire', icon: 'data/GrimoireUpg18' },
       { label: 'constellations', icon: 'data/StarTitle1' },
+      { label: 'upgradeVault', icon: 'data/VaultBut' },
       { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
       { label: 'guild', icon: 'etc/Guild' }
     ]

@@ -9,7 +9,7 @@ const MsaTotalizer = ({ }) => {
 
   return <>
     <Typography variant={'h5'}>MSA Totalizer</Typography>
-    <Stack direction={'row'} gap={1}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {Object.entries(state?.account?.msaTotalizer || {}).map(([stat, { name, value }], index) => {
         return <CardTitleAndValue key={stat} title={name} value={`${notateNumber(value)}%`} icon={`etc/MSA_${index}.png`}>
         </CardTitleAndValue>

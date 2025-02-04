@@ -86,7 +86,7 @@ const Charge = () => {
   );
 };
 const CardTitleAndValue = ({ cardSx, title, value, children }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
+  return <Card sx={{ my: { xs: 0, md: 3 }, mb: {xs: 2}, width: 'fit-content', ...cardSx }}>
     <CardContent>
       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
       {value ? <Typography>{value}</Typography> : children}

@@ -1,4 +1,5 @@
 import { owlData } from '../../data/website-data';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getOwl = (idleonData, accountData) => {
   return parseOwl(accountData);
@@ -44,8 +45,10 @@ const parseOwl = (account) => {
   });
   const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
   const nextLvReq = owlData?.[nextLvReqIndex]?.x3 || 0;
+  const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 21);
 
   const featherRate = (1 + 9 * getMegaFeather(account, 0))
+    * (1 + vaultUpgradeBonus / 100)
     * ((account?.accountOptions?.[254])
       + (5 * (account?.accountOptions?.[259])
         + (2 * getMegaFeather(account, 4)
@@ -53,13 +56,15 @@ const parseOwl = (account) => {
           + 4 * getMegaFeather(account, 4) * (account?.accountOptions?.[261]))))
     * (1 + (5 * (account?.accountOptions?.[256])) / 100) * Math.pow(3 + 2
       * getMegaFeather(account, 6), (account?.accountOptions?.[258]))
-    * (1 + ((account?.accountOptions?.[264]) * (account?.accountOptions?.[260])) / 100) + account?.accountOptions?.[264];
+    * (1 + ((account?.accountOptions?.[264]) * (account?.accountOptions?.[260])) / 100)
+    + account?.accountOptions?.[264];
   const totalFeatherBonus = 100 * getMegaFeather(account, 1)
     + (100 * getMegaFeather(account, 3)
       + (100 * getMegaFeather(account, 5)
         + (100 * getMegaFeather(account, 7)
           + (100 * Math.min(1, getMegaFeather(account, 9))
             + 50 * Math.max(0, getMegaFeather(account, 9) - 1)))));
+
   const bonuses = [
     { name: 'Feather/sec', bonus: featherRate },
     {

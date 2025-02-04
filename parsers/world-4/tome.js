@@ -49,17 +49,24 @@ export const getTome = (idleonData, account, characters, serverVars) => {
     bonus: getTomeBonus(account, totalPoints, index)
   }))
   tome.sort((a, b) => a.index - b.index);
-  const tops = serverVars?.TomePct || [];
-  let top = -1; // Initialize result to -1 as in the reduce case
+  const tops = serverVars?.TomePct || []; // Use tops for consistency
+  let top = -1; // Initialize top to -1 if no valid index is found
 
-  for (let index = 0; index < tops.length; index++) {
-    const topScore = tops[index];
-    if (totalPoints > topScore) {
+  for (let index = 0; index < 7; index++) {
+    if (totalPoints > tops[index]) {
       top = index;
-    } else {
-      break; // Exit the loop once the condition is met
     }
   }
+
+  if (top === -1) {
+    for (let index = 0; index < 5; index++) {
+      if (totalPoints >= tops[index + 7]) {
+        top = index + 7;
+        break; // Stop at the first match
+      }
+    }
+  }
+
   return {
     tome,
     bonuses,
