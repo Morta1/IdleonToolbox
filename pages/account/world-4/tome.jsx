@@ -7,7 +7,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 
-const ranks = ['95%', '90%', '80%', '70%', '60%', '50%', '25%', '10%', '5%', '1%', '0.5%', '0.1%'];
+const ranks = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%']
 
 const Tome = () => {
   const { state } = useContext(AppContext);

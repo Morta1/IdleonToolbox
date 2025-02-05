@@ -49,7 +49,7 @@ export const getTome = (idleonData, account, characters, serverVars) => {
     bonus: getTomeBonus(account, totalPoints, index)
   }))
   tome.sort((a, b) => a.index - b.index);
-  const tops = serverVars?.TomePct || []; // Use tops for consistency
+  let tops = serverVars?.TomePct || []; // Use tops for consistency
   let top = -1; // Initialize top to -1 if no valid index is found
 
   for (let index = 0; index < 7; index++) {
@@ -66,7 +66,7 @@ export const getTome = (idleonData, account, characters, serverVars) => {
       }
     }
   }
-
+  tops = tops.toSorted((a, b) => b - a)
   return {
     tome,
     bonuses,
