@@ -1,4 +1,5 @@
 import "core-js/actual/array/to-spliced";
+import "core-js/actual/array/to-sorted";
 
 String.prototype.capitalize = function () {
   if (!this) return '';
