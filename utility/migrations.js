@@ -115,6 +115,34 @@ export const migrateToVersion7 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion8= (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 1'] && !dashboardConfig?.account?.['World 1']?.forge) {
+    dashboardConfig.account['World 1'].forge = {
+      checked: true,
+      options: [{ name: 'emptySlots', checked: true }]
+    }
+  }
+  if (dashboardConfig?.account?.['World 4'] && dashboardConfig?.account?.['World 4']?.cooking?.options?.length === 1) {
+    dashboardConfig.account['World 4'].cooking.options = [
+      ...dashboardConfig.account['World 4'].cooking.options,
+      {
+        name: 'ribbons',
+        type: 'input',
+        props: { label: 'Ribbons threshold', value: 0, maxValue: 28, minValue: 0, helperText: "Empty ribbon slots" },
+        checked: true
+      }
+    ]
+  }
+
+  dashboardConfig.version = 8;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -138,6 +166,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 6) {
       migratedConfig = migrateToVersion7(migratedConfig);
+    }
+    if (migratedConfig?.version === 7) {
+      migratedConfig = migrateToVersion8(migratedConfig);
     }
   }
   return migratedConfig;

@@ -113,6 +113,9 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.['World 1']?.owl?.megaFeatherRestart ?
                 <Alert title={`Mega feather restart can be upgraded`}
                        iconPath={'etc/Owl_8'}/> : null}
+              {alerts?.['World 1']?.forge?.emptySlots ?
+                <Alert title={`You have empty forge slots`}
+                       iconPath={'data/ForgeA'}/> : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 2'] ? <Stack direction={'row'} gap={4}>
@@ -269,6 +272,9 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.['World 4']?.cooking?.spices > 0 ?
                 <Alert title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}
+              {alerts?.['World 4']?.cooking?.ribbons ?
+                <Alert title={`You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
+                       iconPath={'data/Ribbon0'}/> : null}
               {alerts?.['World 4']?.breeding?.eggs ? <Alert key={'breeding-eggs'}
                                                             title={`Eggs are at full capacity`}
                                                             iconPath={`data/PetEgg1`}/> : null}

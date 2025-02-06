@@ -203,14 +203,13 @@ const Buildings = () => {
                 <Stack>
                   {!isMaxed
                     ? <TitleAndValue title={'Non-trimmed'}
-                                     titleStyle={{ color: !isSlotTrimmed && '#81c784' }}
                                      value={<Timer type={'countdown'} staticTime={true}
                                                    placeholder={'Ready!'}
                                                    date={new Date().getTime() + timeLeft}
                                                    lastUpdated={state?.lastUpdated}/>}/>
                     : null}
                   {!isMaxed
-                    ? <TitleAndValue title={'Trimmed'} titleStyle={{ color: isSlotTrimmed && '#81c784' }}
+                    ? <TitleAndValue title={'Trimmed'}
                                      value={<Timer type={'countdown'}
                                                    placeholder={'Ready!'}
                                                    staticTime={true}

@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 7,
+  version: 8,
   account: {
     General: {
       tasks: {
@@ -62,6 +62,10 @@ const baseTrackers = {
       owl: {
         checked: true,
         options: [{ name: 'featherRestart', checked: true }, { name: 'megaFeatherRestart', checked: true }]
+      },
+      forge: {
+        checked: true,
+        options: [{ name: 'emptySlots', checked: true }]
       }
     },
     'World 2': {
@@ -180,7 +184,18 @@ const baseTrackers = {
           { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
         ]
       },
-      cooking: { checked: true, options: [{ name: 'spices', checked: true }] },
+      cooking: {
+        checked: true,
+        options: [
+          { name: 'spices', checked: true },
+          {
+            name: 'ribbons',
+            type: 'input',
+            props: { label: 'Ribbons threshold', value: 0, maxValue: 28, minValue: 0, helperText: "Empty ribbon slots" },
+            checked: true
+          }
+        ]
+      },
       laboratory: {
         checked: true, options: [
           { name: 'chipsRotation', checked: true },

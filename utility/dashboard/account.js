@@ -187,6 +187,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
   }
   return alerts;
 };
+
 export const getWorld1Alerts = (account, fields, options) => {
   const alerts = {};
   if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
@@ -217,6 +218,16 @@ export const getWorld1Alerts = (account, fields, options) => {
     }
     if (Object.keys(owl).length > 0) {
       alerts.owl = owl;
+    }
+  }
+  const emptyOres = account?.forge?.list?.filter(({ ore }) => !ore?.name);
+  if (fields?.forge?.checked) {
+    const forge = {};
+    if (options?.forge?.emptySlots?.checked) {
+      forge.emptySlots = emptyOres?.length;
+    }
+    if (Object.keys(forge).length > 0) {
+      alerts.forge = forge;
     }
   }
   return alerts;
@@ -573,6 +584,13 @@ export const getWorld4Alerts = (account, fields, options) => {
       const spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
       if (spices > 0) {
         cooking.spices = spices;
+      }
+    }
+    if (options?.cooking?.ribbons?.checked) {
+      const threshold = options?.cooking?.ribbons?.props?.value;
+      const emptySlots = account?.grimoire?.ribbons?.slice(0, 28)?.filter((ribbon) => !ribbon);
+      if (emptySlots?.length > threshold) {
+        cooking.ribbons = emptySlots;
       }
     }
     if (Object.keys(cooking).length > 0) {
