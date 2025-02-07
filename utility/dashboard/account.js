@@ -223,7 +223,7 @@ export const getWorld1Alerts = (account, fields, options) => {
   const emptyOres = account?.forge?.list?.filter(({ ore }) => !ore?.name);
   if (fields?.forge?.checked) {
     const forge = {};
-    if (options?.forge?.emptySlots?.checked) {
+    if (options?.forge?.emptySlots?.checked && emptyOres?.length) {
       forge.emptySlots = emptyOres?.length;
     }
     if (Object.keys(forge).length > 0) {
