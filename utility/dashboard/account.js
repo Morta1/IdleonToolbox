@@ -590,7 +590,7 @@ export const getWorld4Alerts = (account, fields, options) => {
       const threshold = options?.cooking?.ribbons?.props?.value;
       const emptySlots = account?.grimoire?.ribbons?.slice(0, 28)?.filter((ribbon) => !ribbon);
       if (emptySlots?.length > threshold) {
-        cooking.ribbons = emptySlots;
+        cooking.ribbons = emptySlots?.length;
       }
     }
     if (Object.keys(cooking).length > 0) {
