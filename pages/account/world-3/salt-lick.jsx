@@ -7,7 +7,7 @@ import { NextSeo } from 'next-seo';
 
 const SaltLick = () => {
   const { state } = useContext(AppContext);
-  const { saltLick = [] } = state?.account;
+  const { saltLick = [] } = state?.account || {};
 
   const calcBonusCost = (bonus) => {
     return Math.floor(bonus?.baseCost * Math.pow(bonus?.increment, bonus?.level ?? 0));
