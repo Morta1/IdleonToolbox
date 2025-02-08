@@ -69,36 +69,23 @@ import { getHole } from "@parsers/world-5/hole";
 import { getGrimoire } from "@parsers/grimoire";
 import { getUpgradeVault } from "@parsers/misc/upgradeVault";
 
-export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
+export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
     let accountData;
     let charactersData;
-    // This is a workaround for steam
+    // This is a workaround
     if (idleonData?.PlayerDATABASE) {
       charNames = Object.keys(idleonData?.PlayerDATABASE);
       charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
-        (charRes, charData, index) => {
-          // Ensure charRes is an object (it should be an object since we're accumulating results)
-          if (typeof charRes !== 'object' || charRes === null) {
-            charRes = {};  // Reset to an empty object if it's not one
-          }
-
-          // Ensure charData is an object
-          if (typeof charData === 'object' && charData !== null) {
-            return {
-              ...charRes,
-              ...Object.entries(charData).reduce((res, [key, value]) => ({
-                ...res,
-                [`${key}_${index}`]: value
-              }), {})
-            };
-          }
-          return charRes; // If charData is not an object, return charRes as is
-        },
-        {} // Initial value is an empty object
+        (charRes, charData, index) => ({
+          ...charRes,
+          ...Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {})
+        }),
+        {}
       );
       idleonData = { ...idleonData, ...charactersData };
-    }    let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
+    }
+    let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
     let parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
@@ -117,9 +104,9 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
   }
 };
 
-const serializeData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number, processedData?: any): any => {
-  const accountData: Account = processedData?.accountData || {};
-  let charactersData: Character[] = processedData?.charactersData || [];
+const serializeData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData) => {
+  const accountData = processedData?.accountData || {};
+  let charactersData = processedData?.charactersData || [];
   let serializedCharactersData = getCharacters(idleonData, charNames);
   accountData.accountCreateTime = accountCreateTime;
   accountData.companions = getCompanions(companion);
@@ -142,8 +129,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
   const { tasks, tasksDescriptions, meritsDescriptions } = getTasks(idleonData)
-  accountData.tasks = tasks; //
-  accountData.tasksDescriptions = tasksDescriptions; //
+  accountData.tasks = tasks; //  accountData.tasksDescriptions = tasksDescriptions; //
   accountData.meritsDescriptions = meritsDescriptions; //
   accountData.breeding = getBreeding(idleonData, accountData);
   accountData.cooking = getCooking(idleonData, accountData);
@@ -160,7 +146,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.statues = getStatues(idleonData, serializedCharactersData);
   accountData.achievements = getAchievements(idleonData);
 
-  accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char: Character) => ({
+  accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char) => ({
     ...char,
     isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4 || isLabEnabledBySorcererRaw(char, 4)
   }))
@@ -178,7 +164,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
 
   accountData.cooking.meals = applyMealsMulti(accountData.cooking.meals, blackDiamondRhinestone);
 
-  let charactersLevels = serializedCharactersData?.map((char: Character) => {
+  let charactersLevels = serializedCharactersData?.map((char) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
     return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
@@ -188,7 +174,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.rawConstellationsDone = rawConstellationsDone;
   accountData.charactersLevels = charactersLevels;
 
-  charactersData = serializedCharactersData.map((char: Character) => {
+  charactersData = serializedCharactersData.map((char) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
   accountData.grimoire = getGrimoire(idleonData, charactersData, accountData);
@@ -214,7 +200,7 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   accountData.atoms = getAtoms(idleonData, accountData);
   accountData.sailing = getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels);
 
-  const leaderboard: any = calculateLeaderboard(skills);
+  const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character) => ({ ...character, skillsInfo: leaderboard[character?.name] }));
 
   accountData.accountLevel = charactersData?.reduce((sum, { level }) => sum + level, 0);
@@ -253,9 +239,9 @@ const serializeData = (idleonData: IdleonData, charNames: string[], companion: R
   }
   charactersData = charactersData?.map((character) => {
     const { carryCapBags } = character;
-    character.carryCapBags = carryCapBags?.map((carryBag: any) => {
+    character.carryCapBags = carryCapBags?.map((carryBag) => {
       const typeGen = getTypeGen(carryBag?.Class);
-      const capacity: ValueAndBreakdown = getItemCapacity(typeGen, character, accountData);
+      const capacity = getItemCapacity(typeGen, character, accountData);
       return {
         ...carryBag,
         capacityPerSlot: capacity?.value,
