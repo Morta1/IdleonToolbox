@@ -77,10 +77,18 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     if (idleonData?.PlayerDATABASE) {
       charNames = Object.keys(idleonData?.PlayerDATABASE);
       charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
-        (charRes, charData, index) => ({
-          ...charRes,
-          ...Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {})
-        }),
+        (charRes, charData, index) => {
+          if (typeof charData === 'object' && charData !== null) {
+            return {
+              ...charRes,
+              ...Object.entries(charData).reduce((res, [key, value]) => ({
+                ...res,
+                [`${key}_${index}`]: value
+              }), {})
+            };
+          }
+          return charRes; // In case charData is not an object
+        },
         {}
       );
       idleonData = { ...idleonData, ...charactersData };
