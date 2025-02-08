@@ -78,6 +78,12 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
       charNames = Object.keys(idleonData?.PlayerDATABASE);
       charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
         (charRes, charData, index) => {
+          // Ensure charRes is an object (it should be an object since we're accumulating results)
+          if (typeof charRes !== 'object' || charRes === null) {
+            charRes = {};  // Reset to an empty object if it's not one
+          }
+
+          // Ensure charData is an object
           if (typeof charData === 'object' && charData !== null) {
             return {
               ...charRes,
@@ -87,13 +93,12 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
               }), {})
             };
           }
-          return charRes; // In case charData is not an object
+          return charRes; // If charData is not an object, return charRes as is
         },
-        {}
+        {} // Initial value is an empty object
       );
       idleonData = { ...idleonData, ...charactersData };
-    }
-    let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
+    }    let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
     let parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
