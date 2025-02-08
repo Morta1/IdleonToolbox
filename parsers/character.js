@@ -35,7 +35,8 @@ import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } f
 import { getInventory } from './storage';
 import { skillIndexMap, skillsMaps } from './parseMaps';
 import {
-  applyTalentAddedLevels, checkCharClass,
+  applyTalentAddedLevels,
+  checkCharClass,
   createTalentPage,
   getActiveBuffs,
   getFamilyBonusValue,
@@ -418,7 +419,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     character.deityMinorBonus = getMinorDivinityBonus(character, account);
   }
   let secondLinkedDeity;
-  if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
+  if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
     const polytheism = char?.SkillLevels?.[505];
     const gIndex = polytheism % 10;
     const god = gods?.[gIndex];
@@ -437,7 +438,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
   const highestLevelElementalSorc = getHighestLevelOfClass(charactersLevels, 'Elemental_Sorcerer', true);
   let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
-  if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
+  if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
     familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
     const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
     familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
@@ -679,7 +680,7 @@ export const getDropRate = (character, account, characters) => {
   const starSignRarityBonus = getStarSignBonus(character, account, 'Drop_Rarity');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Drop_Rate');
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
-  const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;;
+  const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
@@ -696,6 +697,7 @@ export const getDropRate = (character, account, characters) => {
   const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 46, i: 0 });
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
+  const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value;
 
   const additive =
     firstTalentBonus +
@@ -726,6 +728,7 @@ export const getDropRate = (character, account, characters) => {
     landRankBonus +
     voteBonus +
     bucketBonus +
+    cropDepotBonus +
     grimoireBonus +
     upgradeVaultBonus;
 
@@ -733,7 +736,14 @@ export const getDropRate = (character, account, characters) => {
   if (dropRate < 5 && chipBonus > 0) {
     dropRate = Math.min(5, dropRate + chipBonus / 100);
   }
-  let final = dropRate * extraDropRate;
+  let final = dropRate;
+
+  const hasAnotherDrBundle = isBundlePurchased(account?.bundles, 'bun_v');
+  if (hasAnotherDrBundle) {
+    final += 2;
+  }
+
+  final *= extraDropRate;
 
   const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
   if (ninjaMasteryDropRate) {
@@ -744,6 +754,7 @@ export const getDropRate = (character, account, characters) => {
   if (hasDrBundle) {
     final *= 1.2
   }
+
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= (1 + charmBonus / 100);
 
@@ -769,6 +780,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Companion', value: companionDropRate / 100 },
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
+    { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus / 100 },
     { name: 'Tome', value: tomeBonus / 100 },
@@ -777,11 +789,12 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? .3 : 0 },
     { name: 'Golden food', value: goldenFoodBonus / 100 },
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
-    { name: 'Land rank', value: landRankBonus },
+    { name: 'Land rank', value: landRankBonus / 100 },
     { name: 'Vote', value: voteBonus },
-    { name: 'Bucket', value: bucketBonus },
-    { name: 'Grimoire', value: grimoireBonus },
-    { name: 'Upgrade vault', value: upgradeVaultBonus },
+    { name: 'Gloomie Lootie', value: bucketBonus / 100 },
+    { name: 'Grimoire', value: grimoireBonus / 100 },
+    { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
+    { name: 'Crop Depot', value: cropDepotBonus / 100 },
     { name: 'Base', value: 1 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
@@ -957,7 +970,7 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
     }
   }).filter(({
                mapName,
-               afkType,
+               afkType
              }) => afkType === 'FIGHTING' && !excludedMaps[mapName] && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
 
   const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],

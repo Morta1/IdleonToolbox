@@ -346,7 +346,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
           ? shields === 0
           : true) && dailyShipments?.props?.value?.[index + 1] && !completedAnOrder
       });
-      if (uncompletedDailyShipments.length > 0) {
+      if (uncompletedDailyShipments?.length > 0) {
         postOffice.dailyShipments = uncompletedDailyShipments;
       }
     }

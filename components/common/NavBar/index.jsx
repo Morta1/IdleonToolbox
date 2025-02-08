@@ -8,7 +8,7 @@ import LoginButton from './LoginButton';
 import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
-import { isProd, shouldDisplayDrawer } from '../../../utility/helpers';
+import { handleLoadJson, isProd, shouldDisplayDrawer } from '../../../utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
 import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
@@ -24,26 +24,7 @@ const NavBar = ({ children }) => {
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
 
   const handlePaste = async () => {
-    try {
-      const content = JSON.parse(await navigator.clipboard.readText());
-      const { data, charNames, companion, guildData, serverVars } = content;
-      const { parseData } = await import('@parsers/index');
-      const parsedData = parseData(data, charNames, companion, guildData, serverVars);
-      const lastUpdated = new Date().getTime();
-      localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
-      // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
-      localStorage.setItem('rawJson', JSON.stringify({
-        data,
-        charNames,
-        companion,
-        guildData,
-        serverVars,
-        lastUpdated
-      }))
-      dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
-    } catch (e) {
-      console.error('Error while trying to manual import', e);
-    }
+    await handleLoadJson(dispatch);
   }
 
   return <>

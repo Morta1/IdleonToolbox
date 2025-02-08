@@ -29,4 +29,8 @@ describe('template spec', () => {
   it('fourth account', () => {
     testAccount('fourth.json');
   });
+
+  it('steam account', () => {
+    testAccount('steam.json');
+  });
 });

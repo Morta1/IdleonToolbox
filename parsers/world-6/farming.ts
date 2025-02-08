@@ -264,6 +264,7 @@ const getCropDepotBonuses = (account: any) => {
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
   const grimoireBonus = 1 + getGrimoireBonus(account?.grimoire?.upgrades, 22) / 100;
+  console.log('grimoireBonus',grimoireBonus)
   let bonuses = {
     damage: { name: 'DMG', value: 0 },
     gamingEvo: { name: 'Gaming Evo', value: 0 },
@@ -271,7 +272,8 @@ const getCropDepotBonuses = (account: any) => {
     cookingSpeed: { name: 'Meal Spd', value: 0 },
     cash: { name: 'Cash', value: 0 },
     shiny: { name: 'Pet Rate', value: 0 },
-    critters: { name: 'Critters', value: 0 }
+    critters: { name: 'Critters', value: 0 },
+    dropRate: { name: 'Drop Rate', value: 0 },
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
     bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
@@ -293,6 +295,9 @@ const getCropDepotBonuses = (account: any) => {
   }
   if (isJadeBonusUnlocked(account, 'Science_Paintbrush')) {
     bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+  }
+  if (isJadeBonusUnlocked(account, 'Science_Highlighter')) {
+    bonuses.dropRate.value = Math.round(Math.max(0, account?.farming?.cropsFound - 100)) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
   }
   return bonuses;
 }

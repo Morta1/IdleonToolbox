@@ -29,7 +29,7 @@ const LoginButton = () => {
       <Button sx={{ color: 'white', '&:hover': { borderColor: 'white' } }}
               onClick={handleLogout}
               startIcon={<LogoutIcon/>}>Logout</Button>}
-    <LoginDialog open={open} onClose={() => setOpen(false)}/>
+    <LoginDialog open={open} setOpen={setOpen} onClose={() => setOpen(false)}/>
   </Box>
 };
 

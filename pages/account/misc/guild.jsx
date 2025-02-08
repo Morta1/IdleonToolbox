@@ -13,7 +13,7 @@ import Popper from '@components/common/Popper';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
-  const { guild } = state?.account;
+  const { guild } = state?.account || {};
   const [dataTimestamp, setDataTimestamp] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [error, setError] = useState('');

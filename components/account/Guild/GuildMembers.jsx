@@ -24,7 +24,7 @@ const GuildMembers = ({ members, saves }) => {
   }, [members])
 
   const getSortedMembers = (arr, orderByKey, wantedOrder) => {
-    return arr.sort((a, b) => {
+    return arr?.sort((a, b) => {
       return wantedOrder === 'asc' ? a?.[orderByKey] - b?.[orderByKey] : b?.[orderByKey] - a?.[orderByKey]
     })
   }

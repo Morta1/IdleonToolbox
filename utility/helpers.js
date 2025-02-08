@@ -605,6 +605,30 @@ export const handleDownload = (jsonData, fileName) => {
   URL.revokeObjectURL(url);
 };
 
+export const handleLoadJson = async (dispatch) => {
+  try {
+    const content = JSON.parse(await navigator.clipboard.readText());
+    const { data, charNames, companion, guildData, serverVars } = content;
+    const { parseData } = await import('@parsers/index');
+    const parsedData = parseData(data, charNames, companion, guildData, serverVars);
+    const lastUpdated = new Date().getTime();
+    localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
+    // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
+    localStorage.setItem('rawJson', JSON.stringify({
+      data,
+      charNames,
+      companion,
+      guildData,
+      serverVars,
+      lastUpdated
+    }))
+    dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
+  } catch (e) {
+    console.error('Error while trying to manual import', e);
+  }
+}
+
+
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6'];
 export const prefix = isProd ? '/' : '/';
 

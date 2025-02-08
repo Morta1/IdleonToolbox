@@ -71,10 +71,24 @@ import { getUpgradeVault } from "@parsers/misc/upgradeVault";
 
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
   try {
+    let accountData;
+    let charactersData;
+    // This is a workaround for steam
+    if (idleonData?.PlayerDATABASE) {
+      charNames = Object.keys(idleonData?.PlayerDATABASE);
+      charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
+        (charRes, charData, index) => ({
+          ...charRes,
+          ...Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {})
+        }),
+        {}
+      );
+      idleonData = { ...idleonData, ...charactersData };
+    }
     let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
     let parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
-    const accountData = parsed?.accountData;
-    const charactersData = parsed?.charactersData;
+    accountData = parsed?.accountData;
+    charactersData = parsed?.charactersData;
     processedData = null;
     parsed = null;
     return { account: accountData, characters: charactersData };

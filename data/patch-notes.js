@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.87',
+    'gameVer': '2.0.27',
+    'date': '08/02/2024',
+    'features': [`Added a workaround for steam login (click "Login" -> "Steam Workaround")`],
+    'fixes': ['Drop rate calculations']
+  },
+  {
     'ver': '3.2.86',
     'gameVer': '2.0.27',
     'date': '04/02/2024',

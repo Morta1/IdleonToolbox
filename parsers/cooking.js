@@ -499,8 +499,8 @@ export const getChipsAndJewels = (account, size = 10) => {
     }
 
     for (let b = 0; 3 > b; b++) {
-      if (-1 !== serverVars.ChipRepo[b]) {
-        rotation[b] = serverVars.ChipRepo[b];
+      if (-1 !== serverVars.ChipRepo?.[b]) {
+        rotation[b] = serverVars.ChipRepo?.[b];
       }
       const unlocked = isJadeBonusUnlocked(account, 'Laboratory_Bling');
       if (18 <= rotation[b] && 20 >= rotation[b] && !unlocked) {

@@ -10,13 +10,16 @@ import EmailLogin from '../Logins/EmailLogin';
 import GoogleLogin from '../Logins/GoogleLogin';
 import AppleLogin from '../Logins/AppleLogin';
 import { AppContext } from '../context/AppProvider';
+import SteamWorkaround from '@components/common/Logins/SteamWorkaround';
+import { prefix } from 'utility/helpers';
 
 const methods = [
   { name: 'email', icon: <PasswordIcon/> },
   { name: 'gmail', icon: <GoogleIcon/> },
-  { name: 'apple', icon: <AppleIcon/> }
+  { name: 'apple', icon: <AppleIcon/> },
+  { name: 'steam workaround', icon: <img width={24} height={24} src={`${prefix}etc/steam-icon.png`} alt={'steam-icon'}/> }
 ]
-const LoginDialog = ({ open, onClose }) => {
+const LoginDialog = ({ open, setOpen, onClose }) => {
   const { dispatch, setWaitingForAuth, waitingForAuth } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(0);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
@@ -39,7 +42,8 @@ const LoginDialog = ({ open, onClose }) => {
       <Stack>
         <Typography variant={'h6'}>Login</Typography>
         <Typography variant={'body2'}>Use the same credentials as your idleon account</Typography>
-        <Link sx={{ fontSize: 14, width:'fit-content' }} href={'https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/'}
+        <Link sx={{ fontSize: 14, width: 'fit-content' }}
+              href={'https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/'}
               target={'_blank'}>Can't remember
           your email?</Link>
       </Stack>
@@ -49,7 +53,6 @@ const LoginDialog = ({ open, onClose }) => {
       <Tabs centered
             sx={{ marginBottom: 3 }}
             variant={'fullWidth'}
-
             value={selectedTab} onChange={handleTabChange}>
         {methods.map(({ name, icon }, index) => {
           return <Tab disabled={waitingForAuth} iconPosition={isSm ? 'top' : 'start'} label={name} icon={icon}
@@ -60,6 +63,7 @@ const LoginDialog = ({ open, onClose }) => {
         <EmailLogin switch-id={0}/>
         <GoogleLogin switch-id={1}/>
         <AppleLogin switch-id={2}/>
+        <SteamWorkaround switch-id={3} setOpen={setOpen}/>
       </Switch>
     </DialogContent>
   </Dialog>
