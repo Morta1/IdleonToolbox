@@ -33,6 +33,7 @@ export const calculateItemTotalAmount = (array, itemName, exact, isRawName = fal
 }
 
 export const getStatsFromGear = (character, bonusIndex, account, isTools = false) => {
+  if (!character) return 0;
   const { equipment, tools } = character || {};
   const silkroadMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 16) ?? 0;
   const silkroadSoftware = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 17) ?? 0;

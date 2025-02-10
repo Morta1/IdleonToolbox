@@ -22,7 +22,7 @@ const SteamWorkaround = ({ setOpen }) => {
 
     <Button sx={{ mt: 2 }} variant="contained"
             onClick={async () => {
-              await handleLoadJson(dispatch)
+              await handleLoadJson(dispatch);
               setOpen(false);
             }}>Load Steam Json</Button>
   </Stack>;
