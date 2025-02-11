@@ -9,6 +9,7 @@ import PlayersInventory from '@components/account/Worlds/World6/sneaking/Players
 import Upgrades from '@components/account/Worlds/World6/sneaking/Upgrades';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
+import Mastery from '@components/account/Worlds/World6/sneaking/Mastery';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
@@ -21,7 +22,9 @@ const Sneaking = () => {
     pristineCharms,
     upgrades,
     doorsCurrentHp,
-    gemStones
+    gemStones,
+    ninjaMasteryBonuses,
+    ninjaMastery
   } = state?.account?.sneaking || {};
 
   return <>
@@ -37,7 +40,7 @@ const Sneaking = () => {
                                                                         imgStyle={{ width: 19, height: 19 }}
                                                                         icon={`data/${rawName}.png`}/>)}
     </Stack>
-    <Tabber tabs={['Inventory', 'Jade Emporium', 'Upgrades', 'Charms']}>
+    <Tabber tabs={['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery']}>
       <PlayersInventory players={players}
                         dropList={dropList}
                         inventory={inventory}
@@ -48,6 +51,7 @@ const Sneaking = () => {
       <JadeEmporium upgrades={jadeEmporium}/>
       <Upgrades upgrades={upgrades}/>
       <Charms charms={pristineCharms}/>
+      <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
     </Tabber>
   </>
 };

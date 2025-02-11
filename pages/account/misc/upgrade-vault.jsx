@@ -6,9 +6,11 @@ import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import CoinDisplay from '@components/common/CoinDisplay';
+import useCheckbox from '@components/common/useCheckbox';
 
 const UpgradeVault = () => {
   const { state } = useContext(AppContext);
+  const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed upgrades');
   const { upgrades, totalUpgradeLevels, nextUnlock } = state?.account?.upgradeVault;
 
   return <>
@@ -23,6 +25,9 @@ const UpgradeVault = () => {
           <InfoIcon/>
         </Stack>
       </Tooltip>}/> : null}
+      <CardTitleAndValue>
+        <CheckboxEl/>
+      </CardTitleAndValue>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {upgrades?.map(({
@@ -38,8 +43,9 @@ const UpgradeVault = () => {
                         costToMax,
                         unlocked
                       }, index) => {
-        const desc = description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
         const maxed = level >= maxLevel;
+        if (maxed && hideMaxed) return null;
+        const desc = description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
         return (
           (<Card key={name + index}>
             <CardContent sx={{
@@ -48,7 +54,9 @@ const UpgradeVault = () => {
               width: 370,
               minHeight: 300,
               height: '100%',
-              opacity: unlocked ? 1 : .5
+              opacity: unlocked ? 1 : .5,
+              border: maxed ? '1px solid' : 'none',
+              borderColor: maxed ? 'success.light' : 'none'
             }}>
               <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
                 <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`}/>
@@ -58,7 +66,7 @@ const UpgradeVault = () => {
               </Stack>
               <Divider sx={{ my: 1 }}/>
               <Typography>{cleanUnderscore(desc.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
-              {level >= maxLevel ? null : <>
+              {maxed ? null : <>
                 <Divider sx={{ my: 1 }}/>
                 <Typography variant={'caption'}>Cost</Typography>
                 <CoinDisplay title={''}

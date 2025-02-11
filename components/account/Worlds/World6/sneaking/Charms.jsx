@@ -4,7 +4,7 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 const Charms = ({ charms }) => {
   return (
     (<Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {charms.map(({ rawName, name, bonus, x3, unlocked, value }, index) => {
+      {charms?.map(({ rawName, name, bonus, x3, unlocked, value }, index) => {
         bonus = bonus.replace(/}/, notateNumber(value, 'MultiplierInfo'));
         bonus = bonus.replace(/{/, value);
         return <Card sx={{

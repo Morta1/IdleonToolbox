@@ -503,6 +503,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   // select first death bringer
   const deathBringer = characters?.find((character) => checkCharClass(character?.class,'Death_Bringer'));
   const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
+  const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
 
   return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
@@ -511,7 +512,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
           + (goldenFoodAchievement
             + (goldenFoodBubbleBonus
               + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * deathBringer?.wow?.finished?.at(0)))))) / 100;
+            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses))))) / 100;
 }
 
 export const getGoldenFoodBonus = (foodName, character, account, characters) => {

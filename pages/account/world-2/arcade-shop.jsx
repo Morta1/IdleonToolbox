@@ -11,7 +11,7 @@ const MAX_LEVEL = 100;
 
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
-  const { balls, goldBalls, shop } = state?.account?.arcade || {};
+  const { balls, goldBalls, shop, royalBalls } = state?.account?.arcade || {};
 
   const getCost = (level) => {
     const multiplier = (state?.account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active)
@@ -52,7 +52,7 @@ const ArcadeShop = () => {
         <CardTitleAndValue title={'Royal balls'}>
           <Stack direction={'row'} gap={2}>
             <BallIcon blue src={`${prefix}data/PachiBall1.png`} alt=""/>
-            <Typography>{goldBalls}</Typography>
+            <Typography>{royalBalls}</Typography>
           </Stack>
         </CardTitleAndValue>
       </Stack>

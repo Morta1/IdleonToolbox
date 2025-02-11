@@ -4,7 +4,8 @@ import {
   ninjaEquipment,
   ninjaExtraInfo,
   ninjaUpgrades,
-  pristineCharms as rawPristineCharms
+  pristineCharms as rawPristineCharms,
+  randomList
 } from '../../data/website-data';
 
 export const getSneaking = (idleonData: any, serverVars: any, serializedCharactersData: any, account: any) => {
@@ -69,7 +70,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   const players = serializedCharactersData.map((_: any, index: number) => ({
     equipment: characterEquipments?.[index]?.map((equip: any) => ({
       ...equip,
-      value: equip?.value * (1 + goldScroll / 100)
+      value: equip?.value
     })),
     ...(playersInfo?.[index] || [])
   }));
@@ -107,6 +108,10 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
       value: charm?.bonus.includes('}') ? (1 + charm?.x3 / 100) : charm?.x3,
       baseValue: charm?.x3
     }));
+  const ninjaMasteryBonuses = (randomList?.[101] as string).split(' ').map((mastery: any, index: any) => {
+    const [description, bonus] = mastery.split('{');
+    return { index, description, bonus }
+  });
   return {
     jadeEmporium,
     jadeCoins,
@@ -121,7 +126,9 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     totalJadeEmporiumUnlocked,
     unlockedFloors,
     gemStones,
-    lastLooted
+    lastLooted,
+    ninjaMasteryBonuses,
+    ninjaMastery
   };
 }
 const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus: number) => {
@@ -142,11 +149,21 @@ const parseNinjaItems = (array: any, doChunks: boolean) => {
   }
   return result?.map((item: any) => ({ ...item, value: getItemValue(item) }));
 }
-const getItemValue = ({ type, level, x3, x4 }: { type: number, level: number, x3: number, x4: number }) => {
-  return 1 == type
-    ? x3 * Math.pow(1.23, level)
-    : 2 == type
-      ? Math.min(x3 + x4 * (level / (level + 50)), x4) : 0;
+const getItemValue = ({ type, subType, level, x3, x5 }: {
+  type: number,
+  subType: number,
+  level: number,
+  x3: number,
+  x5: number
+}) => {
+  if (1 == type) {
+    if (0 == subType)
+      return 10 * x3 * ((level + 10) / (level + 40));
+    return x3 * Math.pow(1.23, level)
+      * Math.pow(.92, Math.max(0, level - 80))
+      * Math.pow(.94, Math.max(0, level - 110));
+  }
+  return 2 == type ? Math.min(x3 + x5 * (level / (level + 50)), x5) : 0;
 }
 
 export const getInventoryNinjaItem = (account: any, equipName: string) => {

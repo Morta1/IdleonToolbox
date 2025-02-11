@@ -8,9 +8,12 @@ import { vialCostsArray } from '../../../parsers/alchemy';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
+import useCheckbox from '@components/common/useCheckbox';
 
 const Vials = () => {
   const { state } = useContext(AppContext);
+  const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed vials');
+
   const getVialMastery = () => {
     if (isRiftBonusUnlocked(state?.account?.rift, 'Vial_Mastery')) {
       const maxedVials = state?.account?.alchemy?.vials?.filter(({ level }) => level >= 13);
@@ -24,11 +27,17 @@ const Vials = () => {
       title="Vials | Idleon Toolbox"
       description="Vials progressions and upgrade requirements"
     />
-    <CardTitleAndValue title={'Vial mastery bonus'}
-                       value={`${(getVialMastery() || 1).toFixed(3)}x`}/>
+    <Stack sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
+      <CardTitleAndValue title={'Vial mastery bonus'}
+                         value={`${(getVialMastery() || 1).toFixed(3)}x`}/>
+      <CardTitleAndValue>
+        <CheckboxEl/>
+      </CardTitleAndValue>
+    </Stack>
     <Stack direction={'row'} flexWrap={'wrap'}>
       {state?.account?.alchemy?.vials?.map((vial, index) => {
         const { name, level, mainItem } = vial;
+        if (level >= 13 && hideMaxed) return null
         return <Tooltip key={`${name}${index}`} title={<VialTooltip {...vial}/>}><Box position={'relative'}>
           <ItemIcon src={`${prefix}data/${mainItem}.png`} alt=""/>
           <img key={`${name}${index}`}
