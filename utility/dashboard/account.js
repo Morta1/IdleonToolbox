@@ -852,10 +852,14 @@ export const getWorld6Alerts = (account, fields, options) => {
   }
   if (fields?.summoning?.checked) {
     const summoning = {};
-    const { familiar } = options?.summoning;
+    const { familiar, battleAttempts } = options?.summoning;
     const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
     if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
       summoning.familiar = { level, maxLvl };
+    }
+    const { summoningStuff } = account?.summoning;
+    if (battleAttempts?.checked && summoningStuff?.[0] > 0) {
+      summoning.battleAttempts = summoningStuff?.[0];
     }
     if (Object.keys(summoning).length > 0) {
       alerts.summoning = summoning;

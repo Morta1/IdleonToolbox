@@ -115,7 +115,7 @@ export const migrateToVersion7 = (config) => {
   return dashboardConfig
 }
 
-export const migrateToVersion8= (config) => {
+export const migrateToVersion8 = (config) => {
   let dashboardConfig = { ...config };
   if (!dashboardConfig) {
     dashboardConfig = {};
@@ -133,13 +133,29 @@ export const migrateToVersion8= (config) => {
       {
         name: 'ribbons',
         type: 'input',
-        props: { label: 'Ribbons threshold', value: 0, maxValue: 28, minValue: 0, helperText: "Empty ribbon slots" },
+        props: { label: 'Ribbons threshold', value: 0, maxValue: 28, minValue: 0, helperText: 'Empty ribbon slots' },
         checked: true
       }
     ]
   }
 
   dashboardConfig.version = 8;
+  return dashboardConfig
+}
+export const migrateToVersion9 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 6'] && dashboardConfig?.account?.['World 6']?.summoning?.options?.length === 1) {
+    dashboardConfig.account['World 6'].summoning.options = [
+      ...dashboardConfig.account['World 6'].summoning.options,
+      { name: 'battleAttempts', checked: true }
+    ]
+  }
+
+  dashboardConfig.version = 9;
   return dashboardConfig
 }
 
@@ -169,6 +185,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 7) {
       migratedConfig = migrateToVersion8(migratedConfig);
+    }
+    if (migratedConfig?.version === 8) {
+      migratedConfig = migrateToVersion9(migratedConfig);
     }
   }
   return migratedConfig;

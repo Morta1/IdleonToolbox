@@ -1,16 +1,26 @@
 import * as React from 'react';
 import { useState } from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRouter } from 'next/router';
 import usePin from '@components/common/favorites/usePin';
-import { Collapse, List, ListItemButton, ListItemText, useMediaQuery } from '@mui/material';
+import {
+  Collapse,
+  List,
+  ListItem,
+  ListItemButton,
+  listItemButtonClasses,
+  ListItemText,
+  Popover,
+  Typography,
+  useMediaQuery
+} from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const PinnedPages = ({}) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const [isOpen, setIsOpen] = useState(false);
-  const { pinnedPages } = usePin();
+  const { pinnedPages, removePin } = usePin();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -74,31 +84,67 @@ const PinnedPages = ({}) => {
       {isXs ? <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List>
           {pinnedPages?.map(({ name, url, tab, nestedTab }, index) => {
-            return <ListItemButton sx={{ pl: '35px' }} key={`${name}-${index}`}
-                                   onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
-              ? ` - ${tab}`
-              : ''}{nestedTab ? ` - ${nestedTab}` : ''}</ListItemButton>
+            return <ListItem key={`${name}-${index}`}
+                             secondaryAction={<IconButton size="small" onClick={(e) => {
+                               e.stopPropagation();
+                               removePin(index)
+                             }}>
+                               <ClearIcon/>
+                             </IconButton>}>
+              <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}
+                              onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
+                ? ` - ${tab}`
+                : ''}{nestedTab ? ` - ${nestedTab}` : ''}
+              </ListItemButton>
+            </ListItem>
           })}
           {!pinnedPages?.length && <ListItemButton dense disabled>You don't have any pinned pages</ListItemButton>}
         </List>
-      </Collapse> : <Menu
-        id="basic-menu"
-        sx={{ mt: .5 }}
+      </Collapse> : <Popover
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        MenuListProps={{ 'aria-labelledby': 'basic-button' }}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        sx={{ mt: 0.5 }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left'
+        }}
       >
-        {pinnedPages?.map(({ name, url, tab, nestedTab }, index) => {
-          return <MenuItem dense key={`${name}-${index}`}
-                           onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
-            ? ` - ${tab}`
-            : ''}{nestedTab ? ` - ${nestedTab}` : ''}</MenuItem>
-        })}
-        {!pinnedPages?.length && <MenuItem dense disabled={true}>You don't have any pinned pages</MenuItem>}
-      </Menu>}
+        <List sx={{ minWidth: 200 }}>
+          {pinnedPages?.length > 0 ? (
+            pinnedPages.map(({ name, url, tab, nestedTab }, index) => (
+              <ListItem
+                sx={{ px: 1 }}
+                key={`${name}-${index}`}
+                dense
+                secondaryAction={<IconButton size="small" onClick={(e) => {
+                  e.stopPropagation();
+                  removePin(index)
+                }}>
+                  <ClearIcon/>
+                </IconButton>}
+                onClick={() => handleNavigation(url, tab, nestedTab)}
+              >
+                <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}>
+                  {name.replace('-', ' ').capitalizeAllWords()}
+                  {tab ? ` - ${tab}` : ''}
+                  {nestedTab ? ` - ${nestedTab}` : ''}
+                </ListItemButton>
+              </ListItem>
+            ))
+          ) : (
+            <ListItem dense disabled>
+              <ListItemText>
+                <Typography variant="body2">You don't have any pinned pages</Typography>
+              </ListItemText>
+            </ListItem>
+          )}
+        </List>
+      </Popover>}
     </div>
   );
 }

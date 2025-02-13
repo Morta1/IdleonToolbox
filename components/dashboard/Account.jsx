@@ -385,6 +385,10 @@ const Account = ({ account, characters, trackers }) => {
                 <Alert
                   title={`Summoning familiar bonus isn't maxed (${alerts?.['World 6']?.summoning?.familiar.level}/${alerts?.['World 6']?.summoning?.familiar.maxLvl})`}
                   iconPath={'data/SumUpgIc2'}/> : null}
+              {alerts?.['World 6']?.summoning?.battleAttempts ?
+                <Alert
+                  title={`You have ${alerts?.['World 6']?.summoning?.battleAttempts} summoning battle attempts`}
+                  iconPath={'data/Heart'}/> : null}
               {alerts?.['World 6']?.farming?.missingPlots?.length > 0 ?
                 <Alert
                   title={`You have ${alerts?.['World 6']?.farming?.missingPlots?.length} seeds available to be planted`}

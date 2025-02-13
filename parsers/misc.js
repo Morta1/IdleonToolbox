@@ -1045,7 +1045,7 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
         const baseIndex = Math.floor(random / monsterList.length);
         const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex])
-      } else if (random < 500 && account?.summoning?.killroyStat?.[2] >= 4) {
+      } else if (random < 500 && account?.summoning?.summoningStuff?.[2] >= 4) {
         const monsterList = randomList[99].split(' ');
         const baseIndex = Math.floor(random / monsterList.length);
         const monsterIndex = Math.round(random - baseIndex * monsterList.length);

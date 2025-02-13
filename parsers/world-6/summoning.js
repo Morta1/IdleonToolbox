@@ -30,7 +30,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   const upgradesLevels = rawSummon?.[0];
   const totalUpgradesLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
-  const killroyStat = rawSummon?.[3];
+  const summoningStuff = rawSummon?.[3];
   const wonBattles = rawSummon?.[1];
   const essences = rawSummon?.[2];
   const whiteBattleIcons = ['Piggo', 'Wild_Boar', 'Mallay', 'Squirrel', 'Whale', 'Bunny', 'Chippy', 'Cool_Bird',
@@ -128,7 +128,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     allBattles,
     armyHealth,
     armyDamage,
-    killroyStat,
+    summoningStuff,
     highestEndlessLevel,
     totalWins: allBattles?.flat()?.reduce((sum, {won})=> sum + (won ? 1 : 0) ,0) + highestEndlessLevel
   }

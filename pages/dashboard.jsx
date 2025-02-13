@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 8,
+  version: 9,
   account: {
     General: {
       tasks: {
@@ -281,13 +281,15 @@ const baseTrackers = {
         ]
       },
       summoning: {
-        checked: true, options: [
+        checked: true,
+        options: [
           {
             name: 'familiar',
             checked: true,
             type: 'input',
             props: { label: 'Threshold', value: 10, minValue: 0, helperText: '' }
-          }
+          },
+          { name: 'battleAttempts', checked: true }
         ]
       }
     }

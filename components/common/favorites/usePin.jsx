@@ -30,7 +30,14 @@ const usePin = () => {
     dispatch({ type: 'pinnedPages', data: updatePinnedPages });
   }
 
-  return { pinnedPages: state.pinnedPages, isPinned, togglePin };
+  const removePin = (index) => {
+    let updatePinnedPages = [...(state?.pinnedPages || [])];
+    updatePinnedPages = updatePinnedPages.filter((_, ind) => index !== index);
+    localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
+    dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+  }
+
+  return { pinnedPages: state.pinnedPages, isPinned, togglePin, removePin };
 };
 
 export default usePin;
