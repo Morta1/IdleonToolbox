@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '../../../utility/helpers';
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '../../../parsers/printer';
@@ -24,7 +24,7 @@ const AtomCollider = ({}) => {
         <Stack direction={'row'} gap={2}>
           <img src={`${prefix}etc/Particle.png`}
                alt="" style={{ objectFit: 'contain' }}/>
-          <Typography>{Math.floor(particles)}</Typography>
+          <Typography>{commaNotation(Math.floor(particles))}</Typography>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Stamp Reducer'}>

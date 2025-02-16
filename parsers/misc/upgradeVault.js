@@ -57,7 +57,15 @@ export const getUpgradeVaultBonus = (upgrades, index) => {
 
 const calcUpgradeVaultBonus = (upgrades, index) => {
   const { level, x5 } = upgrades?.[index];
-  return 32 === index || 1 === index || 6 === index || 7 === index || 8 === index || 9 === index || 13 === index || 999 === index || 999 === index
+  const higherBonuses = upgrades?.[60];
+  return 32 === index || 1 === index || 6 === index
+  || 7 === index || 8 === index || 9 === index
+  || 13 === index || 999 === index || 999 === index
+  || 33 === index || 36 === index || 40 === index
+  || 42 === index || 43 === index || 44 === index
+  || 49 === index || 51 === index || 52 === index
+  || 53 === index || 57 === index || 61 === index
+  || 999 === index
     ? level * x5
     : 0 === index
       ? (level
@@ -65,8 +73,26 @@ const calcUpgradeVaultBonus = (upgrades, index) => {
         + (Math.max(0, level - 25)
           + (Math.max(0, level - 50)
             + Math.max(0, level - 100))))
-      * (1 + calcUpgradeVaultBonus(upgrades, 32) / 100)
-      : level
-      * x5
-      * (1 + calcUpgradeVaultBonus(upgrades, 32) / 100);
+      * (1 + calcUpgradeVaultBonus(upgrades, 32, 0) / 100)
+      : 60 === index
+        ? (higherBonuses?.level
+          * higherBonuses?.x5
+          + (Math.max(0, higherBonuses?.level - 25)
+            + (Math.max(0, higherBonuses?.level - 50)
+              + (2 * Math.max(0, higherBonuses?.level - 100)
+                + (3 * Math.max(0, higherBonuses?.level - 200)
+                  + (5 * Math.max(0, higherBonuses?.level - 300)
+                    + (7 * Math.max(0, higherBonuses?.level - 400)
+                      + 10 * Math.max(0, higherBonuses?.level - 450))))))))
+        * (1 + Math.floor(higherBonuses?.level / 25) / 5)
+        * (1 + calcUpgradeVaultBonus(upgrades, 61, 0) / 100)
+        : 32 > index
+          ? level
+          * x5
+          * (1 + calcUpgradeVaultBonus(upgrades, 32, 0) / 100)
+          : 61 > index
+            ? level
+            * x5
+            * (1 + calcUpgradeVaultBonus(upgrades, 61, 0) / 100)
+            : 0;
 }

@@ -25,6 +25,7 @@ import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const spicesNames = [
   'Grasslands',
@@ -247,6 +248,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 2 });
     const bucketBonus = getBucketBonus({ ...holesObject, t: 56, i: 0 });
     const lampBonus = getLampBonus({ holesObject, t: 0, i: 0 });
+    const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 54);
 
     const mealSpeed = 10
       * (1 + voidWalkerBonusTalent / 100)
@@ -254,6 +256,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       * Math.max(1, voidWalkerApocalypseBonus)
       * (1 + richelinBonus)
       * (1 + voteBonus / 100)
+      * (1 + upgradeVaultBonus / 100)
       * (1 + marshmallowBonus
         * Math.ceil((highestFarming + 1) / 50) / 100)
       * Math.max(1, bubbleBonus)
@@ -281,11 +284,13 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
         * Math.floor((speedLv
           + (fireLv
             + luckLv)) / 10) / 100);
-    // if (characterIndex === 1){
+    // if (characterIndex === 8 && kitchenIndex === 0){
     //   console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
     //   console.log('account?.farming?.cropDepot?.cookingSpeed?.value:', account?.farming?.cropDepot?.cookingSpeed?.value);
     //   console.log('voidWalkerApocalypseBonus:', voidWalkerApocalypseBonus);
     //   console.log('richelinBonus:', richelinBonus);
+    //   console.log('voteBonus:', voteBonus);
+    //   console.log('upgradeVaultBonus:', upgradeVaultBonus);
     //   console.log('marshmallowBonus:', marshmallowBonus);
     //   console.log('highestFarming:', highestFarming);
     //   console.log('bubbleBonus:', bubbleBonus);

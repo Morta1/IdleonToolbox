@@ -14,6 +14,7 @@ import { getShinyBonus } from '@parsers/breeding';
 import { getBribeBonus } from '@parsers/bribes';
 import { getIsland } from '@parsers/world-2/islands';
 import { getGrimoireBonus } from '@parsers/grimoire';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels) => {
@@ -395,12 +396,13 @@ export const calcTotalStarTalent = (characters, account) => {
                                                               effect,
                                                               unlocked
                                                             }) => effect.includes('Star_Talent_Pts') && unlocked);
+    const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 53);
     const totalStarPoints = Math.floor(character?.level
       - 1 + (basePoints + talentBonus + (account?.talentPoints?.[5]
         + familyEffBonus + (secondTalentBonus + (stampBonus
           + (thirdTalentBonus + (Math.floor(guildBonus) + (flurboBonus + (cardPassiveBonus
             + (sigilBonus + (10 * achievement + (20 * secondAchievement + (20 * thirdAchievement
-              + (shinyBonus + (bribeBonus + 100 * (fractalBonusUnlocked ? 1 : 0))))))))))))))))
+              + (shinyBonus + (bribeBonus + 100 * (fractalBonusUnlocked ? 1 : 0) + vaultUpgradeBonus)))))))))))))))
     return {
       ...result,
       [character.name]: totalStarPoints

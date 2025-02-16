@@ -45,7 +45,7 @@ const UpgradeVault = () => {
                       }, index) => {
         const maxed = level >= maxLevel;
         if (maxed && hideMaxed) return null;
-        const desc = description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
+        const desc = description?.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
         return (
           (<Card key={name + index}>
             <CardContent sx={{
@@ -65,7 +65,7 @@ const UpgradeVault = () => {
                   : `${level} / ${maxLevel}`})</Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>
-              <Typography>{cleanUnderscore(desc.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
+              <Typography>{cleanUnderscore(desc?.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
               {maxed ? null : <>
                 <Divider sx={{ my: 1 }}/>
                 <Typography variant={'caption'}>Cost</Typography>

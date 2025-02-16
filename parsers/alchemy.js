@@ -8,6 +8,7 @@ import { isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
 const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o', 3: 'toxic mercury' };
@@ -325,14 +326,17 @@ export const applyVialsMulti = (vials, multiplier) => {
 };
 
 export const updateVials = (accountData) => {
-  let updatedVials;
   const myFirstChemistrySet = getLabBonus(accountData.lab.labBonuses, 10); // vial multi
-  updatedVials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet);
-  if (isRiftBonusUnlocked(accountData.rift, 'Vial_Mastery')) {
-    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }) => level === 13);
-    const riftVialMulti = 1 + (2 * maxedVials?.length) / 100;
-    updatedVials = applyVialsMulti(accountData.alchemy.vials, myFirstChemistrySet * riftVialMulti)
+  let updatedVials;
+  let vialMastery = 0;
+  const upgradeVaultBonus = getUpgradeVaultBonus(accountData?.upgradeVault?.upgrades, 42);
+  if (isRiftBonusUnlocked(accountData?.rift, 'Vial_Mastery')) {
+    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }) => level >= 13);
+    vialMastery = 2 * maxedVials?.length;
+    vialMastery = isNaN(vialMastery) ? 0 : vialMastery;
   }
+  const multi = myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100);
+  updatedVials = applyVialsMulti(accountData.alchemy.vials, multi)
   return updatedVials;
 }
 

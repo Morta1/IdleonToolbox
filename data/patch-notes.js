@@ -4,6 +4,13 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.88',
+    'gameVer': '2.0.29',
+    'date': '08/02/2024',
+    'features': [`Updated the website with version 2.0.29 data, assets + new vault upgrade bonuses`],
+    'fixes': ['']
+  },
+  {
     'ver': '3.2.87',
     'gameVer': '2.0.27',
     'date': '08/02/2024',

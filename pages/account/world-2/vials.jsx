@@ -9,17 +9,23 @@ import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 import useCheckbox from '@components/common/useCheckbox';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getLabBonus } from '@parsers/lab';
 
 const Vials = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed vials');
 
-  const getVialMastery = () => {
+  const getVialBonus = () => {
+    let vialMastery = 0;
+    const upgradeVaultBonus = getUpgradeVaultBonus(state?.account?.upgradeVault?.upgrades, 42);
     if (isRiftBonusUnlocked(state?.account?.rift, 'Vial_Mastery')) {
       const maxedVials = state?.account?.alchemy?.vials?.filter(({ level }) => level >= 13);
-      const vialMastery = 1 + (2 * maxedVials?.length) / 100;
-      return isNaN(vialMastery) ? 0 : vialMastery;
+      vialMastery = 2 * maxedVials?.length;
+      vialMastery = isNaN(vialMastery) ? 0 : vialMastery;
     }
+    const myFirstChemistrySet = getLabBonus(state?.account.lab.labBonuses, 10); // vial multi
+    return myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100);
   }
 
   return <>
@@ -28,8 +34,8 @@ const Vials = () => {
       description="Vials progressions and upgrade requirements"
     />
     <Stack sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
-      <CardTitleAndValue title={'Vial mastery bonus'}
-                         value={`${(getVialMastery() || 1).toFixed(3)}x`}/>
+      <CardTitleAndValue title={'Vial bonus'}
+                         value={`${(getVialBonus() || 1).toFixed(3)}x`}/>
       <CardTitleAndValue>
         <CheckboxEl/>
       </CardTitleAndValue>

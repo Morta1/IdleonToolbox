@@ -19,6 +19,7 @@ import { calcTotalBeanstalkLevel } from '@parsers/world-6/sneaking';
 import { calcTotalPrayersLevel } from '@parsers/prayers';
 import { lavaLog } from '@utility/helpers';
 import { getGrimoireBonus } from '@parsers/grimoire';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getTome = (idleonData, account, characters, serverVars) => {
   const indexes = ninjaExtraInfo[32].split(' ');
@@ -204,5 +205,6 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(parseFloat(account.accountOptions?.[221])); // Largest Magic Bean Trade
   quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
   quantities.push(account.arcade?.totalUpgradeLevels);
+  quantities.push(Math.min(500, getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 57)));
   return quantities;
 }
