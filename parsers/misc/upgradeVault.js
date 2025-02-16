@@ -6,7 +6,7 @@ export const getUpgradeVault = (idleonData, accountData) => {
   return parseUpgradeVault(upgradeVaultRaw, accountData);
 }
 
-export const parseUpgradeVault = (upgradeVaultRaw, accountData) => {
+export const parseUpgradeVault = (upgradeVaultRaw) => {
   const totalUpgradeLevels = upgradeVaultRaw?.reduce((sum, level) => sum + level, 0);
   let upgrades = upgradeVault.map((upgrade, index) => {
     return {
@@ -46,9 +46,10 @@ const getCostToMax = (upgrades, index) => {
 
 const getUpgradeCost = (upgrades, index) => {
   const { level, x1, x2 } = upgrades?.[index];
-  return Math.max(0.1, 1 - calcUpgradeVaultBonus(upgrades, 13) / 100)
-    * (level + (x1 + level)
-      * Math.pow(x2, level));
+  return 33 > index
+    ? Math.max(0.1, 1 - calcUpgradeVaultBonus(upgrades, 13) / 100)
+    * (level + (x1 + level) * Math.pow(x2, level))
+    : 1 * (level + (x1 + level) * Math.pow(x2, level))
 }
 
 export const getUpgradeVaultBonus = (upgrades, index) => {
