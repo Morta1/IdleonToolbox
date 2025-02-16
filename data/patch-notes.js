@@ -8,7 +8,7 @@ export const patchNotes = [
     'gameVer': '2.0.29',
     'date': '08/02/2024',
     'features': [`Updated the website with version 2.0.29 data, assets + new vault upgrade bonuses`],
-    'fixes': ['']
+    'fixes': []
   },
   {
     'ver': '3.2.87',
