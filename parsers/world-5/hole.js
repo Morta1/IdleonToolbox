@@ -102,7 +102,7 @@ const parseHole = (holeRaw, accountData) => {
       cost: getEngineerUpgradeCost({ ...upgrade, index: order, discountWish: lampWishesList?.[5]?.level })
     }
   });
-  console.log('engineerBonuses', engineerBonuses)
+
   const villagers = villagersExp?.map((exp, index) => {
     const level = villagersLevels?.[index];
     const expReq = getVillagerExpReq(level, index);
