@@ -83,6 +83,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 </Stack>
               ) : null;
             })}
+            <Stat title={'Cash Multiplier'} value={`${kFormatter(cashMulti, 2)}%`}
+                  breakdown={breakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)}/>
             <Stat title={'MP'} value={notateNumber(playerInfo?.maxMp)}/>
             <Stat title={'Kills Per Hour'}
@@ -97,8 +99,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
             <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
-            <Stat title={'Cash Multiplier'} value={`${kFormatter(cashMulti, 2)}%`}
-                  breakdown={breakdown} breakdownNotation={'Smaller'}/>
+
             <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
                   breakdown={drBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'Respawn Time'}

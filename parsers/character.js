@@ -838,6 +838,7 @@ export const getCashMulti = (character, account, characters) => {
   const talentBonus = getTalentBonus(character?.talents, 1, 'CHACHING!');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Monster_Cash');
   const arcadeBonus = account?.arcade?.shop?.[10]?.bonus + account?.arcade?.shop?.[11]?.bonus;
+  const secondArcadeBonus = account?.arcade?.shop?.[10]?.bonus + account?.arcade?.shop?.[12]?.bonus;
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 2)
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 8);
   const multikill = 1; // can't calculate multikill =/
@@ -852,6 +853,20 @@ export const getCashMulti = (character, account, characters) => {
   const dropRateMulti = (dropRate < 2 ? dropRate : Math.floor(dropRate < 5 ? dropRate : dropRate + 1)) * 100;
   const voteBonus = getVoteBonus(account, 34);
   const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Cash');
+  const eventBonus = getEventShopBonus(account, 9);
+  const equipmentBonusMoney = getStatsFromGear(character, 77, account);
+  const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77])
+  const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_v') ? 1 : 0;
+  const firstVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 34);
+  const secondVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 37);
+  const charmBonus = getCharmBonus(account, 'Gumball_Necklace');
+  const starTalent = getTalentBonus(character?.starTalents, null, 'CASH_MONEY');
+  const thirdVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 11);
+  const forthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 2);
+  const fifthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 14);
+  const boredBeansKills = account?.deathNote?.[0]?.mobs?.[3]?.kills || 0;
+  const sixthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 31);
+  const poopKills = account?.deathNote?.[0]?.mobs?.[10]?.kills || 0;
 
   const bubbles = (cashStrBubble
     * Math.floor(strength / 250)
@@ -860,54 +875,87 @@ export const getCashMulti = (character, account, characters) => {
       + cashWisBubble
       * Math.floor(wisdom / 250)));
 
-  const cashMulti = (1 + (bubbles) / 100)
+  const cashMulti = (1 + bubbles / 100)
+    * (1 + 0.5 * eventBonus)
+    * (1 + (equipmentBonusMoney + obolsBonusMoney) / 100)
+    * (1 + (250 * hasCashBundle) / 100)
     * (1 + (mealBonus
       + artifactBonus
-      + kangarooBonus
-      + voteBonus) / 100)
+      + (kangarooBonus
+        + voteBonus)) / 100)
     * (1 + (0.5 * arenaBonusUnlock
       + (secondArenaBonusUnlock
         + statueBonus / 100)))
-    * (1 + labBonus / 100)
+    * (1 + (labBonus
+      + (firstVaultUpgradeBonus
+        * account?.unlockedRecipes
+        + secondVaultUpgradeBonus
+        * account?.alchemy?.totalBubbleLevelsTill100)) / 100)
+    * (1 + charmBonus / 100)
     * (1 + prayerBonus / 100)
-    * (1 + (divinityMinorBonus + account?.farming?.cropDepot?.cash?.value) / 100)
-    * (1 + (vialBonus
-      + ((cashFromEquipment + cashFromObols)
+    * (1 + (divinityMinorBonus
+      + account?.farming?.cropDepot?.cash?.value) / 100)
+    * (1 + (starTalent
+      + vialBonus
+      + (cashFromEquipment + cashFromObols
         + (equippedCardBonus
           + passiveCardBonus
           + (talentBonus
-            + (flurboBonus + (arcadeBonus)
+            + (flurboBonus + (arcadeBonus
+                + secondArcadeBonus)
               + (postOfficeBonus
                 + (guildBonus
                   * (1 + Math.floor(character?.mapIndex / 50))
                   + (coinsForCharonBonus
                     + (americanTipperBonus
-                      + ((1 + goldFoodBonus / 100) + (5 * achievementBonus + 10 * secondAchievementBonus + 20 * thirdAchievementBonus))))))))))) / 100);
+                      + (goldFoodBonus
+                        + thirdVaultUpgradeBonus
+                        * lavaLog(account?.accountOptions?.[340]) // mined ores
+                        + (5 * achievementBonus + (10 * secondAchievementBonus
+                          + (20 * thirdAchievementBonus
+                            + (forthVaultUpgradeBonus
+                              + (fifthVaultUpgradeBonus
+                                * boredBeansKills
+                                + sixthVaultUpgradeBonus
+                                * poopKills))))))))))))))) / 100);
 
   const breakdown = [
-    { name: 'Bubbles*', value: bubbles },
-    { name: 'Meal*', value: mealBonus },
-    { name: 'Artifact*', value: artifactBonus },
-    { name: 'Pet Arena*', value: 100 * (.5 * arenaBonusUnlock + secondArenaBonusUnlock) },
+    { name: 'Vault Recipe', value: firstVaultUpgradeBonus * account?.unlockedRecipes },
+    { name: 'Vault Bubble', value: secondVaultUpgradeBonus * account?.alchemy?.totalBubbleLevelsTill100 },
+    { name: 'Vault Ores', value: thirdVaultUpgradeBonus * lavaLog(account?.accountOptions?.[340]) },
+    { name: 'Vault Tax', value: forthVaultUpgradeBonus },
+    { name: 'Vault Bored Beans', value: fifthVaultUpgradeBonus * boredBeansKills },
+    { name: 'Vault Poop', value: sixthVaultUpgradeBonus * poopKills },
+    { name: 'Charm', value: charmBonus },
+    { name: 'Bubbles', value: bubbles },
+    { name: 'Event shop', value: 0.5 * eventBonus },
+    { name: 'Bundle', value: 250 * hasCashBundle },
+    { name: 'Meal', value: mealBonus },
+    { name: 'Artifact', value: artifactBonus },
+    { name: 'Pet Arena', value: 100 * (.5 * arenaBonusUnlock + secondArenaBonusUnlock) },
     { name: 'Statues', value: statueBonus },
-    { name: 'Lab*', value: labBonus },
-    { name: 'Prayers*', value: prayerBonus },
-    { name: 'Divinity*', value: divinityMinorBonus },
-    { name: 'Crop Depot*', value: account?.farming?.cropDepot?.cash?.value },
+    { name: 'Lab', value: labBonus },
+    { name: 'Prayers', value: prayerBonus },
+    { name: 'Divinity', value: divinityMinorBonus },
+    { name: 'Crop Depot', value: account?.farming?.cropDepot?.cash?.value },
     { name: 'Vials', value: vialBonus },
-    { name: 'Equipment', value: cashFromEquipment },
+    { name: 'Equipment', value: equipmentBonusMoney + obolsBonusMoney + cashFromEquipment + cashFromObols },
     { name: 'Obols', value: cashFromObols },
     { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
     { name: 'Guild', value: guildBonus * (1 + Math.floor(character?.mapIndex / 50)) },
-    { name: 'Talents', value: coinsForCharonBonus + americanTipperBonus },
+    { name: 'Star talent', value: starTalent + americanTipperBonus },
+    { name: 'Talents', value: coinsForCharonBonus + talentBonus },
     { name: 'Golden Food', value: goldFoodBonus },
-    { name: 'Achievements', value: 5 * achievementBonus },
+    {
+      name: 'Achievements',
+      value: (5 * achievementBonus) + (10 * secondAchievementBonus) + (20 * thirdAchievementBonus)
+    },
     { name: 'Dungeons', value: flurboBonus },
-    { name: 'Arcade', value: arcadeBonus },
+    { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
     { name: 'Post Office', value: postOfficeBonus },
     { name: 'Kangaroo', value: kangarooBonus },
     { name: 'Vote', value: voteBonus },
-    { name: 'Drop Rate*', value: dropRateMulti }
+    { name: 'Drop Rate', value: dropRateMulti }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   // cashMulti: cashMulti * (1 + dropRateMulti / 100),

@@ -84,15 +84,25 @@ const parseHole = (holeRaw, accountData) => {
   const engineerBonuses = engineerIndexes?.map((index, order) => {
     const upgrade = holesBuildings?.[index];
     const owned = wellSediment?.[upgrade?.x2];
+    let description = upgrade?.description;
+    if (order === 3) {
+      description = upgrade?.description?.replace('!', extraCalculations?.[33])
+        ?.replace('#', extraCalculations?.[34])
+        ?.replace('$', extraCalculations?.[35])
+        ?.replace('%', extraCalculations?.[36])
+        ?.replace('尬', '');
+    }
+
     return {
       ...upgrade,
       unlocked: engineerSchematics?.[index],
       index,
+      description,
       owned: isNaN(owned) ? 0 : owned,
       cost: getEngineerUpgradeCost({ ...upgrade, index: order, discountWish: lampWishesList?.[5]?.level })
     }
   });
-
+  console.log('engineerBonuses', engineerBonuses)
   const villagers = villagersExp?.map((exp, index) => {
     const level = villagersLevels?.[index];
     const expReq = getVillagerExpReq(level, index);

@@ -1,5 +1,6 @@
 import { poppyBonuses, poppyTarBonuses } from '../../data/website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getKangaroo = (idleonData, accountData) => {
   return parseKangaroo(accountData);
@@ -59,9 +60,11 @@ const parseKangaroo = (account) => {
   });
   const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
   const nextLvReq = poppyBonuses?.[nextLvReqIndex]?.x3;
+  const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[275]))
     * Math.max(1, 1 + 0.5 * (account?.accountOptions?.[275] - 5)
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
+    * (1 + vaultUpgradeBonus / 100)
     * (10 * account?.accountOptions?.[268] + (100 * account?.accountOptions?.[297] +
       1e3 * account?.accountOptions?.[304]) + (50 * account?.accountOptions?.[273]
       + 200 * account?.accountOptions?.[278])) * getShinyMulti(account, -1)

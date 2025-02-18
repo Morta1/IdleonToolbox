@@ -44,6 +44,8 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   const bubbles = getBubbles(alchemyRaw);
   const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
+
+  const totalBubbleLevelsTill100 = alchemyRaw?.slice(0, 4)?.flat()?.reduce((sum, level) => sum + Math.min(100, level), 0);
   return {
     p2w,
     bubbles,
@@ -52,7 +54,8 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
     cauldronsInfo,
     multiplierArray: alchemyRaw?.[10],
     liquids: alchemyRaw?.[6],
-    activities: alchemyActivity
+    activities: alchemyActivity,
+    totalBubbleLevelsTill100
   };
 };
 

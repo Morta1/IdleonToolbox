@@ -83,7 +83,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
 
   let foundNewConnection = true;
   let counter = 0;
-  let labBonusesList =  structuredClone(labBonuses);
+  let labBonusesList = structuredClone(labBonuses);
   let connectedPlayers = [];
   while (foundNewConnection) {
     foundNewConnection = false;
@@ -140,6 +140,13 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     multiplier: index === 19 ? 1 : spelunkerObolMulti + (jewelsList?.[19]?.active ? higherEffects : 0) / 100
   }));
 
+  const slabHigherEffect = getJewelBonus(jewelsList, 18);
+  labBonusesList = labBonusesList.map((bonus, index) => {
+    if (index !== 15) return bonus;
+    const updatedBonus = bonus?.bonusOn + slabHigherEffect;
+    return { ...bonus, bonusOn: updatedBonus, description: bonus?.description?.replace('1.25', `1.${updatedBonus}`) }
+  })
+
   const totalSpeciesUnlocked = account?.breeding.speciesUnlocks.reduce((sum, world) => sum + world, 0);
   const purpleNaveete = jewelsList?.[1]?.active;
   labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * (purpleNaveete ? 1.75 : 1), 0, purpleNaveete
@@ -178,7 +185,7 @@ export const isLabEnabledBySorcererRaw = (charData, godIndex) => {
 }
 
 export const isGodEnabledBySorcerer = (character, godIndex) => {
-  if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
+  if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
     const polytheism = character.flatTalents?.find(({ talentId }) => talentId === 505);
     return polytheism?.level % 10 === godIndex;
   }

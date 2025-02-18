@@ -13,12 +13,12 @@ import { getStampsBonusByEffect } from './stamps';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getGodBlessingBonus, getMinorDivinityBonus } from './divinity';
 import { getStatueBonus } from './statues';
-import { isSuperbitUnlocked } from './gaming';
 import { getJewelBonus, getLabBonus } from './lab';
 import { getShinyBonus } from './breeding';
 import { getFamilyBonusBonus } from './family';
 import LavaRand from '../utility/lavaRand';
 import { getAchievementStatus } from './achievements';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -266,26 +266,25 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const purrmepGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Purrmep');
   const artifactBonus = isArtifactAcquired(artifactsList, '10_AD_Tablet')?.bonus ?? 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'SailSpd');
-  const superbitBonus = isSuperbitUnlocked(account, 'MSA_Sailing')?.bonus ?? 0;
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sailing?.rank, 1);
   const statueBonus = getStatueBonus(account?.statues, 'StatueG25')
+  const voteBonus = getVoteBonus(account, 24);
+  const msaBonus = account?.msaTotalizer?.sailing?.value ?? 0;
 
-  const firstMath = (1
-      + (divinityMinorBonus
-        + cardBonus
-        + bubbleBonus) / 125)
-    * (1
-      + goharutGodBonus
-      / 100);
-  return firstMath * (1 + purrmepGodBonus / 100)
-    * (1
-      + (bagurGodBonus
-        + artifactBonus
-        + stampBonus
-        + statueBonus
-        + mealBonus
-        + vialBonus
-        + (17 * skillMasteryBonus + superbitBonus)) / 125)
+  return (1 + (divinityMinorBonus
+      + (cardBonus
+        + bubbleBonus)) / 125)
+    * (1 + goharutGodBonus / 100)
+    * (1 + purrmepGodBonus / 100)
+    * (1 + voteBonus / 100)
+    * (1 + (bagurGodBonus
+      + (artifactBonus
+        + (stampBonus
+          + (statueBonus
+            + (mealBonus
+              + (vialBonus
+                + (17 * skillMasteryBonus
+                  + (msaBonus)))))))) / 125);
 }
 
 const getCaptain = (captain, index, isShop) => {
@@ -516,7 +515,8 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const lootedItems = account?.looty?.rawLootedItems;
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
     additionalData = `Looted items: ${lootedItems}`;
-    const math = artifact?.[multiplierType] * Math.floor(Math.max(0, lootedItems - 500) / 10);
+    const slabSovereignty = getLabBonus(account?.lab.labBonuses, 15); // gem multi
+    const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100) * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
   } else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
     const isGenie = artifact?.name === 'Genie_Lamp';

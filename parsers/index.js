@@ -128,9 +128,12 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
-  const { tasks, tasksDescriptions, meritsDescriptions } = getTasks(idleonData)
-  accountData.tasks = tasks; //  accountData.tasksDescriptions = tasksDescriptions; //
-  accountData.meritsDescriptions = meritsDescriptions; //
+  const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes } = getTasks(idleonData)
+  accountData.tasks = tasks;
+  accountData.meritsDescriptions = meritsDescriptions;
+  accountData.tasksDescriptions = tasksDescriptions;
+  accountData.tasksDescriptions = tasksDescriptions;
+  accountData.unlockedRecipes = unlockedRecipes;
   accountData.breeding = getBreeding(idleonData, accountData);
   accountData.cooking = getCooking(idleonData, accountData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData, accountData);

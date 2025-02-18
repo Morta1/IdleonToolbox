@@ -11,7 +11,6 @@ export const getTasks = (idleonData) => {
     tryToParse(idleonData?.TaskZZ5),
     tryToParse(idleonData?.TaskZZ6)
   ];
-
   const tasksDescriptions = tasks?.map((worldTasks, worldIndex) => {
     return worldTasks?.map((task, taskIndex) => {
       const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex];
@@ -40,7 +39,10 @@ export const getTasks = (idleonData) => {
       }
     })
   });
-  return { tasks: parseTasks(tasksRaw), tasksDescriptions, meritsDescriptions };
+
+  const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum, unlock) => sum + unlock, 0);
+
+  return { tasks: parseTasks(tasksRaw), tasksDescriptions, meritsDescriptions, unlockedRecipes };
 }
 
 const parseTasks = (tasksRaw) => {

@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.89',
+    'gameVer': '2.0.29',
+    'date': '18/02/2024',
+    'features': [],
+    'fixes': [
+      'Fixed cash multi calculation + breakdown',
+      'Fixed slab bonuses calculations',
+      'Fixed Roo and Owl feather/fish generation rate',
+      'Fixed Sailing speed'
+    ]
+  },
+  {
     'ver': '3.2.88',
     'gameVer': '2.0.29',
     'date': '08/02/2024',

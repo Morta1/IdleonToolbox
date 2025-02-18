@@ -1,4 +1,4 @@
-import { tryToParse } from '@utility/helpers';
+import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
 import { upgradeVault } from '../../data/website-data';
 
 export const getUpgradeVault = (idleonData, accountData) => {
@@ -16,11 +16,14 @@ export const parseUpgradeVault = (upgradeVaultRaw) => {
     }
   })
   upgrades = upgrades.map((upgrade, index) => {
+    const bonus = calcUpgradeVaultBonus(upgrades, index);
+    const description = upgrade?.description?.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
     return {
       ...upgrade,
       cost: getUpgradeCost(upgrades, index),
       costToMax: getCostToMax(upgrades, index),
-      bonus: calcUpgradeVaultBonus(upgrades, index)
+      bonus,
+      description
     }
   })
   const nextUnlock = upgrades?.find(({ unlocked }) => !unlocked);
