@@ -27,7 +27,13 @@ const additionalEffects = {
   'monster exp': [stats.EXPfrommonsters, stats['Dmg,Drop,andEXP']],
   dungeon: [stats.BlockChance, stats.RNGitemrarity, stats['tostartwithRNGorb(Passive)']],
   worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP],
-  money: [stats.FightingAFKgainrate, stats.TotalDropRate]
+  money: [stats.FightingAFKgainrate, stats.TotalDropRate],
+  stats: [stats.BaseWIS, stats.BaseSTR, stats.BaseAGI, stats.AllStat],
+  stat: [stats.BaseWIS, stats.BaseSTR, stats.BaseAGI, stats.AllStat],
+  wis: [stats.AllStat],
+  str: [stats.AllStat],
+  agi: [stats.AllStat],
+  luk: [stats.AllStat]
 }
 
 export default function CardSearch() {
@@ -71,10 +77,11 @@ export default function CardSearch() {
     'Defence',
     'Damage',
     'Dungeon',
+    'Stats',
     'STR',
     'AGI',
     'WIS',
-    'LUK',
+    'LUK'
   ];
 
   useEffect(() => {
@@ -105,7 +112,7 @@ export default function CardSearch() {
                   <StyledInputAdornment onClick={() => setValue('')} position="end">
                     <ClearIcon/>
                   </StyledInputAdornment>
-                ),
+                )
               }}
               label="Enter Card stat.."
               type="text"
