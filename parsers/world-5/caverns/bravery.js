@@ -92,7 +92,7 @@ export const getMonumentBonus = ({ holesObject, t, i }) => {
 
   if (i !== 9) {
     result = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100;
-    result = 1 + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
+    result += 1 + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
   }
   let holesInfoValue = (holesInfo[37]?.split(' ')[Math.round(10 * t + i)]);
   let holesValue = (holesObject?.braveryBonuses?.[Math.round(10 * t + i)]);
