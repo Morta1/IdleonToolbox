@@ -5,11 +5,6 @@ import Tooltip from '../Tooltip';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Breakdown, TalentTooltip } from '../common/styles';
 import InfoIcon from '@mui/icons-material/Info';
-import { isArtifactAcquired } from '@parsers/sailing';
-import { getAtomBonus } from '@parsers/atomCollider';
-import { getAchievementStatus } from '@parsers/achievements';
-import { getSaltLickBonus } from '@parsers/saltLick';
-import { merits, randomList } from '../../data/website-data';
 
 
 const Talents = ({
@@ -112,9 +107,13 @@ const Talents = ({
            aria-label={`star-sign-tab`}
            icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
     </Tabs>
-    {activeTab === STAR_TAB_INDEX ? <Typography variant={'caption'} mt={2} style={{ opacity: activeTab === 4 ? 1 : 0 }}>Specials {specialsTab + 1}</Typography> :
+    {activeTab === STAR_TAB_INDEX ? <Typography variant={'caption'} mt={2} style={{
+        opacity: activeTab === 4
+          ? 1
+          : 0
+      }}>Specials {specialsTab + 1}</Typography> :
       <Typography variant={'caption'} mt={2}>{cleanUnderscore(talents?.[activeTab]?.name)}</Typography>}
-    <Typography  component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
+    <Typography component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
       <Typography component={'div'} variant={'caption'}>Added levels: {selectedAddedLevels}</Typography>
       <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={selectedAddedLevelsBreakdown}/>}>
@@ -123,23 +122,23 @@ const Talents = ({
     </Stack>
     <div className="talents-wrapper">
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
-        const { talentId, level, maxLevel, name } = talentDetails;
+        const { talentId, level, baseLevel, maxLevel, name } = talentDetails;
         if (index >= 15) return null;
         // if (-1 < this._SkillIconSelected)
-        const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')
-        const winnerBonus = 0;
-        const atomBonus = getAtomBonus(account, 'Oxygen_-_Library_Booker');
-        const achievementBonus = getAchievementStatus(account?.achievements, 145);
-        const saltLickBonus = getSaltLickBonus(account?.saltLick, 4);
-        const unavailableLibraryBook = randomList?.[16]?.split(' ').map((num) => Number(num));
-        const isBookUnavailable = unavailableLibraryBook.includes(talentId);
-        const maxBookLevel = Math.round(125 + artifact?.bonus
-          + winnerBonus
-          + 10 * Math.min(atomBonus, 1)
-          + (Math.min(5, Math.max(0, 5 * achievementBonus))
-            + saltLickBonus + merits?.[2]?.[2]?.bonusPerLevel
-            * account?.tasks?.[2]?.[2]?.[2]));
-        const hardMaxed = isBookUnavailable || activeTab === STAR_TAB_INDEX ? true : maxLevel >= maxBookLevel;
+        // const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')
+        // const winnerBonus = 0;
+        // const atomBonus = getAtomBonus(account, 'Oxygen_-_Library_Booker');
+        // const achievementBonus = getAchievementStatus(account?.achievements, 145);
+        // const saltLickBonus = getSaltLickBonus(account?.saltLick, 4);
+        // const unavailableLibraryBook = randomList?.[16]?.split(' ').map((num) => Number(num));
+        // const isBookUnavailable = unavailableLibraryBook.includes(talentId);
+        // const maxBookLevel = Math.round(125 + artifact?.bonus
+        //   + winnerBonus
+        //   + 10 * Math.min(atomBonus, 1)
+        //   + (Math.min(5, Math.max(0, 5 * achievementBonus))
+        //     + saltLickBonus + merits?.[2]?.[2]?.bonusPerLevel
+        //     * account?.tasks?.[2]?.[2]?.[2]));
+        const hardMaxed = activeTab === STAR_TAB_INDEX ? true : baseLevel < maxLevel;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
 
         return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?

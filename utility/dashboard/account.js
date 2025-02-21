@@ -408,9 +408,14 @@ export const getWorld3Alerts = (account, fields, options) => {
   if (!account?.finishedWorlds?.World2) return alerts;
   if (fields?.printer?.checked) {
     const printer = {};
-    const { includeOakAndCopper, showAlertWhenFull } = options?.printer || {};
+    const { includeOakTree, includeCopper, includeSporeCap, showAlertWhenFull } = options?.printer || {};
     const totals = calcTotals(account, showAlertWhenFull);
-    const exclusions = ['atom', ...(!includeOakAndCopper?.checked ? ['Copper', 'OakTree'] : [])].toSimpleObject();
+    const exclusions = [
+      'atom',
+      ...(!includeOakTree?.checked ? ['OakTree'] : []),
+      ...(!includeCopper?.checked ? ['Copper'] : []),
+      ...(!includeSporeCap?.checked ? ['Grasslands1'] : []),
+    ].toSimpleObject();
     const atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
       name: items?.[name]?.displayName,
       rawName: name,

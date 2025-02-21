@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 9,
+  version: 10,
   account: {
     General: {
       tasks: {
@@ -130,7 +130,9 @@ const baseTrackers = {
       printer: {
         checked: true,
         options: [
-          { name: 'includeOakAndCopper', category: 'atoms', checked: false },
+          { name: 'includeOakTree', category: 'atoms', checked: false },
+          { name: 'includeCopper', checked: false },
+          { name: 'includeSporeCap', checked: true },
           { name: 'showAlertWhenFull', checked: false }]
       },
       library: {
@@ -191,7 +193,13 @@ const baseTrackers = {
           {
             name: 'ribbons',
             type: 'input',
-            props: { label: 'Ribbons threshold', value: 0, maxValue: 28, minValue: 0, helperText: "Empty ribbon slots" },
+            props: {
+              label: 'Ribbons threshold',
+              value: 0,
+              maxValue: 28,
+              minValue: 0,
+              helperText: 'Empty ribbon slots'
+            },
             checked: true
           }
         ]
@@ -301,8 +309,12 @@ const baseTrackers = {
       options: [
         { name: 'unspentPoints', checked: true },
         { name: 'missingHammers', checked: true },
-        { name: 'anvilOverdue', checked: true },
-        { name: 'showAlertBeforeFull', checked: true, category: 'anvil overdue' }
+        {
+          name: 'anvilOverdue',
+          type: 'input',
+          props: { label: 'Minutes', value: 30, minValue: 1, helperText: 'alert X minutes before' },
+          checked: true
+        }
       ]
     },
     worship: {

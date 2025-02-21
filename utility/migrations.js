@@ -158,6 +158,38 @@ export const migrateToVersion9 = (config) => {
   dashboardConfig.version = 9;
   return dashboardConfig
 }
+export const migrateToVersion10 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  const anvilOptions = dashboardConfig?.characters?.anvil?.options?.filter(({ name }) => name !== 'anvilOverdue' && name !== 'showAlertBeforeFull');
+  if (dashboardConfig?.characters?.anvil) {
+    dashboardConfig.characters.anvil.options = [
+      ...anvilOptions,
+      {
+        name: 'anvilOverdue',
+        type: 'input',
+        props: { label: 'Minutes', value: 30, minValue: 1, helperText: 'alert X minutes before full' },
+        checked: true
+      }
+    ]
+  }
+
+  const printerOptions = dashboardConfig?.characters?.anvil?.options?.filter(({ name }) => name !== 'includeOakAndCopper');
+  if (dashboardConfig?.account?.['World 3']?.printer?.options?.length === 2) {
+    dashboardConfig.account['World 3'].printer.options = [
+      { name: 'includeOakTree', category: 'atoms', checked: false },
+      { name: 'includeCopper', checked: false },
+      { name: 'includeSporeCap', checked: true },
+      ...printerOptions
+    ]
+  }
+
+  dashboardConfig.version = 9;
+  return dashboardConfig
+}
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -188,6 +220,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 8) {
       migratedConfig = migrateToVersion9(migratedConfig);
+    }
+    if (migratedConfig?.version === 9) {
+      migratedConfig = migrateToVersion10(migratedConfig);
     }
   }
   return migratedConfig;

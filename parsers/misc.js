@@ -125,9 +125,13 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
 export const getLooty = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
   const allItems = structuredClone((items)); // Deep clone
+  const forcedNames = {
+    'Motherlode': 'Motherlode_x1',
+    'Island0': 'Island0_x1',
+  }
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
-    rawName: name,
+    rawName: forcedNames?.[name] || name,
     obtained: lootyRaw?.includes(name),
     onRotation: filteredGemShopItems?.[name],
     unobtainable: filteredLootyItems?.[name]
@@ -137,6 +141,7 @@ export const getLooty = (idleonData) => {
                                             rawName,
                                             unobtainable
                                           }) => !obtained && !unobtainable)?.length;
+
   return {
     slabItems,
     lootyRaw,

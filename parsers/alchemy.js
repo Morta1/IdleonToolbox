@@ -512,6 +512,7 @@ export const getUpgradeableBubbles = (acc) => {
   if (moreBubblesFromMerit > 0) {
     upgradeableBubblesAmount += moreBubblesFromMerit;
   }
+  upgradeableBubblesAmount = Math.min(10, upgradeableBubblesAmount)
   const normal = sorted.slice(0, upgradeableBubblesAmount);
   const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount);
   return {
