@@ -36,9 +36,10 @@ const getGuildTotalPoints = (guildRaw, guildBonuses, points) => {
   let guildPoints = points;
   for (let e = 0; 18 > e;) {
     const t = e++;
-    0 !== guildRaw[0][t] && (guildPoints +=
-      Math.round((((guildBonuses?.[t]?.gpBaseCost + guildBonuses?.[t]?.gpIncrease) / guildBonuses?.[t]?.gpIncrease + 0.5 * (guildRaw[0][t] - 1)) /
-        (guildBonuses?.[t]?.gpBaseCost / guildBonuses?.[t]?.gpIncrease)) * guildRaw[0][t] * guildBonuses?.[t]?.gpBaseCost - guildBonuses?.[t]?.gpIncrease * guildRaw[0][t]))
+    const gp = guildRaw?.[0]?.[t] || 0
+    0 !== gp && (guildPoints +=
+      Math.round((((guildBonuses?.[t]?.gpBaseCost + guildBonuses?.[t]?.gpIncrease) / guildBonuses?.[t]?.gpIncrease + 0.5 * (gp - 1)) /
+        (guildBonuses?.[t]?.gpBaseCost / guildBonuses?.[t]?.gpIncrease)) * gp * guildBonuses?.[t]?.gpBaseCost - guildBonuses?.[t]?.gpIncrease * gp))
   }
   return guildPoints;
 }

@@ -51,7 +51,7 @@ export const applyStatuesMulti = (account, characters) => {
   const dragonStatueMulti = getStatueBonus(statues, 'StatueG29');
   const upgradeVaultBonusIndexes = [0, 1, 2, 6];
 
-  return statues.map((statue) => {
+  return statues?.map((statue) => {
     let upgradeVaultMulti = 1;
     if (upgradeVaultBonusIndexes.includes(statue.statueIndex)){
       upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 25)

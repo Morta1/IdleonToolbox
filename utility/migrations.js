@@ -177,7 +177,7 @@ export const migrateToVersion10 = (config) => {
     ]
   }
 
-  const printerOptions = dashboardConfig?.characters?.anvil?.options?.filter(({ name }) => name !== 'includeOakAndCopper');
+  const printerOptions = dashboardConfig?.characters?.printer?.options?.filter(({ name }) => name !== 'includeOakAndCopper');
   if (dashboardConfig?.account?.['World 3']?.printer?.options?.length === 2) {
     dashboardConfig.account['World 3'].printer.options = [
       { name: 'includeOakTree', category: 'atoms', checked: false },
@@ -187,7 +187,25 @@ export const migrateToVersion10 = (config) => {
     ]
   }
 
-  dashboardConfig.version = 9;
+  dashboardConfig.version = 10;
+  return dashboardConfig
+}
+
+export const migrateToVersion11 = (config, baseTrackers) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.characters?.anvil) {
+    dashboardConfig.characters.anvil.options = baseTrackers?.characters?.anvil?.options;
+  }
+
+  if (dashboardConfig?.account?.['World 3']?.printer) {
+    dashboardConfig.account['World 3'].printer.options = baseTrackers?.account['World 3']?.printer?.options
+  }
+
+  dashboardConfig.version = 11;
   return dashboardConfig
 }
 
@@ -223,6 +241,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 9) {
       migratedConfig = migrateToVersion10(migratedConfig);
+    }
+    if (migratedConfig?.version === 10) {
+      migratedConfig = migrateToVersion11(migratedConfig, baseTrackers);
     }
   }
   return migratedConfig;

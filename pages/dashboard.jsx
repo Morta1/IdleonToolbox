@@ -15,7 +15,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 
 const baseTrackers = {
-  version: 10,
+  version: 11,
   account: {
     General: {
       tasks: {
@@ -424,7 +424,7 @@ const Dashboard = () => {
       account: migratedConfig.account,
       characters: migratedConfig.characters,
       timers: migratedConfig.timers,
-      version: baseTrackers?.version || 1
+      version: baseTrackers?.version
     })
   }, []);
 
@@ -446,7 +446,7 @@ const Dashboard = () => {
   const handleFileUpload = (data) => {
     const migratedConfig = migrateConfig(baseTrackers, data);
     setConfig(migratedConfig);
-    dispatch({ type: 'trackers', migratedConfig });
+    dispatch({ type: 'trackers', data: migratedConfig });
   }
 
   return <>

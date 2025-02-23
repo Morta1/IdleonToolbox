@@ -132,12 +132,9 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
   };
 }
 const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus: number) => {
-  return (5 == index
-    ? gemstone?.x3 + gemstone?.x5
-    * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))
-    : (gemstone?.x3
-    + gemstone?.x5
-    * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))) * (1 + (fifthGemstoneBonus) / 100))
+  return 5 === index
+    ? gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))
+    : (gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))) * (1 + fifthGemstoneBonus / 100)
 }
 const parseNinjaItems = (array: any, doChunks: boolean) => {
   let result = array?.map(([itemName, level]: [string, string]): any => ({
