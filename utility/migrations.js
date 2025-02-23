@@ -177,7 +177,7 @@ export const migrateToVersion10 = (config) => {
     ]
   }
 
-  const printerOptions = dashboardConfig?.characters?.printer?.options?.filter(({ name }) => name !== 'includeOakAndCopper');
+  const printerOptions = dashboardConfig?.account?.['World 3']?.printer?.options?.filter(({ name }) => name !== 'includeOakAndCopper');
   if (dashboardConfig?.account?.['World 3']?.printer?.options?.length === 2) {
     dashboardConfig.account['World 3'].printer.options = [
       { name: 'includeOakTree', category: 'atoms', checked: false },

@@ -456,13 +456,13 @@ const Dashboard = () => {
     />
     <Stack direction="row" gap={2} justifyContent={'space-between'}>
       <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
-        <Stack mb={1} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
+        <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
           <ToggleButtonGroup value={filters} onChange={handleFilters}>
-            <ToggleButton sx={{ textTransform: 'none' }} value="account">Account</ToggleButton>
-            <ToggleButton sx={{ textTransform: 'none' }} value="characters">Characters</ToggleButton>
-            <ToggleButton sx={{ textTransform: 'none' }} value="timers">Timers</ToggleButton>
+            <ToggleButton sx={{ textTransform: 'none', height: 32 }} value="account">Account</ToggleButton>
+            <ToggleButton sx={{ textTransform: 'none', height: 32 }} value="characters">Characters</ToggleButton>
+            <ToggleButton sx={{ textTransform: 'none', height: 32 }} value="timers">Timers</ToggleButton>
           </ToggleButtonGroup>
-          <Button variant={'outlined'} sx={{ textTransform: 'none' }} startIcon={<SettingsIcon/>}
+          <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }} startIcon={<SettingsIcon/>}
                   onClick={() => setOpen(true)}>
             Configure alerts
           </Button>
