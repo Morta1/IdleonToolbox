@@ -5,6 +5,7 @@ import NextLink from 'next/link';
 import MuiLink from '@mui/material/Link';
 import { Typography } from '@mui/material';
 import styled from '@emotion/styled';
+import { Text } from '@mantine/core';
 
 const Anchor = styled.a``;
 export const NextLinkComposed = React.forwardRef(
@@ -22,7 +23,7 @@ export const NextLinkComposed = React.forwardRef(
         passHref
         locale={locale}
       >
-        <Typography component={'span'} ref={ref} {...other}>{children}</Typography>
+        <Text component={'span'} ref={ref} {...other}>{children}</Text>
       </NextLink>
     );
   },

@@ -3,6 +3,7 @@ import useInterval from 'components/hooks/useInterval';
 import { isPast } from 'date-fns';
 import { getDuration } from 'utility/helpers';
 import { Typography } from '@mui/material';
+import { Text } from '@mantine/core';
 
 const Timer = forwardRef(({
                             date,
@@ -92,15 +93,15 @@ const Timer = forwardRef(({
     return strNumber?.length === 1 ? `0${number}` : number;
   }
 
-  return time ? (time?.overtime || pause) && placeholder ? <Typography {...rest} ref={ref}>{placeholder}</Typography> :
-    <Typography {...rest} ref={ref} variant={variant} sx={{ color: `${time?.overtime && !loop ? '#f91d1d' : ''}` }}
+  return time ? (time?.overtime || pause) && placeholder ? <Text {...rest} ref={ref}>{placeholder}</Text> :
+    <Text {...rest} ref={ref} variant={variant} sx={{ color: `${time?.overtime && !loop ? '#f91d1d' : ''}` }}
                 component={'span'}>
       {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
       {wrapNumber(time?.hours) + 'h:'}
       {wrapNumber(time?.minutes) + `m`}
       {!time?.days ? ':' : ''}
       {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
-    </Typography> : null;
+    </Text> : null;
 })
 
 

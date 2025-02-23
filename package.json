@@ -18,10 +18,14 @@
     "@emotion/react": "^11.9.0",
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.8.1",
+    "@mantine/core": "^7.17.0",
+    "@mantine/hooks": "^7.17.0",
     "@mui/icons-material": "^6.4.1",
     "@mui/lab": "^6.0.0-beta.24",
     "@mui/material": "^6.4.1",
     "@sentry/nextjs": "^8.41.0",
+    "@tabler/icons-react": "^3.30.0",
+    "@types/react": "^18.3.18",
     "core-js": "^3.39.0",
     "cypress": "^13.11.0",
     "date-fns": "^2.28.0",
@@ -39,14 +43,16 @@
     "react-dom": "^18.2.0",
     "react-process-string": "^1.2.0",
     "react-transition-group": "^4.4.5",
-    "typescript": "^5.3.3",
-    "@types/react": "^18.3.18"
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
     "@types/react-dom": "^18.2.18",
     "eslint": "8.13.0",
     "eslint-config-next": "^13.4.1",
-    "eslint-plugin-cypress": "^3.3.0"
+    "eslint-plugin-cypress": "^3.3.0",
+    "postcss": "^8.5.3",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1"
   }
 }

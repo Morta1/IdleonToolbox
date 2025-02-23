@@ -12,7 +12,7 @@ const HtmlTooltip = styled(({ className, children, followCursor = true, dark, ma
     backgroundColor: dark ? '#222831' : '#d5d5dc',
     color: dark ? 'white' : 'black',
     maxWidth: maxWidth ? maxWidth : 320,
-    fontSize: theme.typography.pxToRem(14),
+    fontSize: theme.typography?.pxToRem(14) || 14,
     border: '1px solid #dadde9',
   },
   [`& .${tooltipClasses.arrow}`]: {

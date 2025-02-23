@@ -4,6 +4,7 @@ import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/mater
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
 import { calcCardBonus } from 'parsers/cards';
+import { Text } from '@mantine/core';
 
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon, img, title = '', ...rest } = props
@@ -19,9 +20,9 @@ IconWithText.displayName = 'IconWithText'
 
 export const TitleAndValue = ({ title, value, boldTitle, titleStyle = {}, valueStyle = {} }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
-    {title ? <Typography sx={titleStyle} fontWeight={boldTitle ? 'bold' : 500}
-                         component={'span'}>{title}:&nbsp;</Typography> : null}
-    <Typography fontSize={15} component={'span'} sx={valueStyle}>{value}</Typography>
+    {title ? <Text style={titleStyle} fw={boldTitle ? 'bold' : 500}
+                         component={'span'}>{title}:&nbsp;</Text> : null}
+    <Text fontSize={15} component={'span'} sx={valueStyle}>{value}</Text>
   </Stack>
 }
 

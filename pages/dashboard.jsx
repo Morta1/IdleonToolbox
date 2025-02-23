@@ -1,18 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Box, Stack, ToggleButton, ToggleButtonGroup, useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mantine/hooks';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { isProd, tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
 import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
-import { CONTENT_PERCENT_SIZE } from '@utility/consts';
-import Button from '@mui/material/Button';
+import { Button, Grid, Group } from '@mantine/core';
 import { migrateConfig } from '@utility/migrations';
+import { IconAdjustments } from '@tabler/icons-react';
 
 const baseTrackers = {
   version: 10,
@@ -415,8 +414,8 @@ const Dashboard = () => {
   const [config, setConfig] = useState();
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
-  const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
-  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  const showWideSideBanner = useMediaQuery('(min-width: 1600px)');
+  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)');
 
   useEffect(() => {
     const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
@@ -449,43 +448,67 @@ const Dashboard = () => {
     dispatch({ type: 'trackers', migratedConfig });
   }
 
+  const toggleSelection = (value) => {
+    setFilters((prev) => {
+      // Prevent unselecting if it's the last selected item
+      if (prev.length === 1 && prev.includes(value)) {
+        return prev;
+      }
+
+      const newFilters = prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value];
+
+      localStorage.setItem('dashboard-filters', JSON.stringify(newFilters));
+      return newFilters;
+    });
+  };
+
+
   return <>
     <NextSeo
       title="Dashboard | Idleon Toolbox"
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
-    <Stack direction="row" gap={2} justifyContent={'space-between'}>
-      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
-        <Stack mb={1} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
-          <ToggleButtonGroup value={filters} onChange={handleFilters}>
-            <ToggleButton sx={{ textTransform: 'none' }} value="account">Account</ToggleButton>
-            <ToggleButton sx={{ textTransform: 'none' }} value="characters">Characters</ToggleButton>
-            <ToggleButton sx={{ textTransform: 'none' }} value="timers">Timers</ToggleButton>
-          </ToggleButtonGroup>
-          <Button variant={'outlined'} sx={{ textTransform: 'none' }} startIcon={<SettingsIcon/>}
-                  onClick={() => setOpen(true)}>
+    <Grid justifyContent={'space-between'} align={'flex-start'}>
+      <Grid.Col
+        span={10}
+        //style={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
+      >
+        <Group gap={'md'}>
+          <Button.Group>
+            {['Account', 'Characters', 'Timers'].map((option) => (
+              <Button key={option} variant={filters.includes(option.toLowerCase()) ? 'filled' : 'default'}
+                      onClick={() => toggleSelection(option.toLowerCase())}>
+                {option}
+              </Button>
+            ))}
+          </Button.Group>
+          <Button leftSection={<IconAdjustments size={18}/>} variant="default" onClick={() => setOpen(true)}>
             Configure alerts
           </Button>
-        </Stack>
-        <Stack gap={2}>
+        </Group>
+        <Group mt={'md'} gap={'md'}>
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
                                                    account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
                                         lastUpdated={lastUpdated}/> : null}
-        </Stack>
-      </Stack>
+        </Group>
+      </Grid.Col>
       <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
                          onClose={() => setOpen(false)} config={config}/>
-      {showWideSideBanner || showNarrowSideBanner ? <Box
-        sx={{
-          backgroundColor: isProd ? '' : '#d73333',
-          width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-          height: 600,
-          position: 'sticky',
-          top: 100
-        }}>
+      {showWideSideBanner || showNarrowSideBanner ? <Grid.Col span={2}
+                                                              style={{
+                                                                backgroundColor: isProd ? '' : '#d73333',
+                                                                width: showWideSideBanner ? 300 : showNarrowSideBanner
+                                                                  ? 160
+                                                                  : 0,
+                                                                height: 600,
+                                                                position: 'sticky',
+                                                                top: 100
+                                                              }}>
         {isProd && showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"
           slot="2700532291"
@@ -494,8 +517,8 @@ const Dashboard = () => {
           client="ca-pub-1842647313167572"
           slot="8040203474"
         /> : null}
-      </Box> : null}
-    </Stack>
+      </Grid.Col> : null}
+    </Grid>
   </>
 };
 
