@@ -259,11 +259,6 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.stamps = updateStamps(accountData, charactersData);
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
   accountData.msaTotalizer = getTotalizerBonuses(accountData);
-  // update lab bonuses
-  const greenMushroomKilled = Math.floor(accountData?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
-  const fungyFingerBonusFromJewel = accountData.lab.labBonuses?.[13]?.active ? greenMushroomKilled * 1.5 : 0;
-  const fungyFingerBonus = greenMushroomKilled * accountData.lab.labBonuses?.[9]?.bonusOn;
-  accountData.lab.labBonuses = applyBonusDesc(accountData.lab.labBonuses, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
   accountData.totems = getTotems(idleonData);
   accountData.tome = getTome(idleonData, accountData, charactersData, serverVars);
   accountData.owl = getOwl(idleonData, accountData);

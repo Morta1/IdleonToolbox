@@ -1,7 +1,15 @@
 import InfoIcon from '@mui/icons-material/Info';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { differenceInHours, differenceInMinutes } from 'date-fns';
-import { getCoinsArray, kFormatter, notateNumber, numberWithCommas, pascalCase, prefix } from 'utility/helpers';
+import {
+  cashFormatter,
+  getCoinsArray,
+  kFormatter,
+  notateNumber,
+  numberWithCommas,
+  pascalCase,
+  prefix
+} from 'utility/helpers';
 import Timer from '../common/Timer';
 import Tooltip from '../Tooltip';
 import Activity from './Activity';
@@ -83,7 +91,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 </Stack>
               ) : null;
             })}
-            <Stat title={'Cash Multiplier'} value={`${kFormatter(cashMulti, 2)}%`}
+            <Stat title={'Cash Multiplier'} value={`${cashFormatter(cashMulti, 2)}x`}
                   breakdown={breakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)}/>
             <Stat title={'MP'} value={notateNumber(playerInfo?.maxMp)}/>

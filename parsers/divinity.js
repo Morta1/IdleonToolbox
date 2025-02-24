@@ -123,16 +123,24 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
 }
 
 export const getDeityLinkedIndex = (account, characters, deityIndex) => {
+  const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === deityIndex);
   const normalLink = account?.divinity?.linkedDeities?.map((deity, index) => deityIndex === deity || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
     : -1);
   const esLink = characters.map((character, index) => isGodEnabledBySorcerer(character, deityIndex) || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
     : -1);
-  return (normalLink?.map((charIndex, index) => charIndex === -1
-  && esLink?.[index] !== -1
-    ? esLink?.[index]
-    : charIndex)) || [];
+  // Check if pocketLinked exists and add it to the result
+  return normalLink?.map((charIndex, index) => {
+    // First check for pocket link
+    if (pocketLinked) {
+      return index;
+    }
+    // Then check for normal and ES links as before
+    return charIndex === -1 && esLink?.[index] !== -1
+      ? esLink?.[index]
+      : charIndex;
+  }).filter(index => index !== -1) || [];
 }
 
 export const getMinorDivinityBonus = (character, account, forcedDivinityIndex, characters) => {

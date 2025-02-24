@@ -78,7 +78,7 @@ import { lavaLog } from '../utility/helpers';
 import { getArcadeBonus } from './arcade';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
-import { getMinorDivinityBonus } from './divinity';
+import { getDeityLinkedIndex, getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './atomCollider';
@@ -821,8 +821,9 @@ export const getCashMulti = (character, account, characters) => {
   const statueBonus = getStatueBonus(account?.statues, 'StatueG20');
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
-  const divinityMinorBonus = characters?.reduce((sum, char) => {
-    if (isCompanionBonusActive(account, 3)) {
+  const harriepGodUsers = getDeityLinkedIndex(account, characters, 3);
+  const divinityMinorBonus = characters?.reduce((sum, char, index) => {
+    if (harriepGodUsers?.includes(index)) {
       return sum + getMinorDivinityBonus(char, account, 3, characters);
     }
     if (char?.linkedDeity === 3) {
@@ -837,8 +838,8 @@ export const getCashMulti = (character, account, characters) => {
   const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Money_from_Monsters');
   const talentBonus = getTalentBonus(character?.talents, 1, 'CHACHING!');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Monster_Cash');
-  const arcadeBonus = account?.arcade?.shop?.[10]?.bonus + account?.arcade?.shop?.[11]?.bonus;
-  const secondArcadeBonus = account?.arcade?.shop?.[10]?.bonus + account?.arcade?.shop?.[12]?.bonus;
+  const arcadeBonus = account?.arcade?.shop?.[10]?.bonus;
+  const secondArcadeBonus = account?.arcade?.shop?.[11]?.bonus;
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 2)
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 8);
   const multikill = 1; // can't calculate multikill =/
@@ -856,7 +857,7 @@ export const getCashMulti = (character, account, characters) => {
   const eventBonus = getEventShopBonus(account, 9);
   const equipmentBonusMoney = getStatsFromGear(character, 77, account);
   const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77])
-  const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_v') ? 1 : 0;
+  const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_y') ? 1 : 0;
   const firstVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 34);
   const secondVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 37);
   const charmBonus = getCharmBonus(account, 'Gumball_Necklace');
@@ -864,9 +865,9 @@ export const getCashMulti = (character, account, characters) => {
   const thirdVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 11);
   const forthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 2);
   const fifthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 14);
-  const boredBeansKills = account?.deathNote?.[0]?.mobs?.[3]?.kills || 0;
+  const boredBeansKills = Math.floor(lavaLog(account?.deathNote?.[0]?.mobs?.[3]?.kills) || 0);
   const sixthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 31);
-  const poopKills = account?.deathNote?.[0]?.mobs?.[10]?.kills || 0;
+  const poopKills = Math.floor(lavaLog(account?.deathNote?.[0]?.mobs?.[10]?.kills || 0));
 
   const bubbles = (cashStrBubble
     * Math.floor(strength / 250)
@@ -901,8 +902,7 @@ export const getCashMulti = (character, account, characters) => {
         + (equippedCardBonus
           + passiveCardBonus
           + (talentBonus
-            + (flurboBonus + (arcadeBonus
-                + secondArcadeBonus)
+            + (flurboBonus + (arcadeBonus + secondArcadeBonus)
               + (postOfficeBonus
                 + (guildBonus
                   * (1 + Math.floor(character?.mapIndex / 50))
@@ -947,8 +947,7 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Talents', value: coinsForCharonBonus + talentBonus },
     { name: 'Golden Food', value: goldFoodBonus },
     {
-      name: 'Achievements',
-      value: (5 * achievementBonus) + (10 * secondAchievementBonus) + (20 * thirdAchievementBonus)
+      name: 'Achievements', value: (5 * achievementBonus) + (10 * secondAchievementBonus) + (20 * thirdAchievementBonus)
     },
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
@@ -958,7 +957,6 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Drop Rate', value: dropRateMulti }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
-  // cashMulti: cashMulti * (1 + dropRateMulti / 100),
 
   return {
     cashMulti,

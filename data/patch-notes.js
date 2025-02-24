@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.90',
+    'gameVer': '2.0.30',
+    'date': '24/02/2024',
+    'features': [`Updated the website with version 2.0.30`],
+    'fixes': [
+      'Fixed cash multi calculation (missing multikill as its super hard to calculate)'
+    ]
+  },
+  {
     'ver': '3.2.89',
     'gameVer': '2.0.29',
     'date': '18/02/2024',

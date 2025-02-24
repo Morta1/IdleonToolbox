@@ -183,6 +183,21 @@ export const kFormatter = (num, digits = 1) => {
   return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
 };
 
+export const cashFormatter = (value) => {
+  let result;
+  console.log('value', value)
+  if (value > 1e16) {
+    result = (Math.floor(value / 1e14) / 10) + 'Q'
+  } else if (value > 1e13) {
+    result = (Math.floor(value / 1e11) / 10) + 'T'
+  } else if (value > 1e7) {
+    result = (Math.floor(value / 1e5) / 10) + 'M'
+  } else {
+    result = notateNumber(value, 'MultiplierInfo')
+  }
+  return result;
+}
+
 function splitDecimal(numStr, allowNegative = true) {
   const hasNegation = numStr[0] === '-';
   const addNegation = hasNegation && allowNegative;

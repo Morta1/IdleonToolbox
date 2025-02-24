@@ -153,9 +153,14 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     ? 1.75
     : 1);
 
-  let greenStacks = account?.storage?.filter(item => item.amount >= 1e7).length;
+  const greenStacks = account?.storage?.filter(item => item.amount >= 1e7).length;
   const bankerFuryBonusFromJewel = jewelsList?.[17]?.active ? 1.5 : 0;
   labBonusesList = applyBonusDesc(labBonusesList, greenStacks * (2 + bankerFuryBonusFromJewel), 11, 2 + bankerFuryBonusFromJewel)
+
+  const greenMushroomKilled = Math.floor(account?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
+  const fungyFingerBonusFromJewel = labBonusesList?.[13]?.active ? greenMushroomKilled * 1.6 : 0;
+  const fungyFingerBonus = greenMushroomKilled * labBonusesList?.[9]?.bonusOn;
+  labBonusesList = applyBonusDesc(labBonusesList, fungyFingerBonus + fungyFingerBonusFromJewel, 9);
 
   playersCords = playersCords?.map((player, index) => {
     const p = playersInTubes?.find(({ playerId }) => playerId === index);
