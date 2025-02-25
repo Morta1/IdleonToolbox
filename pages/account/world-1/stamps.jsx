@@ -62,35 +62,17 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
       />
-      <Stack direction={'row'} justifyContent={'center'} gap={1}>
-        <Tooltip title={'Missing Money'}>
-          <Avatar sx={{ bgcolor: 'warning.light', width: 24, height: 24 }} alt={'m'}
-                  src={''}>&nbsp;</Avatar>
-        </Tooltip>
-        <Tooltip title={'Missing Materials'}>
-          <Avatar sx={{ bgcolor: 'error.light', width: 24, height: 24 }} alt={'m'}
-                  src={''}>&nbsp;</Avatar>
-        </Tooltip>
-        <Tooltip title={'Not Enough Player Storage'}>
-          <Avatar sx={{ bgcolor: '#e3e310', width: 24, height: 24 }}
-                  alt={'m'}
-                  src={''}>&nbsp;</Avatar>
-        </Tooltip>
-        <Tooltip title={'Equipments'}>
-          <Avatar sx={{ bgcolor: 'grey', width: 24, height: 24 }}
-                  alt={'m'}
-                  src={''}>&nbsp;</Avatar>
-        </Tooltip>
-        <Tooltip title={'Upgradeable'}>
-          <Avatar sx={{ bgcolor: 'info.light', width: 24, height: 24 }}
-                  alt={'m'}
-                  src={''}>&nbsp;</Avatar>
-        </Tooltip>
-      </Stack>
       <Typography textAlign={'center'} component={'div'} variant={'caption'} mt={1}>* Blue border means you have enough
         material, money and space to
         craft</Typography>
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
+        <CardTitleAndValue title={'Legend'} stackProps={{ gap: .5 }}>
+          <Color color={'warning.light'} desc={'Missing Money'}/>
+          <Color color={'error.light'} desc={'Missing Materials'}/>
+          <Color color={'#e3e310'} desc={'Not Enough Player Storage'}/>
+          <Color color={'grey'} desc={'Equipments'}/>
+          <Color color={'info.light'} desc={'Upgradeable'}/>
+        </CardTitleAndValue>
         <CardTitleAndValue title={'Gilded Stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
             <img src={`${prefix}data/GildedStamp.png`} alt=""/>
@@ -304,5 +286,12 @@ const ItemIcon = styled.img`
   height: 32px;
   opacity: ${({ hide }) => hide ? 0.5 : 1};
 `;
+
+const Color = ({ color, desc }) => {
+  return <Stack direction={'row'} gap={1} alignItems={'center'}>
+    <Avatar sx={{ bgcolor: color, width: 24, height: 24 }} alt={color} src={''}>&nbsp;</Avatar>
+    <Typography variant={'body2'}>{desc}</Typography>
+  </Stack>
+}
 
 export default Stamps;

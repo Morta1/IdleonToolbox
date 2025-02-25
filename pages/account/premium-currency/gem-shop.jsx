@@ -44,7 +44,7 @@ const priorities = {
   114: 'C',
   118: 'C',
   113: 'C',
-  125: 'C',
+  125: 'C'
 };
 
 const GemShop = () => {
@@ -72,14 +72,14 @@ const GemShop = () => {
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       <CardTitleAndValue title={'Gems'} value={state?.account?.currencies?.gems}/>
-      <CardTitleAndValue title={'Control'}>
+      <CardTitleAndValue title={'Control'} stackProps>
         <FormControlLabel
           control={<Checkbox name={'mini'} checked={showMissingOnly}
                              size={'small'}
                              onChange={() => setShowMissingOnly(!showMissingOnly)}/>}
           label={'Show missing only'}/>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Priorities'}>
+      <CardTitleAndValue title={'Priorities'} stackProps>
         <ToggleButtonGroup
           value={selectedPriorities}
           onChange={handlePriorities}
@@ -133,7 +133,7 @@ const GemShop = () => {
                             borderColor: purchased === maxPurchases ? 'success.main' : ''
                           }}>
                       <CardContent sx={{ height: '100%', display: 'flex', position: 'relative' }}>
-                        <Stack sx={{width:'100%'}}>
+                        <Stack sx={{ width: '100%' }}>
                           <Stack gap={1} direction={'row'} alignItems={'center'}>
                             {!rawName.includes(';') ? <img width={32} src={`${prefix}data/${rawName}.png`}
                                                            alt={rawName}/> : null}

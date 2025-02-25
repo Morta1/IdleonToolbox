@@ -14,7 +14,7 @@ import {
   rawMapNames,
   slab
 } from '../data/website-data';
-import { checkCharClass, getHighestTalentByClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
@@ -34,6 +34,7 @@ import { getPlayerFoodBonus } from './character';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getBribeBonus } from '@parsers/bribes';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
@@ -127,7 +128,7 @@ export const getLooty = (idleonData) => {
   const allItems = structuredClone((items)); // Deep clone
   const forcedNames = {
     'Motherlode': 'Motherlode_x1',
-    'Island0': 'Island0_x1',
+    'Island0': 'Island0_x1'
   }
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
@@ -487,7 +488,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
-  const isShaman = checkCharClass(character?.class,'Shaman');
+  const isShaman = checkCharClass(character?.class, 'Shaman');
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
@@ -506,7 +507,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
   const voteBonus = getVoteBonus(account, 26);
   // select first death bringer
-  const deathBringer = characters?.find((character) => checkCharClass(character?.class,'Death_Bringer'));
+  const deathBringer = characters?.find((character) => checkCharClass(character?.class, 'Death_Bringer'));
   const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
 
@@ -646,16 +647,18 @@ export const getItemCapacity = (type = '', character, account) => {
   const matCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', character);
   const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
   const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 17);
   const allCap = getAllCap(character, account);
 
   let value, breakdown = [
     { title: 'Base' },
     { name: '' },
     ...allCap?.breakdown,
+    { value: upgradeVaultBonus, name: 'Upgrade Vault' },
     { name: '' }
   ];
   if ('bOre' === type || 'bBar' === type || 'cOil' === type) {
-    value = Math.floor(character?.maxCarryCap?.Mining * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Mining) * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Mining' },
@@ -667,7 +670,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: starSignBonus, name: 'Star Sign' }
     ]
   } else if ('dFish' === type) {
-    value = Math.floor(character?.maxCarryCap?.Fishing * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Fishing) * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Fishing' },
@@ -679,7 +682,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: starSignBonus, name: 'Star Sign' }
     ]
   } else if ('dBugs' === type) {
-    value = Math.floor(character?.maxCarryCap?.Bugs * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Bugs) * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Catching' },
@@ -691,7 +694,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: starSignBonus, name: 'Star Sign' }
     ]
   } else if ('bLog' === type || 'bLeaf' === type) {
-    value = Math.floor(character?.maxCarryCap?.Chopping * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Chopping) * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Chopping' },
@@ -703,7 +706,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: starSignBonus, name: 'Star Sign' }
     ]
   } else if ('cFood' === type) {
-    value = Math.floor(character?.maxCarryCap?.Foods * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Foods) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Food' },
@@ -714,7 +717,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: starSignBonus, name: 'Star Sign' }
     ]
   } else if ('dCritters' === type) {
-    value = Math.floor(character?.maxCarryCap?.Critters * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Critters) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Critters' },
@@ -725,7 +728,7 @@ export const getItemCapacity = (type = '', character, account) => {
       { value: starSignBonus, name: 'Star Sign' }
     ]
   } else if ('dSouls' === type) {
-    value = Math.floor(character?.maxCarryCap?.Souls * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Souls) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Souls' },
@@ -738,7 +741,9 @@ export const getItemCapacity = (type = '', character, account) => {
   } else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
     value = 999999;
   } else if ('bCraft' === type) {
-    value = Math.floor(character?.maxCarryCap?.bCraft * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value);
+    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.bCraft)
+      * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100)
+      * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value);
     breakdown = [
       ...breakdown,
       { title: 'Materials' },
@@ -950,14 +955,14 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
     ...upgrade,
     level: i === 0 ? accountData?.accountOptions?.[227]
       : (i === 1)
-      ? accountData?.accountOptions?.[228]
-      : (i === 2)
-      ? 0
-      : (i === 3)
-        ? accountData?.accountOptions?.[229]
-        : (i === 4)
-          ? accountData?.accountOptions?.[230]
-          : 1,
+        ? accountData?.accountOptions?.[228]
+        : (i === 2)
+          ? 0
+          : (i === 3)
+            ? accountData?.accountOptions?.[229]
+            : (i === 4)
+              ? accountData?.accountOptions?.[230]
+              : 1,
     description: upgrade?.description?.replace('{', Math.floor(getKillRoyShopBonus(accountData, (i === 0 || i === 1)
       ? 0
       : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3) * 100) / 100)
