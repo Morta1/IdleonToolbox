@@ -48,8 +48,8 @@ const AppDrawer = ({ permanent }) => {
                 sx={{ mr: 2, display: { xs: 'inherit', lg: 'none' } }}>
       <MenuIcon/>
     </IconButton>
-    <Stack>
-      <Link to={{ pathname: '/', query: router.query, }}
+    {!permanent ? <Stack>
+      <Link to={{ pathname: '/', query: router.query }}
             underline="none" component={NextLinkComposed}
             sx={{ mr: 2 }}
             color="inherit" noWrap variant="h6">
@@ -57,7 +57,7 @@ const AppDrawer = ({ permanent }) => {
       </Link>
       {state?.lastUpdated ?
         <Typography variant={'caption'}>{format(state?.lastUpdated, 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
-    </Stack>
+    </Stack> : null}
     {permanent ? <StyledDrawer variant={'permanent'} open sx={{
       display: shouldDisplayDrawer(router.pathname) ? {
         xs: 'none',
