@@ -185,7 +185,6 @@ export const kFormatter = (num, digits = 1) => {
 
 export const cashFormatter = (value) => {
   let result;
-  console.log('value', value)
   if (value > 1e16) {
     result = (Math.floor(value / 1e14) / 10) + 'Q'
   } else if (value > 1e13) {

@@ -1,10 +1,12 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
+  Card,
+  CardContent,
   Checkbox,
-  Collapse,
   Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
   Fade,
   FormControlLabel,
   FormHelperText,
@@ -28,15 +30,12 @@ import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';
 import { AppContext } from '@components/common/context/AppProvider';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NextSeo } from 'next-seo';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Popper from '@components/common/Popper';
 import { isProd, tryToParse } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTheme } from '@emotion/react';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -52,9 +51,9 @@ const Data = () => {
   const [uploaded, setUploaded] = useState(false);
   const [leaderboardConsent, setLeaderboardConsent] = useState(false);
   const [error, setError] = useState('');
-  const [showRawData, setShowRawData] = useState(false);
   const showWideSideBanner = useMediaQuery('(min-width: 1200px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (state?.uid) {
@@ -83,6 +82,15 @@ const Data = () => {
       setAnchorEl(e.currentTarget)
       const data = JSON.parse(localStorage.getItem('rawJson'));
       await navigator.clipboard.writeText(JSON.stringify(data?.data, null, 2));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCopyLink = async (e) => {
+    try {
+      setAnchorEl(e.currentTarget)
+      await navigator.clipboard.writeText(`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`);
     } catch (err) {
       console.error(err);
     }
@@ -148,124 +156,122 @@ const Data = () => {
       title="Data | Idleon Toolbox"
       description="Website settings and profile management"
     />
+    <h1>Data page</h1>
     <div>
-      <Typography variant={'h4'}>Data</Typography>
-      <Typography variant={'body1'}>Use this when asked for data</Typography>
-      <ButtonStyle sx={{ mb: 2 }} component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>}
-                   onClick={handleCopyITRaw}>
-        IdleonToolbox JSON
-      </ButtonStyle>
-      <Accordion disableGutters
-                 sx={{
-                   maxWidth: 500,
-                   '&:before': { display: 'none' },
-                   border: `1px solid ${theme.palette.divider}`,
-                   '&:not(:last-child)': {
-                     borderBottom: 0
-                   }
-                 }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Advanced</AccordionSummary>
-        <AccordionDetails sx={{ backgroundColor: 'rgb(22, 22, 22)', p: 3 }}>
-          <Stack direction={'row'} alignItems={'center'}>
-            <ButtonStyle sx={{ textTransform: 'none', fontSize: 12 }}
-                         variant={'outlined'}
-                         startIcon={<FileCopyIcon/>}
-                         size="small"
-                         onClick={handleCopyRaw}>
-              Raw Game JSON
+      <Stack direction={'column'} gap={1} flexWrap={'wrap'}>
+        <Section title={'Data'} description={'This is idleon toolbox formatted data, use this when asking for support'}>
+          <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>}
+                       onClick={handleCopyITRaw}>
+            Copy
+          </ButtonStyle>
+          <ButtonStyle sx={{ ml: 'auto', minWidth: 32 }} component={'span'} variant={'outlined'} size={'small'}
+                       onClick={() => setOpen(true)}>
+            <VisibilityIcon fontSize={'small'}/>
+          </ButtonStyle>
+          <Dialog open={open} onClose={() => setOpen(false)}>
+            <DialogTitle>
+              <Stack direction={'row'} justifyContent={'space-between'}>
+                <Typography variant={'h6'}>Raw idleon data</Typography>
+                <ButtonStyle sx={{ ml: 'auto' }} component={'span'} size={'small'} variant={'outlined'}
+                             onClick={handleCopyRaw}>
+                  Copy
+                </ButtonStyle>
+              </Stack>
+            </DialogTitle>
+            <DialogContent>
+              <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+                {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </Section>
+        <Section title={'Configurations'}
+                 description={'Various local configurations, use this if you\'re having any issues loading the website'}>
+          <Stack direction={'row'} gap={2}>
+            <TextField sx={{ width: 220 }} size="small" label={''} select value={key}
+                       onChange={(e) => setKey(e.target.value)}>
+              <MenuItem value={'all'}>All</MenuItem>
+              <MenuItem value={'filters'}>Characters page filters</MenuItem>
+              <MenuItem value={'trackers'}>Dashboard config</MenuItem>
+              <MenuItem value={'planner'}>Item Planner</MenuItem>
+              <MenuItem value={'material-tracker'}>Material tracker</MenuItem>
+              <MenuItem value={'last-upload-time'}>Last upload time</MenuItem>
+              <MenuItem value={'pinnedPages'}>Pinned Pages</MenuItem>
+            </TextField>
+            <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
+              Clear
             </ButtonStyle>
-            <IconButton onClick={() => setShowRawData(!showRawData)}>
-              <ArrowRightIcon style={{
-                transform: showRawData ? 'rotate(90deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s ease-in-out'
-              }}/>
-            </IconButton>
           </Stack>
-          <Collapse in={showRawData}>
-            <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-              {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
-            </div>
-          </Collapse>
-        </AccordionDetails>
-      </Accordion>
+        </Section>
+      </Stack>
       <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
     </div>
-    <Typography variant={'h4'} mt={8}>Local Storage</Typography>
-    <Typography component={'div'} variant={'caption'} mb={2} color={'warning.light'}>Use this if
-      you're having any issues
-      loading the website</Typography>
-    <div>
-      <Stack direction={'row'} gap={2}>
-        <TextField sx={{ width: 250 }} label={'Local storage key'} select value={key}
-                   onChange={(e) => setKey(e.target.value)}>
-          <MenuItem value={'all'}>All</MenuItem>
-          <MenuItem value={'filters'}>Characters page filters</MenuItem>
-          <MenuItem value={'trackers'}>Dashboard config</MenuItem>
-          <MenuItem value={'planner'}>Item Planner</MenuItem>
-          <MenuItem value={'material-tracker'}>Material tracker</MenuItem>
-          <MenuItem value={'last-upload-time'}>Last upload time</MenuItem>
-          <MenuItem value={'pinnedPages'}>Pinned Pages</MenuItem>
-        </TextField>
-        <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
-          Clear
-        </ButtonStyle>
-      </Stack>
-    </div>
+
     {!router.query.profile && state?.characters ? <>
-      <Typography variant={'h4'} mt={8}>Profile</Typography>
-      <Typography variant={'body1'}>* You can update your profile once every 4 hours</Typography>
-      <Typography variant={'body1'} mb={3}>* Gems and bundle information won't be saved</Typography>
-      <Typography variant={'body1'} mb={3}>* Your profile
-        link: <Link
-          href={`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`}>https://idleontoolbox.com/?profile={state?.characters?.[0]?.name}</Link>
-      </Typography>
-      <div>
-        <Stack direction={'row'} alignItems={'center'} gap={2}>
-          <Button disabled={isDisabled}
-                         loading={loading} onClick={handleUpdate}
-                         variant={'contained'}>Upload my profile</Button>
-          <Fade in={uploaded}>
-            <CheckCircleIcon color={'success'}/>
-          </Fade>
-        </Stack>
-        <FormControlLabel
-          control={<Checkbox name={'mini'} checked={leaderboardConsent}
-                             size={'small'}
-                             onChange={handleAllowLeaderboard}/>}
-          label={'Participate in idleontoolbox leaderboard ranking'}/>
-        <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Leave this box unchecked if you prefer not to participate in the leaderboard.
+      <>
+        <Stack direction={'row'} gap={3}>
+          <Card sx={{ mt: 3 }} variant="outlined">
+            <CardContent>
+              <Typography variant={'h6'} mb={1}>Profile Management</Typography>
+              <Typography variant={'body1'} mb={1}>Your profile link</Typography>
+              <Stack direction={'row'} gap={1}>
+                <Box sx={{
+                  height: 40,
+                  border: '1px solid rgb(123 140 154 / 50%)',
+                  p: 1,
+                  borderRadius: '4px',
+                  backgroundColor: '#1d2025'
+                }}>
+                  <Link
+                    href={`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`}>https://idleontoolbox.com/?profile={state?.characters?.[0]?.name}</Link>
+                </Box>
+                <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>} sx={{ height: 40 }}
+                             onClick={handleCopyLink}>
+                  Copy
+                </ButtonStyle>
+              </Stack>
+              <Divider sx={{ my: 2 }}></Divider>
+              <Typography variant={'h6'} my={1}>Upload your profile</Typography>
+              <Typography variant={'body1'}>* You can update your profile once every 4 hours</Typography>
+              <Typography variant={'body1'}>* Gems and bundle information won't be saved</Typography>
+              <Box mt={2}>
+                <Stack direction={'row'} alignItems={'center'} gap={2}>
+                  <ButtonStyle disabled={isDisabled}
+                               loading={loading} onClick={handleUpdate}
+                               variant={'contained'}>Upload my profile</ButtonStyle>
+                  <Fade in={uploaded}>
+                    <CheckCircleIcon color={'success'}/>
+                  </Fade>
+                </Stack>
+                <FormControlLabel
+                  sx={{ mt: 2 }}
+                  control={<Checkbox name={'mini'} checked={leaderboardConsent}
+                                     size={'small'}
+                                     onChange={handleAllowLeaderboard}/>}
+                  label={'Participate in idleontoolbox leaderboard ranking'}/>
+                <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Leave this box unchecked if you prefer not to participate in the leaderboard.
 To exclude your profile, simply uncheck the box and re-upload your profile.`}</FormHelperText>
-        <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
-        {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
-          update: {format(parseInt(lastUpload), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
-        {lastUpload ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-          {lastUpload ? <Typography variant={'body2'}>Time to next upload: </Typography> : null}
-          {lastUpload
-            ? <NormalTimer
-              done={(WAIT_TIME - (Date.now() - lastUpload)) < 0}
-              date={intervalToDuration({
-                start: new Date(parseInt(lastUpload)),
-                end: new Date().getTime() - WAIT_TIME
-              })}/>
-            : null}
-        </Stack> : null}
-      </div>
-    </> : null
-    }
-    {showRawData ? <Box sx={{
-      position: 'fixed',
-      right: 50,
-      bottom: 95
-    }}>
-      <IconButton onClick={() => {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth' // Optional: Add smooth scrolling
-        });
-      }} size={'large'}>
-        <ArrowUpwardIcon/>
-      </IconButton>
-    </Box> : null}
+                <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
+                {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
+                  update: {format(parseInt(lastUpload), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
+                {lastUpload ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  {lastUpload ? <Typography variant={'body2'}>Time to next upload: </Typography> : null}
+                  {lastUpload
+                    ? <NormalTimer
+                      done={(WAIT_TIME - (Date.now() - lastUpload)) < 0}
+                      date={intervalToDuration({
+                        start: new Date(parseInt(lastUpload)),
+                        end: new Date().getTime() - WAIT_TIME
+                      })}/>
+                    : null}
+                </Stack> : null}
+              </Box>
+            </CardContent>
+          </Card>
+        </Stack>
+      </>
+    </> : null}
+
     {showWideSideBanner || showNarrowSideBanner ? <Box
       sx={{
         backgroundColor: isProd ? '' : '#d73333',
@@ -286,6 +292,19 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
     </Box> : null}
   </Container>
 };
+
+const Section = ({ title, description, children }) => {
+  return <Card variant="outlined" sx={{ maxWidth: 360 }}>
+    <Box sx={{ p: 2 }}>
+      <Stack direction="row" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography gutterBottom variant="h5" component="div">{title}</Typography>
+      </Stack>
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>{description}</Typography>
+    </Box>
+    <Divider/>
+    <Stack direction={'row'} sx={{ p: 2 }}>{children}</Stack>
+  </Card>
+}
 
 const ButtonStyle = styled(Button)`
   text-transform: none;
