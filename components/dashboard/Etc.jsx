@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import Library from '../account/Worlds/World3/Library';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import { Card, Divider, Flex, Text } from "@mantine/core";
 import styled from '@emotion/styled';
 import { cleanUnderscore, getDuration, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
 import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
@@ -15,6 +16,7 @@ import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
+import CustomHoverCard from '@components/HoverCard';
 
 const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated, trackers }) => {
@@ -155,24 +157,25 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           />
         </> : null}
         {(trackers?.General?.randomEvents?.checked || trackers?.General?.sailingTrades?.checked) && (events?.length > 0 || (account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0))
-          ? <Stack
+          ? <Flex
+            direction='column'
             gap={1}>
             {trackers?.General?.randomEvents?.checked && events?.length > 0 ? <Tooltip dark title={
               <RandomEvent {...events?.[0]} />}>
               <div>
-                <Stack sx={{ cursor: 'pointer' }}
+                <Flex style={{ cursor: 'pointer' }}
                        onClick={() => router.push({ pathname: '/account/misc/random-events' })}
                        direction={'row'} gap={2}>
                   <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt=""/>
                   {isValid(events?.[0]?.date) ? format(events?.[0]?.date, 'dd/MM/yyyy HH:mm:ss') : null}
-                </Stack>
-                <Divider sx={{ mt: 1 }}/>
+                </Flex>
+                <Divider style={{ mt: 1 }}/>
               </div>
             </Tooltip> : null}
             {trackers?.General?.sailingTrades?.checked && account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0
               ? <Tooltip
                 title={<Trade {...account?.sailing?.trades?.[0]}/>}>
-                <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
+                <Stack style={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
                        direction={'row'}
                        gap={.5}>
                   <Stack direction={'row'}>
@@ -185,7 +188,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                 </Stack>
               </Tooltip>
               : null}
-          </Stack>
+          </Flex>
           : null}
       </Section>}
       {(!emptyAlerts?.['World 1'] || !emptyAlerts?.['World 2']) && <Stack gap={1}>
@@ -201,7 +204,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               time={nextFeatherRestart}
               icon={'etc/Owl_4.png'}
               timerPlaceholder={'Restart available'}
-            /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+            /> : <Stack direction={'row'} gap={1} alignItems={'center'} style={{ cursor: 'pointer' }}
                         onClick={() => router.push({ pathname: 'account/world-1/owl' })}>
               <IconImg src={`${prefix}etc/Owl_4.png`}/>
               <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
@@ -209,7 +212,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           </> : null}
           {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
             {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
-              sx={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer' }}
               onClick={() => router.push({ pathname: 'account/world-1/owl' })}
               title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
@@ -235,18 +238,18 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             icon={'etc/KUpga_6.png'}
             timerPlaceholder={'Restart available'}
           /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
-                                                         sx={{ cursor: 'pointer' }}
+                                                         style={{ cursor: 'pointer' }}
                                                          onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
             <IconImg src={`${prefix}etc/KUpga_11.png`}/>
             <Typography>A long time</Typography>
-          </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+          </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} style={{ cursor: 'pointer' }}
                             onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
             <IconImg src={`${prefix}etc/KUpga_6.png`}/>
             <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
           </Stack> : null}
           {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
             title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
-            <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+            <Stack direction={'row'} gap={1} alignItems={'center'} style={{ cursor: 'pointer' }}
                    onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
               <IconImg src={`${prefix}etc/KUpga_11.png`}/>
               <Typography>A long time</Typography>
@@ -318,9 +321,9 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
-        {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
-          <Stack gap={2}
-                 sx={{ cursor: 'pointer' }}
+        {minibosses?.length > 0 ? <Stack gap={1} style={{ width: allBossesMax ? 200 : 250 }}>
+          <Flex gap={'md'}
+                 style={{ cursor: 'pointer' }}
                  onClick={() => router.push({ pathname: '/account/world-3/death-note' })}
           >
             {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
@@ -328,28 +331,27 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
                   <IconImg src={`${prefix}etc/${rawName}.png`} alt={''}/>
                   <Stack>
-                    <Typography>{cleanUnderscore(name)}</Typography>
+                    <Text>{cleanUnderscore(name)}</Text>
                     <Stack direction={'row'} alignItems={'center'} gap={1}
-                           divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'}
+                           divider={<Divider style={{ bgcolor: 'text.secondary' }} orientation={'vertical'}
                                              flexItem/>}>
                       <Typography component={'span'} color="text.secondary">Current: <Typography
                         color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed
                         ? `Maxed (${current})`
-                        : current}</Typography></Typography>
+                        : current}</Typography>
+                        </Typography>
                       {!maxed ? <Typography color="text.secondary">+1 in {daysTillNext} days</Typography> : null}
                     </Stack>
                   </Stack>
                 </Stack>
               </Stack>
             })}
-          </Stack>
+          </Flex>
         </Stack> : null}
       </Section>}
       {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2 ?
-        <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
-          <CardContent>
+        <Card style={{ width: 'fit-content', height: 'fit-content' }}>
             <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated}/>
-          </CardContent>
         </Card> : null}
     </Stack>
   </>
@@ -363,15 +365,19 @@ const IconImg = styled.img`
 
 const SectionTitle = ({ title }) => <Typography textAlign={'center'}>{title}</Typography>;
 
-const Section = ({ title, children }) => <Card sx={{ height: 'fit-content' }}>
-  <CardContent>
-    <Stack flexWrap={'wrap'} gap={1} divider={<Divider flexItem/>}>
+const Section = ({ title, children }) => <Card style={{ height: 'fit-content' }}>
+    <Flex direction='column' wrap={'wrap'} gap={'xs'}>
       <SectionTitle title={title}/>
-      <Stack gap={1} divider={<Divider/>}>
-        {children}
-      </Stack>
-    </Stack>
-  </CardContent>
+      <Divider />
+      <Flex direction='column' gap={'xs'}>
+        {React.Children.map(children, (child, index) => (
+          <>
+            {child}
+            {index < children.length - 1 && <Divider />}
+          </>
+        ))}
+      </Flex>
+    </Flex>
 </Card>;
 
 const TimerCard = ({
@@ -386,17 +392,17 @@ const TimerCard = ({
                    }) => {
   const router = useRouter();
 
-  return <Tooltip title={tooltipContent}>
-    <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
+  return <CustomHoverCard dropdown={tooltipContent}>
+    <Stack style={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
            onClick={() => page && router.push({ pathname: page })}>
       <IconImg src={`${prefix}${icon}`}/>
-      {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
+      {forcePlaceholder ? <Text color={'error.light'}>{timerPlaceholder}</Text> : <Timer
         type={'countdown'} date={time}
-        sx={{ color: showAsError ? '#f91d1d' : ' ' }}
+        style={{ color: showAsError ? '#f91d1d' : ' ' }}
         placeholder={timerPlaceholder}
         lastUpdated={lastUpdated}/>}
     </Stack>
-  </Tooltip>
+  </CustomHoverCard>
 }
 
 export default Etc;

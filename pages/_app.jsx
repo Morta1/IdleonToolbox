@@ -10,11 +10,19 @@ import Script from 'next/script'
 import AppProvider from '../components/common/context/AppProvider';
 import WaitForRouter from '../components/common/WaitForRouter';
 import { DefaultSeo } from 'next-seo';
+import { Flex } from "@mantine/core";
 import '@mantine/core/styles.css';
 import { createTheme, MantineProvider } from '@mantine/core';
 import { MobileNavbar } from '@components/common/NavBar/NewAppShell';
 
 const mantineTheme = createTheme({
+  components: {
+    Flex: Flex.extend({
+      defaultProps: {
+        direction: "column"
+      }
+    })
+  },
   spacing:{
     xs: '8px',
     sm: '12px',

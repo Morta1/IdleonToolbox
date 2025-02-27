@@ -8,6 +8,9 @@ import {
   UnstyledButton,
   useMantineColorScheme
 } from '@mantine/core';
+import { useContext } from 'react';
+import { AppContext } from '@components/common/context/AppProvider';
+import LoginButton from '@components/common/NavBar/LoginButton';
 import { IconLogin2, IconMoon, IconSun } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './MobileNavbar.module.css';
@@ -20,6 +23,8 @@ import { NextLinkComposed } from '@components/common/NextLinkComposed';
 const drawerPages = ['account', 'characters', 'tools'];
 
 export function MobileNavbar({ children }) {
+  const { state, logout } = useContext(AppContext);
+  console.log(state?.signedIn)
   const [opened, { toggle }] = useDisclosure();
   const { colorScheme, setColorScheme } = useMantineColorScheme({ keepTransitions: true });
   const router = useRouter();
@@ -63,7 +68,8 @@ export function MobileNavbar({ children }) {
                         onClick={() => setColorScheme(colorScheme === 'dark' ? 'light' : 'dark')}>
               {colorScheme === 'dark' ? <IconSun stroke={1.5}/> : <IconMoon stroke={1.5}/>}
             </ActionIcon>
-            <Button leftSection={<IconLogin2 size={18}/>} variant="default"> Login </Button>
+            <LoginButton />
+            {/* <Button leftSection={<IconLogin2 size={18}/>} variant="default">Login</Button> */}
           </Group>
         </Group>
       </AppShell.Header>
