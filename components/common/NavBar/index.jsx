@@ -16,6 +16,8 @@ import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
+import QuickSearch from '@components/common/QuickSearch';
+import UserMenu from '@components/common/NavBar/UserMenu';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -33,13 +35,14 @@ const NavBar = ({ children }) => {
         <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}>
           <AppDrawer/>
           <NavItemsList/>
+          <QuickSearch />
           {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
+          {state?.signedIn ? <UserMenu /> : <LoginButton/>}
           {state?.profile && state?.characters?.[0]?.name
             ? <Typography variant={'caption'}>Inspecting {state?.characters?.[0]?.name}</Typography>
             : null}
-          <LoginButton/>
         </Toolbar>
       </AppBar>
     </Box>

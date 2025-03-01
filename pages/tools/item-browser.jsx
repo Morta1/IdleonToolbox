@@ -135,7 +135,7 @@ const ItemBrowser = ({}) => {
             }}
             style={{ width: 300 }}
             renderInput={(params) => (
-              <StyledTextField {...params} label="Item Name" variant="outlined"
+              <StyledTextField   {...params} label="Item Name" variant="outlined"
               />
             )}
           />

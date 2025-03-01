@@ -107,21 +107,23 @@ const GuaranteedDropCalculator = () => {
         }}
         renderInput={(params) => (
           <TextField {...params}
+                     size={'small'}
                      error={errors?.material}
                      label="Material name" variant="outlined"/>
         )}
       />
-      <TextField error={errors?.dropRate} onChange={handleChange} name={'dropRate'} value={values.dropRate}
+      <TextField size={'small'} error={errors?.dropRate} onChange={handleChange} name={'dropRate'} value={values.dropRate}
                  label={'Drop rate'}/>
-      <TextField error={errors?.killsWithMultikill} onChange={handleChange} name={'killsWithMultikill'}
+      <TextField size={'small'} error={errors?.killsWithMultikill} onChange={handleChange} name={'killsWithMultikill'}
                  value={values.killsWithMultikill}
                  label={'Kills with multi kill'}/>
-      <TextField error={errors?.multiKillBonus} onChange={handleChange} name={'multiKillBonus'}
+      <TextField size={'small'} error={errors?.multiKillBonus} onChange={handleChange} name={'multiKillBonus'}
                  value={values.multiKillBonus}
                  label={'Multikill bonus %'}/>
       <Button variant={'contained'} onClick={handleCalc}>Run</Button>
     </Stack>
-    <Typography variant={'caption'}>* This does not include values from the 2x kills lab bonus or the god bonus in W5 (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
+    <Typography variant={'caption'}>* This does not include values from the 2x kills lab bonus or the god bonus in W5
+      (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
     {results?.length > 0 ? <Stack mt={2}>
       <Typography variant={'h6'}>Results</Typography>
       {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>

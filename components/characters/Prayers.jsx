@@ -32,20 +32,20 @@ const CurseTooltip = ({ name, x1, x2, level, prayerIndex, effect, curse, maxLeve
   const cost = calcPrayerCost({ name, x1, x2, level, prayerIndex, costMulti });
   return <>
     <Typography mb={1} fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)}</Typography>
-    <Typography fontWeight={'bold'} variant={'body1'} color={'success.dark'}>Bonus: <Typography color={'black'}
+    <Typography fontWeight={'bold'} variant={'body1'} color={'success.light'}>Bonus: <Typography
                                                                                                 fontWeight={400}
                                                                                                 component={'span'}>{cleanUnderscore(effect).replace('{', calculatedBonus)}</Typography></Typography>
-    <Typography fontWeight={'bold'} variant={'body1'} color={'error.dark'}>Curse: <Typography color={'black'}
+    <Typography fontWeight={'bold'} variant={'body1'} color={'error.light'}>Curse: <Typography
                                                                                               fontWeight={400}
                                                                                               component={'span'}>{cleanUnderscore(curse).replace('{', calculatedCurse)}</Typography></Typography>
     <Box mt={1}>Cost: {level !== maxLevel ? <><Typography component={'span'}
                                                           sx={{
                                                             color: level === 0 ? '' : cost <= totalAmount
-                                                              ? 'success.dark'
-                                                              : 'error.dark'
+                                                              ? 'success.light'
+                                                              : 'error.light'
                                                           }}>
         {kFormatter(round(cost), 2)}</Typography> ({kFormatter(totalAmount, 2)})</> :
-      <Typography fontWeight={'bold'} color={'success.dark'} component={'span'}>Maxed</Typography>}
+      <Typography fontWeight={'bold'} color={'success.light'} component={'span'}>Maxed</Typography>}
     </Box>
   </>
 }

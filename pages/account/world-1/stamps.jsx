@@ -1,5 +1,5 @@
 import {
-  Avatar,
+  Avatar, Box,
   Card,
   CardContent,
   Checkbox,
@@ -14,7 +14,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import CoinDisplay from 'components/common/CoinDisplay';
-import Tooltip from 'components/Tooltip'; // Grid version 2
+import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -62,11 +62,8 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Keep track of your stamps levels and requirements"
       />
-      <Typography textAlign={'center'} component={'div'} variant={'caption'} mt={1}>* Blue border means you have enough
-        material, money and space to
-        craft</Typography>
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Legend'} stackProps={{ gap: .5 }}>
+        <CardTitleAndValue title={'Legend'} stackProps={{ gap: .7 }}>
           <Color color={'warning.light'} desc={'Missing Money'}/>
           <Color color={'error.light'} desc={'Missing Materials'}/>
           <Color color={'#e3e310'} desc={'Not Enough Player Storage'}/>
@@ -208,8 +205,8 @@ const StampInfo = ({
                    }) => {
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
-  return <>
-    <Typography variant={'h5'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
+  return <Box sx={{p:1}}>
+    <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
     {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
@@ -244,7 +241,7 @@ const StampInfo = ({
         </div>
       </Stack>
     </> : null}
-  </>;
+  </Box>;
 }
 
 const CostSection = ({

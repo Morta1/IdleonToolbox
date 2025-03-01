@@ -10,12 +10,11 @@ import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
 import { NextLinkComposed } from '../../NextLinkComposed';
 import Link from '@mui/material/Link';
-import { Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 import AccountDrawer from './AccountDrawer';
 import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
-import { shouldDisplayDrawer } from '../../../../utility/helpers';
-import { format } from 'date-fns';
+import { prefix, shouldDisplayDrawer } from '../../../../utility/helpers';
 import { AppContext } from '../../context/AppProvider';
 
 const AppDrawer = ({ permanent }) => {
@@ -51,12 +50,12 @@ const AppDrawer = ({ permanent }) => {
     {!permanent ? <Stack>
       <Link to={{ pathname: '/', query: router.query }}
             underline="none" component={NextLinkComposed}
-            sx={{ mr: 2 }}
-            color="inherit" noWrap variant="h6">
-        Idleon Toolbox
+            sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}
+            color="inherit" noWrap variant={'h6'}
+      >
+        <img src={`${prefix}data/Coins5.png`} alt={''}/>
+        <span>Idleon Toolbox</span>
       </Link>
-      {state?.lastUpdated ?
-        <Typography variant={'caption'}>{format(state?.lastUpdated, 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
     </Stack> : null}
     {permanent ? <StyledDrawer variant={'permanent'} open sx={{
       display: shouldDisplayDrawer(router.pathname) ? {

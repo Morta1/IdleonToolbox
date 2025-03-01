@@ -16,7 +16,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {Object.entries(totals || {}).map(([icon, quantity]) => {
           return <Card variant={'outlined'} key={icon}>
-            <CardContent>
+            <CardContent sx={{ '&:last-child': { padding: 1.5 } }}>
               <Stack direction={'row'} gap={1}>
                 <Typography>{commaNotation(Math.round(quantity))}</Typography>
                 <img width={20} height={20} src={`${prefix}data/${icon}`} alt={''}/>
@@ -76,12 +76,14 @@ const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
                 <Typography variant={'caption'}>Rank {rank || 0}</Typography>
                 <Typography
-                  variant={'caption'}>{rankProgress ? notateNumber(rankProgress) : 0} / {rankRequirement ? notateNumber(rankRequirement) : 0}</Typography>
+                  variant={'caption'}>{rankProgress ? notateNumber(rankProgress) : 0} / {rankRequirement
+                  ? notateNumber(rankRequirement)
+                  : 0}</Typography>
               </Stack>
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>
             <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
-            <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000','')}%</Typography>
+            <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000', '')}%</Typography>
             <Timer type={'countdown'} lastUpdated={lastUpdated}
                    date={new Date().getTime() + timeLeft * 1000}/>
           </CardContent>

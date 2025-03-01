@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
-import LoginIcon from '@mui/icons-material/Login';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { IconLogin2 } from '@tabler/icons-react';
 import Button from '@mui/material/Button';
 import { AppContext } from '../context/AppProvider';
 import LoginDialog from './LoginDialog';
 
 const LoginButton = () => {
-  const { state, logout } = useContext(AppContext);
+  const { state } = useContext(AppContext);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -18,17 +17,10 @@ const LoginButton = () => {
     setOpen(true);
   }
 
-  const handleLogout = () => {
-    logout();
-  }
-
-  return <Box sx={{ marginLeft: 'auto' }}>
-    {!state?.signedIn ? <Button sx={{ color: 'white', '&:hover': { borderColor: 'white' } }}
-                                onClick={handleLogin}
-                                startIcon={<LoginIcon/>}>Login</Button> :
-      <Button sx={{ color: 'white', '&:hover': { borderColor: 'white' } }}
-              onClick={handleLogout}
-              startIcon={<LogoutIcon/>}>Logout</Button>}
+  return <Box>
+    <Button sx={{ color: 'white', '&:hover': { borderColor: 'white' } }}
+            onClick={handleLogin}
+            startIcon={<IconLogin2/>}>Login</Button>
     <LoginDialog open={open} setOpen={setOpen} onClose={() => setOpen(false)}/>
   </Box>
 };

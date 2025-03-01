@@ -330,7 +330,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
                     <Stack direction={'row'} alignItems={'center'} gap={1}
-                           divider={<Divider sx={{ bgcolor: 'text.secondary' }} orientation={'vertical'}
+                           divider={<Divider orientation={'vertical'}
                                              flexItem/>}>
                       <Typography component={'span'} color="text.secondary">Current: <Typography
                         color={maxed ? 'error.light' : 'inherit'} component={'span'}>{maxed

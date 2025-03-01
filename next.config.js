@@ -40,4 +40,4 @@ const sentryConfig = {
   automaticVercelMonitors: true,
 };
 
-module.exports = withSentryConfig(baseConfig, sentryConfig);
+module.exports = baseConfig;

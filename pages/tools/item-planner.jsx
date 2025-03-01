@@ -199,7 +199,7 @@ const ItemPlanner = ({}) => {
       <Stack direction={'row'} gap={5} flexWrap={'wrap'}>
         <div>
           <Stack direction={'row'} alignItems={'center'}>
-            <TextField sx={{ mt: 1 }} label={'Section name'} placeholder={'Enter section name'}
+            <TextField size={'small'} sx={{ mt: 1 }} label={'Section name'} placeholder={'Enter section name'}
                        onChange={(e) => setSectionName(e.target.value)}
                        InputProps={{
                          endAdornment: <InputAdornment position="end">

@@ -103,13 +103,13 @@ const Refinery = () => {
       })}
     </Stack>
     <Stack my={2} direction={'row'} gap={2}>
-      <CardTitleAndValue title={'More cycles'}>
+      <CardTitleAndValue title={'More cycles'} stackProps>
         <FormControlLabel
           control={<Checkbox checked={includeSquireCycles}
                              onChange={(e) => setIncludeSquireCycles(e.target.checked)}/>}
           label="Include squires cycles"/>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Material cost'}>
+      <CardTitleAndValue title={'Material cost'} stackProps>
         <FormControlLabel
           control={<Checkbox checked={showNextLevelCost}
                              onChange={(e) => setShowNextLevelCost(e.target.checked)}/>}

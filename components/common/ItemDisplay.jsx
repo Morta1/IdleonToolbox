@@ -74,7 +74,7 @@ const ItemDisplay = ({
       <Typography fontWeight={'bold'}
                   variant={'subtitle1'}>{cleanUnderscore(displayName)}</Typography>
     </Stack>
-    <Divider flexItem sx={{ my: 2 }} color={'black'}/>
+    <Divider flexItem sx={{ my: 2 }}/>
     {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
         {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Description'}
@@ -103,11 +103,11 @@ const ItemDisplay = ({
           <TitleAndValue title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
       </Stack>}
     {breakdown ? <>
-      <Divider sx={{ my: 1, bgcolor: 'black' }}/>
+      <Divider sx={{ my: 1 }}/>
       <Stack>
         {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
                                                                                key={`${name}-${index}`}>{title}</Typography>
-          : !name ? <Divider sx={{ my: 1, bgcolor: 'black' }} key={`${name}-${index}`}/> : <TitleAndValue
+          : !name ? <Divider sx={{ my: 1 }} key={`${name}-${index}`}/> : <TitleAndValue
             key={`${name}-${index}`}
             titleStyle={{ width: 120 }}
             title={name}

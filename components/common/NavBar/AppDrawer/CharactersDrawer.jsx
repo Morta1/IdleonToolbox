@@ -1,4 +1,15 @@
-import { Checkbox, Chip, Divider, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Chip,
+  chipClasses,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  Typography
+} from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
@@ -25,7 +36,7 @@ const CharactersDrawer = () => {
     if (charName) {
       newState = {
         ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: charName === name }), {}),
-        all: false,
+        all: false
       }
     } else {
       if (event === 'all') {
@@ -36,7 +47,7 @@ const CharactersDrawer = () => {
       } else {
         newState = {
           ...checked,
-          [event.target.name]: event.target.checked,
+          [event.target.name]: event.target.checked
         }
       }
     }
@@ -55,7 +66,7 @@ const CharactersDrawer = () => {
       window.gtag('event', 'filter_selection', {
         event_category: name,
         event_label: 'engagement',
-        value: !chips?.[name],
+        value: !chips?.[name]
       })
     }
     setSelectedChips(newChipsState);
@@ -64,7 +75,6 @@ const CharactersDrawer = () => {
 
   return (
     <Stack sx={{ height: '100%' }}>
-      <Divider/>
       <List dense={true}>
         <ListItem
           secondaryAction={
@@ -112,7 +122,7 @@ const CharactersDrawer = () => {
       <List>
         <ListItem>
           <Stack gap={2}>
-            <Typography>Filter by section</Typography>
+            <Typography variant={'body1'}>Filter by section</Typography>
             <Stack direction={'row'} rowGap={1.5} columnGap={1} flexWrap={'wrap'}>
               {sections.map(({ name }, index) => {
                 return <Chip key={`${name}-${index}`}
@@ -121,7 +131,7 @@ const CharactersDrawer = () => {
                                height: 24,
                                minWidth: 60,
                                maxWidth: 150,
-                               border: '1px solid gray'
+                               border: '1px solid #454545'
                              }}
                              onClick={() => handleChipClick(name)} size={'small'}
                              variant={chips?.[name] ? 'filled' : 'outlined'}
@@ -133,7 +143,7 @@ const CharactersDrawer = () => {
         </ListItem>
       </List>
       <Divider/>
-      <List style={{ marginTop: 'auto' }}>
+      <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
         <ListItem>
           <ListItemText>
             <Kofi display={'inline-block'}/>

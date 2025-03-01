@@ -34,7 +34,7 @@ const NavItemsList = ({ drawer }) => {
                                dense={!drawer}
                                size="medium">
           <ListItemText component={'span'} disableTypography
-                        sx={{ fontWeight: 'bold', fontSize: 14 }}>{navItem.toUpperCase()}</ListItemText>
+                        sx={{ fontWeight: 'bold', fontSize: 16 }}>{navItem.capitalize()}</ListItemText>
         </ListItemButton>
       })}
       <PinnedPages text={'Pinned pages'}/>

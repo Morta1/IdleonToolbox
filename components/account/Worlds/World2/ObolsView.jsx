@@ -32,8 +32,7 @@ const ObolsView = ({ obols, type = 'character', obolStats }) => {
   return (
     <ObolsStyled>
       {!obolStats ? <>
-          <Card variant={'outlined'} sx={{ border: type === 'account' ? 'none' : '1px solid rgba(255, 255, 255, 0.12)' }}>
-            <CardContent sx={{ '&:last-child': { padding: type === 'account' ? 0 : 2 } }}>
+      <Wrapper type={type}>
               {(type === 'character' ? [5, 9, 12, 16, 23] : [5, 10, 14, 19, 24]).map((endInd, rowNumber, array) => {
                 const startInd = rowNumber === 0 ? 0 : array[rowNumber - 1];
                 const relevantArray = obols?.list?.slice(startInd, endInd);
@@ -52,8 +51,7 @@ const ObolsView = ({ obols, type = 'character', obolStats }) => {
                   })}
                 </div>
               })}
-            </CardContent>
-          </Card>
+      </Wrapper>
         </> :
         <Card variant={'outlined'}>
           <CardContent>
@@ -85,6 +83,17 @@ const Stat = ({ statName, personalBonus, familyBonus }) => {
       <Typography variant={'body1'} component={'span'} color={'#5fb4f1'}>+{familyBonus ?? 0}</Typography>)
     </Box>
   </Stack>
+}
+
+const Wrapper = ({type, children}) => {
+  if (type === 'account') {
+    return <div>{children}</div>
+  }
+  return <Card variant={'outlined'} sx={{ border: type === 'account' ? 'none' : '1px solid rgba(255, 255, 255, 0.12)' }}>
+    <CardContent sx={{ '&:last-child': { padding: type === 'account' ? 0 : 2 } }}>
+      {children}
+    </CardContent>
+  </Card>
 }
 
 const ObolsStyled = styled.div`

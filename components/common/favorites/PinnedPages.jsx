@@ -15,7 +15,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import ClearIcon from '@mui/icons-material/Clear';
+import { IconX } from '@tabler/icons-react';
 
 const PinnedPages = ({}) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
@@ -60,9 +60,11 @@ const PinnedPages = ({}) => {
         disableGutters={!isXs}
         disableRipple
         sx={{
-          color: 'white', borderRadius: '4px',
+          color: 'white',
+          borderRadius: '8px',
           ...(!isXs ? { p: '0 8px' } : {})
         }}
+        selected={open}
         variant={'text'}
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -70,8 +72,9 @@ const PinnedPages = ({}) => {
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
       >
-        <ListItemText component={'span'} disableTypography sx={{ fontWeight: 'bold', fontSize: 14 }}>
-          PINNED PAGES
+        <ListItemText component={'span'} disableTypography
+                      sx={{ fontWeight: 'bold', fontSize: 16 }}>
+          Pinned Pages
         </ListItemText>
         <KeyboardArrowDownIcon sx={{
           ml: 1,
@@ -89,7 +92,7 @@ const PinnedPages = ({}) => {
                                e.stopPropagation();
                                removePin(index)
                              }}>
-                               <ClearIcon/>
+                               <IconX size={20} />
                              </IconButton>}>
               <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}
                               onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
@@ -125,7 +128,7 @@ const PinnedPages = ({}) => {
                   e.stopPropagation();
                   removePin(index)
                 }}>
-                  <ClearIcon/>
+                  <IconX size={20} />
                 </IconButton>}
                 onClick={() => handleNavigation(url, tab, nestedTab)}
               >

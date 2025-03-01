@@ -146,6 +146,7 @@ const Builds = () => {
           <FormControl sx={{ width: 270 }}>
             <InputLabel id="class-select-label">Class</InputLabel>
             <Select
+              size={'small'}
               disabled={createMode}
               labelId="class-select-label"
               id="class-select"
@@ -166,6 +167,7 @@ const Builds = () => {
           <FormControl sx={{ width: 350 }}>
             <InputLabel id="build-select-label">Build</InputLabel>
             <Select
+              size={'small'}
               disabled={createMode}
               placeholder={'Choose a build'}
               labelId="build-select-label"

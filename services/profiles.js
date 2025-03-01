@@ -3,8 +3,8 @@ import { getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { calcTotalBoatLevels } from '@parsers/sailing';
 
-const url = process.env.NEXT_PUBLIC_PROFILES_URL;
-// const url = 'http://localhost:8787/api';
+// const url = process.env.NEXT_PUBLIC_PROFILES_URL;
+const url = 'http://localhost:8787/api';
 export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);

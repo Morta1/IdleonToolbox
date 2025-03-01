@@ -182,7 +182,7 @@ const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
   return <Stack>
     {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
                                                                            key={`${name}-${index}`}>{title}</Typography>
-      : !name ? <Divider sx={{ my: 1, bgcolor: 'black' }} key={`${name}-${index}`}/> : <TitleAndValue
+      : !name ? <Divider sx={{ my: 1 }} key={`${name}-${index}`}/> : <TitleAndValue
         key={`${name}-${index}`}
         titleStyle={{ width: titleWidth }}
         title={name}
