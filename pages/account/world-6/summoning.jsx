@@ -25,14 +25,14 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="Keep track of your summoning bonuses"
     />
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} my={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} my={3} alignItems={'center'}>
       <CardTitleAndValue value={highestEndlessLevel}
-                         icon={'etc/Endless_Summoning.png'} imgStyle={{ width: 25 }} cardSx={{ my: 0 }}/>
-      <Divider sx={{ borderRightWidth: 'medium' }} flexItem orientation={'vertical'}/>
+                         icon={'etc/Endless_Summoning.png'} imgStyle={{ width: 25 }} cardSx={{ my: 0, mb: 0 }}/>
+      <Divider flexItem orientation={'vertical'}/>
       {essences?.map((value, index) => {
         if (index > 6) return null;
         return <CardTitleAndValue key={index} value={notateNumber(value)} icon={`data/SummC${index + 1}.png`}
-                                  cardSx={{ my: 0 }}/>
+                                  cardSx={{ my: 0, mb: 0 }}/>
       })}
     </Stack>
     <Tabber tabs={['Upgrades', 'Winner Bonuses', 'Battles']}>
