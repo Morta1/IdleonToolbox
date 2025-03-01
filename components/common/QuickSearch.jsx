@@ -160,8 +160,14 @@ const QuickSearch = () => {
         Ctrl + K
       </Typography> : null}
     </Stack>
-    <Dialog           onKeyDown={handleKeyDown}
-                      sx={{ borderRadius: '16px' }} scroll={'paper'} fullWidth maxWidth={'sm'} fullScreen={isSm} open={searchOpen}
+    <Dialog onKeyDown={handleKeyDown}
+            sx={{ borderRadius: '16px' }}
+            scroll={'paper'}
+            fullWidth
+            maxWidth={'sm'}
+            fullScreen={isSm}
+            slotProps={{ paper: { elevation: 5 } }}
+            open={searchOpen}
             onClose={() => setSearchOpen(false)}>
       <DialogTitle sx={{ padding: 0 }}>
         <TextField
@@ -183,7 +189,8 @@ const QuickSearch = () => {
           slotProps={{
             input: {
               startAdornment: <IconSearch stroke={'grey'}/>,
-              endAdornment: <Chip tabIndex={-1} onClick={() => setSearchOpen(false)} sx={{ fontSize: 11, lineHeight: '11px' }}
+              endAdornment: <Chip tabIndex={-1} onClick={() => setSearchOpen(false)}
+                                  sx={{ fontSize: 11, lineHeight: '11px' }}
                                   size="small" label={'esc'}/>
             }
           }}
