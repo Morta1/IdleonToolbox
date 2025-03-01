@@ -17,7 +17,7 @@ const COLOR_MAP = {
 
 const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel }) => {
   const [hide, setHide] = useState(true);
-  battles[9] = getEndlessBattles(100, highestEndlessLevel);
+  battles[9] = getEndlessBattles(200, highestEndlessLevel);
   return <>
     <Stack direction={'row'} gap={2}>
       <CardTitleAndValue value={armyDamage < 1e7 ? commaNotation(armyDamage) : notateNumber(armyDamage)}

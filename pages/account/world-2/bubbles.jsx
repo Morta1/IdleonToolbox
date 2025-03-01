@@ -40,8 +40,10 @@ const Bubbles = () => {
   const [classDiscount, setClassDiscount] = useState(false);
   const [bargainTag, setBargainTag] = useState('0');
   const [effThreshold, setEffThreshold] = useState(75);
+  const [levelThreshold, setLevelThreshold] = useState(100);
   const [showMissingLevels, setShowMissingLevels] = useState(true);
   const [hidePastThreshold, setHidePastThreshold] = useState(false);
+  const [hidePastLevelThreshold, setHidePastLevelThreshold] = useState(false);
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = useMemo(() => state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active, [state?.account?.lab.vials]);
 
@@ -49,6 +51,10 @@ const Bubbles = () => {
     const fromStorage = localStorage.getItem('effThreshold');
     if (fromStorage) {
       setEffThreshold(parseInt(fromStorage));
+    }
+    const levelFromStorage = localStorage.getItem('levelThreshold');
+    if (fromStorage) {
+      setLevelThreshold(parseInt(levelFromStorage));
     }
   }, []);
 
@@ -177,10 +183,30 @@ const Bubbles = () => {
                      size={'small'}
                      value={effThreshold}
                      type={'number'}
-                     inputProps={{ min: 0, max: 100 }}
+                     slotProps={{
+                       htmlInput: { min: 0, max: 100 }
+                     }}
                      onChange={({ target }) => {
                        localStorage.setItem('effThreshold', target.value);
                        setEffThreshold(target.value)
+                     }}
+          />
+        </CardTitleAndValue>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Level Threshold'} stackProps={{ gap: .5 }}>
+          <FormControlLabel
+            control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastLevelThreshold}
+                               onChange={() => setHidePastLevelThreshold(!hidePastLevelThreshold)}/>}
+            label="Hide past threshold"/>
+          <TextField sx={{ width: 150 }}
+                     label={''}
+                     value={levelThreshold}
+                     type={'number'}
+                     slotProps={{
+                       htmlInput: { min: 0, max: 100 }
+                     }}
+                     onChange={({ target }) => {
+                       localStorage.setItem('levelThreshold', target.value);
+                       setLevelThreshold(target.value);
                      }}
           />
         </CardTitleAndValue>
@@ -225,7 +251,7 @@ const Bubbles = () => {
                     effectHardCapPercent: thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
                   }
                 }
-                if ((!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0) && hidePastThreshold) return null;
+                if ((!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0) && hidePastThreshold || (hidePastLevelThreshold && level > levelThreshold)) return null;
                 return <Stack key={rawName + '' + bubbleName + '' + index} direction={'row'} alignItems={'center'}
                               justifyContent={'space-around'} gap={2}>
                   <Stack alignItems={'center'}>
@@ -471,10 +497,6 @@ const FutureBubblesTooltip = () => {
       </Stack>
     })}
   </Stack>
-}
-
-const Wrapper = ({ condenseView, children, ...rest }) => {
-  return condenseView ? <Grid {...rest}>{children}</Grid> : <Stack {...rest}>{children}</Stack>
 }
 
 export default Bubbles;
