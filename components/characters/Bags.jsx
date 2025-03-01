@@ -8,7 +8,7 @@ const Bags = ({ bags, capBags }) => {
   const isXs = useMediaQuery('(max-width: 370px)', { noSsr: true });
 
   return (
-    <Card variant={'outlined'}>
+    <Card variant={'outlined'} sx={{height:'fit-content'}}>
       <CardContent>
         <Stack sx={{ width: 200 }} alignItems={'center'}>
           <Stack direction={'row'} flexWrap={'wrap'}>

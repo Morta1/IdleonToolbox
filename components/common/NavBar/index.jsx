@@ -39,10 +39,10 @@ const NavBar = ({ children }) => {
           {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
-          {state?.signedIn ? <UserMenu /> : <LoginButton/>}
           {state?.profile && state?.characters?.[0]?.name
-            ? <Typography variant={'caption'}>Inspecting {state?.characters?.[0]?.name}</Typography>
+            ? <Typography variant={'caption'} sx={{lineHeight: "11px"}}>Inspecting {state?.characters?.[0]?.name}</Typography>
             : null}
+          {state?.signedIn ? <UserMenu /> : <LoginButton/>}
         </Toolbar>
       </AppBar>
     </Box>

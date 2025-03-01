@@ -18,7 +18,7 @@ import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { handleLoadJson, isProd } from '@utility/helpers';
 
 const UserMenu = () => {
-  const { state, logout, dispatch} = useContext(AppContext);
+  const { state, logout } = useContext(AppContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);

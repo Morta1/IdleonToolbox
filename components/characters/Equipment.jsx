@@ -26,7 +26,6 @@ const EquipmentPage = ({ items, character, account }) => {
     }}>
     {items?.map((item, itemIndex) => {
       const { rawName, displayName, amount } = item;
-      console.log('amount', item)
       return itemIndex < 8 ?
         <Card sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 76 }}
               variant={'outlined'} key={`${rawName}-${itemIndex}`}>

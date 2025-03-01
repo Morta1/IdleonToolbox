@@ -7,7 +7,7 @@ import React from 'react';
 
 const Prayers = ({ prayers }) => {
   return <>
-    <Card variant={'outlined'}>
+    <Card variant={'outlined'} sx={{ height: 'fit-content' }}>
       <CardContent>
         <Stack direction={'row'} gap={2} flexWrap="wrap" justifyContent={'center'}>
           {prayers?.map((prayer, index) => {
@@ -33,11 +33,11 @@ const CurseTooltip = ({ name, x1, x2, level, prayerIndex, effect, curse, maxLeve
   return <>
     <Typography mb={1} fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)}</Typography>
     <Typography fontWeight={'bold'} variant={'body1'} color={'success.light'}>Bonus: <Typography
-                                                                                                fontWeight={400}
-                                                                                                component={'span'}>{cleanUnderscore(effect).replace('{', calculatedBonus)}</Typography></Typography>
+      fontWeight={400}
+      component={'span'}>{cleanUnderscore(effect).replace('{', calculatedBonus)}</Typography></Typography>
     <Typography fontWeight={'bold'} variant={'body1'} color={'error.light'}>Curse: <Typography
-                                                                                              fontWeight={400}
-                                                                                              component={'span'}>{cleanUnderscore(curse).replace('{', calculatedCurse)}</Typography></Typography>
+      fontWeight={400}
+      component={'span'}>{cleanUnderscore(curse).replace('{', calculatedCurse)}</Typography></Typography>
     <Box mt={1}>Cost: {level !== maxLevel ? <><Typography component={'span'}
                                                           sx={{
                                                             color: level === 0 ? '' : cost <= totalAmount

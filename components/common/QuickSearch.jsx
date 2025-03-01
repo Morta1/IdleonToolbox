@@ -34,6 +34,7 @@ const QuickSearch = () => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const router = useRouter();
+  const { t, nt, ...updateQuery } = router?.query || {};
 
   // Generate kebab case for URL parts
   const toKebabCase = (str) => {
@@ -49,7 +50,7 @@ const QuickSearch = () => {
 
     // Process GENERAL pages
     Object.keys(PAGES.GENERAL).forEach(page => {
-      if (!state?.signedIn && !offlinePages.includes(page)) return;
+      if (!state?.signedIn && !state?.profile && !offlinePages.includes(page)) return;
       items.push({
         label: page.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
         url: `/${toKebabCase(page)}`,
@@ -58,7 +59,7 @@ const QuickSearch = () => {
       });
     });
 
-    if (state?.signedIn) {
+    if (state?.signedIn || state?.profile) {
       // Process ACCOUNT pages
       Object.keys(PAGES.ACCOUNT).forEach(category => {
         PAGES.ACCOUNT[category].categories.forEach(subCategory => {
@@ -74,7 +75,7 @@ const QuickSearch = () => {
 
     // Process TOOLS pages
     Object.keys(PAGES.TOOLS).forEach(tool => {
-      if (!state?.signedIn && !offlineTools[tool]) return;
+      if (!state?.signedIn && !state?.profile && !offlineTools[tool]) return;
       items.push({
         label: tool.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
         url: `/tools/${toKebabCase(tool)}`,
@@ -116,7 +117,7 @@ const QuickSearch = () => {
 
   // Handle navigation
   const handleNavigate = (url) => {
-    router.push(url);
+    router.push({ pathname: url, query: updateQuery });
     setSearchOpen(false);
     setSearchTerm('');
   };
@@ -144,7 +145,7 @@ const QuickSearch = () => {
     <Stack
       onClick={() => setSearchOpen(true)}
       sx={{
-        width: isMd ? 'fit-content' : 140,
+        width: isMd ? 'fit-content' : 155,
         border: '1px solid rgba(255, 255, 255, 0.23)',
         height: '32px',
         borderRadius: isMd ? '8px' : '16px',
