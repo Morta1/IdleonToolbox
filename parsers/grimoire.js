@@ -1,4 +1,4 @@
-import { lavaLog, tryToParse } from '@utility/helpers';
+import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { grimoire, monsters, randomList } from '../data/website-data';
 import { getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
@@ -25,12 +25,16 @@ const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
       cost
     }
   });
-  upgrades = upgrades.map((upgrade, index) => ({
-    ...upgrade,
-    unlocked: upgrade?.unlockLevel < totalUpgradeLevels,
-    bonus: calcGrimoireBonus(upgrades, index),
-    monsterProgress: getMonsterProgress(monsterList, accountData, index)
-  }))
+  upgrades = upgrades.map((upgrade, index) => {
+    const bonus = calcGrimoireBonus(upgrades, index);
+    return {
+      ...upgrade,
+      unlocked: upgrade?.unlockLevel < totalUpgradeLevels,
+      bonus,
+      monsterProgress: getMonsterProgress(monsterList, accountData, index),
+      description: upgrade?.description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'))
+    }
+  })
   const nextUnlock = upgrades?.find(({ unlocked }) => !unlocked);
   const wraith = getWraithStats(upgrades, totalUpgradeLevels, charactersData, accountData);
 

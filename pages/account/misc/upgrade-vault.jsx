@@ -51,7 +51,7 @@ const UpgradeVault = () => {
               display: 'flex',
               flexDirection: 'column',
               width: 370,
-              minHeight: 300,
+              minHeight: 330,
               height: '100%',
               opacity: unlocked ? 1 : .5,
               border: maxed ? '1px solid' : 'none',

@@ -57,6 +57,21 @@ let darkTheme = createTheme({
         }
       }
     },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          background: '#1C252E',
+          borderRadius: '8px'
+        }
+      }
+    },
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          background: '#1C252E',
+        }
+      }
+    },
     MuiPopover: {
       styleOverrides: {
         paper: {
@@ -69,7 +84,8 @@ let darkTheme = createTheme({
     MuiCardContent: {
       styleOverrides: {
         root: {
-          '&:last-child': { padding: 16 }
+          '&:last-child': { padding: 16 },
+          borderRadius: '8px'
         }
       }
     },

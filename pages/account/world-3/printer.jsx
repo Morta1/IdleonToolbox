@@ -88,9 +88,9 @@ const Printer = () => {
               <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} justifyContent={'center'} gap={3}>
                 {printerSlots?.map((slot, slotIndex) => {
                   return <Tooltip key={`${slot?.name}-${slotIndex}`} title={<BoostedTooltip {...slot}/>}>
-                    <Card sx={{ borderColor: slot?.active ? 'success.light' : 'inherit' }}
+                    <Card sx={{ borderColor: slot?.active ? 'success.light' : '#424242', borderWidth: 1 }}
                           elevation={slot?.active ? 0 : 5}
-                          variant={slot?.active ? 'outlined' : ''}>
+                          variant='outlined'>
                       <CardContent>
                         {slot?.item !== 'Blank' ?
                           <Stack sx={{ width: 50, height: 50 }} position={'relative'} justifyContent={'flex-start'}

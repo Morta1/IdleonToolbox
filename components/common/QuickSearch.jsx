@@ -244,7 +244,7 @@ const QuickSearch = () => {
           </Box>
         ) : (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
-            <Typography color="text.secondary">Start typing to search</Typography>
+            <Typography color="text.secondary">Start typing to search for a page</Typography>
           </Box>
         )}
       </DialogContent>

@@ -1,4 +1,4 @@
-import { capitalize, Stack, Typography } from '@mui/material';
+import { capitalize, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, pascalCase } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { IconWithText, TitleAndValue } from '@components/common/styles';
@@ -28,13 +28,16 @@ const Statues = ({ statues, characters }) => {
 const StatueTooltip = ({ effect, talentMulti, name, rawName, progress, statues, characters, calcBonus, nextLv }) => {
   const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', Math.floor(10 * calcBonus) / 10)));
   return <>
-    <Typography fontWeight={'bold'} variant={'h5'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
+    <Typography fontWeight={'bold'} variant={'h6'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
     <Typography variant={'body1'}>{desc}</Typography>
-    <ProgressBar percent={progress / nextLv * 100} label={false}/>
+    <Divider sx={{ my: 1 }}/>
+    <ProgressBar percent={progress / nextLv * 100}/>
     <Typography
       variant={'body2'}>{notateNumber(progress, 'Big')} / {notateNumber(nextLv, 'Big')}</Typography>
-    <Typography my={2} component={'div'} variant={'caption'}>Voodo
+    <Divider sx={{ my: 1 }}/>
+    <Typography component={'div'} variant={'caption'}>Voodo
       Statufication: {notateNumber(talentMulti, 'MultiplierInfo')}x</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Stack>
       {characters?.map(({ name: cName, talents }) => {
         const bonus = getStatueBonus(statues, rawName, talents);

@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material';
+import { Container, Stack } from '@mui/material';
 import ObolsView from 'components/account/Worlds/World2/ObolsView';
 import Currencies from 'components/account/Misc/Currencies';
 import Shrines from '@components/account/Worlds/World3/Shrines';
@@ -17,17 +17,20 @@ const General = () => {
       title="General | Idleon Toolbox"
       description="General account information"
     />
-    <Stack sx={{ '& > div': { maxWidth: 300 } }} gap={2} justifyContent={'center'} direction={'row'} flexWrap={'wrap'}>
-      <ObolsView obols={state?.account?.obols} type={'account'}/>
-      <Currencies {...(state?.account?.currencies || {})}/>
-      <Shrines shrines={state?.account?.shrines} shrinesExpBonus={state?.account?.shrinesExpBonus}/>
-      <Statues statues={state?.account?.statues} characters={state?.characters}/>
-      <Stack gap={1.5}>
-        <Highscores title={'Colosseum'} highscore={state?.account?.highscores?.coloHighscores}/>
-        <Highscores title={'Minigame'} highscore={state?.account?.highscores?.minigameHighscores}/>
+    <>
+      <Stack sx={{ '& > div': { maxWidth: 300 } }} gap={4} justifyContent={'center'} direction={'row'} flexWrap={'wrap'}>
+        <ObolsView obols={state?.account?.obols} type={'account'}/>
+        <Currencies {...(state?.account?.currencies || {})}/>
+        <Shrines shrines={state?.account?.shrines} shrinesExpBonus={state?.account?.shrinesExpBonus}/>
+        <Statues statues={state?.account?.statues} characters={state?.characters}/>
+        <Stack gap={1.5}>
+          <Highscores title={'Colosseum'} highscore={state?.account?.highscores?.coloHighscores}/>
+          <Highscores title={'Minigame'} highscore={state?.account?.highscores?.minigameHighscores}/>
+        </Stack>
+        <Totals account={state?.account} characters={state?.characters}/>
       </Stack>
-      <Totals account={state?.account} characters={state?.characters}/>
-    </Stack>
+    </>
+
   </Box>
 };
 

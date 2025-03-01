@@ -1,5 +1,14 @@
 import { NextSeo } from 'next-seo';
-import { Accordion, AccordionDetails, AccordionSummary, Card, CardContent, Stack, Typography } from '@mui/material';
+import {
+  Accordion,
+  accordionClasses,
+  AccordionDetails,
+  AccordionSummary,
+  Card,
+  CardContent,
+  Stack,
+  Typography
+} from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { cleanUnderscore, prefix } from '../../../utility/helpers';
@@ -7,13 +16,17 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Companions = () => {
   const { state } = useContext(AppContext);
-
+  console.log(`.${accordionClasses.root}.${accordionClasses.root}::before`)
   return <>
     <NextSeo
       title="Companions | Idleon Toolbox"
       description="Detailed information about companions and their bonuses"
     />
-    <Accordion defaultExpanded={false} sx={{ mb: 3, width: 'fit-content' }}>
+    <Accordion defaultExpanded={false} sx={{
+      mb: 3,
+      width: 'fit-content',
+      [`&.${accordionClasses.root}.${accordionClasses.root}::before`]: { opacity: 0 }
+    }}>
       <AccordionSummary expandIcon={<ExpandMoreIcon/>}>Details</AccordionSummary>
       <AccordionDetails>
         <Stack direction={'row'} gap={3}>
