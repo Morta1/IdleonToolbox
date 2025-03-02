@@ -1,37 +1,12 @@
-import { Divider, List, ListItem, ListItemText, Stack } from '@mui/material';
+import { Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '../../context/AppProvider';
 import Kofi from '../../Kofi';
 
-import ListItemButton from "@mui/material/ListItemButton";
-
-const tools = {
-  'cardSearch': {
-    icon: '2CardsA0'
-  },
-  'builds': {
-    icon: 'SmithingHammerChisel_x1'
-  },
-  'itemPlanner': {
-    icon: 'EquipmentTransparent2'
-  },
-  'itemBrowser': {
-    icon: 'EquipmentTransparent105'
-  },
-  'materialTracker': {
-    icon: 'Refinery1'
-  },
-  'activeExpCalculator': {
-    icon: 'StatusExp'
-  },
-  'godPlanner': {
-    icon: 'DivGod1'
-  },
-  'guaranteedDropCalculator': {
-    icon: 'TreeInterior1b'
-  }
-};
+import ListItemButton from '@mui/material/ListItemButton';
+import { PAGES } from '@components/constants';
+import { prefix } from '@utility/helpers';
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
@@ -44,7 +19,7 @@ const ToolsDrawer = () => {
       window.gtag('event', 'handle_nav', {
         event_category: url,
         event_label: 'engagement',
-        value: 1,
+        value: 1
       })
     }
 
@@ -55,35 +30,36 @@ const ToolsDrawer = () => {
     return router.pathname.includes(label);
   }
 
-  return (
-    (<Stack sx={{ height: '100%' }}>
-      <Divider/>
-      <List>
-        {Object.entries(tools).map(([key, value], index) => {
-          if (!state?.signedIn && !offlineTools[key]) return null;
-          const { icon } = value;
-          const keyUri = key.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
-          const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
-          return (
-            (<React.Fragment key={key + ' ' + index}>
-              <ListItemButton selected={isSelected(key)} onClick={() => handleClick(keyUri)}>
-                <img className={'list-img'} width={32} src={`/data/${icon}.png`} alt=""/>
-                <ListItemText style={{ marginLeft: 10 }} primary={formattedKey}/>
-              </ListItemButton>
-            </React.Fragment>)
-          );
-        })}
-      </List>
-      <List style={{ marginTop: 'auto' }}>
-        <ListItem>
-          <ListItemText>
-            <Kofi display={'inline-block'}/>
-          </ListItemText>
-        </ListItem>
-      </List>
-      <Divider/>
-    </Stack>)
-  );
+  return <Stack sx={{ height: '100%' }}>
+    <List>
+      {Object.entries(PAGES.TOOLS).map(([key, value], index) => {
+        if (!state?.signedIn && !offlineTools[key]) return null;
+        const { icon } = value;
+        const keyUri = key.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
+        const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
+        const selected = isSelected(keyUri);
+        return <ListItemButton key={key + ' ' + index} selected={selected}
+                               onClick={() => handleClick(keyUri)}>
+          <ListItemIcon sx={{ minWidth: 32 }}>
+            <img style={{ objectFit: 'contain' }} width={32} height={32} src={`${prefix}${icon}.png`} alt=""/>
+          </ListItemIcon>
+          <ListItemText slotProps={{
+            primary: {
+              color: selected ? '#99ccff' : 'inherit'
+            }
+          }} style={{ marginLeft: 10 }} primary={formattedKey}/>
+        </ListItemButton>;
+      })}
+    </List>
+    <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
+      <ListItem>
+        <ListItemText>
+          <Kofi display={'inline-block'}/>
+        </ListItemText>
+      </ListItem>
+    </List>
+    <Divider/>
+  </Stack>;
 };
 
 export default ToolsDrawer;

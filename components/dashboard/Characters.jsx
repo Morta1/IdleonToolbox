@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '../../utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from '../Tooltip';
@@ -18,7 +19,6 @@ import {
   trapsAlerts,
   worshipAlerts
 } from '@utility/dashboard/characters';
-import InfoIcon from '@mui/icons-material/Info';
 import Timer from '../common/Timer';
 import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '@parsers/character';
@@ -87,7 +87,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 </HtmlTooltip>
                 <HtmlTooltip title={<CharacterInfo characters={characters} account={account} character={character}
                                                    lastUpdated={lastUpdated}/>}>
-                  <InfoIcon/>
+                  <IconInfoCircleFilled/>
                 </HtmlTooltip>
               </Stack>
             </Stack>
@@ -250,13 +250,13 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
       <TitleAndValue title={'Afk time'}
                      value={isActive() ? <Typography>Active</Typography> : <Timer type={'up'} date={afkTime}
                                                                                   lastUpdated={lastUpdated}/>}/>
-      <Divider flexItem sx={{ background: 'black' }}/>
+      <Divider flexItem/>
       <TitleAndValue title={'Damage'} value={notateDamage(playerInfo)?.at(0)?.replace(/\[/g, 'M')}/>
       <TitleAndValue title={'Hp'} value={notateNumber(playerInfo?.maxHp)}/>
       <TitleAndValue title={'Mp'} value={notateNumber(playerInfo?.maxMp)}/>
       <TitleAndValue title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
       <TitleAndValue title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
-      <Divider flexItem sx={{ background: 'black' }}/>
+      <Divider flexItem/>
       <TitleAndValue title={'Cash multi'} value={`${notateNumber(cashMulti)}%`}/>
       <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
       <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>

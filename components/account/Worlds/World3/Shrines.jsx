@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, kFormatter, numberWithCommas } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { IconWithText } from '@components/common/styles';
@@ -47,16 +47,19 @@ const ShrineTooltip = ({
                          timeLeft
                        }) => {
   return <>
-    <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
+    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
     <Typography variant={'body1'}>{description}</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Typography fontWeight={'bold'} variant={'body1'}>Map: {cleanUnderscore(mapNames[mapId])}</Typography>
-    <Typography fontWeight={'bold'}>Progress:</Typography>
-    <ProgressBar percent={progress / hoursReq * 100} label={false}/>
+    <ProgressBar percent={progress / hoursReq * 100}/>
     <Typography
       variant={'body1'}>{numberWithCommas(parseInt(progress))} / {numberWithCommas(parseInt(hoursReq))}</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>Affected by:</Typography>
     <Typography variant={'body1'}>{affectingCharacters?.join(', ')}</Typography>
-    <Typography sx={{ fontWeight: 'bold' }} mt={1}>{progressPerHour.toFixed(2)}/hr</Typography>
+    <Divider sx={{ my: 1 }}/>
+    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Progress: {progressPerHour.toFixed(2)}/hr</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Typography variant={'inherit'} mt={1}>{convertMsToHHMM(timeLeft)}</Typography>
     <Timer date={new Date().getTime() + timeLeft} staticTime={true}/>
   </>

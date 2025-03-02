@@ -22,9 +22,10 @@ const Traps = () => {
       title="Traps | Idleon Toolbox"
       description="Keep track of your traps timing, critters amounts and more"
     />
-    <FormControl>
+    <FormControl sx={{ mt: 2, mb: 1 }}>
       <InputLabel id="demo-simple-select-label">Collect as</InputLabel>
       <Select
+        size={'small'}
         labelId="demo-simple-select-label"
         id="demo-simple-select"
         value={bonus}
@@ -35,14 +36,15 @@ const Traps = () => {
         <MenuItem value={'min'}>Non Hunter</MenuItem>
       </Select>
     </FormControl>
-    <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(bonuses?.[bonus]?.critter * 100)}% and {Math.round(bonuses?.[bonus]?.exp * 100)}% EXP</Typography>
+    <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(bonuses?.[bonus]?.critter * 100)}%
+      and {Math.round(bonuses?.[bonus]?.exp * 100)}% EXP</Typography>
     {totals ? <Totals hideExp array={totals} index={'total'}/> : null}
     <Stack gap={3}>
       {traps?.map((trapSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
         const trappingLevel = state?.characters?.[index].skillsInfo?.trapping?.level;
-        const trap = state?.characters?.[index]?.tools?.find(({ Type }) => Type === "TRAP_BOX_SET");
+        const trap = state?.characters?.[index]?.tools?.find(({ Type }) => Type === 'TRAP_BOX_SET');
         const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
         const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
         const usedTrap = state?.characters?.[index]?.tools?.[4]?.rawName !== 'Blank'

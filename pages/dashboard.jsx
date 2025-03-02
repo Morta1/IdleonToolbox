@@ -3,7 +3,6 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Box, Stack, ToggleButton, ToggleButtonGroup, useMediaQuery } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { isProd, tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
@@ -13,6 +12,7 @@ import DashboardSettings from '../components/common/DashboardSettings';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
+import { IconSettingsFilled } from '@tabler/icons-react';
 
 const baseTrackers = {
   version: 11,
@@ -458,11 +458,12 @@ const Dashboard = () => {
       <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
         <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
           <ToggleButtonGroup value={filters} onChange={handleFilters}>
-            <ToggleButton sx={{ textTransform: 'none', height: 32 }} value="account">Account</ToggleButton>
-            <ToggleButton sx={{ textTransform: 'none', height: 32 }} value="characters">Characters</ToggleButton>
-            <ToggleButton sx={{ textTransform: 'none', height: 32 }} value="timers">Timers</ToggleButton>
+            <ToggleButton value="account">Account</ToggleButton>
+            <ToggleButton value="characters">Characters</ToggleButton>
+            <ToggleButton value="timers">Timers</ToggleButton>
           </ToggleButtonGroup>
-          <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }} startIcon={<SettingsIcon/>}
+          <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
+                  startIcon={<IconSettingsFilled size={20}/>}
                   onClick={() => setOpen(true)}>
             Configure alerts
           </Button>

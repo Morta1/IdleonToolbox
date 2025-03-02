@@ -22,7 +22,7 @@ const EquipmentPage = ({ items, character, account }) => {
     sx={{
       display: 'grid',
       justifyContent: 'center',
-      gridTemplateColumns: 'repeat(2, 60px)',
+      gridTemplateColumns: 'repeat(2, 60px)'
     }}>
     {items?.map((item, itemIndex) => {
       const { rawName, displayName, amount } = item;
@@ -31,13 +31,13 @@ const EquipmentPage = ({ items, character, account }) => {
               variant={'outlined'} key={`${rawName}-${itemIndex}`}>
           <CardContent sx={{ '&:last-child': { padding: 0 } }}>
             <Stack alignItems={'center'} justifyContent={'center'}>
-              <Tooltip
-                title={displayName && displayName !== 'ERROR' ? <ItemDisplay {...item} character={character}
-                                                                             account={account}/> : ''}>
-                <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-              </Tooltip>
-              {displayName !== 'ERROR' ? amount : ' '}
-            </Stack>
+            <Tooltip
+              title={displayName && displayName !== 'ERROR' ? <ItemDisplay {...item} character={character}
+                                                                           account={account}/> : ''}>
+              <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
+            </Tooltip>
+            {displayName !== 'ERROR' && rawName !== 'Blank' ? amount : ' '}
+          </Stack>
           </CardContent>
         </Card> : null;
     })}

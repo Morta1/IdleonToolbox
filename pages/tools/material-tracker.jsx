@@ -29,6 +29,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import Box from '@mui/material/Box';
 import FileUploadButton from '@components/common/DownloadButton';
 import { CardTitleAndValue } from '@components/common/styles';
+import { IconFileExport } from '@tabler/icons-react';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -121,12 +122,13 @@ const MaterialTracker = () => {
       description="Add a material, set your own threshold and keep track of your inventory."
     />
     <CardTitleAndValue title={'Utility'}>
-      <Stack direction={'row'} alignItems={'center'} gap={2}>
+      <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
         <FileUploadButton onFileUpload={(data) => {
           setTrackedItems(data);
         }}>Import</FileUploadButton>
         <Button onClick={() => handleDownload(trackedItems, 'it-material-tracker')} variant={'outlined'}
-                size={'small'}>Export</Button>
+                startIcon={<IconFileExport size={18}/>}
+                size="small">Export</Button>
       </Stack>
     </CardTitleAndValue>
     <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
@@ -174,6 +176,7 @@ const MaterialTracker = () => {
 
         renderInput={(params) => (
           <TextField {...params}
+                     size={'small'}
                      error={errors?.material}
                      label="Material name" variant="outlined"/>
         )}
@@ -181,17 +184,17 @@ const MaterialTracker = () => {
     </Stack>
     <Stack justifyContent={isSm ? 'space-between' : 'flex-start'} direction={'row'} gap={3} alignItems={'center'}
            flexWrap={'wrap'}>
-      <TextField error={errors?.lowerBound} value={bounds?.lowerBound} onChange={({ target }) => {
+      <TextField size={'small'} error={errors?.lowerBound} value={bounds?.lowerBound} onChange={({ target }) => {
         let temp = target.value.replace(/,/g, '');
         setBounds({ ...bounds, lowerBound: numberWithCommas(temp) })
         setErrors({ ...errors, lowerBound: false })
       }} label="Lower bound"/>
-      <TextField error={errors?.upperBound} value={bounds?.upperBound} onChange={({ target }) => {
+      <TextField size={'small'} error={errors?.upperBound} value={bounds?.upperBound} onChange={({ target }) => {
         let temp = target.value.replace(/,/g, '');
         setBounds({ ...bounds, upperBound: numberWithCommas(temp) })
         setErrors({ ...errors, upperBound: false })
       }} label="Upper bound"/>
-      <TextField value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
+      <TextField size={'small'} value={note} onChange={({ target }) => setNote(target.value)} label="Note"/>
     </Stack>
     <Stack mt={2} gap={1}>
       <FormControlLabel
@@ -200,12 +203,13 @@ const MaterialTracker = () => {
         label="Show an alert when value is near the bounds"
       />
       <Stack direction={'row'} alignItems={'center'}
-             divider={<Divider orientation={'vertical'} flexItem sx={{ bgcolor: 'grey' }}/>} gap={2}>
+             divider={<Divider orientation={'vertical'} flexItem/>} gap={2}>
         <Button onClick={() => handleAddTracker()} sx={{ height: 'fit-content', width: 'fit-content' }}
                 variant={'contained'}>Add
           tracker</Button>
         <Button onClick={() => handleAddTracker(true)} sx={{ height: 'fit-content', width: 'fit-content' }}
                 variant={'contained'}
+
                 color={'secondary'}>Add tracker for all greenstacks</Button>
       </Stack>
     </Stack>

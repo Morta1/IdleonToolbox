@@ -51,11 +51,10 @@ const UpgradeList = ({ isFlurbo, upgrades = [] }) => {
           const { level, type, effect } = upgrade;
           const isMaxed = level >= (isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel);
           return (
-            <Card key={`${effect}-${index}`} sx={{ width: { md: 450 } }}>
+            <Card key={`${effect}-${index}`} sx={{ width: { md: 450 },
+              border: isMaxed ? '1px solid' : '',
+              borderColor: isMaxed ? 'success.light' : ''}}>
               <CardContent sx={{
-                border: isMaxed ? '1px solid' : '',
-                borderColor: isMaxed ? 'success.light' : '',
-                borderRadius: '6px'
               }}>
                 <Stack direction="row" justifyContent="space-between" gap={2}>
                   <Stack>

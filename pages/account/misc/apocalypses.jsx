@@ -64,6 +64,7 @@ const Apocalypses = () => {
           {state?.characters?.map((character, index) => {
             return (
               <ToggleButton
+                sx={{ height: 'inherit' }}
                 title={character?.name}
                 value={index}
                 key={character?.name + '' + index}>
@@ -78,6 +79,7 @@ const Apocalypses = () => {
         <ToggleButtonGroup sx={{ display: 'flex', flexWrap: 'wrap' }}
                            size={'small'}>
           <ToggleButton
+            sx={{ height: 'inherit' }}
             onClick={handleSelectAll}
             title="Select all"
             value={'all'}>

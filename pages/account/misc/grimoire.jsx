@@ -54,7 +54,6 @@ const Grimoire = () => {
                         unlocked
                       }, index) => {
         if (name === 'Ripped_Page') return null;
-        const desc = description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
         return (
           (<Card key={name + index}>
             <CardContent sx={{
@@ -70,7 +69,7 @@ const Grimoire = () => {
                 <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({level})</Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>
-              <Typography>{cleanUnderscore(desc.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
+              <Typography>{cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
               <Divider sx={{ my: 1 }}/>
               <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
                 <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Bone${boneType}_x1.png`}/>

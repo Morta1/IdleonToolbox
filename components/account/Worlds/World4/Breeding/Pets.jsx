@@ -157,16 +157,16 @@ const Pets = ({
                              size={'small'}
                              onChange={() => setApplyThreshold(!applyThreshold)}/>}
           label={'Apply level threshold'}/>
-        <TextField sx={{ width: 'fit-content' }}
+        <TextField size={'small'} sx={{ width: 'fit-content', mt: 1 }}
                    type={'number'} value={threshold} label={'Pet level threshold'}
                    onChange={(e) => setThreshold(e.target.value)}
                    helperText={'Show pets under this level only'}/>
-        <Stack mt={2} direction={'row'} gap={2}>
+        <Stack mt={2} direction={'row'} gap={2} alignItems={'center'}>
           <ToggleButtonGroup exclusive sx={{ flexWrap: 'wrap' }} value={filter} onChange={handleFilter}>
             <ToggleButton value="worlds">Worlds</ToggleButton>
             <ToggleButton value="stats">Stats</ToggleButton>
           </ToggleButtonGroup>
-          <TextField sx={{ width: 'fit-content' }}
+          <TextField size={'small'} sx={{ width: 'fit-content' }}
                      value={filterBy} label={'Filter by category'}
                      onChange={(e) => setFilterBy(e.target.value)}/>
         </Stack>
@@ -215,7 +215,7 @@ const Pets = ({
                             <Typography variant={'caption'}>Days {notateNumber(progress)} / {goal}</Typography>
                             <Tooltip title={<Stack>
                               <Typography>Faster Shiny Level Multi: {fasterShinyLv.value.toFixed(3)}x</Typography>
-                              <Divider sx={{ my: 1, backgroundColor: 'black' }}/>
+                              <Divider sx={{ my: 1 }}/>
                               <Breakdown breakdown={fasterShinyLv.breakdown} notation={'MultiplierInfo'}
                                          titleStyle={{ width: 170 }}/>
                             </Stack>}>

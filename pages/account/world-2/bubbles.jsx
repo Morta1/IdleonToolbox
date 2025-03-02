@@ -156,6 +156,7 @@ const Bubbles = () => {
           <FormControl>
             <InputLabel id="bargain-tag-select-input">Bargain Tag</InputLabel>
             <Select
+              size={'small'}
               labelId="bargain-tag-select"
               id="bargain-tag-select"
               value={bargainTag}
@@ -179,6 +180,7 @@ const Bubbles = () => {
             label="Hide past threshold"/>
           <TextField sx={{ width: 150 }}
                      label={''}
+                     size={'small'}
                      value={effThreshold}
                      type={'number'}
                      slotProps={{
@@ -317,84 +319,73 @@ const AdditionalInfo = ({
       ...bubble,
       goalLevel
     }}/> : null}
-    <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
-           alignItems={'center'}>
-      <HtmlTooltip title={'Bubble\'s effect'}>
-        <BonusIcon src={`${prefix}data/SignStar1b.png`} alt=""/>
-      </HtmlTooltip>
-      <HtmlTooltip
-        title={bubbleMaxBonus
-          ? `${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}`
-          : ''}>
-        <Typography variant={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0
-          ? 'caption'
-          : ''}>{goalBonus} {bubbleMaxBonus
-          ? `(${notateNumber(effectHardCapPercent)}%)`
-          : ''}</Typography>
-      </HtmlTooltip>
-      {bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? <HtmlTooltip
-        title={bubbleMaxBonus
-          ? `You need ${thresholdObj?.thresholdMissingLevels} levels to reach your threshold`
-          : ''}>
-        <Typography variant={'caption'}>Missing {Math.ceil(thresholdObj?.thresholdMissingLevels)} levels</Typography>
-      </HtmlTooltip> : null}
-    </Stack>
-    {
-      itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
-        if (rawName === 'Blank' || rawName === 'ERROR') return null;
-        const {
-          singleLevelCost,
-          total
-        } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
-        const x1Extension = ['sail', 'bits', 'w6item'];
-        const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
-          ? `${rawName}_x1`
-          : rawName;
-        const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
-        let amount;
-        if (rawName.includes('Liquid')) {
-          const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
-          amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
-        } else if (rawName.includes('Bits')) {
-          amount = account?.gaming?.bits;
-        } else if (rawName.includes('Sail')) {
-          amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
-        } else if (rawName.includes('W6item')) {
-          const crops = { 'W6item1': 4, 'W6item2': 30, 'W6item3': 46, 'W6item4': 72, 'W6item5': 99 };
-          const essences = { 'W6item6': 0, 'W6item7': 1, 'W6item8': 2, 'W6item9': 3, 'W6item10': 4 };
-          if (crops?.[rawName]) {
-            amount = account?.farming?.crop?.[crops?.[rawName]];
-          } else if (essences.hasOwnProperty(rawName)) {
-            amount = account?.summoning?.essences?.[essences?.[rawName]];
-          }
-        } else {
-          amount = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
-        }
-        return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
-          {atomCost ? <Stack gap={2} alignItems={'center'}>
-              <Tooltip title={<Typography
-                color={account?.atoms?.particles > atomCost
-                  ? 'success.light'
-                  : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
-                <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
-              </Tooltip>
-              <HtmlTooltip title={atomCost}>
-                <Typography>{notateNumber(atomCost, 'Big')}</Typography>
-              </HtmlTooltip></Stack>
-            : null}
-          <Stack gap={2} justifyContent={'center'}
-                 alignItems={'center'}>
-            <HtmlTooltip title={cleanUnderscore(name)}>
-              <ItemIcon src={`${prefix}data/${itemName}.png`}
-                        alt=""/>
-            </HtmlTooltip>
-            <Typography color={amount >= total
-              ? 'success.dark'
-              : ''}>{notateNumber(total, 'Big')}</Typography>
-          </Stack>
-        </Stack>
-      })
-    }
+   <Stack direction={'row'} gap={2}>
+     <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
+            alignItems={'center'}>
+       <BonusIcon src={`${prefix}data/SignStar1b.png`} alt=""/>
+       <Typography variant={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0
+         ? 'caption'
+         : ''}>{goalBonus} {bubbleMaxBonus
+         ? `(${notateNumber(effectHardCapPercent)}%)`
+         : ''}</Typography>
+     </Stack>
+     {
+       itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
+         if (rawName === 'Blank' || rawName === 'ERROR') return null;
+         const {
+           singleLevelCost,
+           total
+         } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
+         const x1Extension = ['sail', 'bits', 'w6item'];
+         const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
+           ? `${rawName}_x1`
+           : rawName;
+         const atomCost = singleLevelCost > 1e8 && !name?.includes('Liquid') && !name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
+         let amount;
+         if (rawName.includes('Liquid')) {
+           const liquids = { 'Liquid1': 0, 'Liquid2': 1, 'Liquid3': 2, 'Liquid4': 3 };
+           amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
+         } else if (rawName.includes('Bits')) {
+           amount = account?.gaming?.bits;
+         } else if (rawName.includes('Sail')) {
+           amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
+         } else if (rawName.includes('W6item')) {
+           const crops = { 'W6item1': 4, 'W6item2': 30, 'W6item3': 46, 'W6item4': 72, 'W6item5': 99 };
+           const essences = { 'W6item6': 0, 'W6item7': 1, 'W6item8': 2, 'W6item9': 3, 'W6item10': 4 };
+           if (crops?.[rawName]) {
+             amount = account?.farming?.crop?.[crops?.[rawName]];
+           } else if (essences.hasOwnProperty(rawName)) {
+             amount = account?.summoning?.essences?.[essences?.[rawName]];
+           }
+         } else {
+           amount = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+         }
+         return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
+           {atomCost ? <Stack gap={2} alignItems={'center'}>
+               <Tooltip title={<Typography
+                 color={account?.atoms?.particles > atomCost
+                   ? 'success.light'
+                   : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
+                 <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
+               </Tooltip>
+               <HtmlTooltip title={atomCost}>
+                 <Typography>{notateNumber(atomCost, 'Big')}</Typography>
+               </HtmlTooltip></Stack>
+             : null}
+           <Stack gap={2} justifyContent={'center'}
+                  alignItems={'center'}>
+             <HtmlTooltip title={cleanUnderscore(name)}>
+               <ItemIcon src={`${prefix}data/${itemName}.png`}
+                         alt=""/>
+             </HtmlTooltip>
+             <Typography color={amount >= total
+               ? 'success.dark'
+               : ''}>{notateNumber(total, 'Big')}</Typography>
+           </Stack>
+         </Stack>
+       })
+     }
+   </Stack>
   </Stack>
 }
 

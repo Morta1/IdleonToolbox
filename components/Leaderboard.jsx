@@ -77,7 +77,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                   return <ListItem
                     sx={{
                       mb: entry?.loggedMainChar || entry?.searchedChar ? .8 : 0,
-                      backgroundColor: entry?.loggedMainChar || entry?.searchedChar ? HIGHLIGHTED_BG_COLOR : '#1a1d2a',
+                      backgroundColor: entry?.loggedMainChar || entry?.searchedChar ? HIGHLIGHTED_BG_COLOR : '#1e262e',
                       outline: entry?.loggedMainChar || entry?.searchedChar ? '2px solid' : 'none',
                       outlineColor: entry?.loggedMainChar ? HIGHLIGHTED_OUTLINED_COLOR : entry?.searchedChar
                         ? SECONDARY_HIGHLIGHTED_OUTLINED_COLOR
@@ -180,7 +180,7 @@ const TextWrapper = styled(Paper, {
   border-radius: 12px 12px 0 0;
   box-shadow: none;
   width: 100%;
-  background-color: ${({ outline }) => outline ? HIGHLIGHTED_BG_COLOR : '#161826'};
+  background-color: ${({ outline }) => outline ? HIGHLIGHTED_BG_COLOR : '#1e262e'};
   outline: ${({ loggedMainChar, searchedChar }) => loggedMainChar || searchedChar ? '3px solid' : 'none'};
   outline-color: ${({ loggedMainChar, searchedChar }) => loggedMainChar ? HIGHLIGHTED_OUTLINED_COLOR : searchedChar
           ? SECONDARY_HIGHLIGHTED_OUTLINED_COLOR

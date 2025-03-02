@@ -271,7 +271,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
         </ToggleButton> : null}
       </ToggleButtonGroup>
       <Stack direction={'row'} alignItems={'center'} gap={3}>
-        <TextField sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
+        <TextField size={'small'} sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
           {breakpoints?.map((val) => (<MenuItem key={val} value={val}>
             {val === -1 ? 'Order' : val === 0 ? 'Time' : val === -2 ? 'NMLB' : val === -3 ? 'Ribbon' : `Time to ${val}`}
           </MenuItem>))}
@@ -283,7 +283,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
               level {breakpoint}
               !</Typography> : null;
         })}
-        <TextField label={'Food lust bosses'} type={'number'} value={foodLust}
+        <TextField size={'small'} label={'Food lust bosses'} type={'number'} value={foodLust}
                    inputProps={{ min: 0, max: 14 }}
                    sx={{ width: 130 }}
                    onChange={({ target }) => setFoodLust(target.value)}/>

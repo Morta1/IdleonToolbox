@@ -88,9 +88,9 @@ const Printer = () => {
               <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} justifyContent={'center'} gap={3}>
                 {printerSlots?.map((slot, slotIndex) => {
                   return <Tooltip key={`${slot?.name}-${slotIndex}`} title={<BoostedTooltip {...slot}/>}>
-                    <Card sx={{ borderColor: slot?.active ? 'success.light' : 'inherit' }}
+                    <Card sx={{ borderColor: slot?.active ? 'success.light' : '#424242', borderWidth: 1 }}
                           elevation={slot?.active ? 0 : 5}
-                          variant={slot?.active ? 'outlined' : 'elevation'}>
+                          variant='outlined'>
                       <CardContent>
                         {slot?.item !== 'Blank' ?
                           <Stack sx={{ width: 50, height: 50 }} position={'relative'} justifyContent={'flex-start'}
@@ -123,7 +123,7 @@ const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
       <TitleAndValue boldTitle title={'Base value'} value={notateNumber(value, 'Big')}/>
       <TitleAndValue boldTitle title={'Boosted value'} value={notateNumber(boostedValue, 'Big')}/>
       {breakdown.length > 0 ? <Stack>
-        <Divider flexItem sx={{ my: 1, backgroundColor: 'black' }}/>
+        <Divider flexItem sx={{ my: 1 }}/>
         {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
                                                             key={name}
                                                             value={`${value.toString().match(/^-?\d+(?:\.\d{0,3})?/)?.[0]}x`}/>)}

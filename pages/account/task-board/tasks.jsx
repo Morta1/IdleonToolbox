@@ -60,7 +60,8 @@ const Tasks = () => {
                 <img src={`${prefix}etc/Merit_${world}.png`} alt={'cost_merit-' + world}/>
                 <Typography>{index === 8 ? 0 : meritReward}</Typography>
               </Stack> : null}
-              {level <= breakpoints?.length ? <ProgressBar percent={!isNaN(percent) && percent !== Infinity ? percent : 100}/> : null}
+              {level <= breakpoints?.length ? <ProgressBar
+                percent={!isNaN(percent) && percent !== Infinity ? percent : 100}/> : null}
             </CardContent>
           </Card>
         })}

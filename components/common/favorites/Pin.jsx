@@ -1,6 +1,5 @@
 import Button from '@mui/material/Button';
-import FavoriteIcon from '@mui/icons-material/Favorite'
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
 import usePin from '@components/common/favorites/usePin';
 
 const Pin = () => {
@@ -8,8 +7,9 @@ const Pin = () => {
 
   return <>
     <Button sx={{ textTransform: 'none' }} onClick={() => togglePin()}
-            startIcon={isPinned ? <FavoriteIcon/> : <FavoriteBorderIcon/>}>{isPinned ? 'Unpin' : 'Pin'} this
-      page</Button>
+            startIcon={isPinned ? <IconHeartFilled/> : <IconHeart/>}>
+      {isPinned ? 'Unpin' : 'Pin'} this page
+    </Button>
   </>
 };
 

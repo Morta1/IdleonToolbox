@@ -127,7 +127,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   };
 }
 
-export const getNewMutationChance = (unlockedMutations, dna, voteBonus) => {
+export const getNewMutationChance = (unlockedMutations, dna, voteBonus = 1) => {
   return Math.floor(1e3 * (0 === unlockedMutations
     ? Math.min(0.8, (7 * dna) / (100 + dna) * voteBonus)
     : Math.min(0.99, ((42 * dna) / (100 + dna)) * Math.pow(0.31, unlockedMutations) * voteBonus))) / 10

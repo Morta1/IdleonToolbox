@@ -120,11 +120,11 @@ const ActiveXpCalculator = () => {
       {selectedChar ? <Stack gap={5} flexWrap={'wrap'} sx={{ flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
         <div className={'character-wrapper'}>
           <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'}>
-            <StyledTextField id="select" label="Character" value={selectedChar || {}}
+            <StyledTextField size={'small'} id="select" label="Character" value={selectedChar || {}}
                              onChange={(e) => setSelectedChar(e.target.value)} select>
               {charactersList?.map((character, index) => {
                 return <StyledMenuItem key={character?.name + index} value={character}>
-                  <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt=""/>
+                  <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={32} height={32}/>
                   {character?.name}
                 </StyledMenuItem>
               })}
@@ -134,16 +134,19 @@ const ActiveXpCalculator = () => {
             </IconButton>
           </Stack>
           <StyledTextField
+            size={'small'}
             label={'Start Percentage'}
             value={startExp || 0}
             type={'number'}
             onChange={(e) => onStartPercentageChange(e.target.value)}/>
           <StyledTextField
+            size={'small'}
             label={'End Percentage'}
             value={endExp || 0}
             type={'number'}
             onChange={(e) => onEndPercentageChange(e.target.value)}/>
           <StyledTextField
+            size={'small'}
             label={'Goal Level'}
             value={goalLevel || 0}
             type={'number'}

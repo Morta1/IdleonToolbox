@@ -13,9 +13,9 @@ const Totems = () => {
   return (
     <>
       <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-        <TextField value={worshipEff} onChange={({ target }) => setWorshipEff(target.value)}
+        <TextField size={'small'} value={worshipEff} onChange={({ target }) => setWorshipEff(target.value)}
                    label={'Worship Efficiency'}/>
-        <TextField value={foodEff} onChange={({ target }) => setFoodEff(target.value)}
+        <TextField size={'small'} value={foodEff} onChange={({ target }) => setFoodEff(target.value)}
                    label={'Food Effect'}/>
       </Stack>
       <Stack direction={'row'} gap={2} sx={{ width: 'fit-content' }} flexWrap={'wrap'}>

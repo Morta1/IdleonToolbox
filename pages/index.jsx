@@ -14,6 +14,7 @@ import { useFlubber } from '../components/hooks/useFlubber';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import { Adsense } from '@ctrl/react-adsense';
+import Kofi from '@components/common/Kofi';
 
 const Home = () => {
   const indexes = useMemo(() => getRandomNumbersArray(6, 6), []);
@@ -92,11 +93,7 @@ const Home = () => {
                            variant={'contained'}>
               Join the discord
             </DiscordButton>
-            <a style={{ display: 'flex', alignItems: 'center' }} href="https://ko-fi.com/S6S7BHLQ4" target="_blank"
-               rel="noreferrer">
-              <img height="36" width="150" style={{ border: 0, height: 36, width: '100%', objectFit: 'contain' }}
-                   src="https://cdn.ko-fi.com/cdn/kofi1.png?v=3" alt="Buy Me a Coffee at ko-fi.com"/>
-            </a>
+            <Kofi />
           </Stack>
         </Stack>
         <Stack sx={{ width: breakpoint ? '100%' : 'inherit' }} justifyContent={breakpoint ? 'flex-start' : 'center'}>

@@ -23,6 +23,7 @@ import { handleDownload, prefix } from '../../utility/helpers';
 import Tabber from './Tabber';
 import Button from '@mui/material/Button';
 import FileUploadButton from '@components/common/DownloadButton';
+import { IconFileExport } from '@tabler/icons-react';
 
 const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
   const handleSettingChange = (e, configType, option, trackerName, section, category) => {
@@ -62,20 +63,21 @@ const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) =>
 
   return <Dialog open={open} onClose={onClose} fullWidth>
     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Stack gap={2} direction={'row'}>
+      <Stack gap={2} direction={'row'} alignItems={'center'}>
         <Typography variant={'h6'}>Configuration</Typography>
         <FileUploadButton onFileUpload={(data) => {
           if (data?.account && data?.characters) {
             onFileUpload(data);
           }
         }}>Import</FileUploadButton>
-        <Button onClick={() => handleDownload(config, 'it-dashboard-config')} variant={'outlined'}
-                size={'small'}>Export</Button>
+        <Button onClick={() => handleDownload(config, 'it-dashboard-config')} variant="outlined"
+                startIcon={<IconFileExport size={18} />}
+                size="small">Export</Button>
       </Stack>
       <IconButton onClick={onClose}><CloseIcon/></IconButton>
     </DialogTitle>
     <DialogContent>
-      <Tabber tabs={['Account', 'Character','Timers']}>
+      <Tabber tabs={['Account', 'Character', 'Timers']}>
         <Box><FieldsByType config={config?.account} configType={'account'} onChange={handleSettingChange}/></Box>
         <Box><FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}/></Box>
         <Box><FieldsByType config={config?.timers} configType={'timers'} onChange={handleSettingChange}/></Box>
