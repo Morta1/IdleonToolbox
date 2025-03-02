@@ -145,7 +145,8 @@ const QuickSearch = () => {
     <Stack
       onClick={() => setSearchOpen(true)}
       sx={{
-        width: isMd ? 'fit-content' : 155,
+        flexShrink: 0,
+        width: 'fit-content',
         border: '1px solid rgba(255, 255, 255, 0.23)',
         height: '32px',
         borderRadius: isMd ? '8px' : '16px',
