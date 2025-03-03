@@ -18,16 +18,18 @@ const GuildMembers = ({ members, saves }) => {
   const [localMembers, setLocalMembers] = useState();
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('gpEarned')
+  const sortedSaves = saves?.slice().sort((a, b) => b.timestamp - a.timestamp);
 
   useEffect(() => {
     setLocalMembers(getSortedMembers(members, orderBy, order))
   }, [members])
 
   const getSortedMembers = (arr, orderByKey, wantedOrder) => {
-    return arr?.sort((a, b) => {
-      return wantedOrder === 'asc' ? a?.[orderByKey] - b?.[orderByKey] : b?.[orderByKey] - a?.[orderByKey]
-    })
-  }
+    return [...(arr || [])].sort((a, b) =>
+      wantedOrder === 'asc' ? a?.[orderByKey] - b?.[orderByKey] : b?.[orderByKey] - a?.[orderByKey]
+    );
+  };
+
 
   const handleSort = (orderKey, newOrder) => {
     setOrder(newOrder);
@@ -56,11 +58,11 @@ const GuildMembers = ({ members, saves }) => {
           </TableCell>
           <TableCell>Wanted Bonus</TableCell>
         </TableRow>
-        {saves?.length > 0 ? <TableRow>
+        {sortedSaves?.length > 0 ? <TableRow>
           <TableCell colSpan={2}/>
-          {saves?.map((save, index) => {
+          {sortedSaves?.map((save, index) => {
             if (save) {
-              return <TableCell key={save?.timestamp + index}>
+              return <TableCell key={'save' + index}>
                 {format(save?.timestamp, 'dd/MM/yyyy HH:mm:ss')}
               </TableCell>
             }
