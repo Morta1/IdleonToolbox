@@ -218,9 +218,9 @@ export const getCosSchematic = (holesObject) => {
 
 export const getCosmoBonus = ({ majik, t, i }) => {
   return 2 === t && 1 === i
-    ? Math.floor(Math.max(1, Math.pow(3, (majik[i]))))
-    : Math.floor((cosmoUpgrades[t][i]?.x0)
-      * (majik[i]))
+    ? Math.floor(Math.max(1, Math.pow(3, (majik?.[i]))))
+    : Math.floor((cosmoUpgrades?.[t]?.[i]?.x0)
+      * (majik?.[i]))
 }
 
 const getMeasurementBaseBonus = ({ holesObject, t }) => {
@@ -354,16 +354,3 @@ const getVillagerExpReq = (level, index) => {
           ? 120 * (30 + 10 * Math.pow(level, 2)) * Math.pow(2, level)
           : 10 * Math.pow(10, 20);
 }
-
-export const cavernNames = [
-  'The well',
-  'Motherlode',
-  'The den',
-  'Bravery',
-  'The bell',
-  'The harp',
-  'The Lamp',
-  'The hive',
-  'Grotto',
-  'Justice'
-]

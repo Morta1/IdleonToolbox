@@ -1,4 +1,4 @@
-import { IconClipboard, IconLogout2, IconUserCircle } from '@tabler/icons-react';
+import { IconLogout2, IconSun, IconUserCircle } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
   Divider,
@@ -8,20 +8,21 @@ import {
   ListSubheader,
   Menu,
   Stack,
-  Typography
+  Typography,
+  useColorScheme
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { format } from 'date-fns';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
-import { handleLoadJson, isProd } from '@utility/helpers';
 
 const UserMenu = () => {
   const { state, logout } = useContext(AppContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const { mode, setMode } = useColorScheme();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -78,7 +79,10 @@ const UserMenu = () => {
         </Stack>
       </ListSubheader>
       <Divider sx={{ mb: 1 }}/>
-      {/*<MenuItem onClick={handleClose}>*/}
+      {/*<MenuItem onClick={() => {*/}
+      {/*  console.log('\'dark\'')*/}
+      {/*  setMode('dark');*/}
+      {/*}}>*/}
       {/*  <ListItemIcon>*/}
       {/*    <IconSun/>*/}
       {/*  </ListItemIcon>*/}

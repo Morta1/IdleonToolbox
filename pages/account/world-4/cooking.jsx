@@ -5,12 +5,13 @@ import Kitchens from 'components/account/Worlds/World4/Kitchens';
 import Meals from '@components/account/Worlds/World4/Meals';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
-import { tryToParse } from '@utility/helpers';
+import { getTabs, tryToParse } from '@utility/helpers';
 import { parseKitchens } from '@parsers/cooking';
 import MenuItem from '@mui/material/MenuItem';
 import { getPlayerLabChipBonus } from '@parsers/lab';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
+import { PAGES } from '@components/constants';
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
@@ -83,7 +84,7 @@ const Cooking = () => {
           </Tooltip>
         </Stack>
       </Stack>
-      <Tabber tabs={['Kitchens', 'Meals']}>
+      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'cooking')}>
         <Kitchens {...cooking}
                   kitchens={kitchens}
                   achievements={achievements}

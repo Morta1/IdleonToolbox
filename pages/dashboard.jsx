@@ -15,7 +15,7 @@ import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
 
 const baseTrackers = {
-  version: 11,
+  version: 12,
   account: {
     General: {
       tasks: {
@@ -50,7 +50,8 @@ const baseTrackers = {
           },
           { name: 'newCharacters', checked: true },
           { name: 'gemsFromBosses', checked: true },
-          { name: 'familyObols', checked: true }
+          { name: 'familyObols', checked: true },
+          { name: 'freeCompanion', checked: true }
         ]
       }
     },
@@ -201,7 +202,8 @@ const baseTrackers = {
               helperText: 'Empty ribbon slots'
             },
             checked: true
-          }
+          },
+          { name: 'meals', checked: true }
         ]
       },
       laboratory: {
@@ -307,7 +309,12 @@ const baseTrackers = {
     anvil: {
       checked: true,
       options: [
-        { name: 'unspentPoints', checked: true },
+        {
+          name: 'unspentPoints',
+          type: 'input',
+          props: { label: 'Points Threshold', value: 1, minValue: 1, helperText: '' },
+          checked: true
+        },
         { name: 'missingHammers', checked: true },
         {
           name: 'anvilOverdue',

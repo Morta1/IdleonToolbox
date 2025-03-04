@@ -4,10 +4,11 @@ import Tabber from '@components/common/Tabber';
 import WinnerBonuses from '@components/account/Worlds/World6/summoning/WinnerBonuses';
 import { AppContext } from '@components/common/context/AppProvider';
 import Upgrades from '@components/account/Worlds/World6/summoning/Upgrades';
-import { notateNumber } from '@utility/helpers';
+import { getTabs, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack } from '@mui/material';
 import Battles from '@components/account/Worlds/World6/summoning/Battles';
+import { PAGES } from '@components/constants';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
@@ -35,7 +36,7 @@ const Summoning = () => {
                                   cardSx={{ my: 0, mb: 0 }}/>
       })}
     </Stack>
-    <Tabber tabs={['Upgrades', 'Winner Bonuses', 'Battles']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
       <Upgrades upgrades={upgrades}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
       <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel}/>

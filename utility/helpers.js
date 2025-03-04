@@ -2,6 +2,14 @@ import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } fr
 import { drawerPages } from '@components/constants';
 import merge from 'lodash.merge';
 
+export const getTabs = (array, label, tabName) => {
+  const navItem = array.find((item) => item.label === label);
+  if (tabName) {
+    return navItem?.nestedTabs?.filter((item) => item.tab === tabName)?.map(({ nestedTab }) => nestedTab);
+  }
+  return navItem?.tabs;
+}
+
 export const downloadFile = (data, filename) => {
   const blob = new Blob([data], { type: 'text/json' });
   const link = document.createElement('a');
@@ -19,6 +27,7 @@ export const downloadFile = (data, filename) => {
   link.dispatchEvent(evt);
   link.remove()
 }
+
 // Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1
 const msPerDay = 8.64e+7;
 export const getTimeAsDays = (time) => {

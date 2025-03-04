@@ -1,4 +1,4 @@
-import { Card, CardContent, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { signInWithEmailPassword } from '../../../firebase';
 import { AppContext } from '../context/AppProvider';

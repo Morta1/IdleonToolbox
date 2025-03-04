@@ -12,7 +12,6 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
@@ -202,7 +201,7 @@ const Bubbles = () => {
                      value={levelThreshold}
                      type={'number'}
                      slotProps={{
-                       htmlInput: { min: 0, max: 100 }
+                       htmlInput: { min: 0 }
                      }}
                      onChange={({ target }) => {
                        localStorage.setItem('levelThreshold', target.value);

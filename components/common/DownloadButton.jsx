@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import Button from '@mui/material/Button';
 import { tryToParse } from '@utility/helpers';
-import { IconFileImport } from "@tabler/icons-react";
+import { IconFileImport } from '@tabler/icons-react';
 
 const FileUploadButton = ({ children, onFileUpload }) => {
   const fileInputRef = useRef(null);

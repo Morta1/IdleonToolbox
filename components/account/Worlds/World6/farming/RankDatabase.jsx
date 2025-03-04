@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import React from 'react';
 
 const RankDatabase = ({ ranks }) => {

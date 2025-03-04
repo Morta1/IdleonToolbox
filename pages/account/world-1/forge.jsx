@@ -1,12 +1,13 @@
 import { AppContext } from '../../../components/common/context/AppProvider';
 import React, { useContext } from 'react';
 import { Card, CardContent, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
-import { getCoinsArray, prefix } from '../../../utility/helpers';
+import { getCoinsArray, getTabs, prefix } from '../../../utility/helpers';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 import Timer from '../../../components/common/Timer';
 import Box from '@mui/material/Box';
+import { PAGES } from '@components/constants';
 
 const slot = {
   width: 72, alignItems: 'center'
@@ -39,7 +40,7 @@ const Forge = () => {
       title="Forge | Idleon Toolbox"
       description="Keep track of your forge production"
     />
-    <Tabber tabs={['Slots', 'Upgrades']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge')}>
       <Grid container gap={2}>
         {state?.account?.forge?.list?.map(({ ore, barrel, bar, isBrimestone }, index) => {
           const timeTillEmpty = ore?.timeTillEmpty ?? 0;

@@ -74,7 +74,7 @@ export const getBucketBonus = ({
                                  t,
                                  i
                                }) => {
-  if (0 === engineerSchematics[t]) return 0;
+  if (0 === engineerSchematics?.[t]) return 0;
   if (14 === t) {
     let result = 0;
 
@@ -116,7 +116,7 @@ export const getBucketBonus = ({
             : 55 === t
               ? 10 * Math.floor(lavaLog((wellSediment[11])))
               : 56 === t
-                ? Math.pow(1.3, Math.floor(lavaLog((wellSediment[2]))))
+                ? Math.pow(1.3, Math.floor(lavaLog((wellSediment?.[2]))))
                 : 57 === t
                   ? 20 * Math.floor(lavaLog((wellSediment[1])))
                   : 58 === t

@@ -1,12 +1,13 @@
 import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, getBitIndex, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Imports from './Imports';
 import Mutations from './Mutations';
 import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
 import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
+import { PAGES } from '@components/constants';
 
 const General = ({ account, lastUpdated }) => {
   const {
@@ -50,7 +51,7 @@ const General = ({ account, lastUpdated }) => {
         </Card>
       })}
     </Stack>
-    <Tabber tabs={['Imports', 'Superbits', 'Mutations', 'Log book']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'gaming')}>
       <Imports account={account} lastUpdated={lastUpdated}/>
       <Superbits superbits={superbitsUpgrades}/>
       <Mutations account={account} lastUpdated={lastUpdated}/>

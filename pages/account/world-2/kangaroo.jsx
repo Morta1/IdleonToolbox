@@ -2,11 +2,12 @@ import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World2/Kangaroo/Upgrades';
 import Tooltip from '@components/Tooltip';
+import { PAGES } from '@components/constants';
 
 const Kangaroo = () => {
   const { state } = useContext(AppContext);
@@ -49,7 +50,7 @@ const Kangaroo = () => {
         })}
       </Stack>
     </Stack>
-    <Tabber tabs={['Upgrades', 'Tar Upgrades', 'Bonuses']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades}/>
       <Upgrades upgrades={kangaroo?.tarUpgrades} isTar/>
       <Stack gap={5}>

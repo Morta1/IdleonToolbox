@@ -1,15 +1,4 @@
-import {
-  Checkbox,
-  Chip,
-  chipClasses,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Stack,
-  Typography
-} from '@mui/material';
+import { Checkbox, Chip, Divider, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';

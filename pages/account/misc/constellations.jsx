@@ -6,8 +6,8 @@ import { NextSeo } from 'next-seo';
 import { getShinyBonus } from '../../../parsers/breeding';
 import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 import Tabber from '../../../components/common/Tabber';
-
-const tabs = ['Constellations', 'Star Signs'];
+import { getTabs } from '@utility/helpers';
+import { PAGES } from '@components/constants';
 
 const Constellations = () => {
   const { state } = useContext(AppContext);
@@ -36,7 +36,7 @@ const Constellations = () => {
       title="Constellations | Idleon Toolbox"
       description="Constellation and star signs overview"
     />
-    <Tabber tabs={tabs} clearOnChange={['nt']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations')} clearOnChange={['nt']}>
       <ConstellationsComp constellations={state?.account?.constellations}/>
       <StarSigns starSigns={stars} infiniteStars={infiniteStars}/>
     </Tabber>

@@ -5,6 +5,8 @@ import Bonuses from '@components/account/Worlds/World5/Hole/Bonuses';
 import Measure from '@components/account/Worlds/World5/Hole/Measure';
 import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
+import { PAGES } from '@components/constants';
+import { getTabs } from '@utility/helpers';
 
 const Hole = () => {
   const { state } = useContext(AppContext);
@@ -12,7 +14,7 @@ const Hole = () => {
   return <>
     <Tabber
       clearOnChange={['nt']}
-      tabs={['Explore', 'Engineer', 'Bonuses', 'Measure']}
+      tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole')}
       icons={['etc/Villager_0','etc/Villager_1', 'etc/Villager_2', 'etc/Villager_3']}
     >
       <Explore hole={state?.account?.hole}/>

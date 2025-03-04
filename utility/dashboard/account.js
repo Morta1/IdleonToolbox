@@ -27,7 +27,7 @@ export const getOptions = (data) => {
   }, {});
 }
 
-export const getGeneralAlerts = (account, fields, options, characters) => {
+export const getGeneralAlerts = (account, fields, options, characters, lastUpdated) => {
   const alerts = {};
   if (fields?.tasks?.checked) {
     const { tasks: tasksOptions } = options?.tasks
@@ -179,6 +179,10 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
                                                          }) => !displayName && account?.accountLevel >= levelReq);
       if (missingObols?.length > 0) {
         etc.familyObols = missingObols?.length;
+      }
+      const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
+      if (options?.etc?.freeCompanion?.checked && isPast(nextCompanionClaim)) {
+        etc.freeCompanion = true;
       }
     }
     if (Object.keys(etc).length > 0) {
@@ -414,7 +418,7 @@ export const getWorld3Alerts = (account, fields, options) => {
       'atom',
       ...(!includeOakTree?.checked ? ['OakTree'] : []),
       ...(!includeCopper?.checked ? ['Copper'] : []),
-      ...(!includeSporeCap?.checked ? ['Grasslands1'] : []),
+      ...(!includeSporeCap?.checked ? ['Grasslands1'] : [])
     ].toSimpleObject();
     const atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
       name: items?.[name]?.displayName,
@@ -585,6 +589,12 @@ export const getWorld4Alerts = (account, fields, options) => {
   }
   if (fields?.cooking?.checked) {
     const cooking = {};
+    if (options?.cooking?.meals?.checked) {
+      const readyMeals = account?.cooking?.meals?.filter(({ levelCost, amount }) => amount >= levelCost);
+      if (readyMeals?.length > 0) {
+        cooking.meals = readyMeals;
+      }
+    }
     if (options?.cooking?.spices?.checked) {
       const spices = maxNumberOfSpiceClicks - account?.cooking?.spices?.numberOfClaims;
       if (spices > 0) {

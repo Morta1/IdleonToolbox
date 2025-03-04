@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from '@mui/material';
-import { getRealDateInMs, prefix } from 'utility/helpers';
+import { getRealDateInMs, getTabs, prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
@@ -14,6 +14,7 @@ import Upgrades from '../../../components/account/Misc/Dungeons/Upgrades';
 import Tabber from '../../../components/common/Tabber';
 import RngItems from '../../../components/account/Misc/Dungeons/RngItems';
 import Traits from '../../../components/account/Misc/Dungeons/Traits';
+import { PAGES } from '@components/constants';
 
 const Dungeons = () => {
   const { state } = useContext(AppContext);
@@ -92,7 +93,7 @@ const Dungeons = () => {
           ) : null}
         </Accordion>
       </Stack>
-      <Tabber tabs={['Passives', 'Rng Items', 'Traits']}>
+      <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'dungeons')}>
         <Upgrades {...dungeons}/>
         <RngItems {...dungeons}/>
         <Traits {...dungeons}/>
