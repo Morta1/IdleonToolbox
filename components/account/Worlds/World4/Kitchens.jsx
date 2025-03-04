@@ -195,7 +195,7 @@ const Kitchens = ({
 
 const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades, account }) => {
   const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades, account);
-  const levelCost = getMealLevelCost(meal?.level, achievements, equinoxUpgrades, account);
+  const levelCost = getMealLevelCost(meal?.level, achievements, account, equinoxUpgrades);
   const diamondCost = (11 - meal?.level) * levelCost;
   const timeTillNextLevel = meal?.amount >= levelCost
     ? '0'
@@ -231,7 +231,6 @@ const SpiceIcon = styled.img`
 const MealIcon = styled.img`
   object-fit: contain;
   margin-top: -20px;
-  filter: ();
   opacity: ${({ missing }) => missing ? 0.5 : 1}
 `;
 

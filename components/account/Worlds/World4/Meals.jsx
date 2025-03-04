@@ -79,6 +79,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   }
   const overflowingLadleBonus = useMemo(() => getHighestOverflowingLadle(), [characters]);
   const calcMeals = (meals, overflow) => {
+    if (!meals) return []
     return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
@@ -283,7 +284,9 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
               !</Typography> : null;
         })}
         <TextField size={'small'} label={'Food lust bosses'} type={'number'} value={foodLust}
-                   inputProps={{ min: 0, max: 14 }}
+                   slotProps={{
+                     htmlInput:{ min: 0, max: 14 }
+                   }}
                    sx={{ width: 130 }}
                    onChange={({ target }) => setFoodLust(target.value)}/>
       </Stack>
@@ -373,7 +376,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
                   <Stack>
                     <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
                     {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x`}>
-                      <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}/>
+                      <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`} alt={`ribbon-${ribbonIndex}`}/>
                     </Tooltip> : null}
                   </Stack>
                 </Stack>

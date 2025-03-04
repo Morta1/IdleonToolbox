@@ -101,5 +101,5 @@ const getCloudBonus = (arr, index) => {
 }
 
 export const getEquinoxBonus = (upgrades, name) => {
-  return upgrades?.filter(upgrade => upgrade.name === name)?.[0]?.bonus || 0;
+  return (upgrades || [])?.filter(upgrade => upgrade.name === name)?.[0]?.bonus || 0;
 };
