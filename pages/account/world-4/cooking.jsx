@@ -58,6 +58,7 @@ const Cooking = () => {
         <FormControl sx={{ width: 170 }}>
           <InputLabel id="selected-character">Character</InputLabel>
           <Select
+            size={'small'}
             labelId="selected-character"
             id="selected-character"
             value={selectedCharacter?.playerId}
@@ -103,6 +104,7 @@ const Cooking = () => {
                totalMealSpeed={totalMealSpeed}
                account={state?.account}
                artifacts={sailing?.artifacts}
+               mealMaxLevel={state?.account?.cooking?.mealMaxLevel}
                equinoxUpgrades={state?.account?.equinox?.upgrades}
         />
       </Tabber>

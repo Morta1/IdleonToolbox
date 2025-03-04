@@ -27,13 +27,11 @@ import { checkCharClass } from '@parsers/talents';
 
 const maxTimeValue = 8.64e15;
 
-let DEFAULT_MEAL_MAX_LEVEL = 30;
 const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110];
-const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artifacts, lab, equinoxUpgrades }) => {
+const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achievements, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = useState(() => []);
   const [localMeals, setLocalMeals] = useState();
   const [bestSpeedMeal, setBestSpeedMeal] = useState([]);
-  const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
   const [mealSpeed, setMealSpeed] = useState(totalMealSpeed);
   const [sortBy, setSortBy] = useState(breakpoints[0]);
   const [foodLust, setFoodLust] = useState(account?.equinox?.upgrades?.find(({ name }) => name === 'Food_Lust')?.bonus)
@@ -128,16 +126,6 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       : upgrade)
     setLocalEquinoxUpgrades(temp);
   }, [foodLust])
-
-  useEffect(() => {
-    const causticolumnArtifact = isArtifactAcquired(artifacts, 'Causticolumn');
-    const firstJadeUnlocked = isJadeBonusUnlocked(account, 'Papa_Blob\'s_Quality_Guarantee');
-    const secondJadeUnlocked = isJadeBonusUnlocked(account, 'Chef_Geustloaf\'s_Cutting_Edge_Philosophy');
-    const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 26);
-    setMealMaxLevel(DEFAULT_MEAL_MAX_LEVEL + grimoireBonus + (causticolumnArtifact?.bonus ?? 0) + (firstJadeUnlocked
-      ? 10
-      : 0) + (secondJadeUnlocked ? 10 : 0))
-  }, [account]);
 
   const handleFilters = (e, newFilters) => {
     setFilters(newFilters);

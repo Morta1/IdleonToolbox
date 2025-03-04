@@ -590,7 +590,7 @@ export const getWorld4Alerts = (account, fields, options) => {
   if (fields?.cooking?.checked) {
     const cooking = {};
     if (options?.cooking?.meals?.checked) {
-      const readyMeals = account?.cooking?.meals?.filter(({ levelCost, amount }) => amount >= levelCost);
+      const readyMeals = account?.cooking?.meals?.filter(({ levelCost, amount, level }) => amount >= levelCost && level < account?.cooking?.mealMaxLevel);
       if (readyMeals?.length > 0) {
         cooking.meals = readyMeals;
       }

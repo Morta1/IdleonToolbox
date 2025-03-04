@@ -26,6 +26,7 @@ import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getGrimoireBonus } from '@parsers/grimoire';
 
 export const spicesNames = [
   'Grasslands',
@@ -60,9 +61,12 @@ export const getCooking = (idleonData, account) => {
 const parseCooking = (mealsRaw, territoryRaw, cookingRaw, account) => {
   const meals = getMeals(mealsRaw, account);
   const spices = getSpices(mealsRaw, territoryRaw, account);
+  const mealMaxLevel = getMealMaxLevel(account);
+
   return {
     meals,
-    spices
+    spices,
+    mealMaxLevel
   }
 }
 
@@ -442,6 +446,18 @@ export const calcMealTime = (maxLevel, meal, totalMealSpeed, achievements, equin
   return calcTimeToNextLevel(amountNeeded, cookReq, totalMealSpeed);
 }
 
+export const DEFAULT_MEAL_MAX_LEVEL = 30;
+export const getMealMaxLevel = (account) => {
+  const causticolumnArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Causticolumn');
+  const firstJadeUnlocked = isJadeBonusUnlocked(account, 'Papa_Blob\'s_Quality_Guarantee');
+  const secondJadeUnlocked = isJadeBonusUnlocked(account, 'Chef_Geustloaf\'s_Cutting_Edge_Philosophy');
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 26);
+  return DEFAULT_MEAL_MAX_LEVEL
+    + grimoireBonus
+    + (causticolumnArtifact?.bonus ?? 0)
+    + (firstJadeUnlocked ? 10 : 0)
+    + (secondJadeUnlocked ? 10 : 0)
+}
 export const getMealLevelCost = (level, achievements, account, localEquinoxUpgrades) => {
   const foodLustChallenge = account?.equinox?.challenges.find(challenge => challenge.current === -1
     && challenge.reward.includes('\'Food_Lust\'_Equinox_Upg_now_reduces_cost_by_-42%_per_stack')) ? 1 : 0;
