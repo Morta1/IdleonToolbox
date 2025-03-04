@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.91',
+    'gameVer': '2.0.30',
+    'date': '04/03/2024',
+    'features': [
+      "Search – You can now search for tabs inside pages as well!",
+      "Added an alert for ready-to-upgrade meals.",
+      "Added a level threshold input to the Bubbles page.",
+      "Added a free companion claim alert.",
+      "Increased the number of endless fights you can view to 200 (up from 100).",
+      "Changed the unspent anvil points alert to use a threshold instead of a simple checkbox."
+    ],
+    'fixes': [
+      'Fixed the "skilling card" alert so it no longer appears on Death Bringer when the Wrath skill is active.',
+      'Fixed the Equinox timer tooltip.'
+    ]
+  },
+  {
     'ver': '3.2.90',
     'gameVer': '2.0.30',
     'date': '24/02/2024',

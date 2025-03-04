@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/sneaking/JadeEmporium';
-import { notateNumber } from '@utility/helpers';
+import { getTabs, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Charms from '@components/account/Worlds/World6/sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/sneaking/PlayersInventory';
@@ -10,6 +10,7 @@ import Upgrades from '@components/account/Worlds/World6/sneaking/Upgrades';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
 import Mastery from '@components/account/Worlds/World6/sneaking/Mastery';
+import { PAGES } from '@components/constants';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
@@ -40,7 +41,7 @@ const Sneaking = () => {
                                                                         imgStyle={{ width: 19, height: 19 }}
                                                                         icon={`data/${rawName}.png`}/>)}
     </Stack>
-    <Tabber tabs={['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
       <PlayersInventory players={players}
                         dropList={dropList}
                         inventory={inventory}

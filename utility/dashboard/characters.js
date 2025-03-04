@@ -19,7 +19,8 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
     const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
     alerts.missingHamemrs = maxProducts - numOfHammers;
   }
-  if (options?.anvil?.unspentPoints?.checked) {
+
+  if (options?.anvil?.unspentPoints?.checked && character?.anvil?.anvilStats?.availablePoints >= options?.anvil?.unspentPoints?.props?.value) {
     alerts.unspentPoints = character?.anvil?.anvilStats?.availablePoints;
   }
   if (options?.anvil?.anvilOverdue?.checked) {
@@ -231,7 +232,8 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
   const alerts = {}
   if (options?.cards?.cardSet?.checked) {
     const equippedCardSet = character?.cards?.cardSet;
-    const cardSetEffect = cleanUnderscore(equippedCardSet?.effect).replace('{', '')
+    const cardSetEffect = cleanUnderscore(equippedCardSet?.effect).replace('{', '');
+    const dbWithWraith = checkCharClass(character?.class, 'Death_Bringer') && character?.activeBuffs?.find(({name}) => name === 'WRAITH_FORM') !== -1;
     if (character?.level >= 50 && equippedCardSet?.rawName === 'CardSet0') {
       alerts.cardSet = {
         text: `${character.name} has Blunder hill card set equipped which is for level < 50`
@@ -239,7 +241,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
     } else if (character.afkType === 'FIGHTING' && (equippedCardSet?.rawName === 'CardSet2'
       || equippedCardSet?.rawName === 'CardSet3'
       || equippedCardSet?.rawName === 'CardSet5'
-      || equippedCardSet?.rawName === 'CardSet7')) {
+      || equippedCardSet?.rawName === 'CardSet7') && !dbWithWraith) {
       alerts.cardSet = {
         text: `${character.name} is fighting but has skilling card set (${cardSetEffect})`
       };

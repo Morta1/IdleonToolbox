@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, getTabs, prefix } from 'utility/helpers';
 import Tabber from '../../common/Tabber';
+import { PAGES } from '@components/constants';
 
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -14,7 +15,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
 
   return (
     <>
-      <Tabber queryKey={'nt'} tabs={['chronus', 'hydron', 'seraph']} onTabChange={(selected) => setSelectedTab(selected)}>
+      <Tabber queryKey={'nt'} tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs')} onTabChange={(selected) => setSelectedTab(selected)}>
         <Stack gap={3}>
           <Grid container>
             <Grid item md={4} sx={{ display: { sm: 'none', md: 'block' } }}>Name</Grid>

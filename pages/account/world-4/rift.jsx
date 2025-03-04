@@ -7,14 +7,14 @@ import Bonuses from '../../../components/account/Worlds/World4/Rift/Bonuses';
 import SkillMastery from '../../../components/account/Worlds/World4/Rift/SkillMastery';
 import ConstructMastery from '../../../components/account/Worlds/World4/Rift/ConstructMastery';
 import Tabber from '../../../components/common/Tabber';
+import { getTabs } from '@utility/helpers';
+import { PAGES } from '@components/constants';
 
 const Rift = () => {
   const { state } = useContext(AppContext);
   const { rift, totalSkillsLevels, towers } = state?.account || {};
 
-  let tabs = ['Tasks', 'Bonuses',
-    'Skill Mastery', 'Construct Mastery']
-    .filter((tab) => rift?.currentRift > 15 ? true : tab !== 'Skill Mastery')
+  let tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'rift').filter((tab) => rift?.currentRift > 15 ? true : tab !== 'Skill Mastery')
     .filter((tab) => rift?.currentRift > 40 ? true : tab !== 'Construction Mastery');
 
   return <>

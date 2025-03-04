@@ -209,6 +209,45 @@ export const migrateToVersion11 = (config, baseTrackers) => {
   return dashboardConfig
 }
 
+export const migrateToVersion12 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.etc?.options?.length === 6) {
+    dashboardConfig.account.etc.options = [
+      ...dashboardConfig?.account?.etc?.options,
+      { name: 'freeCompanion', checked: true }
+    ];
+  }
+
+  if (dashboardConfig?.account?.['World 4']?.cooking?.options?.length === 2) {
+    dashboardConfig.account['World 4'].cooking.options = [
+      ...dashboardConfig.account['World 4'].cooking.options,
+      { name: 'meals', checked: true }
+    ];
+  }
+
+  const unspentPointsField = dashboardConfig?.characters?.anvil?.options?.find(({ name }) => name === 'unspentPoints');
+  if (unspentPointsField?.type !== 'input') {
+    dashboardConfig.characters.anvil.options = dashboardConfig.characters.anvil.options?.map((option) => {
+      if (option?.name === 'unspentPoints') {
+        return {
+          name: 'unspentPoints',
+          type: 'input',
+          props: { label: 'Points Threshold', value: 1, minValue: 1, helperText: '' },
+          checked: true
+        }
+      }
+      return option;
+    });
+  }
+
+  dashboardConfig.version = 12;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -244,6 +283,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 10) {
       migratedConfig = migrateToVersion11(migratedConfig, baseTrackers);
+    }
+    if (migratedConfig?.version === 11) {
+      migratedConfig = migrateToVersion12(migratedConfig);
     }
   }
   return migratedConfig;

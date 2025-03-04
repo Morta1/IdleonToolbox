@@ -6,7 +6,7 @@ const checkIfSectionEmpty = (fields) => {
   return Object.entries(fields)?.reduce((res, [, val]) => res && !val?.checked, true);
 }
 
-const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
+const useAlerts = ({ alertsMap, data, extraData, trackers, lastUpdated }) => {
   const [alerts, setAlerts] = useState();
   const [emptyAlertRows, setEmptyAlertRows] = useState({});
 
@@ -19,7 +19,7 @@ const useAlerts = ({ alertsMap, data, extraData, trackers }) => {
           if (val?.checked) {
             if (alertsMap?.[section]) {
               const options = getOptions(fields);
-              const alerts = alertsMap?.[section]?.(data, fields, options, extraData) || {};
+              const alerts = alertsMap?.[section]?.(data, fields, options, extraData, lastUpdated) || {};
               return { ...res, ...alerts };
             }
           }

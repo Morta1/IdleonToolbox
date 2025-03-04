@@ -4,7 +4,7 @@ import { Card, CardContent, IconButton, Stack, Typography } from '@mui/material'
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
 import Territory from '@components/account/Worlds/World4/Breeding/Territory';
-import { handleCopyToClipboard, prefix, tryToParse } from 'utility/helpers';
+import { getTabs, handleCopyToClipboard, prefix, tryToParse } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '../../../components/account/Worlds/World4/Breeding/Pets';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -18,6 +18,7 @@ import Tooltip from '@components/Tooltip';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Button from '@mui/material/Button';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { PAGES } from '@components/constants';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
@@ -80,7 +81,7 @@ const Breeding = () => {
       </Stack>
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
         town</Typography>
-      <Tabber tabs={['Pets', 'Territory', 'Upgrades', 'Arena']}>
+      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding')}>
         <Pets {...state?.account?.breeding}
               lab={state?.account?.lab}
               account={state?.account}

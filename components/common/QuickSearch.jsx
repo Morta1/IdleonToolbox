@@ -36,6 +36,19 @@ const QuickSearch = () => {
   const router = useRouter();
   const { t, nt, ...updateQuery } = router?.query || {};
 
+  // Format label to add spaces between words
+  const formatLabel = (str) => {
+    return str
+      // Add space between lowercase and uppercase letters
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      // Add space between uppercase letters that are followed by lowercase letters
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
+      // Capitalize first letter of each word
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   // Generate kebab case for URL parts
   const toKebabCase = (str) => {
     return str
@@ -60,15 +73,46 @@ const QuickSearch = () => {
     });
 
     if (state?.signedIn || state?.profile) {
-      // Process ACCOUNT pages
       Object.keys(PAGES.ACCOUNT).forEach(category => {
         PAGES.ACCOUNT[category].categories.forEach(subCategory => {
+          // Base URL for the page
+          const baseUrl = `/account/${toKebabCase(category)}/${toKebabCase(subCategory.label)}`;
+
+          // Add the main page
           items.push({
-            label: subCategory.label.split(/(?=[A-Z])/).join(' ').capitalize(),
-            url: `/account/${toKebabCase(category)}/${toKebabCase(subCategory.label)}`,
-            section: category.replace(/-/g, ' ').split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
+            label: formatLabel(subCategory.label),
+            url: baseUrl,
+            section: formatLabel(category),
             icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon'
           });
+
+          // Add tabs if they exist
+          if (subCategory.tabs && subCategory.tabs.length > 0) {
+            subCategory.tabs.forEach(tab => {
+              items.push({
+                label: `${formatLabel(subCategory.label)} - ${tab}`,
+                url: baseUrl,
+                queryParams: { t: tab },
+                section: `${formatLabel(category)} - Tabs`,
+                icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+                isTab: true
+              });
+            });
+          }
+
+          // Add nested tabs if they exist
+          if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
+            subCategory.nestedTabs.forEach(({ tab, nestedTab }) => {
+              items.push({
+                label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab}`,
+                url: baseUrl,
+                queryParams: { t: tab, nt: nestedTab },
+                section: `${formatLabel(category)} - Nested Tabs`,
+                icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+                isNestedTab: true
+              });
+            });
+          }
         });
       });
     }
@@ -96,7 +140,7 @@ const QuickSearch = () => {
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
       e.preventDefault();
     } else if (e.key === 'Enter' && selectedIndex >= 0) {
-      handleNavigate(searchResults[selectedIndex].url);
+      handleNavigate(searchResults[selectedIndex].url, searchResults[selectedIndex].queryParams);
     }
   };
 
@@ -116,8 +160,8 @@ const QuickSearch = () => {
   }, [searchTerm, allSearchItems]);
 
   // Handle navigation
-  const handleNavigate = (url) => {
-    router.push({ pathname: url, query: updateQuery });
+  const handleNavigate = (url, params) => {
+    router.push({ pathname: url, query: { ...updateQuery, ...params } });
     setSearchOpen(false);
     setSearchTerm('');
   };
@@ -206,7 +250,7 @@ const QuickSearch = () => {
               <ListItemButton
                 key={index}
                 selected={index === selectedIndex}
-                onClick={() => handleNavigate(result.url)}
+                onClick={() => handleNavigate(result.url, result.queryParams)}
                 sx={{
                   borderRadius: '8px',
                   backgroundColor: index === selectedIndex ? 'rgba(0, 0, 0, .2)' : 'transparent',

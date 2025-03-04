@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import {
-  cleanUnderscore, commaNotation,
+  cleanUnderscore,
+  commaNotation,
   getNumberWithOrdinal,
   notateNumber,
   pascalCase,
@@ -31,8 +32,14 @@ const alertsMap = {
   ['World 6']: getWorld6Alerts
 }
 
-const Account = ({ account, characters, trackers }) => {
-  const { alerts, emptyAlertRows } = useAlerts({ alertsMap, data: account, extraData: characters, trackers });
+const Account = ({ account, characters, trackers, lastUpdated }) => {
+  const { alerts, emptyAlertRows } = useAlerts({
+    alertsMap,
+    data: account,
+    extraData: characters,
+    trackers,
+    lastUpdated
+  });
   return <>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
@@ -46,6 +53,9 @@ const Account = ({ account, characters, trackers }) => {
               {alerts?.General?.gemsFromBosses ?
                 <Alert title={`You can kill ${300 - account?.accountOptions?.[195]} more bosses for gems`}
                        iconPath={'data/PremiumGem'}/> : null}
+              {alerts?.General?.etc?.freeCompanion ?
+                <Alert title={`You can claim a free companion`}
+                       iconPath={'afk_targets/Dog'}/> : null}
               {alerts?.General?.etc?.newCharacters ?
                 <Alert
                   title={`You can create ${alerts?.General?.etc?.newCharacters} new character${alerts?.General?.etc?.newCharacters > 1
@@ -249,12 +259,19 @@ const Account = ({ account, characters, trackers }) => {
                                                                                        iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.traps?.overdue > 0 ?
-                <Alert title={`${alerts?.['World 3']?.traps?.overdue} traps are overdue`} iconPath={'data/TrapBoxSet1'}/> : null}
+                <Alert title={`${alerts?.['World 3']?.traps?.overdue} traps are overdue`}
+                       iconPath={'data/TrapBoxSet1'}/> : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 4'] ? <Stack direction={'row'} gap={4}>
             <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>World 4</Typography>
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.['World 4']?.cooking?.meals?.length > 0
+                ?
+                alerts?.['World 4']?.cooking?.meals?.map(({ rawName, name }) => <Alert key={rawName}
+                                                                                       title={`${cleanUnderscore(name)} is ready to be leveled up`}
+                                                                                       iconPath={`data/${rawName}`}/>)
+                : null}
               {alerts?.['World 4']?.laboratory?.chipsRotation?.length > 0
                 ?
                 alerts?.['World 4']?.laboratory?.chipsRotation?.map(({ rawName, name }, index) => <Alert
@@ -273,8 +290,9 @@ const Account = ({ account, characters, trackers }) => {
                 <Alert title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}
               {alerts?.['World 4']?.cooking?.ribbons ?
-                <Alert title={`You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
-                       iconPath={'data/Ribbon0'}/> : null}
+                <Alert
+                  title={`You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
+                  iconPath={'data/Ribbon0'}/> : null}
               {alerts?.['World 4']?.breeding?.eggs ? <Alert key={'breeding-eggs'}
                                                             title={`Eggs are at full capacity`}
                                                             iconPath={`data/PetEgg1`}/> : null}

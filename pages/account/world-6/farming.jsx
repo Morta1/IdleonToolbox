@@ -7,8 +7,9 @@ import { AppContext } from '@components/common/context/AppProvider';
 import Plot from '@components/account/Worlds/World6/farming/Plot';
 import Crop from '@components/account/Worlds/World6/farming/Crop';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
 import RankDatabase from '@components/account/Worlds/World6/farming/RankDatabase';
+import { PAGES } from '@components/constants';
 
 const Farming = () => {
   const { state } = useContext(AppContext);
@@ -47,7 +48,7 @@ const Farming = () => {
         </CardTitleAndValue>
       })}
     </Stack>
-    <Tabber tabs={['Plot', 'Market', 'Rank database', 'Crop']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming')}>
       <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated} account={state?.account}/>
       <Market market={market} crop={crop}/>
       <RankDatabase ranks={ranks}/>

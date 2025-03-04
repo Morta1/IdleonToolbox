@@ -290,7 +290,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           page={'account/world-3/equinox'}
           timerPlaceholder={'Full!'}
           showAsError={showEquinoxError}
-          tooltipContent={showEquinoxError ? 'Full!' : 'Next level: ' + getRealDateInMs(account?.equinox?.timeToFull)}
+          tooltipContent={'Next level: ' + getRealDateInMs(account?.equinox?.timeToFull)}
           lastUpdated={lastUpdated} time={account?.equinox?.timeToFull} icon={'data/Quest78.png'}/> : null}
       </Section>}
       {!emptyAlerts?.['World 5'] && <Section title={'World 5'}>

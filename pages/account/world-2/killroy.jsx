@@ -3,13 +3,14 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { notateNumber } from '@utility/helpers';
+import { getTabs, notateNumber } from '@utility/helpers';
 import { getKillroySchedule } from '@parsers/misc';
 import Tabber from '@components/common/Tabber';
 import Monsters from '@components/account/Worlds/World2/Killroy/Monsters';
 import Schedule from '@components/account/Worlds/World2/Killroy/Schedule';
 import Upgrades from '@components/account/Worlds/World2/Killroy/Upgrades';
 import PermanentUpgrades from '@components/account/Worlds/World2/Killroy/PermanentUpgrades';
+import { PAGES } from '@components/constants';
 
 const MyComponent = () => {
   const { state } = useContext(AppContext);
@@ -25,7 +26,7 @@ const MyComponent = () => {
       <CardTitleAndValue title={'Total Kills'} value={notateNumber(killroy.totalKills)} />
       <CardTitleAndValue title={'Total Damage Multi'} value={`${Math.floor(100 * killroy.totalDamageMulti) / 100}x`}/>
     </Stack>
-    <Tabber tabs={['Schedule', 'Upgrades', 'Permanent Upgrades', 'Monsters']}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>
       <Schedule schedule={schedule}/>
       <Upgrades killroy={killroy}/>
       <PermanentUpgrades killroy={killroy}/>

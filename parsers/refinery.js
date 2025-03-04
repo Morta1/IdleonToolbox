@@ -182,7 +182,7 @@ export const calcTimeToRankUp = (account, characters, lastUpdated, refineryData,
   const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (bonus) / 100))) + (includeSquireCycles
     ? (refineryData?.squiresCycles ?? 0)
     : 0);
-  const timeLeft = ((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
+  const timeLeft = Math.floor((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
   const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
   return {
     timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),

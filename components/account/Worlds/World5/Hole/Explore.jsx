@@ -1,9 +1,8 @@
 import React from 'react';
 import { Divider, Stack } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, fillArrayToLength, msToDate } from '@utility/helpers';
+import { commaNotation, fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
-import { cavernNames } from '@parsers/world-5/hole';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
 import Motherlode from '@components/account/Worlds/World5/Hole/Caverns/Motherlode';
 import TheDen from '@components/account/Worlds/World5/Hole/Caverns/TheDen';
@@ -14,6 +13,7 @@ import TheLamp from '@components/account/Worlds/World5/Hole/Caverns/TheLamp';
 import TheHive from '@components/account/Worlds/World5/Hole/Caverns/TheHive';
 import Grotto from '@components/account/Worlds/World5/Hole/Caverns/Grotto';
 import Justice from '@components/account/Worlds/World5/Hole/Caverns/Justice';
+import { PAGES } from '@components/constants';
 
 const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
@@ -32,7 +32,7 @@ const Explore = ({ hole }) => {
     <Tabber
       queryKey={'nt'}
       iconsOnly
-      tabs={cavernNames}
+      tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore')}
       icons={caverns.map((a, index) => `etc/Cavern_${index}`)}
     >
       <TheWell hole={hole}/>

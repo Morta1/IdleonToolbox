@@ -36,14 +36,13 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   const [mealMaxLevel, setMealMaxLevel] = useState(DEFAULT_MEAL_MAX_LEVEL);
   const [mealSpeed, setMealSpeed] = useState(totalMealSpeed);
   const [sortBy, setSortBy] = useState(breakpoints[0]);
-  const [foodLust, setFoodLust] = useState(equinoxUpgrades.find(({ name }) => name === 'Food_Lust')?.bonus)
-  const [localEquinoxUpgrades, setLocalEquinoxUpgrades] = useState(equinoxUpgrades);
-  const spelunkerObolMulti = getLabBonus(lab.labBonuses, 8); // gem multi
+  const [foodLust, setFoodLust] = useState(account?.equinox?.upgrades?.find(({ name }) => name === 'Food_Lust')?.bonus)
+  const [localEquinoxUpgrades, setLocalEquinoxUpgrades] = useState(account?.equinox?.upgrades);
+  const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
-  const allPurpleActive = lab.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
-  const realAmethystRhinestone = getJewelBonus(lab.jewels, 0, spelunkerObolMulti) * allPurpleActive;
+  const allPurpleActive = lab?.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
+  const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti) * allPurpleActive;
   const amethystRhinestone = 4.5;
-
   const getNoMealLeftBehind = (baseMeals, mealMaxLevel, returnArray) => {
     const bonusActivated = isJadeBonusUnlocked(account, 'No_Meal_Left_Behind');
     if (bonusActivated) {
@@ -66,7 +65,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class,'Blood_Berserker'));
-    return bloodBerserkers.reduce((res, { talents, name }) => {
+    return bloodBerserkers?.reduce((res, { talents, name }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
       const lv = overflowingLadle?.level > overflowingLadle?.maxLevel
         ? overflowingLadle?.level
@@ -83,10 +82,10 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
     return meals?.map((meal) => {
       if (!meal) return null;
       const { amount, level, cookReq } = meal;
-      const levelCost = getMealLevelCost(level, achievements, localEquinoxUpgrades, account);
+      const levelCost = getMealLevelCost(level, achievements, account, localEquinoxUpgrades);
       let timeTillNextLevel = amount >= levelCost ? '0' : calcTimeToNextLevel(levelCost - amount, cookReq, mealSpeed);
       if (overflow) {
-        timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus.value / 100);
+        timeTillNextLevel = timeTillNextLevel / (1 + overflowingLadleBonus?.value / 100);
       }
 
       const breakpointTimes = breakpoints.map((breakpoint) => {
@@ -97,13 +96,13 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           return {
             bpCost: levelCost,
             bpLevel: breakpoint,
-            timeToBp: overflow ? timeTillNextLevel / (1 + overflowingLadleBonus.value / 100) : timeTillNextLevel
+            timeToBp: overflow ? timeTillNextLevel / (1 + overflowingLadleBonus?.value / 100) : timeTillNextLevel
           };
         }
         const bpCost = (breakpoint - level) * levelCost;
         let timeToBp = calcMealTime(breakpoint, meal, mealSpeed, achievements, localEquinoxUpgrades, account);
         if (overflow) {
-          timeToBp = timeToBp / (1 + overflowingLadleBonus.value / 100)
+          timeToBp = timeToBp / (1 + overflowingLadleBonus?.value / 100)
         }
         return { bpCost, timeToBp, bpLevel: breakpoint };
       })
@@ -118,7 +117,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
   const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed, localEquinoxUpgrades]);
 
   useEffect(() => {
-    const tempFoodLust = equinoxUpgrades.find(({ name }) => name === 'Food_Lust')?.bonus;
+    const tempFoodLust = equinoxUpgrades?.find(({ name }) => name === 'Food_Lust')?.bonus;
     setFoodLust(tempFoodLust);
   }, [characters])
 
@@ -160,7 +159,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
       })
     }
     if (filters.includes('overflow')) {
-      tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus.value)
+      tempMeals = calcMeals(tempMeals || meals, overflowingLadleBonus?.value)
     }
     if (filters.includes('hide')) {
       tempMeals = tempMeals.filter((meal) => meal?.level < mealMaxLevel);
@@ -255,7 +254,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, achievements, artif
           <Stack direction={'row'} gap={1}>
             <Typography>Overflowing Ladle</Typography>
             <Tooltip
-              title={`Blood Berserker Talent: Ladles gives ${kFormatter(overflowingLadleBonus.value, 2)}% more afk time (using ${overflowingLadleBonus.character})`}>
+              title={`Blood Berserker Talent: Ladles gives ${kFormatter(overflowingLadleBonus?.value, 2)}% more afk time (using ${overflowingLadleBonus?.character})`}>
               <InfoIcon/>
             </Tooltip>
           </Stack>
