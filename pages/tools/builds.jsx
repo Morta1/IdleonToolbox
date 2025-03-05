@@ -137,7 +137,7 @@ const Builds = () => {
   return <>
     <NextSeo
       title="Builds | Idleon Toolbox"
-      description="Builds for all classes"
+      description="Legends of Idleon builds for all classes"
     />
     <Stack direction={'row'} gap={2} justifyContent={'space-between'}>
       <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>

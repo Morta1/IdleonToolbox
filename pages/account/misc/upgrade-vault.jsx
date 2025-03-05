@@ -7,6 +7,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import CoinDisplay from '@components/common/CoinDisplay';
 import useCheckbox from '@components/common/useCheckbox';
+import { NextSeo } from 'next-seo';
 
 const UpgradeVault = () => {
   const { state } = useContext(AppContext);
@@ -14,6 +15,10 @@ const UpgradeVault = () => {
   const { upgrades, totalUpgradeLevels, nextUnlock } = state?.account?.upgradeVault;
 
   return <>
+    <NextSeo
+      title="Upgrade Vault | Idleon Toolbox"
+      description="Keep track of your upgrade vault progress, upgrade, levels, cost to upgrade and more"
+    />
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
       {nextUnlock?.unlockLevel ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>

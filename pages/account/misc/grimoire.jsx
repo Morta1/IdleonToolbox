@@ -5,12 +5,24 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
+import { NextSeo } from 'next-seo';
 
+
+const boneNames= [
+  'Femur',
+  'Ribcage',
+  'Cranium',
+  'Bovinae'
+];
 const Grimoire = () => {
   const { state } = useContext(AppContext);
   const { bones, upgrades, totalUpgradeLevels, nextUnlock, wraith } = state?.account?.grimoire;
 
   return <>
+    <NextSeo
+      title="Grimoire | Idleon Toolbox"
+      description="Keep track of your grimoire levels, upgrades and wraith stats"
+    />
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
       <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
@@ -23,7 +35,7 @@ const Grimoire = () => {
         </Stack>
       </Tooltip>}/>
       {bones?.map((amount, index) => <CardTitleAndValue key={index} value={commaNotation(amount || '0')}
-                                                        title={`Bone ${index + 1}`}
+                                                        title={`${boneNames[index]}`}
                                                         icon={`data/Bone${index}_x1.png`}
                                                         imgStyle={{ objectPosition: '0 -6px' }}
       />)}
