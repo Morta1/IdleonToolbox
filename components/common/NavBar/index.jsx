@@ -42,7 +42,7 @@ const NavBar = ({ children }) => {
           {state?.profile && state?.characters?.[0]?.name
             ? <Typography variant={'caption'} sx={{lineHeight: "11px"}}>Inspecting {state?.characters?.[0]?.name}</Typography>
             : null}
-          {state?.signedIn ? <UserMenu /> : <LoginButton/>}
+          {state?.signedIn || state?.profile ? <UserMenu /> : <LoginButton/>}
         </Toolbar>
       </AppBar>
     </Box>

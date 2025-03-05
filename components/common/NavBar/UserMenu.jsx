@@ -1,4 +1,4 @@
-import { IconLogout2, IconSun, IconUserCircle } from '@tabler/icons-react';
+import { IconLogin2, IconLogout2, IconUserCircle } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
   Divider,
@@ -8,21 +8,22 @@ import {
   ListSubheader,
   Menu,
   Stack,
-  Typography,
-  useColorScheme
+  Typography
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { format } from 'date-fns';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
+import { useRouter } from 'next/router';
 
 const UserMenu = () => {
-  const { state, logout } = useContext(AppContext);
+  const { state, logout, dispatch } = useContext(AppContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const { mode, setMode } = useColorScheme();
+  const router = useRouter();
+  const { profile, ...queryParams } = router.query;
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -33,10 +34,16 @@ const UserMenu = () => {
 
   useEffect(() => {
     setDialogOpen(false);
+    handleClose()
   }, [state?.signedIn]);
 
   const handleLogout = () => {
     logout();
+  }
+
+  const handleBackToAccount = () => {
+    router.push({ url: router.pathname, query: queryParams });
+    setTimeout(() => router.reload())
   }
 
   return <>
@@ -88,10 +95,16 @@ const UserMenu = () => {
       {/*  </ListItemIcon>*/}
       {/*  Dark Mode*/}
       {/*</MenuItem>*/}
-      <MenuItem onClick={handleLogout}>
+      {state?.profile && !state.signedIn ? <MenuItem onClick={() => setDialogOpen(true)}>
+        <ListItemIcon><IconLogin2/></ListItemIcon>
+        <ListItemText>Login</ListItemText>
+      </MenuItem> : state.profile && state.signedIn ? <MenuItem onClick={handleBackToAccount}>
+        <ListItemIcon><IconLogout2/></ListItemIcon>
+        <ListItemText>Back to my account</ListItemText>
+      </MenuItem> : <MenuItem onClick={handleLogout}>
         <ListItemIcon><IconLogout2/></ListItemIcon>
         <ListItemText>Logout</ListItemText>
-      </MenuItem>
+      </MenuItem>}
     </Menu>
     <LoginDialog open={dialogOpen} setOpen={setDialogOpen} onClose={() => setDialogOpen(false)}/>
   </>

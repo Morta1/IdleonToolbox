@@ -117,11 +117,12 @@ const AppProvider = ({ children }) => {
         }
         localStorage.setItem('manualImport', JSON.stringify(false));
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
+        const user = await checkUserStatus();
         let importData = {
           ...parsedData,
           profile: true,
           manualImport: false,
-          signedIn: false,
+          signedIn: !!user,
           lastUpdated
         };
         dispatch({ type: 'data', data: { ...importData, lastUpdated } })
