@@ -475,9 +475,9 @@ export const getWorld3Alerts = (account, fields, options) => {
       }
     }
     if (rankUp?.checked) {
-      const rankUp = account?.refinery?.salts?.filter(({ refined, powerCap }) => {
-        const percent = .98 * powerCap / 100;
-        return refined >= powerCap - percent
+      const rankUp = account?.refinery?.salts?.filter(({ refined, powerCap, rank }) => {
+        const powerPerCycle = Math.floor(Math.pow(rank, 1.3)) - 1;
+        return refined >= powerCap - powerPerCycle;
       });
       if (rankUp.length > 0) {
         construction.rankUp = rankUp
