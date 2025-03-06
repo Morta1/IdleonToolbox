@@ -242,7 +242,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.construction?.rankUp?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
-                                                                                                 title={`${cleanUnderscore(saltName)} is ready to rank up (2% margin of error)`}
+                                                                                                 title={`${cleanUnderscore(saltName)} is ready to rank up`}
                                                                                                  iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.construction?.buildings?.length > 0

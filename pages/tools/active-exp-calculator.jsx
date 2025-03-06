@@ -6,9 +6,9 @@ import MenuItem from '@mui/material/MenuItem';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import IconButton from '@mui/material/IconButton';
 import { AppContext } from 'components/common/context/AppProvider';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box';
+import CircleTimer from '@components/common/CircleTimer';
 
 const getExpToLevel = (character, targetLevel) => {
   let exp = 0;
@@ -70,20 +70,6 @@ const ActiveXpCalculator = () => {
     const timeLeft = expNeeded / expPerMinute / 60;
     return { expFarmed, expPerMinute, expPerHour: expPerMinute * 60, timeLeft: splitTime(timeLeft) };
   }
-
-  const renderTime = ({ remainingTime }) => {
-    if (remainingTime === 0) {
-      return <div className="timer">Done!</div>;
-    }
-
-    return (
-      <div className="timer">
-        <div className="text">Remaining</div>
-        <div className="value">{remainingTime}</div>
-        <div className="text">seconds</div>
-      </div>
-    );
-  };
 
   const onEndPercentageChange = (value) => {
     setEndExp(value);
@@ -165,14 +151,7 @@ const ActiveXpCalculator = () => {
             </div> : null}
           </div>
         </div>
-        <CountdownCircleTimer
-          key={start}
-          isPlaying={isPlaying}
-          duration={600}
-          colors={[['#15aee1']]}
-        >
-          {renderTime}
-        </CountdownCircleTimer>
+        <CircleTimer key={start} duration={600} isPlaying={isPlaying}/>
         <Box sx={{ width: 200 }}>
           <Typography variant={'caption'}>* Start a 10-minute timer. After the timer ends, you will receive a result
             indicating the progress you've made towards reaching your goal level</Typography>

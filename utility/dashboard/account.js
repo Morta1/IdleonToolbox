@@ -412,13 +412,14 @@ export const getWorld3Alerts = (account, fields, options) => {
   if (!account?.finishedWorlds?.World2) return alerts;
   if (fields?.printer?.checked) {
     const printer = {};
-    const { includeOakTree, includeCopper, includeSporeCap, showAlertWhenFull } = options?.printer || {};
+    const {
+      includeResource,
+      showAlertWhenFull
+    } = options?.printer || {};
     const totals = calcTotals(account, showAlertWhenFull);
     const exclusions = [
       'atom',
-      ...(!includeOakTree?.checked ? ['OakTree'] : []),
-      ...(!includeCopper?.checked ? ['Copper'] : []),
-      ...(!includeSporeCap?.checked ? ['Grasslands1'] : [])
+      ...Object.keys(includeResource?.props?.value).filter(key => !includeResource?.props?.value[key])
     ].toSimpleObject();
     const atoms = Object.entries(totals || {}).filter(([itemName, { atoms }]) => !exclusions?.[itemName] && atoms).map(([name, data]) => ({
       name: items?.[name]?.displayName,
@@ -590,7 +591,11 @@ export const getWorld4Alerts = (account, fields, options) => {
   if (fields?.cooking?.checked) {
     const cooking = {};
     if (options?.cooking?.meals?.checked) {
-      const readyMeals = account?.cooking?.meals?.filter(({ levelCost, amount, level }) => amount >= levelCost && level < account?.cooking?.mealMaxLevel);
+      const readyMeals = account?.cooking?.meals?.filter(({
+                                                            levelCost,
+                                                            amount,
+                                                            level
+                                                          }) => amount >= levelCost && level < account?.cooking?.mealMaxLevel);
       if (readyMeals?.length > 0) {
         cooking.meals = readyMeals;
       }

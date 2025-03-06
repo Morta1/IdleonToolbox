@@ -185,18 +185,21 @@ export const crystalCooldownSkillsReady = (character) => {
   }
 }
 
-export const hasAvailableToolUpgrade = (character, account) => {
+export const hasAvailableToolUpgrade = (character) => {
   const rawTools = getAllTools();
-  const charTools = character?.tools?.slice(0, 6);
+  const charTools = character?.tools?.slice(0, 7);
   const skills = [
     character?.skillsInfo?.mining?.level, character?.skillsInfo?.chopping?.level,
     character?.skillsInfo?.fishing?.level, character?.skillsInfo?.catching?.level,
-    character?.skillsInfo?.trapping?.level, character?.skillsInfo?.worship?.level
+    character?.skillsInfo?.trapping?.level, character?.skillsInfo?.worship?.level,
+    character?.level
   ];
   return charTools?.reduce((alerts, tool, index) => {
     const skillLv = skills?.[index];
     const toolList = rawTools?.[index] || [];
-    const bestInSlot = Array.isArray(toolList) ? toolList?.findLast(({ lvReqToEquip }) => skillLv >= lvReqToEquip) : null;
+    const bestInSlot = Array.isArray(toolList)
+      ? toolList?.findLast(({ lvReqToEquip }) => skillLv >= lvReqToEquip)
+      : null;
     if (bestInSlot && bestInSlot?.displayName !== tool?.name) {
       alerts.push(bestInSlot)
     }
@@ -233,7 +236,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
   if (options?.cards?.cardSet?.checked) {
     const equippedCardSet = character?.cards?.cardSet;
     const cardSetEffect = cleanUnderscore(equippedCardSet?.effect).replace('{', '');
-    const dbWithWraith = checkCharClass(character?.class, 'Death_Bringer') && character?.activeBuffs?.find(({name}) => name === 'WRAITH_FORM') !== -1;
+    const dbWithWraith = checkCharClass(character?.class, 'Death_Bringer') && character?.activeBuffs?.find(({ name }) => name === 'WRAITH_FORM') !== -1;
     if (character?.level >= 50 && equippedCardSet?.rawName === 'CardSet0') {
       alerts.cardSet = {
         text: `${character.name} has Blunder hill card set equipped which is for level < 50`

@@ -1,3 +1,5 @@
+import { getPrinterExclusions } from '@parsers/printer';
+
 export const migrateToVersion2 = (config = {}) => {
   let dashboardConfig = { ...config };
   if (!dashboardConfig) {
@@ -248,6 +250,30 @@ export const migrateToVersion12 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion13 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  const updatedPrinter = dashboardConfig?.account?.['World 3']?.printer?.options?.filter(({ name }) => name === 'showAlertWhenFull');
+  if (dashboardConfig?.account?.['World 3']?.printer?.options?.length > 2) {
+    dashboardConfig.account['World 3'].printer.options = [
+      {
+        name: 'includeResource',
+        type: 'array',
+        props: { value: getPrinterExclusions(), type: 'img' },
+        checked: true,
+        category: 'atoms'
+      },
+      ...updatedPrinter
+    ]
+  }
+
+  dashboardConfig.version = 13;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -286,6 +312,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 11) {
       migratedConfig = migrateToVersion12(migratedConfig);
+    }
+    if (migratedConfig?.version === 12) {
+      migratedConfig = migrateToVersion13(migratedConfig);
     }
   }
   return migratedConfig;

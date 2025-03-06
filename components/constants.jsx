@@ -167,6 +167,9 @@ export const PAGES = {
     'materialTracker': {
       icon: 'data/Refinery1'
     },
+    'activeDropCalculator': {
+      icon: 'data/Grasslands1'
+    },
     'activeExpCalculator': {
       icon: 'data/StatusExp'
     },

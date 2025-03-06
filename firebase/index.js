@@ -116,6 +116,10 @@ const subscribe = async (uid, accessToken, callback) => {
       { includeMetadataChanges: true }, async (doc) => {
         if (doc.exists()) {
           const companion = await getSnapshot(dbRef, `_comp/${uid}`);
+          // const friendsList = await getSnapshot(dbRef, `_friends/_list/${uid}`); // friend list
+          // const serverLogs = await getSnapshot(dbRef, `_dm/${uid}/_msg`);
+          // const lt = await getSnapshot(dbRef, `_dm/${uid}/_lt`); // not sure
+          // const lastGuildChatMsgTimestamp = await getSnapshot(dbRef, `_usgu/${uid}/t`);
           const guildId = await getSnapshot(dbRef, `_usgu/${uid}/g`);
           const guild = await getSnapshot(dbRef, `_guild/${guildId}`);
           const cloudsave = doc.data();
@@ -176,7 +180,6 @@ export const getGuilds = async (callback) => {
     callback({ guilds: [], error: true })
   }
 }
-
 
 const getSnapshot = async (dbRef, id) => {
   try {

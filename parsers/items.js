@@ -219,7 +219,8 @@ export const getAllTools = () => {
   const traps = itemsArray?.filter(({ rawName }) => rawName?.match(/TrapBoxSet[0-9]+/));
   const skulls = itemsArray?.filter(({ rawName }) => rawName?.match(/WorshipSkull[0-9]+/))
     ?.filter(({ rawName }) => rawName !== 'WorshipSkull8');
-  return [pickaxes, hatchets, fishingRods, catchingNets, traps, skulls]
+  const dnaGuns = itemsArray?.filter(({ rawName }) => rawName?.match(/DNAgun[0-9]+/));
+  return [pickaxes, hatchets, fishingRods, catchingNets, traps, skulls, dnaGuns]
 }
 
 export const calcTrophiesFound = (looty) => {

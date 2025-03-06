@@ -13,9 +13,10 @@ import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
+import { getPrinterExclusions } from '@parsers/printer';
 
 const baseTrackers = {
-  version: 12,
+  version: 13,
   account: {
     General: {
       tasks: {
@@ -131,9 +132,7 @@ const baseTrackers = {
       printer: {
         checked: true,
         options: [
-          { name: 'includeOakTree', category: 'atoms', checked: false },
-          { name: 'includeCopper', checked: false },
-          { name: 'includeSporeCap', checked: true },
+          { name: 'includeResource', type: 'array', props: { value: getPrinterExclusions(), type: 'img' }, checked: true, category: 'atoms', helperText:'Exclude' },
           { name: 'showAlertWhenFull', checked: false }]
       },
       library: {

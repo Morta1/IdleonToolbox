@@ -26,7 +26,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   const connectedPlayers = accountData?.lab?.connectedPlayers;
   const daysSinceLastSample = accountData?.accountOptions?.[125];
   const orbOfRemembranceKills = accountData?.accountOptions?.[138];
-  const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class,'Divine_Knight'));
+  const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, 'Divine_Knight'));
   const highestKingOfRemembrance = divineKnights?.reduce((res, { talents, addedLevels }) => {
     const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
     if (kingOfRemembrance > res) {
@@ -76,7 +76,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
             * (1 + (highestKingOfRemembrance
               * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100) * voteBonus
-          * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100);
+            * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100);
 
           const multi = (wiredInBonus && isPlayerConnected ?
             ((harriepGodIndex.includes(charIndex) || pocketLinked)
@@ -99,7 +99,10 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
             { name: 'Charm', value: 1 + (charmBonus) / 100 },
             { name: 'Vote', value: voteBonus },
-            { name: 'Winter event', value: 1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100 },
+            {
+              name: 'Winter event',
+              value: 1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100
+            }
           ];
 
           return [...result, {
@@ -162,4 +165,14 @@ const calcAtoms = (totals = {}, atomThreshold, showAlertWhenFull) => {
     }
     return sum;
   }, {});
+}
+
+export const getPrinterExclusions = () => {
+  return [
+    'Copper',
+    'OakTree',
+    'Grasslands1',
+    'Bug1',
+    'Fish1'
+  ].toSimpleObject();
 }
