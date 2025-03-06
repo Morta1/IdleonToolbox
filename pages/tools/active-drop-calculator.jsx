@@ -1,7 +1,7 @@
 import { NextSeo } from 'next-seo';
 import React, { useContext, useEffect, useState } from 'react';
 import { Divider, Select, selectClasses, Stack, TextField, Typography, useMediaQuery } from '@mui/material';
-import { prefix } from '@utility/helpers';
+import { numberWithCommas, prefix } from '@utility/helpers';
 import MenuItem from '@mui/material/MenuItem';
 import { AppContext } from '@components/common/context/AppProvider';
 import Inventory from '@components/characters/Inventory';
@@ -97,7 +97,7 @@ const ActiveDropCalculator = () => {
   const handleChange = (event) => {
     const rawValue = event.target.value.replace(/,/g, ''); // Remove existing commas
     if (!isNaN(rawValue) && rawValue !== '') {
-      setGoal(Number(rawValue).toLocaleString()); // Format with commas
+      setGoal(numberWithCommas(Number(rawValue))); // Format with commas
     } else {
       setGoal(''); // Clear if invalid input
     }
@@ -183,7 +183,7 @@ const ActiveDropCalculator = () => {
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>
-        <Typography variant={'body1'}>Cloudsave ingame to update the results</Typography>
+        <Typography variant={'body1'}>Cloudsave in-game to update the results</Typography>
         <Inventory inventory={difference} amountKey={'difference'}/>
       </Stack> : null}
     </Stack>

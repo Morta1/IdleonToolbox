@@ -1,5 +1,5 @@
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '../../utility/helpers';
 import { TitleAndValue } from '../common/styles';
 import Tooltip from '../Tooltip';
 
@@ -30,8 +30,8 @@ const ExtraData = ({ name, perHour, perDay, perGoal }) => {
   return <Stack>
     <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
     <Divider sx={{ my: 1 }}/>
-    {perHour ? <Typography variant={'body2'}>{perHour.toFixed(2)} / hr</Typography> : null}
-    {perDay ? <Typography variant={'body2'}>{perDay.toFixed(2)} / day</Typography> : null}
+    {perHour ? <Typography variant={'body2'}>{numberWithCommas(perHour.toFixed(2))} / hr</Typography> : null}
+    {perDay ? <Typography variant={'body2'}>{numberWithCommas(perDay.toFixed(2))} / day</Typography> : null}
     {perGoal ? <Typography variant={'body2'}>{perGoal > 0
       ? `${perGoal.toFixed(2)} hours to goal`
       : 'Goal reached'} </Typography> : null}
