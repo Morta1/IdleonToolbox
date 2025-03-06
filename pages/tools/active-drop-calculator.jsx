@@ -34,7 +34,7 @@ const consolidateItems = (items) => {
   return Array.from(consolidatedMap.values());
 }
 
-function compareInventories(snapshotInventory, currentInventory, snapshotTime, goal) {
+function compareInventories(snapshotInventory, currentInventory, lastUpdated, snapshotTime, goal) {
   if (!Array.isArray(snapshotInventory) || !Array.isArray(currentInventory)) return [];
 
   const inv1 = consolidateItems(snapshotInventory);
@@ -42,14 +42,13 @@ function compareInventories(snapshotInventory, currentInventory, snapshotTime, g
   const inv1Map = new Map(inv1.map(item => [item.displayName, item]));
   const inv2Map = new Map(inv2.map(item => [item.displayName, item]));
   const report = [];
-
   new Set([...inv1Map.keys(), ...inv2Map.keys()]).forEach(name => {
     const item1 = inv1Map.get(name) || { displayName: name, amount: 0 };
     const item2 = inv2Map.get(name) || { displayName: name, amount: 0 };
     const difference = item2.amount - item1.amount;
 
     if (difference !== 0) {
-      const perHour = (difference / ((Date.now() - snapshotTime) / 1000 / 60)) * 60;
+      const perHour = (difference / ((lastUpdated - snapshotTime) / 1000 / 60)) * 60;
       report.push({
         ...item1,
         snapshotInventoryItem: item1.amount ? item1 : null,
@@ -103,7 +102,7 @@ const ActiveDropCalculator = () => {
     }
   };
 
-  const difference = compareInventories(snapshottedChar?.inventory, state?.characters?.[selectedChar]?.inventory, snapshottedChar?.snapshotTime, goal);
+  const difference = compareInventories(snapshottedChar?.inventory, state?.characters?.[selectedChar]?.inventory, state?.account?.timeAway?.Player * 1000, snapshottedChar?.snapshotTime, goal);
 
   return <>
     <NextSeo
@@ -179,7 +178,11 @@ const ActiveDropCalculator = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Result</Typography>
           <Tooltip
-            title={'Hover over each item to see more stats'}>
+            title={<Stack>
+              <Typography variant={'body1'}>Hover over each item to see more stats</Typography>
+              <Typography mt={1} component={'span'}
+                          variant={'body2'}>Last update: {format(state?.account?.timeAway?.Player * 1000, 'dd/MM/yyyy HH:mm:ss')}</Typography>
+            </Stack>}>
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>

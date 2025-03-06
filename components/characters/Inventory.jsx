@@ -29,7 +29,7 @@ const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'am
 const ExtraData = ({ name, perHour, perDay, perGoal }) => {
   return <Stack>
     <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
-    <Divider sx={{ my: 1 }}/>
+    {perHour ? <Divider sx={{ my: 1 }}/> : null}
     {perHour ? <Typography variant={'body2'}>{numberWithCommas(perHour.toFixed(2))} / hr</Typography> : null}
     {perDay ? <Typography variant={'body2'}>{numberWithCommas(perDay.toFixed(2))} / day</Typography> : null}
     {perGoal ? <Typography variant={'body2'}>{perGoal > 0
