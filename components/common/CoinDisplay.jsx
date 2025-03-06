@@ -1,4 +1,4 @@
-import { prefix } from 'utility/helpers';
+import { notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { Stack, Typography } from '@mui/material';
 
@@ -15,11 +15,15 @@ const CoinDisplay = ({
     <Stack flexWrap={'wrap'} justifyContent={centered ? 'center' : 'flex-start'} direction={'row'}
            gap={variant === 'vertical' ? 2.3 : 1}>
       {money?.map(([coinIndex, coin], index) => {
-        return index < maxCoins && Number(coin) >= 0 ?
-          <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5} justifyContent={'center'} alignItems={'center'}
+        if (coinIndex === 15 && coin > 10000) {
+          coin = notateNumber(coin)
+        }
+        return index < maxCoins ?
+          <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5}
+                 justifyContent={'center'} alignItems={'center'}
                  key={coin + '' + coinIndex}>
             <CoinIcon src={`${prefix}data/Coins${coinIndex}.png`} alt=""/>
-            <Typography variant={'body1'} component={'span'} className={'coin-value'}>{Number(coin)}</Typography>
+            <Typography variant={'body1'} component={'span'} className={'coin-value'}>{coin}</Typography>
           </Stack> : null
       })}
     </Stack>

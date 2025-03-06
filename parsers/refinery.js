@@ -156,13 +156,13 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   ];
   const combustion = {
     name: 'Combustion',
-    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus)) - (account?.refinery?.timePastCombustion % 1),
+    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus)) - (account?.refinery?.timePastCombustion),
     timePast: account?.refinery?.timePastCombustion + timePassed,
     breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
-    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus)) - (account?.refinery?.timePastSynthesis % 1),
+    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus)) - (account?.refinery?.timePastSynthesis),
     timePast: account?.refinery?.timePastSynthesis + timePassed,
     breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
   }

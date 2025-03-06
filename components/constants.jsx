@@ -91,8 +91,8 @@ export const PAGES = {
         { label: 'Equinox', icon: 'data/Quest78' },
         { label: 'buildings', icon: 'data/ConTower7' },
         { label: 'deathNote', icon: 'data/ConTower2' },
-        { label: 'worship', icon: 'data/ClassIcons50' },
-        { label: 'prayers', icon: `data/PrayerSel`, tabs: ['Charge', 'Totems'] },
+        { label: 'worship', icon: 'data/ClassIcons50', tabs: ['Charge', 'Totems'] },
+        { label: 'prayers', icon: `data/PrayerSel` },
         { label: 'Traps', icon: 'data/TrapBoxSet1' },
         { label: 'saltLick', icon: 'data/ConTower3' },
         { label: 'construction', icon: 'data/ClassIcons49', tabs: ['Main', 'Cog stat calculator'] }

@@ -22,24 +22,28 @@ const Traps = () => {
       title="Traps | Idleon Toolbox"
       description="Keep track of your traps timing, critters amounts and more"
     />
-    <FormControl sx={{ mt: 2, mb: 1 }}>
-      <InputLabel id="demo-simple-select-label">Collect as</InputLabel>
-      <Select
-        size={'small'}
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={bonus}
-        label="Collect as"
-        onChange={(e) => setBonus(e.target.value)}
-      >
-        <MenuItem value={'max'}>Hunter</MenuItem>
-        <MenuItem value={'min'}>Non Hunter</MenuItem>
-      </Select>
-    </FormControl>
-    <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(bonuses?.[bonus]?.critter * 100)}%
-      and {Math.round(bonuses?.[bonus]?.exp * 100)}% EXP</Typography>
-    {totals ? <Totals hideExp array={totals} index={'total'}/> : null}
-    <Stack gap={3}>
+    <Stack direction={'row'} gap={2}>
+      <Stack>
+        <FormControl sx={{ mt: 2, mb: 1 }}>
+          <InputLabel id="demo-simple-select-label">Collect as</InputLabel>
+          <Select
+            size={'small'}
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={bonus}
+            label="Collect as"
+            onChange={(e) => setBonus(e.target.value)}
+          >
+            <MenuItem value={'max'}>Hunter</MenuItem>
+            <MenuItem value={'min'}>Non Hunter</MenuItem>
+          </Select>
+        </FormControl>
+        <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(bonuses?.[bonus]?.critter * 100)}%
+          and {Math.round(bonuses?.[bonus]?.exp * 100)}% EXP</Typography>
+      </Stack>
+      {totals ? <Totals hideExp array={totals} index={'total'}/> : null}
+    </Stack>
+    <Stack gap={1} mt={2}>
       {traps?.map((trapSlots, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
@@ -66,18 +70,18 @@ const Traps = () => {
         }, {});
         return <React.Fragment key={`printer-row-${index}`}>
           <Card sx={{ width: { lg: 920, xl: 'fit-content' } }}>
-            <CardContent>
+            <CardContent sx={{ '&:last-child': { padding: '6px' } }}>
               <Stack direction="row" alignItems={'center'} gap={2} flexWrap={'wrap'}>
                 <Card variant={'outlined'}>
                   <CardContent>
-                    <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
+                    <Stack sx={{ width: 175, flexDirection: { xs: 'column', md: 'row' } }}
                            alignItems={'center'} gap={2}>
                       <Stack alignItems={'center'} justifyContent={'center'}>
-                        <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                        <img style={{ height: 38 }} src={`${prefix}data/${trap?.rawName}.png`} alt=""/>
+                        <img style={{ height: 24 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                        <img style={{ height: 24 }} src={`${prefix}data/${trap?.rawName}.png`} alt=""/>
                       </Stack>
                       <Stack>
-                        <Typography className={'character-name'}>{playerName}</Typography>
+                        <Typography variant={'body1'}>{playerName}</Typography>
                         <Typography variant={'caption'}>Trapping lv. {trappingLevel}</Typography>
                       </Stack>
                     </Stack>
@@ -121,8 +125,8 @@ const Traps = () => {
 };
 
 const Totals = ({ array, index, outlined = false, hideExp }) => {
-  return <Stack direction={'row'} mt={2} mb={index === 'total' ? 2 : 1} gap={2}>
-    <CardTitleAndValue variant={outlined ? 'outlined' : 'elevation'} title={'Totals'}>
+  return <Stack direction={'row'} gap={2}>
+    <CardTitleAndValue variant={outlined ? 'outlined' : 'elevation'} title={'Totals'} cardSx={{ my: 0, mb: 0 }}>
       <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
         {Object.entries(array).map(([critterName, { critters, exp }], totalIndex) => {
           return <Stack alignItems={'center'} gap={1} key={`total-${index}-${totalIndex}-${critterName}`}
@@ -150,14 +154,14 @@ const TrapTooltip = ({ quantity, exp, trapType, crittersQuantity, trapExp }) => 
 
 const ItemIcon = styled.img`
   z-index: 2;
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
 `
 
 const FloatingItemIcon = styled.img`
   z-index: 1;
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
 `
 
 export default Traps;

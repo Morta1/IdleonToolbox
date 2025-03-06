@@ -15,13 +15,12 @@ const Worship = () => {
         description="Keep track of your worship charge and charge rate for all of your characters"
       />
       <MsaTotalizer/>
-      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'prayers')}>
+      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'worship')}>
         <Charge/>
         <Totems/>
       </Tabber>
     </>
   );
 };
-
 
 export default Worship;

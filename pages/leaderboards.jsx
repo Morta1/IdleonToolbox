@@ -4,6 +4,7 @@ import {
   CardContent,
   CircularProgress,
   createFilterOptions,
+  Skeleton,
   Stack,
   TextField,
   Typography
@@ -43,31 +44,29 @@ const Leaderboards = () => {
 
     getLeaderboards();
   }, [selectedTab]);
+
   return <>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"
-      description="Leaderboards for Idleon MMO"
+      description="Leaderboards for Legends Of Idleon MMO"
     />
-    <Typography textAlign={'center'}
-                variant={'h2'}>Leaderboards</Typography>
-    <Typography textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* To participate
-      in the
-      leaderboards, please upload your profile with leaderboard consent.</Typography>
-    <Typography mb={3} textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>* Leaderboards
-      contains the top 100 players of each category</Typography>
-    {leaderboards?.totalUsers ? <Card variant={'outlined'} sx={{
-      width: 'fit-content',
-      margin: '16px auto',
-      borderColor: 'success.light'
-    }}>
+    <Card variant={'outlined'}
+          sx={{
+            width: '180px',
+            margin: '16px auto',
+            borderColor: 'success.light'
+          }}>
       <CardContent sx={{ '&:last-child': { p: 1 } }}>
-        <Typography textAlign={'center'} sx={{ fontSize: 14 }} component={'div'} variant={'caption'}>Uploaded
-          accounts: {leaderboards?.totalUsers}</Typography>
+        <Typography textAlign={'center'} sx={{ fontSize: 14 }}> Uploaded accounts:</Typography>
+        <Typography textAlign={'center'} variant={'body2'} component={'div'}>{!leaderboards?.totalUsers
+          ? <Skeleton sx={{ width: 100, margin: '0 auto' }} variant={'text'}/>
+          : leaderboards?.totalUsers}</Typography>
       </CardContent>
-    </Card> : null}
-    {leaderboards?.totalUsers ? <Box
+    </Card>
+    <Box
       sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
       <Autocomplete
+        loading={!leaderboards?.totalUsers}
         options={Object.values(leaderboards?.[selectedTab] || {})?.[0] || []}
         getOptionLabel={(option) => option.mainChar}
         id="user-search"
@@ -77,7 +76,7 @@ const Leaderboards = () => {
         onChange={(event, newValue) => setSearchChar(newValue)}
         renderInput={(params) => <TextField {...params} label="Search by character name" variant="standard"/>}
       />
-    </Box> : null}
+    </Box>
     <Tabber
       tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']} onTabChange={(selected) => {
       setSelectedTab(tabs?.[selected]);

@@ -54,8 +54,7 @@ const NavBar = ({ children }) => {
       pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
       mb: isXs ? '75px' : '110px'
     }}>
-      {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Stack
-        direction={'row'} sx={{ justifyContent: 'flex-start' }}><Pin/> </Stack> : null}
+      {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
       {children}
     </Box>
     <Box

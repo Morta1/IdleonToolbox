@@ -94,7 +94,7 @@ const Apocalypses = () => {
           least one character</Typography> : null}
         {state?.characters?.map(({ name, zow, chow, wow, playerId }, index) => {
           if (filteredCharacters?.indexOf(playerId) === -1) return null;
-          return <Stack key={`${name}-zow-chow`} gap={4}>
+          return <Stack key={`${name}-zow-chow`} gap={2}>
             <ApocDisplay apocName={'zow'} charName={name} key={`${name}-zow`} monsters={zow}/>
             <ApocDisplay apocName={'chow'} charName={name} key={`${name}-chow`} monsters={chow}/>
             <ApocDisplay apocName={'wow'} charName={name} key={`${name}-wow`} monsters={wow}/>
@@ -124,8 +124,10 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
       name={'onlySuperChows'}
       label="Hide super chow"/> : null}
     <Card>
-      <CardContent>
-        {allDone ? <Typography>You're Done</Typography> : monsters ? <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
+      <CardContent sx={{
+        '&:last-child': { padding: '8px' }
+      }}>
+        {allDone ? <Typography>You're Done</Typography> : monsters ? <Stack gap={1} direction={'row'} flexWrap={'wrap'}>
           {monsters?.list?.map(({
                                   mapName,
                                   name,
@@ -136,10 +138,10 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                                 }, index) => {
             if (onlySuperChows && kills > 1e6) return;
             return !done.every((done) => done) ?
-              <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(kills)}`}
+              <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(Math.floor(kills))}`}
                        key={`${charName}-${name}-${index}`}>
-                <Card sx={{ width: 120 }} variant={'outlined'}>
-                  <CardContent>
+                <Card sx={{ width: 75, height: 75 }} variant={'outlined'}>
+                  <CardContent sx={{ '&:last-child': { padding: 0 } }}>
                     <Stack alignItems={'center'} gap={1}>
                       <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
                       <Typography>{notateNumber(kills, 'Big')}</Typography>

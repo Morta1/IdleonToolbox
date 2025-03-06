@@ -6,13 +6,14 @@ import React from 'react';
 import styled from '@emotion/styled';
 
 const chipSlotReq = [5, 10, 15, 25, 35, 50, 75];
-const Chips = ({ playerChips, playerLabLevel }) => {
+const Chips = ({ playerChips, playerLabLevel, charactersPage }) => {
   return (
-    <Stack sx={{ height: 'fit-content', maxWidth: 250 }} direction={'row'} alignItems={'center'} flexWrap={'wrap'}
+    <Stack sx={{ height: 'fit-content', ...(charactersPage ? { maxWidth: 250 } : {}) }} direction={'row'}
+           alignItems={'center'} flexWrap={'wrap'}
            justifyContent={'center'} gap={3}>
       {playerChips?.map((chip, chipIndex) => {
         const isSlotAvailable = playerLabLevel >= chipSlotReq[chipIndex];
-        return <Card elevation={5} key={`${chip?.name}-${chipIndex}`}>
+        return <Card elevation={5} key={`${chip?.name}-${chipIndex}`} variant={'outlined'}>
           <CardContent>
             <Stack justifyContent={'center'}>
               {chip !== -1 ? <Tooltip title={<ChipTooltip {...chip}/>}>

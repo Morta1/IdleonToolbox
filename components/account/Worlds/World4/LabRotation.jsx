@@ -79,7 +79,7 @@ const LabRotation = () => {
                      your threshold is met</Typography>}/>
       </Stack>
     </Stack>
-    <Stack gap={2}>
+    <Stack gap={1}>
       {rotations?.map(({ items, date }, rotationIndex) => {
         if (value.length > 0) {
           const exists = items?.some(({ name }) => value.map(({ name }) => name).includes(name));
@@ -155,8 +155,8 @@ const LabRotation = () => {
 };
 
 const Icon = styled.img`
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 `
 

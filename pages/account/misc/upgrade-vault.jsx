@@ -1,7 +1,7 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, commaNotation, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getCoinsArray, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -76,12 +76,16 @@ const UpgradeVault = () => {
                 <CoinDisplay title={''}
                              noShadow
                              variant={'no'}
-                             money={getCoinsArray(cost)}/>
+                             money={getCoinsArray(cost)}
+                             maxCoins={5}
+                />
                 <Typography variant={'caption'}>Cost to max</Typography>
                 <CoinDisplay title={''}
                              noShadow
                              variant={'no'}
-                             money={getCoinsArray(costToMax)}/>
+                             money={getCoinsArray(costToMax)}
+                             maxCoins={3}
+                />
               </>}
               <Divider sx={{ my: 1 }}/>
               <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>

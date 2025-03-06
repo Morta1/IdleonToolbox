@@ -87,7 +87,8 @@ const Character = ({
     { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly}/>, filter: 'Post Office' },
     {
       component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0}
-                        playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}/>, filter: 'Chips'
+                        playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}
+                        charactersPage/>, filter: 'Chips'
     },
     {
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,

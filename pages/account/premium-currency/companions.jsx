@@ -16,7 +16,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Companions = () => {
   const { state } = useContext(AppContext);
-  console.log(`.${accordionClasses.root}.${accordionClasses.root}::before`)
+
   return <>
     <NextSeo
       title="Companions | Idleon Toolbox"
@@ -54,7 +54,7 @@ const Companions = () => {
                        borderColor: acquired ? 'success.dark' : ''
                      }}>
           <CardContent sx={{ '&:last-child': { padding: 2 }, height: '100%' }}>
-            <Stack gap={4} justifyContent={'center'}>
+            <Stack gap={2} justifyContent={'center'}>
               <img width={50} height={50}
                    style={{ objectFit: 'contain' }}
                    src={`${prefix}afk_targets/${name}.png`} alt={''}/>

@@ -73,8 +73,8 @@ const Equinox = () => {
           if (name === 'Hmm...') return null;
           return <Card key={name + `${index}`} sx={{
             width: 350,
-            border: unlocked ? '1px solid' : '',
-            borderColor: unlocked ? 'success.main' : '',
+            border: lvl >= maxLvl ? '1px solid' : '',
+            borderColor: lvl >= maxLvl ? 'success.main' : '',
             opacity: unlocked ? 1 : 0.5,
           }}>
             <CardContent>
