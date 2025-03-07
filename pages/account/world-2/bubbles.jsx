@@ -10,7 +10,7 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Typography
+  Typography, useMediaQuery
 } from '@mui/material';
 import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
@@ -35,6 +35,7 @@ import { useRouter } from 'next/router';
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
   const router = useRouter();
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const { state } = useContext(AppContext);
   const [classDiscount, setClassDiscount] = useState(false);
   const [bargainTag, setBargainTag] = useState('0');
@@ -254,7 +255,7 @@ const Bubbles = () => {
                 return <Fragment key={rawName + '' + bubbleName + '' + index}>
                   <Stack direction={'row'} alignItems={'center'}
                          justifyContent={'space-around'} gap={2}>
-                    <Stack sx={{ width: 100 }} direction={'row'} alignItems={'center'} gap={1}>
+                    <Stack direction={isSm ? 'column' : 'row'} sx={{ width: isSm ? 'inherit' : 100, height: isSm ? 100 : 'inherit' }}  alignItems={'center'} gap={1}>
                       <HtmlTooltip
                         title={<AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus}
                                                goalBonus={goalBonus}
@@ -285,11 +286,11 @@ const Bubbles = () => {
                         {bubbleMaxBonus ? <Typography
                             fontSize={'0.70rem'}
                             variant={'caption'}>({notateNumber(effectHardCapPercent)}%)</Typography> :
-                          null}
+                          isSm ? <Typography>&nbsp;</Typography> : null}
                       </Stack>
                     </Stack>
                   </Stack>
-                  {!hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0 ?
+                  {!isSm && !hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0 ?
                     <Divider sx={{ my: 1 }} flexItem/> : null}
                 </Fragment>
               })}
