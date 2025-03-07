@@ -50,7 +50,7 @@ function compareInventories(snapshotInventory, currentInventory, lastUpdated, sn
     if (difference !== 0) {
       const perHour = (difference / ((lastUpdated - snapshotTime) / 1000 / 60)) * 60;
       report.push({
-        ...item1,
+        ...item2,
         snapshotInventoryItem: item1.amount ? item1 : null,
         currentInventoryItem: item2.amount ? item2 : null,
         snapshotInventoryAmount: item1.amount,
