@@ -117,7 +117,7 @@ const PinnedPages = ({}) => {
           horizontal: 'left'
         }}
       >
-        <List sx={{ minWidth: 200 }}>
+        <List sx={{ minWidth: 300 }}>
           {pinnedPages?.length > 0 ? (
             pinnedPages.map(({ name, url, tab, nestedTab }, index) => (
               <ListItem

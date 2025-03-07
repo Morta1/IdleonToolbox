@@ -32,7 +32,7 @@ const usePin = () => {
 
   const removePin = (index) => {
     let updatePinnedPages = [...(state?.pinnedPages || [])];
-    updatePinnedPages = updatePinnedPages.filter((_, ind) => index !== index);
+    updatePinnedPages = updatePinnedPages.filter((_, ind) => ind !== index);
     localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
     dispatch({ type: 'pinnedPages', data: updatePinnedPages });
   }
