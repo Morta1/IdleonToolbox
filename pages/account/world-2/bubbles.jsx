@@ -32,13 +32,17 @@ import MenuItem from '@mui/material/MenuItem';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
+import { useLocalStorage } from '@mantine/hooks';
 
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
   const router = useRouter();
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const { state } = useContext(AppContext);
-  const [batchLayout, setBatchLayout] = useState(false);
+  const [batchLayout, setBatchLayout] = useLocalStorage({
+    key: 'bubbles:batchLayout',
+    defaultValue: false
+  });
   const [classDiscount, setClassDiscount] = useState(false);
   const [bargainTag, setBargainTag] = useState('0');
   const [effThreshold, setEffThreshold] = useState(75);
@@ -270,8 +274,8 @@ const Bubbles = () => {
                            alignItems={'center'}
                            gap={batchLayout ? 0 : 1}
                            sx={{
-                             width: isSm || batchLayout ? 'inherit' : 100,
-                             height: isSm || batchLayout ? 100 : 'inherit'
+                             width: isSm ? 'inherit' : batchLayout ? 55 : 100,
+                             height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? 100 : 'inherit'
                            }}
                     >
                       <HtmlTooltip
@@ -294,7 +298,7 @@ const Bubbles = () => {
                                     alt=""/>
                       </HtmlTooltip>
                       <Stack alignItems={'center'}>
-                        <Stack direction={'row'} gap={.5}>
+                        <Stack direction={batchLayout ? 'column' : 'row'} alignItems={'center'} gap={.5}>
                           <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
                                       variant={'caption'}>{level}</Typography>
                           {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <Typography
