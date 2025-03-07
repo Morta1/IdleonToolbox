@@ -84,12 +84,11 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                         '&:hover': {
                           borderRadius: index === 0 ? '8px 8px 0 0' : index === rest.length - 1 ? '0 0 8px 8px' : ''
                         },
-                        mb: entry?.loggedMainChar || entry?.searchedChar ? .8 : 0,
                         backgroundColor: entry?.loggedMainChar || entry?.searchedChar
                           ? HIGHLIGHTED_BG_COLOR
                           : '#1e262e',
-                        outline: entry?.loggedMainChar || entry?.searchedChar ? '2px solid' : 'none',
-                        outlineColor: entry?.loggedMainChar ? HIGHLIGHTED_OUTLINED_COLOR : entry?.searchedChar
+                        border: entry?.loggedMainChar || entry?.searchedChar ? '2px solid' : 'none',
+                        borderColor: entry?.loggedMainChar ? HIGHLIGHTED_OUTLINED_COLOR : entry?.searchedChar
                           ? SECONDARY_HIGHLIGHTED_OUTLINED_COLOR
                           : ''
                       }}

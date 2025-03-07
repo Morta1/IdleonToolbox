@@ -12,12 +12,13 @@ import { handleLoadJson, isProd, shouldDisplayDrawer } from '../../../utility/he
 import { Adsense } from '@ctrl/react-adsense';
 import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
-import IconButton from '@mui/material/IconButton';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
+import { format } from 'date-fns';
+import IconButton from '@mui/material/IconButton';
+import FileCopyIcon from '@mui/icons-material/FileCopy';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -35,14 +36,19 @@ const NavBar = ({ children }) => {
         <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}>
           <AppDrawer/>
           <NavItemsList/>
-          <QuickSearch />
+          <QuickSearch/>
           {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
-          {state?.profile && state?.characters?.[0]?.name
-            ? <Typography variant={'caption'} sx={{lineHeight: "11px"}}>Inspecting {state?.characters?.[0]?.name}</Typography>
+          {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
+          {state?.signedIn ? <Stack sx={{ p: 1, width: 120, flexShrink: 0 }}>
+              <Typography sx={{ fontWeight: 'bold', fontSize: 14 }}>{state?.characters?.[0]?.name}</Typography>
+              {state?.lastUpdated ? <Typography variant={'caption'}>{state?.lastUpdated
+                  ? format(state?.lastUpdated, 'dd/MM/yy HH:mm')
+                  : 'xx/xx/xx xx:xx'}</Typography>
+                : null}
+            </Stack>
             : null}
-          {state?.signedIn || state?.profile ? <UserMenu /> : <LoginButton/>}
         </Toolbar>
       </AppBar>
     </Box>

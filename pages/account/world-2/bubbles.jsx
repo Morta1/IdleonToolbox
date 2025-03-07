@@ -10,7 +10,8 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Typography, useMediaQuery
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
@@ -37,6 +38,7 @@ const Bubbles = () => {
   const router = useRouter();
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const { state } = useContext(AppContext);
+  const [batchLayout, setBatchLayout] = useState(false);
   const [classDiscount, setClassDiscount] = useState(false);
   const [bargainTag, setBargainTag] = useState('0');
   const [effThreshold, setEffThreshold] = useState(75);
@@ -148,7 +150,11 @@ const Bubbles = () => {
               account={state?.account}/>
       </Stack>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Options'} stackProps={{ gap: 1 }}>
+        <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Options'} stackProps={{ gap: 0 }}>
+          <FormControlLabel
+            control={<Checkbox checked={batchLayout} onChange={() => setBatchLayout(!batchLayout)}/>}
+            name={'batchLayout'}
+            label="Batch layout"/>
           <FormControlLabel
             control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
             name={'classDiscount'}
@@ -230,9 +236,15 @@ const Bubbles = () => {
 
       </Stack>
       <Container>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(25%, 1fr))' }}>
+        <Box sx={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(auto-fill, minmax(${batchLayout ? `calc(50% - ${5 * 8}px)` : '25%'}, 1fr))`,
+          gap: batchLayout ? 5 : 0,
+          mt: batchLayout ? 3 : 0
+        }}>
           {Object.entries(state?.account?.alchemy?.bubbles || {})?.map(([cauldron, bubbles], cauldronIndex) => {
-            return <Stack alignItems={'center'} key={cauldron + '' + cauldronIndex}>
+            return <Stack direction={batchLayout ? 'row' : 'column'} alignItems={'center'} flexWrap={'wrap'}
+                          key={cauldron + '' + cauldronIndex}>
               {bubbles?.map((bubble, index) => {
                 if (index > 29) return null;
                 const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
@@ -253,9 +265,15 @@ const Bubbles = () => {
                 }
                 if ((!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0) && hidePastThreshold || (hidePastLevelThreshold && level > levelThreshold)) return null;
                 return <Fragment key={rawName + '' + bubbleName + '' + index}>
-                  <Stack direction={'row'} alignItems={'center'}
-                         justifyContent={'space-around'} gap={2}>
-                    <Stack direction={isSm ? 'column' : 'row'} sx={{ width: isSm ? 'inherit' : 100, height: isSm ? 100 : 'inherit' }}  alignItems={'center'} gap={1}>
+                  <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
+                    <Stack direction={isSm || batchLayout ? 'column' : 'row'}
+                           alignItems={'center'}
+                           gap={batchLayout ? 0 : 1}
+                           sx={{
+                             width: isSm || batchLayout ? 'inherit' : 100,
+                             height: isSm || batchLayout ? 100 : 'inherit'
+                           }}
+                    >
                       <HtmlTooltip
                         title={<AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus}
                                                goalBonus={goalBonus}
@@ -290,8 +308,10 @@ const Bubbles = () => {
                       </Stack>
                     </Stack>
                   </Stack>
-                  {!isSm && !hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0 ?
-                    <Divider sx={{ my: 1 }} flexItem/> : null}
+                  {!isSm && !hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0
+                    ?
+                    <Divider sx={{ my: 1 }} flexItem/>
+                    : null}
                 </Fragment>
               })}
             </Stack>

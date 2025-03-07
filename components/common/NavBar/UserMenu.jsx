@@ -1,6 +1,7 @@
 import { IconLogin2, IconLogout2, IconUserCircle } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
+  Box,
   Divider,
   listClasses,
   ListItemIcon,
@@ -49,6 +50,7 @@ const UserMenu = () => {
   return <>
     <IconButton onClick={handleClick}
                 size="small"
+                sx={{ ml: 1 }}
                 aria-controls={open ? 'account-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}>
@@ -77,24 +79,7 @@ const UserMenu = () => {
       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
-      <ListSubheader>
-        <Stack sx={{ p: 1 }}>
-          <Typography variant={'body1'}>{state?.characters?.[0]?.name || 'Placeholder'}</Typography>
-          <Typography variant={'caption'}>Updated: {state?.lastUpdated
-            ? format(state?.lastUpdated, 'dd/MM/yyyy HH:mm:ss')
-            : 'XX/XX/XXXX XX:XX:XX'}</Typography>
-        </Stack>
-      </ListSubheader>
-      <Divider sx={{ mb: 1 }}/>
-      {/*<MenuItem onClick={() => {*/}
-      {/*  console.log('\'dark\'')*/}
-      {/*  setMode('dark');*/}
-      {/*}}>*/}
-      {/*  <ListItemIcon>*/}
-      {/*    <IconSun/>*/}
-      {/*  </ListItemIcon>*/}
-      {/*  Dark Mode*/}
-      {/*</MenuItem>*/}
+      <Box sx={{ mb: 1 }}/>
       {state?.profile && !state.signedIn ? <MenuItem onClick={() => setDialogOpen(true)}>
         <ListItemIcon><IconLogin2/></ListItemIcon>
         <ListItemText>Login</ListItemText>

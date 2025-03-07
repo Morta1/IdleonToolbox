@@ -33,6 +33,7 @@ const QuickSearch = () => {
   const inputRef = useRef(null);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
+  const breakpoint = useMediaQuery('(max-width: 1365px)', { noSsr: true });
   const router = useRouter();
   const { t, nt, ...updateQuery } = router?.query || {};
 
@@ -193,16 +194,15 @@ const QuickSearch = () => {
         width: 'fit-content',
         border: '1px solid rgba(255, 255, 255, 0.23)',
         height: '32px',
-        borderRadius: isMd ? '8px' : '16px',
-        padding: isMd ? '4px 8px' : '4px 12px',
-        cursor: 'pointer',
-        mr: 1
+        borderRadius: isMd || breakpoint ? '8px' : '16px',
+        padding: isMd || breakpoint ? '4px 8px' : '4px 12px',
+        cursor: 'pointer'
       }}
       direction={'row'}
       alignItems={'center'}>
       <IconSearch stroke={'grey'} size={16}/>
-      {!isMd ? <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'grey', height: '80%' }}/> : null}
-      {!isMd ? <Typography sx={{ lineHeight: '11px' }} variant={'caption'} color={'text.secondary'}>
+      {!isMd && !breakpoint ? <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'grey', height: '80%' }}/> : null}
+      {!isMd && !breakpoint ? <Typography sx={{ lineHeight: '11px' }} variant={'caption'} color={'text.secondary'}>
         Ctrl + K
       </Typography> : null}
     </Stack>
