@@ -111,18 +111,22 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         {isDeathBringer ? <>
           <Divider sx={{ my: 1 }}/>
           <Typography variant="body1">DK Bones</Typography>
-          <Typography
-            variant="body2">Femur: {numberWithCommas(Math.floor(dkBonesDiff.Femur))} | {numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Femur)))} /
-            hr</Typography>
-          <Typography
-            variant="body2">Ribcage: {numberWithCommas(Math.floor(dkBonesDiff.Ribcage))} | {numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Ribcage)))} /
-            hr</Typography>
-          <Typography
-            variant="body2">Cranium: {numberWithCommas(Math.floor(dkBonesDiff.Cranium))} | {numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Cranium)))} /
-            hr</Typography>
-          <Typography
-            variant="body2">Bovinae: {numberWithCommas(Math.floor(dkBonesDiff.Bovinae))} | {numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Bovinae)))} /
-            hr</Typography>
+          <Divider sx={{ my: 1 }}/>
+          <Typography variant="body2">Femur</Typography>
+          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Femur))}</Typography>
+          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Femur)))} / hr</Typography>
+          <Divider sx={{ my: 1 }}/>
+          <Typography variant="body2">Ribcage</Typography>
+          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Ribcage))}</Typography>
+          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Ribcage)))} / hr</Typography>
+          <Divider sx={{ my: 1 }}/>
+          <Typography variant="body2">Cranium</Typography>
+          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Cranium))}</Typography>
+          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Cranium)))} / hr</Typography>
+          <Divider sx={{ my: 1 }}/>
+          <Typography variant="body2">Bovinae</Typography>
+          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Bovinae))}</Typography>
+          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Bovinae)))} / hr</Typography>
         </> : null}
       </Stack>
     </Section>

@@ -14,6 +14,7 @@ const DropSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [goal, setGoal] = useLocalStorage({ key: 'activeDropGoal', defaultValue: '' });
   const difference = compareInventories(snapshottedChar?.inventory, state?.characters?.[selectedChar]?.inventory, lastUpdated, snapshottedChar?.snapshotTime, goal);
+  console.log(difference)
 
   const handleChange = (event) => {
     const rawValue = event.target.value.replace(/,/g, ''); // Remove existing commas

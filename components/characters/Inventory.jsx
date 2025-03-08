@@ -33,7 +33,7 @@ const ExtraData = ({ name, perHour, perDay, perGoal }) => {
     {perHour ? <Typography variant={'body2'}>{numberWithCommas(perHour.toFixed(2))} / hr</Typography> : null}
     {perDay ? <Typography variant={'body2'}>{numberWithCommas(perDay.toFixed(2))} / day</Typography> : null}
     {perGoal ? <Typography variant={'body2'}>{perGoal > 0
-      ? `${perGoal.toFixed(2)} hours to goal`
+      ? `${numberWithCommas(perGoal.toFixed(2))} hours to goal`
       : 'Goal reached'} </Typography> : null}
   </Stack>
 }

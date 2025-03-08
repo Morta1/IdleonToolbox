@@ -83,10 +83,10 @@ export const compareInventories = (snapshotInventory, currentInventory, lastUpda
     const currentItem = currentInvMap.get(name) || { displayName: name, amount: 0 };
     const difference = currentItem.amount - snapshotItem.amount;
 
-    if (difference !== 0) {
+    if (difference > 0) {
       const perHour = (difference / ((lastUpdated - snapshotTime) / 1000 / 60)) * 60;
       report.push({
-        ...currentItem,
+        ...(currentItem?.name ? currentItem : snapshotItem),
         snapshotInventoryItem: snapshotItem.amount ? snapshotItem : null,
         currentInventoryItem: currentItem.amount ? currentItem : null,
         snapshotInventoryAmount: snapshotItem.amount,
