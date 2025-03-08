@@ -1,6 +1,16 @@
 import { NextSeo } from 'next-seo';
 import React, { useContext, useEffect, useState } from 'react';
-import { Divider, Select, selectClasses, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Select,
+  selectClasses,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
 import { prefix } from '@utility/helpers';
 import MenuItem from '@mui/material/MenuItem';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -24,6 +34,7 @@ const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
   const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
   const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
+  const [resultsOnly, setResultsOnly] = useLocalStorage({ key: 'activeDropResultsOnly', defaultValue: false });
   const [selectedSections, setSelectedSections] = useLocalStorage({
     key: 'activeDropSections',
     defaultValue: sections
@@ -100,6 +111,10 @@ const ActiveStuffCalculator = () => {
             <IconInfoCircleFilled/>
           </Tooltip>
         </Stack>
+        <FormControlLabel
+          control={<Checkbox size="small" checked={resultsOnly} onChange={() => setResultsOnly(!resultsOnly)}/>}
+          name={'resultsOnly'}
+          label="Show results only"/>
       </Stack>
     </Stack>
     <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ mt: 2 }}>
@@ -124,16 +139,16 @@ const ActiveStuffCalculator = () => {
       : (snapshottedChar?.playerId + '') != selectedChar ? <Typography mt={2} variant={'h6'}>No snapshot available for
         this
         character</Typography> : <>
-        {isDisplayed('coins') ? <CoinsSection selectedChar={selectedChar} lastUpdated={lastUpdated}/> : null}
+        {isDisplayed('coins') ? <CoinsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('pets') && isBeastMaster
-          ? <PetSection selectedChar={selectedChar} lastUpdated={lastUpdated} topDivider={false}/>
+          ? <PetSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
           : null}
         {isDisplayed('kills')
-          ? <KillsSection selectedChar={selectedChar} lastUpdated={lastUpdated} topDivider={false}/>
+          ? <KillsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
           : null}
-        {isDisplayed('exp') ? <ExpSection selectedChar={selectedChar} lastUpdated={lastUpdated}/> : null}
-        {isDisplayed('cards') ? <CardsSection selectedChar={selectedChar} lastUpdated={lastUpdated}/> : null}
-        {isDisplayed('drops') ? <DropSection selectedChar={selectedChar} lastUpdated={lastUpdated}/> : null}
+        {isDisplayed('exp') ? <ExpSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
+        {isDisplayed('cards') ? <CardsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
+        {isDisplayed('drops') ? <DropSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
       </>}
   </>;
 };

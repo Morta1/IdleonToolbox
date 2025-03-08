@@ -6,22 +6,30 @@ import { useLocalStorage } from '@mantine/hooks';
 import { getExpDiff } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
 
-const ExpSection = ({ selectedChar, lastUpdated }) => {
+const ExpSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
+  const snapshotChar = snapshottedChar?.skillsInfo?.character;
+  const currentChar = state?.characters?.[selectedChar]?.skillsInfo?.character;
   const expDiff = getExpDiff(snapshottedChar, state?.characters?.[selectedChar], lastUpdated);
 
   return <Section title={'Exp'}>
-    <Stack>
-      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-      <Typography
-        variant="body2">{notateNumber(snapshottedChar?.skillsInfo?.character?.exp)} / {notateNumber(snapshottedChar?.skillsInfo?.character?.expReq)} ({(snapshottedChar?.skillsInfo?.character?.exp / snapshottedChar?.skillsInfo?.character?.expReq * 100).toFixed(2)}%)</Typography>
-    </Stack>
-    <Stack>
-      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Current</Typography>
-      <Typography
-        variant="body2">{notateNumber(state?.characters?.[selectedChar]?.skillsInfo?.character?.exp)} / {notateNumber(state?.characters?.[selectedChar]?.skillsInfo?.character?.expReq)} ({(state?.characters?.[selectedChar]?.skillsInfo?.character?.exp / state?.characters?.[selectedChar]?.skillsInfo?.character?.expReq * 100).toFixed(2)}%) </Typography>
-    </Stack>
+    {!resultsOnly ? <>
+      <Stack>
+        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
+        <Typography variant="body2">Lv. {snapshotChar?.level}</Typography>
+        <Typography
+          variant="body2">{notateNumber(snapshotChar?.exp)} / {notateNumber(snapshotChar?.expReq)} ({(snapshotChar?.exp / snapshotChar?.expReq * 100).toFixed(2)}%)</Typography>
+      </Stack>
+      <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
+
+      <Stack>
+        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Current</Typography>
+        <Typography variant="body2">Lv. {currentChar?.level}</Typography>
+        <Typography
+          variant="body2">{notateNumber(currentChar?.exp)} / {notateNumber(currentChar?.expReq)} ({(currentChar?.exp / currentChar?.expReq * 100).toFixed(2)}%) </Typography>
+      </Stack>
+    </> : null}
     <Stack>
       <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Result</Typography>
       <Typography

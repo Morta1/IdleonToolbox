@@ -1,11 +1,11 @@
-import { Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { Section } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { notateNumber, numberWithCommas } from '@utility/helpers';
 
-const PetSection = ({ selectedChar, lastUpdated }) => {
+const PetSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
@@ -15,14 +15,17 @@ const PetSection = ({ selectedChar, lastUpdated }) => {
   const perMinute = diff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60);
 
   return <Section title={'Shiny progress'}>
-    <Stack>
-      <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-      <Typography variant={'body2'}>Progress: {numberWithCommas(Math.floor(snapshotProgress))}</Typography>
-    </Stack>
-    <Stack>
-      <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
-      <Typography variant={'body2'}>Progress: {numberWithCommas(Math.floor(currentProgress))}</Typography>
-    </Stack>
+    {!resultsOnly ? <>
+      <Stack>
+        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
+        <Typography variant={'body2'}>Progress: {numberWithCommas(Math.floor(snapshotProgress))}</Typography>
+      </Stack>
+      <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
+      <Stack>
+        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
+        <Typography variant={'body2'}>Progress: {numberWithCommas(Math.floor(currentProgress))}</Typography>
+      </Stack>
+    </> : null}
     <Stack>
       <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Result</Typography>
       <Typography variant={'body2'}>Progress: {notateNumber(diff)}</Typography>

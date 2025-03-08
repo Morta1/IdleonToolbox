@@ -24,8 +24,8 @@ const CardsSection = ({ selectedChar, lastUpdated }) => {
               <CardAndBorder {...card} />
             </div>
             <Typography variant={'body2'} mt={1.5}>{numberWithCommas(amount)}</Typography>
-            <Typography variant={'body2'}>{perHour} / hr</Typography>
-            {hoursForNextLevel !== 'N/A' ? <Typography variant={'body2'}>To next star: {hoursForNextLevel} / hr</Typography> : null}
+            <Typography variant={'body2'}>{numberWithCommas(Math.floor(perHour))} / hr</Typography>
+            {hoursForNextLevel !== 'N/A' ? <Typography variant={'body2'}>To next star: {hoursForNextLevel} hrs</Typography> : null}
           </Stack>
         })}
       </Stack>

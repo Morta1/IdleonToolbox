@@ -1,12 +1,12 @@
-import { Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { Section } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getCoinsArray, notateNumber, numberWithCommas } from '@utility/helpers';
+import { getCoinsArray } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
 
-const PetSection = ({ selectedChar, lastUpdated }) => {
+const PetSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
@@ -16,18 +16,21 @@ const PetSection = ({ selectedChar, lastUpdated }) => {
   const perMinute = diff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60);
 
   return <Section title={'Coins'}>
-    <Stack>
-      <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-      <CoinDisplay title={''}
-                   noShadow
-                   money={getCoinsArray(snapshotMoney)}/>
-    </Stack>
-    <Stack>
-      <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
-      <CoinDisplay title={''}
-                   noShadow
-                   money={getCoinsArray(currentMoney)}/>
-    </Stack>
+    {!resultsOnly ? <>
+      <Stack>
+        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
+        <CoinDisplay title={''}
+                     noShadow
+                     money={getCoinsArray(snapshotMoney)}/>
+      </Stack>
+      <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
+      <Stack>
+        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
+        <CoinDisplay title={''}
+                     noShadow
+                     money={getCoinsArray(currentMoney)}/>
+      </Stack>
+    </> : null}
     <Stack>
       <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Result</Typography>
       <CoinDisplay title={''}
