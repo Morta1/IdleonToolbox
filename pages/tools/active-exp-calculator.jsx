@@ -9,15 +9,8 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box';
 import CircleTimer from '@components/common/CircleTimer';
+import { getExpToLevel } from '@parsers/misc/activeCalculator';
 
-const getExpToLevel = (character, targetLevel) => {
-  let exp = 0;
-  for (let i = character?.level; i < targetLevel; i++) {
-    exp += (15 + Math.pow(i, 1.9) + 11 * i) * Math.pow(1.208 - Math.min(0.164, (0.215 * i) / (i + 100)), i) - 15;
-  }
-  exp -= character?.exp;
-  return exp;
-}
 const countdown = 10;
 const ActiveXpCalculator = () => {
   const { state } = useContext(AppContext);

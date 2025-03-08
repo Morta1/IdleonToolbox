@@ -52,7 +52,6 @@ const parseCards = (cardsRaw, rawRift, account) => {
     }, {});
 }
 
-
 export const calculateCardSetStars = (card, bonus) => {
   if (!card || !bonus) return null;
   return (bonus / card?.bonus) - 1;

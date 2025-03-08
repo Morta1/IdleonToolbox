@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.92',
+    'gameVer': '2.0.30',
+    'date': '08/03/2024',
+    'features': [
+      'Renamed "Active Drop Calculator" to "Active Stuff Calculator" as it now tracks coins, kills, exp, cards, shiny progress (for BM) and drops!'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.2.91',
     'gameVer': '2.0.30',
     'date': '06/03/2024',

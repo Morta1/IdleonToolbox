@@ -298,7 +298,7 @@ const Bubbles = () => {
                                     alt=""/>
                       </HtmlTooltip>
                       <Stack alignItems={'center'}>
-                        <Stack direction={batchLayout ? 'column' : 'row'} alignItems={'center'} gap={.5}>
+                        <Stack direction={batchLayout ? 'column' : 'row'} alignItems={'center'}>
                           <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
                                       variant={'caption'}>{level}</Typography>
                           {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <Typography
