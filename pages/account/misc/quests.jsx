@@ -25,12 +25,11 @@ const Quests = () => {
           clonedNpcQuests[questIndex] = {
             ...value,
             completed,
-            progress,
+            progress
           };
           if (completed.length === filteredCharacters?.length) {
             completedQuests++;
-          }
-          else if (completed.length > 0) {
+          } else if (completed.length > 0) {
             completedQuests += 0.5;
           }
           if (
@@ -46,18 +45,16 @@ const Quests = () => {
         if (completedQuests === 0) {
           if (inProgressQuests > 0) {
             questsStatus = 0;
-          }
-          else {
+          } else {
             questsStatus = -1;
           }
-        }
-        else {
+        } else {
           questsStatus = completedQuests === npcQuests?.length ? 1 : 0;
         }
         return {
           ...rest,
           npcQuests: clonedNpcQuests,
-          questsStatus,
+          questsStatus
         };
       });
     }

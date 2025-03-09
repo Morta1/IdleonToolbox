@@ -13,7 +13,7 @@ const Chips = ({ playerChips, playerLabLevel, charactersPage }) => {
            justifyContent={'center'} gap={3}>
       {playerChips?.map((chip, chipIndex) => {
         const isSlotAvailable = playerLabLevel >= chipSlotReq[chipIndex];
-        return <Card elevation={5} key={`${chip?.name}-${chipIndex}`} variant={'outlined'}>
+        return <Card key={`${chip?.name}-${chipIndex}`} variant={'outlined'}>
           <CardContent>
             <Stack justifyContent={'center'}>
               {chip !== -1 ? <Tooltip title={<ChipTooltip {...chip}/>}>

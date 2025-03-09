@@ -33,7 +33,7 @@ const Console = ({ chips, playersChips, characters }) => {
           <CardContent>
             <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
               {chips?.map((chip, index) => {
-                return <Card elevation={5} key={`${chip?.name}-${index}`} variant={'outlined'}>
+                return <Card key={`${chip?.name}-${index}`} variant={'outlined'}>
                   <CardContent>
                     <Stack justifyContent={'center'} alignItems={'center'}>
                       <Tooltip title={<ChipTooltip {...chip}/>}>

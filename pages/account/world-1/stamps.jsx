@@ -1,10 +1,14 @@
 import {
-  Avatar, Box,
+  Avatar,
+  Box,
   Card,
   CardContent,
-  Checkbox,
+  Checkbox, Container,
   Divider,
+  FormControl,
   FormControlLabel,
+  InputLabel,
+  Select,
   Stack,
   Switch,
   Typography
@@ -24,6 +28,7 @@ import { grey } from '@mui/material/colors';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
+import MenuItem from '@mui/material/MenuItem';
 
 const Stamps = () => {
   const router = useRouter();
@@ -32,13 +37,14 @@ const Stamps = () => {
     ? state?.account?.accountOptions?.[154]
     : 0;
   const [forcedGildedStamp, setForcedGildedStamp] = useState(gildedStamps > 0);
+  const [forcedStampReducer, setForcedStampReducer] = useState(state?.account?.atoms?.stampReducer);
   const stampReducer = state?.account?.atoms?.stampReducer;
   const [subtractGreenStacks, setSubtractGreenStacks] = React.useState(false);
   const [localStamps, setLocalStamps] = useState(state?.account?.stamps);
 
   useEffect(() => {
-    setLocalStamps(updateStamps(state?.account, state?.characters, forcedGildedStamp));
-  }, [forcedGildedStamp, state]);
+    setLocalStamps(updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer));
+  }, [forcedGildedStamp, forcedStampReducer, state]);
 
   const getBorder = ({ materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage }) => {
     if (level <= 0) return '';
@@ -87,6 +93,23 @@ const Stamps = () => {
             <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
             {stampReducer ?? 0}%
           </Stack>
+          <FormControl fullWidth sx={{ mt: 3 }}>
+            <InputLabel id={'custom-reducer'}>Custom Reduction</InputLabel>
+            <Select
+              sx={{ minWidth: 150 }}
+              size="small"
+              label={'Custom Reduction'}
+              labelId={'custom-reducer'}
+              defaultValue={stampReducer}
+              value={forcedStampReducer}
+              onChange={(e) => setForcedStampReducer(e.target.value)}
+            >
+              <MenuItem value={0}>0</MenuItem>
+              <MenuItem value={30}>30</MenuItem>
+              <MenuItem value={60}>60</MenuItem>
+              <MenuItem value={90}>90</MenuItem>
+            </Select>
+          </FormControl>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Options'}>
           <Stack>
@@ -107,80 +130,81 @@ const Stamps = () => {
           </Stack>
         </CardTitleAndValue>
       </Stack>
-      <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
-        {Object.entries(localStamps || {}).map(([category, stamps], categoryIndex) => {
-          return (
-            <Grid
-              container
-              spacing={.5}
-              sx={{ alignContent: 'start', justifyContent: 'center' }}
-              key={category + '' + categoryIndex}
-              size={{
-                xs: 12,
-                md: 6,
-                lg: 4
-              }}>
-              <Typography sx={{ flexBasis: '100%' }} variable={'subtitle2'}>{category.capitalize()}</Typography>
-              {stamps.map((stamp, stampIndex) => {
-                const {
-                  rawName,
-                  level,
-                  materials,
-                  hasMaterials,
-                  greenStackHasMaterials,
-                  hasMoney,
-                  enoughPlayerStorage,
-                  reqItemMultiplicationLevel,
-                  displayName,
-                  bestCharacter
-                } = stamp;
-                const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
-                const border = getBorder(stamp);
-                const isBlank = displayName === 'Blank';
-                return (
-                  <Grid
-                    key={rawName + stampIndex}
-                    size={{
-                      xs: 4,
-                      sm: 3
-                    }}>
-                    <Tooltip maxWidth={450}
-                             title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
-                                                              subtractGreenStacks={subtractGreenStacks}/>}>
-                      <Card sx={{
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: 50,
-                        border: materials.length === 0 && (subtractGreenStacks
-                          ? greenStackHasMaterials
-                          : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
-                          ? '1px solid'
-                          : '',
-                        borderColor: border
-                      }}
-                            variant={'outlined'}
-                            onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
-                      >
-                        <CardContent sx={{ '&:last-child': { p: 0 } }}>
-                          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
-                            <StampIcon width={40} height={40}
-                                       level={level}
-                                       src={`${prefix}data/${rawName}.png`}
-                                       alt=""/>
-                            <Typography>{level}</Typography>
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    </Tooltip>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          );
-        })}
-      </Grid>
+      <Container>
+        <Grid container sx={{ justifyContent: 'center' }} spacing={2}>
+          {Object.entries(localStamps || {}).map(([category, stamps], categoryIndex) => {
+            return (
+              <Grid
+                container
+                spacing={.5}
+                columns={12}
+                sx={{ alignContent: 'start', justifyContent: 'center' }}
+                key={category + '' + categoryIndex}
+                size={{
+                  xs: 12,
+                  md: 6,
+                  lg: 4
+                }}>
+                <Typography sx={{ flexBasis: '100%' }} variable={'subtitle2'}>{category.capitalize()}</Typography>
+                {stamps.map((stamp, stampIndex) => {
+                  const {
+                    rawName,
+                    level,
+                    materials,
+                    hasMaterials,
+                    greenStackHasMaterials,
+                    hasMoney,
+                    enoughPlayerStorage,
+                    reqItemMultiplicationLevel,
+                    displayName,
+                    bestCharacter
+                  } = stamp;
+                  const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
+                  const border = getBorder(stamp);
+                  const isBlank = displayName === 'Blank';
+                  return (
+                    <Grid
+                      key={rawName + stampIndex}
+                      size={{ xs: 4, sm: 3 }}>
+                      <Tooltip maxWidth={450}
+                               title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
+                                                                subtractGreenStacks={subtractGreenStacks}/>}>
+                        <Card sx={{
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: 50,
+                          // width: '80px',
+                          border: materials.length === 0 && (subtractGreenStacks
+                            ? greenStackHasMaterials
+                            : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
+                            ? '1px solid'
+                            : '',
+                          borderColor: border
+                        }}
+                              variant={'outlined'}
+                              onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
+                        >
+                          <CardContent sx={{ '&:last-child': { p: 0 } }}>
+                            <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
+                              <StampIcon width={40} height={40}
+                                         level={level}
+                                         src={`${prefix}data/${rawName}.png`}
+                                         alt=""/>
+                              <Typography>{level}</Typography>
+                            </Stack>
+                          </CardContent>
+                        </Card>
+                      </Tooltip>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Container>
     </div>)
   );
 };
@@ -205,7 +229,7 @@ const StampInfo = ({
                    }) => {
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
-  return <Box sx={{p:1}}>
+  return <Box sx={{ p: 1 }}>
     <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00', '')))}</Typography>

@@ -41,8 +41,8 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   }, {});
 }
 
-export const updateStamps = (account, characters, gildedStamp = true) => {
-  const stampReducer = account?.atoms?.stampReducer;
+export const updateStamps = (account, characters, gildedStamp = true, forcedStampReducer) => {
+  const stampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
   const flatten = Object.values(account?.stamps || {}).flat().map((stamp) => {
     const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
     const goldCost = getGoldCost(stamp?.level, stamp, account);
@@ -81,7 +81,6 @@ const checkHasMaterials = (materials, materialCost, account, subtractGreenStacks
     let ownedMats = calculateItemTotalAmount(account?.storage, itemName, true);
     return subtractGreenStacks ? Math.max(0, ownedMats - 1e7) : ownedMats >= itemQuantity * materialCost;
   })
-
 }
 
 const getFutureCosts = (stamp, account, stampReducer, gildedStamp) => {

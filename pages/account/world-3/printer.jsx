@@ -89,7 +89,6 @@ const Printer = () => {
                 {printerSlots?.map((slot, slotIndex) => {
                   return <Tooltip key={`${slot?.name}-${slotIndex}`} title={<BoostedTooltip {...slot}/>}>
                     <Card sx={{ borderColor: slot?.active ? 'success.light' : '#424242', borderWidth: 1 }}
-                          elevation={slot?.active ? 0 : 5}
                           variant='outlined'>
                       <CardContent>
                         {slot?.item !== 'Blank' ?
