@@ -6,7 +6,7 @@ export const patchNotes = [
   {
     'ver': '3.2.92',
     'gameVer': '2.0.30',
-    'date': '08/03/2024',
+    'date': '08/03/2025',
     'features': [
       'Renamed "Active Drop Calculator" to "Active Stuff Calculator" as it now tracks coins, kills, exp, cards, shiny progress (for BM) and drops!'
     ],
@@ -15,7 +15,7 @@ export const patchNotes = [
   {
     'ver': '3.2.91',
     'gameVer': '2.0.30',
-    'date': '06/03/2024',
+    'date': '06/03/2025',
     'features': [
       'Added active drop calculator',
       'You can now exclude copper, oak, spore cap, fly and goldfish from the printer atom alerts',
@@ -26,7 +26,7 @@ export const patchNotes = [
   {
     'ver': '3.2.91',
     'gameVer': '2.0.30',
-    'date': '04/03/2024',
+    'date': '04/03/2025',
     'features': [
       'Search – You can now search for tabs inside pages as well!',
       'Added an alert for ready-to-upgrade meals.',
@@ -43,7 +43,7 @@ export const patchNotes = [
   {
     'ver': '3.2.90',
     'gameVer': '2.0.30',
-    'date': '24/02/2024',
+    'date': '24/02/2025',
     'features': [`Updated the website with version 2.0.30`],
     'fixes': [
       'Fixed cash multi calculation (missing multikill as its super hard to calculate)'
@@ -52,7 +52,7 @@ export const patchNotes = [
   {
     'ver': '3.2.89',
     'gameVer': '2.0.29',
-    'date': '18/02/2024',
+    'date': '18/02/2025',
     'features': [],
     'fixes': [
       'Fixed cash multi calculation + breakdown',
@@ -64,28 +64,28 @@ export const patchNotes = [
   {
     'ver': '3.2.88',
     'gameVer': '2.0.29',
-    'date': '08/02/2024',
+    'date': '08/02/2025',
     'features': [`Updated the website with version 2.0.29 data, assets + new vault upgrade bonuses`],
     'fixes': []
   },
   {
     'ver': '3.2.87',
     'gameVer': '2.0.27',
-    'date': '08/02/2024',
+    'date': '08/02/2025',
     'features': [`Added a workaround for steam login (click "Login" -> "Steam Workaround")`],
     'fixes': ['Drop rate calculations']
   },
   {
     'ver': '3.2.86',
     'gameVer': '2.0.27',
-    'date': '04/02/2024',
+    'date': '04/02/2025',
     'features': ['Updated the website with version 2.0.27 data, assets and upgrade vault page'],
     'fixes': []
   },
   {
     'ver': '3.2.86',
     'gameVer': '2.0.26',
-    'date': '23/01/2024',
+    'date': '23/01/2025',
     'features': [
       'Added "wow" apocalypse to apocalypses pages',
       'Added grimoire page',
@@ -102,7 +102,7 @@ export const patchNotes = [
   {
     'ver': '3.2.85',
     'gameVer': '2.0.26',
-    'date': '19/01/2024',
+    'date': '19/01/2025',
     'features': [
       'Updated the website with version 2.0.26 data and assets'
     ],
