@@ -162,10 +162,12 @@ const parseHole = (holeRaw, accountData) => {
   const cosmoSchematics = getCosSchematic(holesObject);
   const sediments = [0, 2, 5, 7];
   const notes = [1, 3, 4, 6, 8];
+
   const measurements = holesInfo?.[54]?.split(' ').map((description, index) => {
     const bonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][index]) })
     const cost = (250 + 50 * (measurementBuffLevels[index])) * Math.pow(1.6, index) * Math.pow(1.1, measurementBuffLevels[index]);
+    const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: Number(holesInfo[52][index]) });
     const itemReqIndex = holesInfo[50]?.split(' ')[index];
     const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);
     let icon;
@@ -174,8 +176,9 @@ const parseHole = (holeRaw, accountData) => {
     } else if (notes.includes(index)) {
       icon = 'HoleHarpNote' + (Number(itemReqIndex) - 10);
     }
-    return { description, bonus, multi, level: holesObject?.measurementBuffLevels[index], cost, owned, icon };
+    return { description, bonus, multi, level: holesObject?.measurementBuffLevels[index], cost, owned, icon, measuredBy };
   });
+
   return {
     villagers,
     unlockedCaverns,
@@ -242,6 +245,23 @@ const getMeasurementMulti = ({ holesObject, accountData, t }) => {
     ? 1 + (18 * formula) / 100
     : 1 + (18 * formula + 8 * (formula - 5)) / 100;
 }
+
+const getMeasurementQuantity = ({ holesObject, accountData, i, t }) => {
+  const mapping = {
+    0: { label: "Tome score", value: holesObject?.extraCalculations?.[28] },
+    1: { label: "Crops", value: accountData?.farming?.cropsFound },
+    2: { label: "Account lv", value: accountData?.tome?.tome?.[5]?.quantity },
+    3: { label: "Tome score", value: accountData?.tome?.totalPoints },
+    4: { label: "All skill lv", value: accountData?.tome?.tome?.[13]?.quantity },
+    5: { label: "N/A", value: 0 },
+    6: { label: "Deathnote pts", value: Object.values(accountData?.deathNote || {}).reduce((sum, { rank }) => sum + rank, 0) },
+    7: { label: "Highest DMG", value: accountData?.tasks?.[0]?.[1]?.[0] },
+    8: { label: "Slab Items", value: accountData?.looty?.lootedItems },
+  };
+
+  return mapping[t] ?? { label: "Unknown", value: 0 };
+};
+
 const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
   let result;
   switch (t) {
@@ -263,7 +283,7 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
       result = (i === 99) ? points / 2500 : points;
       break;
     case 4:
-      let tomeQuantityAdditional = accountData?.tome?.tome?.[12]?.quantity;
+      let tomeQuantityAdditional = accountData?.tome?.tome?.[13]?.quantity;
       result = (i === 99)
         ? tomeQuantityAdditional / 5e3 + Math.max(0, tomeQuantityAdditional - 18e3) / 1500
         : tomeQuantityAdditional;
@@ -295,7 +315,6 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
       result = 0;
       break;
   }
-
   return result;
 }
 
