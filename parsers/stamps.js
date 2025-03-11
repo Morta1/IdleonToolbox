@@ -41,37 +41,46 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   }, {});
 }
 
-export const updateStamps = (account, characters, gildedStamp = true, forcedStampReducer) => {
+export const evaluateStamp = (stamp, account, characters, gildedStamp = true, forcedStampReducer) => {
   const stampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
-  const flatten = Object.values(account?.stamps || {}).flat().map((stamp) => {
-    const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
-    const goldCost = getGoldCost(stamp?.level, stamp, account);
-    const hasMoney = account?.currencies?.rawMoney >= goldCost;
-    const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer, gildedStamp);
-    let hasMaterials, greenStackHasMaterials;
-    if (stamp?.materials?.length > 0) {
-      hasMaterials = checkHasMaterials(stamp?.materials, materialCost, account);
-      greenStackHasMaterials = checkHasMaterials(stamp?.materials, materialCost, account, true);
-    }
-    else {
-      hasMaterials = stamp?.ownedMats >= materialCost;
-      greenStackHasMaterials = Math.max(0, stamp?.ownedMats - 1e7) >= materialCost;
-    }
-    const enoughPlayerStorage = bestCharacter?.maxCapacity >= materialCost;
+  const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
+  const goldCost = getGoldCost(stamp?.level, stamp, account);
+  const hasMoney = account?.currencies?.rawMoney >= goldCost;
+  const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer, gildedStamp);
 
-    const newStampData = {
-      ...stamp,
-      bestCharacter,
-      goldCost,
-      materialCost,
-      enoughPlayerStorage,
-      greenStackHasMaterials,
-      hasMaterials,
-      hasMoney
-    };
-    const futureCosts = getFutureCosts(newStampData, account, stampReducer, gildedStamp);
-    return { ...newStampData, futureCosts };
-  });
+  let hasMaterials, greenStackHasMaterials;
+  if (stamp?.materials?.length > 0) {
+    hasMaterials = checkHasMaterials(stamp?.materials, materialCost, account);
+    greenStackHasMaterials = checkHasMaterials(stamp?.materials, materialCost, account, true);
+  }
+  else {
+    hasMaterials = stamp?.ownedMats >= materialCost;
+    greenStackHasMaterials = Math.max(0, stamp?.ownedMats - 1e7) >= materialCost;
+  }
+
+  const enoughPlayerStorage = bestCharacter?.maxCapacity >= materialCost;
+
+  const newStampData = {
+    ...stamp,
+    bestCharacter,
+    goldCost,
+    materialCost,
+    enoughPlayerStorage,
+    greenStackHasMaterials,
+    hasMaterials,
+    hasMoney
+  };
+
+  const futureCosts = getFutureCosts(newStampData, account, stampReducer, gildedStamp);
+  return { ...newStampData, futureCosts };
+}
+
+// Updated version of updateStamps that uses the new evaluateStamp function
+export const updateStamps = (account, characters, gildedStamp = true, forcedStampReducer) => {
+  const flatten = Object.values(account?.stamps || {}).flat().map(stamp =>
+    evaluateStamp(stamp, account, characters, gildedStamp, forcedStampReducer)
+  );
+
   return groupByKey(flatten, ({ category }) => category);
 }
 

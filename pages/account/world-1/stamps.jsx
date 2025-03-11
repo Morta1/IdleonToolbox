@@ -22,13 +22,20 @@ import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { CardTitleAndValue } from '@components/common/styles';
-import { calcStampLevels, getStampBonus, unobtainableStamps, updateStamps } from '@parsers/stamps';
+import { calcStampLevels, evaluateStamp, getStampBonus, unobtainableStamps, updateStamps } from '@parsers/stamps';
 import Grid from '@mui/material/Grid2';
 import { grey } from '@mui/material/colors';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
+
+const reducerValues = [
+  0,
+  30,
+  60,
+  90
+];
 
 const Stamps = () => {
   const router = useRouter();
@@ -46,7 +53,8 @@ const Stamps = () => {
     setLocalStamps(updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer));
   }, [forcedGildedStamp, forcedStampReducer, state]);
 
-  const getBorder = ({ materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage }) => {
+  const getBorder = (stamp) => {
+    const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
     if (level <= 0) return '';
     if (!hasMoney) {
       return 'warning.light';
@@ -56,10 +64,14 @@ const Stamps = () => {
       return '#e3e310'
     } else if (materials.length > 0) {
       return ''
+    } else if (materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage) {
+      const index = reducerValues.indexOf(forcedStampReducer);
+      const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1]);
+      if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && (minReductionStamp?.hasMaterials) && minReductionStamp?.hasMoney && minReductionStamp?.enoughPlayerStorage) {
+        return 'secondary.dark';
+      }
+      return 'info.light';
     }
-    return materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage
-      ? 'info.light'
-      : '';
   }
 
   return (
@@ -74,6 +86,7 @@ const Stamps = () => {
           <Color color={'error.light'} desc={'Missing Materials'}/>
           <Color color={'#e3e310'} desc={'Not Enough Player Storage'}/>
           <Color color={'grey'} desc={'Equipments'}/>
+          <Color color={'secondary.dark'} desc={'Upgradeable at prev. reduction'}/>
           <Color color={'info.light'} desc={'Upgradeable'}/>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Gilded Stamp'}>
@@ -161,6 +174,11 @@ const Stamps = () => {
                   } = stamp;
                   const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
                   const border = getBorder(stamp);
+                  if (reducerValues[forcedStampReducer] !== 0){
+                    if (stamp?.displayName === "Sword_Stamp"){
+                      const minReduction = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, 0);
+                    }
+                  }
                   const isBlank = displayName === 'Blank';
                   return (
                     <Grid
@@ -175,7 +193,6 @@ const Stamps = () => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           minHeight: 50,
-                          // width: '80px',
                           border: materials.length === 0 && (subtractGreenStacks
                             ? greenStackHasMaterials
                             : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
