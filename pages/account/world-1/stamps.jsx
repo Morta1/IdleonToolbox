@@ -17,7 +17,7 @@ import {
   Switch,
   Typography
 } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
@@ -60,11 +60,8 @@ const Stamps = () => {
     defaultValue: false
   });
   const stampReducer = state?.account?.atoms?.stampReducer;
-  const [localStamps, setLocalStamps] = useState(state?.account?.stamps);
-
-  useEffect(() => {
-    setLocalStamps(updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer));
-  }, [forcedGildedStamp, forcedStampReducer, state]);
+  const localStamps = useMemo(() => updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity), [forcedGildedStamp,
+    forcedStampReducer, forceMaxCapacity, state]);
 
   const getBorder = (stamp) => {
     const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
@@ -361,6 +358,7 @@ const MaxCapacityTooltip = () => {
     <List>
       <CustomListItem>- Without Zerg Rushogen prayer</CustomListItem>
       <CustomListItem>- With the Ruck Sack prayer</CustomListItem>
+      <CustomListItem>- With VMan Talent (for vman)</CustomListItem>
       <CustomListItem>- With the three carry cap star signs (as active)</CustomListItem>
       <CustomListItem>- With Nanochip (if you have it somewhere)</CustomListItem>
     </List>

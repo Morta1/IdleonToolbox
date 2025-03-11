@@ -75,9 +75,9 @@ export const evaluateStamp = (stamp, account, characters, gildedStamp = true, fo
 }
 
 // Updated version of updateStamps that uses the new evaluateStamp function
-export const updateStamps = (account, characters, gildedStamp = true, forcedStampReducer) => {
+export const updateStamps = (account, characters, gildedStamp = true, forcedStampReducer, forceMaxCapacity) => {
   const flatten = Object.values(account?.stamps || {}).flat().map(stamp =>
-    evaluateStamp(stamp, account, characters, gildedStamp, forcedStampReducer)
+    evaluateStamp(stamp, account, characters, gildedStamp, forcedStampReducer, forceMaxCapacity)
   );
 
   return groupByKey(flatten, ({ category }) => category);
