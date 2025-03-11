@@ -4,7 +4,6 @@ import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
 import { getHighestCapacityCharacter } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
-import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
@@ -41,9 +40,9 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   }, {});
 }
 
-export const evaluateStamp = (stamp, account, characters, gildedStamp = true, forcedStampReducer) => {
+export const evaluateStamp = (stamp, account, characters, gildedStamp = true, forcedStampReducer, forceMaxCapacity = false) => {
   const stampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
-  const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account);
+  const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account, forceMaxCapacity);
   const goldCost = getGoldCost(stamp?.level, stamp, account);
   const hasMoney = account?.currencies?.rawMoney >= goldCost;
   const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer, gildedStamp);

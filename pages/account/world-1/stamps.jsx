@@ -3,11 +3,15 @@ import {
   Box,
   Card,
   CardContent,
-  Checkbox, Container,
+  Checkbox,
+  Container,
   Divider,
   FormControl,
   FormControlLabel,
   InputLabel,
+  List,
+  ListItem,
+  ListItemText,
   Select,
   Stack,
   Switch,
@@ -29,6 +33,8 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
+import { useLocalStorage } from '@mantine/hooks';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const reducerValues = [
   0,
@@ -45,8 +51,15 @@ const Stamps = () => {
     : 0;
   const [forcedGildedStamp, setForcedGildedStamp] = useState(gildedStamps > 0);
   const [forcedStampReducer, setForcedStampReducer] = useState(state?.account?.atoms?.stampReducer);
+  const [forceMaxCapacity, setForceMaxCapacity] = useLocalStorage({
+    key: 'stamps:forceMaxCapacity',
+    defaultValue: false
+  });
+  const [subtractGreenStacks, setSubtractGreenStacks] = useLocalStorage({
+    key: 'stamps:subtractGreenStacks',
+    defaultValue: false
+  });
   const stampReducer = state?.account?.atoms?.stampReducer;
-  const [subtractGreenStacks, setSubtractGreenStacks] = React.useState(false);
   const [localStamps, setLocalStamps] = useState(state?.account?.stamps);
 
   useEffect(() => {
@@ -66,7 +79,7 @@ const Stamps = () => {
       return ''
     } else if (materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage) {
       const index = reducerValues.indexOf(forcedStampReducer);
-      const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1]);
+      const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
       if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && (minReductionStamp?.hasMaterials) && minReductionStamp?.hasMoney && minReductionStamp?.enoughPlayerStorage) {
         return 'secondary.dark';
       }
@@ -140,6 +153,15 @@ const Stamps = () => {
                                  onChange={() => setSubtractGreenStacks(!subtractGreenStacks)}
                                  size={'small'}/>}
               label={'Subtract Green Stacks'}/>
+            <Stack direction={'row'} alignItems={'center'}>
+              <FormControlLabel
+                control={<Checkbox name={'Force max capacity'}
+                                   checked={forceMaxCapacity}
+                                   onChange={() => setForceMaxCapacity(!forceMaxCapacity)}
+                                   size={'small'}/>}
+                label={'Force max capacity'}/>
+              <MaxCapacityTooltip/>
+            </Stack>
           </Stack>
         </CardTitleAndValue>
       </Stack>
@@ -158,7 +180,8 @@ const Stamps = () => {
                   md: 6,
                   lg: 4
                 }}>
-                <Typography sx={{ flexBasis: '100%' }} variable={'subtitle2'}>{category.capitalize()}</Typography>
+                <Typography sx={{ flexBasis: '100%' }}
+                            variable={'subtitle2'}>{category.capitalize()}</Typography>
                 {stamps.map((stamp, stampIndex) => {
                   const {
                     rawName,
@@ -174,11 +197,6 @@ const Stamps = () => {
                   } = stamp;
                   const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
                   const border = getBorder(stamp);
-                  if (reducerValues[forcedStampReducer] !== 0){
-                    if (stamp?.displayName === "Sword_Stamp"){
-                      const minReduction = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, 0);
-                    }
-                  }
                   const isBlank = displayName === 'Blank';
                   return (
                     <Grid
@@ -330,6 +348,25 @@ const Color = ({ color, desc }) => {
     <Avatar sx={{ bgcolor: color, width: 24, height: 24 }} alt={color} src={''}>&nbsp;</Avatar>
     <Typography variant={'body2'}>{desc}</Typography>
   </Stack>
+}
+
+const CustomListItem = ({ children }) => {
+  return <ListItem disablePadding><ListItemText
+    slotProps={{ primary: { variant: 'caption' } }}>{children}</ListItemText></ListItem>
+}
+
+const MaxCapacityTooltip = () => {
+  return <Tooltip title={<Stack sx={{ p: .5 }}>
+    <Typography variant={'h6'}>Forcing the following:</Typography>
+    <List>
+      <CustomListItem>- Without Zerg Rushogen prayer</CustomListItem>
+      <CustomListItem>- With the Ruck Sack prayer</CustomListItem>
+      <CustomListItem>- With the three carry cap star signs (as active)</CustomListItem>
+      <CustomListItem>- With Nanochip (if you have it somewhere)</CustomListItem>
+    </List>
+  </Stack>}>
+    <IconInfoCircleFilled size={18}/>
+  </Tooltip>
 }
 
 export default Stamps;

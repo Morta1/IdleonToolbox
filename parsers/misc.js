@@ -137,11 +137,7 @@ export const getLooty = (idleonData) => {
     onRotation: filteredGemShopItems?.[name],
     unobtainable: filteredLootyItems?.[name]
   }))
-  const missingItems = slabItems?.filter(({
-                                            obtained,
-                                            rawName,
-                                            unobtainable
-                                          }) => !obtained && !unobtainable)?.length;
+  const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
 
   return {
     slabItems,
@@ -601,9 +597,11 @@ const getEventType = (index) => {
   return .045 > index ? 0 : .087 > index ? 1 : .129 > index ? 2 : .171 > index ? 3 : .213 > index ? 4 : -1
 }
 
-export const getHighestCapacityCharacter = (item, characters, account) => {
+export const getHighestCapacityCharacter = (item, characters, account, forceMaxCapacity) => {
   return characters?.reduce((res, character) => {
-    const itemCapacity = item?.itemType === 'Equip' ? 1 : getItemCapacity(item?.typeGen, character, account)?.value;
+    const itemCapacity = item?.itemType === 'Equip'
+      ? 1
+      : getItemCapacity(item?.typeGen, character, account, forceMaxCapacity)?.value;
     const maxCapacity = character?.inventorySlots * itemCapacity;
     if (maxCapacity > res?.maxCapacity) {
       res = {
@@ -616,12 +614,14 @@ export const getHighestCapacityCharacter = (item, characters, account) => {
     return res;
   }, { capacityPerSlot: 0, maxCapacity: 0, character: '' })
 }
-export const getAllCap = (character, account) => {
+export const getAllCap = (character, account, forceMaxCapacity) => {
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
   const talentBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
   const shrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
-  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
-  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.bonus;
+  const prayerCurse = forceMaxCapacity
+    ? 0
+    : getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account, forceMaxCapacity)?.bonus;
   const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
 
   return {
@@ -637,18 +637,19 @@ export const getAllCap = (character, account) => {
     ]
   }
 }
-export const getItemCapacity = (type = '', character, account) => {
+export const getItemCapacity = (type = '', character, account, forceMaxCapacity) => {
   const gemshop = account?.gemShopPurchases?.find((value, index) => index === 58);
-  const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap');
+  const hasNanoChip = account?.lab?.playersChips.flat().concat(account?.lab?.chips).find(({ name }) => name === 'Silkrode_Nanochip');
+  const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap', forceMaxCapacity && hasNanoChip, forceMaxCapacity);
   const minCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Mining_Items', character);
   const chopCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Choppin\'_Items', character);
   const fishCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Fishing_Items', character);
   const catchCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Catching_Items', character);
   const matCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', character);
   const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
-  const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
+  const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 17);
-  const allCap = getAllCap(character, account);
+  const allCap = getAllCap(character, account, forceMaxCapacity);
 
   let value, breakdown = [
     { title: 'Base' },

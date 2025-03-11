@@ -17,14 +17,14 @@ import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 
-export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels) => {
+export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
   const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
   const talent = talentsObj?.find(({ name }) => name === talentName);
   if (!talent) return 0;
   let level = talent?.level;
-  if (talent?.level > 0) {
+  if (talent?.level > 0 || forceTalent) {
     level = useMaxLevel ? talent?.maxLevel : talent?.level;
-    if (useMaxAndAddedLevels && talent?.level > talent?.maxLevel) {
+    if (useMaxAndAddedLevels && (forceTalent || (talent?.level > talent?.maxLevel))) {
       level = talent?.maxLevel + addedLevels;
     } else {
       level = addedLevels ? level - addedLevels : level;
