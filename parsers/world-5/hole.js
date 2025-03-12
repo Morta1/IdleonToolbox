@@ -160,11 +160,12 @@ const parseHole = (holeRaw, accountData) => {
     })
   })
   const cosmoSchematics = getCosSchematic(holesObject);
-  const sediments = [0, 2, 5, 7];
+  const sediments = [0, 2, 5, 7, 9];
   const notes = [1, 3, 4, 6, 8];
 
   const measurements = holesInfo?.[54]?.split(' ').map((description, index) => {
-    const bonus = getMeasurementBonus({ holesObject, accountData, t: index });
+    const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
+    const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][index]) })
     const cost = (250 + 50 * (measurementBuffLevels[index])) * Math.pow(1.6, index) * Math.pow(1.1, measurementBuffLevels[index]);
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: Number(holesInfo[52][index]) });
@@ -176,7 +177,7 @@ const parseHole = (holeRaw, accountData) => {
     } else if (notes.includes(index)) {
       icon = 'HoleHarpNote' + (Number(itemReqIndex) - 10);
     }
-    return { description, bonus, multi, level: holesObject?.measurementBuffLevels[index], cost, owned, icon, measuredBy };
+    return { description, baseBonus, totalBonus, multi, level: holesObject?.measurementBuffLevels[index], cost, owned, icon, measuredBy };
   });
 
   return {
@@ -248,7 +249,7 @@ const getMeasurementMulti = ({ holesObject, accountData, t }) => {
 
 const getMeasurementQuantity = ({ holesObject, accountData, i, t }) => {
   const mapping = {
-    0: { label: "Tome score", value: holesObject?.extraCalculations?.[28] },
+    0: { label: "Gloomie Kills", value: holesObject?.extraCalculations?.[28] },
     1: { label: "Crops", value: accountData?.farming?.cropsFound },
     2: { label: "Account lv", value: accountData?.tome?.tome?.[5]?.quantity },
     3: { label: "Tome score", value: accountData?.tome?.totalPoints },

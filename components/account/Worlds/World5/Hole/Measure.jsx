@@ -17,17 +17,18 @@ const Measure = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.measurements?.map(({ description, bonus, multi, measuredBy, level, cost, owned, icon }, index) => {
+      {hole?.measurements?.map(({ description, baseBonus, totalBonus, multi, measuredBy, level, cost, owned, icon }, index) => {
         if (description === 'i') return null
         const desc = description.toLowerCase().replace('访', '&');
         return <Card key={`measure-${index}`}>
-          <CardContent sx={{ width: 300 }}>
+          <CardContent sx={{ width: 340, height: 260 }}>
             <Stack mb={2} direction={'row'} gap={2}>
               <img src={`${prefix}etc/Measure_${index}.png`}
                    alt={'measure-' + index}/>
               <Typography>Lv. {level}</Typography>
             </Stack>
-            <Typography>{cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(bonus, 'Big')))}</Typography>
+            <Typography>Base: {cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(baseBonus, 'Big')))}</Typography>
+            <Typography>Total: {cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(totalBonus, 'Big')))}</Typography>
             <Divider sx={{ my: 1 }}/>
             <Typography>Multi: {notateNumber(multi, 'MultiplierInfo')}x</Typography>
             <Divider sx={{ my: 1 }}/>
