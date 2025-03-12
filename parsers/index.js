@@ -41,7 +41,7 @@ import {
 import { getSaltLick } from './saltLick';
 import { getDungeons } from './dungeons';
 import { applyMealsMulti, getCooking, getKitchens } from './cooking';
-import { applyBonusDesc, getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './lab';
+import { getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './lab';
 import { classes } from '../data/website-data';
 import { getGuild } from './guild';
 import { getPrinter } from './printer';
@@ -124,7 +124,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.prayers = getPrayers(idleonData, accountData.storage);
   accountData.cards = getCards(idleonData, accountData);
   accountData.guild = getGuild(idleonData, guildData);
-  accountData.currencies = getCurrencies(accountData, idleonData);
+  accountData.currencies = getCurrencies(accountData, idleonData, processedData);
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);

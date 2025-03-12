@@ -149,7 +149,7 @@ export const getLooty = (idleonData) => {
   };
 };
 
-export const getCurrencies = (account, idleonData) => {
+export const getCurrencies = (account, idleonData, processedData) => {
   const keys = idleonData?.CurrenciesOwned?.['KeysAll'] || idleonData?.CYKeysAll;
   if (idleonData?.CurrenciesOwned) {
     return {
@@ -157,8 +157,40 @@ export const getCurrencies = (account, idleonData) => {
       KeysAll: getKeysObject(keys)
     };
   }
+  const normalCandyTimes = {
+    '1_HR_Time_Candy': 1,
+    '2_HR_Time_Candy': 2,
+    '4_HR_Time_Candy': 4,
+    '12_HR_Time_Candy': 12,
+    '24_HR_Time_Candy': 24,
+    '72_HR_Time_Candy': 72
+  };
+
+  const specialCandy = {
+    'Steamy_Time_Candy': { min: 1 / 6, max: 24 },
+    'Spooky_Time_Candy': { min: 1 / 3, max: 12 },
+    'Cosmic_Time_Candy': { min: 5, max: 500 }
+  };
+  const allItems = [...account?.storage,
+    ...(processedData?.charactersData || [])?.map(({ inventory }) => inventory)?.flat()];
+  const allCandies = allItems?.filter(({ Type } = {}) => Type === 'TIME_CANDY');
+  const guaranteedCandies = allCandies?.reduce((sum, { displayName, amount }) => {
+    if (specialCandy[displayName]) return sum;
+    const hours = normalCandyTimes[displayName];
+    return sum + (hours * amount);
+  }, 0);
+  const specialCandies = allCandies?.reduce((sum, { displayName, amount }) => {
+    const hours = specialCandy[displayName];
+    if (!hours) return sum;
+
+    return {
+      min: sum?.min + (hours?.min * amount),
+      max: sum?.max + (hours?.max * amount)
+    }
+  }, { min: 0, max: 0 })
 
   return {
+    candies: { guaranteed: guaranteedCandies, special: specialCandies },
     WorldTeleports: idleonData?.CYWorldTeleports,
     KeysAll: getKeysObject(keys),
     ColosseumTickets: idleonData?.CYColosseumTickets,

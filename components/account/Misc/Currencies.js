@@ -2,6 +2,9 @@ import CoinDisplay from 'components/common/CoinDisplay';
 import { Stack, Typography } from '@mui/material';
 import { IconWithText, TitleAndValue } from '@components/common/styles';
 import HtmlTooltip from '../../Tooltip';
+import { numberWithCommas, prefix } from '@utility/helpers';
+import Tooltip from '@components/Tooltip';
+import React from 'react';
 
 const imgStyle = { style: { width: 32, height: 32, objectFit: 'contain' } };
 const Currencies = ({
@@ -12,8 +15,11 @@ const Currencies = ({
                       SilverPens,
                       gems,
                       KeysAll,
-                      minigamePlays
+                      minigamePlays,
+                      candies
                     }) => {
+  const minDays = (candies?.special?.min / 24).toFixed(2).replace('.00', '');
+  const maxDays = (candies?.special?.max / 24).toFixed(2).replace('.00', '');
   return <Stack>
     <CoinDisplay className={'box'} money={money}/>
     <Typography mt={2} mb={1} textAlign={'center'}>Currencies</Typography>
@@ -57,6 +63,16 @@ const Currencies = ({
           <IconWithText stat={amount} icon={rawName} img={imgStyle}/>
         </HtmlTooltip>
       })}
+      <Tooltip maxWidth={350} title={<Stack>
+        <Typography variant={'body1'} component={'span'}>Candies</Typography>
+        <Typography variant={'body2'}>Guaranteed: {numberWithCommas(candies?.guaranteed)} hrs ({(candies?.guaranteed / 24).toFixed(2)} days)</Typography>
+        <Typography variant={'body2'}>Variant: {numberWithCommas(candies?.special?.min)} - {numberWithCommas(candies?.special?.max)} hrs ({numberWithCommas(minDays)} - {numberWithCommas(maxDays)} days)</Typography>
+      </Stack>}>
+        <Stack alignItems={'center'}>
+          <img width={32} height={32} src={`${prefix}data/TimeCandy1.png`} alt=""/>
+          <Typography variant={'body1'} component={'span'}>{numberWithCommas(candies?.guaranteed)}</Typography>
+        </Stack>
+      </Tooltip>
     </Stack>
   </Stack>
 };
