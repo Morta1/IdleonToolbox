@@ -44,7 +44,7 @@ const fractalIslandBonuses = [
   { effect: '1.20x_Chance_to_find_Sailing_Artifacts', cost: 2500 },
   { effect: 'Dirty_Shovel_digs_up_+25%_more_Gold_Nuggets', cost: 1e4 },
   { effect: '+100_Star_Talent_Pts', cost: 2e4 },
-  { effect: 'World_6_Bonus..._I_wonder_what_it_will_be...', cost: 4e4 },
+  { effect: 'All_Ninja_Twins_get_+2%_Stealth_per_Sneaking_LV', cost: 4e4 },
   { effect: 'World_7_Bonus..._I_wonder_what_it_will_be...', cost: 6e4 },
 ]
 

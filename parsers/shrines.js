@@ -1,4 +1,4 @@
-import { notateNumber, tryToParse } from '../utility/helpers';
+import { tryToParse } from '../utility/helpers';
 import { shrines } from '../data/website-data';
 import { calcCardBonus, getCardBonusByEffect } from './cards';
 import { isArtifactAcquired } from './sailing';
@@ -112,7 +112,7 @@ export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifac
   const shrineInTown = shrine?.mapId % 50 === 0;
   const notSameMap = playerMapId !== shrine?.mapId;
   const globalApplicable = (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || !!moaiHead;
-  if (shrine?.level === 0 || (notSameMap && !globalApplicable)) {
+  if (shrine?.shrineLevel === 0 || (notSameMap && !globalApplicable)) {
     return 0;
   }
   const chaoticChizoarCard = cards?.Chaotic_Chizoar;

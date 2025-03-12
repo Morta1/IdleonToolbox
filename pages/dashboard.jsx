@@ -179,7 +179,7 @@ const baseTrackers = {
               label: 'Eggs rarity',
               value: 1,
               minValue: 1,
-              helperText: '1=Copper, 2=Iron, 3=Gold'
+              helperText: '1=Base, 2=Copper, 3=Iron'
             },
             checked: false
           },

@@ -13,7 +13,7 @@ import {
   Typography
 } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from 'utility/helpers';
 import { CardTitleAndValue, CenteredStack, TitleAndValue } from '@components/common/styles';
 
 
@@ -77,7 +77,7 @@ const Islands = () => {
                 </CenteredStack>
               </Stack> : null}
               {unlocked && hoursAfk ? <Stack gap={1}>
-                <TitleAndValue title={'Hours Afk'} value={cleanUnderscore(hoursAfk)}/>
+                <TitleAndValue title={'Hours Afk'} value={numberWithCommas(hoursAfk)}/>
               </Stack> : null}
             </Stack>
           </CardContent>
