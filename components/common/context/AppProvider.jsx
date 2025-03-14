@@ -217,6 +217,7 @@ const AppProvider = ({ children }) => {
         let id_token, uid, accessToken;
         if (state?.loginType === 'steam') {
           const userData = await signInWithCustom(state?.loginData?.token, dispatch);
+          accessToken = userData?.accessToken;
           id_token = userData?.accessToken;
           uid = userData?.uid;
         }
