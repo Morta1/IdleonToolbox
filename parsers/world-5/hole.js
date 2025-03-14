@@ -460,7 +460,7 @@ const getStudies = (holesObject, villagerLevel, account) => {
           + getBucketBonus({ ...holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)
     * (1 + (getJarBonus({ holesObject, i: 16 })
       + (stampBonus
-        + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 1, i: 4 }))) / 100);
+        + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 4 }))) / 100);
 
   return {
     studyPerHour,
