@@ -10,14 +10,14 @@ import EmailLogin from '../Logins/EmailLogin';
 import GoogleLogin from '../Logins/GoogleLogin';
 import AppleLogin from '../Logins/AppleLogin';
 import { AppContext } from '../context/AppProvider';
-import SteamWorkaround from '@components/common/Logins/SteamWorkaround';
+import SteamLogin from '@components/common/Logins/SteamLogin';
 import { prefix } from 'utility/helpers';
 
 const methods = [
   { name: 'email', icon: <PasswordIcon/> },
   { name: 'gmail', icon: <GoogleIcon/> },
   { name: 'apple', icon: <AppleIcon/> },
-  { name: 'steam workaround', icon: <img width={24} height={24} src={`${prefix}etc/steam-icon.png`} alt={'steam-icon'}/> }
+  { name: 'steam', icon: <img width={24} height={24} src={`${prefix}etc/steam-icon.png`} alt={'steam-icon'}/> }
 ]
 const LoginDialog = ({ open, setOpen, onClose }) => {
   const { dispatch, setWaitingForAuth, waitingForAuth } = useContext(AppContext);
@@ -63,7 +63,7 @@ const LoginDialog = ({ open, setOpen, onClose }) => {
         <EmailLogin switch-id={0}/>
         <GoogleLogin switch-id={1}/>
         <AppleLogin switch-id={2}/>
-        <SteamWorkaround switch-id={3} setOpen={setOpen}/>
+        <SteamLogin switch-id={3} setOpen={setOpen}/>
       </Switch>
     </DialogContent>
   </Dialog>

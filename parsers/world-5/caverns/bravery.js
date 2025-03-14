@@ -1,5 +1,5 @@
 import { holesInfo } from '../../../data/website-data';
-import { getCosmoBonus } from '@parsers/world-5/hole';
+import { getCosmoBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { fillArrayToLength, notateNumber } from '@utility/helpers';
 
@@ -32,7 +32,7 @@ export const getBravery = (holesObject) => {
       const level = holesObject?.braveryBonuses?.[index];
       const bonus = getMonumentBonus({ holesObject, t: 0, i: index })
       return {
-        description: description.replace(/_/g,' ').replace(/\|/g, ' ').replace('{', Math.round(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+        description: description.replace(/_/g, ' ').replace(/\|/g, ' ').replace('{', Math.round(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
         level,
         bonus
       }
@@ -66,8 +66,10 @@ export const getMonumentMultiReward = (holesObject, t) => {
 }
 
 const getBraveryMinDamage = (holesObject) => {
-  return 3 + Math.floor((holesObject?.braveryMonument?.[0]) / 6)
+  return 3 + Math.floor(holesObject?.braveryMonument?.[0] / 6)
     * getBucketBonus({ ...holesObject, t: 24, i: 1 })
+    + (getStudyBonus(holesObject, 3, 0) / 100)
+    * getBraveryMaxDamage(holesObject)
 }
 const getBraveryMaxDamage = (holesObject) => {
   return (25 + 10 * Math.floor(holesObject?.braveryMonument?.[0] / 6)

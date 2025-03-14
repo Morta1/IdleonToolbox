@@ -2,6 +2,7 @@ import { lavaLog2, notateNumber } from '@utility/helpers';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus, getMonumentHourBonus, getMonumentMultiReward } from '@parsers/world-5/caverns/bravery';
 import { holesInfo } from '../../../data/website-data';
+import { getStudyBonus } from '@parsers/world-5/hole';
 
 export const getJustice = (holesObject) => {
 
@@ -21,7 +22,7 @@ export const getJustice = (holesObject) => {
       const level = holesObject?.braveryBonuses?.slice(10)?.[index];
       const bonus = getMonumentBonus({ holesObject, t: 1, i: index })
       return {
-        description: description.replace(/_/g,' ')
+        description: description.replace(/_/g, ' ')
           .replace(/\|/g, ' ')
           .replace('{', Math.round(bonus))
           .replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
@@ -72,5 +73,6 @@ const getStartHealth = (holesObject) => {
 
 const getOpalChance = (holesObject) => {
   return Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[9])
-    * (1 + getMonumentBonus({ holesObject, t: 1, i: 5 }) / 100))
+    * (1 + getMonumentBonus({ holesObject, t: 1, i: 5 }) / 100)
+    * (1 + getStudyBonus(holesObject, 9, 0) / 100));
 }

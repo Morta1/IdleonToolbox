@@ -89,13 +89,13 @@ const QuickSearch = () => {
 
           // Add tabs if they exist
           if (subCategory.tabs && subCategory.tabs.length > 0) {
-            subCategory.tabs.forEach(tab => {
+            subCategory.tabs.forEach(item => {
               items.push({
-                label: `${formatLabel(subCategory.label)} - ${tab}`,
+                label: `${formatLabel(subCategory.label)} - ${item?.tab || item}`,
                 url: baseUrl,
-                queryParams: { t: tab },
+                queryParams: { t: item?.tab || item },
                 section: `${formatLabel(category)} - Tabs`,
-                icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+                icon: item?.icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
                 isTab: true
               });
             });
@@ -103,13 +103,13 @@ const QuickSearch = () => {
 
           // Add nested tabs if they exist
           if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
-            subCategory.nestedTabs.forEach(({ tab, nestedTab }) => {
+            subCategory.nestedTabs.forEach(({ tab, nestedTab, icon }) => {
               items.push({
                 label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab}`,
                 url: baseUrl,
                 queryParams: { t: tab, nt: nestedTab },
                 section: `${formatLabel(category)} - Nested Tabs`,
-                icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+                icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
                 isNestedTab: true
               });
             });
@@ -258,18 +258,18 @@ const QuickSearch = () => {
                   mb: 0.5
                 }}
               >
-                <ListItemIcon>
+                <ListItemIcon sx={{ width: 62, height: 62 }}>
                   {result.icon === 'default-icon' ? <Box sx={{
-                    width: 32,
-                    height: 32,
-                    backgroundColor: 'rgba(0, 0, 0, .4)',
+                    width: 48,
+                    height: 48,
+                    objectFit: 'scale-down',
                     borderRadius: '50%'
                   }}/> : <img
                     src={`${prefix}${result.icon}.png`}
                     style={{
-                      width: 32,
-                      height: 32,
-                      backgroundColor: 'rgba(0, 0, 0, 0.08)'
+                      width: 48,
+                      height: 48,
+                      objectFit: 'scale-down'
                     }}
                   />}
                 </ListItemIcon>

@@ -118,23 +118,41 @@ export const PAGES = {
         {
           label: 'sailing',
           icon: 'data/ClassIcons54',
-          tabs: ['Artifacts', 'Trades', 'Boats and Captains', 'Loot Pile', 'Chests']
+          tabs: [
+            { tab: 'Artifacts', icon: 'data/Arti29' },
+            { tab: 'Trades', icon: 'etc/Blob_Trade' },
+            { tab: 'Boats and Captains', icon: 'etc/Boat_Frame_5' },
+            { tab: 'Loot Pile', icon: 'data/SailT0' },
+            { tab: 'Chests', icon: 'data/SailChest5' }]
         },
         { label: 'divinity', icon: 'data/ClassIcons55' },
         { label: 'gaming', icon: 'data/ClassIcons56', tabs: ['Imports', 'Superbits', 'Mutations', 'Log book'] },
         {
-          label: 'hole', icon: 'data/Quest90', tabs: ['Explore', 'Engineer', 'Bonuses', 'Measure'],
+          label: 'hole',
+          icon: 'data/Quest90',
+          tabs: [
+            { tab: 'Explore', icon: 'etc/Villager_0' },
+            { tab: 'Engineer', icon: 'etc/Villager_1' },
+            { tab: 'Bonuses', icon: 'etc/Villager_2' },
+            { tab: 'Measure', icon: 'etc/Villager_3' },
+            { tab: 'Study', icon: 'etc/Villager_4' }
+          ],
           nestedTabs: [
-            { tab: 'Explore', nestedTab: 'The well' },
-            { tab: 'Explore', nestedTab: 'Motherlode' },
-            { tab: 'Explore', nestedTab: 'The den' },
-            { tab: 'Explore', nestedTab: 'Bravery' },
-            { tab: 'Explore', nestedTab: 'The bell' },
-            { tab: 'Explore', nestedTab: 'The harp' },
-            { tab: 'Explore', nestedTab: 'The Lamp' },
-            { tab: 'Explore', nestedTab: 'The hive' },
-            { tab: 'Explore', nestedTab: 'Grotto' },
-            { tab: 'Explore', nestedTab: 'Justice' }
+            { tab: 'Explore', icon: 'etc/Cavern_0', nestedTab: 'The well' },
+            { tab: 'Explore', icon: 'etc/Cavern_1', nestedTab: 'Motherlode' },
+            { tab: 'Explore', icon: 'etc/Cavern_2', nestedTab: 'The den' },
+            { tab: 'Explore', icon: 'etc/Cavern_3', nestedTab: 'Bravery' },
+            { tab: 'Explore', icon: 'etc/Cavern_4', nestedTab: 'The bell' },
+            { tab: 'Explore', icon: 'etc/Cavern_5', nestedTab: 'The harp' },
+            { tab: 'Explore', icon: 'etc/Cavern_6', nestedTab: 'The Lamp' },
+            { tab: 'Explore', icon: 'etc/Cavern_7', nestedTab: 'The hive' },
+            { tab: 'Explore', icon: 'etc/Cavern_8', nestedTab: 'Grotto' },
+            { tab: 'Explore', icon: 'etc/Cavern_9', nestedTab: 'Justice' },
+            { tab: 'Explore', icon: 'etc/Cavern_10', nestedTab: 'The Jars' },
+            { tab: 'Explore', icon: 'etc/Cavern_11', nestedTab: 'Evertree' },
+            { tab: 'Explore', icon: 'etc/Cavern_12', nestedTab: 'Wisdom' },
+            { tab: 'Explore', icon: 'etc/Cavern_13', nestedTab: 'Gambit' },
+            { tab: 'Explore', icon: 'etc/Cavern_14', nestedTab: 'The Temple' }
           ]
         },
         { label: 'slab', icon: 'etc/Slab' }
@@ -144,7 +162,11 @@ export const PAGES = {
       icon: 'etc/sneaking-temp',
       categories: [
         { label: 'farming', icon: 'data/ClassIcons57', tabs: ['Plot', 'Market', 'Rank database', 'Crop'] },
-        { label: 'sneaking', icon: 'data/ClassIcons58', tabs: ['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery']  },
+        {
+          label: 'sneaking',
+          icon: 'data/ClassIcons58',
+          tabs: ['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery']
+        },
         { label: 'summoning', icon: 'data/ClassIcons59', tabs: ['Upgrades', 'Winner Bonuses', 'Battles'] },
         { label: 'beanstalk', icon: 'etc/beanstalk1' }
       ]

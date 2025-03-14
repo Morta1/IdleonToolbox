@@ -1,5 +1,5 @@
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
-import { getCosmoBonus, getMeasurementBonus } from '@parsers/world-5/hole';
+import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { holesInfo } from '../../../data/website-data';
 import { commaNotation, fillArrayToLength, notateNumber } from '@utility/helpers';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
@@ -14,7 +14,7 @@ export const getTheHarp = (holesObject, accountData) => {
   const powerRate = getHarpPowerPerHour(holesObject);
   const harpExpGain = getHarpExpGain(holesObject, accountData, stringTypes, power);
   const opalChance = getOpalChance(holesObject, stringTypes, power);
-  const notes = holesObject?.wellSediment?.slice(10);
+  const notes = holesObject?.wellSediment?.slice(10, 20);
   const chords = fillArrayToLength(6).map((_, index) => {
     const description = holesInfo[45].split(' ')[index];
     const level = holesObject?.harpRelated?.[2 * index];
@@ -79,11 +79,22 @@ const getHarpPowerPerHour = (holesObject) => {
 }
 
 const getHarpExpGain = (holesObject, accountData, stringTypes, power) => {
-  return ((power) / 100)
-    * getHarpStringAllBonus(holesObject, stringTypes, power) * (1 + getHarpStringBonus(holesObject, 4) / 100)
+  return 1 === getStudyBonus(holesObject, 5, 99)
+    ? (1 + getStudyBonus(holesObject, 5, 0))
+    * (1 + getStudyBonus(holesObject, 5, 99))
+    * (power / 100)
+    * getHarpStringAllBonus(holesObject, stringTypes, power)
+    * (1 + getHarpStringBonus(holesObject, 4) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
     * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    : (1 + getStudyBonus(holesObject, 5, 99))
+    * (power / 100)
+    * getHarpStringAllBonus(holesObject, stringTypes, power)
+    * (1 + getHarpStringBonus(holesObject, 4) / 100)
+    * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
+    * (1 + accountData?.gemShopPurchases?.[2] / 2);
 }
+
 const getHarpStringBonus = (holesObject, t) => {
   return (holesInfo[47].split(' ')[t]) * (holesObject?.harpRelated?.[Math.round(2 * t)]);
 }

@@ -59,7 +59,7 @@ const Tabber = ({
   const array = Array.isArray(children) ? children : [children];
   return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
     <Tabs
-      centered={!isMd || (isMd && tabs.length < 4)}
+      centered={!forceScroll && (!isMd || (isMd && tabs.length < 4))}
       scrollButtons
       allowScrollButtonsMobile
       sx={{ marginBottom: 3 }}

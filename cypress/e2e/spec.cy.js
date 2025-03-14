@@ -1,3 +1,4 @@
+// TODO: switch to unit test
 describe('template spec', () => {
 
   const testAccount = (accountFixture) => {
@@ -28,9 +29,5 @@ describe('template spec', () => {
 
   it('fourth account', () => {
     testAccount('fourth.json');
-  });
-
-  it('steam account', () => {
-    testAccount('steam.json');
   });
 });

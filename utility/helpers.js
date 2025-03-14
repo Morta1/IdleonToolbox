@@ -7,7 +7,7 @@ export const getTabs = (array, label, tabName) => {
   if (tabName) {
     return navItem?.nestedTabs?.filter((item) => item.tab === tabName)?.map(({ nestedTab }) => nestedTab);
   }
-  return navItem?.tabs;
+  return navItem?.tabs?.map((item) => item?.tab || item);
 }
 
 export const downloadFile = (data, filename) => {
@@ -648,6 +648,15 @@ export const handleLoadJson = async (dispatch) => {
     dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
   } catch (e) {
     console.error('Error while trying to manual import', e);
+  }
+}
+
+export const isValidUrl = (url) => {
+  try {
+    new URL(url)
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 

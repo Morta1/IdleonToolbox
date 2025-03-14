@@ -1,5 +1,12 @@
 import { createContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { checkUserStatus, signInWithToken, subscribe, userSignOut } from '../../../firebase';
+import {
+  checkUserStatus,
+  signInWithCustom,
+  signInWithCustomToken,
+  signInWithToken,
+  subscribe,
+  userSignOut
+} from '../../../firebase';
 // import { parseData } from '../../../parsers';
 import demoJson from '../../../data/raw.json';
 
@@ -208,11 +215,17 @@ const AppProvider = ({ children }) => {
       try {
         if (state?.signedIn) return;
         let id_token, uid, accessToken;
-        if (state?.loginType === 'email') {
+        if (state?.loginType === 'steam') {
+          const userData = await signInWithCustom(state?.loginData?.token, dispatch);
+          id_token = userData?.accessToken;
+          uid = userData?.uid;
+        }
+        else if (state?.loginType === 'email') {
           id_token = state?.loginData?.accessToken;
           uid = state?.loginData?.uid;
           accessToken = id_token;
-        } else {
+        }
+        else {
           if (state?.loginType === 'apple') {
             const appleCredential = await geAppleStatus(state?.loginData)
             if (appleCredential?.id_token) {

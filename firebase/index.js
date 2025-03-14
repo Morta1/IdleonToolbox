@@ -3,8 +3,8 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithCredential,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut
 } from 'firebase/auth';
 import { child, get, getDatabase, goOnline, query, ref } from 'firebase/database';
@@ -67,10 +67,12 @@ const signInWithEmailPassword = async ({ email, password } = {}) => {
   return result?.user;
 }
 
-const signInWithApple = async () => {
+const signInWithCustom = async (token, dispatch) => {
+  if (!token) return;
   const auth = getAuth(app);
-  const provider = new OAuthProvider('apple.com');
-  const result = await signInWithPopup(auth, provider);
+  const result = await signInWithCustomToken(auth, token).catch(function (error) {
+    dispatch({ type: 'loginError', data: error?.message })
+  })
   return result?.user;
 }
 
@@ -145,7 +147,6 @@ export const getGuilds = async (callback) => {
     const guildsDocs = await getDocs(fsQuery(snap));
     const allGuilds = [];
     guildsDocs.forEach((doc) => {
-      // console.log(doc.id, ' => ', doc.data());
       const { stats, n: guildName, i: guildIcon } = doc.data() || {};
       const totalStatCost = stats?.reduce((sum, targetLevel, index) => sum + calculateGuildBonusCost(targetLevel,
         guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
@@ -210,7 +211,7 @@ const userSignOut = async () => {
 export {
   signInWithToken,
   signInWithEmailPassword,
-  signInWithApple,
+  signInWithCustom,
   subscribe,
   checkUserStatus,
   userSignOut

@@ -8,6 +8,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { PAGES } from '@components/constants';
 import { getTabs } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
+import Study from '@components/account/Worlds/World5/Hole/Study';
 
 const Hole = () => {
   const { state } = useContext(AppContext);
@@ -20,12 +21,13 @@ const Hole = () => {
     <Tabber
       clearOnChange={['nt']}
       tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole')}
-      icons={['etc/Villager_0','etc/Villager_1', 'etc/Villager_2', 'etc/Villager_3']}
+      icons={['etc/Villager_0','etc/Villager_1', 'etc/Villager_2', 'etc/Villager_3', 'etc/Villager_4']}
     >
       <Explore hole={state?.account?.hole}/>
       <Engineer hole={state?.account?.hole}/>
       <Bonuses hole={state?.account?.hole}/>
       <Measure hole={state?.account?.hole}/>
+      <Study hole={state?.account?.hole}/>
     </Tabber>
   </>;
 };

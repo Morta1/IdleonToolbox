@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.93',
+    'gameVer': '2.0.31',
+    'date': '14/03/2025',
+    'features': [
+      'Added steam login 🚀',
+      'Updated the website with version 2.0.31 data',
+      'Added The Jars, Evertree, Wisdom*, Gambit* and The Temple pages',
+      'Added the new companions'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.2.92',
     'gameVer': '2.0.30',
     'date': '08/03/2025',
