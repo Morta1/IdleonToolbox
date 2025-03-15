@@ -14,11 +14,11 @@ const Study = ({ hole }) => {
   const [, , , , study] = hole?.villagers || [];
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Study rate'} value={`${hole?.studies?.studyPerHour} / hr` || '0'} icon={'etc/Study_Rate.png'}
+      <CardTitleAndValue title={'Study rate'} value={`${commaNotation(hole?.studies?.studyPerHour)} / hr` || '0'} icon={'etc/Study_Rate.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Level'} value={study?.level}/>
+      <CardTitleAndValue title={'Exp'} value={`${study?.exp} / ${study?.expReq}`}/>
       <ExpRateCard title={'Exp rate'} expRate={study?.expRate} />
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(study?.expRate?.value)} / hr`}/>
       <CardTitleAndValue title={'Time to level'}
                          value={study?.timeLeft >= 0 && study?.expRate?.value > 0 ? msToDate(study?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Opals invested'} value={study?.opalInvested || '0'} icon={'data/Opal.png'}

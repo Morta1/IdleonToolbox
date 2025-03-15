@@ -402,7 +402,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const eventBonus = getEventShopBonus(accountData, 6);
   const grimoireBonus = getGrimoireBonus(accountData?.grimoire?.upgrades, 29);
   const arcadeBonus = (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0);
-  const companionBonus = isCompanionBonusActive(accountData, 13) ? 3 : 0;
+  const companionBonus = isCompanionBonusActive(accountData, 13) ? 1 : 0;
   const statueBonus = getStatueBonus(accountData?.statues, 'StatueG29');
   const jarBonuses = getJarBonus({ holesObject, i: 4 })
     + (getJarBonus({ holesObject, i: 9 })
@@ -438,7 +438,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const breakdown = [
     { name: 'Opal Dividends', value: getBucketBonus({ ...holesObject, t: 0, i: 25 }) },
     { name: 'Schematics', value: getCosSchematic(holesObject) },
-    { name: 'Companion', value: companionBonus },
+    { name: 'Companion', value: companionBonus ? 3 : 0 },
     { name: 'Statue', value: statueBonus },
     { name: 'Jar', value: jarBonuses },
     { name: 'Event shop', value: 25 * eventBonus },
@@ -452,13 +452,17 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
         getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 1 }) +
         getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 2 })
     },
-    { name: 'Monument', value: getMonumentBonus({ holesObject, t: 0, i: 3 }) +
-        getMonumentBonus({ holesObject, t: 1, i: 3 }) },
-    { name: 'Measurements', value: getMeasurementBonus({ holesObject, accountData, t: 7 }) +
-        getMeasurementBonus({ holesObject, accountData, t: 0 }) },
+    {
+      name: 'Monument', value: getMonumentBonus({ holesObject, t: 0, i: 3 }) +
+        getMonumentBonus({ holesObject, t: 1, i: 3 })
+    },
+    {
+      name: 'Measurements', value: getMeasurementBonus({ holesObject, accountData, t: 7 }) +
+        getMeasurementBonus({ holesObject, accountData, t: 0 })
+    },
     { name: 'Cards', value: cardBonus },
     { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
-    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') },
+    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
@@ -468,20 +472,20 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
 }
 
 const getVillagerExpReq = (level, index) => {
-  return 1 === level && 0 === index ? 5 : 0 === index
-    ? 10 * ((10 + 7 * Math.pow(level, 2.1)) * Math.pow(2.1, level)
-    * (1 + 0.75 * Math.max(0, level - 4))
-    * Math.pow(3.4, Math.min(1, Math.max(0, Math.floor(1e5 / 100247.3)))
-      * Math.max(0, level - 12)) - 1.5)
-    : 1 === index
-      ? 30 * (10 + 6 * Math.pow(level, 1.8)) * Math.pow(1.57, level)
-      : 2 === index
-        ? 50 * (10 + 5 * Math.pow(level, 1.7)) * Math.pow(1.4, level)
-        : 3 === index
-          ? 120 * (30 + 10 * Math.pow(level, 2)) * Math.pow(2, level)
-          : 4 === index
-            ? 500 * (10 + 5 * Math.pow(level, 1.3)) * Math.pow(1.13, level)
-            : 10 * Math.pow(10, 20);
+  return 1 === level && 0 === index ? 5 : 0 === index ? 10 * (-1.5 + (10 + 7 * Math.pow(level, 2.1))
+    * Math.pow(2.1, level)
+    * (1 + .75 * Math.max(0, level - 4))
+    * Math.pow(3.4, Math.min(1, Math.max(0, Math.floor((1E5 + 248.3) / 100247.3)))
+      * Math.max(0, level - 12))) :
+    1 === index ? 30 * (10 + 6 * Math.pow(level, 1.8))
+      * Math.pow(1.57, level) : 2 === index ? 50
+      * (10 + 5 * Math.pow(level, 1.7))
+      * Math.pow(1.4, level) : 3 === index ? 120
+      * (30 + 10 * Math.pow(level, 2))
+      * Math.pow(2, level) : 4 === index ? 500
+      * (10 + 5 * Math.pow(level, 1.3))
+      * Math.pow(1.13, level) : 10 * Math.pow(10, 20);
+
 }
 const getStudyReq = (holesObject, t) => {
   return 4e3 *
