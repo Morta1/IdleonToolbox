@@ -1,7 +1,8 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useState } from 'react';
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const Engineer = ({ hole }) => {
   const [, engineer] = hole?.villagers || [];
@@ -10,9 +11,9 @@ const Engineer = ({ hole }) => {
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={engineer?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${engineer?.exp} / ${engineer?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(engineer?.expRate)} / hr`}/>
+      <ExpRateCard title={'Exp rate'} expRate={engineer?.expRate} />
       <CardTitleAndValue title={'Time to level'}
-                         value={engineer?.timeLeft >= 0 && engineer?.expRate > 0 ? msToDate(engineer?.timeLeft) : '0'}/>
+                         value={engineer?.timeLeft >= 0 && engineer?.expRate?.value > 0 ? msToDate(engineer?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / 56`}/>
       <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>

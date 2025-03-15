@@ -1,8 +1,9 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, msToDate, prefix } from '@utility/helpers';
+import { cleanUnderscore, msToDate, prefix } from '@utility/helpers';
 
 import React, { Fragment } from 'react';
+import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const majiksName = ['Hole', 'Village', 'Idleon'];
 
@@ -13,8 +14,8 @@ const Bonuses = ({ hole }) => {
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={bonuses?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${bonuses?.exp} / ${bonuses?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(bonuses?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Time to level'} value={bonuses?.timeLeft >= 0 && bonuses?.expRate ? msToDate(bonuses?.timeLeft) : '0'}/>
+      <ExpRateCard title={'Exp rate'} expRate={bonuses?.expRate} />
+      <CardTitleAndValue title={'Time to level'} value={bonuses?.timeLeft >= 0 && bonuses?.expRate?.value ? msToDate(bonuses?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Opals invested'} value={bonuses?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>

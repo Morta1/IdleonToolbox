@@ -1,7 +1,8 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, msToDate, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const Measure = ({ hole }) => {
   const [, , , measure] = hole?.villagers || [];
@@ -9,9 +10,9 @@ const Measure = ({ hole }) => {
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={measure?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${measure?.exp} / ${measure?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(measure?.expRate)} / hr`}/>
+      <ExpRateCard title={'Exp rate'} expRate={measure?.expRate} />
       <CardTitleAndValue title={'Time to level'}
-                         value={measure?.timeLeft >= 0 && measure?.expRate > 0 ? msToDate(measure?.timeLeft) : '0'}/>
+                         value={measure?.timeLeft >= 0 && measure?.expRate?.value > 0 ? msToDate(measure?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
@@ -23,6 +24,7 @@ const Measure = ({ hole }) => {
         return <Card key={`measure-${index}`}>
           <CardContent sx={{ width: 340, height: 260 }}>
             <Stack mb={2} direction={'row'} gap={2}>
+              {/* font-324 */}
               <img src={`${prefix}etc/Measure_${index}.png`}
                    alt={'measure-' + index}/>
               <Typography>Lv. {level}</Typography>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Divider, Stack, useMediaQuery } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
+import { fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
 import Motherlode from '@components/account/Worlds/World5/Hole/Caverns/Motherlode';
@@ -19,6 +19,7 @@ import Evertree from '@components/account/Worlds/World5/Hole/Caverns/Evertree';
 import Wisdom from '@components/account/Worlds/World5/Hole/Caverns/Wisdom';
 import Gambit from '@components/account/Worlds/World5/Hole/Caverns/Gambit';
 import TheTemple from '@components/account/Worlds/World5/Hole/Caverns/TheTemple';
+import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const Explore = ({ hole }) => {
   const breakpoint = useMediaQuery('(max-width: 1600px)', { noSsr: true });
@@ -28,8 +29,10 @@ const Explore = ({ hole }) => {
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={explore?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${explore?.exp} / ${explore?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(explore?.expRate)} / hr`}/>
-      <CardTitleAndValue title={'Time to level'} value={explore?.timeLeft >= 0 && explore?.expRate > 0 ? msToDate(explore?.timeLeft) : '0'}/>
+      <ExpRateCard title={'Exp rate'} expRate={explore?.expRate}/>
+      <CardTitleAndValue title={'Time to level'} value={explore?.timeLeft >= 0 && explore?.expRate?.value > 0
+        ? msToDate(explore?.timeLeft)
+        : '0'}/>
       <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
@@ -45,13 +48,13 @@ const Explore = ({ hole }) => {
       <TheWell hole={hole}/>
       <Motherlode hole={hole}/>
       <TheDen hole={hole}/>
-      <Bravery hole={hole} />
-      <TheBell hole={hole} />
-      <TheHarp hole={hole} />
-      <TheLamp hole={hole} />
-      <TheHive hole={hole} />
-      <Grotto hole={hole} />
-      <Justice hole={hole} />
+      <Bravery hole={hole}/>
+      <TheBell hole={hole}/>
+      <TheHarp hole={hole}/>
+      <TheLamp hole={hole}/>
+      <TheHive hole={hole}/>
+      <Grotto hole={hole}/>
+      <Justice hole={hole}/>
       <TheJars hole={hole}/>
       <Evertree hole={hole}/>
       <Wisdom hole={hole}/>

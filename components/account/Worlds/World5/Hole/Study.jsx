@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
+import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const colors = {
   0: '#c471d2',
@@ -16,10 +17,10 @@ const Study = ({ hole }) => {
       <CardTitleAndValue title={'Study rate'} value={`${hole?.studies?.studyPerHour} / hr` || '0'} icon={'etc/Study_Rate.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Level'} value={study?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${study?.exp} / ${study?.expReq}`}/>
-      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(study?.expRate)} / hr`}/>
+      <ExpRateCard title={'Exp rate'} expRate={study?.expRate} />
+      <CardTitleAndValue title={'Exp rate'} value={`${commaNotation(study?.expRate?.value)} / hr`}/>
       <CardTitleAndValue title={'Time to level'}
-                         value={study?.timeLeft >= 0 && study?.expRate > 0 ? msToDate(study?.timeLeft) : '0'}/>
+                         value={study?.timeLeft >= 0 && study?.expRate?.value > 0 ? msToDate(study?.timeLeft) : '0'}/>
       <CardTitleAndValue title={'Opals invested'} value={study?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>

@@ -21,6 +21,7 @@ import { getWisdom } from '@parsers/world-5/caverns/wisdom';
 import { getGambit } from '@parsers/world-5/caverns/gambit';
 import { getTheTemple } from '@parsers/world-5/caverns/the-temple';
 import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getStatueBonus } from '@parsers/statues';
 
 const VILLAGERS = {
   EXPLORE: 0,
@@ -64,7 +65,7 @@ const parseHole = (holeRaw, accountData) => {
     jarStuff, // 24,
     jarProgress, // 25
     studyStuff, // 26
-    studyProgress, // 27
+    studyProgress // 27
   ] = holeRaw || [];
   const holesObject = {
     charactersCavernLocation,
@@ -125,11 +126,12 @@ const parseHole = (holeRaw, accountData) => {
     }
   });
 
-  const villagers = villagersExp?.map((exp, index) => {
+  const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, 5));
+  const villagers = villagersExp?.slice(0, 5).map((exp, index) => {
     const level = villagersLevels?.[index];
     const expReq = getVillagerExpReq(level, index);
     const opalInvested = opalsInvested?.[index];
-    const expRate = getVillagerExpPerHour(holesObject, accountData, index)
+    const expRate = getVillagerExpPerHour(holesObject, accountData, index, leastOpalInvestedVillager)
     const timeLeft = (expReq - exp) / expRate * 1000 * 3600;
     return {
       exp: exp < 1e6 ? commaNotation(exp) : notateNumber(exp, 'Big'),
@@ -140,6 +142,7 @@ const parseHole = (holeRaw, accountData) => {
       timeLeft
     }
   });
+
   const studies = getStudies(holesObject, villagers?.[VILLAGERS.STUDIES]?.level, accountData);
   const unlockedCaverns = Math.min(10, villagersLevels?.[0]);
 
@@ -190,13 +193,15 @@ const parseHole = (holeRaw, accountData) => {
   const cosmoSchematics = getCosSchematic(holesObject);
   const sediments = [0, 2, 5, 7, 9];
   const notes = [1, 3, 4, 6, 8];
-
+  const rupies = [10, 11, 12, 13, 14, 15];
+  const measureIndexes = holesInfo[52]?.split(' ');
   const measurements = holesInfo?.[54]?.split(' ').map((description, index) => {
+    const measureIndex = Number(measureIndexes[index]);
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
-    const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][index]) })
+    const multi = getMeasurementMulti({ holesObject, accountData, t: measureIndex })
     const cost = (250 + 50 * (measurementBuffLevels[index])) * Math.pow(1.6, index) * Math.pow(1.1, measurementBuffLevels[index]);
-    const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: Number(holesInfo[52][index]) });
+    const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
     const itemReqIndex = holesInfo[50]?.split(' ')[index];
     const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);
     let icon;
@@ -204,6 +209,8 @@ const parseHole = (holeRaw, accountData) => {
       icon = 'HoleWellFill' + (Number(itemReqIndex) + 1);
     } else if (notes.includes(index)) {
       icon = 'HoleHarpNote' + (Number(itemReqIndex) - 10);
+    } else if (rupies.includes(index)) {
+      icon = 'HoleJarR' + (Number(itemReqIndex) - 20);
     }
     return {
       description,
@@ -214,7 +221,8 @@ const parseHole = (holeRaw, accountData) => {
       cost,
       owned,
       icon,
-      measuredBy
+      measuredBy,
+      measureIndex
     };
   });
 
@@ -275,11 +283,8 @@ const getMeasurementBaseBonus = ({ holesObject, t }) => {
     ? (1 + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 3 }) / 100)
     * ((info[t].replace('TOT', '')
       * holesObject?.measurementBuffLevels[t]) / (100 + holesObject?.measurementBuffLevels[t]))
-    : (1 + getCosmoBonus({
-    majik: holesObject?.villageMajiks,
-    t: 1,
-    i: 3
-  }) / 100) * info[t] * holesObject?.measurementBuffLevels[t];
+    : (1 + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 3 }) / 100)
+    * info[t] * holesObject?.measurementBuffLevels[t];
 }
 const getMeasurementMulti = ({ holesObject, accountData, t }) => {
   const formula = getMeasurementQuantityFound({ holesObject, accountData, t, i: 99 });
@@ -300,7 +305,9 @@ const getMeasurementQuantity = ({ holesObject, accountData, t }) => {
       value: Object.values(accountData?.deathNote || {}).reduce((sum, { rank }) => sum + rank, 0)
     },
     7: { label: 'Highest DMG', value: accountData?.tasks?.[0]?.[1]?.[0] },
-    8: { label: 'Slab Items', value: accountData?.looty?.lootedItems }
+    8: { label: 'Slab Items', value: accountData?.looty?.lootedItems },
+    9: { label: 'Studies done', value: holesObject?.studyStuff?.reduce((sum, level) => sum + level, 0) },
+    10: { label: 'Golem kills', value: Math.floor(holesObject?.extraCalculations?.[63]) }
   };
 
   return mapping[t] ?? { label: 'Unknown', value: 0 };
@@ -352,7 +359,14 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
       let cardsLength = accountData?.looty?.lootedItems;
       result = (i === 99) ? cardsLength / 150 : cardsLength;
       break;
-
+    case 9:
+      let studiesDone = holesObject?.studyStuff?.reduce((sum, level) => sum + level, 0);
+      result = i === 99 ? studiesDone / 6 : studiesDone;
+      return result;
+    case 10:
+      let golemKills = holesObject?.extraCalculations?.[63];
+      result = i === 99 ? Math.max(0, lavaLog(golemKills) - 2) : golemKills;
+      return result;
     default:
       // Default case: Zero Result
       result = 0;
@@ -360,12 +374,15 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
   }
   return result;
 }
+
 // MeasurementBonusTOTAL
 export const getMeasurementBonus = ({ holesObject, accountData, t }) => {
   const base = getMeasurementBaseBonus({ holesObject, t });
-  const multi = getMeasurementMulti({ holesObject, accountData, t: Number(holesInfo[52][t]) });
+  const measureIndexes = holesInfo[52]?.split(' ');
+  const multi = getMeasurementMulti({ holesObject, accountData, t: Number(measureIndexes[t]) });
   return base * multi;
 }
+
 const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }) => {
   return 1 === x4
     ? Math.max(0.01, Math.pow(0.85, discountWish)) * x3
@@ -376,22 +393,35 @@ const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }) => {
         * Math.pow(1.23, Math.min(Math.max(0, (index - 16) / 2), 14))
         : 40 * Math.max(0.01, Math.pow(0.85, discountWish)) * Math.pow(1.34, index - 54 + Math.floor((index - 54) / 2.7))
         * Math.pow(1.26, Math.min(Math.max(0, (index - 54) / 2), 14));
-
 }
-const getVillagerExpPerHour = (holesObject, accountData, t) => {
+
+const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVillager) => {
+  // VillagerExpPerHour
   const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u')?.owned;
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
   const eventBonus = getEventShopBonus(accountData, 6);
   const grimoireBonus = getGrimoireBonus(accountData?.grimoire?.upgrades, 29);
   const arcadeBonus = (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0);
-
-  return (100 + getBucketBonus({ ...holesObject, t: 0, i: 25 }))
-    * Math.max(1, (1 + (25 * eventBonus) / 100)
+  const companionBonus = isCompanionBonusActive(accountData, 13) ? 3 : 0;
+  const statueBonus = getStatueBonus(accountData?.statues, 'StatueG29');
+  const jarBonuses = getJarBonus({ holesObject, i: 4 })
+    + (getJarBonus({ holesObject, i: 9 })
+      + (getJarBonus({ holesObject, i: 12 })
+        + (getJarBonus({ holesObject, i: 22 })
+          + (getJarBonus({ holesObject, i: 29 })
+            + getJarBonus({ holesObject, i: 35 })))))
+  const value = (100 + getBucketBonus({ ...holesObject, t: 0, i: 25 }))
+    * Math.max(1, (1 + 2 * companionBonus)
+      * (1 + statueBonus / 100)
+      * (1 + (jarBonuses) / 100)
+      * (1 + (25 * eventBonus) / 100)
       * (1 + (50 * (hasBundle ? 1 : 0)) / 100))
     * holesObject?.opalsInvested[t]
     * (1 + (holesObject?.parallelVillagersGemShop[t] ?? 0))
     * (1 + arcadeBonus / 100)
     * (1 + grimoireBonus / 100)
+    * (1 + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 })
+      * Math.floor(leastOpalInvestedVillager / 5)) / 100)
     * (1 + (getMonumentBonus({ holesObject, t: 0, i: 3 })
       + (getMonumentBonus({ holesObject, t: 1, i: 3 })
         + (getMeasurementBonus({ holesObject, accountData, t: 7 })
@@ -405,17 +435,53 @@ const getVillagerExpPerHour = (holesObject, accountData, t) => {
                     + (getBellBonus({ holesObject, t: 1 })
                       + (getMeasurementBonus({ holesObject, accountData, t: 0 })
                         + getWinnerBonus(accountData, '+{% Villager EXP'))))))))))) / 100);
+  const breakdown = [
+    { name: 'Opal Dividends', value: getBucketBonus({ ...holesObject, t: 0, i: 25 }) },
+    { name: 'Schematics', value: getCosSchematic(holesObject) },
+    { name: 'Companion', value: companionBonus },
+    { name: 'Statue', value: statueBonus },
+    { name: 'Jar', value: jarBonuses },
+    { name: 'Event shop', value: 25 * eventBonus },
+    { name: 'Bundle', value: 50 * (hasBundle ? 1 : 0) },
+    { name: 'Opal Invested', value: holesObject?.opalsInvested[t] },
+    { name: 'Arcade', value: arcadeBonus },
+    { name: 'Grimoire', value: grimoireBonus },
+    {
+      name: 'Village Majik', value: getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 }) +
+        getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 0 }) +
+        getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 1 }) +
+        getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 2 })
+    },
+    { name: 'Monument', value: getMonumentBonus({ holesObject, t: 0, i: 3 }) +
+        getMonumentBonus({ holesObject, t: 1, i: 3 }) },
+    { name: 'Measurements', value: getMeasurementBonus({ holesObject, accountData, t: 7 }) +
+        getMeasurementBonus({ holesObject, accountData, t: 0 }) },
+    { name: 'Cards', value: cardBonus },
+    { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
+    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') },
+  ];
+  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+  return {
+    value,
+    breakdown
+  }
 }
+
 const getVillagerExpReq = (level, index) => {
   return 1 === level && 0 === index ? 5 : 0 === index
-    ? 10 * ((10 + 7 * Math.pow(level, 2.1)) * Math.pow(2.1, level) * (1 + 0.75 * Math.max(0, level - 4)) - 1.5)
+    ? 10 * ((10 + 7 * Math.pow(level, 2.1)) * Math.pow(2.1, level)
+    * (1 + 0.75 * Math.max(0, level - 4))
+    * Math.pow(3.4, Math.min(1, Math.max(0, Math.floor(1e5 / 100247.3)))
+      * Math.max(0, level - 12)) - 1.5)
     : 1 === index
       ? 30 * (10 + 6 * Math.pow(level, 1.8)) * Math.pow(1.57, level)
       : 2 === index
         ? 50 * (10 + 5 * Math.pow(level, 1.7)) * Math.pow(1.4, level)
         : 3 === index
           ? 120 * (30 + 10 * Math.pow(level, 2)) * Math.pow(2, level)
-          : 10 * Math.pow(10, 20);
+          : 4 === index
+            ? 500 * (10 + 5 * Math.pow(level, 1.3)) * Math.pow(1.13, level)
+            : 10 * Math.pow(10, 20);
 }
 const getStudyReq = (holesObject, t) => {
   return 4e3 *
