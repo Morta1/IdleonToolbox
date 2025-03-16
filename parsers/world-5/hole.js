@@ -495,7 +495,6 @@ const getVillagerExpReq = (level, index) => {
       * Math.pow(2, level) : 4 === index ? 500
       * (10 + 5 * Math.pow(level, 1.3))
       * Math.pow(1.13, level) : 10 * Math.pow(10, 20);
-
 }
 const getStudyReq = (holesObject, t) => {
   return 4e3 *
@@ -533,7 +532,7 @@ const getStudies = (holesObject, villagerLevel, account) => {
     }
   });
 
-  const stampBonus = getStampsBonusByEffect(account, 'VillageStudy');
+  const stampBonus = getStampsBonusByEffect(account, 'Study_rate_for_Bolaia');
   const studyPerHour = 100 * (1 + ((5 +
       (getBucketBonus({ ...holesObject, t: 85, i: 2 })
         + (getBucketBonus({ ...holesObject, t: 87, i: 3 })

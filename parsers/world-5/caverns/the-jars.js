@@ -51,7 +51,7 @@ export const getTheJars = (holesObject, accountData) => {
     return holesObject?.wellSediment?.slice(20)?.[index] ?? '0';
   });
 
-  const collectibles = holesObject?.jarStuff?.slice(0, 16).map((level, index) => {
+  const collectibles = holesObject?.jarStuff?.slice(0, 40).map((level, index) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.split(' ')?.[index]?.split('|');
     const bonus = getJarBonus({ holesObject, i: index });
     return {
