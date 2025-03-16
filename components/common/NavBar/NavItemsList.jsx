@@ -9,7 +9,7 @@ import PinnedPages from '@components/common/favorites/PinnedPages';
 const NavItemsList = ({ drawer }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const { t, nt, ...updateQuery } = router?.query || {};
+  const { t, nt, dnt, ...updateQuery } = router?.query || {};
 
   return <Stack
     direction={drawer ? 'column' : 'row'}

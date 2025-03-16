@@ -1,5 +1,6 @@
 import { owlData } from '../../data/website-data';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 export const getOwl = (idleonData, accountData) => {
   return parseOwl(accountData);
@@ -49,6 +50,7 @@ const parseOwl = (account) => {
 
   const featherRate = (1 + 9 * getMegaFeather(account, 0))
     * (1 + vaultUpgradeBonus / 100)
+    * (1 + getGambitBonus(account, 8) / 100)
     * ((account?.accountOptions?.[254])
       + (5 * (account?.accountOptions?.[259])
         + (2 * getMegaFeather(account, 4)

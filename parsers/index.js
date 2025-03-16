@@ -107,6 +107,7 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
 const serializeData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData) => {
   const accountData = processedData?.accountData || {};
   let charactersData = processedData?.charactersData || [];
+  console.log('accountData', accountData?.statues)
   let serializedCharactersData = getCharacters(idleonData, charNames);
   accountData.accountCreateTime = accountCreateTime;
   accountData.companions = getCompanions(companion);
@@ -141,8 +142,8 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.sneaking = getSneaking(idleonData, serverVars, serializedCharactersData, accountData);
   accountData.farming = getFarming(idleonData, accountData, processedData?.charactersData);
   accountData.summoning = getSummoning(idleonData, accountData, serializedCharactersData);
+  accountData.statues = applyStatuesMulti(accountData, charactersData);
   accountData.hole = getHole(idleonData, accountData);
-  // lab dependencies: cooking, cards, gemShopPurchases, tasks, accountOptions, breeding, deathNote, storage
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.towers = getTowers(idleonData);
   accountData.shrines = getShrines(idleonData, accountData);

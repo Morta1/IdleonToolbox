@@ -97,12 +97,16 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       baseValue: rawValue
     };
   });
+
+  const gambitStuff = account?.hole?.holesObject?.gambitStuff;
   let upgrades = summoningUpgrades.map((upgrade, index) => {
+    const doubled = gambitStuff && gambitStuff?.includes(index);
     return {
       ...upgrade,
       originalIndex: index,
       level: upgradesLevels?.[index],
-      value: upgradesLevels?.[index] * upgrade.bonusQty
+      value: upgradesLevels?.[index] * upgrade.bonusQty * (doubled ? 2 : 1),
+      doubled
     }
   });
   upgrades = upgrades.map((upgrade, index) => {
@@ -130,7 +134,7 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     armyDamage,
     summoningStuff,
     highestEndlessLevel,
-    totalWins: allBattles?.flat()?.reduce((sum, {won})=> sum + (won ? 1 : 0) ,0) + highestEndlessLevel
+    totalWins: allBattles?.flat()?.reduce((sum, { won }) => sum + (won ? 1 : 0), 0) + highestEndlessLevel
   }
 }
 
@@ -142,13 +146,22 @@ export const getEndlessBattles = (battles = 100, highestEndlessLevel) => {
     const bonusId = summoningEndless.bonusIds?.[index];
     const bonus = summoningBonuses?.[bonusId - 1];
     const bonusQty = summoningEndless.bonusQuantities[index];
-    const actualBonus = bonus?.bonus?.includes('<') ? notateNumber(1 + bonusQty / 100, 'MultiplierInfo') : notateNumber(bonusQty, 'Big');
+    const actualBonus = bonus?.bonus?.includes('<')
+      ? notateNumber(1 + bonusQty / 100, 'MultiplierInfo')
+      : notateNumber(bonusQty, 'Big');
     bonus.bonus = bonus?.bonus?.replace(/[<{]/, actualBonus);
     const riftIndex = summoningEnemies.findIndex((enemy) => enemy.enemyId.includes('rift1'));
     const monsterId = Math.round(riftIndex + Math.min(4, Math.floor(i / 20)));
     const [name, ...rest] = summoningEndless.difficultiesText?.[difficultyIndex].split('|');
     const monster = summoningEnemies?.[monsterId];
-    endlessBattles.push({ ...monster, bonus, bonusQty, difficulty: { name, sentence: rest.join('_') }, won: highestEndlessLevel > i, icon: `etc/${monster?.enemyId}_monster` });
+    endlessBattles.push({
+      ...monster,
+      bonus,
+      bonusQty,
+      difficulty: { name, sentence: rest.join('_') },
+      won: highestEndlessLevel > i,
+      icon: `etc/${monster?.enemyId}_monster`
+    });
   }
   return endlessBattles;
 }

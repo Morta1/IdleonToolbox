@@ -35,7 +35,7 @@ const AccountDrawer = () => {
         value: 1
       })
     }
-    const { t, nt, ...updatedQuery } = router.query;
+    const { t, nt, dnt, ...updatedQuery } = router.query;
     router.push({ pathname: url, query: updatedQuery });
   }
 

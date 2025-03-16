@@ -1,6 +1,7 @@
 import { tryToParse } from '../utility/helpers';
 import { cogKeyMap, flagsReqs, randomList, towers } from '../data/website-data';
 import { createCogstructionData } from './cogstrution';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 export const getConstruction = (idleonData, account) => {
   const cogMapRaw = idleonData?.CogMap || tryToParse(idleonData?.CogM);
@@ -80,11 +81,11 @@ const swapElements = (board, index1, index2) => {
   const tempCog = { ...newBoard[index1]?.cog };
   newBoard[index1] = {
     ...newBoard[index1],
-    cog: { ...newBoard[index2]?.cog },
+    cog: { ...newBoard[index2]?.cog }
   };
   newBoard[index2] = {
     ...newBoard[index2],
-    cog: tempCog,
+    cog: tempCog
   };
 
   return newBoard;
@@ -234,7 +235,7 @@ export const getAllBoostedCogs = (board) => {
                 e: { ...curE, value: Math.ceil((curE?.value || 0) + (e?.value || 0)) },
                 f: { ...curF, value: Math.ceil((curF?.value || 0) + (f?.value || 0)) },
                 // flaggy rate
-                g: { ...curG, value: Math.ceil((curG?.value || 0) + (g?.value || 0)) },
+                g: { ...curG, value: Math.ceil((curG?.value || 0) + (g?.value || 0)) }
               }
             }
             relations[affectedIndex] = [...(relations[affectedIndex] || []), index];
@@ -284,11 +285,11 @@ export const getAffectedIndexes = (currentCog, x, y) => {
       }
       break;
     case 'corners':
-      affected.push([x - 2, y - 2,], [x + 2, y - 2,], [x - 2, y + 2,], [x + 2, y + 2,]);
+      affected.push([x - 2, y - 2], [x + 2, y - 2], [x - 2, y + 2], [x + 2, y + 2]);
       break;
     case 'around':
       affected.push([x, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x - 2, y], [x - 1, y], [x + 1, y],
-        [x + 2, y], [x - 1, y + 1], [x, y + 1,], [x + 1, y + 1], [x, y + 2]);
+        [x + 2, y], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1], [x, y + 2]);
       break;
     case 'everything':
       for (let l = 0; l < BOARD_Y; l++) {
@@ -361,7 +362,7 @@ export const constructionMasteryThresholds = [250, 500, 750, 1000, 1250, 1500, 2
 export const applyMaxLevelToTowers = (accountData) => {
   const atom = accountData?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
   return accountData?.towers?.data?.map((tower) => {
-    const extraLevels = getExtraMaxLevels(accountData?.towers?.totalLevels, tower?.maxLevel, atom?.level);
+    const extraLevels = getExtraMaxLevels(accountData, tower?.maxLevel, atom?.level);
     return {
       ...tower,
       maxLevel: tower?.maxLevel + extraLevels
@@ -382,11 +383,13 @@ const getConstructionMasteryBonus = (totalConstruct, index) => {
   }
   return 0;
 }
-export const getExtraMaxLevels = (totalConstruct, maxLevel, atomBonus) => {
-  return 50 === maxLevel ?
+
+export const getExtraMaxLevels = (account, maxLevel, atomBonus) => {
+  const totalConstruct = account?.towers?.totalLevels;
+  return   50 === maxLevel ?
     Math.round(2 * atomBonus
-      + getConstructionMasteryBonus(totalConstruct, 6, 0))
-    : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
-      : 100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
+      + (getConstructionMasteryBonus(totalConstruct, 6, 0) + 100 * getGambitBonus(account, 9))) : 101 === maxLevel ?
+      getConstructionMasteryBonus(totalConstruct, 4, 0) :
+      100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
         : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
 }

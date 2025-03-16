@@ -5,6 +5,7 @@ import { commaNotation, fillArrayToLength, notateNumber } from '@utility/helpers
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 export const getTheHarp = (holesObject, accountData) => {
   const stringSlots = getStringSlots(holesObject);
@@ -67,6 +68,7 @@ const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountDa
         + getHarpStringBonus(holesObject, 5))) / 100)
     * (1 + getHarpStringBonus(holesObject, 1) / 100)
     * (1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 100)
+    * (1 + getGambitBonus(accountData, 3) / 100)
     * (1 + getMonumentBonus({ holesObject, t: 1, i: 1 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 3 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 8 }) / 100)

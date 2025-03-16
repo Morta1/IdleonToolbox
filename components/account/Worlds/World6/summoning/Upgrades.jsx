@@ -20,6 +20,7 @@ const Upgrades = ({ upgrades }) => {
 
   return <Stack>
     <FormControlLabel
+      sx={{ width: 'fit-content' }}
       control={<Checkbox name={'mini'} checked={sortBy}
                          size={'small'}
                          onChange={() => setSortBy(!sortBy)}/>}
@@ -38,7 +39,7 @@ const Upgrades = ({ upgrades }) => {
                              name,
                              bonus,
                              totalBonus,
-                             bonusQty,
+                             doubled,
                              totalCost,
                              originalIndex,
                              colour
@@ -52,6 +53,9 @@ const Upgrades = ({ upgrades }) => {
                   <Typography>{cleanUnderscore(name)}</Typography>
                   <Typography variant={'caption'}>Lv. {level} / {maxLvl}</Typography>
                 </Stack>
+                {doubled ? <img style={{ marginLeft: 'auto' }} width={24} height={24}
+                                src={`${prefix}etc/Doubled.png`}
+                                alt={''}/> : null}
               </Stack>
               <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
               <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
@@ -70,7 +74,7 @@ const Upgrades = ({ upgrades }) => {
                                   name,
                                   bonus,
                                   totalBonus,
-                                  bonusQty,
+                                  doubled,
                                   totalCost,
                                   originalIndex
                                 }, index) => {
@@ -83,6 +87,9 @@ const Upgrades = ({ upgrades }) => {
                       <Typography>{cleanUnderscore(name)}</Typography>
                       <Typography variant={'caption'}>Lv. {level} / {maxLvl}</Typography>
                     </Stack>
+                    {doubled ? <img style={{ marginLeft: 'auto' }} width={24} height={24}
+                                    src={`${prefix}etc/Doubled.png`}
+                                    alt={''}/> : null}
                   </Stack>
                   <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
                   <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost

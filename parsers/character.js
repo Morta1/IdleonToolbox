@@ -97,6 +97,7 @@ import { getKangarooBonus } from '@parsers/world-2/kangaroo';
 import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -878,6 +879,7 @@ export const getCashMulti = (character, account, characters) => {
 
   const cashMulti = (1 + bubbles / 100)
     * (1 + 0.5 * eventBonus)
+    * (1 + getGambitBonus(account, 7) / 100)
     * (1 + (equipmentBonusMoney + obolsBonusMoney) / 100)
     * (1 + (250 * hasCashBundle) / 100)
     * (1 + (mealBonus

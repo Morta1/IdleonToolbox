@@ -19,7 +19,7 @@ const Hole = () => {
       description="Keep track of your hole progress, exp, upgrades, bonuses, schemas and more"
     />
     <Tabber
-      clearOnChange={['nt']}
+      clearOnChange={['nt', 'dnt']}
       tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole')}
       icons={['etc/Villager_0','etc/Villager_1', 'etc/Villager_2', 'etc/Villager_3', 'etc/Villager_4']}
     >

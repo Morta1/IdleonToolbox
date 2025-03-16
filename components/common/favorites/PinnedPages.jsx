@@ -39,7 +39,7 @@ const PinnedPages = ({}) => {
     }
   };
 
-  const handleNavigation = (url, tab, nestedTab) => {
+  const handleNavigation = (url, tab, nestedTab, deeplyNestedTab) => {
     setAnchorEl(null);
     let query = {}
     if (router.query.profile) {
@@ -50,8 +50,17 @@ const PinnedPages = ({}) => {
       if (nestedTab) {
         query.nt = nestedTab;
       }
+      if (deeplyNestedTab) {
+        query.dnt = deeplyNestedTab;
+      }
     }
     router.push({ pathname: url, query });
+  }
+
+  const truncateMiddle = (text, maxLength) => {
+    if (text.length <= maxLength) return text;
+    const half = Math.floor(maxLength / 2);
+    return text.slice(0, half) + '...' + text.slice(-half);
   }
 
   return (
@@ -86,18 +95,18 @@ const PinnedPages = ({}) => {
       </ListItemButton>
       {isXs ? <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <List>
-          {pinnedPages?.map(({ name, url, tab, nestedTab }, index) => {
+          {pinnedPages?.map(({ name, url, tab, nestedTab, deeplyNestedTab }, index) => {
             return <ListItem key={`${name}-${index}`}
                              secondaryAction={<IconButton size="small" onClick={(e) => {
                                e.stopPropagation();
                                removePin(index)
                              }}>
-                               <IconX size={20} />
+                               <IconX size={20}/>
                              </IconButton>}>
               <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}
-                              onClick={() => handleNavigation(url, tab, nestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
+                              onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
                 ? ` - ${tab}`
-                : ''}{nestedTab ? ` - ${nestedTab}` : ''}
+                : ''}{nestedTab ? ` - ${nestedTab}` : ''}{deeplyNestedTab ? ` - ${deeplyNestedTab}` : ''}
               </ListItemButton>
             </ListItem>
           })}
@@ -119,26 +128,29 @@ const PinnedPages = ({}) => {
       >
         <List sx={{ minWidth: 300 }}>
           {pinnedPages?.length > 0 ? (
-            pinnedPages.map(({ name, url, tab, nestedTab }, index) => (
-              <ListItem
-                sx={{ px: 1 }}
-                key={`${name}-${index}`}
-                dense
-                secondaryAction={<IconButton size="small" onClick={(e) => {
-                  e.stopPropagation();
-                  removePin(index)
-                }}>
-                  <IconX size={20} />
-                </IconButton>}
-                onClick={() => handleNavigation(url, tab, nestedTab)}
-              >
-                <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}>
-                  {name.replace('-', ' ').capitalizeAllWords()}
-                  {tab ? ` - ${tab}` : ''}
-                  {nestedTab ? ` - ${nestedTab}` : ''}
-                </ListItemButton>
-              </ListItem>
-            ))
+            pinnedPages.map(({ name, url, tab, nestedTab, deeplyNestedTab }, index) => {
+              const text = name.replace('-', ' ').capitalizeAllWords() + (tab ? ` - ${tab}` : '') + (nestedTab
+                ? ` - ${nestedTab}`
+                : '') + (deeplyNestedTab ? ` - ${deeplyNestedTab}` : '');
+              return (
+                <ListItem
+                  sx={{ px: 1 }}
+                  key={`${name}-${index}`}
+                  dense
+                  secondaryAction={<IconButton size="small" onClick={(e) => {
+                    e.stopPropagation();
+                    removePin(index)
+                  }}>
+                    <IconX size={20}/>
+                  </IconButton>}
+                  onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}
+                >
+                  <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}>
+                    {truncateMiddle(text, 30)}
+                  </ListItemButton>
+                </ListItem>
+              )
+            })
           ) : (
             <ListItem dense disabled>
               <ListItemText>

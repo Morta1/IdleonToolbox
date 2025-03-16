@@ -148,7 +148,7 @@ export const PAGES = {
             { tab: 'Explore', icon: 'etc/Cavern_7', nestedTab: 'The hive' },
             { tab: 'Explore', icon: 'etc/Cavern_8', nestedTab: 'Grotto' },
             { tab: 'Explore', icon: 'etc/Cavern_9', nestedTab: 'Justice' },
-            { tab: 'Explore', icon: 'etc/Cavern_10', nestedTab: 'The Jars' },
+            { tab: 'Explore', icon: 'etc/Cavern_10', nestedTab: 'The Jars', nestedTabs: ['Jars', 'Collectibles'] },
             { tab: 'Explore', icon: 'etc/Cavern_11', nestedTab: 'Evertree' },
             { tab: 'Explore', icon: 'etc/Cavern_12', nestedTab: 'Wisdom' },
             { tab: 'Explore', icon: 'etc/Cavern_13', nestedTab: 'Gambit' },

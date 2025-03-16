@@ -69,6 +69,11 @@ const TheBell = ({ hole }) => {
                      alt={'particles-cost-' + index}/>
                 <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
               </Stack> : null}
+              {costType === 'rupie' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
+                <img src={`${prefix}data/HoleJarR5.png`}
+                     alt={'rupie-cost-' + index}/>
+                <Typography>{notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}</Typography>
+              </Stack> : null}
               {costType === 'unknown' ? <Stack direction={'row'} alignItems={'center'} gap={2}>
                 <img src={`${prefix}afk_targets/Nothing.png`}
                      alt={'unknown-cost-' + index}/>

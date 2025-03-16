@@ -32,7 +32,8 @@ const Bonuses = ({ hole }) => {
           {majik.map(({ description, bonus, level, hasDoot, godsLinks, maxLevel }, bonusIndex) => {
             let desc = description.replace('}', Math.round(100 * (1 + bonus / 100)) / 100)
               .replace('{', bonus)
-              .replace('|', Math.round(bonus * hole?.cosmoSchematics));
+              .replace('|', Math.round(bonus * hole?.cosmoSchematics))
+              .replace('\$', Math.round(Math.floor((hole?.leastOpalInvestedVillager ?? 0) / 5) * bonus));
             if (hasDoot){
               desc = desc.replace('@_Y', '').replace('@_Z', '');
             }

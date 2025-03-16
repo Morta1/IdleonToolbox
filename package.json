@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "npx serve@latest out",
     "postbuild": "node utility/generate-sitemap.mjs",
-    "test": "cypress run",
+    "test": "jest",
     "lint": "next lint",
     "prepare": "husky || true"
   },
@@ -26,7 +26,6 @@
     "@tabler/icons-react": "^3.30.0",
     "@types/react": "^18.3.18",
     "core-js": "^3.39.0",
-    "cypress": "^13.11.0",
     "date-fns": "^2.28.0",
     "firebase": "^9.22.0",
     "flubber": "^0.4.2",
@@ -45,10 +44,16 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^20.11.5",
     "@types/react-dom": "^18.2.18",
     "eslint": "8.13.0",
     "eslint-config-next": "^13.4.1",
-    "eslint-plugin-cypress": "^3.3.0"
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^26.0.0",
+    "ts-node": "^10.9.2"
   }
 }

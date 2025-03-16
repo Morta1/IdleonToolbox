@@ -35,7 +35,7 @@ const QuickSearch = () => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const breakpoint = useMediaQuery('(max-width: 1365px)', { noSsr: true });
   const router = useRouter();
-  const { t, nt, ...updateQuery } = router?.query || {};
+  const { t, nt, dnt, ...updateQuery } = router?.query || {};
 
   // Format label to add spaces between words
   const formatLabel = (str) => {
@@ -103,7 +103,7 @@ const QuickSearch = () => {
 
           // Add nested tabs if they exist
           if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
-            subCategory.nestedTabs.forEach(({ tab, nestedTab, icon }) => {
+            subCategory.nestedTabs.forEach(({ tab, nestedTab, nestedTabs, icon }) => {
               items.push({
                 label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab}`,
                 url: baseUrl,
@@ -112,6 +112,19 @@ const QuickSearch = () => {
                 icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
                 isNestedTab: true
               });
+
+              if (nestedTabs && nestedTabs.length > 0) {
+                nestedTabs.forEach(deepNestedTab => {
+                  items.push({
+                    label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab} - ${deepNestedTab}`,
+                    url: baseUrl,
+                    queryParams: { t: tab, nt: nestedTab, dnt: deepNestedTab },
+                    section: `${formatLabel(category)} - Deep Nested Tabs`,
+                    icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+                    isDeepNestedTab: true
+                  });
+                });
+              }
             });
           }
         });

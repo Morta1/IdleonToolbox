@@ -71,7 +71,7 @@ export const getTotalCardBonusById = (cards, bonusId) => {
 
 export const getCardBonusByEffect = (cards, effectName) => {
   return Object.values(cards || {})?.reduce((sum, card) => {
-    if (!card?.effect?.includes(effectName)) return sum;
+    if (!card?.effect?.includes(effectName) || card?.amount <= 0) return sum;
     return sum + calcCardBonus(card);
   }, 0);
 }

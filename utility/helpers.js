@@ -2,13 +2,28 @@ import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } fr
 import { drawerPages } from '@components/constants';
 import merge from 'lodash.merge';
 
-export const getTabs = (array, label, tabName) => {
+export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);
+
+  if (!navItem) return [];
+
+  // If we're looking for a specific tab's nested tabs
   if (tabName) {
-    return navItem?.nestedTabs?.filter((item) => item.tab === tabName)?.map(({ nestedTab }) => nestedTab);
+    const nestedItems = navItem.nestedTabs?.filter((item) => item.tab === tabName);
+
+    // If we're looking for a specific nested tab's nested tabs
+    if (nestedTabName) {
+      const deepNestedItem = nestedItems?.find((item) => item.nestedTab === nestedTabName);
+      return deepNestedItem?.nestedTabs || [];
+    }
+
+    // Just return the nested tab names for the specified tab
+    return nestedItems?.map(({ nestedTab }) => nestedTab) || [];
   }
-  return navItem?.tabs?.map((item) => item?.tab || item);
-}
+
+  // Return top-level tabs
+  return navItem.tabs?.map((item) => item?.tab || item) || [];
+};
 
 export const downloadFile = (data, filename) => {
   const blob = new Blob([data], { type: 'text/json' });

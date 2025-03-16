@@ -62,7 +62,7 @@ const getImprovementMethodCostType = (holesObject, accountData, index) => {
     return { costType: 'particles', owned: accountData?.atoms?.particles };
   }
   if (index === 5) {
-    return { costType: 'unknown', owned: Math.max(0, holesObject?.wellSediment?.[25] ?? 0) };
+    return { costType: 'rupie', owned: Math.max(0, holesObject?.wellSediment?.[25] ?? 0) };
   }
   return { costType: '', owned: 0 };
 }

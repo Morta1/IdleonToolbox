@@ -4,6 +4,7 @@ import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 export const getTheWell = (holesObject, accountData) => {
   const { wellSediment, sedimentMulti, wellBuckets } = holesObject;
@@ -137,6 +138,7 @@ const getBucketFillRate = (holesObject, accountData) => {
     * (1 + accountData.gemShopPurchases[2] / 2)
     * (1 + getMonumentBonus({ holesObject, t: 0, i: 1 }) / 100)
     * (1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 100)
+    * (1 + getGambitBonus(accountData, 3) / 100)
     * Math.max(1, getBucketBonus({ ...holesObject, t: 15, i: 1 })
       * Math.pow(1.1, holesObject?.extraCalculations[1]))
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 5 }) / 100)

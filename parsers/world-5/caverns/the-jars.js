@@ -44,11 +44,24 @@ export const getTheJars = (holesObject, accountData) => {
     return {
       progress: holesObject?.jarProgress?.[index + 3],
       jarType: holesObject?.jarProgress?.[index],
-      req: jars?.[index]?.req
+      req: jars?.[holesObject?.jarProgress?.[index]]?.req
     }
   });
   const rupies = createRange(0, 11).map((index) => {
     return holesObject?.wellSediment?.slice(20)?.[index] ?? '0';
+  });
+
+  const collectibles = holesObject?.jarStuff?.slice(0, 16).map((level, index) => {
+    const [name, bonusModifier, , description] = holesInfo?.[67]?.split(' ')?.[index]?.split('|');
+    const bonus = getJarBonus({ holesObject, i: index });
+    return {
+      level,
+      bonus,
+      name: cleanUnderscore(name).toLowerCase().capitalizeAllWords(),
+      bonusModifier,
+      description: description.replace('{', bonus).replace('}', 1 + bonus / 100),
+      doubled: holesObject?.extraCalculations?.[62] === index
+    }
   });
 
   return {
@@ -60,7 +73,8 @@ export const getTheJars = (holesObject, accountData) => {
     activeSlots,
     rupies,
     perHour,
-    jars
+    jars,
+    collectibles
   }
 }
 

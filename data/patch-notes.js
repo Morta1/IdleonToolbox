@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.94',
+    'gameVer': '2.0.32',
+    'date': '16/03/2025',
+    'features': [
+      'Updated the website with version 2.0.32 data',
+      'Added Gambit page and applied gambit bonuses across the website',
+      'Added summoners doublers indication in summoning upgrades page'
+    ],
+    'fixes': [
+      'Fixed equinox rate calc',
+      'Fixed villager exp per hour calc'
+    ]
+  },
+  {
     'ver': '3.2.93',
     'gameVer': '2.0.31',
     'date': '14/03/2025',

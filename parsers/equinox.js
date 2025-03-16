@@ -1,9 +1,10 @@
 import { equinoxChallenges, equinoxUpgrades } from '../data/website-data';
 import { tryToParse } from '../utility/helpers';
 import { getVialsBonusByStat } from 'parsers/alchemy';
-import { getEventShopBonus, isBundlePurchased } from './misc';
+import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from './misc';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getCosmoBonus } from '@parsers/world-5/hole';
 
 export const getEquinox = (idleonData, account) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -32,19 +33,26 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
   const eventShopBonus = getEventShopBonus(account, 3);
+  const companionBonus = isCompanionBonusActive(account, 15) ? 1 : 0;
+  const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 });
 
-  const base = (1 + (eqBarVial + (10 *
-    (clouds[3] === -1)
-    + (15 * (clouds[9] === -1)
-      + (20 * (clouds[14] === -1)
-        + (25 * (clouds[19] === -1)
-          + (30 * (clouds[22] === -1)
-            + (35 * (clouds[24] === -1)
-              + 40 * (clouds[29] === -1)))))))) / 100);
+  const additive = (eqBarVial +
+    (10 * (clouds[3] === -1)
+      + (15 * (clouds[9] === -1)
+        + (20 * (clouds[14] === -1)
+          + (25 * (clouds[19] === -1)
+            + (30 * (clouds[22] === -1)
+              + (35 * (clouds[24] === -1)
+                + 40 * (clouds[29] === -1))))))));
 
-  const chargeRate = (bundleBonus
-    ? Math.round(90 * (1 + voteBonus / 100) * (1 + account?.accountOptions?.[320] / 10) * (1 + 0.5 * eventShopBonus) * base)
-    : Math.round(60 * (1 + voteBonus / 100) * (1 + account?.accountOptions?.[320] / 10) * (1 + 0.5 * eventShopBonus) * base))
+  const base = (1 + voteBonus / 100)
+    * (1 + companionBonus)
+    * (1 + cosmoBonus / 100)
+    * (1 + .5 * eventShopBonus)
+    * (1 + account?.accountOptions?.[320] / 10)
+    * (1 + additive / 100);
+
+  const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base);
 
   const chargeRequired = Math.round((120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade));
   const currentCharge = dream?.[0];

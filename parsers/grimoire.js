@@ -3,6 +3,7 @@ import { grimoire, monsters, randomList } from '../data/website-data';
 import { getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getCharacterByHighestLevel } from '@parsers/misc';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 export const getGrimoire = (idleonData, charactersData, accountData) => {
   const grimoireRaw = tryToParse(idleonData?.Grimoire) || idleonData?.Grimoire;
@@ -144,6 +145,7 @@ const getExtraBonesBonus = (upgrades, characters, accountData) => {
 
   const gearBonus = getStatsFromGear(highestLevelDeathBringer, 76, accountData);
   return (1 + grimoire / 100)
+    * Math.min(2, 1 + getGambitBonus(accountData, 12))
     * Math.min(1.5, 1 + gearBonus / 100)
     * (1 + (calcGrimoireBonus(upgrades, 23) +
       calcGrimoireBonus(upgrades, 48)

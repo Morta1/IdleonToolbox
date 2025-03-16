@@ -40,6 +40,7 @@ const Explore = ({ hole }) => {
     <Divider sx={{ mb: 3 }}/>
     <Tabber
       queryKey={'nt'}
+      clearOnChange={['dnt']}
       iconsOnly
       forceScroll={breakpoint}
       tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore')}

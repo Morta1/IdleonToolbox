@@ -1,6 +1,7 @@
 import { poppyBonuses, poppyTarBonuses } from '../../data/website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 export const getKangaroo = (idleonData, accountData) => {
   return parseKangaroo(accountData);
@@ -65,6 +66,7 @@ const parseKangaroo = (account) => {
     * Math.max(1, 1 + 0.5 * (account?.accountOptions?.[275] - 5)
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
     * (1 + vaultUpgradeBonus / 100)
+    * (1 + getGambitBonus(account, 8) / 100)
     * (10 * account?.accountOptions?.[268] + (100 * account?.accountOptions?.[297] +
       1e3 * account?.accountOptions?.[304]) + (50 * account?.accountOptions?.[273]
       + 200 * account?.accountOptions?.[278])) * getShinyMulti(account, -1)
