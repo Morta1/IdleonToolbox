@@ -10,7 +10,7 @@ import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
 import { NextLinkComposed } from '../../NextLinkComposed';
 import Link from '@mui/material/Link';
-import { Divider, Stack } from '@mui/material';
+import { Divider, Stack, useMediaQuery } from '@mui/material';
 import AccountDrawer from './AccountDrawer';
 import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
@@ -21,6 +21,7 @@ const AppDrawer = ({ permanent }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
   useEffect(() => {
     setOpen(false);
@@ -54,7 +55,7 @@ const AppDrawer = ({ permanent }) => {
             color="inherit" noWrap variant={'h6'}
       >
         <img src={`${prefix}data/Coins5.png`} alt={''}/>
-        <span>Idleon Toolbox</span>
+        <span>{isXs ? "IT" : 'Idleon Toolbox'}</span>
       </Link>
     </Stack> : null}
     {permanent ? <StyledDrawer variant={'permanent'} open sx={{

@@ -107,7 +107,6 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
 const serializeData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData) => {
   const accountData = processedData?.accountData || {};
   let charactersData = processedData?.charactersData || [];
-  console.log('accountData', accountData?.statues)
   let serializedCharactersData = getCharacters(idleonData, charNames);
   accountData.accountCreateTime = accountCreateTime;
   accountData.companions = getCompanions(companion);
