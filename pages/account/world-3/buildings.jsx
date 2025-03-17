@@ -58,7 +58,7 @@ const Buildings = () => {
       const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
       const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
       const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
-      let extraLevels = getExtraMaxLevels(state?.account?.towers?.totalLevels, maxLevel, atom?.level);
+      let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level);
       maxLevel += extraLevels;
       const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
       const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;

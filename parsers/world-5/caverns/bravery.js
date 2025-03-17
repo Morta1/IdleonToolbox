@@ -61,8 +61,12 @@ export const getBravery = (holesObject) => {
 }
 
 export const getMonumentMultiReward = (holesObject, t) => {
-  return Math.min((holesObject?.extraCalculations?.[Math.round(11 + t)]), 172800)
-    / 72e3 + (Math.pow(1 + Math.max(0, (holesObject?.extraCalculations?.[Math.round(11 + t)]) - 172800) / 72e3, 0.3) - 1)
+  const maxLinearTime = 1 === t ? 86400 * (2 +
+    getBucketBonus({ ...holesObject, t: 70, i: 2 })
+    + 14 * getStudyBonus(holesObject, 9, 99))
+    : 86400 * (2 + getBucketBonus({ ...holesObject, t: 70, i: 2 }));
+  return Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
+    + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1);
 }
 
 const getBraveryMinDamage = (holesObject) => {

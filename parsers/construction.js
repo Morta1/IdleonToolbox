@@ -386,10 +386,10 @@ const getConstructionMasteryBonus = (totalConstruct, index) => {
 
 export const getExtraMaxLevels = (account, maxLevel, atomBonus) => {
   const totalConstruct = account?.towers?.totalLevels;
-  return   50 === maxLevel ?
-    Math.round(2 * atomBonus
-      + (getConstructionMasteryBonus(totalConstruct, 6, 0) + 100 * getGambitBonus(account, 9))) : 101 === maxLevel ?
-      getConstructionMasteryBonus(totalConstruct, 4, 0) :
-      100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
+  return 50 === maxLevel ? Math.round(2 * atomBonus
+      + (getConstructionMasteryBonus(totalConstruct, 6, 0)
+        + 100 * getGambitBonus(account, 9)))
+    : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
+      : 100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
         : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
 }
