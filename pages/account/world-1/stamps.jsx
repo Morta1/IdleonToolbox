@@ -68,10 +68,10 @@ const Stamps = () => {
     if (level <= 0) return '';
     if (!hasMoney) {
       return 'warning.light';
-    } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
-      return 'error.light';
     } else if (!enoughPlayerStorage) {
       return '#e3e310'
+    } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
+      return 'error.light';
     } else if (materials.length > 0) {
       return ''
     } else if (materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage) {

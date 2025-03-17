@@ -26,9 +26,10 @@ import CardsSection from '@components/tools/active-calculator/CardsSection';
 import PetSection from '@components/tools/active-calculator/PetSection';
 import { checkCharClass } from '@parsers/talents';
 import CoinsSection from '@components/tools/active-calculator/CoinsSection';
+import CauldronsSection from '@components/tools/active-calculator/CauldronsSection';
 
 
-const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops'];
+const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons'];
 
 const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
@@ -41,13 +42,19 @@ const ActiveStuffCalculator = () => {
   });
   const [selectedChar, setSelectedChar] = useState('0');
   const isBeastMaster = checkCharClass(state?.characters?.[selectedChar]?.class, 'Beast_Master');
+  const isShaman = checkCharClass(state?.characters?.[selectedChar]?.class, 'Shaman');
 
   useEffect(() => {
     if (snapshottedChar) {
       setSelectedChar(snapshottedChar?.playerId + '');
+      let currentSections = selectedSections;
       if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Beast_Master')) {
-        setSelectedSections(selectedSections.filter((name) => name !== 'pets'));
+        currentSections = currentSections.filter((name) => name !== 'pets');
       }
+      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Shaman')) {
+        currentSections = currentSections.filter((name) => name !== 'cauldrons');
+      }
+      setSelectedSections(currentSections);
     }
   }, [snapshottedChar, snapshottedAcc]);
 
@@ -56,9 +63,14 @@ const ActiveStuffCalculator = () => {
   }
 
   const handleCharChange = (e) => {
+    let currentSections = selectedSections;
     if (!checkCharClass(state?.characters?.[e.target?.value?.playerId]?.class, 'Beast_Master')) {
-      setSelectedSections(selectedSections.filter((name) => name !== 'pets'));
+      currentSections = currentSections.filter((name) => name !== 'pets');
     }
+    if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Shaman')) {
+      currentSections = currentSections.filter((name) => name !== 'cauldrons');
+    }
+    setSelectedSections(currentSections);
     setSelectedChar(e.target.value);
   }
 
@@ -121,6 +133,7 @@ const ActiveStuffCalculator = () => {
       <ToggleButtonGroup value={selectedSections} onChange={handleSections}>
         {sections.map((section) => {
           if (section === 'pets' && !isBeastMaster) return null;
+          if (section === 'cauldrons' && !isShaman) return null;
           return <ToggleButton key={section} value={section}>{section.camelToTitleCase()}</ToggleButton>
         })}
       </ToggleButtonGroup>
@@ -149,6 +162,7 @@ const ActiveStuffCalculator = () => {
         {isDisplayed('exp') ? <ExpSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('cards') ? <CardsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('drops') ? <DropSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
+        {isDisplayed('cauldrons') ? <CauldronsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
       </>}
   </>;
 };
