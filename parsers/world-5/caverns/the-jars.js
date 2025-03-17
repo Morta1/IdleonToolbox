@@ -90,7 +90,7 @@ const getRupieType = ({ holesObject, t }) => {
 }
 
 const getRupieValue = ({ holesObject, accountData }) => {
-  const stampBonus = getStampsBonusByEffect(accountData, 'CavernRes') || 0;
+  const stampBonus = getStampsBonusByEffect(accountData, 'more_Resources_from_all_Caverns') || 0;
   return (1 + (getBucketBonus({ ...holesObject, t: 62, i: 1 })
       + (getBucketBonus({ ...holesObject, t: 65, i: 2 })
         + getBucketBonus({ ...holesObject, t: 68, i: 4 }))))
