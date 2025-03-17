@@ -1,5 +1,5 @@
 import { holesInfo } from '../../../data/website-data';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 
@@ -7,7 +7,7 @@ export const getTheBell = (holesObject, accountData) => {
   const bellMethodsOwned = Math.min(6, holesObject?.bellRelated?.[5] + 1);
   const newMethodChance = Math.min((0.6 / Math.max(1, 0.8
       * holesObject?.bellRelated?.[5] + 1))
-    * (1 + (getBucketBonus({ ...holesObject, t: 43, i: 25 })
+    * (1 + (getSchematicBonus({ holesObject, t: 43, i: 25 })
       * holesObject?.extraCalculations?.[31]) / 100), 0.9);
   const bellsDescriptions = ['Ring_the_bell_to_get_+{_LV_of_a_random_bonus!',
     'Ping_the_bell_to_find_an_opal_instantly!', 'Clean_the_bell_for_a_}%_chance_to_unlock_a_new_improvement_method!',
@@ -113,7 +113,7 @@ const getBellExpRate = (holesObject, accountData, t) => {
 }
 const getBellMethodQuantity = (holesObject, t) => {
   return 2 * holesObject?.bellImprovementMethods?.[t]
-    * Math.max(1, getBucketBonus({ ...holesObject, t: 45, i: 0 }) * holesInfo?.[61]?.split(' ')?.[t]);
+    * Math.max(1, getSchematicBonus({ holesObject, t: 45, i: 0 }) * holesInfo?.[61]?.split(' ')?.[t]);
 }
 export const getBellBonus = ({ holesObject, t }) => {
   const info = holesInfo[59]?.split(' ')

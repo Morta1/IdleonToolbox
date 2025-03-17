@@ -23,7 +23,7 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGrimoireBonus } from '@parsers/grimoire';
@@ -252,7 +252,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const voteBonus = getVoteBonus(account, 13);
     const holesObject = account?.hole?.holesObject;
     const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 2 });
-    const bucketBonus = getBucketBonus({ ...holesObject, t: 56, i: 0 });
+    const schematicBonus = getSchematicBonus({ holesObject, t: 56, i: 0 });
     const lampBonus = getLampBonus({ holesObject, t: 0, i: 0 });
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 54);
 
@@ -279,7 +279,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       * (1 + starSignBonus / 100)
       * (1 + winnerBonus / 100)
       * (1 + monumentBonus / 100)
-      * Math.max(1, bucketBonus)
+      * Math.max(1, schematicBonus)
       * (1 + cardCookingMulti / 100)
       * (1 + lampBonus / 100)
       * (1 + extraCookingSpeedVials / 100)
@@ -313,7 +313,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     //   console.log('starSignBonus:', starSignBonus);
     //   console.log('winnerBonus:', winnerBonus);
     //   console.log('monumentBonus:', monumentBonus);
-    //   console.log('bucketBonus:', bucketBonus);
+    //   console.log('schematicBonus:', schematicBonus);
     //   console.log('cardCookingMulti:', cardCookingMulti);
     //   console.log('lampBonus:', lampBonus);
     //   console.log('extraCookingSpeedVials:', extraCookingSpeedVials);

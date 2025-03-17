@@ -1,6 +1,6 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '../../data/website-data';
-import { getBucketBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
 import { getMotherlode } from '@parsers/world-5/caverns/motherlode';
 import { getTheDen } from '@parsers/world-5/caverns/the-den';
 import { getBravery, getMonumentBonus } from '@parsers/world-5/caverns/bravery';
@@ -413,7 +413,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
         + (getJarBonus({ holesObject, i: 22 })
           + (getJarBonus({ holesObject, i: 29 })
             + getJarBonus({ holesObject, i: 35 })))))
-  const value = (100 + getBucketBonus({ ...holesObject, t: 0, i: 25 }))
+  const value = (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
     * Math.max(1, (1 + 2 * companionBonus)
       * (1 + statueBonus / 100)
       * (1 + (jarBonuses) / 100)
@@ -433,14 +433,14 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
             + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 1 })
               * getCosSchematic(holesObject)
               + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 2 })
-                + (getBucketBonus({ ...holesObject, t: 48, i: 0 })
+                + (getSchematicBonus({ holesObject, t: 48, i: 0 })
                   + (cardBonus
                     + (getBellBonus({ holesObject, t: 1 })
                       + (getMeasurementBonus({ holesObject, accountData, t: 0 })
                         + getWinnerBonus(accountData, '+{% Villager EXP'))))))))))) / 100);
 
   const breakdown = [
-    { name: 'Opal Dividends', value: getBucketBonus({ ...holesObject, t: 0, i: 25 }) },
+    { name: 'Opal Dividends', value: getSchematicBonus({ holesObject, t: 0, i: 25 }) },
     { name: 'Schematics', value: getCosSchematic(holesObject) },
     { name: 'Companion', value: companionBonus ? 3 : 0 },
     { name: 'Statue', value: statueBonus },
@@ -534,9 +534,9 @@ const getStudies = (holesObject, villagerLevel, account) => {
 
   const stampBonus = getStampsBonusByEffect(account, 'Study_rate_for_Bolaia');
   const studyPerHour = 100 * (1 + ((5 +
-      (getBucketBonus({ ...holesObject, t: 85, i: 2 })
-        + (getBucketBonus({ ...holesObject, t: 87, i: 3 })
-          + getBucketBonus({ ...holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)
+      (getSchematicBonus({ holesObject, t: 85, i: 2 })
+        + (getSchematicBonus({ holesObject, t: 87, i: 3 })
+          + getSchematicBonus({ holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)
     * (1 + (getJarBonus({ holesObject, i: 16 })
       + (stampBonus
         + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 4 }))) / 100);

@@ -1,6 +1,6 @@
 import { holesInfo } from '../../../data/website-data';
 import { getCosmoBonus, getStudyBonus } from '@parsers/world-5/hole';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { fillArrayToLength, notateNumber } from '@utility/helpers';
 
 export const getBravery = (holesObject) => {
@@ -62,22 +62,22 @@ export const getBravery = (holesObject) => {
 
 export const getMonumentMultiReward = (holesObject, t) => {
   const maxLinearTime = 1 === t ? 86400 * (2 +
-    getBucketBonus({ ...holesObject, t: 70, i: 2 })
+    getSchematicBonus({ holesObject, t: 70, i: 2 })
     + 14 * getStudyBonus(holesObject, 9, 99))
-    : 86400 * (2 + getBucketBonus({ ...holesObject, t: 70, i: 2 }));
+    : 86400 * (2 + getSchematicBonus({ holesObject, t: 70, i: 2 }));
   return Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
     + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1);
 }
 
 const getBraveryMinDamage = (holesObject) => {
   return 3 + Math.floor(holesObject?.braveryMonument?.[0] / 6)
-    * getBucketBonus({ ...holesObject, t: 24, i: 1 })
+    * getSchematicBonus({ holesObject, t: 24, i: 1 })
     + (getStudyBonus(holesObject, 3, 0) / 100)
     * getBraveryMaxDamage(holesObject)
 }
 const getBraveryMaxDamage = (holesObject) => {
   return (25 + 10 * Math.floor(holesObject?.braveryMonument?.[0] / 6)
-    * getBucketBonus({ ...holesObject, t: 24, i: 1 }))
+    * getSchematicBonus({ holesObject, t: 24, i: 1 }))
 }
 
 export const getMonumentHourBonus = ({ holesObject, t, i }) => {

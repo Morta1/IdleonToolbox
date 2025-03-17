@@ -1,4 +1,4 @@
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { holesInfo } from '../../../data/website-data';
 import { commaNotation, fillArrayToLength, notateNumber } from '@utility/helpers';
@@ -61,7 +61,7 @@ export const getTheHarp = (holesObject, accountData) => {
 const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountData }) => {
   return ((power / 100)
     * getHarpStringAllBonus(holesObject, stringTypes, power)
-    * Math.max(1, getBucketBonus({ ...holesObject, t: 41, i: 1 })
+    * Math.max(1, getSchematicBonus({ holesObject, t: 41, i: 1 })
       * Math.pow(1.1, holesObject?.extraCalculations?.[3]))
     * (1 + (getHarpStringBonus(holesObject, 0)
       + (getHarpStringBonus(holesObject, 3)
@@ -102,11 +102,11 @@ const getHarpStringBonus = (holesObject, t) => {
 }
 const getStringSlots = (holesObject) => {
   return Math.min(15, Math.round(1 + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 1 })
-    + (getBucketBonus({ ...holesObject, t: 32, i: 1 })
-      + (getBucketBonus({ ...holesObject, t: 33, i: 1 })
-        + (getBucketBonus({ ...holesObject, t: 34, i: 1 })
-          + (getBucketBonus({ ...holesObject, t: 35, i: 1 })
-            + getBucketBonus({ ...holesObject, t: 36, i: 1 })))))))
+    + (getSchematicBonus({ holesObject, t: 32, i: 1 })
+      + (getSchematicBonus({ holesObject, t: 33, i: 1 })
+        + (getSchematicBonus({ holesObject, t: 34, i: 1 })
+          + (getSchematicBonus({ holesObject, t: 35, i: 1 })
+            + getSchematicBonus({ holesObject, t: 36, i: 1 })))))))
 }
 
 const getStringTypesOwned = (holesObject) => {
@@ -129,10 +129,10 @@ const getNewNoteCost = (holesObject) => {
 }
 
 const getHarpStringAllBonus = (holesObject, stringTypes, power) => {
-  return 1 + (getBucketBonus({ ...holesObject, t: 39, i: 15 })
-    + (getBucketBonus({ ...holesObject, t: 37, i: 20 })
+  return 1 + (getSchematicBonus({ holesObject, t: 39, i: 15 })
+    + (getSchematicBonus({ holesObject, t: 37, i: 20 })
       * (power)
-      + getBucketBonus({ ...holesObject, t: 38, i: 30 })
+      + getSchematicBonus({ holesObject, t: 38, i: 30 })
       * (stringTypes)
     )) / 100;
 }

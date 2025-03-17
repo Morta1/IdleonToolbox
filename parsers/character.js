@@ -94,7 +94,7 @@ import { getOwlBonus } from '@parsers/world-1/owl';
 import { getLandRank } from '@parsers/world-6/farming';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -695,7 +695,7 @@ export const getDropRate = (character, account, characters) => {
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
   const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
   const voteBonus = getVoteBonus(account, 27);
-  const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 46, i: 0 });
+  const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 46, i: 0 });
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
   const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value;
@@ -728,7 +728,7 @@ export const getDropRate = (character, account, characters) => {
     owlBonus +
     landRankBonus +
     voteBonus +
-    bucketBonus +
+    schematicBonus +
     cropDepotBonus +
     grimoireBonus +
     upgradeVaultBonus;
@@ -792,7 +792,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Land rank', value: landRankBonus / 100 },
     { name: 'Vote', value: voteBonus },
-    { name: 'Gloomie Lootie', value: bucketBonus / 100 },
+    { name: 'Gloomie Lootie', value: schematicBonus / 100 },
     { name: 'Grimoire', value: grimoireBonus / 100 },
     { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
     { name: 'Crop Depot', value: cropDepotBonus / 100 },

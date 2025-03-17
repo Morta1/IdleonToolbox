@@ -1,5 +1,5 @@
 import { commaNotation, notateNumber } from '@utility/helpers';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesInfo } from '../../../data/website-data';
 
 export const getTheDen = (holesObject) => {
@@ -36,7 +36,7 @@ const getAmpStoneMulti = (holesObject) => {
     let amplifierLevel = (holesObject?.dawgDenAmplifierLevels[t]);
     base = currentTotal + amplifierLevel;
   }
-  return 0.5 * getBucketBonus({ ...holesObject, t: 23, i: 1 })
+  return 0.5 * getSchematicBonus({ holesObject, t: 23, i: 1 })
     * Math.floor(base / 10)
     + (11 * (holesObject?.dawgDenAmplifierLevels[0])
       + (9 * (holesObject?.dawgDenAmplifierLevels[1])
@@ -49,10 +49,10 @@ const getAmpStoneMulti = (holesObject) => {
 
 }
 const getAmpStonesOwned = (holesObject) => {
-  return Math.round(1 + (getBucketBonus({ ...holesObject, t: 16, i: 1 })
-    + (getBucketBonus({ ...holesObject, t: 17, i: 1 }) + (getBucketBonus({ ...holesObject, t: 18, i: 1 })
-      + (getBucketBonus({ ...holesObject, t: 19, i: 1 }) + (getBucketBonus({ ...holesObject, t: 20, i: 1 })
-        + (getBucketBonus({ ...holesObject, t: 21, i: 1 }) + getBucketBonus({ ...holesObject, t: 22, i: 1 }))))))));
+  return Math.round(1 + (getSchematicBonus({ holesObject, t: 16, i: 1 })
+    + (getSchematicBonus({ holesObject, t: 17, i: 1 }) + (getSchematicBonus({ holesObject, t: 18, i: 1 })
+      + (getSchematicBonus({ holesObject, t: 19, i: 1 }) + (getSchematicBonus({ holesObject, t: 20, i: 1 })
+        + (getSchematicBonus({ holesObject, t: 21, i: 1 }) + getSchematicBonus({ holesObject, t: 22, i: 1 }))))))));
 
 }
 const getAmpDebuff = (holesObject, t) => {

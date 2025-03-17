@@ -1,6 +1,6 @@
 import { lavaLog2, notateNumber } from '@utility/helpers';
 import { getStudyBonus } from '@parsers/world-5/hole';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 
 const bonusNames = [
@@ -47,5 +47,5 @@ const getTorchBonus = (holesObject, t) => {
 
 const getExtraTorches = (holesObject) => {
   return getBellBonus({ holesObject, t: 5 })
-    + (getStudyBonus(holesObject, 14, 0) + getBucketBonus({ ...holesObject, t: 77, i: 25 }));
+    + (getStudyBonus(holesObject, 14, 0) + getSchematicBonus({ holesObject, t: 77, i: 25 }));
 }

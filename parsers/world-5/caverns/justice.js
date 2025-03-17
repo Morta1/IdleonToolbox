@@ -1,5 +1,5 @@
 import { lavaLog2, notateNumber } from '@utility/helpers';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus, getMonumentHourBonus, getMonumentMultiReward } from '@parsers/world-5/caverns/bravery';
 import { holesInfo } from '../../../data/website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
@@ -50,7 +50,7 @@ export const getJustice = (holesObject) => {
 const getStartCoins = (holesObject) => {
   return Math.round((5 +
       lavaLog2(holesObject?.braveryMonument?.[2])
-      * getBucketBonus({ ...holesObject, t: 61, i: 1 }))
+      * getSchematicBonus({ holesObject, t: 61, i: 1 }))
     * (0.5 * getMonumentHourBonus({ holesObject, t: 1, i: 3 })
       + 1.5 * getMonumentHourBonus({ holesObject, t: 1, i: 7 }) + 1));
 }

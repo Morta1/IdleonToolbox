@@ -1,5 +1,5 @@
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesInfo } from '../../../data/website-data';
 import { lavaLog, lavaLog2, notateNumber } from '@utility/helpers';
 
@@ -47,7 +47,7 @@ const getPointReq = (index) => {
 const getPointsMulti = (holesObject, accountData) => {
   return 1 + (getMeasurementBonus({ holesObject, accountData, t: 13 })
     + getStudyBonus(holesObject, 13, 0)
-    + getBucketBonus({ ...accountData?.hole?.holesObject, t: 78, i: 10 })) / 100;
+    + getSchematicBonus({ holesObject: accountData?.hole?.holesObject, t: 78, i: 10 })) / 100;
 }
 
 const getPoints = (holesObject, accountData, t) => {

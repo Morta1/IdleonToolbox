@@ -1,5 +1,5 @@
 import { holesInfo } from '../../../data/website-data';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { cleanUnderscore, createRange, lavaLog, notateNumber } from '@utility/helpers';
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getStampsBonusByEffect } from '@parsers/stamps';
@@ -91,12 +91,12 @@ const getRupieType = ({ holesObject, t }) => {
 
 const getRupieValue = ({ holesObject, accountData }) => {
   const stampBonus = getStampsBonusByEffect(accountData, 'more_Resources_from_all_Caverns') || 0;
-  return (1 + (getBucketBonus({ ...holesObject, t: 62, i: 1 })
-      + (getBucketBonus({ ...holesObject, t: 65, i: 2 })
-        + getBucketBonus({ ...holesObject, t: 68, i: 4 }))))
+  return (1 + (getSchematicBonus({ holesObject, t: 62, i: 1 })
+      + (getSchematicBonus({ holesObject, t: 65, i: 2 })
+        + getSchematicBonus({ holesObject, t: 68, i: 4 }))))
     * (1 + (getMeasurementBonus({ holesObject, accountData, t: 10 })
       + getMeasurementBonus({ holesObject, accountData, t: 14 })) / 100)
-    * Math.max(1, getBucketBonus({ ...holesObject, t: 80, i: 1 })
+    * Math.max(1, getSchematicBonus({ holesObject, t: 80, i: 1 })
       * Math.pow(1.1, holesObject?.extraCalculations?.[5]))
     * (1 + holesObject?.extraCalculations?.[60] / 100)
     * (1 + getJarBonus({ holesObject, i: 3 }) / 100)
@@ -115,33 +115,33 @@ const getProductionPerHour = ({ holesObject, accountData }) => {
       + (getJarBonus({ holesObject, i: 15 })
         + (getJarBonus({ holesObject, i: 24 })
           + getMeasurementBonus({ holesObject, accountData, t: 12 })))) / 100)
-    * (1 + (getBucketBonus({ ...holesObject, t: 72, i: 10 })
+    * (1 + (getSchematicBonus({ holesObject, t: 72, i: 10 })
       * lavaLog(holesObject?.extraCalculations?.[38])) / 100)
 }
 
 const getJarAesthetic = ({ holesObject }) => {
-  const result = getBucketBonus({ ...holesObject, t: 62, i: 1 }) +
-    (getBucketBonus({ ...holesObject, t: 63, i: 1 }) +
-      (getBucketBonus({ ...holesObject, t: 64, i: 1 }) +
-        (getBucketBonus({ ...holesObject, t: 65, i: 1 }) +
-          (getBucketBonus({ ...holesObject, t: 66, i: 1 }) +
-            (getBucketBonus({ ...holesObject, t: 67, i: 1 }) +
-              getBucketBonus({ ...holesObject, t: 68, i: 1 }))))));
+  const result = getSchematicBonus({ holesObject, t: 62, i: 1 }) +
+    (getSchematicBonus({ holesObject, t: 63, i: 1 }) +
+      (getSchematicBonus({ holesObject, t: 64, i: 1 }) +
+        (getSchematicBonus({ holesObject, t: 65, i: 1 }) +
+          (getSchematicBonus({ holesObject, t: 66, i: 1 }) +
+            (getSchematicBonus({ holesObject, t: 67, i: 1 }) +
+              getSchematicBonus({ holesObject, t: 68, i: 1 }))))));
 
   return Math.round(Math.min(result, 7));
 }
 
 const getJarSlots = ({ holesObject }) => {
-  return 1 === getBucketBonus({ ...holesObject, t: 66, i: 1 })
+  return 1 === getSchematicBonus({ holesObject, t: 66, i: 1 })
     ? 3 :
-    1 === getBucketBonus({ ...holesObject, t: 63, i: 1 })
+    1 === getSchematicBonus({ holesObject, t: 63, i: 1 })
       ? 2 : 1
 }
 
 const getProductionReq = ({ holesObject, i }) => {
   return (1e3 + 2e3 * i)
-    / ((1 + getBucketBonus({ ...holesObject, t: 67, i: 30 }) / 100)
-      * (1 + (getBucketBonus({ ...holesObject, t: 74, i: 5 })
+    / ((1 + getSchematicBonus({ holesObject, t: 67, i: 30 }) / 100)
+      * (1 + (getSchematicBonus({ holesObject, t: 74, i: 5 })
         * lavaLog(holesObject?.extraCalculations[Math.round(Math.max(0, i - 1) + 40)])) / 100))
 }
 
@@ -168,7 +168,7 @@ const getNewCollectibleChance = ({ holesObject }) => {
   let value2 = 0;
 
   for (let i = 0; i < 10; i++) {
-    if (getBucketBonus({ ...holesObject, t: 76, i: 1 }) === 1) {
+    if (getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1) {
       const index = Math.round(20 + value2);
       const logValue = Math.ceil(lavaLog(holesObject?.wellSediment[index]));
 
@@ -215,7 +215,7 @@ const getEnchantChance = ({ holesObject }) => {
   const jarBonus3 = 1 + getJarBonus({ holesObject, i: 26 }) / 100;
   const jarBonus4 = 1 + getJarBonus({ holesObject, i: 34 }) / 100;
   const studyBonus = 1 + getStudyBonus(holesObject, 10, 0) / 100;
-  const upgradeFactor = Math.max(1, getBucketBonus({ ...holesObject, t: 73, i: 1 })
+  const upgradeFactor = Math.max(1, getSchematicBonus({ holesObject, t: 73, i: 1 })
     * Math.pow(1.02, lavaLog(holesObject?.extraCalculations?.[39])));
 
   return (0.35 / (1 + Math.pow(value, 1.3))) * jarBonus1 * upgradeFactor * jarBonus2 * studyBonus * jarBonus3 * jarBonus4;

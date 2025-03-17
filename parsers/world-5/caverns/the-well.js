@@ -52,30 +52,29 @@ const getOpalCost = (holesObject) => {
 }
 
 const getOwnedBuckets = (holesObject) => {
-  return Math.round(1 + (getBucketBonus({ ...holesObject, t: 3, i: 1 })
-    + (getBucketBonus({ ...holesObject, t: 4, i: 1 })
-      + (getBucketBonus({ ...holesObject, t: 5, i: 1 })
-        + (getBucketBonus({ ...holesObject, t: 6, i: 1 })
-          + (getBucketBonus({ ...holesObject, t: 7, i: 1 })
-            + (getBucketBonus({ ...holesObject, t: 8, i: 1 })
-              + (getBucketBonus({ ...holesObject, t: 9, i: 1 })
-                + (getBucketBonus({ ...holesObject, t: 10, i: 1 })
-                  + getBucketBonus({ ...holesObject, t: 11, i: 1 }))))))))));
+  return Math.round(1 + (getSchematicBonus({ holesObject, t: 3, i: 1 })
+    + (getSchematicBonus({ holesObject, t: 4, i: 1 })
+      + (getSchematicBonus({ holesObject, t: 5, i: 1 })
+        + (getSchematicBonus({ holesObject, t: 6, i: 1 })
+          + (getSchematicBonus({ holesObject, t: 7, i: 1 })
+            + (getSchematicBonus({ holesObject, t: 8, i: 1 })
+              + (getSchematicBonus({ holesObject, t: 9, i: 1 })
+                + (getSchematicBonus({ holesObject, t: 10, i: 1 })
+                  + getSchematicBonus({ holesObject, t: 11, i: 1 }))))))))));
 }
 const getSedimentMax = ({ sedimentMulti, index }) => {
   const anotherSedimentMulti = holesInfo?.[21]?.split(' ');
   return 100 * Math.pow(1.5, sedimentMulti?.[index]) * (1 + anotherSedimentMulti?.[index] / 100);
 }
-export const getBucketBonus = ({
-                                 wellSediment,
-                                 sedimentMulti,
-                                 extraCalculations,
-                                 bellImprovementMethods,
-                                 engineerSchematics,
-                                 studyStuff,
-                                 t,
-                                 i
-                               }) => {
+export const getSchematicBonus = ({ holesObject, t, i }) => {
+  const {
+    wellSediment,
+    sedimentMulti,
+    extraCalculations,
+    bellImprovementMethods,
+    engineerSchematics,
+    studyStuff
+  } = holesObject || {};
   if (0 === engineerSchematics?.[t]) return 0;
   if (14 === t) {
     let result = 0;
@@ -102,7 +101,7 @@ export const getBucketBonus = ({
   return 46 === t ? 5 * (extraCalculations[26]) : 47 === t
     ? 25 * (extraCalculations[26])
     : 48 === t ? 10 * (extraCalculations[26]) : 49 === t
-      ? i * ((extraCalculations[1]) + (extraCalculations[3]) * getBucketBonus({
+      ? i * ((extraCalculations[1]) + (extraCalculations[3]) * getSchematicBonus({
       wellSediment,
       extraCalculations,
       engineerSchematics,
@@ -130,16 +129,16 @@ export const getBucketBonus = ({
                       : i;
 };
 const getBucketFillRate = (holesObject, accountData) => {
-  return getBucketBonus({ ...holesObject, t: 58, i: 0 })
-    + getBucketBonus({ ...holesObject, t: 59, i: 0 })
-    + (10 + (getBucketBonus({ ...holesObject, t: 1, i: 5 })
-      + getBucketBonus({ ...holesObject, t: 26, i: 5 })))
-    * (1 + getBucketBonus({ ...holesObject, t: 14, i: 0 }) / 100)
+  return getSchematicBonus({ holesObject, t: 58, i: 0 })
+    + getSchematicBonus({ holesObject, t: 59, i: 0 })
+    + (10 + (getSchematicBonus({ holesObject, t: 1, i: 5 })
+      + getSchematicBonus({ holesObject, t: 26, i: 5 })))
+    * (1 + getSchematicBonus({ holesObject, t: 14, i: 0 }) / 100)
     * (1 + accountData.gemShopPurchases[2] / 2)
     * (1 + getMonumentBonus({ holesObject, t: 0, i: 1 }) / 100)
     * (1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 100)
     * (1 + getGambitBonus(accountData, 3) / 100)
-    * Math.max(1, getBucketBonus({ ...holesObject, t: 15, i: 1 })
+    * Math.max(1, getSchematicBonus({ holesObject, t: 15, i: 1 })
       * Math.pow(1.1, holesObject?.extraCalculations[1]))
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 5 }) / 100)
     * (1 + getBellBonus({ holesObject, t: 0 }) / 100);

@@ -32,7 +32,7 @@ import { getDeityLinkedIndex, getGodByIndex } from './divinity';
 import { getAchievementStatus } from './achievements';
 import { getShinyBonus } from './breeding';
 import { isSuperbitUnlocked } from './gaming';
-import { getBucketBonus } from '@parsers/world-5/caverns/the-well';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
@@ -223,7 +223,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   const winnerBonus = getWinnerBonus(account, '+{% Skill EXP');
   const companionBonus = isCompanionBonusActive(account, 9) ? 20 : 0;
-  const bucketBonus = getBucketBonus({ ...account?.hole?.holesObject, t: 49, i: 10 });
+  const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 10 });
   let godBonus = 0;
   const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
   if (flutterbisIndexes?.[character?.playerId] !== -1) {
@@ -253,7 +253,7 @@ export const getPlayerAnvil = (character, characters, account) => {
                     + (10 * firstAchievementBonus + (25 * secondAchievementBonus
                       + (10 * thirdAchievementBonus
                         + (smithingSkillMasteryBonus + (allSkillMasteryBonus
-                          + (shinyBonus + superbitBonus) + companionBonus + winnerBonus + bucketBonus)))))))))))));
+                          + (shinyBonus + superbitBonus) + companionBonus + winnerBonus + schematicBonus)))))))))))));
 
   // ANVIL SPEED MATH;
   const anvilZoomerBonus = getStampBonus(account, 'skills', 'StampB3', character);
