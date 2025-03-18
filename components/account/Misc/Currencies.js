@@ -69,7 +69,7 @@ const Currencies = ({
         <Typography variant={'body2'}>Variant: {numberWithCommas(candies?.special?.min)} - {numberWithCommas(candies?.special?.max)} hrs ({numberWithCommas(minDays)} - {numberWithCommas(maxDays)} days)</Typography>
       </Stack>}>
         <Stack alignItems={'center'}>
-          <img width={32} height={32} src={`${prefix}data/TimeCandy1.png`} alt=""/>
+          <img width={32} height={32} src={`${prefix}data/Timecandy1.png`} alt=""/>
           <Typography variant={'body1'} component={'span'}>{numberWithCommas(candies?.guaranteed)}</Typography>
         </Stack>
       </Tooltip>
