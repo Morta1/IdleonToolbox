@@ -2,7 +2,7 @@ import { lavaLog, notateNumber, tryToParse } from '../utility/helpers';
 import { getDeityLinkedIndex } from './divinity';
 import { isArtifactAcquired } from './sailing';
 import { checkCharClass, getTalentBonus } from './talents';
-import { getEventShopBonus, getSkillMasteryBonusByIndex } from './misc';
+import { getEventShopBonus, getSkillMasteryBonusByIndex, isCompanionBonusActive } from './misc';
 import { getAtomColliderThreshold } from './atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -73,10 +73,12 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
           const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
           const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
+          const companionBonus = 1 + accountData?.accountOptions?.[323] * isCompanionBonusActive(accountData, 17) / 100
           const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
             * (1 + (highestKingOfRemembrance
               * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100) * voteBonus
-            * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100);
+            * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100)
+            * companionBonus;
 
           const multi = (wiredInBonus && isPlayerConnected ?
             ((harriepGodIndex.includes(charIndex) || pocketLinked)
@@ -91,6 +93,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           const breakdown = [
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
             { name: 'Harriep God', value: (harriepGodIndex.includes(charIndex) || pocketLinked) ? 3 : 0 },
+            { name: 'Companion', value: companionBonus },
             { name: 'Skill Mastery', value: 1 + skillMasteryBonus / 100 },
             {
               name: 'Divine Knight',
