@@ -202,7 +202,8 @@ const parseHole = (holeRaw, accountData) => {
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: measureIndex })
-    const cost = (250 + 50 * (measurementBuffLevels[index])) * Math.pow(1.6, index) * Math.pow(1.1, measurementBuffLevels[index]);
+    const cost = (250 + 50 * measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, measurementBuffLevels[index])
+
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
     const itemReqIndex = holesInfo[50]?.split(' ')[index];
     const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);

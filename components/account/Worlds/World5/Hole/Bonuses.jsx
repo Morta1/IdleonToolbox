@@ -47,7 +47,7 @@ const Bonuses = ({ hole }) => {
                 <CardContent sx={{ width: 300, height: 170 }}>
                   <Typography>{cleanUnderscore(desc)}</Typography>
                   <Typography mt={2}>Points invested: {level} / {maxLevel}</Typography>
-                  {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0 ? <Typography>+{bonus}% All stats</Typography> : null}
+                  {majikIndex === 2 && bonusIndex === 0 && hasDoot && level > 0 ? <Typography>+{15 * bonus}% All stats</Typography> : null}
                 </CardContent>
               </Card>
             </Stack>

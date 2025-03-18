@@ -274,6 +274,20 @@ export const migrateToVersion13 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion14 = (config, baseTrackers) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.timers?.['World 5']) {
+    dashboardConfig.timers['World 5'] = baseTrackers?.timers?.['World 5'];
+  }
+
+  dashboardConfig.version = 14;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -315,6 +329,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 12) {
       migratedConfig = migrateToVersion13(migratedConfig);
+    }
+    if (migratedConfig?.version === 13) {
+      migratedConfig = migrateToVersion14(migratedConfig, baseTrackers);
     }
   }
   return migratedConfig;
