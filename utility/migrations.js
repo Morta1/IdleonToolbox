@@ -284,6 +284,17 @@ export const migrateToVersion14 = (config, baseTrackers) => {
     dashboardConfig.timers['World 5'] = baseTrackers?.timers?.['World 5'];
   }
 
+  const cookingOptions = dashboardConfig.account['World 4'].cooking.options.map((meal) => {
+    if (meal?.name === 'meals') return { name: 'meals', checked: true, category: 'meals' };
+    return meal;
+  })
+  if (dashboardConfig?.account?.['World 4'] && dashboardConfig?.account?.['World 4']?.cooking?.options) {
+    dashboardConfig.account['World 4'].cooking.options = [
+      ...cookingOptions,
+      { name: 'alertOnlyCookedMeal', checked: false }
+    ]
+  }
+
   dashboardConfig.version = 14;
   return dashboardConfig
 }

@@ -20,8 +20,8 @@ const CauldronsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         index,
         decantCap: { progress: capDiff },
         decantRate: { progress: rateDiff },
-        capPerHour: capDiff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60),
-        ratePerHour: rateDiff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)
+        capPerHour: (capDiff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60,
+        ratePerHour: (rateDiff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60
       };
     });
   }

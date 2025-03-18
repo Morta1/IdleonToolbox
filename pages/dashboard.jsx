@@ -132,7 +132,14 @@ const baseTrackers = {
       printer: {
         checked: true,
         options: [
-          { name: 'includeResource', type: 'array', props: { value: getPrinterExclusions(), type: 'img' }, checked: true, category: 'atoms', helperText:'Exclude' },
+          {
+            name: 'includeResource',
+            type: 'array',
+            props: { value: getPrinterExclusions(), type: 'img' },
+            checked: true,
+            category: 'atoms',
+            helperText: 'Exclude'
+          },
           { name: 'showAlertWhenFull', checked: false }]
       },
       library: {
@@ -202,7 +209,8 @@ const baseTrackers = {
             },
             checked: true
           },
-          { name: 'meals', checked: true }
+          { name: 'meals', checked: true, category: 'meals' },
+          { name: 'alertOnlyCookedMeal', checked: false },
         ]
       },
       laboratory: {

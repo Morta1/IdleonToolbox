@@ -591,11 +591,19 @@ export const getWorld4Alerts = (account, fields, options) => {
   if (fields?.cooking?.checked) {
     const cooking = {};
     if (options?.cooking?.meals?.checked) {
+      const cookedMeals = account?.cooking?.kitchens.reduce((cookedMeals, { meal }) => ({
+        ...cookedMeals,
+        [meal.name]: true
+      }), {});
       const readyMeals = account?.cooking?.meals?.filter(({
+                                                            name,
                                                             levelCost,
                                                             amount,
                                                             level
-                                                          }) => amount >= levelCost && level < account?.cooking?.mealMaxLevel);
+                                                          }) => {
+        if (options?.cooking?.alertOnlyCookedMeal?.checked && !cookedMeals?.[name]) return false;
+        return amount >= levelCost && level < account?.cooking?.mealMaxLevel;
+      });
       if (readyMeals?.length > 0) {
         cooking.meals = readyMeals;
       }
