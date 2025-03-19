@@ -1,7 +1,35 @@
+// Helper function to calculate exp needed for a specific level
+export const getExpForLevel = (level) => {
+  return (15 + Math.pow(level, 1.9) + 11 * level) *
+    Math.pow(1.208 - Math.min(0.164, (0.215 * level) / (level + 100)), level) - 15;
+};
+
+// Calculate exp needed to go from current level to target level
+export const getExpToLevel = (character, targetLevel) => {
+  if (!character || targetLevel <= character.level) return 0;
+
+  let exp = 0;
+  for (let i = character.level; i < targetLevel; i++) {
+    exp += getExpForLevel(i);
+  }
+
+  // Subtract current progress in the current level
+  return Math.max(0, exp - (character.exp || 0));
+};
+
+// Calculate exp progress and time estimates
 export const getExpDiff = (snapshot, current, lastUpdated) => {
   const snapshotChar = snapshot?.skillsInfo?.character;
   const currentChar = current?.skillsInfo?.character;
+
+  // Safety checks
   if (!snapshotChar || !currentChar) return null;
+  if (!lastUpdated || !snapshot?.snapshotTime) return null;
+
+  const timeDiffMinutes = (lastUpdated - snapshot.snapshotTime) / 1000 / 60;
+
+  // Safety check for time difference
+  if (timeDiffMinutes <= 0) return null;
 
   let expEarned;
 
@@ -10,23 +38,46 @@ export const getExpDiff = (snapshot, current, lastUpdated) => {
     expEarned = currentChar.exp - snapshotChar.exp;
   } else if (currentChar.level > snapshotChar.level) {
     // Account for level-ups
-    expEarned = snapshotChar.expReq - snapshotChar.exp; // Exp needed to finish the level
+    expEarned = snapshotChar.expReq - snapshotChar.exp; // Exp needed to finish the initial level
+
+    // Add exp for all complete levels in between
     for (let lvl = snapshotChar.level + 1; lvl < currentChar.level; lvl++) {
-      expEarned += getExpToLevel(snapshotChar, lvl);
+      expEarned += getExpForLevel(lvl);
     }
-    expEarned += currentChar.exp; // Add progress in the current level
+
+    // Add progress in the current level
+    expEarned += currentChar.exp;
   } else {
     // Somehow lost levels? Shouldn't happen, but return null to avoid incorrect calculations
     return null;
   }
 
-  const expPerMinute = expEarned / ((lastUpdated - snapshot?.snapshotTime) / 1000 / 60);
+  const expPerMinute = expEarned / timeDiffMinutes;
+
+  // If no exp earned or negative (shouldn't happen), return early with basic info
+  if (expPerMinute <= 0) {
+    return {
+      expEarned,
+      expReq: currentChar.expReq,
+      expPerMinute: 0,
+      expPerHour: 0,
+      expToLevel: getExpToLevel(currentChar, currentChar.level + 1),
+      timeToLevel: 'N/A'
+    };
+  }
+
   const expToLevel = getExpToLevel(currentChar, currentChar.level + 1);
   const totalMinutes = Math.ceil(expToLevel / expPerMinute);
 
-  const days = Math.floor(totalMinutes / (60 * 24));
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
-  const minutes = totalMinutes % 60;
+  // Cap at a reasonable maximum (e.g., 1 year)
+  const cappedMinutes = Math.min(totalMinutes, 525600); // 365 days
+
+  const days = Math.floor(cappedMinutes / (60 * 24));
+  const hours = Math.floor((cappedMinutes % (60 * 24)) / 60);
+  const minutes = cappedMinutes % 60;
+
+  // Format with padding for single digits
+  const formattedTime = `${days}d:${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
 
   return {
     expEarned,
@@ -34,18 +85,9 @@ export const getExpDiff = (snapshot, current, lastUpdated) => {
     expPerMinute,
     expPerHour: expPerMinute * 60,
     expToLevel,
-    timeToLevel: `${days}d:${hours}h:${minutes}m`
+    timeToLevel: formattedTime
   };
 };
-
-export const getExpToLevel = (character, targetLevel) => {
-  let exp = 0;
-  for (let i = character?.level; i < targetLevel; i++) {
-    exp += (15 + Math.pow(i, 1.9) + 11 * i) * Math.pow(1.208 - Math.min(0.164, (0.215 * i) / (i + 100)), i) - 15;
-  }
-  exp -= character?.exp;
-  return exp;
-}
 
 export const consolidateItems = (items) => {
   // Create a map to store consolidated items
