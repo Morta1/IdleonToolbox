@@ -87,26 +87,28 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>
+        <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])))}</Typography>
+        <Typography variant="body2">Per day: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])) * 24)}</Typography>
         {isDivineKnight ? <>
           <Divider sx={{ my: 1 }}/>
           <Typography variant="body1">DK Orbs</Typography>
           <Typography variant="body2">Diff: {numberWithCommas(dkOrbsDiff)}</Typography>
-          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(dkOrbsDiff))} / hr</Typography>
-          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(dkOrbsDiff) * 24)} / hr</Typography>
+          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(dkOrbsDiff))}</Typography>
+          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(dkOrbsDiff) * 24)}</Typography>
         </> : null}
         {isElementalSorcerer ? <>
           <Divider sx={{ my: 1 }}/>
           <Typography variant="body1">ES Wormhole</Typography>
           <Typography variant="body2">Diff: {numberWithCommas(esWormholeDiff)}</Typography>
-          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(esWormholeDiff))} / hr</Typography>
-          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(esWormholeDiff) * 24)} / hr</Typography>
+          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(esWormholeDiff))}</Typography>
+          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(esWormholeDiff) * 24)}</Typography>
         </> : null}
         {isSiegeBreaker ? <>
           <Divider sx={{ my: 1 }}/>
           <Typography variant="body1">SB Plunderous</Typography>
           <Typography variant="body2">Diff: {numberWithCommas(sbPlunderousDiff)}</Typography>
-          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(sbPlunderousDiff))} / hr</Typography>
-          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(sbPlunderousDiff) * 24)} / hr</Typography>
+          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(sbPlunderousDiff))}</Typography>
+          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(sbPlunderousDiff) * 24)}</Typography>
         </> : null}
         {isDeathBringer ? <>
           <Divider sx={{ my: 1 }}/>

@@ -7,6 +7,7 @@ import {
   pristineCharms as rawPristineCharms,
   randomList
 } from '../../data/website-data';
+import { getLabBonus } from "@parsers/lab";
 
 export const getSneaking = (idleonData: any, serverVars: any, serializedCharactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -88,12 +89,13 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     };
   })
   orderedEmporium.sort((a, b) => a.index - b.index);
+  const lootedItems = account?.looty?.rawLootedItems;
   const jadeEmporium = orderedEmporium.map((upgrade, index) => {
     let bonus;
-    if (index === 8) {
-      const lootedItems = account?.looty?.rawLootedItems;
+    if (index === 8 || index === 6) {
+      const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15);
       const multi = Math.floor(Math.max(0, lootedItems - 1000) / 10);
-      bonus = 5 * multi;
+      bonus = (index === 6 ? 3 : 5) * multi * (1 + slabSovereignty / 100);
     }
     return {
       ...upgrade,

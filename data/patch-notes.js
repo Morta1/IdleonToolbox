@@ -6,6 +6,21 @@ export const patchNotes = [
   {
     'ver': '3.2.94',
     'gameVer': '2.0.32',
+    'date': '21/03/2025',
+    'features': [
+      'Added filtering to stamps page',
+      'Added slab bonuses to slab page',
+      'Added total levels to summoning upgrades page',
+      'Added kills per hour / day to ASC'
+    ],
+    'fixes': [
+      'Fixed equinox fill rate calculation',
+      'Fixed indication of missing artifacts in artifacts page'
+    ]
+  },
+  {
+    'ver': '3.2.94',
+    'gameVer': '2.0.32',
     'date': '16/03/2025',
     'features': [
       'Updated the website with version 2.0.32 data',

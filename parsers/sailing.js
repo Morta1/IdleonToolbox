@@ -502,7 +502,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
 
   let fixedDescription = artifact?.description;
   if (artifact?.name === 'Maneki_Kat' || artifact?.name === 'Ashen_Urn') {
-    const highestLevel = getHighestLevelCharacter(charactersData)
+    const highestLevel = getHighestLevelCharacter(charactersData);
     additionalData = `Highest level: ${highestLevel}`;
     bonus = highestLevel * artifact?.baseBonus;
     if (artifact?.name === 'Ashen_Urn') {

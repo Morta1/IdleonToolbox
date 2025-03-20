@@ -46,7 +46,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
                 + 40 * (clouds[29] === -1))))))));
 
   const base = (1 + voteBonus / 100)
-    * (1 + companionBonus)
+    * (1 + companionBonus * 2.5)
     * (1 + cosmoBonus / 100)
     * (1 + .5 * eventShopBonus)
     * (1 + account?.accountOptions?.[320] / 10)

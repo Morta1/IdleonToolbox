@@ -28,8 +28,10 @@ const Artifacts = ({ artifacts }) => {
         } else if (acquired === 4) {
           bonusDescription = sovereignFormDescription;
         }
+        const color = acquired === 4 ? '#67dada' : acquired === 3 ? '#ffa092' : acquired === 2 ? 'gold' : 'white';
         return (
-          (<Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}>
+          (<Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}
+                 sx={{ opacity: acquired === 0 ? .5 : 1 }}>
             <CardContent>
               <Stack sx={{ width: 200 }}>
                 <Stack direction={'row'} gap={1}>
@@ -49,11 +51,11 @@ const Artifacts = ({ artifacts }) => {
                       <InfoIcon/>
                     </Tooltip>
                   </> : <Typography>{additionalData}&nbsp;</Typography>}
-                  <Divider flexItem color={'gold'} sx={{ my: 2 }}/>
+                  <Divider flexItem color={color} sx={{ my: 2 }}/>
                   <Typography
                     sx={{
                       opacity: acquired === 2 || acquired === 3 || acquired === 4 ? 1 : .5,
-                      color: acquired === 4 ? '#67dada' : acquired === 3 ? '#ffa092' : acquired === 2 ? 'gold' : 'white'
+                      color: color
                     }}>{cleanUnderscore(bonusDescription)}</Typography>
                 </Stack>
               </Stack>

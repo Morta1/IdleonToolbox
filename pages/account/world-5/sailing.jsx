@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Stack, Typography } from '@mui/material';
-import Artifacts from 'components/account/Worlds/World5/Sailing/Artifacts';
-import LootPile from '../../../components/account/Worlds/World5/Sailing/LootPile';
+import Artifacts from '@components/account/Worlds/World5/Sailing/Artifacts';
+import LootPile from '@components/account/Worlds/World5/Sailing/LootPile';
 import { getTabs, prefix } from '@utility/helpers';
-import Chests from '../../../components/account/Worlds/World5/Sailing/Chests';
+import Chests from '@components/account/Worlds/World5/Sailing/Chests';
 import BoatsAndCaptains from '@components/account/Worlds/World5/Sailing/BoatsAndCaptains';
 import { CardTitleAndValue, MissingData } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
-import Trades from '../../../components/account/Worlds/World5/Sailing/Trades';
+import Trades from '@components/account/Worlds/World5/Sailing/Trades';
 import Tabber from '../../../components/common/Tabber';
 import { PAGES } from '@components/constants';
 

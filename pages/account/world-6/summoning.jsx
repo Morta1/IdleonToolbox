@@ -4,7 +4,7 @@ import Tabber from '@components/common/Tabber';
 import WinnerBonuses from '@components/account/Worlds/World6/summoning/WinnerBonuses';
 import { AppContext } from '@components/common/context/AppProvider';
 import Upgrades from '@components/account/Worlds/World6/summoning/Upgrades';
-import { getTabs, notateNumber } from '@utility/helpers';
+import { getTabs, notateNumber, numberWithCommas } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack } from '@mui/material';
 import Battles from '@components/account/Worlds/World6/summoning/Battles';
@@ -19,7 +19,8 @@ const Summoning = () => {
     allBattles,
     armyHealth,
     armyDamage,
-    highestEndlessLevel
+    highestEndlessLevel,
+    totalUpgradesLevels
   } = state?.account?.summoning || {};
   return <>
     <NextSeo
@@ -37,7 +38,7 @@ const Summoning = () => {
       })}
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
-      <Upgrades upgrades={upgrades}/>
+      <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
       <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel}/>
     </Tabber>

@@ -370,7 +370,7 @@ export const getCharacterByHighestSkillLevel = (characters, className, skillName
 };
 
 export const getHighestLevelCharacter = (characters) => {
-  const levels = characters?.map(({ level }) => level);
+  const levels = characters?.map(({ level }) => level ?? 0);
   return Math.max(...levels);
 };
 

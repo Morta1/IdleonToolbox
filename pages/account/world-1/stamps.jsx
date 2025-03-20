@@ -46,6 +46,18 @@ const reducerValues = [
 const Stamps = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
+  const [types, setTypes] = useLocalStorage({
+    key: 'stamps:types',
+    defaultValue: {
+      money: true,
+      materials: true,
+      player: true,
+      equipments: true,
+      reduction: true,
+      upgradable: true
+    }
+  });
+  const noSelectedTypes = Object.values(types).every((b) => !b);
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
     ? state?.account?.accountOptions?.[154]
     : 0;
@@ -63,25 +75,30 @@ const Stamps = () => {
   const localStamps = useMemo(() => updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity), [forcedGildedStamp,
     forcedStampReducer, forceMaxCapacity, state]);
 
-  const getBorder = (stamp) => {
+  const getStampTypeAndBorder = (stamp) => {
     const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
-    if (level <= 0) return '';
+    if (level <= 0) return { border: '' };
     if (!hasMoney) {
-      return 'warning.light';
+      return { border: 'warning.light', type: 'money' };
     } else if (!enoughPlayerStorage) {
-      return '#e3e310'
+      return { border: '#e3e310', type: 'player' }
     } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
-      return 'error.light';
+      return { border: 'error.light', type: 'materials' };
     } else if (materials.length > 0) {
-      return ''
+      return { border: '' };
     } else if (materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage) {
       const index = reducerValues.indexOf(forcedStampReducer);
       const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
       if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && (minReductionStamp?.hasMaterials) && minReductionStamp?.hasMoney && minReductionStamp?.enoughPlayerStorage) {
-        return 'secondary.dark';
+        return { border: 'secondary.dark', type: 'reduction' };
       }
-      return 'info.light';
+      return { border: 'info.light', type: 'upgradable' };
     }
+  }
+
+  const handleSwitchChange = (e, name) => {
+    console.log(name)
+    setTypes({ ...types, [name]: e.target.checked });
   }
 
   return (
@@ -92,12 +109,18 @@ const Stamps = () => {
       />
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Legend'} stackProps={{ gap: .7 }}>
-          <Color color={'warning.light'} desc={'Missing Money'}/>
-          <Color color={'error.light'} desc={'Missing Materials'}/>
-          <Color color={'#e3e310'} desc={'Not Enough Player Storage'}/>
-          <Color color={'grey'} desc={'Equipments'}/>
-          <Color color={'secondary.dark'} desc={'Upgradeable at prev. reduction'}/>
-          <Color color={'info.light'} desc={'Upgradeable'}/>
+          <Color onChange={handleSwitchChange} name={'money'} value={types.money} color={'warning.light'}
+                 desc={'Missing Money'}/>
+          <Color onChange={handleSwitchChange} name={'materials'} value={types.materials} color={'error.light'}
+                 desc={'Missing Materials'}/>
+          <Color onChange={handleSwitchChange} name={'player'} value={types.player} color={'#e3e310'}
+                 desc={'Not Enough Player Storage'}/>
+          <Color onChange={handleSwitchChange} name={'equipments'} value={types.equipments} color={'grey'}
+                 desc={'Equipments'}/>
+          <Color onChange={handleSwitchChange} name={'reduction'} value={types.reduction} color={'secondary.dark'}
+                 desc={'Upgradeable at prev. reduction'}/>
+          <Color onChange={handleSwitchChange} name={'upgradable'} value={types.upgradable} color={'info.light'}
+                 desc={'Upgradeable'}/>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Gilded Stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
@@ -177,8 +200,10 @@ const Stamps = () => {
                   md: 6,
                   lg: 4
                 }}>
-                <Typography sx={{ flexBasis: '100%' }}
+                <Typography variant={'body1'} sx={{ flexBasis: '100%' }}
                             variable={'subtitle2'}>{category.capitalize()}</Typography>
+                {noSelectedTypes ? <Typography variant={'body2'} sx={{ flexBasis: '100%' }} variable={'subtitle2'}>Select at least one
+                  type</Typography> : null}
                 {stamps.map((stamp, stampIndex) => {
                   const {
                     rawName,
@@ -193,8 +218,9 @@ const Stamps = () => {
                     bestCharacter
                   } = stamp;
                   const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
-                  const border = getBorder(stamp);
+                  const { border, type } = getStampTypeAndBorder(stamp);
                   const isBlank = displayName === 'Blank';
+                  if (!types[type]) return;
                   return (
                     <Grid
                       key={rawName + stampIndex}
@@ -340,10 +366,13 @@ const ItemIcon = styled.img`
   opacity: ${({ hide }) => hide ? 0.5 : 1};
 `;
 
-const Color = ({ color, desc }) => {
-  return <Stack direction={'row'} gap={1} alignItems={'center'}>
-    <Avatar sx={{ bgcolor: color, width: 24, height: 24 }} alt={color} src={''}>&nbsp;</Avatar>
-    <Typography variant={'body2'}>{desc}</Typography>
+const Color = ({ color, desc, value, onChange, name }) => {
+  return <Stack direction={'row'} gap={1} alignItems={'center'} justifyContent={'space-between'}>
+    <Stack direction={'row'} gap={1} alignItems={'center'}>
+      <Avatar sx={{ bgcolor: color, width: 24, height: 24 }} alt={color} src={''}>&nbsp;</Avatar>
+      <Typography variant={'body2'}>{desc}</Typography>
+    </Stack>
+    <Switch size={'small'} checked={value} onChange={(e) => onChange(e, name)}/>
   </Stack>
 }
 

@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, ToggleButton, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import React, { useMemo, useState } from 'react';
 
@@ -11,7 +11,7 @@ const COLOR_MAP = {
   5: 'Red',
   6: 'Cyan'
 }
-const Upgrades = ({ upgrades }) => {
+const Upgrades = ({ upgrades, totalUpgradesLevels }) => {
   const [sortBy, setSortBy] = useState(false);
   const sortedByCost = useMemo(() => Object.values(upgrades).flat().filter(({
                                                                               level,
@@ -19,13 +19,15 @@ const Upgrades = ({ upgrades }) => {
                                                                             }) => level < maxLvl).sort((a, b) => a.totalCost - b.totalCost), [upgrades]);
 
   return <Stack>
-    <FormControlLabel
-      sx={{ width: 'fit-content' }}
-      control={<Checkbox name={'mini'} checked={sortBy}
-                         size={'small'}
-                         onChange={() => setSortBy(!sortBy)}/>}
-      label={'Sort by cost'}/>
-
+    <Stack mb={3} direction={'row'} alignItems={'center'}>
+      <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>Total Upgrades: {totalUpgradesLevels}</ToggleButton>
+      <FormControlLabel
+        sx={{ width: 'fit-content' }}
+        control={<Checkbox name={'mini'} checked={sortBy}
+                           size={'small'}
+                           onChange={() => setSortBy(!sortBy)}/>}
+        label={'Sort by cost'}/>
+    </Stack>
     {sortBy ? <Box sx={{
         display: 'grid',
         '--auto-grid-min-size': '16rem',
