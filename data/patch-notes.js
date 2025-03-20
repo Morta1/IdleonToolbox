@@ -4,7 +4,7 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
-    'ver': '3.2.94',
+    'ver': '3.2.95',
     'gameVer': '2.0.32',
     'date': '21/03/2025',
     'features': [
