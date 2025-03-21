@@ -1,4 +1,4 @@
-import { tryToParse } from '../utility/helpers';
+import { createArrayOfArrays, tryToParse } from '../utility/helpers';
 import { items, obols } from '../data/website-data';
 import { addStoneDataToEquip } from './items';
 
@@ -11,10 +11,11 @@ export const getObols = (idleonData, account = true) => {
   const obolsEquippedRaw = tryToParse(idleonData?.ObolEqMAPz1) || (account
     ? idleonData?.ObolEquippedMap?.[1]
     : idleonData?.ObolEquippedMap);
-  return parseObols(obolsOrderRaw, obolsEquippedRaw, account);
+  const obolsInvRaw = tryToParse(idleonData?.ObolInvOr);
+  return parseObols(obolsOrderRaw, obolsEquippedRaw, obolsInvRaw, account);
 }
 
-export const parseObols = (obolsRaw, obolsEquippedRaw, account) => {
+export const parseObols = (obolsRaw, obolsEquippedRaw, obolsInvRaw, account) => {
   const obolsType = account ? obols.family : obols.character;
   const obolsMapping = obolsRaw?.map((obol, index) => ({
     displayName: items?.[obol]?.displayName,
@@ -26,6 +27,7 @@ export const parseObols = (obolsRaw, obolsEquippedRaw, account) => {
   obolsList.sort((a, b) => a.index - b.index);
   const stats = getStatsFromObols(obolsList, account);
   return {
+    inventory: createArrayOfArrays(obolsInvRaw),
     list: obolsList,
     stats
   };

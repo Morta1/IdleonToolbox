@@ -49,6 +49,7 @@ const Stamps = () => {
   const [types, setTypes] = useLocalStorage({
     key: 'stamps:types',
     defaultValue: {
+      level: true,
       money: true,
       materials: true,
       player: true,
@@ -77,7 +78,7 @@ const Stamps = () => {
 
   const getStampTypeAndBorder = (stamp) => {
     const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
-    if (level <= 0) return { border: '' };
+    if (level <= 0) return { border: '#1d1c1c', type: 'level' };
     if (!hasMoney) {
       return { border: 'warning.light', type: 'money' };
     } else if (!enoughPlayerStorage) {
@@ -85,7 +86,7 @@ const Stamps = () => {
     } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
       return { border: 'error.light', type: 'materials' };
     } else if (materials.length > 0) {
-      return { border: '' };
+      return { border: 'grey', type: 'equipments' };
     } else if (materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage) {
       const index = reducerValues.indexOf(forcedStampReducer);
       const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
@@ -108,6 +109,8 @@ const Stamps = () => {
       />
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Legend'} stackProps={{ gap: .7 }}>
+          <Color onChange={handleSwitchChange} name={'level'} value={types.level} color={'#1d1c1c'}
+                 desc={'Level 0'}/>
           <Color onChange={handleSwitchChange} name={'money'} value={types.money} color={'warning.light'}
                  desc={'Missing Money'}/>
           <Color onChange={handleSwitchChange} name={'materials'} value={types.materials} color={'error.light'}
@@ -219,7 +222,7 @@ const Stamps = () => {
                   const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
                   const { border, type } = getStampTypeAndBorder(stamp);
                   const isBlank = displayName === 'Blank';
-                  if (!types[type]) return;
+                  if (types.hasOwnProperty(type) && !types[type]) return;
                   return (
                     <Grid
                       key={rawName + stampIndex}

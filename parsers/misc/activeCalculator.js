@@ -128,7 +128,7 @@ export const compareInventories = (snapshotInventory, currentInventory, lastUpda
     if (difference > 0) {
       const perHour = (difference / ((lastUpdated - snapshotTime) / 1000 / 60)) * 60;
       report.push({
-        ...(currentItem?.name ? currentItem : snapshotItem),
+        ...((currentItem?.name || currentItem?.displayName) ? currentItem : snapshotItem),
         snapshotInventoryItem: snapshotItem.amount ? snapshotItem : null,
         currentInventoryItem: currentItem.amount ? currentItem : null,
         snapshotInventoryAmount: snapshotItem.amount,
@@ -136,7 +136,7 @@ export const compareInventories = (snapshotInventory, currentInventory, lastUpda
         difference,
         perHour,
         perDay: perHour * 24,
-        perGoal: (Number(goal.replace(/,/g, '')) - difference) / perHour,
+        ...(goal ? { perGoal: (Number(goal.replace(/,/g, '')) - difference) / perHour } : {}),
         status: difference > 0 ? 'increased' : 'decreased'
       });
     }

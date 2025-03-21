@@ -27,9 +27,10 @@ import PetSection from '@components/tools/active-calculator/PetSection';
 import { checkCharClass } from '@parsers/talents';
 import CoinsSection from '@components/tools/active-calculator/CoinsSection';
 import CauldronsSection from '@components/tools/active-calculator/CauldronsSection';
+import ObolsSection from '@components/tools/active-calculator/ObolsSection';
 
 
-const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons'];
+const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons', 'obols'];
 
 const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
@@ -163,6 +164,7 @@ const ActiveStuffCalculator = () => {
         {isDisplayed('cards') ? <CardsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('drops') ? <DropSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('cauldrons') ? <CauldronsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
+        {isDisplayed('obols') ? <ObolsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
       </>}
   </>;
 };
