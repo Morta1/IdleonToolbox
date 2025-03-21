@@ -32,10 +32,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
-import { isProd, tryToParse } from '@utility/helpers';
+import { isProd, notateNumber, tryToParse } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
 import { useTheme } from '@emotion/react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Tooltip from '@components/Tooltip';
+import { TitleAndValue } from '@components/common/styles';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -212,7 +215,12 @@ const Data = () => {
         <Stack direction={'row'} gap={3}>
           <Card sx={{ mt: 3 }} variant="outlined">
             <CardContent>
-              <Typography variant={'h6'} mb={1}>Profile Management</Typography>
+              <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                <Typography variant={'h6'} mb={1}>Profile Management</Typography>
+                <Tooltip title={<PeakStats {...expandLeaderboardInfo(state?.account, state?.characters)} />}>
+                  <IconInfoCircleFilled size={18}/>
+                </Tooltip>
+              </Stack>
               <Typography variant={'body1'} mb={1}>Your profile link</Typography>
               <Stack direction={'row'} gap={1}>
                 <Box sx={{
@@ -292,6 +300,36 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
     </Box> : null}
   </Container>
 };
+
+const PeakStats = ({
+                     dropRate,
+                     defence,
+                     accuracy,
+                     hp,
+                     mp,
+                     logBook,
+                     totalShinyLevels,
+                     slab,
+                     greenMushroomKills,
+                     totalBoats,
+                     totalTomePoints
+                   }) => {
+  return <Stack>
+    <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Calculated stats</Typography>
+    <Divider sx={{ my: 1 }}/>
+    <TitleAndValue title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
+    <TitleAndValue title={'Defence'} value={notateNumber(defence)}/>
+    <TitleAndValue title={'Accuracy'} value={notateNumber(accuracy)}/>
+    <TitleAndValue title={'HP'} value={notateNumber(hp)}/>
+    <TitleAndValue title={'MP'} value={notateNumber(mp)}/>
+    <TitleAndValue title={'Log Book'} value={notateNumber(logBook)}/>
+    <TitleAndValue title={'Total Shiny Levels'} value={notateNumber(totalShinyLevels)}/>
+    <TitleAndValue title={'Slab'} value={notateNumber(slab)}/>
+    <TitleAndValue title={'Green Mushroom Kills'} value={notateNumber(greenMushroomKills)}/>
+    <TitleAndValue title={'Total Boats'} value={notateNumber(totalBoats)}/>
+    <TitleAndValue title={'Total Tome Points'} value={notateNumber(totalTomePoints)}/>
+  </Stack>
+}
 
 const Section = ({ title, description, children }) => {
   return <Card variant="outlined" sx={{ maxWidth: 360 }}>

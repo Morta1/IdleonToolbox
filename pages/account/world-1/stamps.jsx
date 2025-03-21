@@ -97,7 +97,6 @@ const Stamps = () => {
   }
 
   const handleSwitchChange = (e, name) => {
-    console.log(name)
     setTypes({ ...types, [name]: e.target.checked });
   }
 
