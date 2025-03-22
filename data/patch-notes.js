@@ -8,9 +8,15 @@ export const patchNotes = [
     'gameVer': '2.0.34',
     'date': '22/03/2025',
     'features': [
-      'Updated the website with version 2.0.34 data'
+      'Updated the website with version 2.0.34 data',
+      'Updated the website with version 2.0.34 data and assets',
+      'Added wisdom content page and timer to dashboard',
+      'Added an alert when villager is ready to be leveled up',
+      'Added equinox fill rate breakdown to equinox page'
     ],
     'fixes': [
+      'Updated drop rate calculation with the new companion, monument, measurement bonuses',
+      'Fixed vote ballot multi bonus'
     ]
   },
   {

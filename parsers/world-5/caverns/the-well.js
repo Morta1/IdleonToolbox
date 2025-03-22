@@ -5,6 +5,8 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { getStampsBonusByEffect } from '@parsers/stamps';
 
 export const getTheWell = (holesObject, accountData) => {
   const { wellSediment, sedimentMulti, wellBuckets } = holesObject;
@@ -132,6 +134,7 @@ export const getSchematicBonus = ({ holesObject, t, i }) => {
 };
 
 const getBucketFillRate = (holesObject, accountData) => {
+  const stampBonus = getStampsBonusByEffect(accountData, 'more_Resources_from_all_Caverns') || 0;
   return getSchematicBonus({ holesObject, t: 58, i: 0 })
     + getSchematicBonus({ holesObject, t: 59, i: 0 })
     + (10 + (getSchematicBonus({ holesObject, t: 1, i: 5 })
@@ -144,5 +147,7 @@ const getBucketFillRate = (holesObject, accountData) => {
     * Math.max(1, getSchematicBonus({ holesObject, t: 15, i: 1 })
       * Math.pow(1.1, holesObject?.extraCalculations[1]))
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 5 }) / 100)
-    * (1 + getBellBonus({ holesObject, t: 0 }) / 100);
+    * (1 + getBellBonus({ holesObject, t: 0 }) / 100)
+    * (1 + getJarBonus({ holesObject, i: 8 }) / 100)
+    * (1 + stampBonus / 100);
 }

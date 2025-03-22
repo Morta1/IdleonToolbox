@@ -6,6 +6,8 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
 export const getTheHarp = (holesObject, accountData) => {
   const stringSlots = getStringSlots(holesObject);
@@ -59,6 +61,7 @@ export const getTheHarp = (holesObject, accountData) => {
 }
 
 const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountData }) => {
+  const stampBonus = getStampsBonusByEffect(accountData, 'more_Resources_from_all_Caverns') || 0;
   return ((power / 100)
     * getHarpStringAllBonus(holesObject, stringTypes, power)
     * Math.max(1, getSchematicBonus({ holesObject, t: 41, i: 1 })
@@ -73,7 +76,9 @@ const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountDa
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 3 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 8 }) / 100)
     * (1 + getBellBonus({ holesObject, t: 2 }) / 100)
-    * (1 + accountData?.gemShopPurchases?.[2] / 2)) / Math.pow(4, index);
+    * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    * (1 + getJarBonus({ holesObject, i: 20 }) / 100)
+    * (1 + stampBonus / 100)) / Math.pow(4, index);
 }
 
 const getHarpPowerPerHour = (holesObject) => {

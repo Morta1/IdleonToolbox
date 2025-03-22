@@ -8,7 +8,7 @@ export const getWisdom = (holesObject) => {
     * (1 + getMonumentHourBonus({ holesObject, t: 2, i: 5 }) / 100));
   const rewardMulti = getMonumentMultiReward(holesObject, 2);
   const timeForNextFight = 72E3 * (1 - rewardMulti);
-  const hours = holesObject?.braveryMonument?.[2] || 0;
+  const hours = holesObject?.braveryMonument?.[4] || 0;
   const hoursRewards = holesInfo?.[31]?.split(' ').slice(16);
   const hoursBreakpoints = holesInfo?.[30]?.split(' ').map((hours, index) => ({
     hours,

@@ -40,7 +40,7 @@ const Summoning = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
       <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
-      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel}/>
+      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>
     </Tabber>
   </>
 };

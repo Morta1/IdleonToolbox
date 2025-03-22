@@ -97,7 +97,6 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
       baseValue: rawValue
     };
   });
-
   const gambitStuff = account?.hole?.holesObject?.gambitStuff;
   let upgrades = summoningUpgrades.map((upgrade, index) => {
     const doubled = gambitStuff && gambitStuff?.includes(index);
@@ -138,21 +137,23 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   }
 }
 
-export const getEndlessBattles = (battles = 100, highestEndlessLevel) => {
+export const getEndlessBattles = (battles = 100, highestEndlessLevel, winnerBonuses) => {
+  const rawSummoningEndless = JSON.parse(JSON.stringify(summoningEndless))
+  const rawSummoningBonuses = JSON.parse(JSON.stringify(summoningBonuses))
   const endlessBattles = [];
   for (let i = 0; i < battles; i++) {
     const index = i % 40;
     const difficultyIndex = getEndlessModifier(i, 0, 0);
-    const bonusId = summoningEndless.bonusIds?.[index];
-    const bonus = summoningBonuses?.[bonusId - 1];
-    const bonusQty = summoningEndless.bonusQuantities[index];
+    const bonusId = rawSummoningEndless.bonusIds?.[index];
+    const bonus = rawSummoningBonuses?.[bonusId - 1];
+    const bonusQty = rawSummoningEndless.bonusQuantities[index] * (1 + (winnerBonuses?.[31]?.value ?? 0) / 100);
     const actualBonus = bonus?.bonus?.includes('<')
-      ? notateNumber(1 + bonusQty / 100, 'MultiplierInfo')
-      : notateNumber(bonusQty, 'Big');
-    bonus.bonus = bonus?.bonus?.replace(/[<{]/, actualBonus);
+      ? (1 + bonusQty / 100)
+      : (bonusQty);
+    bonus.bonus = bonus?.bonus?.replace(/[<{]/, actualBonus.toFixed(2).replace('.00', ''));
     const riftIndex = summoningEnemies.findIndex((enemy) => enemy.enemyId.includes('rift1'));
     const monsterId = Math.round(riftIndex + Math.min(4, Math.floor(i / 20)));
-    const [name, ...rest] = summoningEndless.difficultiesText?.[difficultyIndex].split('|');
+    const [name, ...rest] = rawSummoningEndless.difficultiesText?.[difficultyIndex].split('|');
     const monster = summoningEnemies?.[monsterId];
     endlessBattles.push({
       ...monster,

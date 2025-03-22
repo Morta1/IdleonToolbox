@@ -1,5 +1,13 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, getCoinsArray, msToDate, notateNumber, prefix } from '@utility/helpers';
+import {
+  cleanUnderscore,
+  getBitIndex,
+  getCoinsArray,
+  msToDate,
+  notateNumber,
+  numberWithCommas,
+  prefix
+} from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
@@ -20,9 +28,9 @@ const TheBell = ({ hole }) => {
             <img src={`${prefix}data/HoleBellAction${index}.png`}
                  style={{ transform: 'translateX(-15px)' }}
                  alt={'bell-cover-' + index}/>
-            <Typography>Exp rate: {expRate} / hr</Typography>
+            <Typography>Exp rate: {numberWithCommas(Math.floor(expRate))} / hr</Typography>
             <Typography mt={1}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')} Exp</Typography>
-            <Typography mt={1}>Time to full: {msToDate(timeToFull)}</Typography>
+            <Typography mt={1}>Time to full: {timeToFull > 0 ? msToDate(timeToFull) : 'Ready'}</Typography>
           </CardContent>
         </Card>
       })}
@@ -90,7 +98,7 @@ const TheBell = ({ hole }) => {
         return <Card key={`bell-${index}`}>
           <CardContent sx={{ width: 300 }}>
             <Typography>Lv. {level}</Typography>
-            <Typography>{cleanUnderscore(description.replace('{', bonus).replace('|', ' '))}</Typography>
+            <Typography>{cleanUnderscore(description.replace('{', bonus.toFixed(2).replace('.00', '')).replace('|', ' '))}</Typography>
           </CardContent>
         </Card>
       })}

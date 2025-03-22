@@ -15,9 +15,9 @@ const COLOR_MAP = {
   9: 'Endless'
 }
 
-const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel }) => {
+const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerBonuses }) => {
   const [hide, setHide] = useState(true);
-  battles[9] = getEndlessBattles(200, highestEndlessLevel);
+  battles[9] = getEndlessBattles(200, highestEndlessLevel, winnerBonuses);
   return <>
     <Stack direction={'row'} gap={2}>
       <CardTitleAndValue value={armyDamage < 1e7 ? commaNotation(armyDamage) : notateNumber(armyDamage)}
@@ -56,6 +56,7 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel }) => {
               if (hide && won) return null;
               return <Card key={'upgrade-' + index} sx={{ width: 220, opacity: won ? .5 : 1 }}>
                 <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  {index}
                   <img width={42} height={42} src={`${prefix}${icon}.png`} alt={''}/>
                   <Stack direction={'row'} gap={1}>
                     <Stack>
