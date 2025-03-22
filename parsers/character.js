@@ -98,6 +98,8 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getMeasurementBonus } from '@parsers/world-5/hole';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -683,6 +685,7 @@ export const getDropRate = (character, account, characters) => {
   const thirdTalentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
   const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
+  const secondCompanionDropRate = isCompanionBonusActive(account, 22) ? account?.companions?.list?.at(22)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
   const chipBonus = getPlayerLabChipBonus(character, account, 3);
@@ -696,9 +699,12 @@ export const getDropRate = (character, account, characters) => {
   const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
   const voteBonus = getVoteBonus(account, 27);
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 46, i: 0 });
+  const secondSchematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 82, i: 20 });
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
   const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value;
+  const measurementBonus = getMeasurementBonus({ holesObject: account?.hole?.holesObject, accountData: account, t: 15 });
+  const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
 
   const additive =
     firstTalentBonus +
@@ -731,7 +737,11 @@ export const getDropRate = (character, account, characters) => {
     schematicBonus +
     cropDepotBonus +
     grimoireBonus +
-    upgradeVaultBonus;
+    upgradeVaultBonus +
+    measurementBonus +
+    secondCompanionDropRate +
+    secondSchematicBonus +
+    monumentBonus;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -778,7 +788,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
     { name: 'Guild', value: guildBonus / 100 },
     { name: 'Siege Breaker', value: extraDropRate },
-    { name: 'Companion', value: companionDropRate / 100 },
+    { name: 'Companion', value: (companionDropRate + secondCompanionDropRate) / 100 },
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
@@ -796,7 +806,9 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Grimoire', value: grimoireBonus / 100 },
     { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
     { name: 'Crop Depot', value: cropDepotBonus / 100 },
-    { name: 'Base', value: 1 }
+    { name: 'Base', value: 1 },
+    { name: 'Monument', value: monumentBonus / 100 },
+    { name: 'Measurement', value: measurementBonus / 100 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {

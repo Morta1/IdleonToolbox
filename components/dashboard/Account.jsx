@@ -390,6 +390,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.grotto ?
                 <Alert title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}
+              {alerts?.['World 5']?.hole?.villagersLevelUp?.length > 0
+                ? alerts?.['World 5']?.hole?.villagersLevelUp?.map(({ name }, index) => <Alert
+                  key={name}
+                  title={`${name} is ready to level up`}
+                  iconPath={`etc/Villager_${index}`}/>)
+                : null}
+
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 6'] ? <Stack direction={'row'} gap={4}>

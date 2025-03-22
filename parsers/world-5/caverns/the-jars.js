@@ -3,6 +3,8 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { cleanUnderscore, createRange, lavaLog, notateNumber } from '@utility/helpers';
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 
 
 const jarNames = [
@@ -94,6 +96,9 @@ const getRupieValue = ({ holesObject, accountData }) => {
   return (1 + (getSchematicBonus({ holesObject, t: 62, i: 1 })
       + (getSchematicBonus({ holesObject, t: 65, i: 2 })
         + getSchematicBonus({ holesObject, t: 68, i: 4 }))))
+    * Math.max(1, Math.pow(1.5, accountData?.accountOptions?.[355]))
+    * (1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 400)
+    * (1 + getMonumentBonus({ holesObject, t: 2, i: 1 }) / 100)
     * (1 + (getMeasurementBonus({ holesObject, accountData, t: 10 })
       + getMeasurementBonus({ holesObject, accountData, t: 14 })) / 100)
     * Math.max(1, getSchematicBonus({ holesObject, t: 80, i: 1 })
@@ -210,17 +215,21 @@ const getEnchantChance = ({ holesObject }) => {
   }
 
   // Calculate final return value
-  const jarBonus1 = 1 + getJarBonus({ holesObject, i: 10 }) / 100;
-  const jarBonus2 = 1 + getJarBonus({ holesObject, i: 18 }) / 100;
-  const jarBonus3 = 1 + getJarBonus({ holesObject, i: 26 }) / 100;
-  const jarBonus4 = 1 + getJarBonus({ holesObject, i: 34 }) / 100;
+  const jarBonus1 = getJarBonus({ holesObject, i: 9 });
+  const jarBonus2 = getJarBonus({ holesObject, i: 18 });
+  const jarBonus3 = getJarBonus({ holesObject, i: 26 });
+  const jarBonus4 = getJarBonus({ holesObject, i: 34 });
   const studyBonus = 1 + getStudyBonus(holesObject, 10, 0) / 100;
-  const upgradeFactor = Math.max(1, getSchematicBonus({ holesObject, t: 73, i: 1 })
-    * Math.pow(1.02, lavaLog(holesObject?.extraCalculations?.[39])));
 
-  return (0.35 / (1 + Math.pow(value, 1.3))) * jarBonus1 * upgradeFactor * jarBonus2 * studyBonus * jarBonus3 * jarBonus4;
+  return (0.35 / (1 + (Math.pow(value, 1.23) + Math.pow(1.1, value)))) *
+    (1 + jarBonus1 / 100) *
+    Math.max(1, getSchematicBonus({ holesObject, t: 73, i: 1 }) *
+      Math.pow(1.1, lavaLog(holesObject?.extraCalculations?.[39]))) *
+    (1 + jarBonus2 / 100) *
+    (1 + studyBonus / 100) *
+    (1 + jarBonus3 / 100) *
+    (1 + jarBonus4 / 100);
 }
-
 
 // TODO: TBD
 // 11 == this._DN4 ? a.engine.getGameAttribute("Holes")[11][39] = c.asNumber(a.engine.getGameAttribute("Holes")[11][39])

@@ -26,7 +26,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
   const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
-  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
+  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - (account?.companions?.lastFreeClaim ?? 0)));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const mfDuration = getDuration(new Date().getTime(), nextMegaFeatherRestart);
@@ -261,7 +261,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           /> : null}
         </Section> : null}
       </Stack>}
-      {!emptyAlerts?.['World 3'] && <Section title={'World 3'}>
+      {!emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <Section title={'World 3'}>
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerCard
           page={'account/world-3/printer'}
           tooltipContent={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
@@ -293,7 +293,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           tooltipContent={'Next level: ' + getRealDateInMs(account?.equinox?.timeToFull)}
           lastUpdated={lastUpdated} time={account?.equinox?.timeToFull} icon={'data/Quest78.png'}/> : null}
       </Section>}
-      {!emptyAlerts?.['World 5'] && <Section title={'World 5'}>
+      {!emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <Section title={'World 5'}>
         {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?
           <TimerCard
             page={'account/world-5/hole'}
@@ -314,6 +314,16 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             time={new Date().getTime() + account?.hole?.caverns?.justice?.timeForNextFight * 1000}
             timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.justice?.rewardMulti) / 100}x)` : ''}
             icon={`data/Justice_Monument_x1.png`}/> : null}
+        {trackers?.['World 5']?.wisdom?.checked && account?.finishedWorlds?.World4 ?
+          <TimerCard
+            page={'account/world-5/hole'}
+            tooltipContent={`Next fight: ${account?.hole?.caverns?.wisdom?.timeForNextFight < 0
+              ? 'now!'
+              : getRealDateInMs(account?.hole?.caverns?.wisdom?.timeForNextFight)}`}
+            lastUpdated={lastUpdated}
+            time={new Date().getTime() + account?.hole?.caverns?.wisdom?.timeForNextFight * 1000}
+            timerPlaceholder={account?.hole?.caverns?.wisdom?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.wisdom?.rewardMulti) / 100}x)` : ''}
+            icon={`data/Wisdom_Monument_x1.png`}/> : null}
 
       </Section>}
 

@@ -126,8 +126,11 @@ export const getSchematicBonus = ({ holesObject, t, i }) => {
                       ? (((extraCalculations[33]) +
                       ((extraCalculations[34])
                         + ((extraCalculations[35]) + (extraCalculations[36])))) / 100) * 10
-                      : i;
+                      : 82 === t || 83 === t || 84 === t
+                        ? i * extraCalculations[55]
+                        : i;
 };
+
 const getBucketFillRate = (holesObject, accountData) => {
   return getSchematicBonus({ holesObject, t: 58, i: 0 })
     + getSchematicBonus({ holesObject, t: 59, i: 0 })

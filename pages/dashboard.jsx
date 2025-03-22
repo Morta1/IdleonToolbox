@@ -16,7 +16,7 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/printer';
 
 const baseTrackers = {
-  version: 14,
+  version: 15,
   account: {
     General: {
       tasks: {
@@ -263,7 +263,8 @@ const baseTrackers = {
             checked: true,
             type: 'input',
             props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
-          }
+          },
+          { name: 'villagersLevelUp', checked: true }
         ]
       }
     },
@@ -417,7 +418,8 @@ const baseTrackers = {
     },
     'World 5': {
       monument: { checked: true, options: [] },
-      justice: { checked: true, options: [] }
+      justice: { checked: true, options: [] },
+      wisdom: { checked: true, options: [] }
     }
   }
 }

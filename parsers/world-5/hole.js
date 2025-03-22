@@ -136,8 +136,10 @@ const parseHole = (holeRaw, accountData) => {
     const expRate = getVillagerExpPerHour(holesObject, accountData, index, leastOpalInvestedVillager)
     const timeLeft = (expReq - exp) / expRate?.value * 1000 * 3600;
     return {
+      name: Object.keys(VILLAGERS)?.[index].toLowerCase().camelToTitleCase(),
       exp: exp < 1e6 ? commaNotation(exp) : notateNumber(exp, 'Big'),
       expReq: expReq < 1e6 ? commaNotation(expReq) : notateNumber(expReq, 'Big'),
+      readyToLevel: exp >= expReq,
       level,
       opalInvested,
       expRate,

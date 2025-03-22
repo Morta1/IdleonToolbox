@@ -3,7 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
 
-const Bravery = ({ hole }) => {
+const Justice = ({ hole }) => {
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Mental health'} icon={'etc/Justice_Health.png'} imgStyle={{ width: 24, height: 24 }}
@@ -43,4 +43,4 @@ const Bravery = ({ hole }) => {
   </>
 };
 
-export default Bravery;
+export default Justice;

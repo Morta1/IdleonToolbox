@@ -299,6 +299,30 @@ export const migrateToVersion14 = (config, baseTrackers) => {
   return dashboardConfig
 }
 
+export const migrateToVersion15 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 5']?.hole?.options?.length === 8) {
+    dashboardConfig.account['World 5'].hole.options = [
+      ...dashboardConfig?.account?.['World 5']?.hole?.options,
+      { name: 'villagersLevelUp', checked: true }
+    ]
+  }
+
+  if (!dashboardConfig?.timers?.['World 5']?.wisdom){
+    dashboardConfig.timers['World 5'] = {
+      ...dashboardConfig.timers['World 5'],
+      wisdom: { checked: true, options: [] }
+    }
+  }
+
+  dashboardConfig.version = 15;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -343,6 +367,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 13) {
       migratedConfig = migrateToVersion14(migratedConfig, baseTrackers);
+    }
+    if (migratedConfig?.version === 14) {
+      migratedConfig = migrateToVersion15(migratedConfig, baseTrackers);
     }
   }
   return migratedConfig;

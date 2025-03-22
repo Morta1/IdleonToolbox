@@ -16,7 +16,7 @@ export const getJustice = (holesObject) => {
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
   const bonuses = holesInfo?.[32]?.split(' ')
-    ?.slice(10)
+    ?.slice(10, 20)
     ?.filter((name) => !name.includes('Monument_'))
     .map((description, index) => {
       const level = holesObject?.braveryBonuses?.slice(10)?.[index];

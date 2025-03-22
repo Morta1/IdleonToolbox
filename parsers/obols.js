@@ -27,7 +27,7 @@ export const parseObols = (obolsRaw, obolsEquippedRaw, obolsInvRaw, account) => 
   obolsList.sort((a, b) => a.index - b.index);
   const stats = getStatsFromObols(obolsList, account);
   return {
-    inventory: createArrayOfArrays(obolsInvRaw),
+    inventory: createArrayOfArrays(obolsInvRaw) || [],
     list: obolsList,
     stats
   };

@@ -655,9 +655,11 @@ export const getAllCap = (character, account, forceMaxCapacity) => {
     : getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account, forceMaxCapacity)?.bonus;
   const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
+  const companionBonus = isCompanionBonusActive(account, 18) ? account?.companions?.list?.at(18)?.bonus : 0;
 
   return {
     value: (1 + (guildBonus + talentBonus) / 100)
+      * (1 + companionBonus / 100)
       * (1 + shrineBonus / 100) * Math.max(1 - prayerCurse / 100, 0.4)
       * (1 + (prayerBonus + bribeBonus) / 100),
     breakdown: [
@@ -665,7 +667,8 @@ export const getAllCap = (character, account, forceMaxCapacity) => {
       { value: talentBonus, name: 'Talent' },
       { value: shrineBonus, name: 'Shrine' },
       { value: prayerBonus + (-prayerCurse), name: 'Prayer' },
-      { value: bribeBonus, name: 'Bribe' }
+      { value: bribeBonus, name: 'Bribe' },
+      { value: companionBonus, name: 'Companion' }
     ]
   }
 }
@@ -682,6 +685,14 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
   const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 17);
   const allCap = getAllCap(character, account, forceMaxCapacity);
+  // return Math.floor((v._customBlock_MaxCapacity("AllCapBASE")
+  //     + c.asNumber(a.engine.getGameAttribute("MaxCarryCap").h.bCraft))
+  //   * (1 + k._customBlock_StampBonusOfTypeX("MatCap") / 100)
+  //   * (1 + 25 * c.asNumber(a.engine.getGameAttribute("GemItemsPurchased")[58]) / 100)
+  //   * (1 + (k._customBlock_StampBonusOfTypeX("AllCarryCap")
+  //     + c.asNumber(a.engine.getGameAttribute("DNSM").h.StarSigns.h.CarryCap)) / 100) *
+  //   (1 + k._customBlock_GetTalentNumber(1, 78) / 100
+  //   ) * v._customBlock_MaxCapacity("AllCapBonuses"));
 
   let value, breakdown = [
     { title: 'Base' },

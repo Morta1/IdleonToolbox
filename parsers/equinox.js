@@ -36,7 +36,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const companionBonus = isCompanionBonusActive(account, 15) ? 1 : 0;
   const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 });
 
-  const additive = (eqBarVial +
+  const cloudsBonus = (
     (10 * (clouds[3] === -1)
       + (15 * (clouds[9] === -1)
         + (20 * (clouds[14] === -1)
@@ -50,7 +50,18 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     * (1 + cosmoBonus / 100)
     * (1 + .5 * eventShopBonus)
     * (1 + account?.accountOptions?.[320] / 10)
-    * (1 + additive / 100);
+    * (1 + (eqBarVial + cloudsBonus) / 100);
+
+  const breakdown = [
+    { name: 'Vote', value: voteBonus / 100 },
+    { name: 'Cosmo', value: cosmoBonus / 100 },
+    { name: 'Companion', value: companionBonus * 2.5 },
+    { name: 'Event shop', value: .5 * eventShopBonus },
+    { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
+    { name: 'Vial', value: eqBarVial / 100 },
+    { name: 'Clouds', value: cloudsBonus / 100 },
+    { name: 'Bundle*', value: bundleBonus ? 90 : 60 },
+  ]
 
   const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base);
 
@@ -65,7 +76,8 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     timeToFull,
     challenges,
     upgrades,
-    completedClouds
+    completedClouds,
+    breakdown
   };
 }
 

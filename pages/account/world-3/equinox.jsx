@@ -1,13 +1,12 @@
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import ProgressBar from '../../../components/common/ProgressBar';
 import Timer from '../../../components/common/Timer';
 import { cleanUnderscore, notateNumber, prefix } from '../../../utility/helpers';
 import { NextSeo } from 'next-seo';
-import { yellow } from '@mui/material/colors';
-import Box from '@mui/material/Box';
-import { CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import Tooltip from '@components/Tooltip';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Equinox = () => {
   const { state } = useContext(AppContext);
@@ -23,18 +22,26 @@ const Equinox = () => {
         description="Equinox progression"
       />
       <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Speed'} value={Math.round(equinox.chargeRate) + '/hr'}/>
-        <CardTitleAndValue textAlign={'center'} title={'Equinox Progression'}>
-          <Typography
-            textAlign={'center'}>{notateNumber(equinox.currentCharge, 'Whole')} / {notateNumber(equinox.chargeRequired, 'Whole')}</Typography>
-          <ProgressBar bgColor={yellow} percent={equinox.currentCharge / equinox.chargeRequired * 100} width={300}/>
-          <Box sx={{ textAlign: 'center' }}>
-            <Timer type={'countdown'}
-                   placeholder={'Upgrade is ready'}
-                   date={equinox.timeToFull}
-                   lastUpdated={state?.lastUpdated}/>
-          </Box>
+        <CardTitleAndValue title={'Fill rate'}>
+          <Stack direction="row" alignItems={'center'} gap={1}>
+            <Typography>{Math.round(equinox.chargeRate)} / hr</Typography>
+            <Tooltip
+              title={<Stack>
+                {equinox?.breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
+                                                                                    title={name}
+                                                                                    titleStyle={{ width: 120 }}
+                                                                                    value={value.toFixed(2).replace('.00', '')}/>)}
+
+              </Stack>}>
+              <IconInfoCircleFilled size={18}/>
+            </Tooltip>
+          </Stack>
         </CardTitleAndValue>
+        <CardTitleAndValue title={'Equinox Progression'} value={`${notateNumber(equinox.currentCharge, 'Whole')} / ${notateNumber(equinox.chargeRequired, 'Whole')}`} />
+        <CardTitleAndValue title={'Time to full'} value={<Timer type={'countdown'}
+                                                                placeholder={'Upgrade is ready'}
+                                                                date={equinox.timeToFull}
+                                                                lastUpdated={state?.lastUpdated}/>} />
       </Stack>
 
       <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

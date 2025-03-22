@@ -29,6 +29,7 @@ const getImgName = (name, rawName, shape) => {
 
 const ObolsView = ({ obols, type = 'character', obolStats }) => {
   if (!obols) return;
+  const noStats = Object.keys(obols?.stats).length === 0;
   return (
     <ObolsStyled>
       {!obolStats ? <>
@@ -55,8 +56,8 @@ const ObolsView = ({ obols, type = 'character', obolStats }) => {
         </> :
         <Card variant={'outlined'}>
           <CardContent>
-            <Stack gap={2} mt={2} ml={type === 'character' ? 1 : 7}>
-              {Object.entries(obols?.stats)?.map(([stat, value], index) => {
+            <Stack gap={2} mt={noStats ? 0 :2} ml={type === 'character' ? 1 : 7}>
+              {noStats ? <Typography variant={'body2'}>No stats from obols</Typography>: Object.entries(obols?.stats)?.map(([stat, value], index) => {
                 return <Stat key={`${stat}-${index}`}
                              {...({
                                statName: cleanUnderscore(stat),

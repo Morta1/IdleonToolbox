@@ -10,7 +10,7 @@ const Prayers = ({ prayers }) => {
     <Card variant={'outlined'} sx={{ height: 'fit-content' }}>
       <CardContent>
         <Stack direction={'row'} gap={2} flexWrap="wrap" justifyContent={'center'}>
-          {prayers?.map((prayer, index) => {
+          {prayers?.length === 0 ? <Typography variant={'body2'}>No prayers equipped</Typography> : prayers?.map((prayer, index) => {
             return <Tooltip title={<CurseTooltip {...prayer}/>} key={name + index}>
               <PrayerIcon src={`${prefix}data/Prayer${prayer?.prayerIndex}.png`} alt=""/>
             </Tooltip>;

@@ -784,7 +784,17 @@ export const getWorld5Alerts = (account, fields, options) => {
   if (fields?.hole?.checked) {
     const hole = {};
     if (!account?.finishedWorlds?.World4) return alerts;
-    const { buckets, motherlode, bravery, justice, theBell, theHarp, theHive, grotto } = options?.hole || {};
+    const {
+      buckets,
+      motherlode,
+      bravery,
+      justice,
+      theBell,
+      theHarp,
+      theHive,
+      grotto,
+      villagersLevelUp
+    } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
     const anySedimentFull = restSediments?.filter(({
@@ -819,6 +829,10 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     if (grotto?.checked && account?.hole?.caverns?.grotto?.mushroomKillsLeft <= 0) {
       hole.grotto = true;
+    }
+    const readyToLevelVillagers = account?.hole?.villagers?.filter(({ readyToLevel }) => readyToLevel);
+    if (villagersLevelUp?.checked && readyToLevelVillagers.length > 0) {
+      hole.villagersLevelUp = readyToLevelVillagers;
     }
     if (Object.keys(hole).length > 0) {
       alerts.hole = hole;
