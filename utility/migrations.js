@@ -323,6 +323,28 @@ export const migrateToVersion15 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion16 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 5']?.hole?.options?.length === 9) {
+    dashboardConfig.account['World 5'].hole.options = [
+      ...dashboardConfig?.account?.['World 5']?.hole?.options,
+      {
+        name: 'wisdom',
+        checked: true,
+        type: 'input',
+        props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
+      }
+    ]
+  }
+
+  dashboardConfig.version = 16;
+  return dashboardConfig
+}
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -370,6 +392,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 14) {
       migratedConfig = migrateToVersion15(migratedConfig, baseTrackers);
+    }
+    if (migratedConfig?.version === 15) {
+      migratedConfig = migrateToVersion16(migratedConfig, baseTrackers);
     }
   }
   return migratedConfig;

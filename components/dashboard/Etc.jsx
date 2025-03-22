@@ -299,7 +299,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             page={'account/world-5/hole'}
             tooltipContent={`Next fight: ${account?.hole?.caverns?.bravery?.timeForNextFight < 0
               ? 'now!'
-              : getRealDateInMs(account?.hole?.caverns?.bravery?.timeForNextFight)}`}
+              : getRealDateInMs(Date.now() + account?.hole?.caverns?.bravery?.timeForNextFight  * 1000)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000}
             timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.bravery?.rewardMulti) / 100}x)` : ''}
@@ -309,7 +309,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             page={'account/world-5/hole'}
             tooltipContent={`Next fight: ${account?.hole?.caverns?.justice?.timeForNextFight < 0
               ? 'now!'
-              : getRealDateInMs(account?.hole?.caverns?.justice?.timeForNextFight)}`}
+              : getRealDateInMs(Date.now() + account?.hole?.caverns?.justice?.timeForNextFight  * 1000)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.justice?.timeForNextFight * 1000}
             timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.justice?.rewardMulti) / 100}x)` : ''}
@@ -319,12 +319,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             page={'account/world-5/hole'}
             tooltipContent={`Next fight: ${account?.hole?.caverns?.wisdom?.timeForNextFight < 0
               ? 'now!'
-              : getRealDateInMs(account?.hole?.caverns?.wisdom?.timeForNextFight)}`}
+              : getRealDateInMs(Date.now() + account?.hole?.caverns?.wisdom?.timeForNextFight  * 1000)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.wisdom?.timeForNextFight * 1000}
             timerPlaceholder={account?.hole?.caverns?.wisdom?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.wisdom?.rewardMulti) / 100}x)` : ''}
             icon={`data/Wisdom_Monument_x1.png`}/> : null}
-
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>

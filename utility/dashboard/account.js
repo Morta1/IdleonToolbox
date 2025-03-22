@@ -789,6 +789,7 @@ export const getWorld5Alerts = (account, fields, options) => {
       motherlode,
       bravery,
       justice,
+      wisdom,
       theBell,
       theHarp,
       theHive,
@@ -818,6 +819,9 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     if (justice?.checked && account?.hole?.caverns?.justice?.rewardMulti >= justice?.props?.value) {
       hole.justice = true;
+    }
+    if (wisdom?.checked && account?.hole?.caverns?.wisdom?.rewardMulti >= wisdom?.props?.value) {
+      hole.wisdom = true;
     }
     const readyBells = account?.hole?.caverns?.theBell?.bells?.filter(({ exp, expReq }) => exp >= expReq);
     if (theBell?.checked && readyBells?.length > 0) {

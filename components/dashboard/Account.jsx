@@ -378,6 +378,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert title={`You can hear a story in the justice cavern`}
                        imgStyle={{ objectFit: 'none' }}
                        iconPath={'data/Justice_Monument_x1'}/> : null}
+              {alerts?.['World 5']?.hole?.wisdom ?
+                <Alert title={`You can play a memory game in the wisdom cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'data/Wisdom_Monument_x1'}/> : null}
               {alerts?.['World 5']?.hole?.theBell ?
                 <Alert title={`One of your cavern bells is ready`}
                        iconPath={'etc/TheBell'}/> : null}
