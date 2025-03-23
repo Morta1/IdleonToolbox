@@ -1,9 +1,14 @@
-import { getMonumentBonus, getMonumentHourBonus, getMonumentMultiReward } from '@parsers/world-5/caverns/bravery';
+import {
+  getMonumentAfkReq,
+  getMonumentBonus,
+  getMonumentHourBonus,
+  getMonumentMultiReward
+} from '@parsers/world-5/caverns/bravery';
 import { lavaLog, notateNumber } from '@utility/helpers';
 import { holesInfo } from '../../../data/website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
 
-export const getWisdom = (holesObject) => {
+export const getWisdom = (holesObject,  accountData) => {
   const opalChance = Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[12])
     * (1 + getMonumentHourBonus({ holesObject, t: 2, i: 5 }) / 100));
   const rewardMulti = getMonumentMultiReward(holesObject, 2);
@@ -42,7 +47,8 @@ export const getWisdom = (holesObject) => {
     attempts: getAttempts(holesObject),
     attemptsGainPerRound: getAttemptsGainPerRound(holesObject),
     timePerMatch: getTimePerMatch(),
-    instantMatches: getInstantMatch(holesObject)
+    instantMatches: getInstantMatch(holesObject),
+    monumentAfkReq: getMonumentAfkReq(holesObject, accountData, nextHourBreakpoint?.hours)
   };
 }
 

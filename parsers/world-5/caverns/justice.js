@@ -1,10 +1,15 @@
 import { lavaLog2, notateNumber } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { getMonumentBonus, getMonumentHourBonus, getMonumentMultiReward } from '@parsers/world-5/caverns/bravery';
+import {
+  getMonumentAfkReq,
+  getMonumentBonus,
+  getMonumentHourBonus,
+  getMonumentMultiReward
+} from '@parsers/world-5/caverns/bravery';
 import { holesInfo } from '../../../data/website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
 
-export const getJustice = (holesObject) => {
+export const getJustice = (holesObject, accountData) => {
 
   const rewardMulti = getMonumentMultiReward(holesObject, 1);
   const timeForNextFight = 72E3 * (1 - rewardMulti);
@@ -43,7 +48,8 @@ export const getJustice = (holesObject) => {
     health: getStartHealth(holesObject),
     popularity: getPopularity(holesObject),
     dismissals: getDismissals(holesObject),
-    opalChance: getOpalChance(holesObject)
+    opalChance: getOpalChance(holesObject),
+    monumentAfkReq: getMonumentAfkReq(holesObject, accountData, nextHourBreakpoint?.hours)
   }
 }
 

@@ -22,3 +22,22 @@ export const ExpRateCard = ({ title, expRate }) => {
     </Stack>
   </CardTitleAndValue>
 }
+
+export const CardWithBreakdown = ({ title, breakdown, value }) => {
+  return <CardTitleAndValue title={title}>
+    <Stack direction="row" alignItems={'center'} gap={1}>
+      {value ? <Typography>{value}</Typography> : null}
+      {breakdown ? <Tooltip
+        title={<Stack>
+          {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
+                                                                     title={name}
+                                                                     titleStyle={{ width: 120 }}
+                                                                     value={value.replace('.00', '')}/>)}
+
+        </Stack>}>
+        <IconInfoCircleFilled size={18}/>
+      </Tooltip> : null}
+    </Stack>
+  </CardTitleAndValue>
+}
+

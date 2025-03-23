@@ -2,6 +2,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 
 const Wisdom = ({ hole }) => {
   return <>
@@ -26,6 +27,7 @@ const Wisdom = ({ hole }) => {
                          value={hole?.caverns?.wisdom?.timeForNextFight > 0
                            ? msToDate(hole?.caverns?.wisdom?.timeForNextFight * 1000)
                            : 'Now!'}/>
+      {hole?.caverns?.wisdom?.monumentAfkReq ? <CardWithBreakdown title={'Afk hours req'} breakdown={hole?.caverns?.wisdom?.monumentAfkReq} /> : null}
       <CardTitleAndValue title={'Next hour reward'}
                          value={`${commaNotation(hole?.caverns?.wisdom?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.wisdom?.nextHourBreakpoint?.reward)}`}/>
     </Stack>

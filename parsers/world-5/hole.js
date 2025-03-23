@@ -153,16 +153,16 @@ const parseHole = (holeRaw, accountData) => {
   const theWell = getTheWell(holesObject, accountData);
   const motherlode = getMotherlode(holesObject);
   const theDen = getTheDen(holesObject);
-  const bravery = getBravery(holesObject);
+  const bravery = getBravery(holesObject, accountData);
   const theBell = getTheBell(holesObject, accountData);
   const theHarp = getTheHarp(holesObject, accountData);
   const theLamp = getLamp(holesObject, accountData, unlockedCaverns);
   const theHive = getHive(holesObject);
   const grotto = getGrotto(holesObject);
-  const justice = getJustice(holesObject);
+  const justice = getJustice(holesObject, accountData);
   const theJars = getTheJars(holesObject, accountData);
   const evertree = getEvertree(holesObject);
-  const wisdom = getWisdom(holesObject);
+  const wisdom = getWisdom(holesObject, accountData);
   const gambit = getGambit(holesObject, accountData);
   const theTemple = getTheTemple(holesObject);
 

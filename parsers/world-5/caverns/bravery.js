@@ -1,9 +1,11 @@
 import { holesInfo } from '../../../data/website-data';
-import { getCosmoBonus, getStudyBonus } from '@parsers/world-5/hole';
+import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { fillArrayToLength, notateNumber } from '@utility/helpers';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
-export const getBravery = (holesObject) => {
+export const getBravery = (holesObject, accountData) => {
   const maxRethrow = getMaxRerolls(holesObject);
   const maxRetelling = getMonumentHourBonus({ holesObject, t: 0, i: 4 });
   const min = getBraveryMinDamage(holesObject);
@@ -44,6 +46,7 @@ export const getBravery = (holesObject) => {
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
+
   return {
     damage: { min, max },
     ownedSwords,
@@ -55,8 +58,28 @@ export const getBravery = (holesObject) => {
     hours,
     nextHourBreakpoint,
     timeForNextFight,
-    rewardMulti
+    rewardMulti,
+    monumentAfkReq: getMonumentAfkReq(holesObject, accountData, nextHourBreakpoint?.hours)
   };
+}
+
+export const getMonumentAfkReq = (holesObject, accountData, requiredHours) => {
+  if (!requiredHours) return null;
+  const winBonus = getWinnerBonus(accountData, '+{% Monument AFK');
+  const afkPercent = getMonumentHourBonus({ holesObject, t: 0, i: 8 })
+    + (getMonumentHourBonus({ holesObject, t: 1, i: 8 })
+      + getMonumentHourBonus({ holesObject, t: 2, i: 8 })
+      + (winBonus + (getJarBonus({ holesObject, i: 19 }) / 1 + (getSchematicBonus({ holesObject, t: 81, i: 20 })
+        + getMeasurementBonus({ holesObject, accountData, t: 11 })))));
+
+  const realHoursNeeded = Math.ceil(requiredHours / (afkPercent / 100));   // Calculate base real hours
+
+  // Generate an array of hours needed for 1 to 10 characters
+  return Array.from({ length: 10 }, (_, index) => {
+    const characters = index + 1;  // 1 to 10 characters
+    const hoursPerCharacter = Math.floor(realHoursNeeded / characters);  // Divide time between characters
+    return { name: `${index + 1} characters`, value: `${hoursPerCharacter} hrs` };  // Return object with character count and hours
+  });
 }
 
 export const getMonumentMultiReward = (holesObject, t) => {
