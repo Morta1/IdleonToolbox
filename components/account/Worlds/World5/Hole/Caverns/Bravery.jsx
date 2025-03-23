@@ -26,8 +26,8 @@ const Bravery = ({ hole }) => {
                          value={hole?.caverns?.bravery?.timeForNextFight > 0
                            ? msToDate(hole?.caverns?.bravery?.timeForNextFight * 1000)
                            : 'Now!'}/>
-      <CardTitleAndValue title={'Next hour reward'}
-                         value={`${commaNotation(hole?.caverns?.bravery?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.bravery?.nextHourBreakpoint?.reward)}`}/>
+      {hole?.caverns?.bravery?.nextHourBreakpoint ? <CardTitleAndValue title={'Next hour reward'}
+                          value={`${commaNotation(hole?.caverns?.bravery?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.bravery?.nextHourBreakpoint?.reward)}`}/> : null}
       <CardTitleAndValue title={'Enemy HP'} tooltipTitle={<Breakdown breakdown={hole?.caverns?.bravery?.hps}/>}
                          value={'Hover me!'}/>
     </Stack>

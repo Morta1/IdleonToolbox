@@ -26,8 +26,8 @@ const Justice = ({ hole }) => {
                          value={hole?.caverns?.justice?.timeForNextFight > 0
                            ? msToDate(hole?.caverns?.justice?.timeForNextFight * 1000)
                            : 'Now!'}/>
-      <CardTitleAndValue title={'Next hour reward'}
-                         value={`${commaNotation(hole?.caverns?.justice?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.justice?.nextHourBreakpoint?.reward)}`}/>
+      {hole?.caverns?.justice?.nextHourBreakpoint ? <CardTitleAndValue title={'Next hour reward'}
+                          value={`${commaNotation(hole?.caverns?.justice?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.justice?.nextHourBreakpoint?.reward)}`}/> : null}
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

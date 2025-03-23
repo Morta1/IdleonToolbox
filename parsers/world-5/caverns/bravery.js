@@ -44,7 +44,6 @@ export const getBravery = (holesObject) => {
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
-
   return {
     damage: { min, max },
     ownedSwords,

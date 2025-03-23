@@ -8,7 +8,6 @@ import { getShinyBonus } from '@parsers/breeding';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { constructionMasteryThresholds } from '@parsers/construction';
 import { getArcadeBonus } from '@parsers/arcade';
-import { getHighestLevelOfClass } from '@parsers/misc';
 import { checkCharClass, getHighestTalentByClass } from '@parsers/talents';
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -96,7 +95,9 @@ export const getRefineryCycleBonuses = (account, characters) => {
       : 0
   }
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Refinery_Speed')?.bonus ?? 0;
-  const highestLevelDivineKnight = getHighestLevelOfClass(charactersLevels, 'Divine_Knight');
+  const divineKnightsLevels = charactersLevels?.filter((character) =>
+    checkCharClass(character?.class, 'Divine_Knight'))?.map(({ level }) => level);
+  const highestLevelDivineKnight = divineKnightsLevels?.length > 0 ? Math.max(...divineKnightsLevels) : 0;
   const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
@@ -111,7 +112,7 @@ export const getRefineryCycleBonuses = (account, characters) => {
     { name: 'Shinies', value: shinyRefineryBonus / 100 },
     { name: 'Const mastery', value: constructionMastery / 100 },
     { name: 'Arcade', value: arcadeBonus / 100 },
-    { name: 'Vote', value: voteBonus / 100 },
+    { name: 'Vote', value: voteBonus / 100 }
   ]
   return {
     bonusBreakdown,
@@ -127,7 +128,7 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
-  const squires = characters?.filter((character) => checkCharClass(character?.class,'Squire') || checkCharClass(character?.class,'Divine_Knight'));
+  const squires = characters?.filter((character) => checkCharClass(character?.class, 'Squire') || checkCharClass(character?.class, 'Divine_Knight'));
   const squiresDataTemp = squires.reduce((res, character) => {
     const { name, talents, cooldowns, postOffice, afkTime } = character;
     const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
