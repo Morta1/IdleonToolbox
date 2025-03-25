@@ -56,8 +56,8 @@ const Equinox = () => {
           if (!active && !showAll) return null;
           return <Card key={label + `${index}`} sx={{
             width: 350,
-            border: current !== -1 ? '1px solid' : '',
-            borderColor: current !== -1 ? 'success.light' : '',
+            border: active ? '1px solid' : '',
+            borderColor: active ? 'success.light' : '',
             opacity: current !== -1 ? 1 : .5
           }}>
             <CardContent>

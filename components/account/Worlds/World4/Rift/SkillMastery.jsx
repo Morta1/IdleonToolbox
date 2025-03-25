@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { getSkillRankColor } from '../../../../../parsers/misc';
 import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const defaultBonuses = [
   '+25%_{_EXP_GAIN',
@@ -58,15 +59,16 @@ const SkillMastery = ({ totalSkillsLevels, characters }) => {
         }}>
           <CardContent sx={{ width: 300 }}>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <Tooltip title={<SkillBreakdown characters={characters} skillName={skillName}/>}>
-                <SkillIcon src={`${prefix}data/${icon}.png`}
-                           alt=""/>
-              </Tooltip>
+              <SkillIcon src={`${prefix}data/${icon}.png`}
+                         alt=""/>
               <Stack>
                 <Typography>{cleanUnderscore(skillName.capitalize())}</Typography>
                 <Typography variant={'caption'} component={'span'} sx={{ color, fontWeight: 'bold' }}>Total
                   Level {level}</Typography>
               </Stack>
+              <Tooltip  title={<SkillBreakdown characters={characters} skillName={skillName}/>}>
+                <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18}/>
+              </Tooltip>
             </Stack>
             <Divider sx={{ my: 1 }}/>
             <Stack gap={1}>
