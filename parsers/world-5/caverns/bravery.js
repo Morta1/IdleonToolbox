@@ -8,8 +8,8 @@ import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 export const getBravery = (holesObject, accountData) => {
   const maxRethrow = getMaxRerolls(holesObject);
   const maxRetelling = getMonumentHourBonus({ holesObject, t: 0, i: 4 });
-  const min = getBraveryMinDamage(holesObject);
-  const max = getBraveryMaxDamage(holesObject);
+  const min = getBraveryMinDamage(holesObject, accountData);
+  const max = getBraveryMaxDamage(holesObject, accountData);
   const rewardMulti = getMonumentMultiReward(holesObject, 0);
   const timeForNextFight = 72E3 * (1 - rewardMulti);
   const opalChance = Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[3]) * (1 + getMonumentHourBonus({
@@ -91,15 +91,18 @@ export const getMonumentMultiReward = (holesObject, t) => {
     + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1);
 }
 
-const getBraveryMinDamage = (holesObject) => {
+const getBraveryMinDamage = (holesObject, accountData) => {
   return 3 + Math.floor(holesObject?.braveryMonument?.[0] / 6)
     * getSchematicBonus({ holesObject, t: 24, i: 1 })
     + (getStudyBonus(holesObject, 3, 0) / 100)
-    * getBraveryMaxDamage(holesObject)
+    * getBraveryMaxDamage(holesObject, accountData);
 }
-const getBraveryMaxDamage = (holesObject) => {
+
+const getBraveryMaxDamage = (holesObject, accountData) => {
   return (25 + 10 * Math.floor(holesObject?.braveryMonument?.[0] / 6)
-    * getSchematicBonus({ holesObject, t: 24, i: 1 }))
+      * getSchematicBonus({ holesObject, t: 24, i: 1 }))
+    * (1 + getMeasurementBonus({ holesObject, accountData, t: 1 }) / 100)
+    * (1 + (getSchematicBonus({ holesObject, t: 40, i: 10 }) * 0) / 100) * (1 + (10 * 0) / 100);
 }
 
 export const getMonumentHourBonus = ({ holesObject, t, i }) => {

@@ -56,10 +56,13 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
               if (hide && won) return null;
               return <Card key={'upgrade-' + index} sx={{ width: 220, opacity: won ? .5 : 1 }}>
                 <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  {index}
-                  <img width={42} height={42} src={`${prefix}${icon}.png`} alt={''}/>
+                  <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                    <img width={42} height={42} src={`${prefix}${icon}.png`} alt={''}/>
+                    {colorBattleIndex === 9 ? <Typography variant={'caption'}>{index + 1}</Typography> : null}
+                  </Stack>
+                  <Divider sx={{ my: 2 }}></Divider>
                   <Stack direction={'row'} gap={1}>
-                    <Stack>
+                  <Stack>
                       <Typography variant={'body1'}>{cleanUnderscore(territoryName)}</Typography>
                       <Typography mt={1} variant={'body2'}>{bonus?.bonus}</Typography>
                       {difficulty?.name ? <>
