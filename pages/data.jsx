@@ -44,7 +44,6 @@ const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 const Data = () => {
   const router = useRouter();
-  const theme = useTheme();
   const { state } = useContext(AppContext);
   const [key, setKey] = useState('all');
   const [anchorEl, setAnchorEl] = useState(null);
@@ -133,6 +132,7 @@ const Data = () => {
     setUploaded(false);
     if (!lastUpload || ((WAIT_TIME - (Date.now() - lastUpload)) < 0)) {
       setLoading(true);
+      setError('');
       try {
         await uploadProfile({
           profile: { ...userData, parsedData },

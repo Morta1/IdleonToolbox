@@ -88,7 +88,6 @@ export const expandLeaderboardInfo = (account, characters) => {
     totalTomePoints: withDefault(totalTomePoints, 0)
   }
 }
-
 const withDefault = (value, defaultValue = 0) => {
   return isNaN(value) ? defaultValue : value;
 }
