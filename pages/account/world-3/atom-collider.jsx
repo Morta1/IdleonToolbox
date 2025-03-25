@@ -1,11 +1,10 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '../../../utility/helpers';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '../../../utility/helpers';
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '../../../parsers/printer';
-import Timer from '../../../components/common/Timer';
 import { CardTitleAndValue } from '@components/common/styles';
 
 const MAX_ATOMS = 11;
@@ -59,7 +58,7 @@ const AtomCollider = ({}) => {
             outline: level >= maxLevel ? '1px solid' : '',
             outlineColor: (theme) => level >= maxLevel
               ? theme.palette.success.light
-              : '',
+              : ''
           }}>
             <CardContent sx={{ width: 250, height: '100%' }}>
               <Stack direction={'column'} sx={{ height: '100%' }}>
@@ -69,13 +68,18 @@ const AtomCollider = ({}) => {
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
                     <Typography>Lv. {level} / {maxLevel}</Typography>
-                    {level < maxLevel ? <>
-                      <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
-                      <Typography variant={'caption'}>Next Level Cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
-                      <Typography variant={'caption'}>Cost To Max: {notateNumber(costToMax, 'Big')}</Typography>
-                    </> : null}
                   </Stack>
                 </Stack>
+                {level < maxLevel ? <>
+                  <Divider sx={{ my: 2 }}/>
+                  <Typography variant={'caption'}>Cost: {notateNumber(cost, 'Big')}</Typography>
+                  <Typography variant={'caption'}>Next Level Cost: {notateNumber(nextLeveCost, 'Big')}</Typography>
+                  <Typography variant={'caption'}>Cost To Max: {notateNumber(costToMax, 'Big')}</Typography>
+                </> : null}
+                {level < maxLevel && totals?.atom?.atoms > 0 ? <>
+                  <Divider sx={{ my: 2 }}/>
+                  <Typography variant={'caption'}>Next level: {msToDate(new Date().getTime() + timeLeft)}</Typography>
+                </> : null}
                 <Divider sx={{ my: 2 }}/>
                 <Typography sx={{ mb: 2 }} variant={'body1'} component={'div'}>
                   {processString([{
@@ -85,12 +89,6 @@ const AtomCollider = ({}) => {
                     }
                   }])(description)}
                 </Typography>
-                {level < maxLevel && totals?.atom?.atoms > 0 ? <Box sx={{ marginTop: 'auto' }}>
-                  <Timer type={'countdown'}
-                         placeholder={<Typography color={'success.light'}>Ready!</Typography>}
-                         date={new Date().getTime() + timeLeft}
-                         lastUpdated={state?.lastUpdated}/>
-                </Box> : null}
               </Stack>
             </CardContent>
           </Card>)

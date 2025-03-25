@@ -6,13 +6,26 @@ import LockIcon from '@mui/icons-material/Lock';
 import { getProductDoubler, getTotalCrop } from '@parsers/world-6/farming';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
   const { productDoubler, percent, multi } = getProductDoubler(market) || {};
   const totals = getTotalCrop(plot, market, ranks, account);
   return <>
-    <CardTitleAndValue title={`Totals${productDoubler > 100 && multi >= 2 ? ` (x${multi})` : ''}`}>
+    <CardTitleAndValue title={<Stack sx={{ mb: 1 }} direction={'row'} alignItems={'center'}>
+      <Typography variant={'body1'}>Totals{productDoubler > 100 && multi >= 2 ? ` (x${multi})` : ''}</Typography>
+      <Tooltip title={productDoubler < 100 ? <Typography variant={'caption'}
+                                                         color={'text.secondary'}>*
+        Doesn't include your {productDoubler}% chance to
+        x2 the quantity collected from product doubler</Typography> : percent > 0 ? <Typography variant={'caption'}
+                                                                                                color={'text.secondary'}>*
+        Doesn't
+        include your {percent}% chance to
+        x{parseInt(multi) + 1} the quantity
+        collected from product doubler</Typography> : null}>
+        <IconInfoCircleFilled style={{ marginLeft: 8 }} size={18}/>
+      </Tooltip>
+    </Stack>}>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {Object.entries(totals || {}).map(([icon, quantity]) => {
           return <Card variant={'outlined'} key={icon}>
@@ -25,30 +38,13 @@ const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
           </Card>
         })}
       </Stack>
-      <Stack mt={1}>
-        {productDoubler < 100 ? <Typography variant={'caption'}
-                                            color={'text.secondary'}>*
-          Doesn't include your {productDoubler}% chance to
-          x2 the quantity collected from product doubler</Typography> : percent > 0 ? <Typography variant={'caption'}
-                                                                                                  color={'text.secondary'}>*
-          Doesn't
-          include your {percent}% chance to
-          x{parseInt(multi) + 1} the quantity
-          collected from product doubler</Typography> : null}
-      </Stack>
     </CardTitleAndValue>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {plot?.map(({
                     rank,
                     rankProgress,
                     rankRequirement,
-                    seedType,
-                    progress,
-                    growthReq,
-                    growthRate,
-                    cropType,
                     cropQuantity,
-                    cropProgress,
                     cropRawName,
                     seedRawName,
                     nextOGChance,
@@ -70,7 +66,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
                   <img width={20} height={20} src={`${prefix}data/${cropRawName}`} alt={''}/>
                   <Tooltip title={<Typography style={{ fontWeight: 400 }}>Max
                     time: {msToDate(maxTimeLeft * 1000)}</Typography>}>
-                    <InfoIcon fontSize={'small'}/>
+                    <IconInfoCircleFilled size={18}/>
                   </Tooltip>
                 </Stack>
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>

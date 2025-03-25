@@ -30,17 +30,18 @@ const Tome = () => {
       </Stack>}>
         <InfoIcon/>
       </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`}/>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+        {state?.account?.tome?.bonuses?.map(({ name, bonus }, index) => {
+          const formatted = index <= 2 ? notateNumber(bonus, 'Big') : notateNumber(bonus, 'MultiplierInfo');
+          return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}%`}
+                                    icon={`etc/Tome_${index}.png`}>
+          </CardTitleAndValue>
+        })}
+      </Stack>
     </Stack>
     <Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active
       character.</Typography>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {state?.account?.tome?.bonuses?.map(({ name, bonus }, index) => {
-        const formatted = index <= 2 ? notateNumber(bonus, 'Big') : notateNumber(bonus, 'MultiplierInfo');
-        return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}%`}
-                                  icon={`etc/Tome_${index}.png`}>
-        </CardTitleAndValue>
-      })}
-    </Stack>
+
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {state?.account?.tome?.tome?.map(({ name, color, tomeLvReq, quantity, index, x2, x4, points }, rIndex) => {
         const formattedQuantity = quantity > 1e9 && x2 === 1 ? notateNumber(quantity, 'Big') : x4 === 1

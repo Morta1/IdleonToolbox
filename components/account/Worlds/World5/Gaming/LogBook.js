@@ -4,8 +4,6 @@ import { CardTitleAndValue } from '@components/common/styles';
 
 const LogBook = ({ logBook, ownedLogBooks }) => {
   return <>
-    <CardTitleAndValue title={''}
-                       value={`${ownedLogBooks} / ${logBook?.length}`}></CardTitleAndValue>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignitems={'center'}>
       {logBook?.map(({ rawName, unlocked }, index) => {
         return <img data-index={index} style={{ width: 64, height: 64, opacity: unlocked ? 1 : .5 }}

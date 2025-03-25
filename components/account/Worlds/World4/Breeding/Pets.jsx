@@ -143,24 +143,31 @@ const Pets = ({
         </Badge>
       })}
     </Stack>
-    <Stack justifyContent={'center'} flexWrap={'wrap'} gap={2}>
-      <Stack>
-        <FormControlLabel
-          sx={{ width: 'fit-content' }}
-          control={<Checkbox name={'mini'} checked={minimized}
-                             size={'small'}
-                             onChange={() => setMinimized(!minimized)}/>}
-          label={'Compact view'}/>
-        <FormControlLabel
-          sx={{ width: 'fit-content' }}
-          control={<Checkbox name={'mini'} checked={applyThreshold}
-                             size={'small'}
-                             onChange={() => setApplyThreshold(!applyThreshold)}/>}
-          label={'Apply level threshold'}/>
+    <Stack gap={1}>
+      <Stack direction={'row'} alignItems={'center'} gap={1}>
         <TextField size={'small'} sx={{ width: 'fit-content', mt: 1 }}
                    type={'number'} value={threshold} label={'Pet level threshold'}
                    onChange={(e) => setThreshold(e.target.value)}
                    helperText={'Show pets under this level only'}/>
+        <Stack>
+          <Stack direction={'row'}>
+            <FormControlLabel
+              sx={{ width: 'fit-content' }}
+              control={<Checkbox name={'mini'} checked={applyThreshold}
+                                 size={'small'}
+                                 onChange={() => setApplyThreshold(!applyThreshold)}/>}
+              label={'Apply level threshold'}/>
+            <FormControlLabel
+              sx={{ width: 'fit-content' }}
+              control={<Checkbox name={'mini'} checked={minimized}
+                                 size={'small'}
+                                 onChange={() => setMinimized(!minimized)}/>}
+              label={'Compact view'}/>
+          </Stack>
+          <Typography sx={{ height: 20 }}>&nbsp;</Typography>
+        </Stack>
+      </Stack>
+      <Stack>
         <Stack mt={2} direction={'row'} gap={2} alignItems={'center'}>
           <ToggleButtonGroup exclusive sx={{ flexWrap: 'wrap' }} value={filter} onChange={handleFilter}>
             <ToggleButton value="worlds">Worlds</ToggleButton>
@@ -173,12 +180,13 @@ const Pets = ({
       </Stack>
       {Object.entries(groupByPassive)?.map(([groupName, list], worldIndex) => {
         if (!groupName.toLowerCase().includes(filterBy.toLowerCase())) return null;
+        const allHidden = list.every(({ shinyLevel }) => applyThreshold && (shinyLevel >= threshold));
         return <React.Fragment key={`world-${worldIndex}`}>
-          <Typography variant={'h3'}>{cleanUnderscore(groupName.replace('{', ''))}</Typography>
+          <Typography variant={'h4'}>{cleanUnderscore(groupName.replace('{', ''))}</Typography>
           <Card key={`world-${worldIndex}`}>
             <CardContent>
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-                {list?.map(({
+                {allHidden ? <Typography>All pets are below the threshold level</Typography> :  list?.map(({
                               monsterName,
                               monsterRawName,
                               icon,
@@ -190,14 +198,14 @@ const Pets = ({
                               progress,
                               goal,
                               breedingMultipliers
-                            }, index) => {
+                            }) => {
                   const timeLeft = ((goal - progress) / fasterShinyLv.value / (fencePetsObject?.[monsterRawName] || 1)) * 8.64e+7;
                   if (applyThreshold && shinyLevel >= threshold) return;
                   const missingIcon = (icon === 'Mface23' || icon === 'Mface21' || icon === 'Mface31') && monsterRawName !== 'shovelR';
                   const totalChance = breedingMultipliers?.totalChance > 0.1
                     ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
                     : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
-                  return <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}
+                  return  <Card key={`${monsterName}-${worldIndex}`} variant={'outlined'}
                                sx={{ opacity: unlocked ? 1 : .6 }}>
                     <CardContent sx={{ width: 300 }}>
                       <Stack direction={'row'} alignItems={'center'} gap={1}>

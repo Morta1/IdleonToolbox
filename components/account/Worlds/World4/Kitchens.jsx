@@ -13,6 +13,7 @@ import {
 import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const Kitchens = ({
                     spices,
@@ -53,14 +54,11 @@ const Kitchens = ({
 
   return (
     <>
-      <Card sx={{ width: 'fit-content' }}>
-        <CardContent>
-          <Typography>Claims: {spices?.numberOfClaims} / {maxNumberOfSpiceClicks}</Typography>
-        </CardContent>
-      </Card>
-      <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack my={2} direction={'row'} gap={1} flexWrap={'wrap'}>
+        <CardTitleAndValue cardSx={{ my: 0, mb: 0 }} title={'Claims'}
+                           value={`${spices?.numberOfClaims} / ${maxNumberOfSpiceClicks}`}/>
         {spices?.available?.map((spice, index) => {
-          return spice ? <Card elevation={4} key={`${spice?.rawName}-${index}`}>
+          return spice ? <Card key={`${spice?.rawName}-${index}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip title={spice?.name}>
                 <SpiceIcon src={`${prefix}data/${spice?.rawName}.png`} alt=""/>
@@ -68,7 +66,6 @@ const Kitchens = ({
               <Tooltip title={parseInt(spice?.amount)}>
                 <Typography>{notateNumber(parseInt(spice?.amount), 'Big')}</Typography>
               </Tooltip>
-              <Typography sx={{ color: 'grey.400' }}>({notateNumber(parseInt(spice?.toClaim ?? 0), 'Big')})</Typography>
             </CardContent>
           </Card> : null;
         })}
@@ -179,7 +176,8 @@ const Kitchens = ({
                 <Tooltip placement={'top'}
                          title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed}
                                              lab={lab}
-                                             meal={kitchen?.meal} equinoxUpgrades={equinoxUpgrades} account={account}/>}>
+                                             meal={kitchen?.meal} equinoxUpgrades={equinoxUpgrades}
+                                             account={account}/>}>
                   <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
                 </Tooltip>
                 <div>{notateNumber(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>
@@ -225,7 +223,7 @@ const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades,
 
 const SpiceIcon = styled.img`
   object-fit: contain;
-  width: 32px;
+  width: 24px;
 `;
 
 const MealIcon = styled.img`

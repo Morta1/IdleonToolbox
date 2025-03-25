@@ -6,6 +6,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../../../Tooltip';
 import { TitleAndValue } from '../../../../common/styles';
 import processString from 'react-process-string';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Artifacts = ({ artifacts }) => {
   return (
@@ -34,9 +35,12 @@ const Artifacts = ({ artifacts }) => {
                  sx={{ opacity: acquired === 0 ? .5 : 1 }}>
             <CardContent>
               <Stack sx={{ width: 200 }}>
-                <Stack direction={'row'} gap={1}>
+                <Stack direction={'row'} gap={1} alignItems={'center'}>
                   <ArtifactImg src={`${prefix}data/${rawName}.png`} alt=""/>
                   <Typography>{cleanUnderscore(name)}</Typography>
+                  {Array.isArray(additionalData) ? <Tooltip title={getTooltip(name, additionalData)}>
+                    <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18}/>
+                  </Tooltip> : null}
                 </Stack>
                 <Divider sx={{ my: 2 }}/>
                 <Stack flexWrap={'wrap'}>
@@ -46,11 +50,6 @@ const Artifacts = ({ artifacts }) => {
                       return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
                     }
                   }])(cleanUnderscore(description))}</Typography>
-                  {Array.isArray(additionalData) ? <>
-                    <Tooltip title={getTooltip(name, additionalData)}>
-                      <InfoIcon/>
-                    </Tooltip>
-                  </> : <Typography>{additionalData}&nbsp;</Typography>}
                   <Divider flexItem color={color} sx={{ my: 2 }}/>
                   <Typography
                     sx={{

@@ -1,6 +1,7 @@
-import { Card, CardContent, Stack, Tooltip, Typography } from '@mui/material';
-import { createRange, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { createRange, msToDate, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { seedInfo } from '../../../../../data/website-data';
+import Tooltip from '@components/Tooltip';
 
 const Crop = ({ crop, maxTimes }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -18,7 +19,7 @@ const Crop = ({ crop, maxTimes }) => {
           {array.map((cropId) => {
             return <Card key={'crop' + cropId} data-index={cropId} sx={{ width: 90, opacity: crop?.[cropId] >= 0 ? 1 : .5 }}>
               <CardContent sx={{ '&:last-child': { p: 1 } }}>
-                <Tooltip title={crop?.[cropId]}>
+                <Tooltip title={numberWithCommas(crop?.[cropId])}>
                   <Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
                     <img width={20} height={20} src={`${prefix}data/FarmCrop${cropId}.png`} alt={''}/>
                     {crop?.[cropId] >= 0 ? notateNumber(crop?.[cropId]) : 0}

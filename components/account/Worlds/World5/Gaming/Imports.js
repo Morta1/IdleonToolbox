@@ -1,13 +1,15 @@
 import { calculateSnailEncouragementForSuccessChance } from '../../../../../parsers/gaming';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '../../../../../utility/helpers';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 import styled from '@emotion/styled';
 import React from 'react';
+import useCheckbox from '@components/common/useCheckbox';
 
 const Imports = ({ account, lastUpdated }) => {
+  const [CheckboxEl, compactView] = useCheckbox('Compact view', true);
   const {
     snailLevel,
     snailEncouragement,
@@ -24,6 +26,7 @@ const Imports = ({ account, lastUpdated }) => {
   } = account?.gaming || {};
   return (
     <>
+      <CheckboxEl/>
       <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
         {imports?.map(({
                          boxName,
@@ -42,16 +45,16 @@ const Imports = ({ account, lastUpdated }) => {
                        }, index) => {
           return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
             <CardContent>
-              <Stack sx={{ minHeight: 200 }}>
+              <Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
                   <ImportImg src={`${prefix}data/${rawName}.png`} alt=""/>
                   <Typography>{cleanUnderscore(name)} ({cleanUnderscore(boxName)})</Typography>
                 </Stack>
-                <Divider sx={{ my: 2 }}/>
+                {index !== 5 ? <Divider sx={{ my: 2 }}/> : null}
                 {majorBonus || index === 6 ? <>
                   {index === 6 ? <>
                       <Typography>Highscore: {poingHighscore}</Typography>
-                      <Typography>Multiplier: x{notateNumber(poingMulti,'MultiplierInfo')}</Typography>
+                      <Typography>Multiplier: x{notateNumber(poingMulti, 'MultiplierInfo')}</Typography>
                     </> :
                     <Typography>{cleanUnderscore(majorBonus.split('|').join(' '))}</Typography>}
                   <Divider sx={{ my: 2 }}/> </> : null}
@@ -73,15 +76,15 @@ const Imports = ({ account, lastUpdated }) => {
                                                   snailEncouragement={snailEncouragement}/> : null}
                 {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
                 {acornShop ? <AcornShop acornShop={acornShop}/> : null}
-                <Divider sx={{ my: 2 }}/>
               </Stack>
-              <Stack mt={'auto'}>
+              {compactView ? null : <Stack mt={'auto'}>
+                <Divider sx={{ my: 2 }}/>
                 <Typography mb={1} variant={'body2'}>Box info</Typography>
                 <Stack>
                   <Typography variant={'caption'}>{cleanUnderscore(boxDescription)}</Typography>
                   <Typography mt={1} variant={'caption'}>{cleanUnderscore(description)}</Typography>
                 </Stack>
-              </Stack>
+              </Stack>}
             </CardContent>
           </Card>
         })}
@@ -100,17 +103,25 @@ const Snail = ({ snailLevel, snailEncouragement }) => {
   const encNeededForProbableSuccess = calculateSnailEncouragementForSuccessChance(snailLevel, 0.9);
   return <Stack>
     <Divider sx={{ my: 1 }}/>
-    <Typography>Level: {snailLevel}</Typography>
-    <Typography>Encouragement: {snailEncouragement}</Typography>
-    <Typography>Success chance: {notateNumber(successChance * 100, 'MultiplierInfo')}%</Typography>
-    <Typography>Reset chance: {notateNumber(resetChance * 100, 'MultiplierInfo')}%</Typography>
-    <Typography>Real Reset
-      chance: {notateNumber(realResetChance * 100, 'MultiplierInfo')}%</Typography>
-    <Typography>Avg # attempts: {notateNumber(averageAttempts, 'MultiplierInfo')}</Typography>
-    <Typography>Chance to Succeed Before Reset: {notateNumber(succeedBeforeReset, 'MultiplierInfo')}</Typography>
-    <Typography>Enc. needed for 90% success
-      chance: {encNeededForProbableSuccess}</Typography>
+    <TextAndValue title={'Level'} value={snailLevel}/>
+    <TextAndValue title={'Encouragement'} value={snailEncouragement}/>
+    <TextAndValue title={'Success chance'} value={`${notateNumber(successChance * 100, 'MultiplierInfo')}%`}/>
+    <TextAndValue title={'Reset chance'} value={`${notateNumber(resetChance * 100, 'MultiplierInfo')}%`}/>
+    <TextAndValue title={'Real Reset chance'} value={`${notateNumber(realResetChance * 100, 'MultiplierInfo')}%`}/>
+    <TextAndValue title={'Avg # attempts'} value={notateNumber(averageAttempts, 'MultiplierInfo')}/>
+    <TextAndValue title={'Chance to Succeed Before Reset'} value={notateNumber(succeedBeforeReset, 'MultiplierInfo')}/>
+    <TextAndValue title={'Enc. needed for 90% success chance'}
+                  value={notateNumber(encNeededForProbableSuccess, 'MultiplierInfo')}/>
   </Stack>
+}
+
+const TextAndValue = ({ title, value }) => {
+  return <>
+    <Stack direction={'row'} justifyContent={'space-between'}>
+      <Typography variant={'body1'}>{title}:</Typography>
+      <Typography variant={'body1'}>{value}</Typography>
+    </Stack>
+  </>
 }
 
 const Nuggets = ({
@@ -122,16 +133,16 @@ const Nuggets = ({
                    maxNuggetValue
                  }) => {
   return <>
-    <Stack mt={1} direction={'row'} gap={1}>
+    <Stack mt={1} direction={'row'} alignItems={'center'} gap={1}>
       <Timer date={new Date().getTime() - lastShovelClicked * 1000} lastUpdated={lastUpdated}/>
       <Tooltip title={<ResourcePerTime breakpoints={nuggetsBreakpoints}/>}>
-        <InfoIcon/>
+        <IconInfoCircleFilled size={18}/>
       </Tooltip>
     </Stack>
     <Typography># of nuggets: {goldNuggets}</Typography>
     <Typography>Rolls
       possible: {(notateNumber(maxNuggetValue / 1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
-    <Typography>Nuggets since upgrade: {account?.accountOptions?.[192]}</Typography>
+    <Typography>Nuggets since upgrade: {numberWithCommas(account?.accountOptions?.[192])}</Typography>
   </>
 }
 
@@ -140,21 +151,21 @@ const Acorns = ({ lastAcornClicked, lastUpdated, acornsBreakpoints, acorns }) =>
     <Stack mt={1} direction={'row'} gap={1}>
       <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={lastUpdated}/>
       <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints}/>}>
-        <InfoIcon/>
+        <IconInfoCircleFilled size={18}/>
       </Tooltip>
     </Stack>
-    <Typography># of acorns: {acorns}</Typography>
+    <Typography># of acorns: {numberWithCommas(acorns)}</Typography>
   </>
 }
 const AcornShop = ({ acornShop }) => {
   return <Stack>
     <Divider sx={{ my: 2 }}/>
-    <Typography>Acorn Shop</Typography>
+    <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Acorn Shop</Typography>
     <Stack direction={'row'} gap={3}>
       {acornShop?.map(({ cost, bonus, description }, index) => <Stack key={'corn-' + index}>
         <Stack>
-          <Typography>{description}</Typography>
-          <Typography>Cost: {cost}</Typography>
+          <Typography variant={'body2'}>{description}</Typography>
+          <Typography variant={'body2'}>Cost: {cost}</Typography>
         </Stack>
       </Stack>)}
     </Stack>
@@ -177,7 +188,7 @@ const ResourcePerTime = ({ breakpoints }) => {
 }
 
 const ImportImg = styled.img`
-  width: 50px;
+  width: 32px;
 `;
 
 export default Imports;

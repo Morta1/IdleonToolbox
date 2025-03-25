@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Card, CardContent, IconButton, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
 import Territory from '@components/account/Worlds/World4/Breeding/Territory';
@@ -14,7 +14,6 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
 import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
-import Tooltip from '@components/Tooltip';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Button from '@mui/material/Button';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -51,18 +50,10 @@ const Breeding = () => {
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
       <Stack direction={'row'} gap={2} alignItems={'center'}>
-        <Button onClick={handleCopy}><ContentCopyIcon sx={{mr: 1}}/>Copy breeding data</Button>
+        <Button onClick={handleCopy}><ContentCopyIcon sx={{ mr: 1 }}/>Copy breeding data</Button>
       </Stack>
-      <Stack my={2} direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={2}>
-        {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
-          return eggLevel > 0 ? <Card key={`egg-${index}`}>
-            <CardContent sx={{ '&:last-child': { padding: '8px' }, display: 'flex', alignItems: 'center' }}>
-              <img src={`${prefix}data/PetEgg${eggLevel}.png`} alt=""/>
-            </CardContent>
-          </Card> : null;
-        })}
-      </Stack>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack my={2} direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
+
         <Card>
           <CardContent>
             <Typography variant={'subtitle2'}>Time to next egg</Typography>
@@ -78,6 +69,13 @@ const Breeding = () => {
             <Timer staticTime={true} date={new Date().getTime() + timePerEgg}/>
           </CardContent>
         </Card>
+        {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
+          return eggLevel > 0 ? <Card key={`egg-${index}`}>
+            <CardContent sx={{ '&:last-child': { padding: '8px' }, display: 'flex', alignItems: 'center' }}>
+              <img src={`${prefix}data/PetEgg${eggLevel}.png`} alt=""/>
+            </CardContent>
+          </Card> : null;
+        })}
       </Stack>
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
         town</Typography>

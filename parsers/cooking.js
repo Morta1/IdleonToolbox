@@ -48,7 +48,11 @@ export const spicesNames = [
   'Shores of Eternity',
   'Molten Bay',
   'Smokey Lake',
-  'Wurm Catacombs'
+  'Wurm Catacombs',
+  'Spirit Fields',
+  'Bamboo Forest',
+  'Lullaby Airway',
+  'Dharma Mesa'
 ]
 
 export const getCooking = (idleonData, account) => {

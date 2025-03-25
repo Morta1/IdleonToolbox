@@ -19,8 +19,8 @@ import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/printer';
 import Box from '@mui/material/Box';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import InfoIcon from '@mui/icons-material/Info';
 import { calcCost, calcResourceToRankUp, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
 const boldSx = { fontWeight: 'bold' };
@@ -67,16 +67,18 @@ const Refinery = () => {
       title="Refinery | Idleon Toolbox"
       description="Keep track of your refinery levels, timing, required materials and more"
     />
-    <Stack my={3} direction={'row'} flexWrap={'wrap'} gap={2}>
+    <Stack mt={3} direction={'row'} flexWrap={'wrap'} gap={2}>
       {squiresCooldown?.map(({ name, cooldown, talentId }, index) => {
-        return <Card className={'squire'} key={name + ' ' + index} sx={{ width: 232 }}>
-          <CardContent sx={{ padding: 4 }}>
-            <Stack alignItems={'center'}>
+        return <Card sx={{ display: 'flex', alignItems: 'center' }} key={name + ' ' + index}>
+          <CardContent sx={{ '&:last-child': { padding: 2 } }}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
               <img src={`${prefix}data/UISkillIcon130.png`} alt=""/>
-              <Typography sx={boldSx}>{name}</Typography>
-              <Timer placeholder={<Typography component={'span'}
-                                              sx={{ color: 'success.main', fontWeight: 'bold' }}>Ready</Typography>}
-                     type={'countdown'} date={cooldown} lastUpdated={state?.lastUpdated}/>
+              <Stack alignItems={'center'}>
+                <Typography sx={boldSx}>{name}</Typography>
+                <Timer placeholder={<Typography component={'span'}
+                                                sx={{ color: 'success.main', fontWeight: 'bold' }}>Ready</Typography>}
+                       type={'countdown'} date={cooldown} lastUpdated={state?.lastUpdated}/>
+              </Stack>
             </Stack>
           </CardContent>
         </Card>
@@ -85,13 +87,13 @@ const Refinery = () => {
         const { name, time, timePast, breakdown } = cycle;
         const minutes = Math.floor((time) / 60);
         const seconds = Math.floor(time % 60);
-        return <Card key={`${name}-${index}`} sx={{ width: 232 }}>
+        return <Card key={`${name}-${index}`}>
           <CardContent>
             <Stack direction={'row'} gap={2} alignItems={'center'}>
-              <Typography sx={{ ...boldSx, color: index === 0 ? 'error.light' : 'success.light' }} mb={1}
-                          variant={'h5'}>{name}</Typography>
+              <Typography sx={{ ...boldSx, color: index === 0 ? 'error.light' : 'success.light' }}
+                          variant={'body1'}>{name}</Typography>
               <Tooltip title={<BreakdownTooltip breakdown={breakdown} notate={'MultiplierInfo'}/>}>
-                <InfoIcon/>
+                <IconInfoCircleFilled size={18}/>
               </Tooltip>
             </Stack>
             <Typography sx={boldSx}>Max cycle time: <span
@@ -102,7 +104,7 @@ const Refinery = () => {
         </Card>
       })}
     </Stack>
-    <Stack my={2} direction={'row'} gap={2}>
+    <Stack direction={'row'} gap={2}>
       <CardTitleAndValue title={'More cycles'} stackProps>
         <FormControlLabel
           control={<Checkbox checked={includeSquireCycles}
@@ -150,7 +152,7 @@ const Refinery = () => {
                 <img src={`${prefix}data/${rawName}.png`} alt=""/>
                 Rank: {rank}
               </Stack>
-              <Stack alignSelf={'center'} sx={{ width: { md: 200 } }} gap={.5}>
+              <Stack alignSelf={'center'} sx={{ width: { md: 250 } }} gap={.5}>
                 <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
                 <Typography>Power: {numberWithCommas(refined)} / {numberWithCommas(powerCap)}</Typography>
                 <Typography>Auto refine: {autoRefinePercentage}%</Typography>
@@ -160,6 +162,7 @@ const Refinery = () => {
                     type={'countdown'}
                     lastUpdated={state?.lastUpdated}
                     pause={!active || !hasMaterialsForCycle}
+                    component={'span'}
                     placeholder={<Typography
                       component={'span'}
                       color={hasMaterialsForCycle ? 'success.light' : 'error.light'}>{hasMaterialsForCycle
@@ -185,7 +188,7 @@ const Refinery = () => {
                        justifyContent={'center'}>
                   {cost?.map(({ name, rawName, quantity, totalAmount }, index) => {
                     const cost = calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex);
-                    const nextLevelCost = calcCost(state?.account?.refinery,rank + 1, quantity, rawName, saltIndex);
+                    const nextLevelCost = calcCost(state?.account?.refinery, rank + 1, quantity, rawName, saltIndex);
                     const nextLevelPerHour = nextLevelCost * 3600 / combustionTime;
                     const nextLevelRankUp = calcResourceToRankUp(rank + 1, refined, powerCap, nextLevelCost);
                     const costPerHour = cost * 3600 / combustionTime;

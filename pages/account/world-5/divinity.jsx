@@ -47,15 +47,19 @@ const Divinity = () => {
         return (
           (<Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
             <CardContent>
-              <Stack alignItems={'center'} gap={1}>
-                <img src={`${prefix}data/${rawName}.png`} alt=""/>
-                <Stack gap={1} justifyContent={'space-between'} sx={{ minHeight: 250 }}>
+              <Stack>
+                <Stack direction={'row'}>
+                  <img style={{ width: 42 }} src={`${prefix}data/${rawName}.png`} alt=""/>
                   <Stack>
                     <Typography>{name}</Typography>
                     <Typography variant={'body2'}>Lv. {level} / 100</Typography>
+                  </Stack>
+                </Stack>
+                <Stack gap={1} justifyContent={'space-between'} sx={{ minHeight: 250 }}>
+                  <Stack>
                     <Divider sx={{ my: 2 }}/>
                     <Typography variant={'body1'}>
-                      Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus))}
+                      Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus.toFixed(2).replace('.00', '')))}
                     </Typography>
                     {godIndex === 2 ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
                     {cost?.cost !== 'MAX' && showCost ? <>
@@ -87,8 +91,7 @@ const Divinity = () => {
                                                                 ? secondDeityMinorBonus.toFixed(2)
                                                                 : 0)}/>}
                                    key={name}>
-                            <img src={`${prefix}data/ClassIcons${classIndex}.png`}
-                                 alt=""/>
+                            <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                           </Tooltip> : null;
                       })}
                     </Stack>
@@ -111,7 +114,7 @@ const Cost = ({ type, cost, title }) => {
     <Typography variant={'body2'}>
       {title}: {cost === 'MAX' ? cost : notateNumber(cost, type === 'bits' ? 'bits' : 'Big')}
     </Typography>
-    <img src={`${prefix}${currencyIcon}.png`} alt={''}/>
+    <img style={{ width: 24 }} src={`${prefix}${currencyIcon}.png`} alt={''}/>
   </Stack> : <CoinDisplay title={title}
                           noShadow
                           centered={false}

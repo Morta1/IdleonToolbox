@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
 import Tabber from '@components/common/Tabber';
@@ -30,26 +30,23 @@ const Farming = () => {
       title="Farming | Idleon Toolbox"
       description="Keep track of your garden with all its bonuses"
     />
-    <Stack direction={'row'} gap={1}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Bean Trade'} value={commaNotation(Math.round(beanTrade))} icon={'data/Quest80_x1.png'}
                          imgStyle={{ width: 24 }}/>
       <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
       <CardTitleAndValue title={'Ranks pts'} value={`${usedPoints}/${totalPoints}`}/>
-    </Stack>
-    <Typography variant={'h5'}>Crop depot</Typography>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {Object.entries(cropDepot).map(([stat, { name, value }], index) => {
         const isMulti = stat === 'gamingEvo' || stat === 'cookingSpeed';
         const isBase = stat === 'critters';
         const val = notateNumber(value, isMulti ? 'MultiplierInfo' : 'Big');
         return <CardTitleAndValue key={stat} title={name}
                                   value={`${isBase ? '+' : ''}${val}${isBase ? '' : isMulti ? 'x' : '%'}`}
-                                  icon={`etc/Pen_${index}.png`}>
-        </CardTitleAndValue>
+                                  icon={`etc/Pen_${index}.png`}/>
       })}
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming')}>
-      <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated} account={state?.account}/>
+      <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
+            account={state?.account}/>
       <Market market={market} crop={crop}/>
       <RankDatabase ranks={ranks}/>
       <Crop crop={crop} maxTimes={maxTimes}/>
