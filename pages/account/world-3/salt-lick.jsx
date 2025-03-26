@@ -52,13 +52,13 @@ const SaltLick = () => {
               </Stack>
               <Stack sx={{ mt: 'auto' }} direction={'row'} justifyContent={'space-between'}>
                 <Stack justifyContent={'center'} alignItems={'center'}>
-                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt="required-item-icon"/>
                   {costToMax > 0 ?
                     <Typography>{kFormatter(totalAmount, 2)} / {kFormatter(calculatedBonusCost, 2)}</Typography> :
                     <Typography sx={{ alignSelf: 'center', color: 'success.main' }}>Maxed</Typography>}
                 </Stack>
                 {costToMax > 0 ? <Stack justifyContent={'center'} alignItems={'center'}>
-                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt="required-item-icon"/>
                   <Typography>{kFormatter(costToMax, 2)}</Typography>
                 </Stack> : null}
               </Stack>

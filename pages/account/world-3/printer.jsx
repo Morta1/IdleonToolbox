@@ -48,11 +48,11 @@ const Printer = () => {
               <Stack alignItems={'center'} justifyContent={'center'} sx={{ width: 50, height: 50 }}>
                 <Stack sx={{ width: 42, height: 42 }} justifyContent={'center'} alignItems={'center'} flexShrink={0}>
                   <ItemIcon atom={isAtom}
-                            src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt=""/>
+                            src={`${prefix}${isAtom ? 'etc/Particle' : `data/${item}`}.png`} alt="required-icon"/>
                 </Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
                   {atoms ?
-                    <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt=""/> : null}
+                    <img width={14} height={14} src={`${prefix}etc/Particle.png`} alt="particle-icon"/> : null}
                   <Typography>{isAtom
                     ? notateNumber(boostedValue, 'MultiplierInfo')
                     : notateNumber(boostedValue)}</Typography>
@@ -77,7 +77,7 @@ const Printer = () => {
               <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', sm: 'row' } }}
                      alignItems={'center'} gap={2}>
                 <Stack alignItems={'center'} justifyContent={'center'}>
-                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt="class-icon"/>
                 </Stack>
                 <Stack>
                   <Typography className={'character-name'}>{playerName}</Typography>
@@ -94,7 +94,7 @@ const Printer = () => {
                         {slot?.item !== 'Blank' ?
                           <Stack sx={{ width: 50, height: 50 }} position={'relative'} justifyContent={'flex-start'}
                                  alignItems={'center'}>
-                            <ItemIcon src={`${prefix}data/${slot?.item}.png`} alt=""/>
+                            <ItemIcon src={`${prefix}data/${slot?.item}.png`} alt="item-icon"/>
                             <Typography
                               color={slot?.active && labBonusActive
                                 ? 'multiLight'

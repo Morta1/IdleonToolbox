@@ -116,7 +116,7 @@ const Home = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     src={`${prefix}etc/bg_${indexes.at(bgIndex)}.png`}
-                    alt=""/> : null
+                    alt="arrow-icon"/> : null
                 })}
               </AnimatePresence>
             </MotionConfig>

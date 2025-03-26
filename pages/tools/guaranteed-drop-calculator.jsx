@@ -95,7 +95,7 @@ const GuaranteedDropCalculator = () => {
                   width={24}
                   height={24}
                   src={`${prefix}data/${option?.rawName}.png`}
-                  alt=""
+                  alt="item-icon"
                 />
                 <Typography
                   key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')} (1

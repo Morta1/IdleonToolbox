@@ -103,7 +103,7 @@ const ActiveXpCalculator = () => {
                              onChange={(e) => setSelectedChar(e.target.value)} select>
               {charactersList?.map((character, index) => {
                 return <StyledMenuItem key={character?.name + index} value={character}>
-                  <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={32} height={32}/>
+                  <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="class-icon" width={32} height={32}/>
                   {character?.name}
                 </StyledMenuItem>
               })}

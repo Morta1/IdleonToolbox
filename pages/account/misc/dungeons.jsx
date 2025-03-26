@@ -31,7 +31,7 @@ const Dungeons = () => {
       <Stack direction="row" flexWrap={'wrap'} gap={4}>
         <CardTitleAndValue title={'Rank'}>
           <Stack direction={'row'} gap={2}>
-            <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons?.rank}.png`} alt=""/>
+            <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons?.rank}.png`} alt="dungeon-icon"/>
             <Stack>
               <Typography>Rank: {dungeons?.rank}</Typography>
               <Typography>Exp: {dungeons?.progress} / {dungeons?.rankReq}</Typography>
@@ -40,19 +40,19 @@ const Dungeons = () => {
         </CardTitleAndValue>
         <CardTitleAndValue title={'Boosted Runs'}>
           <Stack direction={'row'} gap={1}>
-            <img src={`${prefix}etc/boosted-runs.png`} alt=""/>
+            <img src={`${prefix}etc/boosted-runs.png`} alt="boosted-run-icon"/>
             <Typography>{dungeons?.boostedRuns}</Typography>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Credits'}>
           <Stack direction={'row'} gap={1}>
-            <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt=""/>
+            <CurrencyIcon src={`${prefix}data/DungCredits1.png`} alt="credits-icon"/>
             {dungeons?.credits}
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Flurbos'}>
           <Stack direction={'row'} gap={1}>
-            <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt=""/>
+            <CurrencyIcon src={`${prefix}data/DungCredits2.png`} alt="flurbos-icon"/>
             {dungeons?.flurbos}
           </Stack>
         </CardTitleAndValue>

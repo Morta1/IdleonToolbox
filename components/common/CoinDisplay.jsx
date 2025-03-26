@@ -22,7 +22,7 @@ const CoinDisplay = ({
           <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5}
                  justifyContent={'center'} alignItems={'center'}
                  key={coin + '' + coinIndex}>
-            <CoinIcon src={`${prefix}data/Coins${coinIndex}.png`} alt=""/>
+            <CoinIcon src={`${prefix}data/Coins${coinIndex}.png`} alt="coin-icon"/>
             <Typography variant={'body1'} component={'span'} className={'coin-value'}>{coin}</Typography>
           </Stack> : null
       })}

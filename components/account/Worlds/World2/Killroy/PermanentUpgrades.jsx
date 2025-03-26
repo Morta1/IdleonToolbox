@@ -9,7 +9,7 @@ const Upgrades = ({ killroy }) => {
                                                                                 sx={{ height: 150, width: 350 }}>
         <CardContent>
           <Stack direction={'row'} gap={2}>
-            <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Skull_Shop_Item_${index}.png`} alt=""/>
+            <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Skull_Shop_Item_${index}.png`} alt="skull-shop-icon"/>
             <Stack>
               {level > 0 ? <Typography>Upgrades: {level}</Typography> : <>&nbsp;</>}
               <Divider sx={{ my: 1 }}/>

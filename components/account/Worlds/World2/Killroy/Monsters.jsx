@@ -9,7 +9,7 @@ const Monsters = ({ killroy }) => {
         return <Card key={rawName + index}>
           <CardContent>
             <Stack alignItems={'center'} gap={1}>
-              <img src={`${prefix}data/${icon}.png`} alt=""/>
+              <img src={`${prefix}data/${icon}.png`} alt="monster-icon"/>
               <Typography>{notateNumber(killRoyKills ?? 0, 'Big')}</Typography>
             </Stack>
           </CardContent>

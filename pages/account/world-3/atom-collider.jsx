@@ -22,14 +22,14 @@ const AtomCollider = ({}) => {
       <CardTitleAndValue title={'Particles'}>
         <Stack direction={'row'} gap={2}>
           <img src={`${prefix}etc/Particle.png`}
-               alt="" style={{ objectFit: 'contain' }}/>
+               alt="particle-icon" style={{ objectFit: 'contain' }}/>
           <Typography>{commaNotation(Math.floor(particles))}</Typography>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Stamp Reducer'}>
         <Stack direction={'row'} gap={1}>
           <img src={`${prefix}data/Atom0.png`}
-               alt="" style={{ objectFit: 'contain', width: 45 }}/>
+               alt="reducer-icon" style={{ objectFit: 'contain', width: 45 }}/>
           <Typography>{stampReducer}%</Typography>
         </Stack>
       </CardTitleAndValue>
@@ -64,7 +64,7 @@ const AtomCollider = ({}) => {
               <Stack direction={'column'} sx={{ height: '100%' }}>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
                   <img src={`${prefix}data/${rawName}.png`}
-                       alt="" width={64} height={64} style={{ objectFit: 'contain' }}/>
+                       alt="atom-icon" width={64} height={64} style={{ objectFit: 'contain' }}/>
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
                     <Typography>Lv. {level} / {maxLevel}</Typography>

@@ -53,7 +53,7 @@ const Totals = ({ account, characters }) => {
 
 const TotalStat = ({ text, icon, stat }) => {
   return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-    <img style={{ width: 35, height: 35 }} src={`${prefix}data/${icon}.png`} alt=""/>
+    <img style={{ width: 35, height: 35 }} src={`${prefix}data/${icon}.png`} alt={`${text}-total-icon`}/>
     <Typography variant={'body1'} component={'span'}>{text} :</Typography>
     <Tooltip title={stat}>
       <Typography variant={'body1'} component={'span'}>{notateNumber(stat)}</Typography>

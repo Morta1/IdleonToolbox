@@ -72,7 +72,7 @@ const Refinery = () => {
         return <Card sx={{ display: 'flex', alignItems: 'center' }} key={name + ' ' + index}>
           <CardContent sx={{ '&:last-child': { padding: 2 } }}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <img src={`${prefix}data/UISkillIcon130.png`} alt=""/>
+              <img src={`${prefix}data/UISkillIcon130.png`} alt="skill-icon"/>
               <Stack alignItems={'center'}>
                 <Typography sx={boldSx}>{name}</Typography>
                 <Timer placeholder={<Typography component={'span'}
@@ -149,7 +149,7 @@ const Refinery = () => {
           <CardContent>
             <Stack direction={'row'} alignItems={'flex-start'} gap={3} flexWrap={'wrap'}>
               <Stack alignItems={'center'} alignSelf={'center'}>
-                <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                <img src={`${prefix}data/${rawName}.png`} alt="salt-icon"/>
                 Rank: {rank}
               </Stack>
               <Stack alignSelf={'center'} sx={{ width: { md: 250 } }} gap={.5}>

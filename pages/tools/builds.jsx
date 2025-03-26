@@ -157,7 +157,7 @@ const Builds = () => {
               {Object.keys(allBuilds).map((name, index) => {
                 return <MenuItem key={`${name}-${index}`} value={name}>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <ClassIcon src={`${prefix}data/ClassIcons${classes.indexOf(name)}.png`} alt=""/>
+                    <ClassIcon src={`${prefix}data/ClassIcons${classes.indexOf(name)}.png`} alt="class-icon"/>
                     <Typography>{cleanUnderscore(name)}</Typography>
                   </Stack>
                 </MenuItem>;
@@ -300,7 +300,7 @@ const Tab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, 
           <Tooltip
             title={<TalentTooltip name={name} level={level} skill={skill}/>}>
             <img style={{ opacity: createMode ? 1 : level === 0 ? .3 : 1 }}
-                 src={`${prefix}data/UISkillIcon${skillIndex}.png`} alt=""/>
+                 src={`${prefix}data/UISkillIcon${skillIndex}.png`} alt="skill-icon"/>
           </Tooltip>
           {createMode ? <CustomInput name={'level'} onChange={(e) => handleChange(e, index)}/> :
             <Typography variant={'body1'}>{level || <span>&nbsp;</span>}</Typography>}

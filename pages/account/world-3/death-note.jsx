@@ -38,7 +38,7 @@ const DeathNote = () => {
                                 justifyContent={'space-between'}
                                 key={mob?.rawName + ' ' + innerIndex}>
                     <Stack direction={'row'} alignItems={mobRank > 10 ? 'center' : 'baseline'} gap={2}>
-                      {iconNumber !== -1 ? <img src={`${prefix}${skullName}.png`} alt=""/> :
+                      {iconNumber !== -1 ? <img src={`${prefix}${skullName}.png`} alt="skull-icon"/> :
                         <Box sx={{ height: 25, width: 20 }}/>}
                       <Typography sx={{ width: { xs: 150, sm: 200 } }}>{cleanUnderscore(mob.displayName)}</Typography>
                     </Stack>

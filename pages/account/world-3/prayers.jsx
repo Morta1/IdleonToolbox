@@ -52,7 +52,7 @@ const Prayers = () => {
             <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
               <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>
                 <Stack alignItems={'center'}>
-                  <PrayerIcon src={`${prefix}data/Prayer${prayerIndex}.png`} alt=""/>
+                  <PrayerIcon src={`${prefix}data/Prayer${prayerIndex}.png`} alt="prayer-icon"/>
                   <Typography fontWeight={'bold'}>Lv.{level}</Typography>
                 </Stack>
                 <Typography variant={'h6'}>{cleanUnderscore(name)}</Typography>
@@ -67,7 +67,7 @@ const Prayers = () => {
               </Stack>
               <Typography mt={1}>Unlock: lv. {unlockWave} at {unlockZone}</Typography>
               <Stack mt={3} direction={'row'} alignItems={'center'} gap={2}>
-                <ItemIcon src={`${prefix}data/${soul}.png`} alt=""/>
+                <ItemIcon src={`${prefix}data/${soul}.png`} alt="soul-icon"/>
                 {maxLevel === level ? <Typography sx={{ color: 'success.main' }}>Maxed</Typography> : <div>
                   <div>Cost: <Typography component={'span'}
                                          sx={{ color: level === 0 ? '' : cost <= totalAmount ? 'success.light' : 'error.light' }}>

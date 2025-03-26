@@ -7,7 +7,7 @@ import styled from '@emotion/styled';
 const RandomEvent = ({ eventName, mapName, date }) => {
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={2}>
-      <IconImg src={`${prefix}etc/${eventName}.png`} alt=""/>
+      <IconImg src={`${prefix}etc/${eventName}.png`} alt="random-event-icon"/>
       <Typography color={eventsColors?.[eventName]}>{cleanUnderscore(eventName)}</Typography>
     </Stack>
     <Typography>{cleanUnderscore(mapName)}</Typography>

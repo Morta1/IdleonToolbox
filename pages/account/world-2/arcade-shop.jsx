@@ -39,19 +39,19 @@ const ArcadeShop = () => {
       <Stack direction={'row'} gap={2}>
         <CardTitleAndValue title={'Balls'}>
           <Stack direction={'row'} gap={2}>
-            <BallIcon src={`${prefix}data/PachiBall0.png`} alt=""/>
+            <BallIcon src={`${prefix}data/PachiBall0.png`} alt="arcade-silver-balls"/>
             <Typography>{balls}</Typography>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Gold balls'}>
           <Stack direction={'row'} gap={2}>
-            <BallIcon gold src={`${prefix}data/PachiBall1.png`} alt=""/>
+            <BallIcon gold src={`${prefix}data/PachiBall1.png`} alt="arcade-gold-balls"/>
             <Typography>{goldBalls}</Typography>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Royal balls'}>
           <Stack direction={'row'} gap={2}>
-            <BallIcon blue src={`${prefix}data/PachiBall1.png`} alt=""/>
+            <BallIcon blue src={`${prefix}data/PachiBall1.png`} alt="arcade-royal-balls"/>
             <Typography>{royalBalls}</Typography>
           </Stack>
         </CardTitleAndValue>

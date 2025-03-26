@@ -36,7 +36,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                       <>
                         <Typography variant={'body1'} component={'span'}>{cleanUnderscore(indexedStarName)}</Typography>
                         {unlocked && index < infiniteStars ?
-                          <img src={`${prefix}data/SignStarInf${selectedTab}.png`} alt=""/> : null}
+                          <img src={`${prefix}data/SignStarInf${selectedTab}.png`} alt="star-sign-icon"/> : null}
                       </> : null}
                   </Grid>
                   <Grid item sm={7} md={4} display={'flex'} alignItems={'center'} gap={2}>

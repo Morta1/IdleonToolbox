@@ -45,7 +45,7 @@ const Vials = () => {
         const { name, level, mainItem } = vial;
         if (level >= 13 && hideMaxed) return null
         return <Tooltip key={`${name}${index}`} title={<VialTooltip {...vial}/>}><Box position={'relative'}>
-          <ItemIcon src={`${prefix}data/${mainItem}.png`} alt=""/>
+          <ItemIcon src={`${prefix}data/${mainItem}.png`} alt="vial-required-item-icon"/>
           <img key={`${name}${index}`}
                onError={(e) => {
                  e.target.src = `${prefix}data/aVials12.png`;
@@ -70,7 +70,7 @@ const VialTooltip = ({ name, itemReq, func, x1, x2, level, desc, multiplier = 1 
       {itemReq?.map(({ name, rawName }, index) => {
         return name && name !== 'Blank' && name !== 'ERROR' ?
           <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
-            <ItemIcon tooltip src={`${prefix}data/${rawName}.png`} alt=""/>
+            <ItemIcon tooltip src={`${prefix}data/${rawName}.png`} alt="vial-required-item-icon"/>
             <span>{name?.includes('Liquid') ? 3 * level : notateNumber(vialCostsArray[parseFloat(level)], 'Big')}
           </span>
           </Stack> : null

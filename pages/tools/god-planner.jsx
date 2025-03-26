@@ -65,7 +65,7 @@ const GodPlanner = () => {
               <CloseIcon/>
             </IconButton>
             <Stack key={charName} alignItems={'center'} justifyContent={'center'}>
-              <img width={24} height={24} src={`${prefix}data/${godName}.png`} alt=""/>
+              <img width={24} height={24} src={`${prefix}data/${godName}.png`} alt="god-icon"/>
               <Typography>{charName}</Typography>
             </Stack>
           </CardContent>
@@ -87,7 +87,7 @@ const GodPlanner = () => {
               <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
                 <Stack sx={{ width: 130 }} direction={'column'} alignItems={'center'}>
                   <img src={`${prefix}data/ClassIcons${classIndex}.png`}
-                       alt=""/>
+                       alt="player-icon"/>
                   <Typography>{charName}</Typography>
                 </Stack>
                 {account?.divinity?.deities?.map(({
@@ -116,7 +116,7 @@ const GodPlanner = () => {
                           }}>
                       <CardContent sx={{ '&:last-child': { padding: 1 } }}>
                         <Stack alignItems={'center'} justifyContent={'center'}>
-                          <img width={24} height={24} src={`${prefix}data/${rawName}.png`} alt=""/>
+                          <img width={24} height={24} src={`${prefix}data/${rawName}.png`} alt="god-icon"/>
                           {bonus.toFixed(2)}
                         </Stack>
                       </CardContent>

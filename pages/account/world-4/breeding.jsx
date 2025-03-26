@@ -72,7 +72,7 @@ const Breeding = () => {
         {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
           return eggLevel > 0 ? <Card key={`egg-${index}`}>
             <CardContent sx={{ '&:last-child': { padding: '8px' }, display: 'flex', alignItems: 'center' }}>
-              <img src={`${prefix}data/PetEgg${eggLevel}.png`} alt=""/>
+              <img src={`${prefix}data/PetEgg${eggLevel}.png`} alt="egg-icon"/>
             </CardContent>
           </Card> : null;
         })}

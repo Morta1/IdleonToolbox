@@ -190,7 +190,7 @@ const Buildings = () => {
             <Stack direction={'row'} justifyContent={'space-around'} flexWrap={'wrap'}>
               <Stack alignItems={'center'} sx={{ textAlign: 'center' }}>
                 <Typography>{cleanUnderscore(name)}</Typography>
-                <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt=""/>
+                <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt="tower-icon"/>
                 <Typography>Lv. {level} / {maxLevel}</Typography>
                 {isMaxed ? <Typography color={'success.light'}>Maxed</Typography> :
                   <Tooltip title={<>
@@ -240,7 +240,7 @@ const ReqItemsDisplay = ({ title, isMaxed, items }) => {
     <Stack direction={'row'} gap={1}>
       {items?.map(({ rawName, amount }, itemIndex) => {
         return <Stack alignItems={'center'} key={`${name}-${rawName}-${itemIndex}`}>
-          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+          <ItemIcon src={`${prefix}data/${rawName}.png`} alt="item-icon"/>
           <Typography>{notateNumber(amount, 'Big')}</Typography>
         </Stack>
       })}

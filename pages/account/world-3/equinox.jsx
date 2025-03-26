@@ -87,7 +87,7 @@ const Equinox = () => {
             <CardContent>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 {name !== 'Hmm...' ? <img src={`${prefix}etc/Dream_Upgrade_${index + 1}.png`}
-                                          alt="" width={48} height={48} style={{ objectFit: 'contain' }}/> : null}
+                                          alt="dream-icon" width={48} height={48} style={{ objectFit: 'contain' }}/> : null}
                 <Typography sx={{ fontSize: 22 }}
                             align="center">{cleanUnderscore(name.capitalize())}</Typography>
               </Stack>

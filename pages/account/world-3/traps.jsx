@@ -77,8 +77,8 @@ const Traps = () => {
                     <Stack sx={{ width: 175, flexDirection: { xs: 'column', md: 'row' } }}
                            alignItems={'center'} gap={2}>
                       <Stack alignItems={'center'} justifyContent={'center'}>
-                        <img style={{ height: 24 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                        <img style={{ height: 24 }} src={`${prefix}data/${trap?.rawName}.png`} alt=""/>
+                        <img style={{ height: 24 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt="class-icon"/>
+                        <img style={{ height: 24 }} src={`${prefix}data/${trap?.rawName}.png`} alt="trap-icon"/>
                       </Stack>
                       <Stack>
                         <Typography variant={'body1'}>{playerName}</Typography>
@@ -101,9 +101,9 @@ const Traps = () => {
                                 <Tooltip
                                   title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp * bonuses?.[bonus]?.exp}
                                                       crittersQuantity={slot?.crittersQuantity * bonuses?.[bonus]?.critter}/>}>
-                                  <FloatingItemIcon src={`${prefix}data/TrapBoxSet${slot?.trapType + 1}.png`} alt=""/>
+                                  <FloatingItemIcon src={`${prefix}data/TrapBoxSet${slot?.trapType + 1}.png`} alt="trap-icon"/>
                                 </Tooltip>
-                                <ItemIcon src={`${prefix}data/${slot?.rawName}.png`} alt=""/>
+                                <ItemIcon src={`${prefix}data/${slot?.rawName}.png`} alt="item-icon"/>
                               </Stack>
                               <Timer type={'countdown'} date={slot?.timeLeft}
                                      lastUpdated={state?.lastUpdated}/></> :
@@ -131,7 +131,7 @@ const Totals = ({ array, index, outlined = false, hideExp }) => {
         {Object.entries(array).map(([critterName, { critters, exp }], totalIndex) => {
           return <Stack alignItems={'center'} gap={1} key={`total-${index}-${totalIndex}-${critterName}`}
                         direction={'row'}>
-            <ItemIcon src={`${prefix}data/${critterName}.png`} alt=""/>
+            <ItemIcon src={`${prefix}data/${critterName}.png`} alt="critter-icon"/>
             <Stack>
               <Typography variant={'body2'}>Critters: {notateNumber(critters)}</Typography>
               {hideExp ? null : <Typography variant={'body2'}>Exp: {notateNumber(exp)}</Typography>}

@@ -37,19 +37,19 @@ const Sailing = () => {
     <Stack mb={2} direction={'row'} gap={1}>
       <CardTitleAndValue title={'Chests'}>
         <Stack direction={'row'} gap={2}>
-          <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.png`} alt=""/>
+          <img style={{ width: 50, objectFit: 'contain' }} src={`${prefix}npcs/Chesty.png`} alt="chest-icon"/>
           <Typography>{chests?.length || 0} / {maxChests}</Typography>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Captains'}>
         <Stack direction={'row'} gap={2}>
-          <img style={{ width: 28, objectFit: 'contain' }} src={`${prefix}npcs/Captain.gif`} alt=""/>
+          <img style={{ width: 28, objectFit: 'contain' }} src={`${prefix}npcs/Captain.gif`} alt="captain-icon"/>
           <Typography>{captains?.length}</Typography>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Boats'}>
         <Stack direction={'row'} gap={2}>
-          <img style={{ width: 42, objectFit: 'contain' }} src={`${prefix}npcs/Boat.gif`} alt=""/>
+          <img style={{ width: 42, objectFit: 'contain' }} src={`${prefix}npcs/Boat.gif`} alt="boat-icon"/>
           <Typography>{boats?.length}</Typography>
         </Stack>
       </CardTitleAndValue>

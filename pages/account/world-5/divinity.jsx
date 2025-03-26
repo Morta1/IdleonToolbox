@@ -49,7 +49,7 @@ const Divinity = () => {
             <CardContent>
               <Stack>
                 <Stack direction={'row'}>
-                  <img style={{ width: 42 }} src={`${prefix}data/${rawName}.png`} alt=""/>
+                  <img style={{ width: 42 }} src={`${prefix}data/${rawName}.png`} alt="god-icon"/>
                   <Stack>
                     <Typography>{name}</Typography>
                     <Typography variant={'body2'}>Lv. {level} / 100</Typography>
@@ -91,7 +91,7 @@ const Divinity = () => {
                                                                 ? secondDeityMinorBonus.toFixed(2)
                                                                 : 0)}/>}
                                    key={name}>
-                            <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                            <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt="class-icon"/>
                           </Tooltip> : null;
                       })}
                     </Stack>

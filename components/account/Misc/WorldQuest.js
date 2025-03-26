@@ -39,7 +39,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                  e.target.src = `${prefix}data/Wb6.png`;
                  e.target.style.width = 'auto';
                }}
-               alt=""/>
+               alt={`world-${worldName}-icon`}/>
       {quests?.[worldName]?.map((npc, index) => {
         let forceCompletion;
         if (npc?.name === 'Picnic_Stowaway') {
@@ -51,7 +51,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
         }
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt=""/>
+            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt="npc-icon"/>
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
             {getQuestIndicator(forceCompletion || npc?.questsStatus)}
           </AccordionSummary>
@@ -89,7 +89,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                                 ? 'Not yet unlocked'
                                 : 'In progress'}`}>
                               <Avatar
-                                alt=""
+                                alt="avatar-icon"
                                 src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>
                             </Tooltip>
                           </Badge>
@@ -151,7 +151,7 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
       <Stack direction={'row'} gap={2}>
         {itemReq?.map(({ name, rawName, amount }, index) => {
           return <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
-            <ItemIcon className={'item-img'} src={`${prefix}data/${rawName}.png`} alt=""/>
+            <ItemIcon className={'item-img'} src={`${prefix}data/${rawName}.png`} alt="item-icon"/>
             <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
           </Stack>
         })}
@@ -177,7 +177,7 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
                 <ItemIcon
                   title={cleanUnderscore(name || rawName)}
                   src={`${prefix}data/${img}.png`}
-                  alt=""/>
+                  alt="reward-icon"/>
                 {expType ? <Typography variant={'caption'}>{expType} exp</Typography> : null}
                 <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
               </Stack> :

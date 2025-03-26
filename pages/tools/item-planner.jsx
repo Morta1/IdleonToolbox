@@ -278,7 +278,7 @@ const ItemPlanner = ({}) => {
                   <div className="preview">
                     {item?.[sectionIndex] ? <img
                       src={`${prefix}data/${item?.[sectionIndex]?.rawName}.png`}
-                      alt=""
+                      alt="item-icon"
                     /> : null}
                   </div>
                   <Autocomplete
@@ -299,7 +299,7 @@ const ItemPlanner = ({}) => {
                             width={24}
                             height={24}
                             src={`${prefix}data/${crafts?.[option]?.rawName}.png`}
-                            alt=""
+                            alt="item-icon"
                           />
                           {option?.replace(/_/g, ' ')}
                         </Stack>

@@ -167,7 +167,7 @@ const MaterialTracker = () => {
                 width={24}
                 height={24}
                 src={`${prefix}data/${option?.rawName}.png`}
-                alt=""
+                alt="item-icon"
               />
               <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
             </Stack>)
@@ -243,7 +243,7 @@ const MaterialTracker = () => {
                      sx={{ position: 'relative' }}>
                 <img style={{ marginLeft: -8 }} width={48} height={48}
                      src={`${prefix}data/${item?.rawName}.png`}
-                     alt=""/>
+                     alt="item-icon"/>
                 <Stack>
                   <Stack direction={'row'} gap={2}>
                     {note && isSm ? <Tooltip title={note}>
