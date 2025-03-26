@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  Checkbox,
   Container,
   Dialog,
   DialogContent,
@@ -9,9 +8,11 @@ import {
   Divider,
   Fade,
   FormControlLabel,
+  FormGroup,
   FormHelperText,
   Link,
   Stack,
+  Switch,
   TextField,
   Typography,
   useMediaQuery
@@ -34,11 +35,11 @@ import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
 import { isProd, notateNumber, tryToParse } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
-import { useTheme } from '@emotion/react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
+import { useLocalStorage } from '@mantine/hooks';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -51,7 +52,8 @@ const Data = () => {
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [leaderboardConsent, setLeaderboardConsent] = useState(false);
+  const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({ key: 'data:leaderboardConsent', defaultValue: false });
+  const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
   const [error, setError] = useState('');
   const showWideSideBanner = useMediaQuery('(min-width: 1200px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
@@ -60,7 +62,6 @@ const Data = () => {
   useEffect(() => {
     if (state?.uid) {
       setLastUpload(localStorage.getItem(`${state?.uid}/lastUpload`));
-      setLeaderboardConsent(localStorage.getItem(`${state?.uid}/leaderboardConsent`) === 'true');
     }
   }, [state?.uid]);
 
@@ -117,17 +118,16 @@ const Data = () => {
     router.reload();
   }
 
-  const handleAllowLeaderboard = (e) => {
-    localStorage.setItem(`${state?.uid}/leaderboardConsent`, !leaderboardConsent);
-    setLeaderboardConsent(!leaderboardConsent)
-  }
   const handleUpdate = async () => {
     const userData = JSON.parse(localStorage.getItem('rawJson'));
-    delete userData.data.GemsOwned;
-    delete userData.data.ServerGems;
-    delete userData.data.ServerGemsReceived;
-    delete userData.data.BundlesReceived;
-    delete userData.data.GemsPacksPurchased;
+    if (removeGemsInfo) {
+      delete userData.data.GemsOwned;
+      delete userData.data.ServerGems;
+      delete userData.data.ServerGemsReceived;
+      delete userData.data.BundlesReceived;
+      delete userData.data.GemsPacksPurchased;
+      delete userData.data.CYGems;
+    }
     const parsedData = expandLeaderboardInfo(state?.account, state?.characters)
     setUploaded(false);
     if (!lastUpload || ((WAIT_TIME - (Date.now() - lastUpload)) < 0)) {
@@ -136,7 +136,6 @@ const Data = () => {
       try {
         await uploadProfile({
           profile: { ...userData, parsedData },
-          uid: state?.uid,
           leaderboardConsent
         }, state?.accessToken);
         setUploaded(true);
@@ -251,13 +250,11 @@ const Data = () => {
                     <CheckCircleIcon color={'success'}/>
                   </Fade>
                 </Stack>
-                <FormControlLabel
-                  sx={{ mt: 2 }}
-                  control={<Checkbox name={'mini'} checked={leaderboardConsent}
-                                     size={'small'}
-                                     onChange={handleAllowLeaderboard}/>}
-                  label={'Participate in idleontoolbox leaderboard ranking'}/>
-                <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Leave this box unchecked if you prefer not to participate in the leaderboard.
+                <FormGroup sx={{ mt: 2 }}>
+                  <FormControlLabel control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>} label="Remove gems related information"/>
+                  <FormControlLabel control={<Switch checked={leaderboardConsent} onChange={() => setLeaderboardConsent(!leaderboardConsent)}/>} label="Participate in idleontoolbox leaderboard ranking"/>
+                </FormGroup>
+                <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Turn this off if you prefer not to participate in the leaderboard.
 To exclude your profile, simply uncheck the box and re-upload your profile.`}</FormHelperText>
                 <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
                 {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last

@@ -5,12 +5,12 @@ import { calcTotalBoatLevels } from '@parsers/sailing';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
 // const url = 'http://localhost:8787/api';
-export const uploadProfile = async ({ profile, uid, leaderboardConsent }, token) => {
+export const uploadProfile = async ({ profile, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);
     const response = await fetch(`${url}/profiles`, {
       method: 'POST',
-      body: JSON.stringify({ profile: parsedProfile, uid, leaderboardConsent }),
+      body: JSON.stringify({ profile: parsedProfile, leaderboardConsent }),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': token
