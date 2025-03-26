@@ -73,7 +73,7 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
           const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
           const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
-          const companionBonus = 1 + accountData?.accountOptions?.[323] * isCompanionBonusActive(accountData, 17) / 100
+          const companionBonus = 1 + accountData?.accountOptions?.[354] * isCompanionBonusActive(accountData, 17) / 100
           const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
             * (1 + (highestKingOfRemembrance
               * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100) * voteBonus
