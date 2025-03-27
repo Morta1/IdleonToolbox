@@ -67,6 +67,7 @@ const NavBar = ({ children }) => {
       key={router?.pathname}
       style={{
         backgroundColor: isProd ? '' : '#d73333',
+        marginLeft: drawerWidth,
         position: 'fixed',
         bottom: 0,
         left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
@@ -75,7 +76,6 @@ const NavBar = ({ children }) => {
       <Adsense
         style={{
           display: 'block',
-          marginLeft: drawerWidth,
           height: isXs ? 50 : 90,
           maxHeight: isXs ? 50 : 90,
           margin: '0 auto'
