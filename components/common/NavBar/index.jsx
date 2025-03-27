@@ -10,7 +10,7 @@ import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { handleLoadJson, isProd, shouldDisplayDrawer } from '../../../utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
-import { Stack, Typography, useMediaQuery } from '@mui/material';
+import { Container, Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
@@ -67,7 +67,6 @@ const NavBar = ({ children }) => {
       key={router?.pathname}
       style={{
         backgroundColor: isProd ? '' : '#d73333',
-        marginLeft: drawerWidth,
         position: 'fixed',
         bottom: 0,
         left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
@@ -78,6 +77,7 @@ const NavBar = ({ children }) => {
           display: 'block',
           height: isXs ? 50 : 90,
           maxHeight: isXs ? 50 : 90,
+          maxWidth: 1200,
           margin: '0 auto'
         }}
         client="ca-pub-1842647313167572"
