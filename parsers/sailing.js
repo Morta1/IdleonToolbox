@@ -513,7 +513,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     }
   } else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
     const lootedItems = account?.looty?.rawLootedItems;
-    const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb';
+    const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb' || artifact?.name === 'Jade_Rock';
     additionalData = `Looted items: ${lootedItems}`;
     const slabSovereignty = getLabBonus(account?.lab.labBonuses, 15); // gem multi
     const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100) * Math.floor(Math.max(0, lootedItems - 500) / 10);

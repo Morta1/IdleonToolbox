@@ -17,21 +17,19 @@ const defaultBonuses = [
 const ConstructMastery = ({ totalLevels }) => {
   return <>
     <CardTitleAndValue title={'Construct Lv.'} value={totalLevels}/>
-    {totalLevels >= constructionMasteryThresholds?.[0] ? <>
       <Typography variant={'h5'}>Bonuses</Typography>
       <Stack sx={{ mb: 2 }} gap={2} direction={'row'}>
         <Bonus name={'Refinery_Spd'} label={'Ref Spd'}
-               value={totalLevels >= constructionMasteryThresholds?.[0] ? `${Math.floor(totalLevels / 10)}%` : null}/>
+               value={totalLevels >= constructionMasteryThresholds?.[0] ? `${Math.floor(totalLevels / 10)}%` : '0%'}/>
         <Bonus name={'Refinery_Dmg'} label={'Dmg'}
                value={totalLevels >= constructionMasteryThresholds?.[2]
                  ? `${2 * Math.floor((totalLevels - constructionMasteryThresholds?.[2]) / 10)}%`
-                 : null}/>
+                 : '0%'}/>
         <Bonus name={'Refinery_Build_Spd'} label={'Build Spd'}
                value={totalLevels >= constructionMasteryThresholds?.[4]
                  ? `${5 * Math.floor((totalLevels - constructionMasteryThresholds?.[4]) / 10)}%`
-                 : null}/>
-      </Stack></> : null}
-
+                 : '0%'}/>
+      </Stack>
     <Card sx={{ width: 'fit-content' }}>
       <CardContent>
         <Stack gap={1}>

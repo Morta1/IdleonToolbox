@@ -14,8 +14,7 @@ const Rift = () => {
   const { state } = useContext(AppContext);
   const { rift, totalSkillsLevels, towers } = state?.account || {};
 
-  let tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'rift').filter((tab) => rift?.currentRift > 15 ? true : tab !== 'Skill Mastery')
-    .filter((tab) => rift?.currentRift > 40 ? true : tab !== 'Construction Mastery');
+  let tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'rift');
 
   return <>
     <NextSeo
