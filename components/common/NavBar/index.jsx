@@ -82,7 +82,8 @@ const NavBar = ({ children }) => {
         }}
         client="ca-pub-1842647313167572"
         slot="1488341218"
-        format={''}
+        format=''
+        responsive='true'
       />
     </Box>
   </>
