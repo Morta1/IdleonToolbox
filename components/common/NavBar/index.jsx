@@ -72,18 +72,18 @@ const NavBar = ({ children }) => {
         left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
         width: '100%'
       }}>
-      {isProd ? <Adsense
+      <Adsense
         style={{
           display: 'block',
+          marginLeft: drawerWidth,
           height: isXs ? 50 : 90,
           maxHeight: isXs ? 50 : 90,
-          maxWidth: 1200,
           margin: '0 auto'
         }}
         client="ca-pub-1842647313167572"
         slot="1488341218"
         format={''}
-      /> : null}
+      />
     </Box>
   </>
 };
