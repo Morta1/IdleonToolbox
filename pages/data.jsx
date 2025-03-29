@@ -20,7 +20,6 @@ import {
 import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import InfoIcon from '@mui/icons-material/Info';
 import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
@@ -200,7 +199,7 @@ const Data = () => {
               <MenuItem value={'last-upload-time'}>Last upload time</MenuItem>
               <MenuItem value={'pinnedPages'}>Pinned Pages</MenuItem>
             </TextField>
-            <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<InfoIcon/>}>
+            <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<IconInfoCircleFilled/>}>
               Clear
             </ButtonStyle>
           </Stack>
@@ -240,7 +239,6 @@ const Data = () => {
               <Divider sx={{ my: 2 }}></Divider>
               <Typography variant={'h6'} my={1}>Upload your profile</Typography>
               <Typography variant={'body1'}>* You can update your profile once every 4 hours</Typography>
-              <Typography variant={'body1'}>* Gems and bundle information won't be saved</Typography>
               <Box mt={2}>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
                   <ButtonStyle disabled={isDisabled}
@@ -251,7 +249,7 @@ const Data = () => {
                   </Fade>
                 </Stack>
                 <FormGroup sx={{ mt: 2 }}>
-                  <FormControlLabel control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>} label="Remove gems related information"/>
+                  <FormControlLabel control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>} label="Remove current/total gems and bundle info."/>
                   <FormControlLabel control={<Switch checked={leaderboardConsent} onChange={() => setLeaderboardConsent(!leaderboardConsent)}/>} label="Participate in idleontoolbox leaderboard ranking"/>
                 </FormGroup>
                 <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Turn this off if you prefer not to participate in the leaderboard.
