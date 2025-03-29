@@ -31,7 +31,7 @@ const TheJars = ({ hole }) => {
     <Divider sx={{ mb: 2 }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'The Jars')} queryKey={'dnt'}>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect }, index) => {
+        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed }, index) => {
           return <Card key={`jar-${index}`}>
             <CardContent sx={{
               width: 350,
@@ -58,6 +58,8 @@ const TheJars = ({ hole }) => {
                   <IconInfoCircleFilled size={18}/>
                 </Tooltip>
               </Stack>
+              <Typography variant={'body1'}>Jars destroyed: {numberWithCommas(destroyed)}</Typography>
+              <Divider sx={{ my: 1 }}/>
               <Typography variant={'body1'}>Time to
                 full: {msToDate(req / hole?.caverns?.theJars?.perHour * 1000 * 3600)}</Typography>
               <Typography variant={'body1'}>Req: {numberWithCommas(Math.floor(req))}</Typography>

@@ -38,7 +38,8 @@ export const getTheJars = (holesObject, accountData) => {
       name,
       effect: cleanUnderscore(jarEffects?.[index]).replace('{', bonus),
       unlocked: index <= jarTypes,
-      req: getProductionReq({ holesObject, i: index })
+      req: getProductionReq({ holesObject, i: index }),
+      destroyed: holesObject?.extraCalculations?.slice(40, 50)?.[index] || 0
     }
   });
   const perHour = getProductionPerHour({ holesObject, accountData });
