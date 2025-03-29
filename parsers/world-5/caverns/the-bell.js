@@ -70,10 +70,11 @@ const getBellExpReq = (holesObject, t) => {
   return 0 === t
     ? (5 + 3 * (holesObject?.bellRelated?.[1])) * Math.pow(1.05, (holesObject?.bellRelated?.[1]))
     : 1 === t
-      ? (10 + (10 * (holesObject?.bellRelated?.[3]) + Math.pow((holesObject?.bellRelated?.[3]), 2.5))) * Math.pow(1.75, (holesObject?.bellRelated?.[3]))
+      ? (10 + (10 * (holesObject?.bellRelated?.[3]) + Math.pow((holesObject?.bellRelated?.[3]), 2.5)))
+      * Math.pow(1.75, (holesObject?.bellRelated?.[3]))
       : 2 === t
         ? 100 * Math.pow(3, (holesObject?.bellRelated?.[5]))
-        : 250
+        : 25
 }
 const getImprovementMethodCost = (holesObject, t) => {
   const info = holesInfo?.[42]?.split(' ');
