@@ -10,7 +10,7 @@ import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { handleLoadJson, isProd, shouldDisplayDrawer } from '../../../utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
-import { Container, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
@@ -19,6 +19,7 @@ import UserMenu from '@components/common/NavBar/UserMenu';
 import { format } from 'date-fns';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -61,7 +62,9 @@ const NavBar = ({ children }) => {
       mb: isXs ? '75px' : '110px'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      {children}
+      <ContentWrapper isTools={router?.pathname?.includes('tools')}>
+        {children}
+      </ContentWrapper>
     </Box>
     <Box
       key={router?.pathname}
@@ -82,12 +85,37 @@ const NavBar = ({ children }) => {
         }}
         client="ca-pub-1842647313167572"
         slot="1488341218"
-        format=''
-        responsive='true'
+        format=""
+        responsive="true"
       />
     </Box>
   </>
 };
+
+const ContentWrapper = ({ isTools, children }) => {
+  const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
+  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  return !isTools ? children : <Stack direction={'row'} gap={2} justifyContent={'space-between'}>
+    <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
+      {children}
+    </Stack>
+    {showWideSideBanner || showNarrowSideBanner ? <Box
+      sx={{
+        backgroundColor: isProd ? '' : '#d73333',
+        width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
+        height: 600
+      }}>
+      {isProd && showWideSideBanner ? <Adsense
+        client="ca-pub-1842647313167572"
+        slot="7052896184"
+      /> : null}
+      {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
+        client="ca-pub-1842647313167572"
+        slot="5548242827"
+      /> : null}
+    </Box> : null}
+  </Stack>
+}
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open'
