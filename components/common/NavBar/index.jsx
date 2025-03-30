@@ -67,7 +67,7 @@ const NavBar = ({ children }) => {
       </ContentWrapper>
     </Box>
     <Box
-      key={router?.pathname}
+      key={router?.asPath}
       style={{
         backgroundColor: isProd ? '' : '#d73333',
         position: 'fixed',
@@ -95,11 +95,13 @@ const NavBar = ({ children }) => {
 const ContentWrapper = ({ isTools, children }) => {
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  const router = useRouter();
   return !isTools ? children : <Stack direction={'row'} gap={2} justifyContent={'space-between'}>
     <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
       {children}
     </Stack>
     {showWideSideBanner || showNarrowSideBanner ? <Box
+      key={router.asPath}
       sx={{
         backgroundColor: isProd ? '' : '#d73333',
         width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
