@@ -50,9 +50,13 @@ export const getTheJars = (holesObject, accountData) => {
       req: jars?.[holesObject?.jarProgress?.[index]]?.req
     }
   });
-  const rupies = createRange(0, 11).map((index) => {
+  let rupies = createRange(0, 9).map((index) => {
     return holesObject?.wellSediment?.slice(20)?.[index] ?? '0';
   });
+  const whiteDarkRupies = createRange(0, 1).map((index) => {
+    return holesObject?.extraCalculations?.slice(38)?.[index] ?? '0';
+  })
+  rupies = [...rupies, ...whiteDarkRupies];
 
   const collectibles = holesObject?.jarStuff?.slice(0, 40).map((level, index) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.split(' ')?.[index]?.split('|');

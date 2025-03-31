@@ -6,6 +6,7 @@ import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '../../../parsers/printer';
 import { CardTitleAndValue } from '@components/common/styles';
+import Timer from '@components/common/Timer';
 
 const MAX_ATOMS = 11;
 
@@ -52,7 +53,7 @@ const AtomCollider = ({}) => {
           .replace(/{/g, `${baseBonus * level}`)
           .replace(/[>}]/, notateNumber(bonus, 'Big'))
           .replace('<', level);
-        const timeLeft = ((cost - particles) / totals?.atom?.atoms) * 3600 * 1000
+        const timeLeft = (cost - particles) / totals?.atom?.atoms * 3600 * 1000
         return (
           (<Card key={rawName} sx={{
             outline: level >= maxLevel ? '1px solid' : '',
@@ -78,7 +79,11 @@ const AtomCollider = ({}) => {
                 </> : null}
                 {level < maxLevel && totals?.atom?.atoms > 0 ? <>
                   <Divider sx={{ my: 2 }}/>
-                  <Typography variant={'caption'}>Next level: {msToDate(new Date().getTime() + timeLeft)}</Typography>
+                  <Typography variant={'caption'}>Next level: <Timer type={'countdown'}
+                                                                     staticTime
+                                                                     placeholder={<Typography color={'success.light'}>Ready!</Typography>}
+                                                                     date={new Date().getTime() + timeLeft}
+                                                                     lastUpdated={state?.lastUpdated}/></Typography>
                 </> : null}
                 <Divider sx={{ my: 2 }}/>
                 <Typography sx={{ mb: 2 }} variant={'body1'} component={'div'}>
