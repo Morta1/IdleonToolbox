@@ -860,7 +860,7 @@ export const getWorld6Alerts = (account, fields, options) => {
   }
   if (fields?.farming?.checked) {
     const farming = {};
-    const { plots, totalCrops, missingPlots } = options?.farming || {};
+    const { plots, totalCrops, missingPlots, beanTrade } = options?.farming || {};
     if (plots?.checked) {
       const availablePots = account?.farming?.plot?.filter(({ currentOG }) => plots?.props?.value > 0
         ? currentOG >= plots?.props?.value
@@ -890,6 +890,11 @@ export const getWorld6Alerts = (account, fields, options) => {
       const missingPlotsLocal = account?.farming?.plot?.filter(({ seedType }) => seedType === -1);
       if (missingPlotsLocal?.length > 0) {
         farming.missingPlots = missingPlotsLocal;
+      }
+    }
+    if (beanTrade?.checked) {
+      if (account?.farming?.beanTrade >= beanTrade?.props?.value) {
+        farming.beanTrade = account?.farming?.beanTrade;
       }
     }
     if (Object.keys(farming).length > 0) {

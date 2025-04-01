@@ -411,25 +411,27 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const companionBonus = isCompanionBonusActive(accountData, 13) ? 1 : 0;
   const statueBonus = getStatueBonus(accountData?.statues, 'StatueG29');
   const jarBonuses = getJarBonus({ holesObject, i: 4 })
-    + (getJarBonus({ holesObject, i: 9 })
+    + (getJarBonus({ holesObject, i: 10 })
       + (getJarBonus({ holesObject, i: 12 })
         + (getJarBonus({ holesObject, i: 22 })
           + (getJarBonus({ holesObject, i: 29 })
-            + getJarBonus({ holesObject, i: 35 })))))
+            + getJarBonus({ holesObject, i: 35 })))));
+
   const value = (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
     * Math.max(1, (1 + 2 * companionBonus)
       * (1 + statueBonus / 100)
-      * (1 + (jarBonuses) / 100)
+      * (1 + jarBonuses / 100)
       * (1 + (25 * eventBonus) / 100)
       * (1 + (50 * hasBundle) / 100))
     * holesObject?.opalsInvested[t]
-    * (1 + (holesObject?.parallelVillagersGemShop[t] ?? 0))
-    * (1 + arcadeBonus / 100)
+    * (1 + holesObject?.parallelVillagersGemShop[t] ?? 0) *
+    (1 + arcadeBonus / 100)
     * (1 + grimoireBonus / 100)
     * (1 + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 })
       * Math.floor(leastOpalInvestedVillager / 5)) / 100)
     * (1 + (getMonumentBonus({ holesObject, t: 0, i: 3 })
       + (getMonumentBonus({ holesObject, t: 1, i: 3 })
+        + getMonumentBonus({ holesObject, t: 2, i: 3 })
         + (getMeasurementBonus({ holesObject, accountData, t: 7 })
           + (Math.floor(holesObject?.opalsInvested[t] / 10)
             * getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 0 })

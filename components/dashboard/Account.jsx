@@ -5,7 +5,7 @@ import {
   cleanUnderscore,
   commaNotation,
   getNumberWithOrdinal,
-  notateNumber,
+  notateNumber, numberWithCommas,
   pascalCase,
   prefix,
   randomFloatBetween
@@ -430,7 +430,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${commaNotation(alerts?.['World 6']?.farming?.totalCrops)} crops ready to be collected`}
                   iconPath={'data/FarmPlant6'}/> : null}
-
+              {alerts?.['World 6']?.farming?.beanTrade > 0 ?
+                <Alert
+                  title={`Your bean trade has reached ${numberWithCommas(Math.floor(alerts?.['World 6']?.farming?.beanTrade))}`}
+                  iconPath={'data/Quest80_x1'}/> : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

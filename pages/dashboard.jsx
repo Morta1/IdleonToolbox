@@ -16,7 +16,7 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/printer';
 
 const baseTrackers = {
-  version: 16,
+  version: 17,
   account: {
     General: {
       tasks: {
@@ -301,7 +301,13 @@ const baseTrackers = {
             props: { label: 'Crop Threshold', value: 1, minValue: 1, helperText: '' },
             checked: false
           },
-          { name: 'missingPlots', checked: true }
+          { name: 'missingPlots', checked: true },
+          {
+            name: 'beanTrade',
+            type: 'input',
+            props: { label: 'Bean trade value', value: 1, minValue: 1, helperText: '' },
+            checked: false
+          },
         ]
       },
       summoning: {

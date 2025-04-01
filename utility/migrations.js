@@ -312,7 +312,7 @@ export const migrateToVersion15 = (config) => {
     ]
   }
 
-  if (!dashboardConfig?.timers?.['World 5']?.wisdom){
+  if (!dashboardConfig?.timers?.['World 5']?.wisdom) {
     dashboardConfig.timers['World 5'] = {
       ...dashboardConfig.timers['World 5'],
       wisdom: { checked: true, options: [] }
@@ -342,6 +342,28 @@ export const migrateToVersion16 = (config) => {
   }
 
   dashboardConfig.version = 16;
+  return dashboardConfig
+}
+
+export const migrateToVersion17 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 6']?.farming?.options?.length === 3) {
+    dashboardConfig.account['World 6'].farming.options = [
+      ...dashboardConfig?.account?.['World 6']?.farming?.options,
+      {
+        name: 'beanTrade',
+        type: 'input',
+        props: { label: 'Bean trade value', value: 1, minValue: 1, helperText: '' },
+        checked: false
+      }
+    ]
+  }
+
+  dashboardConfig.version = 17;
   return dashboardConfig
 }
 
@@ -395,6 +417,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 15) {
       migratedConfig = migrateToVersion16(migratedConfig, baseTrackers);
+    }
+    if (migratedConfig?.version === 16) {
+      migratedConfig = migrateToVersion17(migratedConfig);
     }
   }
   return migratedConfig;
