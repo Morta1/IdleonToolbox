@@ -4,6 +4,29 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.97',
+    'gameVer': '2.0.35',
+    'date': '01/04/2025',
+    'features': [
+      'Updated the website with version 2.0.35 data and assets',
+      'Added event-shop page under account -> misc',
+      'Leaderboards - you\'re now able to search your account\'s rank even if you\'re not top 10 (or top 250!)',
+      'Added bean trade alert to the dashboard',
+      'Fixed display of white and dark rupies',
+      'Fixed villagers per hour calculation',
+      'Fixed gambit points calculation',
+      'Fixed printer companion calculation',
+      'Fixed small bug in refinery calculation',
+      'Fixed bravery damage',
+      'Fixed endless bonuses',
+      'Fixed bug with timers in atom colliders'
+    ],
+    'fixes': [
+      'Updated drop rate calculation with the new companion, monument, measurement bonuses',
+      'Fixed vote ballot multi bonus'
+    ]
+  },
+  {
     'ver': '3.2.96',
     'gameVer': '2.0.34',
     'date': '22/03/2025',

@@ -12,6 +12,7 @@ import Box from '@mui/material/Box';
 import { TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getEventShopBonus } from '@parsers/misc';
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
@@ -62,8 +63,9 @@ const Buildings = () => {
       maxLevel += extraLevels;
       const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
       const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
+      const eventBonus = getEventShopBonus(state?.account, 14);
       const gambitSlot = getGambitBonus(state?.account, 9);
-      const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + gambitSlot;
+      const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + gambitSlot + eventBonus;
       const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
       if (isSlotTrimmed) {
         const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;

@@ -34,6 +34,7 @@ export const PAGES = {
         },
         { label: 'upgradeVault', icon: 'data/VaultBut' },
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
+        { label: 'eventShop', icon: 'etc/Event_Currency' },
         { label: 'guild', icon: 'etc/Guild' }
       ]
     },

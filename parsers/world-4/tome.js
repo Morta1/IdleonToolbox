@@ -21,6 +21,7 @@ import { lavaLog } from '@utility/helpers';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
+// _event_Tome2
 export const getTome = (idleonData, account, characters, serverVars) => {
   const indexes = ninjaExtraInfo[32].split(' ');
   const bonusNames = ninjaExtraInfo[33].split(' ');
@@ -28,7 +29,7 @@ export const getTome = (idleonData, account, characters, serverVars) => {
   let totalPoints = 0;
   const tome = tomeData.map((bonus, index) => {
     const realIndex = indexes.indexOf(index.toString());
-    const tomeLvReq = 50 * realIndex + (10 * Math.max(0, realIndex - 30) + 10 * Math.max(0, realIndex - 50)) + 500;
+    const tomeLvReq = 40 * realIndex + (5 * Math.max(0, realIndex - 35) + 10 * Math.max(0, realIndex - 60)) + 350
     const quantity = tomeQuantities?.[index] || 0;
     const pointsPercent = calcPointsPercent(bonus, quantity);
     const color = .4 > pointsPercent ? '#ffc277' : .75 > pointsPercent ? '#d6dbe0' : .999 > pointsPercent
@@ -82,20 +83,22 @@ const getTomeBonus = (account, totalPoints, index) => {
   const agiTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'TOME_AGILITY');
   const wisTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'TOME_WISDOM');
   const grimoireBonus = 1 + getGrimoireBonus(account?.grimoire?.upgrades, 17) / 100;
-
   const multiplier = (totalPoints - 5000) / 2000;
-  return 0 === index
-    ? 10 * Math.pow(Math.floor(totalPoints / 100), 0.7) * grimoireBonus
+
+  return 0 === index ? 10 * Math.pow(Math.floor(totalPoints / 100), 0.7) * grimoireBonus
     : 1 === index ? (1 === account?.accountOptions?.[196]
-        ? 4 * Math.pow(Math.floor(Math.max(0, totalPoints - 4e3) / 100), 0.7) * grimoireBonus
-        : 0)
-      : 2 === index ? (1 === account?.accountOptions?.[197]
-          ? 2 * Math.pow(Math.floor(Math.max(0, totalPoints - 8e3) / 100), 0.7) * grimoireBonus : 0)
-        : 3 === index ? strTomeBonus * multiplier
-          : 4 === index ? agiTomeBonus * multiplier
-            : 5 === index ? wisTomeBonus * multiplier
-              : 6 === index && getEventShopBonus(account, 0) ? 4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
-                : 0
+        ? 4 *
+        Math.pow(Math.floor(Math.max(0, totalPoints - 4e3) / 100), 0.7)
+        * grimoireBonus : 0) :
+      2 === index ? (1 === account?.accountOptions?.[197]
+          ? 2 * Math.pow(Math.floor(Math.max(0, totalPoints - 8e3) / 100), 0.7) * grimoireBonus
+          : 0)
+        : 3 === index ? strTomeBonus * multiplier :
+          4 === index ? agiTomeBonus * multiplier :
+            5 === index ? wisTomeBonus * multiplier :
+              6 === index && 1 === getEventShopBonus(account, 0) ?
+                4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
+                * grimoireBonus : 0;
 }
 
 const calcPointsPercent = (bonus, quantity) => {
@@ -120,6 +123,7 @@ const calcPointsPercent = (bonus, quantity) => {
   }
 }
 
+// _customEvent_TomeQTY
 export const calcTomeQuantity = (account, characters) => {
   const quantities = [];
   quantities.push(calcStampLevels(account?.stamps));
@@ -205,6 +209,19 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(parseFloat(account.accountOptions?.[221])); // Largest Magic Bean Trade
   quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
   quantities.push(account.arcade?.totalUpgradeLevels);
-  quantities.push(Math.min(500, getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 57)));
+  quantities.push(Math.min(500, getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 57))); // [81]
+  quantities.push(account?.hole?.caverns?.gambit?.totalTime) // [82]
+  quantities.push(account?.hole?.totalResources) // [83]
+  quantities.push(account?.hole?.totalVillagersLevels) // [84]
+  quantities.push(account.accountOptions?.[262]);
+  quantities.push(account.accountOptions?.[279]);
+  quantities.push(account?.hole?.holesObject?.extraCalculations?.[73]);
+  quantities.push(account?.hole?.holesObject?.extraCalculations?.[74]);
+  quantities.push(account?.hole?.holesObject?.extraCalculations?.[75]);
+  quantities.push(account.accountOptions?.[356]);
+  quantities.push(account?.hole?.holesObject?.extraCalculations?.[8]);
+  quantities.push(account?.hole?.totalLayerResources);
+  quantities.push(account?.hole?.totalOpalsFound);
+  quantities.push(Math.round(account.accountOptions?.[353] + 1));
   return quantities;
 }

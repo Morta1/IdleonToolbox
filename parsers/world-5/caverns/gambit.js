@@ -3,6 +3,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesInfo } from '../../../data/website-data';
 import { lavaLog, lavaLog2, notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getEventShopBonus } from '@parsers/misc';
 
 export const getGambit = (holesObject, accountData) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
@@ -22,10 +23,12 @@ export const getGambit = (holesObject, accountData) => {
     }
   })
   const nextUnlock = bonuses?.find(({ pointsReq }) => points < pointsReq);
-  const appointedDoublers = holesObject?.gambitStuff?.slice(0, bonuses?.[0]?.bonus)?.reduce((sum, val) => {
+  const totalDoublers = bonuses?.[0]?.bonus + 10 * getEventShopBonus(accountData, 15);
+  const appointedDoublers = holesObject?.gambitStuff?.slice(0, totalDoublers)?.reduce((sum, val) => {
     return sum + (val !== -1 ? 1 : 0)
   }, 0);
   const times = holesObject?.extraCalculations.slice(65, 71);
+  const totalTime = times.reduce((sum, time) => sum + time, 0);
   return {
     pointsMulti,
     basePoints,
@@ -33,6 +36,7 @@ export const getGambit = (holesObject, accountData) => {
     bonuses,
     nextUnlock,
     times,
+    totalTime,
     summoningDoublers: {
       appointed: appointedDoublers,
       total: bonuses?.[0]?.bonus

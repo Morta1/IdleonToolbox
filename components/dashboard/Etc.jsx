@@ -3,7 +3,7 @@ import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { cleanUnderscore, getDuration, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
-import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
+import { getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import { calcHappyHours } from '@parsers/dungeons';
@@ -15,6 +15,7 @@ import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
+import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
 const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated, trackers }) => {
@@ -45,10 +46,13 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const allBlueActive = account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
     const jewelTrimmedSlot = account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
-    const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0);
+    const eventBonus = getEventShopBonus(account, 14);
+    const gambitSlot = getGambitBonus(account, 9);
+    const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + gambitSlot + eventBonus;
     const isSlotTrimmed = building?.slot !== -1 && building?.slot < trimmedSlots;
     const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
     let timeLeft;
+    // for (l = r._customBlock_WorkbenchStuff("TowerBuildSlots", 0, 0) | 0; g < l; )
     if (isSlotTrimmed) {
       const trimmedSlotSpeed = (3 + atomBonus / 100) * account?.construction?.totalBuildRate;
       timeLeft = (buildCost - building?.progress) / (trimmedSlotSpeed) * 1000 * 3600;
@@ -299,30 +303,36 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             page={'account/world-5/hole'}
             tooltipContent={`Next fight: ${account?.hole?.caverns?.bravery?.timeForNextFight < 0
               ? 'now!'
-              : getRealDateInMs(Date.now() + account?.hole?.caverns?.bravery?.timeForNextFight  * 1000)}`}
+              : getRealDateInMs(Date.now() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.bravery?.rewardMulti) / 100}x)` : ''}
+            timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0
+              ? `Fight! (${Math.round(100 * account?.hole?.caverns?.bravery?.rewardMulti) / 100}x)`
+              : ''}
             icon={`etc/Bravery_Statue.png`}/> : null}
         {trackers?.['World 5']?.justice?.checked && account?.finishedWorlds?.World4 ?
           <TimerCard
             page={'account/world-5/hole'}
             tooltipContent={`Next fight: ${account?.hole?.caverns?.justice?.timeForNextFight < 0
               ? 'now!'
-              : getRealDateInMs(Date.now() + account?.hole?.caverns?.justice?.timeForNextFight  * 1000)}`}
+              : getRealDateInMs(Date.now() + account?.hole?.caverns?.justice?.timeForNextFight * 1000)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.justice?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.justice?.rewardMulti) / 100}x)` : ''}
+            timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0
+              ? `Fight! (${Math.round(100 * account?.hole?.caverns?.justice?.rewardMulti) / 100}x)`
+              : ''}
             icon={`data/Justice_Monument_x1.png`}/> : null}
         {trackers?.['World 5']?.wisdom?.checked && account?.finishedWorlds?.World4 ?
           <TimerCard
             page={'account/world-5/hole'}
             tooltipContent={`Next fight: ${account?.hole?.caverns?.wisdom?.timeForNextFight < 0
               ? 'now!'
-              : getRealDateInMs(Date.now() + account?.hole?.caverns?.wisdom?.timeForNextFight  * 1000)}`}
+              : getRealDateInMs(Date.now() + account?.hole?.caverns?.wisdom?.timeForNextFight * 1000)}`}
             lastUpdated={lastUpdated}
             time={new Date().getTime() + account?.hole?.caverns?.wisdom?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.wisdom?.timeForNextFight < 0 ? `Fight! (${Math.round(100 * account?.hole?.caverns?.wisdom?.rewardMulti) / 100}x)` : ''}
+            timerPlaceholder={account?.hole?.caverns?.wisdom?.timeForNextFight < 0
+              ? `Fight! (${Math.round(100 * account?.hole?.caverns?.wisdom?.rewardMulti) / 100}x)`
+              : ''}
             icon={`data/Wisdom_Monument_x1.png`}/> : null}
       </Section>}
 

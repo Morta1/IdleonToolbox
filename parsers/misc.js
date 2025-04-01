@@ -1128,6 +1128,7 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
   });
 }
 
+// a.engine.getGameAttribute("OptionsListAccount")[310] - event currency
 export const getEventShopBonus = (account, bonusId) => {
   if (!account?.accountOptions?.[311]) return false;
   return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]);

@@ -14,7 +14,8 @@ const parseVoteBallot = (idleonData, accountData) => {
   const companionBonus = isCompanionBonusActive(accountData, 19) ? accountData?.companions?.list?.at(19)?.bonus : 0;
   const voteMulti = 1 + (getEquinoxBonus(accountData?.equinox?.upgrades, 'Voter_Rights') +
     (getCosmoBonus({ majik: accountData?.hole?.holesObject?.idleonMajiks, t: 2, i: 3 })
-      + getWinnerBonus(accountData, '+{% Ballot Bonus') + (17 * getEventShopBonus(accountData, 7) + companionBonus))) / 100;
+      + getWinnerBonus(accountData, '+{% Ballot Bonus')
+      + (17 * getEventShopBonus(accountData, 7) + 13 * getEventShopBonus(accountData, 7) + companionBonus))) / 100;
 
   const bonuses = ninjaExtraInfo[38].split(' ').toChunks(3).map((bonus, index) => {
     const bonusIndex = currentCategories.findIndex((ind) => ind === index);
