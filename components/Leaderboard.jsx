@@ -32,8 +32,8 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
           const isLoggedMainChar = char === loggedMainChar;
           const isSearchedChar = char === searchedChar;
 
-          if ((isLoggedMainChar || isSearchedChar) && index >= 10) {
-            positions[char] = index + 1;
+          if ((isSearchedChar) && index >= 10) {
+            positions[char] = entry?.rank;
           }
 
           return {
@@ -43,7 +43,6 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
             index: index + 1
           };
         });
-
         const additional = Object.entries(positions)?.map(([name, position]) => {
           const entry = list?.find((entry) => entry?.mainChar === name);
           const key = entry.mainChar === loggedMainChar ? 'loggedMainChar' : 'searchedChar';

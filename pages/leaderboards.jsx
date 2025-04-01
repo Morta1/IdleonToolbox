@@ -1,9 +1,9 @@
 import {
-  Autocomplete,
   Card,
   CardContent,
   CircularProgress,
-  createFilterOptions,
+  IconButton,
+  InputAdornment,
   Skeleton,
   Stack,
   TextField,
@@ -14,13 +14,12 @@ import LeaderboardSection from '../components/Leaderboard';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { fetchLeaderboard } from '../services/profiles';
+import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
 import Box from '@mui/material/Box';
+import { IconSearch } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
 
-const filterOptions = createFilterOptions({
-  trim: true,
-  limit: 50
-});
+const defaultText = 'If you don\'t see your name in the top 10, search for your character’s name here.';
 
 const tabs = ['general', 'tasks', 'skills', 'character', 'misc'];
 const Leaderboards = () => {
@@ -29,7 +28,11 @@ const Leaderboards = () => {
   const [leaderboards, setLeaderboards] = useState(null);
   const [error, setError] = React.useState('');
   const [searchedChar, setSearchChar] = useState('');
-  const [selectedTab, setSelectedTab] = useState('general');
+  const router = useRouter();
+  const { t } = router.query;
+  const [selectedTab, setSelectedTab] = useState(t.toLowerCase() || 'general');
+  const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
+  const [helperText, setHelperText] = useState(defaultText);
 
   useEffect(() => {
     const getLeaderboards = async () => {
@@ -44,6 +47,53 @@ const Leaderboards = () => {
 
     getLeaderboards();
   }, [selectedTab]);
+
+  const isUserFullyExistLocally = (data, username) => {
+    for (const category in data) {
+      if (!data[category].some(item => item.mainChar === username)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  const searchUserAndAppend = (data, username, userStats) => {
+    for (const category in data) {
+      const categoryData = data[category];
+      const found = categoryData.some(item => item.mainChar === username);
+
+      if (!found) {
+        // Append the user's actual stats if they exist
+        if (userStats[category] !== undefined) {
+          data[category].push({ mainChar: username, ...userStats[category] });
+        } else {
+          data[category].push({ mainChar: username });
+        }
+      }
+    }
+    return data;
+  }
+  const handleKeyDown = (event) => {
+    if (!searchedChar || loadingSearchedChar) return;
+    if (event.key === 'Enter') {
+      handleUserSearch();
+    }
+  }
+  const handleUserSearch = async () => {
+    if (!searchedChar) return;
+    const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab], searchedChar);
+    if (!userFullyExistsLocally) {
+      setLoadingSearchedChar(true);
+      const response = await fetchUserLeaderboards(selectedTab, searchedChar);
+      if (!response || response?.error) {
+        setLoadingSearchedChar(false);
+        return setHelperText(response?.error);
+      }
+      const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab], searchedChar, response);
+      console.log('Fetch!', updateLeaderboards)
+      setLeaderboards({ ...leaderboards, [selectedTab]: updateLeaderboards });
+      setLoadingSearchedChar(false);
+    }
+  }
 
   return <>
     <NextSeo
@@ -63,18 +113,26 @@ const Leaderboards = () => {
           : leaderboards?.totalUsers}</Typography>
       </CardContent>
     </Card>
-    <Box
-      sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
-      <Autocomplete
-        loading={!leaderboards?.totalUsers}
-        options={Object.values(leaderboards?.[selectedTab] || {})?.[0] || []}
-        getOptionLabel={(option) => option.mainChar}
-        id="user-search"
-        filterOptions={filterOptions}
-        sx={{ width: 230 }}
-        value={searchedChar || null}
-        onChange={(event, newValue) => setSearchChar(newValue)}
-        renderInput={(params) => <TextField {...params} label="Search by character name" variant="standard"/>}
+    <Box sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
+      <TextField
+        sx={{ width: 360 }}
+        size={'small'} value={searchedChar || ''}
+        label="Search by character name"
+        onChange={(event) => {
+          setSearchChar(event.target.value);
+          setHelperText(defaultText);
+        }}
+        onKeyDown={handleKeyDown}
+        slotProps={{
+          input: {
+            endAdornment: <InputAdornment position="end"><IconButton
+              disabled={!leaderboards?.totalUsers || loadingSearchedChar} onClick={handleUserSearch}>
+              <IconSearch/>
+            </IconButton></InputAdornment>
+          }
+        }}
+        error={helperText !== defaultText}
+        helperText={helperText}
       />
     </Box>
     <Tabber
@@ -84,15 +142,15 @@ const Leaderboards = () => {
       setError('');
     }}>
       <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar?.mainChar}/>
+                          searchedChar={searchedChar}/>
       <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar?.mainChar}/>
+                          searchedChar={searchedChar}/>
       <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar?.mainChar}/>
+                          searchedChar={searchedChar}/>
       <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar?.mainChar}/>
+                          searchedChar={searchedChar}/>
       <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar?.mainChar}/>
+                          searchedChar={searchedChar}/>
     </Tabber>
     {!leaderboards && !error
       ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack>

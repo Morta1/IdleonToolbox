@@ -63,6 +63,22 @@ export const fetchLeaderboard = async (leaderboard) => {
   }
 }
 
+export const fetchUserLeaderboards = async (leaderboard, leaderboardUser) => {
+  try {
+    const response = await fetch(`${url}/leaderboards?leaderboard=${leaderboard}&leaderboardUser=${leaderboardUser}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response) return null
+    return await response?.json();
+  } catch (e) {
+    console.error(`${__filename} -> Error has occurred while getting leaderboards`);
+    throw e;
+  }
+}
+
 export const expandLeaderboardInfo = (account, characters) => {
   const dropRate = Math.max(...characters.map(character => getDropRate(character, account, characters)?.dropRate || 0));
   const playersInfo = characters.map(character => getMaxDamage(character, characters, account));
