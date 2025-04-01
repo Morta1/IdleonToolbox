@@ -89,7 +89,6 @@ const Leaderboards = () => {
         return setHelperText(response?.error);
       }
       const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab], searchedChar, response);
-      console.log('Fetch!', updateLeaderboards)
       setLeaderboards({ ...leaderboards, [selectedTab]: updateLeaderboards });
       setLoadingSearchedChar(false);
     }
