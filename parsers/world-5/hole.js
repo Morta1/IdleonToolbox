@@ -240,7 +240,7 @@ const parseHole = (holeRaw, accountData) => {
     unlockedCaverns,
     charactersCavernLocation,
     engineerBonuses,
-    unlockedSchematics: Math.min(Math.min(56,
+    unlockedSchematics: Math.min(Math.min(93,
       Math.round(1 + 3 * villagers?.[1]?.level + Math.floor(villagers?.[1]?.level / 5))), holesBuildings?.length),
     caverns: {
       theWell,

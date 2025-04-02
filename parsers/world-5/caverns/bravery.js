@@ -4,6 +4,8 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { fillArrayToLength, notateNumber } from '@utility/helpers';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { getArcadeBonus } from '@parsers/arcade';
+import { getAchievementStatus } from '@parsers/achievements';
 
 export const getBravery = (holesObject, accountData) => {
   const maxRethrow = getMaxRerolls(holesObject);
@@ -46,7 +48,7 @@ export const getBravery = (holesObject, accountData) => {
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
-
+  const afkPercent = getMonumentAfkBonus(holesObject, accountData);
   return {
     damage: { min, max },
     ownedSwords,
@@ -59,20 +61,43 @@ export const getBravery = (holesObject, accountData) => {
     nextHourBreakpoint,
     timeForNextFight,
     rewardMulti,
-    monumentAfkReq: getMonumentAfkReq(holesObject, accountData, nextHourBreakpoint?.hours)
+    afkPercent,
+    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours)
   };
 }
 
-export const getMonumentAfkReq = (holesObject, accountData, requiredHours) => {
-  if (!requiredHours) return null;
+export const getMonumentAfkBonus = (holesObject, accountData) => {
   const winBonus = getWinnerBonus(accountData, '+{% Monument AFK');
+  const arcadeBonus = getArcadeBonus(accountData?.arcade?.shop, 'Monument_AFK')?.bonus;
   const afkPercent = getMonumentHourBonus({ holesObject, t: 0, i: 8 })
     + (getMonumentHourBonus({ holesObject, t: 1, i: 8 })
       + getMonumentHourBonus({ holesObject, t: 2, i: 8 })
-      + (winBonus + (getJarBonus({ holesObject, i: 19 }) / 1 + (getSchematicBonus({ holesObject, t: 81, i: 20 })
-        + getMeasurementBonus({ holesObject, accountData, t: 11 })))));
+      + (winBonus
+        + (getJarBonus({ holesObject, i: 19 })
+          / 1 + (getSchematicBonus({ holesObject, t: 81, i: 20 })
+            + (getMeasurementBonus({ holesObject, accountData, t: 11 })
+              + (arcadeBonus
+                + 10 * getAchievementStatus(accountData?.achievements, 311)))))));
 
-  const realHoursNeeded = Math.ceil(requiredHours / (afkPercent / 100));   // Calculate base real hours
+  return {
+    value: afkPercent,
+    breakdown: [
+      { name: 'Monument Bonus', value: getMonumentHourBonus({ holesObject, t: 0, i: 8 }) + getMonumentHourBonus({ holesObject, t: 1, i: 8 }) + getMonumentHourBonus({ holesObject, t: 2, i: 8 }) },
+      { name: 'Win Bonus', value: winBonus },
+      { name: 'Jar Bonus', value: getJarBonus({ holesObject, i: 19 }) },
+      { name: 'Schematic Bonus', value: getSchematicBonus({ holesObject, t: 81, i: 20 }) },
+      { name: 'Measurement Bonus', value: getMeasurementBonus({ holesObject, accountData, t: 11 }) },
+      { name: 'Arcade Bonus', value: arcadeBonus || 0 },
+      {
+        name: 'Achievement Bonus',
+        value: 10 * getAchievementStatus(accountData?.achievements, 311)
+      }
+    ]
+  }
+}
+export const getMonumentAfkReq = (afkPercent, requiredHours, ownedAfkHours = 0) => {
+  if (!requiredHours) return null;
+  const realHoursNeeded = Math.max(0, Math.ceil((requiredHours - ownedAfkHours) / (afkPercent / 100)));
 
   // Generate an array of hours needed for 1 to 10 characters
   return Array.from({ length: 10 }, (_, index) => {

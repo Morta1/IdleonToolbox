@@ -19,7 +19,7 @@ import Evertree from '@components/account/Worlds/World5/Hole/Caverns/Evertree';
 import Wisdom from '@components/account/Worlds/World5/Hole/Caverns/Wisdom';
 import Gambit from '@components/account/Worlds/World5/Hole/Caverns/Gambit';
 import TheTemple from '@components/account/Worlds/World5/Hole/Caverns/TheTemple';
-import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { CardWithBreakdown, ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const Explore = ({ hole }) => {
   const breakpoint = useMediaQuery('(max-width: 1600px)', { noSsr: true });
@@ -36,6 +36,7 @@ const Explore = ({ hole }) => {
       <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
+      <CardWithBreakdown title={'Total Monument Afk'} value={`${hole?.caverns?.bravery?.afkPercent?.value.toFixed(2)}%`} breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown} notation={'MultiplierInfo'}/>
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Tabber

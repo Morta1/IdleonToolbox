@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { commaNotation } from '@utility/helpers';
+import { commaNotation, notateNumber } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -13,7 +13,7 @@ export const ExpRateCard = ({ title, expRate }) => {
         title={<Stack>
           {expRate?.breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
                                                                               title={name}
-                                                                              titleStyle={{ width: 120 }}
+                                                                              titleStyle={{ width: 150 }}
                                                                               value={value.toFixed(2).replace('.00', '')}/>)}
 
         </Stack>}>
@@ -23,7 +23,7 @@ export const ExpRateCard = ({ title, expRate }) => {
   </CardTitleAndValue>
 }
 
-export const CardWithBreakdown = ({ title, breakdown, value }) => {
+export const CardWithBreakdown = ({ title, breakdown, value, notation }) => {
   return <CardTitleAndValue title={title}>
     <Stack direction="row" alignItems={'center'} gap={1}>
       {value ? <Typography>{value}</Typography> : null}
@@ -31,8 +31,8 @@ export const CardWithBreakdown = ({ title, breakdown, value }) => {
         title={<Stack>
           {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
                                                                      title={name}
-                                                                     titleStyle={{ width: 120 }}
-                                                                     value={value.replace('.00', '')}/>)}
+                                                                     titleStyle={{ width: 180 }}
+                                                                     value={notation ? notateNumber(value, notation) : value}/>)}
 
         </Stack>}>
         <IconInfoCircleFilled size={18}/>

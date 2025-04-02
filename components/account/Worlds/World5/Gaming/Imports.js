@@ -7,6 +7,7 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import styled from '@emotion/styled';
 import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 
 const Imports = ({ account, lastUpdated }) => {
   const [CheckboxEl, compactView] = useCheckbox('Compact view', true);
@@ -72,7 +73,7 @@ const Imports = ({ account, lastUpdated }) => {
                 {acquired && index === 2 ? <Acorns acorns={acorns} lastUpdated={lastUpdated}
                                                    acornsBreakpoints={acornsBreakpoints}
                                                    lastAcornClicked={lastAcornClicked}/> : null}
-                {acquired && index === 7 ? <Snail snailLevel={snailLevel}
+                {acquired && index === 7 ? <Snail account={account} snailLevel={snailLevel}
                                                   snailEncouragement={snailEncouragement}/> : null}
                 {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
                 {acornShop ? <AcornShop acornShop={acornShop}/> : null}
@@ -94,8 +95,9 @@ const Imports = ({ account, lastUpdated }) => {
 };
 
 
-const Snail = ({ snailLevel, snailEncouragement }) => {
-  const successChance = Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.72)) * (1 + (100 * snailEncouragement) / (25 + snailEncouragement) / 100));
+const Snail = ({ account, snailLevel, snailEncouragement }) => {
+  const successChance = Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.72))
+   * (1 + getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 53, i: 0 }) / 100) * (1 + (100 * snailEncouragement) / (25 + snailEncouragement) / 100));
   const resetChance = Math.max(0, (Math.pow(snailLevel + 1, 0.07) - 1) / (1 + (300 * snailEncouragement) / (100 + snailEncouragement) / 100));
   const realResetChance = (resetChance * (1 - successChance));
   const averageAttempts = 1 / successChance;

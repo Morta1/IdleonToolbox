@@ -1,6 +1,7 @@
 import { lavaLog2, notateNumber } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import {
+  getMonumentAfkBonus,
   getMonumentAfkReq,
   getMonumentBonus,
   getMonumentHourBonus,
@@ -35,7 +36,7 @@ export const getJustice = (holesObject, accountData) => {
         bonus
       }
     })
-
+  const afkPercent = getMonumentAfkBonus(holesObject, accountData);
   return {
     rewardMulti,
     hours,
@@ -49,7 +50,7 @@ export const getJustice = (holesObject, accountData) => {
     popularity: getPopularity(holesObject),
     dismissals: getDismissals(holesObject),
     opalChance: getOpalChance(holesObject),
-    monumentAfkReq: getMonumentAfkReq(holesObject, accountData, nextHourBreakpoint?.hours)
+    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours)
   }
 }
 

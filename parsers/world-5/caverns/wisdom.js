@@ -1,4 +1,5 @@
 import {
+  getMonumentAfkBonus,
   getMonumentAfkReq,
   getMonumentBonus,
   getMonumentHourBonus,
@@ -35,6 +36,7 @@ export const getWisdom = (holesObject,  accountData) => {
         bonus
       }
     })
+  const afkPercent = getMonumentAfkBonus(holesObject, accountData);
   return {
     rewardMulti,
     hours,
@@ -44,11 +46,12 @@ export const getWisdom = (holesObject,  accountData) => {
     bonuses,
     timeForNextFight,
     opalChance,
+    afkPercent,
     attempts: getAttempts(holesObject),
     attemptsGainPerRound: getAttemptsGainPerRound(holesObject),
     timePerMatch: getTimePerMatch(),
     instantMatches: getInstantMatch(holesObject),
-    monumentAfkReq: getMonumentAfkReq(holesObject, accountData, nextHourBreakpoint?.hours)
+    monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours)
   };
 }
 
