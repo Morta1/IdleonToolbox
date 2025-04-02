@@ -30,7 +30,7 @@ const Leaderboards = () => {
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
   const { t } = router.query;
-  const [selectedTab, setSelectedTab] = useState(t.toLowerCase() || 'general');
+  const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'general');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [helperText, setHelperText] = useState(defaultText);
 
