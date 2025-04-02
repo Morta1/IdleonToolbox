@@ -69,9 +69,10 @@ export const getBravery = (holesObject, accountData) => {
 export const getMonumentAfkBonus = (holesObject, accountData) => {
   const winBonus = getWinnerBonus(accountData, '+{% Monument AFK');
   const arcadeBonus = getArcadeBonus(accountData?.arcade?.shop, 'Monument_AFK')?.bonus;
-  const afkPercent = getMonumentHourBonus({ holesObject, t: 0, i: 8 })
-    + (getMonumentHourBonus({ holesObject, t: 1, i: 8 })
-      + getMonumentHourBonus({ holesObject, t: 2, i: 8 })
+  console.log('getMonumentBonus({ holesObject, t: 0, i: 8 })', getMonumentBonus({ holesObject, t: 0, i: 8 }))
+  const afkPercent = getMonumentBonus({ holesObject, t: 0, i: 8 })
+    + (getMonumentBonus({ holesObject, t: 1, i: 8 })
+      + getMonumentBonus({ holesObject, t: 2, i: 8 })
       + (winBonus
         + (getJarBonus({ holesObject, i: 19 })
           / 1 + (getSchematicBonus({ holesObject, t: 81, i: 20 })
@@ -82,7 +83,11 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
   return {
     value: afkPercent,
     breakdown: [
-      { name: 'Monument Bonus', value: getMonumentHourBonus({ holesObject, t: 0, i: 8 }) + getMonumentHourBonus({ holesObject, t: 1, i: 8 }) + getMonumentHourBonus({ holesObject, t: 2, i: 8 }) },
+      {
+        name: 'Monument Bonus', value: getMonumentBonus({ holesObject, t: 0, i: 8 })
+          + getMonumentBonus({ holesObject, t: 1, i: 8 })
+          + getMonumentBonus({ holesObject, t: 2, i: 8 })
+      },
       { name: 'Win Bonus', value: winBonus },
       { name: 'Jar Bonus', value: getJarBonus({ holesObject, i: 19 }) },
       { name: 'Schematic Bonus', value: getSchematicBonus({ holesObject, t: 81, i: 20 }) },
