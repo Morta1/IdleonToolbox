@@ -133,7 +133,7 @@ const Builds = () => {
       title="Builds | Idleon Toolbox"
       description="Legends of Idleon builds for all classes"
     />
-    <Typography mt={2} variant={"h2"}>Builds</Typography>
+    <Typography mt={2} variant={'h2'}>Builds</Typography>
     <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <FormControl sx={{ width: 270 }}>
         <InputLabel id="class-select-label">Class</InputLabel>
@@ -200,11 +200,7 @@ const Builds = () => {
         </Stack>
         {createMode ?
           <Typography component={'div'} variant={'caption'} sx={{ mb: 3 }}>* If you want to share your custom
-            build, click on copy icon above and paste in <a
-              style={{ textDecoration: 'underline' }}
-              href="https://github.com/Morta1/IdleonToolbox/discussions/categories/builds">Builds Discussions</a> or
-            send it
-            in the discord Builds channel</Typography> : null}
+            build, click on copy icon above and paste in send it in the discord Builds channel</Typography> : null}
         <Grid container spacing={2}>
           {getSpecificList(build?.index)?.tabs?.map((tab, index) => {
             return <Grid item key={`${build?.index}-${build?.className}-${index}`}>
