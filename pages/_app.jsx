@@ -125,7 +125,11 @@ const MyApp = (props) => {
                       {
                         name: 'keywords',
                         content: 'Idleon, Legends of Idleon, Idleon Toolbox, Idleon calculator, Idleon builds, Idleon guide, idle game tools'
-                      }
+                      },
+                      {
+                        property: 'og:image', // Explicitly add og:image
+                        content: 'https://www.idleontoolbox.com/etc/bg_0.png',
+                      },
                     ]}
                   />
                   <Component {...pageProps} />
