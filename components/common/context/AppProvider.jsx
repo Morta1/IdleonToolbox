@@ -74,28 +74,48 @@ const AppProvider = ({ children }) => {
   const unsubscribeRef = useRef(null);
 
   function init() {
-    if (typeof window !== 'undefined') {
-      const filters = localStorage.getItem('filters');
-      const pinnedPages = localStorage.getItem('pinnedPages') || [];
-      const displayedCharacters = localStorage.getItem('displayedCharacters');
-      const trackers = localStorage.getItem('trackers');
-      const godPlanner = localStorage.getItem('godPlanner');
-      const manualImport = localStorage.getItem('manualImport') || false;
-      const lastUpdated = localStorage.getItem('lastUpdated') || false;
-      const planner = localStorage.getItem('planner');
-      const objects = [{ pinnedPages }, { filters }, { displayedCharacters }, { planner }, { manualImport },
-        { lastUpdated },
-        { trackers }, { godPlanner }, { showRankOneOnly: false }, { showUnmaxedBoxesOnly: false }];
-      return objects.reduce((res, obj) => {
-        try {
-          const [objName, objValue] = Object.entries(obj)?.[0];
-          const parsed = JSON.parse(objValue);
-          return { ...res, [objName]: parsed };
-        } catch (err) {
-          return res;
+    if (typeof window === 'undefined') return {};
+
+    // Define default values for state properties
+    const defaultState = {
+      showRankOneOnly: false,
+      showUnmaxedBoxesOnly: false
+    };
+
+    // Define localStorage keys to load
+    const storageKeys = [
+      'filters',
+      'pinnedPages',
+      'displayedCharacters',
+      'trackers',
+      'godPlanner',
+      'manualImport',
+      'lastUpdated',
+      'planner'
+    ];
+
+    // Load and parse values from localStorage
+    const loadedState = storageKeys.reduce((state, key) => {
+      try {
+        const value = localStorage.getItem(key);
+        if (value) {
+          state[key] = JSON.parse(value);
         }
-      }, {});
+      } catch (err) {
+        console.warn(`Failed to parse ${key} from localStorage:`, err);
+      }
+      return state;
+    }, {});
+
+    // Set default value for pinnedPages if not loaded
+    if (!loadedState.pinnedPages) {
+      loadedState.pinnedPages = [];
     }
+
+    return {
+      ...defaultState,
+      ...loadedState
+    };
   }
 
   useEffect(() => {
