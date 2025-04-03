@@ -69,7 +69,7 @@ export const getBravery = (holesObject, accountData) => {
 export const getMonumentAfkBonus = (holesObject, accountData) => {
   const winBonus = getWinnerBonus(accountData, '+{% Monument AFK');
   const arcadeBonus = getArcadeBonus(accountData?.arcade?.shop, 'Monument_AFK')?.bonus;
-  console.log('getMonumentBonus({ holesObject, t: 0, i: 8 })', getMonumentBonus({ holesObject, t: 0, i: 8 }))
+
   const afkPercent = getMonumentBonus({ holesObject, t: 0, i: 8 })
     + (getMonumentBonus({ holesObject, t: 1, i: 8 })
       + getMonumentBonus({ holesObject, t: 2, i: 8 })
