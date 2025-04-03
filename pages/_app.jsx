@@ -110,8 +110,8 @@ const MyApp = (props) => {
                       images: [
                         {
                           url: 'https://idleontoolbox.com/data/Coins5.png',
-                          width: 1200,
-                          height: 630,
+                          width: 21,
+                          height: 21,
                           alt: 'Idleon Toolbox',
                         },
                       ],
