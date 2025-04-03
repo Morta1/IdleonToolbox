@@ -109,7 +109,7 @@ const MyApp = (props) => {
                       description: 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
                       images: [
                         {
-                          url: 'https://www.idleontoolbox.com/etc/bg_0.png',
+                          url: 'https://idleontoolbox.com/data/Coins5.png',
                           width: 1200,
                           height: 630,
                           alt: 'Idleon Toolbox',
@@ -128,7 +128,7 @@ const MyApp = (props) => {
                       },
                       {
                         property: 'og:image', // Explicitly add og:image
-                        content: 'https://www.idleontoolbox.com/etc/bg_0.png',
+                        content: 'https://idleontoolbox.com/data/Coins5.png',
                       },
                     ]}
                   />
