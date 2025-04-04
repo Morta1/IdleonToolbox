@@ -493,7 +493,7 @@ export const getUpgradeableBubbles = (acc) => {
     });
   });
 
-  const found = allBubbles.filter(({ level, index }) => level >= 5 && index < 15).filter(({ level }) => level < 1500);
+  const found = allBubbles.filter(({ level, index }) => level >= 2 && index < 15).filter(({ level }) => level < 1500);
   const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
   const jewel = acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone');
   if (jewel?.acquired) {

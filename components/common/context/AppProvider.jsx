@@ -2,12 +2,10 @@ import { createContext, useEffect, useMemo, useReducer, useRef, useState } from 
 import {
   checkUserStatus,
   signInWithCustom,
-  signInWithCustomToken,
   signInWithToken,
   subscribe,
   userSignOut
 } from '../../../firebase';
-// import { parseData } from '../../../parsers';
 import demoJson from '../../../data/raw.json';
 
 import { useRouter } from 'next/router';
@@ -21,47 +19,33 @@ import { getProfile } from '../../../services/profiles';
 export const AppContext = createContext({});
 
 function appReducer(state, action) {
-  switch (action.type) {
-    case 'login': {
-      return { ...state, ...action.data };
-    }
-    case 'data': {
-      return { ...state, ...action.data };
-    }
-    case 'logout': {
-      return { characters: null, account: null, signedIn: false, emailPassword: null, appleLogin: null };
-    }
-    case 'displayedCharacters': {
-      return { ...state, displayedCharacters: action.data };
-    }
-    case 'filters': {
-      return { ...state, filters: action.data };
-    }
-    case 'pinnedPages': {
-      return { ...state, pinnedPages: action.data };
-    }
-    case 'planner': {
-      return { ...state, planner: action.data };
-    }
-    case 'trackers': {
-      return { ...state, trackers: action.data };
-    }
-    case 'godPlanner': {
-      return { ...state, godPlanner: action.data };
-    }
-    case 'loginError': {
-      return { ...state, loginError: action.data };
-    }
-    case 'showRankOneOnly': {
-      return { ...state, showRankOneOnly: action.data }
-    }
-    case 'showUnmaxedBoxesOnly': {
-      return { ...state, showUnmaxedBoxesOnly: action.data }
-    }
-    default: {
-      throw new Error(`Unhandled action type: ${action.type}`);
-    }
+  const actionHandlers = {
+    login: () => ({ ...state, ...action.data }),
+    data: () => ({ ...state, ...action.data }),
+    logout: () => ({ 
+      characters: null, 
+      account: null, 
+      signedIn: false, 
+      emailPassword: null, 
+      appleLogin: null 
+    }),
+    displayedCharacters: () => ({ ...state, displayedCharacters: action.data }),
+    filters: () => ({ ...state, filters: action.data }),
+    pinnedPages: () => ({ ...state, pinnedPages: action.data }),
+    planner: () => ({ ...state, planner: action.data }),
+    trackers: () => ({ ...state, trackers: action.data }),
+    godPlanner: () => ({ ...state, godPlanner: action.data }),
+    loginError: () => ({ ...state, loginError: action.data }),
+    showRankOneOnly: () => ({ ...state, showRankOneOnly: action.data }),
+    showUnmaxedBoxesOnly: () => ({ ...state, showUnmaxedBoxesOnly: action.data })
+  };
+
+  const handler = actionHandlers[action.type];
+  if (!handler) {
+    throw new Error(`Unhandled action type: ${action.type}`);
   }
+
+  return handler();
 }
 
 const AppProvider = ({ children }) => {
@@ -120,67 +104,111 @@ const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (!router.isReady) return;
+
+    // Handle loading profile data from API
     const handleProfile = async () => {
       try {
         const content = await getProfile({ mainChar: router?.query?.profile });
         if (!content) {
           throw new Error('Failed to load data from profile api');
         }
-        let parsedData;
+
         const { parseData } = await import('@parsers/index');
+        let parsedData;
+
+        // Parse data based on content format
         if (!Object.keys(content).includes('serverVars')) {
           parsedData = parseData(content);
         } else {
           const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime } = content;
           parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime);
-          parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() }
+          const timestamp = lastUpdated || new Date().getTime();
+          
+          parsedData = { ...parsedData, lastUpdated: timestamp };
+          
+          // Store raw data in localStorage
           localStorage.setItem('rawJson', JSON.stringify({
             data,
             charNames,
             guildData,
             serverVars,
-            lastUpdated: lastUpdated ? lastUpdated : new Date().getTime()
+            lastUpdated: timestamp
           }));
         }
-        localStorage.setItem('manualImport', JSON.stringify(false));
+
+        // Update localStorage and state
+        localStorage.setItem('manualImport', 'false');
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
         const user = await checkUserStatus();
-        let importData = {
-          ...parsedData,
-          profile: true,
-          manualImport: false,
-          signedIn: !!user,
-          lastUpdated
-        };
-        dispatch({ type: 'data', data: { ...importData, lastUpdated } })
-        parsedData = null;
-      } catch (e) {
-        console.error('Failed to load data from profile api', e);
+        
+        dispatch({ 
+          type: 'data', 
+          data: {
+            ...parsedData,
+            profile: true,
+            manualImport: false,
+            signedIn: !!user,
+            lastUpdated
+          }
+        });
+
+      } catch (err) {
+        console.error('Failed to load data from profile api', err);
         router.push({ pathname: '/', query: router.query });
       }
-    }
-    (async () => {
+    };
+
+    // Main initialization logic
+    const initializeApp = async () => {
       if (router?.query?.profile) {
-        await handleProfile()
-      } else if (router?.query?.demo) {
-        const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
-        const { parseData } = await import('@parsers/index');
-        let parsedData = parseData(data, charNames, companion, guildData, serverVars);
-        parsedData = { ...parsedData, lastUpdated: lastUpdated ? lastUpdated : new Date().getTime() };
-        dispatch({ type: 'data', data: { ...parsedData, lastUpdated, demo: true } });
-        parsedData = null;
-      } else if (!state?.signedIn) {
-        const user = await checkUserStatus();
-        if (!state?.account && user) {
-          const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
-          unsubscribeRef.current = unsub;
-        } else {
-          if (router.pathname === '/' || checkOfflineTool() || router.pathname === '/data' || router.pathname === '/leaderboards') return;
+        await handleProfile();
+      }
+      else if (router?.query?.demo) {
+        await handleDemoData();
+      }
+      else if (!state?.signedIn) {
+        await handleUnauthenticatedUser();
+      }
+    };
+
+    // Handle demo data
+    const handleDemoData = async () => {
+      const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
+      const { parseData } = await import('@parsers/index');
+      const timestamp = lastUpdated || new Date().getTime();
+      
+      const parsedData = parseData(data, charNames, companion, guildData, serverVars);
+      dispatch({ 
+        type: 'data', 
+        data: { 
+          ...parsedData, 
+          lastUpdated: timestamp, 
+          demo: true 
+        } 
+      });
+    };
+
+    // Handle unauthenticated user
+    const handleUnauthenticatedUser = async () => {
+      const user = await checkUserStatus();
+      if (!state?.account && user) {
+        const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
+        unsubscribeRef.current = unsub;
+      } else {
+        const isAllowedPath = router.pathname === '/' || 
+                             checkOfflineTool() || 
+                             router.pathname === '/data' || 
+                             router.pathname === '/leaderboards';
+                             
+        if (!isAllowedPath) {
           router.push({ pathname: '/', query: router?.query });
         }
       }
-    })();
+    };
 
+    initializeApp();
+
+    // Cleanup subscription
     return () => {
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
