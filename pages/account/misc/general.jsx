@@ -1,4 +1,4 @@
-import { Container, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import ObolsView from 'components/account/Worlds/World2/ObolsView';
 import Currencies from 'components/account/Misc/Currencies';
 import Shrines from '@components/account/Worlds/World3/Shrines';
@@ -8,7 +8,7 @@ import Totals from 'components/account/Misc/Totals';
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
-import Box from '@mui/material/Box'; // Grid version 2
+import Box from '@mui/material/Box';
 
 const General = () => {
   const { state } = useContext(AppContext);
@@ -30,9 +30,7 @@ const General = () => {
         <Totals account={state?.account} characters={state?.characters}/>
       </Stack>
     </>
-
   </Box>
 };
-
 
 export default General;

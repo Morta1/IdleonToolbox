@@ -5,8 +5,6 @@ const AuthSkeleton = () => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Stack direction="row" spacing={1.5} alignItems="center">
-        {/* Button skeleton */}
-        <Skeleton variant="rounded" width={80} height={32} sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)' }} />
         
         {/* User avatar skeleton */}
         <Skeleton variant="circular" width={32} height={32} sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)' }} />

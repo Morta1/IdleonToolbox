@@ -396,15 +396,6 @@ const AppProvider = ({ children }) => {
     return !state?.signedIn && router.pathname.includes('tools') && offlineTools[formattedEndPoint];
   };
 
-  const shouldDisplayPage = () => {
-    return value?.state?.account
-      || value?.state?.manualImport
-      || router.pathname === '/'
-      || checkOfflineTool()
-      || router.pathname === '/data'
-      || router.pathname === '/leaderboards';
-  }
-
   return (
     <AppContext.Provider
       value={{
@@ -414,13 +405,7 @@ const AppProvider = ({ children }) => {
         setWaitingForAuth
       }}
     >
-      {shouldDisplayPage() ? (
-        children
-      ) : (
-        <Stack m={15} direction={'row'} justifyContent={'center'}>
-          <CircularProgress />
-        </Stack>
-      )}
+      {children}
     </AppContext.Provider>
   );
 };

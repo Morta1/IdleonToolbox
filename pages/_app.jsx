@@ -11,6 +11,7 @@ import AppProvider from '../components/common/context/AppProvider';
 import WaitForRouter from '../components/common/WaitForRouter';
 import { DefaultSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
+import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
 
 const clientSideEmotionCache = createEmotionCache();
 // remove overlay of error in dev mode.
@@ -132,7 +133,9 @@ const MyApp = (props) => {
                       },
                     ]}
                   />
-                  <Component {...pageProps} />
+                  <DataLoadingWrapper>
+                    <Component {...pageProps} />
+                  </DataLoadingWrapper>
                 </NavBar>
               </AppProvider>
             </WaitForRouter>

@@ -50,7 +50,7 @@ const Characters = () => {
         <Typography variant={'h4'}>Please select a character</Typography>
       </Stack>
     )}
-  </>
+  </>;
 };
 
 export default Characters;

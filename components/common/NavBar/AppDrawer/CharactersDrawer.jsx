@@ -1,4 +1,4 @@
-import { Checkbox, Chip, Divider, List, ListItem, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
+import { Checkbox, Chip, Divider, List, ListItem, ListItemIcon, ListItemText, Skeleton, Stack, Typography } from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
@@ -70,49 +70,90 @@ const CharactersDrawer = () => {
     dispatch({ type: 'filters', data: newChipsState })
   }
 
+  // Render character skeleton loaders while data is loading
+  const renderCharactersList = () => {
+    if (state.isLoading || !state?.characters?.length) {
+      return (
+        <>
+          {[1, 2, 3, 4, 5].map((key) => (
+            <ListItem key={`skeleton-${key}`}>
+              <ListItemIcon>
+                <Skeleton variant="circular" width={36} height={36} />
+              </ListItemIcon>
+              <ListItemText 
+                primary={<Skeleton variant="text" width={100} />}
+              />
+              <Skeleton variant="rectangular" width={24} height={24} />
+            </ListItem>
+          ))}
+        </>
+      );
+    }
+
+    return state?.characters?.map((character, index) => {
+      const { name, classIndex, level } = character;
+      return <ListItem
+        onMouseEnter={() => setHoverIndex(index)}
+        onMouseLeave={() => setHoverIndex(null)}
+        key={`${name}-${index}`}
+        secondaryAction={
+          <Checkbox
+            edge="end"
+            name={`${index}`}
+            onChange={handleCharacterChange}
+            checked={checked?.[index]}
+            role={'checkbox'}
+            aria-label={`Check to see stats for ${name}`}
+          />}>
+        <ListItemIcon>
+          <Tooltip title={`Lv. ${level}`}>
+            <img style={{ width: 38, height: 36 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+          </Tooltip>
+        </ListItemIcon>
+        <ListItemText
+          sx={{ height: 30, margin: 0 }} id={name} primary={name}
+          secondary={hoverIndex === index ? <span
+            onClick={() => handleCharacterChange(null, null, index)}
+            style={{
+              textDecoration: 'underline',
+              cursor: 'pointer'
+            }}>Only</span> : ''}/>
+      </ListItem>
+    });
+  };
+
+  // Render "All" item with skeleton when loading
+  const renderAllItem = () => {
+    if (state.isLoading || !state?.characters?.length) {
+      return (
+        <ListItem>
+          <ListItemText>
+            <Skeleton variant="text" width={80} />
+          </ListItemText>
+          <Skeleton variant="rectangular" width={24} height={24} />
+        </ListItem>
+      );
+    }
+
+    return (
+      <ListItem
+        secondaryAction={
+          <Checkbox
+            edge="end"
+            onChange={() => handleCharacterChange('all')}
+            checked={checked?.all}
+          />
+        }>
+        <ListItemText>All (Lv. {totalLevels})</ListItemText>
+      </ListItem>
+    );
+  };
+
   return (
     <Stack sx={{ height: '100%' }}>
       <List dense={true}>
-        <ListItem
-          secondaryAction={
-            <Checkbox
-              edge="end"
-              onChange={() => handleCharacterChange('all')}
-              checked={checked?.all}
-            />
-          }>
-          <ListItemText>All (Lv. {totalLevels})</ListItemText>
-        </ListItem>
-        {state?.characters?.map((character, index) => {
-          const { name, classIndex, level } = character;
-          return <ListItem
-            onMouseEnter={() => setHoverIndex(index)}
-            onMouseLeave={() => setHoverIndex(null)}
-            key={`${name}-${index}`}
-            secondaryAction={
-              <Checkbox
-                edge="end"
-                name={`${index}`}
-                onChange={handleCharacterChange}
-                checked={checked?.[index]}
-                role={'checkbox'}
-                aria-label={`Check to see stats for ${name}`}
-              />}>
-            <ListItemIcon>
-              <Tooltip title={`Lv. ${level}`}>
-                <img style={{ width: 38, height: 36 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-              </Tooltip>
-            </ListItemIcon>
-            <ListItemText
-              sx={{ height: 30, margin: 0 }} id={name} primary={name}
-              secondary={hoverIndex === index ? <span
-                onClick={() => handleCharacterChange(null, null, index)}
-                style={{
-                  textDecoration: 'underline',
-                  cursor: 'pointer'
-                }}>Only</span> : ''}/>
-          </ListItem>
-        })}
+        {renderAllItem()}
+        {renderCharactersList()}
       </List>
       <Divider/>
       <List>
