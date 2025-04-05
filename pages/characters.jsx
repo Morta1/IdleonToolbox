@@ -31,7 +31,7 @@ const Characters = () => {
           label={'Show Unmaxed Boxes Only'}/> : null}
         <Grid container sx={{ gap: { xs: 2 } }} columns={12.5}>
           {state?.characters?.map((character, index) => {
-            return state?.displayedCharacters?.[character?.name]
+            return state?.displayedCharacters?.[index]
               ? <Character filters={state?.filters}
                            account={state?.account}
                            character={character}

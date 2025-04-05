@@ -10,9 +10,9 @@ const CharactersDrawer = () => {
   const [hoverIndex, setHoverIndex] = useState(null);
   const [checked, setChecked] = React.useState(state?.displayedCharacters ? state?.displayedCharacters : {
     all: false,
-    ...state?.characters?.reduce((res, { name }) => ({
+    ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({
       ...res,
-      [name]: false
+      [index]: false
     }), {})
   });
   const [chips, setSelectedChips] = useState(state.filters ? state.filters : sections.reduce((res, { name }) => ({
@@ -20,23 +20,31 @@ const CharactersDrawer = () => {
     [name]: false
   }), {}));
 
-  const handleCharacterChange = (event, _, charName) => {
+  const handleCharacterChange = (event, _, charIndex) => {
     let newState;
-    if (charName) {
+    if (charIndex !== undefined && charIndex !== null) {
       newState = {
-        ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: charName === name }), {}),
+        ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({ 
+          ...res, 
+          [index]: index === charIndex
+        }), {}),
         all: false
       }
     } else {
       if (event === 'all') {
+        const newAllState = !checked.all;
         newState = {
-          all: !checked.all,
-          ...state?.characters?.reduce((res, { name }) => ({ ...res, [name]: !checked.all }), {})
+          all: newAllState,
+          ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({ 
+            ...res, 
+            [index]: newAllState
+          }), {})
         };
       } else {
+        const index = parseInt(event.target.name, 10);
         newState = {
           ...checked,
-          [event.target.name]: event.target.checked
+          [index]: event.target.checked
         }
       }
     }
@@ -84,9 +92,9 @@ const CharactersDrawer = () => {
             secondaryAction={
               <Checkbox
                 edge="end"
-                name={`${name}`}
+                name={`${index}`}
                 onChange={handleCharacterChange}
-                checked={checked?.[name]}
+                checked={checked?.[index]}
                 role={'checkbox'}
                 aria-label={`Check to see stats for ${name}`}
               />}>
@@ -96,10 +104,9 @@ const CharactersDrawer = () => {
               </Tooltip>
             </ListItemIcon>
             <ListItemText
-
               sx={{ height: 30, margin: 0 }} id={name} primary={name}
               secondary={hoverIndex === index ? <span
-                onClick={() => handleCharacterChange(null, null, name)}
+                onClick={() => handleCharacterChange(null, null, index)}
                 style={{
                   textDecoration: 'underline',
                   cursor: 'pointer'

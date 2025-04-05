@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, growth, prefix } from 'utility/helpers';
+import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
 import styled from '@emotion/styled';
 import { StyledBadge } from '../common/styles';
@@ -8,8 +8,8 @@ const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly
   return <Stack>
     <Typography variant={'h5'}>Post Office (<Typography variant={'h5'}
                                                         color={totalPointsSpent < totalOrders ? 'error.light' : ''}
-                                                        component={'span'}>{Math.floor(totalPointsSpent)}</Typography>/<Typography
-      variant={'h5'} component={'span'}>{Math.floor(totalOrders)}</Typography>)</Typography>
+                                                        component={'span'}>{numberWithCommas(Math.floor(totalPointsSpent))}</Typography>/<Typography
+      variant={'h5'} component={'span'}>{numberWithCommas(Math.floor(totalOrders))}</Typography>)</Typography>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ maxWidth: 310 }}>
       {boxes?.map((box, index) => {
         if (showUnmaxedBoxesOnly && box?.level === box?.maxLevel) return null;

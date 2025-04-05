@@ -22,12 +22,12 @@ function appReducer(state, action) {
   const actionHandlers = {
     login: () => ({ ...state, ...action.data }),
     data: () => ({ ...state, ...action.data }),
-    logout: () => ({ 
-      characters: null, 
-      account: null, 
-      signedIn: false, 
-      emailPassword: null, 
-      appleLogin: null 
+    logout: () => ({
+      characters: null,
+      account: null,
+      signedIn: false,
+      emailPassword: null,
+      appleLogin: null
     }),
     displayedCharacters: () => ({ ...state, displayedCharacters: action.data }),
     filters: () => ({ ...state, filters: action.data }),
@@ -37,7 +37,8 @@ function appReducer(state, action) {
     godPlanner: () => ({ ...state, godPlanner: action.data }),
     loginError: () => ({ ...state, loginError: action.data }),
     showRankOneOnly: () => ({ ...state, showRankOneOnly: action.data }),
-    showUnmaxedBoxesOnly: () => ({ ...state, showUnmaxedBoxesOnly: action.data })
+    showUnmaxedBoxesOnly: () => ({ ...state, showUnmaxedBoxesOnly: action.data }),
+    setLoading: () => ({ ...state, isLoading: action.data })
   };
 
   const handler = actionHandlers[action.type];
@@ -63,7 +64,8 @@ const AppProvider = ({ children }) => {
     // Define default values for state properties
     const defaultState = {
       showRankOneOnly: false,
-      showUnmaxedBoxesOnly: false
+      showUnmaxedBoxesOnly: false,
+      isLoading: true
     };
 
     // Define localStorage keys to load
@@ -123,9 +125,9 @@ const AppProvider = ({ children }) => {
           const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime } = content;
           parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime);
           const timestamp = lastUpdated || new Date().getTime();
-          
+
           parsedData = { ...parsedData, lastUpdated: timestamp };
-          
+
           // Store raw data in localStorage
           localStorage.setItem('rawJson', JSON.stringify({
             data,
@@ -140,18 +142,18 @@ const AppProvider = ({ children }) => {
         localStorage.setItem('manualImport', 'false');
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
         const user = await checkUserStatus();
-        
-        dispatch({ 
-          type: 'data', 
+
+        dispatch({
+          type: 'data',
           data: {
             ...parsedData,
             profile: true,
             manualImport: false,
             signedIn: !!user,
-            lastUpdated
+            lastUpdated,
+            isLoading: false
           }
         });
-
       } catch (err) {
         console.error('Failed to load data from profile api', err);
         router.push({ pathname: '/', query: router.query });
@@ -168,6 +170,8 @@ const AppProvider = ({ children }) => {
       }
       else if (!state?.signedIn) {
         await handleUnauthenticatedUser();
+      } else {
+        dispatch({ type: 'setLoading', data: false });
       }
     };
 
@@ -176,15 +180,16 @@ const AppProvider = ({ children }) => {
       const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
       const { parseData } = await import('@parsers/index');
       const timestamp = lastUpdated || new Date().getTime();
-      
+
       const parsedData = parseData(data, charNames, companion, guildData, serverVars);
-      dispatch({ 
-        type: 'data', 
-        data: { 
-          ...parsedData, 
-          lastUpdated: timestamp, 
-          demo: true 
-        } 
+      dispatch({
+        type: 'data',
+        data: {
+          ...parsedData,
+          lastUpdated: timestamp,
+          demo: true,
+          isLoading: false
+        }
       });
     };
 
@@ -195,14 +200,15 @@ const AppProvider = ({ children }) => {
         const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
         unsubscribeRef.current = unsub;
       } else {
-        const isAllowedPath = router.pathname === '/' || 
-                             checkOfflineTool() || 
-                             router.pathname === '/data' || 
-                             router.pathname === '/leaderboards';
-                             
+        const isAllowedPath = router.pathname === '/' ||
+          checkOfflineTool() ||
+          router.pathname === '/data' ||
+          router.pathname === '/leaderboards';
+
         if (!isAllowedPath) {
           router.push({ pathname: '/', query: router?.query });
         }
+        dispatch({ type: 'setLoading', data: false });
       }
     };
 
@@ -376,7 +382,8 @@ const AppProvider = ({ children }) => {
         serverVars,
         uid,
         accessToken,
-        accountCreateTime: accountCreateTimeInSeconds * 1000
+        accountCreateTime: accountCreateTimeInSeconds * 1000,
+        isLoading: false
       }
     });
     parsedData = null;
@@ -390,7 +397,12 @@ const AppProvider = ({ children }) => {
   };
 
   const shouldDisplayPage = () => {
-    return value?.state?.account || value?.state?.manualImport || router.pathname === '/' || checkOfflineTool() || router.pathname === '/data' || router.pathname === '/leaderboards';
+    return value?.state?.account
+      || value?.state?.manualImport
+      || router.pathname === '/'
+      || checkOfflineTool()
+      || router.pathname === '/data'
+      || router.pathname === '/leaderboards';
   }
 
   return (
@@ -406,7 +418,7 @@ const AppProvider = ({ children }) => {
         children
       ) : (
         <Stack m={15} direction={'row'} justifyContent={'center'}>
-          <CircularProgress/>
+          <CircularProgress />
         </Stack>
       )}
     </AppContext.Provider>

@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
+import AuthSkeleton from './AuthSkeleton';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -31,6 +32,29 @@ const NavBar = ({ children }) => {
     await handleLoadJson(dispatch);
   }
 
+  // Render the authentication section based on loading state
+  const renderAuthSection = () => {
+    if (state.isLoading) {
+      return <AuthSkeleton />;
+    }
+    
+    return (
+      <>
+        {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
+        {state?.signedIn ? (
+          <Stack sx={{ p: 1, width: 120, flexShrink: 0 }}>
+            <Typography sx={{ fontWeight: 'bold', fontSize: 14 }}>{state?.characters?.[0]?.name}</Typography>
+            {state?.lastUpdated ? (
+              <Typography variant={'caption'}>
+                {state?.lastUpdated ? format(state?.lastUpdated, 'dd/MM/yy HH:mm') : 'xx/xx/xx xx:xx'}
+              </Typography>
+            ) : null}
+          </Stack>
+        ) : null}
+      </>
+    );
+  };
+
   return <>
     <Box sx={{ display: 'flex' }}>
       <AppBar compopnent={'nav'}>
@@ -41,15 +65,7 @@ const NavBar = ({ children }) => {
           {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
-          {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
-          {state?.signedIn ? <Stack sx={{ p: 1, width: 120, flexShrink: 0 }}>
-              <Typography sx={{ fontWeight: 'bold', fontSize: 14 }}>{state?.characters?.[0]?.name}</Typography>
-              {state?.lastUpdated ? <Typography variant={'caption'}>{state?.lastUpdated
-                  ? format(state?.lastUpdated, 'dd/MM/yy HH:mm')
-                  : 'xx/xx/xx xx:xx'}</Typography>
-                : null}
-            </Stack>
-            : null}
+          {renderAuthSection()}
         </Toolbar>
       </AppBar>
     </Box>

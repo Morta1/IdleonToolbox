@@ -8,7 +8,7 @@ export const getPlayerPostOffice = (playerPostOffice, account) => {
     totalPointsSpent += points;
     return { ...box, level: points || 0 }
   });
-  const totalOrders = account?.currencies?.DeliveryBoxComplete + account?.currencies?.DeliveryBoxStreak + account?.currencies?.DeliveryBoxMisc + account?.accountOptions?.[347];
+  const totalOrders = account?.currencies?.DeliveryBoxComplete + account?.currencies?.DeliveryBoxStreak + account?.currencies?.DeliveryBoxMisc + (account?.accountOptions?.[347] ?? 0);
   return {
     boxes,
     totalOrders,
