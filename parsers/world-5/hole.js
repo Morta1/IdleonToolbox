@@ -453,8 +453,9 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
                         + getWinnerBonus(accountData, '+{% Villager EXP'))))))))))) / 100);
 
   const breakdown = [
-    { name: 'Opal Dividends', value: getSchematicBonus({ holesObject, t: 0, i: 25 }) },
-    { name: 'Schematics', value: getCosSchematic(holesObject) },
+    { name: 'Opal Dividends', value: 100 + getSchematicBonus({ holesObject, t: 0, i: 25 }) },
+    { name: 'Gloomie Opie', value: getSchematicBonus({ holesObject, t: 48, i: 0 }) },
+    { name: 'Num. of Schematics', value: getCosSchematic(holesObject) },
     { name: 'Companion', value: companionBonus ? 3 : 0 },
     { name: 'Statue', value: statueBonus },
     { name: 'Jar', value: jarBonuses },
@@ -471,8 +472,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
           majik: holesObject?.villageMajiks,
           t: 1,
           i: 0
-        })) +
-        (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 1 }) * getCosSchematic(holesObject)) +
+        })) + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 1 }) * getCosSchematic(holesObject)) +
         getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 2 })
     },
     {
