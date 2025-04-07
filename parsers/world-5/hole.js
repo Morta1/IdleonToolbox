@@ -477,7 +477,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     },
     {
       name: 'Monument', value: getMonumentBonus({ holesObject, t: 0, i: 3 }) +
-        getMonumentBonus({ holesObject, t: 1, i: 3 })
+        getMonumentBonus({ holesObject, t: 1, i: 3 }) + getMonumentBonus({ holesObject, t: 2, i: 3 })
     },
     {
       name: 'Measurements', value: getMeasurementBonus({ holesObject, accountData, t: 7 }) +
