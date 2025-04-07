@@ -51,7 +51,7 @@ const parseTasks = (tasksRaw) => {
 
 export const calcTotalTasks = (tasks) => {
   return tasks?.[1]?.reduce((sum, worldTasks) => {
-    const worldSum = worldTasks.reduce((sum, amount) => sum + amount, 0);
+    const worldSum = worldTasks.filter(((_, index) => index <= 7)).reduce((sum, amount) => sum + amount, 0);
     return sum + worldSum;
   }, 0);
 }

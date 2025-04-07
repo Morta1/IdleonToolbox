@@ -231,7 +231,7 @@ const parseHole = (holeRaw, accountData) => {
     };
   });
   const totalResources = wellSediment?.reduce((sum, amount) => sum + Math.ceil(lavaLog(amount)), 0);
-  const totalLayerResources = extraCalculations ? [1, 3, 5, 7, 9, 11].reduce((sum, index) =>
+  const totalLayerResources = extraCalculations ? [1, 3, 5, 7].reduce((sum, index) =>
     sum + Math.round(Math.max(0, extraCalculations[index] || 0)), 0) : 0;
   const totalVillagersLevels = villagersLevels?.reduce((sum, amount) => sum + amount, 0);
   const totalOpalsFound = opalsPerCavern?.reduce((sum, amount) => sum + amount, 0);

@@ -376,7 +376,7 @@ export const calcTotalStarTalent = (characters, account) => {
     const thirdTalentBonus = getTalentBonus(character?.talents, 1, 'SUPERNOVA_PLAYER');
     const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, 'Elemental_Sorcerer', true);
     let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS', highestLevelElementalSorc);
-    if (checkCharClass(character?.class,'Elemental_Sorcerer')) {
+    if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
       familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
       const familyBonus = getFamilyBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS');
       familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
@@ -397,12 +397,14 @@ export const calcTotalStarTalent = (characters, account) => {
                                                               unlocked
                                                             }) => effect.includes('Star_Talent_Pts') && unlocked);
     const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 53);
-    const totalStarPoints = Math.floor(character?.level
-      - 1 + (basePoints + talentBonus + (account?.talentPoints?.[5]
-        + familyEffBonus + (secondTalentBonus + (stampBonus
-          + (thirdTalentBonus + (Math.floor(guildBonus) + (flurboBonus + (cardPassiveBonus
-            + (sigilBonus + (10 * achievement + (20 * secondAchievement + (20 * thirdAchievement
-              + (shinyBonus + (bribeBonus + 100 * (fractalBonusUnlocked ? 1 : 0) + vaultUpgradeBonus)))))))))))))))
+    const companionBonus = isCompanionBonusActive(account, 20) ? account?.companions?.list?.at(20)?.bonus : 0;
+    const totalStarPoints = Math.floor(character?.level - 1 + (basePoints + talentBonus + (account?.talentPoints?.[5]
+      + familyEffBonus + (secondTalentBonus + (stampBonus
+        + (thirdTalentBonus + (Math.floor(guildBonus) + (flurboBonus + (cardPassiveBonus
+          + (sigilBonus + (10 * achievement + (20 * secondAchievement + (20 * thirdAchievement
+            + (shinyBonus + (bribeBonus + 100 * (fractalBonusUnlocked
+              ? 1
+              : 0) + vaultUpgradeBonus + companionBonus)))))))))))))))
     return {
       ...result,
       [character.name]: totalStarPoints

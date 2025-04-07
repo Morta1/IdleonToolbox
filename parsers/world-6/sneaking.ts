@@ -47,8 +47,8 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
       : parseFloat(doorHp));
     return sum + ((updatedDoorHp - doorsCurrentHp?.[index] <= 0) ? 1 : 0);
   }, 1);
-  const ninjaMastery = account.accountOptions?.[231];
-  const unlockedFloors = ninjaMastery === 0 ? Math.min(12, currentUnlockedFloors) : 12;
+  const ninjaMastery = account.accountOptions?.[232];
+  const unlockedFloors = ninjaMastery > 0 ? 12 * ninjaMastery : Math.min(12, currentUnlockedFloors);
   const playersInfo = rawSneaking?.slice(0, serializedCharactersData?.length)?.map(([floor, activityInfo]: [number, number]) => ({
     floor,
     activityInfo
