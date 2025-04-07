@@ -16,7 +16,7 @@ export default class MyDocument extends Document {
           <meta name="theme-color" content="#141A21" />
           
           {/* Favicon */}
-          <link rel="apple-touch-icon" sizes="180x180" href="/data/Coins5.png" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/etc/bg_0.png" />
           <link rel="icon" type="image/png" sizes="32x32" href="/data/Coins5.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/data/Coins5.png" />
           <link rel="manifest" href="/site.webmanifest" />
