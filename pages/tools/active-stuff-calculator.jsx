@@ -14,7 +14,7 @@ import {
 import { prefix } from '@utility/helpers';
 import MenuItem from '@mui/material/MenuItem';
 import { AppContext } from '@components/common/context/AppProvider';
-import { IconDeviceFloppy, IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconInfoCircleFilled, IconCopy } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import Button from '@mui/material/Button';
 import { format } from 'date-fns';
@@ -84,6 +84,16 @@ const ActiveStuffCalculator = () => {
     setSnapshottedAcc({ ...state?.account, snapshotTime: new Date().getTime() })
   }
 
+  const handleCopySnapshot = () => {
+    if (snapshottedAcc && snapshottedChar) {
+      const snapshotData = {
+        account: snapshottedAcc,
+        character: snapshottedChar
+      };
+      navigator.clipboard.writeText(JSON.stringify(snapshotData, null, 2));
+    }
+  };
+
   const lastUpdated = state?.account?.timeAway?.Player * 1000;
 
   return <>
@@ -118,6 +128,10 @@ const ActiveStuffCalculator = () => {
           <Button sx={{ width: 'fit-content' }} variant={'contained'} size={'small'} onClick={handleSaveSnapshot}
                   startIcon={<IconDeviceFloppy/>}>
             Save snapshot
+          </Button>
+          <Button sx={{ width: 'fit-content' }} variant={'outlined'} size={'small'} onClick={handleCopySnapshot}
+                  startIcon={<IconCopy/>} disabled={!snapshottedAcc || !snapshottedChar}>
+            Copy snapshot
           </Button>
           <Tooltip
             title={'You can only take a snapshot of one character at a time.'}>

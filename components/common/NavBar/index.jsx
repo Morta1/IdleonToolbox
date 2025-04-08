@@ -121,7 +121,10 @@ const ContentWrapper = ({ isTools, children }) => {
       sx={{
         backgroundColor: isProd ? '' : '#d73333',
         width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-        height: 600
+        height: 600,
+        position: 'sticky',
+        top: { xs: '75px', sm: '110px' },
+        alignSelf: 'flex-start'
       }}>
       {isProd && showWideSideBanner ? <Adsense
         client="ca-pub-1842647313167572"
