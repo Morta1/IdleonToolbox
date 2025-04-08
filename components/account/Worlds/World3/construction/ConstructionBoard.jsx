@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, Divider } from '@mui/material';
 import Tooltip from '../../../../Tooltip';
 import { cleanUnderscore, isProd, kFormatter, notateNumber, prefix } from '../../../../../utility/helpers';
 import React from 'react';
@@ -22,6 +22,35 @@ const indexSx = {
   backgroundColor: 'blue'
 };
 
+const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affectedBy, affects }) => {
+  return (
+    <>
+      {character ? <Typography sx={{ fontWeight: 'bold' }}>{character}</Typography> : null}
+      {currentAmount < requiredAmount ? (
+        <Typography>
+          {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)
+        </Typography>
+      ) : null}
+      {Object.values(cog?.stats)?.map(({ name, value }, index) =>
+        name ? (
+          <Typography variant='body2' key={`${name}-${index}`}>
+            {notateNumber(value, 'Big')}
+            {cleanUnderscore(name)}
+          </Typography>
+        ) : null
+      )}
+      <Divider sx={{ my: 1 }} />
+      <Typography variant='body2'>Index: {index}</Typography>
+      {affectedBy?.length > 0 && (
+        <Typography variant='body2'>Affected by: {affectedBy.join(', ')}</Typography>
+      )}
+      {affects?.length > 0 && (
+        <Typography variant='body2'>Affects: {affects.join(', ')}</Typography>
+      )}
+    </>
+  );
+};
+
 const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outsideHighlight }) => {
   return <Box
     mt={3}
@@ -33,30 +62,30 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
     }}
   >
     {board?.map((slot, index) => {
-      const { currentAmount, requiredAmount, flagPlaced, cog } = slot;
+      const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects } = slot;
       const { a: buildRate, e: buildPercent, b: exp, d: secondExp, c: flaggyRate, j: classExp, f: playerExp } = cog?.stats;
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
       return (
         <Box key={index}
-             sx={{
-               outline: cog?.originalIndex === outsideHighlight
-                 ? '1px solid red'
-                 : '',
-               opacity: !setOutsideHighlight && cog?.originalIndex === index ? .5 : 1
-             }}
-             onMouseEnter={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(cog?.originalIndex)}
-             onMouseLeave={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(null)}
+          sx={{
+            outline: cog?.originalIndex === outsideHighlight
+              ? '1px solid red'
+              : '',
+            opacity: !setOutsideHighlight && cog?.originalIndex === index ? .5 : 1
+          }}
+          onMouseEnter={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(cog?.originalIndex)}
+          onMouseLeave={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(null)}
         >
           <Tooltip title={showTooltip ? <CogTooltip {...slot} index={index}
-                                                    character={cog?.name?.includes('Player')
-                                                      ? cog?.name?.split('Player_')[1]
-                                                      : ''}/> : ''}>
+            character={cog?.name?.includes('Player')
+              ? cog?.name?.split('Player_')[1]
+              : ''} /> : ''}>
             <SlotBackground filled={filled} rest={rest}>
-              {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt=""/> : null}
+              {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt="" /> : null}
               {cog?.name && !flagPlaced ?
                 <SlotIcon src={`${prefix}data/${cog?.name?.includes('Player') ? 'headBIG' : cog?.name}.png`}
-                          alt=""/> : null}
+                  alt="" /> : null}
               {!isProd ? <Typography sx={indexSx}>{index}</Typography> : null}
               {view === 'build' && !flagPlaced && buildRate?.value
                 ?
@@ -90,28 +119,6 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
   </Box>
 };
 
-const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog }) => {
-  return (
-    <>
-      {character ? <Typography sx={{ fontWeight: 'bold' }}>{character}</Typography> : null}
-      {currentAmount < requiredAmount ? (
-        <Typography>
-          {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)
-        </Typography>
-      ) : null}
-      {Object.values(cog?.stats)?.map(({ name, value }, index) =>
-        name ? (
-          <div key={`${name}-${index}`}>
-            {notateNumber(value, 'Big')}
-            {cleanUnderscore(name)}
-          </div>
-        ) : null
-      )}
-      index: {index}
-    </>
-  );
-};
-
 const SlotBackground = styled(Stack)`
   position: relative;
   background-image: url(${() => `${prefix}data/CogSq0.png`});
@@ -127,8 +134,8 @@ const SlotBackground = styled(Stack)`
     position: absolute;
     z-index: -1;
     ${({ filled }) => (filled === 0 || filled === 100
-            ? ''
-            : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
+    ? ''
+    : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
 
     width: 48px;
     height: 47px;

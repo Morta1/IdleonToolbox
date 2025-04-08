@@ -133,7 +133,7 @@ export const optimizeArrayWithSwaps = (arr, stat, time = 2500, characters) => {
 }
 
 const evaluateBoard = (currentBoard, characters) => {
-  const { boosted } = getAllBoostedCogs(currentBoard);
+  const { boosted, relations } = getAllBoostedCogs(currentBoard);
   let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0, totalPlayerExpRate = 0;
   let updatedBoard = currentBoard?.map((slot, index) => {
     const { cog } = slot || {};
@@ -148,10 +148,7 @@ const evaluateBoard = (currentBoard, characters) => {
       if (!character) {
         totalPlayerExpRate += cogBasePlayerCharacterExp
       } else {
-        // console.log(cog?.name, characterExpPerHour?.value)
         playerExp = character?.constructionExpPerHour * (1 + (characterExpPerHour?.value || 0) / 100);
-        // console.log(`name: ${cog?.name} - base exp/hr ${character?.constructionExpPerHour} - construction speed ${character?.constructionSpeed} - boosted exp/hr ${characterExpPerHour?.value}`)
-        // console.log(cog?.name, character?.constructionExpPerHour, character?.constructionSpeed, characterExpPerHour?.value, playerExp)
         totalPlayerExpRate += playerExp;
       }
     }
@@ -172,10 +169,13 @@ const evaluateBoard = (currentBoard, characters) => {
           ...cog?.stats,
           a: { ...cog?.stats?.a, value: buildRate },
           c: { ...cog?.stats?.c, value: flaggyRate },
-          // d: { ...cog?.stats?.d, value: totalExpRate },
           ...(characters ? { b: { ...cog?.stats?.b, value: playerExp } } : {})
         }
-      }
+      },
+      affectedBy: relations?.[index] || [],
+      affects: Object.entries(relations)
+        .filter(([_, affectingIndices]) => affectingIndices.includes(index))
+        .map(([affectedIndex]) => parseInt(affectedIndex))
     };
   });
   if (characters) {
