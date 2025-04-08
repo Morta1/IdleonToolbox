@@ -139,9 +139,9 @@ const ActiveStuffCalculator = () => {
         })}
       </ToggleButtonGroup>
       <Stack>
-        <Typography component={'span'}
-                    variant={'body2'}>Last
-          update - {format(state?.account?.timeAway?.Player * 1000, 'dd/MM/yyyy HH:mm:ss')}</Typography>
+        {state?.account?.timeAway?.Player ? <Typography component={'span'}
+                     variant={'body2'}>Last
+          update - {format(state?.account?.timeAway?.Player * 1000, 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
         {snapshottedChar?.snapshotTime
           ? <Typography
             variant={'body2'}>{snapshottedChar?.name} - {format(snapshottedChar?.snapshotTime, 'dd/MM/yyyy HH:mm:ss')}</Typography>

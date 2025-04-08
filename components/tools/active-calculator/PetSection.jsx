@@ -5,13 +5,12 @@ import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { notateNumber, numberWithCommas } from '@utility/helpers';
 
-const PetSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
+const PetSection = ({ lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
-  const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const snapshotProgress = snapshottedAcc?.breeding?.pets?.[0]?.[0]?.progress
-  const currentProgress = state?.account?.breeding?.pets?.[0]?.[0]?.progress
-  const diff = state?.account?.breeding?.pets?.[0]?.[0]?.progress - snapshottedAcc?.breeding?.pets?.[0]?.[0]?.progress;
+  const snapshotProgress = snapshottedAcc?.breeding?.pets?.[0]?.[0]?.progress;
+  const currentProgress = state?.account?.breeding?.pets?.[0]?.[0]?.progress;
+  const diff = currentProgress - snapshotProgress;
   const perMinute = diff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60);
 
   return <Section title={'Shiny progress'}>

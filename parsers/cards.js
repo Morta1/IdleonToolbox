@@ -105,5 +105,5 @@ export const getEquippedCardsData = (cardsArray, account) => {
 
 export const calcCardsLevels = (cards) => {
   if (!cards) return 0;
-  return Object.values(cards)?.reduce((res, { stars }) => res + (stars + 1), 0);
+  return Object.values(cards)?.reduce((res, { stars, amount }) => res + (amount > 0 ? (stars + 1) : 0), 0);
 };
