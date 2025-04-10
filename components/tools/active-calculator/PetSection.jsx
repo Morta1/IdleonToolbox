@@ -8,8 +8,8 @@ import { notateNumber, numberWithCommas } from '@utility/helpers';
 const PetSection = ({ lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const snapshotProgress = snapshottedAcc?.breeding?.pets?.[0]?.[0]?.progress;
-  const currentProgress = state?.account?.breeding?.pets?.[0]?.[0]?.progress;
+  const snapshotProgress = snapshottedAcc?.breeding?.fencePets?.[0]?.progress;
+  const currentProgress = state?.account?.breeding?.fencePets?.[0]?.progress;
   const diff = currentProgress - snapshotProgress;
   const perMinute = diff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60);
 

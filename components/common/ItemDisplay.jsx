@@ -4,6 +4,7 @@ import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
 import { getGoldenFoodBonus } from '../../parsers/misc';
 import React from 'react';
+import { getPowerType } from '@parsers/obols';
 
 const ItemDisplay = ({
                        character,
@@ -42,23 +43,7 @@ const ItemDisplay = ({
                        maxCapacity,
                        breakdown
                      }) => {
-  const getPowerType = (type) => {
-    let fixedType = type.toLowerCase();
-    if (!fixedType) return 'Weapon Power';
-    if (fixedType.includes('mining')) {
-      return 'Mining Power';
-    }
-    else if (fixedType.includes('fishin')) {
-      return 'Fishing Power';
-    }
-    else if (fixedType.includes('choppin')) {
-      return 'Choppin Power';
-    }
-    else if (fixedType.includes('catch')) {
-      return 'Catching Power';
-    }
-    return 'Weapon Power'
-  }
+
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
   let goldenFoodBonus = 0, isGoldenFood = displayName?.includes('Golden');
   if (isGoldenFood) {

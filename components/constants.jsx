@@ -51,7 +51,8 @@ export const PAGES = {
       categories: [
         { label: 'achievements', icon: 'data/TaskAchBorder1' },
         { label: 'tasks', icon: 'etc/TasksStar' },
-        { label: 'merits', icon: 'etc/Merit_4' }
+        { label: 'merits', icon: 'etc/Merit_4' },
+        { label: 'unlocks', icon: 'data/PetLockB0' }
       ]
     },
     'world 1': {

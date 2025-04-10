@@ -4,6 +4,31 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.98',
+    'gameVer': '2.0.35',
+    'date': '11/04/2025',
+    'features': [
+      'Revamped the breeding → pets page to include breedability',
+      'Added breedability level alerts to the dashboard',
+      'Added jars alerts to the dashboard',
+      'Updated the companions page to display companions by category',
+      'Added a tasks unlock page',
+      'Added the ability to see exact cog values on the construction page',
+      'Added a den score leaderboard',
+      'Added "cost to max" on non-maxed items'
+    ],
+    'fixes': [
+      'Fixed tome score calculations',
+      'Fixed the missing Axolotl image',
+      'Fixed the "weapon power" display for trapping and summoning',
+      'Fixed missing values for owl upgrades',
+      'Fixed a bug with calculating shiny progress in ASC',
+      'Fixed the missing value for the Seraph Cosmos star sign',
+      'Fixed villagers breakdown values',
+      'Fixed post office total points calculations'
+    ]
+  },
+  {
     'ver': '3.2.97',
     'gameVer': '2.0.35',
     'date': '01/04/2025',

@@ -12,9 +12,12 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from '../../../utility/helpers';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Tooltip from '@components/Tooltip';
+
 
 const priorities = {
   103: 'S',
@@ -47,6 +50,14 @@ const priorities = {
   125: 'C'
 };
 
+const calculateTotalCostToMax = (baseCost, costIncrement, currentPurchases, maxPurchases) => {
+  let totalCost = 0;
+  for (let i = currentPurchases; i < maxPurchases; i++) {
+    totalCost += baseCost + (i * costIncrement);
+  }
+  return totalCost;
+};
+
 const GemShop = () => {
   const { state } = useContext(AppContext);
   const [showMissingOnly, setShowMissingOnly] = useState(false);
@@ -71,36 +82,24 @@ const GemShop = () => {
       description="View all gem shop upgrades, bonuses and more"
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-      <CardTitleAndValue title={'Gems'} value={state?.account?.currencies?.gems}/>
-      <CardTitleAndValue title={'Control'} stackProps>
-        <FormControlLabel
-          control={<Checkbox name={'mini'} checked={showMissingOnly}
-                             size={'small'}
-                             onChange={() => setShowMissingOnly(!showMissingOnly)}/>}
-          label={'Show missing only'}/>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Priorities'} stackProps>
-        <ToggleButtonGroup
-          value={selectedPriorities}
-          onChange={handlePriorities}
-        >
-          <ToggleButton value="All">
-            All
-          </ToggleButton>
-          <ToggleButton value="S">
-            S
-          </ToggleButton>
-          <ToggleButton value="A">
-            A
-          </ToggleButton>
-          <ToggleButton value="B">
-            B
-          </ToggleButton>
-          <ToggleButton value="C">
-            C
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </CardTitleAndValue>
+      <CardTitleAndValue title={'Gems'} value={numberWithCommas(state?.account?.currencies?.gems)} icon={'data/PremiumGem.png'}
+        imgStyle={{ width: 24, height: 24 }} />
+      <CardTitleAndValue title={'Control'} value={<FormControlLabel
+        control={<Checkbox name={'mini'} checked={showMissingOnly}
+          size={'small'}
+          onChange={() => setShowMissingOnly(!showMissingOnly)} />}
+        label={'Show missing only'} />} />
+      <CardTitleAndValue title={'Priorities'} value={<ToggleButtonGroup
+        sx={{ mt: .5 }}
+        value={selectedPriorities}
+        onChange={handlePriorities}
+      >
+        <ToggleButton value="All">All</ToggleButton>
+        <ToggleButton value="S">S</ToggleButton>
+        <ToggleButton value="A">A</ToggleButton>
+        <ToggleButton value="B">B</ToggleButton>
+        <ToggleButton value="C">C</ToggleButton>
+      </ToggleButtonGroup>} />
     </Stack>
     {gemShop?.map(({ name, sections }) => {
       return <Stack key={name} gap={2}>
@@ -113,37 +112,50 @@ const GemShop = () => {
               <Typography sx={{ mb: 1 }} variant={'h5'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
               <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
                 {sectionItems?.map(({
-                                      globalIndex,
-                                      rawName,
-                                      displayName,
-                                      desc,
-                                      cost,
-                                      maxPurchases,
-                                      costIncrement
-                                    }, index) => {
+                  globalIndex,
+                  rawName,
+                  displayName,
+                  desc,
+                  cost,
+                  maxPurchases,
+                  costIncrement
+                }, index) => {
                   const purchased = state?.account?.gemShopPurchases?.[globalIndex];
                   const addedCost = purchased * costIncrement;
                   const priority = priorities?.[globalIndex];
                   if (rawName === 'Blank' || displayName === 'NAME_OF_ITEM' || (showMissingOnly && purchased >= maxPurchases) || (!selectedPriorities.includes('All') && !selectedPriorities?.includes(priority))) return null;
                   return <Badge badgeContent={priorities?.[globalIndex] || 0} color={'warning'} key={rawName + index}>
                     <Card variant={'outlined'}
-                          sx={{
-                            width: 300,
-                            border: purchased === maxPurchases ? '1px solid' : '',
-                            borderColor: purchased === maxPurchases ? 'success.main' : ''
-                          }}>
+                      sx={{
+                        width: 300,
+                        border: purchased === maxPurchases ? '1px solid' : '',
+                        borderColor: purchased === maxPurchases ? 'success.main' : ''
+                      }}>
                       <CardContent sx={{ height: '100%', display: 'flex', position: 'relative' }}>
                         <Stack sx={{ width: '100%' }}>
-                          <Stack gap={1} direction={'row'} alignItems={'center'}>
-                            {!rawName.includes(';') ? <img width={32} src={`${prefix}data/${rawName}.png`}
-                                                           alt={rawName}/> : null}
-                            <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
+                          <Stack gap={1} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
+                            <Stack gap={1} direction={'row'} alignItems={'center'}>
+                              {!rawName.includes(';') ? <img width={32} src={`${prefix}data/${rawName}.png`}
+                                alt={rawName} /> : null}
+                              <Typography variant={'body1'}>{cleanUnderscore(displayName.toLowerCase().camelToTitleCase())}</Typography>
+                            </Stack>
+                            {purchased < maxPurchases && (
+                              <Tooltip title={
+                                <Stack>
+                                  <Typography variant="body2">
+                                    Cost to max: {numberWithCommas(calculateTotalCostToMax(cost, costIncrement, purchased, maxPurchases))}
+                                  </Typography>
+                                </Stack>
+                              }>
+                                <IconInfoCircleFilled size={18} />
+                              </Tooltip>
+                            )}
                           </Stack>
                           <Typography fontSize={14}>{cleanUnderscore(desc)}</Typography>
                           <Stack sx={{ mt: 'auto' }} direction={'row'} alignItems={'center'}
-                                 justifyContent={'space-between'}>
+                            justifyContent={'space-between'}>
                             <Stack direction={'row'} alignItems={'center'} gap={1}>
-                              <img width={32} height={32} src={`${prefix}data/PremiumGem.png`} alt={'gem'}/>
+                              <img width={32} height={32} src={`${prefix}data/PremiumGem.png`} alt={'gem'} />
                               <Typography variant={'body1'}>{cost + (isNaN(addedCost) ? 0 : addedCost)}</Typography>
                             </Stack>
                             <Typography variant={'body1'}>{purchased} / {maxPurchases}</Typography>

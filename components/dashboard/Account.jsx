@@ -5,7 +5,8 @@ import {
   cleanUnderscore,
   commaNotation,
   getNumberWithOrdinal,
-  notateNumber, numberWithCommas,
+  notateNumber,
+  numberWithCommas,
   pascalCase,
   prefix,
   randomFloatBetween
@@ -306,7 +307,6 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 alerts?.['World 4']?.breeding?.shinies?.pets?.map(({
                                                                      monsterName,
                                                                      monsterRawName,
-                                                                     shinyLevel,
                                                                      icon
                                                                    }, index) => {
                   const missingIcon = (icon === 'Mface23' && monsterRawName !== 'shovelR') || (icon === 'Mface21' && monsterRawName === 'potatoB');
@@ -314,6 +314,19 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     key={monsterName + index}
                     imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
                     title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${alerts?.['World 4']?.breeding?.shinies?.threshold})`}
+                    iconPath={missingIcon ? `afk_targets/${monsterName}` : `data/${icon}`}/>
+                }) : null}
+              {alerts?.['World 4']?.breeding?.breedability?.pets?.length > 0 ?
+                alerts?.['World 4']?.breeding?.breedability?.pets?.map(({
+                                                                     monsterName,
+                                                                     monsterRawName,
+                                                                     icon
+                                                                   }, index) => {
+                  const missingIcon = (icon === 'Mface23' && monsterRawName !== 'shovelR') || (icon === 'Mface21' && monsterRawName === 'potatoB');
+                  return <Alert
+                    key={monsterName + index}
+                    breedability
+                    title={`${cleanUnderscore(monsterName)} has surpassed the breedability level threshold (${alerts?.['World 4']?.breeding?.breedability?.threshold})`}
                     iconPath={missingIcon ? `afk_targets/${monsterName}` : `data/${icon}`}/>
                 }) : null}
             </Stack>
@@ -394,6 +407,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.grotto ?
                 <Alert title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}
+              {alerts?.['World 5']?.hole?.jars >= 0 ?
+                <Alert title={`You can break ${alerts?.['World 5']?.hole?.jars} jars in the jars cavern`}
+                       iconPath={'etc/Jar_0'}/> : null}
               {alerts?.['World 5']?.hole?.villagersLevelUp?.length > 0
                 ? alerts?.['World 5']?.hole?.villagersLevelUp?.map(({ name }, index) => <Alert
                   key={name}
@@ -442,11 +458,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   </>
 };
 
-const Alert = ({ title, iconPath, vial, atom, style = {}, imgStyle = {}, onError = () => {} }) => {
+const Alert = ({ title, iconPath, vial, atom, breedability, style = {}, imgStyle = {}, onError = () => {} }) => {
   return <HtmlTooltip title={title}>
     <Stack sx={{ position: 'relative', ...style }}>
       <IconImg onError={onError} style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
-      {atom ? <AtomIcon vial={vial} src={`${prefix}etc/Particle.png`} alt=""/> : null}
+      {atom || breedability ? <FloatingIcon vial={vial} src={`${prefix}etc/${atom ? 'Particle' : breedability ? 'PetHeart' : ''}.png`} alt=""/> : null}
       {vial ? <img key={`${vial?.name}`}
                    onError={(e) => {
                      e.target.src = `${prefix}data/aVials12.png`;
@@ -483,7 +499,7 @@ const ShopTitle = ({ shop }) => {
   </Stack>
 }
 
-const AtomIcon = styled.img`
+const FloatingIcon = styled.img`
   width: 15px;
   height: 15px;
   position: absolute;

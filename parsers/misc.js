@@ -863,7 +863,8 @@ export const getCompanions = (companionObject = {}) => {
       ...result,
       [companionIndex]: true
     }
-  }, {})
+  }, {});
+
   const updatedCompanions = companions?.map((comp, index) => ({
     ...comp,
     acquired: !!ownedCompanions?.[index]

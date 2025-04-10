@@ -20,7 +20,7 @@ const jarNames = [
   'Heirloom Jar'
 ]
 
-export const getTheJars = (holesObject, accountData) => {
+export const getTheJars = (holesObject, jarsRaw, accountData) => {
   const jarEffects = holesInfo?.[65]?.split(' ');
   const jarTypes = Math.round(holesObject?.extraCalculations?.[37]);
   const unlockedSlots = getJarSlots({ holesObject });
@@ -81,6 +81,7 @@ export const getTheJars = (holesObject, accountData) => {
     rupies,
     perHour,
     jars,
+    totalJars: jarsRaw?.length,
     collectibles
   }
 }

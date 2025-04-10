@@ -1,6 +1,13 @@
-import { Box, Stack, Typography, Divider } from '@mui/material';
+import { Box, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '../../../../Tooltip';
-import { cleanUnderscore, isProd, kFormatter, notateNumber, prefix } from '../../../../../utility/helpers';
+import {
+  cleanUnderscore,
+  isProd,
+  kFormatter,
+  notateNumber,
+  numberWithCommas,
+  prefix
+} from '../../../../../utility/helpers';
 import React from 'react';
 import styled from '@emotion/styled';
 
@@ -22,7 +29,7 @@ const indexSx = {
   backgroundColor: 'blue'
 };
 
-const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affectedBy, affects }) => {
+const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affectedBy, affects, roundedValues }) => {
   return (
     <>
       {character ? <Typography sx={{ fontWeight: 'bold' }}>{character}</Typography> : null}
@@ -33,59 +40,72 @@ const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affe
       ) : null}
       {Object.values(cog?.stats)?.map(({ name, value }, index) =>
         name ? (
-          <Typography variant='body2' key={`${name}-${index}`}>
-            {notateNumber(value, 'Big')}
-            {cleanUnderscore(name)}
-          </Typography>
+          <>
+            {index > 0 ? <Divider sx={{my:1}}/> : null}
+            <Typography variant="body2" key={`${name}-${index}`}>
+              {roundedValues ? notateNumber(value, 'Big') : numberWithCommas(value.toFixed(2).replace('.00', ''))}
+              {cleanUnderscore(name)}
+            </Typography>
+
+          </>
         ) : null
       )}
-      <Divider sx={{ my: 1 }} />
-      <Typography variant='body2'>Index: {index}</Typography>
+      <Divider sx={{ my: 1 }}/>
+      <Typography variant="body2">Index: {index}</Typography>
       {affectedBy?.length > 0 && (
-        <Typography variant='body2'>Affected by: {affectedBy.join(', ')}</Typography>
+        <Typography variant="body2">Affected by: {affectedBy.join(', ')}</Typography>
       )}
       {affects?.length > 0 && (
-        <Typography variant='body2'>Affects: {affects.join(', ')}</Typography>
+        <Typography variant="body2">Affects: {affects.join(', ')}</Typography>
       )}
     </>
   );
 };
 
-const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outsideHighlight }) => {
+const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outsideHighlight, roundedValues }) => {
   return <Box
     mt={3}
     sx={{
       display: 'grid',
       gap: '8px',
       gridTemplateColumns: { xs: 'repeat(8, minmax(45px, 1fr))', md: 'repeat(12, minmax(45px, 1fr))' },
-      gridTemplateRows: { xs: 'repeat(8, minmax(45px, 1fr))', md: 'repeat(8, minmax(45px, 1fr))' },
+      gridTemplateRows: { xs: 'repeat(8, minmax(45px, 1fr))', md: 'repeat(8, minmax(45px, 1fr))' }
     }}
   >
     {board?.map((slot, index) => {
       const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects } = slot;
-      const { a: buildRate, e: buildPercent, b: exp, d: secondExp, c: flaggyRate, j: classExp, f: playerExp } = cog?.stats;
+      const {
+        a: buildRate,
+        e: buildPercent,
+        b: exp,
+        d: secondExp,
+        c: flaggyRate,
+        j: classExp,
+        f: playerExp
+      } = cog?.stats;
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
       return (
         <Box key={index}
-          sx={{
-            outline: cog?.originalIndex === outsideHighlight
-              ? '1px solid red'
-              : '',
-            opacity: !setOutsideHighlight && cog?.originalIndex === index ? .5 : 1
-          }}
-          onMouseEnter={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(cog?.originalIndex)}
-          onMouseLeave={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(null)}
+             sx={{
+               outline: cog?.originalIndex === outsideHighlight
+                 ? '1px solid red'
+                 : '',
+               opacity: !setOutsideHighlight && cog?.originalIndex === index ? .5 : 1
+             }}
+             onMouseEnter={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(cog?.originalIndex)}
+             onMouseLeave={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(null)}
         >
           <Tooltip title={showTooltip ? <CogTooltip {...slot} index={index}
-            character={cog?.name?.includes('Player')
-              ? cog?.name?.split('Player_')[1]
-              : ''} /> : ''}>
+                                                    roundedValues={roundedValues}
+                                                    character={cog?.name?.includes('Player')
+                                                      ? cog?.name?.split('Player_')[1]
+                                                      : ''}/> : ''}>
             <SlotBackground filled={filled} rest={rest}>
-              {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt="" /> : null}
+              {flagPlaced ? <FlagIcon src={`${prefix}data/CogFLflag.png`} alt=""/> : null}
               {cog?.name && !flagPlaced ?
                 <SlotIcon src={`${prefix}data/${cog?.name?.includes('Player') ? 'headBIG' : cog?.name}.png`}
-                  alt="" /> : null}
+                          alt=""/> : null}
               {!isProd ? <Typography sx={indexSx}>{index}</Typography> : null}
               {view === 'build' && !flagPlaced && buildRate?.value
                 ?
@@ -134,8 +154,8 @@ const SlotBackground = styled(Stack)`
     position: absolute;
     z-index: -1;
     ${({ filled }) => (filled === 0 || filled === 100
-    ? ''
-    : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
+            ? ''
+            : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
 
     width: 48px;
     height: 47px;

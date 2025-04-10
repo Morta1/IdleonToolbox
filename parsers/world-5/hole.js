@@ -33,10 +33,11 @@ const VILLAGERS = {
 
 export const getHole = (idleonData, accountData) => {
   const holeRaw = tryToParse(idleonData?.Holes) || idleonData?.Holes;
-  return parseHole(holeRaw, accountData);
+  const jarsRaw = tryToParse(idleonData?.Jars) || idleonData?.Jars;
+  return parseHole(holeRaw, jarsRaw, accountData);
 }
 
-const parseHole = (holeRaw, accountData) => {
+const parseHole = (holeRaw, jarsRaw, accountData) => {
   const [
     charactersCavernLocation = [], // 0
     villagersLevels = [], // 1
@@ -160,7 +161,7 @@ const parseHole = (holeRaw, accountData) => {
   const theHive = getHive(holesObject);
   const grotto = getGrotto(holesObject);
   const justice = getJustice(holesObject, accountData);
-  const theJars = getTheJars(holesObject, accountData);
+  const theJars = getTheJars(holesObject, jarsRaw, accountData);
   const evertree = getEvertree(holesObject);
   const wisdom = getWisdom(holesObject, accountData);
   const gambit = getGambit(holesObject, accountData);

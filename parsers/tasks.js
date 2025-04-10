@@ -1,5 +1,5 @@
 import { tryToParse } from '../utility/helpers';
-import { merits, tasks } from '../data/website-data';
+import { merits, tasks, taskUnlocks as taskUnlocksData } from '../data/website-data';
 
 export const getTasks = (idleonData) => {
   const tasksRaw = idleonData?.Tasks || [
@@ -39,10 +39,25 @@ export const getTasks = (idleonData) => {
       }
     })
   });
-
+  const taskUnlocksList = taskUnlocksData?.map((column, index) => {
+    return column?.map((unlocks, ind) => {
+      return {
+        unlocks,
+        unlocked: tasksRaw?.[3]?.[index]?.[ind]
+      }
+    })
+  });
   const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum, unlock) => sum + unlock, 0);
-
-  return { tasks: parseTasks(tasksRaw), tasksDescriptions, meritsDescriptions, unlockedRecipes };
+  const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0]) ?? 0;
+  const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0) ?? 0;
+  const taskUnlocks = {
+    taskUnlocksList,
+    unlockedRecipes,
+    unlockPointsOwned,
+    currentPoints: tasksRaw?.[4]?.[0] ?? 0,
+    pointsReq
+  }
+  return { tasks: parseTasks(tasksRaw), tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks };
 }
 
 const parseTasks = (tasksRaw) => {
@@ -54,4 +69,40 @@ export const calcTotalTasks = (tasks) => {
     const worldSum = worldTasks.filter(((_, index) => index <= 7)).reduce((sum, amount) => sum + amount, 0);
     return sum + worldSum;
   }, 0);
+}
+
+const unlockPointsFormula = (index) => {
+  return 9 * index + (2 * Math.max(0, index - 5) + (7 * Math.max(0, index - 12) + 11 * Math.max(0, index - 20))) + 1;
+}
+
+const getUnlockPointsOwned = (unlockPointsFormula, currentTaskValue) => {
+  if (unlockPointsFormula(1) > currentTaskValue) return 0;
+
+  let taskppNum2 = -10;
+  let taskppNum = 0;
+
+  for (let e = 0; e < 100; e++) {
+    taskppNum = 10 * (e + 1);
+
+    if (unlockPointsFormula(taskppNum) > currentTaskValue) {
+      for (let t = 0; t < 10; t++) {
+        const offset = taskppNum - (t + 1);
+
+        if (unlockPointsFormula(offset) <= currentTaskValue) {
+          taskppNum2 = offset;
+          break;
+        }
+      }
+    }
+
+    if (taskppNum2 > -1) break;
+  }
+
+  return taskppNum2;
+}
+
+const getPointsReq = (unlockPointsFormula, unlockPointsOwned, index) => {
+  return 1 === index
+    ? Math.round(unlockPointsFormula(unlockPointsOwned))
+    : Math.round(unlockPointsFormula(Math.round(unlockPointsOwned + 1)));
 }

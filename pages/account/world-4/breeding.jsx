@@ -1,12 +1,12 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
 import Territory from '@components/account/Worlds/World4/Breeding/Territory';
 import { getTabs, handleCopyToClipboard, prefix, tryToParse } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
-import Pets from '../../../components/account/Worlds/World4/Breeding/Pets';
+import Pets from '@components/account/Worlds/World4/Breeding/Pets/Pets';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getBubbleBonus } from '@parsers/alchemy';
@@ -79,7 +79,7 @@ const Breeding = () => {
       </Stack>
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
         town</Typography>
-      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding')}>
+      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding')} clearOnChange={['nt']}>
         <Pets {...state?.account?.breeding}
               lab={state?.account?.lab}
               account={state?.account}

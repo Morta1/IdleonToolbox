@@ -557,19 +557,31 @@ export const getWorld4Alerts = (account, fields, options) => {
   if (!account?.finishedWorlds?.World3) return alerts;
   if (fields?.breeding?.checked) {
     const breeding = {};
-    const { shinies, eggs, eggsRarity } = options?.breeding || {};
+    const { shinies, eggs, eggsRarity, breedability } = options?.breeding || {};
     if (shinies?.checked) {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
                                       monsterRawName,
-                                      shinyLevel
-                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]
-          && shinyLevel >= shinies?.props?.value);
+                                      shinyLevel,
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.isShiny && shinyLevel >= shinies?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: shinies?.props?.value }
       if (list.length > 0) {
         breeding.shinies = shiniesObj;
+      }
+    }
+    if (breedability?.checked) {
+      const list = account?.breeding?.pets?.reduce((res, world) => {
+        const pets = world?.filter(({
+                                      monsterRawName,
+                                      breedingLevel,
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.isBreedability && breedingLevel >= breedability?.props?.value);
+        return [...res, ...pets];
+      }, [])
+      const shiniesObj = { pets: list, threshold: breedability?.props?.value }
+      if (list.length > 0) {
+        breeding.breedability = shiniesObj;
       }
     }
     if (eggs?.checked) {
@@ -794,7 +806,8 @@ export const getWorld5Alerts = (account, fields, options) => {
       theHarp,
       theHive,
       grotto,
-      villagersLevelUp
+      villagersLevelUp,
+      jars
     } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
@@ -837,6 +850,9 @@ export const getWorld5Alerts = (account, fields, options) => {
     const readyToLevelVillagers = account?.hole?.villagers?.filter(({ readyToLevel }) => readyToLevel);
     if (villagersLevelUp?.checked && readyToLevelVillagers.length > 0) {
       hole.villagersLevelUp = readyToLevelVillagers;
+    }
+    if (jars?.checked && account?.hole?.caverns?.theJars?.totalJars >= jars?.props?.value) {
+      hole.jars = account?.hole?.caverns?.theJars?.totalJars;
     }
     if (Object.keys(hole).length > 0) {
       alerts.hole = hole;

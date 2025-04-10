@@ -367,6 +367,36 @@ export const migrateToVersion17 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion18 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 5']?.hole?.options?.length === 10) {
+    dashboardConfig.account['World 5'].hole.options = [
+      ...dashboardConfig.account['World 5'].hole.options,
+      {
+        name: 'jars',
+        checked: true,
+        type: 'input',
+        props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
+      }
+    ]
+  }
+
+  if (dashboardConfig?.account?.['World 4']?.breeding?.options?.length === 3) {
+    dashboardConfig.account['World 4'].breeding.options = [
+      ...dashboardConfig.account['World 4'].breeding.options,
+      { name: 'breedability', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
+    ]
+  }
+
+  dashboardConfig.version = 18;
+  return dashboardConfig
+}
+
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -420,6 +450,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 16) {
       migratedConfig = migrateToVersion17(migratedConfig);
+    }
+    if (migratedConfig?.version === 17) {
+      migratedConfig = migrateToVersion18(migratedConfig);
     }
   }
   return migratedConfig;

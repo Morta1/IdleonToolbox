@@ -35,7 +35,8 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
         ...god,
         rawName: `DivGod${index}`,
         level,
-        blessingBonus
+        blessingBonus,
+        unlocked: index < unlockedDeities
       }
     }
   );

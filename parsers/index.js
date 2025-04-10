@@ -58,16 +58,16 @@ import { getPostOfficeShipments } from './postoffice';
 import { getIslands } from './world-2/islands';
 import { getEquinox } from './equinox';
 import { getTotalizerBonuses, getTotems } from './worship';
-import { getSneaking } from "@parsers/world-6/sneaking";
-import { getFarming, updateFarming } from "@parsers/world-6/farming";
-import { getSummoning } from "@parsers/world-6/summoning";
-import { getTome } from "@parsers/world-4/tome";
-import { getOwl } from "@parsers/world-1/owl";
-import { getKangaroo } from "@parsers/world-2/kangaroo";
-import { getVoteBallot } from "@parsers/world-2/voteBallot";
-import { getHole } from "@parsers/world-5/hole";
-import { getGrimoire } from "@parsers/grimoire";
-import { getUpgradeVault } from "@parsers/misc/upgradeVault";
+import { getSneaking } from '@parsers/world-6/sneaking';
+import { getFarming, updateFarming } from '@parsers/world-6/farming';
+import { getSummoning } from '@parsers/world-6/summoning';
+import { getTome } from '@parsers/world-4/tome';
+import { getOwl } from '@parsers/world-1/owl';
+import { getKangaroo } from '@parsers/world-2/kangaroo';
+import { getVoteBallot } from '@parsers/world-2/voteBallot';
+import { getHole } from '@parsers/world-5/hole';
+import { getGrimoire } from '@parsers/grimoire';
+import { getUpgradeVault } from '@parsers/misc/upgradeVault';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
@@ -128,12 +128,13 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
   accountData.looty = getLooty(idleonData);
-  const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes } = getTasks(idleonData)
+  const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks } = getTasks(idleonData)
   accountData.tasks = tasks;
   accountData.meritsDescriptions = meritsDescriptions;
   accountData.tasksDescriptions = tasksDescriptions;
   accountData.tasksDescriptions = tasksDescriptions;
   accountData.unlockedRecipes = unlockedRecipes;
+  accountData.taskUnlocks = taskUnlocks;
   accountData.breeding = getBreeding(idleonData, accountData);
   accountData.cooking = getCooking(idleonData, accountData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData, accountData);

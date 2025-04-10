@@ -190,7 +190,8 @@ const baseTrackers = {
             },
             checked: false
           },
-          { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
+          { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true },
+          { name: 'breedability', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
         ]
       },
       cooking: {
@@ -271,6 +272,12 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
           },
+          {
+            name: 'jars',
+            checked: true,
+            type: 'input',
+            props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
+          }
         ]
       }
     },

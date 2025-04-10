@@ -47,7 +47,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                         ? bonuses?.map(({
                                           rawName,
                                           bonus
-                                        }) => cleanUnderscore(rawName.replace('{', bonus))).join(', ')
+                                        }) => cleanUnderscore(rawName.replace("{.{", bonus).replace(/{/g, bonus))).join(', ')
                         : cleanUnderscore(description)}
                     </Typography>
                   </Grid>

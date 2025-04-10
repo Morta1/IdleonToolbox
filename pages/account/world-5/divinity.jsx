@@ -12,7 +12,7 @@ import CoinDisplay from '../../../components/common/CoinDisplay';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
-  const { deities, linkedDeities, unlockedDeities, godRank } = state?.account?.divinity || {};
+  const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const [showCost, setShowCost] = useState(false);
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
@@ -22,9 +22,7 @@ const Divinity = () => {
     />
     <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
     <FormControlLabel
-      control={<Checkbox name={'mini'} checked={showCost}
-                         size={'small'}
-                         onChange={() => setShowCost(!showCost)}/>}
+      control={<Checkbox name={'mini'} checked={showCost} size={'small'} onChange={() => setShowCost(!showCost)}/>}
       label={'Show upgrade cost'}/>
     <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
       {deities?.map(({
@@ -36,7 +34,8 @@ const Divinity = () => {
                        blessingMultiplier,
                        blessingBonus,
                        cost,
-                       level
+                       level,
+                       unlocked
                      }, godIndex) => {
         const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex));
         const highestDivinityCharacter = state?.characters?.reduce((prev, curr) => {
@@ -45,10 +44,10 @@ const Divinity = () => {
           return prevBonus > currBonus ? prev : curr;
         }, state?.characters?.[0]);
         return (
-          (<Card sx={{ width: 300 }} key={rawName} variant={godIndex < unlockedDeities ? 'elevation' : 'outlined'}>
+          (<Card sx={{ width: 300, opacity: unlocked ? 1 : .5 }} key={rawName}>
             <CardContent>
               <Stack>
-                <Stack direction={'row'}>
+                <Stack direction={'row'} gap={2}>
                   <img style={{ width: 42 }} src={`${prefix}data/${rawName}.png`} alt="god-icon"/>
                   <Stack>
                     <Typography>{name}</Typography>

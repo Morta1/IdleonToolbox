@@ -10,8 +10,9 @@ const TheJars = ({ hole }) => {
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {hole?.caverns?.theJars?.rupies?.map((amount, index) => <CardTitleAndValue
+        cardSx={{my:0}}
         title={''} key={`rupie-${index}`} stackProps icon={`data/HoleJarR${index}.png`}
-        value={numberWithCommas(Math.floor(amount))}/>)}
+        value={notateNumber(Math.floor(amount))}/>)}
     </Stack>
     <Divider sx={{ mt: 1 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
@@ -21,6 +22,8 @@ const TheJars = ({ hole }) => {
                          value={notateNumber(hole?.caverns?.theJars?.perHour / 60, 'Big')}/>
       <CardTitleAndValue title={'Rupie value'}
                          value={notateNumber(hole?.caverns?.theJars?.rupieValue, 'Big')}/>
+      <CardTitleAndValue title={'Total jars'}
+                         value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
       <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>
       {hole?.caverns?.theJars?.activeSlots?.map(({ progress, req, jarType }, index) => <CardTitleAndValue
         title={'Rupie value'} key={`slots-${index}`}

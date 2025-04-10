@@ -34,10 +34,37 @@ const parseOwl = (account) => {
       * Math.pow(Math.max(1.05, (upgrade?.x2) - 0.025 * getMegaFeather(account, 8)), (account?.accountOptions?.[254 + i]))
       : commonFactor
       * Math.pow((upgrade?.x2), (account?.accountOptions?.[254 + i]));
+
+    let description = upgrade?.desc;
+
+    const megaFeather6 = getMegaFeather(account, 6) || 0;
+    const option258 = account.accountOptions[258] || 0;
+    const bonus1 = Math.pow(Math.round(3 + 2 * megaFeather6), option258 + 1);
+
+    const option254PlusI = account.accountOptions[254 + i] || 0;
+    const multiplier = parseInt('1 0 5 10 0 5 1 20 0'.split(' ')[i]) || 0;
+    const bonus2 = multiplier * option254PlusI;
+    const bonus3 = Math.floor(1e4 * (1 - 1 / (1 + 10 * option254PlusI / 100))) / 100;
+
+    description = description
+      .replace('{', '' + bonus1)
+      .replace('}', '' + bonus2)
+      .replace('@', '' + bonus3);
+
+
+    if (i === 0 && getMegaFeather(account, 2) === 1) {
+      const option254 = account.accountOptions[254] || 0;
+      const costReductionBonus = Math.floor(
+        1e4 * (1 - 1 / (1 + getMegaFeather(account, 2) * option254 / 100))
+      ) / 100;
+      description += ', and lowers all costs by ' + costReductionBonus + '%';
+    }
+
     const level = account?.accountOptions?.[254 + i]
     const nextLvReq = owlData?.[i + 1]?.x3;
     return {
       ...upgrade,
+      desc: description,
       cost,
       level,
       nextLvReq,

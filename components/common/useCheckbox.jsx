@@ -1,16 +1,22 @@
 import { Checkbox, FormControlLabel } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 
 const useCheckbox = (label, initial = false) => {
-  const [checked, setChecked] = useState(initial);
+  const [isLoading, setIsLoading] = useState(true);
+  const [checked, setChecked] = useLocalStorage({ key: `checkbox-${label}`, defaultValue: initial });
 
-  const Element = () =>  <FormControlLabel
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
+  const Element = () => isLoading ? null : <FormControlLabel
     sx={{ width: 'fit-content' }}
     control={<Checkbox checked={checked} onChange={() => setChecked(prev => !prev)}/>}
     label={label}
   />;
 
-  return [Element, checked];
+  return [Element, checked, setChecked];
 };
 
 export default useCheckbox;

@@ -138,7 +138,7 @@ export const CardTitleAndValue = ({
   return <Tooltip title={tooltipTitle || ''}>
     <Card variant={variant} raised={raised}
           sx={{ my: { xs: 0, md: 3 }, mb: { xs: 2 }, width: 'fit-content', ...cardSx }}>
-      <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {} }}>
+      <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {}, height: '100%' }}>
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
                                component={'span'}>{title}</Typography> : null}
