@@ -21,7 +21,7 @@ import { useRouter } from 'next/router';
 
 const defaultText = 'If you don\'t see your name in the top 10, search for your character’s name here.';
 
-const tabs = ['general', 'tasks', 'skills', 'character', 'misc'];
+const tabs = ['General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const loggedMainChar = state?.characters?.[0]?.name;
@@ -37,7 +37,7 @@ const Leaderboards = () => {
   useEffect(() => {
     const getLeaderboards = async () => {
       try {
-        const tempLeaderboards = await fetchLeaderboard(selectedTab);
+        const tempLeaderboards = await fetchLeaderboard(selectedTab.toLowerCase());
         setLeaderboards(tempLeaderboards);
         setError('');
       } catch (e) {
@@ -135,7 +135,7 @@ const Leaderboards = () => {
       />
     </Box>
     <Tabber
-      tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns']} onTabChange={(selected) => {
+      tabs={tabs} onTabChange={(selected) => {
       setSelectedTab(tabs?.[selected]);
       setLeaderboards(null);
       setError('');
