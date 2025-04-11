@@ -16,7 +16,7 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/printer';
 
 const baseTrackers = {
-  version: 17,
+  version: 18,
   account: {
     General: {
       tasks: {
