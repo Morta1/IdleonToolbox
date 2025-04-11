@@ -133,7 +133,9 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         const totalChance = breedingMultipliers?.totalChance > 0.1
           ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
           : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
-        const timeToThreshold = getTimeToLevel(pet, multi.value, fencePet?.amount, applyThreshold ? threshold : 5);
+        const timeToThreshold = getTimeToLevel(pet, multi.value, fencePet?.amount, applyThreshold
+          ? threshold
+          : 5, isShiny);
         return <Card key={monsterName} variant={'outlined'}
                      sx={{
                        opacity: unlocked && level > 0 ? 1 : .6,

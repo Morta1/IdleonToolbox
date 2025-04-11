@@ -38,8 +38,10 @@ export const createObolsWithUpgrades = (charItems, stoneData) => {
     const { rawName } = item;
     if (rawName === 'Blank') return [...res, item];
     const stoneResult = addStoneDataToEquip(items?.[rawName], stoneData?.[itemIndex]);
+    const rerolled = Object.values(stoneData?.[itemIndex] || {}).some((value) => !isNaN(value) && value > 0);
     return rawName ? [...res, {
-      ...(rawName === 'Blank' ? {} : { ...item, ...items?.[rawName], ...stoneResult })
+      ...(rawName === 'Blank' ? {} : { ...item, ...items?.[rawName], ...stoneResult }),
+      rerolled
     }] : res
   }, []);
 }
