@@ -89,6 +89,8 @@ const NavBar = ({ children }) => {
         position: 'fixed',
         bottom: 0,
         left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
+        height: isXs ? 50 : 90,
+        maxHeight: isXs ? 50 : 90,
         width: '100%'
       }}>
       <Adsense
