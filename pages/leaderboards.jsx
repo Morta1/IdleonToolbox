@@ -135,7 +135,7 @@ const Leaderboards = () => {
       />
     </Box>
     <Tabber
-      tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc']} onTabChange={(selected) => {
+      tabs={['General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns']} onTabChange={(selected) => {
       setSelectedTab(tabs?.[selected]);
       setLeaderboards(null);
       setError('');
@@ -149,6 +149,8 @@ const Leaderboards = () => {
       <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
                           searchedChar={searchedChar}/>
       <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
+                          searchedChar={searchedChar}/>
+      <LeaderboardSection leaderboards={leaderboards?.caverns} loggedMainChar={loggedMainChar}
                           searchedChar={searchedChar}/>
     </Tabber>
     {!leaderboards && !error
