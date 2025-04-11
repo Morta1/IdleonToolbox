@@ -128,7 +128,6 @@ export const filteredLootyItems = [
   'Quest42',
   'Quest49',
   'Quest50',
-  'Quest64',
   'EquipmentShoes2',
   'EquipmentPendant18',
   'TestObj4',
@@ -202,7 +201,6 @@ export const filteredLootyItems = [
   'DungWeaponSwordF4',
   'DungWeaponSwordF5',
 
-  'DungEquipmentHats4',
   'DungEquipmentShoes4',
   'DungEquipmentShirt4',
   'DungEquipmentRings4',
