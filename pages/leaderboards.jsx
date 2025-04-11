@@ -80,16 +80,16 @@ const Leaderboards = () => {
   }
   const handleUserSearch = async () => {
     if (!searchedChar) return;
-    const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab], searchedChar);
+    const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchedChar);
     if (!userFullyExistsLocally) {
       setLoadingSearchedChar(true);
-      const response = await fetchUserLeaderboards(selectedTab, searchedChar);
+      const response = await fetchUserLeaderboards(selectedTab.toLowerCase(), searchedChar);
       if (!response || response?.error) {
         setLoadingSearchedChar(false);
         return setHelperText(response?.error);
       }
-      const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab], searchedChar, response);
-      setLeaderboards({ ...leaderboards, [selectedTab]: updateLeaderboards });
+      const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchedChar, response);
+      setLeaderboards({ ...leaderboards, [selectedTab.toLowerCase()]: updateLeaderboards });
       setLoadingSearchedChar(false);
     }
   }
