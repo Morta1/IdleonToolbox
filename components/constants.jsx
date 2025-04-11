@@ -104,7 +104,15 @@ export const PAGES = {
       icon: 'data/Ladle',
       categories: [
         { label: 'cooking', icon: 'data/ClassIcons51', tabs: ['Kitchens', 'Meals'] },
-        { label: 'breeding', icon: 'data/ClassIcons52', tabs: ['Pets', 'Territory', 'Upgrades', 'Arena'] },
+        {
+          label: 'breeding', icon: 'data/ClassIcons52',
+          tabs: ['Pets', 'Territory', 'Upgrades', 'Arena'],
+          nestedTabs: [
+            { tab: 'Pets', nestedTab: 'All' },
+            { tab: 'Pets', nestedTab: 'Shinies' },
+            { tab: 'Pets', nestedTab: 'Breedability' }
+          ]
+        },
         {
           label: 'laboratory',
           icon: 'data/ClassIcons53',

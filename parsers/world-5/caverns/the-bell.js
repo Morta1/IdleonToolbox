@@ -4,7 +4,6 @@ import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 
 export const getTheBell = (holesObject, accountData) => {
-  console.log('bellRelated', holesObject?.bellRelated)
   const bellMethodsOwned = Math.min(6, holesObject?.bellRelated?.[5] + 1);
   const newMethodChance = Math.min((0.6 / Math.max(1, 0.8
       * holesObject?.bellRelated?.[5] + 1))
