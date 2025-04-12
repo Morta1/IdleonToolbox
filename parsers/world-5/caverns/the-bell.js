@@ -2,6 +2,7 @@ import { holesInfo } from '../../../data/website-data';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
+import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
 export const getTheBell = (holesObject, accountData) => {
   const bellMethodsOwned = Math.min(6, holesObject?.bellRelated?.[5] + 1);
@@ -88,31 +89,74 @@ const getImprovementMethodCost = (holesObject, t) => {
 
 }
 const getBellExpRate = (holesObject, accountData, t) => {
-  return 0 === t
-    ? 10 * (1 + getMonumentBonus({
-    holesObject,
-    t: 0,
-    i: 7
-  }) / 100) * (1 + getMeasurementBonus({
-    holesObject,
-    accountData,
-    t: 2
-  }) / 100) * (1 + (getBellMethodQuantity(holesObject, 0, 0)
-    + (getBellMethodQuantity(holesObject, 2, 0) + (getBellMethodQuantity(holesObject, 4, 0) + getBellMethodQuantity(holesObject, 5, 0)))) / 100)
-    : 1 === t
-      ? 10 * (1 + getMonumentBonus({
-      holesObject,
-      t: 0,
-      i: 7
-    }) / 100) * (1 + getMeasurementBonus({
-      holesObject,
-      accountData,
-      t: 2
-    }) / 100) * (1 + getBellMethodQuantity(holesObject, 3, 0) / 100)
-      : 2 === t
-        ? 10 * (1 + getBellMethodQuantity(holesObject, 1, 0) / 100)
-        : 10
+  if (t === 0) {
+    const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 7 });
+    const measurementBonus = getMeasurementBonus({ holesObject, accountData, t: 2 });
+    const methodQuantity0 = getBellMethodQuantity(holesObject, 0, 0);
+    const methodQuantity2 = getBellMethodQuantity(holesObject, 2, 0);
+    const methodQuantity4 = getBellMethodQuantity(holesObject, 4, 0);
+    const methodQuantity5 = getBellMethodQuantity(holesObject, 5, 0);
+    const totalMethodQuantity = methodQuantity0 + methodQuantity2 + methodQuantity4 + methodQuantity5;
+    const jarBonus11 = getJarBonus({ holesObject, i: 11 });
+    const jarBonus36 = getJarBonus({ holesObject, i: 36 });
 
+    const value = 10 * (1 + monumentBonus / 100)
+      * (1 + measurementBonus / 100)
+      * (1 + totalMethodQuantity / 100)
+      * (1 + jarBonus11 / 100)
+      * (1 + jarBonus36 / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Base', value: 10 },
+        { name: 'Monument bonus', value: monumentBonus  / 100 },
+        { name: 'Measurement bonus', value: measurementBonus  / 100 },
+        { name: 'Method Quantity', value: totalMethodQuantity  / 100 },
+        { name: 'Jar bonus', value: (jarBonus11 + jarBonus36) / 100 },
+      ]
+    };
+  }
+
+  if (t === 1) {
+    const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 7 });
+    const measurementBonus = getMeasurementBonus({ holesObject, accountData, t: 2 });
+    const methodQuantity = getBellMethodQuantity(holesObject, 3, 0);
+
+    const value = 10 * (1 + monumentBonus / 100)
+      * (1 + measurementBonus / 100)
+      * (1 + methodQuantity / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Base', value: 10 },
+        { name: 'Monument Bonus', value: monumentBonus / 100 },
+        { name: 'Measurement Bonus', value: measurementBonus / 100 },
+        { name: 'Method Quantity', value: methodQuantity / 100 }
+      ]
+    };
+  }
+
+  if (t === 2) {
+    const methodQuantity = getBellMethodQuantity(holesObject, 1, 0);
+    const value = 10 * (1 + methodQuantity / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Base', value: 10 },
+        { name: 'Method Quantity', value: methodQuantity / 100 }
+      ]
+    };
+  }
+
+  return {
+    value: 10,
+    breakdown: [
+      { name: 'Base', value: 10 }
+    ]
+  };
 }
 const getBellMethodQuantity = (holesObject, t) => {
   return 2 * holesObject?.bellImprovementMethods?.[t]
