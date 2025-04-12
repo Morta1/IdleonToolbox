@@ -71,26 +71,9 @@ import { getUpgradeVault } from '@parsers/misc/upgradeVault';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
-    let accountData;
-    let charactersData;
-    // This is a workaround
-    if (idleonData?.PlayerDATABASE) {
-      charNames = Object.keys(idleonData?.PlayerDATABASE);
-      charactersData = Object.values(idleonData?.PlayerDATABASE).reduce(
-        (charRes, charData, index) => ({
-          ...charRes,
-          ...Object.entries(charData)?.reduce((res, [key, value]) => ({ ...res, [`${key}_${index}`]: value }), {})
-        }),
-        {}
-      );
-      idleonData = { ...idleonData, ...charactersData };
-    }
     let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
-    let parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
-    accountData = parsed?.accountData;
-    charactersData = parsed?.charactersData;
+    const { accountData, charactersData } = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     processedData = null;
-    parsed = null;
     return { account: accountData, characters: charactersData };
   } catch (err) {
     console.error('Error while parsing data', err);
