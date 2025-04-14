@@ -100,6 +100,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   }, 0);
   const jadeUpgrade = isJadeBonusUnlocked(account, 'Deal_Sweetening') ?? 0;
   const marketBonus = getMarketBonus(market, "MORE_BEENZ");
+  const hasLandRank = getMarketBonus(market, "LAND_RANK");
   const achievementBonus = getAchievementStatus(account?.achievements, 363);
   const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + (25 * jadeUpgrade + 5 * achievementBonus) / 100);
   return {
@@ -113,6 +114,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     ranks,
     totalPoints,
     usedPoints,
+    hasLandRank,
     totalRanks: farmingRanks?.reduce((sum: number, rank: number) => sum + rank, 0)
   };
 }

@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material';
+ import { Stack } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
 import Tabber from '@components/common/Tabber';
@@ -17,6 +17,7 @@ const Farming = () => {
     market,
     plot,
     crop,
+    hasLandRank,
     maxTimes,
     cropDepot = {},
     instaGrow,
@@ -47,8 +48,8 @@ const Farming = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming')}>
       <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
             account={state?.account}/>
-      <Market market={market} crop={crop}/>
-      <RankDatabase ranks={ranks}/>
+      <Market market={market} crop={crop} />
+      <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
       <Crop crop={crop} maxTimes={maxTimes}/>
     </Tabber>
   </>

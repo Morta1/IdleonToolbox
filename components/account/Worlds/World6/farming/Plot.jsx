@@ -70,7 +70,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account }) => {
                   </Tooltip>
                 </Stack>
                 <Typography variant={'caption'}>Floor {Math.floor((index / 9) + 1)}</Typography>
-                <Typography variant={'caption'}>Rank {rank || 0}</Typography>
+                {account?.farming?.hasLandRank ? <Typography variant={'caption'}>Rank {rank || 0}</Typography> : null}
                 <Typography
                   variant={'caption'}>{rankProgress ? notateNumber(rankProgress) : 0} / {rankRequirement
                   ? notateNumber(rankRequirement)

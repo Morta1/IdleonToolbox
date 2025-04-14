@@ -48,7 +48,7 @@ export const getBravery = (holesObject, accountData) => {
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
-  console.log('nextHourBreakpoint', nextHourBreakpoint)
+
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);
   return {
     damage: { min, max },
