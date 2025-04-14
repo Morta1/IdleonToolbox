@@ -110,10 +110,11 @@ const getBellExpRate = (holesObject, accountData, t) => {
       value,
       breakdown: [
         { name: 'Base', value: 10 },
-        { name: 'Monument bonus', value: monumentBonus  / 100 },
-        { name: 'Measurement bonus', value: measurementBonus  / 100 },
-        { name: 'Method Quantity', value: totalMethodQuantity  / 100 },
-        { name: 'Jar bonus', value: (jarBonus11 + jarBonus36) / 100 },
+        { name: 'Monument bonus', value: 1 + monumentBonus / 100 },
+        { name: 'Measurement bonus', value: 1 + measurementBonus / 100 },
+        { name: 'Method Quantity', value: 1 + totalMethodQuantity / 100 },
+        { name: 'Big Beef Rock (Jar)', value: 1 + jarBonus11 / 100 },
+        { name: 'Twisted Rupie (Jar)', value: 1 + jarBonus36 / 100 }
       ]
     };
   }
@@ -131,9 +132,9 @@ const getBellExpRate = (holesObject, accountData, t) => {
       value,
       breakdown: [
         { name: 'Base', value: 10 },
-        { name: 'Monument Bonus', value: monumentBonus / 100 },
-        { name: 'Measurement Bonus', value: measurementBonus / 100 },
-        { name: 'Method Quantity', value: methodQuantity / 100 }
+        { name: 'Monument Bonus', value: 1 + monumentBonus / 100 },
+        { name: 'Measurement Bonus', value: 1 + measurementBonus / 100 },
+        { name: 'Method Quantity', value: 1 + methodQuantity / 100 }
       ]
     };
   }
@@ -146,7 +147,7 @@ const getBellExpRate = (holesObject, accountData, t) => {
       value,
       breakdown: [
         { name: 'Base', value: 10 },
-        { name: 'Method Quantity', value: methodQuantity / 100 }
+        { name: 'Method Quantity', value: 1 + methodQuantity / 100 }
       ]
     };
   }

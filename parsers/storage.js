@@ -3,16 +3,15 @@ import { items } from '../data/website-data';
 import { addStoneDataToEquip } from './items';
 
 export const getStorage = (idleonData, name = 'storage') => {
-  const chestOrderRaw = idleonData?.ChestOrder || tryToParse(idleonData?.ChestOrder);
-  const chestQuantityRaw = idleonData?.ChestQuantity || tryToParse(idleonData?.ChestQuantity);
-  const chestStoneData = tryToParse(idleonData?.CMm) || idleonData?.CMm;
+  const chestOrderRaw = tryToParse(idleonData?.ChestOrder);
+  const chestQuantityRaw = tryToParse(idleonData?.ChestQuantity);
+  const chestStoneData = tryToParse(idleonData?.CMm);
   return parseStorage(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
 }
 
 export const parseStorage = (chestOrderRaw, chestQuantityRaw, name, chestStoneData) => {
   return getInventory(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
 }
-
 
 export const getInventory = (inventoryArr, inventoryQuantityArr, owner, chestStoneData) => {
   return inventoryArr.reduce((res, itemName, index) => {

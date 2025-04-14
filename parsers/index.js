@@ -90,18 +90,20 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
 const serializeData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData) => {
   const accountData = processedData?.accountData || {};
   let charactersData = processedData?.charactersData || [];
-  let serializedCharactersData = getCharacters(idleonData, charNames);
+  let serializedCharactersData = getCharacters(idleonData, charNames); // aggregate _${playerId} properties
+
   accountData.accountCreateTime = accountCreateTime;
   accountData.companions = getCompanions(companion);
   accountData.bundles = getBundles(idleonData);
   accountData.serverVars = serverVars;
-  accountData.accountOptions = idleonData?.OptionsListAccount || tryToParse(idleonData?.OptLacc); //
+  accountData.accountOptions = tryToParse(idleonData?.OptLacc);
   accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.bribes = getBribes(idleonData);
-  accountData.timeAway = tryToParse(idleonData?.TimeAway) || idleonData?.TimeAway;
-  accountData.alchemy = getAlchemy(idleonData, accountData, serializedCharactersData);
+  accountData.timeAway = tryToParse(idleonData?.TimeAway);
+  accountData.alchemy = getAlchemy(idleonData, serializedCharactersData);
+  // Depends on alchemy.bubbles and number of characters
   accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData);
-  accountData.storage = getStorage(idleonData); // changed from inventory
+  accountData.storage = getStorage(idleonData);
   accountData.saltLick = getSaltLick(idleonData, accountData.storage);
   accountData.dungeons = getDungeons(idleonData, accountData.accountOptions);
   accountData.prayers = getPrayers(idleonData, accountData.storage);

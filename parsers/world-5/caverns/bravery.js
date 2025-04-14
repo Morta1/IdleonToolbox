@@ -102,13 +102,12 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
 }
 export const getMonumentAfkReq = (afkPercent, requiredHours, ownedAfkHours = 0) => {
   if (!requiredHours) return null;
-  const realHoursNeeded = Math.max(0, Math.ceil((requiredHours - ownedAfkHours) / (afkPercent / 100)));
-
-  // Generate an array of hours needed for 1 to 10 characters
+  const remainingHours = Math.max(0, requiredHours - ownedAfkHours);
+  const realHoursNeeded = Math.ceil(remainingHours / (1 + afkPercent/100));
   return Array.from({ length: 10 }, (_, index) => {
     const characters = index + 1;  // 1 to 10 characters
-    const hoursPerCharacter = Math.floor(realHoursNeeded / characters);  // Divide time between characters
-    return { name: `${index + 1} characters`, value: `${hoursPerCharacter} hrs` };  // Return object with character count and hours
+    const hoursPerCharacter = Math.ceil(realHoursNeeded / characters);  // Divide time between characters, round up
+    return { name: `${characters} characters`, value: `${hoursPerCharacter} hrs` };  // Return object with character count and hours
   });
 }
 

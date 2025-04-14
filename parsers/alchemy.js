@@ -25,9 +25,9 @@ export const CAULDRONS_MAX_LEVELS = {
   vialsRng: 45
 }
 
-export const getAlchemy = (idleonData, account, serializedCharactersData) => {
-  const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo) || idleonData?.CauldronInfo;
-  const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1) || idleonData?.CauldronJobs?.[1];
+export const getAlchemy = (idleonData, serializedCharactersData) => {
+  const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo);
+  const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1);
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
     alchemyRaw[8] = cauldronsInfo.slice(0, 16);

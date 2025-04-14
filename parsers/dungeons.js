@@ -14,7 +14,7 @@ import { getAchievementStatus } from './achievements';
 import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from 'date-fns';
 
 export const getDungeons = (idleonData, accountOptions) => {
-  const dungeonUpgradesRaw = tryToParse(idleonData?.DungUpg) || idleonData?.DungUpg;
+  const dungeonUpgradesRaw = tryToParse(idleonData?.DungUpg);
   return parseDungeons(dungeonUpgradesRaw, accountOptions);
 };
 
