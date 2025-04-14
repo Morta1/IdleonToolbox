@@ -172,10 +172,10 @@ export const addBreedingChance = (idleonData, account) => {
       const breedingMultipliers = getBreedingMulti(account, breedingRaw, worldIndex, petIndex, account?.breeding?.unlockedBreedingMulti, totalKitchenLevels);
       const breedingLevel = Math.min(9, Math.floor(Math.pow(breedingMultipliers?.second - 1, .8)) + 1);
       const breedingGoal = Math.pow(Math.pow(Math.E, Math.pow(breedingLevel, 1.25)), 1 / 0.725) - 1;
-      totalBreedabilityLv += breedingGoal;
+      totalBreedabilityLv += breedingLevel;
       return {
         ...pet,
-        breedingLevel: breedingLevel,
+        breedingLevel,
         breedingGoal,
         breedingMultipliers
       }
