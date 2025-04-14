@@ -256,17 +256,21 @@ export const getShinyBonus = (pets, passiveName) => {
   }) => innerSum + (passive.includes(passiveName) && passiveValue), 0), 0);
 }
 
-export const getTimeToLevel = (pet, multi, copies, targetLevel, isShiny = true) => {
+export const getTimeToLevel = (pet, multi, copies, targetLevel, isShiny) => {
   const currentLevel = isShiny ? pet?.shinyLevel : pet?.breedingLevel;
   const currentProgress = isShiny ? pet?.shinyProgress : pet?.breedingProgress;
-  
+
   if (currentLevel === targetLevel) return 0;
-  
+
   let goal = 0;
   for (let i = currentLevel; i < targetLevel; i++) {
-    goal += Math.floor((1 + Math.pow(i, 1.6)) * Math.pow(1.7, i));
+    if (isShiny) {
+      goal += Math.floor((1 + Math.pow(i, 1.6)) * Math.pow(1.7, i));
+    } else {
+      goal += Math.pow(Math.pow(Math.E, Math.pow(i, 1.25)), 1 / 0.725) - 1
+    }
   }
-  
+
   return ((goal - currentProgress) / multi / (copies || 1)) * 8.64e+7;
 }
 
