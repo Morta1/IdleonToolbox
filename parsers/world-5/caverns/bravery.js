@@ -48,6 +48,7 @@ export const getBravery = (holesObject, accountData) => {
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
+  console.log('nextHourBreakpoint', nextHourBreakpoint)
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);
   return {
     damage: { min, max },
@@ -103,7 +104,7 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
 export const getMonumentAfkReq = (afkPercent, requiredHours, ownedAfkHours = 0) => {
   if (!requiredHours) return null;
   const remainingHours = Math.max(0, requiredHours - ownedAfkHours);
-  const realHoursNeeded = Math.ceil(remainingHours / (1 + afkPercent/100));
+  const realHoursNeeded = Math.ceil(remainingHours / (1 + afkPercent / 100));
   return Array.from({ length: 10 }, (_, index) => {
     const characters = index + 1;  // 1 to 10 characters
     const hoursPerCharacter = Math.ceil(realHoursNeeded / characters);  // Divide time between characters, round up

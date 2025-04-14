@@ -33,7 +33,12 @@ const Tasks = () => {
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
         {state?.account?.taskUnlocks?.taskUnlocksList?.[world]?.map(({ unlocks, unlocked }, index) => {
           return <Card key={'key' + index}>
-            <CardContent sx={{ opacity: unlocked ? 1 : .5 }}>
+            <CardContent sx={{
+              opacity: unlocked ? 1 : .5,
+              border: unlocked ? '1px solid' : '',
+              borderColor: unlocked ? 'success.main' : '',
+              height: '100%'
+            }}>
               <AutoGrid>
                 {unlocks?.map((item, itemIndex) => {
                   if (!item?.rawName) return null;
