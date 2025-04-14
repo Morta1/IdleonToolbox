@@ -45,7 +45,7 @@ const ObolsView = ({ obols, type = 'character', obolStats }) => {
                   return <div className={'obol-wrapper'} key={rawName + '' + index}>
                     {levelReq && rawName.includes('Locked') ?
                       <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
-                    <Tooltip title={displayName !== 'ERROR' ? <ItemDisplay {...item}/> : ''}>
+                    <Tooltip title={displayName !== 'ERROR' ? <ItemDisplay {...item} allowNegativeValues={false}/> : ''}>
                       <img key={displayName + '' + index} src={`${prefix}data/${imgName}.png`}
                            style={style}
                            alt=""/>

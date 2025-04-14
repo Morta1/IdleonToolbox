@@ -41,7 +41,8 @@ const ItemDisplay = ({
                        capacity,
                        capacityPerSlot,
                        maxCapacity,
-                       breakdown
+                       breakdown,
+                       allowNegativeValues = true
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
@@ -74,14 +75,14 @@ const ItemDisplay = ({
         {capacity ? <TitleAndValue title={'Description'} value={`+${cleanUnderscore(capacity)} slots`}/> : null}
         {description ? <TitleAndValue value={cleanUnderscore(description)}/> : null}
         {mergedDesc.length > 0 ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/> : null}
-        {Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
-        {Weapon_Power ? <TitleAndValue title={getPowerType(UQ1txt || rawName)} value={Weapon_Power}/> : null}
-        {STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'} value={STR}/> : null}
-        {AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'} value={AGI}/> : null}
-        {WIS ? <TitleAndValue titleStyle={{ color: 'secondary.dark' }} title={'WIS'} value={WIS}/> : null}
-        {LUK ? <TitleAndValue titleStyle={{ color: 'warning.dark' }} title={'LUK'} value={LUK}/> : null}
-        {Defence ? <TitleAndValue title={'Defence'} value={Defence}/> : null}
-        {Reach ? <TitleAndValue title={'Reach'} value={Reach}/> : null}
+        {(allowNegativeValues || Speed >= 0) && Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
+        {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <TitleAndValue title={getPowerType(UQ1txt || rawName)} value={Weapon_Power}/> : null}
+        {(allowNegativeValues || STR >= 0) && STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'} value={STR}/> : null}
+        {(allowNegativeValues || AGI >= 0) && AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'} value={AGI}/> : null}
+        {(allowNegativeValues || WIS >= 0) && WIS ? <TitleAndValue titleStyle={{ color: 'secondary.dark' }} title={'WIS'} value={WIS}/> : null}
+        {(allowNegativeValues || LUK >= 0) && LUK ? <TitleAndValue titleStyle={{ color: 'warning.dark' }} title={'LUK'} value={LUK}/> : null}
+        {(allowNegativeValues || Defence >= 0) && Defence ? <TitleAndValue title={'Defence'} value={Defence}/> : null}
+        {(allowNegativeValues || Reach >= 0) && Reach ? <TitleAndValue title={'Reach'} value={Reach}/> : null}
         {UQ1txt && UQ1val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ1val}${UQ1txt}`)}/> : null}
         {UQ2txt && UQ2val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ2val}${UQ2txt}`)}/> : null}
         {Upgrade_Slots_Left > 0 ?
