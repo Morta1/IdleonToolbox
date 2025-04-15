@@ -280,8 +280,11 @@ export const migrateToVersion14 = (config, baseTrackers) => {
     dashboardConfig = {};
   }
 
-  if (!dashboardConfig?.timers?.['World 5']) {
-    dashboardConfig.timers['World 5'] = baseTrackers?.timers?.['World 5'];
+  if (!dashboardConfig.timers) {
+    dashboardConfig.timers = {};
+    if (!dashboardConfig?.timers?.['World 5']) {
+      dashboardConfig.timers['World 5'] = baseTrackers?.timers?.['World 5'];
+    }
   }
 
   const cookingOptions = dashboardConfig.account['World 4'].cooking.options.map((meal) => {
