@@ -454,18 +454,21 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
                         + getWinnerBonus(accountData, '+{% Villager EXP'))))))))))) / 100);
 
   const breakdown = [
+    { title: 'Base Value' },
     { name: 'Opal Dividends', value: 100 + getSchematicBonus({ holesObject, t: 0, i: 25 }) },
+    { title: 'Multiplicative' },
+    { name: 'Opal Invested', value: holesObject?.opalsInvested[t] },
+    { name: 'Companion', value: companionBonus ? 3 : 0 },
+    { name: 'Statue', value: 1 + statueBonus / 100 },
+    { name: 'Jar', value: 1 + jarBonuses / 100 },
+    { name: 'Event shop', value: 1 + (25 * eventBonus) / 100 },
+    { name: 'Bundle', value: 1 + (50 * hasBundle) / 100 },
+    { name: 'Arcade', value: 1 + arcadeBonus / 100 },
+    { name: 'Grimoire', value: 1 + grimoireBonus / 100 },
+    { name: 'Gem shop', value: holesObject?.parallelVillagersGemShop[t] ? 2 : 0 },
+    { title: 'Additive' },
     { name: 'Gloomie Opie', value: getSchematicBonus({ holesObject, t: 48, i: 0 }) },
     { name: 'Num. of Schematics', value: getCosSchematic(holesObject) },
-    { name: 'Companion', value: companionBonus ? 3 : 0 },
-    { name: 'Statue', value: statueBonus },
-    { name: 'Jar', value: jarBonuses },
-    { name: 'Event shop', value: 25 * eventBonus },
-    { name: 'Bundle', value: 50 * (hasBundle ? 1 : 0) },
-    { name: 'Opal Invested', value: holesObject?.opalsInvested[t] },
-    { name: 'Arcade', value: arcadeBonus },
-    { name: 'Grimoire', value: grimoireBonus },
-    { name: 'Gem shop', value: holesObject?.parallelVillagersGemShop[t] ? 2 : 0 },
     {
       name: 'Village Majik', value: (
           getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 }) * Math.floor(leastOpalInvestedVillager / 5)) +
@@ -488,7 +491,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
     { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') }
   ];
-  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+
   return {
     value,
     breakdown

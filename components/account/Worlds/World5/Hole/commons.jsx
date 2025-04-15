@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
@@ -11,13 +11,16 @@ export const ExpRateCard = ({ title, expRate }) => {
       <Typography>{commaNotation(expRate?.value)} / hr</Typography>
       <Tooltip
         title={<Stack>
-          {expRate?.breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                                              title={name}
-                                                                              titleStyle={{ width: 150 }}
-                                                                              value={value.toFixed(2).replace('.00', '')}/>)}
-
+          {expRate?.breakdown?.map(({ title, name, value }, index) => title ? <Stack key={`${title}-${index}`}>
+            {index > 0 ? <Divider sx={{ my: 1 }} /> : null}
+            <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
+            <Divider sx={{ my: 1 }} />
+          </Stack> : <TitleAndValue key={`${name}-${index}`}
+            title={name}
+            titleStyle={{ width: 150 }}
+            value={value.toFixed(2).replace('.00', '')} />)}
         </Stack>}>
-        <IconInfoCircleFilled size={18}/>
+        <IconInfoCircleFilled size={18} />
       </Tooltip>
     </Stack>
   </CardTitleAndValue>
@@ -29,13 +32,22 @@ export const CardWithBreakdown = ({ title, breakdown, value, notation }) => {
       {value ? <Typography>{value}</Typography> : null}
       {breakdown ? <Tooltip
         title={<Stack>
-          {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                                     title={name}
-                                                                     titleStyle={{ width: 180 }}
-                                                                     value={notation ? notateNumber(value, notation) : value}/>)}
-
+          {breakdown?.map(({ title, name, value }, index) => title ? (
+            <Stack key={`${title}-${index}`}>
+              {index > 0 ? <Divider sx={{ my: 1 }} /> : null}
+              <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
+              <Divider sx={{ my: 1 }} />
+            </Stack>
+          ) : (
+            <TitleAndValue
+              key={`${name}-${index}`}
+              title={name}
+              titleStyle={{ width: 180 }}
+              value={notation ? notateNumber(value, notation) : value}
+            />
+          ))}
         </Stack>}>
-        <IconInfoCircleFilled size={18}/>
+        <IconInfoCircleFilled size={18} />
       </Tooltip> : null}
     </Stack>
   </CardTitleAndValue>

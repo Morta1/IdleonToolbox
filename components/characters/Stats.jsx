@@ -65,17 +65,6 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
         {activityFilter ?
           <Activity afkTarget={afkTarget} divStyle={character?.divStyle} playerId={playerId} account={account}/> : null}
         {statsFilter ? <>
-          {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
-            <Card variant={'outlined'}>
-              <CardContent>
-                <Typography color={'info.light'}>Next Portal</Typography>
-                <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <img width={32} height={32} src={`${prefix}data/${nextPortal?.currentIcon}.png`} alt=""/>
-                  <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
-                </Stack>
-              </CardContent>
-            </Card>
-          ) : null}
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
             <Stat title={'Total Stats'} value={getTotalStats(character)}/>
             {Object.entries(stats || {})?.map(([statName, statValue], index) => {
@@ -123,6 +112,17 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                   value={<CoinDisplay title={''}
                                       money={getCoinsArray(character?.money ? character?.money : 0)}/>}
             />
+            {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? (
+              <Card variant={'outlined'}>
+                <CardContent>
+                  <Typography color={'info.light'}>Next Portal</Typography>
+                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                    <img width={32} height={32} src={`${prefix}data/${nextPortal?.currentIcon}.png`} alt=""/>
+                    <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
+                  </Stack>
+                </CardContent>
+              </Card>
+            ) : null}
           </Stack>
 
           <Card variant={'outlined'}>
