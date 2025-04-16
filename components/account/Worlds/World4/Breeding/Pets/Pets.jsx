@@ -18,9 +18,9 @@ const Pets = ({
 
   return <>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding', 'Pets')} queryKey={'nt'}>
-      <All pets={pets} />
       <Other fencePets={fencePetsObject} pets={pets.flat()} multi={shinyMulti} isShiny/>
       <Other fencePets={fencePetsObject} pets={pets.flat()} multi={breedingMulti}/>
+      <All pets={pets} />
     </Tabber>
   </>
 };

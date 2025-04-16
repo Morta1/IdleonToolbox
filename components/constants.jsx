@@ -108,9 +108,9 @@ export const PAGES = {
           label: 'breeding', icon: 'data/ClassIcons52',
           tabs: ['Pets', 'Territory', 'Upgrades', 'Arena'],
           nestedTabs: [
-            { tab: 'Pets', nestedTab: 'All' },
             { tab: 'Pets', nestedTab: 'Shinies' },
-            { tab: 'Pets', nestedTab: 'Breedability' }
+            { tab: 'Pets', nestedTab: 'Breedability' },
+            { tab: 'Pets', nestedTab: 'All' }
           ]
         },
         {
