@@ -99,26 +99,55 @@ const getRupieType = ({ holesObject, t }) => {
 
 const getRupieValue = ({ holesObject, accountData }) => {
   const stampBonus = getStampsBonusByEffect(accountData, 'more_Resources_from_all_Caverns') || 0;
-  return (1 + (getSchematicBonus({ holesObject, t: 62, i: 1 })
-      + (getSchematicBonus({ holesObject, t: 65, i: 2 })
-        + getSchematicBonus({ holesObject, t: 68, i: 4 }))))
-    * Math.max(1, Math.pow(1.5, accountData?.accountOptions?.[355]))
-    * (1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 400)
-    * (1 + getMonumentBonus({ holesObject, t: 2, i: 1 }) / 100)
-    * (1 + (getMeasurementBonus({ holesObject, accountData, t: 10 })
-      + getMeasurementBonus({ holesObject, accountData, t: 14 })) / 100)
-    * Math.max(1, getSchematicBonus({ holesObject, t: 80, i: 1 })
-      * Math.pow(1.1, holesObject?.extraCalculations?.[5]))
-    * (1 + holesObject?.extraCalculations?.[60] / 100)
-    * (1 + getJarBonus({ holesObject, i: 3 }) / 100)
-    * (1 + getJarBonus({ holesObject, i: 17 }) / 100)
-    * (1 + getJarBonus({ holesObject, i: 28 }) / 100)
-    * (1 + (getJarBonus({ holesObject, i: 0 })
-      + (getJarBonus({ holesObject, i: 6 })
-        + (getJarBonus({ holesObject, i: 13 })
-          + (getJarBonus({ holesObject, i: 21 })
-            + getJarBonus({ holesObject, i: 33 }))))) / 100)
-    * (1 + stampBonus / 100);
+  const schematicBonus1 = getSchematicBonus({ holesObject, t: 62, i: 1 });
+  const schematicBonus2 = getSchematicBonus({ holesObject, t: 65, i: 2 });
+  const schematicBonus3 = getSchematicBonus({ holesObject, t: 68, i: 4 });
+  const accountOptionBonus = Math.max(1, Math.pow(1.5, accountData?.accountOptions?.[355]));
+  const lampBonus = 1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 400;
+  const monumentBonus = 1 + getMonumentBonus({ holesObject, t: 2, i: 1 }) / 100;
+  const measurementBonus1 = getMeasurementBonus({ holesObject, accountData, t: 10 });
+  const measurementBonus2 = getMeasurementBonus({ holesObject, accountData, t: 14 });
+  const schematicBonus4 = Math.max(1, getSchematicBonus({ holesObject, t: 80, i: 1 })
+    * Math.pow(1.1, holesObject?.extraCalculations?.[5]));
+  const extraCalcBonus = 1 + holesObject?.extraCalculations?.[60] / 100;
+  const jarBonus1 = 1 + getJarBonus({ holesObject, i: 3 }) / 100;
+  const jarBonus2 = 1 + getJarBonus({ holesObject, i: 17 }) / 100;
+  const jarBonus3 = 1 + getJarBonus({ holesObject, i: 28 }) / 100;
+  const jarBonus4 = 1 + (getJarBonus({ holesObject, i: 0 })
+    + getJarBonus({ holesObject, i: 6 })
+    + getJarBonus({ holesObject, i: 13 })
+    + getJarBonus({ holesObject, i: 21 })
+    + getJarBonus({ holesObject, i: 33 })) / 100;
+  const stampBonusMultiplier = 1 + stampBonus / 100;
+
+  const value = (1 + schematicBonus1 + schematicBonus2 + schematicBonus3)
+    * accountOptionBonus
+    * lampBonus
+    * monumentBonus
+    * (1 + (measurementBonus1 + measurementBonus2) / 100)
+    * schematicBonus4
+    * extraCalcBonus
+    * jarBonus1
+    * jarBonus2
+    * jarBonus3
+    * jarBonus4
+    * stampBonusMultiplier;
+
+  const breakdown = [
+    { title: 'Base Value' },
+    { name: 'Schematic Bonuses', value: 1 + schematicBonus1 + schematicBonus2 + schematicBonus3 },
+    { title: 'Multiplicative' },
+    { name: 'Rupie Slug (Gem shop)', value: accountOptionBonus },
+    { name: 'Lamp', value: lampBonus },
+    { name: 'Monument', value: monumentBonus },
+    { name: 'Measurements', value: 1 + (measurementBonus1 + measurementBonus2) / 100 },
+    { name: 'Schematic', value: schematicBonus4 },
+    { name: '*Not sure*', value: extraCalcBonus },
+    { name: 'Collectibles', value: jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4 },
+    { name: 'Stamps', value: stampBonusMultiplier }
+  ];
+
+  return { value, breakdown };
 }
 
 const getProductionPerHour = ({ holesObject, accountData }) => {

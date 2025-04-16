@@ -43,7 +43,7 @@ export const CardWithBreakdown = ({ title, breakdown, value, notation }) => {
               key={`${name}-${index}`}
               title={name}
               titleStyle={{ width: 180 }}
-              value={notation ? notateNumber(value, notation) : value}
+              value={notation === 'MultiplierInfo' ? notateNumber(value, notation).replace('.00', '') : notation ? notateNumber(value, notation) : value}
             />
           ))}
         </Stack>}>

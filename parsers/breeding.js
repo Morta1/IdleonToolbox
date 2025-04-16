@@ -8,6 +8,7 @@ import { getAchievementStatus } from './achievements';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getBreeding = (idleonData, account) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -67,12 +68,13 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const team = teams?.[index] || [];
     const previousTeam = teams?.[index - 1] || [];
     const nextTeam = teams?.[index + 1] || [];
+    const vaultBonus = 1 + getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 56) / 100;
     const forageSpeed = team?.reduce((sum, teamMember, position) => sum + getForageSpeed({
       team,
       previousTeam,
       teamMember,
       position
-    }), 0);
+    }), 0) * vaultBonus;
     const teamPower = team?.reduce((sum, teamMember) => sum + getFightPower(teamMember), 0);
     const anyCombats = team?.some((teamMember) => teamMember?.gene?.abilityType === 0);
     const flashies = anyCombats ? 0 : team?.filter((teamMember) => teamMember?.gene?.name === 'Flashy')?.length;

@@ -5,6 +5,7 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
+import { CardWithBreakdown } from '../commons';
 
 const TheJars = ({ hole }) => {
   return <>
@@ -20,8 +21,8 @@ const TheJars = ({ hole }) => {
                          value={notateNumber(hole?.caverns?.theJars?.perHour, 'Big')}/>
       <CardTitleAndValue title={'Progress per minute'}
                          value={notateNumber(hole?.caverns?.theJars?.perHour / 60, 'Big')}/>
-      <CardTitleAndValue title={'Rupie value'}
-                         value={notateNumber(hole?.caverns?.theJars?.rupieValue, 'Big')}/>
+      <CardWithBreakdown title={'Rupie value'}
+                         value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown} notation={'MultiplierInfo'}/>
       <CardTitleAndValue title={'Total jars'}
                          value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
       <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>
