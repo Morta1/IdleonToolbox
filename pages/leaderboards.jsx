@@ -1,13 +1,13 @@
 import {
-  Card,
-  CardContent,
   CircularProgress,
+  Divider,
   IconButton,
   InputAdornment,
   Skeleton,
   Stack,
   TextField,
-  Typography
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
@@ -18,12 +18,13 @@ import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
 import Box from '@mui/material/Box';
 import { IconSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-
-const defaultText = 'If you don\'t see your name in the top 10, search for your character’s name here.';
+import { format } from 'date-fns';
+import { numberWithCommas } from '@utility/helpers';
 
 const tabs = ['General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const loggedMainChar = state?.characters?.[0]?.name;
   const [leaderboards, setLeaderboards] = useState(null);
   const [error, setError] = React.useState('');
@@ -32,7 +33,7 @@ const Leaderboards = () => {
   const { t } = router.query;
   const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'general');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
-  const [helperText, setHelperText] = useState(defaultText);
+  const [helperText, setHelperText] = useState('');
 
   useEffect(() => {
     const getLeaderboards = async () => {
@@ -99,40 +100,49 @@ const Leaderboards = () => {
       title="Leaderboards | Idleon Toolbox"
       description="Leaderboards for Legends Of Idleon MMO"
     />
-    <Card variant={'outlined'}
-          sx={{
-            width: '180px',
-            margin: '16px auto',
-            borderColor: 'success.light'
-          }}>
-      <CardContent sx={{ '&:last-child': { p: 1 } }}>
-        <Typography textAlign={'center'} sx={{ fontSize: 14 }}> Uploaded accounts:</Typography>
-        <Typography textAlign={'center'} variant={'body2'} component={'div'}>{!leaderboards?.totalUsers
-          ? <Skeleton sx={{ width: 100, margin: '0 auto' }} variant={'text'}/>
-          : leaderboards?.totalUsers}</Typography>
-      </CardContent>
-    </Card>
-    <Box sx={{ width: 'fit-content', margin: '16px auto', border: 'none' }}>
+    <Box sx={{ maxWidth: '300px', margin: '16px auto', border: 'none' }}>
       <TextField
-        sx={{ width: 360 }}
+        fullWidth
         size={'small'} value={searchedChar || ''}
-        label="Search by character name"
+        label={isSm ? 'Char name' : 'Character name'}
         onChange={(event) => {
           setSearchChar(event.target.value);
-          setHelperText(defaultText);
+          setHelperText('');
         }}
         onKeyDown={handleKeyDown}
         slotProps={{
           input: {
             endAdornment: <InputAdornment position="end"><IconButton
+              loading={loadingSearchedChar}
               disabled={!leaderboards?.totalUsers || loadingSearchedChar} onClick={handleUserSearch}>
               <IconSearch/>
             </IconButton></InputAdornment>
           }
         }}
-        error={helperText !== defaultText}
+        error={helperText !== ''}
         helperText={helperText}
       />
+    </Box>
+    <Box sx={{ maxWidth: '300px', margin: '16px auto', textAlign: 'center' }}>
+      {!leaderboards?.totalUsers || !leaderboards?.createdAt ? <Skeleton sx={{ width: 300, margin: '0 auto' }}
+                                                                         variant={'text'}/> : <Stack direction={'row'}
+                                                                                                     gap={1}
+                                                                                                     justifyContent={'center'}
+                                                                                                     divider={<Divider
+                                                                                                       flexItem
+                                                                                                       sx={{ bgcolor: '#a9b3a6' }}
+                                                                                                       orientation={'vertical'}/>}>
+        <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
+          <Typography sx={{ fontSize: 14 }} component={'div'}>{numberWithCommas(leaderboards?.totalUsers)}</Typography>
+
+          <Typography sx={{ fontSize: 14 }}>Accounts</Typography>
+        </Stack>
+        <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
+          <Typography sx={{ fontSize: 14 }}>Updated at</Typography>
+          <Typography sx={{ fontSize: 14 }} component={'div'}>{format(leaderboards?.createdAt, 'HH:mm:ss')}</Typography>
+        </Stack>
+      </Stack>}
+
     </Box>
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
