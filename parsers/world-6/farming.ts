@@ -178,8 +178,16 @@ export const updateFarming = (characters: any, account: any) => {
     * (1 + summoningBonus / 100);
   const maxTimes = [0, 1, 2, 3, 4, 5].map((seedType) => {
     const growthReq = 14400 * Math.pow(1.5, seedType);
-    return growthReq / growthRate;
-  })
+    const value = growthReq / growthRate;
+    const breakdown = [
+      { name: 'Base Growth Time', value: growthReq },
+      { name: 'Speed GMO', value: Math.max(1, speedGMO) },
+      { name: 'Nutritious Soil', value: 1 + marketGrowthRate / 100 },
+      { name: 'Vial Bonus', value: 1 + vialBonus / 100 },
+      { name: 'Summoning Bonus', value: 1 + summoningBonus / 100 }
+    ];
+    return { value, breakdown };
+  });
   const newPlot = account?.farming?.plot?.map((crop: any) => {
     // OG Chance
     const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
