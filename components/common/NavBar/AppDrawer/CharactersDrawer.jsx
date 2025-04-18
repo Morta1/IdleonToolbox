@@ -1,4 +1,16 @@
-import { Checkbox, Chip, Divider, List, ListItem, ListItemIcon, ListItemText, Skeleton, Stack, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Chip,
+  chipClasses,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Skeleton,
+  Stack,
+  Typography
+} from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
@@ -24,8 +36,8 @@ const CharactersDrawer = () => {
     let newState;
     if (charIndex !== undefined && charIndex !== null) {
       newState = {
-        ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({ 
-          ...res, 
+        ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({
+          ...res,
           [index]: index === charIndex
         }), {}),
         all: false
@@ -35,8 +47,8 @@ const CharactersDrawer = () => {
         const newAllState = !checked.all;
         newState = {
           all: newAllState,
-          ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({ 
-            ...res, 
+          ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({
+            ...res,
             [index]: newAllState
           }), {})
         };
@@ -78,12 +90,12 @@ const CharactersDrawer = () => {
           {[1, 2, 3, 4, 5].map((key) => (
             <ListItem key={`skeleton-${key}`}>
               <ListItemIcon>
-                <Skeleton variant="circular" width={36} height={36} />
+                <Skeleton variant="circular" width={36} height={36}/>
               </ListItemIcon>
-              <ListItemText 
-                primary={<Skeleton variant="text" width={100} />}
+              <ListItemText
+                primary={<Skeleton variant="text" width={100}/>}
               />
-              <Skeleton variant="rectangular" width={24} height={24} />
+              <Skeleton variant="rectangular" width={24} height={24}/>
             </ListItem>
           ))}
         </>
@@ -128,9 +140,9 @@ const CharactersDrawer = () => {
       return (
         <ListItem>
           <ListItemText>
-            <Skeleton variant="text" width={80} />
+            <Skeleton variant="text" width={80}/>
           </ListItemText>
-          <Skeleton variant="rectangular" width={24} height={24} />
+          <Skeleton variant="rectangular" width={24} height={24}/>
         </ListItem>
       );
     }
@@ -168,7 +180,10 @@ const CharactersDrawer = () => {
                                height: 24,
                                minWidth: 60,
                                maxWidth: 150,
-                               border: '1px solid #454545'
+                               border: '1px solid #454545',
+                               [`.${chipClasses.label}`]: {
+                                 px: 1
+                               }
                              }}
                              onClick={() => handleChipClick(name)} size={'small'}
                              variant={chips?.[name] ? 'filled' : 'outlined'}

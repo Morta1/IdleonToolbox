@@ -142,7 +142,7 @@ const getRupieValue = ({ holesObject, accountData }) => {
     { name: 'Monument', value: monumentBonus },
     { name: 'Measurements', value: 1 + (measurementBonus1 + measurementBonus2) / 100 },
     { name: 'Schematic', value: schematicBonus4 },
-    { name: '*Not sure*', value: extraCalcBonus },
+    { name: 'Gilded Jars', value: extraCalcBonus },
     { name: 'Collectibles', value: jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4 },
     { name: 'Stamps', value: stampBonusMultiplier }
   ];
