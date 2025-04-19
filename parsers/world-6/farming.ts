@@ -42,7 +42,6 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
   let [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
-  console.log('farmingRanks', farmingRanks)
   if (!Array.isArray(farmingRanks)) {
     farmingRanks = []
   }
