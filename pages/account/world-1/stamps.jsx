@@ -34,7 +34,10 @@ import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
 import { useLocalStorage } from '@mantine/hooks';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconInfoCircleFilled } from '@tabler/icons-react';
+import Button from '@mui/material/Button';
+import { format, isValid } from 'date-fns';
+import useCheckbox from '@components/common/useCheckbox';
 
 const reducerValues = [
   0,
@@ -46,6 +49,10 @@ const reducerValues = [
 const Stamps = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
+  const [levelsSnapshot, setLevelsSnapshot] = useLocalStorage({
+    key: 'stamps:levels',
+    defaultValue: { snapshotTime: null, levels: {} }
+  });
   const [types, setTypes] = useLocalStorage({
     key: 'stamps:types',
     defaultValue: {
@@ -58,6 +65,7 @@ const Stamps = () => {
       upgradable: true
     }
   });
+
   const noSelectedTypes = Object.values(types).every((b) => !b);
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
     ? state?.account?.accountOptions?.[154]
@@ -72,6 +80,7 @@ const Stamps = () => {
     key: 'stamps:subtractGreenStacks',
     defaultValue: false
   });
+  const [SnapshotCheckboxEl, showSnapshotLevels] = useCheckbox('Show level-up indicator', true);
   const stampReducer = state?.account?.atoms?.stampReducer;
   const localStamps = useMemo(() => updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity), [forcedGildedStamp,
     forcedStampReducer, forceMaxCapacity, state]);
@@ -99,6 +108,16 @@ const Stamps = () => {
 
   const handleSwitchChange = (e, name) => {
     setTypes({ ...types, [name]: e.target.checked });
+  }
+
+  const handleSnapshot = () => {
+    const levels = Object.entries(state?.account?.stamps)?.reduce((result, [key, values]) => {
+      return {
+        ...result,
+        [key]: values.map(({ level }) => level)
+      }
+    }, {})
+    setLevelsSnapshot({ levels, snapshotTime: new Date().getTime() });
   }
 
   return (
@@ -160,7 +179,7 @@ const Stamps = () => {
           </FormControl>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Options'}>
-          <Stack>
+          <Stack gap={1}>
             <Link underline={'hover'}
                   sx={{ cursor: 'pointer' }}
                   onClick={() => router.push({ pathname: 'old-stamps' })}>
@@ -184,6 +203,19 @@ const Stamps = () => {
                 label={'Force max capacity'}/>
               <MaxCapacityTooltip/>
             </Stack>
+            <Stack direction={'row'} alignItems={'center'}>
+              <SnapshotCheckboxEl />
+              <Tooltip title={'An indicator will appear on any stamp that levels up, either manually or through the No Stamp Left Behind mechanic'}>
+                <IconInfoCircleFilled size={18}/>
+              </Tooltip>
+            </Stack>
+            <Button sx={{ width: 'fit-content' }} variant={'contained'} size={'small'}
+                    onClick={handleSnapshot}
+                    startIcon={<IconDeviceFloppy/>}>
+              Save levels snapshot
+            </Button>
+            {isValid(levelsSnapshot?.snapshotTime) ? <Typography variant={'caption'}>Snapshotted
+              at: {format(levelsSnapshot?.snapshotTime, 'dd/MM/yyyy HH:MM')}</Typography> : null}
           </Stack>
         </CardTitleAndValue>
       </Stack>
@@ -204,7 +236,8 @@ const Stamps = () => {
                 }}>
                 <Typography variant={'body1'} sx={{ flexBasis: '100%' }}
                             variable={'subtitle2'}>{category.capitalize()}</Typography>
-                {noSelectedTypes ? <Typography variant={'body2'} sx={{ flexBasis: '100%' }} variable={'subtitle2'}>Select at least one
+                {noSelectedTypes ? <Typography variant={'body2'} sx={{ flexBasis: '100%' }} variable={'subtitle2'}>Select
+                  at least one
                   type</Typography> : null}
                 {stamps.map((stamp, stampIndex) => {
                   const {
@@ -223,6 +256,10 @@ const Stamps = () => {
                   const { border, type } = getStampTypeAndBorder(stamp);
                   const isBlank = displayName === 'Blank';
                   if (types.hasOwnProperty(type) && !types[type]) return;
+                  let snapshotDiff;
+                  if (level > levelsSnapshot?.levels?.[category]?.[stampIndex]) {
+                    snapshotDiff = level - levelsSnapshot?.levels?.[category]?.[stampIndex];
+                  }
                   return (
                     <Grid
                       key={rawName + stampIndex}
@@ -231,6 +268,8 @@ const Stamps = () => {
                                title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
                                                                 subtractGreenStacks={subtractGreenStacks}/>}>
                         <Card sx={{
+                          position: 'relative',
+                          overflow: 'visible',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
@@ -246,7 +285,13 @@ const Stamps = () => {
                               variant={'outlined'}
                               onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}
                         >
+                          {snapshotDiff > 0 && showSnapshotLevels ? <img style={{
+                            position: 'absolute',
+                            right: -5,
+                            top: -5
+                          }} src={`${prefix}data/UpgArrowG.png`}/> : null}
                           <CardContent sx={{ '&:last-child': { p: 0 } }}>
+
                             <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
                               <StampIcon width={40} height={40}
                                          level={level}
