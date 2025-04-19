@@ -205,7 +205,7 @@ const Stamps = () => {
             </Stack>
             <Stack direction={'row'} alignItems={'center'}>
               <SnapshotCheckboxEl />
-              <Tooltip title={'An indicator will appear on any stamp that levels up, either manually or through the No Stamp Left Behind mechanic'}>
+              <Tooltip title={'After taking a snapshot, an indicator will appear on any stamp that has leveled up, whether manually or via the No Stamp Left Behind mechanic.'}>
                 <IconInfoCircleFilled size={18}/>
               </Tooltip>
             </Stack>
@@ -289,7 +289,7 @@ const Stamps = () => {
                             position: 'absolute',
                             right: -5,
                             top: -5
-                          }} src={`${prefix}data/UpgArrowG.png`}/> : null}
+                          }} src={`${prefix}data/UpgArrowG.png`} alt={'level-up indicator'}/> : null}
                           <CardContent sx={{ '&:last-child': { p: 0 } }}>
 
                             <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
