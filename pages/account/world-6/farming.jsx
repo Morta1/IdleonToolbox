@@ -47,6 +47,7 @@ const Farming = () => {
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming')}>
       <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
+            characters={state?.characters}
             account={state?.account}/>
       <Market market={market} crop={crop} />
       <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>

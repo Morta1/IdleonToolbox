@@ -696,7 +696,7 @@ export const getDropRate = (character, account, characters) => {
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
-  const landRankBonus = getLandRank(account?.farming?.ranks, 'Seed_of_Loot')?.bonus;
+  const landRankBonus = getLandRank(account?.farming?.ranks, 9);
   const voteBonus = getVoteBonus(account, 27);
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 46, i: 0 });
   const secondSchematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 82, i: 20 });

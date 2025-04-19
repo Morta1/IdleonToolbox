@@ -2,13 +2,18 @@ import { tryToParse } from "@utility/helpers";
 import { marketInfo, ninjaExtraInfo, seedInfo } from '../../data/website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
-import { getVialsBonusByStat } from "@parsers/alchemy";
+import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "@parsers/alchemy";
 import { getJewelBonus, getLabBonus } from "@parsers/lab";
 import { getWinnerBonus } from "@parsers/world-6/summoning";
 import { getAchievementStatus } from "@parsers/achievements";
 import { getVoteBonus } from "@parsers/world-2/voteBallot";
 import { getGrimoireBonus } from "@parsers/grimoire";
-import { getHighestTalentByClass } from "@parsers/talents";
+import { getHighestTalentByClass, getTalentBonus } from "@parsers/talents";
+import { getKillroyBonus, isMasteryBonusUnlocked } from "@parsers/misc";
+import { getLampBonus } from "@parsers/world-5/caverns/the-lamp";
+import { getMealsBonusByEffectOrStat } from "@parsers/cooking";
+import { getMonumentBonus } from "@parsers/world-5/caverns/bravery";
+import { getStampsBonusByEffect } from "@parsers/stamps";
 
 export const getFarming = (idleonData: any, accountData: any, charactersData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
@@ -37,6 +42,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
   let [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
+  console.log('farmingRanks', farmingRanks)
   if (!Array.isArray(farmingRanks)) {
     farmingRanks = []
   }
@@ -70,17 +76,21 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
 
-  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[], index: number) => {
-    const type = Math.round(seedInfo?.[seedType]?.cropIdMin + cropType);
+  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[], cropIndex: number) => {
+    const seed = seedInfo?.[seedType];
+    const type = Math.round(seed?.cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
-    const rank = farmingRanks?.[index];
-    const rankProgress = ranksProgress?.[index];
+    const rank = farmingRanks?.[cropIndex];
+    const rankProgress = ranksProgress?.[cropIndex];
     const rankRequirement = (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
     return {
+      seed,
+      index: cropIndex,
       rank,
       rankProgress,
       rankRequirement,
       seedType,
+      baseCropType: cropType,
       cropType: type,
       cropQuantity,
       cropProgress,
@@ -283,7 +293,7 @@ const getCropDepotBonuses = (account: any) => {
     cash: { name: 'Cash', value: 0 },
     shiny: { name: 'Pet Rate', value: 0 },
     critters: { name: 'Critters', value: 0 },
-    dropRate: { name: 'Drop Rate', value: 0 },
+    dropRate: { name: 'Drop Rate', value: 0 }
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
     bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
@@ -316,8 +326,24 @@ const getMarketBonus = (market: any, bonusName: string, value = 'baseValue') => 
   return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.[value] ?? 0;
 }
 
-export const getLandRank = (ranks: any, bonusName: string) => {
-  return (ranks?.find(({ name }: { name: string }) => name === bonusName) as any);
+export const getLandRank = (ranks: any, index: number) => {
+  return ranks?.[index]?.bonus;
+}
+
+export const getLandRankTotalBonus = (account: any, index: number) => {
+  return 0 === index ? (1 + getLandRank(account?.farming?.ranks, 3) / 100)
+    * (1 + getLandRank(account?.farming?.ranks, 10) / 100) *
+    (1 + getLandRank(account?.farming?.ranks, 15) / 100) :
+    1 === index ? getLandRank(account?.farming?.ranks, 8)
+      + getLandRank(account?.farming?.ranks, 17) :
+      2 === index ? getLandRank(account?.farming?.ranks, 6)
+        + getLandRank(account?.farming?.ranks, 13) :
+        3 === index ? getLandRank(account?.farming?.ranks, 7)
+          + (getLandRank(account?.farming?.ranks, 11)
+            + getLandRank(account?.farming?.ranks, 18))
+          : 4 === index ? getLandRank(account?.farming?.ranks, 5)
+            + (getLandRank(account?.farming?.ranks, 12) +
+              getLandRank(account?.farming?.ranks, 16)) : 1;
 }
 
 const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
@@ -332,13 +358,13 @@ export const getTotalCrop = (plot: any[], market: any[], ranks: any[], account: 
   return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti, rank }) => {
     if (seedType === -1) return total;
     const { productDoubler } = getProductDoubler(market);
-    const productionBoost = getLandRank(ranks, 'Production_Boost');
+    const productionBoost = getLandRank(ranks, 1);
     const voteBonus = getVoteBonus(account, 29);
     const speedGMO = getMarketBonus(account?.farming?.market, "VALUE_GMO", 'value');
     const finalMulti = Math.min(1e4, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100)))
       * (1 + getRanksTotalBonus(ranks, 1) / 100)
       * Math.max(1, speedGMO)
-      * (1 + (productionBoost?.bonus * (rank ?? 0)
+      * (1 + (productionBoost * (rank ?? 0)
         + voteBonus) / 100)));
     return {
       ...total,
@@ -352,4 +378,90 @@ export const getProductDoubler = (market: any[]): { productDoubler: any, percent
   const multi = productDoubler / 100;
   const percent = productDoubler % 100;
   return { productDoubler, percent, multi: Math.max(2, Math.floor(multi) + 1) };
+}
+
+export const getCropEvolution = (account: any, character: any, crop: any, forceStarSign: boolean) => {
+  const marketBonus1 = getMarketBonus(account?.farming?.market, "BIOLOGY_BOOST");
+  const winBonus = getWinnerBonus(account, '<x Crop EVO');
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0 });
+  const bubbleBonus1 = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'W10AllCharz', false);
+  const bubbleBonus2 = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'CROPIUS_MAPPER', false);
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEvo');
+  const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+  const mealBonus1 = getMealsBonusByEffectOrStat(account, null, 'zCropEvo', blackDiamondRhinestone);
+  const mealBonus2 = getMealsBonusByEffectOrStat(account, null, 'zCropEvoSumm', blackDiamondRhinestone);
+  const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 4 });
+  const stampBonus = getStampsBonusByEffect(account, 'Crop_Evolution_Chance', character); // Stamp
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 14);
+  const killroyBonus = getKillroyBonus(account, 3);
+  const marketBonus2 = getMarketBonus(account?.farming?.market, "EVOLUTION_GMO");
+  const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.farming?.rank, 1);
+  const starSignBonus = getStarSignBonus(character, account, 'Crop_Evo', forceStarSign);
+  const talentBonus = getTalentBonus(character?.talents, 4, 'MASS_IRRIGATION'); // Death Bringer
+  const voteBonus = getVoteBonus(account, 29);
+
+  let value = (1 + marketBonus1 / 100)
+    * (1 + winBonus / 100)
+    * (1 + lampBonus / 100)
+    * (1 + bubbleBonus1 / 100)
+    * (1 + bubbleBonus2 / 100)
+    * (1 + vialBonus / 100)
+    * (1 + mealBonus1 / 100)
+    * (1 + monumentBonus / 100)
+    * (1 + stampBonus / 100)
+    * (1 + grimoireBonus / 100)
+    * (1 + (mealBonus2
+      * Math.ceil((character?.skillsInfo?.summoning?.level + 1) / 50)) / 100)
+    * (1 + (5 * getAchievementStatus(account?.achievements, 355)) / 100)
+    * Math.max(1, killroyBonus)
+    * Math.max(1, marketBonus2)
+    * (1 + (15 * skillMasteryBonus) / 100)
+    * (1 + (starSignBonus * character?.skillsInfo?.farming?.level) / 100)
+    * Math.max(1, getLandRankTotalBonus(account, 0))
+    * Math.max(1, talentBonus)
+    * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
+    * crop?.seed?.nextCropChance
+    * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
+
+  value = Math.min(100, 100 * value);
+  value = Math.round(10 * value) / 10;
+
+  return {
+    value,
+    breakdown: [
+      { title: 'Base' },
+      { name: 'Base Chance', value: crop?.seed?.nextCropChance.toExponential(3) },
+      { name: 'Decay Rate', value: Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType).toExponential(3) },
+      { name: 'Market', value: Number(((1 + marketBonus1 / 100) * (1 + marketBonus2 / 100)).toFixed(3)) },
+      { name: 'Summoning', value: Number((1 + winBonus / 100).toFixed(3)) },
+      { name: 'Lamp', value: Number((1 + lampBonus / 100).toFixed(3)) },
+      { name: 'Bubble', value: Number(((1 + bubbleBonus1 / 100) * (1 + bubbleBonus2 / 100)).toFixed(3)) },
+      { name: 'Vial', value: Number((1 + vialBonus / 100).toFixed(3)) },
+      {
+        name: 'Meal',
+        value: Number(((1 + mealBonus1 / 100) * (1 + (mealBonus2 * Math.ceil((character?.skillsInfo?.summoning?.level + 1) / 50)) / 100)).toFixed(3))
+      },
+      { name: 'Monument', value: Number((1 + monumentBonus / 100).toFixed(3)) },
+      { name: 'Stamp', value: Number((1 + stampBonus / 100).toFixed(3)) },
+      { name: 'Grimoire', value: Number((1 + grimoireBonus / 100).toFixed(3)) },
+      {
+        name: 'Achievement',
+        value: Number((1 + (5 * getAchievementStatus(account?.achievements, 355)) / 100).toFixed(3))
+      },
+      { title: 'Multiplicative' },
+      { name: 'Killroy', value: Number(Math.max(1, killroyBonus).toFixed(3)) },
+      { name: 'Skill Mastery', value: Number((1 + (15 * skillMasteryBonus) / 100).toFixed(3)) },
+      {
+        name: 'Star Sign',
+        value: Number((1 + (starSignBonus * character?.skillsInfo?.farming?.level) / 100).toFixed(3))
+      },
+      { name: 'Land Rank Total', value: Number(Math.max(1, getLandRankTotalBonus(account, 0)).toFixed(3)) },
+      { name: 'Talent', value: Number(Math.max(1, talentBonus).toFixed(3)) },
+      {
+        name: 'Land Rank + Vote',
+        value: Number((1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100).toFixed(3))
+      }
+    ]
+  }
 }

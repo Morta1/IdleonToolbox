@@ -152,17 +152,22 @@ export const CardTitleAndValue = ({
   </Tooltip>
 }
 
-export const Breakdown = ({ breakdown, titleStyle = {}, notation = 'Big' }) => {
+export const Breakdown = ({ breakdown, titleStyle = {}, notation = 'Big', skipNotation }) => {
   return <>
-    {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
-                                                                           key={`${name}-${index}`}>{title}</Typography>
-      : !name ? <Divider sx={{ my: 1, bgcolor: 'black' }} key={`${name}-${index}`}/> : <TitleAndValue
-        key={`${name}-${index}`}
-        titleStyle={{ width: 120, ...titleStyle }}
-        title={name}
-        value={!isNaN(value)
-          ? notateNumber(value, notation)
-          : value}/>)}
+    {breakdown?.map(({ name, value, title }, index) => {
+      return title ? <Stack key={`${title}-${index}`}>
+          {index > 0 ? <Divider sx={{ my: 1 }}/> : null}
+          <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
+          <Divider sx={{ my: 1 }}/>
+        </Stack>
+        : <TitleAndValue
+          key={`${name}-${index}`}
+          titleStyle={{ width: 120, ...titleStyle }}
+          title={name}
+          value={skipNotation ? value : !isNaN(value)
+            ? notateNumber(value, notation)
+            : value}/>
+    })}
   </>
 }
 

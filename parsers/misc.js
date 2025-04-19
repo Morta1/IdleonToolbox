@@ -996,23 +996,26 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
       upgrade: 'Pearl Drops'
     }
   ];
-  const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => ({
-    ...upgrade,
-    level: i === 0 ? accountData?.accountOptions?.[227]
-      : (i === 1)
-        ? accountData?.accountOptions?.[228]
-        : (i === 2)
-          ? 0
-          : (i === 3)
-            ? accountData?.accountOptions?.[229]
-            : (i === 4)
-              ? accountData?.accountOptions?.[230]
-              : 1,
-    description: upgrade?.description?.replace('{', Math.floor(getKillRoyShopBonus(accountData, (i === 0 || i === 1)
+  const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => {
+    const bonus = getKillRoyShopBonus(accountData, (i === 0 || i === 1)
       ? 0
-      : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3) * 100) / 100)
-  }));
-
+      : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3);
+    return {
+      ...upgrade,
+      level: i === 0 ? accountData?.accountOptions?.[227]
+        : (i === 1)
+          ? accountData?.accountOptions?.[228]
+          : (i === 2)
+            ? 0
+            : (i === 3)
+              ? accountData?.accountOptions?.[229]
+              : (i === 4)
+                ? accountData?.accountOptions?.[230]
+                : 1,
+      bonus,
+      description: upgrade?.description?.replace('{', Math.floor(bonus * 100) / 100)
+    }
+  });
   return {
     list: deathNote.map((monster) => {
       const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}` };
@@ -1031,6 +1034,9 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
   };
 }
 
+export const getKillroyBonus = (account, index) => {
+  return account?.killroy?.permanentUpgrades?.[index]?.bonus;
+}
 const getKillRoyShopBonus = (account, index) => {
   return 0 === index
     ? 1 + (account?.accountOptions?.[228]) / (300 + (account?.accountOptions?.[228]))
