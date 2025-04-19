@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.2.99',
+    'gameVer': '2.0.35',
+    'date': '19/04/2025',
+    'features': [
+      'Add NBLB indicator in stamps page',
+      'Added "sort by time" option for study page',
+      'Added breakdown for rupie value, crop evolution, bell exp rate, villager exp (separated to Base / Additive / Multiplicative sections)'
+    ],
+    'fixes': [
+      'Small ui update for leaderboards',
+      'Changed the order of tabs in Pets  page (Showing Shinies tab first)',
+      'Fixed foraging speed ',
+      'Fixed a bug where Land Rank was showing even if it is locked',
+    ]
+  },
+  {
     'ver': '3.2.98',
     'gameVer': '2.0.35',
     'date': '11/04/2025',
