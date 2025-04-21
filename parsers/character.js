@@ -769,6 +769,11 @@ export const getDropRate = (character, account, characters) => {
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= (1 + charmBonus / 100);
 
+  const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
+  if (thirdCompanionDropRate) {
+    final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate));
+  }
+
   const breakdown = [
     { name: 'Luck', value: 1.4 * luckMulti },
     {
@@ -788,7 +793,8 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
     { name: 'Guild', value: guildBonus / 100 },
     { name: 'Siege Breaker', value: extraDropRate },
-    { name: 'Companion', value: (companionDropRate + secondCompanionDropRate) / 100 },
+    { name: 'Companion add', value: (companionDropRate + secondCompanionDropRate) / 100 },
+    { name: 'Companion mult', value: thirdCompanionDropRate },
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
     { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
