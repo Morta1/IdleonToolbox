@@ -90,6 +90,7 @@ export const mainStatMap = {
   Siege_Breaker: 'agility',
   Hunter: 'agility',
   Beast_Master: 'agility',
+  Wind_Walker: 'agility',
   Mage: 'wisdom',
   Shaman: 'wisdom',
   Bubonic_Conjuror: 'wisdom',
@@ -101,6 +102,7 @@ export const starTalentsPages = ['Special Talent 1', 'Special Talent 2',
   'Special Talent 3', 'Special Talent 4', 'Special Talent 5'];
 
 export const createTalentPage = (className, pages, talentsObject, maxTalentsObject, mergeArray) => {
+  if (!pages) return { flat: [], talents: {} };
   return pages.reduce((res, className, index) => {
     const orderedTalents = Object.entries(talents?.[className] || {})?.map(([, talentDetails]) => {
       return {
