@@ -128,7 +128,13 @@ export const getLooty = (idleonData) => {
   const allItems = structuredClone((items)); // Deep clone
   const forcedNames = {
     'Motherlode': 'Motherlode_x1',
-    'Island0': 'Island0_x1'
+    'Island0': 'Island0_x1',
+    'Dust0': 'Dust0_x1',
+    'Dust1': 'Dust1_x1',
+    'Dust2': 'Dust2_x1',
+    'Dust3': 'Dust3_x1',
+    'Dust4': 'Dust4_x1',
+    'Dust5': 'Dust5_x1',
   }
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,

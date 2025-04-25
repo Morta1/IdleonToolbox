@@ -22,6 +22,7 @@ export const PAGES = {
         { label: 'dungeons', icon: 'data/DungeonA7', tabs: ['Passives', 'Rng Items', 'Traits'] },
         { label: 'apocalypses', icon: 'data/UISkillIcon110' },
         { label: 'grimoire', icon: 'data/GrimoireUpg18' },
+        { label: 'compass', icon: 'data/UISkillIcon421', tabs: ['Upgrades', 'Abominations', 'Medallions', 'Portals'] },
         {
           label: 'constellations',
           icon: 'data/StarTitle1',

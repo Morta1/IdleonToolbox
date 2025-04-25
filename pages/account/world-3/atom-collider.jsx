@@ -8,8 +8,6 @@ import { calcTotals } from '../../../parsers/printer';
 import { CardTitleAndValue } from '@components/common/styles';
 import Timer from '@components/common/Timer';
 
-const MAX_ATOMS = 11;
-
 const AtomCollider = ({}) => {
   const { state } = useContext(AppContext);
   const { atoms, particles, stampReducer } = state?.account?.atoms || {};
@@ -47,8 +45,7 @@ const AtomCollider = ({}) => {
                      costToMax,
                      bonus,
                      maxLevel
-                   }, index) => {
-        if (index >= MAX_ATOMS) return;
+                   }) => {
         const description = cleanUnderscore(desc)
           .replace(/{/g, `${baseBonus * level}`)
           .replace(/[>}]/, notateNumber(bonus, 'Big'))

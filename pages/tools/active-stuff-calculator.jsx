@@ -42,14 +42,14 @@ const ActiveStuffCalculator = () => {
     defaultValue: sections
   });
   const [selectedChar, setSelectedChar] = useState('0');
-  const isBeastMaster = checkCharClass(state?.characters?.[selectedChar]?.class, 'Beast_Master');
+  const isBeastMaster = checkCharClass(state?.characters?.[selectedChar]?.class, 'Beast_Master') || (state?.characters?.[selectedChar]?.class, 'Wind_Walker');
   const isShaman = checkCharClass(state?.characters?.[selectedChar]?.class, 'Shaman');
 
   useEffect(() => {
     if (snapshottedChar) {
       setSelectedChar(snapshottedChar?.playerId + '');
       let currentSections = selectedSections;
-      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Beast_Master')) {
+      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Beast_Master') && !checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Wind_Walker')) {
         currentSections = currentSections.filter((name) => name !== 'pets');
       }
       if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Shaman')) {

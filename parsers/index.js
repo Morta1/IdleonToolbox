@@ -68,6 +68,7 @@ import { getVoteBallot } from '@parsers/world-2/voteBallot';
 import { getHole } from '@parsers/world-5/hole';
 import { getGrimoire } from '@parsers/grimoire';
 import { getUpgradeVault } from '@parsers/misc/upgradeVault';
+import { getCompass } from '@parsers/compass';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
@@ -167,6 +168,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
   });
   accountData.grimoire = getGrimoire(idleonData, charactersData, accountData);
+  accountData.compass = getCompass(idleonData, charactersData, accountData, serverVars);
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);

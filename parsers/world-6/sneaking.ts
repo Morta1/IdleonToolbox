@@ -133,10 +133,23 @@ const parseSneaking = (rawSneaking: any, serverVars: any, serializedCharactersDa
     ninjaMastery
   };
 }
+
 const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus: number) => {
+  // TODO add GENERATIONAL_GEMSTONES (432) talent
   return 5 === index
     ? gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))
     : (gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))) * (1 + fifthGemstoneBonus / 100)
+
+  // 0.5 < c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[Math.round(233 + t)])
+  //   ? (5 == t ? c.asNumber(a.engine.getGameAttribute("CustomMaps").h.NjEQ.h["NjGem" + t][3])
+  //     + c.asNumber(a.engine.getGameAttribute("CustomMaps").h.NjEQ.h["NjGem" + t][5])
+  //     * (c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[Math.round(233 + t)]) /
+  //       (1e3 + c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[Math.round(233 + t)])))
+  //     : (c.asNumber(a.engine.getGameAttribute("CustomMaps").h.NjEQ.h["NjGem" + t][3]) +
+  //     c.asNumber(a.engine.getGameAttribute("CustomMaps").h.NjEQ.h["NjGem" + t][5]) *
+  //     (c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[Math.round(233 + t)])
+  //       / (1e3 + c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[Math.round(233 + t)]))))
+  //     * (1 + n._customBlock_Ninja("GemstoneBonus", 5, 0) / 100) * Math.max(1, r._customBlock_getbonus2(1, 432, -1))) : 0;
 }
 const parseNinjaItems = (array: any, doChunks: boolean) => {
   let result = array?.map(([itemName, level]: [string, string]): any => ({

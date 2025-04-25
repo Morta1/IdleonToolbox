@@ -6,6 +6,8 @@ import { getHighestCapacityCharacter } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getAtomBonus } from '@parsers/atomCollider';
+import { getCompassBonus } from '@parsers/compass';
 
 const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
@@ -51,8 +53,7 @@ export const evaluateStamp = (stamp, account, characters, gildedStamp = true, fo
   if (stamp?.materials?.length > 0) {
     hasMaterials = checkHasMaterials(stamp?.materials, materialCost, account);
     greenStackHasMaterials = checkHasMaterials(stamp?.materials, materialCost, account, true);
-  }
-  else {
+  } else {
     hasMaterials = stamp?.ownedMats >= materialCost;
     greenStackHasMaterials = Math.max(0, stamp?.ownedMats - 1e7) >= materialCost;
   }
@@ -201,10 +202,14 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   if (stamp?.stat?.includes('Eff')) {
     toiletPaperPostage = getTalentBonus(character?.starTalents, null, 'TOILET_PAPER_POSTAGE')
   }
-  if (stampTree !== 'misc'){
+  if (stampTree !== 'misc') {
     charmBonus = getCharmBonus(account, 'Liqorice_Rolle')
   }
   const removeLevelReduction = isJadeBonusUnlocked(account, 'Level_Exemption');
+  const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharge') ?? 0;
+  const charmBonusExalted = getCharmBonus(account, 'Jellypick');
+  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76)));
+  const exaltedBonus = 1 + exaltedBase / 100;
   if (stamp?.skillIndex > 0 && !removeLevelReduction) {
     if (stamp?.reqItemMultiplicationLevel > 1) {
       const deficitEff = 3;
@@ -215,15 +220,24 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
         lvlDiff *= 20 * stamp?.reqItemMultiplicationLevel / 200;
         const reducedLevel = Math.floor(Math.min(lvlDiff, stampLevel));
         const finalLevel = Math.min(reducedLevel, stamp?.level);
-        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier || 1) * (toiletPaperPostage || 1) * (1 + charmBonus / 100);
+        return (growth(stamp?.func, finalLevel, stamp?.x1, stamp?.x2, false) ?? 0)
+          * (stamp?.multiplier || 1)
+          * (toiletPaperPostage || 1)
+          * (1 + charmBonus / 100)
+          * exaltedBonus;
       }
     }
   }
   let upgradeVaultMulti = 0;
-  if (stamp?.stat === "BaseDmg" || stamp?.stat === "BaseHp" || stamp?.stat === "BaseAcc" || stamp?.stat === "BaseDef"){
+  if (stamp?.stat === 'BaseDmg' || stamp?.stat === 'BaseHp' || stamp?.stat === 'BaseAcc' || stamp?.stat === 'BaseDef') {
     upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16);
   }
-  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0) * (stamp?.multiplier || 1) * (toiletPaperPostage || 1) * (1 + charmBonus / 100) * (1 + upgradeVaultMulti / 100);
+  return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0)
+    * (stamp?.multiplier || 1)
+    * (toiletPaperPostage || 1)
+    * (1 + charmBonus / 100)
+    * (1 + upgradeVaultMulti / 100)
+    * exaltedBonus;
 }
 
 export const applyStampsMulti = (stamps, multiplier) => {
@@ -248,4 +262,5 @@ export const calcStampCollected = (allStamps) => {
     : 0), 0), 0)
 }
 
-export const unobtainableStamps = ['Stat_Wallstree_Stamp', 'SpoOoky_Stamp', 'Prayday_Stamp', 'Shiny_Crab_Stamp','Talent_I_Stamp', 'Talent_V_Stamp', 'Gear_Stamp'].toSimpleObject();
+export const unobtainableStamps = ['Stat_Wallstree_Stamp', 'SpoOoky_Stamp', 'Prayday_Stamp', 'Shiny_Crab_Stamp',
+  'Talent_I_Stamp', 'Talent_V_Stamp', 'Gear_Stamp'].toSimpleObject();

@@ -1,4 +1,5 @@
 import { bonuses, items, itemsArray } from '../data/website-data';
+import { cleanUnderscore } from '@utility/helpers';
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};
@@ -121,7 +122,7 @@ export const findItemByDescriptionInInventory = (arr, desc) => {
   const relevantItems = arr.filter(({
                                       misc,
                                       description
-                                    }) => description?.toLowerCase()?.includes(desc?.toLowerCase()) || misc?.toLowerCase()?.includes(desc?.toLowerCase()), []);
+                                    }) => cleanUnderscore(description)?.toLowerCase()?.includes(desc?.toLowerCase()) || cleanUnderscore(misc)?.toLowerCase()?.includes(desc?.toLowerCase()), []);
   return relevantItems?.reduce((res, item) => {
     const itemExistsIndex = res?.findIndex((i) => i?.rawName === item?.rawName);
     const itemExists = res?.[itemExistsIndex];

@@ -177,6 +177,13 @@ const Stamps = () => {
               <MenuItem value={90}>90</MenuItem>
             </Select>
           </FormControl>
+          <Divider sx={{ my: 2 }}/>
+          <Typography sx={{ fontSize: 14, mb: 1 }} variant={'body1'} color={'text.secondary'}>Exalted
+            Stamps</Typography>
+          <Stack direction={'row'} alignItems={'center'} gap={2}>
+            <img src={`${prefix}etc/Exalted_Stamp_Frame.png`} style={{ width: 32, height: 32 }}/>
+            <Typography>{state?.account?.compass?.remainingExaltedStamps} / {state?.account?.compass?.usedExaltedStamps + state?.account?.compass?.remainingExaltedStamps}</Typography>
+          </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Options'}>
           <Stack gap={1}>
@@ -204,8 +211,9 @@ const Stamps = () => {
               <MaxCapacityTooltip/>
             </Stack>
             <Stack direction={'row'} alignItems={'center'}>
-              <SnapshotCheckboxEl />
-              <Tooltip title={'After taking a snapshot, an indicator will appear on any stamp that has leveled up, whether manually or via the No Stamp Left Behind mechanic.'}>
+              <SnapshotCheckboxEl/>
+              <Tooltip
+                title={'After taking a snapshot, an indicator will appear on any stamp that has leveled up, whether manually or via the No Stamp Left Behind mechanic.'}>
                 <IconInfoCircleFilled size={18}/>
               </Tooltip>
             </Stack>
@@ -292,7 +300,16 @@ const Stamps = () => {
                           }} src={`${prefix}data/UpgArrowG.png`} alt={'level-up indicator'}/> : null}
                           <CardContent sx={{ '&:last-child': { p: 0 } }}>
 
-                            <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}>
+                            <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'}
+                                   sx={{ position: 'relative' }}>
+                              {state?.account?.compass?.exaltedStamps?.[category]?.[stampIndex] ? <img
+                                style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  width: 40,
+                                  height: 40
+                                }}
+                                src={`${prefix}etc/Exalted_Stamp_Frame.png`}/> : null}
                               <StampIcon width={40} height={40}
                                          level={level}
                                          src={`${prefix}data/${rawName}.png`}

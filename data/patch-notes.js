@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.0',
+    'gameVer': '2.0.36',
+    'date': '25/04/2025',
+    'features': [
+      'Updated the website with version 2.0.36 data and assets',
+      'Added Compass page under Account -> Misc containing Upgrades, abominations, portals and medallions',
+      'Added exalted stamps indication + bonus'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.2.99',
     'gameVer': '2.0.35',
     'date': '19/04/2025',
@@ -16,7 +27,7 @@ export const patchNotes = [
       'Small ui update for leaderboards',
       'Changed the order of tabs in Pets  page (Showing Shinies tab first)',
       'Fixed foraging speed ',
-      'Fixed a bug where Land Rank was showing even if it is locked',
+      'Fixed a bug where Land Rank was showing even if it is locked'
     ]
   },
   {
