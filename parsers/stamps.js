@@ -196,7 +196,8 @@ export const getStampsBonusByEffect = (account, effectName, character) => {
 }
 
 export const getStampBonus = (account, stampTree, stampName, character) => {
-  const stamp = account?.stamps?.[stampTree]?.find(({ rawName }) => rawName === stampName);
+  const stampIndex = account?.stamps?.[stampTree]?.findIndex(({ rawName }) => rawName === stampName);
+  const stamp = account?.stamps?.[stampTree]?.[stampIndex];
   if (!stamp) return 0;
   let toiletPaperPostage = 1, charmBonus = 0;
   if (stamp?.stat?.includes('Eff')) {
@@ -205,11 +206,13 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   if (stampTree !== 'misc') {
     charmBonus = getCharmBonus(account, 'Liqorice_Rolle')
   }
+  const isStampExalted = account?.compass?.exaltedStamps?.[stampTree]?.[stampIndex]
   const removeLevelReduction = isJadeBonusUnlocked(account, 'Level_Exemption');
   const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharge') ?? 0;
   const charmBonusExalted = getCharmBonus(account, 'Jellypick');
   const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76)));
-  const exaltedBonus = 1 + exaltedBase / 100;
+  const exaltedBonus = isStampExalted ? 1 + exaltedBase / 100 : 1;
+
   if (stamp?.skillIndex > 0 && !removeLevelReduction) {
     if (stamp?.reqItemMultiplicationLevel > 1) {
       const deficitEff = 3;
