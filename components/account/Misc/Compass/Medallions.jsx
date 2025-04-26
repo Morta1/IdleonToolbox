@@ -24,6 +24,8 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                         }, index) => {
         if (hideCoinedPortals && acquired) return null;
         const currentIcon = icon || `data/Mface${monsterFace || MonsterFace}`;
+        const faceIcon = `${prefix}${currentIcon}.png`;
+        const afkTarget = `${prefix}afk_targets/${Name}.png`;
         return (
           <Card key={rawName + index}>
             <CardContent
@@ -35,7 +37,9 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
               }}
             >
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
-                <img style={{ width: 41, height: 41, objectFit: 'contain' }} src={`${prefix}${currentIcon}.png`}/>
+                <img style={{ width: 41, height: 41, objectFit: 'contain' }} src={afkTarget}  onError={(e) => {
+                  e.target.src = faceIcon;
+                }}/>
                 <Typography>{cleanUnderscore(name || Name)} {description ? `(${description})` : ''}</Typography>
                 {acquired ? <img style={{ width: 41, height: 41, marginLeft: 'auto' }}
                                  src={`${prefix}data/WWcoin.png`}/> : null}

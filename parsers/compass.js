@@ -13,6 +13,13 @@ import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 
+const weaknesses = {
+  0: 'Fire',
+  1: 'Wind',
+  2: 'Grass',
+  3: 'Ice'
+}
+
 export const getCompass = (idleonData, charactersData, accountData, serverVars) => {
   const compassRaw = tryToParse(idleonData?.Compass);
   return parseCompass(compassRaw, charactersData, accountData, serverVars);
@@ -182,52 +189,51 @@ const getMedallions = (medallions) => {
                mapName,
                afkType
              }) => afkType === 'FIGHTING' && !excludedMaps[mapName]
-    && !afkType.includes('Fish')
-    && !afkType.includes('Bug') && !afkType.includes('BugNest')
+    && !afkType.includes('Bug')
     && !mapName.includes('Colosseum'));
-  const extra = [
-    { ...monsters['reindeer'], rawName: 'reindeer', icon: 'afk_targets/Reindeer' },
-    { ...monsters['caveA'], rawName: 'caveA', icon: 'afk_targets/Demon_Hound' },
-    { ...monsters['caveB'], rawName: 'caveB', icon: 'afk_targets/Gloomie_Mushroom' },
-    { ...monsters['caveC'], rawName: 'caveC', icon: 'afk_targets/Ancient_Golem' },
-    { ...monsters['caveD'], rawName: 'caveD', icon: 'afk_targets/Shimmer_Glunko' },
-    { ...monsters['rockS'], rawName: 'rockS', icon: 'afk_targets/Skeleton_Rune', description: 'W3 Colo' },
-    { ...monsters['Meteor'], rawName: 'Meteor', icon: 'afk_targets/Fallen_Meteor', description: 'Event Boss' },
-    { ...monsters['rocky'], rawName: 'rocky', icon: 'afk_targets/Grumblo', description: 'Event Boss' },
-    { ...monsters['snakeZ'], rawName: 'snakeZ', icon: 'afk_targets/Snake_Swarm', description: 'Event Boss' },
-    { ...monsters['iceknight'], rawName: 'iceknight', icon: 'afk_targets/Glacial_Guild', description: 'Event Boss' },
-    { ...monsters['frogGR'], rawName: 'frogGR', icon: 'afk_targets/Grandfrogger', description: 'Event Boss' },
-    { ...monsters['BugNest1'], rawName: 'BugNest1', icon: `afk_targets/${monsters['BugNest1']?.Name}` },
-    { ...monsters['BugNest2'], rawName: 'BugNest2', icon: `afk_targets/${monsters['BugNest2']?.Name}` },
-    { ...monsters['BugNest3'], rawName: 'BugNest3', icon: `afk_targets/${monsters['BugNest3']?.Name}` },
-    { ...monsters['BugNest4'], rawName: 'BugNest4', icon: `afk_targets/${monsters['BugNest4']?.Name}` },
-    { ...monsters['BugNest5'], rawName: 'BugNest5', icon: `afk_targets/${monsters['BugNest5']?.Name}` },
-    { ...monsters['BugNest6'], rawName: 'BugNest6', icon: `afk_targets/${monsters['BugNest6']?.Name}` },
-    { ...monsters['BugNest7'], rawName: 'BugNest7', icon: `afk_targets/${monsters['BugNest7']?.Name}` },
-    { ...monsters['BugNest8'], rawName: 'BugNest8', icon: `afk_targets/${monsters['BugNest8']?.Name}` },
-    { ...monsters['BugNest9'], rawName: 'BugNest9', icon: `afk_targets/${monsters['BugNest9']?.Name}` },
-    { ...monsters['BugNest10'], rawName: 'BugNest10', icon: `afk_targets/${monsters['BugNest10']?.Name}` },
-    { ...monsters['BugNest12'], rawName: 'BugNest12', icon: `afk_targets/${monsters['BugNest12']?.Name}` },
-    { ...monsters['BugNest13'], rawName: 'BugNest13', icon: `afk_targets/${monsters['BugNest13']?.Name}` },
-    { ...monsters['ChestA1'], rawName: 'ChestA1', icon: 'etc/ChestA', description: 'W 1' },
-    { ...monsters['ChestB1'], rawName: 'ChestB1', icon: 'etc/ChestB', description: 'W 1' },
-    { ...monsters['ChestC1'], rawName: 'ChestC1', icon: 'etc/ChestC', description: 'W 1' },
-    { ...monsters['ChestA2'], rawName: 'ChestA2', icon: 'etc/ChestA', description: 'W 2' },
-    { ...monsters['ChestB2'], rawName: 'ChestB2', icon: 'etc/ChestB', description: 'W 2' },
-    { ...monsters['ChestC2'], rawName: 'ChestC2', icon: 'etc/ChestC', description: 'W 2' },
-    { ...monsters['ChestA3'], rawName: 'ChestA3', icon: 'etc/ChestA', description: 'W 3' },
-    { ...monsters['ChestB3'], rawName: 'ChestB3', icon: 'etc/ChestB', description: 'W 3' },
-    { ...monsters['ChestC3'], rawName: 'ChestC3', icon: 'etc/ChestC', description: 'W 3' },
-    { ...monsters['ChestA4'], rawName: 'ChestA4', icon: 'etc/ChestA', description: 'W 4' },
-    { ...monsters['ChestB4'], rawName: 'ChestB4', icon: 'etc/ChestB', description: 'W 4' },
-    { ...monsters['ChestC4'], rawName: 'ChestC4', icon: 'etc/ChestC', description: 'W 4' },
-    { ...monsters['ChestA5'], rawName: 'ChestA5', icon: 'etc/ChestA', description: 'W 5' },
-    { ...monsters['ChestB5'], rawName: 'ChestB5', icon: 'etc/ChestB', description: 'W 5' },
-    { ...monsters['ChestC5'], rawName: 'ChestC5', icon: 'etc/ChestC', description: 'W 5' },
-    { ...monsters['ChestA6'], rawName: 'ChestA6', icon: 'etc/ChestA', description: 'W 6' },
-    { ...monsters['ChestB6'], rawName: 'ChestB6', icon: 'etc/ChestB', description: 'W 6' },
-    { ...monsters['ChestC6'], rawName: 'ChestC6', icon: 'etc/ChestC', description: 'W 6' }
-  ]
+
+  const config = [
+    { id: 'reindeer', icon: 'afk_targets/Reindeer' },
+    { id: 'caveA', icon: 'afk_targets/Demon_Hound' },
+    { id: 'caveB', icon: 'afk_targets/Gloomie_Mushroom' },
+    { id: 'caveC', icon: 'afk_targets/Ancient_Golem' },
+    { id: 'caveD', icon: 'afk_targets/Shimmer_Glunko' },
+    { id: 'rockS', icon: 'afk_targets/Skeleton_Rune', description: 'W3 Colo' },
+    { id: 'Meteor', icon: 'afk_targets/Fallen_Meteor', description: 'Event Boss' },
+    { id: 'rocky', icon: 'afk_targets/Grumblo', description: 'Event Boss' },
+    { id: 'snakeZ', icon: 'afk_targets/Snake_Swarm', description: 'Event Boss' },
+    { id: 'iceknight', icon: 'afk_targets/Glacial_Guild', description: 'Event Boss' },
+    { id: 'frogGR', icon: 'afk_targets/Grandfrogger', description: 'Event Boss' },
+
+    // Crystals
+    ...[0, 1, 2, 3, 4].map(n => ({
+      id: `Crystal${n}`,
+      icon: `afk_targets/${monsters[`Crystal${n}`]?.Name}`
+    })),
+
+    // Bug Nests
+    ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13].map(n => ({
+      id: `BugNest${n}`,
+      icon: `afk_targets/${monsters[`BugNest${n}`]?.Name}`
+    })),
+
+    // Chests
+    ...[1, 2, 3, 4, 5, 6].flatMap(wave =>
+      ['A', 'B', 'C'].map(type => ({
+        id: `Chest${type}${wave}`,
+        icon: `etc/Chest${type}`,
+        description: `W ${wave}`
+      }))
+    )
+  ];
+
+  const extra = config.map(({ id, icon, description }) => ({
+    ...monsters[id],
+    rawName: id,
+    icon,
+    ...(description ? { description } : {})
+  }));
+
   return [...list, ...extra].map((monster) => {
     return {
       ...monster,
@@ -237,12 +243,6 @@ const getMedallions = (medallions) => {
 }
 
 const getAbominationWeakness = (abomination) => {
-  const weaknesses = {
-    0: 'Fire',
-    1: 'Ice',
-    2: 'Grass',
-    3: 'Wind'
-  }
   const index = 50 > abomination?.x2
     ? 0 : 100 > abomination?.x2
       ? 3 : 150 > abomination?.x2

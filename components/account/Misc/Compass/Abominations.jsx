@@ -1,4 +1,4 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
@@ -6,10 +6,12 @@ import { CardTitleAndValue } from '@components/common/styles';
 
 const Abominations = ({ abominations }) => {
   const [CheckboxEl, hideKilledAbominations] = useCheckbox('Hide killed abominations');
+  const [CheckboxFutureEl, hideFutureAbominations] = useCheckbox('Hide future abominations', true);
 
   return <>
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
+      <CardTitleAndValue title={''} value={<CheckboxFutureEl/>}/>
     </Stack>
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       {abominations?.map(({
@@ -34,7 +36,10 @@ const Abominations = ({ abominations }) => {
               }}
             >
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
-                <img style={{ width: 32, height: 32, zIndex: 1 }} src={`${prefix}data/CompassUpg${119 + index}.png`}/>
+                {unlocked || (!unlocked && !hideFutureAbominations)
+                  ? <img style={{ width: 32, height: 32, zIndex: 1 }}
+                         src={`${prefix}data/CompassUpg${119 + index}.png`}/>
+                  : <Box sx={{ width: 32, height: 32 }}></Box>}
                 <Typography>{cleanUnderscore(name)}</Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>

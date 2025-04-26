@@ -101,6 +101,7 @@ const isGlobalApplicable = (account, shrine, playerMapId) => {
   const shrineInTown = shrine?.mapId % 50 === 0;
   return (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || !!moaiHead
 }
+
 export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifacts) => {
   const shrine = shrines?.[shrineIndex];
   if (!shrine) {
@@ -120,7 +121,7 @@ export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifac
   return shrine?.bonus * (1 + cardBonus / 100);
 }
 
-export  const calcShrineLevels = (allShrines) => {
+export const calcShrineLevels = (allShrines) => {
   if (!allShrines) return 0;
   return Object.values(allShrines)?.reduce((res, { shrineLevel }) => res + shrineLevel, 0);
 };
