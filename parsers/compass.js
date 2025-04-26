@@ -1,11 +1,14 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import {
   abominations,
+  cards,
   compass,
+  items,
   mapDetails,
   mapEnemiesArray,
   mapNames,
   mapPortals,
+  monsterDrops,
   monsters,
   randomList
 } from '../data/website-data';
@@ -167,79 +170,102 @@ const getFilteredPortals = () => {
 }
 
 const getMedallions = (medallions) => {
-  const excludedMaps = [
-    'Nothing', 'Z', 'Copper',
-    'Iron', 'Starfire', 'Plat', 'Void',
-    'Filler', 'JungleZ', 'Grandfrog\'s_Gazebo',
-    'Grandfrog\'s_Backyard', 'Gravel_Tomb', 'Heaty_Hole',
-    'Igloo\'s_Basement', 'Inside_the_Igloo', 'End_Of_The_Road',
-    'Efaunt\'s_Tomb', 'Eycicles\'s_Nest', 'Enclave_a_la_Troll',
-    'Chizoar\'s_Cavern', 'KattleKruk\'s_Volcano', 'Castle_Interior'].toSimpleObject();
-  const list = Object.values(mapNames).map((mapName, index) => {
-    const rawName = mapEnemiesArray?.[index];
-    const { MonsterFace, Name, AFKtype } = monsters?.[rawName] || {};
-    return {
-      mapName,
-      rawName,
-      monsterFace: MonsterFace,
-      name: Name,
-      afkType: AFKtype
-    }
-  }).filter(({
-               mapName,
-               afkType
-             }) => afkType === 'FIGHTING' && !excludedMaps[mapName]
-    && !afkType.includes('Bug')
-    && !mapName.includes('Colosseum'));
+  const exclusions = [
+    'Bandit_Bob', 'wolfA', 'wolfB', 'wolfC',
+    'Boss2A', 'Boss2B', 'Boss2C', 'Boss3A', 'Boss3B', 'Boss3C', 'Boss4A',
+    'Boss4B', 'Boss4C', 'Boss5A', 'Boss5B', 'Boss5C',
+    'Boss6A', 'Boss6B', 'Boss6C', 'xmasEvent', 'xmasEvent2', 'xmasEvent3',
+    'loveEvent', 'loveEvent2', 'loveEvent3', 'EasterEvent1', 'EasterEvent2',
+    'SummerEvent1', 'SummerEvent2', 'springEvent1', 'springEvent2', 'fallEvent1', 'anni4Event1'
+  ];
+  const categoryExclusions = ['Dungeons', 'Easy_Resources', 'Medium_Resources', 'Hard_Resources']
+  const list = Object.entries(cards).filter(([rawName, { category }]) =>
+    !exclusions.includes(rawName)
+    && !categoryExclusions.includes(category)
+  )?.map(([rawName]) => ({
+    ...monsters?.[rawName], rawName
+  })).filter(({ AFKtype, rawName }) => AFKtype === 'FIGHTING'
+    && !rawName.includes('Fish')
+    && !rawName.includes('Forge')
+    && !rawName.includes('Soul'));
 
   const config = [
-    { id: 'reindeer', icon: 'afk_targets/Reindeer' },
-    { id: 'caveA', icon: 'afk_targets/Demon_Hound' },
-    { id: 'caveB', icon: 'afk_targets/Gloomie_Mushroom' },
-    { id: 'caveC', icon: 'afk_targets/Ancient_Golem' },
-    { id: 'caveD', icon: 'afk_targets/Shimmer_Glunko' },
-    { id: 'rockS', icon: 'afk_targets/Skeleton_Rune', description: 'W3 Colo' },
-    { id: 'Meteor', icon: 'afk_targets/Fallen_Meteor', description: 'Event Boss' },
-    { id: 'rocky', icon: 'afk_targets/Grumblo', description: 'Event Boss' },
-    { id: 'snakeZ', icon: 'afk_targets/Snake_Swarm', description: 'Event Boss' },
-    { id: 'iceknight', icon: 'afk_targets/Glacial_Guild', description: 'Event Boss' },
-    { id: 'frogGR', icon: 'afk_targets/Grandfrogger', description: 'Event Boss' },
+    { rawName: 'reindeer', icon: `afk_targets/${monsters?.reindeer?.Name}` },
+    { rawName: 'slimeR', icon: `afk_targets/${monsters?.slimeR?.Name}` },
+    { rawName: 'shovelY', icon: `afk_targets/${monsters?.shovelY?.Name}` },
+    { rawName: 'sheepB', icon: `afk_targets/${monsters?.sheepB?.Name}` },
+    { rawName: 'snakeY', icon: `afk_targets/${monsters?.snakeY?.Name}` },
+    { rawName: 'crabcakeB', icon: `afk_targets/${monsters?.crabcakeB?.Name}` },
+    { rawName: 'caveA', icon: `afk_targets/${monsters?.caveA?.Name}` },
+    { rawName: 'caveB', icon: `afk_targets/${monsters?.caveB?.Name}` },
+    { rawName: 'caveC', icon: `afk_targets/${monsters?.caveC?.Name}` },
+    { rawName: 'slimeB', icon: `afk_targets/${monsters?.slimeB?.Name}` },
+    { rawName: 'rockS', icon: `afk_targets/${monsters?.rockS?.Name}`, description: 'W3 Colo' },
+    { rawName: 'Meteor', icon: `afk_targets/${monsters?.Meteor?.Name}`, description: 'Event Boss' },
+    { rawName: 'rocky', icon: `afk_targets/${monsters?.rocky?.Name}`, description: 'Event Boss' },
+    { rawName: 'snakeZ', icon: `afk_targets/${monsters?.snakeZ?.Name}`, description: 'Event Boss' },
+    { rawName: 'iceknight', icon: `afk_targets/${monsters?.iceknight?.Name}`, description: 'Event Boss' },
+    { rawName: 'frogGR', icon: `afk_targets/${monsters?.frogGR?.Name}`, description: 'Event Boss' },
+    { rawName: 'poopBig', icon: `afk_targets/${monsters?.poopBig?.Name}`, description: 'Boss' },
+    { rawName: 'babayaga', icon: `afk_targets/${monsters?.babayaga?.Name}`, description: 'Boss' },
+    { rawName: 'babaHour', icon: `afk_targets/${monsters?.babaHour?.Name}`, description: 'Boss' },
+    { rawName: 'babaMummy', icon: `afk_targets/${monsters?.babaMummy?.Name}`, description: 'Boss' },
+    { rawName: 'mini3a', icon: `afk_targets/${monsters?.mini3a?.Name}`, description: 'Boss' },
+    { rawName: 'mini4a', icon: `afk_targets/${monsters?.mini4a?.Name}`, description: 'Boss' },
+    { rawName: 'mini5a', icon: `afk_targets/${monsters?.mini5a?.Name}`, description: 'Boss' },
+    { rawName: 'mini6a', icon: `afk_targets/${monsters?.mini6a?.Name}`, description: 'Boss' },
 
     // Crystals
     ...[0, 1, 2, 3, 4].map(n => ({
-      id: `Crystal${n}`,
-      icon: `afk_targets/${monsters[`Crystal${n}`]?.Name}`
+      rawName: `Crystal${n}`,
+      icon: `afk_targets/${monsters[`Crystal${n}`]?.Name}`,
+      description: 'Glitterbug prayer'
     })),
 
     // Bug Nests
     ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13].map(n => ({
-      id: `BugNest${n}`,
+      rawName: `BugNest${n}`,
       icon: `afk_targets/${monsters[`BugNest${n}`]?.Name}`
     })),
 
     // Chests
     ...[1, 2, 3, 4, 5, 6].flatMap(wave =>
       ['A', 'B', 'C'].map(type => ({
-        id: `Chest${type}${wave}`,
-        icon: `etc/Chest${type}`,
+        rawName: `Chest${type}${wave}`,
+        icon: `afk_targets/${monsters?.[`Chest${type}${wave}`]?.Name}`,
         description: `W ${wave}`
       }))
     )
   ];
 
-  const extra = config.map(({ id, icon, description }) => ({
-    ...monsters[id],
-    rawName: id,
+  const extra = config.map(({ rawName, icon, description }) => ({
+    rawName,
     icon,
     ...(description ? { description } : {})
   }));
 
-  return [...list, ...extra].map((monster) => {
-    return {
-      ...monster,
-      acquired: medallions?.[monster?.rawName]
-    }
-  });
+  return Array.from(
+    new Map(
+      [...list, ...extra].map((monster) => {
+        const coinQuantity = monsterDrops?.[monster?.rawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
+        const bowDrop = 4 > Math.floor(coinQuantity / 3) % 16 ? Math.floor(coinQuantity / 3) % 16 : -1;
+        const ringDrop = 9 > Math.floor(coinQuantity / 2) % 42 ? Math.floor(coinQuantity / 2) % 42 : -1;
+        return [
+          monster.rawName,
+          {
+            ...monster,
+            ...monsters[monster?.rawName],
+            acquired: medallions?.[monster?.rawName],
+            drops: [
+              (bowDrop !== -1 ? { ...items?.[`EquipmentBowsTempest${bowDrop}`] } : null),
+              (ringDrop !== -1 ? { ...items?.[`EquipmentRingsTempest${ringDrop}`] } : null)
+            ].filter(Boolean)
+          }
+        ];
+      })
+    ).values()
+  );
+  ;
 }
 
 const getAbominationWeakness = (abomination) => {

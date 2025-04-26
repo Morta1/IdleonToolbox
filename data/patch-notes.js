@@ -6,6 +6,20 @@ export const patchNotes = [
   {
     'ver': '3.3.0',
     'gameVer': '2.0.36',
+    'date': '26/04/2025',
+    'features': [
+      'Added "Sort by type" option in Compass -> Upgrades',
+      'Added "Hide future abominations" to hide abominations images in Compass -> Abominations',
+      'Added "Show drops" to see which monster drops tempest bow/ring in Compass -> Medallions',
+      'Updated the medallions list to be accurate as I\'m aware'
+    ],
+    'fixes': [
+      'Fixed a bug with contributing exp to shrine'
+    ]
+  },
+  {
+    'ver': '3.3.0',
+    'gameVer': '2.0.36',
     'date': '25/04/2025',
     'features': [
       'Updated the website with version 2.0.36 data and assets',

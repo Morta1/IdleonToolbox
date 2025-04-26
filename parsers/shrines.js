@@ -67,7 +67,7 @@ export const getShrineExpBonus = (characters, account) => {
     account?.shrines?.forEach((shrine, shrineIndex) => {
       const { shrineTowerValue, shrineFactor } = shrine;
       const result = { name: character?.name, value: 0 }
-      if (!isGlobalApplicable(account, shrine, character?.mapIndex)) return result;
+      if (!isGlobalApplicable(shrine, character?.mapIndex)) return result;
       const expBonus = (1 + (50 * superbit) / 100)
         * (1 + (artifactBonus
           + 15 * skillMastery) / 100)
@@ -94,12 +94,11 @@ export const getShrineExpBonus = (characters, account) => {
   }
 }
 
-const isGlobalApplicable = (account, shrine, playerMapId) => {
-  const moaiHead = account?.sailing?.artifacts === true || Array.isArray(account?.sailing?.artifacts) && isArtifactAcquired(account?.sailing?.artifacts, 'Moai_Head');
+const isGlobalApplicable = (shrine, playerMapId) => {
   const playerWorld = Math.floor(playerMapId / 50);
   const shrineWorld = Math.floor(shrine?.mapId / 50);
   const shrineInTown = shrine?.mapId % 50 === 0;
-  return (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || !!moaiHead
+  return (shrine?.worldTour && shrineInTown && playerWorld === shrineWorld) || playerMapId === shrine?.mapId;
 }
 
 export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifacts) => {
