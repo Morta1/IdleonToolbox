@@ -24,7 +24,8 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                           MonsterFace,
                           icon,
                           description = '',
-                          drops
+                          drops,
+                          weakness
                         }, index) => {
         if (hideCoinedPortals && acquired) return null;
         const currentIcon = icon ? `${icon}.png` : MonsterFace
@@ -63,7 +64,11 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                                     title={<ItemDisplay {...item} />}>
                       <img style={{ width: 42, height: 42 }} src={`${prefix}data/${item?.rawName}.png`}/>
                     </Tooltip>
-                  }) : <Box sx={{ width: 42, height: 42 }}></Box>}
+                  }) : <Box sx={{ width: 42, height: 42 }}/>}
+                  <Box sx={{ ml: 'auto' }}>
+                    <img style={{ width: 24, height: 24 }}
+                         src={`${prefix}data/WWeffect${weakness}.png`}/>
+                  </Box>
                 </Stack>
               </> : null}
             </CardContent>

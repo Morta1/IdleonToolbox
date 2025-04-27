@@ -204,7 +204,6 @@ export const filteredLootyItems = [
   'DungEquipmentShoes4',
   'DungEquipmentShirt4',
   'DungEquipmentRings4',
-  'DungEquipmentPendant4',
   'DungEquipmentPants4',
 ].toSimpleObject();
 

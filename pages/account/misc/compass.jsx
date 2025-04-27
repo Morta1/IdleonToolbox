@@ -10,7 +10,7 @@ import Upgrades from '@components/account/Misc/Compass/Upgrades';
 import Abominations from '@components/account/Misc/Compass/Abominations';
 import Medallions from '@components/account/Misc/Compass/Medallions';
 import Portals from '@components/account/Misc/Compass/Portals';
-import { getCompassStats } from '@parsers/compass';
+import { getCompassStats, getExtraDust } from '@parsers/compass';
 import { checkCharClass } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';
 
@@ -61,6 +61,8 @@ const Compass = () => {
                                                      })}
                                                    </Select>}/> : null}
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
+      <CardTitleAndValue title={'Extra Dust'} value={`${getExtraDust(selectedChar, state?.account)}%`}
+                         tooltipTitle={'Not including Spirit Reindeer kills'}/>
       <CardTitleAndValue title={'Total dust collected'} value={numberWithCommas(totalDustsCollected)}/>
       <CardTitleAndValue title={'Exalted stamps'}
                          icon={'etc/Exalted_Stamp_Frame.png'}
@@ -75,8 +77,7 @@ const Compass = () => {
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Hp'} value={notateNumber(tempestStats?.hp, 'MultiplierInfo').replace('.00', '')}/>
-      <CardTitleAndValue title={'Damage'}
-                         value={notateNumber(tempestStats?.damage, 'MultiplierInfo').replace('.00', '')}/>
+      <CardTitleAndValue title={'Damage'} value={numberWithCommas(tempestStats?.damage.toFixed(2))}/>
       <CardTitleAndValue title={'Accuracy'}
                          value={notateNumber(tempestStats?.accuracy, 'MultiplierInfo').replace('.00', '')}/>
       <CardTitleAndValue title={'Defence'}

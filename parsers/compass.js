@@ -250,12 +250,14 @@ const getMedallions = (medallions) => {
         const coinQuantity = monsterDrops?.[monster?.rawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
         const bowDrop = 4 > Math.floor(coinQuantity / 3) % 16 ? Math.floor(coinQuantity / 3) % 16 : -1;
         const ringDrop = 9 > Math.floor(coinQuantity / 2) % 42 ? Math.floor(coinQuantity / 2) % 42 : -1;
+        const weakness = Math.round(coinQuantity / 17) % 4;
         return [
           monster.rawName,
           {
             ...monster,
             ...monsters[monster?.rawName],
             acquired: medallions?.[monster?.rawName],
+            weakness,
             drops: [
               (bowDrop !== -1 ? { ...items?.[`EquipmentBowsTempest${bowDrop}`] } : null),
               (ringDrop !== -1 ? { ...items?.[`EquipmentRingsTempest${ringDrop}`] } : null)
@@ -338,11 +340,45 @@ export const getCompassStats = (character, account) => {
   const defenceTalent = getTalentBonus(character?.talents, 4, 'WINDBORNE');
   const critTalent = getTalentBonus(character?.talents, 4, 'PUMPIN\'_POWER');
   const multiTalent = getTalentBonus(character?.talents, 4, 'ELEMENTAL_MAYHEM', true);
+  const tempestTalent = getTalentBonus(character?.talents, 4, 'TEMPEST_FORM');
   const equipBonus = getStatsFromGear(character, 87, account);
   const equipBonus2 = getStatsFromGear(character, 88, account);
   const equipBonus3 = getStatsFromGear(character, 89, account);
+  const equipBonus4 = getStatsFromGear(character, 86, account);
   const hp = (10 + (getLocalCompassBonus(upgrades, 28) + getLocalCompassBonus(upgrades, 87)));
-  const damage = 0;
+  let equipmentWeaponPower = 0;
+  const bowWeaponPower = character?.equipment?.[1];
+  const ringWeaponPower = character?.equipment?.[5];
+  const ring2WeaponPower = character?.equipment?.[7];
+  if (bowWeaponPower?.name?.includes('Tempest')) {
+    equipmentWeaponPower += bowWeaponPower?.Weapon_Power;
+  }
+  if (ringWeaponPower?.name?.includes('Tempest')) {
+    equipmentWeaponPower += ringWeaponPower?.Weapon_Power;
+  }
+  if (ring2WeaponPower?.name?.includes('Tempest')) {
+    equipmentWeaponPower += ring2WeaponPower?.Weapon_Power;
+  }
+  const damage = 5 + (getLocalCompassBonus(upgrades, 14)
+      + (getLocalCompassBonus(upgrades, 15)
+        + (getLocalCompassBonus(upgrades, 24)
+          + (getLocalCompassBonus(upgrades, 60)
+            + getLocalCompassBonus(upgrades, 81)))))
+    * Math.pow(1.05, equipmentWeaponPower)
+    * (1 + equipBonus4 / 100)
+    * (1 + (getLocalCompassBonus(upgrades, 23)
+      * lavaLog(account?.accountOptions?.[360])) / 100)
+    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232])
+    * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
+    * (1 + (getLocalCompassBonus(upgrades, 119) + (getLocalCompassBonus(upgrades, 121)
+      + (getLocalCompassBonus(upgrades, 122) + (getLocalCompassBonus(upgrades, 123)
+        + (getLocalCompassBonus(upgrades, 126) + (getLocalCompassBonus(upgrades, 127)
+          + (getLocalCompassBonus(upgrades, 129) + (getLocalCompassBonus(upgrades, 130)
+            + (getLocalCompassBonus(upgrades, 132) + (getLocalCompassBonus(upgrades, 135)
+              + (getLocalCompassBonus(upgrades, 64) + getLocalCompassBonus(upgrades, 78)
+                * lavaLog(hp) +
+                (getLocalCompassBonus(upgrades, 85) + (getLocalCompassBonus(upgrades, 94)
+                  + tempestTalent))))))))))))) / 100);
   const accuracy = (3 + (getLocalCompassBonus(upgrades, 17)
     + (getLocalCompassBonus(upgrades, 19)
       + (getLocalCompassBonus(upgrades, 25)
@@ -420,17 +456,22 @@ const getLocalCompassBonus = (upgrades, index) => {
       : upgrade?.level * upgrade?.x5;
 }
 
-const getExtraDust = (account, upgrades) => {
+export const getExtraDust = (character, account) => {
+  const upgrades = account?.compass?.upgrades;
+  const equipBonus = getStatsFromGear(character, 85, account) ?? 0;
+  const equipBonus1 = getStatsFromGear(character, 79, account) ?? 0;
+  const dustTalent = getTalentBonus(character?.talents, 4, 'ETERNAL_HUNT');
+  const compassTalent = getTalentBonus(character?.talents, 4, 'COMPASS');
+
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy');
   return (1 + (getLocalCompassBonus(upgrades, 31)
       + getLocalCompassBonus(upgrades, 34)
       * lavaLog(account?.accountOptions?.[359])) / 100)
     * (1 + getLocalCompassBonus(upgrades, 38) / 100)
     * (1 + charmBonus / 100)
-    * (1 + (x._customBlock_EtcBonuses('85')
-      + x._customBlock_EtcBonuses('79')) / 100)
-    * (1 + (m.__cast(a.engine.getGameAttribute('PixelHelperActor')[8].behaviors.getBehavior('ActorEvents_481'), qa)._GenINFO[132]
-      * k._customBlock_GetTalentNumber(1, 423)) / 100)
+    * (1 + (equipBonus
+      + equipBonus1) / 100)
+    * (1 + (0 * dustTalent) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 139)
       + (getLocalCompassBonus(upgrades, 142)
         + (getLocalCompassBonus(upgrades, 145)
@@ -439,7 +480,7 @@ const getExtraDust = (account, upgrades) => {
               + (getLocalCompassBonus(upgrades, 68)
                 + (getLocalCompassBonus(upgrades, 93)
                   + (getLocalCompassBonus(upgrades, 89)
-                    + k._customBlock_GetTalentNumber(1, 421))))))))) / 100);
+                    + compassTalent)))))))) / 100);
 }
 
 const getUpgradeCost = (upgrades, index, serverVars) => {
