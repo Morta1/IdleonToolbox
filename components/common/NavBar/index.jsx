@@ -35,9 +35,9 @@ const NavBar = ({ children }) => {
   // Render the authentication section based on loading state
   const renderAuthSection = () => {
     if (state.isLoading) {
-      return <AuthSkeleton />;
+      return <AuthSkeleton/>;
     }
-    
+
     return (
       <>
         {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
@@ -78,7 +78,7 @@ const NavBar = ({ children }) => {
       mb: isXs ? '75px' : '110px'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      <ContentWrapper isTools={router?.pathname?.includes('tools')}>
+      <ContentWrapper isTools={router?.pathname?.includes('tools')} isLoading={state?.isLoading}>
         {children}
       </ContentWrapper>
     </Box>
@@ -110,12 +110,17 @@ const NavBar = ({ children }) => {
   </>
 };
 
-const ContentWrapper = ({ isTools, children }) => {
+const ContentWrapper = ({ isTools, isLoading, children }) => {
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
   const router = useRouter();
-  return !isTools ? children : <Stack direction={'row'} gap={2} justifyContent={'space-between'}>
-    <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
+
+  return !isTools ? children : <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
+    <Stack
+      sx={{
+        width: '100%',
+        maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE
+      }}>
       {children}
     </Stack>
     {showWideSideBanner || showNarrowSideBanner ? <Box

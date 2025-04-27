@@ -63,6 +63,31 @@ export const getEquippedCardBonus = (cards, cardInd) => {
   return calcCardBonus(card);
 }
 
+export const getCardSets = (account) => {
+  const cardSetsObject = Object.values(cardSets).reduce((res, cardSet, realIndex) => ({
+    ...res,
+    [cardSet?.name]: ({ ...cardSet, totalStars: 0, realIndex })
+  }), {});
+
+  const tempCards = Object.entries(cards)?.reduce((res, [, cardDetails]) => {
+    const { category, displayName } = cardDetails;
+    const { stars, amount } = account?.cards?.[displayName] || {};
+    cardSetsObject[category].totalStars += (stars === 0 && amount > 0 ? 1 : stars > 0 ? stars + 1 : 0);
+    return { ...res, [category]: [...(res?.[category] || []), cardDetails] };
+  }, {});
+
+  const setsArray = Object.values(cardSetsObject);
+  const setsCount = setsArray.length || 1;
+
+  // Step 3: Update each set with stars and amount
+  setsArray.forEach((set) => {
+    set.stars = Math.floor(set.totalStars / tempCards?.[set?.name]?.length) - 1;
+    set.amount = set.totalStars;
+  });
+
+  return cardSetsObject;
+}
+
 export const getTotalCardBonusById = (cards, bonusId) => {
   return cards?.reduce((res, card) => card?.effect === bonuses?.cardBonuses?.[bonusId]
     ? res + calcCardBonus(card)

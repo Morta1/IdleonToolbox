@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.1',
+    'gameVer': '2.0.36',
+    'date': '27/04/2025',
+    'features': [
+      'Default display for ASC -> Drops is X / hr (total amount will be found in the tooltip)',
+      'Added a new experimental page - Sampling Companion - which helps you track BIS items for a specific sampling setup (currently only AFK Fighting) - let me know what you think'
+    ],
+    'fixes': [
+    ]
+  },
+  {
     'ver': '3.3.0',
     'gameVer': '2.0.36',
     'date': '26/04/2025',

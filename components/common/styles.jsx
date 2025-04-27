@@ -33,14 +33,16 @@ export const StyledBadge = styled(Badge)`
 `
 
 export const CardAndBorder = (cardProps) => {
-  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq } = cardProps;
+  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
   const realCardName = variant === 'cardSet' ? name : cardName;
+
   return <>
-    {stars > 0 ?
+    {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
     <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
       <CardIcon
+        forceDisable={forceDisable}
         isCardSet={variant === 'cardSet'}
         amount={amount}
         src={iconSrc} alt=""/>
@@ -80,7 +82,7 @@ const CardIcon = styled.img`
   width: 56px;
   height: 72px;
   object-fit: contain;
-  opacity: ${({ amount, isCardSet }) => !amount && !isCardSet ? .5 : 1};
+  opacity: ${({ amount, isCardSet, forceDisable }) => (!amount && !isCardSet) || forceDisable ? .5 : 1};
 `
 
 const BorderIcon = styled.img`

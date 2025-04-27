@@ -3,13 +3,15 @@ import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '../../u
 import { TitleAndValue } from '../common/styles';
 import Tooltip from '../Tooltip';
 
-const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'amount' }) => {
-  return <Stack sx={{ width: 250 }}>
+const Inventory = ({
+                     inventory, inventoryLength, inventorySlots, amountKey = 'amount', asc
+                   }) => {
+  return <Stack sx={{ width: asc ? 450 : 250 }}>
     {inventorySlots ? <TitleAndValue title={'Capacity'}
                                      value={`${inventoryLength || inventory?.length || 0}/${inventorySlots}`}/> : null}
     <Stack sx={{ mt: 1 }} direction={'row'} flexWrap={'wrap'}>
       {inventory?.map((item, index) => {
-        return <Tooltip title={<ExtraData {...item}/>}
+        return <Tooltip title={<ExtraData {...item} amount={item?.[amountKey]}/>}
                         key={item?.rawName + '' + index}>
           <Stack alignItems={'center'}
                  sx={{
@@ -18,7 +20,11 @@ const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'am
                    p: 1
                  }}>
             <img width={32} height={32} src={`${prefix}data/${item?.rawName}.png`} alt=""/>
-            <Typography>{notateNumber(item?.[amountKey])}</Typography>
+            {item?.perHour ? <Stack>
+                {item?.perHour ? <Typography variant={'body2'}>{numberWithCommas(item?.perHour.toFixed(2))} /
+                  hr</Typography> : null}
+              </Stack> :
+              <Typography>{notateNumber(item?.[amountKey])}</Typography>}
           </Stack>
         </Tooltip>
       })}
@@ -26,10 +32,11 @@ const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'am
   </Stack>
 };
 
-const ExtraData = ({ name, displayName, perHour, perDay, perGoal }) => {
+const ExtraData = ({ name, displayName, perHour, perDay, perGoal, amount }) => {
   return <Stack>
     <Typography variant={'body1'}>{cleanUnderscore(name || displayName)}</Typography>
     {perHour ? <Divider sx={{ my: 1 }}/> : null}
+    {perHour ? <Typography variant={'body2'}>Total: {notateNumber(amount)}</Typography> : null}
     {perHour ? <Typography variant={'body2'}>{numberWithCommas(perHour.toFixed(2))} / hr</Typography> : null}
     {perDay ? <Typography variant={'body2'}>{numberWithCommas(perDay.toFixed(2))} / day</Typography> : null}
     {perGoal ? <Typography variant={'body2'}>{perGoal > 0

@@ -203,6 +203,9 @@ export const PAGES = {
     'activeStuffCalculator': {
       icon: 'data/Grasslands1'
     },
+    'samplingCompanion': {
+      icon: 'data/EquipmentHats69'
+    },
     'activeExpCalculator': {
       icon: 'data/StatusExp'
     },

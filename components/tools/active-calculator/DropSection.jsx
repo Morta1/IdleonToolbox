@@ -31,19 +31,21 @@ const DropSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
     {!resultsOnly ? <>
       <Stack>
         <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-        {(snapshottedChar?.playerId + '') === selectedChar ? <Inventory
-          inventory={consolidateItems(snapshottedChar?.inventory)}
-          inventoryLength={snapshottedChar?.inventory?.length}
-          inventorySlots={snapshottedChar?.inventorySlots}/> : <Typography variant={'body1'}>No snapshot available for
-          this character</Typography>}
+        {(snapshottedChar?.playerId + '') === selectedChar
+          ? <Inventory asc
+                       inventory={consolidateItems(snapshottedChar?.inventory)}
+                       inventoryLength={snapshottedChar?.inventory?.length}
+                       inventorySlots={snapshottedChar?.inventorySlots}/>
+          : <Typography variant={'body1'}>No snapshot available for
+            this character</Typography>}
       </Stack>
       <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
       <Stack>
         <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
-        <Inventory
-          inventory={consolidateItems(state?.characters?.[selectedChar]?.inventory)}
-          inventoryLength={state?.characters?.[selectedChar]?.inventory?.length}
-          inventorySlots={state?.characters?.[selectedChar]?.inventorySlots}/>
+        <Inventory asc
+                   inventory={consolidateItems(state?.characters?.[selectedChar]?.inventory)}
+                   inventoryLength={state?.characters?.[selectedChar]?.inventory?.length}
+                   inventorySlots={state?.characters?.[selectedChar]?.inventorySlots}/>
       </Stack>
     </> : null}
     <Stack>
@@ -57,7 +59,7 @@ const DropSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         </Tooltip>
       </Stack>
       <Typography variant={'body1'}>Cloudsave in-game to update the results</Typography>
-      <Inventory inventory={difference} amountKey={'difference'}/>
+      <Inventory asc inventory={difference} amountKey={'difference'}/>
     </Stack>
   </Section>
 };
