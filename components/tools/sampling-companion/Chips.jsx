@@ -10,7 +10,7 @@ const Chips = ({ chips }) => {
       <Grid container rowGap={3}>
         {chips?.map((chip, index) => {
           const { name } = chip || {};
-          return <Grid display={'flex'} justifyContent={'center'} key={`${name}-${index}`} xs={3} item>
+          return <Grid display={'flex'} sx={{ position: 'relative' }} justifyContent={'center'} key={`${name}-${index}`} xs={3} item>
             <Tooltip title={<ChipTooltip {...chip}/>}>
               <img width={48} src={`${prefix}data/ConsoleChip${chip?.index}.png`} alt=""/>
             </Tooltip>

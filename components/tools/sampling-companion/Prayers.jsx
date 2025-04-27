@@ -14,7 +14,7 @@ const Prayers = ({ prayers, account, character }) => {
           const calculatedBonus = realPrayer?.x1 + (realPrayer?.x1 * (realPrayer?.level - 1)) / 10;
           const calculatedCurse = realPrayer?.x2 + (realPrayer?.x2 * (realPrayer?.level - 1)) / 10;
           const isEquipped = character?.prayers?.filter(({ name: pName }) => pName === name)?.length > 0;
-          return <Grid display={'flex'} justifyContent={'center'} key={`${name}-${index}`} xs={3} item>
+          return <Grid display={'flex'} sx={{ position: 'relative' }} justifyContent={'center'} key={`${name}-${index}`} xs={3} item>
             <Tooltip title={<PrayerTooltip {...realPrayer} calculatedBonus={calculatedBonus}
                                            calculatedCurse={calculatedCurse}/>}>
               <img style={{ width: 48, opacity: isEquipped ? 1 : .5 }}
