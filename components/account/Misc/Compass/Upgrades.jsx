@@ -74,7 +74,7 @@ const Upgrades = ({ upgrades, dusts }) => {
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
             <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType || x3}_x1.png`}/>
             <Typography>
-              Cost: {notateNumber(dusts?.[dustType || x3] || 0)} / {notateNumber(cost, 'Big')}
+              Cost: {notateNumber(dusts?.[dustType || x3]?.value || 0)} / {notateNumber(cost, 'Big')}
             </Typography>
           </Stack>
         </CardContent>

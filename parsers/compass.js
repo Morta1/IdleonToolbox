@@ -23,6 +23,14 @@ const weaknesses = {
   3: 'Ice'
 }
 
+const dustNames = {
+  0: 'Stardust',
+  1: 'Moondust',
+  2: 'Solardust',
+  3: 'Cooldust',
+  4: 'Novadust'
+}
+
 export const getCompass = (idleonData, charactersData, accountData, serverVars) => {
   const compassRaw = tryToParse(idleonData?.Compass);
   return parseCompass(compassRaw, charactersData, accountData, serverVars);
@@ -32,7 +40,10 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
   const [upgradesLevels, abominationsRaw, portalsRaw, medallionsRaw, exaltedStampsRaw] = compassRaw || [];
 
   const totalUpgradeLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
-  const dusts = accountData?.accountOptions?.slice(357, 362);
+  const dusts = accountData?.accountOptions?.slice(357, 362).map((value, index) => ({
+    value,
+    name: dustNames?.[index]
+  }));
   const totalDustsCollected = accountData?.accountOptions?.[362];
 
   const unlockedPortals = (portalsRaw || []).reduce((result, mapRaw) => {
@@ -337,7 +348,7 @@ const getRemainingExaltedStamps = (account, usedExaltedStamps, index) => {
 
 export const getCompassStats = (character, account) => {
   const { upgrades, totalUpgradeLevels } = account?.compass;
-  const defenceTalent = getTalentBonus(character?.talents, 4, 'WINDBORNE');
+  const defenceAndAccTalent = getTalentBonus(character?.talents, 4, 'WINDBORNE');
   const critTalent = getTalentBonus(character?.talents, 4, 'PUMPIN\'_POWER');
   const multiTalent = getTalentBonus(character?.talents, 4, 'ELEMENTAL_MAYHEM', true);
   const tempestTalent = getTalentBonus(character?.talents, 4, 'TEMPEST_FORM');
@@ -345,7 +356,11 @@ export const getCompassStats = (character, account) => {
   const equipBonus2 = getStatsFromGear(character, 88, account);
   const equipBonus3 = getStatsFromGear(character, 89, account);
   const equipBonus4 = getStatsFromGear(character, 86, account);
-  const hp = (10 + (getLocalCompassBonus(upgrades, 28) + getLocalCompassBonus(upgrades, 87)));
+  const hp = (10 + (getLocalCompassBonus(upgrades, 28)
+    + getLocalCompassBonus(upgrades, 87)))
+    * (1 + (getLocalCompassBonus(upgrades, 140)
+      + (getLocalCompassBonus(upgrades, 146)
+        + getLocalCompassBonus(upgrades, 92))) / 100);
   let equipmentWeaponPower = 0;
   const bowWeaponPower = character?.equipment?.[1];
   const ringWeaponPower = character?.equipment?.[5];
@@ -379,13 +394,26 @@ export const getCompassStats = (character, account) => {
                 * lavaLog(hp) +
                 (getLocalCompassBonus(upgrades, 85) + (getLocalCompassBonus(upgrades, 94)
                   + tempestTalent))))))))))))) / 100);
-  const accuracy = (3 + (getLocalCompassBonus(upgrades, 17)
-    + (getLocalCompassBonus(upgrades, 19)
-      + (getLocalCompassBonus(upgrades, 25)
-        + getLocalCompassBonus(upgrades, 61)))));
+  const accuracy =   (3 + (getLocalCompassBonus(upgrades, 17)
+      + (getLocalCompassBonus(upgrades, 19)
+        + (getLocalCompassBonus(upgrades, 25)
+          + getLocalCompassBonus(upgrades, 61)))))
+    * (1 + (defenceAndAccTalent
+      * (totalUpgradeLevels / 100)) / 100)
+    * (1 + (getLocalCompassBonus(upgrades, 22)
+      * lavaLog(account?.accountOptions?.[357])) / 100)
+    * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
+    * (1 + (getLocalCompassBonus(upgrades, 120) + (getLocalCompassBonus(upgrades, 124)
+      + (getLocalCompassBonus(upgrades, 125) + (getLocalCompassBonus(upgrades, 128)
+        + (getLocalCompassBonus(upgrades, 131) + (getLocalCompassBonus(upgrades, 133)
+          + (getLocalCompassBonus(upgrades, 134) + (getLocalCompassBonus(upgrades, 136)
+            + (getLocalCompassBonus(upgrades, 147) + (getLocalCompassBonus(upgrades, 84)
+              * lavaLog(hp)
+              + (getLocalCompassBonus(upgrades, 79)
+                + getLocalCompassBonus(upgrades, 90)))))))))))) / 100);
   const defence = (1 + (getLocalCompassBonus(upgrades, 29)
       + getLocalCompassBonus(upgrades, 63)))
-    * (1 + (defenceTalent
+    * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 30)
       * lavaLog(account?.accountOptions?.[358])) / 100)

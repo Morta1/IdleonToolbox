@@ -236,6 +236,7 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
     sum + Math.round(Math.max(0, extraCalculations[index] || 0)), 0) : 0;
   const totalVillagersLevels = villagersLevels?.reduce((sum, amount) => sum + amount, 0);
   const totalOpalsFound = opalsPerCavern?.reduce((sum, amount) => sum + amount, 0);
+
   return {
     villagers,
     unlockedCaverns,

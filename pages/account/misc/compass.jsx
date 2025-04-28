@@ -61,27 +61,33 @@ const Compass = () => {
                                                      })}
                                                    </Select>}/> : null}
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Extra Dust'} value={`${getExtraDust(selectedChar, state?.account)}%`}
+      <CardTitleAndValue title={'Extra Dust'} value={`${getExtraDust(selectedChar, state?.account).toFixed(2)}%`}
                          tooltipTitle={'Not including Spirit Reindeer kills'}/>
-      <CardTitleAndValue title={'Total dust collected'} value={numberWithCommas(totalDustsCollected)}/>
+      <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected < 1e8
+        ? numberWithCommas(totalDustsCollected || '0')
+        : notateNumber(totalDustsCollected || 0)}/>
       <CardTitleAndValue title={'Exalted stamps'}
                          icon={'etc/Exalted_Stamp_Frame.png'}
                          imgStyle={{ width: 40, height: 40 }}
                          value={`${remainingExaltedStamps} / ${usedExaltedStamps + remainingExaltedStamps}`}/>
-      {dusts?.map((amount, index) => <CardTitleAndValue key={index} value={commaNotation(amount || '0')}
-                                                        title={`Dust ${index + 1}`}
-                                                        icon={`data/Dust${index}_x1.png`}
-                                                        imgStyle={{ objectPosition: '0 -6px' }}
+      {dusts?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value < 1e8
+        ? commaNotation(value || '0')
+        : notateNumber(value || 0)}
+                                                                 title={name}
+                                                                 icon={`data/Dust${index}_x1.png`}
+                                                                 imgStyle={{ objectPosition: '0 -6px' }}
       />)}
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Hp'} value={notateNumber(tempestStats?.hp, 'MultiplierInfo').replace('.00', '')}/>
-      <CardTitleAndValue title={'Damage'} value={numberWithCommas(tempestStats?.damage.toFixed(2))}/>
+      <CardTitleAndValue title={'Hp'} value={numberWithCommas(Math.floor(tempestStats?.hp)).replace('.00', '')}/>
+      <CardTitleAndValue title={'Damage'} value={tempestStats?.damage < 1e8
+        ? numberWithCommas(tempestStats?.damage || '0')
+        : notateNumber(tempestStats?.damage || 0)}/>
       <CardTitleAndValue title={'Accuracy'}
-                         value={notateNumber(tempestStats?.accuracy, 'MultiplierInfo').replace('.00', '')}/>
+                         value={numberWithCommas(Math.floor(tempestStats?.accuracy)).replace('.00', '')}/>
       <CardTitleAndValue title={'Defence'}
-                         value={notateNumber(tempestStats?.defence, 'MultiplierInfo').replace('.00', '')}/>
+                         value={numberWithCommas(Math.floor(tempestStats?.defence))}/>
       <CardTitleAndValue title={'Mastery'}
                          value={notateNumber(tempestStats?.mastery, 'MultiplierInfo').replace('.00', '')}/>
       <CardTitleAndValue title={'Crit pct'}

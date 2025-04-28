@@ -5,7 +5,7 @@ import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import Image from 'next/image'
-import { debounce } from 'lodash';
+import debounce from 'lodash.debounce';
 import Autocomplete from '@mui/material/Autocomplete';
 
 const ignore = ['DungWeaponBow1'];
