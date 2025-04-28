@@ -89,6 +89,7 @@ const SamplingCompanion = () => {
           <AutoGrid withBorder>
             <Equipment
               hideEmpty
+              weaponByClass={selectedSetup?.weaponByClass}
               equipment={selectedSetup?.equipment}
               tools={selectedSetup?.tools}
               food={selectedSetup?.food}

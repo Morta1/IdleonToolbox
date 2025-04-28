@@ -4,9 +4,16 @@ const getPrayer = (prayerName) => {
   return prayers?.find(({ name }) => name === prayerName);
 }
 
+
 export const samplingSetups = {
   'afk-fighting': {
     name: 'AFK Fighting',
+    weaponByClass: {
+      Beginner: 'EquipmentPunching9',
+      Warrior: 'EquipmentSword7',
+      Archer: 'EquipmentBows12',
+      Mage: 'EquipmentWands11'
+    },
     equipment: [
       items['EquipmentHats106'],
       items['EquipmentBows12'],
