@@ -259,7 +259,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
         text: `${character.name} is skilling but has fighting card set (${cardSetEffect})`
       };
     }
-    const hasPassiveCardsEquipped = character?.cards?.equippedCards?.filter(({ effect }) => effect?.includes('(Passive)'));
+    const hasPassiveCardsEquipped = character?.cards?.equippedCards?.filter(({ effect }) => effect?.includes('(Passive)') || effect?.includes('(P)'));
     if (hasPassiveCardsEquipped?.length > 0) {
       alerts.passiveCards = true;
     }

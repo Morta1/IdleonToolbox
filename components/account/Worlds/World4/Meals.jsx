@@ -363,7 +363,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                   </Tooltip>
                   <Stack>
                     <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
-                    {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x`}>
+                    {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x (Rank ${ribbonIndex})`}>
                       <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`} alt={`ribbon-${ribbonIndex}`}/>
                     </Tooltip> : null}
                   </Stack>

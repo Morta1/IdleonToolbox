@@ -341,13 +341,9 @@ const AdditionalInfo = ({
                           bubble,
                           goalLevel
                         }) => {
-  return <Stack mt={1.5} direction={'row'} justifyContent={'center'} gap={3}
-                flexWrap={'wrap'}>
-    {tooltip ? <BubbleTooltip {...{
-      ...bubble,
-      goalLevel
-    }}/> : null}
-    <Stack direction={'row'} gap={2}>
+  return <Box>
+    {tooltip ? <BubbleTooltip {...{ ...bubble, goalLevel }}/> : null}
+    <Stack gap={2} direction={'row'}>
       <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
              alignItems={'center'}>
         <BonusIcon src={`${prefix}data/SignStar1b.png`} alt=""/>
@@ -414,7 +410,12 @@ const AdditionalInfo = ({
         })
       }
     </Stack>
-  </Stack>
+    {bubbleMaxBonus  ? <>
+      <Divider sx={{ my: 1 }} />
+      <Typography
+        variant={'body2'}>{`${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}`}</Typography>
+    </> : null}
+  </Box>
 }
 
 const Nblb = ({ title, bubbles, lithium, accumulatedCost, account, breakdown }) => {
@@ -491,6 +492,7 @@ const BonusIcon = styled.img`
 const ItemIcon = styled.img`
   width: 32px;
   height: 32px;
+  object-fit: contain;
 `;
 
 const BubbleIcon = styled.img`
@@ -502,11 +504,15 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
   const bonus = growth(func, level, x1, x2, true);
   const goalBonus = growth(func, goalLevel, x1, x2, true);
   return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(bubbleName)}</Typography>
+    <Typography fontWeight={'bold'}
+                variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, bonus))}</Typography>
-    {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }}
-                                       variant={'body1'}>Goal:
-      +{goalBonus}</Typography> : null}
+    {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }} variant={'body1'}>
+      Goal: +{goalBonus}
+    </Typography> : null}
+    <Divider sx={{ my: 1 }}/>
+
   </>;
 }
 

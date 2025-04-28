@@ -83,8 +83,7 @@ const Bubbles = () => {
                              shopBargainBought, smrtAchievement, multiBubble) => {
     if (isLiquid) {
       return baseCost + Math.floor(bubbleLvl / 20);
-    }
-    else {
+    } else {
       const first = bubbleIndex < 15 ?
         baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl) :
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
@@ -501,7 +500,9 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
   const bonus = growth(func, level, x1, x2, true);
   const goalBonus = growth(func, goalLevel, x1, x2, true);
   return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(bubbleName)}</Typography>
+    <Typography fontWeight={'bold'}
+                variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/, bonus))}</Typography>
     {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }}
                                        variant={'body1'}>Goal:

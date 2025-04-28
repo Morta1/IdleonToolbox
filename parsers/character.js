@@ -703,7 +703,11 @@ export const getDropRate = (character, account, characters) => {
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
   const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value;
-  const measurementBonus = getMeasurementBonus({ holesObject: account?.hole?.holesObject, accountData: account, t: 15 });
+  const measurementBonus = getMeasurementBonus({
+    holesObject: account?.hole?.holesObject,
+    accountData: account,
+    t: 15
+  });
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
 
   const additive =
@@ -742,6 +746,44 @@ export const getDropRate = (character, account, characters) => {
     secondCompanionDropRate +
     secondSchematicBonus +
     monumentBonus;
+
+  // TODO: GoldFoodBonuses, TomeBonus, LankRankUpgBonus
+  // console.log('---------------- ')
+  // console.log('firstTalentBonus ', firstTalentBonus)
+  // console.log('postOfficeBonus ', postOfficeBonus)
+  // console.log('(drFromEquipment + drFromObols + drFromTools) ', (drFromEquipment + drFromObols + drFromTools))
+  // console.log('bubbleBonus ', bubbleBonus)
+  // console.log('cardBonus ', cardBonus)
+  // console.log('secondTalentBonus ', secondTalentBonus)
+  // console.log('starSignBonus ', starSignBonus)
+  // console.log('starSignRarityBonus ', starSignRarityBonus)
+  // console.log('guildBonus ', guildBonus)
+  // console.log('cardSetBonus ', cardSetBonus)
+  // console.log('shrineBonus ', shrineBonus)
+  // console.log('prayerBonus ', prayerBonus)
+  // console.log('sigilBonus ', sigilBonus)
+  // console.log('shinyBonus ', shinyBonus)
+  // console.log('arcadeBonus ', arcadeBonus)
+  // console.log('companionDropRate ', companionDropRate)
+  // console.log('stampBonus ', stampBonus)
+  // console.log('(starTalentBonus * (account?.accountOptions?.[189] ?? 0)) ', (starTalentBonus * (account?.accountOptions?.[189] ?? 0)))
+  // console.log('equinoxDropRateBonus ', equinoxDropRateBonus)
+  // console.log('summoningBonus ', summoningBonus)
+  // console.log('tomeBonus ', tomeBonus)
+  // console.log('passiveCardBonus ', passiveCardBonus)
+  // console.log('goldenFoodBonus ', goldenFoodBonus)
+  // console.log('(6 * achievementBonus + 4 * secondAchievementBonus) ', (6 * achievementBonus + 4 * secondAchievementBonus))
+  // console.log('owlBonus ', owlBonus)
+  // console.log('landRankBonus ', landRankBonus)
+  // console.log('voteBonus ', voteBonus)
+  // console.log('schematicBonus ', schematicBonus)
+  // console.log('cropDepotBonus ', cropDepotBonus)
+  // console.log('grimoireBonus ', grimoireBonus)
+  // console.log('upgradeVaultBonus ', upgradeVaultBonus)
+  // console.log('measurementBonus ', measurementBonus)
+  // console.log('secondCompanionDropRate ', secondCompanionDropRate)
+  // console.log('secondSchematicBonus ', secondSchematicBonus)
+  // console.log('monumentBonus', monumentBonus)
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -792,12 +834,12 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
     { name: 'Guild', value: guildBonus / 100 },
-    { name: 'Siege Breaker', value: extraDropRate },
+    { name: 'Siege Breaker*', value: extraDropRate },
     { name: 'Companion+', value: (companionDropRate + secondCompanionDropRate) / 100 },
     { name: 'Companion*', value: thirdCompanionDropRate },
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
-    { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
-    { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
+    { name: 'Gem Bundle*', value: hasDrBundle ? 1.2 : 0 },
+    { name: 'Gem Bundle2+', value: hasAnotherDrBundle ? 2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Pristine Charm', value: charmBonus / 100 },
     { name: 'Tome', value: tomeBonus / 100 },
@@ -808,7 +850,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Land rank', value: landRankBonus / 100 },
     { name: 'Vote', value: voteBonus },
-    { name: 'Gloomie Lootie', value: schematicBonus / 100 },
+    { name: 'Schematics', value: (schematicBonus + secondSchematicBonus) / 100 },
     { name: 'Grimoire', value: grimoireBonus / 100 },
     { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
     { name: 'Crop Depot', value: cropDepotBonus / 100 },

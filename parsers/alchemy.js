@@ -100,6 +100,7 @@ export const getLiquidCauldrons = (account) => {
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
 
     return {
+      isDragonic: account?.accountOptions?.[106] > index,
       maxLiquid: Math.ceil((1 + secondMath) * thirdMath),
       decantCap: {
         level: decantCapLevel,
@@ -473,7 +474,10 @@ export const calcSigilsLevels = (sigils) => {
 
 const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
   const bubblesArrays = Object.values(acc?.alchemy?.bubbles || {})
-    .map((array) => array.filter(({ level, index }) => level >= 5 && index < maxBubbleIndex).sort((a, b) => a.level - b.level).filter(({ level }) => level < 1500));
+    .map((array) => array.filter(({
+                                    level,
+                                    index
+                                  }) => level >= 5 && index < maxBubbleIndex).sort((a, b) => a.level - b.level).filter(({ level }) => level < 1500));
   const bubblePerCauldron = Math.ceil(Math.min(10, numberOfBubbles) / 4);
   const lowestBubbles = [];
   for (let j = 0; j < bubblesArrays.length; j++) {
