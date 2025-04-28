@@ -157,6 +157,12 @@ const AppProvider = ({ children }) => {
       } catch (err) {
         console.error('Failed to load data from profile api', err);
         router.push({ pathname: '/', query: router.query });
+        dispatch({
+          type: 'data',
+          data: {
+            isLoading: false
+          }
+        })
       }
     };
 
