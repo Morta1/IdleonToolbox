@@ -9,6 +9,7 @@ import Tooltip from '@components/Tooltip';
 const Medallions = ({ medallions, totalAcquiredMedallions }) => {
   const [CheckboxEl, hideCoinedPortals] = useCheckbox('Hide coined monsters');
   const [CheckboxDropsEl, showWindWalkerDrops] = useCheckbox('Show wind walker drops');
+
   return <>
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue title={'Total medallions'} value={`${totalAcquiredMedallions} / ${medallions?.length}`}/>
@@ -28,11 +29,8 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                           weakness
                         }, index) => {
         if (hideCoinedPortals && acquired) return null;
-        const currentIcon = icon ? `${icon}.png` : MonsterFace
-          ? `data/Mface${MonsterFace}.png`
-          : `afk_targets/${Name}.png`;
         return (
-          <Card key={rawName + index}>
+          <Card key={Name + index}>
             <CardContent
               sx={{
                 display: 'flex',
@@ -46,9 +44,9 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                      sx={{ position: 'relative' }}>
                 <img style={{ width: 41, height: 41, objectFit: 'contain' }}
                      onError={(e) => {
-                       e.target.src = `${prefix}afk_targets/${Name}.png`;
+                       // e.target.src = `${prefix}afk_targets/${Name}.png`;
                      }}
-                     src={`${prefix}${currentIcon}`}/>
+                     src={`${prefix}afk_targets/${Name}.png`}/>
                 <Stack>
                   <Typography>{cleanUnderscore(Name)}</Typography>
                   <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>

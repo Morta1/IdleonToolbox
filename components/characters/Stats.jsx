@@ -20,6 +20,7 @@ import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import processString from 'react-process-string';
 import styled from '@emotion/styled';
 import CoinDisplay from '../common/CoinDisplay';
+import ProgressBar from '@components/common/ProgressBar';
 
 const colors = {
   strength: 'error.light',
@@ -108,6 +109,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Non Consume Chance'}
                   value={`${kFormatter(nonConsumeChance, 2)}%`}
             />
+            <ProgressBar percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100} />
             <Stat title={'Money'}
                   value={<CoinDisplay title={''}
                                       money={getCoinsArray(character?.money ? character?.money : 0)}/>}

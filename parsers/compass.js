@@ -1,7 +1,6 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import {
   abominations,
-  cards,
   compass,
   items,
   mapDetails,
@@ -181,104 +180,57 @@ const getFilteredPortals = () => {
 }
 
 const getMedallions = (medallions) => {
-  const exclusions = [
-    'Bandit_Bob', 'wolfA', 'wolfB', 'wolfC',
-    'Boss2A', 'Boss2B', 'Boss2C', 'Boss3A', 'Boss3B', 'Boss3C', 'Boss4A',
-    'Boss4B', 'Boss4C', 'Boss5A', 'Boss5B', 'Boss5C',
-    'Boss6A', 'Boss6B', 'Boss6C', 'xmasEvent', 'xmasEvent2', 'xmasEvent3',
-    'loveEvent', 'loveEvent2', 'loveEvent3', 'EasterEvent1', 'EasterEvent2',
-    'SummerEvent1', 'SummerEvent2', 'springEvent1', 'springEvent2', 'fallEvent1', 'anni4Event1'
-  ];
-  const categoryExclusions = ['Dungeons', 'Easy_Resources', 'Medium_Resources', 'Hard_Resources']
-  const list = Object.entries(cards).filter(([rawName, { category }]) =>
-    !exclusions.includes(rawName)
-    && !categoryExclusions.includes(category)
-  )?.map(([rawName]) => ({
-    ...monsters?.[rawName], rawName
-  })).filter(({ AFKtype, rawName }) => AFKtype === 'FIGHTING'
-    && !rawName.includes('Fish')
-    && !rawName.includes('Forge')
-    && !rawName.includes('Soul'));
-
-  const config = [
-    { rawName: 'reindeer', icon: `afk_targets/${monsters?.reindeer?.Name}` },
-    { rawName: 'slimeR', icon: `afk_targets/${monsters?.slimeR?.Name}` },
-    { rawName: 'shovelY', icon: `afk_targets/${monsters?.shovelY?.Name}` },
-    { rawName: 'sheepB', icon: `afk_targets/${monsters?.sheepB?.Name}` },
-    { rawName: 'snakeY', icon: `afk_targets/${monsters?.snakeY?.Name}` },
-    { rawName: 'crabcakeB', icon: `afk_targets/${monsters?.crabcakeB?.Name}` },
-    { rawName: 'caveA', icon: `afk_targets/${monsters?.caveA?.Name}` },
-    { rawName: 'caveB', icon: `afk_targets/${monsters?.caveB?.Name}` },
-    { rawName: 'caveC', icon: `afk_targets/${monsters?.caveC?.Name}` },
-    { rawName: 'slimeB', icon: `afk_targets/${monsters?.slimeB?.Name}` },
-    { rawName: 'rockS', icon: `afk_targets/${monsters?.rockS?.Name}`, description: 'W3 Colo' },
-    { rawName: 'Meteor', icon: `afk_targets/${monsters?.Meteor?.Name}`, description: 'Event Boss' },
-    { rawName: 'rocky', icon: `afk_targets/${monsters?.rocky?.Name}`, description: 'Event Boss' },
-    { rawName: 'snakeZ', icon: `afk_targets/${monsters?.snakeZ?.Name}`, description: 'Event Boss' },
-    { rawName: 'iceknight', icon: `afk_targets/${monsters?.iceknight?.Name}`, description: 'Event Boss' },
-    { rawName: 'frogGR', icon: `afk_targets/${monsters?.frogGR?.Name}`, description: 'Event Boss' },
-    { rawName: 'poopBig', icon: `afk_targets/${monsters?.poopBig?.Name}`, description: 'Boss' },
-    { rawName: 'babayaga', icon: `afk_targets/${monsters?.babayaga?.Name}`, description: 'Boss' },
-    { rawName: 'babaHour', icon: `afk_targets/${monsters?.babaHour?.Name}`, description: 'Boss' },
-    { rawName: 'babaMummy', icon: `afk_targets/${monsters?.babaMummy?.Name}`, description: 'Boss' },
-    { rawName: 'mini3a', icon: `afk_targets/${monsters?.mini3a?.Name}`, description: 'Boss' },
-    { rawName: 'mini4a', icon: `afk_targets/${monsters?.mini4a?.Name}`, description: 'Boss' },
-    { rawName: 'mini5a', icon: `afk_targets/${monsters?.mini5a?.Name}`, description: 'Boss' },
-    { rawName: 'mini6a', icon: `afk_targets/${monsters?.mini6a?.Name}`, description: 'Boss' },
-
-    // Crystals
-    ...[0, 1, 2, 3, 4].map(n => ({
-      rawName: `Crystal${n}`,
-      icon: `afk_targets/${monsters[`Crystal${n}`]?.Name}`,
-      description: 'Glitterbug prayer'
-    })),
-
-    // Bug Nests
-    ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13].map(n => ({
-      rawName: `BugNest${n}`,
-      icon: `afk_targets/${monsters[`BugNest${n}`]?.Name}`
-    })),
-
-    // Chests
-    ...[1, 2, 3, 4, 5, 6].flatMap(wave =>
-      ['A', 'B', 'C'].map(type => ({
-        rawName: `Chest${type}${wave}`,
-        icon: `afk_targets/${monsters?.[`Chest${type}${wave}`]?.Name}`,
-        description: `W ${wave}`
-      }))
-    )
-  ];
-
-  const extra = config.map(({ rawName, icon, description }) => ({
-    rawName,
-    icon,
-    ...(description ? { description } : {})
-  }));
-
   return Array.from(
     new Map(
-      [...list, ...extra].map((monster) => {
-        const coinQuantity = monsterDrops?.[monster?.rawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
+      randomList?.[112]?.split(' ').map((monsterRawName) => {
+        const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
         const bowDrop = 4 > Math.floor(coinQuantity / 3) % 16 ? Math.floor(coinQuantity / 3) % 16 : -1;
         const ringDrop = 9 > Math.floor(coinQuantity / 2) % 42 ? Math.floor(coinQuantity / 2) % 42 : -1;
         const weakness = Math.round(coinQuantity / 17) % 4;
+
+        // Description logic
+        let description = undefined;
+        if (monsterRawName === 'rockS') description = 'W3 Colo';
+        else if (['Meteor', 'rocky', 'snakeZ', 'iceknight',
+          'frogGR'].includes(monsterRawName)) description = 'Event Boss';
+        else if (
+          ['poopBig', 'babayaga', 'babaHour', 'babaMummy', 'mini3a', 'mini4a', 'mini5a',
+            'mini6a'].includes(monsterRawName)
+        ) description = 'Boss';
+        else if (/^Crystal\d$/.test(monsterRawName)) description = 'Glitterbug prayer';
+        else if (/^Chest[ABC]\d$/.test(monsterRawName)) description = `W ${monsterRawName.slice(-1)}`;
+
+        // Chest logic
+        let customName = undefined;
+        const chestMatch = monsterRawName.match(/^Chest([ABC])(\d)$/);
+        if (chestMatch) {
+          const [, type, wave] = chestMatch;
+          description = `W ${wave}`;
+          customName =
+            type === 'A'
+              ? 'Bronze_Chest'
+              : type === 'B'
+                ? 'Silver_Chest'
+                : 'Golden_Chest';
+        }
+
         return [
-          monster.rawName,
+          monsterRawName,
           {
-            ...monster,
-            ...monsters[monster?.rawName],
-            acquired: medallions?.[monster?.rawName],
+            ...monsters[monsterRawName],
+            ...(customName ? { Name: customName } : {}),
+            acquired: medallions?.[monsterRawName],
             weakness,
             drops: [
               (bowDrop !== -1 ? { ...items?.[`EquipmentBowsTempest${bowDrop}`] } : null),
               (ringDrop !== -1 ? { ...items?.[`EquipmentRingsTempest${ringDrop}`] } : null)
-            ].filter(Boolean)
+            ].filter(Boolean),
+            description
           }
         ];
       })
     ).values()
   );
-  ;
 }
 
 const getAbominationWeakness = (abomination) => {
@@ -357,7 +309,7 @@ export const getCompassStats = (character, account) => {
   const equipBonus3 = getStatsFromGear(character, 89, account);
   const equipBonus4 = getStatsFromGear(character, 86, account);
   const hp = (10 + (getLocalCompassBonus(upgrades, 28)
-    + getLocalCompassBonus(upgrades, 87)))
+      + getLocalCompassBonus(upgrades, 87)))
     * (1 + (getLocalCompassBonus(upgrades, 140)
       + (getLocalCompassBonus(upgrades, 146)
         + getLocalCompassBonus(upgrades, 92))) / 100);
@@ -394,7 +346,7 @@ export const getCompassStats = (character, account) => {
                 * lavaLog(hp) +
                 (getLocalCompassBonus(upgrades, 85) + (getLocalCompassBonus(upgrades, 94)
                   + tempestTalent))))))))))))) / 100);
-  const accuracy =   (3 + (getLocalCompassBonus(upgrades, 17)
+  const accuracy = (3 + (getLocalCompassBonus(upgrades, 17)
       + (getLocalCompassBonus(upgrades, 19)
         + (getLocalCompassBonus(upgrades, 25)
           + getLocalCompassBonus(upgrades, 61)))))
