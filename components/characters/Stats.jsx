@@ -109,7 +109,9 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Non Consume Chance'}
                   value={`${kFormatter(nonConsumeChance, 2)}%`}
             />
-            <ProgressBar percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100} />
+            <ProgressBar
+              tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
+              percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
             <Stat title={'Money'}
                   value={<CoinDisplay title={''}
                                       money={getCoinsArray(character?.money ? character?.money : 0)}/>}
@@ -132,7 +134,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               <Typography color={'info.light'}>Crystal Chance</Typography>
               <Stack direction={'row'} gap={1}>
                 <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`} ({notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>
-                <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={crystalSpawnChance?.breakdown} notate={'MultiplierInfo'}/>}>
+                <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={crystalSpawnChance?.breakdown}
+                                                  notate={'MultiplierInfo'}/>}>
                   <InfoIcon/>
                 </Tooltip>
               </Stack>
