@@ -14,16 +14,13 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue title={'Total medallions'} value={`${totalAcquiredMedallions} / ${medallions?.length}`}/>
       <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
-      <CardTitleAndValue title={''} value={<CheckboxDropsEl/>}
-                         tooltipTitle={'Grass Bow and Wind Ring don\'t drop due to a bug.'}/>
+      <CardTitleAndValue title={''} value={<CheckboxDropsEl/>}/>
     </Stack>
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       {medallions?.map(({
                           Name,
                           rawName,
                           acquired,
-                          MonsterFace,
-                          icon,
                           description = '',
                           drops,
                           weakness

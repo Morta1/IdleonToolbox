@@ -73,7 +73,6 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
       unlocked: portals.every(({ unlocked }) => unlocked)
     }
   })
-  const medallions = getMedallions((medallionsRaw || []).toSimpleObject())
   const abominationsList = abominations.map((abomination, index) => {
     const unlocked = abominationsRaw?.[index]
     return {
@@ -105,6 +104,7 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
       description: upgrade?.description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'))
     }
   });
+  const medallions = getMedallions((medallionsRaw || []).toSimpleObject(), upgrades)
 
   const stampsMapping = {
     _: 'combat',
@@ -179,13 +179,26 @@ const getFilteredPortals = () => {
     && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
 }
 
-const getMedallions = (medallions) => {
+const getMedallions = (medallions, upgrades) => {
   return Array.from(
     new Map(
       randomList?.[112]?.split(' ').map((monsterRawName) => {
         const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
-        const bowDrop = 4 > Math.floor(coinQuantity / 3) % 16 ? Math.floor(coinQuantity / 3) % 16 : -1;
-        const ringDrop = 9 > Math.floor(coinQuantity / 2) % 42 ? Math.floor(coinQuantity / 2) % 42 : -1;
+        const bowDrop = 5 > Math.floor(coinQuantity / 3) % 16 ? (1 <= getLocalCompassBonus(upgrades, 3)
+          ? Math.floor(coinQuantity / 3) % 16
+          : -1) : 670 === coinQuantity
+        || 2500 === coinQuantity
+        || 13e4 === coinQuantity
+          ? 4 : 1850 === coinQuantity
+          || 7e3 === coinQuantity
+          || 19e3 === coinQuantity || 16e4 === coinQuantity ? 3 : -1;
+        const ringDrop = 9 > Math.floor(coinQuantity / 2) % 42
+          ? (1 <= getLocalCompassBonus(upgrades, 12)
+            ? Math.floor(coinQuantity / 2) % 42
+            : -1)
+          : 460 === coinQuantity || 1260 === coinQuantity || 2300 === coinQuantity || 8500 === coinQuantity || 8e4 === coinQuantity
+            ? 3
+            : -1;
         const weakness = Math.round(coinQuantity / 17) % 4;
 
         // Description logic

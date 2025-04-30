@@ -17,7 +17,7 @@ import {
   Switch,
   Typography
 } from '@mui/material';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
@@ -39,13 +39,6 @@ import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
 import useCheckbox from '@components/common/useCheckbox';
 
-const reducerValues = [
-  0,
-  30,
-  60,
-  90
-];
-
 const Stamps = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
@@ -53,6 +46,7 @@ const Stamps = () => {
     key: 'stamps:levels',
     defaultValue: { snapshotTime: null, levels: {} }
   });
+  const [reducerValues, setReducerValues] = useState([0]);
   const [types, setTypes] = useLocalStorage({
     key: 'stamps:types',
     defaultValue: {
@@ -65,6 +59,27 @@ const Stamps = () => {
       upgradable: true
     }
   });
+
+  useEffect(() => {
+    const hydrogenAtom = state?.account?.atoms?.atoms?.[0];
+    const valuePerDay = hydrogenAtom?.baseBonus * hydrogenAtom?.level;
+    if (!valuePerDay || valuePerDay <= 0) return;
+
+    const values = [];
+    let val = 0;
+
+    for (let i = 0; i < 6 && val <= 90; i++) {
+      values.push(val);
+      val += Math.max(20, valuePerDay);
+    }
+
+    if (values[values.length - 1] !== 90 && values.length < 6) {
+      values.push(90);
+    }
+
+    setReducerValues(values);
+  }, [state?.account]);
+
 
   const noSelectedTypes = Object.values(types).every((b) => !b);
   const gildedStamps = isRiftBonusUnlocked(state?.account?.rift, 'Stamp_Mastery')
@@ -171,10 +186,7 @@ const Stamps = () => {
               value={forcedStampReducer}
               onChange={(e) => setForcedStampReducer(e.target.value)}
             >
-              <MenuItem value={0}>0</MenuItem>
-              <MenuItem value={30}>30</MenuItem>
-              <MenuItem value={60}>60</MenuItem>
-              <MenuItem value={90}>90</MenuItem>
+              {reducerValues?.map((value) => <MenuItem key={value} value={value}>{value}</MenuItem>)}
             </Select>
           </FormControl>
           <Divider sx={{ my: 2 }}/>

@@ -203,7 +203,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
-  accountData.islands = getIslands(accountData);
+  accountData.islands = getIslands(accountData, charactersData);
   accountData.deathNote = getDeathNote(idleonData, charactersData, accountData);
   accountData.killroy = getKillRoy(idleonData, charactersData, accountData, serverVars);
   // reduce anvil

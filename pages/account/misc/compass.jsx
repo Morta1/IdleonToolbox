@@ -104,7 +104,7 @@ const Compass = () => {
                          value={notateNumber(tempestStats?.moveSpeed, 'MultiplierInfo').replace('.00', '')}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'compass')}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
       <Upgrades upgrades={groupedUpgrades} dusts={dusts}/>
       <Abominations abominations={abominations}/>
       <Medallions medallions={medallions} totalAcquiredMedallions={totalAcquiredMedallions}/>

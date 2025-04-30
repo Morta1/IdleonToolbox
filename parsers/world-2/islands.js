@@ -1,6 +1,7 @@
 import { notateNumber, number2letter } from '../../utility/helpers';
 import { getBribeBonus } from '../bribes';
 import { isBundlePurchased } from '../misc';
+import { getStampBonus } from '@parsers/stamps';
 
 const shimmerIslandTrials = [
   'Get_as_much_total_stats_as_possible,_STR_AGI_WIS_and_LUK_combined.',
@@ -24,7 +25,7 @@ const shimmerIslandTrials = [
   'Get_as_much_Choppin_Efficiency_(number_of_digits)_as_you_can.',
   'Get_as_much_Fishing_Efficiency_(number_of_digits)_as_you_can.',
   'Get_as_much_Catching_Efficiency_(number_of_digits)_as_you_can.',
-  'Claim_as_much_Guild_GP_this_week_as_you_can.',
+  'Claim_as_much_Guild_GP_this_week_as_you_can.'
 ];
 
 const shimmerIslandShop = [
@@ -34,7 +35,7 @@ const shimmerIslandShop = [
   { effect: '+{,Base_LUK', divider: 10 },
   { effect: '+{%,Total_DMG', divider: 3 },
   { effect: '+{%,Class_EXP', divider: 4 },
-  { effect: '+{%,Skill_Eff', divider: 5 },
+  { effect: '+{%,Skill_Eff', divider: 5 }
 ];
 
 const fractalIslandBonuses = [
@@ -45,10 +46,10 @@ const fractalIslandBonuses = [
   { effect: 'Dirty_Shovel_digs_up_+25%_more_Gold_Nuggets', cost: 1e4 },
   { effect: '+100_Star_Talent_Pts', cost: 2e4 },
   { effect: 'All_Ninja_Twins_get_+2%_Stealth_per_Sneaking_LV', cost: 4e4 },
-  { effect: 'World_7_Bonus..._I_wonder_what_it_will_be...', cost: 6e4 },
+  { effect: 'World_7_Bonus..._I_wonder_what_it_will_be...', cost: 6e4 }
 ]
 
-export const getIslands = (account) => {
+export const getIslands = (account, characters) => {
   const islandsKeys = (account?.accountOptions?.[169] || '')?.split('')
   const islandsUnlocked = account?.accountOptions?.[169]?.length;
   const preUnlockMultipliers = { 0: 0, 1: 8, 2: 32, 3: 80, 4: 200, 5: 500 };
@@ -65,14 +66,14 @@ export const getIslands = (account) => {
       baseCost: 50
     },
     { name: 'Shimmer', description: 'Do_Weekly_Challenges_for_Shimmer_Upgrades', preUnlockCost: 40, baseCost: 25 },
-    { name: 'Fractal', description: 'Dump_your_time_candy_here_for..._nothing...?', preUnlockCost: 52, baseCost: 70 },
+    { name: 'Fractal', description: 'Dump_your_time_candy_here_for..._nothing...?', preUnlockCost: 52, baseCost: 70 }
   ].map((island, index) => ({
     ...island,
     unlocked: islandsKeys?.indexOf(number2letter?.[index]) !== -1,
     cost: islandsUnlocked === 0
       ? island.preUnlockCost + preUnlockMultipliers?.[islandsUnlocked]
       : island.baseCost + multipliers?.[islandsUnlocked],
-    ...extraIslandDetails(account, index)
+    ...extraIslandDetails(account, characters, index)
   }))
   const bottles = account?.accountOptions?.[162];
   const bribeBonus = getBribeBonus(account?.bribes, 'Bottle_Service');
@@ -94,7 +95,9 @@ export const getIslands = (account) => {
   } else {
     bonusPerDays = Math.pow(8 * numberOfDaysAfk, .5);
   }
-  const trashPerDaysAfk = numberOfDaysAfk === 0 ? 0 : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfk, 70) / 100 + trashUpgradeLevel / 5))))
+  const trashPerDaysAfk = numberOfDaysAfk === 0
+    ? 0
+    : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfk, 70) / 100 + trashUpgradeLevel / 5))))
   const trashPerDay = Math.round(3 * 1.25 * Math.floor(1.01 + (.5 + (Math.min(1, 70) / 100 + trashUpgradeLevel / 5))));
   return {
     islandsUnlocked,
@@ -107,21 +110,68 @@ export const getIslands = (account) => {
   }
 }
 
-const extraIslandDetails = (account, index) => {
+const extraIslandDetails = (account, characters, index) => {
   let result = {};
   if (index === 0) {
     const trash = account?.accountOptions?.[161];
-    const iconNames = ['data/StampB47', 'data/StampB32', 'data/StampA38', 'data/StampA39',
-      'etc/Trash_Currency', 'etc/Bribe', 'data/Island1', 'data/TalentBook1', 'data/EquipmentNametag6b'];
-    const names = ['Skelefish Stamp', 'Amplestample Stamp', 'Golden Sixes Stamp', 'Stat Wallstreet Stamp',
-      '+20% Garbage Gain', 'Unlock New Bribe Set', '10% Message Bottle Gain', 'Filthy Damage Special Talent Book',
-      'Trash Tuna Nametag']
+    const items = [
+      {
+        icon: 'data/StampB47',
+        name: 'Skelefish Stamp',
+        acquired: getStampBonus(account, 'skills', 'StampB47')
+      },
+      {
+        icon: 'data/StampB32',
+        name: 'Amplestample Stamp',
+        acquired: getStampBonus(account, 'skills', 'StampB32')
+      },
+      {
+        icon: 'data/StampA38',
+        name: 'Golden Sixes Stamp',
+        acquired: getStampBonus(account, 'combat', 'StampA38')
+      },
+      {
+        icon: 'data/StampA39',
+        name: 'Stat Wallstreet Stamp',
+        acquired: getStampBonus(account, 'combat', 'StampA39')
+      },
+      {
+        icon: 'etc/Trash_Currency',
+        name: '+20% Garbage Gain',
+        acquired: 0
+      },
+      {
+        icon: 'etc/Bribe',
+        name: 'Unlock New Bribe Set',
+        acquired: getBribeBonus(account?.bribes, 'The_Art_of_the_Bail')
+      },
+      {
+        icon: 'data/Island1',
+        name: '10% Message Bottle Gain',
+        acquired: undefined
+      },
+      {
+        icon: 'data/TalentBook1',
+        name: 'Filthy Damage Special Talent Book',
+        acquired: characters?.[0]?.starTalents?.orderedTalents?.find(({ maxLevel, name }) => name === 'FILTHY_DAMAGE' && maxLevel > 0)
+      },
+      {
+        icon: 'data/EquipmentNametag6b',
+        name: 'Trash Tuna Nametag',
+        acquired: undefined
+      }
+    ]
     const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, account?.accountOptions?.[163]), 135,
       25 * Math.pow(1.5, account?.accountOptions?.[164]), 450, 1500]?.map((cost, index) => {
       const upgrades = index === 4 ? account?.accountOptions?.[163] : index === 6
         ? account?.accountOptions?.[164]
         : null;
-      return { cost: Math.round(cost), effect: iconNames?.[index], upgrades, name: names?.[index] }
+      return {
+        cost: Math.round(cost),
+        ...items?.[index],
+        effect: items?.[index]?.icon,
+        upgrades
+      }
     });
     result = { trash, learnMore: true, shop: trashShopPrices }
   } else if (index === 1) {
@@ -138,7 +188,7 @@ const extraIslandDetails = (account, index) => {
         {
           effect: `Star book`,
           cost: 200
-        },
+        }
       ]
     };
   } else if (index === 4) {

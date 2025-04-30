@@ -91,17 +91,20 @@ const Islands = () => {
       <DialogTitle>{dialog?.data?.name} shop</DialogTitle>
       <DialogContent>
         <Stack gap={1}>
-          {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked, name }, index) => {
+          {dialog?.data?.shop?.map(({ effect, cost, upgrades, unlocked, name, acquired }, index) => {
             const isImage = effect.includes('etc') || effect.includes('data');
             return <Card variant={'outlined'} key={'effect-' + index}
                          sx={{ border: unlocked ? '1px solid' : '', borderColor: unlocked ? 'success.light' : '' }}>
               <CardContent>
-                {name ? <Typography>{name}</Typography> : null}
+                {name ? <Stack direction={'column'} justifyContent={'space-between'}>
+                  <Typography variant={'body1'}>{name}</Typography>
+                  {acquired ? <Typography color={'success.light'} variant={'caption'}>Acquired</Typography> : null}
+                </Stack> : null}
                 <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
                        alignItems={isImage ? 'center' : 'flex-start'}>
                   {isImage ? <img style={{ width: 30 }} src={`${prefix}${effect}.png`} alt={''}/> :
                     <Typography>{cleanUnderscore(effect)}</Typography>}
-                  <Typography>Cost: {cost} {upgrades ? `(${upgrades})` : ''}</Typography>
+                  <Typography variant={'body2'}>Cost: {cost} {upgrades ? `(${upgrades})` : ''}</Typography>
                 </Stack>
               </CardContent>
             </Card>

@@ -18,7 +18,7 @@ const Crop = ({ crop, maxTimes }) => {
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <Typography variant={'h6'}>{msToDate(maxTimes?.[index]?.value * 1000)}</Typography>
               <Tooltip title={<Breakdown titleStyle={{ width: 160 }} breakdown={maxTimes?.[index]?.breakdown}
-                                         notate={'MultiplierInfo'}/>}>
+                                         notation={'MultiplierInfo'}/>}>
                 <IconInfoCircleFilled size={18}/>
               </Tooltip>
             </Stack>

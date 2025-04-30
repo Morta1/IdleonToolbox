@@ -22,6 +22,8 @@ import { getGambit } from '@parsers/world-5/caverns/gambit';
 import { getTheTemple } from '@parsers/world-5/caverns/the-temple';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getStatueBonus } from '@parsers/statues';
+import { getCompassBonus } from '@parsers/compass';
+import { getCharmBonus } from '@parsers/world-6/sneaking';
 
 const VILLAGERS = {
   EXPLORE: 0,
@@ -426,9 +428,12 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
         + (getJarBonus({ holesObject, i: 22 })
           + (getJarBonus({ holesObject, i: 29 })
             + getJarBonus({ holesObject, i: 35 })))));
+  const compassBonus = getCompassBonus(accountData, 59);
+  const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
 
   const value = (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
-    * Math.max(1, (1 + 2 * companionBonus)
+    * Math.max(1, (1 + compassBonus / 100)
+      * (1 + charmBonus / 100) * (1 + 2 * companionBonus)
       * (1 + statueBonus / 100)
       * (1 + jarBonuses / 100)
       * (1 + (25 * eventBonus) / 100)
@@ -467,6 +472,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     { name: 'Arcade', value: 1 + arcadeBonus / 100 },
     { name: 'Grimoire', value: 1 + grimoireBonus / 100 },
     { name: 'Gem shop', value: holesObject?.parallelVillagersGemShop[t] ? 2 : 0 },
+    { name: 'Compass', value: 1 + compassBonus / 100 },
+    { name: 'Charm', value: 1 + charmBonus / 100 },
     { title: 'Additive' },
     { name: 'Gloomie Opie', value: getSchematicBonus({ holesObject, t: 48, i: 0 }) },
     { name: 'Num. of Schematics', value: getCosSchematic(holesObject) },
@@ -490,7 +497,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     },
     { name: 'Cards', value: cardBonus },
     { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
-    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') }
+    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') },
   ];
 
   return {

@@ -19,7 +19,11 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
   const [Element, showAllPets, setShowAllPets] = useCheckbox('Show all pets', true);
   const [OrderElement, orderByTime] = useCheckbox('Order by time', false);
   const [ThresholdElement, applyThreshold] = useCheckbox('Apply threshold', false);
-  const [threshold, setThreshold] = useLocalStorage({ key: `breeding:levelThreshold`, defaultValue: 5 });
+  const [shinyThreshold, setShinyThreshold] = useLocalStorage({ key: `breeding:shinyLevelThreshold`, defaultValue: 5 });
+  const [breedabilityThreshold, setBreedabilityThreshold] = useLocalStorage({
+    key: `breeding:breedabilityLevelThreshold`,
+    defaultValue: 5
+  });
   const [selectedPassive, setSelectedPassive] = useLocalStorage({
     key: `breeding:selectedPassive`,
     defaultValue: null
@@ -39,14 +43,14 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         if (!fencePet?.amount) return false;
         if (isShiny && !fencePet?.isShiny) return false;
         if (!isShiny && !fencePet?.isBreedability) return false;
-        return isShiny ? shinyLevel < threshold : breedingLevel < threshold;
+        return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
       });
     }
     return pets.some(({ shinyLevel, breedingLevel, rawPassive }) => {
       if (isShiny && selectedPassive && cleanUnderscore(rawPassive).replace(/[{}+]/g, '') !== selectedPassive) return false;
-      return isShiny ? shinyLevel < threshold : breedingLevel < threshold;
+      return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
     });
-  }, [pets, threshold, showAllPets, isShiny, fencePets, applyThreshold, selectedPassive]);
+  }, [pets, shinyThreshold, breedabilityThreshold, showAllPets, isShiny, fencePets, applyThreshold, selectedPassive]);
 
   const reorderPets = useMemo(() => {
     const mappedPets = pets?.map((pet) => ({
@@ -73,13 +77,17 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         <Element checked={showAllPets}/>
         <OrderElement checked={orderByTime}/>
       </Stack>}/>
-      <CardTitleAndValue title={'Pet level threshold'}
+      <CardTitleAndValue title={isShiny ? 'Shiny pet level threshold' : 'Breedability pet level threshold'}
                          value={<Stack>
                            <ThresholdElement checked={applyThreshold}/>
                            <TextField size={'small'} sx={{ width: 'fit-content', mt: 1 }}
-                                      type={'number'} value={threshold}
-                                      onChange={(e) => setThreshold(e.target.value)}
-                                      helperText={'Show pets under this level only'}/>
+                                      type={'number'} value={isShiny ? shinyThreshold : breedabilityThreshold}
+                                      onChange={(e) => isShiny
+                                        ? setShinyThreshold(e.target.value)
+                                        : setBreedabilityThreshold(e.target.value)}
+                                      helperText={isShiny
+                                        ? 'Show shiny pets under this level only'
+                                        : 'Show breedability pets under this level only'}/>
                          </Stack>}/>
       {isShiny ? <CardTitleAndValue title={'Filter by stat'} value={
         <Autocomplete
@@ -122,7 +130,8 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         } = pet;
         const progress = isShiny ? shinyProgress : breedingProgress;
         const level = isShiny ? shinyLevel : breedingLevel;
-        if (applyThreshold && level >= threshold) return null;
+        const currentThreshold = isShiny ? shinyThreshold : breedabilityThreshold;
+        if (applyThreshold && level >= currentThreshold) return null;
         const goal = isShiny ? shinyGoal : breedingGoal;
         const fencePet = fencePets[monsterRawName];
         if (!showAllPets && (!fencePet?.amount || (isShiny
@@ -134,7 +143,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
           ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
           : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
         const timeToThreshold = getTimeToLevel(pet, multi.value, fencePet?.amount, applyThreshold
-          ? threshold
+          ? currentThreshold
           : 5, isShiny);
         return <Card key={monsterName} variant={'outlined'}
                      sx={{
@@ -177,7 +186,9 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
                 {timeToThreshold > 0 && timeToThreshold !== timeLeft ? <>
                   <Stack flexWrap={'wrap'} direction={'row'}
                          gap={1}>
-                    <Typography component={'span'} variant={'body2'}>To {threshold ?? 5}:</Typography>
+                    <Typography component={'span'} variant={'body2'}>To {(isShiny
+                      ? shinyThreshold
+                      : breedabilityThreshold) ?? 5}:</Typography>
                     <Timer variant={'caption'} type={'countdown'} lastUpdated={state?.lastUpdated}
                            staticTime
                            date={new Date().getTime() + (timeToThreshold)}/>

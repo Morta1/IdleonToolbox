@@ -20,9 +20,6 @@ export const PAGES = {
         { label: 'storage', icon: 'data/InvStorage42' },
         { label: 'quests', icon: 'data/Quest62' },
         { label: 'dungeons', icon: 'data/DungeonA7', tabs: ['Passives', 'Rng Items', 'Traits'] },
-        { label: 'apocalypses', icon: 'data/UISkillIcon110' },
-        { label: 'grimoire', icon: 'data/GrimoireUpg18' },
-        { label: 'compass', icon: 'data/UISkillIcon421', tabs: ['Upgrades', 'Abominations', 'Medallions', 'Portals'] },
         {
           label: 'constellations',
           icon: 'data/StarTitle1',
@@ -45,6 +42,14 @@ export const PAGES = {
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
         { label: 'companions', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } }
+      ]
+    },
+    'class-specific': {
+      icon: 'data/ClassSwapB',
+      categories: [
+        { label: 'apocalypses', icon: 'data/UISkillIcon110' },
+        { label: 'grimoire', icon: 'data/GrimoireUpg18' },
+        { label: 'compass', icon: 'data/UISkillIcon421', tabs: ['Upgrades', 'Abominations', 'Medallions', 'Portals'] }
       ]
     },
     'task board': {
