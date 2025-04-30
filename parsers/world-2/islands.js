@@ -153,14 +153,17 @@ const extraIslandDetails = (account, characters, index) => {
       {
         icon: 'data/TalentBook1',
         name: 'Filthy Damage Special Talent Book',
-        acquired: characters?.[0]?.starTalents?.orderedTalents?.find(({ maxLevel, name }) => name === 'FILTHY_DAMAGE' && maxLevel > 0)
+        acquired: characters?.[0]?.starTalents?.orderedTalents?.find(({
+                                                                        maxLevel,
+                                                                        name
+                                                                      }) => name === 'FILTHY_DAMAGE' && maxLevel > 0)
       },
       {
         icon: 'data/EquipmentNametag6b',
         name: 'Trash Tuna Nametag',
-        acquired: undefined
+        acquired: account?.looty?.slabItems?.find(({ rawName, obtained }) => rawName === 'EquipmentNametag6b' && obtained)
       }
-    ]
+    ];
     const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, account?.accountOptions?.[163]), 135,
       25 * Math.pow(1.5, account?.accountOptions?.[164]), 450, 1500]?.map((cost, index) => {
       const upgrades = index === 4 ? account?.accountOptions?.[163] : index === 6
