@@ -15,7 +15,7 @@ import {
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { NextSeo } from 'next-seo';
-import Tooltip from '../../../components/Tooltip';
+import Tooltip from '@components/Tooltip';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 
 const Apocalypses = () => {
