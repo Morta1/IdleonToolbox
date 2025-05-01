@@ -138,7 +138,7 @@ const extraIslandDetails = (account, characters, index) => {
       {
         icon: 'etc/Trash_Currency',
         name: '+20% Garbage Gain',
-        acquired: 0
+        acquired: undefined
       },
       {
         icon: 'etc/Bribe',

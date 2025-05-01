@@ -98,7 +98,9 @@ const Islands = () => {
               <CardContent>
                 {name ? <Stack direction={'column'} justifyContent={'space-between'}>
                   <Typography variant={'body1'}>{name}</Typography>
-                  {acquired ? <Typography color={'success.light'} variant={'caption'}>Acquired</Typography> : null}
+                  {index !== 4 && index !== 6 ? acquired ? <Typography color={'success.light'}
+                                                                       variant={'caption'}>Acquired</Typography> :
+                    <Typography variant={'caption'}>Not acquired</Typography> : null}
                 </Stack> : null}
                 <Stack gap={isImage ? 1 : 0} direction={isImage ? 'row' : 'column'}
                        alignItems={isImage ? 'center' : 'flex-start'}>
