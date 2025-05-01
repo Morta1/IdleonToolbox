@@ -16,7 +16,7 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/printer';
 
 const baseTrackers = {
-  version: 18,
+  version: 19,
   account: {
     General: {
       tasks: {
@@ -99,7 +99,8 @@ const baseTrackers = {
             props: { label: 'Threshold', value: 1, minValue: 1 },
             checked: true
           },
-          { name: 'shimmerIsland', checked: true }
+          { name: 'shimmerIsland', checked: true },
+          { name: 'garbageUpgrade', checked: true },
         ]
       },
       postOffice: {

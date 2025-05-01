@@ -398,6 +398,22 @@ export const migrateToVersion18 = (config) => {
   dashboardConfig.version = 18;
   return dashboardConfig
 }
+export const migrateToVersion19 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 2']?.islands?.options?.length === 2) {
+    dashboardConfig.account['World 2'].islands.options = [
+      ...dashboardConfig.account['World 2'].islands.options,
+      { name: 'garbageUpgrade', checked: true }
+    ]
+  }
+
+  dashboardConfig.version = 19;
+  return dashboardConfig
+}
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -456,6 +472,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 17) {
       migratedConfig = migrateToVersion18(migratedConfig);
+    }
+    if (migratedConfig?.version === 18) {
+      migratedConfig = migrateToVersion19(migratedConfig);
     }
   }
   return migratedConfig;

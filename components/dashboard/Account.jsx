@@ -152,6 +152,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={'You haven\'t claimed your shimmer\'s trial reward this week'}
                   iconPath={'etc/Shimmer_Currency'}/> : null}
+              {alerts?.['World 2']?.islands?.garbageUpgrade ?
+                <Alert
+                  title={'You have enough garbage to buy a \'Garbage Gain\' upgrade in trash island'}
+                  iconPath={'etc/Trash_Currency'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
               {alerts?.['World 2']?.alchemy?.gems ?

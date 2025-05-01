@@ -13,6 +13,7 @@ import { getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 import { isPast } from 'date-fns';
+import { getIsland } from '@parsers/world-2/islands';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -329,6 +330,10 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.islands?.shimmerIsland?.checked && account?.accountOptions?.[182] === 0) {
       islands.shimmerIsland = account?.accountOptions?.[182] === 0;
     }
+    const trashIsland = getIsland(account, 'Trash');
+    if (options?.islands?.garbageUpgrade?.checked && trashIsland?.trash >= trashIsland?.shop?.[4]?.cost) {
+      islands.garbageUpgrade = true;
+    }
     if (Object.keys(islands).length > 0) {
       alerts.islands = islands;
     }
@@ -562,7 +567,7 @@ export const getWorld4Alerts = (account, fields, options) => {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
                                       monsterRawName,
-                                      shinyLevel,
+                                      shinyLevel
                                     }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.isShiny && shinyLevel >= shinies?.props?.value);
         return [...res, ...pets];
       }, [])
@@ -575,7 +580,7 @@ export const getWorld4Alerts = (account, fields, options) => {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
                                       monsterRawName,
-                                      breedingLevel,
+                                      breedingLevel
                                     }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.isBreedability && breedingLevel >= breedability?.props?.value);
         return [...res, ...pets];
       }, [])
