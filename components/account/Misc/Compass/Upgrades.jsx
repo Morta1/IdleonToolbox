@@ -8,13 +8,15 @@ import {
   MenuItem,
   Select,
   Stack,
-  Typography
+  Typography,
+  TextField
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 
 const Upgrades = ({ upgrades, dusts }) => {
   const [sortBy, setSortBy] = useState('default');
+  const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
 
   const sortUpgrades = (list) => {
@@ -26,6 +28,14 @@ const Upgrades = ({ upgrades, dusts }) => {
       return sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     }
     return list;
+  };
+
+  const filterUpgrades = (list) => {
+    if (!searchText) return list;
+    return list.filter(upgrade => 
+      upgrade.description && 
+      upgrade.description.toLowerCase().includes(searchText.toLowerCase())
+    );
   };
 
   const renderUpgradeCard = (upgrade, i, dustType) => {
@@ -92,6 +102,13 @@ const Upgrades = ({ upgrades, dusts }) => {
             <MenuItem value="type">Type</MenuItem>
           </Select>
         </FormControl>
+        <TextField
+          size="small"
+          label="Search by description"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          sx={{ width: 250 }}
+        />
         <CheckboxEl/>
       </Stack>
 
@@ -106,7 +123,7 @@ const Upgrades = ({ upgrades, dusts }) => {
               return acc;
             }, {})
         ).map(([x3, groupedUpgrades]) => {
-          const sortedGroup = groupedUpgrades.toSorted((a, b) => (a.cost || 0) - (b.cost || 0));
+          const sortedGroup = filterUpgrades(groupedUpgrades).toSorted((a, b) => (a.cost || 0) - (b.cost || 0));
 
           return (
             <Stack key={x3} direction="column" gap={2}>
@@ -122,7 +139,7 @@ const Upgrades = ({ upgrades, dusts }) => {
         })
       ) : (
         upgrades.map(({ path, list }) => {
-          const filtered = sortUpgrades(list);
+          const filtered = filterUpgrades(sortUpgrades(list));
           return (
             <Stack key={path} direction="column" gap={2}>
               <Typography variant="h6">{path}</Typography>
