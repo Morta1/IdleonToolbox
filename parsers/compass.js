@@ -185,13 +185,11 @@ const getMedallions = (medallions, upgrades) => {
       randomList?.[112]?.split(' ').map((monsterRawName) => {
         const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
         const bowDrop = 5 > Math.floor(coinQuantity / 3) % 16 ? (1 <= getLocalCompassBonus(upgrades, 3)
-          ? Math.floor(coinQuantity / 3) % 16
-          : -1) : 670 === coinQuantity
-        || 2500 === coinQuantity
-        || 13e4 === coinQuantity
-          ? 4 : 1850 === coinQuantity
-          || 7e3 === coinQuantity
-          || 19e3 === coinQuantity || 16e4 === coinQuantity ? 3 : -1;
+          ? Math.floor(coinQuantity / 3) % 16 : -1) : 670 === coinQuantity
+        || 2500 === coinQuantity || 13e4 === coinQuantity
+          ? 4 : 1850 === coinQuantity || 7e3 === coinQuantity || 19e3 === coinQuantity || 16e4 === coinQuantity
+            ? 3
+            : -1;
         const ringDrop = 9 > Math.floor(coinQuantity / 2) % 42
           ? (1 <= getLocalCompassBonus(upgrades, 12)
             ? Math.floor(coinQuantity / 2) % 42
@@ -200,7 +198,21 @@ const getMedallions = (medallions, upgrades) => {
             ? 3
             : -1;
         const weakness = Math.round(coinQuantity / 17) % 4;
-
+        const dustType = 145e3 === Math.floor(coinQuantity) || 72e3 === Math.floor(coinQuantity) || 2700 === Math.floor(coinQuantity) || -1 === Math.floor(coinQuantity)
+          ? 0
+          : 310 === Math.floor(coinQuantity) || 770 === Math.floor(coinQuantity) || 1500 === Math.floor(coinQuantity) || 29e3 === Math.floor(coinQuantity)
+            ? 1
+            : 4e5 === Math.floor(coinQuantity) || 98500 === Math.floor(coinQuantity) || 865 === Math.floor(coinQuantity) || -1 === Math.floor(coinQuantity)
+              ? 2
+              : 89e3 === Math.floor(coinQuantity) || 12500 === Math.floor(coinQuantity) || 5e4 === Math.floor(coinQuantity) || -1 === Math.floor(coinQuantity)
+                ? 3
+                : 5e3 <= coinQuantity ? Math.min(Math.floor(coinQuantity / 35) % 4, 3) : 1e3 <= coinQuantity
+                  ? Math.min(Math.floor(coinQuantity / 35) % 3, 2)
+                  : 350 <= coinQuantity ? Math.min(Math.floor(coinQuantity / 35) % 2, 1) : 0;
+        const dustBaseQuantity = 3 <= dustType
+          ? Math.pow(Math.max(1, coinQuantity - 4999) / 3, 0.9) : 2 <= dustType
+            ? Math.pow(Math.max(1, coinQuantity - 999) / 3, 0.9) : 1 <= dustType
+              ? Math.pow(Math.max(1, coinQuantity - 349) / 2, 0.9) : Math.pow(Math.max(1, coinQuantity) / 2, 0.9);
         // Description logic
         let description = undefined;
         if (monsterRawName === 'rockS') description = 'W3 Colo';
@@ -238,7 +250,9 @@ const getMedallions = (medallions, upgrades) => {
               (bowDrop !== -1 ? { ...items?.[`EquipmentBowsTempest${bowDrop}`] } : null),
               (ringDrop !== -1 ? { ...items?.[`EquipmentRingsTempest${ringDrop}`] } : null)
             ].filter(Boolean),
-            description
+            description,
+            dustType,
+            dustBaseQuantity
           }
         ];
       })

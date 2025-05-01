@@ -1,5 +1,5 @@
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import React from 'react';
 import { CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
@@ -23,7 +23,9 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                           acquired,
                           description = '',
                           drops,
-                          weakness
+                          weakness,
+                          dustType,
+                          dustBaseQuantity
                         }, index) => {
         if (hideCoinedPortals && acquired) return null;
         return (
@@ -40,9 +42,6 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
                      sx={{ position: 'relative' }}>
                 <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                     onError={(e) => {
-                       // e.target.src = `${prefix}afk_targets/${Name}.png`;
-                     }}
                      src={`${prefix}afk_targets/${Name}.png`}/>
                 <Stack>
                   <Typography>{cleanUnderscore(Name)}</Typography>
@@ -60,10 +59,13 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                       <img style={{ width: 42, height: 42 }} src={`${prefix}data/${item?.rawName}.png`}/>
                     </Tooltip>
                   }) : <Box sx={{ width: 42, height: 42 }}/>}
-                  <Box sx={{ ml: 'auto' }}>
+                  <Stack direction={'row'} alignItems="center" sx={{ ml: 'auto' }}>
+                    <Typography variant={'body1'}>{numberWithCommas(Math.floor(dustBaseQuantity))}</Typography>
+                    <img style={{ width: 42, height: 42, marginTop: -15 }}
+                         src={`${prefix}data/Dust${dustType}_x1.png`}/>
                     <img style={{ width: 24, height: 24 }}
                          src={`${prefix}data/WWeffect${weakness}.png`}/>
-                  </Box>
+                  </Stack>
                 </Stack>
               </> : null}
             </CardContent>
