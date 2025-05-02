@@ -2,7 +2,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -63,7 +63,8 @@ const Grimoire = () => {
                         boneType,
                         unlockLevel,
                         level,
-                        unlocked
+                        unlocked,
+                        x4
                       }, index) => {
         if (name === 'Ripped_Page') return null;
         return (
@@ -78,7 +79,7 @@ const Grimoire = () => {
             }}>
               <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
                 <img style={{ width: 32, height: 32 }} src={`${prefix}data/GrimoireUpg${index}.png`}/>
-                <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({level})</Typography>
+                <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})</Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>
               <Typography>{cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>

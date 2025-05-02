@@ -204,39 +204,31 @@ export const getJarBonus = ({ holesObject, i }) => {
 }
 
 const getNewCollectibleChance = ({ holesObject }) => {
-  let value = 0;
-  let value2 = 0;
+  const hasBUpg = getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1;
+  const bonus7 = getJarBonus({ holesObject, i: 7 }) / 100;
+  const bonus25 = getJarBonus({ holesObject, i: 25 }) / 100;
 
-  for (let i = 0; i < 10; i++) {
-    if (getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1) {
-      const index = Math.round(20 + value2);
-      const logValue = Math.ceil(lavaLog(holesObject?.wellSediment[index]));
-
-      value2 += logValue;
+  let dn3 = 0;
+  if (hasBUpg) {
+    for (let i = 0; i < 10; i++) {
+      const idx = Math.round(20 + i);
+      const value = holesObject?.wellSediment?.[idx] || 0;
+      dn3 += Math.ceil(lavaLog(value));
     }
   }
 
-  const bonus1 = getJarBonus({ holesObject, i: 7 }) / 100;
-  const bonus2 = getJarBonus({ holesObject, i: 25 }) / 100;
-  const multiplier = Math.max(1, Math.pow(1.02, value2));
+  const powerFactor = Math.max(1, Math.pow(1.02, dn3));
+  const dn2 = (1 + bonus7) * powerFactor * (1 + bonus25);
 
-  let value3 = (1 + bonus1) * multiplier * (1 + bonus2);
+  const dn = holesObject?.jarStuff?.reduce((count, v) => count + (v >= 1 ? 1 : 0), 0);
 
-  for (let i = 0; i < 40; i++) {
-    if (holesObject?.jarStuff?.[i] >= 1) {
-      value++;
-    }
+  if (dn === 0) {
+    return 0.25;
   }
-
-  // Final return calculation
-  if (value === 0) return 0.25;
-
-  const chanceFactor = Math.pow(value, 1.9);
-  if (value < 16) {
-    return (0.2 * value3) / (1 + chanceFactor);
-  } else {
-    return (0.2 * value3) / (1 + chanceFactor + Math.pow(value - 16, 2));
-  }
+  const base = 0.2 * dn2;
+  const denomination = 1 + Math.pow(dn, 1.9);
+  const penalty = dn > 15 ? Math.pow(1.5, dn - 16) : 1;
+  return (base / denomination) / penalty;
 }
 
 const getEnchantChance = ({ holesObject }) => {
