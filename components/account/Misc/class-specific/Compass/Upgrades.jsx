@@ -8,8 +8,8 @@ import {
   MenuItem,
   Select,
   Stack,
-  Typography,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
@@ -32,8 +32,8 @@ const Upgrades = ({ upgrades, dusts }) => {
 
   const filterUpgrades = (list) => {
     if (!searchText) return list;
-    return list.filter(upgrade => 
-      upgrade.description && 
+    return list.filter(upgrade =>
+      upgrade.description &&
       upgrade.description.toLowerCase().includes(searchText.toLowerCase())
     );
   };
@@ -123,7 +123,7 @@ const Upgrades = ({ upgrades, dusts }) => {
               return acc;
             }, {})
         ).map(([x3, groupedUpgrades]) => {
-          const sortedGroup = filterUpgrades(groupedUpgrades).toSorted((a, b) => (a.cost || 0) - (b.cost || 0));
+          const sortedGroup = filterUpgrades(groupedUpgrades.toSorted((a, b) => (a.cost || 0) - (b.cost || 0)));
 
           return (
             <Stack key={x3} direction="column" gap={2}>

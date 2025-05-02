@@ -2,10 +2,14 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { cleanUnderscore, commaNotation, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { NextSeo } from 'next-seo';
+import { PAGES } from '@components/constants';
+import Tabber from '@components/common/Tabber';
+import Upgrades from '@components/account/Misc/class-specific/Grimoire/Upgrades';
+import Monsters from '@components/account/Misc/class-specific/Grimoire/Monsters';
 
 
 const boneNames= [
@@ -16,7 +20,7 @@ const boneNames= [
 ];
 const Grimoire = () => {
   const { state } = useContext(AppContext);
-  const { bones, upgrades, totalUpgradeLevels, nextUnlock, wraith } = state?.account?.grimoire;
+  const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock, wraith } = state?.account?.grimoire;
 
   return <>
     <NextSeo
@@ -53,48 +57,11 @@ const Grimoire = () => {
                          value={`${notateNumber(wraith?.extraBones, 'MultiplierInfo')}x`}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {upgrades?.map(({
-                        name,
-                        cost,
-                        description,
-                        bonus,
-                        monsterProgress,
-                        boneType,
-                        unlockLevel,
-                        level,
-                        unlocked,
-                        x4
-                      }, index) => {
-        if (name === 'Ripped_Page') return null;
-        return (
-          (<Card key={name + index}>
-            <CardContent sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: 370,
-              minHeight: 250,
-              height: '100%',
-              opacity: unlocked ? 1 : .5
-            }}>
-              <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-                <img style={{ width: 32, height: 32 }} src={`${prefix}data/GrimoireUpg${index}.png`}/>
-                <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})</Typography>
-              </Stack>
-              <Divider sx={{ my: 1 }}/>
-              <Typography>{cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
-              <Divider sx={{ my: 1 }}/>
-              <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
-                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Bone${boneType}_x1.png`}/>
-                <Typography>Cost: {notateNumber(bones?.[boneType] || 0)} / {notateNumber(cost, 'Big')}</Typography>
-              </Stack>
-              <Divider sx={{ my: 1 }}/>
-              <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>
-            </CardContent>
-          </Card>)
-        );
-      })}
-    </Stack>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire')}>
+      <Upgrades upgrades={upgrades} bones={bones} />
+      <Monsters monsters={monsterDrops}/>
+    </Tabber>
+
   </>;
 };
 

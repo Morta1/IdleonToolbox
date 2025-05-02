@@ -6,10 +6,10 @@ import { commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
-import Upgrades from '@components/account/Misc/Compass/Upgrades';
-import Abominations from '@components/account/Misc/Compass/Abominations';
-import Medallions from '@components/account/Misc/Compass/Medallions';
-import Portals from '@components/account/Misc/Compass/Portals';
+import Upgrades from '@components/account/Misc/class-specific/Compass/Upgrades';
+import Abominations from '@components/account/Misc/class-specific/Compass/Abominations';
+import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
+import Portals from '@components/account/Misc/class-specific/Compass/Portals';
 import { getCompassStats, getExtraDust } from '@parsers/compass';
 import { checkCharClass } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';

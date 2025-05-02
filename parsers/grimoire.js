@@ -1,5 +1,5 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { grimoire, monsters, randomList } from '../data/website-data';
+import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '../data/website-data';
 import { getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getCharacterByHighestLevel } from '@parsers/misc';
@@ -45,8 +45,50 @@ const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
     upgrades,
     nextUnlock,
     wraith,
+    monsterDrops: getMonsterDrops(),
     ribbons: ribbonRaw
   };
+}
+
+const getMonsterDrops = () => {
+  const excludedMaps = [
+    'Nothing', 'Z', 'Copper',
+    'Iron', 'Starfire', 'Plat', 'Void',
+    'Filler', 'JungleZ', 'Grandfrog\'s_Gazebo',
+    'Grandfrog\'s_Backyard', 'Gravel_Tomb', 'Heaty_Hole',
+    'Igloo\'s_Basement', 'Inside_the_Igloo', 'End_Of_The_Road',
+    'Efaunt\'s_Tomb', 'Eycicles\'s_Nest', 'Enclave_a_la_Troll',
+    'Chizoar\'s_Cavern', 'KattleKruk\'s_Volcano', 'Castle_Interior'].toSimpleObject();
+  const list = Object.values(mapNames).map((mapName, index) => {
+    const monsterRawName = mapEnemiesArray?.[index];
+    const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
+    const boneType = 6e3 === Math.floor(coinQuantity)
+    || 12500 === Math.floor(coinQuantity) || 22e3 === Math.floor(coinQuantity) ||
+    35e4 === Math.floor(coinQuantity) ? 0 : 4e5 === Math.floor(coinQuantity) ?
+      1 : 3700 <= coinQuantity ? Math.min(Math.floor(coinQuantity / 27) % 4, 3)
+        : 740 <= coinQuantity ? Math.min(Math.floor(coinQuantity / 27) % 3, 2) :
+          190 <= coinQuantity ? Math.min(Math.floor(coinQuantity / 27) % 2, 1) : 0;
+    const boneQuantity = 3 <= boneType
+      ? Math.pow(Math.max(1, coinQuantity - 3699), 0.9) : 2 <= boneType
+        ? Math.pow(Math.max(1, coinQuantity - 739), 0.9) : 1 <= boneType
+          ? Math.pow(Math.max(1, coinQuantity - 189), 0.9) : Math.pow(Math.max(coinQuantity, coinQuantity), 0.9);
+    return {
+      ...monsters?.[monsterRawName],
+      rawName: monsterRawName,
+      mapName,
+      boneType,
+      boneQuantity
+    }
+  }).filter(({
+               mapName,
+               AFKtype
+             }) => AFKtype === 'FIGHTING' && !excludedMaps[mapName] && !AFKtype.includes('Fish') && !AFKtype.includes('Bug') && !mapName.includes('Colosseum'));
+  
+  // Filter to get the final list with unique items by rawName
+  return list.filter((item, index, self) =>
+    index === self.findIndex((t) => t.rawName === item.rawName)
+  );
+  
 }
 
 const getMonsterProgress = (monsterList, accountData, index) => {
