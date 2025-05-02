@@ -5,6 +5,13 @@ import { getStatsFromGear } from '@parsers/items';
 import { getCharacterByHighestLevel } from '@parsers/misc';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 
+export const boneNames = [
+  'Femur',
+  'Ribcage',
+  'Cranium',
+  'Bovinae'
+];
+
 export const getGrimoire = (idleonData, charactersData, accountData) => {
   const grimoireRaw = tryToParse(idleonData?.Grimoire) || idleonData?.Grimoire;
   const ribbonRaw = tryToParse(idleonData?.Ribbon) || idleonData?.Ribbon;

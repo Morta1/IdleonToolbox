@@ -22,7 +22,7 @@ const weaknesses = {
   3: 'Ice'
 }
 
-const dustNames = {
+export const dustNames = {
   0: 'Stardust',
   1: 'Moondust',
   2: 'Solardust',

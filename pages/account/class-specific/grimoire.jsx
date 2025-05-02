@@ -10,14 +10,8 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Misc/class-specific/Grimoire/Upgrades';
 import Monsters from '@components/account/Misc/class-specific/Grimoire/Monsters';
+import { boneNames } from '@parsers/grimoire';
 
-
-const boneNames= [
-  'Femur',
-  'Ribcage',
-  'Cranium',
-  'Bovinae'
-];
 const Grimoire = () => {
   const { state } = useContext(AppContext);
   const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock, wraith } = state?.account?.grimoire;
