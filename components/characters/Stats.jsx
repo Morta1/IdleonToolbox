@@ -99,11 +99,12 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
 
             <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
-                  breakdown={drBreakdown} breakdownNotation={'Smaller'}/>
+                  breakdown={drBreakdown} breakdownNotation={'Smaller'} useDoubleColumn/>
             <Stat title={'Respawn Time'}
                   value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
                   breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'AFK Gains'}
+                  useDoubleColumn
                   value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
                   breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'Non Consume Chance'}
@@ -162,11 +163,12 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
   );
 };
 
-const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
+const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage, useDoubleColumn }) => {
   return (
     (<Stack direction={'row'} justifyContent={'space-between'}>
       <Typography color={'info.light'}>{title}</Typography>
       <Tooltip maxWidth={450} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+                                                                   useDoubleColumn={useDoubleColumn}
                                                                    notate={breakdownNotation}/> : ''}>
         {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
           {processString([{
@@ -182,19 +184,34 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
   );
 }
 
-const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
+const BreakdownTooltip = ({ breakdown, titleWidth = 170, notate = '', useDoubleColumn }) => {
   if (!breakdown) return '';
-  return <Stack>
-    {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
-                                                                           key={`${name}-${index}`}>{title}</Typography>
-      : !name ? <Divider sx={{ my: 1 }} key={`${name}-${index}`}/> : <TitleAndValue
-        key={`${name}-${index}`}
+
+  const renderItem = ({ name, value, title }, index, prefix = '') => {
+    if (title) return <Typography sx={{ fontWeight: 500 }} key={`${prefix}${name}-${index}`}>{title}</Typography>;
+    if (!name) return <Divider sx={{ my: 1 }} key={`${prefix}${name}-${index}`}/>;
+
+    return (
+      <TitleAndValue
+        key={`${prefix}${name}-${index}`}
         titleStyle={{ width: titleWidth }}
         title={name}
-        value={!isNaN(value)
-          ? notateNumber(value, notate)?.replace('.00', '')
-          : value}/>)}
-  </Stack>
+        value={!isNaN(value) ? notateNumber(value, notate)?.replace('.00', '') : value}
+      />
+    );
+  };
+
+  if (!useDoubleColumn) {
+    return <Stack>{breakdown.map((item, index) => renderItem(item, index))}</Stack>;
+  }
+
+  const midpoint = Math.ceil(19);
+  return (
+    <Stack direction="row" gap={2}>
+      <Stack>{breakdown.slice(0, midpoint).map((item, index) => renderItem(item, index, 'left-'))}</Stack>
+      <Stack>{breakdown.slice(midpoint).map((item, index) => renderItem(item, index, 'right-'))}</Stack>
+    </Stack>
+  );
 }
 
 const DamageIcon = styled.img`

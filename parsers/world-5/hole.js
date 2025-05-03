@@ -1,11 +1,11 @@
-import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { commaNotation, lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
 import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '../../data/website-data';
 import { getSchematicBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
 import { getMotherlode } from '@parsers/world-5/caverns/motherlode';
 import { getTheDen } from '@parsers/world-5/caverns/the-den';
 import { getBravery, getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBellBonus, getTheBell } from '@parsers/world-5/caverns/the-bell';
-import { getTheHarp } from '@parsers/world-5/caverns/the-harp';
+import { getStringSlots, getTheHarp } from '@parsers/world-5/caverns/the-harp';
 import { getLamp } from '@parsers/world-5/caverns/the-lamp';
 import { getHive } from '@parsers/world-5/caverns/the-hive';
 import { getGrotto } from '@parsers/world-5/caverns/grotto';
@@ -15,7 +15,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJustice } from '@parsers/world-5/caverns/justice';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getArcadeBonus } from '@parsers/arcade';
-import { getJarBonus, getTheJars } from '@parsers/world-5/caverns/the-jars';
+import { getJarBonus, getNewCollectibleChance, getTheJars } from '@parsers/world-5/caverns/the-jars';
 import { getEvertree } from '@parsers/world-5/caverns/evertree';
 import { getWisdom } from '@parsers/world-5/caverns/wisdom';
 import { getGambit } from '@parsers/world-5/caverns/gambit';
@@ -112,20 +112,14 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
   const engineerBonuses = engineerIndexes?.map((index, order) => {
     const upgrade = holesBuildings?.[index];
     const owned = wellSediment?.[upgrade?.x2];
-    let description = upgrade?.description;
-    if (order === 3) {
-      description = upgrade?.description?.replace('!', extraCalculations?.[33])
-        ?.replace('#', extraCalculations?.[34])
-        ?.replace('$', extraCalculations?.[35])
-        ?.replace('%', extraCalculations?.[36])
-        ?.replace('尬', '');
-    }
+    const { description, value: totalBonus } = getEngineerTotalBonus(upgrade, holesObject, Number(index));
 
     return {
       ...upgrade,
       unlocked: engineerSchematics?.[index],
       index,
       description,
+      totalBonus,
       owned: isNaN(owned) ? 0 : owned,
       cost: getEngineerUpgradeCost({ ...upgrade, index: order, discountWish: lampWishesList?.[5]?.level })
     }
@@ -277,6 +271,101 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
   }
 }
 
+export const getEngineerTotalBonus = (upgrade, holesObject, index) => {
+  let formattedDescription = upgrade?.description;
+  let value = 0;
+
+  switch (index) {
+    case 14:
+      value = getSchematicBonus({ holesObject, t: index, i: 0 });
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'));
+      break;
+
+    case 15:
+      value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[1]));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 38:
+      value = getStringSlots(holesObject);
+      const percent38 = Math.round(30 * value);
+      formattedDescription = formattedDescription.replace('$', String(value))
+        .replace('#', String(percent38));
+      break;
+
+    case 41:
+      value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[3]));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 45:
+      value = getSchematicBonus({ holesObject, t: index, i: 0 });
+      formattedDescription = formattedDescription.replace('}', notateNumber(value, value < 1000 ? 'Small' : 'Big'));
+      break;
+
+    case 46:
+    case 47:
+    case 48:
+    case 52:
+    case 55:
+    case 57:
+      value = getSchematicBonus({ holesObject, t: index, i: 0 });
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'));
+      break;
+
+    case 53:
+    case 54:
+    case 56:
+    case 80:
+      value = getSchematicBonus({ holesObject, t: index, i: 0 });
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 58:
+      value = getSchematicBonus({ holesObject, t: index, i: 0 });
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'))
+        .replace('#', notateNumber(holesObject?.extraCalculations?.[32], 'Big'));
+      break;
+
+    case 59:
+      value = getSchematicBonus({ holesObject, t: index, i: 0 });
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'))
+        .replace('!', numberWithCommas(Number(holesObject?.extraCalculations?.[33])))
+        .replace('#', numberWithCommas(Number(holesObject?.extraCalculations?.[34])))
+        .replace('$', numberWithCommas(Number(holesObject?.extraCalculations?.[35])))
+        .replace('%', numberWithCommas(Number(holesObject?.extraCalculations?.[36])));
+      break;
+
+    case 72:
+      value = 10 * lavaLog(Number(holesObject?.extraCalculations?.[38]));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 73:
+      value = Math.pow(1.1, lavaLog(Number(holesObject?.extraCalculations?.[39])));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 76:
+      value = Math.pow(1.02, getNewCollectibleChance(holesObject));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 82:
+    case 83:
+    case 84:
+      const paramIndex = index === 82 ? 20 : index === 83 ? 40 : 100;
+      value = getSchematicBonus({ holesObject, t: index, i: paramIndex });
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    default:
+      // No change
+      break;
+  }
+
+  return { description: formattedDescription, value };
+}
 
 export const getCosSchematic = (holesObject) => {
   let result = 0;
@@ -497,7 +586,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     },
     { name: 'Cards', value: cardBonus },
     { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
-    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') },
+    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') }
   ];
 
   return {

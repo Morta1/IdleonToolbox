@@ -36,7 +36,7 @@ export const PAGES = {
         { label: 'guild', icon: 'etc/Guild' }
       ]
     },
-    'premium-currency': {
+    'prem-currency': {
       style: { filter: 'hue-rotate(180deg)' },
       icon: 'data/PremiumGem',
       categories: [

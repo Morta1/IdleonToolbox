@@ -44,7 +44,7 @@ const AccountDrawer = () => {
   }
 
   return (
-    (<Stack sx={{ height: '100%' }}>
+    (<Stack sx={{ height: '100%', overflowY: 'auto' }}>
       <List>
         {state?.account?.accountCreateTime ? <ListItem>Account created
           at: {format(state?.account?.accountCreateTime, 'dd/MM/yyyy HH:mm:ss')}</ListItem> : null}

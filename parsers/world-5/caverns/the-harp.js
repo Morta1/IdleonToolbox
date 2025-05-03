@@ -105,7 +105,8 @@ const getHarpExpGain = (holesObject, accountData, stringTypes, power) => {
 const getHarpStringBonus = (holesObject, t) => {
   return (holesInfo[47].split(' ')[t]) * (holesObject?.harpRelated?.[Math.round(2 * t)]);
 }
-const getStringSlots = (holesObject) => {
+
+export const getStringSlots = (holesObject) => {
   return Math.min(15, Math.round(1 + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 1 })
     + (getSchematicBonus({ holesObject, t: 32, i: 1 })
       + (getSchematicBonus({ holesObject, t: 33, i: 1 })

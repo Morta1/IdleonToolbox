@@ -25,7 +25,7 @@ export const getTheJars = (holesObject, jarsRaw, accountData) => {
   const jarTypes = Math.round(holesObject?.extraCalculations?.[37]);
   const unlockedSlots = getJarSlots({ holesObject });
   const opalChance = getOpalChance({ holesObject });
-  const newCollectibleChance = getNewCollectibleChance({ holesObject });
+  const newCollectibleChance = getNewCollectibleChance(holesObject);
   const newJarCost = getNewJarCost({ holesObject });
   const enchantChance = getEnchantChance({ holesObject });
   const rupieValue = getRupieValue({ holesObject, accountData });
@@ -203,7 +203,7 @@ export const getJarBonus = ({ holesObject, i }) => {
   return holesObject?.jarStuff?.[i] * parseFloat(all.split('|')[1]);
 }
 
-const getNewCollectibleChance = ({ holesObject }) => {
+export const getNewCollectibleChance = (holesObject) => {
   const hasBUpg = getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1;
   const bonus7 = getJarBonus({ holesObject, i: 7 }) / 100;
   const bonus25 = getJarBonus({ holesObject, i: 25 }) / 100;
