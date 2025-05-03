@@ -125,6 +125,12 @@ const Upgrades = ({ upgrades, dusts }) => {
         ).map(([x3, groupedUpgrades]) => {
           const sortedGroup = filterUpgrades(groupedUpgrades.toSorted((a, b) => (a.cost || 0) - (b.cost || 0)));
 
+          // If hiding maxed upgrades, check if this category has any visible upgrades
+          if (hideMaxedUpgrades) {
+            const hasVisibleUpgrades = sortedGroup.some(upgrade => upgrade.level < upgrade.x4);
+            if (!hasVisibleUpgrades) return null;
+          }
+
           return (
             <Stack key={x3} direction="column" gap={2}>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
@@ -140,6 +146,13 @@ const Upgrades = ({ upgrades, dusts }) => {
       ) : (
         upgrades.map(({ path, list }) => {
           const filtered = filterUpgrades(sortUpgrades(list));
+
+          // If hiding maxed upgrades, check if this category has any visible upgrades
+          if (hideMaxedUpgrades) {
+            const hasVisibleUpgrades = filtered.some(upgrade => upgrade.level < upgrade.x4);
+            if (!hasVisibleUpgrades) return null;
+          }
+
           return (
             <Stack key={path} direction="column" gap={2}>
               <Typography variant="h6">{path}</Typography>

@@ -96,7 +96,7 @@ export const PAGES = {
         { label: 'Printer', icon: 'data/ConTower0' },
         { label: 'refinery', icon: 'data/TaskSc6' },
         { label: 'atomCollider', icon: 'data/ConTower8' },
-        { label: 'Equinox', icon: 'data/Quest78' },
+        { label: 'Equinox', icon: 'data/Quest78', tabs: ['Upgrades', 'Challenges'] },
         { label: 'buildings', icon: 'data/ConTower7' },
         { label: 'deathNote', icon: 'data/ConTower2' },
         { label: 'worship', icon: 'data/ClassIcons50', tabs: ['Charge', 'Totems'] },

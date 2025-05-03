@@ -1,6 +1,7 @@
 import { growth, tryToParse } from '../utility/helpers';
 import { arcadeShop } from '../data/website-data';
 import { getMaxClaimTime, getSecPerBall } from './dungeons';
+import { isCompanionBonusActive } from '@parsers/misc';
 
 export const getArcade = (idleonData, account, serverVars) => {
   const arcadeRaw = tryToParse(idleonData?.ArcadeUpg) || idleonData?.ArcadeUpg;
@@ -16,11 +17,13 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
     const { x1, x2, func } = upgrade;
     const level = arcadeRaw?.[index] ?? 0;
     const bonus = growth(func, Math.min(level, 100), x1, x2, false);
+    const superBonus = level > 100 ? 2 : 1;
+    const companionBonus = isCompanionBonusActive(account, 27) ? 2 : 1;
     return {
       ...upgrade,
       level,
       active: serverVars?.ArcadeBonuses?.includes(index),
-      bonus: level > 100 ? bonus * 2 : bonus,
+      bonus: bonus * superBonus * companionBonus,
       iconName: `PachiShopICON${index}`
     }
   });

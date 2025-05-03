@@ -27,7 +27,8 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     goal,
     reward,
     current: clouds[index] || 0,
-    active: clouds[index] !== -1 && 0 < nbChallengeActive--
+    active: clouds[index] !== -1 && 0 < nbChallengeActive--,
+    completed: index < completedClouds
   }));
   const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 14), account);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q');
