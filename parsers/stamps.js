@@ -47,7 +47,7 @@ export const evaluateStamp = (stamp, account, characters, gildedStamp = true, fo
   const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account, forceMaxCapacity);
   const goldCost = getGoldCost(stamp?.level, stamp, account);
   const hasMoney = account?.currencies?.rawMoney >= goldCost;
-  const materialCost = getMaterialCost(stamp?.level, stamp, account, stampReducer, gildedStamp);
+  const materialCost = Math.floor(getMaterialCost(stamp?.level, stamp, account, stampReducer, gildedStamp));
 
   let hasMaterials, greenStackHasMaterials;
   if (stamp?.materials?.length > 0) {
