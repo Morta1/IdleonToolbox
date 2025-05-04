@@ -110,9 +110,13 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Non Consume Chance'}
                   value={`${kFormatter(nonConsumeChance, 2)}%`}
             />
-            <ProgressBar
-              tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
-              percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
+            <Stack direction={'row'} gap={2}>
+              <Typography color={'info.light'}>Exp</Typography>
+              <ProgressBar
+                boxSx={{ width: '100%' }}
+                tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
+                percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
+            </Stack>
             <Stat title={'Money'}
                   value={<CoinDisplay title={''}
                                       money={getCoinsArray(character?.money ? character?.money : 0)}/>}
