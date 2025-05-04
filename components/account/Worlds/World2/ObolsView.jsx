@@ -27,6 +27,12 @@ const getImgName = (name, rawName, shape) => {
   }
 };
 
+const shadowColors = {
+  positive: '#04fc30',
+  negative: '#e93a3a',
+  both: '#f3df00'
+}
+
 const ObolsView = ({ obols, type = 'character', obolStats }) => {
   if (!obols) return;
   const noStats = Object.keys(obols?.stats).length === 0;
@@ -39,9 +45,23 @@ const ObolsView = ({ obols, type = 'character', obolStats }) => {
               const relevantArray = obols?.list?.slice(startInd, endInd);
               return <div className={'obol-row'} key={startInd + rowNumber}>
                 {relevantArray?.map((item, index) => {
-                  const { displayName, rawName, levelReq, shape, rerolled } = item;
+                  const { displayName, rawName, levelReq, shape, rerolled, changes } = item;
+                  const changesValues = (changes || []).flatMap(change => Object.values(change));
+                  const hasPositive = changesValues.some(val => val > 0);
+                  const hasNegative = changesValues.some(val => val < 0);
+                  const allPositive = hasPositive && !hasNegative;
+                  const allNegative = hasNegative && !hasPositive;
+                  const hasBoth = hasPositive && hasNegative;
                   const imgName = getImgName(displayName, rawName, shape);
-                  const style = rerolled ? { boxShadow: '0px 0px 5px #d9d282', borderRadius: '50%' } : {};
+                  let shadowColor;
+                  if (allPositive) {
+                    shadowColor = shadowColors.positive;
+                  } else if (allNegative) {
+                    shadowColor = shadowColors.negative;
+                  } else if (hasBoth) {
+                    shadowColor = shadowColors.both;
+                  }
+                  const style = rerolled ? { boxShadow: `0px 0px 5px ${shadowColor}`, borderRadius: '50%' } : {};
                   return <div className={'obol-wrapper'} key={rawName + '' + index}>
                     {levelReq && rawName.includes('Locked') ?
                       <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}

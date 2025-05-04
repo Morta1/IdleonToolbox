@@ -3,19 +3,36 @@ import { cleanUnderscore } from '@utility/helpers';
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};
-  return Object.keys(stoneData)?.reduce((res, statName) => {
+
+  // Initialize an array to track stat changes
+  const changes = [];
+
+  const result = Object.keys(stoneData)?.reduce((res, statName) => {
     if (statName === 'UQ1txt' || statName === 'UQ2txt') {
       return { ...res, [statName]: baseItem?.[statName] || stoneData?.[statName] };
     }
+
     const baseItemStat = baseItem?.[statName];
     const stoneStat = stoneData?.[statName];
     let sum = baseItemStat;
+
     if (isNaN(stoneStat)) return { ...res, [statName]: stoneStat };
-    sum = (baseItemStat || 0) + ((stoneData?.['UQ1txt'] && baseItem?.Type !== 'KEYCHAIN' && baseItem?.['UQ1txt'] !== stoneData?.['UQ1txt'])
-      ? 0
-      : stoneStat);
+
+    const shouldIgnore = (stoneData?.['UQ1txt'] && baseItem?.Type !== 'KEYCHAIN' && baseItem?.['UQ1txt'] !== stoneData?.['UQ1txt']);
+    const stoneEffect = shouldIgnore ? 0 : stoneStat;
+
+    // Track the change if the stone is actually modifying a stat (ignoring UQ1txt and UQ2txt)
+    if (stoneEffect !== 0 && statName !== 'UQ1txt' && statName !== 'UQ2txt') {
+      changes.push({ [statName]: stoneEffect });
+    }
+
+    sum = (baseItemStat || 0) + stoneEffect;
     return { ...res, [statName]: parseFloat(sum) };
   }, {});
+
+  // Add the changes array to the result
+  return { ...result, changes };
+
 }
 
 export const calculateItemTotalAmount = (array, itemName, exact, isRawName = false) => {
@@ -75,11 +92,11 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
       ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult }),
       misc
     };
-    if (resultItem?.Premiumified){
-      if (!resultItem.UQ1txt){
+    if (resultItem?.Premiumified) {
+      if (!resultItem.UQ1txt) {
         delete resultItem.UQ1val;
       }
-      if (!resultItem.UQ2txt){
+      if (!resultItem.UQ2txt) {
         delete resultItem.UQ2val;
       }
       // delete resultItem.UQ1txt;
