@@ -10,7 +10,7 @@ import { calcHappyHours } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
 import { getAtomBonus } from '@parsers/atomCollider';
-import { format, isPast, isValid } from 'date-fns';
+import { isPast } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { useRouter } from 'next/router';
@@ -133,7 +133,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             tooltipContent={`Overflow syphon Charge (${bestWizard?.worship?.maxCharge + bestChargeSyphon}): ` + getRealDateInMs(timeToOverCharge)}
             lastUpdated={lastUpdated} time={timeToOverCharge}
             icon={'data/UISkillIcon475.png'}
-            timerPlaceholder={'Overflowing charge'}
+            timerPlaceholder={'Full'}
           />
         </> : null}
         {trackers?.General?.closestFullWorship?.checked && account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0
@@ -166,9 +166,9 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               <div>
                 <Stack sx={{ cursor: 'pointer' }}
                        onClick={() => router.push({ pathname: '/account/misc/random-events' })}
-                       direction={'row'} gap={2}>
+                       direction={'row'} gap={1}>
                   <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt=""/>
-                  {isValid(events?.[0]?.date) ? format(events?.[0]?.date, 'dd/MM/yyyy HH:mm:ss') : null}
+                  <Timer type={'countdown'} date={events?.[0]?.date} lastUpdated={lastUpdated}/>
                 </Stack>
                 <Divider sx={{ mt: 1 }}/>
               </div>
@@ -178,14 +178,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                 title={<Trade {...account?.sailing?.trades?.[0]}/>}>
                 <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
                        direction={'row'}
-                       gap={.5}>
-                  <Stack direction={'row'}>
-                    <img src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt=""/>/
-                    <img src={`${prefix}data/SailT0.png`} alt=""/>
-                  </Stack>
-                  {isValid(new Date(account?.sailing?.trades?.[0]?.date))
-                    ? format(new Date(account?.sailing?.trades?.[0]?.date), 'dd/MM/yyyy HH:mm:ss')
-                    : null}
+                       gap={1}>
+                  <IconImg src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt=""/>
+                  <Timer type={'countdown'} date={new Date(account?.sailing?.trades?.[0]?.date).getTime()}
+                         lastUpdated={lastUpdated}/>
                 </Stack>
               </Tooltip>
               : null}

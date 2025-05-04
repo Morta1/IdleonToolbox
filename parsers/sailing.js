@@ -19,6 +19,7 @@ import { getFamilyBonusBonus } from './family';
 import LavaRand from '../utility/lavaRand';
 import { getAchievementStatus } from './achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { isPast } from 'date-fns';
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -87,12 +88,14 @@ const getFutureTrades = ({ boats } = {}, islands, lootPileList, artifactsList, a
     const lootIndex = Math.min(30, Math.ceil(2 * random * unlockedIslands));
     const lootItemCost = getLootItemCost(lootPileList?.[lootIndex], firstBoatLootValue);
     const closest = new Date(Math.floor((seed + i) * 21600 * 1000));
-    trades.push({
-      ...lootPileList?.[lootIndex],
-      date: closest,
-      moneyValue: getMoneyValue(lootItemCost, lootIndex, emeraldRelic),
-      lootItemCost
-    });
+    if (!isPast(closest)) {
+      trades.push({
+        ...lootPileList?.[lootIndex],
+        date: closest,
+        moneyValue: getMoneyValue(lootItemCost, lootIndex, emeraldRelic),
+        lootItemCost
+      });
+    }
   }
   return trades;
 }

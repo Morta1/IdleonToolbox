@@ -88,6 +88,7 @@ const Timer = forwardRef(({
   }, !pause && !staticTime ? 1000 : null);
 
   const wrapNumber = (number) => {
+    if (!number) return '00';
     const strNumber = String(number);
     return strNumber?.length === 1 ? `0${number}` : number;
   }
@@ -95,11 +96,10 @@ const Timer = forwardRef(({
   return time ? (time?.overtime || pause) && placeholder ? <Typography {...rest} ref={ref}>{placeholder}</Typography> :
     <Typography {...rest} ref={ref} variant={variant} sx={{ color: `${time?.overtime && !loop ? '#f91d1d' : ''}` }}
                 component={'span'}>
-      {time?.days ? wrapNumber(time?.days) + 'd:' : ''}
+      {wrapNumber(time?.days) + 'd:'}
       {wrapNumber(time?.hours) + 'h:'}
-      {wrapNumber(time?.minutes) + `m`}
-      {!time?.days ? ':' : ''}
-      {!time?.days ? wrapNumber(time?.seconds) + 's' : ''}
+      {wrapNumber(time?.minutes) + `m:`}
+      {wrapNumber(time?.seconds) + 's'}
     </Typography> : null;
 })
 
