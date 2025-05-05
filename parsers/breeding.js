@@ -45,16 +45,27 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
   const baseFenceSlots = breedingRaw?.[2]?.[4];
   const fenceSlots = Math.round(5 + baseFenceSlots + 2 * (account?.gemShopPurchases?.find((value, index) => index === 125) ?? 0));
   const rawFencePets = petsRaw?.slice(0, fenceSlots);
-  const fencePetsObject = rawFencePets?.reduce((res, [petName, type]) => {
-    return {
-      ...res,
-      [petName]: {
-        amount: res?.[petName]?.amount ? res[petName].amount + 1 : 1,
+  const fencePetsObject = {};
+  
+  rawFencePets?.forEach(([petName, type]) => {
+    if (!fencePetsObject[petName]) {
+      fencePetsObject[petName] = {
+        amount: 1,
         isBreedability: type === 4,
-        isShiny: type === 5
-      }
+        isShiny: type === 5,
+        types: [type],
+        breedabilityCount: type === 4 ? 1 : 0,
+        shinyCount: type === 5 ? 1 : 0
+      };
+    } else {
+      fencePetsObject[petName].amount += 1;
+      fencePetsObject[petName].types.push(type);
+      if (type === 4) fencePetsObject[petName].breedabilityCount += 1;
+      if (type === 5) fencePetsObject[petName].shinyCount += 1;
+      fencePetsObject[petName].isShiny = fencePetsObject[petName].shinyCount > 0;
+      fencePetsObject[petName].isBreedability = fencePetsObject[petName].breedabilityCount > 0;
     }
-  }, {});
+  });
 
   const foragingRounds = territoryRaw?.map(([, round]) => round);
   const currentProgress = territoryRaw?.map(([progress]) => progress);

@@ -35,7 +35,6 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
 
   const hasPetsUnderThreshold = useMemo(() => {
     if (!applyThreshold) return true;
-
     if (!showAllPets) {
       return pets.some(({ monsterRawName, shinyLevel, breedingLevel, rawPassive }) => {
         if (isShiny && selectedPassive && cleanUnderscore(rawPassive).replace(/[{}+]/g, '') !== selectedPassive) return false;
@@ -53,19 +52,27 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
   }, [pets, shinyThreshold, breedabilityThreshold, showAllPets, isShiny, fencePets, applyThreshold, selectedPassive]);
 
   const reorderPets = useMemo(() => {
-    const mappedPets = pets?.map((pet) => ({
-      ...pet,
-      timeLeft: isShiny
-        ? ((pet?.shinyGoal - pet?.shinyProgress) / multi.value / (fencePets?.[pet?.monsterRawName]?.amount || 1)) * 8.64e+7
-        : ((pet?.breedingGoal - pet?.breedingProgress) / multi.value / (fencePets?.[pet?.monsterRawName]?.amount || 1)) * 8.64e+7
-    }));
+    const mappedPets = pets?.map((pet) => {
+      const fencePet = fencePets[pet.monsterRawName];
+      const shouldShow = showAllPets || (isShiny ? fencePet?.isShiny : fencePet?.isBreedability);
+      const count = isShiny ? fencePet?.shinyCount : fencePet?.breedabilityCount;
+      return {
+        ...pet,
+        timeLeft: isShiny
+          ? ((pet?.shinyGoal - pet?.shinyProgress) / multi.value / (count || 1)) * 8.64e+7
+          : ((pet?.breedingGoal - pet?.breedingProgress) / multi.value / (count || 1)) * 8.64e+7,
+        shouldShow,
+        count
+      };
+    });
 
     const filteredPets = isShiny && selectedPassive
       ? mappedPets.filter(pet => cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '') === selectedPassive)
       : mappedPets;
 
-    return orderByTime ? filteredPets?.toSorted((a, b) => a?.timeLeft - b?.timeLeft) : filteredPets;
-  }, [pets, isShiny, multi.value, orderByTime, selectedPassive, fencePets]);
+    const finalPets = filteredPets.filter(pet => pet.shouldShow);
+    return orderByTime ? finalPets?.toSorted((a, b) => a?.timeLeft - b?.timeLeft) : finalPets;
+  }, [pets, isShiny, multi.value, orderByTime, selectedPassive, fencePets, showAllPets]);
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -126,7 +133,8 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
           shinyGoal,
           breedingGoal,
           breedingMultipliers,
-          rawPassive
+          rawPassive,
+          count
         } = pet;
         const progress = isShiny ? shinyProgress : breedingProgress;
         const level = isShiny ? shinyLevel : breedingLevel;
@@ -137,12 +145,12 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         if (!showAllPets && (!fencePet?.amount || (isShiny
           ? !fencePet?.isShiny
           : !fencePet?.isBreedability))) return null;
-        const timeLeft = ((goal - progress) / multi.value / (fencePets?.[monsterRawName]?.amount || 1)) * 8.64e+7;
+        const timeLeft = ((goal - progress) / multi.value / (count || 1)) * 8.64e+7;
         const missingIcon = (icon === 'Mface23' || icon === 'Mface21' || icon === 'Mface31') && monsterRawName !== 'shovelR';
         const totalChance = breedingMultipliers?.totalChance > 0.1
           ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
           : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
-        const timeToThreshold = getTimeToLevel(pet, multi.value, fencePet?.amount, applyThreshold
+        const timeToThreshold = getTimeToLevel(pet, multi.value, count, applyThreshold
           ? currentThreshold
           : 5, isShiny);
         return <Card key={monsterName} variant={'outlined'}
@@ -158,8 +166,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ width: '100%' }}>
               <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left' }} color="primary"
-                     badgeContent={isShiny && fencePet?.isShiny || !isShiny && fencePet?.isBreedability
-                       ? fencePet?.amount : null}
+                     badgeContent={count || null}
                      sx={{ '& .MuiBadge-badge': { top: 10, left: 5 } }}>
                 <MonsterIcon
                   src={missingIcon ? `${prefix}afk_targets/${monsterName}.png` : `${prefix}data/${icon}.png`}
