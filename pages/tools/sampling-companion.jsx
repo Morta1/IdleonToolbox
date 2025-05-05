@@ -99,7 +99,7 @@ const SamplingCompanion = () => {
             <Cards cards={selectedSetup?.cards}
                    cardSet={selectedSetup?.cardSet}
                    account={state?.account} character={selectedChar}/>
-            <Chips chips={selectedSetup?.chips} character={selectedChar}/>
+            <Chips chips={selectedSetup?.chips} character={selectedChar} account={state?.account}/>
             <Prayers prayers={selectedSetup?.prayers} character={selectedChar} account={state?.account}/>
             <Obols obols={selectedSetup?.obols} character={selectedChar} account={state?.account}/>
             <StarSigns starSigns={selectedSetup?.starSigns} character={selectedChar} account={state?.account}/>

@@ -19,7 +19,7 @@ const General = () => {
     />
     <>
       <Stack sx={{ '& > div': { maxWidth: 300 } }} gap={4} justifyContent={'center'} direction={'row'} flexWrap={'wrap'}>
-        <ObolsView obols={state?.account?.obols} type={'account'}/>
+        <ObolsView obols={state?.account?.obols} type={'account'} characters={state?.characters}/>
         <Currencies {...(state?.account?.currencies || {})}/>
         <Shrines shrines={state?.account?.shrines} shrinesExpBonus={state?.account?.shrinesExpBonus}/>
         <Statues statues={state?.account?.statues} characters={state?.characters}/>

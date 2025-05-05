@@ -62,8 +62,8 @@ const Character = ({
                         lastUpdated={lastUpdated}/>,
       filter: ['Stats', 'Activity']
     },
-    { component: <ObolsView obols={obols}/>, filter: 'Obols' },
-    { component: <ObolsView obols={obols} obolStats/>, filter: 'Obols Stats' },
+    { component: <ObolsView obols={obols} characters={characters}/>, filter: 'Obols' },
+    { component: <ObolsView obols={obols} obolStats characters={characters}/>, filter: 'Obols Stats' },
     { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: 'Bags' },
     {
       component: <Talents {...character}

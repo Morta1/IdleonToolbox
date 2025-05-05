@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
@@ -33,7 +33,8 @@ const shadowColors = {
   both: '#f3df00'
 }
 
-const ObolsView = ({ obols, type = 'character', obolStats }) => {
+const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
+  const totalLevels = useMemo(() => characters?.reduce((res, { level }) => res + (level || 0), 0), [characters]);
   if (!obols) return;
   const noStats = Object.keys(obols?.stats).length === 0;
   return (
@@ -46,26 +47,17 @@ const ObolsView = ({ obols, type = 'character', obolStats }) => {
               return <div className={'obol-row'} key={startInd + rowNumber}>
                 {relevantArray?.map((item, index) => {
                   const { displayName, rawName, levelReq, shape, rerolled, changes } = item;
-                  const changesValues = (changes || []).flatMap(change => Object.values(change));
-                  const hasPositive = changesValues.some(val => val > 0);
-                  const hasNegative = changesValues.some(val => val < 0);
-                  const allPositive = hasPositive && !hasNegative;
-                  const allNegative = hasNegative && !hasPositive;
-                  const hasBoth = hasPositive && hasNegative;
                   const imgName = getImgName(displayName, rawName, shape);
-                  let shadowColor;
-                  if (allPositive) {
-                    shadowColor = shadowColors.positive;
-                  } else if (allNegative) {
-                    shadowColor = shadowColors.negative;
-                  } else if (hasBoth) {
-                    shadowColor = shadowColors.both;
-                  }
-                  const style = rerolled ? { boxShadow: `0px 0px 5px ${shadowColor}`, borderRadius: '50%' } : {};
+                  const style = rerolled ? { boxShadow: '0px 0px 5px #d9d282', borderRadius: '50%' } : {};
+                  const isLocked = levelReq && rawName.includes('Locked');
+
                   return <div className={'obol-wrapper'} key={rawName + '' + index}>
-                    {levelReq && rawName.includes('Locked') ?
-                      <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
-                    <Tooltip title={displayName !== 'ERROR' ? <ItemDisplay {...item} allowNegativeValues={false}/> : ''}>
+                    <Tooltip
+                      title={isLocked ? `${totalLevels} / ${levelReq}` : !displayName ? 'Empty' : displayName !== 'ERROR'
+                        ? <ItemDisplay {...item} allowNegativeValues={false}/>
+                        : ''}>
+                      {levelReq && rawName.includes('Locked') ?
+                        <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
                       <img key={displayName + '' + index} src={`${prefix}data/${imgName}.png`}
                            style={style}
                            alt=""/>
