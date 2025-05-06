@@ -9,17 +9,19 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getSkillMasteryBonusByIndex } from '@parsers/misc';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
-export const getBreeding = (idleonData, account) => {
+export const getBreeding = (idleonData, account, processedData) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
   const petsRaw = tryToParse(idleonData?.Pets) || idleonData?.Pets;
   const petsStoredRaw = tryToParse(idleonData?.PetsStored) || idleonData?.PetsStored;
   const territoryRaw = tryToParse(idleonData?.Territory) || idleonData?.Territory;
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
-  return parseBreeding(breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account);
+  return parseBreeding(breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account, processedData);
 }
 
-const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account) => {
+const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookingRaw, account, processedData) => {
   const eggs = breedingRaw?.[0];
   const genetics = breedingRaw?.[3]?.slice(0, 4)
   const deadCells = breedingRaw?.[3]?.[8];
@@ -46,14 +48,19 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
   const fenceSlots = Math.round(5 + baseFenceSlots + 2 * (account?.gemShopPurchases?.find((value, index) => index === 125) ?? 0));
   const rawFencePets = petsRaw?.slice(0, fenceSlots);
   const fencePetsObject = rawFencePets?.reduce((res, [petName, type]) => {
-    return {
-      ...res,
-      [petName]: {
-        amount: res?.[petName]?.amount ? res[petName].amount + 1 : 1,
-        isBreedability: type === 4,
-        isShiny: type === 5
-      }
+    if (!res[petName]) {
+      res[petName] = {
+        amount: 0,
+        shiny: 0,
+        breedability: 0
+      };
     }
+
+    res[petName].amount += 1;
+    if (type === 4) res[petName].breedability += 1;
+    if (type === 5) res[petName].shiny += 1;
+
+    return res;
   }, {});
 
   const foragingRounds = territoryRaw?.map(([, round]) => round);

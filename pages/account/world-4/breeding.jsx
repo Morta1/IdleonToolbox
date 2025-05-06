@@ -29,12 +29,14 @@ const Breeding = () => {
     const bubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'EGG_INK', false);
     const achievement = getAchievementStatus(state?.account?.achievements, 220);
     const skillMasteryBonus = isMasteryBonusUnlocked(state?.account?.rift, state?.account?.totalSkillsLevels?.breeding?.rank, 1);
-    const voteBonus = getVoteBonus(state?.account, 16) || 1;
-    return 7200 / (1 +
-      (emeraldRhinestoneBonus
-        + (mealBonus
-          + (bubbleBonus
-            + (10 * achievement + 15 * skillMasteryBonus * voteBonus)))) / 100) * 1000;
+    const voteBonus = getVoteBonus(state?.account, 16) || 0;
+
+    return 7200 / (1 + (emeraldRhinestoneBonus
+      + (mealBonus
+        + (bubbleBonus
+          + (10 * achievement
+            + (15 * skillMasteryBonus
+              + voteBonus))))) / 100) * 1000;
   }
   const handleCopy = async () => {
     const data = tryToParse(localStorage.getItem('rawJson'));
