@@ -125,12 +125,13 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
     }
   });
 
+  const unlockedCaverns = Math.min(10, villagersLevels?.[0]);
   const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, 5));
   const villagers = villagersExp?.slice(0, 5).map((exp, index) => {
     const level = villagersLevels?.[index];
     const expReq = getVillagerExpReq(level, index);
     const opalInvested = opalsInvested?.[index];
-    const expRate = getVillagerExpPerHour(holesObject, accountData, index, leastOpalInvestedVillager)
+    const expRate = getVillagerExpPerHour(holesObject, accountData, index, leastOpalInvestedVillager, unlockedCaverns)
     const timeLeft = (expReq - exp) / expRate?.value * 1000 * 3600;
     return {
       name: Object.keys(VILLAGERS)?.[index].toLowerCase().camelToTitleCase(),
@@ -145,7 +146,6 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
   });
 
   const studies = getStudies(holesObject, villagers?.[VILLAGERS.STUDIES]?.level, accountData);
-  const unlockedCaverns = Math.min(10, villagersLevels?.[0]);
 
   const theWell = getTheWell(holesObject, accountData);
   const motherlode = getMotherlode(holesObject);
@@ -502,7 +502,7 @@ const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }) => {
         * Math.pow(1.26, Math.min(Math.max(0, (index - 54) / 2), 14));
 }
 
-const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVillager) => {
+const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVillager, unlockedCaverns) => {
   // VillagerExpPerHour
   const hasBundle = isBundlePurchased(accountData?.bundles, 'bun_u')?.owned ? 1 : 0;
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
@@ -520,7 +520,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
 
-  const value = (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
+  const firstVillagerExp = t === 0 && unlockedCaverns < 13 ? 1.5 : 1;
+  const value = firstVillagerExp * (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
     * Math.max(1, (1 + compassBonus / 100)
       * (1 + charmBonus / 100) * (1 + 2 * companionBonus)
       * (1 + statueBonus / 100)
