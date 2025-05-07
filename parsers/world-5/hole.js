@@ -125,7 +125,7 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
     }
   });
 
-  const unlockedCaverns = Math.min(10, villagersLevels?.[0]);
+  const unlockedCaverns = Math.min(15, villagersLevels?.[0]);
   const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, 5));
   const villagers = villagersExp?.slice(0, 5).map((exp, index) => {
     const level = villagersLevels?.[index];
@@ -519,7 +519,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
             + getJarBonus({ holesObject, i: 35 })))));
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
-
+  console.log(unlockedCaverns)
   const firstVillagerExp = t === 0 && unlockedCaverns < 13 ? 1.5 : 1;
   const value = firstVillagerExp * (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
     * Math.max(1, (1 + compassBonus / 100)
