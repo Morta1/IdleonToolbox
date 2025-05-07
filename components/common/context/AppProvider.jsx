@@ -315,7 +315,7 @@ const AppProvider = ({ children }) => {
           }
           setWaitingForAuth(false);
           setAuthCounter(0);
-        } else if (authCounter > 8) {
+        } else if (authCounter > 12) {
           setWaitingForAuth(false);
           dispatch({ type: 'loginError', data: 'Reached maximum retry limit, please re-open this dialog' });
         }
