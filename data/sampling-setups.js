@@ -116,7 +116,7 @@ export const samplingSetups = {
       items['FoodG12'],
       items['FoodG9'],
       items['FoodChoppin1'],
-      items['FoodEvent2'],
+      items['FoodEvent2']
     ],
     chips: [
       chips[21],
@@ -140,7 +140,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded'),
+      getPrayer('Midas_Minded')
     ],
     obols: [
       items.ObolKruk,
@@ -189,7 +189,7 @@ export const samplingSetups = {
       items['PeanutG'],
       items['FoodMining1'],
       items['FoodEvent1'],
-      items['Pearl2'],
+      items['Pearl2']
     ],
     chips: [
       chips[21],
@@ -213,7 +213,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded'),
+      getPrayer('Midas_Minded')
     ],
     obols: [
       items.ObolKruk,
@@ -284,7 +284,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded'),
+      getPrayer('Midas_Minded')
     ],
     obols: [
       items.ObolKruk,
@@ -333,7 +333,7 @@ export const samplingSetups = {
       items['FoodG7'],
       items['FoodFish1'],
       items['FoodEvent3'],
-      items['Pearl1'],
+      items['Pearl1']
     ],
     chips: [
       chips[21],
@@ -357,7 +357,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded'),
+      getPrayer('Midas_Minded')
     ],
     obols: [
       items.ObolKruk,
@@ -374,15 +374,63 @@ export const samplingSetups = {
     ]
   },
   'trapping': {
-    name: 'Trapping',
-    equipment: [],
-    tools: [],
+    name: 'Trapping Eff',
+    equipment: [
+      items['EquipmentHats105'],
+      items['EquipmentBows14'],
+      items['EquipmentShirts37'],
+      items['EquipmentPendant30'],
+      items['EquipmentPants29'],
+      items['EquipmentRings26'],
+      items['EquipmentShoes37'],
+      items['EquipmentRings26'],
+      items['EquipmentHats82'],
+      items['EquipmentKeychain18'],
+      items['Trophy16'],
+      items['EquipmentKeychain18'],
+      items['EquipmentCape4'],
+      items['EquipmentRingsChat11'],
+      items['EquipmentNametag8'],
+      items['EquipmentGown1']
+    ],
+    tools: [
+      items['FoodG9']
+    ],
     food: [],
-    chips: [],
-    cardSet: {},
-    cards: [],
-    prayers: [],
-    obols: [],
-    starSigns: []
+    chips: [
+      chips[21],
+      chips[13],
+      chips[15],
+      chips[16],
+      chips[11]
+    ],
+    cardSet: cardSets['{%_Skill_Efficiency'],
+    cards: [
+      cards.w6a3,
+      cards.Boss3C,
+      cards.w5c2,
+      cards.w4c4,
+      cards.w4b5,
+      cards.bloque,
+      cards.coconut,
+      cards.Boss4B
+    ],
+    prayers: [
+      getPrayer('Skilled_Dimwit')
+    ],
+    obols: [
+      items.ObolPinkTrapping,
+      items.ObolSlush,
+      items.ObolPlatinumTrapping,
+      items.ObolGoldTrapping,
+      items.ObolHyperB1,
+      items.ObolHyper1,
+      items.ObolSilverTrapping
+    ],
+    starSigns: [
+      { starSign: starSignByIndexMap[44], starSignIndex: 44, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[38], starSignIndex: 38, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[34], starSignIndex: 34, bonusIndex: 0 }
+    ]
   }
 };
