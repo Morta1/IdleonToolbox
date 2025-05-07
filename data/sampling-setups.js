@@ -135,8 +135,8 @@ export const samplingSetups = {
       cards.Boss3C,
       cards.w6a3,
       cards.w5c2,
-      cards.w6a5,
-      cards.w4c4
+      cards.w4c4,
+      cards.Boss4B
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
@@ -158,39 +158,220 @@ export const samplingSetups = {
   },
   'mining': {
     name: 'Mining',
-    equipment: [],
-    tools: [],
-    food: [],
-    chips: [],
-    cardSet: {},
-    cards: [],
-    prayers: [],
-    obols: [],
-    starSigns: []
+    equipment: [
+      items['EquipmentHats105'],
+      items['EquipmentSword9'],
+      items['EquipmentShirts37'],
+      items['EquipmentPendant30'],
+      items['EquipmentPants29'],
+      items['EquipmentRings35'],
+      items['EquipmentShoes26'],
+      items['EquipmentRings35'],
+      items['EquipmentHats69'],
+      items['EquipmentKeychain19'],
+      items['Trophy16'],
+      items['EquipmentKeychain19'],
+      items['EquipmentCape16'],
+      items['EquipmentRingsChat11'],
+      items['EquipmentNametag17'],
+      items['EquipmentGown2']
+    ],
+    tools: [
+      items['EquipmentTools15'],
+      { rawName: 'Blank' },
+      { rawName: 'Blank' },
+      items['TrapBoxSet10'],
+      items['WorshipSkull11']
+    ],
+    food: [
+      items['FoodG12'],
+      items['FoodG9'],
+      items['PeanutG'],
+      items['FoodMining1'],
+      items['FoodEvent1'],
+      items['Pearl2'],
+    ],
+    chips: [
+      chips[21],
+      chips[20],
+      chips[18],
+      chips[17],
+      chips[15],
+      chips[16],
+      chips[8]
+    ],
+    cardSet: cardSets['{%_Skill_Efficiency'],
+    cards: [
+      cards.wolfA,
+      cards.w6b3,
+      cards.CritterCard7,
+      cards.Boss3C,
+      cards.w6a3,
+      cards.w5c2,
+      cards.w4c4,
+      cards.Boss4B
+    ],
+    prayers: [
+      getPrayer('Zerg_Rushogen'),
+      getPrayer('Midas_Minded'),
+    ],
+    obols: [
+      items.ObolKruk,
+      items.ObolSlush,
+      items.ObolHyperB1,
+      items.ObolGoldMining,
+      items.ObolSilverMining,
+      items.ObolHyper1
+    ],
+    starSigns: [
+      { starSign: starSignByIndexMap[69], starSignIndex: 69, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[55], starSignIndex: 55, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[20], starSignIndex: 20, bonusIndex: 0 }
+    ]
   },
   'catching': {
     name: 'Catching',
-    equipment: [],
-    tools: [],
-    food: [],
-    chips: [],
-    cardSet: {},
-    cards: [],
-    prayers: [],
-    obols: [],
-    starSigns: []
+    equipment: [
+      items['EquipmentHats105'],
+      items['EquipmentBows14'],
+      items['EquipmentShirts37'],
+      items['EquipmentPendant30'],
+      items['EquipmentPants29'],
+      items['EquipmentRings35'],
+      items['EquipmentShoes37'],
+      items['EquipmentRings35'],
+      items['EquipmentHats69'],
+      items['EquipmentKeychain19'],
+      items['Trophy16'],
+      items['EquipmentKeychain19'],
+      items['EquipmentCape16'],
+      items['EquipmentRingsChat11'],
+      items['EquipmentNametag17'],
+      items['EquipmentGown2']
+    ],
+    tools: [
+      items['CatchingNet12'],
+      { rawName: 'Blank' },
+      { rawName: 'Blank' },
+      items['TrapBoxSet10'],
+      items['WorshipSkull11']
+    ],
+    food: [
+      items['FoodG12'],
+      items['FoodG9'],
+      items['FoodCatch1'],
+      items['FoodEvent4']
+    ],
+    chips: [
+      chips[21],
+      chips[20],
+      chips[18],
+      chips[17],
+      chips[15],
+      chips[16],
+      chips[8]
+    ],
+    cardSet: cardSets['{%_Skill_Efficiency'],
+    cards: [
+      cards.wolfA,
+      cards.w6b3,
+      cards.CritterCard7,
+      cards.Boss3C,
+      cards.w6a3,
+      cards.w5c2,
+      cards.w4c4,
+      cards.Boss4B
+    ],
+    prayers: [
+      getPrayer('Zerg_Rushogen'),
+      getPrayer('Midas_Minded'),
+    ],
+    obols: [
+      items.ObolKruk,
+      items.ObolSlush,
+      items.ObolHyperB1,
+      items.ObolGoldCatching,
+      items.ObolSilverCatching,
+      items.ObolHyper1
+    ],
+    starSigns: [
+      { starSign: starSignByIndexMap[69], starSignIndex: 69, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[55], starSignIndex: 55, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[7], starSignIndex: 7, bonusIndex: 0 }
+    ]
   },
   'fishing': {
     name: 'Fishing',
-    equipment: [],
-    tools: [],
-    food: [],
-    chips: [],
-    cardSet: {},
-    cards: [],
-    prayers: [],
-    obols: [],
-    starSigns: []
+    equipment: [
+      items['EquipmentHats105'],
+      items['EquipmentSword9'],
+      items['EquipmentShirts20'],
+      items['EquipmentPendant30'],
+      items['EquipmentPants22'],
+      items['EquipmentRings35'],
+      items['EquipmentShoes18'],
+      items['EquipmentRings35'],
+      items['EquipmentHats69'],
+      items['EquipmentKeychain19'],
+      items['Trophy16'],
+      items['EquipmentKeychain19'],
+      items['EquipmentCape16'],
+      items['EquipmentRingsChat11'],
+      items['EquipmentNametag17'],
+      items['EquipmentGown2']
+    ],
+    tools: [
+      items['CatchingNet12'],
+      { rawName: 'Blank' },
+      { rawName: 'Blank' },
+      items['TrapBoxSet10'],
+      items['WorshipSkull11']
+    ],
+    food: [
+      items['FoodG12'],
+      items['FoodG9'],
+      items['FoodG7'],
+      items['FoodFish1'],
+      items['FoodEvent3'],
+      items['Pearl1'],
+    ],
+    chips: [
+      chips[21],
+      chips[20],
+      chips[18],
+      chips[17],
+      chips[15],
+      chips[16],
+      chips[8]
+    ],
+    cardSet: cardSets['{%_Skill_Efficiency'],
+    cards: [
+      cards.wolfA,
+      cards.w6b3,
+      cards.CritterCard7,
+      cards.Boss3C,
+      cards.w6a3,
+      cards.w5c2,
+      cards.w4c4,
+      cards.Boss4B
+    ],
+    prayers: [
+      getPrayer('Zerg_Rushogen'),
+      getPrayer('Midas_Minded'),
+    ],
+    obols: [
+      items.ObolKruk,
+      items.ObolSlush,
+      items.ObolHyperB1,
+      items.ObolGoldFishing,
+      items.ObolSilverFishing,
+      items.ObolHyper1
+    ],
+    starSigns: [
+      { starSign: starSignByIndexMap[69], starSignIndex: 69, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[55], starSignIndex: 55, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[6], starSignIndex: 6, bonusIndex: 0 }
+    ]
   },
   'trapping': {
     name: 'Trapping',
