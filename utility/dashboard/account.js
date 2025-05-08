@@ -568,7 +568,7 @@ export const getWorld4Alerts = (account, fields, options) => {
         const pets = world?.filter(({
                                       monsterRawName,
                                       shinyLevel
-                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.isShiny && shinyLevel >= shinies?.props?.value);
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.shiny > 0 && shinyLevel >= shinies?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: shinies?.props?.value }
@@ -581,7 +581,7 @@ export const getWorld4Alerts = (account, fields, options) => {
         const pets = world?.filter(({
                                       monsterRawName,
                                       breedingLevel
-                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.isBreedability && breedingLevel >= breedability?.props?.value);
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.breedability > 0 && breedingLevel >= breedability?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: breedability?.props?.value }
