@@ -305,7 +305,7 @@ export const samplingSetups = {
     equipment: [
       items['EquipmentHats105'],
       items['EquipmentSword9'],
-      items['EquipmentShirts20'],
+      items['EquipmentShirts5'],
       items['EquipmentPendant30'],
       items['EquipmentPants22'],
       items['EquipmentRings35'],
