@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import '../polyfills';
@@ -12,6 +12,10 @@ import WaitForRouter from '../components/common/WaitForRouter';
 import { DefaultSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
+import ConsentScripts from '@components/common/Etc/ContentScripts';
+import { CookieConsent } from 'react-cookie-consent';
+import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
+import Button from '@mui/material/Button';
 
 const clientSideEmotionCache = createEmotionCache();
 // remove overlay of error in dev mode.
@@ -32,7 +36,16 @@ const preConnections = ['https://firestore.googleapis.com', 'https://tpc.googles
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  const [openPolicy, setOpenPolicy] = useState(false);
 
+  const getConsentObject = (granted) => {
+    return {
+      ad_storage: granted ? 'granted' : 'denied',
+      analytics_storage: granted ? 'granted' : 'denied',
+      ad_user_data: granted ? 'granted' : 'denied',
+      ad_personalisation: granted ? 'granted' : 'denied'
+    }
+  }
   return (
     <>
       <Head>
@@ -41,29 +54,45 @@ const MyApp = (props) => {
           name="description"
           content="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
         <meta name="googlebot" content="index,follow"/>
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       {process.env.NODE_ENV !== 'production' &&
         <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
-      {/*Global site tag (gtag.js) - Google Analytics */}
-      <Script strategy="afterInteractive"
-              src="https://www.googletagmanager.com/gtag/js?id=G-YER8JY07QK"/>
-      <Script id="ga-analytics">
-        {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-YER8JY07QK');          
-          `}
-      </Script>
-      <Script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1842647313167572"
-              id={'ads-by-google'}
-              strategy={'afterInteractive'}
-              crossOrigin="anonymous">
-      </Script>
+      <CookieConsent
+        buttonText="Accept"
+        declineButtonText="Decline"
+        enableDeclineButton
+        cookieName="idleon-consent"
+        style={{ zIndex: 9999999, height: 42, display: 'flex', alignItems: 'center', fontSize: 14 }}
+        contentStyle={{ margin: '0 15px' }}
+        buttonStyle={{
+          margin: '0 15px 0 0',
+          borderRadius: '8px',
+          fontSize: 12,
+          backgroundColor: '#1976d2',
+          color: 'white'
+        }}
+        declineButtonStyle={{ margin: '0 15px 0 0', borderRadius: '8px', fontSize: 12 }}
+        onAccept={() => {
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('consent', 'update', getConsentObject(true));
+          }
+        }}
+        onDecline={() => {
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('consent', 'update', getConsentObject(false));
+          }
+        }}
+      >
+        We use cookies to enhance your experience, analyze traffic, and personalize ads. You can accept or decline these
+        cookies.{' '}
+        <Button variant={'contained'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none' }}
+                onClick={() => setOpenPolicy(true)}>Learn
+          more</Button>
+      </CookieConsent>
+      <ConsentScripts/>
       <Script
         id="schema-structured-data"
         type="application/ld+json"
@@ -93,6 +122,7 @@ const MyApp = (props) => {
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>
+            <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
             <CssBaseline/>
             <WaitForRouter>
               <AppProvider>
@@ -113,14 +143,14 @@ const MyApp = (props) => {
                           url: 'https://idleontoolbox.com/data/Coins5.png',
                           width: 21,
                           height: 21,
-                          alt: 'Idleon Toolbox',
-                        },
-                      ],
+                          alt: 'Idleon Toolbox'
+                        }
+                      ]
                     }}
                     twitter={{
                       handle: '@IdleonToolbox',
                       site: '@IdleonToolbox',
-                      cardType: 'summary_large_image',
+                      cardType: 'summary_large_image'
                     }}
                     additionalMetaTags={[
                       {
@@ -129,8 +159,8 @@ const MyApp = (props) => {
                       },
                       {
                         property: 'og:image', // Explicitly add og:image
-                        content: 'https://idleontoolbox.com/data/Coins5.png',
-                      },
+                        content: 'https://idleontoolbox.com/data/Coins5.png'
+                      }
                     ]}
                   />
                   <DataLoadingWrapper>

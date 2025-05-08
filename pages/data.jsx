@@ -39,6 +39,7 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
 import { useLocalStorage } from '@mantine/hooks';
+import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -51,7 +52,11 @@ const Data = () => {
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({ key: 'data:leaderboardConsent', defaultValue: false });
+  const [openPolicy, setOpenPolicy] = useState(false);
+  const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({
+    key: 'data:leaderboardConsent',
+    defaultValue: false
+  });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
   const [error, setError] = useState('');
   const showWideSideBanner = useMediaQuery('(min-width: 1200px)', { noSsr: true });
@@ -161,20 +166,20 @@ const Data = () => {
     <>
       <Stack direction={'column'} gap={1} flexWrap={'wrap'}>
         <Section title={'Data'} description={'This is idleon toolbox formatted data, use this when asking for support'}>
-          <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon />}
-            onClick={handleCopyITRaw}>
+          <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>}
+                       onClick={handleCopyITRaw}>
             Copy
           </ButtonStyle>
           <ButtonStyle sx={{ ml: 'auto', minWidth: 32 }} component={'span'} variant={'outlined'} size={'small'}
-            onClick={() => setOpen(true)}>
-            <VisibilityIcon fontSize={'small'} />
+                       onClick={() => setOpen(true)}>
+            <VisibilityIcon fontSize={'small'}/>
           </ButtonStyle>
           <Dialog open={open} onClose={() => setOpen(false)}>
             <DialogTitle>
               <Stack direction={'row'} justifyContent={'space-between'}>
                 <Typography variant={'h6'}>Raw idleon data</Typography>
                 <ButtonStyle sx={{ ml: 'auto' }} component={'span'} size={'small'} variant={'outlined'}
-                  onClick={handleCopyRaw}>
+                             onClick={handleCopyRaw}>
                   Copy
                 </ButtonStyle>
               </Stack>
@@ -187,10 +192,10 @@ const Data = () => {
           </Dialog>
         </Section>
         <Section title={'Configurations'}
-          description={'Various local configurations, use this if you\'re having any issues loading the website'}>
+                 description={'Various local configurations, use this if you\'re having any issues loading the website'}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
             <TextField sx={{ width: 220 }} size="small" label={''} select value={key}
-              onChange={(e) => setKey(e.target.value)}>
+                       onChange={(e) => setKey(e.target.value)}>
               <MenuItem value={'all'}>All</MenuItem>
               <MenuItem value={'filters'}>Characters page filters</MenuItem>
               <MenuItem value={'trackers'}>Dashboard config</MenuItem>
@@ -199,13 +204,20 @@ const Data = () => {
               <MenuItem value={'last-upload-time'}>Last upload time</MenuItem>
               <MenuItem value={'pinnedPages'}>Pinned Pages</MenuItem>
             </TextField>
-            <ButtonStyle color={'warning'} variant={'outlined'} onClick={handleStorageClear} startIcon={<IconInfoCircleFilled />}>
+            <ButtonStyle size={'small'} color={'warning'} variant={'outlined'} onClick={handleStorageClear}
+                         startIcon={<IconInfoCircleFilled/>}>
               Clear
             </ButtonStyle>
           </Stack>
         </Section>
+        <Section title={'Cookie Policy'}
+                 description={'Review the site\'s cookie policy'}>
+          <ButtonStyle variant={'outlined'} onClick={() => setOpenPolicy(true)}>Learn
+            more</ButtonStyle>
+          <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
+        </Section>
       </Stack>
-      <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} />
+      <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
     </>
 
     {!router.query.profile && state?.characters ? <>
@@ -213,10 +225,10 @@ const Data = () => {
         <Stack direction={'row'} gap={3}>
           <Card sx={{ mt: 3 }} variant="outlined">
             <CardContent>
-              <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} >
+              <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
                 <Typography variant={'h6'} mb={1}>Profile Management</Typography>
                 <Tooltip title={<PeakStats {...expandLeaderboardInfo(state?.account, state?.characters)} />}>
-                  <IconInfoCircleFilled size={18} />
+                  <IconInfoCircleFilled size={18}/>
                 </Tooltip>
               </Stack>
               <Typography variant={'body1'} mb={1}>Your profile link</Typography>
@@ -238,8 +250,8 @@ const Data = () => {
                     }}
                     href={`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`}>https://idleontoolbox.com/?profile={state?.characters?.[0]?.name}</Link>
                 </Box>
-                <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon />} sx={{ height: 40 }}
-                  onClick={handleCopyLink}>
+                <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>} sx={{ height: 40 }}
+                             onClick={handleCopyLink}>
                   Copy
                 </ButtonStyle>
               </Stack>
@@ -249,15 +261,19 @@ const Data = () => {
               <Box mt={2}>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
                   <ButtonStyle disabled={isDisabled}
-                    loading={loading} onClick={handleUpdate}
-                    variant={'contained'}>Upload my profile</ButtonStyle>
+                               loading={loading} onClick={handleUpdate}
+                               variant={'contained'}>Upload my profile</ButtonStyle>
                   <Fade in={uploaded}>
-                    <CheckCircleIcon color={'success'} />
+                    <CheckCircleIcon color={'success'}/>
                   </Fade>
                 </Stack>
                 <FormGroup sx={{ mt: 2 }}>
-                  <FormControlLabel control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)} />} label="Remove current/total gems and bundle info." />
-                  <FormControlLabel control={<Switch checked={leaderboardConsent} onChange={() => setLeaderboardConsent(!leaderboardConsent)} />} label="Participate in idleontoolbox leaderboard ranking" />
+                  <FormControlLabel
+                    control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>}
+                    label="Remove current/total gems and bundle info."/>
+                  <FormControlLabel control={<Switch checked={leaderboardConsent}
+                                                     onChange={() => setLeaderboardConsent(!leaderboardConsent)}/>}
+                                    label="Participate in idleontoolbox leaderboard ranking"/>
                 </FormGroup>
                 <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Turn this off if you prefer not to participate in the leaderboard.
 To exclude your profile, simply uncheck the box and re-upload your profile.`}</FormHelperText>
@@ -272,7 +288,7 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
                       date={intervalToDuration({
                         start: new Date(parseInt(lastUpload)),
                         end: new Date().getTime() - WAIT_TIME
-                      })} />
+                      })}/>
                     : null}
                 </Stack> : null}
               </Box>
@@ -304,32 +320,32 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
 };
 
 const PeakStats = ({
-  dropRate,
-  defence,
-  accuracy,
-  hp,
-  mp,
-  logBook,
-  totalShinyLevels,
-  slab,
-  greenMushroomKills,
-  totalBoats,
-  totalTomePoints
-}) => {
+                     dropRate,
+                     defence,
+                     accuracy,
+                     hp,
+                     mp,
+                     logBook,
+                     totalShinyLevels,
+                     slab,
+                     greenMushroomKills,
+                     totalBoats,
+                     totalTomePoints
+                   }) => {
   return <Stack>
     <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Calculated stats</Typography>
-    <Divider sx={{ my: 1 }} />
-    <TitleAndValue title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`} />
-    <TitleAndValue title={'Defence'} value={notateNumber(defence)} />
-    <TitleAndValue title={'Accuracy'} value={notateNumber(accuracy)} />
-    <TitleAndValue title={'HP'} value={notateNumber(hp)} />
-    <TitleAndValue title={'MP'} value={notateNumber(mp)} />
-    <TitleAndValue title={'Log Book'} value={notateNumber(logBook)} />
-    <TitleAndValue title={'Total Shiny Levels'} value={notateNumber(totalShinyLevels)} />
-    <TitleAndValue title={'Slab'} value={notateNumber(slab)} />
-    <TitleAndValue title={'Green Mushroom Kills'} value={notateNumber(greenMushroomKills)} />
-    <TitleAndValue title={'Total Boats'} value={notateNumber(totalBoats)} />
-    <TitleAndValue title={'Total Tome Points'} value={notateNumber(totalTomePoints)} />
+    <Divider sx={{ my: 1 }}/>
+    <TitleAndValue title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
+    <TitleAndValue title={'Defence'} value={notateNumber(defence)}/>
+    <TitleAndValue title={'Accuracy'} value={notateNumber(accuracy)}/>
+    <TitleAndValue title={'HP'} value={notateNumber(hp)}/>
+    <TitleAndValue title={'MP'} value={notateNumber(mp)}/>
+    <TitleAndValue title={'Log Book'} value={notateNumber(logBook)}/>
+    <TitleAndValue title={'Total Shiny Levels'} value={notateNumber(totalShinyLevels)}/>
+    <TitleAndValue title={'Slab'} value={notateNumber(slab)}/>
+    <TitleAndValue title={'Green Mushroom Kills'} value={notateNumber(greenMushroomKills)}/>
+    <TitleAndValue title={'Total Boats'} value={notateNumber(totalBoats)}/>
+    <TitleAndValue title={'Total Tome Points'} value={notateNumber(totalTomePoints)}/>
   </Stack>
 }
 
@@ -341,7 +357,7 @@ const Section = ({ title, description, children }) => {
       </Stack>
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>{description}</Typography>
     </Box>
-    <Divider />
+    <Divider/>
     <Stack direction={'row'} sx={{ p: 2 }}>{children}</Stack>
   </Card>
 }

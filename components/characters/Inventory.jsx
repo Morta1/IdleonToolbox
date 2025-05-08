@@ -2,6 +2,7 @@ import { Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '../../utility/helpers';
 import { TitleAndValue } from '../common/styles';
 import Tooltip from '../Tooltip';
+import ItemDisplay from '@components/common/ItemDisplay';
 
 const Inventory = ({
                      inventory, inventoryLength, inventorySlots, amountKey = 'amount', asc
@@ -11,7 +12,7 @@ const Inventory = ({
                                      value={`${inventoryLength || inventory?.length || 0}/${inventorySlots}`}/> : null}
     <Stack sx={{ mt: 1 }} direction={'row'} flexWrap={'wrap'}>
       {inventory?.map((item, index) => {
-        return <Tooltip title={<ExtraData {...item} amount={item?.[amountKey]}/>}
+        return <Tooltip title={item?.perHour ? <ExtraData {...item} amount={item?.[amountKey]}/> : <ItemDisplay {...item} />}
                         key={item?.rawName + '' + index}>
           <Stack alignItems={'center'}
                  sx={{
