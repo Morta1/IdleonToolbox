@@ -61,7 +61,7 @@ const Compass = () => {
                                                      })}
                                                    </Select>}/> : null}
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Extra Dust'} value={`${getExtraDust(selectedChar, state?.account).toFixed(2)}%`}
+      <CardTitleAndValue title={'Extra Dust'} value={`${getExtraDust(state?.characters?.[selectedChar], state?.account).toFixed(2)}%`}
                          tooltipTitle={'Not including Spirit Reindeer kills'}/>
       <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected < 1e8
         ? numberWithCommas(totalDustsCollected || '0')
@@ -85,23 +85,27 @@ const Compass = () => {
         ? numberWithCommas(tempestStats?.damage || '0')
         : notateNumber(tempestStats?.damage || 0)}/>
       <CardTitleAndValue title={'Accuracy'}
-                         value={numberWithCommas(Math.floor(tempestStats?.accuracy)).replace('.00', '')}/>
+                         value={tempestStats?.accuracy < 1e8
+                           ? numberWithCommas(tempestStats?.accuracy || '0')
+                           : notateNumber(tempestStats?.accuracy || 0).replace('.00', '')}/>
       <CardTitleAndValue title={'Defence'}
-                         value={numberWithCommas(Math.floor(tempestStats?.defence))}/>
+                         value={tempestStats?.defence < 1e8
+                           ? numberWithCommas(tempestStats?.defence || '0')
+                           : notateNumber(tempestStats?.defence || 0).replace('.00', '')}/>
       <CardTitleAndValue title={'Mastery'}
-                         value={notateNumber(tempestStats?.mastery, 'MultiplierInfo').replace('.00', '')}/>
+                         value={`${notateNumber(tempestStats?.mastery, 'MultiplierInfo').replace('.00', '')}%`}/>
       <CardTitleAndValue title={'Crit pct'}
-                         value={notateNumber(tempestStats?.critPct, 'MultiplierInfo').replace('.00', '')}/>
+                         value={`${notateNumber(tempestStats?.critPct, 'MultiplierInfo').replace('.00', '')}%`}/>
       <CardTitleAndValue title={'Crit damage'}
-                         value={notateNumber(tempestStats?.critDamage, 'MultiplierInfo').replace('.00', '')}/>
+                         value={`${notateNumber(tempestStats?.critDamage, 'MultiplierInfo').replace('.00', '')}x`}/>
       <CardTitleAndValue title={'Attack speed'}
-                         value={notateNumber(tempestStats?.attackSpeed, 'MultiplierInfo').replace('.00', '')}/>
+                         value={`${notateNumber(tempestStats?.attackSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
       <CardTitleAndValue title={'Invulnerable time'}
                          value={notateNumber(tempestStats?.invulnerableTime, 'MultiplierInfo').replace('.00', '')}/>
       <CardTitleAndValue title={'Range'}
                          value={notateNumber(tempestStats?.range, 'MultiplierInfo').replace('.00', '')}/>
       <CardTitleAndValue title={'Move speed'}
-                         value={notateNumber(tempestStats?.moveSpeed, 'MultiplierInfo').replace('.00', '')}/>
+                         value={`${notateNumber(tempestStats?.moveSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>

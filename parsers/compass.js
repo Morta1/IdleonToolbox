@@ -14,6 +14,7 @@ import {
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
+import { getArcadeBonus } from '@parsers/arcade';
 
 const weaknesses = {
   0: 'Fire',
@@ -469,15 +470,16 @@ export const getExtraDust = (character, account) => {
   const equipBonus1 = getStatsFromGear(character, 79, account) ?? 0;
   const dustTalent = getTalentBonus(character?.talents, 4, 'ETERNAL_HUNT');
   const compassTalent = getTalentBonus(character?.talents, 4, 'COMPASS');
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
 
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy');
-  return (1 + (getLocalCompassBonus(upgrades, 31)
-      + getLocalCompassBonus(upgrades, 34)
-      * lavaLog(account?.accountOptions?.[359])) / 100)
+  return (1 +
+      (getLocalCompassBonus(upgrades, 31)
+        + getLocalCompassBonus(upgrades, 34)
+        * lavaLog(account?.accountOptions?.[359])) / 100)
     * (1 + getLocalCompassBonus(upgrades, 38) / 100)
     * (1 + charmBonus / 100)
-    * (1 + (equipBonus
-      + equipBonus1) / 100)
+    * (1 + (equipBonus + equipBonus1) / 100)
     * (1 + (0 * dustTalent) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 139)
       + (getLocalCompassBonus(upgrades, 142)
@@ -487,7 +489,8 @@ export const getExtraDust = (character, account) => {
               + (getLocalCompassBonus(upgrades, 68)
                 + (getLocalCompassBonus(upgrades, 93)
                   + (getLocalCompassBonus(upgrades, 89)
-                    + compassTalent)))))))) / 100);
+                    + (compassTalent
+                      + arcadeBonus))))))))) / 100);
 }
 
 const getUpgradeCost = (upgrades, index, serverVars) => {
