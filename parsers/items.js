@@ -79,7 +79,8 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
     let misc = '';
-    const it = { ...items?.[item], ...stoneResult };
+    const maxUpgradeSlots = Math.max(stoneResult?.Upgrade_Slots_Left, items?.[item]?.Upgrade_Slots_Left);
+    const it = { ...items?.[item], ...stoneResult, maxUpgradeSlots };
     if (it?.UQ1txt) {
       misc += it?.UQ1txt;
     }
@@ -89,7 +90,7 @@ export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
     const resultItem = {
       name: items?.[item]?.displayName, rawName: item,
       owner,
-      ...(item === 'Blank' ? {} : { ...items?.[item], ...stoneResult }),
+      ...(item === 'Blank' ? {} : it),
       misc
     };
     if (resultItem?.Premiumified) {

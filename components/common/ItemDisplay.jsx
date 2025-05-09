@@ -28,6 +28,7 @@ const ItemDisplay = ({
                        UQ2txt,
                        UQ2val,
                        Upgrade_Slots_Left,
+                       maxUpgradeSlots,
                        desc_line1,
                        desc_line2,
                        desc_line3,
@@ -42,7 +43,8 @@ const ItemDisplay = ({
                        capacityPerSlot,
                        maxCapacity,
                        breakdown,
-                       allowNegativeValues = true
+                       allowNegativeValues = true,
+                       changes
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
@@ -76,17 +78,33 @@ const ItemDisplay = ({
         {description ? <TitleAndValue value={cleanUnderscore(description)}/> : null}
         {mergedDesc.length > 0 ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/> : null}
         {(allowNegativeValues || Speed >= 0) && Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
-        {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <TitleAndValue title={getPowerType(UQ1txt || rawName)} value={Weapon_Power}/> : null}
-        {(allowNegativeValues || STR >= 0) && STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'} value={STR}/> : null}
-        {(allowNegativeValues || AGI >= 0) && AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'} value={AGI}/> : null}
-        {(allowNegativeValues || WIS >= 0) && WIS ? <TitleAndValue titleStyle={{ color: 'secondary.dark' }} title={'WIS'} value={WIS}/> : null}
-        {(allowNegativeValues || LUK >= 0) && LUK ? <TitleAndValue titleStyle={{ color: 'warning.dark' }} title={'LUK'} value={LUK}/> : null}
+        {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <TitleAndValue
+          title={getPowerType(UQ1txt || rawName)} value={Weapon_Power}/> : null}
+        {(allowNegativeValues || STR >= 0) && STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'}
+                                                                   value={STR}/> : null}
+        {(allowNegativeValues || AGI >= 0) && AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'}
+                                                                   value={AGI}/> : null}
+        {(allowNegativeValues || WIS >= 0) && WIS ? <TitleAndValue titleStyle={{ color: 'secondary.dark' }}
+                                                                   title={'WIS'} value={WIS}/> : null}
+        {(allowNegativeValues || LUK >= 0) && LUK ? <TitleAndValue titleStyle={{ color: 'warning.dark' }} title={'LUK'}
+                                                                   value={LUK}/> : null}
         {(allowNegativeValues || Defence >= 0) && Defence ? <TitleAndValue title={'Defence'} value={Defence}/> : null}
         {(allowNegativeValues || Reach >= 0) && Reach ? <TitleAndValue title={'Reach'} value={Reach}/> : null}
         {UQ1txt && UQ1val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ1val}${UQ1txt}`)}/> : null}
         {UQ2txt && UQ2val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ2val}${UQ2txt}`)}/> : null}
         {Upgrade_Slots_Left > 0 ?
           <TitleAndValue title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
+        {/*{maxUpgradeSlots > 0*/}
+        {/*  ? <TitleAndValue title={'Upgrade Slots'}*/}
+        {/*                   value={`${maxUpgradeSlots - Upgrade_Slots_Left} / ${maxUpgradeSlots}`}/>*/}
+        {/*  : null}*/}
+
+        {/*{changes ? <>*/}
+        {/*  <Typography sx={{ mt: 2 }} variant={'body1'}>Changes</Typography>*/}
+        {/*  <div style={{ whiteSpace: 'pre-line' }}>*/}
+        {/*    {changes?.map((obj) => Object.entries(obj)).flat().join(' ').replace(/ /g, ' \n').replace(/,/g, ' ')}*/}
+        {/*  </div>*/}
+        {/*</> : null}*/}
       </Stack>}
     {breakdown ? <>
       <Divider sx={{ my: 1 }}/>

@@ -20,7 +20,8 @@ export const getInventory = (inventoryArr, inventoryQuantityArr, owner, chestSto
       8].reduce((res, num) => items?.[itemName]?.[`desc_line${num}`]
       ? res + `${items?.[itemName]?.[`desc_line${num}`]} `
       : res, '')
-    const it = { ...items?.[itemName], ...data };
+    const maxUpgradeSlots = Math.max(data?.Upgrade_Slots_Left, items?.[itemName]?.Upgrade_Slots_Left);
+    const it = { ...items?.[itemName], ...data, maxUpgradeSlots };
     let misc = '';
     if (it?.UQ1txt) {
       misc += it?.UQ1txt;
