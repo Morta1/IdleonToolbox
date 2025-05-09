@@ -519,17 +519,19 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
             + getJarBonus({ holesObject, i: 35 })))));
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
-  const firstVillagerExp = t === 0 && unlockedCaverns < 13 ? 1.5 : 1;
-  const value = firstVillagerExp * (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
+  const firstVillagerExp = t === 0 && unlockedCaverns < 13 ? Math.pow(1.5, accountData?.accountOptions?.[355]) : 1;
+  const value = firstVillagerExp
+    * (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
     * Math.max(1, (1 + compassBonus / 100)
-      * (1 + charmBonus / 100) * (1 + 2 * companionBonus)
+      * (1 + charmBonus / 100)
+      * (1 + 2 * companionBonus)
       * (1 + statueBonus / 100)
       * (1 + jarBonuses / 100)
       * (1 + (25 * eventBonus) / 100)
       * (1 + (50 * hasBundle) / 100))
     * holesObject?.opalsInvested[t]
-    * (1 + holesObject?.parallelVillagersGemShop[t] ?? 0) *
-    (1 + arcadeBonus / 100)
+    * (1 + holesObject?.parallelVillagersGemShop[t] ?? 0)
+    * (1 + arcadeBonus / 100)
     * (1 + grimoireBonus / 100)
     * (1 + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 })
       * Math.floor(leastOpalInvestedVillager / 5)) / 100)

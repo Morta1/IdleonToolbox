@@ -59,7 +59,6 @@ const Engineer = ({ hole }) => {
         const img = x2 >= 20 ? `HoleJarR${x2 - 20}` : x2 >= 10 ? `HoleHarpNote${x2 - 10}` : `HoleWellFill${x2 + 1}`;
         return <Card key={`upgrade-${index}`}>
           <CardContent sx={{ width: 400, opacity: hole?.unlockedSchematics > order ? 1 : 0.5 }}>
-            {order}
             <Stack direction={'row'} alignItems={'center'}>
               <img src={`${prefix}data/HoleUIbuildUpg${index}.png`}
                    style={{ width: 80, height: 80, objectPosition: '0 10px' }} alt={'upgrade-img'}/>
