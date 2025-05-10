@@ -4,6 +4,24 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.3',
+    'gameVer': '2.0.37',
+    'date': '10/05/2025',
+    'features': [
+      'Added initial calculation for class exp multi (might still not be 100% accurate)',
+      'All sampling setups in Sampling Companion are now ready to use (Afk Fighting, Chopping, Mining, Catching, Fishing, Trapping Eff)'
+    ],
+    'fixes': [
+      'Fixed shrine bonus calculation and display',
+      'Hiding empty section after a search in Compass -> Upgrades',
+      'Fixed sigil speed calculations',
+      'Fixed opal chance in bravery cavern',
+      'Fixed extra dust calculation in compass page',
+      'Fixed Pets alerts in the dashboard',
+      'Fixed farming alerts in dashboard'
+    ]
+  },
+  {
     'ver': '3.3.2',
     'gameVer': '2.0.37',
     'date': '30/04/2025',

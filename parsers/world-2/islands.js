@@ -2,6 +2,7 @@ import { notateNumber, number2letter } from '../../utility/helpers';
 import { getBribeBonus } from '../bribes';
 import { isBundlePurchased } from '../misc';
 import { getStampBonus } from '@parsers/stamps';
+import { isArtifactAcquired } from '@parsers/sailing';
 
 const shimmerIslandTrials = [
   'Get_as_much_total_stats_as_possible,_STR_AGI_WIS_and_LUK_combined.',
@@ -99,6 +100,7 @@ export const getIslands = (account, characters) => {
     ? 0
     : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfk, 70) / 100 + trashUpgradeLevel / 5))))
   const trashPerDay = Math.round(3 * 1.25 * Math.floor(1.01 + (.5 + (Math.min(1, 70) / 100 + trashUpgradeLevel / 5))));
+  const allShimmerBonus = Math.max(1, Math.min(4, 1 + 100 * isArtifactAcquired(account?.sailing?.artifacts, 'The_Shim_Lantern')?.bonus / 100));
   return {
     islandsUnlocked,
     bottles,
@@ -106,6 +108,7 @@ export const getIslands = (account, characters) => {
     trashPerDay,
     trashPerDaysAfk,
     numberOfDaysAfk,
+    allShimmerBonus,
     list: islands
   }
 }
@@ -161,7 +164,10 @@ const extraIslandDetails = (account, characters, index) => {
       {
         icon: 'data/EquipmentNametag6b',
         name: 'Trash Tuna Nametag',
-        acquired: account?.looty?.slabItems?.find(({ rawName, obtained }) => rawName === 'EquipmentNametag6b' && obtained)
+        acquired: account?.looty?.slabItems?.find(({
+                                                     rawName,
+                                                     obtained
+                                                   }) => rawName === 'EquipmentNametag6b' && obtained)
       }
     ];
     const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, account?.accountOptions?.[163]), 135,

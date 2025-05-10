@@ -837,12 +837,12 @@ export const getTypeGen = (type) => {
   return capacities?.[type];
 }
 
-export const getFoodBonus = (character, account, bonusName) => {
+export const getFoodBonus = (character, account, bonusName, ignoreFoodBonus = false) => {
   const foodBonus = getPlayerFoodBonus(character, account);
   return character?.food?.reduce((res, {
     Amount,
     Effect
-  }) => res + (Effect === bonusName ? Amount * foodBonus : 0), 0);
+  }) => res + (Effect === bonusName ? Amount * (ignoreFoodBonus ? 1 : foodBonus) : 0), 0);
 }
 
 export const getHealthFoodBonus = (character, account, bonusName) => {

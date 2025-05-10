@@ -124,6 +124,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             }, {})
         ).map(([x3, groupedUpgrades]) => {
           const sortedGroup = filterUpgrades(groupedUpgrades.toSorted((a, b) => (a.cost || 0) - (b.cost || 0)));
+          if (sortedGroup.length === 0) return null;
 
           // If hiding maxed upgrades, check if this category has any visible upgrades
           if (hideMaxedUpgrades) {
@@ -146,6 +147,7 @@ const Upgrades = ({ upgrades, dusts }) => {
       ) : (
         upgrades.map(({ path, list }) => {
           const filtered = filterUpgrades(sortUpgrades(list));
+          if (filtered.length === 0) return null;
 
           // If hiding maxed upgrades, check if this category has any visible upgrades
           if (hideMaxedUpgrades) {

@@ -14,7 +14,7 @@ import Timer from '../common/Timer';
 import Tooltip from '../Tooltip';
 import Activity from './Activity';
 import { TitleAndValue } from '../common/styles';
-import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '../../parsers/character';
+import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate } from '../../parsers/character';
 import React, { useMemo } from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import processString from 'react-process-string';
@@ -38,6 +38,11 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
   const { respawnRate, breakdown: rtBreakdown } = useMemo(() => getRespawnRate(character, account) || {},
     [character, account]);
   const { afkGains, breakdown: agBreakdown } = useMemo(() => getAfkGain(character, characters, account), [character,
+    account]);
+  const {
+    value: classExp,
+    breakdown: classExpBreakdown
+  } = useMemo(() => getClassExpMulti(character, account, characters), [character,
     account]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
 
@@ -97,7 +102,6 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
             <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
-
             <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
                   breakdown={drBreakdown} breakdownNotation={'Smaller'} useDoubleColumn/>
             <Stat title={'Respawn Time'}
@@ -117,6 +121,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
                 percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
             </Stack>
+            <Stat title={'Exp multi'} value={`${notateNumber(classExp, 'MultiplierInfo')}x`}
+                  breakdown={classExpBreakdown} breakdownNotation={'Smaller'} useDoubleColumn/>
             <Stat title={'Money'}
                   value={<CoinDisplay title={''}
                                       money={getCoinsArray(character?.money ? character?.money : 0)}/>}
@@ -169,12 +175,15 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
 
 const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage, useDoubleColumn }) => {
   return (
-    (<Stack direction={'row'} justifyContent={'space-between'}>
+    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
       <Tooltip maxWidth={450} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
                                                                    useDoubleColumn={useDoubleColumn}
                                                                    notate={breakdownNotation}/> : ''}>
-        {!damage ? <Typography component={'span'}>{value}</Typography> : <Typography color={'#fffcc9'}>
+        {!damage ? <Typography component={'span'} sx={breakdown
+          ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
+          : {}}
+        >{value}</Typography> : <Typography color={'#fffcc9'}>
           {processString([{
             regex: /[\[!]/g,
             fn: (key, match) => {
@@ -209,7 +218,7 @@ const BreakdownTooltip = ({ breakdown, titleWidth = 170, notate = '', useDoubleC
     return <Stack>{breakdown.map((item, index) => renderItem(item, index))}</Stack>;
   }
 
-  const midpoint = Math.ceil(19);
+  const midpoint = Math.ceil(24);
   return (
     <Stack direction="row" gap={2}>
       <Stack>{breakdown.slice(0, midpoint).map((item, index) => renderItem(item, index, 'left-'))}</Stack>

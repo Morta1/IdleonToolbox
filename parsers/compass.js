@@ -131,6 +131,7 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     medallions,
     maps,
     totalAcquiredMedallions: medallionsRaw?.length,
+    totalKilledAbominations: abominationsRaw?.reduce((sum, killed) => killed > 0 ? sum + 1 : sum, 0),
     dusts,
     exaltedStamps,
     usedExaltedStamps: exaltedStampsRaw?.length,

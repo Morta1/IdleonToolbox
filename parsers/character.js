@@ -58,7 +58,13 @@ import {
 } from './cards';
 import { getStampBonus, getStampsBonusByEffect } from './stamps';
 import { getPlayerPostOffice, getPostOfficeBonus, getPostOfficeBoxLevel } from './postoffice';
-import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByEffect } from './alchemy';
+import {
+  getActiveBubbleBonus,
+  getBubbleBonus,
+  getSigilBonus,
+  getVialsBonusByEffect,
+  getVialsBonusByStat
+} from './alchemy';
 import { getStatueBonus } from './statues';
 import { getStarSignBonus, getStarSignByEffect } from './starSigns';
 import { getAnvil } from './anvil';
@@ -100,6 +106,8 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getCompassBonus } from '@parsers/compass';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -652,6 +660,219 @@ export const getRespawnRate = (character, account) => {
     breakdown
   };
 }
+
+export const getClassExpMulti = (character, account, characters) => {
+  // _customBlock_ExpMulti
+  const { luck } = character?.stats || {};
+  let expBonus1;
+  if (luck < 1e3) {
+    expBonus1 = (Math.pow(luck + 1, 0.37) - 1) / 30;
+  } else {
+    expBonus1 = (luck - 1e3) / (luck + 2500) * 0.8 + .3963;
+  }
+
+  // Lowest character bonus
+  const lowestLevel = characters?.reduce((res, { level }) => (level < res ? level : res), Infinity);
+  const isLowestLevel = character?.level < lowestLevel;
+  // This is the right calculation!
+  // const lowestCharacterBonus = account?.tasks?.[2]?.[0]?.[2] * account?.meritsDescriptions?.[0]?.[2]?.bonusPerLevel;
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 12);
+  const meritBonus = account?.tasks?.[2]?.[0]?.[2] * 3;
+  const superbitBonus = isSuperbitUnlocked(account, 'Noobie_Gains')?.unlocked ? 50 : 0;
+  let expBonus2 = 0;
+  let expBonus3 = 0;
+  if (isLowestLevel) {
+    expBonus2 = meritBonus + upgradeVaultBonus;
+    expBonus3 += superbitBonus;
+  }
+
+  if (character?.level < 50) {
+    expBonus2 += character?.cards?.cardSet?.rawName === 'CardSet0' ? character?.cards?.cardSet?.bonus : 0;
+  }
+
+  if (character?.level < 120) {
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    expBonus2 += getMealsBonusByEffectOrStat(account, null, 'Clexp', blackDiamondRhinestone)
+  }
+  // TODO:  Weekly boss thing
+
+  //
+  if (character?.level < 10) {
+    expBonus2 += 150;
+  } else if (character?.level < 30) {
+    expBonus2 += 100;
+  } else if (character?.level < 50) {
+    expBonus2 += 50;
+  }
+
+  const godLinks = getDeityLinkedIndex(account, characters, 5);
+  const minorGodBonus = getMinorDivinityBonus(character, account, 5, characters);
+  if (godLinks.includes(character?.playerId)) {
+    expBonus2 += minorGodBonus;
+  }
+
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' ? character?.cards?.cardSet?.bonus : 0;
+  expBonus2 += cardSetBonus;
+
+  const hasBundle = isBundlePurchased(account?.bundles, 'bun_q');
+  if (hasBundle) {
+    expBonus3 += 20;
+  }
+
+  const compassBonus = getCompassBonus(account, 51);
+  const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 47, i: 0 });
+  const winnerBonus = getWinnerBonus(account, '+{% Class EXP');
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 24);
+  const upgradeVaultBonus2 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 3);
+  const upgradeVaultBonus3 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 35);
+  const schematicBonus2 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 83, i: 40 });
+
+  const expBonus4 = compassBonus
+    + (schematicBonus
+      + (winnerBonus
+        + (grimoireBonus
+          + (upgradeVaultBonus2
+            + (upgradeVaultBonus3
+              * lavaLog(account?.accountOptions?.[345])
+              + schematicBonus2)))));
+
+  // Wind walker bonuses
+  const hasMedallion = account?.compass?.medallions?.find(({ Name }) => Name === character?.afkTarget);
+  const talentBonus1 = getHighestTalentByClass(characters, 4, 'Wind_Walker', 'SHINY_MEDALLIONS');
+  const talentBonus2 = getHighestTalentByClass(characters, 4, 'Wind_Walker', 'SLAYER_ABOMINATOR');
+  const equipBonus = getStatsFromGear(character, 84, account);
+  const expBonus5 = (hasMedallion ? talentBonus1 : 1) * (1 + equipBonus / 100) *
+    Math.pow(Math.max(1, talentBonus2), account?.compass?.totalKilledAbominations)
+
+  const talentBonus3 = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
+  const extraExp = 1 + talentBonus3 * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
+
+  const forthTalentBonus = getTalentBonus(character?.talents, 1, 'LUCKY_CHARMS');
+  const equipBonus2 = getStatsFromGear(character, 78, account);
+  const equipBonus3 = getStatsFromGear(character, 4, account);
+  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 2);
+  const foodBonus = getFoodBonus(character, account, 'ClassEXP', true)
+  const starSignBonus = getStarSignBonus(character, account, 'Class_EXP_Gain');
+  const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MonsterEXP');
+  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'GRIND_TIME', false);
+  const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[44]);
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG11', character?.talents);
+  const starTalent = getTalentBonus(character?.starTalents, null, 'JUST_EXP');
+  const shrineBonus = getShrineBonus(account?.shrines, 5, character?.mapIndex, account.cards, account?.sailing?.artifacts);
+  const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
+  const prayerBonus1 = getPrayerBonusAndCurse(character?.prayers, 'Big_Brain_Time')?.bonus
+  const prayerBonus2 = getPrayerBonusAndCurse(character?.prayers, 'Unending_Energy')?.bonus
+  const prayerBonus3 = getPrayerBonusAndCurse(character?.prayers, 'The_Royal_Sampler')?.curse
+  const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
+  const achievement1 = getAchievementStatus(account?.achievements, 57);
+  const achievement2 = getAchievementStatus(account?.achievements, 357);
+  const achievement3 = getAchievementStatus(account?.achievements, 61);
+  const achievement4 = getAchievementStatus(account?.achievements, 124);
+  const achievement5 = getAchievementStatus(account?.achievements, 188);
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Class_EXP_gain')?.bonus
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'METAL_EXTERIOR');
+  const achievement6 = getAchievementStatus(account?.achievements, 286);
+  const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Class_EXP');
+  const msaBonus = account?.msaTotalizer?.classExp?.value ?? 0;
+  const talentBonus4 = getHighestTalentByClass(characters, 3, 'Voidwalker', 'EXP_CULTIVATION');
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Class_EXP_(Passive)')
+  const companionBonus = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Nigiri', character, account, characters);
+  const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Class XP');
+  const voteBonus = getVoteBonus(account, 15) || 0;
+  const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 6 });
+
+  const value = extraExp
+    * (1 + expBonus3 / 100)
+    * expBonus5
+    * (1 + equipBonus2 / 100)
+    * (expBonus1
+      * (1 + forthTalentBonus / 100) / 1.8
+      + (equipBonus3 + // not sure whats giving extra exp
+        (postOfficeBonus
+          + (foodBonus
+            + starSignBonus
+            + (vialBonus
+              + (bubbleBonus
+                + (cardBonus
+                  + (expBonus2
+                    + (statueBonus +
+                      (starTalent
+                        + (shrineBonus
+                          + (saltLickBonus
+                            + (prayerBonus1
+                              + (prayerBonus2
+                                - prayerBonus3
+                                + flurboBonus
+                                + (achievement1
+                                  + 20 * achievement2
+                                  + (3 * achievement3 + (2 * achievement4
+                                    + (5 * achievement5 + (arcadeBonus +
+                                      (sigilBonus +
+                                        (25 * achievement6
+                                          + (shinyBonus
+                                            + (msaBonus
+                                              + (talentBonus4
+                                                + (passiveCardBonus
+                                                  + (companionBonus
+                                                    + (account?.accountOptions?.[179]) * account?.islands?.allShimmerBonus
+                                                    + (goldenFoodBonus
+                                                      + (owlBonus
+                                                        + (voteBonus
+                                                          + (monumentBonus
+                                                            + expBonus4)))))))))))))))))))))))))))))) / 100 + 1;
+
+  return {
+    value,
+    breakdown: [
+      { title: 'Additive Bonuses' },
+      { name: '' },
+      { name: 'Achievements', value: (achievement1 + 20 * achievement2 + 3 * achievement3 + 2 * achievement4 + 5 * achievement5 + 25 * achievement6) / 100 },
+      { name: 'Arcade', value: arcadeBonus / 100 },
+      { name: 'Bubble', value: bubbleBonus / 100 },
+      { name: 'Card Set', value: cardSetBonus / 100 },
+      { name: 'Cards', value: cardBonus / 100 },
+      { name: 'Compass', value: compassBonus / 100 },
+      { name: 'Companion', value: companionBonus / 100 },
+      { name: 'Dungeon (Flurbo)', value: flurboBonus / 100 },
+      { name: 'Equipment', value: equipBonus3 / 100 },
+      { name: 'Food', value: foodBonus / 100 },
+      { name: 'God', value: minorGodBonus / 100 },
+      { name: 'Golden Food', value: goldenFoodBonus / 100 },
+      { name: 'Grimoire', value: grimoireBonus / 100 },
+      { name: 'Island Bonus', value: (account?.accountOptions?.[179] ?? 0) * (account?.islands?.allShimmerBonus ?? 0) / 100 },
+      { name: 'Luck', value: expBonus1 },
+      { name: 'Monument', value: monumentBonus / 100 },
+      { name: 'MSA', value: msaBonus / 100 },
+      { name: 'Owl', value: owlBonus / 100 },
+      { name: 'Passive Card Bonus', value: passiveCardBonus / 100 },
+      { name: 'Post Office', value: postOfficeBonus / 100 },
+      { name: 'Prayers', value: prayerBonus1 + prayerBonus2 - prayerBonus3 / 100 },
+      { name: 'Salt Lick', value: saltLickBonus / 100 },
+      { name: 'Schematic', value: (schematicBonus + schematicBonus2) / 100 },
+      { name: 'Shiny', value: shinyBonus / 100 },
+      { name: 'Sigil', value: sigilBonus / 100 },
+      { name: 'Star Sign', value: starSignBonus / 100 },
+      { name: 'Star Talent', value: starTalent / 100 },
+      { name: 'Statue', value: statueBonus / 100 },
+      { name: 'Talent', value: forthTalentBonus / 100 },
+      { name: 'Upgrade Vault', value: (upgradeVaultBonus2 + upgradeVaultBonus3) / 100 },
+      { name: 'Vote', value: voteBonus / 100 },
+      { name: 'Wind Walker', value: expBonus5 },
+      { name: 'Winner Bonus', value: winnerBonus / 100 },
+      { name: 'Vials', value: vialBonus / 100 },
+      { name: '' },
+      { title: 'Multiplicative Bonuses' },
+      { name: '' },
+      { name: 'Bundle', value: hasBundle ? expBonus3 / 100 : 0 },
+      { name: 'Equipment (Exp Multi)', value: equipBonus2 / 100 },
+      { name: 'EXP Cultivation', value: talentBonus4 / 100 },
+      { name: 'Siege Breaker', value: extraExp }
+    ]
+  };
+}
+
 export const getDropRate = (character, account, characters) => {
   // _customBlock_TotalStats
   // "Drop_Rarity" == e
@@ -1009,7 +1230,8 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Talents', value: coinsForCharonBonus + talentBonus },
     { name: 'Golden Food', value: goldFoodBonus },
     {
-      name: 'Achievements', value: (5 * achievementBonus) + (10 * secondAchievementBonus) + (20 * thirdAchievementBonus)
+      name: 'Achievements',
+      value: (5 * achievementBonus) + (10 * secondAchievementBonus) + (20 * thirdAchievementBonus)
     },
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },

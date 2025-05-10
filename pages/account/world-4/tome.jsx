@@ -56,7 +56,7 @@ const Tome = () => {
           }}>
             <Stack mb={1} direction={'row'} alignItems={'center'} gap={1}>
               <Typography variant={'body1'}>{cleanUnderscore(name.replace('(Tap_for_more_info)', ''))}</Typography>
-              {rIndex === 18 ? <Tooltip
+              {rIndex === 19 ? <Tooltip
                 title={'Affected by your currently active character'}><InfoIcon></InfoIcon></Tooltip> : null}
             </Stack>
             <Stack mt={'auto'} justifyContent="space-between" direction={'row'}>

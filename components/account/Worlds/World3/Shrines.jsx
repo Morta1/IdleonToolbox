@@ -44,7 +44,8 @@ const ShrineTooltip = ({
                          affectingCharacters,
                          progressPerHour,
                          hoursReq,
-                         timeLeft
+                         timeLeft,
+                         crystalShrineBonus
                        }) => {
   return <>
     <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
@@ -55,8 +56,13 @@ const ShrineTooltip = ({
     <Typography
       variant={'body1'}>{numberWithCommas(parseInt(progress))} / {numberWithCommas(parseInt(hoursReq))}</Typography>
     <Divider sx={{ my: 1 }}/>
-    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Affected by:</Typography>
+    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Exp contribution:</Typography>
+    <Typography mt={1} variant={'body2'} sx={{ fontWeight: 'bold' }}>Characters:</Typography>
     <Typography variant={'body1'}>{affectingCharacters?.join(', ')}</Typography>
+    {crystalShrineBonus > 0 ? <>
+      <Typography mt={1} variant={'body2'} sx={{ fontWeight: 'bold' }}>Shrines:</Typography>
+      <Typography variant={'body1'}>Crystal shrine ({crystalShrineBonus}%)</Typography>
+    </> : null}
     <Divider sx={{ my: 1 }}/>
     <Typography sx={{ fontWeight: 'bold' }} mt={1}>Progress: {progressPerHour.toFixed(2)}/hr</Typography>
     <Divider sx={{ my: 1 }}/>

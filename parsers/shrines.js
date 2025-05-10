@@ -30,16 +30,18 @@ export const parseShrines = (shrinesRaw, towersRaw, account) => {
     const index = startingIndex + localIndex;
     const [mapId, , , shrineLevel, progress] = item;
     const { shrineName, desc, baseBonus, bonusPerLevel } = shrines[index];
+    const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Shrine_Effects_(Passive)');
+    const crystalShrineBonus = shrinesRaw?.[2]?.[0] === mapId ? shrineStuff?.[2] : 0;
     return shrineName !== 'Unknown' ? [...res, {
       mapId,
       shrineLevel,
       name: shrineName,
       rawName: `ConTowerB${index}`,
-      bonus: baseBonus + (shrineLevel - 1) * bonusPerLevel,
+      bonus: (1 + (passiveCardBonus) / 100) * ((shrineLevel - 1) * bonusPerLevel + baseBonus),
       progress,
       desc,
       worldTour,
-      shrineFactor: shrineStuff?.[2],
+      crystalShrineBonus,
       shrineTowerValue: towersRaw?.[startingIndex + localIndex]
     }] : res;
   }, []);
@@ -65,7 +67,7 @@ export const getShrineExpBonus = (characters, account) => {
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ShrineSpd');
     const voteBonus = getVoteBonus(account, 19);
     account?.shrines?.forEach((shrine, shrineIndex) => {
-      const { shrineTowerValue, shrineFactor } = shrine;
+      const { shrineTowerValue, crystalShrineBonus } = shrine;
       const result = { name: character?.name, value: 0 }
       if (!isGlobalApplicable(shrine, character?.mapIndex)) return result;
       const expBonus = (1 + (50 * superbit) / 100)
@@ -73,7 +75,7 @@ export const getShrineExpBonus = (characters, account) => {
           + 15 * skillMastery) / 100)
         * (1 + voteBonus / 100)
         * (1 + (10 * shrineTowerValue) / 100)
-        * (1 + (shrineFactor
+        * (1 + (crystalShrineBonus
           + (postOfficeBonus
             + (goldenFoodBonus
               + (talentBonus
@@ -115,9 +117,7 @@ export const getShrineBonus = (shrines, shrineIndex, playerMapId, cards, artifac
   if (shrine?.shrineLevel === 0 || (notSameMap && !globalApplicable)) {
     return 0;
   }
-  const chaoticChizoarCard = cards?.Chaotic_Chizoar;
-  const cardBonus = calcCardBonus(chaoticChizoarCard) ?? 0;
-  return shrine?.bonus * (1 + cardBonus / 100);
+  return shrine?.bonus;
 }
 
 export const calcShrineLevels = (allShrines) => {

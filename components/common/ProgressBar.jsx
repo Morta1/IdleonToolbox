@@ -24,7 +24,7 @@ const ProgressBar = ({ percent, bgColor, label = true, sx, boxSx = {}, pre, tool
         </Tooltip>
       </Box>
       {label ? <Box>
-        <Typography variant="body2" color="text.secondary">{`${Math.round(percent)}%`}</Typography>
+        <Typography variant="body2">{`${Math.round(percent)}%`}</Typography>
       </Box> : null}
     </Box>
   );

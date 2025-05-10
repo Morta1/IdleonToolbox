@@ -897,9 +897,10 @@ export const getWorld6Alerts = (account, fields, options) => {
         rank
       }) => {
         const { productDoubler } = getProductDoubler(account?.farming?.market);
-        const productionBoost = getLandRank(account?.farming?.ranks, 'Production_Boost');
-        const finalMulti = Math.min(100, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100))) * (1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100) * (1 + productionBoost?.bonus * (rank ?? 0) / 100)));
-
+        const productionBoost = getLandRank(account?.farming?.ranks, 1);
+        const finalMulti = Math.min(100, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100)))
+          * (1 + getRanksTotalBonus(account?.farming?.ranks, 1) / 100)
+          * (1 + productionBoost * (rank ?? 0) / 100)));
         return sum + (cropQuantity * ogMulti * finalMulti);
       }, 0);
       const availableCrops = totalCropsLocal >= totalCrops?.props?.value ? totalCropsLocal : 0;
