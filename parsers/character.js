@@ -673,7 +673,7 @@ export const getClassExpMulti = (character, account, characters) => {
 
   // Lowest character bonus
   const lowestLevel = characters?.reduce((res, { level }) => (level < res ? level : res), Infinity);
-  const isLowestLevel = character?.level < lowestLevel;
+  const isLowestLevel = character?.level === lowestLevel;
   // This is the right calculation!
   // const lowestCharacterBonus = account?.tasks?.[2]?.[0]?.[2] * account?.meritsDescriptions?.[0]?.[2]?.bonusPerLevel;
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 12);
