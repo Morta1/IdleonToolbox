@@ -733,8 +733,7 @@ export const getClassExpMulti = (character, account, characters) => {
       + (winnerBonus
         + (grimoireBonus
           + (upgradeVaultBonus2
-            + (upgradeVaultBonus3
-              * lavaLog(account?.accountOptions?.[345])
+            + (upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])
               + schematicBonus2)))));
 
   // Wind walker bonuses
@@ -828,7 +827,10 @@ export const getClassExpMulti = (character, account, characters) => {
     breakdown: [
       { title: 'Additive Bonuses' },
       { name: '' },
-      { name: 'Achievements', value: (achievement1 + 20 * achievement2 + 3 * achievement3 + 2 * achievement4 + 5 * achievement5 + 25 * achievement6) / 100 },
+      {
+        name: 'Achievements',
+        value: (achievement1 + 20 * achievement2 + 3 * achievement3 + 2 * achievement4 + 5 * achievement5 + 25 * achievement6) / 100
+      },
       { name: 'Arcade', value: arcadeBonus / 100 },
       { name: 'Bubble', value: bubbleBonus / 100 },
       { name: 'Card Set', value: cardSetBonus / 100 },
@@ -841,7 +843,10 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: 'God', value: minorGodBonus / 100 },
       { name: 'Golden Food', value: goldenFoodBonus / 100 },
       { name: 'Grimoire', value: grimoireBonus / 100 },
-      { name: 'Island Bonus', value: (account?.accountOptions?.[179] ?? 0) * (account?.islands?.allShimmerBonus ?? 0) / 100 },
+      {
+        name: 'Island Bonus',
+        value: (account?.accountOptions?.[179] ?? 0) * (account?.islands?.allShimmerBonus ?? 0) / 100
+      },
       { name: 'Luck', value: expBonus1 },
       { name: 'Monument', value: monumentBonus / 100 },
       { name: 'MSA', value: msaBonus / 100 },
@@ -857,11 +862,12 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: 'Star Talent', value: starTalent / 100 },
       { name: 'Statue', value: statueBonus / 100 },
       { name: 'Talent', value: forthTalentBonus / 100 },
-      { name: 'Upgrade Vault', value: (upgradeVaultBonus2 + upgradeVaultBonus3) / 100 },
+      { name: 'Upgrade Vault', value: ((isLowestLevel ? upgradeVaultBonus : 0) + upgradeVaultBonus2 + upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) / 100 },
       { name: 'Vote', value: voteBonus / 100 },
       { name: 'Wind Walker', value: expBonus5 },
       { name: 'Winner Bonus', value: winnerBonus / 100 },
       { name: 'Vials', value: vialBonus / 100 },
+      { name: 'Superbit', value: (isLowestLevel ? superbitBonus : 0) / 100 },
       { name: '' },
       { title: 'Multiplicative Bonuses' },
       { name: '' },
