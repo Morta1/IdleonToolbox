@@ -37,6 +37,7 @@ const preConnections = ['https://firestore.googleapis.com', 'https://tpc.googles
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
 
   const getConsentObject = (granted) => {
     return {
@@ -65,8 +66,8 @@ const MyApp = (props) => {
         declineButtonText="Decline"
         enableDeclineButton
         cookieName="idleon-consent"
-        style={{ zIndex: 9999999, height: 42, display: 'flex', alignItems: 'center', fontSize: 14 }}
-        contentStyle={{ margin: '0 15px' }}
+        style={{ zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14 }}
+        contentStyle={{ margin: '8px 15px' }}
         buttonStyle={{
           margin: '0 15px 0 0',
           borderRadius: '8px',
@@ -74,7 +75,7 @@ const MyApp = (props) => {
           backgroundColor: '#1976d2',
           color: 'white'
         }}
-        declineButtonStyle={{ margin: '0 15px 0 0', borderRadius: '8px', fontSize: 12 }}
+        declineButtonStyle={{ margin: '0 15px 0 15px', borderRadius: '8px', fontSize: 12 }}
         onAccept={() => {
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('consent', 'update', getConsentObject(true));

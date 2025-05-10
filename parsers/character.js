@@ -695,8 +695,9 @@ export const getClassExpMulti = (character, account, characters) => {
     const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
     expBonus2 += getMealsBonusByEffectOrStat(account, null, 'Clexp', blackDiamondRhinestone)
   }
-  // TODO:  Weekly boss thing
-
+  if (account?.weeklyBossesRaw?.c) {
+    expBonus2 += Math.min(150, account?.weeklyBossesRaw?.c);
+  }
   //
   if (character?.level < 10) {
     expBonus2 += 150;
@@ -862,8 +863,13 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: 'Star Talent', value: starTalent / 100 },
       { name: 'Statue', value: statueBonus / 100 },
       { name: 'Talent', value: forthTalentBonus / 100 },
-      { name: 'Upgrade Vault', value: ((isLowestLevel ? upgradeVaultBonus : 0) + upgradeVaultBonus2 + upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) / 100 },
+      { name: 'Upgrade Vault',
+        value: ((isLowestLevel
+          ? upgradeVaultBonus
+          : 0) + upgradeVaultBonus2 + upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) / 100
+      },
       { name: 'Vote', value: voteBonus / 100 },
+      { name: 'Weekly Boss', value: account?.weeklyBossesRaw?.c },
       { name: 'Wind Walker', value: expBonus5 },
       { name: 'Winner Bonus', value: winnerBonus / 100 },
       { name: 'Vials', value: vialBonus / 100 },

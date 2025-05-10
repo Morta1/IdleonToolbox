@@ -149,6 +149,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.stamps = applyStampsMulti(accountData.stamps, certifiedStampBookMulti);
   accountData.alchemy.vials = updateVials(accountData);
   accountData.equinox = getEquinox(idleonData, accountData);
+  accountData.weeklyBossesRaw = tryToParse(idleonData?.WeeklyBoss);
   const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(accountData.lab.jewels, 16, spelunkerObolMulti);
 
