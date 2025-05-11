@@ -11,7 +11,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 
 const Upgrades = ({ upgrades, dusts }) => {
@@ -40,8 +40,9 @@ const Upgrades = ({ upgrades, dusts }) => {
 
   const renderUpgradeCard = (upgrade, i, dustType) => {
     const {
-      name, cost, description, monsterProgress, level, x4,
-      x3, baseIconIndex, index, shapeIcon
+      name, cost, description, level, x4,
+      x3, baseIconIndex, index, shapeIcon, nextLevelBonus, isMulti, bonusDiff
+
     } = upgrade;
 
     if (hideMaxedUpgrades && level >= x4) return null;
@@ -78,9 +79,15 @@ const Upgrades = ({ upgrades, dusts }) => {
           </Stack>
           <Divider sx={{ my: 1 }}/>
           <Typography>
-            {cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}
+            {cleanUnderscore(description.replace('$', ``).replace('.00', ''))}
           </Typography>
           <Divider sx={{ my: 1 }}/>
+          {level < x4 ? <>
+            <Typography>Next level bonus: {isMulti
+              ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
+              : commaNotation(nextLevelBonus)} (+{bonusDiff.toFixed(2).replace('.00', '')})</Typography>
+            <Divider sx={{ my: 1 }}/>
+          </> : null}
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
             <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType || x3}_x1.png`}/>
             <Typography>

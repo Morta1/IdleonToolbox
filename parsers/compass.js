@@ -97,12 +97,18 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
   });
   upgrades = upgrades.map((upgrade, index) => {
     const bonus = getLocalCompassBonus(upgrades, index);
+    const nextLevelBonus = getCompassBonusAtLevel(upgrades, index, upgrade?.level + 1);
     const cost = getUpgradeCost(upgrades, index, serverVars);
+    const isMulti = upgrade?.description.includes('}');
+
     return {
       ...upgrade,
       bonus,
+      nextLevelBonus,
+      bonusDiff: nextLevelBonus - bonus,
       cost,
-      description: upgrade?.description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'))
+      isMulti,
+      description: upgrade?.description.replace(/{/g, commaNotation(bonus)).replace(/}/g, notateNumber(1 + bonus / 100, 'MultiplierInfo'))
     }
   });
   const medallions = getMedallions((medallionsRaw || []).toSimpleObject(), upgrades)
@@ -456,6 +462,13 @@ export const getCompassBonus = (account, index) => {
   return account?.compass?.upgrades?.[index]?.bonus || 0;
 }
 
+const getCompassBonusAtLevel = (upgrades, index, levelOverride) => {
+  const tempUpgrades = upgrades.map((u, i) =>
+    i === index ? { ...u, level: levelOverride } : { ...u }
+  );
+
+  return getLocalCompassBonus(tempUpgrades, index);
+};
 const getLocalCompassBonus = (upgrades, index) => {
   const upgrade = upgrades?.[index];
   return 1 === upgrade?.x9
