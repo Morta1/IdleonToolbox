@@ -695,8 +695,9 @@ export const getClassExpMulti = (character, account, characters) => {
     const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
     expBonus2 += getMealsBonusByEffectOrStat(account, null, 'Clexp', blackDiamondRhinestone)
   }
+  const weeklyBossBonus = Math.min(150, account?.weeklyBossesRaw?.c)
   if (account?.weeklyBossesRaw?.c) {
-    expBonus2 += Math.min(150, account?.weeklyBossesRaw?.c);
+    expBonus2 += weeklyBossBonus;
   }
   //
   if (character?.level < 10) {
@@ -742,7 +743,7 @@ export const getClassExpMulti = (character, account, characters) => {
   const talentBonus1 = getHighestTalentByClass(characters, 4, 'Wind_Walker', 'SHINY_MEDALLIONS');
   const talentBonus2 = getHighestTalentByClass(characters, 4, 'Wind_Walker', 'SLAYER_ABOMINATOR');
   const equipBonus = getStatsFromGear(character, 84, account);
-  const expBonus5 = (hasMedallion ? talentBonus1 : 1) * (1 + equipBonus / 100) *
+  const expBonus5 = (hasMedallion?.acquired ? talentBonus1 : 1) * (1 + equipBonus / 100) *
     Math.pow(Math.max(1, talentBonus2), account?.compass?.totalKilledAbominations)
 
   const talentBonus3 = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'ARCHLORD_OF_THE_PIRATES');
@@ -869,14 +870,14 @@ export const getClassExpMulti = (character, account, characters) => {
           : 0) + upgradeVaultBonus2 + upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) / 100
       },
       { name: 'Vote', value: voteBonus / 100 },
-      { name: 'Weekly Boss', value: account?.weeklyBossesRaw?.c },
-      { name: 'Wind Walker', value: expBonus5 },
+      { name: 'Weekly Boss', value: weeklyBossBonus },
       { name: 'Winner Bonus', value: winnerBonus / 100 },
       { name: 'Vials', value: vialBonus / 100 },
       { name: 'Superbit', value: (isLowestLevel ? superbitBonus : 0) / 100 },
       { name: '' },
       { title: 'Multiplicative Bonuses' },
       { name: '' },
+      { name: 'Wind Walker', value: expBonus5 },
       { name: 'Bundle', value: hasBundle ? expBonus3 / 100 : 0 },
       { name: 'Equipment (Exp Multi)', value: equipBonus2 / 100 },
       { name: 'EXP Cultivation', value: talentBonus4 / 100 },
