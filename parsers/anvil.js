@@ -265,36 +265,8 @@ export const getPlayerAnvil = (character, characters, account) => {
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 24);
   stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus, upgradeVaultBonus);
 
-  let guildCarryBonus = 0;
-  let zergPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
-  let ruckSackPrayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.bonus;
-
-  if (account?.guild?.guildBonuses?.length > 0) {
-    guildCarryBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
-  }
-  const telekineticStorageBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
-  const carryCapShrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  const bribeCapBonus = getBribeBonus(account?.bribes, 'Bottomless_Bags');
-  const allCapacity = (1 + (guildCarryBonus + telekineticStorageBonus) / 100) * (1 + carryCapShrineBonus / 100) * Math.max(1 - zergPrayerBonus / 100, 0.4)
-    * (1 + (ruckSackPrayerBonus + bribeCapBonus) / 100);
-
-  const mattyBagStampBonus = getStampBonus(account, 'skills', 'StampB8', character);
-  const masonJarStampBonus = getStampBonus(account, 'misc', 'StampC2', character);
-  const gemShopCarryBonus = account?.gemShopPurchases?.find((value, index) => index === 58) ?? 0;
-  const extraBagsTalentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS');
-  const starSignExtraCap = getStarSignBonus(character, account, 'Carry_Cap');
-
   const charMaterialBag = character?.carryCapBags?.find(({ Class }) => Class === 'bCraft');
-  const playerCapacity = getPlayerCapacity(charMaterialBag, {
-    allCapacity,
-    mattyBagStampBonus,
-    masonJarStampBonus,
-    gemShopCarryBonus,
-    extraBagsTalentBonus,
-    starSignExtraCap
-  })
-
-  stats.anvilCapacity = Math.round(playerCapacity * (2 + 0.1 * capPoints));
+  stats.anvilCapacity = Math.round(charMaterialBag?.capacityPerSlot * (2 + 0.1 * capPoints));
   const selectedProducts = anvilSelected
     .sort((a, b) => a - b)
     .map((item) => anvilProducts[item]);

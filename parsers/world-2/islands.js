@@ -156,10 +156,11 @@ const extraIslandDetails = (account, characters, index) => {
       {
         icon: 'data/TalentBook1',
         name: 'Filthy Damage Special Talent Book',
-        acquired: characters?.[0]?.starTalents?.orderedTalents?.find(({
-                                                                        maxLevel,
-                                                                        name
-                                                                      }) => name === 'FILTHY_DAMAGE' && maxLevel > 0)
+        acquired: characters?.some(char =>
+          char?.starTalents?.orderedTalents?.some(
+            ({ maxLevel, name }) => name === 'FILTHY_DAMAGE' && maxLevel > 0
+          )
+        )
       },
       {
         icon: 'data/EquipmentNametag6b',

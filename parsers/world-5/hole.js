@@ -126,7 +126,8 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
   });
 
   const unlockedCaverns = Math.min(15, villagersLevels?.[0]);
-  const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, 5));
+  const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level) =>  level >= 1)?.length;
+  const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, unlockedVillagers));
   const villagers = villagersExp?.slice(0, 5).map((exp, index) => {
     const level = villagersLevels?.[index];
     const expReq = getVillagerExpReq(level, index);
