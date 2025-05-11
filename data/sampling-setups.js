@@ -28,7 +28,7 @@ export const samplingSetups = {
       items['EquipmentKeychain22'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
-      items['EquipmentNametag17'],
+      items['EquipmentNametag19'],
       items['EquipmentGown2']
     ],
     tools: [
@@ -47,12 +47,11 @@ export const samplingSetups = {
       items['FoodPotGr4']
     ],
     chips: [
-      chips[21],
-      chips[20],
-      chips[18],
-      chips[17],
-      chips[15],
-      chips[10]
+      { chip: chips[21], count: 1 },
+      { chip: chips[10], count: 2 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 }
     ],
     cardSet: cardSets['{%_Multikill_Per_Tier'],
     cards: [
@@ -102,7 +101,7 @@ export const samplingSetups = {
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
-      items['EquipmentNametag17'],
+      items['EquipmentNametag19'],
       items['EquipmentGown2']
     ],
     tools: [
@@ -119,13 +118,13 @@ export const samplingSetups = {
       items['FoodEvent2']
     ],
     chips: [
-      chips[21],
-      chips[20],
-      chips[18],
-      chips[17],
-      chips[15],
-      chips[16],
-      chips[8]
+      { chip: chips[21], count: 1 },
+      { chip: chips[20], count: 1 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[8], count: 1 }
     ],
     cardSet: cardSets['{%_Skill_Efficiency'],
     cards: [
@@ -173,7 +172,7 @@ export const samplingSetups = {
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
-      items['EquipmentNametag17'],
+      items['EquipmentNametag19'],
       items['EquipmentGown2']
     ],
     tools: [
@@ -192,13 +191,13 @@ export const samplingSetups = {
       items['Pearl2']
     ],
     chips: [
-      chips[21],
-      chips[20],
-      chips[18],
-      chips[17],
-      chips[15],
-      chips[16],
-      chips[8]
+      { chip: chips[21], count: 1 },
+      { chip: chips[20], count: 1 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[8], count: 1 }
     ],
     cardSet: cardSets['{%_Skill_Efficiency'],
     cards: [
@@ -246,7 +245,7 @@ export const samplingSetups = {
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
-      items['EquipmentNametag17'],
+      items['EquipmentNametag19'],
       items['EquipmentGown2']
     ],
     tools: [
@@ -263,13 +262,13 @@ export const samplingSetups = {
       items['FoodEvent4']
     ],
     chips: [
-      chips[21],
-      chips[20],
-      chips[18],
-      chips[17],
-      chips[15],
-      chips[16],
-      chips[8]
+      { chip: chips[21], count: 1 },
+      { chip: chips[20], count: 1 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[8], count: 1 }
     ],
     cardSet: cardSets['{%_Skill_Efficiency'],
     cards: [
@@ -317,7 +316,7 @@ export const samplingSetups = {
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
-      items['EquipmentNametag17'],
+      items['EquipmentNametag19'],
       items['EquipmentGown2']
     ],
     tools: [
@@ -336,13 +335,13 @@ export const samplingSetups = {
       items['Pearl1']
     ],
     chips: [
-      chips[21],
-      chips[20],
-      chips[18],
-      chips[17],
-      chips[15],
-      chips[16],
-      chips[8]
+      { chip: chips[21], count: 1 },
+      { chip: chips[20], count: 1 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[8], count: 1 }
     ],
     cardSet: cardSets['{%_Skill_Efficiency'],
     cards: [
@@ -398,11 +397,11 @@ export const samplingSetups = {
     ],
     food: [],
     chips: [
-      chips[21],
-      chips[13],
-      chips[15],
-      chips[16],
-      chips[11]
+      { chip: chips[21], count: 1 },
+      { chip: chips[13], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[11], count: 1 }
     ],
     cardSet: cardSets['{%_Skill_Efficiency'],
     cards: [
