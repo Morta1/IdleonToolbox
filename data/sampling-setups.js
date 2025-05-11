@@ -42,8 +42,8 @@ export const samplingSetups = {
       items['FoodG2'],
       items['FoodG9'],
       items['FoodG12'],
-      items['FoodPotGr2'],
-      items['FoodPotGr3'],
+      items['Bullet3'],
+      items['MidnightCookie'],
       items['FoodPotGr4']
     ],
     chips: [
@@ -139,7 +139,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded')
+      getPrayer('Skilled_Dimwit')
     ],
     obols: [
       items.ObolKruk,
@@ -212,7 +212,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded')
+      getPrayer('Skilled_Dimwit')
     ],
     obols: [
       items.ObolKruk,
@@ -283,7 +283,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded')
+      getPrayer('Skilled_Dimwit')
     ],
     obols: [
       items.ObolKruk,
@@ -356,7 +356,7 @@ export const samplingSetups = {
     ],
     prayers: [
       getPrayer('Zerg_Rushogen'),
-      getPrayer('Midas_Minded')
+      getPrayer('Skilled_Dimwit')
     ],
     obols: [
       items.ObolKruk,
@@ -398,7 +398,7 @@ export const samplingSetups = {
     food: [],
     chips: [
       { chip: chips[21], count: 1 },
-      { chip: chips[13], count: 1 },
+      { chip: chips[13], count: 3 },
       { chip: chips[15], count: 1 },
       { chip: chips[16], count: 1 },
       { chip: chips[11], count: 1 }
