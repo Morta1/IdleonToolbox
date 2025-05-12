@@ -308,30 +308,20 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                          iconPath={`data/PetEgg${alerts?.['World 4']?.breeding?.eggsRarity}`}/>
                 : null}
               {alerts?.['World 4']?.breeding?.shinies?.pets?.length > 0 ?
-                alerts?.['World 4']?.breeding?.shinies?.pets?.map(({
-                                                                     monsterName,
-                                                                     monsterRawName,
-                                                                     icon
-                                                                   }, index) => {
-                  const missingIcon = (icon === 'Mface23' && monsterRawName !== 'shovelR') || (icon === 'Mface21' && monsterRawName === 'potatoB');
+                alerts?.['World 4']?.breeding?.shinies?.pets?.map(({ monsterName, icon }, index) => {
                   return <Alert
                     key={monsterName + index}
                     imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
                     title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${alerts?.['World 4']?.breeding?.shinies?.threshold})`}
-                    iconPath={missingIcon ? `afk_targets/${monsterName}` : `data/${icon}`}/>
+                    iconPath={`afk_targets/${monsterName}`}/>
                 }) : null}
               {alerts?.['World 4']?.breeding?.breedability?.pets?.length > 0 ?
-                alerts?.['World 4']?.breeding?.breedability?.pets?.map(({
-                                                                     monsterName,
-                                                                     monsterRawName,
-                                                                     icon
-                                                                   }, index) => {
-                  const missingIcon = (icon === 'Mface23' && monsterRawName !== 'shovelR') || (icon === 'Mface21' && monsterRawName === 'potatoB');
+                alerts?.['World 4']?.breeding?.breedability?.pets?.map(({ monsterName, icon }, index) => {
                   return <Alert
                     key={monsterName + index}
                     breedability
                     title={`${cleanUnderscore(monsterName)} has surpassed the breedability level threshold (${alerts?.['World 4']?.breeding?.breedability?.threshold})`}
-                    iconPath={missingIcon ? `afk_targets/${monsterName}` : `data/${icon}`}/>
+                    iconPath={`afk_targets/${monsterName}`}/>
                 }) : null}
             </Stack>
           </Stack> : null}
@@ -415,7 +405,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert title={`You can break ${alerts?.['World 5']?.hole?.jars} jars in the jars cavern`}
                        iconPath={'etc/Jar_0'}/> : null}
               {alerts?.['World 5']?.hole?.villagersLevelUp?.length > 0
-                ? alerts?.['World 5']?.hole?.villagersLevelUp?.map(({ name }, index) => <Alert
+                ? alerts?.['World 5']?.hole?.villagersLevelUp?.map(({ name, index }) => <Alert
                   key={name}
                   title={`${name} is ready to level up`}
                   iconPath={`etc/Villager_${index}`}/>)
@@ -466,7 +456,9 @@ const Alert = ({ title, iconPath, vial, atom, breedability, style = {}, imgStyle
   return <HtmlTooltip title={title}>
     <Stack sx={{ position: 'relative', ...style }}>
       <IconImg onError={onError} style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
-      {atom || breedability ? <FloatingIcon vial={vial} src={`${prefix}etc/${atom ? 'Particle' : breedability ? 'PetHeart' : ''}.png`} alt=""/> : null}
+      {atom || breedability ? <FloatingIcon vial={vial} src={`${prefix}etc/${atom ? 'Particle' : breedability
+        ? 'PetHeart'
+        : ''}.png`} alt=""/> : null}
       {vial ? <img key={`${vial?.name}`}
                    onError={(e) => {
                      e.target.src = `${prefix}data/aVials12.png`;

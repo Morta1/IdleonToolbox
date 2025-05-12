@@ -695,7 +695,7 @@ export const getClassExpMulti = (character, account, characters) => {
     const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
     expBonus2 += getMealsBonusByEffectOrStat(account, null, 'Clexp', blackDiamondRhinestone)
   }
-  const weeklyBossBonus = Math.min(150, account?.weeklyBossesRaw?.c)
+  const weeklyBossBonus = Math.min(150, (account?.weeklyBossesRaw?.c || 0))
   if (account?.weeklyBossesRaw?.c) {
     expBonus2 += weeklyBossBonus;
   }

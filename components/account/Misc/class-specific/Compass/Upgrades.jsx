@@ -41,7 +41,7 @@ const Upgrades = ({ upgrades, dusts }) => {
   const renderUpgradeCard = (upgrade, i, dustType) => {
     const {
       name, cost, description, level, x4,
-      x3, baseIconIndex, index, shapeIcon, nextLevelBonus, isMulti, bonusDiff
+      x3, baseIconIndex, index, shapeIcon, nextLevelBonus, isMulti, bonusDiff, unlocked
 
     } = upgrade;
 
@@ -60,7 +60,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             width: 370,
             minHeight: 250,
             height: '100%',
-            opacity: level > 0 ? 1 : 0.5
+            opacity: unlocked ? 1 : 0.5
           }}
         >
           <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
@@ -90,9 +90,9 @@ const Upgrades = ({ upgrades, dusts }) => {
           </> : null}
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
             <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType || x3}_x1.png`}/>
-            <Typography>
+            {level < x4 ? <Typography>
               Cost: {notateNumber(dusts?.[dustType || x3]?.value || 0)} / {notateNumber(cost, 'Big')}
-            </Typography>
+            </Typography> : <Typography>Maxed</Typography>}
           </Stack>
         </CardContent>
       </Card>

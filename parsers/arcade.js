@@ -13,6 +13,7 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
   const goldBalls = account?.accountOptions?.[75];
   const royalBalls = account?.accountOptions?.[324];
   const maxBalls = Math.round(getMaxClaimTime(account) / Math.max(1800, getSecPerBall(account)));
+
   const arcadeShopList = arcadeShop?.map((upgrade, index) => {
     const { x1, x2, func } = upgrade;
     const level = arcadeRaw?.[index] ?? 0;
@@ -23,6 +24,7 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
       ...upgrade,
       level,
       active: serverVars?.ArcadeBonuses?.includes(index),
+      rotationIndex: serverVars?.ArcadeBonuses?.indexOf(index),
       bonus: bonus * superBonus * companionBonus,
       iconName: `PachiShopICON${index}`
     }

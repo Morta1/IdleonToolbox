@@ -24,7 +24,7 @@ const Anvil = () => {
       <Typography variant={'h4'}>Totals</Typography>
       <Typography variant={'caption'}>per hour</Typography>
     </Stack>
-    <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 3 }} flexWrap={'wrap'}>
       {Object.entries(totals || {}).map(([rawName, value], index) => {
         return <Card key={'total' + rawName + index}>
           <Tooltip title={<>
@@ -32,7 +32,7 @@ const Anvil = () => {
             <Typography variant={'caption'}>In case you're claiming before full</Typography>
           </>}>
             <CardContent>
-              <Stack alignItems={'center'} gap={1}>
+              <Stack alignItems={'center'} gap={1} direction={'row'}>
                 <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={''}/>
                 <Typography>{notateNumber(value, 'Big')}</Typography>
               </Stack>
@@ -41,7 +41,7 @@ const Anvil = () => {
         </Card>
       })}
     </Stack>
-    <Stack gap={3}>
+    <Stack gap={2}>
       {anvil?.map((anvil, index) => {
         const classIndex = state?.characters?.[index]?.classIndex;
         const playerName = state?.characters?.[index]?.name;
@@ -65,13 +65,14 @@ const Anvil = () => {
         return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 700 } }}>
           <CardContent>
             <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}>
-              <Stack sx={{ width: 175, textAlign: 'center', flexDirection: { xs: 'column', md: 'row' } }}
+              <Stack sx={{ width: 175, flexDirection: { xs: 'column', md: 'row' } }}
                      alignItems={'center'} gap={2}>
                 <Stack alignItems={'center'} justifyContent={'center'}>
                   <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                 </Stack>
                 <Stack>
-                  <Typography data-cy={`player-name-${playerName}`} className={'character-name'}>{playerName}</Typography>
+                  <Typography data-cy={`player-name-${playerName}`}
+                              className={'character-name'}>{playerName}</Typography>
                   <Typography variant={'caption'}>Smithing lv. {smithingLevel}</Typography>
                   <Typography variant={'caption'}
                               color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel} / {pointsFromCoins + pointsFromMats + smithingLevel}</Typography>
@@ -104,20 +105,24 @@ const Anvil = () => {
                              lastUpdated={state?.lastUpdated}/>
                     </>}>
                       <CardContent>
-                        {hammers > 0 ? <Stack justifyContent={'flex-start'}>
+                        {hammers > 0 ? <Stack direction={'row'} gap={1}>
                           <Badge anchorOrigin={{
                             vertical: 'top',
-                            horizontal: 'left',
+                            horizontal: 'left'
                           }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
                             <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
                           </Badge>
-                          <Timer date={new Date().getTime() + (timeTillCap * 1000)}
-                                 staticTime={true}
-                                 type={'countdown'}
-                                 placeholder={<Typography color={'error.light'}>Full</Typography>}
-                                 lastUpdated={state?.lastUpdated}/>
-                          <Typography>Exp: {notateNumber(currentXP, 'Big')}</Typography>
-                          <ProgressBar percent={percentOfCap} label={false}/>
+
+                          <Stack justifyContent={'flex-start'}>
+                            <Timer date={new Date().getTime() + (timeTillCap * 1000)}
+                                   type={'countdown'}
+                                   placeholder={<Typography color={'error.light'}>Full</Typography>}
+                                   lastUpdated={state?.lastUpdated}/>
+                            <Typography variant={'body2'}>Exp: {notateNumber(currentXP, 'Big')}</Typography>
+                            <Typography mb={.5}
+                                        variant={'body2'}>Cap: {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}</Typography>
+                            <ProgressBar percent={percentOfCap} label={false}/>
+                          </Stack>
                         </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
                                           justifyContent={'center'}>
                           <Typography variant={'caption'}>EMPTY</Typography>

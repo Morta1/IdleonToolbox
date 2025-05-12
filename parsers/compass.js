@@ -292,38 +292,44 @@ const getGroupedUpgrades = (upgrades) => {
     let ordering = raw.split(' ').map(Number).filter(v => !isNaN(v));
     if (!ordering.length) return null;
 
-    // Get the upgrades list based on the ordering
-    const list = ordering
+    let list = ordering
       .map(index => upgrades.find(upg => upg.index === index))
       .filter(Boolean);
 
-    // Handle specific prepend for each category
+    // Prepend specific upgrades based on path
     switch (path) {
       case 'Elemental':
-        if (upgrades[1]) list.unshift(upgrades[1]); // Add upgrades[1] first
+        if (upgrades[1]) list.unshift(upgrades[1]);
         break;
       case 'Fighter':
-        if (upgrades[13]) list.unshift(upgrades[13]); // Add upgrades[13] first
+        if (upgrades[13]) list.unshift(upgrades[13]);
         break;
       case 'Survival':
-        if (upgrades[27]) list.unshift(upgrades[27]); // Add upgrades[27] first
+        if (upgrades[27]) list.unshift(upgrades[27]);
         break;
       case 'Nomadic':
-        if (upgrades[40]) list.unshift(upgrades[40]); // Add upgrades[40] first
-        break;
-      case 'default':
-        // Add upgrades[0] and upgrades[170] to "default"
-        if (upgrades[0]) list.unshift(upgrades[0]);
-        if (upgrades[170]) list.unshift(upgrades[170]);
-        break;
-      default:
+        if (upgrades[40]) list.unshift(upgrades[40]);
         break;
     }
+
+    // Apply "unlocked" based on first upgrade's level
+    const unlockedCount = list[0]?.level ?? 0;
+    list = list.map((upg, i) => ({
+      ...upg,
+      unlocked: i <= unlockedCount
+    }));
 
     return { path, list };
   }).filter(Boolean);
 
-  return [{ path: 'Default', list: [upgrades[0], upgrades[170]] }, ...groupedUpgrades];
+  // Handle "Default" group separately
+  const defaultList = [upgrades[0], upgrades[170]].filter(Boolean);
+  const defaultUnlockedCount = defaultList[0]?.level ?? 0;
+  const defaultListWithUnlocks = defaultList.map((upg, i) => ({
+    ...upg,
+    unlocked: i <= defaultUnlockedCount
+  }));
+  return [{ path: 'Default', list: defaultListWithUnlocks }, ...groupedUpgrades];
 }
 
 const getRemainingExaltedStamps = (account, usedExaltedStamps, index) => {

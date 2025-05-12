@@ -56,11 +56,13 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
                       title={isLocked ? `${totalLevels} / ${levelReq}` : !displayName ? 'Empty' : displayName !== 'ERROR'
                         ? <ItemDisplay {...item} allowNegativeValues={false}/>
                         : ''}>
-                      {levelReq && rawName.includes('Locked') ?
-                        <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
-                      <img key={displayName + '' + index} src={`${prefix}data/${imgName}.png`}
-                           style={style}
-                           alt=""/>
+                      <span>
+                        {levelReq && rawName.includes('Locked') ?
+                          <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
+                        <img key={displayName + '' + index} src={`${prefix}data/${imgName}.png`}
+                             style={style}
+                             alt=""/>
+                      </span>
                     </Tooltip>
                   </div>;
                 })}
