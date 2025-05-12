@@ -132,7 +132,7 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
   const remainingExaltedStamps = getRemainingExaltedStamps(accountData, exaltedStampsRaw?.length, 0);
   return {
     upgrades,
-    groupedUpgrades: getGroupedUpgrades(upgrades),
+    groupedUpgrades: getGroupedUpgrades(upgrades, abominationsList),
     abominations: abominationsList,
     medallions,
     maps,
@@ -278,7 +278,7 @@ const getAbominationWeakness = (abomination) => {
   return { name: weaknesses?.[index] ?? 'Unknown', index };
 }
 
-const getGroupedUpgrades = (upgrades) => {
+const getGroupedUpgrades = (upgrades, abominations) => {
   const keyMap = {
     105: 'Elemental',
     106: 'Fighter',
@@ -311,13 +311,19 @@ const getGroupedUpgrades = (upgrades) => {
         if (upgrades[40]) list.unshift(upgrades[40]);
         break;
     }
-
-    // Apply "unlocked" based on first upgrade's level
-    const unlockedCount = list[0]?.level ?? 0;
-    list = list.map((upg, i) => ({
-      ...upg,
-      unlocked: i <= unlockedCount
-    }));
+    if (path === 'Abomination') {
+      list = list.map((upg, i) => ({
+        ...upg,
+        unlocked: !!abominations?.[i]?.unlocked
+      }));
+    } else {
+      // Apply "unlocked" based on first upgrade's level
+      const unlockedCount = list[0]?.level ?? 0;
+      list = list.map((upg, i) => ({
+        ...upg,
+        unlocked: i <= unlockedCount
+      }));
+    }
 
     return { path, list };
   }).filter(Boolean);

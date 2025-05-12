@@ -10,7 +10,7 @@ import { prefix } from '@utility/helpers';
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
-const ToolsDrawer = () => {
+const ToolsDrawer = ({ fromList }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const handleClick = (uri) => {
@@ -31,7 +31,7 @@ const ToolsDrawer = () => {
   }
 
   return <Stack sx={{ height: '100%' }}>
-    <List>
+    <List sx={{ ...(fromList ? { padding: 0 } : {}) }}>
       {Object.entries(PAGES.TOOLS).map(([key, value], index) => {
         if (!state?.signedIn && !offlineTools[key]) return null;
         const { icon } = value;
@@ -51,13 +51,13 @@ const ToolsDrawer = () => {
         </ListItemButton>;
       })}
     </List>
-    <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
+    {!fromList ? <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
       <ListItem>
         <ListItemText>
           <Kofi display={'inline-block'}/>
         </ListItemText>
       </ListItem>
-    </List>
+    </List> : null}
     <Divider/>
   </Stack>;
 };

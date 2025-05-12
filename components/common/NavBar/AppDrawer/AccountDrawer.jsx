@@ -13,7 +13,7 @@ import { PAGES } from '@components/constants';
 
 const nestedOptionPadding = 35;
 
-const AccountDrawer = () => {
+const AccountDrawer = ({ fromList }) => {
   const { state } = useContext(AppContext);
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
@@ -45,8 +45,8 @@ const AccountDrawer = () => {
 
   return (
     (<Stack sx={{ height: '100%', overflowY: 'auto' }}>
-      <List>
-        {state?.account?.accountCreateTime ? <ListItem>Account created
+      <List sx={{ ...(fromList ? { padding: 0 } : {}) }}>
+        {!fromList && state?.account?.accountCreateTime ? <ListItem>Account created
           at: {format(state?.account?.accountCreateTime, 'dd/MM/yyyy HH:mm:ss')}</ListItem> : null}
         {Object.entries(PAGES.ACCOUNT).map(([key, value], index) => {
           const { icon, categories, style } = value;
@@ -102,13 +102,13 @@ const AccountDrawer = () => {
           );
         })}
       </List>
-      <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
+      {!fromList ? <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
         <ListItem>
           <ListItemText>
             <Kofi display={'inline-block'}/>
           </ListItemText>
         </ListItem>
-      </List>
+      </List> : null}
       <Divider/>
     </Stack>)
   );

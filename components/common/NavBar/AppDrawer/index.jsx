@@ -55,10 +55,10 @@ const AppDrawer = ({ permanent }) => {
             color="inherit" noWrap variant={'h6'}
       >
         <img src={`${prefix}data/Coins5.png`} alt={''}/>
-        <span>{isXs ? "IT" : 'Idleon Toolbox'}</span>
+        <span>{isXs ? 'IT' : 'Idleon Toolbox'}</span>
       </Link>
     </Stack> : null}
-    {permanent ? <StyledDrawer variant={'permanent'} open sx={{
+    {permanent ? <StyledDrawer variant={'permanent'} open sx={{ // desktop
       display: shouldDisplayDrawer(router.pathname) ? {
         xs: 'none',
         lg: 'inherit'
@@ -66,7 +66,7 @@ const AppDrawer = ({ permanent }) => {
     }}>
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
       {getDrawer()}
-    </StyledDrawer> : <StyledDrawer
+    </StyledDrawer> : <StyledDrawer // mobile
       sx={{ display: { xs: 'inherit', lg: 'none' } }}
       anchor={'left'}
       open={open}
@@ -74,8 +74,6 @@ const AppDrawer = ({ permanent }) => {
     >
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
       <NavItemsList drawer/>
-      <Divider/>
-      {getDrawer()}
     </StyledDrawer>}
   </Box>
 };

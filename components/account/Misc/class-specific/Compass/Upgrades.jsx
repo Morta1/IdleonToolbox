@@ -152,7 +152,7 @@ const Upgrades = ({ upgrades, dusts }) => {
           );
         })
       ) : (
-        upgrades.map(({ path, list }) => {
+        upgrades?.map(({ path, list }) => {
           const filtered = filterUpgrades(sortUpgrades(list));
           if (filtered.length === 0) return null;
 
