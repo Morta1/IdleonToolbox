@@ -1,10 +1,10 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
 import Territory from '@components/account/Worlds/World4/Breeding/Territory';
-import { getTabs, handleCopyToClipboard, prefix, tryToParse } from 'utility/helpers';
+import { getTabs, notateNumber, prefix } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '@components/account/Worlds/World4/Breeding/Pets/Pets';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -14,13 +14,15 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
 import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import Button from '@mui/material/Button';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { PAGES } from '@components/constants';
+import { CardTitleAndValue } from '@components/common/styles';
+import Tooltip from '@components/Tooltip';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Breeding = () => {
   const { state } = useContext(AppContext);
+
   const calcTimePerEgg = () => {
     const spelunkerObolMulti = getLabBonus(state?.account?.lab?.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(state?.account?.lab?.jewels, 16, spelunkerObolMulti);
@@ -38,11 +40,6 @@ const Breeding = () => {
             + (15 * skillMasteryBonus
               + voteBonus))))) / 100) * 1000;
   }
-  const handleCopy = async () => {
-    const data = tryToParse(localStorage.getItem('rawJson'));
-    const breedingData = tryToParse(data?.data?.Breeding);
-    await handleCopyToClipboard(breedingData, false)
-  }
   const timePerEgg = useMemo(() => calcTimePerEgg(), [state]);
   const now = new Date().getTime();
   return (
@@ -51,32 +48,25 @@ const Breeding = () => {
         title="Breeding | Idleon Toolbox"
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
-      <Stack direction={'row'} gap={2} alignItems={'center'}>
-        <Button onClick={handleCopy}><ContentCopyIcon sx={{ mr: 1 }}/>Copy breeding data</Button>
-      </Stack>
       <Stack my={2} direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
-
-        <Card>
-          <CardContent>
-            <Typography variant={'subtitle2'}>Time to next egg</Typography>
-            <Timer type={'countdown'}
-                   stopAtZero
-                   date={now + (timePerEgg - state?.account?.breeding?.timeToNextEgg)}
-                   lastUpdated={state?.lastUpdated}/>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <Typography variant={'subtitle2'}>Time per egg</Typography>
-            <Timer staticTime={true} date={new Date().getTime() + timePerEgg}/>
-          </CardContent>
-        </Card>
+        <CardTitleAndValue title={'Time to next egg'} value={<Timer type={'countdown'}
+                                                                    stopAtZero
+                                                                    date={now + (timePerEgg - state?.account?.breeding?.timeToNextEgg)}
+                                                                    lastUpdated={state?.lastUpdated}/>}/>
+        <CardTitleAndValue title={'Time per egg'}
+                           value={<Timer staticTime={true} date={new Date().getTime() + timePerEgg}/>}/>
+        <CardTitleAndValue title={'Egg power range'}
+                           value={<Tooltip
+                             title={<EggPowerRangeBreakdown powerRange={state?.account?.breeding?.eggsPowerRange}/>}>
+                             <IconInfoCircleFilled size={18}/>
+                           </Tooltip>}/>
         {state?.account?.breeding?.eggs?.map((eggLevel, index) => {
-          return eggLevel > 0 ? <Card key={`egg-${index}`}>
-            <CardContent sx={{ '&:last-child': { padding: '8px' }, display: 'flex', alignItems: 'center' }}>
-              <img src={`${prefix}data/PetEgg${eggLevel}.png`} alt="egg-icon"/>
-            </CardContent>
-          </Card> : null;
+          return eggLevel > 0 ? <CardTitleAndValue key={`egg-${index}`} title=""
+                                                   value={<img src={`${prefix}data/PetEgg${eggLevel}.png`}
+                                                               alt="egg-icon"/>
+                                                   }>
+
+          </CardTitleAndValue> : null
         })}
       </Stack>
       <Typography variant={'caption'}>*Time to next egg timer will be updated only when entering world 4
@@ -97,5 +87,18 @@ const Breeding = () => {
     </>
   );
 };
+
+const EggPowerRangeBreakdown = ({ powerRange }) => {
+  return <Stack sx={{ maxWidth: 150 }}>
+    <Typography variant={'caption'}>* Best breeding lv BM</Typography>
+    {powerRange.map(({ minPower, maxPower }, index) => <Stack direction={'row'} alignItems={'center'}
+                                                              key={`egg-power-range-${index}`}>
+      <img src={`${prefix}data/PetEgg${index + 1}.png`}
+           alt="egg-icon"/>
+      <Typography ml={1}
+                  variant={'body2'}>{notateNumber(Math.floor(minPower))} - {notateNumber(Math.floor(maxPower))}</Typography>
+    </Stack>)}
+  </Stack>
+}
 
 export default Breeding;

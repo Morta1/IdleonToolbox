@@ -1,5 +1,5 @@
 import { arenaBonuses, monsters, petGenes, petStats, petUpgrades, randomList, territory } from '../data/website-data';
-import { tryToParse } from '../utility/helpers';
+import { createRange, tryToParse } from '../utility/helpers';
 import { getBubbleBonus, getVialsBonusByEffect } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
 import { getJewelBonus, getLabBonus } from './lab';
@@ -9,8 +9,8 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getSkillMasteryBonusByIndex } from '@parsers/misc';
-import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getCharacterByHighestSkillLevel } from '@parsers/misc';
+import { getTalentBonus } from '@parsers/talents';
 
 export const getBreeding = (idleonData, account, processedData) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -144,6 +144,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
   });
 
   return {
+    eggsPowerRange: getEggsPowerRange(processedData?.charactersData),
     passivesTotals,
     storedPets,
     eggs,
@@ -418,4 +419,27 @@ export const calcShinyLvMulti = (account, characters) => {
       { name: 'Lamp bonus', value: lampBonus / 100 }
     ]
   };
+}
+
+export const getEggsPowerRange = (characters) => {
+  const highestBreedingBM = getCharacterByHighestSkillLevel(characters, 'Wind_Walker', 'breeding');
+  const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level;
+  const baseTalentBonus = getTalentBonus(highestBreedingBM?.talents, 3, 'CURVITURE_OF_THE_PAW');
+  const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);
+  const talentBonus = Math.min(2.1, Math.max(1, 1 + baseTalentBonus));
+  const breedingBonus = Math.min(1.2 + breedingLevel / 12, 4);
+  return createRange(0, 10).map((eggLevel) => {
+    const eggLvScale = 0.2 * eggLevel + 0.3 * Math.floor((eggLevel + 1) / 4) + 1;
+
+    return {
+      minPower: base
+        * talentBonus
+        * eggLvScale
+        * (breedingBonus * Math.pow(2.71828, -10 * Math.max(0.1, 1 - ((eggLevel + 4) / 12) * 0.9)) + 1),
+      maxPower: base
+        * talentBonus
+        * eggLvScale
+        * (breedingBonus * Math.pow(2.71828, -10 * 0) + 1)
+    }
+  })
 }

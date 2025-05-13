@@ -363,6 +363,7 @@ export const getCharacterByHighestLevel = (characters, className) => {
 };
 
 export const getCharacterByHighestSkillLevel = (characters, className, skillName) => {
+  if (!characters) return null;
   let array;
   if (className) {
     const allClasses = talentPagesMap?.[className];
