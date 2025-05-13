@@ -74,6 +74,10 @@ const AppDrawer = ({ permanent }) => {
     >
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
       <NavItemsList drawer/>
+      {router.pathname.includes('/characters') ? <>
+        <Divider/>
+        <CharactersDrawer/>
+      </> : null}
     </StyledDrawer>}
   </Box>
 };

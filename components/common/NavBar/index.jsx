@@ -104,7 +104,7 @@ const NavBar = ({ children }) => {
         client="ca-pub-1842647313167572"
         slot="1488341218"
         format=""
-        responsive="true"
+        responsive={isXs ? 'false': 'true'}
       />
     </Box>
   </>
