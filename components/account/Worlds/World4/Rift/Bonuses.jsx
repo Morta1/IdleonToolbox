@@ -2,12 +2,13 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
 import { getShinyBonus } from '../../../../../parsers/breeding';
+import { MAX_VIAL_LEVEL } from '@parsers/alchemy';
 
 const Bonuses = ({ list, currentRift, account }) => {
   const getTotalBonus = (riftBonus) => {
     let totalBonus, totalBonusText;
     if (riftBonus === 'Vial_Mastery') {
-      const maxedVials = account?.alchemy?.vials?.filter(({ level }) => level === 13);
+      const maxedVials = account?.alchemy?.vials?.filter(({ level }) => level === MAX_VIAL_LEVEL);
       totalBonus = `${notateNumber(1 + (2 * maxedVials?.length) / 100, 'MultiplierInfo')}x`;
       totalBonusText = 'Total Vial Boost: ';
     } else if (riftBonus === 'Eclipse_Skulls') {

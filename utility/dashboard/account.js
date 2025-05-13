@@ -1,6 +1,6 @@
 import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/construction';
-import { vialCostsArray } from '@parsers/alchemy';
+import { MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/alchemy';
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/cooking';
 import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
@@ -285,7 +285,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.alchemy?.vials?.checked) {
       const { subtractGreenStacks } = options?.alchemy || {};
       const vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
-        if (level <= 0) return false;
+        if (level <= 0 || level >= MAX_VIAL_LEVEL) return false;
         const cost = vialCostsArray?.[level];
         let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
         if (subtractGreenStacks?.checked) {
