@@ -18,6 +18,7 @@ const Upgrades = ({ upgrades, dusts }) => {
   const [sortBy, setSortBy] = useState('default');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
+  const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
 
   const sortUpgrades = (list) => {
     const sorted = [...list];
@@ -46,6 +47,7 @@ const Upgrades = ({ upgrades, dusts }) => {
     } = upgrade;
 
     if (hideMaxedUpgrades && level >= x4) return null;
+    if (hideLockedUpgrades && !unlocked) return null;
     if (description === 'Titan_doesnt_exist') return null;
 
     let iconIndex = index ?? i;
@@ -117,6 +119,7 @@ const Upgrades = ({ upgrades, dusts }) => {
           sx={{ width: 250 }}
         />
         <CheckboxEl/>
+        <LockedCheckboxEl/>
       </Stack>
 
       {sortBy === 'type' ? (
@@ -138,6 +141,11 @@ const Upgrades = ({ upgrades, dusts }) => {
             const hasVisibleUpgrades = sortedGroup.some(upgrade => upgrade.level < upgrade.x4);
             if (!hasVisibleUpgrades) return null;
           }
+          if (hideLockedUpgrades) {
+            const hasVisibleUpgrades = sortedGroup.some(upgrade => upgrade.unlocked);
+            if (!hasVisibleUpgrades) return null;
+          }
+
 
           return (
             <Stack key={x3} direction="column" gap={2}>
@@ -159,6 +167,10 @@ const Upgrades = ({ upgrades, dusts }) => {
           // If hiding maxed upgrades, check if this category has any visible upgrades
           if (hideMaxedUpgrades) {
             const hasVisibleUpgrades = filtered.some(upgrade => upgrade.level < upgrade.x4);
+            if (!hasVisibleUpgrades) return null;
+          }
+          if (hideLockedUpgrades) {
+            const hasVisibleUpgrades = filtered.some(upgrade => upgrade.unlocked);
             if (!hasVisibleUpgrades) return null;
           }
 
