@@ -44,7 +44,8 @@ const ItemDisplay = ({
                        maxCapacity,
                        breakdown,
                        allowNegativeValues = true,
-                       changes
+                       changes,
+                       owners
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
@@ -105,6 +106,11 @@ const ItemDisplay = ({
         {/*    {changes?.map((obj) => Object.entries(obj)).flat().join(' ').replace(/ /g, ' \n').replace(/,/g, ' ')}*/}
         {/*  </div>*/}
         {/*</> : null}*/}
+
+        {owners?.length > 0 ? <>
+          <Divider sx={{ my: 2 }}/>
+          <TitleAndValue title={'Owners'} value={owners.join(', ')}/>
+        </> : null}
       </Stack>}
     {breakdown ? <>
       <Divider sx={{ my: 1 }}/>

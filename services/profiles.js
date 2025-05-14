@@ -91,13 +91,14 @@ export const expandLeaderboardInfo = (account, characters) => {
   const totalTomePoints = account?.tome?.totalPoints;
   const logbooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + unlocked, 0);
   return {
-    dropRate: withDefault(account.accountOptions?.[200]),
+    dropRate: Math.max(dropRate, withDefault(account.accountOptions?.[200])),
     defence: withDefault(defence),
     accuracy: withDefault(accuracy),
     hp: withDefault(hp),
     mp: withDefault(mp),
     logBook: logbooks,
     totalShinyLevels: withDefault(account?.breeding?.totalShinyLevels),
+    totalBreedabilityLevels: withDefault(account?.breeding?.totalBreedabilityLv),
     slab: withDefault(account?.looty?.lootedItems, 0),
     greenMushroomKills,
     totalBoats,

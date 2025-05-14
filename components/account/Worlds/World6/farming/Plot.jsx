@@ -139,6 +139,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters }) => {
             <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
             <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000', '')}%</Typography>
             <Timer type={'countdown'} lastUpdated={lastUpdated}
+                   placeholder={'Ready'}
                    date={new Date().getTime() + timeLeft * 1000}/>
           </CardContent>
         </Card>

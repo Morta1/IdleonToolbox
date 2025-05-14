@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import { Box, Card, CardContent, Divider, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -12,11 +12,15 @@ import Chips from '@components/tools/sampling-companion/Chips';
 import Prayers from '@components/tools/sampling-companion/Prayers';
 import Obols from '@components/tools/sampling-companion/Obols';
 import StarSigns from '@components/tools/sampling-companion/StarSigns';
+import { addEquippedItems, getAllItems, mergeItemsByOwner } from '@parsers/items';
 
 const SamplingCompanion = () => {
   const { state } = useContext(AppContext);
   const [selectedChar, setSelectedChar] = useState(state?.characters?.[0] || {});
   const [selectedSetup, setSelectedSetup] = useState('');
+  const equippedItems = useMemo(() => addEquippedItems(state?.characters, true), []);
+  const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account])
+  const items = useMemo(() => mergeItemsByOwner(equippedItems, totalItems), [equippedItems, totalItems]);
 
   const handleCharChange = (e) => {
     setSelectedChar(state?.characters?.[e.target.value]);
@@ -95,6 +99,7 @@ const SamplingCompanion = () => {
               food={selectedSetup?.food}
               character={selectedChar}
               account={state?.account}
+              allAccountItems={items}
             />
             <Cards cards={selectedSetup?.cards}
                    cardSet={selectedSetup?.cardSet}

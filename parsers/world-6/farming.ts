@@ -429,7 +429,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   return {
     value,
     breakdown: [
-      { title: 'Base' },
+      { title: 'Additive' },
       { name: 'Base Chance', value: crop?.seed?.nextCropChance.toExponential(3) },
       { name: 'Decay Rate', value: Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType).toExponential(3) },
       { name: 'Market', value: Number(((1 + marketBonus1 / 100) * (1 + marketBonus2 / 100)).toFixed(3)) },

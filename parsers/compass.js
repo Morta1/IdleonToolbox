@@ -53,15 +53,36 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     }
   }, {});
 
+  const excludedPortals = {
+    0: [0],
+    9: [0],
+    17: [0],
+    24: [1],
+    27: [0],
+    28: [0],
+    30: [0],
+    31: [0],
+    38: [0],
+    60: [1],
+    65: [0],
+    69: [0],
+    113: [0],
+    117: [0],
+    120: [0],
+    166: [0],
+    213: [0],
+    264: [0],
+  }
   const maps = getFilteredPortals()?.map(({ mapIndex, mapName }, index) => {
     const availablePortals = mapPortals?.[mapIndex];
     const portals = availablePortals.map((_, portalIndex) => {
       const costQuantity = getPortalCostQuantity(mapIndex, portalIndex);
       const costType = getPortalCostType(mapIndex);
+      const forceUnlock = excludedPortals[mapIndex]?.includes(portalIndex);
       return {
         costQuantity,
         costType,
-        unlocked: unlockedPortals?.[mapIndex + '_' + portalIndex]
+        unlocked: forceUnlock || unlockedPortals?.[mapIndex + '_' + portalIndex]
       }
     });
 

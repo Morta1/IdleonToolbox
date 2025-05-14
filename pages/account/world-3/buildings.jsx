@@ -66,7 +66,7 @@ const Buildings = () => {
       const eventBonus = getEventShopBonus(state?.account, 14);
       const gambitSlot = getGambitBonus(state?.account, 9);
       const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + gambitSlot + eventBonus;
-      const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
+      const isSlotTrimmed = slot !== -1 && slot < Math.min(4, trimmedSlots);
       if (isSlotTrimmed) {
         const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
         progress += (3 + atomBonus / 100) * (timePassed / 3600) * buildSpeed;

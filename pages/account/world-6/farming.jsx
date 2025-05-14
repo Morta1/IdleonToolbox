@@ -36,6 +36,7 @@ const Farming = () => {
                          imgStyle={{ width: 24 }}/>
       <CardTitleAndValue title={'Insta Grow'} value={instaGrow}/>
       <CardTitleAndValue title={'Ranks pts'} value={`${usedPoints}/${totalPoints}`}/>
+      <CardTitleAndValue title={'Crop found'} value={state?.account?.farming?.cropsFound}/>
       {Object.entries(cropDepot).map(([stat, { name, value }], index) => {
         const isMulti = stat === 'gamingEvo' || stat === 'cookingSpeed';
         const isBase = stat === 'critters';

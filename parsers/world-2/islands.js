@@ -54,7 +54,10 @@ export const getIslands = (account, characters) => {
   const islandsKeys = (account?.accountOptions?.[169] || '')?.split('')
   const islandsUnlocked = account?.accountOptions?.[169]?.length;
   const preUnlockMultipliers = { 0: 0, 1: 8, 2: 32, 3: 80, 4: 200, 5: 500 };
-  // 0 == this._DN3 ? this._DN2 = 0 : 1 == this._DN3 ? this._DN2 = 15 : 2 == this._DN3 ? this._DN2 = 45 : 3 == this._DN3 ? this._DN2 = 100 : 4 == this._DN3 ? this._DN2 = 200 : 5 == this._DN3 && (this._DN2 = 500),
+  // 0 == this._DN3 ? this._DN2 = 0 : 1 == this._DN3 ?
+  // this._DN2 = 15 : 2 == this._DN3 ? this._DN2 = 45
+  // : 3 == this._DN3 ? this._DN2 = 100 : 4 == this._DN3
+  // ? this._DN2 = 200 : 5 == this._DN3 && (this._DN2 = 500),
   const multipliers = { 0: 0, 1: 15, 2: 45, 3: 100, 4: 200, 5: 500 };
   const islands = [
     { name: 'Trash', description: 'Trade_garbage_that_washs_up_each_day_for_items', preUnlockCost: 4, baseCost: 10 },
@@ -224,7 +227,7 @@ const extraIslandDetails = (account, characters, index) => {
     const hoursAfk = account?.accountOptions?.[184];
     result = {
       hoursAfk,
-      shop: fractalIslandBonuses?.map((bonus) => ({ ...bonus, unlocked: hoursAfk > bonus?.cost })),
+      shop: fractalIslandBonuses?.map((bonus) => ({ ...bonus, unlocked: hoursAfk >= bonus?.cost })),
       learnMore: true
     }
   }
