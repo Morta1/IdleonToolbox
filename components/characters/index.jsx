@@ -117,7 +117,8 @@ const Character = ({
                 {name} ({level})
               </Typography>
               {trophy ?
-                <TrophyIcon src={`${prefix}data/${trophy}disp.png`} style={{ width: 102, height: 19 }} alt=""/> : null}
+                <TrophyIcon src={`${prefix}data/${trophy}disp.png`} style={{ width: 102, height: 19 }} alt=""/> : <Box
+                  sx={{ width: 102, height: 19 }}></Box>}
             </Stack>
           </Stack>
           <Stack direction={'row'} flexWrap={'wrap'} gap={4}>

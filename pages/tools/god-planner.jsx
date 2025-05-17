@@ -81,12 +81,13 @@ const GodPlanner = () => {
                         }, charIndex) => {
         const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'BIG_P', false);
         const divinityLevel = skillsInfo?.divinity?.level
+        const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
         return (
           (<Card key={charName}>
             <CardContent>
               <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
                 <Stack sx={{ width: 130 }} direction={'column'} alignItems={'center'}>
-                  <img src={`${prefix}data/ClassIcons${classIndex}.png`}
+                  <img src={`${prefix}${classIcon}`}
                        alt="player-icon"/>
                   <Typography>{charName}</Typography>
                 </Stack>

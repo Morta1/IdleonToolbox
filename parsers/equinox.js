@@ -35,7 +35,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const voteBonus = getVoteBonus(account, 32);
   const eventShopBonus = getEventShopBonus(account, 3);
   const companionBonus = isCompanionBonusActive(account, 15) ? 1 : 0;
-  const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 });
+  const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 }) || 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Equinox_Fill_Rate')?.bonus
 
   const cloudsBonus = (
@@ -51,7 +51,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     * (1 + companionBonus * 2.5)
     * (1 + cosmoBonus / 100)
     * (1 + .5 * eventShopBonus)
-    * (1 + account?.accountOptions?.[320] / 10)
+    * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
     * (1 + (eqBarVial + cloudsBonus + arcadeBonus) / 100);
 
   const breakdown = [

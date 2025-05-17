@@ -70,10 +70,12 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           return minutes <= 5;
         };
         const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
+        const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
+
         return <Card key={name} sx={{ width: 300 }} data-cy={`character-${name}`}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-              <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
+              <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}${classIcon}`}
                                                                       alt=""/></Box>
               <Stack>
                 <Typography>{name}</Typography>

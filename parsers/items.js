@@ -199,7 +199,7 @@ export const addEquippedItems = (characters, shouldInclude) => {
     tools,
     equipment,
     food
-  }) => [...res, ...tools, ...equipment, ...food], [])
+  }) => [...res, ...(tools || []), ...(equipment || []), ...(food || [])], [])
     .filter(({ rawName }) => rawName !== 'Blank')
     .map((item) => item?.amount ? item : { ...item, amount: 1 }) : [];
 };

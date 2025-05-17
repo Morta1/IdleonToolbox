@@ -104,6 +104,7 @@ const CharactersDrawer = () => {
 
     return state?.characters?.map((character, index) => {
       const { name, classIndex, level } = character;
+      const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
       return <ListItem
         onMouseEnter={() => setHoverIndex(index)}
         onMouseLeave={() => setHoverIndex(null)}
@@ -119,7 +120,7 @@ const CharactersDrawer = () => {
           />}>
         <ListItemIcon>
           <Tooltip title={`Lv. ${level}`}>
-            <img style={{ width: 38, height: 36 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+            <img style={{ width: 38, height: 36 }} src={`${prefix}${classIcon}`} alt=""/>
           </Tooltip>
         </ListItemIcon>
         <ListItemText

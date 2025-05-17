@@ -27,7 +27,7 @@ const DataLoadingWrapper = ({ children }) => {
       return <SimpleLoader message="Loading account data..."/>;
     }
   } else if (isCharactersPage) {
-    const isDataLoaded = !!state?.characters?.length && !!state?.displayedCharacters;
+    const isDataLoaded = !!state?.characters?.length;
     if (state.isLoading || !isDataLoaded) {
       return <SimpleLoader message="Loading character data..."/>;
     }

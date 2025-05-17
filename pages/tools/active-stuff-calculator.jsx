@@ -113,10 +113,11 @@ const ActiveStuffCalculator = () => {
           }
         }} value={selectedChar} onChange={handleCharChange}>
         {state?.characters?.map((character, index) => {
+          const classIcon = character?.classIndex !== undefined ? `data/ClassIcons${character?.classIndex}.png` : 'afk_targets/Nothing.png'
           return <MenuItem key={character?.name + index} value={character?.playerId}
                            selected={selectedChar === character?.playerId}>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={32} height={32}/>
+              <img src={`${prefix}${classIcon}`} alt="" width={32} height={32}/>
               <Typography>{character?.name}</Typography>
             </Stack>
           </MenuItem>

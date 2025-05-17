@@ -437,6 +437,9 @@ export const worlds = {
 
 const maxTimeValue = 9.007199254740992e+15;
 export const getDuration = (start, end) => {
+  if (!isValid(start) || !isValid(end)) {
+    return 0;
+  }
   if (start > maxTimeValue || end > maxTimeValue) {
     return {};
   }
