@@ -297,3 +297,6 @@
 // };
 //
 // export default GameChangeLog;
+
+const GameChangeLog = () => {}
+export default GameChangeLog;
