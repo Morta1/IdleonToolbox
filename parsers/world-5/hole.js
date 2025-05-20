@@ -126,7 +126,7 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
   });
 
   const unlockedCaverns = Math.min(15, villagersLevels?.[0]);
-  const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level) =>  level >= 1)?.length;
+  const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level) => level >= 1)?.length;
   const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, unlockedVillagers));
   const villagers = villagersExp?.slice(0, 5).map((exp, index) => {
     const level = villagersLevels?.[index];
@@ -637,16 +637,19 @@ const getStudies = (holesObject, villagerLevel, account) => {
   const studies = holesInfo?.[69]?.split(' ')?.map((description, index) => {
     const listIndex = Math.floor(index / 5);
     const bonus = getStudyBonus(holesObject, index, 0);
+    const progress = holesObject?.studyProgress?.[index];
+    const req = getStudyReq(holesObject, index);
     return {
       name: names?.[index]?.toLowerCase().camelToTitleCase(),
       description: description.replace('{', Math.round(bonus)).replace('}', Math.round(100 * (1 + bonus / 100)) / 100),
       listIndex,
       active: holesObject?.extraCalculations?.[61] === index,
-      progress: holesObject?.studyProgress?.[index],
-      req: getStudyReq(holesObject, index),
+      progress,
+      req,
       location: locations?.[listIndex],
       bonus: bonus,
-      level: holesObject?.studyStuff?.[index]
+      level: holesObject?.studyStuff?.[index],
+      readyToLevel: progress >= req
     }
   });
 

@@ -415,6 +415,23 @@ export const migrateToVersion19 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion20 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 5']?.hole?.options?.length === 11) {
+    dashboardConfig.account['World 5'].hole.options = [
+      ...dashboardConfig?.account?.['World 5']?.hole?.options,
+      { name: 'studyLevelUp', checked: true }
+    ]
+  }
+
+  dashboardConfig.version = 20;
+  return dashboardConfig
+}
+
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -475,6 +492,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 18) {
       migratedConfig = migrateToVersion19(migratedConfig);
+    }
+    if (migratedConfig?.version === 19) {
+      migratedConfig = migrateToVersion20(migratedConfig);
     }
   }
   return migratedConfig;

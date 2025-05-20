@@ -16,7 +16,7 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/printer';
 
 const baseTrackers = {
-  version: 19,
+  version: 20,
   account: {
     General: {
       tasks: {
@@ -278,7 +278,8 @@ const baseTrackers = {
             checked: true,
             type: 'input',
             props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
-          }
+          },
+          { name: 'studyLevelUp', checked: true },
         ]
       }
     },

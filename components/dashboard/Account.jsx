@@ -410,7 +410,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={`${name} is ready to level up`}
                   iconPath={`etc/Villager_${index}`}/>)
                 : null}
-
+              {alerts?.['World 5']?.hole?.studyLevelUp?.length > 0
+                ? alerts?.['World 5']?.hole?.studyLevelUp?.map(({ name, index, location }) => <Alert
+                  key={name + index}
+                  title={`${name} study is ready to level up`}
+                  iconPath={`etc/Study_Rate`}/>)
+                : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 6'] ? <Stack direction={'row'} gap={4}>

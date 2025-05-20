@@ -100,7 +100,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
         return [...res, []];
       } else if (index === 6 && !account?.finishedWorlds?.World4) {
         return [...res, []];
-      } else if (index === 6 && !account?.finishedWorlds?.World5) {
+      } else if (index === 7 && !account?.finishedWorlds?.World5) {
         return [...res, []];
       }
       const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
@@ -634,7 +634,7 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (options?.cooking?.ribbons?.checked) {
       const threshold = options?.cooking?.ribbons?.props?.value;
       const emptySlots = account?.grimoire?.ribbons?.slice(0, 28)?.filter((ribbon) => !ribbon);
-      if (emptySlots?.length > threshold) {
+      if (emptySlots?.length < threshold) {
         cooking.ribbons = emptySlots?.length;
       }
     }
@@ -812,7 +812,8 @@ export const getWorld5Alerts = (account, fields, options) => {
       theHive,
       grotto,
       villagersLevelUp,
-      jars
+      jars,
+      studyLevelUp
     } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
@@ -858,6 +859,11 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     if (jars?.checked && account?.hole?.caverns?.theJars?.totalJars >= jars?.props?.value) {
       hole.jars = account?.hole?.caverns?.theJars?.totalJars;
+    }
+
+    const readyToLevelStudy = account?.hole?.studies?.studies?.filter(({ readyToLevel }) => readyToLevel);
+    if (studyLevelUp?.checked && readyToLevelStudy.length > 0) {
+      hole.studyLevelUp = readyToLevelStudy;
     }
     if (Object.keys(hole).length > 0) {
       alerts.hole = hole;
