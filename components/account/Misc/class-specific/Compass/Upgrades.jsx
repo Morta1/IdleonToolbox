@@ -41,11 +41,9 @@ const Upgrades = ({ upgrades, dusts }) => {
 
   const renderUpgradeCard = (upgrade, i, dustType) => {
     const {
-      name, cost, description, level, x4,
+      name, cost, description, level, x4, extraData,
       x3, baseIconIndex, index, shapeIcon, nextLevelBonus, isMulti, bonusDiff, unlocked
-
     } = upgrade;
-
     if (hideMaxedUpgrades && level >= x4) return null;
     if (hideLockedUpgrades && !unlocked) return null;
     if (description === 'Titan_doesnt_exist') return null;
@@ -88,6 +86,10 @@ const Upgrades = ({ upgrades, dusts }) => {
             <Typography>Next level bonus: {isMulti
               ? notateNumber(1 + nextLevelBonus / 100, 'MultiplierInfo')
               : commaNotation(nextLevelBonus)} (+{bonusDiff.toFixed(2).replace('.00', '')})</Typography>
+            <Divider sx={{ my: 1 }}/>
+          </> : null}
+          {extraData ? <>
+            <Typography>{extraData}</Typography>
             <Divider sx={{ my: 1 }}/>
           </> : null}
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">

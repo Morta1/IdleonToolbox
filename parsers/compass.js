@@ -121,7 +121,13 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     const nextLevelBonus = getCompassBonusAtLevel(upgrades, index, upgrade?.level + 1);
     const cost = getUpgradeCost(upgrades, index, serverVars);
     const isMulti = upgrade?.description.includes('}');
+    let extraData;
 
+    if (upgrade?.name === 'Top_of_the_Mornin\''){
+      const killsLeft = Math.max(0, accountData?.accountOptions?.[365]);
+      const totalKills = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
+      extraData = `Kills: ${totalKills - killsLeft} / ${totalKills}`;
+    }
     return {
       ...upgrade,
       bonus,
@@ -129,7 +135,8 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
       bonusDiff: nextLevelBonus - bonus,
       cost,
       isMulti,
-      description: upgrade?.description.replace(/{/g, commaNotation(bonus)).replace(/}/g, notateNumber(1 + bonus / 100, 'MultiplierInfo'))
+      description: upgrade?.description.replace(/{/g, commaNotation(bonus)).replace(/}/g, notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+      extraData
     }
   });
   const medallions = getMedallions((medallionsRaw || []).toSimpleObject(), upgrades)

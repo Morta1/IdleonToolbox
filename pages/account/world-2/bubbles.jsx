@@ -65,8 +65,8 @@ const Bubbles = () => {
   }, []);
 
   const calcBubbleMatCost = (bubbleIndex, vialMultiplier = 1, bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
-    undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
-    shopBargainBought, smrtAchievement, multiBubble) => {
+                             undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
+                             shopBargainBought, smrtAchievement, multiBubble) => {
     if (isLiquid) {
       return baseCost + Math.floor(bubbleLvl / 20);
     } else {
@@ -115,14 +115,14 @@ const Bubbles = () => {
     const array = new Array(levelDiff || 0).fill(1);
     let singleLevelCost = 0;
     const total = array.reduce((res, _, levelInd) => {
-      const cost = calculateMaterialCost(level + (levelInd === 0
-        ? 1
-        : levelInd), baseCost, isLiquid, cauldronName, index);
-      if (!isLiquid) {
-        singleLevelCost = cost;
-      }
-      return res + cost;
-    },
+        const cost = calculateMaterialCost(level + (levelInd === 0
+          ? 1
+          : levelInd), baseCost, isLiquid, cauldronName, index);
+        if (!isLiquid) {
+          singleLevelCost = cost;
+        }
+        return res + cost;
+      },
       calculateMaterialCost(level, baseCost, isLiquid, cauldronName, index)
     );
     return { total, singleLevelCost };
@@ -148,21 +148,21 @@ const Bubbles = () => {
       />
       <Stack mb={2} direction={'row'} justifyContent={'center'}>
         <Nblb title={'Next bubble upgrades'} bubbles={upgradeableBubbles?.normal} accumulatedCost={accumulatedCost}
-          account={state?.account} breakdown={upgradeableBubbles?.breakdown} />
-        <Divider orientation={'vertical'} flexItem sx={{ mx: 2 }} />
+              account={state?.account} breakdown={upgradeableBubbles?.breakdown}/>
+        <Divider orientation={'vertical'} flexItem sx={{ mx: 2 }}/>
         <Nblb lithium bubbles={upgradeableBubbles?.atomBubbles} accumulatedCost={accumulatedCost}
-          account={state?.account} />
+              account={state?.account}/>
       </Stack>
       <Stack direction={'row'} justifyContent={'center'} mt={2} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Options'} stackProps={{ gap: 0 }}>
           <FormControlLabel
-            control={<Checkbox checked={batchLayout} onChange={() => setBatchLayout(!batchLayout)} />}
+            control={<Checkbox checked={batchLayout} onChange={() => setBatchLayout(!batchLayout)}/>}
             name={'batchLayout'}
-            label="Batch layout" />
+            label="Batch layout"/>
           <FormControlLabel
-            control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)} />}
+            control={<Checkbox checked={classDiscount} onChange={() => setClassDiscount(!classDiscount)}/>}
             name={'classDiscount'}
-            label="Class Discount" />
+            label="Class Discount"/>
           <FormControl>
             <InputLabel id="bargain-tag-select-input">Bargain Tag</InputLabel>
             <Select
@@ -180,60 +180,60 @@ const Bubbles = () => {
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Efficiency Threshold'} stackProps={{ gap: .5 }}>
           <FormControlLabel
             control={<Checkbox sx={{ my: 0 }} size={'small'} checked={showMissingLevels}
-              onChange={() => setShowMissingLevels(!showMissingLevels)} />}
+                               onChange={() => setShowMissingLevels(!showMissingLevels)}/>}
             name={'classDiscount'}
-            label="Show Missing Levels" />
+            label="Show Missing Levels"/>
           <FormControlLabel
             control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastThreshold}
-              onChange={() => setHidePastThreshold(!hidePastThreshold)} />}
+                               onChange={() => setHidePastThreshold(!hidePastThreshold)}/>}
             name={'classDiscount'}
-            label="Hide past threshold" />
+            label="Hide past threshold"/>
           <TextField sx={{ width: 150 }}
-            label={''}
-            size={'small'}
-            value={effThreshold}
-            type={'number'}
-            slotProps={{
-              htmlInput: { min: 0, max: 100 }
-            }}
-            onChange={({ target }) => {
-              localStorage.setItem('effThreshold', target.value);
-              setEffThreshold(target.value)
-            }}
+                     label={''}
+                     size={'small'}
+                     value={effThreshold}
+                     type={'number'}
+                     slotProps={{
+                       htmlInput: { min: 0, max: 100 }
+                     }}
+                     onChange={({ target }) => {
+                       localStorage.setItem('effThreshold', target.value);
+                       setEffThreshold(target.value)
+                     }}
           />
         </CardTitleAndValue>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Level Threshold'} stackProps={{ gap: .5 }}>
           <FormControlLabel
             control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastLevelThreshold}
-              onChange={() => setHidePastLevelThreshold(!hidePastLevelThreshold)} />}
-            label="Hide past threshold" />
+                               onChange={() => setHidePastLevelThreshold(!hidePastLevelThreshold)}/>}
+            label="Hide past threshold"/>
           <TextField sx={{ width: 150 }}
-            label={''}
-            value={levelThreshold}
-            type={'number'}
-            slotProps={{
-              htmlInput: { min: 0 }
-            }}
-            onChange={({ target }) => {
-              localStorage.setItem('levelThreshold', target.value);
-              setLevelThreshold(target.value);
-            }}
+                     label={''}
+                     value={levelThreshold}
+                     type={'number'}
+                     slotProps={{
+                       htmlInput: { min: 0 }
+                     }}
+                     onChange={({ target }) => {
+                       localStorage.setItem('levelThreshold', target.value);
+                       setLevelThreshold(target.value);
+                     }}
           />
         </CardTitleAndValue>
         <CardTitleAndValue cardSx={{ height: 'fit-content' }} title={'Misc'} stackProps={{ gap: 1 }}>
           <Link underline={'hover'}
-            sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'old-bubbles' })}>
+                sx={{ cursor: 'pointer' }}
+                onClick={() => router.push({ pathname: 'old-bubbles' })}>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <ArrowRightAltIcon />
+              <ArrowRightAltIcon/>
               <Typography>Old Bubbles Page</Typography>
             </Stack>
           </Link>
           <Typography>Particle Upgrades: {state?.account?.accountOptions?.[135] || '0'}</Typography>
           <Stack direction={'row'} gap={1}>
             <Typography>Future Bubbles</Typography>
-            <HtmlTooltip title={<FutureBubblesTooltip />}>
-              <InfoIcon />
+            <HtmlTooltip title={<FutureBubblesTooltip/>}>
+              <InfoIcon/>
             </HtmlTooltip>
           </Stack>
         </CardTitleAndValue>
@@ -248,7 +248,7 @@ const Bubbles = () => {
         }}>
           {Object.entries(state?.account?.alchemy?.bubbles || {})?.map(([cauldron, bubbles], cauldronIndex) => {
             return <Stack direction={batchLayout ? 'row' : 'column'} alignItems={'center'} flexWrap={'wrap'}
-              key={cauldron + '' + cauldronIndex}>
+                          key={cauldron + '' + cauldronIndex}>
               {bubbles?.map((bubble, index) => {
                 if (index > 29) return null;
                 const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
@@ -271,50 +271,53 @@ const Bubbles = () => {
                 return <Fragment key={rawName + '' + bubbleName + '' + index}>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack direction={isSm || batchLayout ? 'column' : 'row'}
-                      alignItems={'center'}
-                      gap={batchLayout ? 0 : 1}
-                      sx={{
-                        width: isSm ? 'inherit' : batchLayout ? 55 : 100,
-                        height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? 100 : 'inherit'
-                      }}
+                           alignItems={'center'}
+                           gap={batchLayout ? 0 : 1}
+                           sx={{
+                             width: isSm ? 'inherit' : batchLayout ? 55 : showMissingLevels ? 150 : 100,
+                             height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? 100 : 'inherit'
+                           }}
                     >
                       <HtmlTooltip
                         title={<AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus}
-                          goalBonus={goalBonus}
-                          cauldron={cauldron}
-                          effectHardCapPercent={effectHardCapPercent}
-                          itemReq={itemReq}
-                          thresholdObj={thresholdObj}
-                          accumulatedCost={accumulatedCost}
-                          account={state?.account}
-                          level={level}
-                          index={index}
-                          bubble={bubble}
-                          goalLevel={goalLevel}
+                                               goalBonus={goalBonus}
+                                               cauldron={cauldron}
+                                               effectHardCapPercent={effectHardCapPercent}
+                                               itemReq={itemReq}
+                                               thresholdObj={thresholdObj}
+                                               accumulatedCost={accumulatedCost}
+                                               account={state?.account}
+                                               level={level}
+                                               index={index}
+                                               bubble={bubble}
+                                               goalLevel={goalLevel}
                         />}>
                         <BubbleIcon width={48} height={48}
-                          level={level}
-                          src={`${prefix}data/${rawName}.png`}
-                          alt="" />
+                                    level={level}
+                                    src={`${prefix}data/${rawName}.png`}
+                                    alt=""/>
                       </HtmlTooltip>
                       <Stack alignItems={batchLayout ? 'center' : 'flex-start'}>
                         <Stack direction={batchLayout ? 'column' : 'row'} alignItems={'center'}>
                           <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
-                            variant={'caption'}>{level}</Typography>
+                                      sx={{ mr: !batchLayout ? .5 : 0 }}
+                                      variant={'caption'}>{level}</Typography>
                           {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <Typography
                             color={'error.light'}
-                            variant={'caption'}>{!batchLayout ? `/${level + Math.ceil(thresholdObj?.thresholdMissingLevels)}` : `(${Math.ceil(thresholdObj?.thresholdMissingLevels)})`}</Typography> : null}
+                            variant={'caption'}>{!batchLayout
+                            ? `/ ${level + Math.ceil(thresholdObj?.thresholdMissingLevels)}`
+                            : `(${Math.ceil(thresholdObj?.thresholdMissingLevels)})`}</Typography> : null}
                         </Stack>
                         {bubbleMaxBonus ? <Typography
-                          fontSize={'0.70rem'}
-                          variant={'caption'}>({effectHardCapPercent.toFixed(1).replace('.0', '')}%)</Typography> :
+                            fontSize={'0.70rem'}
+                            variant={'caption'}>({effectHardCapPercent.toFixed(1).replace('.0', '')}%)</Typography> :
                           isSm ? <Typography>&nbsp;</Typography> : null}
                       </Stack>
                     </Stack>
                   </Stack>
                   {!isSm && !hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0
                     ?
-                    <Divider sx={{ my: 1 }} flexItem />
+                    <Divider sx={{ my: 1 }} flexItem/>
                     : null}
                 </Fragment>
               })}
@@ -327,31 +330,31 @@ const Bubbles = () => {
 };
 
 const AdditionalInfo = ({
-  tooltip,
-  bubbleMaxBonus,
-  goalBonus,
-  effectHardCapPercent,
-  itemReq,
-  thresholdObj,
-  accumulatedCost,
-  index,
-  level,
-  cauldron,
-  account,
-  bubble,
-  goalLevel
-}) => {
+                          tooltip,
+                          bubbleMaxBonus,
+                          goalBonus,
+                          effectHardCapPercent,
+                          itemReq,
+                          thresholdObj,
+                          accumulatedCost,
+                          index,
+                          level,
+                          cauldron,
+                          account,
+                          bubble,
+                          goalLevel
+                        }) => {
   return <Box>
     {tooltip ? <BubbleTooltip {...{ ...bubble, goalLevel }} /> : null}
     <Stack gap={2} direction={'row'}>
       <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
-        alignItems={'center'}>
-        <BonusIcon src={`${prefix}data/SignStar1b.png`} alt="" />
+             alignItems={'center'}>
+        <BonusIcon src={`${prefix}data/SignStar1b.png`} alt=""/>
         <Typography variant={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0
           ? 'caption'
           : ''}>{goalBonus} {bubbleMaxBonus
-            ? `(${notateNumber(effectHardCapPercent)}%)`
-            : ''}</Typography>
+          ? `(${notateNumber(effectHardCapPercent)}%)`
+          : ''}</Typography>
       </Stack>
       {
         itemReq?.map(({ rawName, name, baseCost }, itemIndex) => {
@@ -386,21 +389,21 @@ const AdditionalInfo = ({
           }
           return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
             {atomCost ? <Stack gap={2} alignItems={'center'}>
-              <Tooltip title={<Typography
-                color={account?.atoms?.particles > atomCost
-                  ? 'success.light'
-                  : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
-                <ItemIcon src={`${prefix}etc/Particle.png`} alt="" />
-              </Tooltip>
-              <HtmlTooltip title={atomCost}>
-                <Typography>{notateNumber(atomCost, 'Big')}</Typography>
-              </HtmlTooltip></Stack>
+                <Tooltip title={<Typography
+                  color={account?.atoms?.particles > atomCost
+                    ? 'success.light'
+                    : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
+                  <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
+                </Tooltip>
+                <HtmlTooltip title={atomCost}>
+                  <Typography>{notateNumber(atomCost, 'Big')}</Typography>
+                </HtmlTooltip></Stack>
               : null}
             <Stack gap={2} justifyContent={'center'}
-              alignItems={'center'}>
+                   alignItems={'center'}>
               <HtmlTooltip title={cleanUnderscore(name)}>
                 <ItemIcon src={`${prefix}data/${itemName}.png`}
-                  alt="" />
+                          alt=""/>
               </HtmlTooltip>
               <Typography color={amount >= total
                 ? 'success.dark'
@@ -411,7 +414,7 @@ const AdditionalInfo = ({
       }
     </Stack>
     {bubbleMaxBonus ? <>
-      <Divider sx={{ my: 1 }} />
+      <Divider sx={{ my: 1 }}/>
       <Typography
         variant={'body2'}>{`${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}`}</Typography>
     </> : null}
@@ -424,8 +427,8 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account, breakdown }) 
       <Typography>{title}</Typography>
       {lithium ? <Typography variant={'caption'}>* 15% chance to be upgraded by lithium (atom
         collider)</Typography> : null}
-      {breakdown ? <HtmlTooltip title={<Breakdown breakdown={breakdown} />}>
-        <InfoIcon />
+      {breakdown ? <HtmlTooltip title={<Breakdown breakdown={breakdown}/>}>
+        <InfoIcon/>
       </HtmlTooltip> : null}
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
@@ -447,13 +450,13 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account, breakdown }) 
                   : rawName;
                 return <Stack alignItems={'center'} direction={'row'} gap={1} key={'req' + rawName + index}>
                   <Stack alignItems={'center'} justifyContent={'space-between'}>
-                    <ItemIcon src={`${prefix}data/${itemName}.png`} alt="" />
+                    <ItemIcon src={`${prefix}data/${itemName}.png`} alt=""/>
                     <Typography>{notateNumber(total, 'Big')}</Typography>
                   </Stack>
                   {atomCost > 0 ? <Stack alignItems={'center'} justifyContent={'space-between'}>
                     <Stack sx={{ width: 32, height: 32 }} alignItems={'center'} justifyContent={'center'}>
                       <img width={18} height={18}
-                        src={`${prefix}etc/Particle.png`} alt="" />
+                           src={`${prefix}etc/Particle.png`} alt=""/>
                     </Stack>
                     <Typography>{atomCost}</Typography>
                   </Stack> : null}
@@ -465,7 +468,7 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account, breakdown }) 
               style={{ opacity: lithium ? 0.8 : 1 }}
               width={42}
               height={42}
-              src={`${prefix}data/${rawName}.png`} alt="" />
+              src={`${prefix}data/${rawName}.png`} alt=""/>
           </HtmlTooltip>
           <Stack direction={'row'} alignItems={'center'} gap={.5}>
             {atomCost > 0 ?
@@ -474,7 +477,7 @@ const Nblb = ({ title, bubbles, lithium, accumulatedCost, account, breakdown }) 
                   ? 'success.light'
                   : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
                 <img width={18} height={18}
-                  src={`${prefix}etc/Particle.png`} alt="" />
+                     src={`${prefix}etc/Particle.png`} alt=""/>
               </Tooltip> : null}
             <Typography variant={'body1'}>{level}</Typography>
           </Stack>
@@ -505,13 +508,13 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
   const goalBonus = growth(func, goalLevel, x1, x2, true);
   return <>
     <Typography fontWeight={'bold'}
-      variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
-    <Divider sx={{ my: 1 }} />
+                variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
+    <Divider sx={{ my: 1 }}/>
     <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, bonus))}</Typography>
     {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }} variant={'body1'}>
       Goal: +{goalBonus}
     </Typography> : null}
-    <Divider sx={{ my: 1 }} />
+    <Divider sx={{ my: 1 }}/>
 
   </>;
 }

@@ -78,7 +78,9 @@ const Data = () => {
   const handleCopyITRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget)
-      await navigator.clipboard.writeText(JSON.stringify(tryToParse(localStorage.getItem('rawJson')), null, 2));
+      const data = JSON.parse(localStorage.getItem('rawJson'));
+      const extraData = expandLeaderboardInfo(state?.account, state?.characters);
+      await navigator.clipboard.writeText(JSON.stringify({ ...data, extraData }, null, 2));
     } catch (err) {
       console.error(err);
     }

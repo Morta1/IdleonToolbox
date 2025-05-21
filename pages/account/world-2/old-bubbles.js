@@ -511,14 +511,14 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
 }
 
 const FutureBubblesTooltip = () => {
-  const arr = new Array(15).fill(25).map((bubbleIndex, index) => getMaxCauldron(bubbleIndex + index)).toChunks(5);
+  const arr = new Array(15).fill(30).map((bubbleIndex, index) => getMaxCauldron(bubbleIndex + index)).toChunks(5);
   return <Stack gap={2}>
     {arr.map((chunk, index) => {
       return <Stack key={index}>
         <Typography sx={{ fontWeight: 'bold' }}>World {6 + index}</Typography>
         <Stack>
           {chunk.map((i, bIndex) => {
-            const currentIndex = 26 + (index * 5) + bIndex;
+            const currentIndex = 31 + (index * 5) + bIndex;
             return <Typography key={i}>{currentIndex} - {notateNumber(i)}</Typography>
           })}
         </Stack>
