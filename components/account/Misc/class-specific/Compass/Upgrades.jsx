@@ -35,8 +35,9 @@ const Upgrades = ({ upgrades, dusts }) => {
     if (!searchText) return list;
     return list.filter(upgrade =>
       upgrade.description &&
-      upgrade.description.toLowerCase().includes(searchText.toLowerCase())
-    );
+      upgrade.description.toLowerCase().includes(searchText.toLowerCase()) || (upgrade.name &&
+        cleanUnderscore(upgrade.name).toLowerCase().includes(searchText.toLowerCase())
+)    );
   };
 
   const renderUpgradeCard = (upgrade, i, dustType) => {
@@ -49,7 +50,7 @@ const Upgrades = ({ upgrades, dusts }) => {
     if (description === 'Titan_doesnt_exist') return null;
 
     let iconIndex = index ?? i;
-    if (baseIconIndex) iconIndex = baseIconIndex + 106;
+    if (baseIconIndex >= 0) iconIndex = baseIconIndex + 106;
 
     return (
       <Card key={name + iconIndex}>
@@ -93,7 +94,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             <Divider sx={{ my: 1 }}/>
           </> : null}
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType || x3}_x1.png`}/>
+            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType ?? x3}_x1.png`}/>
             {level < x4 ? <Typography>
               Cost: {notateNumber(dusts?.[dustType || x3]?.value || 0)} / {notateNumber(cost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
@@ -115,7 +116,7 @@ const Upgrades = ({ upgrades, dusts }) => {
         </FormControl>
         <TextField
           size="small"
-          label="Search by description"
+          label="Search by description or name"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
