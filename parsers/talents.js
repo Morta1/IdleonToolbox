@@ -15,6 +15,7 @@ import { getBribeBonus } from '@parsers/bribes';
 import { getIsland } from '@parsers/world-2/islands';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { skillIndexMap } from '@parsers/parseMaps';
 
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
@@ -414,4 +415,9 @@ export const calcTotalStarTalent = (characters, account) => {
     };
   }, {});
   return Math.max(...Object.values(levels));
+}
+
+export const getCrystalCountdownSkills = () => {
+  return Object.values(skillIndexMap).filter((_, index) => index > 0 && index <= 9)
+    .reduce((res, { icon }) => ({ ...res, [icon]: true }), {})
 }

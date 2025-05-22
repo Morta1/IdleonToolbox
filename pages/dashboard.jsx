@@ -14,6 +14,7 @@ import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/printer';
+import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
   version: 20,
@@ -100,7 +101,7 @@ const baseTrackers = {
             checked: true
           },
           { name: 'shimmerIsland', checked: true },
-          { name: 'garbageUpgrade', checked: true },
+          { name: 'garbageUpgrade', checked: true }
         ]
       },
       postOffice: {
@@ -212,7 +213,7 @@ const baseTrackers = {
             checked: true
           },
           { name: 'meals', checked: true, category: 'meals' },
-          { name: 'alertOnlyCookedMeal', checked: false },
+          { name: 'alertOnlyCookedMeal', checked: false }
         ]
       },
       laboratory: {
@@ -279,7 +280,7 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
           },
-          { name: 'studyLevelUp', checked: true },
+          { name: 'studyLevelUp', checked: true }
         ]
       }
     },
@@ -316,7 +317,7 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Bean trade value', value: 1, minValue: 1, helperText: '' },
             checked: false
-          },
+          }
         ]
       },
       summoning: {
@@ -376,7 +377,14 @@ const baseTrackers = {
     crystalCountdown: {
       checked: true, options: [
         { name: 'showMaxed', checked: true },
-        { name: 'showNonMaxed', checked: false }
+        { name: 'showNonMaxed', checked: false },
+        {
+          category: 'skills',
+          name: 'skills',
+          type: 'array',
+          props: { value: getCrystalCountdownSkills(), type: 'img' },
+          checked: true
+        }
       ]
     },
     tools: { checked: true, options: [] },

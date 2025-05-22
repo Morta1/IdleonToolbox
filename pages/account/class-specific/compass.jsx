@@ -26,7 +26,8 @@ const Compass = () => {
     remainingExaltedStamps,
     totalUpgradeLevels,
     totalDustsCollected,
-    totalAcquiredMedallions
+    totalAcquiredMedallions,
+    topOfTheMorninKills
   } = state?.account?.compass || {};
   const [selectedChar, setSelectedChar] = useState(0);
   const windWalkers = state?.characters?.filter((character) => checkCharClass(character?.class, 'Wind_Walker'));
@@ -70,6 +71,8 @@ const Compass = () => {
                          icon={'etc/Exalted_Stamp_Frame.png'}
                          imgStyle={{ width: 40, height: 40 }}
                          value={`${remainingExaltedStamps} / ${usedExaltedStamps + remainingExaltedStamps}`}/>
+      <CardTitleAndValue title={'TOTM Kills'}
+                         value={topOfTheMorninKills}/>
       {dusts?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value < 1e8
         ? commaNotation(value || '0')
         : notateNumber(value || 0)}

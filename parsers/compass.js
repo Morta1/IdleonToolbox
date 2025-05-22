@@ -71,7 +71,7 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     120: [0],
     166: [0],
     213: [0],
-    264: [0],
+    264: [0]
   }
   const maps = getFilteredPortals()?.map(({ mapIndex, mapName }, index) => {
     const availablePortals = mapPortals?.[mapIndex];
@@ -116,17 +116,18 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
       index
     }
   });
+  let topOfTheMorninKills;
   upgrades = upgrades.map((upgrade, index) => {
     const bonus = getLocalCompassBonus(upgrades, index);
     const nextLevelBonus = getCompassBonusAtLevel(upgrades, index, upgrade?.level + 1);
     const cost = getUpgradeCost(upgrades, index, serverVars);
     const isMulti = upgrade?.description.includes('}');
     let extraData;
-
-    if (upgrade?.name === 'Top_of_the_Mornin\''){
+    if (upgrade?.name === 'Top_of_the_Mornin\'') {
       const killsLeft = Math.max(0, accountData?.accountOptions?.[365]);
       const totalKills = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
-      extraData = `Kills: ${totalKills - killsLeft} / ${totalKills}`;
+      topOfTheMorninKills = `${totalKills - killsLeft} / ${totalKills}`;
+      extraData = `Kills: ${topOfTheMorninKills}`
     }
     return {
       ...upgrade,
@@ -139,6 +140,7 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
       extraData
     }
   });
+
   const medallions = getMedallions((medallionsRaw || []).toSimpleObject(), upgrades)
 
   const stampsMapping = {
@@ -171,7 +173,8 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     usedExaltedStamps: exaltedStampsRaw?.length,
     remainingExaltedStamps,
     totalUpgradeLevels,
-    totalDustsCollected
+    totalDustsCollected,
+    topOfTheMorninKills
   }
 }
 

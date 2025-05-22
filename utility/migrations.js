@@ -1,4 +1,5 @@
 import { getPrinterExclusions } from '@parsers/printer';
+import { getCrystalCountdownSkills } from '@parsers/talents';
 
 export const migrateToVersion2 = (config = {}) => {
   let dashboardConfig = { ...config };
@@ -432,6 +433,29 @@ export const migrateToVersion20 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion21 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.characters?.crystalCountdown?.options?.length === 2) {
+    dashboardConfig.characters.crystalCountdown.options = [
+      ...dashboardConfig.characters.crystalCountdown.options,
+      {
+        category: 'skills',
+        name: 'skills',
+        type: 'array',
+        props: { value: getCrystalCountdownSkills(), type: 'img' },
+        checked: true
+      }
+    ]
+  }
+
+  dashboardConfig.version = 21;
+  return dashboardConfig
+}
+
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -495,6 +519,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 19) {
       migratedConfig = migrateToVersion20(migratedConfig);
+    }
+    if (migratedConfig?.version === 20) {
+      migratedConfig = migrateToVersion21(migratedConfig);
     }
   }
   return migratedConfig;
