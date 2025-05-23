@@ -37,7 +37,7 @@ import { useLocalStorage } from '@mantine/hooks';
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
   const router = useRouter();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const { state } = useContext(AppContext);
   const [batchLayout, setBatchLayout] = useLocalStorage({
     key: 'bubbles:batchLayout',
@@ -182,7 +182,7 @@ const Bubbles = () => {
             control={<Checkbox sx={{ my: 0 }} size={'small'} checked={showMissingLevels}
                                onChange={() => setShowMissingLevels(!showMissingLevels)}/>}
             name={'classDiscount'}
-            label="Show Missing Levels"/>
+            label="Show Total Levels"/>
           <FormControlLabel
             control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastThreshold}
                                onChange={() => setHidePastThreshold(!hidePastThreshold)}/>}
@@ -267,7 +267,7 @@ const Bubbles = () => {
                     effectHardCapPercent: thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
                   }
                 }
-                if ((!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0) && hidePastThreshold || (hidePastLevelThreshold && level > levelThreshold)) return null;
+                if ((!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0) && hidePastThreshold || (hidePastLevelThreshold && levelThreshold && level > levelThreshold)) return null;
                 return <Fragment key={rawName + '' + bubbleName + '' + index}>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack direction={isSm || batchLayout ? 'column' : 'row'}
@@ -275,7 +275,9 @@ const Bubbles = () => {
                            gap={batchLayout ? 0 : 1}
                            sx={{
                              width: isSm ? 'inherit' : batchLayout ? 55 : showMissingLevels ? 150 : 100,
-                             height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? 100 : 'inherit'
+                             height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? showMissingLevels
+                               ? 120
+                               : 100 : 'inherit'
                            }}
                     >
                       <HtmlTooltip
@@ -297,16 +299,23 @@ const Bubbles = () => {
                                     src={`${prefix}data/${rawName}.png`}
                                     alt=""/>
                       </HtmlTooltip>
-                      <Stack alignItems={batchLayout ? 'center' : 'flex-start'}>
-                        <Stack direction={batchLayout ? 'column' : 'row'} alignItems={'center'}>
+                      <Stack alignItems={batchLayout || isSm ? 'center' : 'flex-start'}>
+                        <Stack direction={batchLayout || isSm ? 'column' : 'row'} alignItems={'center'}>
                           <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
                                       sx={{ mr: !batchLayout ? .5 : 0 }}
                                       variant={'caption'}>{level}</Typography>
-                          {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <Typography
-                            color={'error.light'}
-                            variant={'caption'}>{!batchLayout
-                            ? `/ ${level + Math.ceil(thresholdObj?.thresholdMissingLevels)}`
-                            : `(${Math.ceil(thresholdObj?.thresholdMissingLevels)})`}</Typography> : null}
+                          {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <>
+                            {batchLayout
+                              ? <Typography
+                                color={'error.light'}
+                                variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>
+                              : isSm
+                                ? <Typography component={'div'} color={'error.light'}
+                                              variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>
+                                : <Typography
+                                  color={'error.light'}
+                                  variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>}
+                          </> : null}
                         </Stack>
                         {bubbleMaxBonus ? <Typography
                             fontSize={'0.70rem'}
@@ -515,7 +524,6 @@ const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => 
       Goal: +{goalBonus}
     </Typography> : null}
     <Divider sx={{ my: 1 }}/>
-
   </>;
 }
 
