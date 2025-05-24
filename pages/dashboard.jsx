@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 21,
+  version: 22,
   account: {
     General: {
       tasks: {
@@ -377,7 +377,7 @@ const baseTrackers = {
     crystalCountdown: {
       checked: true, options: [
         { name: 'showMaxed', checked: true },
-        { name: 'showNonMaxed', checked: false },
+        { name: 'showNonMaxed', checked: true },
         {
           category: 'skills',
           name: 'skills',

@@ -308,11 +308,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                          iconPath={`data/PetEgg${alerts?.['World 4']?.breeding?.eggsRarity}`}/>
                 : null}
               {alerts?.['World 4']?.breeding?.shinies?.pets?.length > 0 ?
-                alerts?.['World 4']?.breeding?.shinies?.pets?.map(({ monsterName, icon }, index) => {
+                alerts?.['World 4']?.breeding?.shinies?.pets?.map(({ monsterName, shinyLevel }, index) => {
                   return <Alert
                     key={monsterName + index}
                     imgStyle={{ filter: `hue-rotate(${randomFloatBetween(45, 180)}deg)` }}
-                    title={`${cleanUnderscore(monsterName)} has surpassed the shiny level threshold (${alerts?.['World 4']?.breeding?.shinies?.threshold})`}
+                    title={`${cleanUnderscore(monsterName)} has reached ${shinyLevel === 20
+                      ? 'level 20 (max)'
+                      : `the shiny threshold (${alerts?.['World 4']?.breeding?.shinies?.threshold})`}`}
                     iconPath={`afk_targets/${monsterName}`}/>
                 }) : null}
               {alerts?.['World 4']?.breeding?.breedability?.pets?.length > 0 ?

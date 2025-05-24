@@ -455,6 +455,24 @@ export const migrateToVersion21 = (config) => {
   dashboardConfig.version = 21;
   return dashboardConfig
 }
+export const migrateToVersion22 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.characters?.crystalCountdown?.options?.length === 3) {
+    dashboardConfig.characters.crystalCountdown.options = dashboardConfig.characters.crystalCountdown.options.map((item, index) => {
+      if (index === 1) {
+        return { name: 'showNonMaxed', checked: true }
+      }
+      return item;
+    })
+  }
+
+  dashboardConfig.version = 22;
+  return dashboardConfig
+}
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -522,6 +540,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 20) {
       migratedConfig = migrateToVersion21(migratedConfig);
+    }
+    if (migratedConfig?.version === 21) {
+      migratedConfig = migrateToVersion22(migratedConfig);
     }
   }
   return migratedConfig;

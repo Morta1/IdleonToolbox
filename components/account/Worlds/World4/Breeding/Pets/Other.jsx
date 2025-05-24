@@ -14,7 +14,17 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { getTimeToLevel } from '@parsers/breeding';
 
-const PetCard = ({ pet, isShiny, fencePets, multi, state, applyThreshold, showAllPets, shinyThreshold, breedabilityThreshold }) => {
+const PetCard = ({
+                   pet,
+                   isShiny,
+                   fencePets,
+                   multi,
+                   state,
+                   applyThreshold,
+                   showAllPets,
+                   shinyThreshold,
+                   breedabilityThreshold
+                 }) => {
   const {
     monsterName,
     monsterRawName,
@@ -80,14 +90,14 @@ const PetCard = ({ pet, isShiny, fencePets, multi, state, applyThreshold, showAl
               {notateNumber(progress)} / {numberWithCommas(goal.toFixed(2).replace('.00', ''))} Days
             </Typography>
           </Stack>
-          <Stack direction="row" alignItems={'center'} gap={1}>
+          {(timeLeft && level < 20) || !isShiny ? <Stack direction="row" alignItems={'center'} gap={1}>
             <Typography variant={'body2'}>Next lv: </Typography>
             <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
                    staticTime
                    variant={'body2'}
                    date={new Date().getTime() + (timeLeft)}/>
-          </Stack>
-          {timeToThreshold > 0 && timeToThreshold !== timeLeft ? <>
+          </Stack> : <Typography variant={'body2'}>{level >= 20 ? 'Maxed!' : '\u00A0'}</Typography>}
+          {timeToThreshold > 0 && timeLeft && timeToThreshold !== timeLeft ? <>
             <Stack flexWrap={'wrap'} direction={'row'}
                    gap={1}>
               <Typography component={'span'} variant={'body2'}>To {(isShiny
@@ -191,7 +201,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
 
   const groupedPets = useMemo(() => {
     if (!isShiny || !groupByStat) return reorderPets;
-    
+
     return reorderPets.reduce((acc, pet) => {
       const passive = cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '');
       if (!acc[passive]) {
@@ -250,7 +260,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
     </Typography> : isShiny && groupByStat ? Object.entries(groupedPets).map(([passive, pets]) => (
       <Stack key={passive} sx={{ mb: 2 }}>
         <Typography variant="h6" sx={{ mb: 1 }}>{passive}</Typography>
-        <Stack direction='row' flexWrap='wrap' gap={2}>
+        <Stack direction="row" flexWrap="wrap" gap={2}>
           {pets.map((pet) => (
             <PetCard
               key={pet.monsterName}

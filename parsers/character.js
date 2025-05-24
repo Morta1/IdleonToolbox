@@ -874,13 +874,13 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: 'Winner Bonus', value: winnerBonus / 100 },
       { name: 'Vials', value: vialBonus / 100 },
       { name: 'Superbit', value: (isLowestLevel ? superbitBonus : 0) / 100 },
+      { name: 'EXP Cultivation', value: talentBonus4 / 100 },
       { name: '' },
       { title: 'Multiplicative Bonuses' },
       { name: '' },
       { name: 'Wind Walker', value: expBonus5 },
       { name: 'Bundle', value: hasBundle ? expBonus3 / 100 : 0 },
       { name: 'Equipment (Exp Multi)', value: equipBonus2 / 100 },
-      { name: 'EXP Cultivation', value: talentBonus4 / 100 },
       { name: 'Siege Breaker', value: extraExp }
     ]
   };
