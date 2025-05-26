@@ -90,6 +90,8 @@ export const expandLeaderboardInfo = (account, characters) => {
   const totalBoats = calcTotalBoatLevels(account?.sailing?.boats);
   const totalTomePoints = account?.tome?.totalPoints;
   const logbooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + unlocked, 0);
+  const villagers = account?.hole?.villagers?.map(({ expRate }) => expRate.value)?.filter(val => val > 0);
+  const highestVillagerExpPerHour = villagers?.length > 0 ? Math.max(...villagers) : 0;
   return {
     dropRate: Math.max(dropRate, withDefault(account.accountOptions?.[200])),
     defence: withDefault(defence),
@@ -102,7 +104,8 @@ export const expandLeaderboardInfo = (account, characters) => {
     slab: withDefault(account?.looty?.lootedItems, 0),
     greenMushroomKills,
     totalBoats,
-    totalTomePoints: withDefault(totalTomePoints, 0)
+    totalTomePoints: withDefault(totalTomePoints, 0),
+    highestVillagerExpPerHour
   }
 }
 const withDefault = (value, defaultValue = 0) => {

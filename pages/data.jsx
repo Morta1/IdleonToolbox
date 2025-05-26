@@ -32,7 +32,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
-import { isProd, notateNumber, tryToParse } from '@utility/helpers';
+import { isProd, notateNumber } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
