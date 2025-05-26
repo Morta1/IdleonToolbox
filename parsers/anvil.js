@@ -1,4 +1,4 @@
-import { anvilProducts, anvilUpgradeCost } from '../data/website-data';
+import { anvilProducts, anvilUpgradeCost, items } from '../data/website-data';
 import {
   getGoldenFoodBonus,
   getSkillMasteryBonusByIndex,
@@ -6,7 +6,6 @@ import {
   isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from './misc';
-import { getBribeBonus } from './bribes';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import {
   checkCharClass,
@@ -26,8 +25,6 @@ import { getPrayerBonusAndCurse } from './prayers';
 import { getSaltLickBonus } from './saltLick';
 import { getDungeonStatBonus } from './dungeons';
 import { getPostOfficeBonus } from './postoffice';
-import { getGuildBonusBonus } from './guild';
-import { getPlayerCapacity } from './character';
 import { getDeityLinkedIndex, getGodByIndex } from './divinity';
 import { getAchievementStatus } from './achievements';
 import { getShinyBonus } from './breeding';
@@ -152,7 +149,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   if (!Array.isArray(anvilSelected)) {
     anvilSelected = [anvilSelected];
   }
-
+  console.log(anvilProducts)
   const production = anvilProduction?.reduce((res, item, index) => {
     const [currentAmount, currentXP, currentProgress, totalProduced] = item;
     return [
@@ -163,6 +160,7 @@ export const getPlayerAnvil = (character, characters, account) => {
         currentProgress: parseFloat(currentProgress),
         totalProduced,
         ...(anvilProducts[index] || {}),
+        displayName: items?.[anvilProducts?.[index]?.rawName]?.displayName,
         hammers: anvilSelected?.filter((item) => item === index)?.length
       }
     ]
@@ -307,12 +305,32 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
   return 100 * (tempAnvilExp - 1);
 };
 
-export const getTimeTillCap = ({ hammers, currentAmount, currentProgress, requiredAmount, afkTime, stats }) => {
-  const timePassed = (new Date().getTime() - afkTime) / 1000;
-  const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / requiredAmount) * (hammers ?? 0)), stats?.anvilCapacity);
-  return ((stats?.anvilCapacity - futureProduction) / (stats?.anvilSpeed / 3600 / requiredAmount * (hammers ?? 0)));
-}
+export const getTimeTillCap = ({
+                                 hammers,
+                                 currentAmount = 0,
+                                 currentProgress = 0,
+                                 requiredAmount,
+                                 afkTime,
+                                 stats,
+                                 fromZero = false,
+                               }) => {
+  const productionRate = (stats?.anvilSpeed / 3600 / requiredAmount) * (hammers ?? 0);
 
+  if (fromZero) {
+    return stats?.anvilCapacity / productionRate;
+  }
+
+  const timePassed = (Date.now() - afkTime) / 1000;
+
+  const futureProduction = Math.min(
+    Math.round(
+      currentAmount + ((currentProgress + timePassed * stats?.anvilSpeed / 3600) / requiredAmount) * (hammers ?? 0)
+    ),
+    stats?.anvilCapacity
+  );
+
+  return (stats?.anvilCapacity - futureProduction) / productionRate;
+};
 export const calcTotals = (account, characters) => {
   return account?.anvil?.reduce((result, anvil, index) => {
     const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);

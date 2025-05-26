@@ -1,13 +1,14 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Badge, Card, CardContent, Stack, Typography } from '@mui/material';
-import { fillArrayToLength, notateNumber, prefix } from 'utility/helpers';
+import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import Timer from 'components/common/Timer';
 import styled from '@emotion/styled';
 import { calcTotals, getPlayerAnvil, getTimeTillCap } from '../../../parsers/anvil';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
 import ProgressBar from '../../../components/common/ProgressBar';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
@@ -62,7 +63,8 @@ const Anvil = () => {
         const production = prod?.filter(({ hammers }) => hammers > 0);
         const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
         const realProduction = numOfHammers >= maxProducts ? production : fillArrayToLength(numOfHammers, production);
-        return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 700 } }}>
+        console.log(realProduction)
+        return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 900 } }}>
           <CardContent>
             <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}>
               <Stack sx={{ width: 175, flexDirection: { xs: 'column', md: 'row' } }}
@@ -81,9 +83,19 @@ const Anvil = () => {
               <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}
                      flexWrap={'wrap'} gap={3}>
                 {realProduction?.map((slot, slotIndex) => {
-                  const { rawName, hammers, currentAmount, currentProgress, requiredAmount, currentXP } = slot;
+                  const {
+                    rawName,
+                    hammers,
+                    currentAmount,
+                    currentProgress,
+                    requiredAmount,
+                    currentXP,
+                    displayName,
+                    exp
+                  } = slot;
                   const timePassed = (new Date().getTime() - afkTime) / 1000;
                   const futureProduction = Math.min(Math.round(currentAmount + ((currentProgress + (timePassed * stats?.anvilSpeed / 3600)) / requiredAmount) * (hammers ?? 0)), stats?.anvilCapacity);
+                  const productionPerDay = ((currentProgress + 24 * stats.anvilSpeed) / requiredAmount) * hammers
                   const percentOfCap = Math.round(futureProduction / stats?.anvilCapacity * 100);
                   const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
                   const timeFromZeroTillCap = getTimeTillCap({
@@ -91,44 +103,55 @@ const Anvil = () => {
                     stats,
                     afkTime,
                     currentAmount: 0,
-                    currentProgress: 0
+                    currentProgress: 0,
+                    fromZero: true
                   });
                   return <Card elevation={5}
                                sx={{ boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707' }}
                                key={`${rawName}-${slotIndex}`}>
-                    <Tooltip title={<>
-                      <Typography>Max from zero</Typography>
-                      <Timer date={new Date().getTime() + (timeFromZeroTillCap * 1000)}
-                             staticTime={true}
-                             type={'countdown'}
-                             placeholder={<Typography color={'error.light'}>Full</Typography>}
-                             lastUpdated={state?.lastUpdated}/>
-                    </>}>
-                      <CardContent>
-                        {hammers > 0 ? <Stack direction={'row'} gap={1}>
-                          <Badge anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left'
-                          }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
-                            <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
-                          </Badge>
-
-                          <Stack justifyContent={'flex-start'}>
+                    <CardContent>
+                      {hammers > 0 ? <Stack direction={'row'} gap={1}>
+                        <Badge anchorOrigin={{
+                          vertical: 'top',
+                          horizontal: 'left'
+                        }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
+                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                        </Badge>
+                        <Stack justifyContent={'flex-start'}>
+                          <Stack direction={'row'} alignItems={'center'} gap={2}>
                             <Timer date={new Date().getTime() + (timeTillCap * 1000)}
                                    type={'countdown'}
-                                   placeholder={<Typography color={'error.light'}>Full</Typography>}
+                                   placeholder={<Typography component={'span'}
+                                                            color={'error.light'}>Full</Typography>}
                                    lastUpdated={state?.lastUpdated}/>
-                            <Typography variant={'body2'}>Exp: {notateNumber(currentXP, 'Big')}</Typography>
-                            <Typography mb={.5}
-                                        variant={'body2'}>Cap: {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}</Typography>
-                            <ProgressBar percent={percentOfCap} label={false}/>
+                            <Tooltip title={<>
+                              <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
+                              <Divider sx={{ my: 1 }}/>
+                              <Typography variant={'body2'}>Time until max from zero:</Typography>
+                              <Timer date={new Date().getTime() + (timeFromZeroTillCap * 1000)}
+                                     staticTime={true}
+                                     type={'countdown'}
+                                     placeholder={<Typography component={'span'}
+                                                              color={'error.light'}>Full</Typography>}
+                                     lastUpdated={state?.lastUpdated}/>
+                              <Divider sx={{ my: 1 }}/>
+                              <Typography variant={'body2'}>Income: {notateNumber(productionPerDay)} / day</Typography>
+                              <Divider sx={{ my: 1 }}/>
+                              <Typography variant={'body2'}>Exp per craft: {numberWithCommas(exp)}</Typography>
+                            </>}>
+                              <IconInfoCircleFilled size={16}/>
+                            </Tooltip>
                           </Stack>
-                        </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
-                                          justifyContent={'center'}>
-                          <Typography variant={'caption'}>EMPTY</Typography>
-                        </Stack>}
-                      </CardContent>
-                    </Tooltip>
+                          <Typography variant={'body2'}>Exp: {notateNumber(currentXP, 'Big')}</Typography>
+                          <Typography mb={.5}
+                                      variant={'body2'}>Cap: {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}</Typography>
+                          <ProgressBar percent={percentOfCap} label={false}/>
+                        </Stack>
+                      </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
+                                        justifyContent={'center'}>
+                        <Typography variant={'caption'}>EMPTY</Typography>
+                      </Stack>}
+                    </CardContent>
                   </Card>
                 })}
               </Stack>

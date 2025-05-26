@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
 import { getGoldenFoodBonus } from '../../parsers/misc';
@@ -38,6 +38,8 @@ const ItemDisplay = ({
                        desc_line7,
                        desc_line8,
                        Amount,
+                       amount,
+                       showAmount,
                        Cooldown,
                        capacity,
                        capacityPerSlot,
@@ -95,6 +97,11 @@ const ItemDisplay = ({
         {UQ2txt && UQ2val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ2val}${UQ2txt}`)}/> : null}
         {Upgrade_Slots_Left > 0 ?
           <TitleAndValue title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
+        {amount > 0 && showAmount ?
+          <>
+            <Divider sx={{ my: 2 }}/>
+            <TitleAndValue title={'Amount'} value={numberWithCommas(amount)}/>
+          </> : null}
         {/*{maxUpgradeSlots > 0*/}
         {/*  ? <TitleAndValue title={'Upgrade Slots'}*/}
         {/*                   value={`${maxUpgradeSlots - Upgrade_Slots_Left} / ${maxUpgradeSlots}`}/>*/}

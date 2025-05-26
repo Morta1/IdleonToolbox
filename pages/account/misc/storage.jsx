@@ -1,11 +1,12 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, groupByKey, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, groupByKey, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
+import ItemDisplay from '@components/common/ItemDisplay';
 
 
 const Looty = () => {
@@ -38,22 +39,21 @@ const Looty = () => {
 
   const renderItems = (items) => {
     if (!items || !Array.isArray(items)) return null;
-    return items?.map(({ name, rawName, amount }, index) => {
+    return items?.map((item, index) => {
+      const { name, rawName, amount } = item;
       return (
         <Card variant={'outlined'} sx={{ width: 75 }} key={`${name}-${index}`}>
           <CardContent>
-            <Stack alignItems="center" key={`${rawName}-${index}`} data-index={index}>
-              <HtmlTooltip title={cleanUnderscore(name)}>
+            <HtmlTooltip title={<ItemDisplay {...item} showAmount/>}>
+              <Stack alignItems="center" key={`${rawName}-${index}`} data-index={index}>
                 <Image loading="lazy" data-index={index} width={30} height={30} style={{ objectFit: 'contain' }}
                        src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-              </HtmlTooltip>
-              <HtmlTooltip title={numberWithCommas(amount)}>
                 <Typography
                   color={amount >= 1e7
                     ? 'success.light'
                     : ''}>{notateNumber(amount, 'Big')}</Typography>
-              </HtmlTooltip>
-            </Stack>
+              </Stack>
+            </HtmlTooltip>
           </CardContent>
         </Card>
       );
