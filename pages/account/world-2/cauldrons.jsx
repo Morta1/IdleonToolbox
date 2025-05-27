@@ -93,10 +93,10 @@ const Cauldrons = () => {
                                 mr: 1
                               }}>{name.capitalize()}</Typography>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <Tooltip title={'Dragonic cauldron'}>
+                    {isDragonic ? <Tooltip title={'Dragonic cauldron'}>
                       <img style={{ width: 24, height: 24, objectFit: 'contain' }} src={`${prefix}data/GemP18.png`}
                            alt=""/>
-                    </Tooltip>
+                    </Tooltip> : null}
                     <PlayersList players={players} characters={state?.characters}/>
                   </Stack>
                 </Stack>
