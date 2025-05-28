@@ -332,7 +332,8 @@ const PeakStats = ({
                      slab,
                      greenMushroomKills,
                      totalBoats,
-                     totalTomePoints
+                     totalTomePoints,
+                     highestVillagerExpPerHour
                    }) => {
   return <Stack>
     <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Calculated stats</Typography>
@@ -348,6 +349,7 @@ const PeakStats = ({
     <TitleAndValue title={'Green Mushroom Kills'} value={notateNumber(greenMushroomKills)}/>
     <TitleAndValue title={'Total Boats'} value={notateNumber(totalBoats)}/>
     <TitleAndValue title={'Total Tome Points'} value={notateNumber(totalTomePoints)}/>
+    <TitleAndValue title={'Highest villager exp / hr'} value={notateNumber(highestVillagerExpPerHour)}/>
   </Stack>
 }
 
