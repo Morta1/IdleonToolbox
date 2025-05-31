@@ -72,5 +72,5 @@ const getBossHp = (highestEmperorShowdown) => {
 }
 
 export const getEmperorBonus = (account, index) => {
-  return account?.emperor?.bonuses?.find(({ rawIndex }) => rawIndex === index)?.totalBonus;
+  return account?.emperor?.bonuses?.find(({ rawIndex }) => rawIndex === index)?.totalBonus ?? 0;
 }
