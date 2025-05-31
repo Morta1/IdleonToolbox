@@ -86,22 +86,28 @@ const getTomeBonus = (account, totalPoints, index) => {
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
   const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
 
-  const multiplier = (totalPoints - 5000) / 2000;
-
-  return 0 === index ? 10 * Math.pow(Math.floor(totalPoints / 100), 0.7) * grimoireBonus
-    : 1 === index ? (1 === account?.accountOptions?.[196]
-        ? 4 *
-        Math.pow(Math.floor(Math.max(0, totalPoints - 4e3) / 100), 0.7)
-        * grimoireBonus : 0) :
-      2 === index ? (1 === account?.accountOptions?.[197]
-          ? 2 * Math.pow(Math.floor(Math.max(0, totalPoints - 8e3) / 100), 0.7) * grimoireBonus
+  return 0 === index ? 10 *
+    Math.pow(Math.floor(totalPoints / 100), 0.7) *
+    (1 + (grimoireBonus +
+      armorSetBonus) / 100)
+    : 1 === index ? (1 === account?.accountOptions?.[196] ?
+        4 * Math.pow(Math.floor(Math.max(0, totalPoints - 4e3)
+          / 100), 0.7) * (1 + (grimoireBonus + armorSetBonus) / 100) : 0)
+      : 2 === index ? (1 === account?.accountOptions?.[197]
+          ? 2 *
+          Math.pow(Math.floor(Math.max(0, totalPoints - 8e3)
+            / 100), 0.7) * (1 + (grimoireBonus + armorSetBonus) / 100)
           : 0)
-        : 3 === index ? strTomeBonus * multiplier :
-          4 === index ? agiTomeBonus * multiplier :
-            5 === index ? wisTomeBonus * multiplier :
-              6 === index && 1 === getEventShopBonus(account, 0) ?
-                4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
-                * (1 + (grimoireBonus + armorSetBonus) / 100) : 0;
+        : 3 === index ? strTomeBonus : 4 === index
+          ? agiTomeBonus
+          :
+          5 === index
+            ? wisTomeBonus
+            : 6 === index && 1 === getEventShopBonus(account, 0)
+              ?
+              4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
+              * (1 + (grimoireBonus + armorSetBonus) / 100)
+              : 0
 }
 
 const calcPointsPercent = (bonus, quantity) => {

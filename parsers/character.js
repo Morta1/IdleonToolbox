@@ -109,6 +109,7 @@ import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getCompassBonus } from '@parsers/compass';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getEmperorBonus } from '@parsers/world-6/emperor';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -940,7 +941,7 @@ export const getDropRate = (character, account, characters) => {
   const secondSchematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 82, i: 20 });
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
-  const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value;
+  const cropDepotBonus =account?.farming?.cropDepot?.dropRate?.value;
   const measurementBonus = getMeasurementBonus({
     holesObject: account?.hole?.holesObject,
     accountData: account,
@@ -948,6 +949,7 @@ export const getDropRate = (character, account, characters) => {
   });
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
   const armorSetBonus = getArmorSetBonus(account, 'PLATINUM_SET');
+  const emperorBonus = getEmperorBonus(account, 11);
 
   const additive =
     firstTalentBonus +
@@ -985,45 +987,48 @@ export const getDropRate = (character, account, characters) => {
     secondCompanionDropRate +
     secondSchematicBonus +
     monumentBonus +
+    emperorBonus +
     armorSetBonus;
 
   // TODO: GoldFoodBonuses, TomeBonus, LankRankUpgBonus
-  // console.log('---------------- ')
-  // console.log('firstTalentBonus ', firstTalentBonus)
-  // console.log('postOfficeBonus ', postOfficeBonus)
-  // console.log('(drFromEquipment + drFromObols + drFromTools) ', (drFromEquipment + drFromObols + drFromTools))
-  // console.log('bubbleBonus ', bubbleBonus)
-  // console.log('cardBonus ', cardBonus)
-  // console.log('secondTalentBonus ', secondTalentBonus)
-  // console.log('starSignBonus ', starSignBonus)
-  // console.log('starSignRarityBonus ', starSignRarityBonus)
-  // console.log('guildBonus ', guildBonus)
-  // console.log('cardSetBonus ', cardSetBonus)
-  // console.log('shrineBonus ', shrineBonus)
-  // console.log('prayerBonus ', prayerBonus)
-  // console.log('sigilBonus ', sigilBonus)
-  // console.log('shinyBonus ', shinyBonus)
-  // console.log('arcadeBonus ', arcadeBonus)
-  // console.log('companionDropRate ', companionDropRate)
-  // console.log('stampBonus ', stampBonus)
-  // console.log('(starTalentBonus * (account?.accountOptions?.[189] ?? 0)) ', (starTalentBonus * (account?.accountOptions?.[189] ?? 0)))
-  // console.log('equinoxDropRateBonus ', equinoxDropRateBonus)
-  // console.log('summoningBonus ', summoningBonus)
-  // console.log('tomeBonus ', tomeBonus)
-  // console.log('passiveCardBonus ', passiveCardBonus)
-  // console.log('goldenFoodBonus ', goldenFoodBonus)
-  // console.log('(6 * achievementBonus + 4 * secondAchievementBonus) ', (6 * achievementBonus + 4 * secondAchievementBonus))
-  // console.log('owlBonus ', owlBonus)
-  // console.log('landRankBonus ', landRankBonus)
-  // console.log('voteBonus ', voteBonus)
-  // console.log('schematicBonus ', schematicBonus)
-  // console.log('cropDepotBonus ', cropDepotBonus)
-  // console.log('grimoireBonus ', grimoireBonus)
-  // console.log('upgradeVaultBonus ', upgradeVaultBonus)
-  // console.log('measurementBonus ', measurementBonus)
-  // console.log('secondCompanionDropRate ', secondCompanionDropRate)
-  // console.log('secondSchematicBonus ', secondSchematicBonus)
-  // console.log('monumentBonus', monumentBonus)
+  console.log('---------------- ')
+  console.log('firstTalentBonus ', firstTalentBonus)
+  console.log('postOfficeBonus ', postOfficeBonus)
+  console.log('(drFromEquipment + drFromObols + drFromTools) ', (drFromEquipment + drFromObols + drFromTools))
+  console.log('bubbleBonus ', bubbleBonus)
+  console.log('cardBonus ', cardBonus)
+  console.log('secondTalentBonus ', secondTalentBonus)
+  console.log('starSignBonus ', starSignBonus)
+  console.log('starSignRarityBonus ', starSignRarityBonus)
+  console.log('guildBonus ', guildBonus)
+  console.log('cardSetBonus ', cardSetBonus)
+  console.log('shrineBonus ', shrineBonus)
+  console.log('prayerBonus ', prayerBonus)
+  console.log('sigilBonus ', sigilBonus)
+  console.log('shinyBonus ', shinyBonus)
+  console.log('arcadeBonus ', arcadeBonus)
+  console.log('companionDropRate ', companionDropRate)
+  console.log('stampBonus ', stampBonus)
+  console.log('(starTalentBonus * (account?.accountOptions?.[189] ?? 0)) ', (starTalentBonus * (account?.accountOptions?.[189] ?? 0)))
+  console.log('equinoxDropRateBonus ', equinoxDropRateBonus)
+  console.log('summoningBonus ', summoningBonus)
+  console.log('tomeBonus ', tomeBonus)
+  console.log('passiveCardBonus ', passiveCardBonus)
+  console.log('goldenFoodBonus ', goldenFoodBonus)
+  console.log('(6 * achievementBonus + 4 * secondAchievementBonus) ', (6 * achievementBonus + 4 * secondAchievementBonus))
+  console.log('owlBonus ', owlBonus)
+  console.log('landRankBonus ', landRankBonus)
+  console.log('voteBonus ', voteBonus)
+  console.log('schematicBonus ', schematicBonus)
+  console.log('cropDepotBonus ', cropDepotBonus)
+  console.log('grimoireBonus ', grimoireBonus)
+  console.log('upgradeVaultBonus ', upgradeVaultBonus)
+  console.log('measurementBonus ', measurementBonus)
+  console.log('secondCompanionDropRate ', secondCompanionDropRate)
+  console.log('secondSchematicBonus ', secondSchematicBonus)
+  console.log('monumentBonus', monumentBonus)
+  console.log('emperorBonus', emperorBonus)
+  console.log('armorSetBonus', armorSetBonus)
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -1097,6 +1102,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Base', value: 1 },
     { name: 'Monument', value: monumentBonus / 100 },
     { name: 'Measurement', value: measurementBonus / 100 },
+    { name: 'Emperor', value: emperorBonus / 100 },
     { name: 'Platinum set', value: armorSetBonus / 100 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
