@@ -1,1 +1,0 @@
-(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[1817],{1185:function(n,u,_){(window.__NEXT_P=window.__NEXT_P||[]).push(["/tools/game-change-log",function(){return _(30407)}])},30407:function(n,u,_){"use strict";_.r(u),u.default=()=>{}}},function(n){n.O(0,[9774,2888,179],function(){return n(n.s=1185)}),_N_E=n.O()}]);
