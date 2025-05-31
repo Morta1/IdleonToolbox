@@ -35,7 +35,7 @@ import {
   getItemCapacity,
   getKillRoy,
   getLibraryBookTimes,
-  getLooty,
+  getSlab,
   getTypeGen
 } from './misc';
 import { getSaltLick } from './saltLick';
@@ -118,7 +118,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.currencies = getCurrencies(accountData, idleonData, processedData);
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.obols = getObols(idleonData);
-  accountData.looty = getLooty(idleonData);
+  accountData.looty = getSlab(idleonData);
   const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks } = getTasks(idleonData)
   accountData.tasks = tasks;
   accountData.meritsDescriptions = meritsDescriptions;

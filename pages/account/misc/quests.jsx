@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Container, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import WorldQuest from 'components/account/Misc/WorldQuest';
 import { prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
+import { calcTotalQuestCompleted } from '@parsers/misc';
 
 const Quests = () => {
   const { state } = useContext(AppContext);

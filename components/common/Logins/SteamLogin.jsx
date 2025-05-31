@@ -43,6 +43,9 @@ const SteamLogin = ({ setOpen }) => {
       if (!isValidUrl(steamUrl)) {
         return setError('Please enter a valid steam url')
       }
+      if (!steamUrl.startsWith('https://www.legendsofidleon.com/steamsso/')) {
+        return setError('The url should start with "https://www.legendsofidleon.com/steamsso/"');
+      }
       const token = await getSteamParams(steamUrl);
       if (Object.keys(token || {}).length === 0) {
         return setError('An error occurred while trying to login')

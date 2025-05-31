@@ -6,6 +6,7 @@ import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getArcadeBonus } from '@parsers/arcade';
+import { getEmperorBonus } from '@parsers/world-6/emperor';
 
 export const getEquinox = (idleonData, account) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -37,6 +38,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const companionBonus = isCompanionBonusActive(account, 15) ? 1 : 0;
   const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 }) || 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Equinox_Fill_Rate')?.bonus
+  const emperorBonus = getEmperorBonus(account, 5);
 
   const cloudsBonus = (
     (10 * (clouds[3] === -1)
@@ -52,7 +54,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     * (1 + cosmoBonus / 100)
     * (1 + .5 * eventShopBonus)
     * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
-    * (1 + (eqBarVial + cloudsBonus + arcadeBonus) / 100);
+    * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100);
 
   const breakdown = [
     { name: 'Arcade', value: arcadeBonus / 100 },

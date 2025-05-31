@@ -167,7 +167,7 @@ export const Breakdown = ({ breakdown, titleStyle = {}, notation = 'Big', skipNo
           titleStyle={{ width: 120, ...titleStyle }}
           title={name}
           value={skipNotation ? value : !isNaN(value)
-            ? notateNumber(value, notation)
+            ? notateNumber(value, notation).replace('.00', '')
             : value}/>
     })}
   </>

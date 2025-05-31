@@ -11,6 +11,7 @@ import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getEmperorBonus } from '@parsers/world-6/emperor';
 
 const summonEssenceColor = {
   white: 0,
@@ -177,9 +178,11 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
   const firstAchievement = getAchievementStatus(account?.achievements, 373);
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
+  const emperorBonus = getEmperorBonus(account, 8);
   const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
   const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
   let val;
+
   if (index === 20 || index === 22 || index === 24 || index === 31) {
     val = rawValue;
   } else if (index === 19) {
@@ -200,6 +203,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         firstAchievement +
         secondAchievement +
         armorSetBonus +
+        emperorBonus +
         multi) / 100);
   } else {
     const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
@@ -211,6 +215,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         firstAchievement +
         secondAchievement +
         armorSetBonus +
+        emperorBonus +
         multi) / 100);
   }
   return val;

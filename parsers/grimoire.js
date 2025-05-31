@@ -4,6 +4,7 @@ import { getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getCharacterByHighestLevel } from '@parsers/misc';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getEmperorBonus } from '@parsers/world-6/emperor';
 
 export const boneNames = [
   'Femur',
@@ -90,12 +91,12 @@ const getMonsterDrops = () => {
                mapName,
                AFKtype
              }) => AFKtype === 'FIGHTING' && !excludedMaps[mapName] && !AFKtype.includes('Fish') && !AFKtype.includes('Bug') && !mapName.includes('Colosseum'));
-  
+
   // Filter to get the final list with unique items by rawName
   return list.filter((item, index, self) =>
     index === self.findIndex((t) => t.rawName === item.rawName)
   );
-  
+
 }
 
 const getMonsterProgress = (monsterList, accountData, index) => {
@@ -193,9 +194,12 @@ const getExtraBonesBonus = (upgrades, characters, accountData) => {
   const graveyardShift = getHighestTalentByClass(characters, 4, 'Death_Bringer', 'GRAVEYARD_SHIFT');
 
   const gearBonus = getStatsFromGear(highestLevelDeathBringer, 76, accountData);
+  const emperorBonus = getEmperorBonus(accountData, 1);
+
   return (1 + grimoire / 100)
     * Math.min(2, 1 + getGambitBonus(accountData, 12))
     * Math.min(1.5, 1 + gearBonus / 100)
+    * (1 + emperorBonus / 100)
     * (1 + (calcGrimoireBonus(upgrades, 23) +
       calcGrimoireBonus(upgrades, 48)
       * lavaLog(accountData?.accountOptions?.[333])) / 100)

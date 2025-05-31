@@ -124,7 +124,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   };
 }
 
-export const getLooty = (idleonData) => {
+export const getSlab = (idleonData) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
   const allItems = structuredClone((items)); // Deep clone
   const forcedNames = {

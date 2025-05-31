@@ -11,6 +11,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharacterByHighestSkillLevel } from '@parsers/misc';
 import { getTalentBonus } from '@parsers/talents';
+import { getArcadeBonus } from '@parsers/arcade';
 
 export const getBreeding = (idleonData, account, processedData) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -369,6 +370,7 @@ export const calcBreedabilityMulti = (account, characters) => {
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Breed', blackDiamondRhinestone)
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1 });
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus;
 
   return {
     value: (1 + (breedingBonus +
@@ -376,14 +378,16 @@ export const calcBreedabilityMulti = (account, characters) => {
           + (20 * getAchievementStatus(account?.achievements, 218)
             + starSignBonus))) / 100)
       * (1 + account?.farming?.cropDepot?.shiny?.value / 100)
-      * (1 + lampBonus / 100),
+      * (1 + lampBonus / 100)
+      * (1 + arcadeBonus / 100),
     breakdown: [
       { name: 'Breeding bonus', value: breedingBonus / 100 },
       { name: 'Meal bonus', value: mealBonus / 100 },
       { name: 'Achievement bonus', value: 20 * getAchievementStatus(account?.achievements, 218) / 100 },
       { name: 'Starsign bonus', value: starSignBonus / 100 },
       { name: 'Crop bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
-      { name: 'Lamp bonus', value: lampBonus / 100 }
+      { name: 'Lamp bonus', value: lampBonus / 100 },
+      { name: 'Arcade bonus', value: arcadeBonus / 100 }
     ]
   }
 }

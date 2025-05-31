@@ -15,6 +15,7 @@ import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
+import { getEmperorBonus } from '@parsers/world-6/emperor';
 
 const weaknesses = {
   0: 'Fire',
@@ -530,6 +531,8 @@ export const getExtraDust = (character, account) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
 
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy');
+  const emperorBonus = getEmperorBonus(account, 4);
+
   return (1 +
       (getLocalCompassBonus(upgrades, 31)
         + getLocalCompassBonus(upgrades, 34)
@@ -537,6 +540,7 @@ export const getExtraDust = (character, account) => {
     * (1 + getLocalCompassBonus(upgrades, 38) / 100)
     * (1 + charmBonus / 100)
     * (1 + (equipBonus + equipBonus1) / 100)
+    * (1 + emperorBonus / 100)
     * (1 + (0 * dustTalent) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 139)
       + (getLocalCompassBonus(upgrades, 142)

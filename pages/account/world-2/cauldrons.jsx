@@ -4,12 +4,13 @@ import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '../../../components/common/ProgressBar';
 import { getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import darkTheme from '../../../styles/theme/darkTheme';
-import { PlayersList } from '@components/common/styles';
+import { Breakdown, PlayersList } from '@components/common/styles';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
 import { CAULDRONS_MAX_LEVELS } from '@parsers/alchemy';
 import Tooltip from '@components/Tooltip';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const cauldronsColors = [
   darkTheme.palette.warning.light,
@@ -80,7 +81,13 @@ const Cauldrons = () => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w.liquids?.map((cauldron, index) => {
           const { name, regen, capacity, players } = cauldron;
-          const { maxLiquid, decantCap, decantRate, isDragonic } = alchemy?.liquidCauldrons?.[index];
+          const {
+            maxLiquid,
+            decantCap,
+            decantRate,
+            isDragonic,
+            maxLiquidBreakdown
+          } = alchemy?.liquidCauldrons?.[index];
           const currentLiquid = alchemy?.liquids?.[index];
           return <Card key={`${name}-${index}`}>
             <CardContent>
@@ -101,7 +108,12 @@ const Cauldrons = () => {
                   </Stack>
                 </Stack>
               </Stack>
-              <Typography variant={'caption'}>{Math.round(currentLiquid)} / {maxLiquid}</Typography>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
+                <Typography variant={'caption'}>{Math.round(currentLiquid)} / {maxLiquid}</Typography>
+                <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={maxLiquidBreakdown} notation={'MultiplierInfo'}/>}>
+                  <IconInfoCircleFilled size={18}/>
+                </Tooltip>
+              </Stack>
               <ProgressBar bgColor={liquidsColors?.[index]}
                            pre={<img src={`${prefix}data/Liquid${index + 1}_x1.png`} alt=""/>}
                            percent={currentLiquid / maxLiquid * 100}/>

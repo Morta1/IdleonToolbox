@@ -95,7 +95,6 @@ export const getLiquidCauldrons = (account) => {
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
 
-
     const firstMath = bubbleBonus * Math.max(Math.pow(account?.totalSkillsLevels?.alchemy?.level / 25, 0.3), 0);
     const secondMath = bleachLiquidBonus + (mealBonus + 5 * skillMasteryBonus) / 100;
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
@@ -103,6 +102,19 @@ export const getLiquidCauldrons = (account) => {
     return {
       isDragonic: account?.accountOptions?.[106] > index,
       maxLiquid: Math.ceil((1 + secondMath) * thirdMath),
+      maxLiquidBreakdown: [
+        { name: 'Bleach Liquid', value: bleachLiquidCauldron > index ? 1.5 : 0 },
+        { name: 'Dragonic', value: account?.accountOptions?.[123] > index ? 2 : 0 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Skill Mastery', value: (5 * skillMasteryBonus) / 100 },
+        { name: 'Lab', value: viaductOfGods },
+        { name: 'Cauldron Cap', value: brewBonus },
+        { name: 'Vial', value: vialBonus },
+        { name: 'P2W', value: p2wBonus },
+        { name: 'Da daily drip', value: firstMath },
+        { name: 'Stamp', value: stampBonus },
+        { name: 'Arcade', value: Math.ceil(arcadeBonus) }
+      ],
       decantCap: {
         level: decantCapLevel,
         progress: decantCapProgress,

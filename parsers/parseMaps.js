@@ -140,7 +140,6 @@ export const filteredLootyItems = [
   'EquipmentSmithingTabs7',
   'EquipmentSmithingTabs8',
   'Quest8',
-  'Quest28',
   'StampB28',
   'StampB29',
   'StampB33',

@@ -14,6 +14,7 @@ import { getLampBonus } from "@parsers/world-5/caverns/the-lamp";
 import { getMealsBonusByEffectOrStat } from "@parsers/cooking";
 import { getMonumentBonus } from "@parsers/world-5/caverns/bravery";
 import { getStampsBonusByEffect } from "@parsers/stamps";
+import { getEmperorBonus } from "./emperor";
 
 export const getFarming = (idleonData: any, accountData: any, charactersData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
@@ -31,11 +32,14 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const market = marketInfo?.map((upgrade, index) => {
     const { cropId, cropIdIncrement, cost, costExponent, bonusPerLvl, maxLvl, bonus } = upgrade;
     const level = marketLevels?.[index] ?? 0;
+    const emperorBonus = getEmperorBonus(account, 2);
+    const calculatedCost = Math.max(0.001, 1 - emperorBonus
+      / (emperorBonus + 100)) * cost * Math.pow(costExponent, level)
     return {
       ...upgrade,
       level,
       type: getCropType({ index, cropId, cropIdIncrement, level }),
-      cost: cost * Math.pow(costExponent, level),
+      cost: calculatedCost,
       nextUpgrades: getNextUpgradesReq({ index, cropId, cropIdIncrement, level, maxLvl, cost, costExponent }),
       costToMax: calcCostToMax({ level, maxLvl, cost, costExponent }),
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
