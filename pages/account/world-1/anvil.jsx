@@ -63,7 +63,6 @@ const Anvil = () => {
         const production = prod?.filter(({ hammers }) => hammers > 0);
         const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
         const realProduction = numOfHammers >= maxProducts ? production : fillArrayToLength(numOfHammers, production);
-        console.log(realProduction)
         return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 900 } }}>
           <CardContent>
             <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}>

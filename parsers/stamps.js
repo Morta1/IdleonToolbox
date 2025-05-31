@@ -8,6 +8,7 @@ import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getAtomBonus } from '@parsers/atomCollider';
 import { getCompassBonus } from '@parsers/compass';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
@@ -210,7 +211,8 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   const removeLevelReduction = isJadeBonusUnlocked(account, 'Level_Exemption');
   const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharge') ?? 0;
   const charmBonusExalted = getCharmBonus(account, 'Jellypick');
-  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76)));
+  const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
+  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76) + armorSetBonus));
   const exaltedBonus = isStampExalted ? 1 + exaltedBase / 100 : 1;
 
   if (stamp?.skillIndex > 0 && !removeLevelReduction) {

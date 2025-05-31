@@ -4,8 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
-    'ver': '3.3.3',
+    'ver': '3.3.4',
     'gameVer': '2.0.37',
+    'date': '31/05/2025',
+    'features': [
+      'Updated the website with version 2.0.37 data and assets',
+      'Added Armor Smithy page under Account -> World 3',
+      'Added Emperor page under Account -> World 6',
+    ],
+    'fixes': []
+  },
+  {
+    'ver': '3.3.3',
+    'gameVer': '2.0.36',
     'date': '10/05/2025',
     'features': [
       'Added initial calculation for class exp multi (might still not be 100% accurate)',
@@ -23,13 +34,12 @@ export const patchNotes = [
   },
   {
     'ver': '3.3.2',
-    'gameVer': '2.0.37',
+    'gameVer': '2.0.36',
     'date': '30/04/2025',
     'features': [
-      'Updated the website with version 2.0.37 data and assets',
+      'Updated the website with version 2.0.36 data and assets'
     ],
-    'fixes': [
-    ]
+    'fixes': []
   },
   {
     'ver': '3.3.1',
@@ -39,8 +49,7 @@ export const patchNotes = [
       'Default display for ASC -> Drops is X / hr (total amount will be found in the tooltip)',
       'Added a new experimental page - Sampling Companion - which helps you track BIS items for a specific sampling setup (currently only AFK Fighting) - let me know what you think'
     ],
-    'fixes': [
-    ]
+    'fixes': []
   },
   {
     'ver': '3.3.0',

@@ -27,6 +27,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGrimoireBonus } from '@parsers/grimoire';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 export const spicesNames = [
   'Grasslands',
@@ -165,13 +166,15 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
     if (statName === 'PxLine') {
       return sum + (level * baseStat ?? 0);
     }
-    const ribbonBonus = getRibbonBonus(account?.grimoire?.ribbons?.[28 + index]);
+    const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
     return sum + ((1 + (labBonus + shinyMealBonus) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat ?? 0);
   }, 0) ?? 0;
 }
 
-export const getRibbonBonus = (t) => {
-  return 1 + Math.floor(5 * t + Math.floor(t / 2) * (4 + 6.5 * Math.floor(t / 5))) / 100;
+export const getRibbonBonus = (account, t) => {
+  const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
+  return 1 + (Math.floor(5 * t + Math.floor(t / 2) *
+    (4 + 6.5 * Math.floor(t / 5))) + Math.floor(t / 4) * (armorSetBonus / 4)) / 100;
 }
 
 export const getKitchens = (idleonData, characters, account) => {

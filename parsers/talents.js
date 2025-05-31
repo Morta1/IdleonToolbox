@@ -16,6 +16,7 @@ import { getIsland } from '@parsers/world-2/islands';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { skillIndexMap } from '@parsers/parseMaps';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
@@ -204,23 +205,28 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   }
   addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
   addedLevels += getGrimoireBonus(account?.grimoire?.upgrades, 39);
+  addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
 
   breakdown = [
     ...breakdown,
     { name: 'Symbol of Beyond', value: symbolAddedLevel },
-    { name: 'Family Bonus', value: Math.floor(familyEffBonus) },
-    { name: 'Achievement Bonus', value: getAchievementStatus(account?.achievements, 291) ? 1 : 0 },
+    { name: 'Family', value: Math.floor(familyEffBonus) },
+    { name: 'Achievement', value: getAchievementStatus(account?.achievements, 291) ? 1 : 0 },
     {
-      name: 'Companion Bonus',
+      name: 'Companion',
       value: isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0
     },
     {
-      name: 'Equinox Bonus',
+      name: 'Equinox',
       value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
     },
     {
-      name: 'Grimoire Bonus',
+      name: 'Grimoire',
       value: getGrimoireBonus(account?.grimoire?.upgrades, 39)
+    },
+    {
+      name: 'Kattlekruk set',
+      value: getArmorSetBonus(account, 'KATTLEKRUK_SET')
     },
     {
       name: 'Ninja mastery',

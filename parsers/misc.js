@@ -35,6 +35,7 @@ import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getBribeBonus } from '@parsers/bribes';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
@@ -134,7 +135,7 @@ export const getLooty = (idleonData) => {
     'Dust2': 'Dust2_x1',
     'Dust3': 'Dust3_x1',
     'Dust4': 'Dust4_x1',
-    'Dust5': 'Dust5_x1',
+    'Dust5': 'Dust5_x1'
   }
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
@@ -545,8 +546,9 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const deathBringer = characters?.find((character) => checkCharClass(character?.class, 'Death_Bringer'));
   const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
+  const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
 
-  return Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+  return (1 + armorSetBonus / 100) * Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
         + (goldenAppleStamp

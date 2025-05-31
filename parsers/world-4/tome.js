@@ -20,6 +20,7 @@ import { calcTotalPrayersLevel } from '@parsers/prayers';
 import { lavaLog } from '@utility/helpers';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 // _event_Tome2
 export const getTome = (idleonData, account, characters, serverVars) => {
@@ -82,7 +83,9 @@ const getTomeBonus = (account, totalPoints, index) => {
   const strTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'TOME_STRENGTH');
   const agiTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'TOME_AGILITY');
   const wisTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'TOME_WISDOM');
-  const grimoireBonus = 1 + getGrimoireBonus(account?.grimoire?.upgrades, 17) / 100;
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
+  const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
+
   const multiplier = (totalPoints - 5000) / 2000;
 
   return 0 === index ? 10 * Math.pow(Math.floor(totalPoints / 100), 0.7) * grimoireBonus
@@ -98,7 +101,7 @@ const getTomeBonus = (account, totalPoints, index) => {
             5 === index ? wisTomeBonus * multiplier :
               6 === index && 1 === getEventShopBonus(account, 0) ?
                 4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4)
-                * grimoireBonus : 0;
+                * (1 + (grimoireBonus + armorSetBonus) / 100) : 0;
 }
 
 const calcPointsPercent = (bonus, quantity) => {
@@ -223,5 +226,6 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.hole?.totalLayerResources);
   quantities.push(account?.hole?.totalOpalsFound);
   quantities.push(Math.round(account.accountOptions?.[353] + 1));
+  quantities.push(account.accountOptions?.[369]); // 95
   return quantities;
 }

@@ -149,7 +149,6 @@ export const getPlayerAnvil = (character, characters, account) => {
   if (!Array.isArray(anvilSelected)) {
     anvilSelected = [anvilSelected];
   }
-  console.log(anvilProducts)
   const production = anvilProduction?.reduce((res, item, index) => {
     const [currentAmount, currentXP, currentProgress, totalProduced] = item;
     return [

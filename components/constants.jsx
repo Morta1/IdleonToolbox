@@ -103,7 +103,8 @@ export const PAGES = {
         { label: 'prayers', icon: `data/PrayerSel` },
         { label: 'Traps', icon: 'data/TrapBoxSet1' },
         { label: 'saltLick', icon: 'data/ConTower3' },
-        { label: 'construction', icon: 'data/ClassIcons49', tabs: ['Main', 'Cog stat calculator'] }
+        { label: 'construction', icon: 'data/ClassIcons49', tabs: ['Main', 'Cog stat calculator'] },
+        { label: 'armorSmithy', icon: 'npcs/Armor_Set_Smithy' }
       ]
     },
     'world 4': {
@@ -184,7 +185,8 @@ export const PAGES = {
           tabs: ['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery']
         },
         { label: 'summoning', icon: 'data/ClassIcons59', tabs: ['Upgrades', 'Winner Bonuses', 'Battles'] },
-        { label: 'beanstalk', icon: 'etc/beanstalk1' }
+        { label: 'beanstalk', icon: 'etc/beanstalk1' },
+        { label: 'emperor', icon: 'data/Boss6' }
       ]
     }
 

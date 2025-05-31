@@ -108,6 +108,7 @@ import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getCompassBonus } from '@parsers/compass';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -783,6 +784,7 @@ export const getClassExpMulti = (character, account, characters) => {
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Class XP');
   const voteBonus = getVoteBonus(account, 15) || 0;
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 6 });
+  const armorSetBonus = getArmorSetBonus(account, 'IRON_SET');
 
   const value = extraExp
     * (1 + expBonus3 / 100)
@@ -822,7 +824,7 @@ export const getClassExpMulti = (character, account, characters) => {
                                                       + (owlBonus
                                                         + (voteBonus
                                                           + (monumentBonus
-                                                            + expBonus4)))))))))))))))))))))))))))))) / 100 + 1;
+                                                            + expBonus4 + armorSetBonus)))))))))))))))))))))))))))))) / 100 + 1;
 
   return {
     value,
@@ -864,12 +866,14 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: 'Star Talent', value: starTalent / 100 },
       { name: 'Statue', value: statueBonus / 100 },
       { name: 'Talent', value: forthTalentBonus / 100 },
-      { name: 'Upgrade Vault',
+      {
+        name: 'Upgrade Vault',
         value: ((isLowestLevel
           ? upgradeVaultBonus
           : 0) + upgradeVaultBonus2 + upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) / 100
       },
       { name: 'Vote', value: voteBonus / 100 },
+      { name: 'Iron set', value: armorSetBonus / 100 },
       { name: 'Weekly Boss', value: weeklyBossBonus },
       { name: 'Winner Bonus', value: winnerBonus / 100 },
       { name: 'Vials', value: vialBonus / 100 },
@@ -943,6 +947,7 @@ export const getDropRate = (character, account, characters) => {
     t: 15
   });
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
+  const armorSetBonus = getArmorSetBonus(account, 'PLATINUM_SET');
 
   const additive =
     firstTalentBonus +
@@ -979,7 +984,8 @@ export const getDropRate = (character, account, characters) => {
     measurementBonus +
     secondCompanionDropRate +
     secondSchematicBonus +
-    monumentBonus;
+    monumentBonus +
+    armorSetBonus;
 
   // TODO: GoldFoodBonuses, TomeBonus, LankRankUpgBonus
   // console.log('---------------- ')
@@ -1090,7 +1096,8 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Crop Depot', value: cropDepotBonus / 100 },
     { name: 'Base', value: 1 },
     { name: 'Monument', value: monumentBonus / 100 },
-    { name: 'Measurement', value: measurementBonus / 100 }
+    { name: 'Measurement', value: measurementBonus / 100 },
+    { name: 'Platinum set', value: armorSetBonus / 100 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
@@ -1163,6 +1170,7 @@ export const getCashMulti = (character, account, characters) => {
   const boredBeansKills = Math.floor(lavaLog(account?.deathNote?.[0]?.mobs?.[3]?.kills) || 0);
   const sixthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 31);
   const poopKills = Math.floor(lavaLog(account?.deathNote?.[0]?.mobs?.[10]?.kills || 0));
+  const armorSetBonus = getArmorSetBonus(account, 'GOLD_SET');
 
   const bubbles = (cashStrBubble
     * Math.floor(strength / 250)
@@ -1175,6 +1183,7 @@ export const getCashMulti = (character, account, characters) => {
     * (1 + 0.5 * eventBonus)
     * (1 + getGambitBonus(account, 7) / 100)
     * (1 + (equipmentBonusMoney + obolsBonusMoney) / 100)
+    * (1 + armorSetBonus / 100)
     * (1 + (250 * hasCashBundle) / 100)
     * (1 + (mealBonus
       + artifactBonus
@@ -1251,7 +1260,8 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Post Office', value: postOfficeBonus },
     { name: 'Kangaroo', value: kangarooBonus },
     { name: 'Vote', value: voteBonus },
-    { name: 'Drop Rate', value: dropRateMulti }
+    { name: 'Drop Rate', value: dropRateMulti },
+    { name: 'Gold set', value: armorSetBonus }
   ];
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
 

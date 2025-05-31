@@ -10,6 +10,7 @@ import {
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 const summonEssenceColor = {
   white: 0,
@@ -176,6 +177,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
   const firstAchievement = getAchievementStatus(account?.achievements, 373);
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
+  const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
   const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
   let val;
   if (index === 20 || index === 22 || index === 24 || index === 31) {
@@ -186,7 +188,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
       (1 + (artifactBonus +
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +
-        secondAchievement) / 100);
+        secondAchievement +
+        armorSetBonus) / 100);
   } else if (index >= 20 && index <= 33) {
     const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
     const multi = multiCalc === 0 ? 0 : multiCalc;
@@ -196,6 +199,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
+        armorSetBonus +
         multi) / 100);
   } else {
     const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
@@ -206,6 +210,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
+        armorSetBonus +
         multi) / 100);
   }
   return val;

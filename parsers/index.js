@@ -69,11 +69,16 @@ import { getHole } from '@parsers/world-5/hole';
 import { getGrimoire } from '@parsers/grimoire';
 import { getUpgradeVault } from '@parsers/misc/upgradeVault';
 import { getCompass } from '@parsers/compass';
+import { getEmperor } from '@parsers/world-6/emperor';
+import { getArmorSmithy } from '@parsers/misc/armorSmithy';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
     let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
-    const { accountData, charactersData } = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
+    const {
+      accountData,
+      charactersData
+    } = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     processedData = null;
     return { account: accountData, characters: charactersData };
   } catch (err) {
@@ -254,6 +259,8 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.kangaroo = getKangaroo(idleonData, accountData);
   accountData.voteBallot = getVoteBallot(idleonData, accountData);
   accountData.upgradeVault = getUpgradeVault(idleonData, accountData);
+  accountData.emperor = getEmperor(idleonData, accountData);
+  accountData.armorSmithy = getArmorSmithy(idleonData, serverVars, accountData);
 
   // Cleanup unnecessary data
   serializedCharactersData = null;
