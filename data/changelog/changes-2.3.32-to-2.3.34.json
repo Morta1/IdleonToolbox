@@ -1,0 +1,2458 @@
+{
+  "metadata": {
+    "oldVersion": "2.3.32",
+    "newVersion": "2.3.34",
+    "timestamp": "2025-05-30T19:02:45.515Z",
+    "changedCategories": [
+      "world-1",
+      "world-5",
+      "game-systems"
+    ]
+  },
+  "changes": {
+    "world-1": {
+      "gemShop": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "0",
+            "old": {
+              "name": "usables",
+              "sections": {
+                "Time_Candy": [
+                  {
+                    "rawName": "Timecandy1",
+                    "displayName": "JUST_ONE,_PLEASE",
+                    "desc": "Gives_you_a_single_1_Hour_Candy._One_piece_of_candyyyy!",
+                    "cost": 40,
+                    "globalIndex": 47,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy2",
+                    "displayName": "BABY'S_FIRST_LOLLY",
+                    "desc": "Gives_a_random_Time_Candy._The_chances_are:_34%_for_1_Hr,_33%_for_2_Hr,_and_33%_for_4_Hr.",
+                    "cost": 80,
+                    "globalIndex": 48,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy3",
+                    "displayName": "KID_IN_A_CANDY_STORE",
+                    "desc": "Gives_a_random_Time_Candy._The_chances_are:_50%_for_2_Hr,_25%_for_4_Hr,_18%_for_12_Hr,_and_7%_for_24_Hr.",
+                    "cost": 150,
+                    "globalIndex": 49,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy4",
+                    "displayName": "ABSOLUTE_SUGAR_MANIAC",
+                    "desc": "Gives_a_random_Time_Candy._The_chances_are:_33%_for_4_Hr,_40%_for_12_Hr,_22%_for_24_Hr,_and_4%_for_72_Hr.",
+                    "cost": 270,
+                    "globalIndex": 50,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 51,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 52,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 53,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "COSMIC_CANDY",
+                    "desc": "Gives_1_Cosmic_Time_Candy,_which_can_give_up_to_500_HOURS_of_AFK_time!_On_average,_it_will_give_24_hrs.",
+                    "cost": 325,
+                    "globalIndex": 54,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Inventory_&_Storage": [
+                  {
+                    "rawName": "InvBag21",
+                    "displayName": "ITEM_BACKPACK_SPACE",
+                    "desc": "Gives_+4_extra_Item_Slots_for_your_backpack!_Applies_to_all_your_characters,_even_ones_you_haven't_made_yet!",
+                    "cost": 200,
+                    "globalIndex": 55,
+                    "maxPurchases": 6,
+                    "quantity": 1,
+                    "costIncrement": 25
+                  },
+                  {
+                    "rawName": "InvStorage31",
+                    "displayName": "STORAGE_CHEST_SPACE",
+                    "desc": "Gives_+9_extra_Storage_Chest_Slots!_Storage_Chests_are_found_in_each_town,_and_the_items_you_put_in_are_shared_by_all_your_players!",
+                    "cost": 175,
+                    "globalIndex": 56,
+                    "maxPurchases": 12,
+                    "quantity": 1,
+                    "costIncrement": 25
+                  },
+                  {
+                    "rawName": "GemP2",
+                    "displayName": "CARRY_CAPACITY",
+                    "desc": "Each_purchase_boosts_the_carry_capacity_by_+25%_for_all_your_characters._This_starts_working_immediately,_and_applies_to_every_item_type!",
+                    "cost": 150,
+                    "globalIndex": 58,
+                    "maxPurchases": 10,
+                    "quantity": 0,
+                    "costIncrement": 25
+                  },
+                  {
+                    "rawName": "GemP8",
+                    "displayName": "FOOD_SLOT",
+                    "desc": "Gives_+1_extra_food_slot_for_all_characters,_forever!_Dont_worry,_4_food_slots_will_be_added_FOR_FREE_in_game_in_later_updates,_scattered_across_the_game!",
+                    "cost": 450,
+                    "globalIndex": 59,
+                    "maxPurchases": 2,
+                    "quantity": 0,
+                    "costIncrement": 300
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 60,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "InvStorage99",
+                    "displayName": "MORE_STORAGE_SPACE",
+                    "desc": "Gives_+9_extra_Storage_Chest_Slots!_Perfect_for_any_hoarding_tendencies_you_may_have!",
+                    "cost": 450,
+                    "globalIndex": 109,
+                    "maxPurchases": 10,
+                    "quantity": 1,
+                    "costIncrement": 12
+                  },
+                  {
+                    "rawName": "GemQ9",
+                    "displayName": "CARD_PRESETS",
+                    "desc": "Lets_you_swap_between_different_card_loadouts_with_ease!_No_more_manually_swapping_cards_around_when_doing_different_things!_Each_purchase_gives_+1_preset_for_ALL_characters!",
+                    "cost": 250,
+                    "globalIndex": 66,
+                    "maxPurchases": 5,
+                    "quantity": 0,
+                    "costIncrement": 160
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 62,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Dailies_N_Resets": [
+                  {
+                    "rawName": "Pdaily0",
+                    "displayName": "DAILY_TELEPORTS",
+                    "desc": "Each_purchase_gives_+13_daily_teleports_every_day,_forever._You_can_use_these_on_the_Map_Screen._You_can_be_gone_for_up_to_6_days_and_claim_them_all_upon_your_return!",
+                    "cost": 120,
+                    "globalIndex": 71,
+                    "maxPurchases": 10,
+                    "quantity": 0,
+                    "costIncrement": 40
+                  },
+                  {
+                    "rawName": "Pdaily1",
+                    "displayName": "DAILY_MINIGAME_PLAYS",
+                    "desc": "Each_purchase_gives_you_+4_additional_Daily_Minigame_Plays_across_your_account._These_dont_stack_from_day_to_day,_else_youd_be_swimmin'_in_them!",
+                    "cost": 150,
+                    "globalIndex": 72,
+                    "maxPurchases": 4,
+                    "quantity": 0,
+                    "costIncrement": 50
+                  },
+                  {
+                    "rawName": "ResetCompleted",
+                    "displayName": "REGULAR_TALENT_RESET",
+                    "desc": "Resets_all_your_talents_to_Lv_0,_and_fully_refunds_all_talent_points._This_does_NOT_reset_any_of_the_____________________Star_Tab_talents.__________________This_item_restocks_each_week.",
+                    "cost": 200,
+                    "globalIndex": 73,
+                    "maxPurchases": 10,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "ResetCompletedS",
+                    "displayName": "STAR_TALENT_RESET",
+                    "desc": "Resets_all_the_talents_in_the_Star_Tab_to_Lv_0,_and_fully_refunds_all_talent_points._This_does_NOT_reset_other_talents,_only_ones_in_the_Star_Tab._This_item_restocks_each_week.",
+                    "cost": 300,
+                    "globalIndex": 74,
+                    "maxPurchases": 3,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "ClassSwap",
+                    "displayName": "SUBCLASS_SWAP_TOKEN",
+                    "desc": "Lets_you_swap_subclass,_like_going_from_Barbarian_to_Squire._HOWEVER,_you_CANT_change_between_main_classes,_like_Warrior_or_Archer,_or_change_Elite_Classes_like_Blood_Berserker._Stock_refreshes_after_each_major_update.",
+                    "cost": 500,
+                    "globalIndex": 75,
+                    "maxPurchases": 2,
+                    "quantity": 1,
+                    "costIncrement": 250
+                  },
+                  {
+                    "rawName": "ResetBox",
+                    "displayName": "PANDORAS_OFFICE_BOX",
+                    "desc": "____Resets_all_your_post_office_upgrades,_and____________refunds_all_boxes_spent._This_lets_you_choose__________different_post_office_box_upgrades!____________This_item_restocks_each_week.",
+                    "cost": 250,
+                    "globalIndex": 76,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 77,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 78,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Cards": [
+                  {
+                    "rawName": "CardPack1",
+                    "displayName": "NEWBIE_CARD_PACK",
+                    "desc": "Contains_3_cards_from_._Has_a_15%_chance_to_give_at_least_one_Boss_Card._Card_Lv_Rarities_are:_50%_for_Lv_1,_35%_for_Lv_2,_and_15%_for_Lv_3.",
+                    "cost": 200,
+                    "globalIndex": 64,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack2",
+                    "displayName": "ANCIENT_CARD_PACK",
+                    "desc": "Contains_4_cards_from_any_set_in_the_game,_other_than_world_3_because_it's_not_out_yet._Has_a_40%_chance_to_give_at_least_one_Boss_Card._Card_Lv_Rarities_are:_26%_for_Lv_1,_30%_for_Lv_2,_27%_for_Lv_3,_and_17%_for_Lv_4.",
+                    "cost": 425,
+                    "globalIndex": 65,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack3",
+                    "displayName": "ETERNAL_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 600,
+                    "globalIndex": 65,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack5",
+                    "displayName": "GALAXY_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 650,
+                    "globalIndex": 69,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP3",
+                    "displayName": "EXTRA_CARD_SLOT",
+                    "desc": "Lets_you_equip_another_card,_so_you_can_have_more_card_bonuses!_This_applies_to_all_characters,_and_is_recommended_before_buying_card_packs!",
+                    "cost": 150,
+                    "globalIndex": 63,
+                    "maxPurchases": 4,
+                    "quantity": 0,
+                    "costIncrement": 40
+                  },
+                  {
+                    "rawName": "GemQ17",
+                    "displayName": "4_STAR_CARDIFIER",
+                    "desc": "Use_this_on_a_3_star_card_to_upgrade_it_to_4_stars!_You_can_use_it_on_any_3_star_card_you_have,_it's_up_to_you!_Each_purchase_allows_for_one_card_of_your_choice_to_be_upgraded.",
+                    "cost": 325,
+                    "globalIndex": 67,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack6",
+                    "displayName": "SMOLDERIN_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 690,
+                    "globalIndex": 61,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack7",
+                    "displayName": "SPIRIT_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 720,
+                    "globalIndex": 70,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Goods_&_Services": [
+                  {
+                    "rawName": "GemP11",
+                    "displayName": "SMOL_ARCADE_BALLS",
+                    "desc": "30_arcade_balls._Use_these_at_the_Arcade,_found_at_the_clown_in_World_2_town!",
+                    "cost": 100,
+                    "globalIndex": 79,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP12",
+                    "displayName": "MED_ARCADE_BALLS",
+                    "desc": "100_arcade_balls._Use_these_at_the_Arcade,_found_at_the_clown_in_World_2_town!_+20%_better_value_compared_to_smol_ball_pack!",
+                    "cost": 275,
+                    "globalIndex": 80,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP13",
+                    "displayName": "BIGGY_ARCADE_BALLS",
+                    "desc": "500_arcade_balls._Use_these_at_the_Arcade,_found_at_the_clown_in_World_2_town!_+33%_better_value_compared_to_smol_ball_pack!",
+                    "cost": 1250,
+                    "globalIndex": 81,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 82,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP15",
+                    "displayName": "WEEKLY_DUNGEON_BOOSTERS",
+                    "desc": "Get_an_additional_+3_Dungeon_runs_every_week,_FOREVER!_I_give_you_12_per_week_for_free,_so_buying_this_once,_for_example,_would_get_you_15_runs_every_week!",
+                    "cost": 275,
+                    "globalIndex": 84,
+                    "maxPurchases": 11,
+                    "quantity": 0,
+                    "costIncrement": 40
+                  },
+                  {
+                    "rawName": "EquipmentKeychain0",
+                    "displayName": "TIER_1_KEYCHAIN",
+                    "desc": "Gives_you_40_keychain_fragments,_enough_to_claim_a_Tier_1_Keychain_from_the_Frog_Dungeon_Lobby!_These_keychains_randomly_give_the_following_bonuses:_Base_Def, Accuracy,_Move_speed,_Base_Dmg,_Card_Drop_rate,_Money,_Base_Stat",
+                    "cost": 150,
+                    "globalIndex": 86,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentKeychain8",
+                    "displayName": "TIER_2_KEYCHAIN",
+                    "desc": "Gives_you_120_keychain_fragments,_enough_to_claim_a_Tier_2_Keychain_from_the_Frog_Dungeon_Lobby!_These_keychains_randomly_give_the_following_bonuses:_%DEF,_Mining_XP,_Fishing_XP,_%DMG,_Drop_chance,_Atk_speed,_Crit_chance,_Multikill",
+                    "cost": 325,
+                    "globalIndex": 85,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentKeychain17",
+                    "displayName": "TIER_3_KEYCHAIN",
+                    "desc": "Gives_you_300_keychain_fragments,_enough_to_claim_a_Tier_3_Keychain_from_the_Frog_Dungeon_Lobby!_These_keychains_randomly_give_the_following_bonuses:_%DEF,_%Stat,_%AFK_gain,_%DMG,_mob_respawn,_Skilling_spd,_%All_stat",
+                    "cost": 490,
+                    "globalIndex": 83,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  }
+                ],
+                "Limited_Specials": [
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 87,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 88,
+                    "maxPurchases": 2,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 89,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 90,
+                    "maxPurchases": 3,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 91,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 92,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 93,
+                    "maxPurchases": 2,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "FREE_LANTERNS!!_GET_THEM_NOW_BEFORE_THEYRE_GONE!!",
+                    "cost": 1,
+                    "globalIndex": 94,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ]
+              }
+            },
+            "new": {
+              "name": "usables",
+              "sections": {
+                "Time_Candy": [
+                  {
+                    "rawName": "Timecandy1",
+                    "displayName": "JUST_ONE,_PLEASE",
+                    "desc": "Gives_you_a_single_1_Hour_Candy!",
+                    "cost": 40,
+                    "globalIndex": 47,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy2",
+                    "displayName": "BABY'S_FIRST_LOLLY",
+                    "desc": "Gives_a_random_Time_Candy._The_chances_are:_34%_for_1_Hr,_33%_for_2_Hr,_and_33%_for_4_Hr.",
+                    "cost": 80,
+                    "globalIndex": 48,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy3",
+                    "displayName": "KID_IN_A_CANDY_STORE",
+                    "desc": "Gives_a_random_Time_Candy._The_chances_are:_50%_for_2_Hr,_25%_for_4_Hr,_18%_for_12_Hr,_and_7%_for_24_Hr.",
+                    "cost": 150,
+                    "globalIndex": 49,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy4",
+                    "displayName": "ABSOLUTE_SUGAR_MANIAC",
+                    "desc": "Gives_a_random_Time_Candy._The_chances_are:_33%_for_4_Hr,_40%_for_12_Hr,_22%_for_24_Hr,_and_4%_for_72_Hr.",
+                    "cost": 270,
+                    "globalIndex": 50,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 51,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 52,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 53,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "COSMIC_CANDY",
+                    "desc": "Gives_1_Cosmic_Time_Candy,_which_can_give_up_to_500_HOURS_of_AFK_time!_On_average,_it_will_give_24_hrs.",
+                    "cost": 325,
+                    "globalIndex": 54,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Inventory_&_Storage": [
+                  {
+                    "rawName": "InvBag21",
+                    "displayName": "ITEM_BACKPACK_SPACE",
+                    "desc": "Gives_+4_extra_Item_Slots_for_your_backpack!_Applies_to_all_your_characters,_even_ones_you_haven't_made_yet!",
+                    "cost": 200,
+                    "globalIndex": 55,
+                    "maxPurchases": 6,
+                    "quantity": 1,
+                    "costIncrement": 25
+                  },
+                  {
+                    "rawName": "InvStorage31",
+                    "displayName": "STORAGE_CHEST_SPACE",
+                    "desc": "Gives_+9_extra_Storage_Chest_Slots!_Storage_Chests_are_found_in_each_town,_and_the_items_you_put_in_are_shared_by_all_your_players!",
+                    "cost": 175,
+                    "globalIndex": 56,
+                    "maxPurchases": 12,
+                    "quantity": 1,
+                    "costIncrement": 25
+                  },
+                  {
+                    "rawName": "GemP2",
+                    "displayName": "CARRY_CAPACITY",
+                    "desc": "Each_purchase_boosts_the_carry_capacity_by_+25%_for_all_your_characters._This_starts_working_immediately,_and_applies_to_every_item_type!",
+                    "cost": 150,
+                    "globalIndex": 58,
+                    "maxPurchases": 10,
+                    "quantity": 0,
+                    "costIncrement": 25
+                  },
+                  {
+                    "rawName": "GemP8",
+                    "displayName": "FOOD_SLOT",
+                    "desc": "Gives_+1_extra_food_slot_for_all_characters,_forever!_Dont_worry,_4_food_slots_will_be_added_FOR_FREE_in_game_in_later_updates,_scattered_across_the_game!",
+                    "cost": 450,
+                    "globalIndex": 59,
+                    "maxPurchases": 2,
+                    "quantity": 0,
+                    "costIncrement": 300
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 60,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "InvStorage99",
+                    "displayName": "MORE_STORAGE_SPACE",
+                    "desc": "Gives_+9_extra_Storage_Chest_Slots!_Perfect_for_any_hoarding_tendencies_you_may_have!",
+                    "cost": 450,
+                    "globalIndex": 109,
+                    "maxPurchases": 10,
+                    "quantity": 1,
+                    "costIncrement": 12
+                  },
+                  {
+                    "rawName": "GemQ9",
+                    "displayName": "CARD_PRESETS",
+                    "desc": "Lets_you_swap_between_different_card_loadouts_with_ease!_No_more_manually_swapping_cards_around_when_doing_different_things!_Each_purchase_gives_+1_preset_for_ALL_characters!",
+                    "cost": 250,
+                    "globalIndex": 66,
+                    "maxPurchases": 5,
+                    "quantity": 0,
+                    "costIncrement": 160
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 62,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Dailies_N_Resets": [
+                  {
+                    "rawName": "Pdaily0",
+                    "displayName": "DAILY_TELEPORTS",
+                    "desc": "Each_purchase_gives_+13_daily_teleports_every_day,_forever._You_can_use_these_on_the_Map_Screen._You_can_be_gone_for_up_to_6_days_and_claim_them_all_upon_your_return!",
+                    "cost": 120,
+                    "globalIndex": 71,
+                    "maxPurchases": 10,
+                    "quantity": 0,
+                    "costIncrement": 40
+                  },
+                  {
+                    "rawName": "Pdaily1",
+                    "displayName": "DAILY_MINIGAME_PLAYS",
+                    "desc": "Each_purchase_gives_you_+4_additional_Daily_Minigame_Plays_across_your_account._These_dont_stack_from_day_to_day,_else_youd_be_swimmin'_in_them!",
+                    "cost": 150,
+                    "globalIndex": 72,
+                    "maxPurchases": 4,
+                    "quantity": 0,
+                    "costIncrement": 50
+                  },
+                  {
+                    "rawName": "ResetCompleted",
+                    "displayName": "REGULAR_TALENT_RESET",
+                    "desc": "Resets_all_your_talents_to_Lv_0,_and_fully_refunds_all_talent_points._This_does_NOT_reset_any_of_the_____________________Star_Tab_talents.__________________This_item_restocks_each_week.",
+                    "cost": 200,
+                    "globalIndex": 73,
+                    "maxPurchases": 10,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "ResetCompletedS",
+                    "displayName": "STAR_TALENT_RESET",
+                    "desc": "Resets_all_the_talents_in_the_Star_Tab_to_Lv_0,_and_fully_refunds_all_talent_points._This_does_NOT_reset_other_talents,_only_ones_in_the_Star_Tab._This_item_restocks_each_week.",
+                    "cost": 300,
+                    "globalIndex": 74,
+                    "maxPurchases": 3,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "ClassSwap",
+                    "displayName": "SUBCLASS_SWAP_TOKEN",
+                    "desc": "Lets_you_swap_subclass,_like_going_from_Barbarian_to_Squire._HOWEVER,_you_CANT_change_between_main_classes,_like_Warrior_or_Archer,_or_change_Elite_Classes_like_Blood_Berserker._Stock_refreshes_after_each_major_update.",
+                    "cost": 500,
+                    "globalIndex": 75,
+                    "maxPurchases": 2,
+                    "quantity": 1,
+                    "costIncrement": 250
+                  },
+                  {
+                    "rawName": "ResetBox",
+                    "displayName": "PANDORAS_OFFICE_BOX",
+                    "desc": "____Resets_all_your_post_office_upgrades,_and____________refunds_all_boxes_spent._This_lets_you_choose__________different_post_office_box_upgrades!____________This_item_restocks_each_week.",
+                    "cost": 250,
+                    "globalIndex": 76,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 77,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 78,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Cards": [
+                  {
+                    "rawName": "CardPack1",
+                    "displayName": "NEWBIE_CARD_PACK",
+                    "desc": "Contains_3_cards_from_._Has_a_15%_chance_to_give_at_least_one_Boss_Card._Card_Lv_Rarities_are:_50%_for_Lv_1,_35%_for_Lv_2,_and_15%_for_Lv_3.",
+                    "cost": 200,
+                    "globalIndex": 64,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack2",
+                    "displayName": "ANCIENT_CARD_PACK",
+                    "desc": "Contains_4_cards_from_any_set_in_the_game,_other_than_world_3_because_it's_not_out_yet._Has_a_40%_chance_to_give_at_least_one_Boss_Card._Card_Lv_Rarities_are:_26%_for_Lv_1,_30%_for_Lv_2,_27%_for_Lv_3,_and_17%_for_Lv_4.",
+                    "cost": 425,
+                    "globalIndex": 65,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack3",
+                    "displayName": "ETERNAL_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 600,
+                    "globalIndex": 65,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack5",
+                    "displayName": "GALAXY_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 650,
+                    "globalIndex": 69,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP3",
+                    "displayName": "EXTRA_CARD_SLOT",
+                    "desc": "Lets_you_equip_another_card,_so_you_can_have_more_card_bonuses!_This_applies_to_all_characters,_and_is_recommended_before_buying_card_packs!",
+                    "cost": 150,
+                    "globalIndex": 63,
+                    "maxPurchases": 4,
+                    "quantity": 0,
+                    "costIncrement": 40
+                  },
+                  {
+                    "rawName": "GemQ17",
+                    "displayName": "4_STAR_CARDIFIER",
+                    "desc": "Use_this_on_a_3_star_card_to_upgrade_it_to_4_stars!_You_can_use_it_on_any_3_star_card_you_have,_it's_up_to_you!_Each_purchase_allows_for_one_card_of_your_choice_to_be_upgraded.",
+                    "cost": 325,
+                    "globalIndex": 67,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack6",
+                    "displayName": "SMOLDERIN_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 690,
+                    "globalIndex": 61,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "CardPack7",
+                    "displayName": "SPIRIT_CARD_PACK",
+                    "desc": "Blah",
+                    "cost": 720,
+                    "globalIndex": 70,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ],
+                "Goods_&_Services": [
+                  {
+                    "rawName": "GemP11",
+                    "displayName": "SMOL_ARCADE_BALLS",
+                    "desc": "30_arcade_balls._Use_these_at_the_Arcade,_found_at_the_clown_in_World_2_town!",
+                    "cost": 100,
+                    "globalIndex": 79,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP12",
+                    "displayName": "MED_ARCADE_BALLS",
+                    "desc": "100_arcade_balls._Use_these_at_the_Arcade,_found_at_the_clown_in_World_2_town!_+20%_better_value_compared_to_smol_ball_pack!",
+                    "cost": 275,
+                    "globalIndex": 80,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP13",
+                    "displayName": "BIGGY_ARCADE_BALLS",
+                    "desc": "500_arcade_balls._Use_these_at_the_Arcade,_found_at_the_clown_in_World_2_town!_+33%_better_value_compared_to_smol_ball_pack!",
+                    "cost": 1250,
+                    "globalIndex": 81,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 82,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP15",
+                    "displayName": "WEEKLY_DUNGEON_BOOSTERS",
+                    "desc": "Get_an_additional_+3_Dungeon_runs_every_week,_FOREVER!_I_give_you_12_per_week_for_free,_so_buying_this_once,_for_example,_would_get_you_15_runs_every_week!",
+                    "cost": 275,
+                    "globalIndex": 84,
+                    "maxPurchases": 11,
+                    "quantity": 0,
+                    "costIncrement": 40
+                  },
+                  {
+                    "rawName": "EquipmentKeychain0",
+                    "displayName": "TIER_1_KEYCHAIN",
+                    "desc": "Gives_you_40_keychain_fragments,_enough_to_claim_a_Tier_1_Keychain_from_the_Frog_Dungeon_Lobby!_These_keychains_randomly_give_the_following_bonuses:_Base_Def, Accuracy,_Move_speed,_Base_Dmg,_Card_Drop_rate,_Money,_Base_Stat",
+                    "cost": 150,
+                    "globalIndex": 86,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentKeychain8",
+                    "displayName": "TIER_2_KEYCHAIN",
+                    "desc": "Gives_you_120_keychain_fragments,_enough_to_claim_a_Tier_2_Keychain_from_the_Frog_Dungeon_Lobby!_These_keychains_randomly_give_the_following_bonuses:_%DEF,_Mining_XP,_Fishing_XP,_%DMG,_Drop_chance,_Atk_speed,_Crit_chance,_Multikill",
+                    "cost": 325,
+                    "globalIndex": 85,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentKeychain17",
+                    "displayName": "TIER_3_KEYCHAIN",
+                    "desc": "Gives_you_300_keychain_fragments,_enough_to_claim_a_Tier_3_Keychain_from_the_Frog_Dungeon_Lobby!_These_keychains_randomly_give_the_following_bonuses:_%DEF,_%Stat,_%AFK_gain,_%DMG,_mob_respawn,_Skilling_spd,_%All_stat",
+                    "cost": 490,
+                    "globalIndex": 83,
+                    "maxPurchases": 100000,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  }
+                ],
+                "Limited_Specials": [
+                  {
+                    "rawName": "GemP38",
+                    "displayName": "RUPIE_SLUG",
+                    "desc": "Each_one_gives_you_a_1.50x_multiplier_to_all_Rupies_found_in_Cavern_10_of_the_Hole!_If_you_HAVENT_reached_this,_they_give_a_1.50x_EXP_Multi_for_your_Explorer_Villager!",
+                    "cost": 420,
+                    "globalIndex": 87,
+                    "maxPurchases": 6,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP44",
+                    "displayName": "EQUINOX_PENGUINS",
+                    "desc": "They_waddle_around_the_Equinox_Valley_in_World_3,_each_one_giving_a_+10%_total_bonus_to_Equinox_Bar_Fill_Rate!",
+                    "cost": 275,
+                    "globalIndex": 88,
+                    "maxPurchases": 5,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentPendant31",
+                    "displayName": "DEATHBLOSSOM_PENDANT",
+                    "desc": "30%_OFF_NORMAL_PRICE!!!_This_necklace_equipment_comes_with_a_1.30X_Damage_Multi_bonus,_and_+20%_Mob_Respawn_bonus!",
+                    "cost": 590,
+                    "globalIndex": 89,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP18",
+                    "displayName": "DRAGONIC_CAULDRON",
+                    "desc": "Turns_the_1st_liquid_cauldron_DRAGONIC_(or_2nd_or_3rd_or_4th_if_you_already_own_dragonic_cauldrons)._These_give_2x_Liquid_Capacity,_and_1.3x_liquid_generation_FOREVER!.",
+                    "cost": 969,
+                    "globalIndex": 90,
+                    "maxPurchases": 1,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP25",
+                    "displayName": "RANDOM_HYPER_OBOL",
+                    "desc": "Gives_you_a_random_Circle_Hyper_Obol!_The_four_equal_possibilites_are_+4%_DROP_RATE,_+2%_ALL_STAT,_+3%_DAMAGE,_and_+2%_MULTIKILL_PER_TIER!",
+                    "cost": 475,
+                    "globalIndex": 91,
+                    "maxPurchases": 4,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemQ18",
+                    "displayName": "5_STAR_CARDIFIER",
+                    "desc": "Use_this_on_a_4_star_card_to_upgrade_it_to_5_stars!_You'll_see_where_to_use_them_by_clicking_on_any_diamond_4_star_cards_you_own_in_Codex.",
+                    "cost": 486,
+                    "globalIndex": 92,
+                    "maxPurchases": 7,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP35",
+                    "displayName": "SQUARE_HYPER_OBOL",
+                    "desc": "99.8%_OFF_NORMAL_PRICE!!!_Gives_you_a_random_Square_Hyper_Obol!_The_four_equal_possibilites_are_+10%_DROP_RATE,_+5%_ALL_STAT,_+12%_DAMAGE,_and_+6%_MULTIKILL_PER_TIER!",
+                    "cost": 1,
+                    "globalIndex": 93,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Timecandy9",
+                    "displayName": "COSMIC_TIME_CANDY",
+                    "desc": "20%_OFF_NORMAL_PRICE!!_These_unique_Time_Candies_give_up_to_500_HOURS_of_AFK_time!_Click_the_item_in_game_to_see_the_chances...",
+                    "cost": 315,
+                    "globalIndex": 94,
+                    "maxPurchases": 8,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "key": "2",
+            "old": {
+              "name": "mtx",
+              "sections": {
+                "etc": [
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "Gives_you_a_Lantern_usable_item,_use_it_to_instantly_get_2_hours_of_ALL_cavern_progress!!_(Except_for_skilling_caverns,_like_Motherlode)_________________This_item_restocks_each_day.",
+                    "cost": 245,
+                    "globalIndex": 0,
+                    "maxPurchases": 6,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP40",
+                    "displayName": "PARALLEL_VILLAGERS",
+                    "desc": "Permanently_get_a_2x_EXP_boost_for_the_villager_of_your_choice!_@_You_can_only_buy_this_once_per_villager.",
+                    "cost": 780,
+                    "globalIndex": 1,
+                    "maxPurchases": 5,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP41",
+                    "displayName": "RESOURCE_BOOST",
+                    "desc": "Permanently_get_a_1.50x_boost_to_resources_collected_from_The_Well_and_The_Harp_caverns!_Two_purchases_would_mean_2.00x_resources,_three_purchases_are_2.50x,_etc.",
+                    "cost": 420,
+                    "globalIndex": 2,
+                    "maxPurchases": 10,
+                    "quantity": 0,
+                    "costIncrement": 15
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "desc",
+                    "cost": 250,
+                    "globalIndex": 3,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP42",
+                    "displayName": "CONJUROR_PTS",
+                    "desc": "Gives_you_+1_Conjure_Point_to_invest_in_bonuses!_If_you_haven't_rescued_Cosmo_the_Conjuror_Villager_yet,_you'll_want_to_hold_off_buying_any_of_these.",
+                    "cost": 330,
+                    "globalIndex": 4,
+                    "maxPurchases": 12,
+                    "quantity": 0,
+                    "costIncrement": 15
+                  },
+                  {
+                    "rawName": "GemP43",
+                    "displayName": "OPAL",
+                    "desc": "Gives_you_+1_Opal_to_invest_into_villagers!_You'll_find_most_of_your_opals_in_the_caverns,_but_some_____________________ended_up_here!__________________NOTE:_You_can_only_buy_4_per_day.",
+                    "cost": 275,
+                    "globalIndex": 5,
+                    "maxPurchases": 20,
+                    "quantity": 0,
+                    "costIncrement": 10
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "desc",
+                    "cost": 3000,
+                    "globalIndex": 6,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "desc",
+                    "cost": 200,
+                    "globalIndex": 7,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat1",
+                    "displayName": "LOVERS_CHAT_RING",
+                    "desc": "_",
+                    "cost": 300,
+                    "globalIndex": 24,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat2",
+                    "displayName": "ALL_NATURAL_CHAT_RING",
+                    "desc": "_",
+                    "cost": 250,
+                    "globalIndex": 25,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat4",
+                    "displayName": "BANDIT_BOB_CHAT_RING",
+                    "desc": "_",
+                    "cost": 350,
+                    "globalIndex": 26,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat5",
+                    "displayName": "BUBBLE_POP_CHAT_RING",
+                    "desc": "_",
+                    "cost": 325,
+                    "globalIndex": 27,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat6",
+                    "displayName": "EYES_OF_CTHULU_CHAT_RING",
+                    "desc": "_",
+                    "cost": 400,
+                    "globalIndex": 28,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat3",
+                    "displayName": "MONEY_TALKS_CHAT_RING",
+                    "desc": "_",
+                    "cost": 2500,
+                    "globalIndex": 31,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat9",
+                    "displayName": "HONK_RING",
+                    "desc": "_",
+                    "cost": 300,
+                    "globalIndex": 29,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 30,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 8,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 9,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 10,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 11,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 12,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 13,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 14,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 15,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 16,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 17,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 18,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 19,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 20,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 21,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 22,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 23,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 32,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 33,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 34,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 35,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 36,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 37,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 38,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 39,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 40,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 41,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 42,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 43,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 44,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 45,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 46,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 47,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ]
+              }
+            },
+            "new": {
+              "name": "mtx",
+              "sections": {
+                "etc": [
+                  {
+                    "rawName": "Quest90",
+                    "displayName": "2_HOUR_LANTERN",
+                    "desc": "Gives_you_a_Lantern_usable_item,_use_it_to_instantly_get_2_hours_of_ALL_cavern_progress!!_(Except_for_skilling_caverns,_like_Motherlode)_________________This_item_restocks_each_day.",
+                    "cost": 245,
+                    "globalIndex": 0,
+                    "maxPurchases": 6,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP40",
+                    "displayName": "PARALLEL_VILLAGERS",
+                    "desc": "Permanently_get_a_2x_EXP_boost_for_the_villager_of_your_choice!_@_You_can_only_buy_this_once_per_villager.",
+                    "cost": 780,
+                    "globalIndex": 1,
+                    "maxPurchases": 5,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP41",
+                    "displayName": "RESOURCE_BOOST",
+                    "desc": "Permanently_get_a_1.50x_boost_to_resources_collected_from_The_Well_and_The_Harp_caverns!_Two_purchases_would_mean_2.00x_resources,_three_purchases_are_2.50x,_etc.",
+                    "cost": 420,
+                    "globalIndex": 2,
+                    "maxPurchases": 10,
+                    "quantity": 0,
+                    "costIncrement": 15
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "desc",
+                    "cost": 250,
+                    "globalIndex": 3,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "GemP42",
+                    "displayName": "CONJUROR_PTS",
+                    "desc": "Gives_you_+1_Conjure_Point_to_invest_in_bonuses!_If_you_haven't_rescued_Cosmo_the_Conjuror_Villager_yet,_you'll_want_to_hold_off_buying_any_of_these.",
+                    "cost": 330,
+                    "globalIndex": 4,
+                    "maxPurchases": 12,
+                    "quantity": 0,
+                    "costIncrement": 15
+                  },
+                  {
+                    "rawName": "GemP43",
+                    "displayName": "OPAL",
+                    "desc": "Gives_you_+1_Opal_to_invest_into_villagers!_You'll_find_most_of_your_opals_in_the_caverns,_but_some_____________________ended_up_here!__________________NOTE:_You_can_only_buy_4_per_day.",
+                    "cost": 250,
+                    "globalIndex": 5,
+                    "maxPurchases": 60,
+                    "quantity": 0,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "desc",
+                    "cost": 3000,
+                    "globalIndex": 6,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "desc",
+                    "cost": 200,
+                    "globalIndex": 7,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat1",
+                    "displayName": "LOVERS_CHAT_RING",
+                    "desc": "_",
+                    "cost": 300,
+                    "globalIndex": 24,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat2",
+                    "displayName": "ALL_NATURAL_CHAT_RING",
+                    "desc": "_",
+                    "cost": 250,
+                    "globalIndex": 25,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat4",
+                    "displayName": "BANDIT_BOB_CHAT_RING",
+                    "desc": "_",
+                    "cost": 350,
+                    "globalIndex": 26,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat5",
+                    "displayName": "BUBBLE_POP_CHAT_RING",
+                    "desc": "_",
+                    "cost": 325,
+                    "globalIndex": 27,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat6",
+                    "displayName": "EYES_OF_CTHULU_CHAT_RING",
+                    "desc": "_",
+                    "cost": 400,
+                    "globalIndex": 28,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat3",
+                    "displayName": "MONEY_TALKS_CHAT_RING",
+                    "desc": "_",
+                    "cost": 2500,
+                    "globalIndex": 31,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentRingsChat9",
+                    "displayName": "HONK_RING",
+                    "desc": "_",
+                    "cost": 300,
+                    "globalIndex": 29,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "Blank",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 30,
+                    "maxPurchases": 100000,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 8,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 9,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 10,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 11,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 12,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 13,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 14,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 15,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 16,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 17,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 18,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 19,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 20,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 21,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 22,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 23,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 32,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 33,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 34,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 35,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 36,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 37,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 38,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 39,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 40,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 41,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 42,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 43,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 44,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 45,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 46,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  },
+                  {
+                    "rawName": "EquipmentHats1",
+                    "displayName": "NAME_OF_ITEM",
+                    "desc": "DESCRIPTION_OF_ITEM",
+                    "cost": null,
+                    "globalIndex": 47,
+                    "maxPurchases": 1,
+                    "quantity": 1,
+                    "costIncrement": 0
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "world-5": {
+      "holesInfo": {
+        "added": [
+          {
+            "key": "73",
+            "value": "15 16 17 26 27 28 25 29 14 18 5 38 4 6 37 39 13 19 24 30 3 7 36 40 12 20 23 31 2 8 35 41 1 9 34 42 11 21 22 32 0 10 33 43"
+          },
+          {
+            "key": "74",
+            "value": "13 14 15 16 17 18 19 27 4 6 26 28 12 20 3 7 24 25 29 30 5 38 11 21 2 8 1 9 36 40 23 31 22 32 37 39 35 41 0 10 34 42 33 43"
+          }
+        ],
+        "removed": [],
+        "modified": [
+          {
+            "key": "31",
+            "old": "Swords_deal_{~}_damage +2_additional_Sword You_can_Re-Throw_5_swords_per_story +1_additional_Sword You_get_1_Retelling_per_story +1_additional_Sword +10_Re-Throws_per_story +1_additional_Sword Start_with_$_coins Start_with_2_Mental_Health You_can_Dismiss_1_case_per_story Start_with_1.5x_more_coins +1_Mental_Health_and_Dismissal Start_with_10_popularity Start_with_3x_more_coins +2_Mental_Health_and_Dismissals Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6",
+            "new": "Swords_deal_{~}_damage +2_additional_Sword You_can_Re-Throw_5_swords_per_story +1_additional_Sword You_get_1_Retelling_per_story +1_additional_Sword +10_Re-Throws_per_story +1_additional_Sword Start_with_$_coins Start_with_2_Mental_Health You_can_Dismiss_1_case_per_story Start_with_1.5x_more_coins +1_Mental_Health_and_Dismissal Start_with_10_popularity Start_with_3x_more_coins +2_Mental_Health_and_Dismissals Start_with_#_Attempts Get_+2_Attempts_per_Board_Clear 1st_attempt_each_Board_reveals_row Start_with_4_Insta_Matches_per_story +4_additional_Starting_Attempts 4th_attempt_each_Board_reveals_square Get_+1_Attempts_per_Board_Clear +5_additional_Insta_Matches Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6"
+          },
+          {
+            "key": "32",
+            "old": "+{%|Mining|Efficiency }x_Bucket|Fill_Rate }x|Cooking_Speed +{%_EXP|Gain_for|Villagers }x|Gaming_Bits|Gain +{%_Chance|for_Bravery|Opals +{%_DMG|for_all|Characters }x_Bell_Ring|&_Ping_Rate +{%|All_Monument|AFK_Gain }x_Bravery|Bonuses_Multi +{%_Catching|Efficiency }x_Harp|Note_Gain }x_Artifact|Find_Chance +{%_EXP|Gain_for|Villagers }x|All_Summoning|Essence_Gain +{%_Chance|for_Justice|Opals +{%_Class|EXP_Gain +{%_more|daily_Lamp|Wishes +{%|All_Monument|AFK_Gain }x_Justice|Bonuses_Multi Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_3 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6",
+            "new": "+{%|Mining|Efficiency }x_Bucket|Fill_Rate }x|Cooking_Speed +{%_EXP|Gain_for|Villagers }x|Gaming_Bits|Gain +{%_Chance|for_Bravery|Opals +{%_DMG|for_all|Characters }x_Bell_Ring|&_Ping_Rate +{%|All_Monument|AFK_Gain }x_Bravery|Bonuses_Multi +{%_Catching|Efficiency }x_Harp|Note_Gain }x_Artifact|Find_Chance +{%_EXP|Gain_for|Villagers }x|All_Summoning|Essence_Gain +{%_Chance|for_Justice|Opals +{%_Class|EXP_Gain +{%_more|daily_Lamp|Wishes +{%|All_Monument|AFK_Gain }x_Justice|Bonuses_Multi +{%_Choppin|Efficiency }x_Jar|Rupie_Value }x_Jade|Coin_Gain +{%_EXP|Gain_for|Villagers }x|Farming_Crop|Evo_Chance +{%_Chance|for_Wisdom|Opals +{%_Player|Drop_Rate +{%_Gambit|Points +{%|All_Monument|AFK_Gain }x_Wisdom|Bonuses_Multi Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_4 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_5 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6 Monument_6"
+          },
+          {
+            "key": "37",
+            "old": "2 4 10 1 8 2 1 1 50 250 2 4 500 1 5 2 1 300 50 250 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "new": "2 4 10 1 8 2 1 1 50 250 2 4 500 1 5 2 1 300 50 250 2 3 2 1 4 2 100 35 50 250 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+          },
+          {
+            "key": "54",
+            "old": "+{%_VILLAGER|EXP_GAIN +{%_BRAVERY|SWORD_MAX_DMG +{%_BELL_RING|访_PING_RATE +{%_HARP|NOTE_GAIN +{%_DAILY|LAMP_WISHES +{%_BUCKET|FILL_RATE +{%_HARP|STRING_EXP +{%_VILLAGER|EXP_GAIN +{%_HARP|NOTE_GAIN +{%_MULTIKILL|PER_TIER +{%_RUPIE|VALUE +{%_WISDOM|IQ_PTS +{%_JAR|PRODUCE_SPD +{%_GAMBIT|POINTS +{%_RUPIE|VALUE +{%_DROP|RATE",
+            "new": "+{%_VILLAGER|EXP_GAIN +{%_BRAVERY|SWORD_MAX_DMG +{%_BELL_RING|访_PING_RATE +{%_HARP|NOTE_GAIN +{%_DAILY|LAMP_WISHES +{%_BUCKET|FILL_RATE +{%_HARP|STRING_EXP +{%_VILLAGER|EXP_GAIN +{%_HARP|NOTE_GAIN +{%_MULTIKILL|PER_TIER +{%_RUPIE|VALUE +{%_MONUMENT|AFK_RATE +{%_JAR|PRODUCE_SPD +{%_GAMBIT|POINTS +{%_RUPIE|VALUE +{%_DROP|RATE"
+          },
+          {
+            "key": "55",
+            "old": "45TOT 2 10 6 80TOT 11 13 60TOT 30 40TOT 10 1 30TOT 10TOT 18 50TOT",
+            "new": "45TOT 2 10 6 80TOT 11 13 60TOT 30 40TOT 10 5TOT 30TOT 10TOT 18 50TOT"
+          },
+          {
+            "key": "69",
+            "old": "You_only_lose_25%_sediment_when_bar_expanding_instead_of_50%_Also,_+{%_Bucket_Fill_Rate_per_Bar_Expansion Every_layer_destroyed_lowers_the_resources_needed_to_destroy_other_skilling_caverns_by_{% Defeating_the_Golden_Hound_gives_a_}x_score_multi_and_spawns_another_Golden_Hound! Minimum_DMG_is_at_least_{%_of_Max,_and_you_now_skip_trivial_fights! Every_20th_Bell_Ring_gives_a_random_bonus_+{_LVs._Biiig_Ring_baby! All_strings_give_2x_EXP,_and_have_a_1%_chance_of_getting_a_massive_{x_EXP_multi Get_{_more_lamp_wishes_every_day._No,_you_can't_wish_to_change_this! Every_hive_harvested_lowers_the_resources_needed_to_destroy_other_skilling_caverns_by_{% Each_Gloomie_kill_counts_for_}x_more_toward_challenging_the_Monarch Justice_Reward_Multi_goes_up_100%_every_day_for_+14_more_days!_Also,_}x_chance_for_opal_reward! Double_click_to_choose_a_collectible_to_be_most_likely_enchanted!_Also,_}x_Enchantment_Chance! Every_trunk_whittled_lowers_the_resources_needed_to_destroy_other_skilling_caverns_by_{% More_like_Wisdumb!_It_doesn't_even_do_anything_yet! You_get_1_more_daily_attempt_at_the_Gambit_Challenges._Also_+{%_Total_Gambit_Points. There_is_an_extra_+{%_chance_to_get_double_torches_when_picking_them_up!",
+            "new": "You_only_lose_25%_sediment_when_bar_expanding_instead_of_50%_Also,_+{%_Bucket_Fill_Rate_per_Bar_Expansion Every_layer_destroyed_lowers_the_resources_needed_to_destroy_other_skilling_caverns_by_{% Defeating_the_Golden_Hound_gives_a_}x_score_multi_and_spawns_another_Golden_Hound! Minimum_DMG_is_at_least_{%_of_Max,_and_you_now_skip_trivial_fights! Every_20th_Bell_Ring_gives_a_random_bonus_+{_LVs._Biiig_Ring_baby! All_strings_give_2x_EXP,_and_have_a_1%_chance_of_getting_a_massive_{x_EXP_multi Get_{_more_lamp_wishes_every_day._No,_you_can't_wish_to_change_this! Every_hive_harvested_lowers_the_resources_needed_to_destroy_other_skilling_caverns_by_{% Each_Gloomie_kill_counts_for_}x_more_toward_challenging_the_Monarch Justice_Reward_Multi_goes_up_100%_every_day_for_+14_more_days!_Also,_}x_chance_for_opal_reward! Double_click_to_choose_a_collectible_to_be_most_likely_enchanted!_Also,_}x_Enchantment_Chance! Every_trunk_whittled_lowers_the_resources_needed_to_destroy_other_skilling_caverns_by_{% If_you_end_a_round_with_no_instamatches,_you_get_one!_Also,_start_with_{_more_attempts! +{%_Total_Gambit_Points._Also,_50%_chance_to_not_use_up_your_daily_Gambit_attempt_when_starting_a_Gambit! There_is_an_extra_+{%_chance_to_get_double_torches_when_picking_them_up!"
+          },
+          {
+            "key": "70",
+            "old": "10 2 5 3 20 100 1 5 1 50 25 5 0 5 30",
+            "new": "10 2 5 3 20 100 1 5 1 50 25 5 1 5 30"
+          },
+          {
+            "key": "72",
+            "old": [
+              "",
+              ""
+            ],
+            "new": "15 16 17 26 27 28 14 18 25 29 37 39 24 30 8 19 2 13 4 6 5 38 23 35 31 41 36 40 3 7 12 20 1 9 34 42 11 21 22 32 0 10 33 43"
+          }
+        ]
+      },
+      "holesBuildings": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "81",
+            "old": {
+              "name": "Rock_Smart",
+              "x1": 3,
+              "x2": 23,
+              "x3": 10,
+              "x4": "f",
+              "description": "Hmm..._let_me_think_about_this_some_more..._for_now,_I_will_give_you_+20%_Monument_AFK_gain..."
+            },
+            "new": {
+              "name": "Rock_Smart",
+              "x1": 3,
+              "x2": 23,
+              "x3": 10,
+              "x4": "f",
+              "description": "After_much_thought,_this_schematic_has_decided_to_give_+20%_Monument_AFK_gain,_and_+2_Starting_Attempts_for_the_Wisdom_Story_per_POW_10_Wisdom_Monument_Hours."
+            }
+          }
+        ]
+      }
+    },
+    "game-systems": {
+      "achievements": {
+        "achievements": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "374",
+              "old": {
+                "name": "This,_is,_Summoning!",
+                "rawName": "TaskAchF25",
+                "quantity": 1,
+                "desc": "Survive_for_200_seconds_in_The_Gambit_cavern,_which_isn't_out_yet.",
+                "rewards": [
+                  "1.05x_All_Essence_Gain"
+                ],
+                "misc": "0",
+                "visualIndex": 14,
+                "steamExclusive": false
+              },
+              "new": {
+                "name": "This,_is,_Summoning!",
+                "rawName": "TaskAchF25",
+                "quantity": 1,
+                "desc": "Survive_for_5_minutes_in_The_King's_Gambit._Find_this_feature_in_Cavern_14_of_the_Hole_in_world_5.",
+                "rewards": [
+                  "1.05x_All_Essence_Gain"
+                ],
+                "misc": "0",
+                "visualIndex": 14,
+                "steamExclusive": false
+              }
+            }
+          ]
+        }
+      },
+      "quests": {
+        "quests": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "Dog_Bone",
+              "old": {
+                "1": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "Figure_oOOoout_hoOOow_I_died_and_I'll_give_yoOOOoou_a_key_sOooo_yoOooo_can_gooOooo_behind_that_doooOOOor!_@_QUEST:Defeat_Board_Monsters_below_until_you_find_the_3_Bones_then_return",
+                  "NextIndex": 5,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 4,
+                  "QuestName": "Dog_Bone1",
+                  "itemReq": [
+                    {
+                      "rawName": "Quest12",
+                      "name": "Wood_Board_Bone",
+                      "amount": 3
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key1",
+                      "name": "Forest_Villa_Key",
+                      "amount": 6
+                    }
+                  ],
+                  "Difficulty": "2",
+                  "Name": "Why_he_Die???"
+                },
+                "2": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "I_know_they're_just_a_pile_of_rocks_somehow_bound_together_by_mystic_world_8_energy_but..._could_you_just_rough_'em_up_a_bit?_@_QUEST:Bring_some_stones_back_from_Amarok_to_show_to_Dog_Bone_as_a_token_of_his_revenge.",
+                  "NextIndex": 16,
+                  "ConsumeItems": "!1",
+                  "InventorySpacesNeeded": 2,
+                  "NoSpaceIndex": 15,
+                  "QuestName": "Dog_Bone2",
+                  "itemReq": [
+                    {
+                      "rawName": "Quest17",
+                      "name": "Amarok_Slab",
+                      "amount": 25
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "NPCtoken13",
+                      "name": "Dog_Bone_Token",
+                      "amount": 1
+                    },
+                    {
+                      "rawName": "Key1",
+                      "name": "Forest_Villa_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "Difficulty": "3",
+                  "Name": "Bow_Wow_going_Dow..n!"
+                }
+              },
+              "new": {
+                "1": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "DoOoo_this_and_I_will_give_yOooo_a_boOOooss_Key!!_@_QUEST:Defeat_Wooden_Boards_below_and_collect_3_Bones_then_return_here!",
+                  "NextIndex": 5,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 4,
+                  "QuestName": "Dog_Bone1",
+                  "itemReq": [
+                    {
+                      "rawName": "Quest12",
+                      "name": "Wood_Board_Bone",
+                      "amount": 3
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key1",
+                      "name": "Forest_Villa_Key",
+                      "amount": 6
+                    }
+                  ],
+                  "Difficulty": "2",
+                  "Name": "Why_he_Die???"
+                },
+                "2": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "I_know_they're_just_a_pile_of_rocks_somehow_bound_together_by_mystic_world_8_energy_but..._could_you_just_rough_'em_up_a_bit?_@_QUEST:Bring_back_25_amarok_stones_from_defeating_amarok.",
+                  "NextIndex": 16,
+                  "ConsumeItems": "!1",
+                  "InventorySpacesNeeded": 2,
+                  "NoSpaceIndex": 15,
+                  "QuestName": "Dog_Bone2",
+                  "itemReq": [
+                    {
+                      "rawName": "Quest17",
+                      "name": "Amarok_Slab",
+                      "amount": 25
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "NPCtoken13",
+                      "name": "Dog_Bone_Token",
+                      "amount": 1
+                    },
+                    {
+                      "rawName": "Key1",
+                      "name": "Forest_Villa_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "Difficulty": "3",
+                  "Name": "Bow_Wow_going_Dow..n!"
+                }
+              }
+            },
+            {
+              "key": "Djonnut",
+              "old": {
+                "1": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "I_will_give_you_boss_keys_then!_Just_do_my_quest_first!_@_QUEST:Collect_various_monster_drops_from_Snelbies_Sand_Giants_and_Moonmoons!",
+                  "NextIndex": 4,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 3,
+                  "QuestName": "Djonnut1",
+                  "itemReq": [
+                    {
+                      "rawName": "DesertC4",
+                      "name": "Shrapshell",
+                      "amount": 100
+                    },
+                    {
+                      "rawName": "DesertC3",
+                      "name": "Singlecle",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "DesertC2",
+                      "name": "Wakka_Cherry",
+                      "amount": 5
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "Genie_Dieting"
+                },
+                "2": {
+                  "Type": "Custom",
+                  "DialogueText": "Do_this_for_me_and_I_will_giv_you_keys_EVERY_DAY!_@_QUEST:Defeat_Moonmen_and_retrieve_the_rare_ghost_drop!_It's_a_1_in_2000_chance_per_kill!",
+                  "NextIndex": 7,
+                  "CustomType": "Djonnut2",
+                  "ConsumeItems": "!1",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 6,
+                  "QuestName": "Djonnut2",
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "customArray": [
+                    {
+                      "desc": "Moonmen_Defeated:",
+                      "value": 4000
+                    },
+                    {
+                      "desc": "Ghosts_Collected:",
+                      "value": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "I'm_Blue_Dabadedada"
+                },
+                "3": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "How_I_would_love_to_see_this_blue_world._I_would_of_be_so_happy_but_no_I_must_remain_here._Please_player_please_help_me_see_the_blue_world!_@_QUEST:He's_blue_get_him_blue_stuff_from_world_3_nuff_said.",
+                  "NextIndex": 15,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 2,
+                  "NoSpaceIndex": 14,
+                  "QuestName": "Djonnut3",
+                  "itemReq": [
+                    {
+                      "rawName": "SnowA2",
+                      "name": "Melty_Cube",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB1",
+                      "name": "Sticky_Stick",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB2",
+                      "name": "Mamooth_Tusk",
+                      "amount": 2500
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "NPCtoken25",
+                      "name": "Djonnut_Token",
+                      "amount": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "The_Blue_New_World"
+                }
+              },
+              "new": {
+                "1": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "I_will_give_you_boss_keys_just_do_this_first!_@_QUEST:Collect_100_Snelbie_shells_5_Sand_Giant_Monocles_and_5_Cherries_from_Moonmoons!",
+                  "NextIndex": 4,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 3,
+                  "QuestName": "Djonnut1",
+                  "itemReq": [
+                    {
+                      "rawName": "DesertC4",
+                      "name": "Shrapshell",
+                      "amount": 100
+                    },
+                    {
+                      "rawName": "DesertC3",
+                      "name": "Singlecle",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "DesertC2",
+                      "name": "Wakka_Cherry",
+                      "amount": 5
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "Genie_Dieting"
+                },
+                "2": {
+                  "Type": "Custom",
+                  "DialogueText": "Do_this_for_me_and_I_will_giv_you_keys_EVERY_DAY!_@_QUEST:Defeat_4000_Moonmen_and_get_one_of_their_rare_ghost_drop!_It's_a_1_in_2000_chance_per_kill!",
+                  "NextIndex": 7,
+                  "CustomType": "Djonnut2",
+                  "ConsumeItems": "!1",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 6,
+                  "QuestName": "Djonnut2",
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "customArray": [
+                    {
+                      "desc": "Moonmen_Defeated:",
+                      "value": 4000
+                    },
+                    {
+                      "desc": "Ghosts_Collected:",
+                      "value": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "I'm_Blue_Dabadedada"
+                },
+                "3": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "How_I_would_love_to_see_this_blue_world._I_would_of_be_so_happy_but_no_I_must_remain_here._Please_player_please_help_me_see_the_blue_world!_@_QUEST:He's_blue_get_him_blue_stuff_from_world_3_nuff_said.",
+                  "NextIndex": 15,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 2,
+                  "NoSpaceIndex": 14,
+                  "QuestName": "Djonnut3",
+                  "itemReq": [
+                    {
+                      "rawName": "SnowA2",
+                      "name": "Melty_Cube",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB1",
+                      "name": "Sticky_Stick",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB2",
+                      "name": "Mamooth_Tusk",
+                      "amount": 2500
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "NPCtoken25",
+                      "name": "Djonnut_Token",
+                      "amount": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "The_Blue_New_World"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

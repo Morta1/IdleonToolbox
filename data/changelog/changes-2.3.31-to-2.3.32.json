@@ -1,0 +1,5125 @@
+{
+  "metadata": {
+    "oldVersion": "2.3.31",
+    "newVersion": "2.3.32",
+    "timestamp": "2025-05-30T19:02:29.188Z",
+    "changedCategories": [
+      "misc",
+      "world-5",
+      "world-6",
+      "game-systems"
+    ]
+  },
+  "changes": {
+    "misc": {
+      "bonuses": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "etcBonuses",
+            "old": {
+              "1": "%_MOVEMENT_SPEED",
+              "2": "%_DROP_CHANCE",
+              "3": "%_MONEY",
+              "4": "%_XP_FROM_MONSTERS",
+              "5": "%_BOSS_DAMAGE",
+              "6": "%_MULTI-LOG_CHANCE",
+              "7": "%_DEFENCE",
+              "8": "%_GOLD_FOOD_EFFECT",
+              "9": "%_FOOD_EFFECT",
+              "10": "%_MINING_EFFICINCY",
+              "11": "%_CHOP_EFFICIENCY",
+              "12": "_YELLOW_DEPTH",
+              "13": "_RED_DEPTH",
+              "14": "_PURPLE_DEPTH",
+              "15": "%_MAX_HP",
+              "16": "_BASE_DAMAGE",
+              "17": "%_LUK",
+              "18": "%_CATCH_EFFICINCY",
+              "19": "%_FISHIN_EFFICINCY",
+              "20": "%_FIGHT_AFK_GAIN",
+              "21": "%_MASTERY",
+              "22": "%_CRIT_DAMAGE",
+              "23": "%_CRIT_CHANCE",
+              "24": "%_SKILL_AFK_GAIN",
+              "25": "%_AGI",
+              "26": "%_CARD_DROP_CHANCE",
+              "27": "%_SKILL_EXP",
+              "28": "_ACCURACY",
+              "29": "%_MULTIKILL",
+              "30": "%_BUILD_SPD",
+              "31": "%_CRIT_CHANCE_",
+              "32": "%_TOTAL_DAMAGE_",
+              "33": "%_BOSS_DAMAGE_",
+              "34": "%_MASTERY_",
+              "35": "%_CRIT_DMG_",
+              "36": "%_MOVE_SPEED_",
+              "37": "%_TOTAL_HP_",
+              "38": "%_TOTAL_MP_",
+              "39": "%_BLOCK_CHANCE",
+              "40": "%_CASH_FROM_MOBS",
+              "41": "%_DROP_CHANCE",
+              "42": "%_RNG_ITEM_LUCK",
+              "45": "%_TOTAL_DAMAGE",
+              "46": "%_ALL_STATS",
+              "47": "%_MOB_RESPAWN",
+              "48": "%_SKILL_EFFICIENCY",
+              "49": "%_FISHING_XP_GAIN",
+              "50": "_BASE_DEFENCE",
+              "51": "_STR",
+              "52": "_AGI",
+              "53": "_WIS",
+              "54": "_LUK",
+              "55": "%_MINING_XP_GAIN",
+              "56": "%_BASIC_ATK_SPEED",
+              "57": "%_STR",
+              "58": "%_WIS",
+              "59": "%_ALL_AFK_GAIN",
+              "60": "%_SAMPLE_SIZE",
+              "61": "%_ALL_SKILL_SPEED",
+              "62": "_COOKING_EFFICNCY",
+              "63": "_LAB_EFFICIENCY",
+              "64": "%_FISH_AFK_GAIN",
+              "65": "%_LAB_EXP",
+              "66": "%_LAB_EFFICIENCY",
+              "67": "%_COOKING_EFFICNCY",
+              "68": "%_KILLS_IN_WORLD_3",
+              "69": "%_KILLS_IN_WORLD_4",
+              "70": "%_KILLS_IN_WORLD_2",
+              "71": "%_MULTIKILL_PER_TIER",
+              "72": "%_DAMAGE_MULTI",
+              "73": "%_KILLS_IN_WORLD_5",
+              "74": "%_DIVINITY_EXP",
+              "75": "%_DAMAGE_BONUS",
+              "76": "%_EXTRA_BONES",
+              "77": "%_BONUS_MONEY"
+            },
+            "new": {
+              "1": "%_MOVEMENT_SPEED",
+              "2": "%_DROP_CHANCE",
+              "3": "%_MONEY",
+              "4": "%_XP_FROM_MONSTERS",
+              "5": "%_BOSS_DAMAGE",
+              "6": "%_MULTI-LOG_CHANCE",
+              "7": "%_DEFENCE",
+              "8": "%_GOLD_FOOD_EFFECT",
+              "9": "%_FOOD_EFFECT",
+              "10": "%_MINING_EFFICINCY",
+              "11": "%_CHOP_EFFICIENCY",
+              "12": "_YELLOW_DEPTH",
+              "13": "_RED_DEPTH",
+              "14": "_PURPLE_DEPTH",
+              "15": "%_MAX_HP",
+              "16": "_BASE_DAMAGE",
+              "17": "%_LUK",
+              "18": "%_CATCH_EFFICINCY",
+              "19": "%_FISHIN_EFFICINCY",
+              "20": "%_FIGHT_AFK_GAIN",
+              "21": "%_MASTERY",
+              "22": "%_CRIT_DAMAGE",
+              "23": "%_CRIT_CHANCE",
+              "24": "%_SKILL_AFK_GAIN",
+              "25": "%_AGI",
+              "26": "%_CARD_DROP_CHANCE",
+              "27": "%_SKILL_EXP",
+              "28": "_ACCURACY",
+              "29": "%_MULTIKILL",
+              "30": "%_BUILD_SPD",
+              "31": "%_CRIT_CHANCE_",
+              "32": "%_TOTAL_DAMAGE_",
+              "33": "%_BOSS_DAMAGE_",
+              "34": "%_MASTERY_",
+              "35": "%_CRIT_DMG_",
+              "36": "%_MOVE_SPEED_",
+              "37": "%_TOTAL_HP_",
+              "38": "%_TOTAL_MP_",
+              "39": "%_BLOCK_CHANCE",
+              "40": "%_CASH_FROM_MOBS",
+              "41": "%_DROP_CHANCE",
+              "42": "%_RNG_ITEM_LUCK",
+              "45": "%_TOTAL_DAMAGE",
+              "46": "%_ALL_STATS",
+              "47": "%_MOB_RESPAWN",
+              "48": "%_SKILL_EFFICIENCY",
+              "49": "%_FISHING_XP_GAIN",
+              "50": "_BASE_DEFENCE",
+              "51": "_STR",
+              "52": "_AGI",
+              "53": "_WIS",
+              "54": "_LUK",
+              "55": "%_MINING_XP_GAIN",
+              "56": "%_BASIC_ATK_SPEED",
+              "57": "%_STR",
+              "58": "%_WIS",
+              "59": "%_ALL_AFK_GAIN",
+              "60": "%_SAMPLE_SIZE",
+              "61": "%_ALL_SKILL_SPEED",
+              "62": "_COOKING_EFFICNCY",
+              "63": "_LAB_EFFICIENCY",
+              "64": "%_FISH_AFK_GAIN",
+              "65": "%_LAB_EXP",
+              "66": "%_LAB_EFFICIENCY",
+              "67": "%_COOKING_EFFICNCY",
+              "68": "%_KILLS_IN_WORLD_3",
+              "69": "%_KILLS_IN_WORLD_4",
+              "70": "%_KILLS_IN_WORLD_2",
+              "71": "%_MULTIKILL_PER_TIER",
+              "72": "%_DAMAGE_MULTI",
+              "73": "%_KILLS_IN_WORLD_5",
+              "74": "%_DIVINITY_EXP",
+              "75": "%_DAMAGE_BONUS",
+              "76": "%_EXTRA_BONES",
+              "77": "%_BONUS_MONEY",
+              "78": "%_CLASS_EXP_MULTI"
+            }
+          }
+        ]
+      }
+    },
+    "world-5": {
+      "holesInfo": {
+        "added": [
+          {
+            "key": "71",
+            "value": "1|1|Press_the_star_button_in_a_summoning_upgrade_to_DOUBLE_it!_Get_more_Gambit_Points_to_get_more_doublers!_You_have_$_left,_and_can_reset_them_at_The_Lamp|{_Summoning_Doublers_梦(TAP_ME) 1|1|You_know_how_POW_10_works!_You'll_get_an_opal_at_10_total_score,_then_100,_then_1000,_then_10000,_etc...|1_Opal_per_POW_10_Points_梦 20|0|For_example,_having_a_party_of_4_people_would_give_1.80x_Flurbo_Gain_bonus|+{%_Flurbos_per_party_member_梦 25|1|This_bonus_INCREASES_the_more_Gambit_Points_you_have!|+{%_Resources_from_Caverns_梦 20|0|no|+{%_Upgrade_Stone_Success 25|1|This_bonus_INCREASES_the_more_Gambit_Points_you_have!|}_Essence_Gain_梦 35|0|For_example,_if_you_combined_two_T8_ribbons,_theres_a_35%_chance_for_a_T10_instead_of_T9.|{%_chance_for_2而_ribbon_combine_梦 10|1|This_bonus_INCREASES_the_more_Gambit_Points_you_have!|}_Coins_from_monsters_梦 100|1|This_includes_Owl_Feathers_and_Roo_Fish._Also,_this_bonus_INCREASES_the_more_Gambit_Points_you_have!|}_gains_from_clickers_梦 1|0|Trim_Slot_means_the_gold_Trimmed_Construction_slot,_and_Wiz_means_Wizard_Towers_in_Construction.|+1_Trim_Slot_and_+100_Wiz_Max_LV_梦 1|0|no|2而_extra_Snail_Mail_every_day 25|1|This_bonus_INCREASES_the_more_Gambit_Points_you_have!|}_Ninja_Stealth_梦 1|0|no|2而_Extra_Bones_on_Deathbringer 1|0|no|2而_daily_particle_bubble_upg 1|0|no|World_7_bonus..._what_will_it_be...? 1|0|no|World_7_bonus..._what_will_it_be...? 1|0|no|World_7_bonus..._what_will_it_be...? 1|0|no|World_7_bonus..._what_will_it_be...? 1|0|no|World_8_bonus..._what_will_it_be...?"
+          },
+          {
+            "key": "72",
+            "value": [
+              "",
+              ""
+            ]
+          }
+        ],
+        "removed": [],
+        "modified": [
+          {
+            "key": "23",
+            "old": "316 639 291 372 409 533 264 409 400 600 240 400 390 556 217 382 393 567 180 331 400 580 190 390 334 620 198 390 443 502 286 372 340 640 116 295 390 556 217 382 385 560 227 340 439 507 251 380 390 556 217 382 142 818 164 358 345 614 75 294 0 0 0 0 0 0 0 0 316 639 294 425 390 556 217 382 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0",
+            "new": "316 639 291 372 409 533 264 409 400 600 240 400 390 556 217 382 393 567 180 331 400 580 190 390 334 620 198 390 443 502 286 372 340 640 116 295 390 556 217 382 385 560 185 340 439 507 251 380 390 556 217 382 142 818 164 358 345 614 75 294 0 0 0 0 0 0 0 0 316 639 294 425 390 556 217 382 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+          },
+          {
+            "key": "40",
+            "old": "0 1 58 59 2 12 3 52 15 16 14 26 24 4 57 42 17 56 49 32 27 13 5 18 55 45 43 39 33 37 41 6 28 19 60 25 23 29 53 50 34 40 7 20 46 38 47 48 54 44 61 35 8 21 30 9 62 71 80 69 79 63 85 74 36 64 81 76 70 87 65 78 72 86 66 22 73 82 67 10 75 77 83 11 68 88 84 51 31",
+            "new": "0 1 58 59 2 12 3 52 15 16 14 26 24 4 57 42 17 56 49 32 27 13 5 18 55 45 43 39 33 37 41 6 28 19 60 25 23 29 53 50 34 40 7 20 46 38 47 48 54 44 61 35 8 21 30 9 62 71 80 69 79 63 85 74 81 36 89 64 90 76 70 87 91 65 78 72 86 66 92 22 73 82 67 10 75 77 83 93 11 68 88 84 51 31"
+          },
+          {
+            "key": "67",
+            "old": "ABNORMAL_RUPIE|20|Filler|Rupies_found_are_worth_+{%_more._@_Current_Rupie_Value:$ SAPPHIRE_DROPLET|10|Filler|Jar_production_rate_is_+{%_faster. EFFERVESCENT_DIAMOND|20|Filler|}x_higher_chance_to_find_Opals_in_Tall_Jars. TORTOLE_ROCK|25|Filler|All_rupies_found_are_work_a_whopping_}x_more! NATURAL_PEARL|15|Filler|All_villagers_gain_+{%_more_EXP. AMETHYST_HEARTSTONE|10|Filler|All_skilling_caverns_require_{%_less_Resources_to_get_opals! AMBER_SQUARE|25|Filler|Rupies_found_are_worth_+{%_more. VERDANT_THORNS|25|Filler|}x_higher_chance_to_find_new_Collectibles. VIOLENT_VIOLETS|20|Filler|All_buckets_get_}x_Bucket_Fill_Rate! BLUE_FABERGE_EGG|15|Filler|}x_higher_chance_to_enchant_a_Collectible SHADOW_PRISM|20|Filler|All_villagers_gain_+{%_more_EXP. BIG_BEEF_ROCK|25|Filler|}x_faster_Bell_Ring_Rate! EMERALD_ORE|30|Filler|All_villagers_gain_+{%_more_EXP. DAWN_PRISM|30|Filler|Rupies_found_are_worth_+{%_more. SWAMPSTONE|25|Filler|}x_higher_chance_to_find_Opals_in_Tall_Jars. FROST_SPIRESTONE|12|Filler|Jar_production_rate_is_+{%_faster. ROSEMERALD|10|Filler|}x_Faster_study_rate_for_villager_Bolaia BLOOD_GLASS|40|Filler|All_rupies_found_are_work_a_whopping_}x_more! SUNRISE_DIAMOND|25|Filler|}x_higher_chance_to_enchant_a_Collectible MINCERAFT_GEM|20|Filler|+{%_Monument_AFK_Gain_rate. CRIMSON_SPADE|20|Filler|The_harp_produces_}x_more_Notes! STAINED_GLASSDROP|35|Filler|Rupies_found_are_worth_+{%_more. TABULA_RASASTONE|32|Filler|All_villagers_gain_+{%_more_EXP. DEEP_BLUE_SQUARE|12|Filler|Something_something_Gambit_Cavern. EARTHBOUND_GEODE|15|Filler|Jar_production_rate_is_+{%_faster. INFERNO_DROPLET|40|Filler|}x_higher_chance_to_find_new_Collectibles. OCTOGONAL_GEM|30|Filler|}x_higher_chance_to_enchant_a_Collectible SOLARFANG|32|Filler|}x_higher_chance_to_find_Opals_in_Tall_Jars. MYSTIC_ORE|50|Filler|All_rupies_found_are_work_a_whopping_}x_more! ARCANE_PRISM|38|Filler|All_villagers_gain_+{%_more_EXP. MURKY_FABREGE_EGG|20|Filler|Something_something_Gambit_Cavern. CORPORE_ROCK|1|Filler|Boosts_a_future_cavern..._futuuure..! TWILIGHT_PRISM|1|Filler|Boosts_a_future_cavern..._futuuure..! TEWBALL_ORBSTONE|40|Filler|Rupies_found_are_worth_+{%_more. MAD_MUSCLE_ROCK|40|Filler|}x_higher_chance_to_enchant_a_Collectible SUNROOT_SPLINTERS|40|Filler|All_villagers_gain_+{%_more_EXP. TWISTED_RUPIE|75|Filler|}x_faster_Bell_Ring_Rate! OVERLOADED_RELIC|1|Filler|Boosts_a_future_cavern..._futuuure..! SUNBURST_PEARL|1|Filler|Boosts_a_future_cavern..._futuuure..! BLOODFANG_SPIRES|1|Filler|Boosts_a_future_cavern..._futuuure..!",
+            "new": "ABNORMAL_RUPIE|20|Filler|Rupies_found_are_worth_+{%_more._@_Current_Rupie_Value:$ SAPPHIRE_DROPLET|10|Filler|Jar_production_rate_is_+{%_faster. EFFERVESCENT_DIAMOND|20|Filler|}x_higher_chance_to_find_Opals_in_Tall_Jars. TORTOLE_ROCK|25|Filler|All_rupies_found_are_worth_a_whopping_}x_more! NATURAL_PEARL|15|Filler|All_villagers_gain_+{%_more_EXP. AMETHYST_HEARTSTONE|10|Filler|All_skilling_caverns_require_{%_less_Resources_to_get_opals! AMBER_SQUARE|25|Filler|Rupies_found_are_worth_+{%_more. VERDANT_THORNS|25|Filler|}x_higher_chance_to_find_new_Collectibles. VIOLENT_VIOLETS|20|Filler|All_buckets_get_}x_Bucket_Fill_Rate! BLUE_FABERGE_EGG|15|Filler|}x_higher_chance_to_enchant_a_Collectible SHADOW_PRISM|20|Filler|All_villagers_gain_+{%_more_EXP. BIG_BEEF_ROCK|25|Filler|}x_faster_Bell_Ring_Rate! EMERALD_ORE|30|Filler|All_villagers_gain_+{%_more_EXP. DAWN_PRISM|30|Filler|Rupies_found_are_worth_+{%_more. SWAMPSTONE|25|Filler|}x_higher_chance_to_find_Opals_in_Tall_Jars. FROST_SPIRESTONE|12|Filler|Jar_production_rate_is_+{%_faster. ROSEMERALD|10|Filler|}x_Faster_study_rate_for_villager_Bolaia BLOOD_GLASS|40|Filler|All_rupies_found_are_worth_a_whopping_}x_more! SUNRISE_DIAMOND|25|Filler|}x_higher_chance_to_enchant_a_Collectible MINCERAFT_GEM|20|Filler|+{%_Monument_AFK_Gain_rate. CRIMSON_SPADE|20|Filler|The_harp_produces_}x_more_Notes! STAINED_GLASSDROP|35|Filler|Rupies_found_are_worth_+{%_more. TABULA_RASASTONE|32|Filler|All_villagers_gain_+{%_more_EXP. DEEP_BLUE_SQUARE|12|Filler|Something_something_Gambit_Cavern. EARTHBOUND_GEODE|15|Filler|Jar_production_rate_is_+{%_faster. INFERNO_DROPLET|40|Filler|}x_higher_chance_to_find_new_Collectibles. OCTOGONAL_GEM|30|Filler|}x_higher_chance_to_enchant_a_Collectible SOLARFANG|32|Filler|}x_higher_chance_to_find_Opals_in_Tall_Jars. MYSTIC_ORE|50|Filler|All_rupies_found_are_worth_a_whopping_}x_more! ARCANE_PRISM|38|Filler|All_villagers_gain_+{%_more_EXP. MURKY_FABREGE_EGG|20|Filler|Something_something_Gambit_Cavern. CORPORE_ROCK|1|Filler|Boosts_a_future_cavern..._futuuure..! TWILIGHT_PRISM|1|Filler|Boosts_a_future_cavern..._futuuure..! TEWBALL_ORBSTONE|40|Filler|Rupies_found_are_worth_+{%_more. MAD_MUSCLE_ROCK|40|Filler|}x_higher_chance_to_enchant_a_Collectible SUNROOT_SPLINTERS|40|Filler|All_villagers_gain_+{%_more_EXP. TWISTED_RUPIE|75|Filler|}x_faster_Bell_Ring_Rate! OVERLOADED_RELIC|1|Filler|Boosts_a_future_cavern..._futuuure..! SUNBURST_PEARL|1|Filler|Boosts_a_future_cavern..._futuuure..! BLOODFANG_SPIRES|1|Filler|Boosts_a_future_cavern..._futuuure..!"
+          },
+          {
+            "key": "70",
+            "old": "10 2 5 3 20 100 1 5 1 50 25 5 0 0 30",
+            "new": "10 2 5 3 20 100 1 5 1 50 25 5 0 5 30"
+          }
+        ]
+      },
+      "holesBuildings": {
+        "added": [
+          {
+            "key": "95",
+            "value": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            }
+          },
+          {
+            "key": "96",
+            "value": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            }
+          },
+          {
+            "key": "97",
+            "value": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            }
+          },
+          {
+            "key": "98",
+            "value": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            }
+          },
+          {
+            "key": "99",
+            "value": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            }
+          }
+        ],
+        "removed": [],
+        "modified": [
+          {
+            "key": "89",
+            "old": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            },
+            "new": {
+              "name": "Horsey_Gambit",
+              "x1": 3,
+              "x2": 22,
+              "x3": 10,
+              "x4": "f",
+              "description": "Unlocks_the_Horsey_challenge_in_the_Gambit_cavern."
+            }
+          },
+          {
+            "key": "90",
+            "old": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            },
+            "new": {
+              "name": "Bishop_Gambit",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "Unlocks_the_Bishop_challenge_in_the_Gambit_cavern."
+            }
+          },
+          {
+            "key": "91",
+            "old": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            },
+            "new": {
+              "name": "Queen_Gambit",
+              "x1": 3,
+              "x2": 20,
+              "x3": 10,
+              "x4": "f",
+              "description": "Unlocks_the_Queen_challenge_in_the_Gambit_cavern."
+            }
+          },
+          {
+            "key": "92",
+            "old": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            },
+            "new": {
+              "name": "Castle_Gambit",
+              "x1": 3,
+              "x2": 21,
+              "x3": 10,
+              "x4": "f",
+              "description": "Unlocks_the_Castle_challenge_in_the_Gambit_cavern."
+            }
+          },
+          {
+            "key": "93",
+            "old": {
+              "name": "NameNameName",
+              "x1": 3,
+              "x2": 24,
+              "x3": 10,
+              "x4": "f",
+              "description": "desc"
+            },
+            "new": {
+              "name": "Noob_Gambit",
+              "x1": 3,
+              "x2": 27,
+              "x3": 10,
+              "x4": "f",
+              "description": "Unlocks_the_Noob_challenge_in_the_Gambit_cavern."
+            }
+          }
+        ]
+      }
+    },
+    "world-6": {
+      "summoningEnemies": {
+        "added": [
+          {
+            "key": "100",
+            "value": {
+              "enemyId": "Crystal1",
+              "xOff": 35,
+              "yOff": 42,
+              "width": 20,
+              "territoryName": "King's_Gambit",
+              "bonusId": 19,
+              "bonus": {
+                "bonusId": 19,
+                "bonus": "+{ Library Max"
+              },
+              "bonusQty": 0,
+              "difficulty": 20
+            }
+          },
+          {
+            "key": "101",
+            "value": {
+              "enemyId": "Crystal2",
+              "xOff": 35,
+              "yOff": 35,
+              "width": 15,
+              "territoryName": "Horsey's_Gambit",
+              "bonusId": 20,
+              "bonus": {
+                "bonusId": 20,
+                "bonus": "+{ Stamp LV/day"
+              },
+              "bonusQty": 1,
+              "difficulty": null
+            }
+          },
+          {
+            "key": "102",
+            "value": {
+              "enemyId": "Crystal3",
+              "xOff": 36,
+              "yOff": 38,
+              "width": 20,
+              "territoryName": "Bishop's_Gambit",
+              "bonusId": 21,
+              "bonus": {
+                "bonusId": 21,
+                "bonus": "+{% Villager EXP"
+              },
+              "bonusQty": 3,
+              "difficulty": null
+            }
+          },
+          {
+            "key": "103",
+            "value": {
+              "enemyId": "Crystal4",
+              "xOff": 35,
+              "yOff": 35,
+              "width": 30,
+              "territoryName": "Queen's_Gambit",
+              "bonusId": 22,
+              "bonus": {
+                "bonusId": 22,
+                "bonus": "+{% Ballot Bonus"
+              },
+              "bonusQty": 1,
+              "difficulty": null
+            }
+          },
+          {
+            "key": "104",
+            "value": {
+              "enemyId": "Crystal0",
+              "xOff": 44,
+              "yOff": 44,
+              "width": 22,
+              "territoryName": "Castle's_Gambit",
+              "bonusId": 23,
+              "bonus": {
+                "bonusId": 23,
+                "bonus": "+{% Class EXP"
+              },
+              "bonusQty": 12,
+              "difficulty": null
+            }
+          },
+          {
+            "key": "105",
+            "value": {
+              "enemyId": "Crystal5",
+              "xOff": 30,
+              "yOff": 30,
+              "width": 23,
+              "territoryName": "Noob's_Gambit",
+              "bonusId": 24,
+              "bonus": {
+                "bonusId": 24,
+                "bonus": "+{ Equinox Max LV"
+              },
+              "bonusQty": 1,
+              "difficulty": null
+            }
+          }
+        ],
+        "removed": [],
+        "modified": [
+          {
+            "key": "95",
+            "old": {
+              "enemyId": "rift1",
+              "xOff": 40,
+              "yOff": 37,
+              "width": 24,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Spookers",
+              "bonusId": 20,
+              "bonus": {
+                "bonusId": 20,
+                "bonus": "+{ Stamp LV/day"
+              },
+              "bonusQty": 1,
+              "difficulty": null
+            },
+            "new": {
+              "enemyId": "rift1",
+              "xOff": 40,
+              "yOff": 37,
+              "width": 24,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Spookers",
+              "bonusId": 19,
+              "bonus": {
+                "bonusId": 19,
+                "bonus": "+{ Library Max"
+              },
+              "bonusQty": 0,
+              "difficulty": 20
+            }
+          },
+          {
+            "key": "96",
+            "old": {
+              "enemyId": "rift2",
+              "xOff": 35,
+              "yOff": 59,
+              "width": 18,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Slugs",
+              "bonusId": 21,
+              "bonus": {
+                "bonusId": 21,
+                "bonus": "+{% Villager EXP"
+              },
+              "bonusQty": 3,
+              "difficulty": null
+            },
+            "new": {
+              "enemyId": "rift2",
+              "xOff": 35,
+              "yOff": 59,
+              "width": 18,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Slugs",
+              "bonusId": 19,
+              "bonus": {
+                "bonusId": 19,
+                "bonus": "+{ Library Max"
+              },
+              "bonusQty": 0,
+              "difficulty": 20
+            }
+          },
+          {
+            "key": "97",
+            "old": {
+              "enemyId": "rift3",
+              "xOff": 48,
+              "yOff": 34,
+              "width": 28,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Jocunds",
+              "bonusId": 22,
+              "bonus": {
+                "bonusId": 22,
+                "bonus": "+{% Ballot Bonus"
+              },
+              "bonusQty": 1,
+              "difficulty": null
+            },
+            "new": {
+              "enemyId": "rift3",
+              "xOff": 48,
+              "yOff": 34,
+              "width": 28,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Jocunds",
+              "bonusId": 19,
+              "bonus": {
+                "bonusId": 19,
+                "bonus": "+{ Library Max"
+              },
+              "bonusQty": 0,
+              "difficulty": 20
+            }
+          },
+          {
+            "key": "98",
+            "old": {
+              "enemyId": "rift4",
+              "xOff": 36,
+              "yOff": 37,
+              "width": 22,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Hiveminds",
+              "bonusId": 23,
+              "bonus": {
+                "bonusId": 23,
+                "bonus": "+{% Class EXP"
+              },
+              "bonusQty": 12,
+              "difficulty": null
+            },
+            "new": {
+              "enemyId": "rift4",
+              "xOff": 36,
+              "yOff": 37,
+              "width": 22,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Hiveminds",
+              "bonusId": 19,
+              "bonus": {
+                "bonusId": 19,
+                "bonus": "+{ Library Max"
+              },
+              "bonusQty": 0,
+              "difficulty": 20
+            }
+          },
+          {
+            "key": "99",
+            "old": {
+              "enemyId": "rift5",
+              "xOff": 54,
+              "yOff": 39,
+              "width": 32,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Stalkers",
+              "bonusId": 24,
+              "bonus": {
+                "bonusId": 24,
+                "bonus": "+{ Equinox Max LV"
+              },
+              "bonusQty": 1,
+              "difficulty": null
+            },
+            "new": {
+              "enemyId": "rift5",
+              "xOff": 54,
+              "yOff": 39,
+              "width": 32,
+              "territoryName": "ENIGMA_INFINITE_and_their_Rift_Stalkers",
+              "bonusId": 19,
+              "bonus": {
+                "bonusId": 19,
+                "bonus": "+{ Library Max"
+              },
+              "bonusQty": 0,
+              "difficulty": 20
+            }
+          }
+        ]
+      },
+      "summoningUpgrades": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "0",
+            "old": {
+              "screenX": 427,
+              "screenY": 171,
+              "colour": 0,
+              "name": "White_Essence_Champ",
+              "cost": 10,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": -1,
+              "filler": "filler",
+              "bonus": "+{%_White_Essence_generated_per_hour_for_each_win_across_all_colours._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 427,
+              "screenY": 171,
+              "colour": 0,
+              "name": "White_Essence_Champ",
+              "cost": 10,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": -1,
+              "filler": "1",
+              "bonus": "+{%_White_Essence_generated_per_hour_for_each_win_across_all_colours._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "1",
+            "old": {
+              "screenX": 374,
+              "screenY": 158,
+              "colour": 0,
+              "name": "Unit_Health",
+              "cost": 10,
+              "costExponent": 1.3,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 0,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 374,
+              "screenY": 158,
+              "colour": 0,
+              "name": "Unit_Health",
+              "cost": 10,
+              "costExponent": 1.3,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 0,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "2",
+            "old": {
+              "screenX": 479,
+              "screenY": 145,
+              "colour": 0,
+              "name": "Familiar",
+              "cost": 100,
+              "costExponent": 10,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 0,
+              "filler": "filler",
+              "bonus": "Summons_a_slime_familiar_to_chill_in_your_sanctuary,_generating_10_Summoning_EXP_every_hour._@_Cost_resets_in_|"
+            },
+            "new": {
+              "screenX": 479,
+              "screenY": 145,
+              "colour": 0,
+              "name": "Familiar",
+              "cost": 100,
+              "costExponent": 10,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 0,
+              "filler": "0",
+              "bonus": "Summons_a_slime_familiar_to_chill_in_your_sanctuary,_generating_10_Summoning_EXP_every_hour._@_Cost_resets_in_|"
+            }
+          },
+          {
+            "key": "3",
+            "old": {
+              "screenX": 391,
+              "screenY": 113,
+              "colour": 0,
+              "name": "Unit_Damage",
+              "cost": 20,
+              "costExponent": 1.35,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 1,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 391,
+              "screenY": 113,
+              "colour": 0,
+              "name": "Unit_Damage",
+              "cost": 20,
+              "costExponent": 1.35,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 1,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "4",
+            "old": {
+              "screenX": 389,
+              "screenY": 59,
+              "colour": 0,
+              "name": "Green_Summoning",
+              "cost": 4000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 3,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Green_Summoning_Stone,_and_begins_generating_Green_Essence._@_Also,_+{%_Green_Essence_per_hour"
+            },
+            "new": {
+              "screenX": 389,
+              "screenY": 59,
+              "colour": 0,
+              "name": "Green_Summoning",
+              "cost": 4000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 3,
+              "filler": "1",
+              "bonus": "Unlocks_the_Green_Summoning_Stone,_and_begins_generating_Green_Essence._@_Also,_+{%_Green_Essence_per_hour"
+            }
+          },
+          {
+            "key": "5",
+            "old": {
+              "screenX": 449,
+              "screenY": 80,
+              "colour": 0,
+              "name": "Mana_Generation",
+              "cost": 40,
+              "costExponent": 1.35,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 3,
+              "filler": "filler",
+              "bonus": "During_competition,_mana_generation_is_+{%_higher_than_normal."
+            },
+            "new": {
+              "screenX": 449,
+              "screenY": 80,
+              "colour": 0,
+              "name": "Mana_Generation",
+              "cost": 40,
+              "costExponent": 1.35,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 3,
+              "filler": "1",
+              "bonus": "During_competition,_mana_generation_is_+{%_higher_than_normal."
+            }
+          },
+          {
+            "key": "6",
+            "old": {
+              "screenX": 536,
+              "screenY": 126,
+              "colour": 0,
+              "name": "Familiar_Merging",
+              "cost": 2500,
+              "costExponent": 1.2,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 9,
+              "filler": "filler",
+              "bonus": "3_Slime_Familiars_merge_into_a_Vrumbi_Familiar_which_gives_4x_Summoning_Exp._4_Vrumbies_then_merge_and_give_5x_exp._This_repeats_many_times."
+            },
+            "new": {
+              "screenX": 536,
+              "screenY": 126,
+              "colour": 0,
+              "name": "Familiar_Merging",
+              "cost": 2500,
+              "costExponent": 1.2,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 9,
+              "filler": "0",
+              "bonus": "3_Slime_Familiars_merge_into_a_Vrumbi_Familiar_which_gives_4x_Summoning_Exp._4_Vrumbies_then_merge_and_give_5x_exp._This_repeats_many_times."
+            }
+          },
+          {
+            "key": "7",
+            "old": {
+              "screenX": 499,
+              "screenY": 58,
+              "colour": 0,
+              "name": "Dodge_Roll",
+              "cost": 80,
+              "costExponent": 1.3,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 5,
+              "filler": "filler",
+              "bonus": "All_your_units_get_a_+{%_chance_to_dodge_damage_when_colliding_with_an_enemy"
+            },
+            "new": {
+              "screenX": 499,
+              "screenY": 58,
+              "colour": 0,
+              "name": "Dodge_Roll",
+              "cost": 80,
+              "costExponent": 1.3,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 5,
+              "filler": "0",
+              "bonus": "All_your_units_get_a_+{%_chance_to_dodge_damage_when_colliding_with_an_enemy"
+            }
+          },
+          {
+            "key": "8",
+            "old": {
+              "screenX": 554,
+              "screenY": 66,
+              "colour": 0,
+              "name": "Multi-Number_Cards",
+              "cost": 7500,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 7,
+              "filler": "filler",
+              "bonus": "There's_a_chance_cards_can_played_multiple_times,_indicated_by_the_number_in_the_top-left_corner._These_cards_also_come_with_a_smaller_cost!"
+            },
+            "new": {
+              "screenX": 554,
+              "screenY": 66,
+              "colour": 0,
+              "name": "Multi-Number_Cards",
+              "cost": 7500,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 7,
+              "filler": "0",
+              "bonus": "There's_a_chance_cards_can_played_multiple_times,_indicated_by_the_number_in_the_top-left_corner._These_cards_also_come_with_a_smaller_cost!"
+            }
+          },
+          {
+            "key": "9",
+            "old": {
+              "screenX": 356,
+              "screenY": 226,
+              "colour": 1,
+              "name": "Vrumbi",
+              "cost": 10,
+              "costExponent": 7.5,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 4,
+              "filler": "filler",
+              "bonus": "7%_chance_to_draw_a_Vrumbi_during_competition._They_have_1.5x_SPD,_2.0x_DMG,_and_+{%_Dodge_Chance"
+            },
+            "new": {
+              "screenX": 356,
+              "screenY": 226,
+              "colour": 1,
+              "name": "Vrumbi",
+              "cost": 10,
+              "costExponent": 7.5,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 4,
+              "filler": "0",
+              "bonus": "7%_chance_to_draw_a_Vrumbi_during_competition._They_have_1.5x_SPD,_2.0x_DMG,_and_+{%_Dodge_Chance"
+            }
+          },
+          {
+            "key": "10",
+            "old": {
+              "screenX": 301,
+              "screenY": 209,
+              "colour": 1,
+              "name": "Unit_Wellness",
+              "cost": 25,
+              "costExponent": 1.3,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 9,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 301,
+              "screenY": 209,
+              "colour": 1,
+              "name": "Unit_Wellness",
+              "cost": 25,
+              "costExponent": 1.3,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 9,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "11",
+            "old": {
+              "screenX": 306,
+              "screenY": 154,
+              "colour": 1,
+              "name": "Green_Essence_Victor",
+              "cost": 50,
+              "costExponent": 1.12,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 10,
+              "filler": "filler",
+              "bonus": "+{%_Green_Essence_generated_per_hour_for_each_Green_circuit_win._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 306,
+              "screenY": 154,
+              "colour": 1,
+              "name": "Green_Essence_Victor",
+              "cost": 50,
+              "costExponent": 1.12,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 10,
+              "filler": "1",
+              "bonus": "+{%_Green_Essence_generated_per_hour_for_each_Green_circuit_win._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "12",
+            "old": {
+              "screenX": 252,
+              "screenY": 137,
+              "colour": 1,
+              "name": "Powerful_Units",
+              "cost": 70,
+              "costExponent": 1.35,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 11,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 252,
+              "screenY": 137,
+              "colour": 1,
+              "name": "Powerful_Units",
+              "cost": 70,
+              "costExponent": 1.35,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 11,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "13",
+            "old": {
+              "screenX": 274,
+              "screenY": 86,
+              "colour": 1,
+              "name": "Yellow_Summoning",
+              "cost": 15000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 12,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Yellow_Summoning_Stone,_and_begins_generating_Yellow_Essence._@_Also,_+{%_Yellow_Essence_per_hour"
+            },
+            "new": {
+              "screenX": 274,
+              "screenY": 86,
+              "colour": 1,
+              "name": "Yellow_Summoning",
+              "cost": 15000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 12,
+              "filler": "1",
+              "bonus": "Unlocks_the_Yellow_Summoning_Stone,_and_begins_generating_Yellow_Essence._@_Also,_+{%_Yellow_Essence_per_hour"
+            }
+          },
+          {
+            "key": "14",
+            "old": {
+              "screenX": 200,
+              "screenY": 152,
+              "colour": 1,
+              "name": "Mana_Overflow",
+              "cost": 4000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 12,
+              "filler": "filler",
+              "bonus": "During_competition,_when_your_mana_pool_is_full,_expand_max_mana_by_1.5x_and_boost_mana_generation_by_+15%"
+            },
+            "new": {
+              "screenX": 200,
+              "screenY": 152,
+              "colour": 1,
+              "name": "Mana_Overflow",
+              "cost": 4000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 12,
+              "filler": "0",
+              "bonus": "During_competition,_when_your_mana_pool_is_full,_expand_max_mana_by_1.5x_and_boost_mana_generation_by_+15%"
+            }
+          },
+          {
+            "key": "15",
+            "old": {
+              "screenX": 215,
+              "screenY": 94,
+              "colour": 1,
+              "name": "Spiked_Placement",
+              "cost": 250,
+              "costExponent": 1.4,
+              "bonusQty": 4,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 12,
+              "filler": "filler",
+              "bonus": "When_summoning_any_unit,_deal_{_damage_to_all_enemies_within_100_pixels_of_where_you_click..._You_don't_have_to_click_in_your_spawn!"
+            },
+            "new": {
+              "screenX": 215,
+              "screenY": 94,
+              "colour": 1,
+              "name": "Spiked_Placement",
+              "cost": 250,
+              "costExponent": 1.4,
+              "bonusQty": 4,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 12,
+              "filler": "1",
+              "bonus": "When_summoning_any_unit,_deal_{_damage_to_all_enemies_within_100_pixels_of_where_you_click..._You_don't_have_to_click_in_your_spawn!"
+            }
+          },
+          {
+            "key": "16",
+            "old": {
+              "screenX": 169,
+              "screenY": 62,
+              "colour": 1,
+              "name": "Starting_Mana_frfr",
+              "cost": 750,
+              "costExponent": 1.6,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 15,
+              "filler": "filler",
+              "bonus": "Start_each_competition_with_+{_more_mana"
+            },
+            "new": {
+              "screenX": 169,
+              "screenY": 62,
+              "colour": 1,
+              "name": "Starting_Mana_frfr",
+              "cost": 750,
+              "costExponent": 1.6,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 15,
+              "filler": "1",
+              "bonus": "Start_each_competition_with_+{_more_mana"
+            }
+          },
+          {
+            "key": "17",
+            "old": {
+              "screenX": 509,
+              "screenY": 201,
+              "colour": 2,
+              "name": "Bloomy",
+              "cost": 20,
+              "costExponent": 25,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 13,
+              "filler": "filler",
+              "bonus": "4%_chance_to_draw_a_Bloomy_during_competition._They_sit_in_the_backline_and_give_+{%_Mana_Generation_while_alive."
+            },
+            "new": {
+              "screenX": 509,
+              "screenY": 201,
+              "colour": 2,
+              "name": "Bloomy",
+              "cost": 20,
+              "costExponent": 25,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 13,
+              "filler": "0",
+              "bonus": "4%_chance_to_draw_a_Bloomy_during_competition._They_sit_in_the_backline_and_give_+{%_Mana_Generation_while_alive."
+            }
+          },
+          {
+            "key": "18",
+            "old": {
+              "screenX": 566,
+              "screenY": 188,
+              "colour": 2,
+              "name": "Yellow_Essence_Winnin'",
+              "cost": 50,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 17,
+              "filler": "filler",
+              "bonus": "+{%_Yellow_Essence_generated_per_hour_for_each_Yellow_circuit_win._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 566,
+              "screenY": 188,
+              "colour": 2,
+              "name": "Yellow_Essence_Winnin'",
+              "cost": 50,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 17,
+              "filler": "1",
+              "bonus": "+{%_Yellow_Essence_generated_per_hour_for_each_Yellow_circuit_win._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "19",
+            "old": {
+              "screenX": 622,
+              "screenY": 159,
+              "colour": 2,
+              "name": "Luck_of_the_Draw",
+              "cost": 130,
+              "costExponent": 3,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 18,
+              "filler": "filler",
+              "bonus": "All_special_units_are_>x_more_likely_to_be_drawn_instead_of_slime."
+            },
+            "new": {
+              "screenX": 622,
+              "screenY": 159,
+              "colour": 2,
+              "name": "Luck_of_the_Draw",
+              "cost": 130,
+              "costExponent": 3,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 18,
+              "filler": "0",
+              "bonus": "All_special_units_are_>x_more_likely_to_be_drawn_instead_of_slime."
+            }
+          },
+          {
+            "key": "20",
+            "old": {
+              "screenX": 607,
+              "screenY": 106,
+              "colour": 2,
+              "name": "Unit_Constitution",
+              "cost": 250,
+              "costExponent": 1.3,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 19,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{%"
+            },
+            "new": {
+              "screenX": 607,
+              "screenY": 106,
+              "colour": 2,
+              "name": "Unit_Constitution",
+              "cost": 250,
+              "costExponent": 1.3,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 19,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{%"
+            }
+          },
+          {
+            "key": "21",
+            "old": {
+              "screenX": 661,
+              "screenY": 70,
+              "colour": 2,
+              "name": "Stronger_Units",
+              "cost": 525,
+              "costExponent": 1.35,
+              "bonusQty": 4,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 20,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 661,
+              "screenY": 70,
+              "colour": 2,
+              "name": "Stronger_Units",
+              "cost": 525,
+              "costExponent": 1.35,
+              "bonusQty": 4,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 20,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "22",
+            "old": {
+              "screenX": 714,
+              "screenY": 89,
+              "colour": 2,
+              "name": "Slime_Cellsplit",
+              "cost": 900,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 21,
+              "filler": "filler",
+              "bonus": "When_spawning_any_unit_during_competition,_+{%_chance_to_also_spawn_an_exact_duplicate,_free_of_charge!"
+            },
+            "new": {
+              "screenX": 714,
+              "screenY": 89,
+              "colour": 2,
+              "name": "Slime_Cellsplit",
+              "cost": 900,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 21,
+              "filler": "0",
+              "bonus": "When_spawning_any_unit_during_competition,_+{%_chance_to_also_spawn_an_exact_duplicate,_free_of_charge!"
+            }
+          },
+          {
+            "key": "23",
+            "old": {
+              "screenX": 747,
+              "screenY": 137,
+              "colour": 2,
+              "name": "Blue_Summoning",
+              "cost": 50000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 22,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Blue_Summoning_Stone,_and_begins_generating_Blue_Essence._@_Also,_+{%_Blue_Essence_per_hour"
+            },
+            "new": {
+              "screenX": 747,
+              "screenY": 137,
+              "colour": 2,
+              "name": "Blue_Summoning",
+              "cost": 50000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 22,
+              "filler": "1",
+              "bonus": "Unlocks_the_Blue_Summoning_Stone,_and_begins_generating_Blue_Essence._@_Also,_+{%_Blue_Essence_per_hour"
+            }
+          },
+          {
+            "key": "24",
+            "old": {
+              "screenX": 769,
+              "screenY": 78,
+              "colour": 2,
+              "name": "Re-Draw",
+              "cost": 2000,
+              "costExponent": 5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 3,
+              "idReq": 22,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Re-Draw_button,_allowing_you_to_instantly_redraw_all_your_cards_for_a_cost..._but_you_get_the_first_{_for_free!"
+            },
+            "new": {
+              "screenX": 769,
+              "screenY": 78,
+              "colour": 2,
+              "name": "Re-Draw",
+              "cost": 2000,
+              "costExponent": 5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 3,
+              "idReq": 22,
+              "filler": "1",
+              "bonus": "Unlocks_the_Re-Draw_button,_allowing_you_to_instantly_redraw_all_your_cards_for_a_cost..._but_you_get_the_first_{_for_free!"
+            }
+          },
+          {
+            "key": "25",
+            "old": {
+              "screenX": 826,
+              "screenY": 88,
+              "colour": 2,
+              "name": "Another_Slot",
+              "cost": 10000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 24,
+              "filler": "filler",
+              "bonus": "Adds_+1_Card_Slot,_letting_you_hold_more_cards_at_once!"
+            },
+            "new": {
+              "screenX": 826,
+              "screenY": 88,
+              "colour": 2,
+              "name": "Another_Slot",
+              "cost": 10000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 24,
+              "filler": "0",
+              "bonus": "Adds_+1_Card_Slot,_letting_you_hold_more_cards_at_once!"
+            }
+          },
+          {
+            "key": "26",
+            "old": {
+              "screenX": 367,
+              "screenY": 295,
+              "colour": 3,
+              "name": "Tonka",
+              "cost": 30,
+              "costExponent": 1.85,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 20,
+              "idReq": 23,
+              "filler": "filler",
+              "bonus": "5%_chance_to_draw_a_Tonka_during_competition._They_have_0.75x_SPD,_0.75x_DMG,_and_8.0x_HP._Your_upgrades_here_boost_its_HP_by_a_further_+{%."
+            },
+            "new": {
+              "screenX": 367,
+              "screenY": 295,
+              "colour": 3,
+              "name": "Tonka",
+              "cost": 30,
+              "costExponent": 1.85,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 20,
+              "idReq": 23,
+              "filler": "0",
+              "bonus": "5%_chance_to_draw_a_Tonka_during_competition._They_have_0.75x_SPD,_0.75x_DMG,_and_8.0x_HP._Your_upgrades_here_boost_its_HP_by_a_further_+{%."
+            }
+          },
+          {
+            "key": "27",
+            "old": {
+              "screenX": 312,
+              "screenY": 285,
+              "colour": 3,
+              "name": "Blue_Essence_Ballin'",
+              "cost": 70,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 26,
+              "filler": "filler",
+              "bonus": "+{%_Blue_Essence_generated_per_hour_for_each_Blue_circuit_win._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 312,
+              "screenY": 285,
+              "colour": 3,
+              "name": "Blue_Essence_Ballin'",
+              "cost": 70,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 26,
+              "filler": "1",
+              "bonus": "+{%_Blue_Essence_generated_per_hour_for_each_Blue_circuit_win._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "28",
+            "old": {
+              "screenX": 258,
+              "screenY": 300,
+              "colour": 3,
+              "name": "Slime_Mitosis",
+              "cost": 200,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 27,
+              "filler": "filler",
+              "bonus": "When_spawning_any_unit_during_competition,_+{%_chance_to_also_spawn_an_exact_duplicate,_free_of_charge!"
+            },
+            "new": {
+              "screenX": 258,
+              "screenY": 300,
+              "colour": 3,
+              "name": "Slime_Mitosis",
+              "cost": 200,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 27,
+              "filler": "0",
+              "bonus": "When_spawning_any_unit_during_competition,_+{%_chance_to_also_spawn_an_exact_duplicate,_free_of_charge!"
+            }
+          },
+          {
+            "key": "29",
+            "old": {
+              "screenX": 207,
+              "screenY": 275,
+              "colour": 3,
+              "name": "Manaranarr",
+              "cost": 450,
+              "costExponent": 1.5,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 28,
+              "filler": "filler",
+              "bonus": "During_competition,_mana_generation_is_+{%_higher_than_normal."
+            },
+            "new": {
+              "screenX": 207,
+              "screenY": 275,
+              "colour": 3,
+              "name": "Manaranarr",
+              "cost": 450,
+              "costExponent": 1.5,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 28,
+              "filler": "1",
+              "bonus": "During_competition,_mana_generation_is_+{%_higher_than_normal."
+            }
+          },
+          {
+            "key": "30",
+            "old": {
+              "screenX": 220,
+              "screenY": 224,
+              "colour": 3,
+              "name": "Blue_Knowledge",
+              "cost": 750,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 29,
+              "filler": "filler",
+              "bonus": "+{%_Blue_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 220,
+              "screenY": 224,
+              "colour": 3,
+              "name": "Blue_Knowledge",
+              "cost": 750,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 29,
+              "filler": "1",
+              "bonus": "+{%_Blue_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "31",
+            "old": {
+              "screenX": 168,
+              "screenY": 214,
+              "colour": 3,
+              "name": "Beefier_Units",
+              "cost": 1500,
+              "costExponent": 1.35,
+              "bonusQty": 6,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 30,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 168,
+              "screenY": 214,
+              "colour": 3,
+              "name": "Beefier_Units",
+              "cost": 1500,
+              "costExponent": 1.35,
+              "bonusQty": 6,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 30,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "32",
+            "old": {
+              "screenX": 117,
+              "screenY": 183,
+              "colour": 3,
+              "name": "Jeweled_Cards",
+              "cost": 6000,
+              "costExponent": 170,
+              "bonusQty": 6,
+              "summonLvlReq": 0,
+              "maxLvl": 3,
+              "idReq": 31,
+              "filler": "filler",
+              "bonus": "{%_chance_to_draw_a_Jeweled_variant_of_any_card,_which_costs_2x_Mana_but_spawns_4x_Units!"
+            },
+            "new": {
+              "screenX": 117,
+              "screenY": 183,
+              "colour": 3,
+              "name": "Jeweled_Cards",
+              "cost": 6000,
+              "costExponent": 170,
+              "bonusQty": 6,
+              "summonLvlReq": 0,
+              "maxLvl": 3,
+              "idReq": 31,
+              "filler": "1",
+              "bonus": "{%_chance_to_draw_a_Jeweled_variant_of_any_card,_which_costs_2x_Mana_but_spawns_4x_Units!"
+            }
+          },
+          {
+            "key": "33",
+            "old": {
+              "screenX": 62,
+              "screenY": 208,
+              "colour": 3,
+              "name": "Purple_Summoning",
+              "cost": 250000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 32,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Purple_Summoning_Stone,_and_begins_generating_Purple_Essence._@_Also,_+{%_Purple_Essence_per_hour"
+            },
+            "new": {
+              "screenX": 62,
+              "screenY": 208,
+              "colour": 3,
+              "name": "Purple_Summoning",
+              "cost": 250000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 32,
+              "filler": "1",
+              "bonus": "Unlocks_the_Purple_Summoning_Stone,_and_begins_generating_Purple_Essence._@_Also,_+{%_Purple_Essence_per_hour"
+            }
+          },
+          {
+            "key": "34",
+            "old": {
+              "screenX": 78,
+              "screenY": 129,
+              "colour": 3,
+              "name": "Another_Slot",
+              "cost": 15000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 32,
+              "filler": "filler",
+              "bonus": "Adds_+1_Card_Slot!_Or_as_an_AI_might_say,_this_upgrade_further_substantiates_the_incremental_improvement_to_the_quantity_of_cards_you_hold_by_1"
+            },
+            "new": {
+              "screenX": 78,
+              "screenY": 129,
+              "colour": 3,
+              "name": "Another_Slot",
+              "cost": 15000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 32,
+              "filler": "0",
+              "bonus": "Adds_+1_Card_Slot!_Or_as_an_AI_might_say,_this_upgrade_further_substantiates_the_incremental_improvement_to_the_quantity_of_cards_you_hold_by_1"
+            }
+          },
+          {
+            "key": "35",
+            "old": {
+              "screenX": 58,
+              "screenY": 77,
+              "colour": 3,
+              "name": "Unit_Ache_Pea",
+              "cost": 5000,
+              "costExponent": 1.3,
+              "bonusQty": 9,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 34,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 58,
+              "screenY": 77,
+              "colour": 3,
+              "name": "Unit_Ache_Pea",
+              "cost": 5000,
+              "costExponent": 1.3,
+              "bonusQty": 9,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 34,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "36",
+            "old": {
+              "screenX": 530,
+              "screenY": 263,
+              "colour": 4,
+              "name": "Regalis",
+              "cost": 50,
+              "costExponent": 1.7,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 33,
+              "filler": "filler",
+              "bonus": "3%_chance_to_draw_a_Regalis_during_competition._They_spawn_a_Slime_Unit_every_1_sec._Upgrading_this_boosts_slime_unit_spawn_rate_by_+{%"
+            },
+            "new": {
+              "screenX": 530,
+              "screenY": 263,
+              "colour": 4,
+              "name": "Regalis",
+              "cost": 50,
+              "costExponent": 1.7,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 33,
+              "filler": "0",
+              "bonus": "3%_chance_to_draw_a_Regalis_during_competition._They_spawn_a_Slime_Unit_every_1_sec._Upgrading_this_boosts_slime_unit_spawn_rate_by_+{%"
+            }
+          },
+          {
+            "key": "37",
+            "old": {
+              "screenX": 588,
+              "screenY": 238,
+              "colour": 4,
+              "name": "Unit_Hitpoints",
+              "cost": 100,
+              "costExponent": 1.25,
+              "bonusQty": 13,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 36,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            },
+            "new": {
+              "screenX": 588,
+              "screenY": 238,
+              "colour": 4,
+              "name": "Unit_Hitpoints",
+              "cost": 100,
+              "costExponent": 1.25,
+              "bonusQty": 13,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 36,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{"
+            }
+          },
+          {
+            "key": "38",
+            "old": {
+              "screenX": 644,
+              "screenY": 228,
+              "colour": 4,
+              "name": "Purp_Essence_Pumpin'",
+              "cost": 250,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 37,
+              "filler": "filler",
+              "bonus": "+{%_Purple_Essence_generated_per_hour_for_each_Purple_circuit_win._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 644,
+              "screenY": 228,
+              "colour": 4,
+              "name": "Purp_Essence_Pumpin'",
+              "cost": 250,
+              "costExponent": 1.12,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 37,
+              "filler": "1",
+              "bonus": "+{%_Purple_Essence_generated_per_hour_for_each_Purple_circuit_win._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "39",
+            "old": {
+              "screenX": 693,
+              "screenY": 256,
+              "colour": 4,
+              "name": "Familiar_Skipping",
+              "cost": 600,
+              "costExponent": 1.25,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 100,
+              "idReq": 38,
+              "filler": "filler",
+              "bonus": "When_summoning_a_Slime_Familiar,_there's_a_1_in_8_to_get_a_Vrumbi_instead_of_Slime,_and_1_in_50_to_get_a_Bloomy._Upgrading_this_boosts_this_chance_by_+{%"
+            },
+            "new": {
+              "screenX": 693,
+              "screenY": 256,
+              "colour": 4,
+              "name": "Familiar_Skipping",
+              "cost": 600,
+              "costExponent": 1.25,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 100,
+              "idReq": 38,
+              "filler": "0",
+              "bonus": "When_summoning_a_Slime_Familiar,_there's_a_1_in_8_to_get_a_Vrumbi_instead_of_Slime,_and_1_in_50_to_get_a_Bloomy._Upgrading_this_boosts_this_chance_by_+{%"
+            }
+          },
+          {
+            "key": "40",
+            "old": {
+              "screenX": 747,
+              "screenY": 262,
+              "colour": 4,
+              "name": "Purple_Knowledge",
+              "cost": 1000,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 39,
+              "filler": "filler",
+              "bonus": "+{%_Purple_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 747,
+              "screenY": 262,
+              "colour": 4,
+              "name": "Purple_Knowledge",
+              "cost": 1000,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 39,
+              "filler": "1",
+              "bonus": "+{%_Purple_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "41",
+            "old": {
+              "screenX": 705,
+              "screenY": 207,
+              "colour": 4,
+              "name": "Final_Card",
+              "cost": 2000,
+              "costExponent": 2500,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 3,
+              "idReq": 38,
+              "filler": "filler",
+              "bonus": "If_you_play_every_card_in_your_hand,_get_+{%_Mana_Regen_per_card_played._Playing_Multi-Number_cards_counts_multiple_times_for_this!"
+            },
+            "new": {
+              "screenX": 705,
+              "screenY": 207,
+              "colour": 4,
+              "name": "Final_Card",
+              "cost": 2000,
+              "costExponent": 2500,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 3,
+              "idReq": 38,
+              "filler": "1",
+              "bonus": "If_you_play_every_card_in_your_hand,_get_+{%_Mana_Regen_per_card_played._Playing_Multi-Number_cards_counts_multiple_times_for_this!"
+            }
+          },
+          {
+            "key": "42",
+            "old": {
+              "screenX": 764,
+              "screenY": 204,
+              "colour": 4,
+              "name": "Mana_Dividends",
+              "cost": 4500,
+              "costExponent": 1.5,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 41,
+              "filler": "filler",
+              "bonus": "During_competition,_mana_generation_is_+{%_higher_than_normal."
+            },
+            "new": {
+              "screenX": 764,
+              "screenY": 204,
+              "colour": 4,
+              "name": "Mana_Dividends",
+              "cost": 4500,
+              "costExponent": 1.5,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 41,
+              "filler": "1",
+              "bonus": "During_competition,_mana_generation_is_+{%_higher_than_normal."
+            }
+          },
+          {
+            "key": "43",
+            "old": {
+              "screenX": 821,
+              "screenY": 165,
+              "colour": 4,
+              "name": "Brutal_Units",
+              "cost": 9000,
+              "costExponent": 1.25,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 42,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{%"
+            },
+            "new": {
+              "screenX": 821,
+              "screenY": 165,
+              "colour": 4,
+              "name": "Brutal_Units",
+              "cost": 9000,
+              "costExponent": 1.25,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 42,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{%"
+            }
+          },
+          {
+            "key": "44",
+            "old": {
+              "screenX": 875,
+              "screenY": 186,
+              "colour": 4,
+              "name": "Red_Summoning",
+              "cost": 1000000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 43,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Red_Summoning_Stone,_and_begins_generating_Red_Essence._@_Also,_+{%_Red_Essence_per_hour"
+            },
+            "new": {
+              "screenX": 875,
+              "screenY": 186,
+              "colour": 4,
+              "name": "Red_Summoning",
+              "cost": 1000000,
+              "costExponent": 1.2,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 43,
+              "filler": "1",
+              "bonus": "Unlocks_the_Red_Summoning_Stone,_and_begins_generating_Red_Essence._@_Also,_+{%_Red_Essence_per_hour"
+            }
+          },
+          {
+            "key": "45",
+            "old": {
+              "screenX": 404,
+              "screenY": 353,
+              "colour": 5,
+              "name": "Sparkie",
+              "cost": 75,
+              "costExponent": 1.75,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 44,
+              "filler": "filler",
+              "bonus": "5%_chance_to_draw_a_Sparkie_during_competition._They_have_3.0X_DMG_and_explode_on_death._Your_upgrades_here_boost_it's_DMG_by_a_further_+{%."
+            },
+            "new": {
+              "screenX": 404,
+              "screenY": 353,
+              "colour": 5,
+              "name": "Sparkie",
+              "cost": 75,
+              "costExponent": 1.75,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 44,
+              "filler": "0",
+              "bonus": "5%_chance_to_draw_a_Sparkie_during_competition._They_have_3.0X_DMG_and_explode_on_death._Your_upgrades_here_boost_it's_DMG_by_a_further_+{%."
+            }
+          },
+          {
+            "key": "46",
+            "old": {
+              "screenX": 349,
+              "screenY": 391,
+              "colour": 5,
+              "name": "Red_Essence_Ragin'",
+              "cost": 200,
+              "costExponent": 1.15,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 45,
+              "filler": "filler",
+              "bonus": "+{%_Red_Essence_generated_per_hour_for_each_Red_circuit_win._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 349,
+              "screenY": 391,
+              "colour": 5,
+              "name": "Red_Essence_Ragin'",
+              "cost": 200,
+              "costExponent": 1.15,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 45,
+              "filler": "1",
+              "bonus": "+{%_Red_Essence_generated_per_hour_for_each_Red_circuit_win._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "47",
+            "old": {
+              "screenX": 293,
+              "screenY": 362,
+              "colour": 5,
+              "name": "Seeing_Red",
+              "cost": 750,
+              "costExponent": 1.8,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 46,
+              "filler": "filler",
+              "bonus": "When_an_enemy_crosses_your_line_and_damages_you,_all_units_get_{%_DMG_for_the_rest_of_the_fight._This_stacks_every_time_an_enemy_crosses_your_line."
+            },
+            "new": {
+              "screenX": 293,
+              "screenY": 362,
+              "colour": 5,
+              "name": "Seeing_Red",
+              "cost": 750,
+              "costExponent": 1.8,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 10,
+              "idReq": 46,
+              "filler": "1",
+              "bonus": "When_an_enemy_crosses_your_line_and_damages_you,_all_units_get_{%_DMG_for_the_rest_of_the_fight._This_stacks_every_time_an_enemy_crosses_your_line."
+            }
+          },
+          {
+            "key": "48",
+            "old": {
+              "screenX": 230,
+              "screenY": 370,
+              "colour": 5,
+              "name": "Slime_Duplication",
+              "cost": 2000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 40,
+              "idReq": 47,
+              "filler": "filler",
+              "bonus": "When_spawning_any_unit_during_competition,_+{%_chance_to_also_spawn_an_exact_duplicate,_free_of_charge!"
+            },
+            "new": {
+              "screenX": 230,
+              "screenY": 370,
+              "colour": 5,
+              "name": "Slime_Duplication",
+              "cost": 2000,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 40,
+              "idReq": 47,
+              "filler": "0",
+              "bonus": "When_spawning_any_unit_during_competition,_+{%_chance_to_also_spawn_an_exact_duplicate,_free_of_charge!"
+            }
+          },
+          {
+            "key": "49",
+            "old": {
+              "screenX": 164,
+              "screenY": 377,
+              "colour": 5,
+              "name": "Cost_Crashing",
+              "cost": 4000,
+              "costExponent": 1.25,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 48,
+              "filler": "filler",
+              "bonus": "All_Summoning_upgrades_cost_}%_less_Essence."
+            },
+            "new": {
+              "screenX": 164,
+              "screenY": 377,
+              "colour": 5,
+              "name": "Cost_Crashing",
+              "cost": 4000,
+              "costExponent": 1.25,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 48,
+              "filler": "1",
+              "bonus": "All_Summoning_upgrades_cost_}%_less_Essence."
+            }
+          },
+          {
+            "key": "50",
+            "old": {
+              "screenX": 146,
+              "screenY": 322,
+              "colour": 5,
+              "name": "Unit_Blood",
+              "cost": 8000,
+              "costExponent": 1.4,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 49,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_a_brand_new_multiplier_of_+{%"
+            },
+            "new": {
+              "screenX": 146,
+              "screenY": 322,
+              "colour": 5,
+              "name": "Unit_Blood",
+              "cost": 8000,
+              "costExponent": 1.4,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 49,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_a_brand_new_multiplier_of_+{%"
+            }
+          },
+          {
+            "key": "51",
+            "old": {
+              "screenX": 100,
+              "screenY": 276,
+              "colour": 5,
+              "name": "Merciless_Units",
+              "cost": 15000,
+              "costExponent": 1.41,
+              "bonusQty": 8,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 50,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_a_brand_new_multiplier_of_+{%"
+            },
+            "new": {
+              "screenX": 100,
+              "screenY": 276,
+              "colour": 5,
+              "name": "Merciless_Units",
+              "cost": 15000,
+              "costExponent": 1.41,
+              "bonusQty": 8,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 50,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_a_brand_new_multiplier_of_+{%"
+            }
+          },
+          {
+            "key": "52",
+            "old": {
+              "screenX": 48,
+              "screenY": 302,
+              "colour": 5,
+              "name": "Red_Knowledge",
+              "cost": 30000,
+              "costExponent": 1.52,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 51,
+              "filler": "filler",
+              "bonus": "+{%_Red_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 48,
+              "screenY": 302,
+              "colour": 5,
+              "name": "Red_Knowledge",
+              "cost": 30000,
+              "costExponent": 1.52,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 51,
+              "filler": "1",
+              "bonus": "+{%_Red_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "53",
+            "old": {
+              "screenX": 108,
+              "screenY": 391,
+              "colour": 5,
+              "name": "Cyan_Summoning",
+              "cost": 3000000,
+              "costExponent": 1.21,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 49,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Cyan_Summoning_Stone,_and_begins_generating_Cyan_Essence._@_Also,_+{%_Cyan_Essence_per_hour"
+            },
+            "new": {
+              "screenX": 108,
+              "screenY": 391,
+              "colour": 5,
+              "name": "Cyan_Summoning",
+              "cost": 3000000,
+              "costExponent": 1.21,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 49,
+              "filler": "1",
+              "bonus": "Unlocks_the_Cyan_Summoning_Stone,_and_begins_generating_Cyan_Essence._@_Also,_+{%_Cyan_Essence_per_hour"
+            }
+          },
+          {
+            "key": "54",
+            "old": {
+              "screenX": 477,
+              "screenY": 374,
+              "colour": 6,
+              "name": "Cyan_Essence_King",
+              "cost": 150,
+              "costExponent": 1.15,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 69,
+              "filler": "filler",
+              "bonus": "+{%_Cyan_Essence_generated_per_hour_for_each_Cyan_circuit_win._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 477,
+              "screenY": 374,
+              "colour": 6,
+              "name": "Cyan_Essence_King",
+              "cost": 150,
+              "costExponent": 1.15,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 69,
+              "filler": "1",
+              "bonus": "+{%_Cyan_Essence_generated_per_hour_for_each_Cyan_circuit_win._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "55",
+            "old": {
+              "screenX": 534,
+              "screenY": 384,
+              "colour": 6,
+              "name": "I_Frames",
+              "cost": 400,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 54,
+              "filler": "filler",
+              "bonus": "All_your_units_get_a_+{%_chance_to_dodge_damage_when_colliding_with_an_enemy"
+            },
+            "new": {
+              "screenX": 534,
+              "screenY": 384,
+              "colour": 6,
+              "name": "I_Frames",
+              "cost": 400,
+              "costExponent": 1.5,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 54,
+              "filler": "0",
+              "bonus": "All_your_units_get_a_+{%_chance_to_dodge_damage_when_colliding_with_an_enemy"
+            }
+          },
+          {
+            "key": "56",
+            "old": {
+              "screenX": 598,
+              "screenY": 390,
+              "colour": 6,
+              "name": "Units_of_Destruction",
+              "cost": 2000,
+              "costExponent": 1.43,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 55,
+              "filler": "filler",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{%"
+            },
+            "new": {
+              "screenX": 598,
+              "screenY": 390,
+              "colour": 6,
+              "name": "Units_of_Destruction",
+              "cost": 2000,
+              "costExponent": 1.43,
+              "bonusQty": 10,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 55,
+              "filler": "1",
+              "bonus": "Increases_the_DMG_of_all_summoned_units_in_competition_by_+{%"
+            }
+          },
+          {
+            "key": "57",
+            "old": {
+              "screenX": 574,
+              "screenY": 322,
+              "colour": 6,
+              "name": "Cost_Deflation",
+              "cost": 1200,
+              "costExponent": 1.21,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 69,
+              "filler": "filler",
+              "bonus": "All_Summoning_upgrades_cost_}%_less_Essence."
+            },
+            "new": {
+              "screenX": 574,
+              "screenY": 322,
+              "colour": 6,
+              "name": "Cost_Deflation",
+              "cost": 1200,
+              "costExponent": 1.21,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 69,
+              "filler": "1",
+              "bonus": "All_Summoning_upgrades_cost_}%_less_Essence."
+            }
+          },
+          {
+            "key": "58",
+            "old": {
+              "screenX": 630,
+              "screenY": 339,
+              "colour": 6,
+              "name": "Cyan_Knowledge",
+              "cost": 5000,
+              "costExponent": 1.55,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 57,
+              "filler": "filler",
+              "bonus": "+{%_Cyan_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 630,
+              "screenY": 339,
+              "colour": 6,
+              "name": "Cyan_Knowledge",
+              "cost": 5000,
+              "costExponent": 1.55,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 57,
+              "filler": "1",
+              "bonus": "+{%_Cyan_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "59",
+            "old": {
+              "screenX": 683,
+              "screenY": 373,
+              "colour": 6,
+              "name": "Undying_Units",
+              "cost": 10000,
+              "costExponent": 1.41,
+              "bonusQty": 14,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 58,
+              "filler": "filler",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{%"
+            },
+            "new": {
+              "screenX": 683,
+              "screenY": 373,
+              "colour": 6,
+              "name": "Undying_Units",
+              "cost": 10000,
+              "costExponent": 1.41,
+              "bonusQty": 14,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 58,
+              "filler": "1",
+              "bonus": "Increases_the_HP_of_all_summoned_units_in_competition_by_+{%"
+            }
+          },
+          {
+            "key": "60",
+            "old": {
+              "screenX": 739,
+              "screenY": 385,
+              "colour": 6,
+              "name": "DMG_Laundering",
+              "cost": 20000,
+              "costExponent": 1.79,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 59,
+              "filler": "filler",
+              "bonus": "Boosts_the_DMG_of_all_summoned_units_by_+{%_for_every_100_total_summoning_upgrades_purchased._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 739,
+              "screenY": 385,
+              "colour": 6,
+              "name": "DMG_Laundering",
+              "cost": 20000,
+              "costExponent": 1.79,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 59,
+              "filler": "1",
+              "bonus": "Boosts_the_DMG_of_all_summoned_units_by_+{%_for_every_100_total_summoning_upgrades_purchased._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "61",
+            "old": {
+              "screenX": 795,
+              "screenY": 394,
+              "colour": 6,
+              "name": "HP_Laundering",
+              "cost": 50000,
+              "costExponent": 1.78,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 60,
+              "filler": "filler",
+              "bonus": "Boosts_the_HP_of_all_summoned_units_by_+{%_for_every_100_total_summoning_upgrades_purchased._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 795,
+              "screenY": 394,
+              "colour": 6,
+              "name": "HP_Laundering",
+              "cost": 50000,
+              "costExponent": 1.78,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 60,
+              "filler": "1",
+              "bonus": "Boosts_the_HP_of_all_summoned_units_by_+{%_for_every_100_total_summoning_upgrades_purchased._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "62",
+            "old": {
+              "screenX": 736,
+              "screenY": 320,
+              "colour": 6,
+              "name": "Infinite_Essence",
+              "cost": 100000,
+              "costExponent": 1.35,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 70,
+              "filler": "filler",
+              "bonus": "The_generation_of_all_essence_colours_is_increased_by_+{%_for_every_Endless_Summoning_victory_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 736,
+              "screenY": 320,
+              "colour": 6,
+              "name": "Infinite_Essence",
+              "cost": 100000,
+              "costExponent": 1.35,
+              "bonusQty": 5,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 70,
+              "filler": "1",
+              "bonus": "The_generation_of_all_essence_colours_is_increased_by_+{%_for_every_Endless_Summoning_victory_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "63",
+            "old": {
+              "screenX": 792,
+              "screenY": 312,
+              "colour": 6,
+              "name": "Infinite_Health",
+              "cost": 300000,
+              "costExponent": 1.38,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 62,
+              "filler": "filler",
+              "bonus": "The_HP_of_all_summoned_units_is_increased_by_+{%_for_every_Endless_Summoning_victory_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 792,
+              "screenY": 312,
+              "colour": 6,
+              "name": "Infinite_Health",
+              "cost": 300000,
+              "costExponent": 1.38,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 62,
+              "filler": "1",
+              "bonus": "The_HP_of_all_summoned_units_is_increased_by_+{%_for_every_Endless_Summoning_victory_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "64",
+            "old": {
+              "screenX": 834,
+              "screenY": 266,
+              "colour": 6,
+              "name": "Infinite_Damage",
+              "cost": 600000,
+              "costExponent": 1.41,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 63,
+              "filler": "filler",
+              "bonus": "The_DMG_of_all_summoned_units_is_increased_by_+{%_for_every_Endless_Summoning_victory_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 834,
+              "screenY": 266,
+              "colour": 6,
+              "name": "Infinite_Damage",
+              "cost": 600000,
+              "costExponent": 1.41,
+              "bonusQty": 2,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 63,
+              "filler": "1",
+              "bonus": "The_DMG_of_all_summoned_units_is_increased_by_+{%_for_every_Endless_Summoning_victory_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "65",
+            "old": {
+              "screenX": 340,
+              "screenY": 76,
+              "colour": 0,
+              "name": "White_Knowledge",
+              "cost": 1500,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 4,
+              "filler": "filler",
+              "bonus": "+{%_White_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 340,
+              "screenY": 76,
+              "colour": 0,
+              "name": "White_Knowledge",
+              "cost": 1500,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 4,
+              "filler": "1",
+              "bonus": "+{%_White_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "66",
+            "old": {
+              "screenX": 148,
+              "screenY": 109,
+              "colour": 1,
+              "name": "Green_Knowledge",
+              "cost": 1200,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 16,
+              "filler": "filler",
+              "bonus": "+{%_Green_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 148,
+              "screenY": 109,
+              "colour": 1,
+              "name": "Green_Knowledge",
+              "cost": 1200,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 16,
+              "filler": "1",
+              "bonus": "+{%_Green_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "67",
+            "old": {
+              "screenX": 678,
+              "screenY": 153,
+              "colour": 2,
+              "name": "Yellow_Knowledge",
+              "cost": 300,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 19,
+              "filler": "filler",
+              "bonus": "+{%_Yellow_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            },
+            "new": {
+              "screenX": 678,
+              "screenY": 153,
+              "colour": 2,
+              "name": "Yellow_Knowledge",
+              "cost": 300,
+              "costExponent": 1.15,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 9999,
+              "idReq": 19,
+              "filler": "1",
+              "bonus": "+{%_Yellow_Essence_generation_per_Summoning_LV_you_have._@_Total_bonus:_+}%"
+            }
+          },
+          {
+            "key": "68",
+            "old": {
+              "screenX": 874,
+              "screenY": 122,
+              "colour": 2,
+              "name": "Sharpened_Spikes",
+              "cost": 12000,
+              "costExponent": 1.65,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 20,
+              "idReq": 25,
+              "filler": "filler",
+              "bonus": "Spike_damage_is_increased_by_{%_of_your_base_unit_damage._@_Total_Bonus_Spike_DMG:_+}"
+            },
+            "new": {
+              "screenX": 874,
+              "screenY": 122,
+              "colour": 2,
+              "name": "Sharpened_Spikes",
+              "cost": 12000,
+              "costExponent": 1.65,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 20,
+              "idReq": 25,
+              "filler": "1",
+              "bonus": "Spike_damage_is_increased_by_{%_of_your_base_unit_damage._@_Total_Bonus_Spike_DMG:_+}"
+            }
+          },
+          {
+            "key": "69",
+            "old": {
+              "screenX": 514,
+              "screenY": 327,
+              "colour": 6,
+              "name": "Guardio",
+              "cost": 100,
+              "costExponent": 3.5,
+              "bonusQty": 8,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 53,
+              "filler": "filler",
+              "bonus": "4%_chance_to_draw_a_Guardio!_They_sit_in_midfield,_do_0_DMG,_have_12x_HP,_and_aren't_knocked_back._Your_upgrades_here_boost_its_HP_by_a_further_+{%."
+            },
+            "new": {
+              "screenX": 514,
+              "screenY": 327,
+              "colour": 6,
+              "name": "Guardio",
+              "cost": 100,
+              "costExponent": 3.5,
+              "bonusQty": 8,
+              "summonLvlReq": 0,
+              "maxLvl": 30,
+              "idReq": 53,
+              "filler": "0",
+              "bonus": "4%_chance_to_draw_a_Guardio!_They_sit_in_midfield,_do_0_DMG,_have_12x_HP,_and_aren't_knocked_back._Your_upgrades_here_boost_its_HP_by_a_further_+{%."
+            }
+          },
+          {
+            "key": "70",
+            "old": {
+              "screenX": 680,
+              "screenY": 315,
+              "colour": 6,
+              "name": "Endless_Summoning",
+              "cost": 2500,
+              "costExponent": 1.55,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 58,
+              "filler": "filler",
+              "bonus": "Unlocks_the_Endless_Summoning_feature,_accessed_in_the_Top_Right_when_selecting_an_opponent!_Go_to_the_Summoner's_Table,_you_can't_miss_it!"
+            },
+            "new": {
+              "screenX": 680,
+              "screenY": 315,
+              "colour": 6,
+              "name": "Endless_Summoning",
+              "cost": 2500,
+              "costExponent": 1.55,
+              "bonusQty": 1,
+              "summonLvlReq": 0,
+              "maxLvl": 1,
+              "idReq": 58,
+              "filler": "0",
+              "bonus": "Unlocks_the_Endless_Summoning_feature,_accessed_in_the_Top_Right_when_selecting_an_opponent!_Go_to_the_Summoner's_Table,_you_can't_miss_it!"
+            }
+          }
+        ]
+      }
+    },
+    "game-systems": {
+      "monsters": {
+        "monsterDrops": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "caveC",
+              "old": [
+                {
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "rawName": "COIN",
+                  "quantity": 1,
+                  "chance": 0,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Dragon_Warrior_Statue",
+                  "sellPrice": 10,
+                  "typeGen": "dStatueStone",
+                  "ID": 29,
+                  "Type": "STATUE",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "desc_line1": "It_somehow_boosts_the_bonuses_given_by_all_other_statues!!!_You_don't_understand_what_that_means?_It's_ok,_I_didn't_get_it_the_first_time_either...",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "EquipmentStatues30",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 0.00001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Cavern_Resource_Stamp",
+                  "sellPrice": 1,
+                  "typeGen": "aStamp",
+                  "ID": 2023,
+                  "Type": "STAMP",
+                  "lvReqToCraft": 0,
+                  "common": "t",
+                  "desc_line1": "CavernRes,decay,100,250,20,Ladle,10,1.8,2000000000,1.72,0,{}%_more_resources_from_caverns,0",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "StampC24",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 0.000001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Temple_Torch_(Dungeon)",
+                  "sellPrice": 100,
+                  "typeGen": "dQuest",
+                  "ID": 0,
+                  "Type": "DUNGEON_EVAPORATE",
+                  "lvReqToCraft": 15,
+                  "common": "t",
+                  "desc_line1": "You_really_shouldn't_be_reading_this...",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "Quest94",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 0.01,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Study_Hall_Stamp",
+                  "sellPrice": 1,
+                  "typeGen": "aStamp",
+                  "ID": 2024,
+                  "Type": "STAMP",
+                  "lvReqToCraft": 0,
+                  "common": "t",
+                  "desc_line1": "VillageStudy,decay,30,160,15,EquipmentStatues29,30,2.5,2000000000,1.72,0,{}%_faster_Study_Rate_for_Bolaia,0",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "StampC25",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 5e-8,
+                  "questLink": "N/A"
+                }
+              ],
+              "new": [
+                {
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "rawName": "COIN",
+                  "quantity": 1,
+                  "chance": 0,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Dragon_Warrior_Statue",
+                  "sellPrice": 10,
+                  "typeGen": "dStatueStone",
+                  "ID": 29,
+                  "Type": "STATUE",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "desc_line1": "It_somehow_boosts_the_bonuses_given_by_all_other_statues!!!_You_don't_understand_what_that_means?_It's_ok,_I_didn't_get_it_the_first_time_either...",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "EquipmentStatues30",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 0.00001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Cavern_Resource_Stamp",
+                  "sellPrice": 1,
+                  "typeGen": "aStamp",
+                  "ID": 2023,
+                  "Type": "STAMP",
+                  "lvReqToCraft": 0,
+                  "common": "t",
+                  "desc_line1": "CavernRes,decay,100,250,20,Ladle,10,20,2000000000,1.72,0,{}%_more_resources_from_caverns,0",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "StampC24",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 0.000001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Temple_Torch_(Dungeon)",
+                  "sellPrice": 100,
+                  "typeGen": "dQuest",
+                  "ID": 0,
+                  "Type": "DUNGEON_EVAPORATE",
+                  "lvReqToCraft": 15,
+                  "common": "t",
+                  "desc_line1": "You_really_shouldn't_be_reading_this...",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "Quest94",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 0.01,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Study_Hall_Stamp",
+                  "sellPrice": 1,
+                  "typeGen": "aStamp",
+                  "ID": 2024,
+                  "Type": "STAMP",
+                  "lvReqToCraft": 0,
+                  "common": "t",
+                  "desc_line1": "VillageStudy,decay,30,160,15,EquipmentStatues29,30,20,2000000000,1.72,0,{}%_faster_Study_Rate_for_Bolaia,0",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "StampC25",
+                  "monsterDisplayName": "Ancient_Golem",
+                  "monsterRawName": "caveC",
+                  "quantity": 1,
+                  "chance": 5e-8,
+                  "questLink": "N/A"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "items": {
+        "items": {
+          "added": [
+            {
+              "key": "EquipmentHats114",
+              "value": {
+                "displayName": "True_Crown",
+                "sellPrice": 1,
+                "typeGen": "aHelmetMTX",
+                "ID": 121,
+                "Type": "PREMIUM_HELMET",
+                "lvReqToCraft": 5,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 1,
+                "AGI": 1,
+                "WIS": 1,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": "%_CLASS_EXP_MULTI",
+                "UQ1val": 150,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 5,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentHats114"
+              }
+            }
+          ],
+          "removed": [],
+          "modified": [
+            {
+              "key": "StampC24",
+              "old": {
+                "displayName": "Cavern_Resource_Stamp",
+                "sellPrice": 1,
+                "typeGen": "aStamp",
+                "ID": 2023,
+                "Type": "STAMP",
+                "lvReqToCraft": 0,
+                "common": "t",
+                "desc_line1": "CavernRes,decay,100,250,20,Ladle,10,1.8,2000000000,1.72,0,{}%_more_resources_from_caverns,0",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "StampC24"
+              },
+              "new": {
+                "displayName": "Cavern_Resource_Stamp",
+                "sellPrice": 1,
+                "typeGen": "aStamp",
+                "ID": 2023,
+                "Type": "STAMP",
+                "lvReqToCraft": 0,
+                "common": "t",
+                "desc_line1": "CavernRes,decay,100,250,20,Ladle,10,20,2000000000,1.72,0,{}%_more_resources_from_caverns,0",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "StampC24"
+              }
+            },
+            {
+              "key": "StampC25",
+              "old": {
+                "displayName": "Study_Hall_Stamp",
+                "sellPrice": 1,
+                "typeGen": "aStamp",
+                "ID": 2024,
+                "Type": "STAMP",
+                "lvReqToCraft": 0,
+                "common": "t",
+                "desc_line1": "VillageStudy,decay,30,160,15,EquipmentStatues29,30,2.5,2000000000,1.72,0,{}%_faster_Study_Rate_for_Bolaia,0",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "StampC25"
+              },
+              "new": {
+                "displayName": "Study_Hall_Stamp",
+                "sellPrice": 1,
+                "typeGen": "aStamp",
+                "ID": 2024,
+                "Type": "STAMP",
+                "lvReqToCraft": 0,
+                "common": "t",
+                "desc_line1": "VillageStudy,decay,30,160,15,EquipmentStatues29,30,20,2000000000,1.72,0,{}%_faster_Study_Rate_for_Bolaia,0",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "StampC25"
+              }
+            },
+            {
+              "key": "PureWater",
+              "old": {
+                "displayName": "Distilled_Water",
+                "sellPrice": 50,
+                "typeGen": "bCraft",
+                "ID": 0,
+                "Type": "MATERIAL",
+                "lvReqToCraft": 0,
+                "common": "t",
+                "desc_line1": "The_full_filtration_process_also_invovles_filtering_the_diamonds_through_a_vat_of_diamonds_before_using_those_filtered_diamonds_to_filter_the_water!_If_only_they'd_filter_their_filtration_process_through_diamonds_so_this_item_description_wouldn't_be_so_long.",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "PureWater"
+              },
+              "new": {
+                "displayName": "Distilled_Water",
+                "sellPrice": 50,
+                "typeGen": "bCraft",
+                "ID": 0,
+                "Type": "MATERIAL",
+                "lvReqToCraft": 0,
+                "common": "t",
+                "desc_line1": "The_full_filtration_process_also_involves_filtering_the_diamonds_through_a_vat_of_diamonds_before_using_those_filtered_diamonds_to_filter_the_water!_If_only_they'd_filter_their_filtration_process_through_diamonds_so_this_item_description_wouldn't_be_so_long.",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "PureWater"
+              }
+            }
+          ]
+        },
+        "stamps": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "misc",
+              "old": {
+                "0": {
+                  "displayName": "Questin_Stamp",
+                  "rawName": "StampC1",
+                  "func": "decay",
+                  "x1": 70,
+                  "x2": 50,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 30,
+                  "baseCoinCost": 500,
+                  "powCoinBase": 1.32,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Quest_Exp",
+                  "placeholderEffect": "{}%_Quest_EXP",
+                  "stat": "QuestExp",
+                  "itemReq": [
+                    {
+                      "name": "Slime_Sludge",
+                      "rawName": "Jungle1"
+                    }
+                  ]
+                },
+                "1": {
+                  "displayName": "Mason_Jar_Stamp",
+                  "rawName": "StampC2",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 4,
+                  "baseMatCost": 1,
+                  "baseCoinCost": 4000,
+                  "powCoinBase": 1.28,
+                  "powMatBase": 3,
+                  "skillIndex": 0,
+                  "effect": "+{%_Carry_Capacity_for_ALL_item_types!",
+                  "placeholderEffect": "{}%_All_Carry_Cap",
+                  "stat": "AllCarryCap",
+                  "itemReq": [
+                    {
+                      "name": "Glass_Shard",
+                      "rawName": "DesertA1b"
+                    }
+                  ]
+                },
+                "2": {
+                  "displayName": "Crystallin",
+                  "rawName": "StampC3",
+                  "func": "decay",
+                  "x1": 110,
+                  "x2": 50,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 35,
+                  "baseCoinCost": 800,
+                  "powCoinBase": 1.31,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{%_Crystal_Monster_Spawn_Chance",
+                  "placeholderEffect": "{}%_Spawn_Chance",
+                  "stat": "CrySpawn",
+                  "itemReq": [
+                    {
+                      "name": "Boring_Brick",
+                      "rawName": "CraftMat6"
+                    }
+                  ]
+                },
+                "3": {
+                  "displayName": "Arcade_Ball_Stamp",
+                  "rawName": "StampC4",
+                  "func": "decay",
+                  "x1": 50,
+                  "x2": 100,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 30,
+                  "baseCoinCost": 1500,
+                  "powCoinBase": 1.33,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Arcade_Ball_recharge_rate",
+                  "placeholderEffect": "{}%_ball_gain_rate",
+                  "stat": "ArcadeBallz",
+                  "itemReq": [
+                    {
+                      "name": "Copper_Ore",
+                      "rawName": "Copper"
+                    }
+                  ]
+                },
+                "4": {
+                  "displayName": "Gold_Ball_Stamp",
+                  "rawName": "StampC5",
+                  "func": "decay",
+                  "x1": 40,
+                  "x2": 100,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 50,
+                  "baseCoinCost": 1000,
+                  "powCoinBase": 1.33,
+                  "powMatBase": 6.5,
+                  "skillIndex": 0,
+                  "effect": "+{%_reduced_golden_ball_cost_for_upgrades",
+                  "placeholderEffect": "{}%_HP_Food_Effect",
+                  "stat": "GoldBallz",
+                  "itemReq": [
+                    {
+                      "name": "Goldfish",
+                      "rawName": "Fish1"
+                    }
+                  ]
+                },
+                "5": {
+                  "displayName": "Potion_Stamp",
+                  "rawName": "StampC6",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 5,
+                  "baseMatCost": 50,
+                  "baseCoinCost": 1500,
+                  "powCoinBase": 1.305,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{%_Effect_from_Boost_Food,_like_Potions_and_stuff,_like,_such_as!",
+                  "placeholderEffect": "{}%_Boost_Food_Effect",
+                  "stat": "BFood",
+                  "itemReq": [
+                    {
+                      "name": "Icing_Ironbite",
+                      "rawName": "FoodMining1",
+                      "materials": [
+                        {
+                          "itemName": "Iron_Ore",
+                          "type": "Consumable",
+                          "subType": "ORE",
+                          "rawName": "Iron",
+                          "itemQuantity": 5
+                        },
+                        {
+                          "itemName": "Small_Mana_Potion",
+                          "type": "Consumable",
+                          "subType": "BOOST_FOOD",
+                          "rawName": "FoodPotMana1",
+                          "itemQuantity": 2
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "6": {
+                  "displayName": "Golden_Apple_Stamp",
+                  "rawName": "StampC7",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 4,
+                  "baseMatCost": 2,
+                  "baseCoinCost": 3000,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 4,
+                  "skillIndex": 0,
+                  "effect": "+{%_Effect_from_Golden_Food._Sparkle_sparkle!",
+                  "placeholderEffect": "{}%_Gold_Food_Effect",
+                  "stat": "GFood",
+                  "itemReq": [
+                    {
+                      "name": "Golden_Nomwich",
+                      "rawName": "FoodG4"
+                    }
+                  ]
+                },
+                "7": {
+                  "displayName": "Ball_Timer_Stamp",
+                  "rawName": "StampC8",
+                  "func": "decay",
+                  "x1": 12,
+                  "x2": 30,
+                  "reqItemMultiplicationLevel": 5,
+                  "baseMatCost": 100,
+                  "baseCoinCost": 1000,
+                  "powCoinBase": 1.32,
+                  "powMatBase": 15,
+                  "skillIndex": 0,
+                  "effect": "+{hr_Arcade_Ball_claim_max_time",
+                  "placeholderEffect": "{}hr_Max_Claim_Time",
+                  "stat": "ArcadeTimeMax",
+                  "itemReq": [
+                    {
+                      "name": "Oak_Logs",
+                      "rawName": "OakTree"
+                    }
+                  ]
+                },
+                "8": {
+                  "displayName": "Card_Stamp",
+                  "rawName": "StampC9",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 25,
+                  "baseCoinCost": 1200,
+                  "powCoinBase": 1.31,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Card_Drop_Rate._Go_get_them_cards_boy-o!",
+                  "placeholderEffect": "{}%_Card_Drop_Rate",
+                  "stat": "CardDrop",
+                  "itemReq": [
+                    {
+                      "name": "Furled_Flag",
+                      "rawName": "DesertB2"
+                    }
+                  ]
+                },
+                "9": {
+                  "displayName": "Forge_Stamp",
+                  "rawName": "StampC10",
+                  "func": "decay",
+                  "x1": 120,
+                  "x2": 250,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 250,
+                  "baseCoinCost": 5000000000000,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{%_Forge_Max_Capacity",
+                  "placeholderEffect": "{}%_Forge_Capacity",
+                  "stat": "ForgeCap",
+                  "itemReq": [
+                    {
+                      "name": "Godshard_Ore",
+                      "rawName": "Godshard"
+                    }
+                  ]
+                },
+                "10": {
+                  "displayName": "Vendor_Stamp",
+                  "rawName": "StampC11",
+                  "func": "decay",
+                  "x1": 35,
+                  "x2": 100,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 100,
+                  "baseCoinCost": 30000,
+                  "powCoinBase": 1.5,
+                  "powMatBase": 10,
+                  "skillIndex": 0,
+                  "effect": "+{%_Shop_Stock_Quantity",
+                  "placeholderEffect": "{}%_Higher_Shop_QTY",
+                  "stat": "ShopQty",
+                  "itemReq": [
+                    {
+                      "name": "Cue_Tape",
+                      "rawName": "CraftMat3"
+                    }
+                  ]
+                },
+                "11": {
+                  "displayName": "Sigil_Stamp",
+                  "rawName": "StampC12",
+                  "func": "decay",
+                  "x1": 40,
+                  "x2": 150,
+                  "reqItemMultiplicationLevel": 12,
+                  "baseMatCost": 2000,
+                  "baseCoinCost": 1000000,
+                  "powCoinBase": 1.32,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Sigil_Charge_rate",
+                  "placeholderEffect": "{}%_Sigil_Charge_rate",
+                  "stat": "SigilCharge",
+                  "itemReq": [
+                    {
+                      "name": "Ram_Wool",
+                      "rawName": "SnowA4"
+                    }
+                  ]
+                },
+                "12": {
+                  "displayName": "Talent_I_Stamp",
+                  "rawName": "StampC13",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 50,
+                  "baseCoinCost": 2000,
+                  "powCoinBase": 1.4,
+                  "powMatBase": 10,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_1",
+                  "placeholderEffect": "{}_Talent_1_Pts",
+                  "stat": "Talent1",
+                  "itemReq": [
+                    {
+                      "name": "Frog_Leg",
+                      "rawName": "Grasslands2"
+                    }
+                  ]
+                },
+                "13": {
+                  "displayName": "Talent_II_Stamp",
+                  "rawName": "StampC14",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 200,
+                  "baseCoinCost": 4000,
+                  "powCoinBase": 1.35,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_2",
+                  "placeholderEffect": "{}_Talent_2_Pts",
+                  "stat": "Talent2",
+                  "itemReq": [
+                    {
+                      "name": "Pincer_Arm",
+                      "rawName": "DesertB3"
+                    }
+                  ]
+                },
+                "14": {
+                  "displayName": "Talent_III_Stamp",
+                  "rawName": "StampC15",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 20,
+                  "baseCoinCost": 40000,
+                  "powCoinBase": 1.35,
+                  "powMatBase": 4,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_3",
+                  "placeholderEffect": "{}_Talent_3_Pts",
+                  "stat": "Talent3",
+                  "itemReq": [
+                    {
+                      "name": "Arctic_Leaf",
+                      "rawName": "Leaf3"
+                    }
+                  ]
+                },
+                "15": {
+                  "displayName": "Talent_IV_Stamp",
+                  "rawName": "StampC16",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 2,
+                  "baseCoinCost": 300000000,
+                  "powCoinBase": 1.4,
+                  "powMatBase": 3,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_4",
+                  "placeholderEffect": "{}_Talent_4_Pts",
+                  "stat": "Talent4",
+                  "itemReq": [
+                    {
+                      "name": "Royal_Suggma_Urn",
+                      "rawName": "LavaA1b"
+                    }
+                  ]
+                },
+                "16": {
+                  "displayName": "Talent_V_Stamp",
+                  "rawName": "StampC17",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 25,
+                  "baseCoinCost": 50,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_5",
+                  "placeholderEffect": "{}_Talent_5_Pts",
+                  "stat": "Talent5",
+                  "itemReq": [
+                    {
+                      "name": "Copper_Ore",
+                      "rawName": "Copper"
+                    }
+                  ]
+                },
+                "17": {
+                  "displayName": "Talent_S_Stamp",
+                  "rawName": "StampC18",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 20,
+                  "baseCoinCost": 50,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 4,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Star_Tab",
+                  "placeholderEffect": "{}_Star_Talent_Pts",
+                  "stat": "TalentS",
+                  "itemReq": [
+                    {
+                      "name": "Twisty_Leaf",
+                      "rawName": "Leaf2"
+                    }
+                  ]
+                },
+                "18": {
+                  "displayName": "Multikill_Stamp",
+                  "rawName": "StampC19",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 100,
+                  "baseCoinCost": 10000,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 3,
+                  "skillIndex": 0,
+                  "effect": "+{%_Base_Multikill_Rate,_for_all_worlds.",
+                  "placeholderEffect": "{}%_Base_Overkill",
+                  "stat": "Overkill",
+                  "itemReq": [
+                    {
+                      "name": "Spore_Cap",
+                      "rawName": "Grasslands1"
+                    }
+                  ]
+                },
+                "19": {
+                  "displayName": "Biblio_Stamp",
+                  "rawName": "StampC20",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 125,
+                  "baseCoinCost": 12500,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Talent_Book_Library_Refresh_Speed",
+                  "placeholderEffect": "{}%_Faster_Books",
+                  "stat": "BookSpd",
+                  "itemReq": [
+                    {
+                      "name": "Tundra_Logs",
+                      "rawName": "SaharanFoal"
+                    }
+                  ]
+                },
+                "20": {
+                  "displayName": "DNA_Stamp",
+                  "rawName": "StampC21",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 3,
+                  "baseMatCost": 200,
+                  "baseCoinCost": 1000000,
+                  "powCoinBase": 1.6,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_DNA_gained_from_Splicing",
+                  "placeholderEffect": "{}%_more_DNA",
+                  "stat": "DNAsplice",
+                  "itemReq": [
+                    {
+                      "name": "Worker_Bee",
+                      "rawName": "Bug7"
+                    }
+                  ]
+                },
+                "21": {
+                  "displayName": "Refinery_Stamp",
+                  "rawName": "StampC22",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 5,
+                  "baseMatCost": 250,
+                  "baseCoinCost": 25000000,
+                  "powCoinBase": 1.52,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Faster_refinery_cycles",
+                  "placeholderEffect": "{}%_faster_refinery",
+                  "stat": "RefinerySpd",
+                  "itemReq": [
+                    {
+                      "name": "Cheesy_Crumbs",
+                      "rawName": "LavaA4"
+                    }
+                  ]
+                },
+                "22": {
+                  "displayName": "Atomic_Stamp",
+                  "rawName": "StampC23",
+                  "func": "decay",
+                  "x1": 20,
+                  "x2": 80,
+                  "reqItemMultiplicationLevel": 8,
+                  "baseMatCost": 2500,
+                  "baseCoinCost": 25000000,
+                  "powCoinBase": 1.52,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Lower_Atom_Upgrade_Costs",
+                  "placeholderEffect": "{}%_lower_Atom_upgrade_costs",
+                  "stat": "AtomCost",
+                  "itemReq": [
+                    {
+                      "name": "Bamboo",
+                      "rawName": "SpiA3"
+                    }
+                  ]
+                },
+                "23": {
+                  "displayName": "Cavern_Resource_Stamp",
+                  "rawName": "StampC24",
+                  "func": "decay",
+                  "x1": 100,
+                  "x2": 250,
+                  "reqItemMultiplicationLevel": 20,
+                  "baseMatCost": 10,
+                  "baseCoinCost": 2000000000,
+                  "powCoinBase": 1.72,
+                  "powMatBase": 1.8,
+                  "skillIndex": 0,
+                  "effect": "+{%_more_Resources_from_all_Caverns",
+                  "placeholderEffect": "{}%_more_resources_from_caverns",
+                  "stat": "CavernRes",
+                  "itemReq": [
+                    {
+                      "name": "Cooking_Ladle",
+                      "rawName": "Ladle"
+                    }
+                  ]
+                },
+                "24": {
+                  "displayName": "Study_Hall_Stamp",
+                  "rawName": "StampC25",
+                  "func": "decay",
+                  "x1": 30,
+                  "x2": 160,
+                  "reqItemMultiplicationLevel": 15,
+                  "baseMatCost": 30,
+                  "baseCoinCost": 2000000000,
+                  "powCoinBase": 1.72,
+                  "powMatBase": 2.5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Study_rate_for_Bolaia",
+                  "placeholderEffect": "{}%_faster_Study_Rate_for_Bolaia",
+                  "stat": "VillageStudy",
+                  "itemReq": [
+                    {
+                      "name": "Villager_Statue",
+                      "rawName": "EquipmentStatues29"
+                    }
+                  ]
+                }
+              },
+              "new": {
+                "0": {
+                  "displayName": "Questin_Stamp",
+                  "rawName": "StampC1",
+                  "func": "decay",
+                  "x1": 70,
+                  "x2": 50,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 30,
+                  "baseCoinCost": 500,
+                  "powCoinBase": 1.32,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Quest_Exp",
+                  "placeholderEffect": "{}%_Quest_EXP",
+                  "stat": "QuestExp",
+                  "itemReq": [
+                    {
+                      "name": "Slime_Sludge",
+                      "rawName": "Jungle1"
+                    }
+                  ]
+                },
+                "1": {
+                  "displayName": "Mason_Jar_Stamp",
+                  "rawName": "StampC2",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 4,
+                  "baseMatCost": 1,
+                  "baseCoinCost": 4000,
+                  "powCoinBase": 1.28,
+                  "powMatBase": 3,
+                  "skillIndex": 0,
+                  "effect": "+{%_Carry_Capacity_for_ALL_item_types!",
+                  "placeholderEffect": "{}%_All_Carry_Cap",
+                  "stat": "AllCarryCap",
+                  "itemReq": [
+                    {
+                      "name": "Glass_Shard",
+                      "rawName": "DesertA1b"
+                    }
+                  ]
+                },
+                "2": {
+                  "displayName": "Crystallin",
+                  "rawName": "StampC3",
+                  "func": "decay",
+                  "x1": 110,
+                  "x2": 50,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 35,
+                  "baseCoinCost": 800,
+                  "powCoinBase": 1.31,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{%_Crystal_Monster_Spawn_Chance",
+                  "placeholderEffect": "{}%_Spawn_Chance",
+                  "stat": "CrySpawn",
+                  "itemReq": [
+                    {
+                      "name": "Boring_Brick",
+                      "rawName": "CraftMat6"
+                    }
+                  ]
+                },
+                "3": {
+                  "displayName": "Arcade_Ball_Stamp",
+                  "rawName": "StampC4",
+                  "func": "decay",
+                  "x1": 50,
+                  "x2": 100,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 30,
+                  "baseCoinCost": 1500,
+                  "powCoinBase": 1.33,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Arcade_Ball_recharge_rate",
+                  "placeholderEffect": "{}%_ball_gain_rate",
+                  "stat": "ArcadeBallz",
+                  "itemReq": [
+                    {
+                      "name": "Copper_Ore",
+                      "rawName": "Copper"
+                    }
+                  ]
+                },
+                "4": {
+                  "displayName": "Gold_Ball_Stamp",
+                  "rawName": "StampC5",
+                  "func": "decay",
+                  "x1": 40,
+                  "x2": 100,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 50,
+                  "baseCoinCost": 1000,
+                  "powCoinBase": 1.33,
+                  "powMatBase": 6.5,
+                  "skillIndex": 0,
+                  "effect": "+{%_reduced_golden_ball_cost_for_upgrades",
+                  "placeholderEffect": "{}%_HP_Food_Effect",
+                  "stat": "GoldBallz",
+                  "itemReq": [
+                    {
+                      "name": "Goldfish",
+                      "rawName": "Fish1"
+                    }
+                  ]
+                },
+                "5": {
+                  "displayName": "Potion_Stamp",
+                  "rawName": "StampC6",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 5,
+                  "baseMatCost": 50,
+                  "baseCoinCost": 1500,
+                  "powCoinBase": 1.305,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{%_Effect_from_Boost_Food,_like_Potions_and_stuff,_like,_such_as!",
+                  "placeholderEffect": "{}%_Boost_Food_Effect",
+                  "stat": "BFood",
+                  "itemReq": [
+                    {
+                      "name": "Icing_Ironbite",
+                      "rawName": "FoodMining1",
+                      "materials": [
+                        {
+                          "itemName": "Iron_Ore",
+                          "type": "Consumable",
+                          "subType": "ORE",
+                          "rawName": "Iron",
+                          "itemQuantity": 5
+                        },
+                        {
+                          "itemName": "Small_Mana_Potion",
+                          "type": "Consumable",
+                          "subType": "BOOST_FOOD",
+                          "rawName": "FoodPotMana1",
+                          "itemQuantity": 2
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "6": {
+                  "displayName": "Golden_Apple_Stamp",
+                  "rawName": "StampC7",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 4,
+                  "baseMatCost": 2,
+                  "baseCoinCost": 3000,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 4,
+                  "skillIndex": 0,
+                  "effect": "+{%_Effect_from_Golden_Food._Sparkle_sparkle!",
+                  "placeholderEffect": "{}%_Gold_Food_Effect",
+                  "stat": "GFood",
+                  "itemReq": [
+                    {
+                      "name": "Golden_Nomwich",
+                      "rawName": "FoodG4"
+                    }
+                  ]
+                },
+                "7": {
+                  "displayName": "Ball_Timer_Stamp",
+                  "rawName": "StampC8",
+                  "func": "decay",
+                  "x1": 12,
+                  "x2": 30,
+                  "reqItemMultiplicationLevel": 5,
+                  "baseMatCost": 100,
+                  "baseCoinCost": 1000,
+                  "powCoinBase": 1.32,
+                  "powMatBase": 15,
+                  "skillIndex": 0,
+                  "effect": "+{hr_Arcade_Ball_claim_max_time",
+                  "placeholderEffect": "{}hr_Max_Claim_Time",
+                  "stat": "ArcadeTimeMax",
+                  "itemReq": [
+                    {
+                      "name": "Oak_Logs",
+                      "rawName": "OakTree"
+                    }
+                  ]
+                },
+                "8": {
+                  "displayName": "Card_Stamp",
+                  "rawName": "StampC9",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 25,
+                  "baseCoinCost": 1200,
+                  "powCoinBase": 1.31,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Card_Drop_Rate._Go_get_them_cards_boy-o!",
+                  "placeholderEffect": "{}%_Card_Drop_Rate",
+                  "stat": "CardDrop",
+                  "itemReq": [
+                    {
+                      "name": "Furled_Flag",
+                      "rawName": "DesertB2"
+                    }
+                  ]
+                },
+                "9": {
+                  "displayName": "Forge_Stamp",
+                  "rawName": "StampC10",
+                  "func": "decay",
+                  "x1": 120,
+                  "x2": 250,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 250,
+                  "baseCoinCost": 5000000000000,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{%_Forge_Max_Capacity",
+                  "placeholderEffect": "{}%_Forge_Capacity",
+                  "stat": "ForgeCap",
+                  "itemReq": [
+                    {
+                      "name": "Godshard_Ore",
+                      "rawName": "Godshard"
+                    }
+                  ]
+                },
+                "10": {
+                  "displayName": "Vendor_Stamp",
+                  "rawName": "StampC11",
+                  "func": "decay",
+                  "x1": 35,
+                  "x2": 100,
+                  "reqItemMultiplicationLevel": 10,
+                  "baseMatCost": 100,
+                  "baseCoinCost": 30000,
+                  "powCoinBase": 1.5,
+                  "powMatBase": 10,
+                  "skillIndex": 0,
+                  "effect": "+{%_Shop_Stock_Quantity",
+                  "placeholderEffect": "{}%_Higher_Shop_QTY",
+                  "stat": "ShopQty",
+                  "itemReq": [
+                    {
+                      "name": "Cue_Tape",
+                      "rawName": "CraftMat3"
+                    }
+                  ]
+                },
+                "11": {
+                  "displayName": "Sigil_Stamp",
+                  "rawName": "StampC12",
+                  "func": "decay",
+                  "x1": 40,
+                  "x2": 150,
+                  "reqItemMultiplicationLevel": 12,
+                  "baseMatCost": 2000,
+                  "baseCoinCost": 1000000,
+                  "powCoinBase": 1.32,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{%_Sigil_Charge_rate",
+                  "placeholderEffect": "{}%_Sigil_Charge_rate",
+                  "stat": "SigilCharge",
+                  "itemReq": [
+                    {
+                      "name": "Ram_Wool",
+                      "rawName": "SnowA4"
+                    }
+                  ]
+                },
+                "12": {
+                  "displayName": "Talent_I_Stamp",
+                  "rawName": "StampC13",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 50,
+                  "baseCoinCost": 2000,
+                  "powCoinBase": 1.4,
+                  "powMatBase": 10,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_1",
+                  "placeholderEffect": "{}_Talent_1_Pts",
+                  "stat": "Talent1",
+                  "itemReq": [
+                    {
+                      "name": "Frog_Leg",
+                      "rawName": "Grasslands2"
+                    }
+                  ]
+                },
+                "13": {
+                  "displayName": "Talent_II_Stamp",
+                  "rawName": "StampC14",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 200,
+                  "baseCoinCost": 4000,
+                  "powCoinBase": 1.35,
+                  "powMatBase": 8,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_2",
+                  "placeholderEffect": "{}_Talent_2_Pts",
+                  "stat": "Talent2",
+                  "itemReq": [
+                    {
+                      "name": "Pincer_Arm",
+                      "rawName": "DesertB3"
+                    }
+                  ]
+                },
+                "14": {
+                  "displayName": "Talent_III_Stamp",
+                  "rawName": "StampC15",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 20,
+                  "baseCoinCost": 40000,
+                  "powCoinBase": 1.35,
+                  "powMatBase": 4,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_3",
+                  "placeholderEffect": "{}_Talent_3_Pts",
+                  "stat": "Talent3",
+                  "itemReq": [
+                    {
+                      "name": "Arctic_Leaf",
+                      "rawName": "Leaf3"
+                    }
+                  ]
+                },
+                "15": {
+                  "displayName": "Talent_IV_Stamp",
+                  "rawName": "StampC16",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 2,
+                  "baseCoinCost": 300000000,
+                  "powCoinBase": 1.4,
+                  "powMatBase": 3,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_4",
+                  "placeholderEffect": "{}_Talent_4_Pts",
+                  "stat": "Talent4",
+                  "itemReq": [
+                    {
+                      "name": "Royal_Suggma_Urn",
+                      "rawName": "LavaA1b"
+                    }
+                  ]
+                },
+                "16": {
+                  "displayName": "Talent_V_Stamp",
+                  "rawName": "StampC17",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 25,
+                  "baseCoinCost": 50,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 6,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Tab_5",
+                  "placeholderEffect": "{}_Talent_5_Pts",
+                  "stat": "Talent5",
+                  "itemReq": [
+                    {
+                      "name": "Copper_Ore",
+                      "rawName": "Copper"
+                    }
+                  ]
+                },
+                "17": {
+                  "displayName": "Talent_S_Stamp",
+                  "rawName": "StampC18",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 20,
+                  "baseCoinCost": 50,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 4,
+                  "skillIndex": 0,
+                  "effect": "+{_Talent_Points_for_Star_Tab",
+                  "placeholderEffect": "{}_Star_Talent_Pts",
+                  "stat": "TalentS",
+                  "itemReq": [
+                    {
+                      "name": "Twisty_Leaf",
+                      "rawName": "Leaf2"
+                    }
+                  ]
+                },
+                "18": {
+                  "displayName": "Multikill_Stamp",
+                  "rawName": "StampC19",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 100,
+                  "baseCoinCost": 10000,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 3,
+                  "skillIndex": 0,
+                  "effect": "+{%_Base_Multikill_Rate,_for_all_worlds.",
+                  "placeholderEffect": "{}%_Base_Overkill",
+                  "stat": "Overkill",
+                  "itemReq": [
+                    {
+                      "name": "Spore_Cap",
+                      "rawName": "Grasslands1"
+                    }
+                  ]
+                },
+                "19": {
+                  "displayName": "Biblio_Stamp",
+                  "rawName": "StampC20",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 2,
+                  "baseMatCost": 125,
+                  "baseCoinCost": 12500,
+                  "powCoinBase": 1.3,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Talent_Book_Library_Refresh_Speed",
+                  "placeholderEffect": "{}%_Faster_Books",
+                  "stat": "BookSpd",
+                  "itemReq": [
+                    {
+                      "name": "Tundra_Logs",
+                      "rawName": "SaharanFoal"
+                    }
+                  ]
+                },
+                "20": {
+                  "displayName": "DNA_Stamp",
+                  "rawName": "StampC21",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 3,
+                  "baseMatCost": 200,
+                  "baseCoinCost": 1000000,
+                  "powCoinBase": 1.6,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_DNA_gained_from_Splicing",
+                  "placeholderEffect": "{}%_more_DNA",
+                  "stat": "DNAsplice",
+                  "itemReq": [
+                    {
+                      "name": "Worker_Bee",
+                      "rawName": "Bug7"
+                    }
+                  ]
+                },
+                "21": {
+                  "displayName": "Refinery_Stamp",
+                  "rawName": "StampC22",
+                  "func": "add",
+                  "x1": 1,
+                  "x2": 0,
+                  "reqItemMultiplicationLevel": 5,
+                  "baseMatCost": 250,
+                  "baseCoinCost": 25000000,
+                  "powCoinBase": 1.52,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Faster_refinery_cycles",
+                  "placeholderEffect": "{}%_faster_refinery",
+                  "stat": "RefinerySpd",
+                  "itemReq": [
+                    {
+                      "name": "Cheesy_Crumbs",
+                      "rawName": "LavaA4"
+                    }
+                  ]
+                },
+                "22": {
+                  "displayName": "Atomic_Stamp",
+                  "rawName": "StampC23",
+                  "func": "decay",
+                  "x1": 20,
+                  "x2": 80,
+                  "reqItemMultiplicationLevel": 8,
+                  "baseMatCost": 2500,
+                  "baseCoinCost": 25000000,
+                  "powCoinBase": 1.52,
+                  "powMatBase": 5,
+                  "skillIndex": 0,
+                  "effect": "+{%_Lower_Atom_Upgrade_Costs",
+                  "placeholderEffect": "{}%_lower_Atom_upgrade_costs",
+                  "stat": "AtomCost",
+                  "itemReq": [
+                    {
+                      "name": "Bamboo",
+                      "rawName": "SpiA3"
+                    }
+                  ]
+                },
+                "23": {
+                  "displayName": "Cavern_Resource_Stamp",
+                  "rawName": "StampC24",
+                  "func": "decay",
+                  "x1": 100,
+                  "x2": 250,
+                  "reqItemMultiplicationLevel": 20,
+                  "baseMatCost": 10,
+                  "baseCoinCost": 2000000000,
+                  "powCoinBase": 1.72,
+                  "powMatBase": 20,
+                  "skillIndex": 0,
+                  "effect": "+{%_more_Resources_from_all_Caverns",
+                  "placeholderEffect": "{}%_more_resources_from_caverns",
+                  "stat": "CavernRes",
+                  "itemReq": [
+                    {
+                      "name": "Cooking_Ladle",
+                      "rawName": "Ladle"
+                    }
+                  ]
+                },
+                "24": {
+                  "displayName": "Study_Hall_Stamp",
+                  "rawName": "StampC25",
+                  "func": "decay",
+                  "x1": 30,
+                  "x2": 160,
+                  "reqItemMultiplicationLevel": 15,
+                  "baseMatCost": 30,
+                  "baseCoinCost": 2000000000,
+                  "powCoinBase": 1.72,
+                  "powMatBase": 20,
+                  "skillIndex": 0,
+                  "effect": "+{%_Study_rate_for_Bolaia",
+                  "placeholderEffect": "{}%_faster_Study_Rate_for_Bolaia",
+                  "stat": "VillageStudy",
+                  "itemReq": [
+                    {
+                      "name": "Villager_Statue",
+                      "rawName": "EquipmentStatues29"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "achievements": {
+        "achievements": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "236",
+              "old": {
+                "name": "Hibernating_Gamer",
+                "rawName": "TaskAchD27",
+                "quantity": 1,
+                "desc": "Glaim_111,000_hours_of_AFK_time._Jeez,_thats_like_an_entire_year_of_all_characters_idling_to_the_max.",
+                "rewards": [
+                  "100_gems_",
+                  "1_'72hr_time_candy'"
+                ],
+                "misc": "0",
+                "visualIndex": 24,
+                "steamExclusive": true,
+                "steamIndex": 49
+              },
+              "new": {
+                "name": "Hibernating_Gamer",
+                "rawName": "TaskAchD27",
+                "quantity": 1,
+                "desc": "Claim_111,000_hours_of_AFK_time._Jeez,_thats_like_an_entire_year_of_all_characters_idling_to_the_max.",
+                "rewards": [
+                  "100_gems_",
+                  "1_'72hr_time_candy'"
+                ],
+                "misc": "0",
+                "visualIndex": 24,
+                "steamExclusive": true,
+                "steamIndex": 49
+              }
+            }
+          ]
+        }
+      },
+      "talents": {
+        "talents": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "Maestro",
+              "old": {
+                "COIN_TOSS": {
+                  "name": "COIN_TOSS",
+                  "description": "Throws_a_coin_which_deals_{%_Dmg._Damage_also_increases_the_more_money_you_have",
+                  "x1": 100,
+                  "x2": 1,
+                  "funcX": "bigBase",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Dmg",
+                  "skillIndex": 30,
+                  "K": 1.2,
+                  "D": 1.3,
+                  "s": 1.3,
+                  "cooldown": 20,
+                  "castTime": 0.45,
+                  "manaCost": 5,
+                  "inputReq": 1,
+                  "AFKrange": 125,
+                  "AFKtype": "projectile",
+                  "AFKactivity": 0
+                },
+                "SKILLAGE_DAMAGE": {
+                  "name": "SKILLAGE_DAMAGE",
+                  "description": "+{%_DMG_for_every_5_levels_of_your_lowest_LV_Skill",
+                  "x1": 50,
+                  "x2": 50,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_DMG",
+                  "skillIndex": 31
+                },
+                "PRINTER_GO_BRRR": {
+                  "name": "PRINTER_GO_BRRR",
+                  "description": "Print_{_Hours_of_printer_samples_instantly._}%_chance_to_have_no_cooldown!",
+                  "x1": 1,
+                  "x2": 40,
+                  "funcX": "intervalAdd",
+                  "y1": 95,
+                  "y2": 60,
+                  "funcY": "decay",
+                  "lvlUpText": "{_Hours_&_+}%_No_CD_chance",
+                  "skillIndex": 32,
+                  "K": 1,
+                  "D": 1,
+                  "s": 1,
+                  "cooldown": 82000,
+                  "castTime": 0.45,
+                  "manaCost": 5,
+                  "inputReq": 0,
+                  "AFKrange": 125,
+                  "AFKtype": "buff",
+                  "AFKactivity": 0
+                },
+                "TRIPLE_JAB": {
+                  "name": "TRIPLE_JAB",
+                  "description": "Punches_now_hit_a_3rd_time_for_{%_dmg._The_other_hits_do_+}%_more_Dmg",
+                  "x1": 20,
+                  "x2": 4,
+                  "funcX": "intervalAdd",
+                  "y1": 0.5,
+                  "y2": 0,
+                  "funcY": "add",
+                  "lvlUpText": "+{%_3rd_Dmg_&_+}_other_Dmg",
+                  "skillIndex": 33
+                },
+                "ONE_STEP_AHEAD": {
+                  "name": "ONE_STEP_AHEAD",
+                  "description": "Check-Mate!_+{_Points_for_the_Vee_Man!",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "Pawn_to_B{",
+                  "skillIndex": 34
+                },
+                "LUCKY_CHARMS": {
+                  "name": "LUCKY_CHARMS",
+                  "description": "LUK's_effect_on_Class_EXP_Gain_is_increased_by_{%",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Effect",
+                  "skillIndex": 35
+                },
+                "CLEVER_CLOVER_OBOLS": {
+                  "name": "CLEVER_CLOVER_OBOLS",
+                  "description": "Obols_give_+{%_more_LUK_than_what's_listed",
+                  "x1": 60,
+                  "x2": 50,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_more_LUK_from_Obols",
+                  "skillIndex": 36
+                },
+                "SKILLIEST_STATUE": {
+                  "name": "SKILLIEST_STATUE",
+                  "description": "'EhExPee',_'Kapow',_and_'Feasty'_statues_give_{%_higher_bonuses",
+                  "x1": 100,
+                  "x2": 50,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_higher_bonuses",
+                  "skillIndex": 37
+                },
+                "BLISS_N_CHIPS": {
+                  "name": "BLISS_N_CHIPS",
+                  "description": "+{_Max_LV_to_'Happy_Dude',_and_+}_Max_LV_to_Lucky_Horseshoe",
+                  "x1": 2,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": 1,
+                  "y2": 0,
+                  "funcY": "add",
+                  "lvlUpText": "+{_Max_LV_&_+}_Max_LV",
+                  "skillIndex": 38
+                },
+                "COLLOQUIAL_CONTAINERS": {
+                  "name": "COLLOQUIAL_CONTAINERS",
+                  "description": "Each_Lv_of_'Lotto_Skills'_Bubble_raises_max_Lv_of_'Sleepin_On_The_Job'_Talent,_up_to_+{",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{_Max_LV_for_Sleep_On_Job",
+                  "skillIndex": 39
+                },
+                "MAESTRO_TRANSFUSION": {
+                  "name": "MAESTRO_TRANSFUSION",
+                  "description": "+{%_Skill_EXP_Gain,_and_-}%_Skill_Efficiency._Affects_all_Skills.",
+                  "x1": 2.5,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": 120,
+                  "y2": 100,
+                  "funcY": "decay",
+                  "lvlUpText": "+{%_EXP_gain_&_-}%_Efficiency",
+                  "skillIndex": 40,
+                  "K": 1,
+                  "D": 1,
+                  "s": 1,
+                  "cooldown": 120,
+                  "castTime": 0.45,
+                  "manaCost": 5,
+                  "inputReq": 0,
+                  "AFKrange": 125,
+                  "AFKtype": "buff",
+                  "AFKactivity": 0
+                },
+                "CRYSTAL_COUNTDOWN": {
+                  "name": "CRYSTAL_COUNTDOWN",
+                  "description": "Killing_a_Crystal_or_Giant_lowers_REQ_Exp_of_a_random_skill_by_2%._Stacks_up_to_{%.",
+                  "x1": 99,
+                  "x2": 72,
+                  "funcX": "decay",
+                  "y1": 10,
+                  "y2": 1,
+                  "funcY": "add",
+                  "lvlUpText": "+{%_max_exp_reduction",
+                  "skillIndex": 41
+                },
+                "LEFT_HAND_OF_LEARNING": {
+                  "name": "LEFT_HAND_OF_LEARNING",
+                  "description": "+{%_Skill_EXP_Gain_for_your_other_characters,_if_their_Skill_LV_is_lower_than_Maestro's.",
+                  "x1": 200,
+                  "x2": 100,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Skill_EXP_to_family",
+                  "skillIndex": 42
+                },
+                "RIGHT_HAND_OF_ACTION": {
+                  "name": "RIGHT_HAND_OF_ACTION",
+                  "description": "+{%_Skill_Efficiency_for_your_other_characters,_if_their_Skill_LV_is_lower_than_Maestro's.",
+                  "x1": 150,
+                  "x2": 100,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Skill_Eff_to_family",
+                  "skillIndex": 43
+                },
+                "JMAN_WAS_BETTER": {
+                  "name": "JMAN_WAS_BETTER",
+                  "description": "+{_Talent_Points_for_the_'Journeyman'_tab._Maestro_not_worth_the_wait,_eh?",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+1_Journeyman_Point",
+                  "skillIndex": 44
+                }
+              },
+              "new": {
+                "COIN_TOSS": {
+                  "name": "COIN_TOSS",
+                  "description": "Throws_a_coin_which_deals_{%_Dmg._Damage_also_increases_the_more_money_you_have",
+                  "x1": 100,
+                  "x2": 1,
+                  "funcX": "bigBase",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Dmg",
+                  "skillIndex": 30,
+                  "K": 1.2,
+                  "D": 1.3,
+                  "s": 1.3,
+                  "cooldown": 20,
+                  "castTime": 0.45,
+                  "manaCost": 5,
+                  "inputReq": 1,
+                  "AFKrange": 125,
+                  "AFKtype": "projectile",
+                  "AFKactivity": 0
+                },
+                "SKILLAGE_DAMAGE": {
+                  "name": "SKILLAGE_DAMAGE",
+                  "description": "+{%_DMG_for_every_5_levels_of_your_lowest_LV_Skill",
+                  "x1": 50,
+                  "x2": 50,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_DMG",
+                  "skillIndex": 31
+                },
+                "PRINTER_GO_BRRR": {
+                  "name": "PRINTER_GO_BRRR",
+                  "description": "Print_{_Hours_of_printer_samples_instantly._}%_chance_to_have_no_cooldown!",
+                  "x1": 1,
+                  "x2": 40,
+                  "funcX": "intervalAdd",
+                  "y1": 95,
+                  "y2": 60,
+                  "funcY": "decay",
+                  "lvlUpText": "{_Hours_&_+}%_No_CD_chance",
+                  "skillIndex": 32,
+                  "K": 1,
+                  "D": 1,
+                  "s": 1,
+                  "cooldown": 82000,
+                  "castTime": 0.45,
+                  "manaCost": 5,
+                  "inputReq": 0,
+                  "AFKrange": 125,
+                  "AFKtype": "buff",
+                  "AFKactivity": 0
+                },
+                "TRIPLE_JAB": {
+                  "name": "TRIPLE_JAB",
+                  "description": "Punches_now_hit_a_3rd_time_for_{%_dmg._The_other_hits_do_+}%_more_Dmg",
+                  "x1": 20,
+                  "x2": 4,
+                  "funcX": "intervalAdd",
+                  "y1": 0.5,
+                  "y2": 0,
+                  "funcY": "add",
+                  "lvlUpText": "+{%_3rd_Dmg_&_+}_other_Dmg",
+                  "skillIndex": 33
+                },
+                "ONE_STEP_AHEAD": {
+                  "name": "ONE_STEP_AHEAD",
+                  "description": "Check-Mate!_+{_Points_for_the_Vee_Man!",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "Pawn_to_B{",
+                  "skillIndex": 34
+                },
+                "LUCKY_CHARMS": {
+                  "name": "LUCKY_CHARMS",
+                  "description": "LUK's_effect_on_Class_EXP_Gain_is_increased_by_{%",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Effect",
+                  "skillIndex": 35
+                },
+                "CLEVER_CLOVER_OBOLS": {
+                  "name": "CLEVER_CLOVER_OBOLS",
+                  "description": "Obols_give_+{%_more_LUK_than_what's_listed",
+                  "x1": 60,
+                  "x2": 50,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_more_LUK_from_Obols",
+                  "skillIndex": 36
+                },
+                "SKILLIEST_STATUE": {
+                  "name": "SKILLIEST_STATUE",
+                  "description": "'EhExPee',_'Kachow',_and_'Feasty'_statues_give_{%_higher_bonuses",
+                  "x1": 100,
+                  "x2": 50,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_higher_bonuses",
+                  "skillIndex": 37
+                },
+                "BLISS_N_CHIPS": {
+                  "name": "BLISS_N_CHIPS",
+                  "description": "+{_Max_LV_to_'Happy_Dude',_and_+}_Max_LV_to_Lucky_Horseshoe",
+                  "x1": 2,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": 1,
+                  "y2": 0,
+                  "funcY": "add",
+                  "lvlUpText": "+{_Max_LV_&_+}_Max_LV",
+                  "skillIndex": 38
+                },
+                "COLLOQUIAL_CONTAINERS": {
+                  "name": "COLLOQUIAL_CONTAINERS",
+                  "description": "Each_Lv_of_'Lotto_Skills'_Bubble_raises_max_Lv_of_'Sleepin_On_The_Job'_Talent,_up_to_+{",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{_Max_LV_for_Sleep_On_Job",
+                  "skillIndex": 39
+                },
+                "MAESTRO_TRANSFUSION": {
+                  "name": "MAESTRO_TRANSFUSION",
+                  "description": "+{%_Skill_EXP_Gain,_and_-}%_Skill_Efficiency._Affects_all_Skills.",
+                  "x1": 2.5,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": 120,
+                  "y2": 100,
+                  "funcY": "decay",
+                  "lvlUpText": "+{%_EXP_gain_&_-}%_Efficiency",
+                  "skillIndex": 40,
+                  "K": 1,
+                  "D": 1,
+                  "s": 1,
+                  "cooldown": 120,
+                  "castTime": 0.45,
+                  "manaCost": 5,
+                  "inputReq": 0,
+                  "AFKrange": 125,
+                  "AFKtype": "buff",
+                  "AFKactivity": 0
+                },
+                "CRYSTAL_COUNTDOWN": {
+                  "name": "CRYSTAL_COUNTDOWN",
+                  "description": "Killing_a_Crystal_or_Giant_lowers_REQ_Exp_of_a_random_skill_by_2%._Stacks_up_to_{%.",
+                  "x1": 99,
+                  "x2": 72,
+                  "funcX": "decay",
+                  "y1": 10,
+                  "y2": 1,
+                  "funcY": "add",
+                  "lvlUpText": "+{%_max_exp_reduction",
+                  "skillIndex": 41
+                },
+                "LEFT_HAND_OF_LEARNING": {
+                  "name": "LEFT_HAND_OF_LEARNING",
+                  "description": "+{%_Skill_EXP_Gain_for_your_other_characters,_if_their_Skill_LV_is_lower_than_Maestro's.",
+                  "x1": 200,
+                  "x2": 100,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Skill_EXP_to_family",
+                  "skillIndex": 42
+                },
+                "RIGHT_HAND_OF_ACTION": {
+                  "name": "RIGHT_HAND_OF_ACTION",
+                  "description": "+{%_Skill_Efficiency_for_your_other_characters,_if_their_Skill_LV_is_lower_than_Maestro's.",
+                  "x1": 150,
+                  "x2": 100,
+                  "funcX": "decay",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+{%_Skill_Eff_to_family",
+                  "skillIndex": 43
+                },
+                "JMAN_WAS_BETTER": {
+                  "name": "JMAN_WAS_BETTER",
+                  "description": "+{_Talent_Points_for_the_'Journeyman'_tab._Maestro_not_worth_the_wait,_eh?",
+                  "x1": 1,
+                  "x2": 0,
+                  "funcX": "add",
+                  "y1": null,
+                  "y2": null,
+                  "funcY": "txt",
+                  "lvlUpText": "+1_Journeyman_Point",
+                  "skillIndex": 44
+                }
+              }
+            }
+          ]
+        }
+      },
+      "quests": {
+        "quests": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "Djonnut",
+              "old": {
+                "1": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "Get_for_me_all_the_most_very_blue_items!_I_will_use_to_regain_my_wishing_powers!_@_QUEST:Collect_some_very_blue_thingies_for_this_very_blue_dude",
+                  "NextIndex": 4,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 3,
+                  "QuestName": "Djonnut1",
+                  "itemReq": [
+                    {
+                      "rawName": "FoodPotMana2",
+                      "name": "Average_Mana_Potion",
+                      "amount": 200
+                    },
+                    {
+                      "rawName": "FoodMining1",
+                      "name": "Icing_Ironbite",
+                      "amount": 600
+                    },
+                    {
+                      "rawName": "Fish3",
+                      "name": "Jellyfish",
+                      "amount": 150
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Timecandy1",
+                      "name": "1_HR_Time_Candy",
+                      "amount": 8
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "Genie_Dieting"
+                },
+                "2": {
+                  "Type": "Custom",
+                  "DialogueText": "Ok_pls_why_yu_hef_to_be_mad_is_only_videogame!_I_make_it_up_to_you_just_get_me_mor_blue_stuffs_and_I_wish_for_door_open_for_you!_@_QUEST:Defeat_Moonmen_and_retrieve_some_ghosts",
+                  "NextIndex": 7,
+                  "CustomType": "Djonnut2",
+                  "ConsumeItems": "!1",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 6,
+                  "QuestName": "Djonnut2",
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 2
+                    }
+                  ],
+                  "customArray": [
+                    {
+                      "desc": "Moonmen_Defeated:",
+                      "value": 3000
+                    },
+                    {
+                      "desc": "Ghosts_Collected:",
+                      "value": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "I'm_Blue_Dabadedada"
+                },
+                "3": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "How_I_would_love_to_see_this_blue_world._I_would_of_be_so_happy_but_no_I_must_remain_here._Please_player_please_help_me_see_the_blue_world!_@_QUEST:He's_blue_get_him_blue_stuff_from_world_3_nuff_said.",
+                  "NextIndex": 15,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 2,
+                  "NoSpaceIndex": 14,
+                  "QuestName": "Djonnut3",
+                  "itemReq": [
+                    {
+                      "rawName": "SnowA2",
+                      "name": "Melty_Cube",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB1",
+                      "name": "Sticky_Stick",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB2",
+                      "name": "Mamooth_Tusk",
+                      "amount": 2500
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "NPCtoken25",
+                      "name": "Djonnut_Token",
+                      "amount": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "The_Blue_New_World"
+                }
+              },
+              "new": {
+                "1": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "I_will_give_you_boss_keys_then!_Just_do_my_quest_first!_@_QUEST:Collect_various_monster_drops_from_Snelbies_Sand_Giants_and_Moonmoons!",
+                  "NextIndex": 4,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 3,
+                  "QuestName": "Djonnut1",
+                  "itemReq": [
+                    {
+                      "rawName": "DesertC4",
+                      "name": "Shrapshell",
+                      "amount": 100
+                    },
+                    {
+                      "rawName": "DesertC3",
+                      "name": "Singlecle",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "DesertC2",
+                      "name": "Wakka_Cherry",
+                      "amount": 5
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "Genie_Dieting"
+                },
+                "2": {
+                  "Type": "Custom",
+                  "DialogueText": "Do_this_for_me_and_I_will_giv_you_keys_EVERY_DAY!_@_QUEST:Defeat_Moonmen_and_retrieve_the_rare_ghost_drop!_It's_a_1_in_2000_chance_per_kill!",
+                  "NextIndex": 7,
+                  "CustomType": "Djonnut2",
+                  "ConsumeItems": "!1",
+                  "InventorySpacesNeeded": 1,
+                  "NoSpaceIndex": 6,
+                  "QuestName": "Djonnut2",
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    }
+                  ],
+                  "customArray": [
+                    {
+                      "desc": "Moonmen_Defeated:",
+                      "value": 4000
+                    },
+                    {
+                      "desc": "Ghosts_Collected:",
+                      "value": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "I'm_Blue_Dabadedada"
+                },
+                "3": {
+                  "Type": "ItemsAndSpaceRequired",
+                  "DialogueText": "How_I_would_love_to_see_this_blue_world._I_would_of_be_so_happy_but_no_I_must_remain_here._Please_player_please_help_me_see_the_blue_world!_@_QUEST:He's_blue_get_him_blue_stuff_from_world_3_nuff_said.",
+                  "NextIndex": 15,
+                  "ConsumeItems": "!0",
+                  "InventorySpacesNeeded": 2,
+                  "NoSpaceIndex": 14,
+                  "QuestName": "Djonnut3",
+                  "itemReq": [
+                    {
+                      "rawName": "SnowA2",
+                      "name": "Melty_Cube",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB1",
+                      "name": "Sticky_Stick",
+                      "amount": 2500
+                    },
+                    {
+                      "rawName": "SnowB2",
+                      "name": "Mamooth_Tusk",
+                      "amount": 2500
+                    }
+                  ],
+                  "rewards": [
+                    {
+                      "rawName": "Key2",
+                      "name": "Efaunt's_Tomb_Key",
+                      "amount": 5
+                    },
+                    {
+                      "rawName": "NPCtoken25",
+                      "name": "Djonnut_Token",
+                      "amount": 1
+                    }
+                  ],
+                  "Difficulty": "4",
+                  "Name": "The_Blue_New_World"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "companions": {
+        "companions": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "16",
+              "old": {
+                "name": "Crystal_Capybara",
+                "rawName": "Crystal4",
+                "effect": "1.75x_Lab_EXP_Gain_and_Divnity_EXP_Gain",
+                "bonus": 0.75,
+                "x": "-21",
+                "y": "0",
+                "z": "-5",
+                "filler": "100"
+              },
+              "new": {
+                "name": "Crystal_Capybara",
+                "rawName": "Crystal4",
+                "effect": "1.75x_Lab_EXP_and_Divinity_EXP_Gain",
+                "bonus": 0.75,
+                "x": "-21",
+                "y": "0",
+                "z": "-5",
+                "filler": "100"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2254 @@
+{
+  "metadata": {
+    "oldVersion": "2.3.34",
+    "newVersion": "2.3.34-a",
+    "timestamp": "2025-05-30T19:02:57.077Z",
+    "changedCategories": [
+      "misc",
+      "world-1",
+      "world-2",
+      "world-5",
+      "world-6",
+      "game-systems"
+    ]
+  },
+  "changes": {
+    "misc": {
+      "tomeData": {
+        "added": [
+          {
+            "key": "82",
+            "value": {
+              "name": "Total_Gambit_Time_(in_Seconds)_",
+              "info": "Gambit_is_the_14th_Cavern_in_The_Hole.",
+              "x1": 3600,
+              "x2": 0,
+              "x3": 400,
+              "x4": null
+            }
+          },
+          {
+            "key": "83",
+            "value": {
+              "name": "Total_Digits_of_all_Cavern_Resources_",
+              "info": "For_example,_if_you_had_1273_gravel_and_422_gold_dust,_thats_7_Digits._If_you_then_got_23_quaver_notes_from_harp,_thats_another_2_digits,_making_your_total_9_Digits.",
+              "x1": 500,
+              "x2": 0,
+              "x3": 750,
+              "x4": null
+            }
+          },
+          {
+            "key": "84",
+            "value": {
+              "name": "Total_LV_of_Cavern_Villagers",
+              "info": "filler",
+              "x1": 200,
+              "x2": 0,
+              "x3": 350,
+              "x4": null
+            }
+          },
+          {
+            "key": "85",
+            "value": {
+              "name": "Megafeathers_Earned_from_Orion",
+              "info": "filler",
+              "x1": 12,
+              "x2": 0,
+              "x3": 100,
+              "x4": null
+            }
+          },
+          {
+            "key": "86",
+            "value": {
+              "name": "Megafish_Earned_from_Poppy",
+              "info": "filler",
+              "x1": 12,
+              "x2": 0,
+              "x3": 100,
+              "x4": null
+            }
+          },
+          {
+            "key": "87",
+            "value": {
+              "name": "Best_Bravery_Monument_Round_",
+              "info": "Bravery_Monument_is_the_4th_Cavern_in_The_Hole._The_Hole_is_found_in_World_5.",
+              "x1": 50,
+              "x2": 0,
+              "x3": 250,
+              "x4": null
+            }
+          },
+          {
+            "key": "88",
+            "value": {
+              "name": "Best_Justice_Monument_Round_",
+              "info": "Justice_Monument_is_the_10th_Cavern_in_The_Hole._'Best_Round'_here_means_your_highest_Court_Case_reached_in_a_run.",
+              "x1": 200,
+              "x2": 0,
+              "x3": 250,
+              "x4": null
+            }
+          },
+          {
+            "key": "89",
+            "value": {
+              "name": "Best_Wisdom_Monument_Round_",
+              "info": "Wisdom_Monument_is_the_13th_Cavern_in_The_Hole.",
+              "x1": 18,
+              "x2": 0,
+              "x3": 250,
+              "x4": null
+            }
+          },
+          {
+            "key": "90",
+            "value": {
+              "name": "Best_Deathbringer_Max_Damage_in_Wraith_Mode_",
+              "info": "Deathbringer_is_the_Blood_Berserker's_Master_Class,_given_by_Masterius_NPC_in_World_6._You_need_to_open_your_grimoire_btw.",
+              "x1": 9,
+              "x2": 1,
+              "x3": 400,
+              "x4": null
+            }
+          },
+          {
+            "key": "91",
+            "value": {
+              "name": "Best_Dawg_Den_score_",
+              "info": "The_Dawg_Den_is_the_3rd_Cavern_in_The_Hole._The_Hole_is_found_in_World_5.",
+              "x1": 7,
+              "x2": 1,
+              "x3": 250,
+              "x4": null
+            }
+          },
+          {
+            "key": "92",
+            "value": {
+              "name": "Total_Resource_Layers_Destroyed_",
+              "info": "Destroying_Layers_includes_the_following_caverns..._Motherlode,_Eternal_Hive,_and_Evertree_Cavern,_with_more_added_later!",
+              "x1": 150,
+              "x2": 0,
+              "x3": 350,
+              "x4": null
+            }
+          },
+          {
+            "key": "93",
+            "value": {
+              "name": "Total_Opals_Found",
+              "info": "filler",
+              "x1": 500,
+              "x2": 0,
+              "x3": 400,
+              "x4": null
+            }
+          },
+          {
+            "key": "94",
+            "value": {
+              "name": "Best_Pure_Memory_Round_Reached_",
+              "info": "Yea_nah,_I_aint_snitchin'._This_is_a_SECRET_mode.",
+              "x1": 13,
+              "x2": 2,
+              "x3": 50,
+              "x4": null
+            }
+          }
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    "world-1": {
+      "shops": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "6",
+            "old": {
+              "name": "Smolderin'_Plateau",
+              "items": [
+                {
+                  "name": "Lemon_Slice",
+                  "rawName": "FoodHealth14"
+                },
+                {
+                  "name": "Grilled_Cheese_Nomwich",
+                  "rawName": "FoodHealth15"
+                },
+                {
+                  "name": "Magma_Barrel",
+                  "rawName": "OilBarrel6"
+                },
+                {
+                  "name": "Weapon_Upgrade_Stone_V",
+                  "rawName": "StoneW5"
+                },
+                {
+                  "name": "Armor_Upgrade_Stone_V",
+                  "rawName": "StoneA5"
+                },
+                {
+                  "name": "Tool_Upgrade_Stone_V",
+                  "rawName": "StoneT5"
+                },
+                {
+                  "name": "Refinery_Stamp",
+                  "rawName": "StampC22"
+                },
+                {
+                  "name": "Red_Tome_Pages",
+                  "rawName": "Quest84"
+                }
+              ]
+            },
+            "new": {
+              "name": "Smolderin'_Plateau",
+              "items": [
+                {
+                  "name": "Lemon_Slice",
+                  "rawName": "FoodHealth14"
+                },
+                {
+                  "name": "Grilled_Cheese_Nomwich",
+                  "rawName": "FoodHealth15"
+                },
+                {
+                  "name": "Magma_Barrel",
+                  "rawName": "OilBarrel6"
+                },
+                {
+                  "name": "Weapon_Upgrade_Stone_V",
+                  "rawName": "StoneW5"
+                },
+                {
+                  "name": "Armor_Upgrade_Stone_V",
+                  "rawName": "StoneA5"
+                },
+                {
+                  "name": "Tool_Upgrade_Stone_V",
+                  "rawName": "StoneT5"
+                },
+                {
+                  "name": "Refinery_Stamp",
+                  "rawName": "StampC22"
+                },
+                {
+                  "name": "Treasure_Totebag",
+                  "rawName": "InvBag113"
+                },
+                {
+                  "name": "Red_Tome_Pages",
+                  "rawName": "Quest84"
+                }
+              ]
+            }
+          },
+          {
+            "key": "7",
+            "old": {
+              "items": [
+                {
+                  "name": "BoneJoePickle",
+                  "rawName": "BoneJoePickle"
+                },
+                {
+                  "name": "Crop_Transfer_Ticket",
+                  "rawName": "Quest80"
+                },
+                {
+                  "name": "Raw_Nigiri",
+                  "rawName": "FoodHealth16"
+                },
+                {
+                  "name": "Dumpling",
+                  "rawName": "FoodHealth17"
+                },
+                {
+                  "name": "Plasma_Barrel",
+                  "rawName": "OilBarrel7"
+                },
+                {
+                  "name": "Weapon_Upgrade_Stone_VI",
+                  "rawName": "StoneW8"
+                },
+                {
+                  "name": "Armor_Upgrade_Stone_VI",
+                  "rawName": "StoneA7"
+                },
+                {
+                  "name": "Tool_Upgrade_Stone_VI",
+                  "rawName": "StoneT7"
+                },
+                {
+                  "name": "Forge_Stamp",
+                  "rawName": "StampC10"
+                },
+                {
+                  "name": "Storage_Chest_26",
+                  "rawName": "InvStorage26"
+                },
+                {
+                  "name": "Storage_Chest_27",
+                  "rawName": "InvStorage27"
+                },
+                {
+                  "name": "Storage_Chest_28",
+                  "rawName": "InvStorage28"
+                }
+              ]
+            },
+            "new": {
+              "items": [
+                {
+                  "name": "BoneJoePickle",
+                  "rawName": "BoneJoePickle"
+                },
+                {
+                  "name": "Crop_Transfer_Ticket",
+                  "rawName": "Quest80"
+                },
+                {
+                  "name": "Raw_Nigiri",
+                  "rawName": "FoodHealth16"
+                },
+                {
+                  "name": "Dumpling",
+                  "rawName": "FoodHealth17"
+                },
+                {
+                  "name": "Plasma_Barrel",
+                  "rawName": "OilBarrel7"
+                },
+                {
+                  "name": "Weapon_Upgrade_Stone_VI",
+                  "rawName": "StoneW8"
+                },
+                {
+                  "name": "Armor_Upgrade_Stone_VI",
+                  "rawName": "StoneA7"
+                },
+                {
+                  "name": "Tool_Upgrade_Stone_VI",
+                  "rawName": "StoneT7"
+                },
+                {
+                  "name": "Forge_Stamp",
+                  "rawName": "StampC10"
+                },
+                {
+                  "name": "Rucksack_of_Riches",
+                  "rawName": "InvBag114"
+                },
+                {
+                  "name": "Storage_Chest_26",
+                  "rawName": "InvStorage26"
+                },
+                {
+                  "name": "Storage_Chest_27",
+                  "rawName": "InvStorage27"
+                },
+                {
+                  "name": "Storage_Chest_28",
+                  "rawName": "InvStorage28"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "invBags": {
+        "added": [
+          {
+            "key": "InvBag112",
+            "value": {
+              "displayName": "4th_Anniversary_Bag",
+              "sellPrice": 200,
+              "typeGen": "aInventoryBag",
+              "ID": 112,
+              "Type": "INVENTORY_",
+              "lvReqToCraft": 8,
+              "common": "t",
+              "lvReqToEquip": 1,
+              "Class": "ALL",
+              "Speed": 150,
+              "Reach": 10,
+              "Weapon_Power": 0,
+              "STR": 0,
+              "AGI": 0,
+              "WIS": 0,
+              "LUK": 0,
+              "Defence": 0,
+              "UQ1txt": 0,
+              "UQ1val": 0,
+              "UQ2txt": 0,
+              "UQ2val": 0,
+              "Upgrade_Slots_Left": 0,
+              "equip": "t",
+              "itemType": "Equip",
+              "capacity": 8
+            }
+          },
+          {
+            "key": "InvBag113",
+            "value": {
+              "displayName": "Treasure_Totebag",
+              "sellPrice": 250000000000000000,
+              "typeGen": "aInventoryBag",
+              "ID": 113,
+              "Type": "INVENTORY_",
+              "lvReqToCraft": 1,
+              "common": "t",
+              "lvReqToEquip": 140,
+              "Class": "ALL",
+              "Speed": 0,
+              "Reach": 10,
+              "Weapon_Power": 0,
+              "STR": 0,
+              "AGI": 0,
+              "WIS": 0,
+              "LUK": 0,
+              "Defence": 0,
+              "UQ1txt": 0,
+              "UQ1val": 0,
+              "UQ2txt": 0,
+              "UQ2val": 0,
+              "Upgrade_Slots_Left": 0,
+              "equip": "t",
+              "itemType": "Equip",
+              "capacity": 1
+            }
+          },
+          {
+            "key": "InvBag114",
+            "value": {
+              "displayName": "Rucksack_of_Riches",
+              "sellPrice": 2.5e+25,
+              "typeGen": "aInventoryBag",
+              "ID": 114,
+              "Type": "INVENTORY_",
+              "lvReqToCraft": 1,
+              "common": "t",
+              "lvReqToEquip": 200,
+              "Class": "ALL",
+              "Speed": 0,
+              "Reach": 10,
+              "Weapon_Power": 0,
+              "STR": 0,
+              "AGI": 0,
+              "WIS": 0,
+              "LUK": 0,
+              "Defence": 0,
+              "UQ1txt": 0,
+              "UQ1val": 0,
+              "UQ2txt": 0,
+              "UQ2val": 0,
+              "Upgrade_Slots_Left": 0,
+              "equip": "t",
+              "itemType": "Equip",
+              "capacity": 1
+            }
+          }
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    "world-2": {
+      "arcadeShop": {
+        "added": [
+          {
+            "key": "40",
+            "value": {
+              "effect": "+{%_Deathbringer_Bones",
+              "x1": 1,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_Bones"
+            }
+          },
+          {
+            "key": "41",
+            "value": {
+              "effect": "+{%_Equinox_Fill_Rate",
+              "x1": 0.75,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_Fill_Rate"
+            }
+          },
+          {
+            "key": "42",
+            "value": {
+              "effect": "+{%_Monument_AFK",
+              "x1": 0.5,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_AFK"
+            }
+          },
+          {
+            "key": "43",
+            "value": {
+              "effect": "+{%_Sigil_Speed",
+              "x1": 1,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_Speed"
+            }
+          },
+          {
+            "key": "44",
+            "value": {
+              "effect": "+{%_Construction_Build",
+              "x1": 2,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_Build_Rate"
+            }
+          },
+          {
+            "key": "45",
+            "value": {
+              "effect": "+{%_Burger",
+              "x1": 1,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_Burger"
+            }
+          },
+          {
+            "key": "46",
+            "value": {
+              "effect": "+{%_Total_Damage",
+              "x1": 2,
+              "x2": 0,
+              "func": "add",
+              "bonusName": "+{%_Damage"
+            }
+          }
+        ],
+        "removed": [],
+        "modified": []
+      }
+    },
+    "world-5": {
+      "holesInfo": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "62",
+            "old": "0|Can_I_has_{_coins_pwease?|c-1.h2|h-1|ch|coincheck 1|I_got_fined_{_coins_by_YOUR_LAWS_for_using_the_5_finger_discount!_Can_you_waive_this_fine?_I_really_don't_want_to_pay_it!|h1|c2.h-1|ch|no 2|Your_honor,_I_seek_an_investment_of_{_coins_in_order_to_grow_my_Student_Loans_company_and_acquire_new_victims._I_promise_your_money_will_double_by_next_time_you_see_me.|c-3.h-1|h2|c|coincheck 2|Good_afternoon,_I_represent_a_third_party_who_would_like_to_buy_your_popularity,_yes_ALL_of_it,_for_2_coins_per_pop._Would_you_be_interested_in_this?|_|h1|_|no 0|Hewwo_OwO_can_u_tell_everyone_they_are_stinky_heads?_Also_ummmmmmmm..._are_you_skibbidy??!?|h-1|h1|h|no 4|It's_a_heart_attack._You're_currently_in_the_hospital,_you'll_make_a_full_recovery_if_you_pay_{_coins_for_the_best_cardiologist.|c-5|m-1|c|coincheck 4|You're_in_a_coma._Yea,_car_crash_on_your_way_to_the_next_court_case._You'll_recover,_but_only_if_you_pay_{_coins_to_cover_the_doctor_fees.|c-4|m-1|c|coincheck 4|Snake_attack_during_a_weekend_hike._You_really_are_quite_the_extravert!_But,_the_venom_will_cause_quite_a_lot_of_stress_if_you_don't_buy_the_cure..._last_I_checked,_it_currently_goes_for_{_coins.|c-4|m-1|c|coincheck 4|Shark_attack_during_a_weekend_hike_in_the_ocean._You_REALLY_are_quite_the_extravert._But,_without_proper_care_that_wound_is_going_to_get_a_lot_worse!_It's_gonna_be_{_coins_for_full_medicare.|c-3|m-1|c|coincheck 4|Well_that_Stream_could_have_gone_better..._you're_a_Millennial_judge,_of_course_you_stream_in_your_free_time._Look,_unless_you_give_me_{_coins_to_wipe_your_memory,_you're_going_to_feel_REALLY_bad_for_a_long_time._Like,_really_bad.|c-4|m-1|c|coincheck 4|Uhhh..._hey...?_Why_am_I_here?_You_seem_fine._But,_since_I_AM_here,_I'm_a_bit_short_on_rent._Soooo_give_me_{_coins,_or_I'll_be_taking_1_mental_health_of_yours!|c-3|m-1|c|coincheck 4|Blocked_artery._Your_spouse_rushed_you_to_the_hospital_at_quite_the_pace,_you_should_say_thanks_if_you_ever_see_them_again!_The_bill_is_looking_to_be_about_{_coins,_are_you_ready_to_pay_up?|c-4|m-1|c|coincheck 4|Someone_you_rejected_is_putting_their_plot_into_action..._yea,_like,_right_now._Don't_be_too_surprised,_you're_really_not_that_popular._You_won't_come_out_unscathed_unless_you_pay_{_coins_to_hire_a_better_Bailiff.|c-6|m-1|c|coincheck 4|No_no,_I'm_not_here_for_you._It's..._well,_it's_Little_Timmy._After_that_3rd_rejection,_he_ran_home_crying_and_won't_come_out_of_his_room._It's_gonna_cost_you_{_coins_to_make_him_feel_better,_or_you_can_just_live_with_the_guilt.|c-8|m-1|c|coincheck 4|Uh_oh,_looks_like_your_bills_finally_got_the_better_of_you!_I_guess_managing_money_ain't_so_easy_after_all._Look,_if_you_give_me_}_popularity,_I'll_save_you_the_embarassment_of_an_empty_coffer.|h-1.c1|m-1|h|popcheck 4|You're_broke...?_AGAIN???_I_even_gave_you_a_coin_myself_last_time!_Nope,_you're_not_weaseling_your_way_out_of_this_one_you_sneaky_beaky._Approve,_reject,_dismiss,_I_don't_care,_I'm_taking_some_of_your_mental_with_me.|m-1|m-1|_|no 1|Good_going_judge,_your_STUPID_laws_just_got_me_arrested!_You_HAVE_to_pay_my_bail_of_{_coins,_you_OWE_me_for_enforcing_such_dumb_rules!!!|c-3.h1|h-1|ch|coincheck 1|Here_judge,_I_brought_the_{_coins_I_owe_for_my_previous_misdemeanors._Just_shake_my_hand_first,_I_promise_I_wont_do_anything_to_damage_your_mental_health!_Hehehe...|c5.m-1|_|c|no 3|Hey_pal,_how_we_doin'?_You_lookin'_for_some_extra_cash?_I_got_{_coins_on_me,_take_em!_Don't_ask_questions,_'specially_'bout_where_I_got_'em_from.|c3.h-1|h1|ch|no 3|Hey_friendo._Is_me_again,_what's_good?_I_got_a_huge_score,_and_wanted_to_share_some_of_it!_Here,_have_{_coins,_but_your_mental_health_will_take_a_hit_when_you_hear_the_news_tonight...|c7.m-1|h1|c|no 3|Aight,_check_it._I_ain't_done_no_dirty_tricks_this_time,_I_got_a_shiny_clean_coin_right_'ere,_just_for_you!_Seriously,_take_it!|c1|h-1|_|no 5|Retirement_is_important,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_it'll_cost_you_{_coins.|r1.c-2|_|c|coincheck 5|Retirement_is_the_key_to_happiness,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_it'll_cost_you_}_popularity.|r1.h-1|_|h|popcheck 6|Oh_boy,_I'm_in_the_Justice_Monument_minigame_again!_Wanna_trade_some_of_your_coins_for_my_popularity?_Also_it's_ok_if_you_don't_have_enough_coins,_I_have_plenty_of_popularity_to_go_around!|c-2.h1|h-1|ch|no 6|Hey_it's_me,_everyone's_favorite_wiggly_piece_of_paper!_I_really_want_to_help_the_next_guy,_can_you_PROMISE_me_you'll_Approve_the_next_case?_I'll_give_you_{_coins._Please?|c3|h-1|c|no 8|I've_been_watching_you_closely,_and_I_wanted_to_thank_you_for_everything_you've_done_for_the_community_with_a_gift_of_{_coins,_and_1_Retirement_Chest!|c5.r1|m-999|_|no 7|Mmmm_yeeees,_charmed_your_honor._Perchance_could_I_get_a_loan_of_all_your_money?_I_will_give_it_all_back_next_you_see_me,_and_you_would_make_me_one_very_happy_bean_oh_hohoho_yeeees!|h12|_|_|no 7|Huzzah,_it_is_I!_Would_you_like_to_buy_a_mental_health,_perchance?_I_doooo_have_the_greatest_mind_ever_to_grace_this_court!_All_it_will_cost_you_is..._HALF_of_all_your_coins!|m1|_|_|no 7|Hark,_I_have_returned_bearing_the_gift_of_a_Retirement_Chest,_albeit_only_if_you_can_solve_my_riddle._Tell_me_magistrate..._as_I_am_royalty,_what_action_to_me_speaks_loudest,_yet_not_at_all?|h-1|h-1|_|no 7|I_have_a_deeeelightful_proposition_for_you!_Every_time_you_Approve_a_case,_I_will_give_4_coins._However,_two_rejections_and_I_will_make_you_infinitely_unpopular._Any_Case_Dismissal_will_void_this_deal.|_|_|_|no 0|Can_u_subskwibe_to_my_yootoob_channel_pwease??_Is_free!!!|h1|h-2|h|no 3|Eyo_was_up_my_guy,_I_got_a_bit_of_a_deal_for_ya._{_coins,_but_you_can't_Approve_that_Little_Timmy_fella_next_you_see_him._Whatchu_think?|c3|_|c|no 0|I_stole_my_fwends_toy,_and_he_said_I_am_under_arrest._Can_I_be_free_pwease?_I_will_give_u_{_coins..._did_I_do_bribe_right?_Daddy_teached_it_to_me_today!|c1.h-1|h1|ch|no 5|Retirement_is_everything,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_I_want_1_mental_health..._unless_you're_down_to_your_last_one,_then_you_can_have_the_chest_free.|r1|_|_|no 6|Can_I_get_a_{_coin_loan_to_buy_my_next_kitchen_in_World_4?_I_play_the_game_too_you_know!_I'll_give_you_back_the_coins_plus_interest_next_time_you_see_me,_AND_you'll_have_my_gratitude!|c-2.h1|h-1|ch|coincheck 2|Greetings,_I_come_to_you_today_seeking_a_}_popularity_investment_since_my_last_company_spilled_some,_well,_accidentally_spilled..._look,_I_am_willing_to_offer_a_LOT_of_coins!|h-1.c3|h1|hc|popcheck 2|Greetings,_I_come_to_you_today_seeking_a_{_coin_investment_in_my_time_management_company._I_guarantee_you_a_250%_return,_but_it_will_take_15_court_cases_to_mature.|c-5|h1|c|coincheck 5|Retirement_is_the_top_priority,_trust_me!_I'll_give_you_1_retirement_chest_to_get_you_going,_but_I'll_be_taking_{_coins_and_}_popularity_whether_you_have_them_or_not!|r1.c-2.h-1|_|ch|no 3|Ok_dog_hear_me_out,_I_had_this_dope_idea_while_I_was_drying_out_yesterday..._a_reverse_bribe!_You_give_me_{_coins,_and_I'll_boost_your_popularity|c-1.h1|_|ch|coincheck 5|Retirement_is_the_number_one_source_of_all_things_good,_trust_me!_I'll_give_you_1_retirement_chest_completely_free_just_to_show_you_how_right_I_am!|r1|_|_|no 9|Sup._Heads_you_win_a_bunch_of_coins,_Tails_you_lose_some_coins._You_wanna_flip_for_it?|c3|_|c|no 9|Sup._Heads_you_dope_as_heck,_Tails_you_fail_the_vibe_check._You_wanna_flip_for_it?|h2|_|h|no 9|Sup._Heads_you_win_2_Retirement_Chests,_Tails_you_lose_1_Retirement_Chest._You_wanna_flip_for_it?|r2|_|_|no 2|Greetings,_I_have_a_fantastic_opportunity_for_you!_For_just_{_coins,_I_will_invest_in_a_crypto_coin_and_will_share_the_profits!_1_coin_returned_every_day_for_15_days!|c-6.h-1|h1|_|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.r1|h-1|c|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.h3|_|hc|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.m1|h-1|c|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.h2|_|c|coincheck 0|Can_u_make_today_a_holiday_so_school_is_no?|c-3.h2|_|ch|no 10|Eat_me_eat_me_eat_me!|h1|h-1|h|no 11|Can_you_make_it_legal_for_me_to_scare_people?_I'll_pay_you_handsomely,_but_I'll_keep_scaring_1_person_every_day,_FOooOooOREVER...|c6|h1|c|no 1|You_look_richer_than_the_guy_I_just_stole_from._Give_me_one_of_your_retirement_chests,_and_I'll_tell_all_the_other_Reanimated_Limbs_back_home_what_a_legend_you_are!|r-1.h4|h-1|h|chestcheck 5|Retirement_is_worth_considering,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_it'll_cost_you_{_coins.|r1.c-3|_|c|coincheck 2|Good_afternoon,_I_am_seeking_invesetment_in_my_new_Retirement_Hedgefund!_For_just_1_Retirement_Chest,_you_will_receive_royalties_of_2_coins_per_day_for_10_days!|r-1|h1|_|chestcheck 9|Sup._Heads_you_the_man_and_get_2_mental_health,_Tails_you_crazy_and_lose_1_mental_health._You_wanna_flip_for_it?|m2|_|_|no 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_around_I_grant_the_consumer_some_sort_of_Chest_Magnetizer_effect,_lasts_for_3_days_I_reckon...|c-1|_|c|coincheck 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_'round_I_grant_the_consumer_a_LOT_of_pop!|c-1.h1|_|ch|coincheck 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_'round_I_grant_the_consumer_2_dismissals,_but_I_am_known_in_the_state_of_Blunder_Hills_to_cause_mental_fatigue!|c-1.d2.m-1|_|c|coincheck 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_'round_I_grant_the_consumer_a_strange_ability_to_never_ever_become_unpopular!_Like,_ever!|c-1|_|c|coincheck 11|I'm_done_scaring_people..._I_thought_it_was_funny_for_a_while,_but_now_I_just_feel_bad._Can_you_reinstate_the_ban,_make_it_illegal_again?_I'll_pay_you!|c4.h1|_|c|no 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_I'm_just_a_normal_drink,_but_there's_a_1_in_4_chance_I'm_the_limited_edition_glass_all_the_internet_nerds_want_to_buy!|c-1|_|c|coincheck 7|Ohohoho_I_have_heard_the_stories_about_you_judge!_Oh_yes_indeed!_Gulp_gulp_gulp,_say_no_more!_Shall_we_keep_this_a_secret_between_us?_Oh_how_I_do_LOVE_secrets!|h2|h-4|h|no 1|You_are_SO_dumb,_forcing_me_here_whenever_I_break_your_dumb_rules._Can_you_just_make_me_above_the_law?_I'll_share_part_what_I_steal_every_time_you_see_me,_I'll_even_share_the_blame!|h-1|h2|_|no 3|Hey_buddy,_how's_the_grind_going?_Look,_I_got_{_coins_on_me,_and_you_can_have_them_all!!!_Only_thing_is,_for_3_days_you_won't_be_able_to_Approve_anything...|c7|_|c|no",
+            "new": "0|Can_I_has_{_coins_pwease?|c-1.h2|h-1|ch|coincheck 1|I_got_fined_{_coins_by_YOUR_LAWS_for_using_the_5_finger_discount!_Can_you_waive_this_fine?_I_really_don't_want_to_pay_it!|h1|c2.h-1|ch|no 2|Your_honor,_I_seek_an_investment_of_{_coins_in_order_to_grow_my_Student_Loans_company_and_acquire_new_victims._I_promise_your_money_will_double_by_next_time_you_see_me.|c-3.h-1|h2|c|coincheck 2|Good_afternoon,_I_represent_a_third_party_who_would_like_to_buy_your_popularity,_yes_ALL_of_it,_for_2_coins_per_pop._Would_you_be_interested_in_this?|_|h1|_|no 0|Hewwo_OwO_can_u_tell_everyone_they_are_stinky_heads?_Also_ummmmmmmm..._are_you_skibbidy?|h-1|h1|h|no 4|It's_a_heart_attack._You're_currently_in_the_hospital,_you'll_make_a_full_recovery_if_you_pay_{_coins_for_the_best_cardiologist.|c-5|m-1|c|coincheck 4|You're_in_a_coma._Yea,_car_crash_on_your_way_to_the_next_court_case._You'll_recover,_but_only_if_you_pay_{_coins_to_cover_the_doctor_fees.|c-4|m-1|c|coincheck 4|Snake_attack_during_a_weekend_hike._You_really_are_quite_the_extravert!_But,_the_venom_will_cause_quite_a_lot_of_stress_if_you_don't_buy_the_cure..._last_I_checked,_it_currently_goes_for_{_coins.|c-4|m-1|c|coincheck 4|Shark_attack_during_a_weekend_hike_in_the_ocean._You_REALLY_are_quite_the_extravert._But,_without_proper_care_that_wound_is_going_to_get_a_lot_worse!_It's_gonna_be_{_coins_for_full_medicare.|c-3|m-1|c|coincheck 4|Well_that_Stream_could_have_gone_better..._you're_a_Millennial_judge,_of_course_you_stream_in_your_free_time._Look,_unless_you_give_me_{_coins_to_wipe_your_memory,_you're_going_to_feel_REALLY_bad_for_a_long_time._Like,_really_bad.|c-4|m-1|c|coincheck 4|Uhhh..._hey...?_Why_am_I_here?_You_seem_fine._But,_since_I_AM_here,_I'm_a_bit_short_on_rent._Soooo_give_me_{_coins,_or_I'll_be_taking_1_mental_health_of_yours!|c-3|m-1|c|coincheck 4|Blocked_artery._Your_spouse_rushed_you_to_the_hospital_at_quite_the_pace,_you_should_say_thanks_if_you_ever_see_them_again!_The_bill_is_looking_to_be_about_{_coins,_are_you_ready_to_pay_up?|c-4|m-1|c|coincheck 4|Someone_you_rejected_is_putting_their_plot_into_action..._yea,_like,_right_now._Don't_be_too_surprised,_you're_really_not_that_popular._You_won't_come_out_unscathed_unless_you_pay_{_coins_to_hire_a_better_Bailiff.|c-6|m-1|c|coincheck 4|No_no,_I'm_not_here_for_you._It's..._well,_it's_Little_Timmy._After_that_3rd_rejection,_he_ran_home_crying_and_won't_come_out_of_his_room._It's_gonna_cost_you_{_coins_to_make_him_feel_better,_or_you_can_just_live_with_the_guilt.|c-8|m-1|c|coincheck 4|Uh_oh,_looks_like_your_bills_finally_got_the_better_of_you!_I_guess_managing_money_ain't_so_easy_after_all._Look,_if_you_give_me_}_popularity,_I'll_save_you_the_embarassment_of_an_empty_coffer.|h-1.c1|m-1|h|popcheck 4|You're_broke...?_AGAIN???_I_even_gave_you_a_coin_myself_last_time!_Nope,_you're_not_weaseling_your_way_out_of_this_one_you_sneaky_beaky._Approve,_reject,_dismiss,_I_don't_care,_I'm_taking_some_of_your_mental_with_me.|m-1|m-1|_|no 1|Good_going_judge,_your_STUPID_laws_just_got_me_arrested!_You_HAVE_to_pay_my_bail_of_{_coins,_you_OWE_me_for_enforcing_such_dumb_rules!!!|c-3.h1|h-1|ch|coincheck 1|Here_judge,_I_brought_the_{_coins_I_owe_for_my_previous_misdemeanors._Just_shake_my_hand_first,_I_promise_I_wont_do_anything_to_damage_your_mental_health!_Hehehe...|c5.m-1|_|c|no 3|Hey_pal,_how_we_doin'?_You_lookin'_for_some_extra_cash?_I_got_{_coins_on_me,_take_em!_Don't_ask_questions,_'specially_'bout_where_I_got_'em_from.|c3.h-1|h1|ch|no 3|Hey_friendo._Is_me_again,_what's_good?_I_got_a_huge_score,_and_wanted_to_share_some_of_it!_Here,_have_{_coins,_but_your_mental_health_will_take_a_hit_when_you_hear_the_news_tonight...|c7.m-1|h1|c|no 3|Aight,_check_it._I_ain't_done_no_dirty_tricks_this_time,_I_got_a_shiny_clean_coin_right_'ere,_just_for_you!_Seriously,_take_it!|c1|h-1|_|no 5|Retirement_is_important,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_it'll_cost_you_{_coins.|r1.c-2|_|c|coincheck 5|Retirement_is_the_key_to_happiness,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_it'll_cost_you_}_popularity.|r1.h-1|_|h|popcheck 6|Oh_boy,_I'm_in_the_Justice_Monument_minigame_again!_Wanna_trade_some_of_your_coins_for_my_popularity?_Also_it's_ok_if_you_don't_have_enough_coins,_I_have_plenty_of_popularity_to_go_around!|c-2.h1|h-1|ch|no 6|Hey_it's_me,_everyone's_favorite_wiggly_piece_of_paper!_I_really_want_to_help_the_next_guy,_can_you_PROMISE_me_you'll_Approve_the_next_case?_I'll_give_you_{_coins._Please?|c3|h-1|c|no 8|I've_been_watching_you_closely,_and_I_wanted_to_thank_you_for_everything_you've_done_for_the_community_with_a_gift_of_{_coins,_and_1_Retirement_Chest!|c5.r1|m-999|_|no 7|Mmmm_yeeees,_charmed_your_honor._Perchance_could_I_get_a_loan_of_all_your_money?_I_will_give_it_all_back_next_you_see_me,_and_you_would_make_me_one_very_happy_bean_oh_hohoho_yeeees!|h12|_|_|no 7|Huzzah,_it_is_I!_Would_you_like_to_buy_a_mental_health,_perchance?_I_doooo_have_the_greatest_mind_ever_to_grace_this_court!_All_it_will_cost_you_is..._HALF_of_all_your_coins!|m1|_|_|no 7|Hark,_I_have_returned_bearing_the_gift_of_a_Retirement_Chest,_albeit_only_if_you_can_solve_my_riddle._Tell_me_magistrate..._as_I_am_royalty,_what_action_to_me_speaks_loudest,_yet_not_at_all?|h-1|h-1|_|no 7|I_have_a_deeeelightful_proposition_for_you!_Every_time_you_Approve_a_case,_I_will_give_4_coins._However,_two_rejections_and_I_will_make_you_infinitely_unpopular._Any_Case_Dismissal_will_void_this_deal.|_|_|_|no 0|Can_u_subskwibe_to_my_yootoob_channel_pwease??_Is_free!!!|h1|h-2|h|no 3|Eyo_was_up_my_guy,_I_got_a_bit_of_a_deal_for_ya._{_coins,_but_you_can't_Approve_that_Little_Timmy_fella_next_you_see_him._Whatchu_think?|c3|_|c|no 0|I_stole_my_fwends_toy,_and_he_said_I_am_under_arrest._Can_I_be_free_pwease?_I_will_give_u_{_coins..._did_I_do_bribe_right?_Daddy_teached_it_to_me_today!|c1.h-1|h1|ch|no 5|Retirement_is_everything,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_I_want_1_mental_health..._unless_you're_down_to_your_last_one,_then_you_can_have_the_chest_free.|r1|_|_|no 6|Can_I_get_a_{_coin_loan_to_buy_my_next_kitchen_in_World_4?_I_play_the_game_too_you_know!_I'll_give_you_back_the_coins_plus_interest_next_time_you_see_me,_AND_you'll_have_my_gratitude!|c-2.h1|h-1|ch|coincheck 2|Greetings,_I_come_to_you_today_seeking_a_}_popularity_investment_since_my_last_company_spilled_some,_well,_accidentally_spilled..._look,_I_am_willing_to_offer_a_LOT_of_coins!|h-1.c3|h1|hc|popcheck 2|Greetings,_I_come_to_you_today_seeking_a_{_coin_investment_in_my_time_management_company._I_guarantee_you_a_250%_return,_but_it_will_take_15_court_cases_to_mature.|c-5|h1|c|coincheck 5|Retirement_is_the_top_priority,_trust_me!_I'll_give_you_1_retirement_chest_to_get_you_going,_but_I'll_be_taking_{_coins_and_}_popularity_whether_you_have_them_or_not!|r1.c-2.h-1|_|ch|no 3|Ok_dog_hear_me_out,_I_had_this_dope_idea_while_I_was_drying_out_yesterday..._a_reverse_bribe!_You_give_me_{_coins,_and_I'll_boost_your_popularity|c-1.h1|_|ch|coincheck 5|Retirement_is_the_number_one_source_of_all_things_good,_trust_me!_I'll_give_you_1_retirement_chest_completely_free_just_to_show_you_how_right_I_am!|r1|_|_|no 9|Sup._Heads_you_win_a_bunch_of_coins,_Tails_you_lose_some_coins._You_wanna_flip_for_it?|c3|_|c|no 9|Sup._Heads_you_dope_as_heck,_Tails_you_fail_the_vibe_check._You_wanna_flip_for_it?|h2|_|h|no 9|Sup._Heads_you_win_2_Retirement_Chests,_Tails_you_lose_1_Retirement_Chest._You_wanna_flip_for_it?|r2|_|_|no 2|Greetings,_I_have_a_fantastic_opportunity_for_you!_For_just_{_coins,_I_will_invest_in_a_crypto_coin_and_will_share_the_profits!_1_coin_returned_every_day_for_15_days!|c-6.h-1|h1|_|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.r1|h-1|c|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.h3|_|hc|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.m1|h-1|c|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.h2|_|c|coincheck 0|Can_u_make_today_a_holiday_so_school_is_no?|c-3.h2|_|ch|no 10|Eat_me_eat_me_eat_me!|h1|h-1|h|no 11|Can_you_make_it_legal_for_me_to_scare_people?_I'll_pay_you_handsomely,_but_I'll_keep_scaring_1_person_every_day,_FOooOooOREVER...|c6|h1|c|no 1|You_look_richer_than_the_guy_I_just_stole_from._Give_me_one_of_your_retirement_chests,_and_I'll_tell_all_the_other_Reanimated_Limbs_back_home_what_a_legend_you_are!|r-1.h4|h-1|h|chestcheck 5|Retirement_is_worth_considering,_trust_me_I'd_know!_I'll_give_you_1_retirement_chest,_but_it'll_cost_you_{_coins.|r1.c-3|_|c|coincheck 2|Good_afternoon,_I_am_seeking_invesetment_in_my_new_Retirement_Hedgefund!_For_just_1_Retirement_Chest,_you_will_receive_royalties_of_2_coins_per_day_for_10_days!|r-1|h1|_|chestcheck 9|Sup._Heads_you_the_man_and_get_2_mental_health,_Tails_you_crazy_and_lose_1_mental_health._You_wanna_flip_for_it?|m2|_|_|no 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_around_I_grant_the_consumer_some_sort_of_Chest_Magnetizer_effect,_lasts_for_3_days_I_reckon...|c-1|_|c|coincheck 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_'round_I_grant_the_consumer_a_LOT_of_pop!|c-1.h1|_|ch|coincheck 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_'round_I_grant_the_consumer_2_dismissals,_but_I_am_known_in_the_state_of_Blunder_Hills_to_cause_mental_fatigue!|c-1.d2.m-1|_|c|coincheck 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_'round_I_grant_the_consumer_a_strange_ability_to_never_ever_become_unpopular!_Like,_ever!|c-1|_|c|coincheck 11|I'm_done_scaring_people..._I_thought_it_was_funny_for_a_while,_but_now_I_just_feel_bad._Can_you_reinstate_the_ban,_make_it_illegal_again?_I'll_pay_you!|c4.h1|_|c|no 13|I'm_not_a_free_drink,_{_coin_please!_My_effects?_Well,_this_time_I'm_just_a_normal_drink,_but_there's_a_1_in_4_chance_I'm_the_limited_edition_glass_all_the_internet_nerds_want_to_buy!|c-1|_|c|coincheck 7|Ohohoho_I_have_heard_the_stories_about_you_judge!_Oh_yes_indeed!_Gulp_gulp_gulp,_say_no_more!_Shall_we_keep_this_a_secret_between_us?_Oh_how_I_do_LOVE_secrets!|h2|h-4|h|no 1|You_are_SO_dumb,_forcing_me_here_whenever_I_break_your_dumb_rules._Can_you_just_make_me_above_the_law?_I'll_share_part_what_I_steal_every_time_you_see_me,_I'll_even_share_the_blame!|h-1|h2|_|no 3|Hey_buddy,_how's_the_grind_going?_Look,_I_got_{_coins_on_me,_and_you_can_have_them_all!!!_Only_thing_is,_for_3_days_you_won't_be_able_to_Approve_anything...|c7|_|c|no 5|Hey_buddy,_life_sure_is_a_gamble_sometimes!_I'll_give_you_2_retirement_chests,_but_if_you_have_less_coins_the_next_time_I_see_you_than_you_do_now,_you're_losing_a_mental_health!|r2|_|_|no 14|Hai!!!_You're_really_popular,_can_I_have_some_of_your_popularness?_I_give_coins_in_return_of_how_popular_you_make_me!|_|_|_|no 14|Heyy!!!_You're_really_rich,_can_I_have_some_of_your_riches?_I_tell_all_the_other_slugs_about_how_much_you_give_me!|_|_|_|no 14|Hewwo!!!_I_think_I_dropped_{_coins_around_here_on_accident..._have_you_seen_them?|c-3.h6|c3.h-5|ch|no 14|Hii!!!_You're_really_tough_looking,_can_you_give_me_a_dismissal?_I_give_you_good_health!|d-1.m1|_|_|dismisscheck 14|Henlo!!!_You're_really_awesome!!_I_wanna_be_just_like_you!|h2|h-5|p|no 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_DOUBLE_gift!|c-3.r2|_|c|coincheck 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_gift!|c-1.d1|_|c|coincheck 2|You_aren't_looking_too_well_my_friend..._perhaps_you_would_like_some_life_insurance?_I'll_loan_you_some_mental_health,_but_the_next_time_I_see_you,_I'm_taking_it_all_back..._PLUS_interest..._|m4|h2|_|no 5|Have_you_hit_the_lottery?_Are_you_looking_to_juice_up_your_retirement_fund_to_the_MAX?_Well_look_no_further,_for_just_{_coins,_I'll_give_you_2_retirement_chests!|c-10.r2|_|c|coincheck 15|Uhm,_hello._I_was_wondering_if_you_could_set_an_example_for_the_kids_of_how_popularity_isn't_everything?_I_promise_the_next_time_I_see_you,_you'll_ironically_be_more_popular_than_ever_by_being_such_a_good_role_model!|_|_|_|no 15|Um,_hey_there._I_was_thinking_maybe_you_had_{_coins_I_could_borrow?_I'll_get_Scripticus_to_pay_you_back_next_time_you_see_him,_and_I'll_even_add_a_little_extra_as_a_way_to_say_thanks!|c-4.h5|h-3|c|coincheck 15|Ummm,_greetings_your_honor._Would_you_have_any_interest_in_buying_my_dismissal_for_{_coins?_I_just_can't_bring_myself_to_say_no_to_anyone...|c-6.d1|h-2|c|coincheck 15|Uh,_hello_there._Could_you_consider_maybe_telling_lava_to_lower_the_cost_of_Megafish?_I_just_think_it_would_be_nice_for_the_players_to_get_more_of_them_is_all...|h2|h-2|h|no 15|Uhm,_hi._Could_you_spare_me_a_mental_health?_I'll_give_you_all_{_coins_I_have_to_my_name,_I_really_need_it...|c10.m-1|h-2|c|no 15|Hey_there_judge._I_just_wanted_to_tell_you_what_a_fantastic_job_you've_done,_and_how_much_we_appreciate_the_effort_you_put_into_your_decisions._It's_not_much,_but_I_collected_{_coins_from_everyone_who_wanted_to_express_their_thanks.|c3.h2|h-40|c|no 16|Well_well_well_aren't_you_lucky!_It_is_I,_BILLIONAIRE_Chester!_Unlike_my_cousin,_I_care_not_for_retirement,_and_I_need_nothing_from_you!_In_fact,_would_you_be_interested_in_a_FREE_gift?_It's_a_juicy_one!|_|_|_|no 0|'Musical_Theme_Plays'_OOH_OHH_TEH_ICE_CWEAM_TRUCK!_Can_I_has_{_coins_to_buy_a_red_ice_cream_pwease?|c-1.h1|h-1|ch|coincheck 0|'Musical_Theme_Plays'_OOH_OHH_TEH_ICE_CWEAM_TRUCK_AGAIN!!!_Can_I_has_{_coins_to_buy_a_blue_ice_cream_supreme_pwease?|c-1.h1|h-1|ch|coincheck 0|'Musical_Theme_Plays'_OOH_OHH_TEH_ICE_CWEAM_TRUCK_AGAIN_AGAIN!!!!_Can_I_has_{_coins_to_buy_a_yellow_ice_cream_mega_deluxe_pwease?|c-2.h1|h-1|ch|coincheck 0|'Musical_Theme_Plays'_Nonono_I_cant_eat_more_I'm_full.._Thank_u_so_so_sooooo_much_for_those_ice_cweams,_they_were_yummy_for_real!_Can_I_give_u_a_hug_pwease_ur_da_best!|m4|h-999|_|no 2|Greetings,_are_you_interested_in_making_some_big_money?_I_have_a_client,_some_guy_in_a_grim_reaper_costume,_who_is_ready_to_give_you_{_coins!_All_you_have_to_do_is_sign_this_contract_saying_you'll_NEVER_dismiss_him.|c20|h1|c|no 14|Omg_hi_hi!_You_have_been_so_nice_to_me,_you're_an_inspiration!_I_will_let_you_touch_my_rupie,_it_has_magic_power_to_SWAP_your_Coins_and_Popularity!!!_You'll_also_get_a_mental_health,_because_magic!|m1|_|_|no 12|Me_like_coin._Me_collect_coin!_You_give_me_{_coin,_I_give_you_random_DOUBLE_gift!|c-3.h4|_|ch|coincheck 0|Can_I_has_fwee_stuff_pls?_Liiike_I_want_fwee_stuff!!!_I_think_you_should_giff_me_{_coins!_You_BETTER_not_say_no!!!|c-2.h1|h-5|ch|coincheck 0|your_a_big_poopy_head!_fr_fr_you_stink!!_daddy_told_me_all_about_how_MEAN_you_are_when_I_visited_him_in_jail_last_week!!!|h-1|h-1|h|no"
+          },
+          {
+            "key": "63",
+            "old": "Little_Timmy Reainmated_Hand Head_Honcho_of_Big_Biz_LLC Mister_Bribe The_Harbinger Retirement_Chester Scripticus Esquire_Bored_Bean The_Gratefulbinger Cool_Bird Chippy Ghost Grumblo Fizarre_Drink",
+            "new": "Little_Timmy Reainmated_Hand Head_Honcho_of_Big_Biz_LLC Mister_Bribe The_Harbinger Retirement_Chester Scripticus Esquire_Bored_Bean The_Gratefulbinger Cool_Bird Chippy Ghost Grumblo Fizarre_Drink Rupie_Slug Concerned_Poppy Billionaire_Chester"
+          }
+        ]
+      },
+      "cosmoUpgrades": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "1",
+            "old": [
+              {
+                "x0": 30,
+                "x1": 0,
+                "name": "Opal_Enthusiasm",
+                "description": "Every_10th_opal_invested_in_a_villager_boosts_their_own_exp_gain_by_+{%"
+              },
+              {
+                "x0": 1,
+                "x1": 0,
+                "name": "Contented_Creator",
+                "description": "+{%_villager_exp_gain_per_schematic_created._@_Total_Bonus:_+|%"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Cosmo,_Enhance!",
+                "description": "You_can_now_enhance_conjuror_bonuses!_Also,_uh,_+{%_villager_exp_gain,_why_not?"
+              },
+              {
+                "x0": 25,
+                "x1": 0,
+                "name": "Lengthmeister",
+                "description": "All_measurement_bonuses_are_}x_higher!_Inchredible!_Meterrific!_Footastic!_Yards!!!!"
+              },
+              {
+                "x0": 20,
+                "x1": 0,
+                "name": "Study_All_Nighter",
+                "description": "+{%_Study_Rate_for_Bolaia!"
+              },
+              {
+                "x0": 1,
+                "x1": 0,
+                "name": "Equal_Spread",
+                "description": "+{%_villager_exp_per_5_opals_invested_in_the_villager_with_the_LEAST_opals!_@_Total_Bonus:_+$%"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Don't_conjure_this..._it_does_nothing_yet!_Wait_for_future_updates,_where_this_bonus_and_more_will_be_added!"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              }
+            ],
+            "new": [
+              {
+                "x0": 30,
+                "x1": 0,
+                "name": "Opal_Enthusiasm",
+                "description": "Every_10th_opal_invested_in_a_villager_boosts_their_own_exp_gain_by_+{%"
+              },
+              {
+                "x0": 1,
+                "x1": 0,
+                "name": "Contented_Creator",
+                "description": "+{%_villager_exp_gain_per_schematic_created._@_Total_Bonus:_+|%"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Cosmo,_Enhance!",
+                "description": "You_can_now_enhance_conjuror_bonuses!_Also,_uh,_+{%_villager_exp_gain,_why_not?"
+              },
+              {
+                "x0": 25,
+                "x1": 0,
+                "name": "Lengthmeister",
+                "description": "All_measurement_bonuses_are_}x_higher!_Inchredible!_Meterrific!_Footastic!_Yards!!!!"
+              },
+              {
+                "x0": 20,
+                "x1": 0,
+                "name": "Study_All_Nighter",
+                "description": "+{%_Study_Rate_for_Bolaia!"
+              },
+              {
+                "x0": 2,
+                "x1": 0,
+                "name": "Equal_Spread",
+                "description": "+{%_villager_exp_per_5_opals_invested_in_the_villager_with_the_LEAST_opals!_@_Total_Bonus:_+$%"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Don't_conjure_this..._it_does_nothing_yet!_Wait_for_future_updates,_where_this_bonus_and_more_will_be_added!"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              },
+              {
+                "x0": 10,
+                "x1": 0,
+                "name": "Confused_Bonus",
+                "description": "Who_am_I_to_tell_you_what_bonus_I_give?"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "world-6": {
+      "ninjaExtraInfo": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          {
+            "key": "32",
+            "old": "0 1 2 3 4 5 6 7 81 8 9 53 10 11 12 75 13 14 80 15 16 17 18 19 21 22 23 24 79 25 26 27 28 29 30 31 32 33 34 35 36 37 76 38 54 40 41 42 39 44 46 47 48 49 50 51 52 45 55 57 58 59 60 61 62 63 64 56 65 66 67 68 69 20 70 71 43 72 73 74 77 78",
+            "new": "0 1 2 3 4 5 6 7 81 8 9 53 10 11 12 75 13 14 80 15 16 17 18 19 21 22 23 24 79 25 26 27 28 85 86 29 30 31 32 33 34 35 36 37 76 38 54 40 41 42 39 44 46 47 48 49 50 51 52 45 55 57 58 59 60 61 62 63 64 56 65 66 93 84 83 92 91 87 88 89 82 94 67 68 69 20 70 71 43 72 73 90 74 77 78"
+          },
+          {
+            "key": "39",
+            "old": "Golden_Tome_@_Adds_a_new_DMG_Multi_bonus_type_to_the_Tome_in_World_4 25 Stamp_Stack_@_Get_+3_Stamp_LVs_every_day_for_a_random_Stamp 30 Bubble_Broth_@_Get_+5_LVs_for_a_random_Alchemy_Bubble_every_day 20 Equinox_Enhancement_@_Get_1.5x_faster_Bar_Fill_Rate_in_Equinox_Valley_in_World_3 15 Supreme_Wiring_@_+2%_Printer_Output_per_day,_taking_new_sample_resets_this 45 Sleepy_Joe_Armstrong_@_+20%_AFK_Gains_for_all_things_IdleOn_related 25 Village_Encouragement_@_All_Villagers_in_World_5_Camp_get_1.25x_EXP_Gain 30 Gilded_Vote_Button_@_Get_+17%_higher_Ballot_Bonus_Multi_from_Voting 35 Extra_Page_@_Get_+1_more_Filter_Page._Find_it_on_the_left_side_of_Cards 20 Coin_Stacking_@_Get_a_1.50x_multiplier_to_ALL_coin_gain,_and_profit_big_time! 15 More_Storage_@_Get_+12_storage_slots_for_your_storage_chest! 10",
+            "new": "Golden_Tome_@_Adds_a_new_DMG_Multi_bonus_type_to_the_Tome_in_World_4 25 Stamp_Stack_@_Get_+3_Stamp_LVs_every_day_for_a_random_Stamp 30 Bubble_Broth_@_Get_+5_LVs_for_a_random_Alchemy_Bubble_every_day 20 Equinox_Enhancement_@_Get_1.5x_faster_Bar_Fill_Rate_in_Equinox_Valley_in_World_3 15 Supreme_Wiring_@_+2%_Printer_Output_per_day,_taking_new_sample_resets_this 45 Sleepy_Joe_Armstrong_@_+20%_AFK_Gains_for_all_things_IdleOn_related 25 Village_Encouragement_@_All_Villagers_in_World_5_Camp_get_1.25x_EXP_Gain 30 Gilded_Vote_Button_@_Get_+17%_higher_Ballot_Bonus_Multi_from_Voting 35 Extra_Page_@_Get_+1_more_Filter_Page._Find_it_on_the_left_side_of_Cards 20 Coin_Stacking_@_Get_a_1.50x_multiplier_to_ALL_coin_gain,_and_profit_big_time! 15 Storage_Chest_@_Get_+12_storage_slots_for_your_storage_chest 15 Storage_Vault_@_Get_+16_storage_slots_for_your_storage_chest 32 Secret_Pouch_@_Get_+3_Inventory_slots_for_your_Items_Backpack 27 Ribbon_Connoisseur_@_Get_+3_more_ribbons_every_day_for_your_Ribbon_Shelf 35 Golden_Square_@_Get_+1_Trimmed_Construction_slot,_which_has_3x_speed! 23 Summoning_Star_@_Get_+10_Summoning_Doublers,_used_on_Summoning_Upgrades! 30 Royal_Vote_Button_@_Get_+30%_higher_Ballot_Bonus_Multi_instead_of_+17% 25"
+          }
+        ]
+      }
+    },
+    "game-systems": {
+      "monsters": {
+        "monsters": {
+          "added": [
+            {
+              "key": "anni4Event1",
+              "value": {
+                "Name": "IdleOn_4th_Anniversary",
+                "AFKtype": "FIGHTING",
+                "MonsterFace": 4,
+                "MonsterOffsetX": 42,
+                "MonsterOffsetY": 28,
+                "HeightOfMonster": 85,
+                "MonsterMoving": 1,
+                "MovingFrame": 4,
+                "DeathFrame": 13,
+                "RespawnTime": 86400,
+                "MonsterHPTotal": 750000,
+                "Type": "G.MONSTER_TYPE",
+                "SpecialType": "a",
+                "ExpGiven": 12000,
+                "ExpType": 0,
+                "Defence": 600,
+                "MoveSPEED": 3,
+                "Damages": [
+                  1000,
+                  1
+                ]
+              }
+            },
+            {
+              "key": "Pet12",
+              "value": {
+                "Name": "Axolotl",
+                "AFKtype": "FIGHTING",
+                "MonsterFace": 23,
+                "MonsterOffsetX": 38,
+                "MonsterOffsetY": 47,
+                "HeightOfMonster": 40,
+                "MonsterMoving": 1,
+                "MovingFrame": 10,
+                "DeathFrame": 21,
+                "RespawnTime": 40,
+                "MonsterHPTotal": 14000,
+                "Type": "G.MONSTER_TYPE",
+                "SpecialType": "_",
+                "ExpGiven": 420,
+                "ExpType": 0,
+                "Defence": 1,
+                "MoveSPEED": 3,
+                "Damages": [
+                  2,
+                  1
+                ]
+              }
+            }
+          ],
+          "removed": [],
+          "modified": []
+        },
+        "monsterDrops": {
+          "added": [
+            {
+              "key": "anni4Event1",
+              "value": [
+                {
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "rawName": "COIN",
+                  "quantity": 69,
+                  "chance": 0.5,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Gem",
+                  "sellPrice": 69,
+                  "typeGen": "dCurrency",
+                  "ID": -1,
+                  "Type": "GEM",
+                  "lvReqToCraft": "Gems",
+                  "common": "t",
+                  "desc_line1": "Hold_down_to_add_these_gems_to_your_account._You_can_then_spend_them_in_the_Gem_Shop!",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "PremiumGem",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.2,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Spooky_Time_Candy",
+                  "sellPrice": 1,
+                  "typeGen": "dTimeCandy",
+                  "ID": 2,
+                  "Type": "TIME_CANDY",
+                  "lvReqToCraft": 88,
+                  "common": "t",
+                  "desc_line1": "_Hold_down_to_instantly_get_anywhere_from_20_minutes_to_12_hours_of_AFK_time!",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "Timecandy8",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.1,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "3rd_Anniversary_Ice_Cream_Topper",
+                  "sellPrice": 1,
+                  "typeGen": "aHelmet",
+                  "ID": 115,
+                  "Type": "HELMET",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "lvReqToEquip": 1,
+                  "Class": "ALL",
+                  "Speed": 0,
+                  "Reach": 0,
+                  "Weapon_Power": 2,
+                  "STR": 0,
+                  "AGI": 0,
+                  "WIS": 0,
+                  "LUK": 0,
+                  "Defence": 5,
+                  "UQ1txt": "%_XP_FROM_MONSTERS",
+                  "UQ1val": 4,
+                  "UQ2txt": "%_DROP_CHANCE",
+                  "UQ2val": 3,
+                  "Upgrade_Slots_Left": 3,
+                  "equip": "t",
+                  "itemType": "Equip",
+                  "rawName": "EquipmentHats108",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Goldberry",
+                  "sellPrice": 1,
+                  "typeGen": "aHelmetMTX",
+                  "ID": 122,
+                  "Type": "PREMIUM_HELMET",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "lvReqToEquip": 1,
+                  "Class": "ALL",
+                  "Speed": 0,
+                  "Reach": 0,
+                  "Weapon_Power": 0,
+                  "STR": 1,
+                  "AGI": 1,
+                  "WIS": 1,
+                  "LUK": 0,
+                  "Defence": 0,
+                  "UQ1txt": "%_DROP_CHANCE",
+                  "UQ1val": 10,
+                  "UQ2txt": 0,
+                  "UQ2val": 0,
+                  "Upgrade_Slots_Left": 5,
+                  "equip": "t",
+                  "itemType": "Equip",
+                  "rawName": "EquipmentHats116",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Celebration_Mane",
+                  "sellPrice": 1,
+                  "typeGen": "aHelmetMTX",
+                  "ID": 123,
+                  "Type": "PREMIUM_HELMET",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "lvReqToEquip": 1,
+                  "Class": "ALL",
+                  "Speed": 0,
+                  "Reach": 0,
+                  "Weapon_Power": 0,
+                  "STR": 1,
+                  "AGI": 1,
+                  "WIS": 1,
+                  "LUK": 0,
+                  "Defence": 0,
+                  "UQ1txt": "%_DAMAGE_MULTI",
+                  "UQ1val": 10,
+                  "UQ2txt": 0,
+                  "UQ2val": 0,
+                  "Upgrade_Slots_Left": 5,
+                  "equip": "t",
+                  "itemType": "Equip",
+                  "rawName": "EquipmentHats115",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Farmer_Brimest",
+                  "sellPrice": 400,
+                  "typeGen": "aHelmetMTX",
+                  "ID": 28,
+                  "Type": "PREMIUM_HELMET",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "lvReqToEquip": 1,
+                  "Class": "ALL",
+                  "Speed": 0,
+                  "Reach": 0,
+                  "Weapon_Power": 0,
+                  "STR": 0,
+                  "AGI": 0,
+                  "WIS": 0,
+                  "LUK": 0,
+                  "Defence": 0,
+                  "UQ1txt": "%_CLASS_EXP_MULTI",
+                  "UQ1val": 5,
+                  "UQ2txt": 0,
+                  "UQ2val": 0,
+                  "Upgrade_Slots_Left": 5,
+                  "equip": "t",
+                  "itemType": "Equip",
+                  "rawName": "EquipmentHats24",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Orange_Beanie",
+                  "sellPrice": 1,
+                  "typeGen": "aHelmetMTX",
+                  "ID": 124,
+                  "Type": "PREMIUM_HELMET",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "lvReqToEquip": 1,
+                  "Class": "ALL",
+                  "Speed": 0,
+                  "Reach": 0,
+                  "Weapon_Power": 0,
+                  "STR": 1,
+                  "AGI": 1,
+                  "WIS": 1,
+                  "LUK": 0,
+                  "Defence": 0,
+                  "UQ1txt": "%_ALL_STATS",
+                  "UQ1val": 2,
+                  "UQ2txt": 0,
+                  "UQ2val": 0,
+                  "Upgrade_Slots_Left": 5,
+                  "equip": "t",
+                  "itemType": "Equip",
+                  "rawName": "EquipmentHats117",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Pop_Cat",
+                  "sellPrice": 1,
+                  "typeGen": "aHelmetMTX",
+                  "ID": 50,
+                  "Type": "PREMIUM_HELMET",
+                  "lvReqToCraft": 5,
+                  "common": "t",
+                  "lvReqToEquip": 1,
+                  "Class": "ALL",
+                  "Speed": 0,
+                  "Reach": 0,
+                  "Weapon_Power": 0,
+                  "STR": 1,
+                  "AGI": 1,
+                  "WIS": 1,
+                  "LUK": 1,
+                  "Defence": 0,
+                  "UQ1txt": 0,
+                  "UQ1val": 0,
+                  "UQ2txt": 0,
+                  "UQ2val": 0,
+                  "Upgrade_Slots_Left": 5,
+                  "equip": "t",
+                  "itemType": "Equip",
+                  "rawName": "EquipmentHats47",
+                  "monsterDisplayName": "IdleOn_4th_Anniversary",
+                  "monsterRawName": "anni4Event1",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                }
+              ]
+            }
+          ],
+          "removed": [],
+          "modified": [
+            {
+              "key": "skele2",
+              "old": [
+                {
+                  "monsterDisplayName": "Bloodbone",
+                  "monsterRawName": "skele2",
+                  "rawName": "COIN",
+                  "quantity": 2500,
+                  "chance": 0.5,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Blood_Bone",
+                  "sellPrice": 700,
+                  "typeGen": "bCraft",
+                  "ID": 0,
+                  "Type": "MONSTER_DROP",
+                  "lvReqToCraft": 15,
+                  "common": "t",
+                  "desc_line1": "Wait_a_minute,_these_are_just_regular_bones_painted_red!_Wait_another_minute,_no,_that's_actual_blood..._ew.",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "SnowC5",
+                  "monsterDisplayName": "Bloodbone",
+                  "monsterRawName": "skele2",
+                  "quantity": 1,
+                  "chance": 0.05,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Equinox_Mirror",
+                  "sellPrice": 1,
+                  "typeGen": "dQuest",
+                  "ID": 0,
+                  "Type": "TELEPORTER",
+                  "lvReqToCraft": 15,
+                  "common": "t",
+                  "desc_line1": "Hold_down_to_enter_the_Equinox_Valley_map._You_can_later_teleport_there_from_the_map_once_you_unlock_Dreams",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "Quest78",
+                  "monsterDisplayName": "Bloodbone",
+                  "monsterRawName": "skele2",
+                  "quantity": 1,
+                  "chance": 0.001,
+                  "questLink": "N/A"
+                },
+                null
+              ],
+              "new": [
+                {
+                  "monsterDisplayName": "Bloodbone",
+                  "monsterRawName": "skele2",
+                  "rawName": "COIN",
+                  "quantity": 2500,
+                  "chance": 0.5,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Blood_Bone",
+                  "sellPrice": 700,
+                  "typeGen": "bCraft",
+                  "ID": 0,
+                  "Type": "MONSTER_DROP",
+                  "lvReqToCraft": 15,
+                  "common": "t",
+                  "desc_line1": "Wait_a_minute,_these_are_just_regular_bones_painted_red!_Wait_another_minute,_no,_that's_actual_blood..._ew.",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "SnowC5",
+                  "monsterDisplayName": "Bloodbone",
+                  "monsterRawName": "skele2",
+                  "quantity": 1,
+                  "chance": 0.05,
+                  "questLink": "N/A"
+                },
+                {
+                  "displayName": "Equinox_Mirror",
+                  "sellPrice": 1,
+                  "typeGen": "dQuest",
+                  "ID": 0,
+                  "Type": "TELEPORTER",
+                  "lvReqToCraft": 15,
+                  "common": "t",
+                  "desc_line1": "Hold_down_to_enter_the_Equinox_Valley_map._You_can_later_teleport_there_from_the_map_once_you_unlock_Dreams",
+                  "desc_line2": "Filler",
+                  "desc_line3": "Filler",
+                  "desc_line4": "Filler",
+                  "desc_line5": "Filler",
+                  "desc_line6": "Filler",
+                  "desc_line7": "Filler",
+                  "desc_line8": "Filler",
+                  "consumable": "t",
+                  "itemType": "Quest",
+                  "rawName": "Quest78",
+                  "monsterDisplayName": "Bloodbone",
+                  "monsterRawName": "skele2",
+                  "quantity": 1,
+                  "chance": 0.1,
+                  "questLink": "N/A"
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "items": {
+        "items": {
+          "added": [
+            {
+              "key": "InvBag112",
+              "value": {
+                "displayName": "4th_Anniversary_Bag",
+                "sellPrice": 200,
+                "typeGen": "aInventoryBag",
+                "ID": 112,
+                "Type": "INVENTORY_",
+                "lvReqToCraft": 8,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 150,
+                "Reach": 10,
+                "Weapon_Power": 0,
+                "STR": 0,
+                "AGI": 0,
+                "WIS": 0,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": 0,
+                "UQ1val": 0,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "InvBag112"
+              }
+            },
+            {
+              "key": "InvBag113",
+              "value": {
+                "displayName": "Treasure_Totebag",
+                "sellPrice": 250000000000000000,
+                "typeGen": "aInventoryBag",
+                "ID": 113,
+                "Type": "INVENTORY_",
+                "lvReqToCraft": 1,
+                "common": "t",
+                "lvReqToEquip": 140,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 10,
+                "Weapon_Power": 0,
+                "STR": 0,
+                "AGI": 0,
+                "WIS": 0,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": 0,
+                "UQ1val": 0,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "InvBag113"
+              }
+            },
+            {
+              "key": "InvBag114",
+              "value": {
+                "displayName": "Rucksack_of_Riches",
+                "sellPrice": 2.5e+25,
+                "typeGen": "aInventoryBag",
+                "ID": 114,
+                "Type": "INVENTORY_",
+                "lvReqToCraft": 1,
+                "common": "t",
+                "lvReqToEquip": 200,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 10,
+                "Weapon_Power": 0,
+                "STR": 0,
+                "AGI": 0,
+                "WIS": 0,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": 0,
+                "UQ1val": 0,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "InvBag114"
+              }
+            },
+            {
+              "key": "EquipmentGown3",
+              "value": {
+                "displayName": "Evergreen_Robe",
+                "sellPrice": 1,
+                "typeGen": "aGown",
+                "ID": 4,
+                "Type": "ATTIRE",
+                "lvReqToCraft": 55,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 10,
+                "STR": 7,
+                "AGI": 7,
+                "WIS": 7,
+                "LUK": 7,
+                "Defence": 40,
+                "UQ1txt": "%_ALL_AFK_GAIN",
+                "UQ1val": 60,
+                "UQ2txt": "%_DAMAGE_BONUS",
+                "UQ2val": 50,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentGown3"
+              }
+            },
+            {
+              "key": "EquipmentNametag17",
+              "value": {
+                "displayName": "Spectacular_4th_Year_Nametag",
+                "sellPrice": 1,
+                "typeGen": "aNametag",
+                "ID": 17,
+                "Type": "NAMETAG",
+                "lvReqToCraft": 55,
+                "common": "t",
+                "lvReqToEquip": 4,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 4,
+                "STR": 4,
+                "AGI": 4,
+                "WIS": 4,
+                "LUK": 4,
+                "Defence": 44,
+                "UQ1txt": "%_CLASS_EXP_MULTI",
+                "UQ1val": 144,
+                "UQ2txt": "%_ALL_AFK_GAIN",
+                "UQ2val": 44,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentNametag17"
+              }
+            },
+            {
+              "key": "EquipmentNametag18",
+              "value": {
+                "displayName": "4th_Anniversary_IdleOn_Nametag",
+                "sellPrice": 1,
+                "typeGen": "aNametag",
+                "ID": 18,
+                "Type": "NAMETAG",
+                "lvReqToCraft": 55,
+                "common": "t",
+                "lvReqToEquip": 4,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 4,
+                "AGI": 4,
+                "WIS": 4,
+                "LUK": 4,
+                "Defence": 4,
+                "UQ1txt": "%_ALL_AFK_GAIN",
+                "UQ1val": 14,
+                "UQ2txt": "%_DAMAGE_MULTI",
+                "UQ2val": 14,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentNametag18"
+              }
+            },
+            {
+              "key": "Quest95",
+              "value": {
+                "displayName": "Birthday_Candle",
+                "sellPrice": 100,
+                "typeGen": "dQuest",
+                "ID": 0,
+                "Type": "EVENT_WISH",
+                "lvReqToCraft": 15,
+                "common": "t",
+                "desc_line1": "Hold_down_on_this_item_to_make_a_wish!",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "Quest95"
+              }
+            },
+            {
+              "key": "EquipmentHats115",
+              "value": {
+                "displayName": "Celebration_Mane",
+                "sellPrice": 1,
+                "typeGen": "aHelmetMTX",
+                "ID": 123,
+                "Type": "PREMIUM_HELMET",
+                "lvReqToCraft": 5,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 1,
+                "AGI": 1,
+                "WIS": 1,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": "%_DAMAGE_MULTI",
+                "UQ1val": 10,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 5,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentHats115"
+              }
+            },
+            {
+              "key": "EquipmentHats116",
+              "value": {
+                "displayName": "Goldberry",
+                "sellPrice": 1,
+                "typeGen": "aHelmetMTX",
+                "ID": 122,
+                "Type": "PREMIUM_HELMET",
+                "lvReqToCraft": 5,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 1,
+                "AGI": 1,
+                "WIS": 1,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": "%_DROP_CHANCE",
+                "UQ1val": 10,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 5,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentHats116"
+              }
+            },
+            {
+              "key": "EquipmentHats117",
+              "value": {
+                "displayName": "Orange_Beanie",
+                "sellPrice": 1,
+                "typeGen": "aHelmetMTX",
+                "ID": 124,
+                "Type": "PREMIUM_HELMET",
+                "lvReqToCraft": 5,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 1,
+                "AGI": 1,
+                "WIS": 1,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": "%_ALL_STATS",
+                "UQ1val": 2,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 5,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentHats117"
+              }
+            },
+            {
+              "key": "CardsY19",
+              "value": {
+                "displayName": "DONTFILL",
+                "sellPrice": 1,
+                "typeGen": "dCard",
+                "ID": 0,
+                "Type": "CARD",
+                "lvReqToCraft": 2,
+                "common": "t",
+                "desc_line1": "anni4Event1",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "CardsY19"
+              }
+            }
+          ],
+          "removed": [],
+          "modified": [
+            {
+              "key": "EquipmentHats24",
+              "old": {
+                "displayName": "Farmer_Brimest",
+                "sellPrice": 400,
+                "typeGen": "aHelmet",
+                "ID": 28,
+                "Type": "HELMET",
+                "lvReqToCraft": 5,
+                "common": "t",
+                "lvReqToEquip": 5,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 3,
+                "AGI": 3,
+                "WIS": 3,
+                "LUK": 3,
+                "Defence": 6,
+                "UQ1txt": 0,
+                "UQ1val": 0,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 3,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentHats24"
+              },
+              "new": {
+                "displayName": "Farmer_Brimest",
+                "sellPrice": 400,
+                "typeGen": "aHelmetMTX",
+                "ID": 28,
+                "Type": "PREMIUM_HELMET",
+                "lvReqToCraft": 5,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 0,
+                "STR": 0,
+                "AGI": 0,
+                "WIS": 0,
+                "LUK": 0,
+                "Defence": 0,
+                "UQ1txt": "%_CLASS_EXP_MULTI",
+                "UQ1val": 5,
+                "UQ2txt": 0,
+                "UQ2val": 0,
+                "Upgrade_Slots_Left": 5,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentHats24"
+              }
+            },
+            {
+              "key": "Quest25",
+              "old": {
+                "displayName": "Birthday_Card",
+                "sellPrice": 100,
+                "typeGen": "dQuest",
+                "ID": 0,
+                "Type": "QUEST_ITEM",
+                "lvReqToCraft": 15,
+                "common": "t",
+                "desc_line1": "Hold_down_to_read_the_card!_There's_a_1_in_75_chance_it_contains_a_Birthday_Hat_recipe,_and_a_74_in_75_chance_it_contains_a_few_dollars_from_grandma.",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "Quest25"
+              },
+              "new": {
+                "displayName": "Birthday_Card",
+                "sellPrice": 100,
+                "typeGen": "dQuest",
+                "ID": 0,
+                "Type": "QUEST_ITEM",
+                "lvReqToCraft": 15,
+                "common": "t",
+                "desc_line1": "Hold_down_to_read_the_card!_There's_a_1_in_75_chance_it_contains_a_Birthday_Hat_recipe,_and_a_74_in_75_chance_it_contains_a..._well,_grandma_is_a_bit_off_these_days,_so_it'll_probably_be_a_mushroom_cap.",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "Quest25"
+              }
+            },
+            {
+              "key": "EquipmentNametag7",
+              "old": {
+                "displayName": "Island_Adventurer_Nametag",
+                "sellPrice": 1,
+                "typeGen": "aNametag",
+                "ID": 7,
+                "Type": "NAMETAG",
+                "lvReqToCraft": 55,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 12,
+                "STR": 12,
+                "AGI": 0,
+                "WIS": 0,
+                "LUK": 12,
+                "Defence": 0,
+                "UQ1txt": "%_FIGHT_AFK_GAIN",
+                "UQ1val": 10,
+                "UQ2txt": "%_FISHIN_EFFICINCY",
+                "UQ2val": 5,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentNametag7"
+              },
+              "new": {
+                "displayName": "Island_Adventurer_Nametag",
+                "sellPrice": 1,
+                "typeGen": "aNametag",
+                "ID": 7,
+                "Type": "NAMETAG",
+                "lvReqToCraft": 55,
+                "common": "t",
+                "lvReqToEquip": 1,
+                "Class": "ALL",
+                "Speed": 0,
+                "Reach": 0,
+                "Weapon_Power": 12,
+                "STR": 12,
+                "AGI": 12,
+                "WIS": 12,
+                "LUK": 12,
+                "Defence": 0,
+                "UQ1txt": "%_FIGHT_AFK_GAIN",
+                "UQ1val": 10,
+                "UQ2txt": "%_FISHIN_EFFICINCY",
+                "UQ2val": 5,
+                "Upgrade_Slots_Left": 0,
+                "equip": "t",
+                "itemType": "Equip",
+                "rawName": "EquipmentNametag7"
+              }
+            },
+            {
+              "key": "Quest85",
+              "old": {
+                "displayName": "Anniversary_Box",
+                "sellPrice": 1,
+                "typeGen": "dQuest",
+                "ID": 0,
+                "Type": "EVENT_BOX",
+                "lvReqToCraft": 15,
+                "common": "t",
+                "desc_line1": "IdleOn_is_3_years_old!_Hold_down_to_open_this_box_and_celebrate!_Contains_a_random_Anniversary_goodie,_from_event_cards_to_foods!_ALSO,_if_you_open_a_total_of_500_Boxes,_you'll_get_a_limited_edition_Anniversary_event_NAMETAG!",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "Quest85"
+              },
+              "new": {
+                "displayName": "Anniversary_Box",
+                "sellPrice": 1,
+                "typeGen": "dQuest",
+                "ID": 0,
+                "Type": "EVENT_BOX",
+                "lvReqToCraft": 15,
+                "common": "t",
+                "desc_line1": "IdleOn_is_4_years_old!_Hold_down_to_open_this_box_and_celebrate!_Contains_a_random_Anniversary_goodie,_from_event_cards_to_foods_to_special_vent_equipment!",
+                "desc_line2": "Filler",
+                "desc_line3": "Filler",
+                "desc_line4": "Filler",
+                "desc_line5": "Filler",
+                "desc_line6": "Filler",
+                "desc_line7": "Filler",
+                "desc_line8": "Filler",
+                "consumable": "t",
+                "itemType": "Quest",
+                "rawName": "Quest85"
+              }
+            }
+          ]
+        }
+      },
+      "cards": {
+        "cards": {
+          "added": [
+            {
+              "key": "anni4Event1",
+              "value": {
+                "rawName": "anni4Event1",
+                "displayName": "IdleOn_4th_Anniversary",
+                "cardIndex": "Y19",
+                "visualIndex": 19,
+                "effect": "+{%_Drop_Rate_(Passive)",
+                "bonus": 2,
+                "perTier": 4,
+                "category": "Events"
+              }
+            }
+          ],
+          "removed": [],
+          "modified": []
+        },
+        "stats": {
+          "added": [
+            {
+              "key": "DropRate(Passive)",
+              "value": "Drop Rate (Passive)"
+            }
+          ],
+          "removed": [],
+          "modified": []
+        }
+      },
+      "achievements": {
+        "achievements": {
+          "added": [],
+          "removed": [],
+          "modified": [
+            {
+              "key": "48",
+              "old": {
+                "name": "Cavernous_Nook",
+                "rawName": "TaskAchA49",
+                "quantity": 1,
+                "desc": "-",
+                "rewards": [
+                  "Knowledge_of_the_Cavern_Secret_Location"
+                ],
+                "misc": "0",
+                "visualIndex": -1,
+                "steamExclusive": false
+              },
+              "new": {
+                "name": "Cavernous_Nook",
+                "rawName": "TaskAchA49",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Find_the_SECRET_mining_area!",
+                "rewards": [
+                  "Nothing!"
+                ],
+                "misc": "0",
+                "visualIndex": 56,
+                "steamExclusive": false
+              }
+            },
+            {
+              "key": "49",
+              "old": {
+                "name": "Seriousleaf-ast!",
+                "rawName": "TaskAchA50",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Score_a_point_in_the_Choppin'_Minigame_while_the_leaf_is_zooming_at_hyperspeed",
+                "rewards": [
+                  "1%_Arcade_balls/hr"
+                ],
+                "misc": "0",
+                "visualIndex": 56,
+                "steamExclusive": false
+              },
+              "new": {
+                "name": "Seriousleaf-ast!",
+                "rawName": "TaskAchA50",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Score_a_point_in_the_Choppin'_Minigame_while_the_leaf_is_zooming_at_hyperspeed",
+                "rewards": [
+                  "1%_Arcade_balls/hr"
+                ],
+                "misc": "0",
+                "visualIndex": 57,
+                "steamExclusive": false
+              }
+            },
+            {
+              "key": "50",
+              "old": {
+                "name": "Peanut_Pioneer",
+                "rawName": "TaskAchA51",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Talk_to_the_jungle_bush,_join_the_club...",
+                "rewards": [
+                  "25_gems_",
+                  "2_'2hr_time_candy'"
+                ],
+                "misc": "0",
+                "visualIndex": 57,
+                "steamExclusive": true,
+                "steamIndex": 39
+              },
+              "new": {
+                "name": "Peanut_Pioneer",
+                "rawName": "TaskAchA51",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Talk_to_the_jungle_bush,_join_the_club...",
+                "rewards": [
+                  "25_gems_",
+                  "2_'2hr_time_candy'"
+                ],
+                "misc": "0",
+                "visualIndex": 58,
+                "steamExclusive": true,
+                "steamIndex": 39
+              }
+            },
+            {
+              "key": "51",
+              "old": {
+                "name": "Meel_Time!",
+                "rawName": "TaskAchA52",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Shake_it!_To_the_left,_to_the_left!_Oh_yea!!!",
+                "rewards": [
+                  "25_gems"
+                ],
+                "misc": "0",
+                "visualIndex": 58,
+                "steamExclusive": true,
+                "steamIndex": 40
+              },
+              "new": {
+                "name": "Meel_Time!",
+                "rawName": "TaskAchA52",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Shake_it!_To_the_left,_to_the_left!_Oh_yea!!!",
+                "rewards": [
+                  "25_gems"
+                ],
+                "misc": "0",
+                "visualIndex": 59,
+                "steamExclusive": true,
+                "steamIndex": 40
+              }
+            },
+            {
+              "key": "52",
+              "old": {
+                "name": "Pro_Gamer_Move",
+                "rawName": "TaskAchA53",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Keep_the_oil._Precious,_precious_oil...",
+                "rewards": [
+                  "10_gems_",
+                  "1hr_time_candy"
+                ],
+                "misc": "0",
+                "visualIndex": 59,
+                "steamExclusive": true,
+                "steamIndex": 38
+              },
+              "new": {
+                "name": "Pro_Gamer_Move",
+                "rawName": "TaskAchA53",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_Keep_the_oil._Precious,_precious_oil...",
+                "rewards": [
+                  "10_gems_",
+                  "1hr_time_candy"
+                ],
+                "misc": "0",
+                "visualIndex": 60,
+                "steamExclusive": true,
+                "steamIndex": 38
+              }
+            },
+            {
+              "key": "53",
+              "old": {
+                "name": "Meet_the_Dev",
+                "rawName": "TaskAchA54",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_I_heard_he's_12_feet_tall_and_can_spawn_bosses_just_by_talking...",
+                "rewards": [
+                  "40_gems_",
+                  "4_'2hr_time_candy'"
+                ],
+                "misc": "0",
+                "visualIndex": 60,
+                "steamExclusive": true,
+                "steamIndex": 41
+              },
+              "new": {
+                "name": "Meet_the_Dev",
+                "rawName": "TaskAchA54",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_I_heard_he's_12_feet_tall_and_can_spawn_bosses_just_by_talking...",
+                "rewards": [
+                  "40_gems_",
+                  "4_'2hr_time_candy'"
+                ],
+                "misc": "0",
+                "visualIndex": 61,
+                "steamExclusive": true,
+                "steamIndex": 41
+              }
+            },
+            {
+              "key": "62",
+              "old": {
+                "name": "Big_Frog_Big_Mad",
+                "rawName": "TaskAchA63",
+                "quantity": 1,
+                "desc": "Defeat_Grandfrogger_on_his_4th_Difficulty,_and_avoid_becoming_one_with_the_soup...",
+                "rewards": [
+                  "5%_Total_DMG_for_all_characters_outside_of_dungeons"
+                ],
+                "misc": "0",
+                "visualIndex": 61,
+                "steamExclusive": false
+              },
+              "new": {
+                "name": "Big_Frog_Big_Mad",
+                "rawName": "TaskAchA63",
+                "quantity": 1,
+                "desc": "Defeat_Grandfrogger_on_his_4th_Difficulty,_and_avoid_becoming_one_with_the_soup...",
+                "rewards": [
+                  "5%_Total_DMG_for_all_characters_outside_of_dungeons"
+                ],
+                "misc": "0",
+                "visualIndex": 62,
+                "steamExclusive": false
+              }
+            },
+            {
+              "key": "63",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA64",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 62,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA64",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 63,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "64",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA65",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 63,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA65",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 64,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "65",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA66",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 64,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA66",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 65,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "66",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA67",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 65,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA67",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 66,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "67",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA68",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 66,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA68",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 67,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "68",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA69",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 67,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA69",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 68,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "69",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA70",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 68,
+                "steamExclusive": true
+              },
+              "new": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchA70",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "30_gems_",
+                  "Item3"
+                ],
+                "misc": "0",
+                "visualIndex": 69,
+                "steamExclusive": true
+              }
+            },
+            {
+              "key": "311",
+              "old": {
+                "name": "FILLERZZZ_ACH",
+                "rawName": "TaskAchE32",
+                "quantity": 20,
+                "desc": "-",
+                "rewards": [
+                  "FILLERZ_",
+                  "FILLERZ_",
+                  "FILLERZ"
+                ],
+                "misc": "0",
+                "visualIndex": 31,
+                "steamExclusive": false
+              },
+              "new": {
+                "name": "Hug_from_Timmy",
+                "rawName": "TaskAchE32",
+                "quantity": 1,
+                "desc": "SECRET_ACHIEVEMENT_------------------------_The_lil'_fella_REALLY_likes_icecream!",
+                "rewards": [
+                  "10%_Monument_AFK"
+                ],
+                "misc": "0",
+                "visualIndex": 31,
+                "steamExclusive": false
+              }
+            }
+          ]
+        }
+      },
+      "companions": {
+        "companions": {
+          "added": [
+            {
+              "key": "24",
+              "value": {
+                "name": "Cool_Bird",
+                "rawName": "Pet10",
+                "effect": "4x_Coins_from_Mobs",
+                "bonus": 3,
+                "x": "-10",
+                "y": "0",
+                "z": "-13",
+                "filler": "500"
+              }
+            },
+            {
+              "key": "25",
+              "value": {
+                "name": "Axolotl",
+                "rawName": "Pet12",
+                "effect": "{50%_AFK_Gains",
+                "bonus": 50,
+                "x": "3",
+                "y": "0",
+                "z": "-20",
+                "filler": "500"
+              }
+            },
+            {
+              "key": "26",
+              "value": {
+                "name": "Mallay",
+                "rawName": "Pet3",
+                "effect": "1.30x_Drop_Rate",
+                "bonus": 0.3,
+                "x": "-1",
+                "y": "0",
+                "z": "0",
+                "filler": "500"
+              }
+            }
+          ],
+          "removed": [],
+          "modified": [
+            {
+              "key": "11",
+              "old": {
+                "name": "Glunko_Supreme",
+                "rawName": "slimeBz",
+                "effect": "One_of_the_rarest_pets._Only_100_exist...",
+                "bonus": 10,
+                "x": "-48",
+                "y": "0",
+                "z": "-30",
+                "filler": "1"
+              },
+              "new": {
+                "name": "Glunko_Supreme",
+                "rawName": "slimeBz",
+                "effect": "You_really_have_one_of_only_92_in_the_game...",
+                "bonus": 10,
+                "x": "-48",
+                "y": "0",
+                "z": "-30",
+                "filler": "1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
