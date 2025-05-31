@@ -4,7 +4,7 @@ import { isBundlePurchased } from '@parsers/misc';
 
 export const getArmorSmithy = (idleonData, serverVars, account) => {
   const smithyUnlocked = account?.accountOptions?.[380];
-  const [, ...unlockedSets] = account?.accountOptions?.[379]?.split(',') || [];
+  const [, ...unlockedSets] = (account?.accountOptions?.[379] ?? '').toString().split(',');
   const days = account?.accountOptions?.[381];
   const sets = equipmentSets.map((set) => {
     const description = set.description.replace('|', '_')
