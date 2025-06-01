@@ -8,11 +8,11 @@ const Upgrades = ({ upgrades }) => {
         const bonus = description?.includes('{')
           ? level * modifier
           : notateNumber(1 + level * modifier / 100, 'MultiplierInfo')
-        return name !== 'Name' ? <Card key={'upgrade-' + index} sx={{ width: 220 }}>
+        return name !== 'Name' ? <Card key={'upgrade-' + index} sx={{ width: 320 }}>
           <CardContent>
             <Stack direction={'row'} gap={1}>
               <img width={32} src={`${prefix}data/NjUpgI${index + 1}.png`} alt={''}/>
-              <Typography>{cleanUnderscore(name)}</Typography>
+              <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
             </Stack>
             <Typography>{cleanUnderscore(description.replace(/}|{/g, bonus))}</Typography>
           </CardContent>

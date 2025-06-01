@@ -32,7 +32,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
             <CardContent>
               <Typography>{characters?.[playerIndex]?.name}</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Stack direction={'row'} gap={1}>
+                <Stack alignItems={'center'} gap={1}>
                   <img width={24} src={`${prefix}data/ClassIcons58.png`} alt={''}/>
                   <Typography>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
                 </Stack>
@@ -66,42 +66,45 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
           </Card>
           {equipment?.map(({ name, rawName, level, description, value, type, subType }, itemIndex) => {
             description = getDescription({ description, value, type, subType })
-            return <Tooltip title={description === '0' ? '' : cleanUnderscore(description)} key={itemIndex + name}>
-              <Card sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
-                <CardContent>
-                  <Badge anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                         max={99999}
-                         badgeContent={level ?? ' '}
-                         color="primary"
-                         key={itemIndex + name}>
+            return <Card key={itemIndex + name}
+                         sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
+              <CardContent>
+                <Badge anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                       max={99999}
+                       badgeContent={level ?? ' '}
+                       color="primary"
+                       key={itemIndex + name}>
+                  <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}
+                  >
                     <img width={32} src={`${prefix}data/${rawName}.png`} alt={''}/>
-                  </Badge>
-                </CardContent>
-              </Card>
-            </Tooltip>
+                  </Tooltip>
+                </Badge>
+              </CardContent>
+            </Card>
+
           })}
         </Stack>
       })}
     </Stack>
     <h4>Inventory</h4>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (64 * 13) + (8 * 13) }}>
-      {inventory?.map(({ rawName, level, description, value, type, subType }, index) => {
+      {inventory?.map(({ rawName, level, description, value, type, subType, name }, index) => {
         description = getDescription({ description, value, type, subType });
-        return <Tooltip title={description === '0' ? '' : cleanUnderscore(description)}
-                        key={'inventory-' + rawName + index}>
-          <Card>
-            <CardContent>
-              <Badge
-                max={99999}
-                size={'small'}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                badgeContent={level ?? ' '}
-                color="primary">
+        return <Card key={'inventory-' + rawName + index}>
+          <CardContent>
+            <Badge
+              max={99999}
+              size={'small'}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              badgeContent={level ?? ' '}
+              color="primary">
+              <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}
+              >
                 <img width={32} src={`${prefix}data/${rawName}.png`} alt={''}/>
-              </Badge>
-            </CardContent>
-          </Card>
-        </Tooltip>
+              </Tooltip>
+            </Badge>
+          </CardContent>
+        </Card>
       })}
     </Stack>
   </>
@@ -114,9 +117,9 @@ const getDescription = ({ description, value = 0, type, subType }) => {
     : 0).replace(/}/g, notateNumber(1 + value / 100, 'MultiplierInfo'));
   if (type === 1) {
     if (subType === 1) {
-      desc = `Base damage: ${notateNumber(value)}`
+      desc = `${description} Base damage: ${notateNumber(value)}`
     } else {
-      desc = `Base rate: ${notateNumber(value)}`
+      desc = `${description} Base rate: ${notateNumber(value)}%`
     }
   }
   return desc;
