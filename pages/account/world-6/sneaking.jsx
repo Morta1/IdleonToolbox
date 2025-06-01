@@ -40,7 +40,7 @@ const Sneaking = () => {
       <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
       <CardTitleAndValue title={'Items max level'} stackProps>
         <Stack>
-          <Tooltip title={<Breakdown breakdown={itemsMaxLevel}/>}>
+          <Tooltip title={<Breakdown breakdown={itemsMaxLevel} skipNotation/>}>
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>
