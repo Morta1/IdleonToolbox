@@ -1,5 +1,6 @@
 import "core-js/actual/array/to-spliced";
 import "core-js/actual/array/to-sorted";
+import 'core-js/actual/string/starts-with';
 
 String.prototype.capitalize = function () {
   if (!this) return '';
@@ -22,7 +23,6 @@ String.prototype.capitalizeAll = function () {
   if (!this) return '';
   return this.split('_').map((word) => word.capitalize()).join('_');
 }
-
 
 String.prototype.firstCharLowerCase = function () {
   return this.charAt(0).toLowerCase() + this.slice(1);

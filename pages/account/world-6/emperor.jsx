@@ -20,7 +20,7 @@ const Emperor = () => {
 
   return <>
     <Stack direction={'row'} gap={2} alignItems={'center'}>
-      <CardTitleAndValue title={'Highest showdown'} value={highestEmperorShowdown}/>
+      <CardTitleAndValue title={'Highest showdown'} value={highestEmperorShowdown || '0'}/>
       <CardTitleAndValue title={'Daily Attempts'} value={dailyAttempts} icon={'data/GemP45.png'}
                          imgStyle={{ width: 24 }}/>
       <CardTitleAndValue title={'Attempts'} value={`${attempts} / ${maxAttempts}`} icon={'data/GemP45.png'}
@@ -63,7 +63,7 @@ const Emperor = () => {
               {indexes.map((indexBonus, index) => {
                 return <Typography variant={'body2'}
                                    color={indexBonus < highestEmperorShowdown ? 'success.light' : 'inherit'}
-                                   key={'indexBonus-' + indexBonus}>{indexBonus + 1}{index < indexes.length - 1
+                                   key={bonus + 'indexBonus-' + indexBonus}>{indexBonus + 1}{index < indexes.length - 1
                   ? ','
                   : ''}</Typography>
               })}

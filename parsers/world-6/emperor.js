@@ -1,6 +1,6 @@
 import { emperorBonuses } from '../../data/website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
-import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 
 const icons = {
@@ -20,6 +20,7 @@ const icons = {
 
 export const getEmperor = (idleonData, account) => {
   const highestEmperorShowdown = account?.accountOptions?.[369];
+  const cycle = Math.floor(highestEmperorShowdown / 48);
   let bonuses = emperorBonuses.filter((val, index, self) =>
     self.findIndex((t) => t.name === val.name) === index);
   const totalBonuses = emperorBonuses.reduce((result, bonus, index) => {
@@ -27,7 +28,12 @@ export const getEmperor = (idleonData, account) => {
       result[bonus.name] = 0;
     }
     if (index < highestEmperorShowdown) {
-      result[bonus.name] += bonus?.value ?? 0;
+      const cycles = Math.floor(highestEmperorShowdown / 48);
+      const effectiveIndex = highestEmperorShowdown % 48;
+      result[bonus.name] += (bonus?.value ?? 0) * cycles;
+      if (index < effectiveIndex) {
+        result[bonus.name] += bonus?.value ?? 0;
+      }
       return result;
     } else {
       return result;
@@ -47,14 +53,11 @@ export const getEmperor = (idleonData, account) => {
       rawIndex: rawBonus.index,
       icon: icons[rawBonus.index],
       value,
-      indexes: emperorBonuses.reduce((acc, bonus, idx) => {
-        if (bonus.index === rawBonus.index) acc.push(idx);
-        return acc;
-      }, [])
+      indexes: getNextIndexes(rawBonus, cycle)
     }
   });
   const nextLevelBonus = emperorBonuses.find((val, index) => index === highestEmperorShowdown + 1);
-  const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Emperor_Season_Pass') ?? 0;
+  const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
   const maxAttempts = Math.round(5 * jadeEmporiumBonus + 6 * account?.accountOptions?.[382] + 5) + 1
   return {
     highestEmperorShowdown,
@@ -65,6 +68,32 @@ export const getEmperor = (idleonData, account) => {
     attempts: Math.round(-1 * (account?.accountOptions?.[370] - 1)),
     maxAttempts
   }
+}
+
+const getNextIndexes = (rawBonus, cycle) => {
+  const currentIndexes = emperorBonuses.reduce((acc, bonus, idx) => {
+    if (bonus.index === rawBonus.index) acc.push(idx + (cycle * 48));
+    return acc;
+  }, []);
+
+  // If we have less than 5 elements, find future occurrences
+  if (currentIndexes.length < 5) {
+    let futureCycle = cycle + 1;
+    let futureIdx = 0;
+
+    while (currentIndexes.length < 5 && futureIdx < emperorBonuses.length) {
+      if (emperorBonuses[futureIdx].index === rawBonus.index) {
+        currentIndexes.push(futureIdx + (futureCycle * 48));
+      }
+      futureIdx++;
+      if (futureIdx === emperorBonuses.length) {
+        futureIdx = 0;
+        futureCycle++;
+      }
+    }
+  }
+
+  return currentIndexes;
 }
 
 const getBossHp = (highestEmperorShowdown) => {
