@@ -85,15 +85,15 @@ const Compass = () => {
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Hp'} value={numberWithCommas(Math.floor(tempestStats?.hp)).replace('.00', '')}/>
       <CardTitleAndValue title={'Damage'} value={tempestStats?.damage < 1e8
-        ? numberWithCommas(tempestStats?.damage || '0')
+        ? numberWithCommas(Math.floor(tempestStats?.damage) || '0')
         : notateNumber(tempestStats?.damage || 0)}/>
       <CardTitleAndValue title={'Accuracy'}
                          value={tempestStats?.accuracy < 1e8
-                           ? numberWithCommas(tempestStats?.accuracy || '0')
+                           ? numberWithCommas(Math.floor(tempestStats?.accuracy) || '0')
                            : notateNumber(tempestStats?.accuracy || 0).replace('.00', '')}/>
       <CardTitleAndValue title={'Defence'}
                          value={tempestStats?.defence < 1e8
-                           ? numberWithCommas(tempestStats?.defence || '0')
+                           ? numberWithCommas(Math.floor(tempestStats?.defence) || '0')
                            : notateNumber(tempestStats?.defence || 0).replace('.00', '')}/>
       <CardTitleAndValue title={'Mastery'}
                          value={`${notateNumber(tempestStats?.mastery, 'MultiplierInfo').replace('.00', '')}%`}/>

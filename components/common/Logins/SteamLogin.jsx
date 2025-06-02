@@ -40,11 +40,11 @@ const SteamLogin = ({ setOpen }) => {
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
     <LoadingButton sx={{ mt: 2 }} loading={waitingForAuth} variant="contained" onClick={async () => {
-      if (!isValidUrl(steamUrl)) {
-        return setError('Please enter a valid steam url')
-      }
       if (!steamUrl.startsWith('https://www.legendsofidleon.com/steamsso/')) {
         return setError('The url should start with "https://www.legendsofidleon.com/steamsso/"');
+      }
+      if (!isValidUrl(steamUrl)) {
+        return setError('Please enter a valid steam url')
       }
       const token = await getSteamParams(steamUrl);
       if (Object.keys(token || {}).length === 0) {

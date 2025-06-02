@@ -183,17 +183,11 @@ export const getGuilds = async (callback) => {
 }
 
 const getSnapshot = async (dbRef, id) => {
-  try {
-    const snapshot = await get(child(dbRef, id))
-    if (snapshot && snapshot.exists()) {
-      return snapshot.val();
-    } else {
-      console.error(`No data available for key ${id}`);
-      return null;
-    }
-  } catch (error) {
-    console.error(`Error while fetching data for key ${id}: `, error);
-    return null;
+  const snapshot = await get(child(dbRef, id))
+  if (snapshot && snapshot.exists()) {
+    return snapshot.val();
+  } else {
+    throw new Error(`No data available for key ${id}`);
   }
 }
 

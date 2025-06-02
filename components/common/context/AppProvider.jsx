@@ -1,17 +1,10 @@
 import { createContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import {
-  checkUserStatus,
-  signInWithCustom,
-  signInWithToken,
-  subscribe,
-  userSignOut
-} from '../../../firebase';
+import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSignOut } from '../../../firebase';
 import demoJson from '../../../data/raw.json';
 
 import { useRouter } from 'next/router';
 import useInterval from '../../hooks/useInterval';
 import { getUserToken } from '../../../logins/google';
-import { CircularProgress, Stack } from '@mui/material';
 import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../logins/apple';
 import { getProfile } from '../../../services/profiles';
@@ -170,11 +163,9 @@ const AppProvider = ({ children }) => {
     const initializeApp = async () => {
       if (router?.query?.profile) {
         await handleProfile();
-      }
-      else if (router?.query?.demo) {
+      } else if (router?.query?.demo) {
         await handleDemoData();
-      }
-      else if (!state?.signedIn) {
+      } else if (!state?.signedIn) {
         await handleUnauthenticatedUser();
       } else {
         dispatch({ type: 'setLoading', data: false });
@@ -201,20 +192,26 @@ const AppProvider = ({ children }) => {
 
     // Handle unauthenticated user
     const handleUnauthenticatedUser = async () => {
-      const user = await checkUserStatus();
-      if (!state?.account && user) {
-        const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
-        unsubscribeRef.current = unsub;
-      } else {
-        const isAllowedPath = router.pathname === '/' ||
-          checkOfflineTool() ||
-          router.pathname === '/data' ||
-          router.pathname === '/leaderboards';
+      try {
+        const user = await checkUserStatus();
+        if (!state?.account && user) {
+          const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
+          unsubscribeRef.current = unsub;
+        } else {
+          const isAllowedPath = router.pathname === '/' ||
+            checkOfflineTool() ||
+            router.pathname === '/data' ||
+            router.pathname === '/leaderboards';
 
-        if (!isAllowedPath) {
-          router.push({ pathname: '/', query: router?.query });
+          if (!isAllowedPath) {
+            router.push({ pathname: '/', query: router?.query });
+          }
+          dispatch({ type: 'setLoading', data: false });
         }
+      } catch (error) {
+        console.error(error);
         dispatch({ type: 'setLoading', data: false });
+        logout()
       }
     };
 
@@ -280,13 +277,11 @@ const AppProvider = ({ children }) => {
           accessToken = userData?.accessToken;
           id_token = userData?.accessToken;
           uid = userData?.uid;
-        }
-        else if (state?.loginType === 'email') {
+        } else if (state?.loginType === 'email') {
           id_token = state?.loginData?.accessToken;
           uid = state?.loginData?.uid;
           accessToken = id_token;
-        }
-        else {
+        } else {
           if (state?.loginType === 'apple') {
             const appleCredential = await geAppleStatus(state?.loginData)
             if (appleCredential?.id_token) {
