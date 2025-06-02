@@ -45,7 +45,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, charactersData: any, a
       notatedBonus = notateNumber(100 * (1 - 1 / (1 + bonus / 100)), 'Big')
       description = description.replace('$', notatedBonus)
     }
-    return { ...data, bonus, notatedBonus, description: description.replace('{', '+') }
+    return { ...data, bonus, notatedBonus, description: description.replace('{', '+').replace(/@/g, '') }
   });
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
   const jadeCoins = rawSneaking?.[102]?.[1];
@@ -165,11 +165,11 @@ const getItemsMaxLevel = (
   const getUpgradeValue = (index: number) => upgrades?.[index]?.value || 0;
 
   return [
-    { name: 'Gemstone', value: baseLevel + getUpgradeValue(5) },
-    { name: 'Kunai', value: baseLevel + getUpgradeValue(6) },
-    { name: 'Gloves', value: baseLevel + getUpgradeValue(8) },
-    { name: 'Charm', value: baseLevel + getUpgradeValue(9) + goldStarBonus + fireFrostBonus },
-    { name: 'Nunchaku', value: baseLevel + getUpgradeValue(10) }
+    { name: 'Gemstone', value: Math.floor(baseLevel + getUpgradeValue(5)) },
+    { name: 'Kunai', value: Math.floor(baseLevel + getUpgradeValue(6)) },
+    { name: 'Gloves', value: Math.floor(baseLevel + getUpgradeValue(8)) },
+    { name: 'Charm', value: Math.floor(baseLevel + getUpgradeValue(9) + goldStarBonus + fireFrostBonus) },
+    { name: 'Nunchaku', value: Math.floor(baseLevel + getUpgradeValue(10)) }
   ];
 };
 

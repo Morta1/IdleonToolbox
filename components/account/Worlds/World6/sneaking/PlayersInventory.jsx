@@ -1,5 +1,5 @@
-import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import { ninjaExtraInfo } from '../../../../../data/website-data';
 
@@ -30,14 +30,14 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
         return <Stack direction={'row'} key={'player-' + playerIndex} gap={1} flexWrap={'wrap'}>
           <Card sx={{ display: 'flex', alignItems: 'center', width: 200 }}>
             <CardContent>
-              <Typography>{characters?.[playerIndex]?.name}</Typography>
+              <Typography mb={.5}>{characters?.[playerIndex]?.name}</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Stack alignItems={'center'} gap={1}>
                   <img width={24} src={`${prefix}data/ClassIcons58.png`} alt={''}/>
                   <Typography>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
                 </Stack>
                 <Divider flexItem orientation={'vertical'}/>
-                <Stack>
+                <Stack gap={1}>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <Tooltip title={''}>
                       <img style={{ objectFit: 'contain' }} width={24} height={24}
@@ -64,21 +64,13 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
               </Stack>
             </CardContent>
           </Card>
-          {equipment?.map(({ name, rawName, level, description, value, type, subType }, itemIndex) => {
-            description = getDescription({ description, value, type, subType })
+          {equipment?.map((item, itemIndex) => {
+            const { description, value, type, subType, name } = item;
+            const updatedDescription = getDescription({ description, value, type, subType });
             return <Card key={itemIndex + name}
                          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
               <CardContent>
-                <Badge anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                       max={99999}
-                       badgeContent={level ?? ' '}
-                       color="primary"
-                       key={itemIndex + name}>
-                  <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}
-                  >
-                    <img width={32} src={`${prefix}data/${rawName}.png`} alt={''}/>
-                  </Tooltip>
-                </Badge>
+                <Item {...item} description={updatedDescription}/>
               </CardContent>
             </Card>
 
@@ -87,28 +79,31 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
       })}
     </Stack>
     <h4>Inventory</h4>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (64 * 13) + (8 * 13) }}>
-      {inventory?.map(({ rawName, level, description, value, type, subType, name }, index) => {
-        description = getDescription({ description, value, type, subType });
-        return <Card key={'inventory-' + rawName + index}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (70 * 13) + (8 * 13) }}>
+      {inventory?.map((item, index) => {
+        const { rawName, description, value, type, subType } = item;
+        const updatedDescription = getDescription({ description, value, type, subType });
+        return <Card key={'inventory-' + rawName + index} sx={{ width: 70, height: 80 }}>
           <CardContent>
-            <Badge
-              max={99999}
-              size={'small'}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              badgeContent={level ?? ' '}
-              color="primary">
-              <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}
-              >
-                <img width={32} src={`${prefix}data/${rawName}.png`} alt={''}/>
-              </Tooltip>
-            </Badge>
+            <Item {...item} description={updatedDescription}/>
           </CardContent>
         </Card>
       })}
     </Stack>
   </>
 };
+
+const Item = ({ level, description, name, rawName }) => {
+  return <Stack alignItems={'center'}>
+    {level
+      ? <Typography textAlign={'center'} sx={{ minWidth: 40 }}
+                    variant={'caption'}>{numberWithCommas(level)}</Typography>
+      : null}
+    <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}>
+      <img width={32} src={`${prefix}data/${rawName}.png`} alt={''}/>
+    </Tooltip>
+  </Stack>
+}
 
 const getDescription = ({ description, value = 0, type, subType }) => {
   let desc;

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/sneaking/JadeEmporium';
-import { getTabs, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, getTabs, notateNumber } from '@utility/helpers';
 import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import Charms from '@components/account/Worlds/World6/sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/sneaking/PlayersInventory';
@@ -45,13 +45,14 @@ const Sneaking = () => {
           </Tooltip>
         </Stack>
       </CardTitleAndValue>
-      {gemStones?.map(({ notatedBonus, rawName, name }, index) => <CardTitleAndValue key={'gemstone-' + index}
+      {gemStones?.map(({ notatedBonus, rawName, name, description }, index) => <CardTitleAndValue key={'gemstone-' + index}
                                                                                      title={name}
                                                                                      value={`${index === 7
                                                                                        ? '+'
                                                                                        : ''}${notatedBonus}${index !== 7
                                                                                        ? '%'
                                                                                        : ''}`}
+                                                                                     tooltipTitle={cleanUnderscore(description)}
                                                                                      imgStyle={{
                                                                                        width: 19,
                                                                                        height: 19
