@@ -194,7 +194,7 @@ const parseNinjaItems = (array: any, doChunks: boolean, gemstoneBonus: number = 
   return result?.map((item: any) => {
     return {
       ...item,
-      value: getItemValue(item) * (item?.name.startsWith('Gold_') ? 1 + gemstoneBonus / 100 : 1)
+      value: getItemValue(item) * (item?.name?.startsWith('Gold_') ? 1 + gemstoneBonus / 100 : 1)
     }
   });
 }
