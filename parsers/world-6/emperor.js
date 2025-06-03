@@ -19,7 +19,7 @@ const icons = {
 };
 
 export const getEmperor = (idleonData, account) => {
-  const highestEmperorShowdown = account?.accountOptions?.[369];
+  const highestEmperorShowdown = account?.accountOptions?.[369] ?? 0;
   const cycle = Math.floor(highestEmperorShowdown / 48);
   let bonuses = emperorBonuses.filter((val, index, self) =>
     self.findIndex((t) => t.name === val.name) === index);
