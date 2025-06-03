@@ -948,7 +948,7 @@ export const getDropRate = (character, account, characters) => {
     t: 15
   });
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
-  const armorSetBonus = getArmorSetBonus(account, 'PLATINUM_SET');
+  const armorSetBonus = getArmorSetBonus(account, 'EFAUNT_SET');
   const emperorBonus = getEmperorBonus(account, 11);
 
   const additive =
