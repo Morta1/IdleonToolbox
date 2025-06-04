@@ -359,23 +359,25 @@ const StampInfo = ({
                      hasMaterials,
                      enoughPlayerStorage,
                      itemReq,
-                     bonus
+                     bonus,
+                     maxLevel
                    }) => {
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
+  const mode = level < maxLevel ? 'money' : 'material';
   return <Box sx={{ p: 1 }}>
     <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
                 variant={'body1'}>+{cleanUnderscore(effect.replace(/\+{/, notateNumber(bonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
     {unobtainableStamps[displayName] ? <Typography mt={1}>(Unobtainable)</Typography> : null}
     {level > 0 ? <>
-      <CostSection isMaterialCost={!(hasMoney && hasMaterials && enoughPlayerStorage)}
-                   hasMoney={hasMoney}
+      <CostSection hasMoney={hasMoney}
                    hasMaterials={hasMaterials}
                    enoughPlayerStorage={enoughPlayerStorage}
                    rawName={itemReq.rawName}
                    materialCost={materialCost}
                    goldCost={goldCost}
+                   mode={mode}
                    level={level}/>
       <Divider variant={'middle'} sx={{ bgcolor: grey[600], my: 1 }}/>
       {futureCosts?.map((futureCost, index) => {
@@ -391,12 +393,12 @@ const StampInfo = ({
             color={storageColor}
             variant={'body2'}>{bestCharacter?.character} ({notateNumber(bestCharacter?.maxCapacity ?? 0, 'Big')})</Typography>
         </div>
-        <div>
+        {mode === 'material' ? <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Storage Amount</Typography>
           <Typography color={materialColor} variant={'body2'}>{notateNumber((subtractGreenStacks
             ? greenStackOwnedMats
             : ownedMats) || 0, 'Big')}</Typography>
-        </div>
+        </div> : null}
       </Stack>
     </> : null}
   </Box>;
@@ -404,29 +406,31 @@ const StampInfo = ({
 
 const CostSection = ({
                        showBoth,
-                       isMaterialCost,
                        reduction,
                        rawName,
                        materialCost,
                        goldCost,
                        level,
-                       hasMoney
+                       hasMoney,
+                       mode
                      }) => {
   const moneyColor = showBoth ? '' : hasMoney ? '' : '#e57373';
-  return <Stack direction={'row'} gap={3} alignItems={'center'} justifyContent={'space-between'}>
-    {isMaterialCost || showBoth ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
-      <Typography variant={'subtitle2'}>{level}</Typography>
+  return <Stack direction={'row'} gap={3} alignItems={'center'}
+                mt={1}
+                justifyContent={showBoth ? 'space-between' : 'flex-start'}>
+    <Typography variant={'subtitle2'}>{level}</Typography>
+    {mode === 'material' || showBoth ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
       <ItemIcon src={`${prefix}data/${rawName}.png`}
                 alt=""/>
       <Typography variant={'subtitle2'}>{materialCost
         ? notateNumber(materialCost, 'Big')
         : null}</Typography>
     </Stack> : null}
-    {!isMaterialCost || showBoth ? <CoinDisplay style={{ color: moneyColor }}
-                                                variant={'horizontal'}
-                                                title={''} maxCoins={3}
-                                                money={getCoinsArray(goldCost)}/> : null}
-    {(isMaterialCost || showBoth) && reduction >= 0
+    {mode === 'money' || showBoth ? <CoinDisplay style={{ color: moneyColor }}
+                                                 variant={'horizontal'}
+                                                 title={''} maxCoins={3}
+                                                 money={getCoinsArray(goldCost)}/> : null}
+    {showBoth && reduction >= 0
       ? <Typography variant={'subtitle2'}>{reduction}%</Typography>
       : null}
   </Stack>

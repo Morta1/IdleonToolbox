@@ -159,13 +159,32 @@ const getGoldCostToLevel = (level, maxLevel, stamp, account) => {
 }
 
 const getGoldCost = (level, stamp, account) => {
-  const reductionVal = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
-  const reductionBribe = account?.bribes?.[0];
-  const realBaseCost = reductionBribe?.done
-    ? stamp?.baseCoinCost * (1 - (reductionBribe?.value / 100))
-    : stamp?.baseCoinCost;
-  const cost = (realBaseCost * Math.pow(stamp?.powCoinBase - (level / (level + 5 * stamp?.reqItemMultiplicationLevel)) * 0.25, level * (10 / stamp?.reqItemMultiplicationLevel))) * Math.max(0.1, 1 - (reductionVal / 100));
-  return Math.floor(cost);
+  if (!stamp || typeof level !== 'number') return 0;
+
+  // Get alchemy vial bonus (e.g., reduces material cost for stamps)
+  const reductionVal = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps') || 0;
+
+  // Get bribe bonus (if bribe is completed)
+  const bribe = account?.bribes?.[0];
+  const hasBribe = bribe?.done;
+  const bribeDiscount = hasBribe ? (bribe.value / 100) : 0;
+
+  // Apply bribe reduction to base coin cost
+  const baseCost = stamp.baseCoinCost * (1 - bribeDiscount);
+
+  // Handle missing or zero multiplication level to avoid division by zero
+  const reqLevel = stamp.reqItemMultiplicationLevel || 1;
+
+  // Compute scaling base and exponent
+  const ratio = level / (level + 5 * reqLevel);
+  const powBase = Math.max(1.05, stamp.powCoinBase - ratio * 0.25);
+  const exponent = level * (10 / reqLevel);
+
+  // Final cost formula with vial-based reduction
+  const rawCost = baseCost * Math.pow(powBase, exponent);
+  const finalCost = rawCost * Math.max(0.1, 1 - (reductionVal / 100));
+
+  return Math.floor(finalCost);
 }
 
 const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0, gildedStamp) => {
@@ -178,8 +197,8 @@ const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0, 
 
 const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
   const reductionVial = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
-  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE');
-  const sigilReduction = (1 / (1 + sigilBonus / 100)) ?? 1;
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE') ?? 0;
+  const sigilReduction = (1 / (1 + sigilBonus / 100));
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
       * stampReducerVal
