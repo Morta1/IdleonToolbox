@@ -29,5 +29,5 @@ export const getArmorSmithy = (idleonData, serverVars, account) => {
 }
 
 export const getArmorSetBonus = (account, setName) => {
-  return account?.armorSmithy?.sets?.find(({ name, unlocked }) => unlocked && (name === setName))?.bonusValue ?? 0;
+  return account?.armorSmithy?.sets?.find(({ setName: sName, unlocked }) => unlocked && (sName === setName))?.bonusValue ?? 0;
 }

@@ -948,7 +948,7 @@ export const getDropRate = (character, account, characters) => {
     t: 15
   });
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
-  const armorSetBonus = getArmorSetBonus(account, 'EFAUNT_SET');
+  const armorSetBonus = getArmorSetBonus(account, "EFAUNT_SET");
   const emperorBonus = getEmperorBonus(account, 11);
 
   const additive =
@@ -1103,7 +1103,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Monument', value: monumentBonus / 100 },
     { name: 'Measurement', value: measurementBonus / 100 },
     { name: 'Emperor', value: emperorBonus / 100 },
-    { name: 'Platinum set', value: armorSetBonus / 100 }
+    { name: 'Efaunt set', value: armorSetBonus / 100 }
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
