@@ -114,7 +114,7 @@ const Stamps = () => {
     } else if (materials.length === 0 && ((hasMaterials && enoughPlayerStorage) || mode === 'money') && hasMoney) {
       const index = reducerValues.indexOf(forcedStampReducer);
       const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
-      if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && (minReductionStamp?.hasMaterials) && minReductionStamp?.hasMoney && minReductionStamp?.enoughPlayerStorage) {
+      if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && ((minReductionStamp?.hasMaterials && minReductionStamp?.enoughPlayerStorage) || mode === 'money') && minReductionStamp?.hasMoney) {
         return { border: 'secondary.dark', type: 'reduction' };
       }
       return { border: 'info.light', type: 'upgradable' };
