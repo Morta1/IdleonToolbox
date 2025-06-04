@@ -932,7 +932,7 @@ export const getDropRate = (character, account, characters) => {
   const achievementBonus = getAchievementStatus(account?.achievements, 377);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account, characters);
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Total_Drop_Rate_(Passive)');
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
   const landRankBonus = getLandRank(account?.farming?.ranks, 9);
