@@ -100,18 +100,18 @@ const Stamps = () => {
   const localStamps = useMemo(() => updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity), [forcedGildedStamp,
     forcedStampReducer, forceMaxCapacity, state]);
 
-  const getStampTypeAndBorder = (stamp) => {
+  const getStampTypeAndBorder = (stamp, mode) => {
     const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
     if (level <= 0) return { border: '#1d1c1c', type: 'level' };
-    if (!hasMoney) {
+    if (!hasMoney && mode === 'money') {
       return { border: 'warning.light', type: 'money' };
-    } else if (!enoughPlayerStorage) {
+    } else if (!enoughPlayerStorage && mode === 'material') {
       return { border: '#e3e310', type: 'player' }
-    } else if (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials)) {
+    } else if (mode === 'material' && (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials))) {
       return { border: 'error.light', type: 'materials' };
     } else if (materials.length > 0) {
       return { border: 'grey', type: 'equipments' };
-    } else if (materials.length === 0 && (hasMaterials) && hasMoney && enoughPlayerStorage) {
+    } else if (materials.length === 0 && ((hasMaterials && enoughPlayerStorage) || mode === 'money') && hasMoney) {
       const index = reducerValues.indexOf(forcedStampReducer);
       const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
       if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && (minReductionStamp?.hasMaterials) && minReductionStamp?.hasMoney && minReductionStamp?.enoughPlayerStorage) {
@@ -268,18 +268,28 @@ const Stamps = () => {
                     greenStackHasMaterials,
                     hasMoney,
                     enoughPlayerStorage,
-                    reqItemMultiplicationLevel,
                     displayName,
-                    bestCharacter
+                    bestCharacter,
+                    maxLevel
                   } = stamp;
                   const bonus = getStampBonus(state?.account, category, rawName, bestCharacter);
-                  const { border, type } = getStampTypeAndBorder(stamp);
+                  const mode = level < maxLevel ? 'money' : 'material';
+                  const { border, type } = getStampTypeAndBorder(stamp, mode) || {};
                   const isBlank = displayName === 'Blank';
                   if (types.hasOwnProperty(type) && !types[type]) return;
                   let snapshotDiff;
                   if (level > levelsSnapshot?.levels?.[category]?.[stampIndex]) {
                     snapshotDiff = level - levelsSnapshot?.levels?.[category]?.[stampIndex];
                   }
+                  const noMaterials = materials.length === 0;
+                  const isMoneyMode = mode === 'money';
+                  const hasValidLevel = level > 0;
+
+                  const hasValidMaterials = subtractGreenStacks
+                    ? (greenStackHasMaterials || isMoneyMode)
+                    : (hasMaterials || isMoneyMode);
+
+                  const hasEnoughStorage = enoughPlayerStorage || isMoneyMode;
                   return (
                     <Grid
                       key={rawName + stampIndex}
@@ -295,9 +305,7 @@ const Stamps = () => {
                           alignItems: 'center',
                           justifyContent: 'center',
                           minHeight: 50,
-                          border: materials.length === 0 && (subtractGreenStacks
-                            ? greenStackHasMaterials
-                            : hasMaterials) && hasMoney && (enoughPlayerStorage && ((level + 1) % reqItemMultiplicationLevel !== 0)) && level > 0
+                          border: noMaterials && hasValidMaterials && hasMoney && hasEnoughStorage && hasValidLevel
                             ? '1px solid'
                             : '',
                           borderColor: border
