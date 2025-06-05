@@ -32,7 +32,7 @@ const Tome = () => {
       </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`}/>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {state?.account?.tome?.bonuses?.map(({ name, bonus }, index) => {
-          const formatted = index <= 2 ? notateNumber(bonus, 'Big') : notateNumber(bonus, 'MultiplierInfo');
+          const formatted = notateNumber(bonus, 'Big');
           return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}%`}
                                     icon={`etc/Tome_${index}.png`}>
           </CardTitleAndValue>
