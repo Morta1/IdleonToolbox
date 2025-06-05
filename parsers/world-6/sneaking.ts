@@ -167,9 +167,9 @@ const getItemsMaxLevel = (
   return [
     { name: 'Gemstone', value: Math.floor(baseLevel + getUpgradeValue(5)) },
     { name: 'Kunai', value: Math.floor(baseLevel + getUpgradeValue(6)) },
-    { name: 'Gloves', value: Math.floor(baseLevel + getUpgradeValue(8)) },
-    { name: 'Charm', value: Math.floor(baseLevel + getUpgradeValue(9) + goldStarBonus + fireFrostBonus) },
-    { name: 'Nunchaku', value: Math.floor(baseLevel + getUpgradeValue(10)) }
+    { name: 'Gloves', value: Math.floor(baseLevel + getUpgradeValue(9)) },
+    { name: 'Charm', value: Math.floor(baseLevel + getUpgradeValue(10) + goldStarBonus + fireFrostBonus) },
+    { name: 'Nunchaku', value: Math.floor(baseLevel + getUpgradeValue(11)) }
   ];
 };
 
