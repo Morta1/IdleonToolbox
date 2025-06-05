@@ -107,6 +107,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway);
   accountData.alchemy = getAlchemy(idleonData, serializedCharactersData);
+  accountData.armorSmithy = getArmorSmithy(idleonData, serverVars, accountData);
   // Depends on alchemy.bubbles and number of characters
   accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData);
   accountData.storage = getStorage(idleonData);
@@ -260,7 +261,6 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.voteBallot = getVoteBallot(idleonData, accountData);
   accountData.upgradeVault = getUpgradeVault(idleonData, accountData);
   accountData.emperor = getEmperor(idleonData, accountData);
-  accountData.armorSmithy = getArmorSmithy(idleonData, serverVars, accountData);
 
   // Cleanup unnecessary data
   serializedCharactersData = null;
