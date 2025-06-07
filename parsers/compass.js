@@ -725,12 +725,12 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
 
         // Check if upgrade is already maxed
         if (upgrade.level >= upgrade.x4) return false;
-
+        // return true;
         // Get dust type for this upgrade
-        const dustType = dustNames[upgrade.x3];
-
-        // Check if we have enough dust
-        return simulatedAvailableDust[dustType] >= upgrade.cost;
+        // const dustType = dustNames[upgrade.x3];
+        //
+        // // Check if we have enough dust
+        // return simulatedAvailableDust[dustType] >= upgrade.cost;
       });
 
     for (const upgrade of availableUpgrades) {
