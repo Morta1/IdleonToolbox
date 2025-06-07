@@ -100,6 +100,9 @@ const subscribe = async (uid, accessToken, callback) => {
   goOnline(database);
   const dbRef = ref(database);
   const charNames = await getSnapshot(dbRef, `_uid/${uid}`);
+  if (!charNames) {
+    throw new Error('No characters found');
+  }
 
   let serverVars;
   if (firestore?.type === 'firestore') {

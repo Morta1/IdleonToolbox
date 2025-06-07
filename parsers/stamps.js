@@ -2,7 +2,7 @@ import { groupByKey, growth, tryToParse } from '@utility/helpers';
 import { crafts, items, stamps } from '../data/website-data';
 import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
-import { getHighestCapacityCharacter } from '@parsers/misc';
+import { getEventShopBonus, getHighestCapacityCharacter } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -231,7 +231,8 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharge') ?? 0;
   const charmBonusExalted = getCharmBonus(account, 'Jellypick');
   const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
-  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76) + armorSetBonus));
+  const eventBonus = getEventShopBonus(account, 18);
+  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76) + armorSetBonus + 20 * eventBonus));
   const exaltedBonus = isStampExalted ? 1 + exaltedBase / 100 : 1;
 
   if (stamp?.skillIndex > 0 && !removeLevelReduction) {

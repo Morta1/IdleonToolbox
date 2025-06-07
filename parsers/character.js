@@ -1163,6 +1163,7 @@ export const getCashMulti = (character, account, characters) => {
   const voteBonus = getVoteBonus(account, 34);
   const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Cash');
   const eventBonus = getEventShopBonus(account, 9);
+  const eventBonus2 = getEventShopBonus(account, 20);
   const equipmentBonusMoney = getStatsFromGear(character, 77, account);
   const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77])
   const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_y') ? 1 : 0;
@@ -1187,6 +1188,7 @@ export const getCashMulti = (character, account, characters) => {
 
   const cashMulti = (1 + bubbles / 100)
     * (1 + 0.5 * eventBonus)
+    * (1 + 0.6 * eventBonus2)
     * (1 + getGambitBonus(account, 7) / 100)
     * (1 + (equipmentBonusMoney + obolsBonusMoney) / 100)
     * (1 + armorSetBonus / 100)
@@ -1240,6 +1242,7 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Charm', value: charmBonus },
     { name: 'Bubbles', value: bubbles },
     { name: 'Event shop', value: 0.5 * eventBonus },
+    { name: 'Event shop2', value: 0.6 * eventBonus2 },
     { name: 'Bundle', value: 250 * hasCashBundle },
     { name: 'Meal', value: mealBonus },
     { name: 'Artifact', value: artifactBonus },
