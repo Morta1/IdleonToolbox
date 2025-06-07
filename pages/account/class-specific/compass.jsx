@@ -10,6 +10,7 @@ import Upgrades from '@components/account/Misc/class-specific/Compass/Upgrades';
 import Abominations from '@components/account/Misc/class-specific/Compass/Abominations';
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
+import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/UpgradeOptimizer';
 import { getCompassStats, getExtraDust } from '@parsers/compass';
 import { checkCharClass } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';
@@ -62,7 +63,8 @@ const Compass = () => {
                                                      })}
                                                    </Select>}/> : null}
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Extra Dust'} value={`${getExtraDust(state?.characters?.[selectedChar], state?.account).toFixed(2)}%`}
+      <CardTitleAndValue title={'Extra Dust'}
+                         value={`${getExtraDust(state?.characters?.[selectedChar], state?.account).toFixed(2)}%`}
                          tooltipTitle={'Not including Spirit Reindeer kills'}/>
       <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected < 1e8
         ? numberWithCommas(totalDustsCollected || '0')
@@ -113,6 +115,7 @@ const Compass = () => {
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
       <Upgrades upgrades={groupedUpgrades} dusts={dusts}/>
+      <UpgradeOptimizer character={state?.characters?.[selectedChar]} account={state?.account}/>
       <Abominations abominations={abominations}/>
       <Medallions medallions={medallions} totalAcquiredMedallions={totalAcquiredMedallions}/>
       <Portals maps={maps}/>

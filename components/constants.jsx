@@ -49,7 +49,7 @@ export const PAGES = {
       categories: [
         { label: 'apocalypses', icon: 'data/UISkillIcon110' },
         { label: 'grimoire', icon: 'data/GrimoireUpg18', tabs: ['Upgrades', 'Monsters'] },
-        { label: 'compass', icon: 'data/UISkillIcon421', tabs: ['Upgrades', 'Abominations', 'Medallions', 'Portals'] }
+        { label: 'compass', icon: 'data/UISkillIcon421', tabs: ['Upgrades', 'Upgrade Optimizer', 'Abominations', 'Medallions', 'Portals'] }
       ]
     },
     'task board': {

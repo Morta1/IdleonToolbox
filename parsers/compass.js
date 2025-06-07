@@ -641,3 +641,197 @@ const getUpgradeCost = (upgrades, index, serverVars) => {
 
   return finalCost;
 }
+
+export const UPGRADE_CATEGORIES = {
+  damage: {
+    name: 'Damage',
+    stats: ['damage'],
+    upgradeIndices: [14, 15, 24, 60, 81, 23, 26, 6, 119, 121, 122, 123, 126, 127, 129, 130, 132, 135, 64, 78, 85, 94]
+  },
+  dust: {
+    name: 'Dust',
+    stats: ['dust'],
+    upgradeIndices: [31, 34, 38, 139, 142, 145, 148, 150, 68, 93, 89]
+  },
+  accuracy: {
+    name: 'Accuracy',
+    stats: ['accuracy'],
+    upgradeIndices: [17, 19, 25, 61, 22, 6, 120, 124, 125, 128, 131, 133, 134, 136, 147, 84, 79, 90]
+  },
+  defence: {
+    name: 'Defence',
+    stats: ['defence'],
+    upgradeIndices: [29, 63, 30, 137, 138, 141, 143, 144, 149, 83, 91]
+  },
+  crit: {
+    name: 'Crit',
+    stats: ['critPct', 'critDamage'],
+    upgradeIndices: [16, 20, 66, 75]
+  },
+  attackSpeed: {
+    name: 'Attack Speed',
+    stats: ['attackSpeed'],
+    upgradeIndices: [21, 69]
+  },
+  hp: {
+    name: 'HP',
+    stats: ['hp'],
+    upgradeIndices: [28, 87, 140, 146, 92]
+  }
+};
+
+export const getOptimizedUpgrades = (character, account, category = 'damage', maxUpgrades = 100) => {
+  const { upgrades, dusts } = account?.compass || {};
+  const categoryInfo = UPGRADE_CATEGORIES[category];
+
+  // Create working copies for simulation
+  let simulatedUpgrades = upgrades.map(u => ({ ...u }));
+  let simulatedAvailableDust = {};
+
+  // Convert dusts array to an object with dust index as key
+  (dusts || []).forEach(dust => {
+    simulatedAvailableDust[dust.name] = dust.value;
+  });
+
+  // Track current stats for comparison
+  let currentStats = getCompassStats(character, {
+    ...account,
+    compass: { ...account.compass, upgrades: simulatedUpgrades }
+  });
+
+  // Track current dust multiplier for comparisons when using 'dust' category
+  let currentDustMultiplier = category === 'dust' ? 
+    getExtraDust(character, {
+      ...account,
+      compass: { ...account.compass, upgrades: simulatedUpgrades }
+    }) : 0;
+
+  const results = [];
+
+  // Sequential simulation approach
+  for (let step = 0; step < maxUpgrades; step++) {
+    let bestUpgrade = null;
+    let bestEfficiency = 0;
+    let bestStatChanges = null;
+    let bestTotalChange = 0;
+    let bestNewStats = null;
+    let bestDustMultiplier = 0;
+
+    // Find the most efficient upgrade at this step
+    const availableUpgrades = simulatedUpgrades
+      .filter(upgrade => {
+        // Check if upgrade is relevant to this category
+        if (!categoryInfo.upgradeIndices.includes(upgrade.index)) return false;
+
+        // Check if upgrade is already maxed
+        if (upgrade.level >= upgrade.x4) return false;
+
+        // Get dust type for this upgrade
+        const dustType = dustNames[upgrade.x3];
+
+        // Check if we have enough dust
+        return simulatedAvailableDust[dustType] >= upgrade.cost;
+      });
+
+    for (const upgrade of availableUpgrades) {
+      // Calculate stat changes with this upgrade
+      const tempUpgrades = simulatedUpgrades.map(u =>
+        u.index === upgrade.index ? { ...u, level: u.level + 1 } : u
+      );
+
+      // Get new stats with the upgrade
+      const newStats = getCompassStats(character, {
+        ...account,
+        compass: { ...account.compass, upgrades: tempUpgrades }
+      });
+      
+      // If optimizing for dust specifically, calculate dust multiplier change
+      let dustMultiplier = 0;
+      if (category === 'dust') {
+        dustMultiplier = getExtraDust(character, {
+          ...account,
+          compass: { ...account.compass, upgrades: tempUpgrades }
+        });
+      }
+
+      const statChanges = categoryInfo.stats.map(stat => {
+        // For dust category, use the dust multiplier from getExtraDust
+        if (category === 'dust' && stat === 'dust') {
+          const change = dustMultiplier - currentDustMultiplier;
+          const percentChange = currentDustMultiplier > 0 ? 
+            ((dustMultiplier - currentDustMultiplier) / currentDustMultiplier) * 100 : 0;
+          
+          return { 
+            stat: 'extraDust',
+            change,
+            percentChange
+          };
+        }
+        
+        // For other stats, use getCompassStats as before
+        const currentValue = currentStats[stat] || 0;
+        const newValue = newStats[stat] || 0;
+
+        return {
+          stat,
+          change: newValue - currentValue,
+          percentChange: currentValue > 0 ? ((newValue - currentValue) / currentValue) * 100 : 0
+        };
+      });
+
+      // Calculate total efficiency
+      const totalStatChange = statChanges.reduce((sum, change) => sum + change.percentChange, 0);
+      const efficiency = totalStatChange / upgrade.cost;
+
+      if (efficiency > bestEfficiency) {
+        bestUpgrade = upgrade;
+        bestEfficiency = efficiency;
+        bestStatChanges = statChanges;
+        bestTotalChange = totalStatChange;
+        bestNewStats = newStats;
+        bestDustMultiplier = dustMultiplier;
+      }
+    }
+
+    // If we found a best upgrade, simulate purchasing it
+    if (bestUpgrade && bestEfficiency > 0) {
+      // Create a snapshot for the result
+      const upgradeSnapshot = { ...bestUpgrade, level: bestUpgrade.level + 1 };
+
+      results.push({
+        ...upgradeSnapshot,
+        efficiency: bestEfficiency,
+        statChanges: bestStatChanges,
+        totalStatChange: bestTotalChange
+      });
+
+      // Apply the upgrade in our simulation
+      const upgradeToUpdate = simulatedUpgrades.find(u => u.index === bestUpgrade.index);
+      upgradeToUpdate.level += 1;
+
+      // Deduct dust cost
+      const dustType = dustNames[bestUpgrade.x3];
+      simulatedAvailableDust[dustType] -= bestUpgrade.cost;
+
+      // Update current stats for next iteration
+      currentStats = bestNewStats;
+      
+      // Update dust multiplier if we're optimizing for dust
+      if (category === 'dust') {
+        currentDustMultiplier = bestDustMultiplier;
+      }
+
+      // Recalculate all upgrade costs after this purchase
+      simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => {
+        // Use the existing getUpgradeCost function
+        const cost = getUpgradeCost(simulatedUpgrades, index, account?.serverVars);
+        return { ...upgrade, cost };
+      });
+    } else {
+      // No more efficient upgrades available
+      break;
+    }
+  }
+
+  return results;
+}

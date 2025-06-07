@@ -35,7 +35,7 @@ const Upgrades = ({ upgrades, dusts }) => {
     if (!searchText) return list;
     return list.filter(upgrade =>
       upgrade.description &&
-      upgrade.description.toLowerCase().includes(searchText.toLowerCase()) || (upgrade.name &&
+      cleanUnderscore(upgrade.description).toLowerCase().includes(searchText.toLowerCase()) || (upgrade.name &&
         cleanUnderscore(upgrade.name).toLowerCase().includes(searchText.toLowerCase())
 )    );
   };
