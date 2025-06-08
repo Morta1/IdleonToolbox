@@ -72,7 +72,7 @@ export const getStatFromEquipment = (item, statName) => {
   if (item?.[statName]) {
     return item?.[statName]
   }
-  return misc1 + misc2;
+  return (misc1 ?? 0) + (misc2 ?? 0);
 }
 
 export const createItemsWithUpgrades = (charItems, stoneData, owner) => {

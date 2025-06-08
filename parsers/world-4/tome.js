@@ -38,6 +38,7 @@ export const getTome = (idleonData, account, characters, serverVars) => {
       : '#56ccff';
     const points = Math.ceil(pointsPercent * bonus?.x3);
     totalPoints += account?.accountLevel > tomeLvReq ? points : 0;
+
     return {
       ...bonus,
       tomeLvReq,

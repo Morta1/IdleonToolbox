@@ -1071,6 +1071,7 @@ export const getDropRate = (character, account, characters) => {
     },
     { name: 'Post Office', value: postOfficeBonus / 100 },
     { name: 'Equipment', value: (drFromEquipment + drFromTools) / 100 },
+    { name: 'Equipment Multi', value: equipmentDrMulti / 100 },
     { name: 'Obols', value: drFromObols / 100 },
     { name: 'Bubble', value: bubbleBonus / 100 },
     { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
