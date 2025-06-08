@@ -83,7 +83,7 @@ export const getMaxCharge = (character, account) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 1);
   const wizardTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y');
   const stampBonus = getStampsBonusByEffect(account, 'Max_Charge', character);
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'GOSPEL_LEADER', false, mainStat === 'wisdom');
+  const bubbleBonus = getBubbleBonus(account, 'high-iq', 'GOSPEL_LEADER', false, mainStat === 'wisdom');
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'CALL_ME_POPE', account);
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.lvReqToCraft : 0;
   return Math.floor(Math.max(50, cardBonus

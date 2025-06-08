@@ -507,7 +507,7 @@ const getStealthRate = (character, account) => {
   const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor; // NjaDN1
   const sneakingLevel = character?.skillsInfo?.sneaking?.level; // NjaDN3
   const mainStat = mainStatMap?.[character?.class];
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'STEALTH_CHAPTER', false, mainStat === 'agility');
+  const bubbleBonus = getBubbleBonus(account, 'quicc', 'STEALTH_CHAPTER', false, mainStat === 'agility');
   const starSignBonus = getStarSignBonus(character, account, 'Ninja_Twin')
   const statueBonus = getStatueBonus(account?.statues, 'StatueG27', character?.talents);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_Stealth_(Passive)');
@@ -758,7 +758,7 @@ export const getClassExpMulti = (character, account, characters) => {
   const foodBonus = getFoodBonus(character, account, 'ClassEXP', true)
   const starSignBonus = getStarSignBonus(character, account, 'Class_EXP_Gain');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MonsterEXP');
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'GRIND_TIME', false);
+  const bubbleBonus = getBubbleBonus(account, 'kazam', 'GRIND_TIME', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[44]);
   const statueBonus = getStatueBonus(account?.statues, 'StatueG11', character?.talents);
   const starTalent = getTalentBonus(character?.starTalents, null, 'JUST_EXP');
@@ -906,9 +906,10 @@ export const getDropRate = (character, account, characters) => {
   const secondTalentBonus = getTalentBonus(character?.talents, 1, 'CURSE_OF_MR_LOOTY_BOOTY');
   const starTalentBonus = getTalentBonus(character?.starTalents, null, 'BOSS_BATTLE_SPILLOVER');
   const drFromEquipment = getStatsFromGear(character, 2, account);
+  const equipmentDrMulti = getStatsFromGear(character, 91, account);
   const drFromTools = getStatsFromGear(character, 2, account, true);
   const drFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DROPPIN_LOADS', false);
+  const bubbleBonus = getBubbleBonus(account, 'kazam', 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 10);
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25'
@@ -1055,6 +1056,7 @@ export const getDropRate = (character, account, characters) => {
 
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= (1 + charmBonus / 100);
+  final *= (1 + equipmentDrMulti / 100)
 
   const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
   if (thirdCompanionDropRate) {
@@ -1115,9 +1117,9 @@ export const getDropRate = (character, account, characters) => {
 export const getCashMulti = (character, account, characters) => {
   // "MonsterCash" == e
   const { strength, agility, wisdom } = character?.stats || {};
-  const cashStrBubble = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
-  const cashAgiBubble = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
-  const cashWisBubble = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
+  const cashStrBubble = getBubbleBonus(account, 'power', 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
+  const cashAgiBubble = getBubbleBonus(account, 'quicc', 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
+  const cashWisBubble = getBubbleBonus(account, 'high-iq', 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Cash', blackDiamondRhinestone);
@@ -1283,7 +1285,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const printerSamplingTalent = getTalentBonus(character?.starTalents, null, 'PRINTER_SAMPLING');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
   const equipSampling = getStatsFromGear(character, 60, account);
-  const sampleItBubble = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'SAMPLE_IT', false);
+  const sampleItBubble = getBubbleBonus(account, 'kazam', 'SAMPLE_IT', false);
   const superSampleTalent = getTalentBonus(character?.talents, null, 'SUPER_SAMPLES');
   const sampleAchievement = getAchievementStatus(account?.achievements, 158);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
@@ -1594,7 +1596,7 @@ export const getAfkGain = (character, characters, account) => {
       : getCardBonusByEffect(character?.cards?.equippedCards, 'Mining_Away_Gains')
 
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
+    const bubbleBonus = getBubbleBonus(account, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
     gains = 0.25 + (idleSkillingBonus
       + (dwarvenSupliesBonus
         + (trappingBonus
@@ -1625,7 +1627,7 @@ export const getAfkGain = (character, characters, account) => {
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[36]);
 
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'TREE_SLEEPER', false, mainStat === 'wisdom');
+    const bubbleBonus = getBubbleBonus(account, 'high-iq', 'TREE_SLEEPER', false, mainStat === 'wisdom');
 
     gains = 0.25 + (activeAfkerBonus
       + (tapedUpTimberBonus
@@ -1656,7 +1658,7 @@ export const getAfkGain = (character, characters, account) => {
       ? getCardBonusByEffect(account?.cards, cardBonuses[39])
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[39]);
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
+    const bubbleBonus = getBubbleBonus(account, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
     const equipmentBonus = getStatsFromGear(character, 64, account);
     const toolsBonus = getStatsFromGear(character, 64, account, true);
     const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[64]);
@@ -1697,7 +1699,7 @@ export const getAfkGain = (character, characters, account) => {
       ? getCardBonusByEffect(account?.cards, cardBonuses[41])
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[41]);
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'FLY_IN_MIND', false, mainStat === 'agility');
+    const bubbleBonus = getBubbleBonus(account, 'quicc', 'FLY_IN_MIND', false, mainStat === 'agility');
     gains = 0.25
       + (sunsetOnTheHivesBonus
         + (trappingBonus
@@ -1796,7 +1798,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
   const mainStat = mainStatMap?.[character?.class];
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'CARPENTER', false, mainStat === 'strength');
+  const bubbleBonus = getBubbleBonus(account, 'power', 'CARPENTER', false, mainStat === 'strength');
   const stampsBonus = getStampsBonusByEffect(account, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);

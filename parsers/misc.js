@@ -85,7 +85,7 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone);
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'IGNORE_OVERDUES', false);
+  const bubbleBonus = getBubbleBonus(account, 'kazam', 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
   const libraryTowerLevel = towersLevels?.[1];
@@ -530,7 +530,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
-  const goldenFoodBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SHIMMERON', false,
+  const goldenFoodBubbleBonus = getBubbleBonus(account, 'power', 'SHIMMERON', false,
     mainStatMap?.[character?.class] === 'strength');
   const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE');
   const charmBonus = getCharmBonus(account, 'Gumm_Stick');

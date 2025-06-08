@@ -82,9 +82,9 @@ export const getTome = (idleonData, account, characters, serverVars) => {
 }
 
 const getTomeBonus = (account, totalPoints, index) => {
-  const strTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'TOME_STRENGTH');
-  const agiTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'quicc', 'TOME_AGILITY');
-  const wisTomeBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'TOME_WISDOM');
+  const strTomeBonus = getBubbleBonus(account, 'power', 'TOME_STRENGTH');
+  const agiTomeBonus = getBubbleBonus(account, 'quicc', 'TOME_AGILITY');
+  const wisTomeBonus = getBubbleBonus(account, 'high-iq', 'TOME_WISDOM');
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
   const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
   const extraBonus = 1 + (grimoireBonus + armorSetBonus) / 100;

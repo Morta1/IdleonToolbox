@@ -263,7 +263,7 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Sailing', blackDiamondRhinestone);
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'BOATY_BUBBLE', false)
+  const bubbleBonus = getBubbleBonus(account, 'kazam', 'BOATY_BUBBLE', false)
   const goharutGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Goharut');
   const bagurGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Bagur');
   const purrmepGodBonus = getGodBlessingBonus(account?.divinity?.deities, 'Purrmep');

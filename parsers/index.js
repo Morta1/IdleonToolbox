@@ -106,7 +106,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.gemShopPurchases = getGemShop(idleonData);
   accountData.bribes = getBribes(idleonData);
   accountData.timeAway = tryToParse(idleonData?.TimeAway);
-  accountData.alchemy = getAlchemy(idleonData, serializedCharactersData);
+  accountData.alchemy = getAlchemy(idleonData, serializedCharactersData, accountData);
   accountData.armorSmithy = getArmorSmithy(idleonData, serverVars, accountData);
   // Depends on alchemy.bubbles and number of characters
   accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData);

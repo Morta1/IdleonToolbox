@@ -26,17 +26,17 @@ export const CAULDRONS_MAX_LEVELS = {
   vialsRng: 45
 }
 
-export const getAlchemy = (idleonData, serializedCharactersData) => {
+export const getAlchemy = (idleonData, serializedCharactersData, account) => {
   const alchemyRaw = createArrayOfArrays(idleonData?.CauldronInfo);
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1);
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
     alchemyRaw[8] = cauldronsInfo.slice(0, 16);
   }
-  return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData);
+  return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData, account);
 };
 
-export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData) => {
+export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData, account) => {
   const alchemyActivity = cauldronJobs1Raw?.map((playerAlchActivity, index) => ({
     activity: playerAlchActivity,
     index
@@ -47,6 +47,8 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   const vials = getVials(alchemyRaw?.[4]);
 
   const totalBubbleLevelsTill100 = alchemyRaw?.slice(0, 4)?.flat()?.reduce((sum, level) => sum + Math.min(100, level), 0);
+  const prismaFragments = account?.accountOptions?.[383];
+  const prismaBubbles = account?.accountOptions?.[384];
   return {
     p2w,
     bubbles,
@@ -56,9 +58,15 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
     multiplierArray: alchemyRaw?.[10],
     liquids: alchemyRaw?.[6],
     activities: alchemyActivity,
-    totalBubbleLevelsTill100
+    totalBubbleLevelsTill100,
+    prismaFragments,
+    prismaBubbles
   };
 };
+
+export const isPrismaBubble = (account, bubbleIndex) => {
+  return -1 !== (account?.alchemy?.prismaBubbles || '')?.indexOf(bubbleIndex + ',')
+}
 
 export const getLiquidCauldrons = (account) => {
   const liquids = account?.alchemy?.liquids;
@@ -82,7 +90,7 @@ export const getLiquidCauldrons = (account) => {
         bleachLiquidBonus = saltLickBonus / 100 + 2
       }
     }
-    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'DA_DAILY_DRIP', false);
+    const bubbleBonus = getBubbleBonus(account, 'kazam', 'DA_DAILY_DRIP', false);
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, `Liquid${index + 1}Cap`)
     const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
@@ -277,14 +285,15 @@ export const getEquippedBubbles = (idleonData, bubbles, serializedCharactersData
 export const getActiveBubbleBonus = (equippedBubbles, cauldronName, bubbleName, account) => {
   const hasCompanionBonus = isCompanionBonusActive(account, 4);
   if (hasCompanionBonus) {
-    return getBubbleBonus(account?.alchemy?.bubbles, cauldronName, bubbleName, false)
+    return getBubbleBonus(account, cauldronName, bubbleName, false)
   }
   const bubble = equippedBubbles?.find(({ bubbleName: bName }) => bubbleName === bName);
   if (!bubble && !hasCompanionBonus) return 0;
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 
-export const getBubbleBonus = (cauldrons, cauldronName, bubName, round, shouldMulti) => {
+export const getBubbleBonus = (account, cauldronName, bubName, round, shouldMulti) => {
+  const cauldrons = account?.alchemy?.bubbles;
   const bubbleIndex = cauldrons?.[cauldronName]?.findIndex(({ bubbleName }) => bubbleName === bubName);
   if (bubbleIndex === -1) return 0;
   const multiIndexes = {
@@ -301,7 +310,8 @@ export const getBubbleBonus = (cauldrons, cauldronName, bubName, round, shouldMu
   const anotherMultiBubbleBonus = multiIndexes?.[cauldronName]?.[bubbleIndex]
     ? growth(anotherMultiBubble?.func, anotherMultiBubble?.level, anotherMultiBubble?.x1, anotherMultiBubble?.x2, round)
     : 1;
-  return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus * anotherMultiBubbleBonus) ?? 0;
+  const prismaBubbleMulti = isPrismaBubble(account, bubble?.bubbleIndex) ? 2 : 1;
+  return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus * anotherMultiBubbleBonus * prismaBubbleMulti) ?? 0;
 };
 
 const getVials = (vialsRaw) => {

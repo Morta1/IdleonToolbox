@@ -34,7 +34,7 @@ import { lavaLog } from '@utility/helpers';
 
 export const allProwess = (character, account) => {
   const mainStat = mainStatMap?.[character?.class];
-  const prowessBubble = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'PROWESESSARY', false, mainStat);
+  const prowessBubble = getBubbleBonus(account, 'kazam', 'PROWESESSARY', false, mainStat);
   const starSignProwess = getStarSignBonus(character, account, 'All_Skill_Prowess');
   const skillProwessMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Sprow')
   return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
@@ -43,8 +43,8 @@ export const allProwess = (character, account) => {
 export const getNobisectBonus = (character, account, characters, playerInfo) => {
   const mainStat = mainStatMap?.[character?.class];
   const { strength, wisdom, agility } = character?.stats || {};
-  const strBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false, mainStat);
-  const wisBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'high-iq', 'HOCUS_CHOPPUS', false, mainStat);
+  const strBubbleBonus = getBubbleBonus(account, 'power', 'HEARTY_DIGGY', false, mainStat);
+  const wisBubbleBonus = getBubbleBonus(account, 'high-iq', 'HOCUS_CHOPPUS', false, mainStat);
   const base = Math.max(1, getAllEff(character, characters, account)
     + Math.pow(((strBubbleBonus * lavaLog(playerInfo?.maxHp))
       + (wisBubbleBonus * lavaLog(playerInfo?.maxMp))) / 100, 2)
@@ -128,12 +128,12 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const effFromTool = character?.tools?.[TOOLS.PICKAXE]?.Weapon_Power || 0;
   let baseMiningEff = effFromTool;
   const talentBonus = getTalentBonus(character?.talents, 1, 'TOOL_PROFICIENCY');
-  const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'STRONK_TOOLS', false, mainStat);
+  const bubbleBonus = getBubbleBonus(account, 'power', 'STRONK_TOOLS', false, mainStat);
   const miningLevel = character?.skillsInfo?.mining?.level;
   baseMiningEff = baseMiningEff * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
   baseMiningEff += 4;
   const statueBonus = getStatueBonus(account?.statues, 'StatueG3', character?.talents);
-  const secondBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'SLABI_OREFISH', false, mainStat);
+  const secondBubbleBonus = getBubbleBonus(account, 'power', 'SLABI_OREFISH', false, mainStat);
   const lootedItems = account?.looty?.rawLootedItems;
   baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100));
 
@@ -150,7 +150,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Mining_Efficiency');
   const starSignBonus = getStarSignBonus(character, account, 'Mining_Efficency');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MinEff');
-  const thirdBubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'power', 'HEARTY_DIGGY', false, mainStat);
+  const thirdBubbleBonus = getBubbleBonus(account, 'power', 'HEARTY_DIGGY', false, mainStat);
   const fourthTalentBonus = getTalentBonus(character?.talents, 1, 'COPPER_COLLECTOR');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const copperOwned = calculateItemTotalAmount(account?.storage, 'Copper_Ore', true);

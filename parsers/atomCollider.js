@@ -19,7 +19,7 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const level = localAtoms?.[index] ?? 0;
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
     const atomReductionFromAtom = atomsRaw?.[9] ?? 0;
-    const bubbleBonus = getBubbleBonus(account?.alchemy?.bubbles, 'kazam', 'ATOM_SPLIT', false)
+    const bubbleBonus = getBubbleBonus(account, 'kazam', 'ATOM_SPLIT', false)
     const reduxSuperbit = isSuperbitUnlocked(account, 'Atom_Redux')?.unlocked ?? 0;
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
     const stampBonusReduction = getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs');

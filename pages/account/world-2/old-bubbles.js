@@ -89,7 +89,7 @@ const Bubbles = () => {
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
       const cauldronCostReduxBoost = Math.max(0.1, 1 - ((Math.round(10 * growth('decay', cauldronCostLvl, 90, 100, false)) / 10)) / 100);
       const barleyBrewVialBonus = getVialsBonusByStat(state?.account?.alchemy?.vials, 'AlchBubbleCost');
-      const undevelopedBubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'UNDEVELOPED_COSTS', false);
+      const undevelopedBubbleBonus = getBubbleBonus(state?.account, 'kazam', 'UNDEVELOPED_COSTS', false);
       const bubbleBargainBoost = Math.max(0.05, 1 - (growth('decay', lastBubbleLvl, 40, 12, false) / 100) *
         growth('decayMulti', classMultiplierLvl, 2, 50, false) *
         growth('decayMulti', multiBubble, 1.4, 30, false));

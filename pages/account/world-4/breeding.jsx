@@ -28,7 +28,7 @@ const Breeding = () => {
     const blackDiamondRhinestone = getJewelBonus(state?.account?.lab?.jewels, 16, spelunkerObolMulti);
     const emeraldRhinestoneBonus = getJewelBonus(state?.account?.lab?.jewels, 11, spelunkerObolMulti);
     const mealBonus = getMealsBonusByEffectOrStat(state?.account, null, 'TimeEgg', blackDiamondRhinestone);
-    const bubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'EGG_INK', false);
+    const bubbleBonus = getBubbleBonus(state?.account, 'kazam', 'EGG_INK', false);
     const achievement = getAchievementStatus(state?.account?.achievements, 220);
     const skillMasteryBonus = isMasteryBonusUnlocked(state?.account?.rift, state?.account?.totalSkillsLevels?.breeding?.rank, 1);
     const voteBonus = getVoteBonus(state?.account, 16) || 0;

@@ -24,7 +24,8 @@ import {
   getBubbleBonus,
   getMaxCauldron,
   getUpgradeableBubbles,
-  getVialsBonusByStat
+  getVialsBonusByStat,
+  isPrismaBubble
 } from '@parsers/alchemy';
 import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
@@ -75,7 +76,7 @@ const Bubbles = () => {
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
       const cauldronCostReduxBoost = Math.max(0.1, 1 - ((Math.round(10 * growth('decay', cauldronCostLvl, 90, 100, false)) / 10)) / 100);
       const barleyBrewVialBonus = getVialsBonusByStat(state?.account?.alchemy?.vials, 'AlchBubbleCost');
-      const undevelopedBubbleBonus = getBubbleBonus(state?.account?.alchemy?.bubbles, 'kazam', 'UNDEVELOPED_COSTS', false);
+      const undevelopedBubbleBonus = getBubbleBonus(state?.account, 'kazam', 'UNDEVELOPED_COSTS', false);
       const bubbleBargainBoost = Math.max(0.05, 1 - (growth('decay', lastBubbleLvl, 40, 12, false) / 100) *
         growth('decayMulti', classMultiplierLvl, 2, 50, false) *
         growth('decayMulti', multiBubble, 1.4, 30, false));
@@ -236,6 +237,7 @@ const Bubbles = () => {
               <InfoIcon/>
             </HtmlTooltip>
           </Stack>
+          <Typography>Prisma Fragments: {Math.floor(state?.account?.alchemy?.prismaFragments) || '0'}</Typography>
         </CardTitleAndValue>
 
       </Stack>
@@ -251,11 +253,12 @@ const Bubbles = () => {
                           key={cauldron + '' + cauldronIndex}>
               {bubbles?.map((bubble, index) => {
                 if (index > 29) return null;
-                const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron } = bubble;
+                const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron, bubbleIndex } = bubble;
+                const isPrisma = isPrismaBubble(state?.account, bubbleIndex);
                 const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
                   ? level
                   : bubblesGoals?.[cauldron]?.[index] : level;
-                const goalBonus = growth(func, goalLevel, x1, x2, true);
+                const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? 2 : 1);
                 const bubbleMaxBonus = getMaxBonus(func, x1);
                 const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
                 let thresholdObj;
@@ -293,11 +296,17 @@ const Bubbles = () => {
                                                index={index}
                                                bubble={bubble}
                                                goalLevel={goalLevel}
+                                               isPrisma={isPrisma}
                         />}>
-                        <BubbleIcon width={48} height={48}
-                                    level={level}
-                                    src={`${prefix}data/${rawName}.png`}
-                                    alt=""/>
+                        <Stack sx={{ position: 'relative' }}>
+                          {isPrisma ? <img style={{ position: 'absolute', width: 48, height: 48 }}
+                                           src={`${prefix}data/aUpgradesGlow${cauldronIndex}.png`}/> : null}
+                          <BubbleIcon width={48} height={48}
+                                      level={level}
+                                      src={`${prefix}data/${rawName}.png`}
+                                      alt=""/>
+                        </Stack>
+
                       </HtmlTooltip>
                       <Stack alignItems={batchLayout || isSm ? 'center' : 'flex-start'}>
                         <Stack direction={batchLayout || isSm ? 'column' : 'row'} alignItems={'center'}>
@@ -324,10 +333,12 @@ const Bubbles = () => {
                       </Stack>
                     </Stack>
                   </Stack>
-                  {!isSm && !hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0
-                    ?
-                    <Divider sx={{ my: 1 }} flexItem/>
-                    : null}
+                  {
+                    !isSm && !hidePastLevelThreshold && !hidePastThreshold && index > 0 && (index + 1 < bubbles.length - 1) && (index + 1) % 5 === 0
+                      ?
+                      <Divider sx={{ my: 1 }} flexItem/>
+                      : null
+                  }
                 </Fragment>
               })}
             </Stack>
@@ -351,10 +362,11 @@ const AdditionalInfo = ({
                           cauldron,
                           account,
                           bubble,
-                          goalLevel
+                          goalLevel,
+                          isPrisma
                         }) => {
   return <Box>
-    {tooltip ? <BubbleTooltip {...{ ...bubble, goalLevel }} /> : null}
+    {tooltip ? <BubbleTooltip {...{ ...bubble, goalLevel, isPrisma }} /> : null}
     <Stack gap={2} direction={'row'}>
       <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
              alignItems={'center'}>
@@ -512,14 +524,14 @@ const BubbleIcon = styled.img`
   border-radius: 50%;
 `;
 
-const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level }) => {
+const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level, isPrisma }) => {
   const bonus = growth(func, level, x1, x2, true);
   const goalBonus = growth(func, goalLevel, x1, x2, true);
   return <>
     <Typography fontWeight={'bold'}
                 variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
     <Divider sx={{ my: 1 }}/>
-    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, bonus))}</Typography>
+    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, bonus * (isPrisma ? 2 : 1)))}</Typography>
     {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }} variant={'body1'}>
       Goal: +{goalBonus}
     </Typography> : null}
