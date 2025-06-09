@@ -548,14 +548,14 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
 
-  return (1 + armorSetBonus / 100) * Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+  return (1 + armorSetBonus / 100) * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
     + (equipmentGoldFoodBonus
       + (hungryForGoldTalentBonus
         + (goldenAppleStamp
           + (goldenFoodAchievement
             + (goldenFoodBubbleBonus
               + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses))))) / 100;
+            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses))))) / 100);
 }
 
 export const getGoldenFoodBonus = (foodName, character, account, characters) => {
