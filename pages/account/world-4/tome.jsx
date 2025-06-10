@@ -7,18 +7,26 @@ import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import useCheckbox from '@components/common/useCheckbox';
 
 const ranks = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%']
+const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 1
+  ? notateNumber(quantity, 'Big')
+  : x4 === 1
+    ? Math.round(100 * quantity) / 100
+    : commaNotation(quantity);
 
 const Tome = () => {
   const { state } = useContext(AppContext);
+  const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
 
   return <>
     <NextSeo
       title="Tome | Idleon Toolbox"
       description="Keep track of your tome bonuses and highscores"
     />
-    <Typography variant={'h2'} textAlign={'center'} mb={3}>Tome</Typography>
+    {/*<Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active*/}
+    {/*  character.</Typography>*/}
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)}/>
       <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
@@ -40,24 +48,20 @@ const Tome = () => {
         })}
       </Stack>
     </Stack>
-    <Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active
-      character.</Typography>
+    <CheckboxEl/>
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {state?.account?.tome?.tome?.map(({
-                                          name,
-                                          color,
-                                          tomeLvReq,
-                                          quantity,
-                                          index,
-                                          x2,
-                                          x4,
-                                          points,
-                                          requiredPoints
-                                        }, rIndex) => {
-        const formattedQuantity = quantity > 1e9 && x2 === 1 ? notateNumber(quantity, 'Big') : x4 === 1
-          ? Math.round(100 * quantity) / 100
-          : commaNotation(quantity);
+      {state?.account?.tome?.tome?.map((bonus, rIndex) => {
+        const {
+          name,
+          color,
+          tomeLvReq,
+          quantity,
+          index,
+          points,
+          requiredQuantities
+        } = bonus;
+        const formattedQuantity = getFormattedQuantity(bonus, quantity);
         return <Card key={'tome-bonus' + index} sx={{ width: 300 }}>
           <CardContent sx={{
             display: 'flex',
@@ -67,22 +71,34 @@ const Tome = () => {
           }}>
             <Stack mb={1} direction={'row'} alignItems={'center'} gap={1} justifyContent={'space-between'}>
               <Typography variant={'body1'}>{cleanUnderscore(name.replace('(Tap_for_more_info)', ''))}</Typography>
-              {rIndex === 19 ? <Tooltip
-                title={'Affected by your currently active character'}><IconInfoCircleFilled size={16}/></Tooltip> : null}
+              {rIndex === 19
+                ? <Tooltip
+                  title={'Affected by your currently active character'}><IconInfoCircleFilled size={16}/></Tooltip>
+                : null}
             </Stack>
             <Stack mt={'auto'} justifyContent="space-between" direction={'row'}>
-              <Typography>{formattedQuantity}</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
-                {/*<Tooltip title={<Stack>*/}
-                {/*  {Object.entries(requiredPoints).map(([key, value]) => (*/}
-                {/*    <TitleAndValue stackStyle={{ justifyContent: 'space-between' }} key={name + key}*/}
-                {/*                   title={key.capitalize()} value={value}/>*/}
-                {/*  ))}*/}
-                {/*</Stack>}>*/}
-                {/*  <IconInfoCircleFilled size={16}/>*/}
-                {/*</Tooltip>*/}
-                <Typography color={color}>{commaNotation(points)} PTS</Typography>
+                <Typography>{formattedQuantity}</Typography>
+                {showThresholds ? <Tooltip title={<Stack>
+                  {Object.entries(requiredQuantities).map(([key, value]) => (
+                    <TitleAndValue stackStyle={{ justifyContent: 'space-between' }} key={name + key}
+                                   title={key.capitalize()} value={getFormattedQuantity(bonus, value)}/>
+                  ))}
+                </Stack>}>
+                  <IconInfoCircleFilled size={16}/>
+                </Tooltip> : null}
               </Stack>
+              {/*<Stack direction={'row'} alignItems={'center'} gap={1}>*/}
+              {/*  <Tooltip title={<Stack>*/}
+              {/*    {Object.entries(requiredQuantities).map(([key, value]) => (*/}
+              {/*      <TitleAndValue stackStyle={{ justifyContent: 'space-between' }} key={name + key}*/}
+              {/*                     title={key.capitalize()} value={getFormattedQuantity(bonus, value)}/>*/}
+              {/*    ))}*/}
+              {/*  </Stack>}>*/}
+              {/*    <IconInfoCircleFilled size={16}/>*/}
+              {/*  </Tooltip>*/}
+              <Typography color={color}>{commaNotation(points)} PTS</Typography>
+              {/*</Stack>*/}
             </Stack>
           </CardContent>
         </Card>

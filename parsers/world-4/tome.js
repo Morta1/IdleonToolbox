@@ -38,16 +38,18 @@ export const getTome = (idleonData, account, characters, serverVars) => {
       : '#56ccff';
     const points = Math.ceil(pointsPercent * bonus?.x3);
     totalPoints += account?.accountLevel > tomeLvReq ? points : 0;
-
+    const requiredQuantities = getRequiredQuantitiesEfficient(bonus);
     return {
       ...bonus,
       tomeLvReq,
       index: realIndex,
       quantity: tomeQuantities?.[index] || 0,
       points,
-      color
+      color,
+      requiredQuantities
     }
   });
+
   const bonuses = bonusNames.map((name, index) => ({
       name: name.replace('+{%', ''),
       bonus: getTomeBonus(account, totalPoints, index)
@@ -80,6 +82,54 @@ export const getTome = (idleonData, account, characters, serverVars) => {
     tops,
     top
   };
+}
+
+const getRequiredQuantitiesEfficient = (bonus) => {
+  const { x1, x2 } = bonus;
+
+  const thresholds = {
+    silver: 0.4,
+    gold: 0.75,
+    blue: 0.999
+  };
+
+  const results = {};
+
+  for (const [tier, targetPercent] of Object.entries(thresholds)) {
+    let quantity = null;
+
+    if (x2 === 0) {
+      const base = Math.pow(targetPercent, 1 / 0.7);
+      quantity = (1.7 - base) === 0 ? null : (base * x1) / (1.7 - base);
+    }
+
+    else if (x2 === 1) {
+      const denom = 2 * targetPercent - 2.4;
+      if (denom !== 0) {
+        const logQ = (-targetPercent * x1) / denom;
+        quantity = Math.pow(10, logQ);
+      }
+    }
+
+    else if (x2 === 2) {
+      quantity = targetPercent * x1;
+    }
+
+    else if (x2 === 3) {
+      const base = Math.pow(targetPercent, 1 / 5);
+      const denom = 1.2 - base;
+      if (denom !== 0) {
+        const numerator = 1.2 * 6 * x1 - base * 7 * x1;
+        quantity = numerator / denom;
+      }
+    }
+
+    results[tier] = quantity !== null && isFinite(quantity) && quantity >= 0
+      ? Math.ceil(quantity)
+      : null;
+  }
+
+  return results;
 }
 
 const getTomeBonus = (account, totalPoints, index) => {

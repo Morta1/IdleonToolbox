@@ -387,7 +387,6 @@ export const notateNumber = (e, s) => {
                                   : 'TinyE' === s
                                     ? '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 10) / 10 + ('e' + Math.floor(lavaLog(e)))
                                     : '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 100) / 100 + ('E' + Math.floor(lavaLog(e)))
-
 }
 export const commaNotation = (number) => {
   // Initialize variables

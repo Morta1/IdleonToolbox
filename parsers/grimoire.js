@@ -23,6 +23,7 @@ const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
   const monsterList = randomList?.[104]?.split(' ');
   const bones = accountData?.accountOptions?.slice(330, 334);
   const totalUpgradeLevels = grimoireRaw?.reduce((sum, level) => sum + level, 0);
+  const totalBonesCollected = accountData?.accountOptions?.[329];
   let upgrades = grimoire.map((upgrade, index) => {
     const { x1, x2 } = upgrade;
     const level = grimoireRaw?.[index]
@@ -53,6 +54,7 @@ const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
     upgrades,
     nextUnlock,
     wraith,
+    totalBonesCollected,
     monsterDrops: getMonsterDrops(),
     ribbons: ribbonRaw
   };
