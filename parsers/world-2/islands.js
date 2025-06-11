@@ -103,7 +103,8 @@ export const getIslands = (account, characters) => {
     ? 0
     : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfk, 70) / 100 + trashUpgradeLevel / 5))))
   const trashPerDay = Math.round(3 * 1.25 * Math.floor(1.01 + (.5 + (Math.min(1, 70) / 100 + trashUpgradeLevel / 5))));
-  const allShimmerBonus = Math.max(1, Math.min(4, 1 + 100 * isArtifactAcquired(account?.sailing?.artifacts, 'The_Shim_Lantern')?.bonus / 100));
+  const allShimmerBonus = Math.max(1, Math.min(4, 1 + 100 * (isArtifactAcquired(account?.sailing?.artifacts, 'The_Shim_Lantern')?.bonus ?? 0) / 100));
+
   return {
     islandsUnlocked,
     bottles,
