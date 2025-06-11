@@ -33,15 +33,24 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     const { cropId, cropIdIncrement, cost, costExponent, bonusPerLvl, maxLvl, bonus } = upgrade;
     const level = marketLevels?.[index] ?? 0;
     const emperorBonus = getEmperorBonus(account, 2);
-    const calculatedCost = Math.max(0.001, 1 - emperorBonus
-      / (emperorBonus + 100)) * cost * Math.pow(costExponent, level)
+    const emperorCostCalc = Math.max(0.001, 1 - emperorBonus / (emperorBonus + 100));
+    const calculatedCost = emperorCostCalc * cost * Math.pow(costExponent, level);
     return {
       ...upgrade,
       level,
       type: getCropType({ index, cropId, cropIdIncrement, level }),
       cost: calculatedCost,
-      nextUpgrades: getNextUpgradesReq({ index, cropId, cropIdIncrement, level, maxLvl, cost, costExponent }),
-      costToMax: calcCostToMax({ level, maxLvl, cost, costExponent }),
+      nextUpgrades: getNextUpgradesReq({
+        index,
+        cropId,
+        cropIdIncrement,
+        level,
+        maxLvl,
+        cost,
+        costExponent,
+        emperorCostCalc
+      }),
+      costToMax: calcCostToMax({ level, maxLvl, cost, costExponent, emperorCostCalc }),
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
@@ -243,7 +252,8 @@ const getNextUpgradesReq = ({
                               maxLvl,
                               cost,
                               costExponent,
-                              isUnique = true
+                              isUnique = true,
+                              emperorCostCalc
                             }: any) => {
   const upgradeMap = new Map();
 
@@ -257,7 +267,7 @@ const getNextUpgradesReq = ({
       level: level + extraLv
     });
 
-    const localCost = cost * Math.pow(costExponent, level + extraLv);
+    const localCost = emperorCostCalc * cost * Math.pow(costExponent, level + extraLv);
 
     if (upgradeMap.has(type) && isUnique) {
       // If the type exists, add the cost to the existing total
@@ -349,10 +359,10 @@ export const getLandRankTotalBonus = (account: any, index: number) => {
               getLandRank(account?.farming?.ranks, 16)) : 1;
 }
 
-const calcCostToMax = ({ level, maxLvl, cost, costExponent }: any) => {
+const calcCostToMax = ({ level, maxLvl, cost, costExponent, emperorCostCalc }: any) => {
   let costToMax = 0;
   for (let i = level; i < maxLvl; i++) {
-    costToMax += cost * Math.pow(costExponent, i)
+    costToMax += emperorCostCalc * cost * Math.pow(costExponent, i)
   }
   return costToMax ?? 0;
 }
