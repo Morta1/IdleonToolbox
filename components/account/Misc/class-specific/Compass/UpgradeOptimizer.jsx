@@ -33,23 +33,37 @@ const UpgradeOptimizer = ({ character, account }) => {
       return optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
     }
 
-    // Group upgrades by their base name
-    const groupedUpgrades = {};
+    // Group consecutive upgrades of the same type while preserving order
+    const consolidatedUpgrades = [];
+    let currentGroup = null;
+
     optimizedUpgrades.forEach((upgrade, index) => {
-      const key = upgrade.name;
-      if (!groupedUpgrades[key]) {
-        groupedUpgrades[key] = {
+      // If this is the first upgrade or if it's a different type than the current group
+      if (!currentGroup || currentGroup.name !== upgrade.name) {
+        // Save the previous group if it exists
+        if (currentGroup) {
+          consolidatedUpgrades.push(currentGroup);
+        }
+        
+        // Start a new group
+        currentGroup = {
           ...upgrade,
           upgradeIndex: index,
           sequence: [{ ...upgrade, originalIndex: index }]
         };
       } else {
-        groupedUpgrades[key].sequence.push({ ...upgrade, originalIndex: index });
+        // Add to the current group
+        currentGroup.sequence.push({ ...upgrade, originalIndex: index });
       }
     });
 
+    // Don't forget to add the last group
+    if (currentGroup) {
+      consolidatedUpgrades.push(currentGroup);
+    }
+
     // Calculate combined stats for each group
-    return Object.values(groupedUpgrades).map(upgrade => {
+    return consolidatedUpgrades.map(upgrade => {
       if (!upgrade.sequence || upgrade.sequence.length <= 1) {
         return upgrade;
       }
