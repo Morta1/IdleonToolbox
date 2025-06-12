@@ -4,7 +4,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import Timer from '../../../components/common/Timer';
 import { getTabs, notateNumber } from '../../../utility/helpers';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { PAGES } from '@components/constants';
@@ -28,14 +28,7 @@ const Equinox = () => {
         <CardTitleAndValue title={'Fill rate'}>
           <Stack direction="row" alignItems={'center'} gap={1}>
             <Typography>{Math.round(equinox.chargeRate)} / hr</Typography>
-            <Tooltip
-              title={<Stack>
-                {equinox?.breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                                                    title={name}
-                                                                                    titleStyle={{ width: 120 }}
-                                                                                    value={value.toFixed(2).replace('.00', '')}/>)}
-
-              </Stack>}>
+            <Tooltip title={<Breakdown breakdown={equinox?.breakdown} notation={'MultiplierInfo'}/>} >
               <IconInfoCircleFilled size={18}/>
             </Tooltip>
           </Stack>
@@ -48,8 +41,8 @@ const Equinox = () => {
                                                                 lastUpdated={state?.lastUpdated}/>}/>
       </Stack>
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'Equinox')}>
-        <Upgrades upgrades={equinox?.upgrades} />
-        <Challenges challenges={equinox?.challenges} completedClouds={equinox?.completedClouds} />
+        <Upgrades upgrades={equinox?.upgrades}/>
+        <Challenges challenges={equinox?.challenges} completedClouds={equinox?.completedClouds}/>
       </Tabber>
     </>
   );

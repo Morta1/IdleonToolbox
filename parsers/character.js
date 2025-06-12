@@ -644,19 +644,21 @@ export const getRespawnRate = (character, account) => {
       + chipBonus
       + (equipmentBonus + obolsBonus)
       + achievementBonus
-      + (starSignBonus)
+      + starSignBonus
       + meritBonus) / 100);
 
   const breakdown = [
-    { name: 'Shrine', value: shrineBonus / 100 },
-    { name: 'Equipment', value: equipmentBonus / 100 },
+    { title: 'Additive' },
+    { name: '' },
+    { name: 'Base', value: monsterRespawnTime },
     { name: 'Achievement', value: achievementBonus / 100 },
     { name: 'Chip', value: chipBonus / 100 },
+    { name: 'Equipment', value: equipmentBonus / 100 },
+    { name: 'Merit', value: meritBonus / 100 },
+    { name: 'Shrine', value: shrineBonus / 100 },
     { name: 'Starsigns', value: starSignBonus / 100 },
-    { name: 'Merit', value: meritBonus / 100 }
   ];
-  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
-
+  
   return {
     respawnRate,
     breakdown
@@ -1064,6 +1066,10 @@ export const getDropRate = (character, account, characters) => {
   }
 
   const breakdown = [
+    // Additive section (affects dropRate directly before multipliers)
+    { title: 'Additive' },
+    { name: '' },
+    { name: 'Base', value: 1 },
     { name: 'Luck', value: 1.4 * luckMulti },
     {
       name: 'Talents',
@@ -1071,7 +1077,6 @@ export const getDropRate = (character, account, characters) => {
     },
     { name: 'Post Office', value: postOfficeBonus / 100 },
     { name: 'Equipment', value: (drFromEquipment + drFromTools) / 100 },
-    { name: 'Equipment Multi', value: equipmentDrMulti / 100 },
     { name: 'Obols', value: drFromObols / 100 },
     { name: 'Bubble', value: bubbleBonus / 100 },
     { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
@@ -1082,18 +1087,12 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
     { name: 'Guild', value: guildBonus / 100 },
-    { name: 'Siege Breaker*', value: extraDropRate },
     { name: 'Companion+', value: (companionDropRate + secondCompanionDropRate) / 100 },
-    { name: 'Companion*', value: thirdCompanionDropRate },
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
-    { name: 'Gem Bundle*', value: hasDrBundle ? 1.2 : 0 },
-    { name: 'Gem Bundle2+', value: hasAnotherDrBundle ? 2 : 0 },
     { name: 'Stamps', value: stampBonus / 100 },
-    { name: 'Pristine Charm', value: charmBonus / 100 },
     { name: 'Tome', value: tomeBonus / 100 },
     { name: 'Owl', value: owlBonus / 100 },
     { name: 'Summoning', value: summoningBonus / 100 },
-    { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? .3 : 0 },
     { name: 'Golden food', value: goldenFoodBonus / 100 },
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Land rank', value: landRankBonus / 100 },
@@ -1102,13 +1101,23 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Grimoire', value: grimoireBonus / 100 },
     { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
     { name: 'Crop Depot', value: cropDepotBonus / 100 },
-    { name: 'Base', value: 1 },
     { name: 'Monument', value: monumentBonus / 100 },
     { name: 'Measurement', value: measurementBonus / 100 },
     { name: 'Emperor', value: emperorBonus / 100 },
-    { name: 'Efaunt set', value: armorSetBonus / 100 }
-  ]
-  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+    { name: 'Efaunt set', value: armorSetBonus / 100 },
+    { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
+    { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? 0.3 : 0 },
+
+    // Multiplicative section (applied to final)
+    { name: '' },
+    { title: 'Multiplicative' },
+    { name: '' },
+    { name: 'Equipment', value: equipmentDrMulti / 100 },
+    { name: 'Pristine Charm', value: charmBonus / 100 },
+    { name: 'Companion', value: thirdCompanionDropRate },
+    { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
+    { name: 'Siege Breaker*', value: extraDropRate }
+  ];
   return {
     dropRate: final,
     breakdown
@@ -1236,6 +1245,8 @@ export const getCashMulti = (character, account, characters) => {
                                 * poopKills))))))))))))))) / 100);
 
   const breakdown = [
+    { title: 'Multiplicative' },
+    { name: '' },
     { name: 'Vault Recipe', value: firstVaultUpgradeBonus * account?.unlockedRecipes },
     { name: 'Vault Bubble', value: secondVaultUpgradeBonus * account?.alchemy?.totalBubbleLevelsTill100 },
     { name: 'Vault Ores', value: thirdVaultUpgradeBonus * lavaLog(account?.accountOptions?.[340]) },

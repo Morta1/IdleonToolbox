@@ -104,6 +104,8 @@ export const getRefineryCycleBonuses = (account, characters) => {
   const voteBonus = getVoteBonus(account, 33);
 
   const bonusBreakdown = [
+    { title: 'Additive' },
+    { name: '' },
     { name: 'Vials', value: redMaltVial / 100 },
     { name: 'Salt lick', value: saltLickUpgrade / 100 },
     { name: 'Family', value: amplifiedFamilyBonus / 100 },

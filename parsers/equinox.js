@@ -28,7 +28,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     goal,
     reward,
     current: clouds[index] || 0,
-    active: clouds[index] !== -1 && 0 < nbChallengeActive--,
+    active: clouds[index] !== -1 && 0 < nbChallengeActive--
   }));
   const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 14), account);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q');
@@ -57,6 +57,8 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100);
 
   const breakdown = [
+    { title: 'Multiplicative' },
+    { name: '' },
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Vote', value: voteBonus / 100 },
     { name: 'Cosmo', value: cosmoBonus / 100 },
@@ -65,7 +67,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
     { name: 'Vial', value: eqBarVial / 100 },
     { name: 'Clouds', value: cloudsBonus / 100 },
-    { name: 'Bundle*', value: bundleBonus ? 90 : 60 },
+    { name: 'Bundle*', value: bundleBonus ? 90 : 60 }
   ]
 
   const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base);

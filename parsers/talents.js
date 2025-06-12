@@ -208,6 +208,8 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
 
   breakdown = [
+    { title: 'Additive' },
+    { name: '' },
     ...breakdown,
     { name: 'Symbol of Beyond', value: symbolAddedLevel },
     { name: 'Family', value: Math.floor(familyEffBonus) },

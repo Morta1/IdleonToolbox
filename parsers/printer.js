@@ -93,6 +93,8 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           boostedValue *= multi;
 
           const breakdown = [
+            { title: 'Multiplicative' },
+            { name: '' },
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
             { name: 'Harriep God', value: (harriepGodIndex.includes(charIndex) || pocketLinked) ? 3 : 0 },
             { name: 'Companion', value: companionBonus },

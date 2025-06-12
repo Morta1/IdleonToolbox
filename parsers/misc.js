@@ -106,6 +106,8 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
     * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
 
   const breakdown = [
+    { title: 'Multiplicative' },
+    { name: '' },
     { name: 'Meal Bonus', value: mealBonus },
     { name: 'Atom Bonus', value: libraryBooker },
     { name: 'Tower Bonus', value: 5 * libraryTowerLevel },
