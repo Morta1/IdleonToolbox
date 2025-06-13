@@ -4,7 +4,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { growth, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../components/Tooltip';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
 import { getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
@@ -123,9 +123,7 @@ const BoostedTooltip = ({ value, boostedValue, breakdown }) => {
       <TitleAndValue boldTitle title={'Boosted value'} value={notateNumber(boostedValue, 'Big')}/>
       {breakdown.length > 0 ? <Stack>
         <Divider flexItem sx={{ my: 1 }}/>
-        {breakdown?.map(({ name, value }) => <TitleAndValue title={name}
-                                                            key={name}
-                                                            value={`${value.toString().match(/^-?\d+(?:\.\d{0,3})?/)?.[0]}x`}/>)}
+        <Breakdown breakdown={breakdown} notation={'MultiplierInfo'} />
       </Stack> : null}
     </Stack>)
   );
