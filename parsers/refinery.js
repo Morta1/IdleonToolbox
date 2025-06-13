@@ -104,8 +104,6 @@ export const getRefineryCycleBonuses = (account, characters) => {
   const voteBonus = getVoteBonus(account, 33);
 
   const bonusBreakdown = [
-    { title: 'Additive' },
-    { name: '' },
     { name: 'Vials', value: redMaltVial / 100 },
     { name: 'Salt lick', value: saltLickUpgrade / 100 },
     { name: 'Family', value: amplifiedFamilyBonus / 100 },
@@ -155,19 +153,21 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
   const breakdown = [
     ...bonusBreakdown,
+    { title: 'Multiplicative' },
+    { name: '' },
     { name: 'Lab', value: labCycleBonus }
   ];
   const combustion = {
     name: 'Combustion',
     time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus)),
     timePast: account?.refinery?.timePastCombustion + timePassed,
-    breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
+    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
     time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus)),
     timePast: account?.refinery?.timePastSynthesis + timePassed,
-    breakdown: [{ name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
+    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
   }
   return {
     ...squiresDataTemp,

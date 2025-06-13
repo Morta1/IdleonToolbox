@@ -18,7 +18,7 @@ import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/printer';
 import Box from '@mui/material/Box';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { calcCost, calcResourceToRankUp, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
@@ -92,7 +92,7 @@ const Refinery = () => {
             <Stack direction={'row'} gap={2} alignItems={'center'}>
               <Typography sx={{ ...boldSx, color: index === 0 ? 'error.light' : 'success.light' }}
                           variant={'body1'}>{name}</Typography>
-              <Tooltip title={<BreakdownTooltip breakdown={breakdown} notate={'MultiplierInfo'}/>}>
+              <Tooltip title={<Breakdown breakdown={breakdown} notation={'MultiplierInfo'}/>}>
                 <IconInfoCircleFilled size={18}/>
               </Tooltip>
             </Stack>
