@@ -658,7 +658,7 @@ export const getRespawnRate = (character, account) => {
     { name: 'Shrine', value: shrineBonus / 100 },
     { name: 'Starsigns', value: starSignBonus / 100 },
   ];
-  
+
   return {
     respawnRate,
     breakdown
@@ -1377,9 +1377,11 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   ]
   breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
   return {
+    breakdown,
     value: 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
       * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100),
-    breakdown
+    expression: `0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
+      * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100)`
   }
 }
 export const getPlayerFoodBonus = (character, account, isHealth) => {
