@@ -1,4 +1,8 @@
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import dynamic from 'next/dynamic';
+const SyntaxHighlighter = dynamic(
+  () => import('react-syntax-highlighter').then(mod => mod.Prism),
+  { ssr: false }
+);
 import atomDark from 'react-syntax-highlighter/dist/esm/styles/prism/atom-dark';
 import React from 'react';
 

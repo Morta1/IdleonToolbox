@@ -2,487 +2,505 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.idleontoolbox.com/404x</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/charactersx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/dashboardx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/datax</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/guildsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/indexx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/leaderboardsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/patch-notesx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/active-exp-calculatorx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/active-stuff-calculatorx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/buildsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/card-searchx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/tools/formulasx</loc>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/game-change-logx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/god-plannerx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/guaranteed-drop-calculatorx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/indexx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/item-browserx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/item-databasex</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/item-plannerx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/material-trackerx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/tools/sampling-companionx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/class-specific/apocalypsesx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/class-specific/compassx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/class-specific/grimoirex</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/constellationsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/dungeonsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/event-shopx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/generalx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/guildx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/questsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/random-eventsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/storagex</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/misc/upgrade-vaultx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/prem-currency/companionsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/prem-currency/gem-shopx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-1/anvilx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-1/bribesx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-1/forgex</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-1/old-stampsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-1/owlx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-1/stampsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/constellationsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/dungeonsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/event-shopx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/generalx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/guildx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/questsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/random-eventsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/storagex</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/misc/upgrade-vaultx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/prem-currency/companionsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/prem-currency/gem-shopx</loc>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/task-board/achievementsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/task-board/meritsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/task-board/tasksx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/task-board/unlocksx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/arcade-shopx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/bubblesx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/cauldronsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/islandsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/kangaroox</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/killroyx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/old-bubbles</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/sigilsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/vialsx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/vote-ballotx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-2/weekly-bossesx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-5/divinityx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-5/gamingx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-5/holex</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-5/sailingx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-5/slabx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/atom-colliderx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/buildingsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/constructionx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/death-notex</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/equinoxx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/prayersx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/printerx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/refineryx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/salt-lickx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/trapsx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-3/worshipx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-6/beanstalkx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-6/farmingx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-6/sneakingx</loc>
-    <lastmod>2025-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-6/summoningx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-4/breedingx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-4/cookingx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-4/laboratoryx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-4/riftx</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-4/tomex</loc>
-    <lastmod>2025-05-20</lastmod>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-5/divinityx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-5/gamingx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-5/holex</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-5/sailingx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-5/slabx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-6/beanstalkx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-6/emperorx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-6/farmingx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-6/sneakingx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-6/summoningx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/armor-smithyx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/atom-colliderx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/buildingsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/constructionx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/death-notex</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/equinoxx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/prayersx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/printerx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/refineryx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/salt-lickx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/trapsx</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-3/worshipx</loc>
+    <lastmod>2025-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
