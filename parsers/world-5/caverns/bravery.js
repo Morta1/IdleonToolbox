@@ -95,7 +95,20 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
         name: 'Achievement Bonus',
         value: 10 * getAchievementStatus(accountData?.achievements, 311)
       }
-    ]
+    ],
+    expression: `braveryAfkBonus
++ justiceAfkBonus
++ wisdomAfkBonus
++ winBonus
++ (
+  minecraftGemBonus / 1
+  + (
+    rockSmartSchematicBonus
+    + measurementBonus
+    + arcadeBonus
+    + 10 * achievementBonus
+  )
+)`
   }
 }
 export const getMonumentAfkReq = (afkPercent, requiredHours, ownedAfkHours = 0) => {

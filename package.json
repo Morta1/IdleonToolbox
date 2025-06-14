@@ -31,6 +31,7 @@
     "flubber": "^0.4.2",
     "framer-motion": "^10.12.16",
     "globby": "^14.0.0",
+    "hast-util-to-jsx-runtime": "^2.3.6",
     "husky": "^9.0.11",
     "lodash.debounce": "^4.0.8",
     "lodash.merge": "^4.6.2",
@@ -41,6 +42,7 @@
     "react-countdown-circle-timer": "^3.0.9",
     "react-dom": "^18.2.0",
     "react-process-string": "^1.2.0",
+    "react-syntax-highlighter": "^15.6.1",
     "react-transition-group": "^4.4.5",
     "typescript": "^5.3.3"
   },

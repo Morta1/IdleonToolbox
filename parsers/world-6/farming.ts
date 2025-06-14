@@ -475,6 +475,31 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
         name: 'Land Rank + Vote',
         value: Number((1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100).toFixed(3))
       }
-    ]
+    ],
+    expression: `  let value = (1 + marketBonus1 / 100)
+    * (1 + winBonus / 100)
+    * (1 + lampBonus / 100)
+    * (1 + bubbleBonus1 / 100)
+    * (1 + bubbleBonus2 / 100)
+    * (1 + vialBonus / 100)
+    * (1 + mealBonus1 / 100)
+    * (1 + monumentBonus / 100)
+    * (1 + stampBonus / 100)
+    * (1 + grimoireBonus / 100)
+    * (1 + (mealBonus2
+      * Math.ceil((character?.skillsInfo?.summoning?.level + 1) / 50)) / 100)
+    * (1 + (5 * getAchievementStatus(account?.achievements, 355)) / 100)
+    * Math.max(1, killroyBonus)
+    * Math.max(1, marketBonus2)
+    * (1 + (15 * skillMasteryBonus) / 100)
+    * (1 + (starSignBonus * character?.skillsInfo?.farming?.level) / 100)
+    * Math.max(1, getLandRankTotalBonus(account, 0))
+    * Math.max(1, talentBonus)
+    * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
+    * crop?.seed?.nextCropChance
+    * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
+
+  value = Math.min(100, 100 * value);
+  value = Math.round(10 * value) / 10;`
   }
 }

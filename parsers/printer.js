@@ -17,29 +17,9 @@ export const getPrinter = (idleonData, charactersData, accountData) => {
 const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) => {
   const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, 3);
   const pocketLinked = accountData?.hole?.godsLinks?.find(({ index }) => index === 3);
-  const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
-  const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3
-    ? goldRelic?.eldritchMultiplier
-    : goldRelic?.acquired === 2
-      ? goldRelic?.ancientMultiplier
-      : 0;
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
-  const daysSinceLastSample = accountData?.accountOptions?.[125];
-  const orbOfRemembranceKills = accountData?.accountOptions?.[138];
-  const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, 'Divine_Knight'));
-  const highestKingOfRemembrance = divineKnights?.reduce((res, { talents, addedLevels }) => {
-    const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
-    if (kingOfRemembrance > res) {
-      return kingOfRemembrance
-    }
-    return res;
-  }, 0);
-
-  const isSkillMasteryUnlocked = accountData?.rift?.currentRift > 15;
-  const skillMasteryBonus = isSkillMasteryUnlocked
-    ? getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3)
-    : 0;
+  const { value: extraPrinting, params } = getPrinterMulti(accountData, charactersData);
   const printData = rawPrinter?.slice(5, rawPrinter?.length); // REMOVE 5 '0' ELEMENTS
   const printExtra = rawExtraPrinter;
   // There are 14 items per character
@@ -48,7 +28,6 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   // The last 2 pairs represent the samples in production.
   const chunk = 14;
   const extraChunk = 10;
-
   return charactersData.map((charData, charIndex) => {
     let relevantPrinterData = printData?.slice(
       charIndex * chunk,
@@ -71,17 +50,6 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
           let boostedValue = sample[1];
           const isPlayerConnected = connectedPlayers?.find(({ playerId }) => playerId === charIndex);
 
-          // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
-          const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
-          const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
-          const companionBonus = 1 + accountData?.accountOptions?.[354] * isCompanionBonusActive(accountData, 17) / 100;
-          const compassBonus = 1 + (accountData?.accountOptions?.[364] * getCompassBonus(accountData, 43)) / 100;
-          const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
-            * (1 + (highestKingOfRemembrance
-              * lavaLog(orbOfRemembranceKills)) / 100) * (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100) * voteBonus
-            * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100)
-            * companionBonus * compassBonus;
-
           const multi = (wiredInBonus && isPlayerConnected ?
             ((harriepGodIndex.includes(charIndex) || pocketLinked)
               ? 6 * extraPrinting
@@ -97,16 +65,16 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             { name: '' },
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
             { name: 'Harriep God', value: (harriepGodIndex.includes(charIndex) || pocketLinked) ? 3 : 0 },
-            { name: 'Companion', value: companionBonus },
-            { name: 'Compass', value: compassBonus },
-            { name: 'Skill Mastery', value: 1 + skillMasteryBonus / 100 },
+            { name: 'Companion', value: params.companionBonus },
+            { name: 'Compass', value: params.compassBonus },
+            { name: 'Skill Mastery', value: 1 + params.skillMasteryBonus / 100 },
             {
               name: 'Divine Knight',
-              value: notateNumber(1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100, 'MultiplierInfo')
+              value: notateNumber(1 + (params.highestKingOfRemembrance * lavaLog(params.orbOfRemembranceKills)) / 100, 'MultiplierInfo')
             },
-            { name: 'Gold Relic', value: 1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100 },
-            { name: 'Charm', value: 1 + (charmBonus) / 100 },
-            { name: 'Vote', value: voteBonus },
+            { name: 'Gold Relic', value: 1 + (params.daysSinceLastSample * (2 + params.goldRelicBonus)) / 100 },
+            { name: 'Charm', value: 1 + (params.charmBonus) / 100 },
+            { name: 'Vote', value: params.voteBonus },
             {
               name: 'Winter event',
               value: 1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100
@@ -118,7 +86,8 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
             value: sample[1],
             active: sampleIndex >= relevantPrinterData.length - 4,
             boostedValue,
-            breakdown
+            breakdown,
+            expression: ``
           }];
         }
         return result;
@@ -126,6 +95,65 @@ const parsePrinter = (rawPrinter, rawExtraPrinter, charactersData, accountData) 
   });
 }
 
+export const getPrinterMulti = (accountData, charactersData) => {
+  const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
+  const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3
+    ? goldRelic?.eldritchMultiplier
+    : goldRelic?.acquired === 2
+      ? goldRelic?.ancientMultiplier
+      : 0;
+  const daysSinceLastSample = accountData?.accountOptions?.[125];
+  const orbOfRemembranceKills = accountData?.accountOptions?.[138];
+  const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, 'Divine_Knight'));
+  const highestKingOfRemembrance = divineKnights?.reduce((res, { talents, addedLevels }) => {
+    const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
+    if (kingOfRemembrance > res) {
+      return kingOfRemembrance
+    }
+    return res;
+  }, 0);
+
+  const isSkillMasteryUnlocked = accountData?.rift?.currentRift > 15;
+  const skillMasteryBonus = isSkillMasteryUnlocked
+    ? getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3)
+    : 0;
+
+  // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
+  const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
+  const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
+  const companionBonus = 1 + accountData?.accountOptions?.[354] * isCompanionBonusActive(accountData, 17) / 100;
+  const compassBonus = 1 + (accountData?.accountOptions?.[364] * getCompassBonus(accountData, 43)) / 100;
+  const extraPrinting = (1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
+    * (1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100)
+    * (1 + skillMasteryBonus / 100
+    ) * (1 + charmBonus / 100)
+    * voteBonus
+    * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100)
+    * companionBonus
+    * compassBonus;
+
+  return {
+    params: {
+      daysSinceLastSample,
+      highestKingOfRemembrance,
+      skillMasteryBonus,
+      charmBonus,
+      voteBonus,
+      orbOfRemembranceKills,
+      goldRelicBonus,
+      companionBonus,
+      compassBonus,
+    },
+    value: extraPrinting,
+    expression: `(1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
+* (1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100)
+* (1 + skillMasteryBonus / 100) * (1 + charmBonus / 100)
+* voteBonus
+* (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100)
+* companionBonus
+* compassBonus`
+  }
+}
 export const calcTotals = (account, showAlertWhenFull) => {
   const { printer, storage } = account || {};
   const atomThreshold = getAtomColliderThreshold(account?.accountOptions?.[133]);

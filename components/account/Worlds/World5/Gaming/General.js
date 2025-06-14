@@ -8,8 +8,10 @@ import Mutations from './Mutations';
 import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
 import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 import { PAGES } from '@components/constants';
+import { getBitsMulti } from '@parsers/gaming';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 
-const General = ({ account, lastUpdated }) => {
+const General = ({ account, characters, lastUpdated }) => {
   const {
     bits,
     availableSprouts,
@@ -22,10 +24,12 @@ const General = ({ account, lastUpdated }) => {
     logBook
   } = account?.gaming;
   const ownedLogBooks = logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
+  const bitMulti = getBitsMulti(account, characters);
 
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Bits'} value={notateNumber(bits, 'bits')} icon={`etc/Bits_${getBitIndex(bits)}.png`}/>
+      <CardWithBreakdown title={'Bit Multi'} value={`${notateNumber(bitMulti?.value)}x`} breakdown={bitMulti?.breakdown} notation={'MultiplierInfo'}/>
       <CardTitleAndValue title={'Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}
                          icon={'etc/Sprouts.png'}/>
       <CardTitleAndValue title={'Best Nugget'} icon={'etc/GamingNugget.png'}

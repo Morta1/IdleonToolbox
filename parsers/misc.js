@@ -145,7 +145,7 @@ export const getSlab = (idleonData) => {
     obtained: lootyRaw?.includes(name),
     onRotation: filteredGemShopItems?.[name],
     unobtainable: filteredLootyItems?.[name]
-  }))
+  }));
   const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
 
   return {

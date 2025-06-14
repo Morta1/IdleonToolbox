@@ -84,7 +84,15 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     challenges,
     upgrades,
     completedClouds,
-    breakdown
+    breakdown,
+    expression: `const base = (1 + voteBonus / 100)
+    * (1 + companionBonus * 2.5)
+    * (1 + cosmoBonus / 100)
+    * (1 + .5 * eventShopBonus)
+    * (1 + (penguins) / 10)
+    * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100);
+const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base)
+    `
   };
 }
 

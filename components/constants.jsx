@@ -213,6 +213,9 @@ export const PAGES = {
     'samplingCompanion': {
       icon: 'data/EquipmentHats69'
     },
+    'formulas': {
+      icon: 'data/EquipmentStatues29'
+    },
     'activeExpCalculator': {
       icon: 'data/StatusExp'
     },
