@@ -3,7 +3,7 @@ const SyntaxHighlighter = dynamic(
   () => import('react-syntax-highlighter').then(mod => mod.Prism),
   { ssr: false }
 );
-import atomDark from 'react-syntax-highlighter/dist/esm/styles/prism/atom-dark';
+import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import React from 'react';
 
 const Highlighter = ({ children }) => {
