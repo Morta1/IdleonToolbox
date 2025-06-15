@@ -1251,6 +1251,7 @@ export const getCashMulti = (character, account, characters) => {
   }, 0);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
   const cashFromEquipment = getStatsFromGear(character, 3, account);
+  const cashFromTools = getStatsFromGear(character, 3, account, true);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Money_from_mobs_(Passive)');
   const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Money_from_Monsters');
@@ -1275,7 +1276,8 @@ export const getCashMulti = (character, account, characters) => {
   const eventBonus = getEventShopBonus(account, 9);
   const eventBonus2 = getEventShopBonus(account, 20);
   const equipmentBonusMoney = getStatsFromGear(character, 77, account);
-  const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77])
+  const bonusMoneyTools = getStatsFromGear(character, 77, account, true);
+  const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77]);
   const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_y') ? 1 : 0;
   const firstVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 34);
   const secondVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 37);
@@ -1288,6 +1290,9 @@ export const getCashMulti = (character, account, characters) => {
   const sixthVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 31);
   const poopKills = Math.floor(lavaLog(account?.deathNote?.[0]?.mobs?.[10]?.kills || 0));
   const armorSetBonus = getArmorSetBonus(account, 'GOLD_SET');
+  const companionBonus = isCompanionBonusActive(account, 24) ? account?.companions?.list?.at(24)?.bonus : 0;
+  const gambitBonus = getGambitBonus(account, 7);
+  const dustWalker = getHighestTalentByClass(characters, 4, 'Winder_Walker', 'DUSTWALKER');
 
   const bubbles = (cashStrBubble
     * Math.floor(strength / 250)
@@ -1297,50 +1302,44 @@ export const getCashMulti = (character, account, characters) => {
       * Math.floor(wisdom / 250)));
 
   const cashMulti = (1 + bubbles / 100)
+    * (1 + Math.min(4, companionBonus))
     * (1 + 0.5 * eventBonus)
     * (1 + 0.6 * eventBonus2)
-    * (1 + getGambitBonus(account, 7) / 100)
-    * (1 + (equipmentBonusMoney + obolsBonusMoney) / 100)
+    * (1 + (obolsBonusMoney + equipmentBonusMoney + bonusMoneyTools) / 100)
     * (1 + armorSetBonus / 100)
+    * (1 + gambitBonus / 100)
     * (1 + (250 * hasCashBundle) / 100)
-    * (1 + (mealBonus
-      + artifactBonus
-      + (kangarooBonus
-        + voteBonus)) / 100)
-    * (1 + (0.5 * arenaBonusUnlock
-      + (secondArenaBonusUnlock
-        + statueBonus / 100)))
-    * (1 + (labBonus
-      + (firstVaultUpgradeBonus
-        * account?.unlockedRecipes
-        + secondVaultUpgradeBonus
-        * account?.alchemy?.totalBubbleLevelsTill100)) / 100)
+    * (1 + (Math.max(1, dustWalker) * lavaLog(account?.accountOptions[362])) / 100)
+    * (1 + (mealBonus + artifactBonus + (kangarooBonus + voteBonus)) / 100)
+    * (1 + (0.5 * arenaBonusUnlock + (secondArenaBonusUnlock + statueBonus / 100)))
+    * (1 + (labBonus + (firstVaultUpgradeBonus * account?.unlockedRecipes
+      + secondVaultUpgradeBonus * account?.alchemy?.totalBubbleLevelsTill100)) / 100)
     * (1 + charmBonus / 100)
     * (1 + prayerBonus / 100)
-    * (1 + (divinityMinorBonus
-      + account?.farming?.cropDepot?.cash?.value) / 100)
+    * (1 + (divinityMinorBonus + account?.farming?.cropDepot?.cash?.value) / 100)
     * (1 + (starTalent
       + vialBonus
-      + (cashFromEquipment + cashFromObols
+      + ((cashFromEquipment + cashFromObols + cashFromTools)
         + (equippedCardBonus
           + passiveCardBonus
           + (talentBonus
-            + (flurboBonus + (arcadeBonus + secondArcadeBonus)
+            + (flurboBonus
+              + (arcadeBonus + secondArcadeBonus)
               + (postOfficeBonus
                 + (guildBonus
                   * (1 + Math.floor(character?.mapIndex / 50))
                   + (coinsForCharonBonus
                     + (americanTipperBonus
                       + (goldFoodBonus
-                        + thirdVaultUpgradeBonus
-                        * lavaLog(account?.accountOptions?.[340]) // mined ores
-                        + (5 * achievementBonus + (10 * secondAchievementBonus
-                          + (20 * thirdAchievementBonus
-                            + (forthVaultUpgradeBonus
-                              + (fifthVaultUpgradeBonus
-                                * boredBeansKills
-                                + sixthVaultUpgradeBonus
-                                * poopKills))))))))))))))) / 100);
+                        + thirdVaultUpgradeBonus * lavaLog(account?.accountOptions?.[340])
+                        + (5 * achievementBonus
+                          + (10 * secondAchievementBonus
+                            + (20 * thirdAchievementBonus
+                              + (forthVaultUpgradeBonus
+                                + (fifthVaultUpgradeBonus
+                                  * boredBeansKills
+                                  + sixthVaultUpgradeBonus
+                                  * poopKills))))))))))))))) / 100);
 
   const breakdown = [
     { title: 'Multiplicative' },
@@ -1355,11 +1354,16 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Bundle', value: 250 * hasCashBundle },
     { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
     { name: 'Charm', value: charmBonus },
+    { name: 'Companion', value: companionBonus },
     { name: 'Crop Depot', value: account?.farming?.cropDepot?.cash?.value },
     { name: 'Divinity', value: divinityMinorBonus },
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Drop Rate', value: dropRateMulti },
-    { name: 'Equipment', value: equipmentBonusMoney + obolsBonusMoney + cashFromEquipment + cashFromObols },
+    { name: 'Dust Walker', value: Math.max(1, dustWalker) * lavaLog(account?.accountOptions[362]) },
+    {
+      name: 'Equipment',
+      value: equipmentBonusMoney + obolsBonusMoney + cashFromEquipment + cashFromObols + cashFromTools + bonusMoneyTools
+    },
     { name: 'Event shop', value: 0.5 * eventBonus },
     { name: 'Event shop2', value: 0.6 * eventBonus2 },
     { name: 'Food', value: goldFoodBonus }, // Assuming you meant to alphabetize under "Golden Food"
@@ -1394,23 +1398,21 @@ export const getCashMulti = (character, account, characters) => {
     cashAgiBubble * Math.floor(agility / 250) +
     cashWisBubble * Math.floor(wisdom / 250)
 ) / 100)
+* (1 + Math.min(4, companionBonus))
 * (1 + 0.5 * eventBonus)
 * (1 + 0.6 * eventBonus2)
-* (1 + gambitBonus / 100)
-* (1 + (bonusMoneyEquip + bonusMoneyObols) / 100)
+* (1 + (obolsBonusMoney + equipmentBonusMoney + bonusMoneyTools) / 100)
 * (1 + armorSetBonus / 100)
+* (1 + gambitBonus / 100)
 * (1 + (250 * hasCashBundle) / 100)
-* (1 + (
+* (1 + (Math.max(1, dustWalker) * lavaLog(account?.accountOptions[362])) / 100)
+* (1 + (mealBonus
     mealBonus +
     artifactBonus +
     kangarooBonus +
     voteBonus
 ) / 100)
-* (1 + (
-    0.5 * arenaBonusUnlock +
-    secondArenaBonusUnlock +
-    statueBonus / 100
-))
+* (1 + (0.5 * arenaBonusUnlock + secondArenaBonusUnlock + statueBonus / 100))
 * (1 + (
     labBonus +
     recipeForProfitVaultBonus * account?.unlockedRecipes +
@@ -1418,10 +1420,7 @@ export const getCashMulti = (character, account, characters) => {
 ) / 100)
 * (1 + charmBonus / 100)
 * (1 + prayerBonus / 100)
-* (1 + (
-    divinityMinorBonus +
-    account?.farming?.cropDepot?.cash?.value
-) / 100)
+* (1 + (divinityMinorBonus + account?.farming?.cropDepot?.cash?.value) / 100)
 * (1 + (
     starTalent +
     vialBonus +
