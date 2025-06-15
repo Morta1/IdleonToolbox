@@ -35,8 +35,8 @@ const Beanstalk = () => {
     const multi = getGoldenFoodMulti(character, state?.account, state?.characters);
     return {
       name: character?.name,
-      bonus: multi,
-      value: notateNumber(Math.max(0, 100 * (multi - 1)), 'Small') + '%'
+      bonus: multi?.value,
+      value: notateNumber(Math.max(0, 100 * (multi?.value - 1)), 'Small') + '%'
     }
   });
   allCharactersMulti.sort((a, b) => a.bonus - b.bonus);

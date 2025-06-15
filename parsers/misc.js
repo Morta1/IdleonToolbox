@@ -1,6 +1,7 @@
 import { createRange, lavaLog, number2letter, tryToParse } from '../utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
+  bonuses,
   classFamilyBonuses,
   companions,
   deathNote,
@@ -36,6 +37,7 @@ import { getBribeBonus } from '@parsers/bribes';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getObolsBonus } from '@parsers/obols';
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
   const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
@@ -529,11 +531,12 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const isShaman = checkCharClass(character?.class, 'Shaman');
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
+  const toolGoldFoodBonus = getStatsFromGear(character, 8, account, true);
+  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
   const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
-  const goldenFoodBubbleBonus = getBubbleBonus(account, 'power', 'SHIMMERON', false,
-    mainStatMap?.[character?.class] === 'strength');
+  const goldenFoodBubbleBonus = getBubbleBonus(account, 'power', 'SHIMMERON', false, mainStatMap?.[character?.class] === 'strength');
   const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE');
   const charmBonus = getCharmBonus(account, 'Gumm_Stick');
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
@@ -550,14 +553,32 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
 
-  return (1 + armorSetBonus / 100) * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
-    + (equipmentGoldFoodBonus
-      + (hungryForGoldTalentBonus
-        + (goldenAppleStamp
-          + (goldenFoodAchievement
-            + (goldenFoodBubbleBonus
-              + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-            + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses))))) / 100);
+  return {
+    value: (1 + armorSetBonus / 100)
+      * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+        + ((equipmentGoldFoodBonus + toolGoldFoodBonus + obolsBonus)
+          + (hungryForGoldTalentBonus
+            + (goldenAppleStamp
+              + (goldenFoodAchievement
+                + (goldenFoodBubbleBonus
+                  + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
+                + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses))))) / 100),
+    expression: `(1 + armorSetBonus / 100)
+* (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
++ (equipmentGoldFoodBonus
++ (hungryForGoldTalentBonus
++ (goldenAppleStamp
++ (goldenFoodAchievement
++ (goldenFoodBubbleBonus
++ goldenFoodSigilBonus) 
++ mealBonus 
++ starSignBonus
++ bribeBonus 
++ charmBonus
++ (2 * achievementBonus + 3 * secondAchievementBonus
++ voteBonus
++ apocalypseWow * apocalypses))))) / 100)`
+  };
 }
 
 export const getGoldenFoodBonus = (foodName, character, account, characters) => {
@@ -566,14 +587,14 @@ export const getGoldenFoodBonus = (foodName, character, account, characters) => 
   const goldenFoodMulti = getGoldenFoodMulti(character, account, characters);
   const baseBonus = !goldenFood?.Amount || !goldenFood?.amount
     ? 0
-    : goldenFood?.Amount * goldenFoodMulti * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
+    : goldenFood?.Amount * goldenFoodMulti?.value * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
   if (isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
     const beanstalkData = account?.sneaking?.beanstalkData;
     const beanstalkGoldenFoods = ninjaExtraInfo[29].split(' ').filter((str) => isNaN(str))
       .map((gFood, index) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
     const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }) => displayName === foodName & active);
     if (!beanstalkFood) return baseBonus;
-    return baseBonus + beanstalkFood?.Amount * goldenFoodMulti * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
+    return baseBonus + beanstalkFood?.Amount * goldenFoodMulti?.value * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
       * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index])) / 2.14);
   }
   return baseBonus;

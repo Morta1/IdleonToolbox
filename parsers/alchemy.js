@@ -292,26 +292,75 @@ export const getActiveBubbleBonus = (equippedBubbles, cauldronName, bubbleName, 
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 
-export const getBubbleBonus = (account, cauldronName, bubName, round, shouldMulti) => {
+export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldMultiply) => {
+  // Early return if no alchemy data exists
   const cauldrons = account?.alchemy?.bubbles;
-  const bubbleIndex = cauldrons?.[cauldronName]?.findIndex(({ bubbleName }) => bubbleName === bubName);
-  if (bubbleIndex === -1) return 0;
-  const multiIndexes = {
-    quicc: [0, 6, 9, 12, 14].toSimpleObject(),
-    power: [0, 2, 4, 7, 14].toSimpleObject(),
-    'high-iq': [0, 2, 6, 12, 14].toSimpleObject()
+  if (!cauldrons?.[cauldronName]) return 0;
+
+  // Find the target bubble by name
+  const targetBubbleIndex = cauldrons[cauldronName]?.findIndex(
+    ({ bubbleName: name }) => name === bubbleName
+  );
+  if (targetBubbleIndex === -1) return 0;
+
+  const targetBubble = cauldrons[cauldronName][targetBubbleIndex];
+
+  // Calculate base bubble value
+  const baseBubbleValue = growth(
+    targetBubble?.func,
+    targetBubble?.level,
+    targetBubble?.x1,
+    targetBubble?.x2,
+    round
+  ) ?? 0;
+
+  // Apply prisma multiplier to base bubble
+  const basePrismaMultiplier = isPrismaBubble(account, targetBubble?.bubbleIndex) ? 2 : 1;
+
+  // Calculate primary multiplier from bubble at index 1 (if shouldMultiply is true)
+  let primaryMultiplier = 1;
+  if (shouldMultiply) {
+    const primaryMultiBubble = cauldrons[cauldronName][1];
+    if (primaryMultiBubble) {
+      const primaryBubbleValue = growth(
+        primaryMultiBubble?.func,
+        primaryMultiBubble?.level,
+        primaryMultiBubble?.x1,
+        primaryMultiBubble?.x2,
+        round
+      );
+      const primaryPrismaMultiplier = isPrismaBubble(account, primaryMultiBubble?.bubbleIndex) ? 2 : 1;
+      primaryMultiplier = primaryBubbleValue * primaryPrismaMultiplier;
+    }
   }
-  const bubble = cauldrons?.[cauldronName]?.[bubbleIndex];
-  const multiBubble = cauldrons?.[cauldronName]?.[1];
-  const multiBubbleBonus = shouldMulti
-    ? growth(multiBubble?.func, multiBubble?.level, multiBubble?.x1, multiBubble?.x2, round)
-    : 1;
-  const anotherMultiBubble = cauldrons?.[cauldronName]?.[16];
-  const anotherMultiBubbleBonus = multiIndexes?.[cauldronName]?.[bubbleIndex]
-    ? growth(anotherMultiBubble?.func, anotherMultiBubble?.level, anotherMultiBubble?.x1, anotherMultiBubble?.x2, round)
-    : 1;
-  const prismaBubbleMulti = isPrismaBubble(account, bubble?.bubbleIndex) ? 2 : 1;
-  return (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, round) * multiBubbleBonus * anotherMultiBubbleBonus * prismaBubbleMulti) ?? 0;
+
+  // Calculate secondary multiplier from bubble at index 16 (for specific bubble indexes only)
+  const secondaryMultiplierIndexes = {
+    quicc: new Set([0, 6, 9, 12, 14]),
+    power: new Set([0, 2, 4, 7, 14]),
+    'high-iq': new Set([0, 2, 6, 12, 14])
+  };
+
+  let secondaryMultiplier = 1;
+  const qualifiesForSecondaryMultiplier = secondaryMultiplierIndexes[cauldronName]?.has(targetBubbleIndex);
+
+  if (qualifiesForSecondaryMultiplier) {
+    const secondaryBubble = cauldrons[cauldronName][16];
+    if (secondaryBubble) {
+      const secondaryBubbleValue = growth(
+        secondaryBubble?.func,
+        secondaryBubble?.level,
+        secondaryBubble?.x1,
+        secondaryBubble?.x2,
+        round
+      );
+      const secondaryPrismaMultiplier = isPrismaBubble(account, secondaryBubble?.bubbleIndex) ? 2 : 1;
+      secondaryMultiplier = secondaryBubbleValue * secondaryPrismaMultiplier;
+    }
+  }
+
+  // Return final calculated bonus
+  return baseBubbleValue * basePrismaMultiplier * primaryMultiplier * secondaryMultiplier;
 };
 
 const getVials = (vialsRaw) => {

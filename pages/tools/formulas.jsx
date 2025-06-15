@@ -21,6 +21,7 @@ import Highlighter from '@components/common/Highlighter';
 import { getCropEvolution } from '@parsers/world-6/farming';
 import { getPrinterMulti } from '@parsers/printer';
 import { getBitsMulti } from '@parsers/gaming';
+import { getGoldenFoodMulti } from '@parsers/misc';
 
 const Formulas = () => {
   const { state } = useContext(AppContext);
@@ -35,6 +36,7 @@ const Formulas = () => {
     const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
     const printerMulti = getPrinterMulti(state?.account, state?.characters);
     const bitMulti = getBitsMulti(state?.account, state?.characters);
+    const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
     return [
       {
         id: 'crystalChance',
@@ -105,7 +107,7 @@ const Formulas = () => {
         name: 'Printer Multiplier',
         formula: printerMulti?.expression,
         value: printerMulti?.value,
-        renderValue: (value) => `${value}%`,
+        renderValue: (value) => `${value.toFixed(2)}%`,
         description: 'Printer multi bonuses from all sources'
       },
       {
@@ -115,6 +117,14 @@ const Formulas = () => {
         value: bitMulti?.value,
         renderValue: (value) => `${notateNumber(value)}%`,
         description: 'Bit multi bonuses from all sources'
+      },
+      {
+        id: 'goldenFoodMulti',
+        name: 'Golden Food Multiplier',
+        formula: goldenFoodMulti?.expression,
+        value: goldenFoodMulti?.value,
+        renderValue: (value) => `${Math.floor(value * 100) / 100}x`,
+        description: 'Golden Food multi bonuses from all sources'
       }
     ];
   }, [selectedChar]);
