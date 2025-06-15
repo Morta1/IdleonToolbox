@@ -22,6 +22,7 @@ import { getCropEvolution } from '@parsers/world-6/farming';
 import { getPrinterMulti } from '@parsers/printer';
 import { getBitsMulti } from '@parsers/gaming';
 import { getGoldenFoodMulti } from '@parsers/misc';
+import { NextSeo } from 'next-seo';
 
 const Formulas = () => {
   const { state } = useContext(AppContext);
@@ -143,6 +144,10 @@ const Formulas = () => {
   }
 
   return <>
+    <NextSeo
+      title="Formulas | Idleon Toolbox"
+      description="A list of formulas of varius game mechanics"
+    />
     <Stack gap={2} mt={2}>
       <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
         <Autocomplete
