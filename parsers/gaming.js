@@ -79,7 +79,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
       } : {})
     }
   }).filter((_, index) => index < 8);
-  console.log(imports)
+
   const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level, index) => {
     const bonus = calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop, imports);
     return {

@@ -56,7 +56,6 @@ const formatChange = (change) => {
   if (change.old && change.new) {
     if (typeof change.old === 'object' && typeof change.new === 'object') {
       const allKeys = Array.from(new Set([...Object.keys(change.old), ...Object.keys(change.new)]));
-      console.log('change', change)
 
       if (change.key === 'Wind_Walker') {
       }
@@ -68,10 +67,6 @@ const formatChange = (change) => {
             const changed = JSON.stringify(oldVal) !== JSON.stringify(newVal);
             const diffKeys = getDeepDifferences(change.old, change.new);
 
-            if (change.key === 'Wind_Walker') {
-
-              console.log('diffKeys', diffKeys)
-            }
             return (
               <Box key={key} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
                 <Typography variant="body2" sx={{

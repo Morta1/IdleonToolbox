@@ -119,7 +119,7 @@ const FieldsByType = ({ config, onChange, configType }) => {
     return <React.Fragment key={`tracker-${index}`}>
       <Stack sx={{ cursor: 'pointer' }} direction="row" alignItems="center" justifyContent="space-between"
              onClick={() => handleSectionCollapse(section)}>
-        <Typography variant={'caption'} color={'text.secondary'}>{section}</Typography>
+        <Typography variant={'body2'} color={'text.secondary'}>{section}</Typography>
         <IconButton size="small">
           {collapsedSections[section] ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/>}
         </IconButton>

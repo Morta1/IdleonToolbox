@@ -16,6 +16,7 @@ import { getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
+import { getEventShopBonus } from '@parsers/misc';
 
 const weaknesses = {
   0: 'Fire',
@@ -374,6 +375,7 @@ const getRemainingExaltedStamps = (account, usedExaltedStamps, index) => {
   return 999 === index ?
     getCompassBonus(account, 44)
     + account?.accountOptions?.[366]
+    + getEventShopBonus(account, 18)
     : Math.round(getRemainingExaltedStamps(account, usedExaltedStamps, 999) - usedExaltedStamps);
 }
 
