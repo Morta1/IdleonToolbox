@@ -17,7 +17,7 @@ const parseArcade = (arcadeRaw, account, serverVars) => {
   const arcadeShopList = arcadeShop?.map((upgrade, index) => {
     const { x1, x2, func } = upgrade;
     const level = arcadeRaw?.[index] ?? 0;
-    const bonus = growth(func, Math.min(level, 100), x1, x2, false);
+    const bonus = growth(func, level, x1, x2, false);
     const superBonus = level > 100 ? 2 : 1;
     const companionBonus = isCompanionBonusActive(account, 27) ? 2 : 1;
     return {

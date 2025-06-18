@@ -35,7 +35,7 @@ const ArcadeShop = () => {
 
   const renderUpgradeCard = (upgrade, index) => {
     const { level, effect, iconName, bonus } = upgrade;
-    const eff = cleanUnderscore(effect.replace('{', notateNumber(bonus, 'Small')));
+    const eff = cleanUnderscore(effect.replace('{', notateNumber(bonus, 'MultiplierInfo').replace('.00', '')));
     const cost = getCost(level);
     const costToMax = getCostToMax(level);
     const isMaxed = level === MAX_LEVEL;
@@ -46,11 +46,11 @@ const ArcadeShop = () => {
               outline: isMaxed || isSuper ? '1px solid' : '',
               outlineColor: isMaxed ? 'success.light' : isSuper ? 'info.dark' : ''
             }}>
-        <CardContent sx={{ width: 300 }}>
+        <CardContent sx={{ width: 330 }}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
             <UpgradeIcon src={`${prefix}data/${iconName}.png`}/>
             <Stack>
-              <Typography style={{ fontWeight: 'bold' }}>{eff}</Typography>
+              <Typography variant={'body1'} style={{ fontWeight: 'bold' }}>{eff}</Typography>
               <Divider sx={{ my: .5 }}/>
               {level < MAX_LEVEL ? <>
                 <Typography variant={'body2'}>Lv: {level} / {MAX_LEVEL}</Typography>
