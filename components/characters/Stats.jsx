@@ -86,7 +86,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 </Stack>
               ) : null;
             })}
-            <Stat title={'Cash Multiplier'} value={`${cashFormatter(cashMulti, 2)}x`}
+            <Stat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
                   breakdown={breakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)}/>
             <Stat title={'MP'} value={notateNumber(playerInfo?.maxMp)}/>
