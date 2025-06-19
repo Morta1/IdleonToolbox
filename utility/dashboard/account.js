@@ -287,7 +287,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       const vials = account?.alchemy?.vials?.filter(({ level, itemReq }) => {
         if (level <= 0 || level >= MAX_VIAL_LEVEL) return false;
         const cost = vialCostsArray?.[level];
-        let storageQuantity = account?.storage?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
+        let storageQuantity = account?.storage?.list?.find(({ name }) => name === itemReq?.[0]?.name)?.amount || 0;
         if (subtractGreenStacks?.checked) {
           storageQuantity -= 1e7;
         }

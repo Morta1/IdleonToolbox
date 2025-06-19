@@ -182,7 +182,7 @@ export const getCurrencies = (account, idleonData, processedData) => {
     'Spooky_Time_Candy': { min: 1 / 3, max: 12 },
     'Cosmic_Time_Candy': { min: 5, max: 500 }
   };
-  const allItems = [...account?.storage,
+  const allItems = [...account?.storage?.list,
     ...(processedData?.charactersData || [])?.map(({ inventory }) => inventory)?.flat()];
   const allCandies = allItems?.filter(({ Type } = {}) => Type === 'TIME_CANDY');
   const guaranteedCandies = allCandies?.reduce((sum, { displayName, amount }) => {

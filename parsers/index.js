@@ -110,10 +110,10 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.armorSmithy = getArmorSmithy(idleonData, serverVars, accountData);
   // Depends on alchemy.bubbles and number of characters
   accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData);
-  accountData.storage = getStorage(idleonData);
-  accountData.saltLick = getSaltLick(idleonData, accountData.storage);
+  accountData.storage = getStorage(idleonData, 'storage', accountData);
+  accountData.saltLick = getSaltLick(idleonData, accountData.storage?.list);
   accountData.dungeons = getDungeons(idleonData, accountData.accountOptions);
-  accountData.prayers = getPrayers(idleonData, accountData.storage);
+  accountData.prayers = getPrayers(idleonData, accountData.storage?.list);
   accountData.cards = getCards(idleonData, accountData);
   accountData.guild = getGuild(idleonData, guildData);
   accountData.currencies = getCurrencies(accountData, idleonData, processedData);
@@ -206,7 +206,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.shopStock = getShops(idleonData);
 
   accountData.forge = getForge(idleonData, accountData);
-  accountData.refinery = getRefinery(idleonData, accountData.storage, accountData.tasks);
+  accountData.refinery = getRefinery(idleonData, accountData.storage?.list, accountData.tasks);
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
   accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);

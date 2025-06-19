@@ -153,7 +153,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
     ? 1.75
     : 1);
 
-  const greenStacks = account?.storage?.filter(item => item.amount >= 1e7).length;
+  const greenStacks = account?.storage?.list?.filter(item => item.amount >= 1e7).length;
   const bankerFuryBonusFromJewel = jewelsList?.[17]?.active ? 1.5 : 0;
   labBonusesList = applyBonusDesc(labBonusesList, greenStacks * (2 + bankerFuryBonusFromJewel), 11, 2 + bankerFuryBonusFromJewel)
 
@@ -332,7 +332,7 @@ export const getRequirementAmount = (name, rawName, account) => {
     const meal = account?.cooking?.meals?.find(({ name: mName }) => mName === name)
     totalAmount = meal?.amount || 0;
   } else {
-    totalAmount = calculateItemTotalAmount(account?.storage, rawName, true, true);
+    totalAmount = calculateItemTotalAmount(account?.storage?.list, rawName, true, true);
   }
   return totalAmount;
 }

@@ -388,7 +388,7 @@ const AdditionalInfo = ({
             amount = account?.summoning?.essences?.[essences?.[rawName]];
           }
         } else {
-          amount = account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+          amount = account?.storage?.list?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
         }
         return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
           {atomCost ? <Stack gap={2} alignItems={'center'}>

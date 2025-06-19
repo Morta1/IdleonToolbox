@@ -1,20 +1,73 @@
 import { cleanUnderscore, tryToParse } from '../utility/helpers';
-import { items } from '../data/website-data';
+import { invStorage, items } from '../data/website-data';
 import { addStoneDataToEquip } from './items';
+import { getEventShopBonus, isBundlePurchased } from '@parsers/misc';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
-export const getStorage = (idleonData, name = 'storage') => {
+export const getStorage = (idleonData, name = 'storage', account) => {
   const chestOrderRaw = tryToParse(idleonData?.ChestOrder);
   const chestQuantityRaw = tryToParse(idleonData?.ChestQuantity);
   const chestStoneData = tryToParse(idleonData?.CMm);
-  return parseStorage(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
+  const storageChests = tryToParse(idleonData.InvStorageUsed);
+  return parseStorage(chestOrderRaw, chestQuantityRaw, name, chestStoneData, storageChests, account);
 }
 
-export const parseStorage = (chestOrderRaw, chestQuantityRaw, name, chestStoneData) => {
-  return getInventory(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
+export const parseStorage = (chestOrderRaw, chestQuantityRaw, name, chestStoneData, rawStorageChests, account) => {
+  const list = getInventoryList(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
+  const storageChests = Object.entries(invStorage).map(([rawName, data]) => {
+    return {
+      rawName,
+      ...data,
+      amount: parseFloat(rawStorageChests?.[data?.ID] ?? 0),
+      unlocked: Object.prototype.hasOwnProperty.call(rawStorageChests ?? {}, data?.ID) && data?.Type !== 'CHEST_RECEIPT'
+    }
+  });
+  const slots = getStorageSlots(storageChests, account);
+  return {
+    list,
+    slots,
+    storageChests
+  }
 }
 
-export const getInventory = (inventoryArr, inventoryQuantityArr, owner, chestStoneData) => {
-  return inventoryArr.reduce((res, itemName, index) => {
+export const getStorageSlots = (storageChests, account) => {
+  const baseStorageSlots = 54;
+  const towerStorageSlots = 2 * account?.towers?.data?.[4]?.level;
+  const bundleIBonus = isBundlePurchased(account?.bundles, 'bun_i') ? 8 : 0;
+  const bundleCBonus = isBundlePurchased(account?.bundles, 'bun_c') ? 16 : 0;
+  const chestsSlots = storageChests.reduce((res, { unlocked, amount }) => unlocked
+    ? res + amount
+    : res, 0);
+  const gemshopMoreSpace = account?.gemShopPurchases?.find((_, index) => index === 109);
+  const moreSpaceSlots = 9 * (gemshopMoreSpace ?? 0);
+  const extraSlots = Math.round(12 * getEventShopBonus(account, 10)
+    + 16 * getEventShopBonus(account, 11)
+    + getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33));
+
+  return {
+    value: baseStorageSlots
+      + towerStorageSlots
+      + chestsSlots
+      + bundleIBonus
+      + bundleCBonus
+      + moreSpaceSlots
+      + extraSlots,
+    breakdown: [
+      { name: 'Base', value: baseStorageSlots },
+      { name: 'Tower Storage', value: towerStorageSlots },
+      { name: 'Bundle I', value: bundleIBonus },
+      { name: 'Bundle C', value: bundleCBonus },
+      { name: 'Chests', value: chestsSlots },
+      { name: 'More Space', value: moreSpaceSlots },
+      { name: 'Event Shop', value: 12 * getEventShopBonus(account, 10) + 16 * getEventShopBonus(account, 11) },
+      { name: 'Upgrade Vault', value: getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33) }
+    ]
+  };
+}
+
+
+export const getInventoryList = (chestOrderRaw, chestQuantityRaw, name, chestStoneData) => {
+  return chestOrderRaw.reduce((res, itemName, index) => {
     const data = addStoneDataToEquip(items?.[itemName], chestStoneData?.[index]);
     const description = [1, 2, 3, 4, 5, 6, 7,
       8].reduce((res, num) => items?.[itemName]?.[`desc_line${num}`]
@@ -32,18 +85,18 @@ export const getInventory = (inventoryArr, inventoryQuantityArr, owner, chestSto
     return itemName !== 'LockedInvSpace' && itemName !== 'Blank' ? [
       ...res, {
         ...it,
-        owner,
+        owner: name,
         name: it?.displayName,
         type: it?.itemType,
         subType: it?.Type,
         rawName: itemName,
-        amount: parseInt(inventoryQuantityArr?.[index]),
+        amount: parseInt(chestQuantityRaw?.[index]),
         misc: cleanUnderscore(misc.trim()),
         description: cleanUnderscore(description.trim())
       }
     ] : res
-  }, []);
-};
+  }, [])
+}
 
 export const calcTotalItemInStorage = (storage, itemName) => {
   return storage?.reduce((sum, { rawName, amount }) => rawName === itemName ? sum + amount : sum, 0);

@@ -185,12 +185,12 @@ const Stamps = () => {
             if (materials?.length > 0) {
               hasMaterials = materials?.every(({ rawName, type, itemQuantity }) => {
                 if (type === 'Equip') return true;
-                let ownedMats = state?.account?.storage?.filter(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
+                let ownedMats = state?.account?.storage?.list?.filter(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
                 ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
                 return ownedMats >= itemQuantity * materialCost;
               })
             } else {
-              ownedMats = state?.account?.storage?.find(({ rawName: storageRawName }) => (storageRawName === itemReqRawName))?.amount;
+              ownedMats = state?.account?.storage?.list?.find(({ rawName: storageRawName }) => (storageRawName === itemReqRawName))?.amount;
               ownedMats = subtractGreenStacks ? ownedMats - 1e7 : ownedMats;
               hasMaterials = ownedMats >= materialCost;
             }

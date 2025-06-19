@@ -153,7 +153,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const thirdBubbleBonus = getBubbleBonus(account, 'power', 'HEARTY_DIGGY', false, mainStat);
   const fourthTalentBonus = getTalentBonus(character?.talents, 1, 'COPPER_COLLECTOR');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
-  const copperOwned = calculateItemTotalAmount(account?.storage, 'Copper_Ore', true);
+  const copperOwned = calculateItemTotalAmount(account?.storage?.list, 'Copper_Ore', true);
   const allEfficiencies = getAllEff(character, characters, account);
 
   return 12 + (Math.pow(baseMiningEff, 1.3)

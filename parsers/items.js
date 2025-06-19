@@ -207,7 +207,7 @@ export const addEquippedItems = (characters, shouldInclude) => {
 export const getAllItems = (characters, account) => {
   const charItems = characters?.reduce((res, { inventory = [] }) => [...res, ...inventory], []);
   const fromForge = account?.forge?.list?.reduce((acc, { bar, barrel, ore }) => ([...acc, bar, barrel, ore]), []);
-  return [...(charItems || []), ...(account?.storage || []), ...(fromForge || [])];
+  return [...(charItems || []), ...(account?.storage?.list || []), ...(fromForge || [])];
 }
 
 export const mergeItemsByOwner = (items) => {

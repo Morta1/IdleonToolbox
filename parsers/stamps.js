@@ -32,7 +32,7 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
       const stampDetails = stamps[category][index];
       const requiredItem = stampDetails?.itemReq?.[0];
       const materials = flattenCraftObject(crafts[requiredItem?.name]);
-      const ownedMats = account?.storage?.reduce((sum, { rawName: storageRawName, amount }) => {
+      const ownedMats = account?.storage?.list?.reduce((sum, { rawName: storageRawName, amount }) => {
         if (storageRawName !== requiredItem?.rawName) return sum;
         return sum + (amount || 0);
       }, 0);
@@ -88,7 +88,7 @@ export const updateStamps = (account, characters, gildedStamp = true, forcedStam
 const checkHasMaterials = (materials, materialCost, account, subtractGreenStacks) => {
   return materials?.every(({ itemName, type, itemQuantity }) => {
     if (type === 'Equip') return true;
-    let ownedMats = calculateItemTotalAmount(account?.storage, itemName, true);
+    let ownedMats = calculateItemTotalAmount(account?.storage?.list, itemName, true);
     return subtractGreenStacks ? Math.max(0, ownedMats - 1e7) : ownedMats >= itemQuantity * materialCost;
   })
 }

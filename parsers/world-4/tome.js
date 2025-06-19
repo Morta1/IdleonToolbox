@@ -223,7 +223,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.refinery?.totalLevels);
   quantities.push(calcTotalAtomLevels(account?.atoms?.atoms));
   quantities.push(account?.towers?.totalLevels);
-  quantities.push(calcTotalItemInStorage(account?.storage, 'Critter11A'));
+  quantities.push(calcTotalItemInStorage(account?.storage?.list, 'Critter11A'));
   quantities.push(account.accountOptions?.[224]); // Most Greenstacks in Storage
   quantities.push(account.rift?.currentRift);
   quantities.push(calcHighestPower(account?.breeding));

@@ -17,7 +17,7 @@ export const PAGES = {
       icon: 'data/CharSlot',
       categories: [
         { label: 'general', icon: 'data/ClassIcons1' },
-        { label: 'storage', icon: 'data/InvStorage42' },
+        { label: 'storage', icon: 'data/InvStorage42', tabs: ['Items', 'Slots'] },
         { label: 'quests', icon: 'data/Quest62' },
         { label: 'dungeons', icon: 'data/DungeonA7', tabs: ['Passives', 'Rng Items', 'Traits'] },
         {
@@ -49,7 +49,11 @@ export const PAGES = {
       categories: [
         { label: 'apocalypses', icon: 'data/UISkillIcon110' },
         { label: 'grimoire', icon: 'data/GrimoireUpg18', tabs: ['Upgrades', 'Monsters'] },
-        { label: 'compass', icon: 'data/UISkillIcon421', tabs: ['Upgrades', 'Upgrade Optimizer', 'Abominations', 'Medallions', 'Portals'] }
+        {
+          label: 'compass',
+          icon: 'data/UISkillIcon421',
+          tabs: ['Upgrades', 'Upgrade Optimizer', 'Abominations', 'Medallions', 'Portals']
+        }
       ]
     },
     'task board': {

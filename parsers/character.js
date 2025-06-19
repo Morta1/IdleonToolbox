@@ -32,7 +32,7 @@ import {
   isMasteryBonusUnlocked
 } from './misc';
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
-import { getInventory } from './storage';
+import { getInventoryList } from './storage';
 import { skillIndexMap, skillsMaps } from './parseMaps';
 import {
   applyTalentAddedLevels,
@@ -322,7 +322,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const inventoryArr = char[`InventoryOrder`];
   const inventoryQuantityArr = char[`ItemQuantity`];
   const inventoryMap = char[`InventoryMap`];
-  character.inventory = getInventory(inventoryArr, inventoryQuantityArr, character.name, inventoryMap);
+  character.inventory = getInventoryList(inventoryArr, inventoryQuantityArr, character.name, inventoryMap);
   character.inventorySlots = inventoryArr?.reduce((sum, itemName) => sum + (itemName !== 'LockedInvSpace' ? 1 : 0), 0);
 
   // star signs
@@ -1982,7 +1982,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const moreMath = 1 + (stampsBonus + 0.25 * postOffice + (guildBonus + (equipmentConstructionEffectBonus + obolsBonus) + Math.min(5, 5 * constructionAchievement) + constructMastery + vialBonus)) / 100;
   const talentBonus = getTalentBonus(character?.talents, 2, 'REDOX_RATES', false, true);
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
-  const redSaltAmount = calculateItemTotalAmount([...account?.storage,
+  const redSaltAmount = calculateItemTotalAmount([...account?.storage?.list,
     ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
