@@ -1050,7 +1050,7 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
   });
   return {
     list: deathNote.map((monster) => {
-      const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}` };
+      const monsterWithIcon = { ...monster, icon: `Mface${monsters?.[monster.rawName].MonsterFace}`, name: monsters?.[monster.rawName]?.Name };
       return killRoyKills?.[monster.rawName] ? ({
         ...monsterWithIcon,
         killRoyKills: killRoyKills?.[monster.rawName] ?? 0
@@ -1153,7 +1153,7 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
   }
   if (ignoreSkipConditions) {
     return {
-      monsters: monstersList.map((mapName) => monsters[mapEnemiesArray[rawMapNames.indexOf(mapName)]]?.MonsterFace),
+      monsters: monstersList.map((mapName) => monsters[mapEnemiesArray[rawMapNames.indexOf(mapName)]]),
       classes: classes.map((classIndex) => ({
         className: classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage',
         classIndex: classIndex === 0 ? 1 : classIndex === 1 ? 6 : classIndex === 2 ? 18 : 30

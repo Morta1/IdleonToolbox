@@ -27,7 +27,7 @@ const MyComponent = () => {
       <CardTitleAndValue title={'Total Damage Multi'} value={`${Math.floor(100 * killroy.totalDamageMulti) / 100}x`}/>
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>
-      <Schedule schedule={schedule}/>
+      <Schedule killroy={killroy} schedule={schedule}/>
       <Upgrades killroy={killroy}/>
       <PermanentUpgrades killroy={killroy}/>
       <Monsters killroy={killroy}/>

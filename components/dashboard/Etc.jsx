@@ -49,7 +49,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     const eventBonus = getEventShopBonus(account, 14);
     const gambitSlot = getGambitBonus(account, 9);
     const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + gambitSlot + eventBonus;
-    const isSlotTrimmed = building?.slot !== -1 && building?.slot < Math.max(4, trimmedSlots);
+    const isSlotTrimmed = building?.slot !== -1 && building?.slot < Math.min(4, trimmedSlots);
     const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
     let timeLeft;
     // for (l = r._customBlock_WorkbenchStuff("TowerBuildSlots", 0, 0) | 0; g < l; )
