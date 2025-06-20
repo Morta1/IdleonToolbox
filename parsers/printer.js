@@ -163,7 +163,7 @@ export const calcTotals = (account, showAlertWhenFull) => {
         if (res?.[item]) {
           res[item] = { ...res[item], boostedValue: boostedValue + res[item]?.boostedValue };
         } else {
-          const storageItem = storage.find(({ rawName }) => rawName === item)?.amount;
+          const storageItem = storage?.list.find(({ rawName }) => rawName === item)?.amount;
           res[item] = { boostedValue, atomable: storageItem >= atomThreshold - (atomThreshold * .01), storageItem };
         }
       }
