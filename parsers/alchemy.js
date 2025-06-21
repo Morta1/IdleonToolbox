@@ -13,7 +13,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
   0: '#ff9000',
-  1: '#27d001',
+  1: '#76ef5a',
   2: '#f1a2fc',
   3: '#f6f031'
 }
