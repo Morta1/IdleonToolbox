@@ -2,6 +2,7 @@
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
 import { cauldrons } from '../../data/website-data';
+import { worldColor } from '../../pages/account/world-3/death-note';
 
 export const nivoTheme = {
   background: 'transparent',
@@ -53,7 +54,10 @@ export const getVisualizationMap = (classes) => ({
   },
   worldDistribution: {
     type: 'bar',
-    getData: (raw) => raw.toSorted((a, b) => a._id - b._id)
+    getData: (raw) => raw.filter(({ _id }) => _id !== '0').toSorted((a, b) => a._id - b._id).map((item) => ({
+      ...item,
+      color: worldColor?.[item._id - 1]
+    }))
   },
   topBubbles: {
     type: 'bar',
@@ -101,7 +105,7 @@ export const getVisualizationMap = (classes) => ({
         legend: 'Account Age (years)'
       }
     },
-    getData: (raw) => raw.toSorted((a, b) => b.count - a.count)
+    getData: (raw) => raw.filter(({ _id }) => _id !== '-1').toSorted((a, b) => b.count - a.count)
   },
   topKilledMonsters: {
     type: 'bar',
@@ -118,10 +122,11 @@ export const getVisualizationMap = (classes) => ({
         legend: ''
       },
       axisBottom: {
+        legend: 'Kills',
         format: (value) => notateNumber(value)
       }
     },
-    getData: (raw) => raw.map(({ enemy, kills }) => ({
+    getData: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => ({
       _id: cleanUnderscore(enemy),
       count: kills
     })).toSorted((a, b) => a.count - b.count)

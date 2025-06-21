@@ -1,4 +1,4 @@
-import { deathNote, mapEnemies, monsters, ninjaExtraInfo, mapEnemiesArray } from '../data/website-data';
+import { deathNote, mapEnemies, mapEnemiesArray, monsters, ninjaExtraInfo } from '../data/website-data';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { lavaLog, tryToParse } from '@utility/helpers';
 
@@ -48,7 +48,7 @@ export const getTopKilledMonsters = (charactersData) => {
   const allKills = getAllCharactersKills(charactersData);
   const indexedArr = allKills.map((value, index) => [index, value]);
   indexedArr.sort((a, b) => b[1] - a[1]);
-  return indexedArr.slice(0, 15).map(([enemyIndex, kills]) => {
+  return indexedArr.filter(([enemyIndex]) => monsters?.[mapEnemiesArray?.[enemyIndex]]?.Name !== '_').slice(0, 15).map(([enemyIndex, kills]) => {
     return {
       enemy: monsters?.[mapEnemiesArray?.[enemyIndex]]?.Name,
       kills

@@ -6,7 +6,7 @@ import { cleanUnderscore, notateNumber, prefix, worlds } from 'utility/helpers';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 
-const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF'];
+export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF'];
 
 const DeathNote = () => {
   const { state } = useContext(AppContext);
