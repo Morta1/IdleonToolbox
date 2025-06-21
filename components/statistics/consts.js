@@ -53,7 +53,7 @@ export const getVisualizationMap = (classes) => ({
   },
   worldDistribution: {
     type: 'bar',
-    getData: (raw) => raw.toSorted((a, b) => b.count - a.count)
+    getData: (raw) => raw.toSorted((a, b) => a._id - b._id)
   },
   topBubbles: {
     type: 'bar',
