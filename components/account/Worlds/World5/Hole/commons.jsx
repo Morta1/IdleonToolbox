@@ -26,7 +26,7 @@ export const ExpRateCard = ({ title, expRate }) => {
   </CardTitleAndValue>
 }
 
-export const CardWithBreakdown = ({ title, breakdown, value, notation }) => {
+export const CardWithBreakdown = ({ title, breakdown, value, notation, skipNotation }) => {
   return <CardTitleAndValue title={title}>
     <Stack direction="row" alignItems={'center'} gap={1}>
       {value ? <Typography>{value}</Typography> : null}
@@ -43,7 +43,7 @@ export const CardWithBreakdown = ({ title, breakdown, value, notation }) => {
               key={`${name}-${index}`}
               title={name}
               titleStyle={{ width: 180 }}
-              value={notation === 'MultiplierInfo' ? notateNumber(value, notation).replace('.00', '') : notation ? notateNumber(value, notation) : value}
+              value={skipNotation ? value : notation === 'MultiplierInfo' ? notateNumber(value, notation).replace('.00', '') : notation ? notateNumber(value, notation) : value}
             />
           ))}
         </Stack>}>

@@ -19,7 +19,7 @@ export const parseStorage = (chestOrderRaw, chestQuantityRaw, name, chestStoneDa
       rawName,
       ...data,
       amount: parseFloat(rawStorageChests?.[data?.ID] ?? 0),
-      unlocked: Object.prototype.hasOwnProperty.call(rawStorageChests ?? {}, data?.ID) && data?.Type !== 'CHEST_RECEIPT'
+      unlocked: Object.prototype.hasOwnProperty.call(rawStorageChests ?? {}, data?.ID)
     }
   });
   const slots = getStorageSlots(storageChests, account);
@@ -35,6 +35,7 @@ export const getStorageSlots = (storageChests, account) => {
   const towerStorageSlots = 2 * account?.towers?.data?.[4]?.level;
   const bundleIBonus = isBundlePurchased(account?.bundles, 'bun_i') ? 8 : 0;
   const bundleCBonus = isBundlePurchased(account?.bundles, 'bun_c') ? 16 : 0;
+  const bundleABonus = isBundlePurchased(account?.bundles, 'bun_a') ? 20 : 0;
   const chestsSlots = storageChests.reduce((res, { unlocked, amount }) => unlocked
     ? res + amount
     : res, 0);
@@ -50,17 +51,24 @@ export const getStorageSlots = (storageChests, account) => {
       + chestsSlots
       + bundleIBonus
       + bundleCBonus
+      + bundleABonus
       + moreSpaceSlots
       + extraSlots,
     breakdown: [
       { name: 'Base', value: baseStorageSlots },
-      { name: 'Tower Storage', value: towerStorageSlots },
-      { name: 'Bundle I', value: bundleIBonus },
-      { name: 'Bundle C', value: bundleCBonus },
-      { name: 'Chests', value: chestsSlots },
-      { name: 'More Space', value: moreSpaceSlots },
-      { name: 'Event Shop', value: 12 * getEventShopBonus(account, 10) + 16 * getEventShopBonus(account, 11) },
-      { name: 'Upgrade Vault', value: getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33) }
+      { title: 'Bundles' },
+      { name: 'AutoLoot', value: `${bundleIBonus} / 8` },
+      { name: 'Starter Pack', value: `${bundleCBonus} / 16` },
+      { name: 'Storage Ram', value: `${bundleABonus} / 20` },
+      { title: 'Event shop' },
+      { name: 'Storage Chest', value: `${12 * getEventShopBonus(account, 10)} / 12` },
+      { name: 'Storage Vault', value: `${16 * getEventShopBonus(account, 11)} / 16` },
+      { title: 'Gem shop' },
+      { name: 'More Storage Space', value: `${moreSpaceSlots} / 90` },
+      { title: 'Other' },
+      { name: 'Tower Storage', value: `${towerStorageSlots} / 50` },
+      { name: 'Chests', value: `${chestsSlots} / 336` },
+      { name: 'Upgrade Vault', value: `${getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33)} / 24` }
     ]
   };
 }

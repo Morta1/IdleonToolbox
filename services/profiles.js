@@ -2,6 +2,7 @@ import { tryToParse } from '@utility/helpers';
 import { getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { calcTotalBoatLevels } from '@parsers/sailing';
+import { differenceInYears } from 'date-fns';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
 // const url = 'http://localhost:8787/api';
@@ -105,7 +106,10 @@ export const expandLeaderboardInfo = (account, characters) => {
     greenMushroomKills,
     totalBoats,
     totalTomePoints: withDefault(totalTomePoints, 0),
-    highestVillagerExpPerHour
+    highestVillagerExpPerHour,
+    topKilledMonsters: account?.topKilledMonsters,
+    accountAge: differenceInYears(new Date(), new Date(account?.accountCreateTime)),
+    currentWorld: account?.currentWorld
   }
 }
 const withDefault = (value, defaultValue = 0) => {

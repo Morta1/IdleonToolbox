@@ -47,7 +47,7 @@ import { getGuild } from './guild';
 import { getPrinter } from './printer';
 import { getTraps } from './traps';
 import { getQuests, isWorldFinished } from './quests';
-import { getDeathNote } from './deathNote';
+import { getDeathNote, getTopKilledMonsters } from './deathNote';
 import { addBreedingChance, getBreeding } from './breeding';
 import { applyGodCost, getDivinity } from './divinity';
 import { getArtifacts, getSailing } from './sailing';
@@ -179,12 +179,18 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);
+  let currentWorld = 0;
   accountData.finishedWorlds = [1, 2, 3, 4, 5, 6]?.reduce((res, world) => {
+    const finishedWorld = !!isWorldFinished(charactersData, world);
+    if (finishedWorld) {
+      currentWorld = world;
+    }
     return {
       ...res,
-      [`World${world}`]: !!isWorldFinished(charactersData, world)
+      [`World${world}`]: finishedWorld
     }
   }, {});
+  accountData.currentWorld = currentWorld + 1;
   accountData.statues = applyStatuesMulti(accountData, charactersData);
   const skills = charactersData?.map(({ name, skillsInfo }) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
@@ -212,6 +218,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.quests = getQuests(charactersData);
   accountData.islands = getIslands(accountData, charactersData);
   accountData.deathNote = getDeathNote(idleonData, charactersData, accountData);
+  accountData.topKilledMonsters = getTopKilledMonsters(charactersData);
   accountData.killroy = getKillRoy(idleonData, charactersData, accountData, serverVars);
   // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);

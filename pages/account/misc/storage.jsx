@@ -104,7 +104,7 @@ const Looty = () => {
           <CardWithBreakdown title={'Slots Owned'} value={`${state?.account?.storage?.slots?.value}`}
                              icon={'data/InvStorage1.png'}
                              breakdown={state?.account?.storage?.slots?.breakdown}
-                             notation={'MultiplierInfo'}/>
+                             skipNotation/>
           <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
             {state?.account?.storage?.storageChests?.map(({
                                                             rawName,
