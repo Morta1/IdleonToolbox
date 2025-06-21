@@ -1,7 +1,7 @@
 // Nivo theme for statistics visualizations
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
-import { cauldrons } from '../../data/website-data';
+import { cauldrons, deathNote } from '../../data/website-data';
 import { worldColor } from '../../pages/account/world-3/death-note';
 
 export const nivoTheme = {
@@ -126,9 +126,13 @@ export const getVisualizationMap = (classes) => ({
         format: (value) => notateNumber(value)
       }
     },
-    getData: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => ({
-      _id: cleanUnderscore(enemy),
-      count: kills
-    })).toSorted((a, b) => a.count - b.count)
+    getData: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => {
+      const world = deathNote.find(({ name }) => name === enemy)?.world;
+      return {
+        _id: cleanUnderscore(enemy),
+        count: kills,
+        color: worldColor?.[world]
+      }
+    }).toSorted((a, b) => a.count - b.count)
   }
 });
