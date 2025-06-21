@@ -14,7 +14,7 @@ export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
   0: '#ff9000',
   1: '#27d001',
-  2: '#dc48ee',
+  2: '#f1a2fc',
   3: '#f6f031'
 }
 export const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
