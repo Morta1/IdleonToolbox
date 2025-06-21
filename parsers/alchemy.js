@@ -11,6 +11,12 @@ import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const MAX_VIAL_LEVEL = 13;
+export const cauldronColors = {
+  0: '#ff9000',
+  1: '#27d001',
+  2: '#dc48ee',
+  3: '#f6f031'
+}
 export const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
 const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o', 3: 'toxic mercury' };
 const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };

@@ -1,6 +1,6 @@
 // Nivo theme for statistics visualizations
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
-import { cauldronsIndexMapping } from '@parsers/alchemy';
+import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
 import { cauldrons } from '../../data/website-data';
 
 export const nivoTheme = {
@@ -30,7 +30,7 @@ export const nivoTheme = {
       padding: 8
     }
   },
-  labels: { text: { fill: '#ffffff', fontWeight: 600, fontSize: 12 } },
+  labels: { text: { fill: '#ffffff', fontWeight: 600, fontSize: 11 } },
   annotations: {
     text: { fill: '#c9c9c9', fontWeight: 500 },
     link: { stroke: '#424242', strokeWidth: 1 },
@@ -58,6 +58,7 @@ export const getVisualizationMap = (classes) => ({
   topBubbles: {
     type: 'bar',
     props: {
+      labelTextColor: '#482c2c',
       valueFormat: value => notateNumber(value),
       margin: {
         left: 130,
@@ -65,7 +66,7 @@ export const getVisualizationMap = (classes) => ({
       },
       axisBottom: {
         legend: 'Levels',
-        format: (value) => notateNumber(value),
+        format: (value) => notateNumber(value)
       },
       axisLeft: {
         legendOffset: 0,
@@ -79,7 +80,8 @@ export const getVisualizationMap = (classes) => ({
         const bubbleName = cleanUnderscore(bubble?.bubbleName).toLowerCase().capitalizeAll();
         return {
           _id: bubbleName,
-          count: value
+          count: value,
+          color: cauldronColors?.[cauldronIndex]
         }
       }).toSorted((a, b) => a.count - b.count)
     }
@@ -116,7 +118,7 @@ export const getVisualizationMap = (classes) => ({
         legend: ''
       },
       axisBottom: {
-        format: (value) => notateNumber(value),
+        format: (value) => notateNumber(value)
       }
     },
     getData: (raw) => raw.map(({ enemy, kills }) => ({

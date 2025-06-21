@@ -3,7 +3,20 @@ import { ResponsiveBar } from '@nivo/bar';
 import { Typography } from '@mui/material';
 import { nivoTheme } from './consts';
 
-const BarVisualization = ({ data, indexKey, keys, label, color, layout = 'horizontal', axisBottom, axisLeft, valueFormat, margin, enableTotals, enableLabel }) => (
+const BarVisualization = ({
+                            data,
+                            indexKey,
+                            label,
+                            color,
+                            layout = 'horizontal',
+                            axisBottom,
+                            axisLeft,
+                            valueFormat,
+                            margin,
+                            enableTotals,
+                            enableLabel,
+                            labelTextColor = '#ffffff'
+                          }) => (
   <>
     <Typography>{label}</Typography>
     <ResponsiveBar
@@ -28,12 +41,14 @@ const BarVisualization = ({ data, indexKey, keys, label, color, layout = 'horizo
         legendOffset: -50,
         ...axisLeft
       }}
+      colors={({ data }) => {
+        return data?.color || color;
+      }}
       valueFormat={valueFormat ? valueFormat : null}
-      colors={color}
       animate={true}
       motionConfig="gentle"
       theme={nivoTheme}
-      labelTextColor="#ffffff"
+      labelTextColor={labelTextColor}
       enableGridX={false}
       enableGridY={true}
       borderColor={{ from: 'color', modifiers: [['darker', 0.3]] }}

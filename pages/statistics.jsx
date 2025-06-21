@@ -50,6 +50,7 @@ const Statistics = () => {
               key={key}
               keys={key}
               data={chartData.map(item => ({
+                ...item,
                 [indexKey]: item[indexKey],
                 count: item.count
               }))}
