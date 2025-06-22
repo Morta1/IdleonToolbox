@@ -165,7 +165,7 @@ export const getVisualizationMap = (classes) => ({
         legend: 'Account Age (years)'
       }
     },
-    getData: (raw) => raw.filter(({ _id }) => _id !== '-1').toSorted((a, b) => b.count - a.count)
+    getData: (raw) => raw.filter(({ _id }) => _id !== '-1').toSorted((a, b) => a._id - b._id)
   },
   topKilledMonsters: {
     type: 'bar',
