@@ -1,9 +1,9 @@
 // Nivo theme for statistics visualizations
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, number2letter } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
 import { cauldrons, deathNote, prayers, stamps } from '../../data/website-data';
 import { worldColor } from '../../pages/account/world-3/death-note';
-import { stampsMapping } from '@parsers/stamps';
+import { altStampsMapping, stampsMapping } from '@parsers/stamps';
 
 export const nivoTheme = {
   background: 'transparent',
@@ -99,6 +99,52 @@ export const getVisualizationMap = (classes) => ({
         return {
           _id: bubbleName,
           count: value,
+          color: cauldronColors?.[cauldronIndex]
+        }
+      }).toSorted((a, b) => a.count - b.count)
+    }
+  },
+  topPrismaBubbles: {
+    type: 'bar',
+    props: {
+      labelTextColor: '#482c2c',
+      valueFormat: value => notateNumber(value),
+      margin: {
+        left: 130,
+        right: 140
+      },
+      axisBottom: {
+        legend: 'Levels',
+        format: (value) => notateNumber(value)
+      },
+      axisLeft: {
+        legendOffset: 0,
+        legend: ''
+      },
+      legends: [{
+        data: Object.values(cauldronColors).map((color, index) => ({
+          label: `${cauldronsIndexMapping?.[index].capitalizeAll()}`,
+          color
+        })),
+        anchor: 'bottom-right',
+        direction: 'column',
+        translateX: 120,
+        itemWidth: 50,
+        itemHeight: 20,
+        itemsSpacing: 2,
+        symbolSize: 20
+      }]
+    },
+    getData: (raw) => {
+      return raw.map(({ bubble, count }) => {
+        const [, cauldronLetter, bubbleIndex] = bubble.match(/^([a-zA-Z_]+)(\d+)$/);
+        const cauldronIndex = number2letter.indexOf(cauldronLetter);
+        const cauldron = cauldrons?.[cauldronsIndexMapping[cauldronIndex]];
+        const bubbleA = cauldron?.[bubbleIndex];
+        const bubbleName = cleanUnderscore(bubbleA?.bubbleName).toLowerCase().capitalizeAll();
+        return {
+          _id: bubbleName,
+          count,
           color: cauldronColors?.[cauldronIndex]
         }
       }).toSorted((a, b) => a.count - b.count)
@@ -222,6 +268,49 @@ export const getVisualizationMap = (classes) => ({
         _id: cleanUnderscore(stamp?.displayName),
         count: item.level,
         color: worldColor?.[item?.stampArrayIndex]
+      }
+    }).toSorted((a, b) => a.count - b.count)
+  },
+  topExaltedStamps: {
+    type: 'bar',
+    props: {
+      enableTotals: true,
+      enableLabel: false,
+      valueFormat: value => notateNumber(value, 'Big'),
+      margin: {
+        left: 170,
+        right: 150
+      },
+      axisLeft: {
+        legendOffset: 0,
+        legend: ''
+      },
+      axisBottom: {
+        format: (value) => notateNumber(value)
+      },
+      legends: [{
+        data: [
+          { label: 'Combat', color: worldColor?.[0] },
+          { label: 'Skills', color: worldColor?.[1] },
+          { label: 'Misc', color: worldColor?.[2] }
+        ],
+        anchor: 'bottom-right',
+        direction: 'column',
+        translateX: 120,
+        itemWidth: 50,
+        itemHeight: 20,
+        itemsSpacing: 2,
+        symbolSize: 20
+      }]
+    },
+    getData: (raw) => raw.map((item) => {
+      const [, categoryIndex, stampIndex] = item.stamp.match(/^([a-zA-Z_]+)(\d+)$/);
+      const category = stamps?.[altStampsMapping?.[categoryIndex]];
+      const stamp = category?.[stampIndex];
+      return {
+        _id: cleanUnderscore(stamp?.displayName),
+        count: item.count,
+        color: worldColor?.[number2letter.indexOf(categoryIndex)]
       }
     }).toSorted((a, b) => a.count - b.count)
   }

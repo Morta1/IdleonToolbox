@@ -11,6 +11,7 @@ import { getCompassBonus } from '@parsers/compass';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 export const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
+export const altStampsMapping = { _: 'combat', a: 'skills', b: 'misc' };
 
 export const getStamps = (idleonData, account) => {
   const stampLevelsRaw = tryToParse(idleonData?.StampLv) || idleonData?.StampLevel;

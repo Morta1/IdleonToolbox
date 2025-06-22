@@ -13,8 +13,8 @@ const BarVisualization = ({
                             axisLeft,
                             valueFormat,
                             margin,
-                            enableTotals,
-                            enableLabel,
+                            enableTotals = true,
+                            enableLabel = false,
                             legends,
                             labelTextColor = '#ffffff'
                           }) => {

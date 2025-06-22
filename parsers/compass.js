@@ -17,6 +17,7 @@ import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getEventShopBonus } from '@parsers/misc';
+import { altStampsMapping } from '@parsers/stamps';
 
 const weaknesses = {
   0: 'Fire',
@@ -145,14 +146,9 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
 
   const medallions = getMedallions((medallionsRaw || []).toSimpleObject(), upgrades)
 
-  const stampsMapping = {
-    _: 'combat',
-    a: 'skills',
-    b: 'misc'
-  }
   const exaltedStamps = (exaltedStampsRaw || []).reduce((result, stamp) => {
     const [, category, stampIndex] = stamp.match(/^([a-zA-Z_]+)(\d+)$/);
-    const categoryName = stampsMapping?.[category];
+    const categoryName = altStampsMapping?.[category];
     return {
       ...result,
       [categoryName]: {
