@@ -10,7 +10,7 @@ import { getAtomBonus } from '@parsers/atomCollider';
 import { getCompassBonus } from '@parsers/compass';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
-const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
+export const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 
 export const getStamps = (idleonData, account) => {
   const stampLevelsRaw = tryToParse(idleonData?.StampLv) || idleonData?.StampLevel;

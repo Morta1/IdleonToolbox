@@ -1,8 +1,9 @@
 // Nivo theme for statistics visualizations
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
-import { cauldrons, deathNote, prayers } from '../../data/website-data';
+import { cauldrons, deathNote, prayers, stamps } from '../../data/website-data';
 import { worldColor } from '../../pages/account/world-3/death-note';
+import { stampsMapping } from '@parsers/stamps';
 
 export const nivoTheme = {
   background: 'transparent',
@@ -134,7 +135,8 @@ export const getVisualizationMap = (classes) => ({
         color: worldColor?.[world]
       }
     }).toSorted((a, b) => a.count - b.count)
-  }, topPrayers: {
+  },
+  topPrayers: {
     type: 'bar',
     props: {
       enableTotals: true,
@@ -153,8 +155,50 @@ export const getVisualizationMap = (classes) => ({
       }
     },
     getData: (raw) => raw.map((item) => ({
-      ...item,
-      prayer: cleanUnderscore(prayers?.[item.prayer]?.name)
+      _id: cleanUnderscore(prayers?.[item.prayer]?.name),
+      count: item.count
     })).toSorted((a, b) => a.count - b.count)
+  },
+  topStamps: {
+    type: 'bar',
+    props: {
+      enableTotals: true,
+      enableLabel: false,
+      valueFormat: value => notateNumber(value, 'Big'),
+      margin: {
+        left: 170,
+        right: 150
+      },
+      axisLeft: {
+        legendOffset: 0,
+        legend: ''
+      },
+      axisBottom: {
+        format: (value) => notateNumber(value)
+      },
+      legends: [{
+        data: [
+          { label: 'Combat', color: worldColor?.[0] },
+          { label: 'Skills', color: worldColor?.[1] },
+          { label: 'Misc', color: worldColor?.[2] }
+        ],
+        anchor: 'bottom-right',
+        direction: 'column',
+        translateX: 120,
+        itemWidth: 50,
+        itemHeight: 20,
+        itemsSpacing: 2,
+        symbolSize: 20
+      }]
+    },
+    getData: (raw) => raw.map((item) => {
+      const category = stamps?.[stampsMapping?.[item?.stampArrayIndex]]
+      const stamp = category?.[item.stampIndex];
+      return {
+        _id: cleanUnderscore(stamp?.displayName),
+        count: item.level,
+        color: worldColor?.[item?.stampArrayIndex]
+      }
+    }).toSorted((a, b) => a.count - b.count)
   }
 });

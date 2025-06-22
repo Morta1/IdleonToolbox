@@ -42,8 +42,7 @@ const Statistics = () => {
         const vizType = vizConfig.type;
         const chartData = vizConfig.getData(value);
         if (!Array.isArray(chartData)) return null;
-        const first = chartData[0] || {};
-        const indexKey = Object.keys(first).find(k => k !== 'count') || 'id';
+        const indexKey = '_id';
         if (vizType === 'bar') {
           return (
             <BarVisualization

@@ -15,6 +15,7 @@ const BarVisualization = ({
                             margin,
                             enableTotals,
                             enableLabel,
+                            legends,
                             labelTextColor = '#ffffff'
                           }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
@@ -49,6 +50,7 @@ const BarVisualization = ({
         colors={({ data }) => {
           return data?.color || color;
         }}
+        legends={legends}
         valueFormat={valueFormat ? valueFormat : null}
         animate={true}
         motionConfig="gentle"
