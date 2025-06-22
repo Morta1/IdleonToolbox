@@ -1,7 +1,7 @@
 // Nivo theme for statistics visualizations
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
-import { cauldrons, deathNote } from '../../data/website-data';
+import { cauldrons, deathNote, prayers } from '../../data/website-data';
 import { worldColor } from '../../pages/account/world-3/death-note';
 
 export const nivoTheme = {
@@ -134,5 +134,27 @@ export const getVisualizationMap = (classes) => ({
         color: worldColor?.[world]
       }
     }).toSorted((a, b) => a.count - b.count)
+  }, topPrayers: {
+    type: 'bar',
+    props: {
+      enableTotals: true,
+      enableLabel: false,
+      valueFormat: value => notateNumber(value, 'Big'),
+      margin: {
+        left: 130,
+        right: 60
+      },
+      axisLeft: {
+        legendOffset: 0,
+        legend: ''
+      },
+      axisBottom: {
+        format: (value) => notateNumber(value)
+      }
+    },
+    getData: (raw) => raw.map((item) => ({
+      ...item,
+      prayer: cleanUnderscore(prayers?.[item.prayer]?.name)
+    })).toSorted((a, b) => a.count - b.count)
   }
 });
