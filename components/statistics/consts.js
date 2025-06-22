@@ -67,7 +67,7 @@ export const getVisualizationMap = (classes) => ({
       valueFormat: value => notateNumber(value),
       margin: {
         left: 130,
-        right: 60
+        right: 140
       },
       axisBottom: {
         legend: 'Levels',
@@ -76,7 +76,20 @@ export const getVisualizationMap = (classes) => ({
       axisLeft: {
         legendOffset: 0,
         legend: ''
-      }
+      },
+      legends: [{
+        data: Object.values(cauldronColors).map((color, index) => ({
+          label: `${cauldronsIndexMapping?.[index].capitalizeAll()}`,
+          color
+        })),
+        anchor: 'bottom-right',
+        direction: 'column',
+        translateX: 120,
+        itemWidth: 50,
+        itemHeight: 20,
+        itemsSpacing: 2,
+        symbolSize: 20
+      }]
     },
     getData: (raw) => {
       return raw.map(({ bubbleIndex, cauldronIndex, value }) => {
@@ -116,7 +129,7 @@ export const getVisualizationMap = (classes) => ({
       valueFormat: value => notateNumber(value, 'Big'),
       margin: {
         left: 130,
-        right: 60
+        right: 150
       },
       axisLeft: {
         legendOffset: 0,
@@ -125,7 +138,18 @@ export const getVisualizationMap = (classes) => ({
       axisBottom: {
         legend: 'Kills',
         format: (value) => notateNumber(value)
-      }
+      },
+      legends: [{
+        data: worldColor.map((color, index) => ({ label: `World ${index + 1}`, color })),
+        anchor: 'bottom-right',
+        direction: 'column',
+        translateX: 120,
+        itemWidth: 50,
+        itemHeight: 20,
+        itemsSpacing: 2,
+        symbolSize: 20
+      }]
+
     },
     getData: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => {
       const world = deathNote.find(({ name }) => name === enemy)?.world;
