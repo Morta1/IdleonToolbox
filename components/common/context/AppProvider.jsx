@@ -201,6 +201,7 @@ const AppProvider = ({ children }) => {
           const isAllowedPath = router.pathname === '/' ||
             checkOfflineTool() ||
             router.pathname === '/data' ||
+            router.pathname === '/statistics' ||
             router.pathname === '/leaderboards';
 
           if (!isAllowedPath) {
