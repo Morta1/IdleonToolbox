@@ -62,9 +62,9 @@ export const getTesseract = (idleonData, characters, account) => {
 
   const crystalChargeReq = getCrystalChargeReq(characters, upgrades)
   const weaponDropChance = 1 / (300 * Math.pow(1.2, account?.accountOptions?.[396]));
-  const weaponDropQuality = calcTesseractBonus(upgrades, 5, 0);
+  const weaponQuality = calcTesseractBonus(upgrades, 5, 0);
   const ringDropChance = 1 / (500 * Math.pow(1.2, account?.accountOptions?.[397]));
-  const ringDropQuality = calcTesseractBonus(upgrades, 23, 0);
+  const ringQuality = calcTesseractBonus(upgrades, 23, 0);
 
   const unlockedPortals = (portalsRaw || []).reduce((result, mapRaw) => {
     return {
@@ -81,9 +81,9 @@ export const getTesseract = (idleonData, characters, account) => {
     totalUpgradeLevels,
     crystalChargeReq,
     weaponDropChance,
-    weaponDropQuality,
+    weaponQuality,
     ringDropChance,
-    ringDropQuality,
+    ringQuality,
     maps
   }
 }
@@ -92,10 +92,46 @@ export const getTesseractBonus = (account, index) => {
   return account?.tesseract?.upgrades?.[index]?.bonus || 0;
 }
 
+export const getItemBaseStats = (isWeapon, itemQuality) => {
+  const pow15 = (v) => Math.pow(v, 15);
+
+  // === Speed ===
+  const speedMax = Math.min(6, 2 + Math.floor(itemQuality / 300));
+  const speedAvgInt = (-2 + speedMax) / 2;
+  const speedFloatMin = Math.min(0.7, 0.4 + itemQuality / 6000);
+  const speedAvgFloat = (speedFloatMin + 1) / 2;
+  const Speed = Math.round(speedAvgInt * pow15(speedAvgFloat));
+
+  // === Weapon Power ===
+  const wepPowerAvgInt = (-5 + 15) / 2;
+  const wpFloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
+  const wpAvgFloat = (wpFloatMin + 1) / 2;
+  const Weapon_Power = Math.round(wepPowerAvgInt * pow15(wpAvgFloat) + Math.floor(itemQuality / 25));
+
+  // === UQ1val ===
+  const uq1AvgInt = (-10 + 50) / 2;
+  const uq1FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
+  const uq1AvgFloat = (uq1FloatMin + 1) / 2;
+  const UQ1val = Math.round(uq1AvgInt * pow15(uq1AvgFloat) + Math.floor(itemQuality / 20));
+
+  // === UQ2val ===
+  const uq2AvgInt = (-1 + 30) / 2;
+  const uq2FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
+  const uq2AvgFloat = (uq2FloatMin + 1) / 2;
+  const UQ2val = Math.round(uq2AvgInt * pow15(uq2AvgFloat) + Math.floor(itemQuality / 15));
+
+  return [
+    { title: 'Base stats' },
+    { name: 'Weapon Power', value: Weapon_Power },
+    { name: isWeapon ? 'Arcanist DMG' : 'Arcanist ACC', value: UQ1val },
+    { name: 'Extra Tachyons', value: UQ2val }
+  ]
+}
+
 const getMaps = (unlockedPortals, mapBonusRaw, upgrades, characters) => {
   const bestArcane = getCharacterByHighestTalent(characters, 4, 'Arcane_Cultist', 'OVERWHELMING_ENERGY');
   const overwhelmingEnergy = getTalentBonus(bestArcane?.talents, 4, 'OVERWHELMING_ENERGY');
-  console.log('unlockedPortals', unlockedPortals)
+
   const maxMapBonus = 100 * (overwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
   return getFilteredPortals()?.map(({ mapIndex, mapName }) => {
     const availablePortals = mapPortals?.[mapIndex];

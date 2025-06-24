@@ -95,7 +95,7 @@ const Tesseract = () => {
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
       <Upgrades upgrades={upgrades} tachyons={tachyons}/>
-      <Maps maps={maps} weaponDropChance={weaponDropChance} ringDropChance={ringDropChance}/>
+      <Maps {...(state?.account?.tesseract || {})}/>
     </Tabber>
   </>
 };
