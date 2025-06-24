@@ -92,7 +92,7 @@ export const getTesseractBonus = (account, index) => {
   return account?.tesseract?.upgrades?.[index]?.bonus || 0;
 }
 
-export const getItemBaseStats = (isWeapon, itemQuality) => {
+export const getWeaponBaseStats = (itemQuality) => {
   const pow15 = (v) => Math.pow(v, 15);
 
   // === Speed ===
@@ -123,7 +123,29 @@ export const getItemBaseStats = (isWeapon, itemQuality) => {
   return [
     { title: 'Base stats' },
     { name: 'Weapon Power', value: Weapon_Power },
-    { name: isWeapon ? 'Arcanist DMG' : 'Arcanist ACC', value: UQ1val },
+    { name: 'Arcanist DMG', value: UQ1val },
+    { name: 'Extra Tachyons', value: UQ2val }
+  ]
+}
+
+export const getRingBaseStats = (itemQuality) => {
+  const pow15 = (v) => Math.pow(v, 15);
+
+  // === UQ1val ===
+  const uq1AvgInt = (-5 + 40) / 2; // 17.5
+  const uq1FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
+  const uq1AvgFloat = (uq1FloatMin + 1) / 2;
+  const UQ1val = Math.round(uq1AvgInt * pow15(uq1AvgFloat) + Math.floor(itemQuality / 15));
+
+  // === UQ2val ===
+  const uq2AvgInt = (-1 + 30) / 2; // 14.5
+  const uq2FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
+  const uq2AvgFloat = (uq2FloatMin + 1) / 2;
+  const UQ2val = Math.round(uq2AvgInt * pow15(uq2AvgFloat) + Math.floor(itemQuality / 10));
+
+  return [
+    { title: 'Base stats' },
+    { name: 'Arcanist ACC', value: UQ1val },
     { name: 'Extra Tachyons', value: UQ2val }
   ]
 }

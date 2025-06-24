@@ -4,7 +4,7 @@ import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { getItemBaseStats } from '@parsers/tesseract';
+import { getRingBaseStats, getWeaponBaseStats } from '@parsers/tesseract';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Portals = ({
@@ -17,10 +17,12 @@ const Portals = ({
       <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
       <CardTitleAndValue title={'Weapon Drop Chance'} value={`1 in ${Math.floor(1 / weaponDropChance)}`}
                          icon={'data/EquipmentWandsArc0.png'} imgStyle={{ width: 24, height: 24 }}/>
-      <ItemBase weapon title={'Weapon Quality'} quality={weaponQuality} icon={'data/EquipmentWandsArc0'}/>
+      <ItemBase weapon title={'Weapon Quality'} quality={weaponQuality} stats={getWeaponBaseStats(weaponQuality)}
+                icon={'data/EquipmentWandsArc0'}/>
       <CardTitleAndValue title={'Ring Drop Chance'} value={`1 in ${Math.floor(1 / ringDropChance)}`}
                          icon={'data/EquipmentRingsArc0.png'} imgStyle={{ width: 24, height: 24 }}/>
-      <ItemBase title={'Ring Quality'} quality={ringQuality} icon={'data/EquipmentRingsArc0'}/>
+      <ItemBase title={'Ring Quality'} quality={ringQuality} stats={getRingBaseStats(ringQuality)}
+                icon={'data/EquipmentRingsArc0'}/>
     </Stack>
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       {maps?.map(({
@@ -77,14 +79,14 @@ const Portals = ({
   </>
 };
 
-const ItemBase = ({ title, icon, quality, weapon }) => {
+const ItemBase = ({ title, icon, quality, stats }) => {
   return <CardTitleAndValue title={title}>
     <Stack direction="row" alignItems={'center'} gap={1}>
       <img style={{ width: 24, height: 24 }} src={`${prefix}${icon}.png`} alt=""/>
       <Typography>{quality}</Typography>
       <Tooltip
         title={<Stack>
-          {getItemBaseStats(weapon, quality)?.map(({ title, name, value }, index) => title ? <Stack
+          {stats?.map(({ title, name, value }, index) => title ? <Stack
             key={`${title}-${index}`}>
             {index > 0 ? <Divider sx={{ my: 1 }}/> : null}
             <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
