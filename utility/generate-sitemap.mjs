@@ -14,7 +14,7 @@ function getPagePriority(path) {
 }
 
 function addPage(page) {
-  const path = page.replace('pages', '').replace('.js', '').replace('.mdx', '').replace('.jsx', '')
+  const path = page.replace('pages', '').replace('.jsx', '').replace('.js', '').replace('.mdx', '')
   const route = path === '/index' ? '' : path
   const priority = getPagePriority(path)
   const today = new Date().toISOString().split('T')[0]
