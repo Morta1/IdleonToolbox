@@ -78,9 +78,6 @@ export const getStatFromEquipment = (item, statName) => {
 export const createItemsWithUpgrades = (charItems, stoneData, owner) => {
 
   return Array.from(Object.values(charItems)).reduce((res, item, itemIndex) => {
-    if (owner === 'MortaWiiz' && item === 'EquipmentKeychain11') {
-      console.log(charItems, stoneData)
-    }
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
     let misc = '';
     const maxUpgradeSlots = Math.max(stoneResult?.Upgrade_Slots_Left, items?.[item]?.Upgrade_Slots_Left);
