@@ -1,6 +1,7 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
 import { drawerPages } from '@components/constants';
 import merge from 'lodash.merge';
+import { mapEnemiesArray, mapNames, monsters } from '../data/website-data'
 
 export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);
@@ -681,3 +682,47 @@ export const isValidUrl = (url) => {
 export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6'];
 export const prefix = isProd ? '/' : '/';
 
+export const excludedPortals = {
+  0: [0],
+  9: [0],
+  17: [0],
+  24: [1],
+  27: [0],
+  28: [0],
+  30: [0],
+  31: [0],
+  38: [0],
+  60: [1],
+  65: [0],
+  69: [0],
+  113: [0],
+  117: [0],
+  120: [0],
+  166: [0],
+  213: [0],
+  264: [0]
+}
+export const getFilteredPortals = () => {
+  const excludedMaps = [
+    'Nothing', 'Z', 'Copper',
+    'Iron', 'Starfire', 'Plat', 'Void',
+    'Filler', 'JungleZ', 'Grandfrog\'s_Gazebo',
+    'Grandfrog\'s_Backyard', 'Gravel_Tomb', 'Heaty_Hole',
+    'Igloo\'s_Basement', 'Inside_the_Igloo', 'End_Of_The_Road',
+    'Efaunt\'s_Tomb', 'Eycicles\'s_Nest', 'Enclave_a_la_Troll',
+    'Chizoar\'s_Cavern', 'KattleKruk\'s_Volcano', 'Castle_Interior', 'Emperor\'s_Castle'].toSimpleObject();
+  return Object.entries(mapNames).map(([mapIndex, mapName], index) => {
+    const rawName = mapEnemiesArray?.[index];
+    const { AFKtype } = monsters?.[rawName] || {};
+    return {
+      mapName,
+      mapIndex,
+      afkType: AFKtype
+    }
+  }).filter(({
+               mapName,
+               afkType
+             }) => afkType === 'FIGHTING' &&
+    !excludedMaps[mapName]
+    && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
+}

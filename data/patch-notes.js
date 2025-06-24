@@ -4,13 +4,34 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.6',
+    'gameVer': '2.0.40',
+    'date': '24/06/2025',
+    'features': [
+      'Updated the website with version 2.0.40 data and assets',
+      'Added tesseract page under Account -> Class Specific -> Tesseract',
+      'Added total tesseract upgrades, total tachyons leaderboards',
+      'Applied tesseract bonuses across the website'
+    ],
+    'fixes': []
+  },
+  {
+    'ver': '3.3.5',
+    'gameVer': '2.0.38',
+    'date': '20/06/2025',
+    'features': [
+      'Added statistics page for various game mechanics'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.4',
     'gameVer': '2.0.37',
     'date': '31/05/2025',
     'features': [
       'Updated the website with version 2.0.37 data and assets',
       'Added Armor Smithy page under Account -> World 3',
-      'Added Emperor page under Account -> World 6',
+      'Added Emperor page under Account -> World 6'
     ],
     'fixes': []
   },

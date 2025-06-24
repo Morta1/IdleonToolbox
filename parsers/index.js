@@ -71,6 +71,7 @@ import { getUpgradeVault } from '@parsers/misc/upgradeVault';
 import { getCompass } from '@parsers/compass';
 import { getEmperor } from '@parsers/world-6/emperor';
 import { getArmorSmithy } from '@parsers/misc/armorSmithy';
+import { getTesseract } from '@parsers/tesseract';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
@@ -176,6 +177,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   });
   accountData.grimoire = getGrimoire(idleonData, charactersData, accountData);
   accountData.compass = getCompass(idleonData, charactersData, accountData, serverVars);
+  accountData.tesseract = getTesseract(idleonData, charactersData, accountData, serverVars);
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);

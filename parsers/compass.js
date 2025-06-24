@@ -1,4 +1,11 @@
-import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import {
+  commaNotation,
+  excludedPortals,
+  getFilteredPortals,
+  lavaLog,
+  notateNumber,
+  tryToParse
+} from '@utility/helpers';
 import {
   abominations,
   compass,
@@ -56,26 +63,6 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     }
   }, {});
 
-  const excludedPortals = {
-    0: [0],
-    9: [0],
-    17: [0],
-    24: [1],
-    27: [0],
-    28: [0],
-    30: [0],
-    31: [0],
-    38: [0],
-    60: [1],
-    65: [0],
-    69: [0],
-    113: [0],
-    117: [0],
-    120: [0],
-    166: [0],
-    213: [0],
-    264: [0]
-  }
   const maps = getFilteredPortals()?.map(({ mapIndex, mapName }, index) => {
     const availablePortals = mapPortals?.[mapIndex];
     const portals = availablePortals.map((_, portalIndex) => {
@@ -189,31 +176,6 @@ const getPortalCostQuantity = (mapIndex, portalIndex) => {
 
 const getPortalCostType = (mapIndex) => {
   return Math.min(Math.floor(mapIndex / 100) + Math.floor(mapIndex / 249), 3)
-}
-
-const getFilteredPortals = () => {
-  const excludedMaps = [
-    'Nothing', 'Z', 'Copper',
-    'Iron', 'Starfire', 'Plat', 'Void',
-    'Filler', 'JungleZ', 'Grandfrog\'s_Gazebo',
-    'Grandfrog\'s_Backyard', 'Gravel_Tomb', 'Heaty_Hole',
-    'Igloo\'s_Basement', 'Inside_the_Igloo', 'End_Of_The_Road',
-    'Efaunt\'s_Tomb', 'Eycicles\'s_Nest', 'Enclave_a_la_Troll',
-    'Chizoar\'s_Cavern', 'KattleKruk\'s_Volcano', 'Castle_Interior'].toSimpleObject();
-  return Object.entries(mapNames).map(([mapIndex, mapName], index) => {
-    const rawName = mapEnemiesArray?.[index];
-    const { AFKtype } = monsters?.[rawName] || {};
-    return {
-      mapName,
-      mapIndex,
-      afkType: AFKtype
-    }
-  }).filter(({
-               mapName,
-               afkType
-             }) => afkType === 'FIGHTING' &&
-    !excludedMaps[mapName]
-    && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
 }
 
 const getMedallions = (medallions, upgrades) => {

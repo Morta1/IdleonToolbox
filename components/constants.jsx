@@ -53,6 +53,11 @@ export const PAGES = {
           label: 'compass',
           icon: 'data/UISkillIcon421',
           tabs: ['Upgrades', 'Upgrade Optimizer', 'Abominations', 'Medallions', 'Portals']
+        },
+        {
+          label: 'tesseract',
+          icon: 'data/StatusArc0',
+          tabs: ['Upgrades', 'Maps']
         }
       ]
     },

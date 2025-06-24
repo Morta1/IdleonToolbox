@@ -17,6 +17,7 @@ import { getGrimoireBonus } from '@parsers/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { skillIndexMap } from '@parsers/parseMaps';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 
 export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
@@ -73,6 +74,7 @@ export const talentPagesMap = {
   'Mage': ['Savvy_Basics', 'Mage'],
   'Shaman': ['Savvy_Basics', 'Mage', 'Shaman'],
   'Bubonic_Conjuror': ['Savvy_Basics', 'Mage', 'Shaman', 'Bubonic_Conjuror'],
+  'Arcane_Cultist': ['Savvy_Basics', 'Mage', 'Shaman', 'Bubonic_Conjuror', 'Arcane_Cultist'],
   'Wizard': ['Savvy_Basics', 'Mage', 'Wizard'],
   'Elemental_Sorcerer': ['Savvy_Basics', 'Mage', 'Wizard', 'Elemental_Sorcerer']
 };
@@ -97,6 +99,7 @@ export const mainStatMap = {
   Mage: 'wisdom',
   Shaman: 'wisdom',
   Bubonic_Conjuror: 'wisdom',
+  Arcane_Cultist: 'wisdom',
   Wizard: 'wisdom',
   Elemental_Sorcerer: 'wisdom'
 }
@@ -206,6 +209,7 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   addedLevels += getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols');
   addedLevels += getGrimoireBonus(account?.grimoire?.upgrades, 39);
   addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
+  addedLevels += Math.min(5, getTesseractBonus(account, 57));
 
   breakdown = [
     { title: 'Additive' },
@@ -229,6 +233,10 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     {
       name: 'Kattlekruk set',
       value: getArmorSetBonus(account, 'KATTLEKRUK_SET')
+    },
+    {
+      name: 'Tesseract',
+      value: Math.min(5, getTesseractBonus(account, 57))
     },
     {
       name: 'Ninja mastery',

@@ -12,6 +12,7 @@ import { isArtifactAcquired } from '@parsers/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 const summonEssenceColor = {
   white: 0,
@@ -113,8 +114,10 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   upgrades = upgrades.map((upgrade, index) => {
     const costDeflation = upgrades.find(({ originalIndex }) => originalIndex === 49);
     const costCrashing = upgrades.find(({ originalIndex }) => originalIndex === 57);
+    const tesseractBonus = getTesseractBonus(account, 54) * account?.accountOptions?.[319];
     const cost = (1 / (1 + costDeflation?.value / 100))
       * (1 / (1 + costCrashing?.value / 100))
+      * (1 / (1 + tesseractBonus / 100))
       * upgrade?.cost
       * Math.pow(upgrade?.costExponent, upgradesLevels?.[index]);
     return { ...upgrade, totalCost: cost }

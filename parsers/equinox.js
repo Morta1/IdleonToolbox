@@ -7,6 +7,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 export const getEquinox = (idleonData, account) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -39,6 +40,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 }) || 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Equinox_Fill_Rate')?.bonus
   const emperorBonus = getEmperorBonus(account, 5);
+  const tesseractBonus = getTesseractBonus(account, 37)
 
   const cloudsBonus = (
     (10 * (clouds[3] === -1)
@@ -54,7 +56,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     * (1 + cosmoBonus / 100)
     * (1 + .5 * eventShopBonus)
     * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
-    * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100);
+    * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus + tesseractBonus) / 100);
 
   const breakdown = [
     { title: 'Multiplicative' },
@@ -67,6 +69,8 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
     { name: 'Vial', value: eqBarVial / 100 },
     { name: 'Clouds', value: cloudsBonus / 100 },
+    { name: 'Emperor', value: emperorBonus / 100 },
+    { name: 'Tesseract', value: tesseractBonus / 100 },
     { name: 'Bundle*', value: bundleBonus ? 90 : 60 }
   ]
 

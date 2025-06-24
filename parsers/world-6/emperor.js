@@ -1,6 +1,8 @@
 import { emperorBonuses } from '../../data/website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getTesseractBonus } from '@parsers/tesseract';
+import { getArcadeBonus } from '@parsers/arcade';
 
 
 const icons = {
@@ -40,7 +42,9 @@ export const getEmperor = (idleonData, account) => {
     }
   }, {});
   bonuses = bonuses.map((rawBonus) => {
+    const tesseractBonus = getTesseractBonus(account, 48)
     const totalBonus = totalBonuses[rawBonus.name] ?? 0;
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Emperor_Bonuses')?.bonus;
     const bonus = rawBonus.name.replace('{', commaNotation(totalBonus))
       .replace('}', notateNumber(1 + totalBonus / 100, 'MultiplierInfo'))
       .replace('$', Math.floor((totalBonus + 4) / (totalBonus + 100) * 1000) / 10);
@@ -49,7 +53,7 @@ export const getEmperor = (idleonData, account) => {
       .replace('$', Math.floor((rawBonus.value + 4) / (rawBonus.value + 100) * 1000) / 10)
     return {
       bonus,
-      totalBonus,
+      totalBonus: Math.floor(totalBonus * (1 + (tesseractBonus + arcadeBonus) / 100)),
       rawIndex: rawBonus.index,
       icon: icons[rawBonus.index],
       value,

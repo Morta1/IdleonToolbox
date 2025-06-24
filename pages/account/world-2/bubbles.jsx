@@ -34,6 +34,8 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
+import { getArcadeBonus } from '@parsers/arcade';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
@@ -258,7 +260,9 @@ const Bubbles = () => {
                 const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
                   ? level
                   : bubblesGoals?.[cauldron]?.[index] : level;
-                const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? 2 : 1);
+                const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
+                const tesseractBonus = getTesseractBonus(state?.account, 45)
+                const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100) : 1);
                 const bubbleMaxBonus = getMaxBonus(func, x1);
                 const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
                 let thresholdObj;

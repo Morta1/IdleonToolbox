@@ -9,6 +9,7 @@ import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
@@ -310,6 +311,8 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
   if (targetBubbleIndex === -1) return 0;
 
   const targetBubble = cauldrons[cauldronName][targetBubbleIndex];
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
+  const tesseractBonus = getTesseractBonus(account, 45)
 
   // Calculate base bubble value
   const baseBubbleValue = growth(
@@ -321,7 +324,9 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
   ) ?? 0;
 
   // Apply prisma multiplier to base bubble
-  const basePrismaMultiplier = isPrismaBubble(account, targetBubble?.bubbleIndex) ? 2 : 1;
+  const basePrismaMultiplier = isPrismaBubble(account, targetBubble?.bubbleIndex)
+    ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100)
+    : 1;
 
   // Calculate primary multiplier from bubble at index 1 (if shouldMultiply is true)
   let primaryMultiplier = 1;

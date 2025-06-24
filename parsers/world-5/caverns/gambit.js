@@ -4,6 +4,7 @@ import { holesInfo } from '../../../data/website-data';
 import { lavaLog, lavaLog2, notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getEventShopBonus } from '@parsers/misc';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 export const getGambit = (holesObject, accountData) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
@@ -53,7 +54,9 @@ const getPointsMulti = (holesObject, accountData) => {
   return 1 + (getMeasurementBonus({ holesObject, accountData, t: 13 })
     + getStudyBonus(holesObject, 13, 0)
     + getSchematicBonus({ holesObject: accountData?.hole?.holesObject, t: 78, i: 10 })
-    + getMonumentBonus({ holesObject, t: 2, i: 7 })) / 100;
+    + getMonumentBonus({ holesObject, t: 2, i: 7 })
+    + getTesseractBonus(accountData, 47)
+  ) / 100;
 }
 
 const getPoints = (holesObject, accountData, t) => {

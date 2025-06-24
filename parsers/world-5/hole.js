@@ -24,6 +24,7 @@ import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getStatueBonus } from '@parsers/statues';
 import { getCompassBonus } from '@parsers/compass';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 const VILLAGERS = {
   EXPLORE: 0,
@@ -510,6 +511,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const cardBonus = getCardBonusByEffect(accountData?.cards, 'Villager_EXP_(Passive)');
   const eventBonus = getEventShopBonus(accountData, 6);
   const grimoireBonus = getGrimoireBonus(accountData?.grimoire?.upgrades, 29);
+  const tesseractBonus = getTesseractBonus(accountData?.tesseract?.upgrades, 32);
   const arcadeBonus = (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0);
   const companionBonus = isCompanionBonusActive(accountData, 13) ? 1 : 0;
   const statueBonus = getStatueBonus(accountData?.statues, 'StatueG29');
@@ -535,6 +537,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     * (1 + holesObject?.parallelVillagersGemShop[t] ?? 0)
     * (1 + arcadeBonus / 100)
     * (1 + grimoireBonus / 100)
+    * (1 + tesseractBonus / 100)
     * (1 + (getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 })
       * Math.floor(leastOpalInvestedVillager / 5)) / 100)
     * (1 + (getMonumentBonus({ holesObject, t: 0, i: 3 })
