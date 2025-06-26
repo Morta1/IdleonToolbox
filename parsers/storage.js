@@ -35,7 +35,7 @@ export const getStorageSlots = (storageChests, account) => {
   const towerStorageSlots = 2 * account?.towers?.data?.[4]?.level;
   const bundleIBonus = isBundlePurchased(account?.bundles, 'bun_i') ? 8 : 0;
   const bundleCBonus = isBundlePurchased(account?.bundles, 'bun_c') ? 16 : 0;
-  const bundleABonus = isBundlePurchased(account?.bundles, 'bun_a') ? 20 : 0;
+  const bundleABonus = isBundlePurchased(account?.bundles, 'bon_a') ? 20 : 0;
   const chestsSlots = storageChests.reduce((res, { unlocked, amount }) => unlocked
     ? res + amount
     : res, 0);
