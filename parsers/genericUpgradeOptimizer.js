@@ -41,6 +41,15 @@ export function getOptimizedGenericUpgrades({
   // Track current stats for comparison
   let currentStats = getCurrentStats(simulatedUpgrades, character, account, extraArgs);
 
+  // Special handling for dust category
+  let getExtraDust = extraArgs.getExtraDust;
+  let currentDustMultiplier = (category === 'dust' && typeof getExtraDust === 'function')
+    ? getExtraDust(character, {
+        ...account,
+        compass: { ...account.compass, upgrades: simulatedUpgrades }
+      })
+    : 0;
+
   const results = [];
 
   for (let step = 0; step < maxUpgrades; step++) {
@@ -49,6 +58,7 @@ export function getOptimizedGenericUpgrades({
     let bestStatChanges = null;
     let bestTotalChange = 0;
     let bestNewStats = null;
+    let bestNewDustMultiplier = 0;
 
     // Find available upgrades for this category
     const availableUpgrades = simulatedUpgrades.filter(upgrade => {
@@ -65,8 +75,26 @@ export function getOptimizedGenericUpgrades({
       );
       const newStats = getCurrentStats(tempUpgrades, character, account, extraArgs);
 
+      // Special handling for dust
+      let newDustMultiplier = currentDustMultiplier;
+      if (category === 'dust' && typeof getExtraDust === 'function') {
+        newDustMultiplier = getExtraDust(character, {
+          ...account,
+          compass: { ...account.compass, upgrades: tempUpgrades }
+        });
+      }
+
       // Calculate stat changes
       const statChanges = categoryInfo.stats.map(stat => {
+        if (category === 'dust' && stat === 'dust' && typeof getExtraDust === 'function') {
+          const change = newDustMultiplier - currentDustMultiplier;
+          const percentChange = currentDustMultiplier > 0 ? ((newDustMultiplier - currentDustMultiplier) / currentDustMultiplier) * 100 : 0;
+          return {
+            stat: 'extraDust',
+            change,
+            percentChange
+          };
+        }
         const currentValue = currentStats[stat] || 0;
         const newValue = newStats[stat] || 0;
         return {
@@ -87,6 +115,7 @@ export function getOptimizedGenericUpgrades({
         bestStatChanges = statChanges;
         bestTotalChange = totalStatChange;
         bestNewStats = newStats;
+        bestNewDustMultiplier = newDustMultiplier;
       }
     }
 
@@ -113,6 +142,9 @@ export function getOptimizedGenericUpgrades({
 
       // Update current stats for next iteration
       currentStats = bestNewStats;
+      if (category === 'dust' && typeof getExtraDust === 'function') {
+        currentDustMultiplier = bestNewDustMultiplier;
+      }
 
       // Recalculate all upgrade costs after this purchase
       simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => {

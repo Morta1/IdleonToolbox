@@ -642,6 +642,10 @@ const getUpgradeCost = (upgrades, index, serverVars) => {
 
 export const getOptimizedUpgrades = (character, account, category = 'damage', maxUpgrades = 100) => {
   const categoryInfo = UPGRADE_CATEGORIES[category];
+  const extraArgs = {};
+  if (category === 'dust') {
+    extraArgs.getExtraDust = getExtraDust;
+  }
   return getOptimizedGenericUpgrades({
     character,
     account,
@@ -658,6 +662,7 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
       const resource = resources.find(r => r.name === dustType);
       if (resource) resource.value -= cost;
     },
-    resourceNames: dustNames
+    resourceNames: dustNames,
+    extraArgs
   });
 }
