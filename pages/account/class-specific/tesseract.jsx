@@ -12,6 +12,7 @@ import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades';
 import Maps from '@components/account/Misc/class-specific/Tesseract/Maps';
 import { getDropRate } from '@parsers/character';
+import UpgradeOptimizer from '@components/account/Misc/class-specific/Tesseract/UpgradeOptimizer';
 
 const Tesseract = () => {
   const { state } = useContext(AppContext);
@@ -95,6 +96,7 @@ const Tesseract = () => {
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
       <Upgrades upgrades={upgrades} tachyons={tachyons}/>
+      <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]} />
       <Maps {...(state?.account?.tesseract || {})}/>
     </Tabber>
   </>

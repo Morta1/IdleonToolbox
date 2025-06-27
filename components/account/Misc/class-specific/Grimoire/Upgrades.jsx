@@ -35,8 +35,9 @@ const Upgrades = ({ upgrades, bones }) => {
                                   unlockLevel,
                                   level,
                                   unlocked,
-                                  x4
-                                }, index) => {
+                                  x4,
+                                  index
+                                }) => {
           return (
             <Card key={name + index}>
               <CardContent sx={{

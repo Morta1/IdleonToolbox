@@ -151,7 +151,6 @@ const GemShop = () => {
                               </Tooltip>
                             )}
                           </Stack>
-                          {globalIndex}
                           <Typography fontSize={14}>{cleanUnderscore(desc)}</Typography>
                           <Stack sx={{ mt: 'auto' }} direction={'row'} alignItems={'center'}
                             justifyContent={'space-between'}>

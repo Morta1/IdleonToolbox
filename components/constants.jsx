@@ -48,7 +48,7 @@ export const PAGES = {
       icon: 'data/ClassSwapB',
       categories: [
         { label: 'apocalypses', icon: 'data/UISkillIcon110' },
-        { label: 'grimoire', icon: 'data/GrimoireUpg18', tabs: ['Upgrades', 'Monsters'] },
+        { label: 'grimoire', icon: 'data/GrimoireUpg18', tabs: ['Upgrades', 'Upgrade Optimizer', 'Monsters'] },
         {
           label: 'compass',
           icon: 'data/UISkillIcon421',
@@ -57,7 +57,7 @@ export const PAGES = {
         {
           label: 'tesseract',
           icon: 'data/StatusArc0',
-          tabs: ['Upgrades', 'Maps']
+          tabs: ['Upgrades', 'Upgrade Optimizer', 'Maps']
         }
       ]
     },
