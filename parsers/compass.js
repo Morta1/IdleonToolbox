@@ -316,7 +316,6 @@ const getGroupedUpgrades = (upgrades, abominations) => {
     108: 'Nomadic',
     109: 'Abomination'
   };
-
   const groupedUpgrades = Object.entries(keyMap).map(([key, path]) => {
     const raw = randomList[parseInt(key)];
     let ordering = raw.split(' ').map(Number).filter(v => !isNaN(v));
@@ -649,7 +648,7 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
     category,
     maxUpgrades,
     categoryInfo,
-    getUpgrades: acc => acc?.compass?.upgrades || [],
+    getUpgrades: acc => (acc?.compass?.groupedUpgrades || {}).flatMap(({ list }) => list).toSorted((a,b) => a.index - b.index) || [],
     getResources: acc => acc?.compass?.dusts || [],
     getCurrentStats: (upgrades, char, acc) => getCompassStats(char, { ...acc, compass: { ...acc.compass, upgrades } }),
     getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost(upgrades, index, account?.serverVars),

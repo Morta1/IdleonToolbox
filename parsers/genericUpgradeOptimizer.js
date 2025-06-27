@@ -54,6 +54,7 @@ export function getOptimizedGenericUpgrades({
     const availableUpgrades = simulatedUpgrades.filter(upgrade => {
       if (!categoryInfo.upgradeIndices.includes(upgrade.index)) return false;
       if (upgrade.level >= upgrade.x4) return false;
+      if (!upgrade.unlocked) return false; // Only unlocked upgrades
       return true;
     });
 
