@@ -460,8 +460,13 @@ export const calcTesseractBonus = (upgrades, index, anotherIndex) => {
 
 }
 
-export const getOptimizedTesseractUpgrades = (character, account, category = 'damage', maxUpgrades = 100) => {
+export const getOptimizedTesseractUpgrades = (character, account, category = 'damage', maxUpgrades = 100, options = {}) => {
   const categoryInfo = TESSERACT_UPGRADE_CATEGORIES[category];
+  const extraArgs = {};
+  // Merge onlyAffordable from options into extraArgs if present
+  if (typeof options.onlyAffordable !== 'undefined') {
+    extraArgs.onlyAffordable = options.onlyAffordable;
+  }
   return getOptimizedGenericUpgrades({
     character,
     account,
@@ -478,6 +483,7 @@ export const getOptimizedTesseractUpgrades = (character, account, category = 'da
       const resource = resources.find(r => r.name === tachyonType);
       if (resource) resource.value -= cost;
     },
-    resourceNames: tachyonNames
+    resourceNames: tachyonNames,
+    extraArgs,
   });
 };

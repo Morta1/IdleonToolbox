@@ -50,11 +50,12 @@ const GenericUpgradeOptimizer = ({
   const [category, setCategory] = useState('damage');
   const [maxUpgrades, setMaxUpgrades] = useState(10);
   const [CheckboxEl, consolidateUpgrades] = useCheckbox('Group by upgrade');
+  const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only show affordable upgrades');
 
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
-    return getOptimizedUpgradesFn(character, account, category, maxUpgrades);
-  }, [character, category, maxUpgrades, account, getOptimizedUpgradesFn]);
+    return getOptimizedUpgradesFn(character, account, category, maxUpgrades, { onlyAffordable });
+  }, [character, category, maxUpgrades, account, getOptimizedUpgradesFn, onlyAffordable]);
 
   // Group upgrades by name if consolidation is enabled
   const displayUpgrades = useMemo(() => {
@@ -219,6 +220,7 @@ const GenericUpgradeOptimizer = ({
           </Select>
         </FormControl>
         <CheckboxEl/>
+        <AffordableCheckboxEl/>
         <Tooltip title={tooltipText}>
           <IconInfoCircleFilled/>
         </Tooltip>

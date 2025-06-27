@@ -1,24 +1,6 @@
 // Generic Upgrade Optimizer
 // Consolidates the simulation logic for Compass, Grimoire, and Tesseract optimizers
 
-/**
- * getOptimizedGenericUpgrades
- * @param {Object} params
- * @param {Object} params.character
- * @param {Object} params.account
- * @param {string} params.category
- * @param {number} params.maxUpgrades
- * @param {Object} params.categoryInfo - { upgradeIndices, stats }
- * @param {function} params.getUpgrades - (account) => upgrades[]
- * @param {function} params.getResources - (account) => resources[]
- * @param {function} params.getCurrentStats - (simulatedUpgrades, character, account, extraArgs?) => statsObj
- * @param {function} params.getUpgradeCost - (upgrade, index, context) => cost
- * @param {function} params.applyUpgrade - (upgrade, upgradesArr) => upgradesArr (with upgrade applied)
- * @param {function} [params.updateResourcesAfterUpgrade] - (resources, upgrade, resourceNames) => void (optional)
- * @param {Object} [params.resourceNames] - (optional, for resource deduction)
- * @param {Object} [params.extraArgs] - (optional, for extra context)
- * @returns {Array} Array of recommended upgrades with stat changes and efficiency
- */
 export function getOptimizedGenericUpgrades({
   character,
   account,
@@ -34,9 +16,11 @@ export function getOptimizedGenericUpgrades({
   resourceNames,
   extraArgs = {}
 }) {
-  // Working copies for simulation
-  let simulatedUpgrades = getUpgrades(account).map(u => ({ ...u }));
-  let simulatedResources = getResources(account);
+  // Extract onlyAffordable from extraArgs, defaulting to false
+  const { onlyAffordable = false } = extraArgs;
+  // Deep clone upgrades and resources to avoid mutating input data
+  let simulatedUpgrades = JSON.parse(JSON.stringify(getUpgrades(account)));
+  let simulatedResources = JSON.parse(JSON.stringify(getResources(account)));
 
   // Track current stats for comparison
   let currentStats = getCurrentStats(simulatedUpgrades, character, account, extraArgs);
@@ -59,20 +43,57 @@ export function getOptimizedGenericUpgrades({
     let bestTotalChange = 0;
     let bestNewStats = null;
     let bestNewDustMultiplier = 0;
+    let bestTempUpgrades = null;
+    let bestTempResources = null;
 
     // Find available upgrades for this category
     const availableUpgrades = simulatedUpgrades.filter(upgrade => {
       if (!categoryInfo.upgradeIndices.includes(upgrade.index)) return false;
       if (upgrade.level >= upgrade.x4) return false;
       if (!upgrade.unlocked) return false; // Only unlocked upgrades
+      // If onlyAffordable is true, check if upgrade is affordable with current simulatedResources
+      if (onlyAffordable) {
+        const cost = getUpgradeCost(upgrade, upgrade.index, { account, upgrades: simulatedUpgrades, resources: simulatedResources, ...extraArgs });
+        if (Array.isArray(simulatedResources)) {
+          // If array of objects with value property (e.g., [{ value, name }]), match resource type
+          if (simulatedResources.length > 0 && typeof simulatedResources[0] === 'object' && simulatedResources[0] !== null && 'value' in simulatedResources[0]) {
+            // Try to match by resource name or index
+            let resourceObj = null;
+            if (upgrade.x3 !== undefined) {
+              // Try to match by x3 (resource type index)
+              resourceObj = simulatedResources[upgrade.x3];
+            }
+            if (!resourceObj && upgrade.name) {
+              // Try to match by name
+              resourceObj = simulatedResources.find(r => r.name === upgrade.name);
+            }
+            // Fallback: just use first resource
+            if (!resourceObj) resourceObj = simulatedResources[0];
+            if (!resourceObj || resourceObj.value < cost) return false;
+          } else {
+            // If array of numbers
+            if (simulatedResources.some(r => r < cost)) return false;
+          }
+        } else if (typeof simulatedResources === 'object' && simulatedResources !== null) {
+          // If object, check all resourceNames (if provided) or all keys
+          const keys = resourceNames ? Object.values(resourceNames) : Object.keys(simulatedResources);
+          for (const key of keys) {
+            if ((simulatedResources[key] ?? 0) < cost) return false;
+          }
+        } else {
+          // If number
+          if (simulatedResources < cost) return false;
+        }
+      }
       return true;
     });
 
     for (const upgrade of availableUpgrades) {
-      // Simulate applying this upgrade
-      const tempUpgrades = simulatedUpgrades.map(u =>
-        u.index === upgrade.index ? { ...u, level: u.level + 1 } : u
-      );
+      // Deep clone upgrades for simulation
+      const tempUpgrades = JSON.parse(JSON.stringify(simulatedUpgrades));
+      // Apply upgrade by creating a new object
+      const idx = tempUpgrades.findIndex(u => u.index === upgrade.index);
+      tempUpgrades[idx] = { ...tempUpgrades[idx], level: tempUpgrades[idx].level + 1 };
       const newStats = getCurrentStats(tempUpgrades, character, account, extraArgs);
 
       // Special handling for dust
@@ -116,6 +137,7 @@ export function getOptimizedGenericUpgrades({
         bestTotalChange = totalStatChange;
         bestNewStats = newStats;
         bestNewDustMultiplier = newDustMultiplier;
+        bestTempUpgrades = tempUpgrades;
       }
     }
 
@@ -131,13 +153,14 @@ export function getOptimizedGenericUpgrades({
         cost
       });
 
-      // Apply the upgrade in our simulation
-      const upgradeToUpdate = simulatedUpgrades.find(u => u.index === bestUpgrade.index);
-      upgradeToUpdate.level += 1;
+      // Use the bestTempUpgrades as the new simulatedUpgrades (no mutation)
+      simulatedUpgrades = bestTempUpgrades;
 
-      // Optionally update resources
+      // Optionally update resources (deep clone before passing)
       if (updateResourcesAfterUpgrade && resourceNames) {
-        updateResourcesAfterUpgrade(simulatedResources, bestUpgrade, resourceNames, cost);
+        let tempResources = JSON.parse(JSON.stringify(simulatedResources));
+        updateResourcesAfterUpgrade(tempResources, bestUpgrade, resourceNames, cost);
+        simulatedResources = tempResources;
       }
 
       // Update current stats for next iteration
@@ -146,7 +169,7 @@ export function getOptimizedGenericUpgrades({
         currentDustMultiplier = bestNewDustMultiplier;
       }
 
-      // Recalculate all upgrade costs after this purchase
+      // Recalculate all upgrade costs after this purchase (no mutation)
       simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => {
         const cost = getUpgradeCost(upgrade, index, { account, upgrades: simulatedUpgrades, ...extraArgs });
         return { ...upgrade, cost };
