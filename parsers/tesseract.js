@@ -22,27 +22,27 @@ export const TESSERACT_UPGRADE_CATEGORIES = {
   damage: {
     name: 'Damage',
     stats: ['damage'],
-    upgradeIndices: [0, 4, 6, 12, 15, 24, 31, 36, 42, 50, 53, 39]
+    upgradeIndices: [0, 4, 6, 12, 15, 24, 31, 36, 42, 50, 53, 39, 49, 54]
   },
   accuracy: {
     name: 'Accuracy',
     stats: ['accuracy'],
-    upgradeIndices: [1, 9, 19, 22, 27, 38, 44, 52, 55, 39]
+    upgradeIndices: [1, 9, 19, 22, 27, 38, 44, 52, 55, 39, 49, 54]
   },
   defence: {
     name: 'Defence',
     stats: ['defence'],
-    upgradeIndices: [2, 11, 22, 29, 44, 46, 55, 39]
+    upgradeIndices: [2, 11, 22, 29, 44, 46, 55, 39, 49, 54]
   },
   crit: {
     name: 'Crit',
     stats: ['critPct', 'critDamage'],
-    upgradeIndices: [8, 14, 39]
+    upgradeIndices: [8, 14, 39, 49, 54]
   },
   attackSpeed: {
     name: 'Attack Speed',
     stats: ['attackSpeed'],
-    upgradeIndices: [21, 39]
+    upgradeIndices: [21, 39, 49, 54]
   }
 };
 
