@@ -1,6 +1,6 @@
 import { Divider, Stack, Typography } from '@mui/material';
 import { Section } from '@components/tools/active-calculator/common';
-import React, { useContext } from 'react';
+import React, { Fragment, useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { checkCharClass } from '@parsers/talents';
@@ -18,19 +18,37 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const isElementalSorcerer = checkCharClass(characterClass, 'Elemental_Sorcerer');
   const isSiegeBreaker = checkCharClass(characterClass, 'Siege_Breaker');
   const isDeathBringer = checkCharClass(characterClass, 'Death_Bringer');
+  const isArcaneCultist = checkCharClass(characterClass, 'Arcane_Cultist');
+  const isWindWalker = checkCharClass(characterClass, 'Wind_Walker');
 
   const getPerHour = (difference) => Math.floor((difference / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60);
   const getKills = (source) => Math.floor(source?.kills?.[snapshottedChar?.mapIndex] || 0);
   const getAccountOption = (key) => state?.account?.accountOptions?.[key] || 0;
   const getSnapshotOption = (key) => snapshottedAcc?.accountOptions?.[key] || 0;
-  const dkOrbsDiff = getAccountOption(138) - getSnapshotOption(138);
-  const esWormholeDiff = getAccountOption(152) - getSnapshotOption(152);
-  const sbPlunderousDiff = getAccountOption(139) - getSnapshotOption(139);
+  const getDiff = (key) => getAccountOption(key) - getSnapshotOption(key);
+  const dkOrbsDiff = getDiff(138);
+  const esWormholeDiff = getDiff(152);
+  const sbPlunderousDiff = getDiff(139);
   const dkBonesDiff = {
-    'Femur': getAccountOption(330) - getSnapshotOption(330),
-    'Ribcage': getAccountOption(331) - getSnapshotOption(331),
-    'Cranium': getAccountOption(332) - getSnapshotOption(332),
-    'Bovinae': getAccountOption(333) - getSnapshotOption(333)
+    'Femur': getDiff(330),
+    'Ribcage': getDiff(331),
+    'Cranium': getDiff(332),
+    'Bovinae': getDiff(333)
+  }
+  const acTachyonDiff = {
+    'Purple': getDiff(388),
+    'Brown': getDiff(389),
+    'Green': getDiff(390),
+    'Red': getDiff(391),
+    'Silver': getDiff(392),
+    'Gold': getDiff(393)
+  }
+  const wwDustDiff = {
+    'Stardust': getDiff(357),
+    'Moondust': getDiff(358),
+    'Solardust': getDiff(359),
+    'Cooldust': getDiff(360),
+    'Novadust': getDiff(361)
   }
 
   return (
@@ -54,6 +72,23 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
               <Typography variant="body2">Cranium: {numberWithCommas(Math.floor(getSnapshotOption(332)))}</Typography>
               <Typography variant="body2">Bovinae: {numberWithCommas(Math.floor(getSnapshotOption(333)))}</Typography>
             </>}
+          {isArcaneCultist && <>
+            <Typography variant="body1">AC Tachyons</Typography>
+            <Typography variant="body2">Purple: {numberWithCommas(Math.floor(getSnapshotOption(388)))}</Typography>
+            <Typography variant="body2">Brown: {numberWithCommas(Math.floor(getSnapshotOption(389)))}</Typography>
+            <Typography variant="body2">Green: {numberWithCommas(Math.floor(getSnapshotOption(390)))}</Typography>
+            <Typography variant="body2">Red: {numberWithCommas(Math.floor(getSnapshotOption(391)))}</Typography>
+            <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getSnapshotOption(392)))}</Typography>
+            <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getSnapshotOption(393)))}</Typography>
+          </>}
+          {isWindWalker && <>
+            <Typography variant="body1">WW Dust</Typography>
+            <Typography variant="body2">Stardust: {numberWithCommas(Math.floor(getSnapshotOption(357)))}</Typography>
+            <Typography variant="body2">Moondust: {numberWithCommas(Math.floor(getSnapshotOption(358)))}</Typography>
+            <Typography variant="body2">Solardust: {numberWithCommas(Math.floor(getSnapshotOption(359)))}</Typography>
+            <Typography variant="body2">Cooldust: {numberWithCommas(Math.floor(getSnapshotOption(360)))}</Typography>
+            <Typography variant="body2">Novadust: {numberWithCommas(Math.floor(getSnapshotOption(361)))}</Typography>
+          </>}
         </Stack>
         <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
         <Stack>
@@ -75,6 +110,23 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
               <Typography variant="body2">Cranium: {numberWithCommas(Math.floor(getAccountOption(332)))}</Typography>
               <Typography variant="body2">Bovinae: {numberWithCommas(Math.floor(getAccountOption(333)))}</Typography>
             </>}
+          {isArcaneCultist && <>
+            <Typography variant="body1">AC Tachyons</Typography>
+            <Typography variant="body2">Purple: {numberWithCommas(Math.floor(getAccountOption(388)))}</Typography>
+            <Typography variant="body2">Brown: {numberWithCommas(Math.floor(getAccountOption(389)))}</Typography>
+            <Typography variant="body2">Green: {numberWithCommas(Math.floor(getAccountOption(390)))}</Typography>
+            <Typography variant="body2">Red: {numberWithCommas(Math.floor(getAccountOption(391)))}</Typography>
+            <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getAccountOption(392)))}</Typography>
+            <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getAccountOption(393)))}</Typography>
+          </>}
+          {isWindWalker && <>
+            <Typography variant="body1">WW Dust</Typography>
+            <Typography variant="body2">Stardust: {numberWithCommas(Math.floor(getAccountOption(357)))}</Typography>
+            <Typography variant="body2">Moondust: {numberWithCommas(Math.floor(getAccountOption(358)))}</Typography>
+            <Typography variant="body2">Solardust: {numberWithCommas(Math.floor(getAccountOption(359)))}</Typography>
+            <Typography variant="body2">Cooldust: {numberWithCommas(Math.floor(getAccountOption(360)))}</Typography>
+            <Typography variant="body2">Novadust: {numberWithCommas(Math.floor(getAccountOption(361)))}</Typography>
+          </>}
         </Stack>
       </> : null}
       <Stack>
@@ -87,8 +139,10 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>
-        <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])))}</Typography>
-        <Typography variant="body2">Per day: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])) * 24)}</Typography>
+        <Typography variant="body2">Per
+          hour: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])))}</Typography>
+        <Typography variant="body2">Per
+          day: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])) * 24)}</Typography>
         {isDivineKnight ? <>
           <Divider sx={{ my: 1 }}/>
           <Typography variant="body1">DK Orbs</Typography>
@@ -104,39 +158,43 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
           <Typography variant="body2">Per day: {numberWithCommas(getPerHour(esWormholeDiff) * 24)}</Typography>
         </> : null}
         {isSiegeBreaker ? <>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body1">SB Plunderous</Typography>
-          <Typography variant="body2">Diff: {numberWithCommas(sbPlunderousDiff)}</Typography>
-          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(sbPlunderousDiff))}</Typography>
-          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(sbPlunderousDiff) * 24)}</Typography>
+          <AdvancedSection title="SB Plunderous" getPerHour={getPerHour}
+                           items={[{ label: 'Plunderous', value: sbPlunderousDiff }]}/>
         </> : null}
         {isDeathBringer ? <>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body1">DK Bones</Typography>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body2">Femur</Typography>
-          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Femur))}</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Femur)))} / hr</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Femur * 24)))} / day</Typography>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body2">Ribcage</Typography>
-          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Ribcage))}</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Ribcage)))} / hr</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Ribcage * 24)))} / day</Typography>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body2">Cranium</Typography>
-          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Cranium))}</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Cranium)))} / hr</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Cranium * 24)))} / day</Typography>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body2">Bovinae</Typography>
-          <Typography variant="body2">{numberWithCommas(Math.floor(dkBonesDiff.Bovinae))}</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Bovinae)))} / hr</Typography>
-          <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(dkBonesDiff.Bovinae * 24)))} / day</Typography>
+          <AdvancedSection title="DK Bones"
+                           items={Object.entries(dkBonesDiff).map(([key, value]) => ({ label: key, value }))}
+                           getPerHour={getPerHour}/>
+        </> : null}
+        {isArcaneCultist ? <>
+          <AdvancedSection title="AC Tachyons"
+                           items={Object.entries(acTachyonDiff).map(([key, value]) => ({ label: key, value }))}
+                           getPerHour={getPerHour}/>
+        </> : null}
+        {isWindWalker ? <>
+          <AdvancedSection title="WW Dust"
+                           items={Object.entries(wwDustDiff).map(([key, value]) => ({ label: key, value }))}
+                           getPerHour={getPerHour}/>
         </> : null}
       </Stack>
     </Section>
   );
 };
 
+const AdvancedSection = ({ title, items, getPerHour }) => {
+  return <>
+    <Divider sx={{ my: 1 }}/>
+    <Typography variant="body1">{title}</Typography>
+    {items.map(({ label, value }, index) => {
+      return <Fragment key={`${title}-${index}`}>
+        <Divider sx={{ my: 1 }}/>
+        <Typography variant="body2">{label}</Typography>
+        <Typography variant="body2">{numberWithCommas(Math.floor(value))}</Typography>
+        <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(value)))} / hr</Typography>
+        <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(value * 24)))} /
+          day</Typography>
+      </Fragment>
+    })}
+  </>
+}
 export default KillsSection;
