@@ -262,15 +262,18 @@ const Bubbles = () => {
                   : bubblesGoals?.[cauldron]?.[index] : level;
                 const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
                 const tesseractBonus = getTesseractBonus(state?.account, 45)
-                const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100) : 1);
-                const bubbleMaxBonus = getMaxBonus(func, x1);
+                const prismaMulti = isPrisma
+                  ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100)
+                  : 1;
+                const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? prismaMulti : 1);
+                const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);
                 const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
                 let thresholdObj;
                 if (bubbleMaxBonus) {
                   const thresholdLevelNeeded = effThreshold / (100 - effThreshold) * x2;
                   thresholdObj = {
                     thresholdMissingLevels: thresholdLevelNeeded - goalLevel,
-                    thresholdBonus: growth(func, thresholdLevelNeeded, x1, x2, true),
+                    thresholdBonus: growth(func, thresholdLevelNeeded, x1, x2, true) * prismaMulti,
                     effectHardCapPercent: thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
                   }
                 }
@@ -377,7 +380,7 @@ const AdditionalInfo = ({
         <BonusIcon src={`${prefix}data/SignStar1b.png`} alt=""/>
         <Typography variant={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0
           ? 'caption'
-          : ''}>{goalBonus} {bubbleMaxBonus
+          : ''}>{goalBonus.toFixed(3).replace('.000', '')} {bubbleMaxBonus
           ? `(${notateNumber(effectHardCapPercent)}%)`
           : ''}</Typography>
       </Stack>
@@ -441,7 +444,7 @@ const AdditionalInfo = ({
     {bubbleMaxBonus ? <>
       <Divider sx={{ my: 1 }}/>
       <Typography
-        variant={'body2'}>{`${goalBonus} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus}`}</Typography>
+        variant={'body2'}>{`${goalBonus.toFixed(3).replace('.000', '')} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus.toFixed(2).replace('.00', '')}`}</Typography>
     </> : null}
   </Box>
 }
