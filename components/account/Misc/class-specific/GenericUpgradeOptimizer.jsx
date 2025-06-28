@@ -65,21 +65,35 @@ const GenericUpgradeOptimizer = ({
     // Group consecutive upgrades of the same type while preserving order
     const consolidatedUpgrades = [];
     let currentGroup = null;
+    const currentLevels = {};
     optimizedUpgrades.forEach((upgrade, index) => {
-      if (!currentGroup || currentGroup.name !== upgrade.name) {
+      const upgradeName = upgrade.name;
+      // Determine the start level for this group
+      const startLevel = currentGroup && currentGroup.name === upgradeName
+        ? currentGroup.startLevel
+        : (currentLevels[upgradeName] ?? upgrade.level);
+      if (!currentGroup || currentGroup.name !== upgradeName) {
         if (currentGroup) {
+          // After finishing a group, update the current level and push
+          currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length;
+          currentLevels[currentGroup.name] = currentGroup.finalLevel;
           consolidatedUpgrades.push(currentGroup);
         }
+        // Start new group
         currentGroup = {
           ...upgrade,
           upgradeIndex: index,
-          sequence: [{ ...upgrade, originalIndex: index }]
+          sequence: [{ ...upgrade, originalIndex: index }],
+          startLevel,
         };
       } else {
         currentGroup.sequence.push({ ...upgrade, originalIndex: index });
       }
     });
+    // Push the last group
     if (currentGroup) {
+      currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length;
+      currentLevels[currentGroup.name] = currentGroup.finalLevel;
       consolidatedUpgrades.push(currentGroup);
     }
     // Calculate combined stats for each group
@@ -91,7 +105,6 @@ const GenericUpgradeOptimizer = ({
       const combinedStats = {};
       let totalCost = 0;
       const resourceType = getResourceType(upgrade);
-      const finalLevel = upgrade.sequence[upgrade.sequence.length - 1].level + 1;
       upgrade.sequence.forEach(seq => {
         totalCost += seq.cost;
         seq.statChanges.forEach(statChange => {
@@ -111,8 +124,8 @@ const GenericUpgradeOptimizer = ({
         combinedStatChanges: Object.values(combinedStats),
         totalCost,
         resourceType,
-        startLevel: upgrade.level,
-        finalLevel,
+        startLevel: upgrade.startLevel,
+        finalLevel: upgrade.finalLevel,
         numberOfUpgrades: upgrade.sequence.length
       };
     });
