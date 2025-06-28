@@ -39,27 +39,28 @@ export const UPGRADE_CATEGORIES = {
   damage: {
     name: 'Damage',
     stats: ['damage'],
-    upgradeIndices: [14, 15, 24, 60, 81, 23, 26, 6, 119, 121, 122, 123, 126, 127, 129, 130, 132, 135, 64, 78, 85, 94]
+    upgradeIndices: [8, 6, 113, 112, 14, 119, 15, 122, 123, 121, 129, 130, 127, 24, 132, 135, 126, 48, 155, 157, 158,
+      60, 64, 74, 75, 81, 85, 94]
   },
   dust: {
     name: 'Dust',
     stats: ['dust'],
-    upgradeIndices: [31, 34, 38, 139, 142, 145, 148, 150, 68, 93, 89]
+    upgradeIndices: [22, 23, 139, 30, 142, 34, 145, 31, 38, 33, 148, 150, 68, 86, 89, 93]
   },
   accuracy: {
     name: 'Accuracy',
     stats: ['accuracy'],
-    upgradeIndices: [17, 19, 25, 61, 22, 6, 120, 124, 125, 128, 131, 133, 134, 136, 147, 84, 79, 90]
+    upgradeIndices: [6, 17, 120, 124, 19, 22, 125, 134, 128, 133, 25, 131, 136, 147, 61, 79, 84, 90]
   },
   defence: {
     name: 'Defence',
     stats: ['defence'],
-    upgradeIndices: [29, 63, 30, 137, 138, 141, 143, 144, 149, 83, 91]
+    upgradeIndices: [29, 137, 30, 141, 138, 144, 149, 143, 63, 83, 91]
   },
   crit: {
     name: 'Crit',
     stats: ['critPct', 'critDamage'],
-    upgradeIndices: [16, 20, 66, 75]
+    upgradeIndices: [16, 123, 20, 42, 66, 75]
   },
   attackSpeed: {
     name: 'Attack Speed',
@@ -69,7 +70,7 @@ export const UPGRADE_CATEGORIES = {
   hp: {
     name: 'HP',
     stats: ['hp'],
-    upgradeIndices: [28, 87, 140, 146, 92]
+    upgradeIndices: [10, 28, 78, 84, 87, 92]
   }
 };
 
@@ -656,17 +657,20 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
     category,
     maxUpgrades,
     categoryInfo,
-    getUpgrades: acc => (acc?.compass?.groupedUpgrades || {}).flatMap(({ list }) => list).toSorted((a,b) => a.index - b.index) || [],
+    getUpgrades: acc => (acc?.compass?.groupedUpgrades || {}).flatMap(({ list }) => list).toSorted((a, b) => a.index - b.index) || [],
     getResources: acc => acc?.compass?.dusts || [],
     getCurrentStats: (upgrades, char, acc) => getCompassStats(char, { ...acc, compass: { ...acc.compass, upgrades } }),
     getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost(upgrades, index, account?.serverVars),
-    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? { ...u, level: u.level + 1 } : u),
+    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
+      ...u,
+      level: u.level + 1
+    } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const dustType = dustNames[upgrade.x3];
       const resource = resources.find(r => r.name === dustType);
       if (resource) resource.value -= cost;
     },
     resourceNames: dustNames,
-    extraArgs,
+    extraArgs
   });
 }

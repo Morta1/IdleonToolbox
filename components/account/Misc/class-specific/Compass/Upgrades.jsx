@@ -64,6 +64,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             opacity: unlocked ? 1 : 0.5
           }}
         >
+          {index}
           <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
             <img style={{ width: 32, height: 32, position: 'absolute', left: 0, top: 0 }}
                  src={`${prefix}data/${shapeIcon}.png`}/>

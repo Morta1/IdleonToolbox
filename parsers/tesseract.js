@@ -22,25 +22,26 @@ export const TESSERACT_UPGRADE_CATEGORIES = {
   damage: {
     name: 'Damage',
     stats: ['damage'],
-    // Indices from getArcanistStats: 0, 6, 15, 36, 50 (verify as needed)
-    upgradeIndices: [0, 4, 6, 15, 36, 50]
+    upgradeIndices: [0, 4, 6, 12, 15, 24, 31, 36, 42, 50, 53]
   },
   accuracy: {
     name: 'Accuracy',
     stats: ['accuracy'],
-    // Indices from getArcanistStats: 1, 9, 19, 38, 52 (verify as needed)
-    upgradeIndices: [1, 9, 19, 38, 52]
+    upgradeIndices: [1, 9, 19, 22, 27, 38, 44, 52, 55]
+  },
+  defence: {
+    name: 'Defence',
+    stats: ['defence'],
+    upgradeIndices: [2, 11, 22, 29, 44, 46, 55]
   },
   crit: {
     name: 'Crit',
     stats: ['critPct', 'critDamage'],
-    // Indices from getArcanistStats: 8, 14 (verify as needed)
     upgradeIndices: [8, 14]
   },
   attackSpeed: {
     name: 'Attack Speed',
     stats: ['attackSpeed'],
-    // Indices from getArcanistStats: 21 (verify as needed)
     upgradeIndices: [21]
   }
 };
@@ -308,7 +309,7 @@ export const getExtraTachyon = (character, account) => {
   const upgrades = account?.tesseract?.upgrades;
   const tesseract = getTalentBonus(character?.talents, 4, 'TESSERACT');
   const equipBonus = getStatsFromGear(character, 95, account);
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcanist_Tachyons')?.bonus
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcanist_Tachyons')?.bonus ?? 0;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 23, spelunkerObolMulti);
   const emperorBonus = getEmperorBonus(account, 6);
@@ -364,6 +365,17 @@ export const getArcanistStats = (upgrades, totalUpgradeLevels, character, accoun
         + (calcTesseractBonus(upgrades, 31, 0)
           + (calcTesseractBonus(upgrades, 42, 0) + calcTesseractBonus(upgrades, 53, 0)))))) / 100)
     * (1 + equipBonus2 / 100);
+  const defence = (calcTesseractBonus(upgrades, 2, 0)
+      + (calcTesseractBonus(upgrades, 11, 0)
+        + (calcTesseractBonus(upgrades, 29, 0)
+          + calcTesseractBonus(upgrades, 46, 0))))
+    * (1 + (goulishPower *
+      (totalUpgradeLevels / 100)) / 100)
+    * (1 + (calcTesseractBonus(upgrades, 22, 0)
+      + (calcTesseractBonus(upgrades, 44, 0)
+        + calcTesseractBonus(upgrades, 55, 0))) / 100)
+    * (1 + (calcTesseractBonus(upgrades, 41, 0)
+      * lavaLog(account?.accountOptions?.[391])) / 100);
 
   const accuracy = (2 + (calcTesseractBonus(upgrades, 1, 0)
       + (calcTesseractBonus(upgrades, 9, 0)
@@ -388,6 +400,7 @@ export const getArcanistStats = (upgrades, totalUpgradeLevels, character, accoun
 
   return {
     damage,
+    defence,
     accuracy,
     mastery,
     critPct,
@@ -477,13 +490,16 @@ export const getOptimizedTesseractUpgrades = (character, account, category = 'da
     getResources: acc => acc?.tesseract?.tachyons || [],
     getCurrentStats: (upgrades, char, acc) => getArcanistStats(upgrades, acc?.tesseract?.totalUpgradeLevels, char, acc),
     getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost({ ...upgrade, index, account, upgrades }),
-    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? { ...u, level: u.level + 1 } : u),
+    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
+      ...u,
+      level: u.level + 1
+    } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const tachyonType = tachyonNames[upgrade.x3];
       const resource = resources.find(r => r.name === tachyonType);
       if (resource) resource.value -= cost;
     },
     resourceNames: tachyonNames,
-    extraArgs,
+    extraArgs
   });
 };

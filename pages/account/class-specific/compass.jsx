@@ -2,7 +2,7 @@ import { Divider, Select, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';

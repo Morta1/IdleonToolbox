@@ -22,7 +22,7 @@ export const GRIMOIRE_UPGRADE_CATEGORIES = {
   accuracy: {
     name: 'Accuracy',
     stats: ['accuracy'],
-    upgradeIndices: [1, 7, 12, 25, 37, 41, 47, 38]
+    upgradeIndices: [1, 7, 12, 25, 37, 38, 41, 47]
   },
   defence: {
     name: 'Defence',
