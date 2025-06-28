@@ -241,17 +241,18 @@ const Bubbles = () => {
               : bubblesGoals?.[cauldron]?.[index] : level;
             const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
             const tesseractBonus = getTesseractBonus(state?.account, 45)
-            const goalBonus = Math.floor(growth(func, goalLevel, x1, x2, true) * (isPrisma
+            const prismaMulti = isPrisma
               ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100)
-              : 1));
-            const bubbleMaxBonus = getMaxBonus(func, x1);
+              : 1;
+            const goalBonus = Math.floor(growth(func, goalLevel, x1, x2, true) * (isPrisma ? prismaMulti : 1));
+            const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);
             const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
             let thresholdObj;
             if (bubbleMaxBonus) {
               const thresholdLevelNeeded = effThreshold / (100 - effThreshold) * x2;
               thresholdObj = {
                 thresholdMissingLevels: thresholdLevelNeeded - goalLevel,
-                thresholdBonus: growth(func, thresholdLevelNeeded, x1, x2, true),
+                thresholdBonus: growth(func, thresholdLevelNeeded, x1, x2, true) * prismaMulti,
                 effectHardCapPercent: thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
               }
             }
@@ -282,6 +283,8 @@ const Bubbles = () => {
                                                               bubble={bubble}
                                                               goalLevel={goalLevel}/> :
                           <BubbleTooltip {...{ ...bubble, goalLevel }}/>}>
+                        {isPrisma ? <img style={{ position: 'absolute', width: 48, height: 48 }}
+                                         src={`${prefix}data/aUpgradesGlow${selectedTab}.png`}/> : null}
                         <BubbleIcon width={48} height={48}
                                     level={level}
                                     src={`${prefix}data/${rawName}.png`}
