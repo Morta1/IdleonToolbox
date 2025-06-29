@@ -19,10 +19,7 @@ const Tesseract = () => {
   const {
     upgrades,
     totalUpgradeLevels,
-    tachyons,
-    maps,
-    weaponDropChance,
-    ringDropChance
+    tachyons
   } = state?.account?.tesseract || {};
   const [selectedChar, setSelectedChar] = useState(0);
   const arcanists = state?.characters?.filter((character) => checkCharClass(character?.class, 'Arcane_Cultist'));

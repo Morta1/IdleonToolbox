@@ -309,7 +309,7 @@ export const getExtraTachyon = (character, account) => {
   const upgrades = account?.tesseract?.upgrades;
   const tesseract = getTalentBonus(character?.talents, 4, 'TESSERACT');
   const equipBonus = getStatsFromGear(character, 95, account);
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcanist_Tachyons')?.bonus ?? 0;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcane_Tachyons')?.bonus ?? 0;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 23, spelunkerObolMulti);
   const emperorBonus = getEmperorBonus(account, 6);
