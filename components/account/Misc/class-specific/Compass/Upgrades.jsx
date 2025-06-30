@@ -15,7 +15,6 @@ import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/h
 import useCheckbox from '@components/common/useCheckbox';
 
 const Upgrades = ({ upgrades, dusts }) => {
-  console.log(upgrades)
   const [sortBy, setSortBy] = useState('default');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
