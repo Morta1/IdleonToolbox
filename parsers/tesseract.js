@@ -265,14 +265,17 @@ const getMapMulti = (index) => {
 
 export const getTachyonQuantityBase = (index) => {
   const type = getTachyonType(index);
+
   if (type >= 5) {
     return Math.pow(Math.max(1, index - 9999) / 8, 0.83);
   } else if (type >= 4) {
     return Math.pow(Math.max(1, index - 3999) / 6, 0.87);
   } else if (type >= 3) {
-    return Math.pow(Math.max(1, index - 2749) / 5, 0.9);
+    if (index === 1850) return 40;
+    if (index === 2500) return 80;
+    return Math.max(5, Math.pow(Math.max(1, index - 2749) / 5, 0.9));
   } else if (type >= 2) {
-    return Math.pow(Math.max(1, index - 799) / 3, 0.9);
+    return Math.max(3, Math.pow(Math.max(1, index - 799) / 3, 0.9));
   } else if (type >= 1) {
     return Math.pow(Math.max(1, index - 249) / 2, 0.9);
   } else {
