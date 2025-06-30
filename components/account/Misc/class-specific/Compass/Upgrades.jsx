@@ -15,6 +15,7 @@ import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/h
 import useCheckbox from '@components/common/useCheckbox';
 
 const Upgrades = ({ upgrades, dusts }) => {
+  console.log(upgrades)
   const [sortBy, setSortBy] = useState('default');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
@@ -37,13 +38,14 @@ const Upgrades = ({ upgrades, dusts }) => {
       upgrade.description &&
       cleanUnderscore(upgrade.description).toLowerCase().includes(searchText.toLowerCase()) || (upgrade.name &&
         cleanUnderscore(upgrade.name).toLowerCase().includes(searchText.toLowerCase())
-)    );
+      ));
   };
 
   const renderUpgradeCard = (upgrade, i, dustType) => {
     const {
       name, cost, description, level, x4, extraData,
-      x3, baseIconIndex, index, shapeIcon, nextLevelBonus, isMulti, bonusDiff, unlocked
+      x3, baseIconIndex, index, shapeIcon, unlocksAt, nextLevelBonus, isMulti, bonusDiff, unlocked,
+      path
     } = upgrade;
     if (hideMaxedUpgrades && level >= x4) return null;
     if (hideLockedUpgrades && !unlocked) return null;
@@ -59,7 +61,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             display: 'flex',
             flexDirection: 'column',
             width: 370,
-            minHeight: 250,
+            minHeight: 270,
             height: '100%',
             opacity: unlocked ? 1 : 0.5
           }}
@@ -99,6 +101,10 @@ const Upgrades = ({ upgrades, dusts }) => {
               Cost: {notateNumber(dusts?.[dustType || x3]?.value || 0)} / {notateNumber(cost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
           </Stack>
+          {unlocksAt > 0 ? <>
+            <Divider sx={{ my: 1 }}/>
+            <Typography>Unlocks at {path}: {unlocksAt}</Typography>
+          </> : null}
         </CardContent>
       </Card>
     );
@@ -128,8 +134,8 @@ const Upgrades = ({ upgrades, dusts }) => {
       {sortBy === 'type' ? (
         Object.entries(
           upgrades
-            .flatMap(({ list }) => list)
-            .filter(u => u.description !== 'Titan_doesnt_exist')
+          .flatMap(({ path, list }) => list.map(upg => ({ ...upg, path })))
+          .filter(u => u.description !== 'Titan_doesnt_exist')
             .reduce((acc, upgrade) => {
               if (!acc[upgrade.x3]) acc[upgrade.x3] = [];
               acc[upgrade.x3].push(upgrade);
@@ -181,7 +187,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             <Stack key={path} direction="column" gap={2}>
               <Typography variant="h6">{path}</Typography>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-                {filtered.map((upgrade, i) => renderUpgradeCard(upgrade, i))}
+                {filtered.map((upgrade, i) => renderUpgradeCard(({ ...upgrade, path }), i, null))}
               </Stack>
             </Stack>
           );

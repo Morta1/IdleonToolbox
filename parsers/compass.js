@@ -351,7 +351,8 @@ const getGroupedUpgrades = (upgrades, abominations) => {
       const unlockedCount = list[0]?.level ?? 0;
       list = list.map((upg, i) => ({
         ...upg,
-        unlocked: i <= unlockedCount
+        unlocked: i <= unlockedCount,
+        unlocksAt: i
       }));
     }
 
