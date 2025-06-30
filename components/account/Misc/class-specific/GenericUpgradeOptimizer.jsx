@@ -1,61 +1,68 @@
 import React, { useMemo, useState } from 'react';
 import {
   Box,
+  Button,
   Card,
   CardContent,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Divider,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   Stack,
+  TextField,
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
+import { useLocalStorage } from '@mantine/hooks';
 
-/**
- * GenericUpgradeOptimizer
- *
- * Props:
- * - character
- * - account
- * - getOptimizedUpgradesFn: function (character, account, category, maxUpgrades) => upgrades[]
- * - upgradeCategories: object (keyed by category, with { name })
- * - resourceNames: object (maps resource type key to display name)
- * - resourceKey: string (dot-path to resource array in account, e.g. 'compass.dusts')
- * - resourceImagePrefix: string (e.g. 'Dust', 'Bone', 'Tach')
- * - upgradeImagePrefix: string (e.g. 'CompassUpg', 'GrimoireUpg', 'ArcaneUpg')
- * - getResourceType: function (upgrade) => resource type key
- * - getUpgradeIconIndex: function (upgrade) => icon index (optional)
- * - getResourceAmount: function (resource, idx, resourceNames) => value (optional)
- * - tooltipText: string
- */
 const GenericUpgradeOptimizer = ({
-  character,
-  account,
-  getOptimizedUpgradesFn,
-  upgradeCategories,
-  resourceNames,
-  resourceKey,
-  resourceImagePrefix,
-  upgradeImagePrefix,
-  getResourceType,
-  getUpgradeIconIndex,
-  getResourceAmount,
-  tooltipText
-}) => {
+                                   character,
+                                   account,
+                                   getOptimizedUpgradesFn,
+                                   upgradeCategories,
+                                   resourceNames,
+                                   resourceKey,
+                                   resourceImagePrefix,
+                                   upgradeImagePrefix,
+                                   getResourceType,
+                                   getUpgradeIconIndex,
+                                   getResourceAmount,
+                                   tooltipText
+                                 }) => {
   const [category, setCategory] = useState('damage');
   const [maxUpgrades, setMaxUpgrades] = useState(10);
   const [CheckboxEl, consolidateUpgrades] = useCheckbox('Group by upgrade');
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only show affordable upgrades');
+  const [resourcePerHour, setResourcePerHour] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
+    defaultValue: (() => {
+      const obj = {};
+      Object.keys(resourceNames).forEach(key => { obj[key] = 1; });
+      return obj;
+    })()
+  });
+  const [rphDialogOpen, setRphDialogOpen] = useState(false);
+  const [optimizationMethod, setOptimizationMethod] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:optimizationMethod`,
+    defaultValue: 'rph'
+  });
 
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
-    return getOptimizedUpgradesFn(character, account, category, maxUpgrades, { onlyAffordable });
-  }, [character, category, maxUpgrades, account, getOptimizedUpgradesFn, onlyAffordable]);
+    return getOptimizedUpgradesFn(character, account, category, maxUpgrades, {
+      onlyAffordable,
+      resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
+      getResourceType
+    });
+  }, [character, category, maxUpgrades, account, getOptimizedUpgradesFn, onlyAffordable, resourcePerHour,
+    optimizationMethod, getResourceType]);
 
   // Group upgrades by name if consolidation is enabled
   const displayUpgrades = useMemo(() => {
@@ -75,7 +82,7 @@ const GenericUpgradeOptimizer = ({
       if (!currentGroup || currentGroup.name !== upgradeName) {
         if (currentGroup) {
           // After finishing a group, update the current level and push
-          currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length;
+          currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
           currentLevels[currentGroup.name] = currentGroup.finalLevel;
           consolidatedUpgrades.push(currentGroup);
         }
@@ -84,7 +91,7 @@ const GenericUpgradeOptimizer = ({
           ...upgrade,
           upgradeIndex: index,
           sequence: [{ ...upgrade, originalIndex: index }],
-          startLevel,
+          startLevel
         };
       } else {
         currentGroup.sequence.push({ ...upgrade, originalIndex: index });
@@ -92,7 +99,7 @@ const GenericUpgradeOptimizer = ({
     });
     // Push the last group
     if (currentGroup) {
-      currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length;
+      currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
       currentLevels[currentGroup.name] = currentGroup.finalLevel;
       consolidatedUpgrades.push(currentGroup);
     }
@@ -218,6 +225,22 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
+        <FormControl size="small" sx={{ width: 180 }}>
+          <InputLabel>Optimization Method</InputLabel>
+          <Select
+            value={optimizationMethod}
+            label="Optimization Method"
+            onChange={e => setOptimizationMethod(e.target.value)}
+          >
+            <MenuItem value="rph">Resource per hour</MenuItem>
+            <MenuItem value="cost">Cost only</MenuItem>
+          </Select>
+        </FormControl>
+        {optimizationMethod === 'rph' && (
+          <Button sx={{ width: 'fit-content' }} variant="outlined" onClick={() => setRphDialogOpen(true)}>
+            Set RPH
+          </Button>
+        )}
         <FormControl size="small" sx={{ width: 120 }}>
           <InputLabel>Max Upgrades</InputLabel>
           <Select
@@ -255,6 +278,36 @@ const GenericUpgradeOptimizer = ({
         })}
       </Stack>
 
+      {optimizationMethod === 'rph' && (
+        <Dialog open={rphDialogOpen} onClose={() => setRphDialogOpen(false)}>
+          <DialogTitle>Set Resource Per Hour</DialogTitle>
+          <DialogContent>
+            <Stack direction="column" gap={2}>
+              {Object.entries(resourceNames).map(([key, name], index) => (
+                <Stack direction="column" key={key}>
+                  <Typography variant="caption">{name} per hour:</Typography>
+                  <TextField
+                    InputProps={{
+                      startAdornment: <img
+                        style={{ objectPosition: '0 -3px', marginLeft: -5, marginRight: 5 }}
+                        src={`${prefix}data/${resourceImagePrefix}${index}_x1.png`}
+                        width={24}
+                        height={24}
+                      />
+                    }}
+                    type="number"
+                    size="small"
+                    value={resourcePerHour[key] || ''}
+                    onChange={e => setResourcePerHour(rph => ({ ...rph, [key]: Number(e.target.value) }))}
+                  />
+                </Stack>
+              ))}
+            </Stack>
+            <Button sx={{ mt: 2 }} onClick={() => setRphDialogOpen(false)} variant="contained">Close</Button>
+          </DialogContent>
+        </Dialog>
+      )}
+
       <Typography variant="h6">Recommended Upgrade Sequence</Typography>
       {displayUpgrades.length > 0 ? (
         <Stack direction="row" gap={2} flexWrap="wrap">
@@ -274,7 +327,9 @@ const GenericUpgradeOptimizer = ({
                     />
                     <Box>
                       <Typography variant="subtitle1">
-                        {cleanUnderscore(upgrade.name)} ({upgrade.level} / {upgrade.x4})
+                        {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
+                          .replace('(Tap_for_more_info)', '')
+                          .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {hasSequence

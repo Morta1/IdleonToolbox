@@ -29,9 +29,9 @@ export function getOptimizedGenericUpgrades({
   let getExtraDust = extraArgs.getExtraDust;
   let currentDustMultiplier = (category === 'dust' && typeof getExtraDust === 'function')
     ? getExtraDust(character, {
-        ...account,
-        compass: { ...account.compass, upgrades: simulatedUpgrades }
-      })
+      ...account,
+      compass: { ...account.compass, upgrades: simulatedUpgrades }
+    })
     : 0;
 
   const results = [];
@@ -128,7 +128,21 @@ export function getOptimizedGenericUpgrades({
       // Calculate total efficiency
       const totalStatChange = statChanges.reduce((sum, change) => sum + change.percentChange, 0);
       const cost = getUpgradeCost(upgrade, upgrade.index, { account, upgrades: simulatedUpgrades, ...extraArgs });
-      const efficiency = totalStatChange / cost;
+      let efficiency;
+      if (extraArgs.resourcePerHour) {
+        // Use getResourceType if provided for resource type key
+        let resourceTypeKey = (extraArgs.getResourceType ? extraArgs.getResourceType(upgrade) : (upgrade.x3 !== undefined ? upgrade.x3 : (upgrade.name || 0)));
+        let rph = 1;
+        if (extraArgs.resourcePerHour && resourceTypeKey !== undefined) {
+          if (extraArgs.resourcePerHour[resourceTypeKey] !== undefined && extraArgs.resourcePerHour[resourceTypeKey] > 0) {
+            rph = extraArgs.resourcePerHour[resourceTypeKey];
+          }
+        }
+        const timeCost = cost / rph;
+        efficiency = totalStatChange / timeCost;
+      } else {
+        efficiency = totalStatChange / cost;
+      }
 
       if (efficiency > bestEfficiency) {
         bestUpgrade = upgrade;

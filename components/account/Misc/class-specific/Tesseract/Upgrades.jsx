@@ -43,7 +43,7 @@ const Upgrades = ({ upgrades, tachyons }) => {
 
   const renderUpgradeCard = (upgrade, i, tachyonType) => {
     const {
-      name, cost, description, level, x4, extraData, index, nextLevelBonus, isMulti, bonusDiff, unlocked
+      name, cost, description, level, x4, x6, extraData, index, nextLevelBonus, isMulti, bonusDiff, unlocked
     } = upgrade;
     if (hideMaxedUpgrades && level >= x4) return null;
     if (hideLockedUpgrades && !unlocked) return null;
@@ -94,6 +94,8 @@ const Upgrades = ({ upgrades, tachyons }) => {
               Cost: {notateNumber(tachyons?.[tachyonType]?.value || 0)} / {notateNumber(cost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
           </Stack>
+          <Divider sx={{ my: 1 }}/>
+          <Typography>Unlocks at: {commaNotation(x6)} levels</Typography>
         </CardContent>
       </Card>
     );
@@ -115,6 +117,7 @@ const Upgrades = ({ upgrades, tachyons }) => {
           <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
             <MenuItem value="default">Default</MenuItem>
             <MenuItem value="type">Type</MenuItem>
+            <MenuItem value="cost">Cost</MenuItem>
           </Select>
         </FormControl>
         <TextField

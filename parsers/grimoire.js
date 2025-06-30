@@ -260,11 +260,6 @@ export const calcGrimoireBonus = (upgrades, index) => {
 
 export const getOptimizedGrimoireUpgrades = (character, account, category = 'damage', maxUpgrades = 100, options = {}) => {
   const categoryInfo = GRIMOIRE_UPGRADE_CATEGORIES[category];
-  const extraArgs = {};
-  // Merge onlyAffordable from options into extraArgs if present
-  if (typeof options.onlyAffordable !== 'undefined') {
-    extraArgs.onlyAffordable = options.onlyAffordable;
-  }
   return getOptimizedGenericUpgrades({
     character,
     account,
@@ -281,6 +276,6 @@ export const getOptimizedGrimoireUpgrades = (character, account, category = 'dam
       if (resources[boneIdx] !== undefined) resources[boneIdx] -= cost;
     },
     resourceNames: boneNames,
-    extraArgs,
+    extraArgs: options
   });
 };
