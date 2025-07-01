@@ -11,13 +11,22 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
+  Paper,
   Select,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
 import { useLocalStorage } from '@mantine/hooks';
@@ -37,8 +46,18 @@ const GenericUpgradeOptimizer = ({
                                    getResourceAmount,
                                    tooltipText
                                  }) => {
-  const [category, setCategory] = useState('damage');
-  const [maxUpgrades, setMaxUpgrades] = useState(10);
+  const [viewMode, setViewMode] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
+    defaultValue: 'grid'
+  });
+  const [category, setCategory] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:category`,
+    defaultValue: 'damage'
+  });
+  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:maxUpgrades`,
+    defaultValue: 10
+  });
   const [CheckboxEl, consolidateUpgrades] = useCheckbox('Group by upgrade');
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only show affordable upgrades');
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
@@ -278,6 +297,17 @@ const GenericUpgradeOptimizer = ({
             </Stack>
           );
         })}
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          sx={{ ml: 'auto' }}
+          onChange={(_, val) => val && setViewMode(val)}
+        >
+          <Tooltip title={'Grid view'}><ToggleButton sx={{ height: 40 }}
+                                                     value="grid"><IconTable/></ToggleButton></Tooltip>
+          <Tooltip title={'List view'}><ToggleButton sx={{ height: 40 }}
+                                                     value="list"><IconList/></ToggleButton></Tooltip>
+        </ToggleButtonGroup>
       </Stack>
 
       {optimizationMethod === 'rph' && (
@@ -312,62 +342,138 @@ const GenericUpgradeOptimizer = ({
 
       <Typography variant="h6">Recommended Upgrade Sequence</Typography>
       {displayUpgrades.length > 0 ? (
-        <Stack direction="row" gap={2} flexWrap="wrap">
-          {displayUpgrades.map((upgrade) => {
-            const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-            const originalIndex = upgrade.upgradeIndex;
-            const resourceTypeKey = getResourceType(upgrade);
-            let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
-            return (
-              <Card key={originalIndex} sx={{ width: 350 }}>
-                <CardContent>
-                  <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
-                    <img
-                      style={{ width: 32, height: 32 }}
-                      src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
-                      alt=""
-                    />
-                    <Box>
-                      <Typography variant="subtitle1">
-                        {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
-                          .replace('(Tap_for_more_info)', '')
-                          .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {hasSequence
-                          ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
-                            ? ` to #${originalIndex + upgrade.sequence.length}`
-                            : ''})`
-                          : `Upgrade #${originalIndex + 1}`}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                  {hasSequence && upgrade.combinedStatChanges
-                    ? renderCombinedStats(upgrade)
-                    : (
-                      <>
-                        <Divider sx={{ my: 1 }}/>
-                        {category === 'all' ? cleanUnderscore(upgrade.description
-                        ) : renderStatChanges(upgrade.statChanges)}
-                        <Divider sx={{ my: 1 }}/>
+        viewMode === 'grid' ? (
+          <Stack direction="row" gap={2} flexWrap="wrap">
+            {displayUpgrades.map((upgrade) => {
+              const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
+              const originalIndex = upgrade.upgradeIndex;
+              const resourceTypeKey = getResourceType(upgrade);
+              let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
+              return (
+                <Card key={originalIndex} sx={{ width: 350 }}>
+                  <CardContent>
+                    <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
+                      <img
+                        style={{ width: 32, height: 32 }}
+                        src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
+                        alt=""
+                      />
+                      <Box>
+                        <Typography variant="subtitle1">
+                          {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
+                            .replace('(Tap_for_more_info)', '')
+                            .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {hasSequence
+                            ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
+                              ? ` to #${originalIndex + upgrade.sequence.length}`
+                              : ''})`
+                            : `Upgrade #${originalIndex + 1}`}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                    {hasSequence && upgrade.combinedStatChanges
+                      ? renderCombinedStats(upgrade)
+                      : (
+                        <>
+                          <Divider sx={{ my: 1 }}/>
+                          {category === 'all' ? cleanUnderscore(upgrade.description
+                          ) : renderStatChanges(upgrade.statChanges)}
+                          <Divider sx={{ my: 1 }}/>
+                          <Stack direction="row" gap={1} alignItems="center">
+                            <img
+                              style={{ objectPosition: '0 -6px' }}
+                              src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+                              alt=""
+                            />
+                            <Typography variant="body2">
+                              Cost: {notateNumber(upgrade.cost)}
+                            </Typography>
+                          </Stack>
+                        </>
+                      )
+                    }
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </Stack>
+        ) : (
+          <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Icon</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Level</TableCell>
+                  <TableCell>Stat Changes</TableCell>
+                  <TableCell>Cost</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {displayUpgrades.map((upgrade, idx) => {
+                  const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
+                  const resourceTypeKey = getResourceType(upgrade);
+                  let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
+                  return (
+                    <TableRow key={upgrade.upgradeIndex}>
+                      <TableCell>{idx + 1}</TableCell>
+                      <TableCell>
+                        <img
+                          style={{ width: 24, height: 24 }}
+                          src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
+                          alt=""
+                        />
+                      </TableCell>
+                      <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>
+                      <TableCell>{upgrade.level} / {upgrade.x4}</TableCell>
+                      <TableCell>
+                        {hasSequence && upgrade.combinedStatChanges
+                          ? (
+                            <>
+                              <Typography
+                                variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
+                              {upgrade.combinedStatChanges.map((statChange, i) => (
+                                <div key={i}>
+                                  {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                                </div>
+                              ))}
+                            </>
+                          )
+                          : (
+                            category === 'all'
+                              ? cleanUnderscore(upgrade.description)
+                              : upgrade.statChanges.map((statChange, i) => (
+                                <div key={i}>
+                                  {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                                </div>
+                              ))
+                          )
+                        }
+                      </TableCell>
+                      <TableCell>
                         <Stack direction="row" gap={1} alignItems="center">
                           <img
                             style={{ objectPosition: '0 -6px' }}
                             src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
                             alt=""
+                            width={20}
+                            height={20}
                           />
-                          <Typography variant="body2">
-                            Cost: {notateNumber(upgrade.cost)}
-                          </Typography>
+                          {hasSequence && upgrade.totalCost
+                            ? notateNumber(upgrade.totalCost)
+                            : notateNumber(upgrade.cost)}
                         </Stack>
-                      </>
-                    )
-                  }
-                </CardContent>
-              </Card>
-            )
-          })}
-        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )
       ) : (
         <Typography variant="body1" color="text.secondary">
           No viable upgrades found for this category with your current resources.
