@@ -22,6 +22,7 @@ import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
 import { useLocalStorage } from '@mantine/hooks';
 
+const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const GenericUpgradeOptimizer = ({
                                    character,
                                    account,
@@ -114,17 +115,19 @@ const GenericUpgradeOptimizer = ({
       const resourceType = getResourceType(upgrade);
       upgrade.sequence.forEach(seq => {
         totalCost += seq.cost;
-        seq.statChanges.forEach(statChange => {
-          if (!combinedStats[statChange.stat]) {
-            combinedStats[statChange.stat] = {
-              stat: statChange.stat,
-              change: 0,
-              percentChange: 0
-            };
-          }
-          combinedStats[statChange.stat].change += statChange.change;
-          combinedStats[statChange.stat].percentChange += statChange.percentChange;
-        });
+        if (category !== 'all') {
+          seq.statChanges.forEach(statChange => {
+            if (!combinedStats[statChange.stat]) {
+              combinedStats[statChange.stat] = {
+                stat: statChange.stat,
+                change: 0,
+                percentChange: 0
+              };
+            }
+            combinedStats[statChange.stat].change += statChange.change;
+            combinedStats[statChange.stat].percentChange += statChange.percentChange;
+          });
+        }
       });
       return {
         ...upgrade,
@@ -223,6 +226,7 @@ const GenericUpgradeOptimizer = ({
             {Object.entries(upgradeCategories).map(([key, { name }]) => (
               <MenuItem key={key} value={key}>{name}</MenuItem>
             ))}
+            <MenuItem value={'all'}>All</MenuItem>
           </Select>
         </FormControl>
         <FormControl size="small" sx={{ width: 180 }}>
@@ -248,11 +252,9 @@ const GenericUpgradeOptimizer = ({
             label="Max Upgrades"
             onChange={(e) => setMaxUpgrades(e.target.value)}
           >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={25}>25</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-            <MenuItem value={100}>100</MenuItem>
+            {maxUpgradesOptions.map(max => (
+              <MenuItem key={max} value={max}>{max}</MenuItem>
+            ))}
           </Select>
         </FormControl>
         <CheckboxEl/>
@@ -345,7 +347,8 @@ const GenericUpgradeOptimizer = ({
                     : (
                       <>
                         <Divider sx={{ my: 1 }}/>
-                        {renderStatChanges(upgrade.statChanges)}
+                        {category === 'all' ? cleanUnderscore(upgrade.description
+                        ) : renderStatChanges(upgrade.statChanges)}
                         <Divider sx={{ my: 1 }}/>
                         <Stack direction="row" gap={1} alignItems="center">
                           <img
