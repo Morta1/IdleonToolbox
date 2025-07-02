@@ -644,6 +644,9 @@ const getUpgradeCost = (upgrades, index, serverVars) => {
 
 export const getOptimizedUpgrades = (character, account, category = 'damage', maxUpgrades = 100, options = {}) => {
   const categoryInfo = UPGRADE_CATEGORIES[category];
+  if (category === 'dust') {
+    options.getExtraDust = getExtraDust;
+  }
   return getOptimizedGenericUpgrades({
     character,
     account,
