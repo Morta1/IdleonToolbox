@@ -43,10 +43,10 @@ export function getOptimizedGenericUpgrades({
       const availableUpgrades = simulatedUpgrades.filter(upgrade => {
         if (upgrade.level >= upgrade.x4) return false;
         if (!upgrade.unlocked) return false;
-        if (onlyAffordable && (upgrade.cost > simulatedResources[upgrade.x3])) return false;
+        if (onlyAffordable && (upgrade.cost > simulatedResources[upgrade.x3]?.value)) return false;
         return true;
       });
-
+      console.log('availableUpgrades', availableUpgrades)
       if (availableUpgrades.length === 0) break;
 
       // Find the cheapest upgrade, taking resourcePerHour into account if provided
