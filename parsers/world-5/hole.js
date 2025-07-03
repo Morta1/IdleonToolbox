@@ -567,6 +567,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     { name: 'Bundle', value: 1 + (50 * hasBundle) / 100 },
     { name: 'Arcade', value: 1 + arcadeBonus / 100 },
     { name: 'Grimoire', value: 1 + grimoireBonus / 100 },
+    { name: 'Grimoire', value: 1 + tesseractBonus / 100 },
     { name: 'Gem shop', value: holesObject?.parallelVillagersGemShop[t] ? 2 : 0 },
     { name: 'Compass', value: 1 + compassBonus / 100 },
     { name: 'Charm', value: 1 + charmBonus / 100 },
