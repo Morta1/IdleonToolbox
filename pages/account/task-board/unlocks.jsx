@@ -3,7 +3,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix, worldsArray } from '../../../utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from '../../../utility/helpers';
 import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import AutoGrid from '@components/common/AutoGrid';
@@ -29,7 +29,7 @@ const Tasks = () => {
                          value={`${numberWithCommas(state?.account?.taskUnlocks?.currentPoints)} / ${numberWithCommas(state?.account?.taskUnlocks?.pointsReq)} `}/>
       <CardTitleAndValue title={'Unlocked recipes'} value={state?.account?.taskUnlocks?.unlockedRecipes}/>
     </Stack>
-    <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
+    <Tabber tabs={[1, 2, 3, 4, 5, 6].map((ind) => `Tab ${ind}`)} onTabChange={handleWorldChange}>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
         {state?.account?.taskUnlocks?.taskUnlocksList?.[world]?.map(({ unlocks, unlocked }, index) => {
           return <Card key={'key' + index}>
