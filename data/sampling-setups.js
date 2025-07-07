@@ -24,12 +24,12 @@ export const samplingSetups = {
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain22'],
-      items['Trophy18'],
+      items['Trophy23'],
       items['EquipmentKeychain22'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
       items['EquipmentNametag19'],
-      items['EquipmentGown2']
+      items['EquipmentGown4']
     ],
     tools: [
       { rawName: 'Blank' },
@@ -97,12 +97,12 @@ export const samplingSetups = {
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain19'],
-      items['Trophy16'],
+      items['Trophy23'],
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
       items['EquipmentNametag19'],
-      items['EquipmentGown2']
+      items['EquipmentGown4']
     ],
     tools: [
       items['EquipmentToolsHatchet10'],
@@ -168,12 +168,12 @@ export const samplingSetups = {
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain19'],
-      items['Trophy16'],
+      items['Trophy23'],
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
       items['EquipmentNametag19'],
-      items['EquipmentGown2']
+      items['EquipmentGown4']
     ],
     tools: [
       items['EquipmentTools15'],
@@ -241,12 +241,12 @@ export const samplingSetups = {
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain19'],
-      items['Trophy16'],
+      items['Trophy23'],
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
       items['EquipmentNametag19'],
-      items['EquipmentGown2']
+      items['EquipmentGown4']
     ],
     tools: [
       items['CatchingNet12'],
@@ -312,12 +312,12 @@ export const samplingSetups = {
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain19'],
-      items['Trophy16'],
+      items['Trophy23'],
       items['EquipmentKeychain19'],
       items['EquipmentCape16'],
       items['EquipmentRingsChat11'],
       items['EquipmentNametag19'],
-      items['EquipmentGown2']
+      items['EquipmentGown4']
     ],
     tools: [
       items['CatchingNet12'],
@@ -385,7 +385,7 @@ export const samplingSetups = {
       items['EquipmentRings26'],
       items['EquipmentHats82'],
       items['EquipmentKeychain18'],
-      items['Trophy16'],
+      items['Trophy23'],
       items['EquipmentKeychain18'],
       items['EquipmentCape4'],
       items['EquipmentRingsChat11'],

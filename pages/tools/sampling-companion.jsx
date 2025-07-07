@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { NextSeo } from 'next-seo';
-import { Box, Card, CardContent, Divider, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { prefix } from '@utility/helpers';
 import { samplingSetups } from '../../data/sampling-setups';
