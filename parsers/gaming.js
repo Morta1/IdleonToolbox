@@ -177,6 +177,11 @@ export const getBitsMulti = (account, characters) => {
     { name: 'Meal', value: mealBonus / 100 },
     { name: 'Vial', value: vialBonus / 100 },
     { name: 'Bitty Litty Talent', value: bittyLittlyTalentBonus * highestGaming / 100 },
+    { name: 'Achievements', value: (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20) },
+    { name: 'Poing', value: Math.max(1, Math.min(25, account?.gaming?.poingMulti)) },
+    { name: 'Winner', value: winBonus / 100 },
+    { name: 'Lamp', value: lampBonus / 100 },
+    { name: 'Emperor', value: emperorBonus / 100 },
   ]
 
   return {

@@ -15,21 +15,31 @@ import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/tesseract';
 
 const summonEssenceColor = {
-  white: 0,
-  green: 1,
-  yellow: 2,
-  blue: 3,
-  purple: 4,
-  red: 5,
-  cyan: 6
+  0: 'white',
+  1: 'green',
+  2: 'yellow',
+  3: 'blue',
+  4: 'purple',
+  5: 'red',
+  6: 'cyan'
+}
+const stoneNames = {
+  0: 'aether',
+  1: 'grover',
+  2: 'shimmer',
+  3: 'freezer',
+  4: 'hexer',
+  5: 'cinder',
+  6: 'zephyer'
 }
 
 export const getSummoning = (idleonData, accountData, serializedCharactersData) => {
   const rawSummon = tryToParse(idleonData?.Summon);
-  return parseSummoning(rawSummon, accountData, serializedCharactersData);
+  const killRoyKills = tryToParse(idleonData?.KRbest);
+  return parseSummoning(rawSummon, killRoyKills, accountData, serializedCharactersData);
 }
 
-const parseSummoning = (rawSummon, account, serializedCharactersData) => {
+const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersData) => {
   const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   const upgradesLevels = rawSummon?.[0];
   const totalUpgradesLevels = upgradesLevels?.reduce((sum, level) => sum + level, 0);
@@ -126,6 +136,24 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
+  const summoningStones = Object.entries(killRoyKills)
+    .filter(([name]) => name.includes('SummzTrz'))
+    .map(([name, kills]) => {
+      const index = parseInt(name.match(/\d+$/)[0], 10);
+      const enemy = summoningEnemies[106 + index];
+      const isBoss6 = enemy?.enemyId === 'Boss6';
+      const rawName = isBoss6 ? 'Boss6A' : enemy?.enemyId
+      const monsterName = monsters?.[rawName]?.Name;
+      return {
+        name: enemy?.territoryName,
+        monsterIcon: isBoss6 ? `data/${enemy?.enemyId}` : `afk_targets/${monsterName}`,
+        stoneName: stoneNames[index],
+        kills,
+        index,
+        bonus: `${summonEssenceColor[index]}_` + Math.max(2, 1 + kills) + 'x_higher_bonuses'
+      }
+    })
+    .toSorted((a, b) => a.index - b.index);
 
   return {
     upgrades,
@@ -138,13 +166,14 @@ const parseSummoning = (rawSummon, account, serializedCharactersData) => {
     armyDamage,
     summoningStuff,
     highestEndlessLevel,
-    totalWins: allBattles?.flat()?.reduce((sum, { won }) => sum + (won ? 1 : 0), 0) + highestEndlessLevel
+    totalWins: allBattles?.flat()?.reduce((sum, { won }) => sum + (won ? 1 : 0), 0) + highestEndlessLevel,
+    summoningStones
   }
 }
 
 export const getEndlessBattles = (battles = 100, highestEndlessLevel, winnerBonuses) => {
   const endlessBattles = [];
-  for (let i = 0; i < battles; i++) {
+  for (let i = 0; i < highestEndlessLevel + battles; i++) {
     const index = i % 40;
     const difficultyIndex = getEndlessModifier(i, 0, 0);
     const bonusId = summoningEndless.bonusIds?.[index];

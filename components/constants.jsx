@@ -193,7 +193,7 @@ export const PAGES = {
           icon: 'data/ClassIcons58',
           tabs: ['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery']
         },
-        { label: 'summoning', icon: 'data/ClassIcons59', tabs: ['Upgrades', 'Winner Bonuses', 'Battles'] },
+        { label: 'summoning', icon: 'data/ClassIcons59', tabs: ['Upgrades', 'Winner Bonuses', 'Battles', 'Stones'] },
         { label: 'beanstalk', icon: 'etc/beanstalk1' },
         { label: 'emperor', icon: 'data/Boss6' }
       ]

@@ -1,6 +1,50 @@
 // Generic Upgrade Optimizer
 // Consolidates the simulation logic for Compass, Grimoire, and Tesseract optimizers
 
+// Helper function to check if an upgrade is affordable
+function isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames) {
+  // Array of objects with value property
+  if (Array.isArray(simulatedResources) && simulatedResources.length > 0 && typeof simulatedResources[0] === 'object' && simulatedResources[0] !== null && 'value' in simulatedResources[0]) {
+    let resourceObj = null;
+    if (upgrade.x3 !== undefined) {
+      resourceObj = simulatedResources[upgrade.x3];
+    }
+    if (!resourceObj && upgrade.name) {
+      resourceObj = simulatedResources.find(r => r.name === upgrade.name);
+    }
+    if (!resourceObj) resourceObj = simulatedResources[0];
+    return resourceObj && resourceObj.value >= cost;
+  }
+  // Array of numbers (assume x3 is the index)
+  if (Array.isArray(simulatedResources)) {
+    if (upgrade.x3 !== undefined && simulatedResources[upgrade.x3] !== undefined) {
+      return simulatedResources[upgrade.x3] >= cost;
+    }
+    // fallback: just use first resource
+    return simulatedResources[0] >= cost;
+  }
+  // Object (resourceNames or keys)
+  if (typeof simulatedResources === 'object' && simulatedResources !== null) {
+    let key = null;
+    if (resourceNames && upgrade.x3 !== undefined && resourceNames[upgrade.x3] !== undefined) {
+      key = resourceNames[upgrade.x3];
+    } else if (upgrade.name && simulatedResources[upgrade.name] !== undefined) {
+      key = upgrade.name;
+    }
+    if (key) {
+      return (simulatedResources[key] ?? 0) >= cost;
+    }
+    // fallback: check all keys, pass if any is sufficient
+    return Object.values(simulatedResources).some(val => val >= cost);
+  }
+  // Single number
+  if (typeof simulatedResources === 'number') {
+    return simulatedResources >= cost;
+  }
+  // Unknown shape, be safe
+  return false;
+}
+
 export function getOptimizedGenericUpgrades({
                                               character,
                                               account,
@@ -43,10 +87,9 @@ export function getOptimizedGenericUpgrades({
       const availableUpgrades = simulatedUpgrades.filter(upgrade => {
         if (upgrade.level >= upgrade.x4) return false;
         if (!upgrade.unlocked) return false;
-        if (onlyAffordable && (upgrade.cost > simulatedResources[upgrade.x3]?.value)) return false;
+        if (onlyAffordable && !isUpgradeAffordable(upgrade, upgrade.cost, simulatedResources, resourceNames)) return false;
         return true;
       });
-      console.log('availableUpgrades', availableUpgrades)
       if (availableUpgrades.length === 0) break;
 
       // Find the cheapest upgrade, taking resourcePerHour into account if provided
@@ -122,36 +165,7 @@ export function getOptimizedGenericUpgrades({
           upgrades: simulatedUpgrades,
           resources: simulatedResources, ...extraArgs
         });
-        if (Array.isArray(simulatedResources)) {
-          // If array of objects with value property (e.g., [{ value, name }]), match resource type
-          if (simulatedResources.length > 0 && typeof simulatedResources[0] === 'object' && simulatedResources[0] !== null && 'value' in simulatedResources[0]) {
-            // Try to match by resource name or index
-            let resourceObj = null;
-            if (upgrade.x3 !== undefined) {
-              // Try to match by x3 (resource type index)
-              resourceObj = simulatedResources[upgrade.x3];
-            }
-            if (!resourceObj && upgrade.name) {
-              // Try to match by name
-              resourceObj = simulatedResources.find(r => r.name === upgrade.name);
-            }
-            // Fallback: just use first resource
-            if (!resourceObj) resourceObj = simulatedResources[0];
-            if (!resourceObj || resourceObj.value < cost) return false;
-          } else {
-            // If array of numbers
-            if (simulatedResources.some(r => r < cost)) return false;
-          }
-        } else if (typeof simulatedResources === 'object' && simulatedResources !== null) {
-          // If object, check all resourceNames (if provided) or all keys
-          const keys = resourceNames ? Object.values(resourceNames) : Object.keys(simulatedResources);
-          for (const key of keys) {
-            if ((simulatedResources[key] ?? 0) < cost) return false;
-          }
-        } else {
-          // If number
-          if (simulatedResources < cost) return false;
-        }
+        if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames)) return false;
       }
       return true;
     });

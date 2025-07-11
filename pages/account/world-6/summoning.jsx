@@ -9,6 +9,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack } from '@mui/material';
 import Battles from '@components/account/Worlds/World6/summoning/Battles';
 import { PAGES } from '@components/constants';
+import Stones from '@components/account/Worlds/World6/summoning/Stones';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
@@ -20,7 +21,8 @@ const Summoning = () => {
     armyHealth,
     armyDamage,
     highestEndlessLevel,
-    totalUpgradesLevels
+    totalUpgradesLevels,
+    summoningStones
   } = state?.account?.summoning || {};
   return <>
     <NextSeo
@@ -41,6 +43,7 @@ const Summoning = () => {
       <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
       <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>
+      <Stones stones={summoningStones} />
     </Tabber>
   </>
 };
