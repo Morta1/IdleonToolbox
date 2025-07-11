@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.8',
+    'gameVer': '2.0.41',
+    'date': '11/07/2025',
+    'features': [
+      'Added summoning stones',
+      'Added missing classes for builds page',
+    ],
+    'fixes': [
+      'Fixed "only affordable skills" in optimizers page',
+      'Fixed bits breakdown with missing items',
+
+    ]
+  },
+  {
     'ver': '3.3.7',
     'gameVer': '2.0.41',
     'date': '06/07/2025',
