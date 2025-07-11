@@ -1,5 +1,5 @@
 import { tryToParse } from '@utility/helpers';
-import { getDropRate } from '@parsers/character';
+import { getCashMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { calcTotalBoatLevels } from '@parsers/sailing';
 import { differenceInYears } from 'date-fns';
@@ -82,6 +82,7 @@ export const fetchUserLeaderboards = async (leaderboard, leaderboardUser) => {
 
 export const expandLeaderboardInfo = (account, characters) => {
   const dropRate = Math.max(...characters.map(character => getDropRate(character, account, characters)?.dropRate || 0));
+  const cashMulti = Math.max(...characters.map(character => getCashMulti(character, account, characters)?.cashMulti || 0));
   const playersInfo = characters.map(character => getMaxDamage(character, characters, account));
   const defence = Math.max(...playersInfo.map(({ defence }) => defence?.value));
   const accuracy = Math.max(...playersInfo.map(({ accuracy }) => accuracy));
@@ -109,7 +110,8 @@ export const expandLeaderboardInfo = (account, characters) => {
     highestVillagerExpPerHour,
     topKilledMonsters: account?.topKilledMonsters,
     accountAge: differenceInYears(new Date(), new Date(account?.accountCreateTime)),
-    currentWorld: account?.currentWorld
+    currentWorld: account?.currentWorld,
+    cashMulti: withDefault(cashMulti)
   }
 }
 const withDefault = (value, defaultValue = 0) => {
