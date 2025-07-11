@@ -327,11 +327,21 @@ const GenericUpgradeOptimizer = ({
                         height={24}
                       />
                     }}
-                    type="number"
+                    type="text"
                     size="small"
-                    value={resourcePerHour[key] || ''}
-                    onChange={e => setResourcePerHour(rph => ({ ...rph, [key]: Number(e.target.value) }))}
+                    value={resourcePerHour[key] === 0 || resourcePerHour[key] === undefined ? '' : resourcePerHour[key].toLocaleString()}
+                    onChange={e => {
+                      // Remove commas for parsing
+                      const raw = e.target.value.replace(/,/g, '');
+                      setResourcePerHour(rph => ({ ...rph, [key]: Number(raw) }));
+                    }}
+                    inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
                   />
+                  {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000 ? (
+                    <Typography variant="caption" color="text.secondary">
+                      {notateNumber(resourcePerHour[key])}
+                    </Typography>
+                  ) : null}
                 </Stack>
               ))}
             </Stack>
