@@ -333,7 +333,10 @@ const GenericUpgradeOptimizer = ({
                     onChange={e => {
                       // Remove commas for parsing
                       const raw = e.target.value.replace(/,/g, '');
-                      setResourcePerHour(rph => ({ ...rph, [key]: Number(raw) }));
+                      // Only update if the value is a valid number or empty
+                      if (raw === '' || /^\d+$/.test(raw)) {
+                        setResourcePerHour(rph => ({ ...rph, [key]: raw === '' ? '' : Number(raw) }));
+                      }
                     }}
                     inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
                   />
