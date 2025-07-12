@@ -75,14 +75,21 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     const base = bases?.[index];
     const upgradeLevel = upgradesLevels?.[index];
     const unlockAt = unlocks?.[index];
-    const bonus = 4 === index || 9 === index || 14 === index || 19 === index
-      ? Math.max(1, apocalypseWow) * base * upgradeLevel
-      : Math.max(1, apocalypseWow) * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80))
+    const isLandRankScaled = 0 === index || 1 === index || 2 === index;
+    const calcBonus = (level: number, landRank: number) => {
+      const bonus = 4 === index || 9 === index || 14 === index || 19 === index
+        ? Math.max(1, apocalypseWow) * base * level
+        : Math.max(1, apocalypseWow) * ((1.7 * base * level) / (level + 80));
+      return isLandRankScaled ? bonus * landRank : bonus;
+    }
+
 
     return {
       name,
       description,
-      bonus,
+      bonus: calcBonus(upgradeLevel, 1),
+      calcBonus,
+      isLandRankScaled,
       upgradeLevel,
       unlockAt
     }
