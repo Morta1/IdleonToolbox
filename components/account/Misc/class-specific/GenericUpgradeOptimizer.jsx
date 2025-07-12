@@ -329,7 +329,7 @@ const GenericUpgradeOptimizer = ({
                     }}
                     type="text"
                     size="small"
-                    value={resourcePerHour[key] === 0 || resourcePerHour[key] === undefined ? '' : resourcePerHour[key].toLocaleString()}
+                    value={resourcePerHour[key] === 0 || resourcePerHour[key] === undefined ? '' : resourcePerHour?.[key]?.toLocaleString()}
                     onChange={e => {
                       // Remove commas for parsing
                       const raw = e.target.value.replace(/,/g, '');
