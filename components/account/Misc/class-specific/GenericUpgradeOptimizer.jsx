@@ -26,6 +26,7 @@ import {
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { parseShorthandNumber } from '@utility/helpers';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
@@ -67,6 +68,14 @@ const GenericUpgradeOptimizer = ({
       Object.keys(resourceNames).forEach(key => { obj[key] = 1; });
       return obj;
     })()
+  });
+  // Add a separate state for the raw input string for each resource
+  const [resourcePerHourInput, setResourcePerHourInput] = useState(() => {
+    const obj = {};
+    Object.keys(resourceNames).forEach(key => {
+      obj[key] = resourcePerHour[key] !== undefined && resourcePerHour[key] !== null && resourcePerHour[key] !== '' ? resourcePerHour[key].toLocaleString() : '';
+    });
+    return obj;
   });
   const [rphDialogOpen, setRphDialogOpen] = useState(false);
   const [optimizationMethod, setOptimizationMethod] = useLocalStorage({
@@ -329,16 +338,27 @@ const GenericUpgradeOptimizer = ({
                     }}
                     type="text"
                     size="small"
-                    value={resourcePerHour[key] === 0 || resourcePerHour[key] === undefined ? '' : resourcePerHour?.[key]?.toLocaleString()}
+                    value={resourcePerHourInput[key]}
                     onChange={e => {
-                      // Remove commas for parsing
-                      const raw = e.target.value.replace(/,/g, '');
-                      // Only update if the value is a valid number or empty
-                      if (raw === '' || /^\d+$/.test(raw)) {
-                        setResourcePerHour(rph => ({ ...rph, [key]: raw === '' ? '' : Number(raw) }));
+                      // Allow any input, including letters for shorthand
+                      const value = e.target.value;
+                      // Only allow digits, commas, dots, and kmbtq/KMBTQ
+                      if (/^[\d,\.kmbtqKMBTQ]*$/.test(value)) {
+                        setResourcePerHourInput(input => ({ ...input, [key]: value }));
                       }
                     }}
-                    inputProps={{ inputMode: 'numeric', pattern: '[0-9,]*' }}
+                    onBlur={e => {
+                      const raw = e.target.value;
+                      const parsed = parseShorthandNumber(raw);
+                      if (raw === '' || isNaN(parsed)) {
+                        setResourcePerHour(rph => ({ ...rph, [key]: '' }));
+                        setResourcePerHourInput(input => ({ ...input, [key]: '' }));
+                      } else {
+                        setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
+                        setResourcePerHourInput(input => ({ ...input, [key]: parsed.toLocaleString() }));
+                      }
+                    }}
+                    inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ]*' }}
                   />
                   {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000 ? (
                     <Typography variant="caption" color="text.secondary">

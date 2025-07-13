@@ -726,3 +726,33 @@ export const getFilteredPortals = () => {
     !excludedMaps[mapName]
     && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
 }
+
+// Parses shorthand notations like '12B', '2QQ', '3.2QQQ' into numbers
+export function parseShorthandNumber(input) {
+  if (typeof input !== 'string') return NaN;
+  const multipliers = {
+    '': 1,
+    k: 1e3,
+    m: 1e6,
+    b: 1e9,
+    t: 1e12,
+    q: 1e15,
+  };
+  // Remove commas and spaces, lowercase
+  const cleaned = input.trim().replace(/,/g, '').toLowerCase();
+  // Match number and suffix (including repeated Qs)
+  const match = cleaned.match(/^([0-9,.]+)([kmbtq]*)$/);
+  if (!match) return NaN;
+  const num = parseFloat(match[1]);
+  let suffix = match[2];
+  // Handle repeated Qs (e.g., QQ = 1e18, QQQ = 1e21, etc.)
+  if (suffix.startsWith('q') && suffix.length > 1) {
+    let base = 1e15;
+    for (let i = 1; i < suffix.length; i++) {
+      base *= 1e3;
+    }
+    return num * base;
+  }
+  // Standard suffix
+  return num * (multipliers[suffix] || 1);
+}
