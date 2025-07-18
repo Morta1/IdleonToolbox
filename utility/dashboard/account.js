@@ -944,6 +944,16 @@ export const getWorld6Alerts = (account, fields, options) => {
       alerts.summoning = summoning;
     }
   }
+  if (fields?.etc?.checked) {
+    const etc = {};
+    const { emperor } = options?.etc;
+    if (emperor?.checked && account?.emperor?.attempts >= emperor?.props?.value) {
+      etc.emperorAttempts = account?.emperor?.attempts;
+    }
+    if (Object.keys(etc).length > 0) {
+      alerts.etc = etc;
+    }
+  }
   return alerts;
 };
 export const areKeysOverdue = (account) => {

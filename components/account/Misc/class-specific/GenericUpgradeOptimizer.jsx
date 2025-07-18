@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -82,6 +82,17 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:optimizationMethod`,
     defaultValue: 'rph'
   });
+
+  useEffect(() => {
+    setResourcePerHourInput(
+      Object.fromEntries(
+        Object.entries(resourcePerHour).map(([key, value]) => [
+          key,
+          value !== undefined && value !== null && value !== '' ? Number(value).toLocaleString() : ''
+        ])
+      )
+    );
+  }, [resourcePerHour]);
 
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
@@ -241,6 +252,21 @@ const GenericUpgradeOptimizer = ({
     );
   };
 
+  // Add a function to sync all input values to resourcePerHour when closing the dialog
+  const handleRphDialogClose = () => {
+    Object.entries(resourcePerHourInput).forEach(([key, raw]) => {
+      const parsed = parseShorthandNumber(raw);
+      if (raw === '' || isNaN(parsed)) {
+        setResourcePerHour(rph => ({ ...rph, [key]: '' }));
+        setResourcePerHourInput(input => ({ ...input, [key]: '' }));
+      } else {
+        setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
+        setResourcePerHourInput(input => ({ ...input, [key]: parsed.toLocaleString() }));
+      }
+    });
+    setRphDialogOpen(false);
+  };
+
   return (
     <Stack gap={3}>
       <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
@@ -320,7 +346,7 @@ const GenericUpgradeOptimizer = ({
       </Stack>
 
       {optimizationMethod === 'rph' && (
-        <Dialog open={rphDialogOpen} onClose={() => setRphDialogOpen(false)}>
+        <Dialog open={rphDialogOpen} onClose={handleRphDialogClose}>
           <DialogTitle>Set Resource Per Hour</DialogTitle>
           <DialogContent>
             <Stack direction="column" gap={2}>
@@ -368,7 +394,7 @@ const GenericUpgradeOptimizer = ({
                 </Stack>
               ))}
             </Stack>
-            <Button sx={{ mt: 2 }} onClick={() => setRphDialogOpen(false)} variant="contained">Close</Button>
+            <Button sx={{ mt: 2 }} onClick={handleRphDialogClose} variant="contained">Close</Button>
           </DialogContent>
         </Dialog>
       )}

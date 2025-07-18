@@ -3,7 +3,6 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import React from 'react';
 
 const Battles = ({ stones }) => {
-  console.log(stones)
   return <>
     <Stack direction={'row'} gap={2}>
 

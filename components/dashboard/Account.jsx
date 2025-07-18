@@ -451,6 +451,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`Your bean trade has reached ${numberWithCommas(Math.floor(alerts?.['World 6']?.farming?.beanTrade))}`}
                   iconPath={'data/Quest80_x1'}/> : null}
+              {alerts?.['World 6']?.etc?.emperorAttempts > 0 ?
+                <Alert
+                  title={`You have reached ${alerts?.['World 6']?.etc?.emperorAttempts} emperor attempts`}
+                  iconPath={'data/Boss6'}/> : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

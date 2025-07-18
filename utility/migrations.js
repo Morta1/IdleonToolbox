@@ -473,6 +473,29 @@ export const migrateToVersion22 = (config) => {
   dashboardConfig.version = 22;
   return dashboardConfig
 }
+export const migrateToVersion23 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account?.['World 6']?.etc) {
+    dashboardConfig.account['World 6'].etc = {
+      checked: true,
+      options: [
+        {
+          name: 'emperor',
+          type: 'input',
+          props: { label: 'Attempts', value: 20 },
+          checked: true
+        }
+      ]
+    }
+  }
+
+  dashboardConfig.version = 23;
+  return dashboardConfig
+}
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -544,6 +567,10 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     if (migratedConfig?.version === 21) {
       migratedConfig = migrateToVersion22(migratedConfig);
     }
+    if (migratedConfig?.version === 22) {
+      migratedConfig = migrateToVersion23(migratedConfig);
+    }
+
   }
   return migratedConfig;
 }

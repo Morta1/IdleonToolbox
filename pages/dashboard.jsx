@@ -331,6 +331,17 @@ const baseTrackers = {
           },
           { name: 'battleAttempts', checked: true }
         ]
+      },
+      etc: {
+        checked: true,
+        options: [
+          {
+            name: 'emperor',
+            type: 'input',
+            props: { label: 'Attempts', value: 20 },
+            checked: true
+          }
+        ]
       }
     }
   },
