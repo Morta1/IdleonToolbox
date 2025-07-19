@@ -254,7 +254,8 @@ const GenericUpgradeOptimizer = ({
 
   // Add a function to sync all input values to resourcePerHour when closing the dialog
   const handleRphDialogClose = () => {
-    Object.entries(resourcePerHourInput).forEach(([key, raw]) => {
+    Object.entries(resourcePerHourInput).forEach(([key, rawValue]) => {
+      const raw = (rawValue || '').replace(/ /g, '');
       const parsed = parseShorthandNumber(raw);
       if (raw === '' || isNaN(parsed)) {
         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
@@ -368,13 +369,13 @@ const GenericUpgradeOptimizer = ({
                     onChange={e => {
                       // Allow any input, including letters for shorthand
                       const value = e.target.value;
-                      // Only allow digits, commas, dots, and kmbtq/KMBTQ
-                      if (/^[\d,\.kmbtqKMBTQ]*$/.test(value)) {
+                      // Only allow digits, commas, dots, kmbtq/KMBTQ, and spaces
+                      if (/^[\d,\.kmbtqKMBTQ ]*$/.test(value)) {
                         setResourcePerHourInput(input => ({ ...input, [key]: value }));
                       }
                     }}
                     onBlur={e => {
-                      const raw = e.target.value;
+                      const raw = e.target.value.replace(/ /g, '');
                       const parsed = parseShorthandNumber(raw);
                       if (raw === '' || isNaN(parsed)) {
                         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
