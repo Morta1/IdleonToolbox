@@ -48,6 +48,9 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
         } else if (npc?.name === 'Scripticus'){
           const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
           forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
+        } else if (npc?.name === 'Potti'){
+          // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
+          // forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
         }
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon/>}>

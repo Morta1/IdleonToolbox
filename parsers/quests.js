@@ -372,12 +372,28 @@ export const worldNpcMap = {
     world: 'Spirited_Valley',
     index: 2
   },
+  'Masterius': {
+    world: 'Spirited_Valley',
+    index: 4
+  },
   'Woodlin_Elder': {
     world: 'Spirited_Valley',
-    index: 3
+    index: 5
+  },
+  'Tribal_Shaman': {
+    world: 'Spirited_Valley',
+    index: 6
+  },
+  'Legumulyte': {
+    world: 'Spirited_Valley',
+    index: 7
   },
   'Sussy_Gene': {
     world: 'Spirited_Valley',
-    index: 4
+    index: 8
+  },
+  'Potti': {
+    world: 'Spirited_Valley',
+    index: 9
   }
 };
