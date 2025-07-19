@@ -154,7 +154,7 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       }
     })
     .toSorted((a, b) => a.index - b.index);
-
+  const totalSummoningStonesKills = summoningStones.reduce((sum, { kills }) => sum + kills, 0);
   return {
     upgrades,
     winnerBonuses,
@@ -167,7 +167,8 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
     summoningStuff,
     highestEndlessLevel,
     totalWins: allBattles?.flat()?.reduce((sum, { won }) => sum + (won ? 1 : 0), 0) + highestEndlessLevel,
-    summoningStones
+    summoningStones,
+    totalSummoningStonesKills
   }
 }
 

@@ -276,5 +276,6 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.hole?.totalOpalsFound);
   quantities.push(Math.round(account.accountOptions?.[353] + 1));
   quantities.push(account.accountOptions?.[369]); // 95
+  quantities.push(account.summoning?.totalSummoningStonesKills); // 96
   return quantities;
 }
