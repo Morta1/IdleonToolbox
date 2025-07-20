@@ -385,7 +385,7 @@ const GenericUpgradeOptimizer = ({
                         setResourcePerHourInput(input => ({ ...input, [key]: parsed.toLocaleString() }));
                       }
                     }}
-                    inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ]*' }}
+                    inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ ]*' }}
                   />
                   {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000 ? (
                     <Typography variant="caption" color="text.secondary">
