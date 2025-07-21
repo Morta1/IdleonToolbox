@@ -255,14 +255,14 @@ const GenericUpgradeOptimizer = ({
   // Add a function to sync all input values to resourcePerHour when closing the dialog
   const handleRphDialogClose = () => {
     Object.entries(resourcePerHourInput).forEach(([key, rawValue]) => {
-      const raw = (rawValue || '').replace(/ /g, '');
+      const raw = (rawValue || '').replace(/\s+/g, '');
       const parsed = parseShorthandNumber(raw);
       if (raw === '' || isNaN(parsed)) {
         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
         setResourcePerHourInput(input => ({ ...input, [key]: '' }));
       } else {
         setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
-        setResourcePerHourInput(input => ({ ...input, [key]: parsed.toLocaleString() }));
+        setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
       }
     });
     setRphDialogOpen(false);
@@ -375,17 +375,17 @@ const GenericUpgradeOptimizer = ({
                       }
                     }}
                     onBlur={e => {
-                      const raw = e.target.value.replace(/ /g, '');
+                      const raw = e.target.value.replace(/\s+/g, '');
                       const parsed = parseShorthandNumber(raw);
                       if (raw === '' || isNaN(parsed)) {
                         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
                         setResourcePerHourInput(input => ({ ...input, [key]: '' }));
                       } else {
                         setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
-                        setResourcePerHourInput(input => ({ ...input, [key]: parsed.toLocaleString() }));
+                        setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
                       }
                     }}
-                    inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ ]*' }}
+                    inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ \u00A0\u2009\u202F]*' }}
                   />
                   {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000 ? (
                     <Typography variant="caption" color="text.secondary">
