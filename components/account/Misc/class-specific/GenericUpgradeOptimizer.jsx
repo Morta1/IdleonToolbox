@@ -370,7 +370,7 @@ const GenericUpgradeOptimizer = ({
                       // Allow any input, including letters for shorthand
                       const value = e.target.value;
                       // Only allow digits, commas, dots, kmbtq/KMBTQ, and spaces
-                      if (/^[\d,\.kmbtqKMBTQ ]*$/.test(value)) {
+                      if (/^[\d,\.kmbtqKMBTQ \u00A0\u2009\u202F]*$/.test(value)) {
                         setResourcePerHourInput(input => ({ ...input, [key]: value }));
                       }
                     }}
