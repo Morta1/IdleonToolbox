@@ -308,7 +308,7 @@ export const samplingSetups = {
       items['EquipmentPendant30'],
       items['EquipmentPants22'],
       items['EquipmentRings35'],
-      items['EquipmentShoes18'],
+      items['EquipmentShoes28'],
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain19'],
@@ -320,7 +320,7 @@ export const samplingSetups = {
       items['EquipmentGown4']
     ],
     tools: [
-      items['CatchingNet12'],
+      items['FishingRod12'],
       { rawName: 'Blank' },
       { rawName: 'Blank' },
       items['TrapBoxSet10'],
