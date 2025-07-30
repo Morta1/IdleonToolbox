@@ -2,6 +2,8 @@ import { groupByKey, notateNumber, tryToParse } from '@utility/helpers';
 import {
   deathNote,
   monsters,
+  mapNames,
+  mapEnemiesArray,
   summoningBonuses,
   summoningEndless,
   summoningEnemies,
@@ -31,6 +33,16 @@ const stoneNames = {
   4: 'hexer',
   5: 'cinder',
   6: 'zephyer'
+}
+
+const stoneMapsIds = {
+  0: 256, // Bamboo Laboredge
+  1: 257, // Lightway Path
+  2: 262, // Yolkrock Basin
+  3: 120, // Equinox Valley
+  4: 157, // Jelly Cube Bridge
+  5: 212, // Crawly Catacombs
+  6: 264, // Emperor's Castle Doorstep
 }
 
 export const getSummoning = (idleonData, accountData, serializedCharactersData) => {
@@ -144,13 +156,17 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       const isBoss6 = enemy?.enemyId === 'Boss6';
       const rawName = isBoss6 ? 'Boss6A' : enemy?.enemyId
       const monsterName = monsters?.[rawName]?.Name;
+      const mapMonsterName = monsters?.[mapEnemiesArray[stoneMapsIds[index]]]?.Name;
       return {
         name: enemy?.territoryName,
         monsterIcon: isBoss6 ? `data/${enemy?.enemyId}` : `afk_targets/${monsterName}`,
         stoneName: stoneNames[index],
         kills,
         index,
-        bonus: `${summonEssenceColor[index]}_` + Math.max(2, 1 + kills) + 'x_higher_bonuses'
+        bonus: `${summonEssenceColor[index]}_` + Math.max(2, 1 + kills) + 'x_higher_bonuses',
+        mapName: mapNames[stoneMapsIds[index]],
+        mapMonsterName: mapMonsterName,
+        mapMonsterIcon: mapMonsterName ? `afk_targets/${mapMonsterName}` : null
       }
     })
     .toSorted((a, b) => a.index - b.index);
