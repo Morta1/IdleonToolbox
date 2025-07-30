@@ -73,7 +73,7 @@ const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
     return {
       ...upgrade,
       index,
-      unlocked: upgrade?.unlockLevel < totalUpgradeLevels,
+      unlocked: upgrade?.unlockLevel <= totalUpgradeLevels,
       bonus,
       monsterProgress: getMonsterProgress(monsterList, accountData, index),
       description: upgrade?.description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'))

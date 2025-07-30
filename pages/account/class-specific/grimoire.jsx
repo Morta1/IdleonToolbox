@@ -26,7 +26,7 @@ const Grimoire = () => {
       setSelectedChar(deathBringers?.[0]?.playerId);
     }
   }, []);
-
+  console.log(nextUnlock?.name)
   return <>
     <NextSeo
       title="Grimoire | Idleon Toolbox"
@@ -34,15 +34,15 @@ const Grimoire = () => {
     />
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
-        <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name)}</Typography>
+      {nextUnlock?.name ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
+        <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name?.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>
       </Stack>}>
         <Stack direction={'row'} gap={1}>
           {nextUnlock?.unlockLevel}
           <InfoIcon/>
         </Stack>
-      </Tooltip>}/>
+      </Tooltip>}/> : null}
       {bones?.map((amount, index) => <CardTitleAndValue key={index} value={commaNotation(amount || '0')}
                                                         title={`${boneNames[index]}`}
                                                         icon={`data/Bone${index}_x1.png`}

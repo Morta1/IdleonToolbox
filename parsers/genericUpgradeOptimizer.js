@@ -3,11 +3,12 @@
 
 // Helper function to check if an upgrade is affordable
 function isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames) {
+  const resourceType = upgrade?.x3 || upgrade?.boneType;
   // Array of objects with value property
   if (Array.isArray(simulatedResources) && simulatedResources.length > 0 && typeof simulatedResources[0] === 'object' && simulatedResources[0] !== null && 'value' in simulatedResources[0]) {
     let resourceObj = null;
-    if (upgrade.x3 !== undefined) {
-      resourceObj = simulatedResources[upgrade.x3];
+    if (resourceType !== undefined) {
+      resourceObj = simulatedResources[resourceType];
     }
     if (!resourceObj && upgrade.name) {
       resourceObj = simulatedResources.find(r => r.name === upgrade.name);
@@ -17,8 +18,8 @@ function isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames) {
   }
   // Array of numbers (assume x3 is the index)
   if (Array.isArray(simulatedResources)) {
-    if (upgrade.x3 !== undefined && simulatedResources[upgrade.x3] !== undefined) {
-      return simulatedResources[upgrade.x3] >= cost;
+    if (resourceType !== undefined && simulatedResources[resourceType] !== undefined) {
+      return simulatedResources[resourceType] >= cost;
     }
     // fallback: just use first resource
     return simulatedResources[0] >= cost;
@@ -26,8 +27,8 @@ function isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames) {
   // Object (resourceNames or keys)
   if (typeof simulatedResources === 'object' && simulatedResources !== null) {
     let key = null;
-    if (resourceNames && upgrade.x3 !== undefined && resourceNames[upgrade.x3] !== undefined) {
-      key = resourceNames[upgrade.x3];
+    if (resourceNames && resourceType !== undefined && resourceNames[resourceType] !== undefined) {
+      key = resourceNames[resourceType];
     } else if (upgrade.name && simulatedResources[upgrade.name] !== undefined) {
       key = upgrade.name;
     }

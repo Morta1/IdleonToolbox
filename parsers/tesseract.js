@@ -75,7 +75,7 @@ export const getTesseract = (idleonData, characters, account) => {
     const nextLevelBonus = getTesseractBonusAtLevel(upgrades, index, upgrade?.level + 1);
     return {
       ...upgrade,
-      unlocked: upgrade?.x6 < totalUpgradeLevels,
+      unlocked: upgrade?.x6 <= totalUpgradeLevels,
       bonus,
       nextLevelBonus,
       bonusDiff: nextLevelBonus - bonus,
