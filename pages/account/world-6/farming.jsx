@@ -51,7 +51,7 @@ const Farming = () => {
             characters={state?.characters}
             account={state?.account}/>
       <Market market={market} crop={crop} />
-      <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
+      <RankDatabase plot={plot} ranks={ranks} hasLandRank={hasLandRank}/>
       <Crop crop={crop} maxTimes={maxTimes}/>
     </Tabber>
   </>
