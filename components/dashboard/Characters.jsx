@@ -121,13 +121,13 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
                        iconPath={'data/ObolLocked1'}/> : null}
               {trackers?.postOffice && alerts?.postOffice?.unspentPoints ?
-                <Alert title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent points`}
+                <Alert title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent post office points`}
                        iconPath={'data/UIboxUpg0'}/> : null}
               {trackers?.anvil && alerts?.anvil?.missingHammers > 0 ?
                 <Alert title={`${name} is missing ${alerts?.anvil?.missingHammers} hammers`}
                        iconPath={'data/GemP1'}/> : null}
               {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
-                <Alert title={`${name} has ${alerts?.anvil?.unspentPoints} unspent points anvil points`}
+                <Alert title={`${name} has ${alerts?.anvil?.unspentPoints} unspent anvil points`}
                        iconPath={'data/ClassIcons43'}/> : null}
               {trackers?.anvil && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
                 alerts?.equipment?.availableUpgradesSlots?.map(({
