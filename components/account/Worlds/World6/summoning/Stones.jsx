@@ -1,6 +1,8 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 import React from 'react';
+import Tooltip from '@components/Tooltip';
 
 const Battles = ({ stones }) => {
   return <>
@@ -9,15 +11,28 @@ const Battles = ({ stones }) => {
     </Stack>
 
     <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
-      {stones?.map(({ name, bonus, kills, monsterIcon, index }) => {
-        return <Card key={'upgrade-' + index} sx={{ width: 220 }}>
+      {stones?.map(({ name, bonus, kills, bossHp, nextLevelHps, monsterIcon, index }) => {
+        return <Card key={'upgrade-' + index} sx={{ width: 250 }}>
           <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
               <img style={{ width: 50, height: 50, objectFit: 'contain' }}
                    src={`${prefix}etc/SumStone_${index}.png`} alt={''}/>
               <img style={{ width: 50, height: 50, objectFit: 'contain' }}
                    src={`${prefix}${monsterIcon}.png`} alt={''}/>
-              <Typography variant={'caption'}>Kills: {kills}</Typography>
+              <Stack>
+                <Typography variant={'caption'}>Kills: {kills}</Typography>
+                <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                  <Typography variant={'caption'}>Hp: {notateNumber(bossHp)}</Typography>
+                  <Tooltip title={<Stack>
+                    {nextLevelHps.map((futureHp, index) => <div
+                      key={`futureKills-${name}-${index}`}>Kills: {kills + index + 1} - {futureHp < 1e7
+                      ? commaNotation(futureHp)
+                      : notateNumber(futureHp)}</div>)}
+                  </Stack>}>
+                    <IconInfoCircleFilled size={16}/>
+                  </Tooltip>
+                </Stack>
+              </Stack>
             </Stack>
             <Divider sx={{ my: 1 }}></Divider>
             <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>

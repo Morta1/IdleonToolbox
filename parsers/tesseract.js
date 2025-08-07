@@ -322,8 +322,8 @@ export const getExtraTachyon = (character, account) => {
 
   return (1 + (calcTesseractBonus(upgrades, 17, 0)
       + (tesseract +
-        ((calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390])) / 100
-          + ((calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393])) / 100
+        ((calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390]))
+          + ((calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393]))
             + (equipBonus + (jewelBonus + arcadeBonus)))))) / 100)
     * (1 + emperorBonus / 100)
     * (1 + charmBonus / 100)
@@ -332,12 +332,12 @@ export const getExtraTachyon = (character, account) => {
 }
 
 export const getMapKillsReq = (mapId) => {
-  const worldReq = [10, 20, 40, 70, 170, 250];
+  const worldReq = [10, 20, 40, 70, 80, 250, 250, 250];
   return 25 > mapId ? 5 : worldReq[Math.floor(mapId / 50)];
 }
 
 export const getMapTimeLeft = (mapId) => {
-  const worldReq = [360, 270, 225, 180, 160, 120, 100];
+  const worldReq = [360, 270, 225, 200, 180, 180, 180, 180];
   return worldReq[Math.floor(mapId / 50)]
 }
 

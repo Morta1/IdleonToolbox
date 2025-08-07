@@ -1,4 +1,4 @@
-import { groupByKey, notateNumber, tryToParse } from '@utility/helpers';
+import { createRange, groupByKey, notateNumber, tryToParse } from '@utility/helpers';
 import {
   deathNote,
   monsters,
@@ -144,13 +144,19 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       const isBoss6 = enemy?.enemyId === 'Boss6';
       const rawName = isBoss6 ? 'Boss6A' : enemy?.enemyId
       const monsterName = monsters?.[rawName]?.Name;
+      const bossHp = 2 * enemy?.hp * Math.pow(4000, kills);
+      const nextLevelHps = createRange(kills + 1, kills + 14).map((futureKills) => {
+        return 2 * enemy?.hp * Math.pow(4000, futureKills)
+      })
       return {
         name: enemy?.territoryName,
         monsterIcon: isBoss6 ? `data/${enemy?.enemyId}` : `afk_targets/${monsterName}`,
         stoneName: stoneNames[index],
         kills,
         index,
-        bonus: `${summonEssenceColor[index]}_` + Math.max(2, 1 + kills) + 'x_higher_bonuses'
+        bonus: `${summonEssenceColor[index]}_` + Math.max(2, 1 + kills) + 'x_higher_bonuses',
+        bossHp,
+        nextLevelHps
       }
     })
     .toSorted((a, b) => a.index - b.index);
@@ -253,7 +259,13 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   }
   return val;
 }
+const getLocalSummoningBonus = (upgrades, index) => {
+  return upgrades.find(({ originalIndex }) => originalIndex === index)?.value || 0
+}
+const getStoneBossHp = ({ type }) => {
 
+  return 2 * summoningEnemies[type] * Math.pow(4000, kills);
+}
 const getArmyHealth = (upgrades, totalUpgradesLevels, account) => {
   const additiveArmyHealth = [1, 10, 35, 37].reduce((sum, bonusIndex) => {
     const hpBonus = upgrades.find(({ originalIndex }) => originalIndex === bonusIndex) || {};
