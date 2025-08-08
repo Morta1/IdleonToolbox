@@ -401,7 +401,10 @@ export const calculateLeaderboard = (characters) => {
         const joined = { ...res[skillName], [name]: skillLevel };
         let lowestIndex = Object.keys(joined).length;
         res[skillName] = Object.entries(joined)
-          .sort(([_, { level: aLevel }], [__, { level: bLevel }]) => bLevel - aLevel)
+          .sort(
+            ([, { level: aLevel, exp: aExp }], [, { level: bLevel, exp: bExp }]) =>
+              bLevel - aLevel || bExp - aExp
+          )
           .reduceRight((res, [charName, charSkillLevel]) => {
             return { ...res, [charName]: { ...charSkillLevel, rank: lowestIndex-- } };
           }, {});
