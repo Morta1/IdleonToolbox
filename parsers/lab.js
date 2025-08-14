@@ -223,6 +223,9 @@ const getRange = (connectionBonus, viralRangeBonus, taskConnectionRange, equinox
   if ((!isJewel && (index === 13 || index === 8)) || ((index === 9 && isJewel) || (index === 19 && isJewel))) {
     return 80;
   }
+  if (isJewel && (index === 21 || index === 22 || index === 23)) {
+    return 100;
+  }
   return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange + equinoxConnectionRangeBonus + winnerBonus;
 }
 
