@@ -47,7 +47,8 @@ const ItemDisplay = ({
                        breakdown,
                        allowNegativeValues = true,
                        changes,
-                       owners
+                       owners,
+                       showRawName
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
@@ -65,6 +66,8 @@ const ItemDisplay = ({
       <Typography fontWeight={'bold'}
                   variant={'subtitle1'}>{cleanUnderscore(displayName)}</Typography>
     </Stack>
+    {showRawName ? <Typography fontWeight={'bold'}
+                               variant={'subtitle2'}>{rawName}</Typography> : null}
     <Divider flexItem sx={{ my: 2 }}/>
     {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}

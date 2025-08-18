@@ -45,10 +45,10 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
         if (npc?.name === 'Picnic_Stowaway') {
           const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
           forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0;
-        } else if (npc?.name === 'Scripticus'){
+        } else if (npc?.name === 'Scripticus') {
           const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
           forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
-        } else if (npc?.name === 'Potti'){
+        } else if (npc?.name === 'Potti') {
           // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
           // forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
         }
@@ -83,7 +83,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                             key={charIndex + '' + innerIndex}
                             anchorOrigin={{
                               vertical: 'bottom',
-                              horizontal: 'right',
+                              horizontal: 'right'
                             }}
                             badgeContent={<StatusIndicator
                               color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>

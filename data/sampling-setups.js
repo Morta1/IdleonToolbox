@@ -14,13 +14,13 @@ export const samplingSetups = {
       Mage: 'EquipmentWands11'
     },
     equipment: [
-      items['EquipmentHats106'],
+      items['EquipmentHats119'],
       items['EquipmentBows12'],
       items['EquipmentShirts36'],
       items['EquipmentPendant30'],
       items['EquipmentPants27'],
       items['EquipmentRings35'],
-      items['EquipmentShoes38'],
+      items['EquipmentShoes40'],
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain22'],
@@ -87,11 +87,11 @@ export const samplingSetups = {
   'chopping': {
     name: 'Chopping',
     equipment: [
-      items['EquipmentHats105'],
+      items['EquipmentHats119'],
       items['EquipmentWands13'],
-      items['EquipmentShirts37'],
+      items['EquipmentShirts39'],
       items['EquipmentPendant30'],
-      items['EquipmentPants29'],
+      items['EquipmentPants31'],
       items['EquipmentRings35'],
       items['EquipmentShoes27'],
       items['EquipmentRings35'],
@@ -142,6 +142,7 @@ export const samplingSetups = {
       getPrayer('Skilled_Dimwit')
     ],
     obols: [
+      items.ObolEmp,
       items.ObolKruk,
       items.ObolSlush,
       items.ObolHyperB1,
@@ -158,11 +159,11 @@ export const samplingSetups = {
   'mining': {
     name: 'Mining',
     equipment: [
-      items['EquipmentHats105'],
+      items['EquipmentHats119'],
       items['EquipmentSword9'],
-      items['EquipmentShirts37'],
+      items['EquipmentShirts39'],
       items['EquipmentPendant30'],
-      items['EquipmentPants29'],
+      items['EquipmentPants31'],
       items['EquipmentRings35'],
       items['EquipmentShoes26'],
       items['EquipmentRings35'],
@@ -215,6 +216,7 @@ export const samplingSetups = {
       getPrayer('Skilled_Dimwit')
     ],
     obols: [
+      items.ObolEmp,
       items.ObolKruk,
       items.ObolSlush,
       items.ObolHyperB1,
@@ -231,13 +233,13 @@ export const samplingSetups = {
   'catching': {
     name: 'Catching',
     equipment: [
-      items['EquipmentHats105'],
+      items['EquipmentHats119'],
       items['EquipmentBows14'],
-      items['EquipmentShirts37'],
+      items['EquipmentShirts39'],
       items['EquipmentPendant30'],
-      items['EquipmentPants29'],
+      items['EquipmentPants31'],
       items['EquipmentRings35'],
-      items['EquipmentShoes37'],
+      items['EquipmentShoes40'],
       items['EquipmentRings35'],
       items['EquipmentHats69'],
       items['EquipmentKeychain19'],
@@ -286,6 +288,7 @@ export const samplingSetups = {
       getPrayer('Skilled_Dimwit')
     ],
     obols: [
+      items.ObolEmp,
       items.ObolKruk,
       items.ObolSlush,
       items.ObolHyperB1,
@@ -302,7 +305,7 @@ export const samplingSetups = {
   'fishing': {
     name: 'Fishing',
     equipment: [
-      items['EquipmentHats105'],
+      items['EquipmentHats119'],
       items['EquipmentSword9'],
       items['EquipmentShirts5'],
       items['EquipmentPendant30'],
@@ -359,6 +362,7 @@ export const samplingSetups = {
       getPrayer('Skilled_Dimwit')
     ],
     obols: [
+      items.ObolEmp,
       items.ObolKruk,
       items.ObolSlush,
       items.ObolHyperB1,
@@ -375,13 +379,13 @@ export const samplingSetups = {
   'trapping': {
     name: 'Trapping Eff',
     equipment: [
-      items['EquipmentHats105'],
+      items['EquipmentHats119'],
       items['EquipmentBows14'],
-      items['EquipmentShirts37'],
+      items['EquipmentShirts39'],
       items['EquipmentPendant30'],
-      items['EquipmentPants29'],
+      items['EquipmentPants31'],
       items['EquipmentRings26'],
-      items['EquipmentShoes37'],
+      items['EquipmentShoes40'],
       items['EquipmentRings26'],
       items['EquipmentHats82'],
       items['EquipmentKeychain18'],
@@ -418,6 +422,7 @@ export const samplingSetups = {
       getPrayer('Skilled_Dimwit')
     ],
     obols: [
+      items.ObolEmp,
       items.ObolPinkTrapping,
       items.ObolSlush,
       items.ObolPlatinumTrapping,
@@ -431,5 +436,147 @@ export const samplingSetups = {
       { starSign: starSignByIndexMap[38], starSignIndex: 38, bonusIndex: 0 },
       { starSign: starSignByIndexMap[34], starSignIndex: 34, bonusIndex: 0 }
     ]
-  }
+  },
+  'lab': {
+    name: 'Lab',
+    weaponByClass: {
+      Beginner: 'EquipmentPunching11',
+      Warrior: 'EquipmentSword9',
+      Archer: 'EquipmentBows14',
+      Mage: 'EquipmentWands13'
+    },
+    equipment: [
+      items['EquipmentHats76'],
+      items['EquipmentBows14'],
+      items['EquipmentShirts39'],
+      items['EquipmentPendant30'],
+      items['EquipmentPants31'],
+      items['EquipmentRings30'],
+      items['EquipmentShoes33'],
+      items['EquipmentRings30'],
+      items['EquipmentHats69'],
+      items['EquipmentKeychain19'],
+      items['Trophy23'],
+      items['EquipmentKeychain19'],
+      items['EquipmentCape16'],
+      items['EquipmentRingsChat11'],
+      items['EquipmentNametag19'],
+      items['EquipmentGown4']
+    ],
+    tools: [
+      items['TrapBoxSet10'],
+      items['WorshipSkull11']
+    ],
+    food: [
+      items['FoodG12'],
+      items['FoodG9']
+    ],
+    chips: [
+      { chip: chips[21], count: 1 },
+      { chip: chips[20], count: 1 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[8], count: 1 }
+    ],
+    cardSet: cardSets['{%_Skill_Efficiency'],
+    cards: [
+      cards.wolfA,
+      cards.w6b3,
+      cards.CritterCard7,
+      cards.Boss3C,
+      cards.w6a3,
+      cards.w5c2,
+      cards.w4c4,
+      cards.Boss4B
+    ],
+    prayers: [
+      getPrayer('Zerg_Rushogen'),
+      getPrayer('Skilled_Dimwit')
+    ],
+    obols: [
+      items.ObolEmp,
+      items.ObolKruk,
+      items.ObolSlush,
+      items.ObolHyperB1,
+      items.ObolHyper1
+    ],
+    starSigns: [
+      { starSign: starSignByIndexMap[69], starSignIndex: 69, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[55], starSignIndex: 55, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[20], starSignIndex: 20, bonusIndex: 0 }
+    ]
+  },
+  'ladle': {
+    name: 'Ladle',
+    weaponByClass: {
+      Beginner: 'EquipmentPunching11',
+      Warrior: 'EquipmentSword9',
+      Archer: 'EquipmentBows14',
+      Mage: 'EquipmentWands13'
+    },
+    equipment: [
+      items['EquipmentHats76'],
+      items['EquipmentBows14'],
+      items['EquipmentShirts39'],
+      items['EquipmentPendant30'],
+      items['EquipmentPants31'],
+      items['EquipmentRings35'],
+      items['EquipmentShoes31'],
+      items['EquipmentRings35'],
+      items['EquipmentHats69'],
+      items['EquipmentKeychain19'],
+      items['Trophy23'],
+      items['EquipmentKeychain19'],
+      items['EquipmentCape16'],
+      items['EquipmentRingsChat11'],
+      items['EquipmentNametag19'],
+      items['EquipmentGown4']
+    ],
+    tools: [
+      items['TrapBoxSet10'],
+      items['WorshipSkull11']
+    ],
+    food: [
+      items['FoodG12'],
+      items['FoodG9']
+    ],
+    chips: [
+      { chip: chips[21], count: 1 },
+      { chip: chips[20], count: 1 },
+      { chip: chips[18], count: 1 },
+      { chip: chips[17], count: 1 },
+      { chip: chips[15], count: 1 },
+      { chip: chips[16], count: 1 },
+      { chip: chips[8], count: 1 }
+    ],
+    cardSet: cardSets['{%_Skill_Efficiency'],
+    cards: [
+      cards.wolfA,
+      cards.w6b3,
+      cards.CritterCard7,
+      cards.Boss3C,
+      cards.w6a3,
+      cards.w5c2,
+      cards.w4c4,
+      cards.Boss4B
+    ],
+    prayers: [
+      getPrayer('Zerg_Rushogen'),
+      getPrayer('Skilled_Dimwit')
+    ],
+    obols: [
+      items.ObolEmp,
+      items.ObolKruk,
+      items.ObolSlush,
+      items.ObolHyperB1,
+      items.ObolHyper1
+    ],
+    starSigns: [
+      { starSign: starSignByIndexMap[69], starSignIndex: 69, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[55], starSignIndex: 55, bonusIndex: 0 },
+      { starSign: starSignByIndexMap[20], starSignIndex: 20, bonusIndex: 0 }
+    ]
+  },
 };

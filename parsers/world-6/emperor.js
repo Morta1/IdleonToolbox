@@ -12,7 +12,7 @@ const icons = {
   3: 'data/Opal',
   4: 'data/ClassIcons29',
   5: 'data/Quest78',
-  6: '',
+  6: 'data/Tach0_x1',
   7: 'data/ClassIcons56',
   8: 'data/ClassIcons59',
   9: '',
@@ -23,8 +23,10 @@ const icons = {
 export const getEmperor = (idleonData, account) => {
   const highestEmperorShowdown = account?.accountOptions?.[369] ?? 0;
   const cycle = Math.floor(highestEmperorShowdown / 48);
-  let bonuses = emperorBonuses.filter((val, index, self) =>
-    self.findIndex((t) => t.name === val.name) === index);
+  let bonuses = emperorBonuses.filter(
+    (val, idx, self) =>
+      self.findIndex(t => t.name === val.name && t.index === val.index) === idx
+  );
   const totalBonuses = emperorBonuses.reduce((result, bonus, index) => {
     if (!result[bonus.name]) {
       result[bonus.name] = 0;

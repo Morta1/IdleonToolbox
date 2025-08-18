@@ -58,7 +58,7 @@ const ItemDatabase = () => {
         {filteredItems.map((item, index) => {
           const img = replaceImage?.[item?.rawName] || item?.rawName;
           return (
-            <Tooltip key={item?.rawName + index} title={<ItemDisplay {...item} />}>
+            <Tooltip key={item?.rawName + index} title={<ItemDisplay {...item} showRawName />}>
               <Image
                 src={`${prefix}data/${img}.png`}
                 onError={(e) => {
