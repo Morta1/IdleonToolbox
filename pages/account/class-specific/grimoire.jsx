@@ -26,7 +26,7 @@ const Grimoire = () => {
       setSelectedChar(deathBringers?.[0]?.playerId);
     }
   }, []);
-  console.log(nextUnlock?.name)
+
   return <>
     <NextSeo
       title="Grimoire | Idleon Toolbox"

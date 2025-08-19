@@ -148,7 +148,7 @@ const Bubbles = () => {
   const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
     bargainTag, classDiscount]);
 
-  const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account), [state?.account]);
+  const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account, state?.characters), [state?.account]);
 
   const getMaxBonus = (func, x1) => {
     if (!func?.includes('decay')) return null;

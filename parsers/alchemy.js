@@ -4,12 +4,13 @@ import { isArtifactAcquired } from './sailing';
 import { getSaltLickBonus } from './saltLick';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getJewelBonus, getLabBonus } from './lab';
-import { isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
+import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getTesseractBonus } from '@parsers/tesseract';
+import { getHighestTalentByClass } from '@parsers/talents';
 
 export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
@@ -19,7 +20,7 @@ export const cauldronColors = {
   3: '#f6f031'
 }
 export const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
-const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o', 3: 'toxic mercury' };
+export const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o', 3: 'toxic mercury' };
 const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };
 const bigBubblesIndices = { _: 'power', a: 'quicc', b: 'high-iq', c: 'kazam' };
 export const CAULDRONS_MAX_LEVELS = {
@@ -570,10 +571,44 @@ const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
   return lowestBubbles.flat();
 }
 
-export const getUpgradeableBubbles = (acc) => {
+export const getNblbLevel = (acc, characters, isMin) => {
+  let level;
+  const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind');
+  const spelunkerObolMulti = getLabBonus(acc?.lab.labBonuses, 8); // gem multi
+  const pyriteRhinestone = getJewelBonus(acc?.lab.jewels, 7, spelunkerObolMulti);
+  level = Math.max(1, (noBubbleLeftBehind?.active
+    ? noBubbleLeftBehind?.bonusOn
+    : noBubbleLeftBehind?.bonusOff) + pyriteRhinestone - 1);
+  if (isMin) {
+    return Math.floor(level);
+  }
+  level += 1;
+
+  const sBundle = isBundlePurchased(acc?.bundles, 'bun_s');
+  if (sBundle) {
+    level = Math.round(level + 3);
+
+    if (noBubbleLeftBehind?.active && noBubbleLeftBehind?.bonusOn > 0.5) {
+      level += 1;
+    }
+  }
+
+  const eventBonus = getEventShopBonus(acc, 2);
+  if (eventBonus) {
+    level += 2;
+  }
+
+  const tachyonTruth = getHighestTalentByClass(characters, 4, 'Arcane_Cultist', 'TACHYON_TRUTH');
+  if (tachyonTruth >= 1) {
+    level += 3;
+  }
+  return level;
+
+}
+export const getUpgradeableBubbles = (acc, characters) => {
   let upgradeableBubblesAmount = 3;
-  const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind')?.active;
-  if (!noBubbleLeftBehind) return null;
+  const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind');
+  if (!noBubbleLeftBehind?.active) return null;
   const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
     return bubbles.map((bubble, bubbleIndex) => {
       return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
@@ -598,10 +633,18 @@ export const getUpgradeableBubbles = (acc) => {
 
   upgradeableBubblesAmount = Math.min(10, upgradeableBubblesAmount)
   const normal = sorted.slice(0, upgradeableBubblesAmount);
-  const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount);
+  const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount).map((bubble) => ({ ...bubble, lithium: true }));
+
+  const minLevel = getNblbLevel(acc, characters, true);
+  const maxLevel = getNblbLevel(acc, characters);
+
   return {
     normal,
     atomBubbles,
+    upgradeableBubblesAmount,
+    maxBubblesToUpgrade: 10,
+    minLevel,
+    maxLevel,
     breakdown: [
       { name: 'Base', value: 3 },
       { name: 'Artifact', value: (amberiteArtifact?.baseBonus || 0) * multi },

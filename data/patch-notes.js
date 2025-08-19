@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.9',
+    'gameVer': '2.0.41',
+    'date': '19/08/2025',
+    'features': [
+      'Bubbles page visual update',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.8',
     'gameVer': '2.0.41',
     'date': '11/07/2025',
