@@ -244,7 +244,8 @@ export const getVisualizationMap = (classes) => ({
         legend: ''
       },
       axisBottom: {
-        format: (value) => notateNumber(value)
+        format: (value) => notateNumber(value),
+        legend: 'Levels',
       },
       legends: [{
         data: [
@@ -286,7 +287,8 @@ export const getVisualizationMap = (classes) => ({
         legend: ''
       },
       axisBottom: {
-        format: (value) => notateNumber(value)
+        format: (value) => notateNumber(value),
+        legend: 'Levels',
       },
       legends: [{
         data: [

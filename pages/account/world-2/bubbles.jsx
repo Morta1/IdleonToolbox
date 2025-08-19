@@ -182,7 +182,7 @@ const Bubbles = () => {
                 <Stack direction="row" gap={2}>
                   <Typography variant={'body2'} color={'primary'}>No bubble left behind</Typography>
                   <Dot/>
-                  <Stack direction="row" divider={<Dot/>} gap={2}>
+                  <Stack direction="row" divider={<Dot/>} gap={2} flexWrap={'wrap'}>
                     <Typography variant="body2">
                       {upgradeableBubbles?.normal?.length + upgradeableBubbles?.atomBubbles?.length} eligible bubbles
                     </Typography>
@@ -191,7 +191,7 @@ const Bubbles = () => {
                         {upgradeableBubbles.upgradeableBubblesAmount} bubbles will upgrade
                       </Typography>
                       <HtmlTooltip title={<Breakdown breakdown={upgradeableBubbles?.breakdown}/>}>
-                        <IconInfoCircleFilled size={16}/>
+                        <IconInfoCircleFilled style={{ flexShrink: 0 }} size={16}/>
                       </HtmlTooltip>
                     </Stack>
                     <Typography variant="body2">
@@ -244,7 +244,7 @@ const Bubbles = () => {
                   control={<Checkbox size={'small'} checked={hidePastThreshold}
                                      onChange={() => setHidePastThreshold(!hidePastThreshold)}/>}
                   name={'classDiscount'}
-                  label="Enable treshold"/>
+                  label="Enable threshold"/>
                 <TextField
                   size={'small'}
                   value={effThreshold}
@@ -266,7 +266,7 @@ const Bubbles = () => {
                   slotProps={{ typography: { variant: 'caption' } }}
                   control={<Checkbox sx={{ my: 0 }} size={'small'} checked={hidePastLevelThreshold}
                                      onChange={() => setHidePastLevelThreshold(!hidePastLevelThreshold)}/>}
-                  label="Enable treshold"/>
+                  label="Enable threshold"/>
                 <TextField
                   value={levelThreshold}
                   type={'number'}
