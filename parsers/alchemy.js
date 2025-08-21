@@ -608,7 +608,20 @@ export const getNblbLevel = (acc, characters, isMin) => {
 export const getUpgradeableBubbles = (acc, characters) => {
   let upgradeableBubblesAmount = 3;
   const noBubbleLeftBehind = acc?.lab?.labBonuses?.find((bonus) => bonus.name === 'No_Bubble_Left_Behind');
-  if (!noBubbleLeftBehind?.active) return null;
+  if (!noBubbleLeftBehind?.active) return {
+    normal: [],
+    atomBubbles: [],
+    upgradeableBubblesAmount: 0,
+    maxBubblesToUpgrade: 10,
+    minLevel: 0,
+    maxLevel: 0,
+    breakdown: [
+      { name: 'Base', value: 0 },
+      { name: 'Artifact', value: 0 },
+      { name: 'Merit', value: 0 },
+      { name: 'Jewel', value: 0 }
+    ]
+  };
   const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
     return bubbles.map((bubble, bubbleIndex) => {
       return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
