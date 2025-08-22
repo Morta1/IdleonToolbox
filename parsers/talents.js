@@ -78,6 +78,16 @@ export const talentPagesMap = {
   'Wizard': ['Savvy_Basics', 'Mage', 'Wizard'],
   'Elemental_Sorcerer': ['Savvy_Basics', 'Mage', 'Wizard', 'Elemental_Sorcerer']
 };
+
+export function getBaseClass(className) {
+  const path = talentPagesMap[className];
+  if (!path) return null; // not found
+
+  if (className === "Beginner") return "Beginner";
+  if (path[0] === "Beginner") return "Beginner";
+  return path[1]; // second item is always the base class
+}
+
 // { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' }
 export const mainStatMap = {
   Beginner: 'luck',

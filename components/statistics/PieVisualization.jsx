@@ -41,4 +41,4 @@ const PieVisualization = ({ data, label, colors, legends, isMd }) => (
   </>
 );
 
-export default PieVisualization; 
+export default PieVisualization;

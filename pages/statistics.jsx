@@ -41,13 +41,14 @@ const Statistics = () => {
         const vizConfig = visualizationMap[key];
         const vizType = vizConfig.type;
         const chartData = vizConfig.getData(value);
+        const chartKeys = vizConfig.hasOwnProperty('getKeys') ? vizConfig.getKeys(chartData) : null;
         if (!Array.isArray(chartData)) return null;
         const indexKey = '_id';
         if (vizType === 'bar') {
           return (
             <BarVisualization
               key={key}
-              keys={key}
+              keys={chartKeys || vizConfig?.keys}
               data={chartData.map(item => ({
                 ...item,
                 [indexKey]: item[indexKey],
@@ -56,6 +57,7 @@ const Statistics = () => {
               indexKey={indexKey}
               label={vizConfig?.props?.label || key.camelToTitleCase()}
               color={customColors[index % customColors.length]}
+              colors={vizConfig?.getColors}
               {...vizConfig?.props}
             />
           );

@@ -1,9 +1,10 @@
 // Nivo theme for statistics visualizations
 import { cleanUnderscore, notateNumber, number2letter } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
-import { cauldrons, deathNote, prayers, stamps } from '../../data/website-data';
+import { cauldrons, deathNote, monsters, prayers, stamps } from '../../data/website-data';
 import { worldColor } from '../../pages/account/world-3/death-note';
 import { altStampsMapping, stampsMapping } from '@parsers/stamps';
+import { getBaseClass } from '@parsers/talents';
 
 export const nivoTheme = {
   background: 'transparent',
@@ -48,6 +49,36 @@ export const customColors = [
 ];
 
 export const getVisualizationMap = (classes) => ({
+  topActivities: {
+    type: 'pie',
+    props: {
+      valueFormat: value => notateNumber(value),
+      axisLeft: {
+        legendOffset: 0,
+        legend: ''
+      },
+      margin: {
+        left: 110
+      },
+      axisBottom: {
+        format: (value) => notateNumber(value),
+        legend: 'Characters'
+      }
+    },
+    getData: (raw) => {
+      const arr = raw
+        .map(({ count, activity }) => ({
+          _id: cleanUnderscore(monsters?.[activity]?.AFKtype.toLowerCase().capitalizeAll() || 'other'),
+          count,
+          activity: monsters?.[activity]?.AFKtype
+        }))
+        .filter(
+          (item, i, self) =>
+            item.activity && i === self.findIndex(t => t.activity === item.activity)
+        );
+      return arr.toSorted((a, b) => b.count - a.count);
+    }
+  },
   totalLevels: {
     type: 'bar',
     props: {},
@@ -158,6 +189,63 @@ export const getVisualizationMap = (classes) => ({
       }).toSorted((a, b) => b.count - a.count)
     }
   },
+  classDistributionPerSlot: {
+    type: 'bar',
+    props: {
+      layout: 'vertical',
+      groupMode: 'stacked',
+      enableTotals: false,
+      enableLabel: true,
+      axisLeft: {
+        legendOffset: 0,
+        legend: ''
+      },
+      axisBottom: {
+        legend: 'Slots'
+      },
+      margin: {
+        right: 150
+      },
+      colors: [worldColor?.[2], worldColor?.[4], worldColor?.[0], worldColor?.[3]],
+      legends: [{
+        data: [
+          { label: 'Beginner', color: worldColor?.[2] },
+          { label: 'Warrior', color: worldColor?.[4] },
+          { label: 'Archer', color: worldColor?.[0] },
+          { label: 'Mage', color: worldColor?.[3] }
+        ],
+        anchor: 'bottom-right',
+        direction: 'column',
+        translateX: 120,
+        itemWidth: 50,
+        itemHeight: 20,
+        itemsSpacing: 2,
+        symbolSize: 20
+      }]
+
+    },
+    keys: ['Beginner', 'Warrior', 'Archer', 'Mage'],
+    getData: (raw) => {
+      const slotMap = new Map();
+
+      for (let i = 0; i <= 9; i++) {
+        slotMap.set(i, { _id: `Slot ${i + 1}` });
+      }
+
+      raw.forEach(item => {
+        const slotData = slotMap.get(item.slot);
+        if (slotData && item.count > 50) {
+          const baseClass = getBaseClass(classes?.[item?.class]);
+          if (!slotData[baseClass]) {
+            slotData[baseClass] = 0;
+          }
+          slotData[baseClass] += item.count;
+        }
+      });
+
+      return Array.from(slotMap.values());
+    }
+  },
   accountAge: {
     type: 'bar',
     props: {
@@ -245,7 +333,7 @@ export const getVisualizationMap = (classes) => ({
       },
       axisBottom: {
         format: (value) => notateNumber(value),
-        legend: 'Levels',
+        legend: 'Levels'
       },
       legends: [{
         data: [
@@ -288,7 +376,7 @@ export const getVisualizationMap = (classes) => ({
       },
       axisBottom: {
         format: (value) => notateNumber(value),
-        legend: 'Levels',
+        legend: 'Levels'
       },
       legends: [{
         data: [

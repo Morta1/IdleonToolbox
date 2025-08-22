@@ -6,8 +6,10 @@ import { nivoTheme } from './consts';
 const BarVisualization = ({
                             data,
                             indexKey,
+                            keys,
                             label,
                             color,
+                            colors,
                             layout = 'horizontal',
                             axisBottom,
                             axisLeft,
@@ -25,7 +27,7 @@ const BarVisualization = ({
       <Typography>{label}</Typography>
       <ResponsiveBar
         data={data}
-        keys={['count']}
+        keys={keys || ['count']}
         indexBy={indexKey}
         margin={{ top: 30, right: 30, bottom: 60, left: 70, ...margin }}
         padding={0.3}
@@ -45,11 +47,10 @@ const BarVisualization = ({
           legendPosition: 'middle',
           legendOffset: -50,
           ...axisLeft
-
         }}
-        colors={({ data }) => {
+        colors={colors || (({ data }) => {
           return data?.color || color;
-        }}
+        })}
         legends={legends}
         valueFormat={valueFormat ? valueFormat : null}
         animate={true}
