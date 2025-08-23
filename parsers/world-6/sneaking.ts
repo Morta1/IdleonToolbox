@@ -150,7 +150,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, charactersData: any, a
   };
 }
 
-export const getLocalNinjaUpgradeBonus = (upgrades, index, gemstones, inventory, account) => {
+export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) => {
   const { level, modifier } = upgrades?.[index];
   const goldEye = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Eye');
   const fireFrostBonus = gemstones?.[7]?.bonus;
