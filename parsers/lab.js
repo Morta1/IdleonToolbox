@@ -2,12 +2,16 @@ import { growth, tryToParse } from '../utility/helpers';
 import { chips, classes, jewels, labBonuses, merits, randomList, talents } from '../data/website-data';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getCardBonusByEffect } from './cards';
-import { isArenaBonusActive, isCompanionBonusActive } from './misc';
+import { isArenaBonusActive, isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getShinyBonus } from './breeding';
-import { checkCharClass, getHighestTalentByClass } from './talents';
+import { checkCharClass, getHighestTalentByClass, getTalentBonus } from './talents';
 import { getEquinoxBonus } from './equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { calculateItemTotalAmount } from '@parsers/items';
+import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
+import { getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
+import { getObolsBonus } from '@parsers/obols';
+import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getPostOfficeBonus } from '@parsers/postoffice';
 
 export const getLab = (idleonData, charactersData, account, updatedCharactersData) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -275,7 +279,8 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
       purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, 'Bubonic_Conjuror', 'PURPLE_TUBE', false, true)
-    } else {
+    }
+    else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
     }
   }
@@ -331,11 +336,37 @@ export const getRequirementAmount = (name, rawName, account) => {
   if (rawName.includes('Spice')) {
     const spice = account?.cooking?.spices?.available?.find(({ rawName: sRawName }) => sRawName === rawName);
     totalAmount = spice?.amount || 0;
-  } else if (rawName.includes('CookingM')) {
+  }
+  else if (rawName.includes('CookingM')) {
     const meal = account?.cooking?.meals?.find(({ name: mName }) => mName === name)
     totalAmount = meal?.amount || 0;
-  } else {
+  }
+  else {
     totalAmount = calculateItemTotalAmount(account?.storage?.list, rawName, true, true);
   }
   return totalAmount;
+}
+
+export const getLabEfficiency = (character, characters, account, playerInfo) => {
+  const allEfficiencies = getAllEff(character, characters, account);
+  const talentBonus = getTalentBonus(character?.talents, 3, 'SKILL_WIZ');
+  const talentBonus2 = getTalentBonus(character?.talents, 3, 'UPLOAD_SQUARED');
+  const talentBonus3 = getTalentBonus(character?.talents, 0, 'SMART_EFFICIENCY');
+  const equipBonus = getStatsFromGear(character, 63, account);
+  const equipBonus2 = getStatsFromGear(character, 66, account);
+  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
+  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 0);
+  const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
+
+  return allEfficiencies
+  * (200 + (Math.pow(character?.stats?.wisdom, 0.6)
+    * (1 + talentBonus / 100)
+    + (equipBonus
+      + (allBaseSkillEff
+        + postOfficeBonus))))
+  * (1 + (talentBonus2
+    + (equipBonus2
+      + 10 * masteryBonus)) / 100)
+  * (1 + talentBonus3 / 100)
+
 }

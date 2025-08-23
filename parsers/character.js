@@ -5,6 +5,7 @@ import {
   classes,
   classFamilyBonuses,
   divStyles,
+  fishingKits,
   gods,
   invBags,
   items,
@@ -26,6 +27,7 @@ import {
   getHighestLevelOfClass,
   getMaterialCapacity,
   getRandomEventItems,
+  getSkillMasteryBonusByIndex,
   isArenaBonusActive,
   isBundlePurchased,
   isCompanionBonusActive,
@@ -39,8 +41,9 @@ import {
   checkCharClass,
   createTalentPage,
   getActiveBuffs,
-  getFamilyBonusValue,
+  getBubonicGreenTube,
   getHighestTalentByClass,
+  getMaestroLeftHand,
   getTalentAddedLevels,
   getTalentBonus,
   getTalentBonusIfActive,
@@ -71,20 +74,20 @@ import { getAnvil } from './anvil';
 import { getPrayerBonusAndCurse } from './prayers';
 import { getGuildBonusBonus } from './guild';
 import { getShrineBonus } from './shrines';
-import { getFamilyBonus, getFamilyBonusBonus } from './family';
+import { getFamilyBonusBonus, getUpdatedFamilyBonus } from './family';
 import { getSaltLickBonus } from './saltLick';
-import { getDungeonFlurboStatBonus } from './dungeons';
-import { getMealsBonusByEffectOrStat } from './cooking';
+import { getDungeonFlurboStatBonus, getDungeonStatBonus } from './dungeons';
+import { getCookingEff, getCookingProwess, getMealsBonusByEffectOrStat } from './cooking';
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from './obols';
 import { getPlayerWorship } from './worship';
 import { getPlayerQuests } from './quests';
-import { getJewelBonus, getLabBonus, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './lab';
+import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './lab';
 import { getAchievementStatus } from './achievements';
-import { lavaLog } from '../utility/helpers';
+import { lavaLog, notateNumber } from '../utility/helpers';
 import { getArcadeBonus } from './arcade';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
-import { getDeityLinkedIndex, getMinorDivinityBonus } from './divinity';
+import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './atomCollider';
@@ -97,7 +100,7 @@ import {
 } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getOwlBonus } from '@parsers/world-1/owl';
-import { getLandRank } from '@parsers/world-6/farming';
+import { getLandRank, getLandRankTotalBonus, getMarketBonus } from '@parsers/world-6/farming';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
@@ -110,6 +113,9 @@ import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getCompassBonus } from '@parsers/compass';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
+import { getBribeBonus } from '@parsers/bribes';
+import { allProwess } from '@parsers/efficiency';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -144,7 +150,8 @@ export const getCharacters = (idleonData, charsNames) => {
             const det = createIndexedArray(updatedDetails);
             if (arr) {
               arr.splice(0, 0, det);
-            } else {
+            }
+            else {
               arr = [det];
             }
             break;
@@ -160,7 +167,8 @@ export const getCharacters = (idleonData, charsNames) => {
             const det = createIndexedArray(updatedDetails);
             if (arr) {
               arr.splice(1, 0, det);
-            } else {
+            }
+            else {
               arr = [det];
             }
             break;
@@ -182,6 +190,11 @@ export const getCharacters = (idleonData, charsNames) => {
           case key.includes('PVtStarSign'): {
             updatedKey = `PersonalValuesMap`;
             updatedDetails = { ...(res?.[updatedKey] || {}), StarSign: tryToParse(details) };
+            break;
+          }
+          case key.includes('PVFishingToolkit'): {
+            updatedKey = `PersonalValuesMap`;
+            updatedDetails = { ...(res?.[updatedKey] || {}), FishingToolkit: tryToParse(details) };
             break;
           }
           case key.includes('ObolEqO0'): {
@@ -254,6 +267,11 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.currentMap = mapNames?.[currentMapIndex];
   character.money = parseFloat(char?.Money);
   character.cooldowns = char?.[`AttackCooldowns`];
+  const [bait, line] = char?.PersonalValuesMap?.FishingToolkit;
+  character.fishingKit = {
+    bait: fishingKits?.fishingBaits?.[bait],
+    line: fishingKits?.fishingLines?.[line]
+  }
   const statMap = { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' };
   character.stats = char?.PersonalValuesMap?.StatList?.reduce((res, statValue, index) => {
     if (!statMap[index]) return res;
@@ -409,10 +427,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   if (isMiningMap) {
     current = character.skillsInfo?.mining?.level;
     currentIcon = 'ClassIconsM';
-  } else if (isFishingMap) {
+  }
+  else if (isFishingMap) {
     current = character.skillsInfo?.fishing?.level;
     currentIcon = 'ClassIcons45';
-  } else {
+  }
+  else {
     current = parseFloat(mapPortals?.[currentMapIndex]?.[0]) - parseFloat(kills?.[currentMapIndex]) ?? 0;
     currentIcon = 'ClassIconsF';
   }
@@ -444,19 +464,35 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
     }
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
-  character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex };
-  // if (linkedDeity === 2) {
-  //   character.nobisectBlessing = calcNobisectBlessing(character, account, charactersLevels);
-  // }
+  const divPerHour = getDivStylePerHour(divStyleIndex);
+  character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex, divPerHour };
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
-  const highestLevelElementalSorc = getHighestLevelOfClass(charactersLevels, 'Elemental_Sorcerer', true);
-  let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
-  if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
-    familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
-    const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
-    familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
+
+  // Initial calculation without added levels
+  let familyEffBonus = getUpdatedFamilyBonus(character, charactersLevels);
+  let addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+
+  // Iterative refinement to resolve circular dependency
+  let prevAddedLevels = null;
+  let iterations = 0;
+  const maxIterations = 3;
+
+  while (iterations < maxIterations) {
+
+    prevAddedLevels = addedLevels;
+
+    const tempCharacter = { ...character };
+    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0);
+
+    // Recalculate family bonus with updated talents
+    familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
+
+    // Recalculate added levels with new family bonus
+    addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+
+    iterations++;
   }
-  const addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
   character.talents = applyTalentAddedLevels(talents, null, character.addedLevels);
@@ -486,6 +522,998 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
   character.anvil = getAnvil(char, character);
   return character;
+}
+
+export const getSkillExpMulti = (skillName, character, characters, account, playerInfo) => {
+  const mainStat = mainStatMap?.[character?.class];
+  const allSkillExp = getAllSkillsExp(character, characters, account);
+  const happyDudeTalentBonus = getTalentBonus(character?.talents, 1, 'HAPPY_DUDE');
+  const fishingLv = character?.skillsInfo?.fishing?.level;
+  const miningLv = character?.skillsInfo?.mining?.level;
+  if (skillName === 'mining') {
+    const bubbleBonus = getBubbleBonus(account, 'power', 'REELY_SMART', false, mainStat === 'strength');
+    let base;
+    if (fishingLv > miningLv) {
+      base = 2 * bubbleBonus;
+    }
+    else {
+      base = bubbleBonus;
+    }
+
+    const talentBonus = getTalentBonus(character?.talents, 1, 'TEMPESTUOUS_EMOTIONS');
+    const stampBonus = getStampsBonusByEffect(account, 'Mining_Exp_Gain');
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 0);
+    const miningCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 2);
+    const cardBonus = miningCardsArePassives
+      ? getCardBonusByEffect(account?.cards, 'Mining_EXP')
+      : getCardBonusByEffect(character?.cards?.equippedCards, 'Mining_EXP')
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Mining_EXP_gain')?.bonus;
+    const achievementBonus = getAchievementStatus(account?.achievements, 27);
+    const equipBonus = getStatsFromGear(character, 55, account);
+    const voteBonus = getVoteBonus(account, 13);
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'mining', characters, account);
+    const value = Math.max(
+      0.1,
+      1 +
+      (
+        talentBonus +
+        stampBonus +
+        cardBonus +
+        base +
+        happyDudeTalentBonus +
+        arcadeBonus +
+        achievementBonus +
+        equipBonus +
+        25 * masteryBonus +
+        voteBonus
+      ) /
+      100 +
+      (
+        allSkillExp?.value +
+        leftHandTalentBonus
+      ) /
+      100
+    )
+    return {
+      value: value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Cards', value: cardBonus / 100 },
+        { name: 'Bubble', value: base / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Achievement', value: achievementBonus / 100 },
+        { name: 'Equipment', value: equipBonus / 100 },
+        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    };
+  }
+  else if (skillName === 'chopping') {
+    const choppingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 2);
+    const talentBonus = getTalentBonus(character?.talents, 1, 'INNER_PEACE');
+    const stampBonus = getStampsBonusByEffect(account, 'Choppin_Exp_Gain');
+    const bubbleBonus = getBubbleBonus(account, 'high-iq', 'NOODUBBLE', false, mainStat === 'wisdom');
+    const cardBonus = choppingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, 'Choppin_EXP')
+      : getCardBonusByEffect(character?.cards?.equippedCards, 'Choppin_EXP');
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'chopping', characters, account);
+    const achievementBonus = getAchievementStatus(account?.achievements, 4);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 0);
+    const voteBonus = getVoteBonus(account, 9);
+
+
+    const value = 1 + (talentBonus
+      + (stampBonus
+        + (bubbleBonus
+          + (cardBonus
+            + happyDudeTalentBonus
+            + (achievementBonus
+              + (25 * masteryBonus
+                + voteBonus)))))) / 100 + (allSkillExp?.value + leftHandTalentBonus) / 100;
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Cards', value: cardBonus / 100 },
+        { name: 'Bubble', value: bubbleBonus / 100 },
+        { name: 'Achievement', value: achievementBonus / 100 },
+        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'smithing') {
+    const talentBonus = getTalentBonus(character?.talents, 1, 'FOCUSED_SOUL');
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Smithing_EXP_(Passive)');
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
+    const stampBonus = getStampsBonusByEffect(account, 'SmithExp', character);
+    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'smithing', characters, account);
+
+    const value = Math.max(0.1, (1 +
+        (talentBonus
+          + (stampBonus
+            + (happyDudeTalentBonus
+              + 25 * skillMasteryBonus))) / 100)
+      * (1 + cardBonus / 100) *
+      (1 + postOfficeBonus / 100)
+      + (allSkillExp?.value + leftHandTalentBonus) / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Cards', value: cardBonus / 100 },
+        { name: 'Post office', value: postOfficeBonus / 100 },
+        { name: 'Skill Mastery', value: 25 * skillMasteryBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'fishing') {
+    const bubbleBonus = getBubbleBonus(account, 'power', 'REELY_SMART', false, mainStat === 'strength');
+    let base;
+    if (miningLv > fishingLv) {
+      base = 2 * bubbleBonus;
+    }
+    else {
+      base = bubbleBonus;
+    }
+
+    const talentBonus = getTalentBonus(character?.talents, 2, 'ALL_FISH_DIET');
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'TEMPESTUOUS_EMOTIONS');
+    const stampBonus = getStampsBonusByEffect(account, 'Fishing_Exp_Gain');
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Fishing_EXP_gain')?.bonus;
+    const achievementBonus = getAchievementStatus(account?.achievements, 117);
+    const equipBonus = getStatsFromGear(character, 49, account);
+    const bribeBonus = getBribeBonus(account?.bribes, 'Fishermaster');
+    const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Fishing XP');
+    const voteBonus = getVoteBonus(account, 8);
+    const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 30);
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'fishing', characters, account);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 0);
+    const fishingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 2);
+    const cardBonus = fishingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, 'Fishing_EXP')
+      : getCardBonusByEffect(character?.cards?.equippedCards, 'Fishing_EXP')
+    const fishingKit = character?.fishingKit?.bait?.exp + character?.fishingKit?.line?.exp;
+    const value = Math.max(
+      0.1,
+      1 +
+      (
+        fishingKit +
+        talentBonus +
+        talentBonus2 +
+        base +
+        cardBonus +
+        stampBonus +
+        happyDudeTalentBonus +
+        arcadeBonus +
+        achievementBonus +
+        equipBonus +
+        25 * masteryBonus +
+        25 * bribeBonus +
+        kangarooBonus +
+        voteBonus +
+        upgradeVaultBonus
+      ) /
+      100 +
+      (
+        allSkillExp?.value +
+        leftHandTalentBonus
+      ) /
+      100
+    )
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Fishing kit', value: (fishingKit) / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Cards', value: cardBonus / 100 },
+        { name: 'Bubble', value: base / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Achievement', value: achievementBonus / 100 },
+        { name: 'Equipment', value: equipBonus / 100 },
+        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Bribe', value: 25 * bribeBonus / 100 },
+        { name: 'Kangaroo', value: kangarooBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Vault', value: upgradeVaultBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    };
+  }
+  else if (skillName === 'alchemy') {
+    const stampBonus = getStampsBonusByEffect(account, 'Alchemy_Exp_Gain');
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Potion_Package', 1);
+    const statueBonus = getStatueBonus(account?.statues, 'StatueG13', character?.talents);
+    const talentBonus = getTalentBonus(character?.talents, 1, 'BUBBLE_BREAKTHROUGH');
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'SHARING_SOME_SMARTS');
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 0);
+    const bubbleBonus = getBubbleBonus(account, 'high-iq', 'NOODUBBLE', false, mainStat === 'wisdom');
+    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'COOKIN_ROADKILL', account);
+    const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 28);
+
+    const value = 1 + allSkillExp?.value / 100
+      + (account?.alchemy?.p2w?.player?.extraExp
+        + (stampBonus
+          + (happyDudeTalentBonus
+            + (postOfficeBonus
+              + statueBonus)))
+        + (talentBonus
+          + (talentBonus2
+            + 25 * masteryBonus))
+        + (bubbleBonus
+          + (activeBubbleBonus
+            + upgradeVaultBonus))) / 100;
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Talent', value: talentBonus / 100 },
+        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'catching') {
+    const talentBonus = getTalentBonus(character?.talents, 1, 'FOCUSED_SOUL');
+    const talentBonus2 = getTalentBonus(character?.talents, 2, 'BUG_ENTHUSIAST');
+    const stampBonus = getStampsBonusByEffect(account, 'Catching_Exp_Gain');
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Catching_EXP_gain')?.bonus;
+    const achievementBonus = getAchievementStatus(account?.achievements, 107);
+    const voteBonus = getVoteBonus(account, 10);
+    const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 29);
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'catching', characters, account);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 0);
+    const catchingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 2);
+    const cardBonus = catchingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, 'Catching_EXP')
+      : getCardBonusByEffect(character?.cards?.equippedCards, 'Catching_EXP')
+
+    const value = Math.max(
+      0.1,
+      1 +
+      (
+        talentBonus +
+        talentBonus2 +
+        cardBonus +
+        stampBonus +
+        happyDudeTalentBonus +
+        arcadeBonus +
+        achievementBonus +
+        25 * masteryBonus +
+        voteBonus +
+        upgradeVaultBonus
+      ) /
+      100 +
+      (
+        allSkillExp?.value +
+        leftHandTalentBonus
+      ) /
+      100
+    );
+
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Cards', value: cardBonus / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Achievement', value: achievementBonus / 100 },
+        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Vault', value: upgradeVaultBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    };
+  }
+  else if (skillName === 'trapping') {
+    const talentBonus = getTalentBonus(character?.talents, 2, 'SHROOM_BAIT');
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'FOCUSED_SOUL');
+    const stampBonus = getStampsBonusByEffect(account, 'Trapping_Exp_Gain');
+    const choppingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 2);
+    const cardBonus = choppingCardsArePassives
+      ? getCardBonusByEffect(account?.cards, 'Trapping_EXP')
+      : getCardBonusByEffect(character?.cards?.equippedCards, 'Trapping_EXP');
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'trapping', characters, account);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 0);
+    const voteBonus = getVoteBonus(account, 30);
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Trapping_Lockbox', 1);
+    const trappingBonus = getTrappingStuff('TrapMGbonus', 0, account)
+    const trappingBonus2 = getTrappingStuff('TrapMGbonus', 3, account)
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Trapping_EXP')?.bonus;
+
+    const value = Math.max(0.1, 1 + (talentBonus
+        + (stampBonus +
+          (talentBonus2 +
+            (cardBonus
+              + (happyDudeTalentBonus +
+                (postOfficeBonus
+                  + (trappingBonus +
+                    (trappingBonus2 +
+                      (arcadeBonus +
+                        (25 * masteryBonus
+                          + voteBonus)))))))))) / 100
+      + (allSkillExp?.value
+        + leftHandTalentBonus) / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Cards', value: cardBonus / 100 },
+        { name: 'Post office', value: postOfficeBonus / 100 },
+        { name: 'Trapping', value: (trappingBonus + trappingBonus2) / 100 },
+        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'construction') {
+    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'power', 'CALL_ME_BOB', account);
+    const stampBonus = getStampsBonusByEffect(account, 'Construction_Exp_Gain');
+    const voteBonus = getVoteBonus(account, 18);
+    const statueBonus = getStatueBonus(account?.statues, 'StatueG19', character?.talents);
+
+    const value = 1 + (activeBubbleBonus
+      + (stampBonus
+        + (voteBonus
+          + statueBonus))) / 100
+    return {
+      value,
+      breakdown: [
+        { name: 'Bubble', value: activeBubbleBonus / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Statue', value: statueBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'worship') {
+    const talentBonus = getTalentBonus(character?.talents, 2, 'BLESS_UP');
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'INNER_PEACE');
+    const starSignBonus = getStarSignBonus(character, account, 'Worship_EXP');
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 0);
+    const voteBonus = getVoteBonus(account, 30);
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'worship', characters, account);
+
+    const value = Math.max(0.1, 1 + (character?.skillsInfo?.worship?.level / 3
+        + (talentBonus
+          + (talentBonus2
+            + (happyDudeTalentBonus
+              + (starSignBonus +
+                (25 * masteryBonus +
+                  voteBonus)))))) / 100
+      + (allSkillExp?.value +
+        leftHandTalentBonus) / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Skill level', value: (character?.skillsInfo?.worship?.level / 3) / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+        { name: 'Star sign', value: starSignBonus / 100 },
+        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'cooking') {
+    const cookingEff = getCookingEff(character, characters, account, playerInfo);
+    const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 60);
+    const leftHandTalentBonus = getMaestroLeftHand(character, 'cooking', characters, account);
+    const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'CookExp', blackDiamondRhinestone);
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Cooking_EXP_gain', 1);
+    const talentBonus = getTalentBonus(character?.talents, 3, 'APOCALYPSE_CHOW');
+    const chows = character?.chow?.finished?.[0] ?? 1;
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Cooking_EXP_gain')
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'TEMPESTUOUS_EMOTIONS');
+    const statueBonus = getStatueBonus(account?.statues, 'StatueG21', character?.talents);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 0);
+    const voteBonus = getVoteBonus(account, 13);
+    const cookingDef = monsters?.Cooking?.Defence;
+
+    const value = Math.max(0.1, (1 + upgradeVaultBonus / 100)
+      * (Math.min(Math.pow(cookingEff / (10 * cookingDef),
+          0.25 + getCookingProwess(character, account)), 1)
+        + (allSkillExp?.value +
+          (leftHandTalentBonus +
+            (mealBonus +
+              (postOfficeBonus +
+                (cardBonus +
+                  ((talentBonus * chows)
+                    + (talentBonus2
+                      + (statueBonus
+                        + (25 * masteryBonus
+                          + voteBonus))))))))) / 100));
+
+    return {
+      value,
+      breakdown: [
+        { name: 'All skill exp', value: allSkillExp?.value / 100 },
+        { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
+        { name: 'Cooking Eff', value: cookingEff / 100 },
+        { name: 'Prowess', value: 0.25 + getCookingProwess(character, account) / 100 },
+        { name: 'Left hand', value: leftHandTalentBonus / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Post office', value: postOfficeBonus / 100 },
+        { name: 'Card', value: cardBonus / 100 },
+        { name: 'Talent', value: (talentBonus * chows) + talentBonus2 / 100 },
+        { name: 'Statue', value: statueBonus / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'breeding') {
+    const talentBonus = getHighestTalentByClass(characters, 3, 'Beast_Master', 'SHINING_BEACON_OF_EGG');
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    const sapphireRhombol = getJewelBonus(account?.lab?.jewels, 5, spelunkerObolMulti)
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp', blackDiamondRhinestone);
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Breeding_EXP')
+    const stampBonus = getStampsBonusByEffect(account, 'Breeding_EXP_Gain');
+    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'BreedXP');
+    const statueBonus = getStatueBonus(account?.statues, 'StatueG22', character?.talents);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.breeding?.rank, 0);
+    const voteBonus = getVoteBonus(account, 16);
+    const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 59);
+
+
+    const value = Math.max(0.1, 1 + (talentBonus
+      + sapphireRhombol
+      + (mealBonus
+        + (2 * account?.breeding?.petUpgrades?.[0]?.level
+          + (Math.min(cardBonus, 50)
+            + (stampBonus
+              + (vialBonus
+                + (statueBonus +
+                  (25 * masteryBonus
+                    + (voteBonus
+                      + upgradeVaultBonus))))))))) / 100);
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Talent', value: talentBonus / 100 },
+        { name: 'Jewel', value: sapphireRhombol / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Pet upgrade', value: 2 * account?.breeding?.petUpgrades?.[2]?.level / 100 },
+        { name: 'Card', value: Math.min(cardBonus, 50) / 100 },
+        { name: 'Stamp', value: stampBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Statue', value: statueBonus / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Vault', value: upgradeVaultBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'laboratory') {
+    const labEfficiency = getLabEfficiency(character, characters, account, playerInfo);
+    const labDefence = monsters?.Laboratory?.Defence;
+    const prowess = allProwess(character, account);
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 1);
+    const companionBonus = isCompanionBonusActive(account, 16) ? account?.companions?.list?.at(16)?.bonus : 0;
+    const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[79]);
+    const chipBonus = getPlayerLabChipBonus(character, account, 5);
+    const bubonicGreen = getBubonicGreenTube(character, characters, account);
+    const talentBonus = getTalentBonus(character?.talents, 3, 'UPLOAD_SQUARED');
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const jewelBonus = getJewelBonus(account?.lab?.jewels, 2, spelunkerObolMulti);
+    const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lexp', blackDiamondRhinestone);
+    const stampBonus = getStampsBonusByEffect(account, 'Lab_Exp_Gain');
+    const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'LabXP');
+    const bubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'MATRIX_EVOLVED', account);
+    const equipBonus = getStatsFromGear(character, 65, account);
+    const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LAB_TESSTUBE');
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
+    const starSignBonus = getStarSignBonus(character, account, 'Lab_EXP_Gain');
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Lab_EXP_gain')?.bonus
+    const voteBonus = getVoteBonus(account, 31);
+    const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 2 });
+    const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 55);
+    const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
+    const soupedPlayerBonus = account?.lab?.playersCords?.find(({ playerId }) => character?.playerId === playerId)?.soupedUp
+      ? 30
+      : 0;
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'INNER_PEACE');
+
+    const real = 1 > Math.pow(labEfficiency / (10 * labDefence), 0.25 + prowess)
+      ? Math.max(0.1, Math.pow(prowess / (10 * labDefence), 0.25)
+        * (1 + companionBonus)
+        * (1 + (postOfficeBonus + cardBonus + chipBonus + bubonicGreen + talentBonus
+          + jewelBonus + mealBonus + stampBonus + vialBonus + bubbleBonus
+          + Math.min(100, 4 * soupedPlayerBonus) + equipBonus + sigilBonus + 25 * masteryBonus
+          + starSignBonus + arcadeBonus + voteBonus + lampBonus
+          + vaultUpgradeBonus + armorSetBonus)) / 100)
+      : Math.max(0.1, Math.pow(labEfficiency / (10 * labDefence), 0.25)
+        * (1 + companionBonus)
+        * (1 + (postOfficeBonus + cardBonus + chipBonus + bubonicGreen + talentBonus + talentBonus2
+          + jewelBonus + mealBonus + stampBonus + vialBonus + bubbleBonus
+          + Math.min(100, 4 * soupedPlayerBonus) + equipBonus + sigilBonus + 25 * masteryBonus
+          + starSignBonus + arcadeBonus + voteBonus + lampBonus
+          + vaultUpgradeBonus + armorSetBonus)) / 100);
+
+    const value = (1 + companionBonus)
+      * (1 + (postOfficeBonus + cardBonus + (chipBonus + bubonicGreen + (talentBonus + talentBonus2)
+        + (jewelBonus + (mealBonus + (stampBonus + (vialBonus + (bubbleBonus
+          + (Math.min(100, 4 * soupedPlayerBonus) + (equipBonus + (sigilBonus + (starSignBonus
+            + (arcadeBonus + (voteBonus + (lampBonus + (vaultUpgradeBonus + armorSetBonus))))))))))))))) / 100);
+
+    return {
+      value,
+      real,
+      breakdown: [
+        { name: 'Lab eff', value: labEfficiency },
+        { name: 'Prowess', value: 0.25 + prowess },
+        { name: 'Companion', value: companionBonus / 100 },
+        { name: 'Post Office', value: postOfficeBonus / 100 },
+        { name: 'Card', value: cardBonus / 100 },
+        { name: 'Chip', value: chipBonus / 100 },
+        { name: 'Bubonic Green', value: bubonicGreen / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
+        { name: 'Jewel', value: jewelBonus / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Stamp', value: stampBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Bubble', value: bubbleBonus / 100 },
+        { name: 'Souped Player', value: Math.min(100, soupedPlayerBonus) / 100 },
+        { name: 'Equipment', value: equipBonus / 100 },
+        { name: 'Sigil', value: sigilBonus / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Star Sign', value: starSignBonus / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Lamp', value: lampBonus / 100 },
+        { name: 'Vault Upgrade', value: vaultUpgradeBonus / 100 },
+        { name: 'Armor Set', value: armorSetBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'sailing') {
+    const talentBonus = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'EXPERTLY_SAILED');
+    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'SailXP');
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sailing?.rank, 0);
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+
+    const value = 1 + (talentBonus
+      + (vialBonus
+        + (10 * account?.tasks?.[2]?.[4]?.[4] +
+          (25 * masteryBonus + guildBonus)))) / 100;
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Talent', value: talentBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Guild', value: guildBonus / 100 }
+
+      ]
+    }
+  }
+  else if (skillName === 'divinity') {
+    const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 130) ?? 0;
+    const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.\
+    const companionBonus = isCompanionBonusActive(account, 16) ? account?.companions?.list?.at(16)?.bonus : 0;
+    const talentBonus = getHighestTalentByClass(characters, 3, 'Elemental_Sorcerer', 'SHARED_BELIEFS');
+    const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Gosh', 0);
+    const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DIV_SPIRAL');
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Divinity_EXP')
+    const stampBonus = getStampsBonusByEffect(account, 'Divinity_EXP_Gain');
+    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'PIOUS_AT_HEART', account);
+    const statueBonus = getStatueBonus(account?.statues, 'StatueG24', character?.talents);
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'DivExp', blackDiamondRhinestone);
+    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'DivXP');
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'INNER_PEACE');
+    const starSignBonus = getStarSignBonus(character, account, 'Divinity_EXP');
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.divinity?.rank, 0);
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Divinity_EXP')?.bonus;
+    const equipBonus = getStatsFromGear(character, 74, account);
+    const voteBonus = getVoteBonus(account, 23);
+    const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
+
+    const value = character?.divStyle?.divPerHour
+      * (1 + gemShopBonus / 4)
+      * Math.max(1, 1 + (purrmepPlayer ? 1 : 0)) *
+      (1 + talentBonus / 100) * (1 + companionBonus)
+      * (1 + (10 * Math.max(0, unlockedGods - 10)
+        + (postOfficeBonus +
+          (sigilBonus +
+            (cardBonus +
+              (stampBonus +
+                (activeBubbleBonus +
+                  (statueBonus +
+                    (mealBonus +
+                      (vialBonus
+                        + (talentBonus2 +
+                          (10 * account?.tasks?.[2]?.[4]?.[4] +
+                            (25 * masteryBonus +
+                              (starSignBonus
+                                + (guildBonus + (arcadeBonus
+                                  + (equipBonus +
+                                    (voteBonus +
+                                      armorSetBonus))))))))))))))))) / 100);
+    return {
+      value,
+      breakdown: [
+        { name: 'Div style', value: character?.divStyle?.divPerHour / 100 },
+        { name: 'Gem shop', value: gemShopBonus / 100 },
+        { name: 'Major', value: (purrmepPlayer ? 1 : 0) / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
+        { name: 'Companion', value: companionBonus / 100 },
+        { name: 'Div rank', value: (10 * Math.max(0, unlockedGods - 10)) / 100 },
+        { name: 'Postoffice', value: postOfficeBonus / 100 },
+        { name: 'Sigil', value: sigilBonus / 100 },
+        { name: 'Card', value: cardBonus / 100 },
+        { name: 'Stamp', value: stampBonus / 100 },
+        { name: 'Active bubble', value: activeBubbleBonus / 100 },
+        { name: 'Statue', value: statueBonus / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Starsign', value: starSignBonus / 100 },
+        { name: 'Guild', value: guildBonus / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Equip', value: equipBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Armor set', value: armorSetBonus / 100 }
+
+      ]
+    }
+  }
+  else if (skillName === 'gaming') {
+    const stampBonus = getStampsBonusByEffect(account, 'Gaming_EXP_Gain');
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp', blackDiamondRhinestone);
+    const talentBonus = getHighestTalentByClass(characters, 3, 'Divine_Knight', '1000_HOURS_PLAYED');
+    const talentBonus2 = getTalentBonus(character?.talents, 1, 'TEMPESTUOUS_EMOTIONS');
+    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameXP');
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.gaming?.rank, 0);
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+
+    const value = stampBonus
+      + (mealBonus +
+        (vialBonus
+          + (talentBonus
+            + (talentBonus2
+              + (10 * account?.tasks?.[2]?.[4]?.[4]
+                + (25 * masteryBonus
+                  + guildBonus))))));
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Stamp', value: stampBonus / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
+        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+        { name: 'Guild', value: guildBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'farming') {
+    const marketBonus = getMarketBonus(account?.farming?.market, 'EXP_GMO', 'value');
+    const marketBonus2 = getMarketBonus(account?.farming?.market, 'SMARTER_SEEDS');
+    const msaBonus = account?.msaTotalizer?.farmingExp?.value;
+    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.farming?.rank, 0);
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zFarmExp', blackDiamondRhinestone)
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Farming_EXP')?.bonus;
+    const winnerBonus = getWinnerBonus(account, '<x Farming EXP');
+    const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEXP');
+    const statueBonus = getStatueBonus(account?.statues, 'StatueG26', character?.talents);
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Farming_EXP_(Passive)');
+    const charmBonus = getCharmBonus(account, 'Rock_Candy');
+    const labBonus = getLabBonus(account?.lab.labBonuses, 16);
+    const starSignBonus = getStarSignBonus(character, account, 'Farming_EXP');
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+    const achievementBonus = getAchievementStatus(account?.achievements, 360);
+    const achievementBonus2 = getAchievementStatus(account?.achievements, 356);
+    const voteBonus = getVoteBonus(account, 29);
+    const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Farming_EXP_gain');
+    const landRankBonus = getLandRankTotalBonus(account, 4);
+    const talentBonus = getHighestTalentByClass(characters, 4, 'Death_Bringer', 'AGRICULTURAL_\'PRECIATION');
+
+    let value = Math.max(1, marketBonus)
+      * (1 + (marketBonus2
+        + (msaBonus + 25
+          * skillMasteryBonus
+          + (mealBonus + arcadeBonus))) / 100)
+      * (1 + winnerBonus / 100)
+      * (1 + (vialBonus
+        + (statueBonus +
+          (cardBonus
+            + charmBonus)) +
+        (labBonus +
+          (starSignBonus
+            + (guildBonus +
+              (10 * achievementBonus
+                + (15 * achievementBonus2 +
+                  voteBonus)))))) / 100)
+      * (1 + (shinyBonus +
+        2 * account?.tasks?.[2]?.[5]?.[2]) / 100)
+      * (1 + landRankBonus / 100)
+      * (1 + talentBonus / 100);
+
+    let formattedValue;
+    if (value > 1e8) {
+      formattedValue = Math.round(value / 1e6) + 'M'
+    }
+    else if (value > 1e4) {
+      formattedValue = Math.round(value);
+    }
+    else {
+      formattedValue = notateNumber(value, 'MultiplierInfo');
+    }
+
+    return {
+      value,
+      formattedValue,
+      breakdown: [
+        { name: 'Market', value: (marketBonus + marketBonus2) / 100 },
+        { name: 'Msa', value: msaBonus / 100 },
+        { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
+        { name: 'Winner', value: winnerBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Statue', value: statueBonus / 100 },
+        { name: 'Card', value: cardBonus / 100 },
+        { name: 'Charm', value: charmBonus / 100 },
+        { name: 'Lab', value: labBonus / 100 },
+        { name: 'Starsign', value: starSignBonus / 100 },
+        { name: 'Guild', value: guildBonus / 100 },
+        { name: 'Achievement', value: (10 * achievementBonus + 15 * achievementBonus2) / 100 },
+        { name: 'Task', value: 10 * account?.tasks?.[2]?.[5]?.[2] / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Shiny', value: shinyBonus / 100 },
+        { name: 'Land rank', value: landRankBonus / 100 },
+        { name: 'Talent', value: talentBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'sneaking') {
+    const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor;
+    const baseExp = ninjaExtraInfo[11]?.split(' ')[playerFloor];
+    const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Respect_for_the_Art');
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sneaking_XP_multi')?.bonus;
+    const ninjaEquip = getInventoryNinjaItem(account, 'Gold_Eye');
+    const compassBonus = getCompassBonus(account, 51);
+    const gemstoneBonus = account?.sneaking?.gemStones?.[4]?.bonus;
+    const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6SneakEXP');
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSneakExp', blackDiamondRhinestone);
+    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 0);
+    const charmBonus = getCharmBonus(account, 'Sour_Wowzer');
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_EXP_(Passive)');
+    const labBonus = getLabBonus(account?.lab.labBonuses, 16);
+    const stampBonus = getStampsBonusByEffect(account, 'Sneaking_EXP_Gain');
+    const starSignBonus = getStarSignBonus(character, account, 'Sneaking_EXP');
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+    const talentBonus = getHighestTalentByClass(characters, 4, 'Wind_Walker', 'SNEAKY_SKILLING');
+    const achievementBonus = getAchievementStatus(account?.achievements, 370);
+    const voteBonus = getVoteBonus(account, 25);
+    const winBonus = getWinnerBonus(account, '<x Sneak EXP');
+
+    let value = baseExp *
+      (1 + ninjaUpgradeBonus / 100) *
+      (1 + arcadeBonus / 100) *
+      (1 + ninjaEquip / 100) *
+      (1 + compassBonus / 100) *
+      (1 + gemstoneBonus / 100) *
+      (
+        1 +
+        (
+          vialBonus +
+          mealBonus +
+          25 * skillMasteryBonus +
+          charmBonus +
+          cardBonus +
+          labBonus +
+          stampBonus +
+          starSignBonus +
+          guildBonus +
+          talentBonus +
+          10 * achievementBonus +
+          voteBonus
+        ) / 100
+      ) *
+      (
+        1 +
+        (
+          0 + //n._customBlock_Ninja('NinjaBonus', t, 13) +
+          0 + //n._customBlock_Ninja('NinjaBonus', t, 19) +
+          0 + //n._customBlock_Ninja('NinjaBonus', t, 3) +
+          0  //n._customBlock_Ninja('NinjaBonus', t, 7)
+        ) / 100
+      ) *
+      Math.max(0, 1 - 100 * 0 * //n._customBlock_Ninja('NinjaBonus', t, 5)) *
+        (1 + winBonus / 100) *
+        Math.max(1, talentBonus));
+
+    return {
+      value,
+      breakdown: [
+        { name: 'Ninja upgrade', value: ninjaUpgradeBonus / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Gold item', value: ninjaEquip / 100 },
+        { name: 'Ninja equip', value: 0 / 100 },
+        { name: 'Compass', value: compassBonus / 100 },
+        { name: 'Gemstone', value: gemstoneBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
+        { name: 'Charm', value: charmBonus / 100 },
+        { name: 'Card', value: cardBonus / 100 },
+        { name: 'Lab', value: labBonus / 100 },
+        { name: 'Stamp', value: stampBonus / 100 },
+        { name: 'Starsign', value: starSignBonus / 100 },
+        { name: 'Guild', value: guildBonus / 100 },
+        { name: 'Talent', value: talentBonus / 100 },
+        { name: 'Achievement', value: (10 * achievementBonus) / 100 },
+        { name: 'Vote', value: voteBonus / 100 }
+      ]
+    }
+  }
+  else if (skillName === 'summoning') {
+    const talentBonus = getHighestTalentByClass(characters, 4, 'Arcane_Cultist', 'PASSION_OF_THE_SUMMON');
+    const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SummEXP');
+    const cardBonus = getCardBonusByEffect(account?.cards, 'Summoning_EXP_(Passive)');
+    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
+    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSummonExp', blackDiamondRhinestone);
+    const labBonus = getLabBonus(account?.lab.labBonuses, 16);
+    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Summon_XP_multi')?.bonus;
+    const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Summoning_EXP_gain');
+    const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.summoning?.rank, 0);
+    const stampBonus = getStampsBonusByEffect(account, 'Summoning_EXP_Gain');
+    const starSignBonus = getStarSignBonus(character, account, 'Summoning_EXP');
+    const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+    const voteBonus = getVoteBonus(account, 28)
+
+    const value = Math.max(1, talentBonus)
+      * (1 + (vialBonus
+        + (cardBonus +
+          (mealBonus
+            + labBonus))) / 100)
+      * (1 + arcadeBonus / 100) *
+      (1 + (shinyBonus
+        + 25 * skillMasteryBonus +
+        (stampBonus +
+          (starSignBonus
+            + (guildBonus
+              + voteBonus)))) / 100);
+    return {
+      value,
+      breakdown: [
+        { name: 'Talent', value: talentBonus / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Card', value: cardBonus / 100 },
+        { name: 'Meal', value: mealBonus / 100 },
+        { name: 'Lab', value: labBonus / 100 },
+        { name: 'Arcade', value: arcadeBonus / 100 },
+        { name: 'Shiny', value: shinyBonus / 100 },
+        { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
+        { name: 'Stamp', value: stampBonus / 100 },
+        { name: 'Starsign', value: starSignBonus / 100 },
+        { name: 'Guild', value: guildBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 }
+      ]
+    }
+  }
+}
+
+// "AllSkillxpz" == e
+export const getAllSkillsExp = (character, characters, account) => {
+  const starSignBonus = getStarSignBonus(character, account, 'Skill_EXP_gain');
+  const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Skill_EXP_(Passive)')
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Skill_EXP_gain')?.bonus;
+  const goldenFoodBonus = getGoldenFoodBonus('Golden_Ham', character, account, characters);
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
+  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
+  const greenTubeEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 536);
+  const luckyCharmEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 35, character);
+  const bubonicGreen = getBubonicGreenTube(character, characters, account);
+  const shrineBonus = getShrineBonus(account?.shrines, 5, character?.mapIndex, account.cards, account?.sailing?.artifacts);
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
+  const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy', account)?.bonus
+  const balanceOfEffBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.bonus;
+  const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.curse;
+  const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.curse;
+  const equipmentBonus = getStatsFromGear(character, 27, account);
+  const maestroTransfusionTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
+  const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
+  const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
+  const myriadPostOfficeBox = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 2);
+  const firstAchievementBonus = getAchievementStatus(account?.achievements, 283);
+  const secondAchievementBonus = getAchievementStatus(account?.achievements, 284);
+  const thirdAchievementBonus = getAchievementStatus(account?.achievements, 294);
+  const fourthAchievementBonus = getAchievementStatus(account?.achievements, 359);
+  const smithingSkillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 1);
+  const allSkillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 4);
+  const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Skill_EXP');
+  const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
+  const winnerBonus = getWinnerBonus(account, '+{% Skill EXP');
+  const companionBonus = isCompanionBonusActive(account, 9) ? 20 : 0;
+  const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 10 });
+  let godBonus = 0;
+  const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
+  if (flutterbisIndexes?.[character?.playerId] !== -1) {
+    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7) || 0;
+  }
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+  const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Skill XP');
+  const armorSetBonus = getArmorSetBonus(account, 'CHIZOAR_SET');
+
+  const value = starSignBonus
+    + (cEfauntCardBonus
+      + arcadeBonus
+      + goldenFoodBonus
+      + bubonicGreen
+      * Math.min(1, greenTubeEnhancement ? bubonicGreen : 0)
+      + (cardSetBonus
+        + passiveCardBonus
+        + (Math.min(150, 100 * (checkCharClass(character?.class, 'Maestro') ? luckyCharmEnhancement : 0)) + shrineBonus)
+        + statueBonus
+        + unendingEnergyBonus
+        + balanceOfEffBonus
+        - skilledDimwitCurse
+        - theRoyalSamplerCurse
+        + (equipmentBonus
+          + (maestroTransfusionTalentBonus
+            + (saltLickBonus
+              + (dungeonSkillExpBonus
+                + (myriadPostOfficeBox
+                  + (godBonus
+                    + (10 * firstAchievementBonus + (25 * secondAchievementBonus
+                      + (10 * thirdAchievementBonus + 15 * fourthAchievementBonus
+                        + (smithingSkillMasteryBonus + (allSkillMasteryBonus
+                          + (shinyBonus + superbitBonus) + companionBonus
+                          + winnerBonus
+                          + guildBonus
+                          + owlBonus
+                          + armorSetBonus
+                          + schematicBonus)))))))))))))
+  return {
+    value,
+    breakdown: [
+      { name: '', value: 1 }
+    ]
+  }
 }
 
 const createTalentPreset = (charClass, skillLevels, maxSkillLevels) => {
@@ -679,7 +1707,8 @@ export const getClassExpMulti = (character, account, characters) => {
   let expBonus1;
   if (luck < 1e3) {
     expBonus1 = (Math.pow(luck + 1, 0.37) - 1) / 30;
-  } else {
+  }
+  else {
     expBonus1 = (luck - 1e3) / (luck + 2500) * 0.8 + .3963;
   }
 
@@ -716,9 +1745,11 @@ export const getClassExpMulti = (character, account, characters) => {
   //
   if (character?.level < 10) {
     expBonus2 += 150;
-  } else if (character?.level < 30) {
+  }
+  else if (character?.level < 30) {
     expBonus2 += 100;
-  } else if (character?.level < 50) {
+  }
+  else if (character?.level < 50) {
     expBonus2 += 50;
   }
 
@@ -969,7 +2000,8 @@ export const getDropRate = (character, account, characters) => {
   let luckMulti;
   if (luck < 1e3) {
     luckMulti = (Math.pow(luck + 1, 0.37) - 1) / 40;
-  } else {
+  }
+  else {
     luckMulti = (luck - 1e3) / (luck + 2500) * 0.5 + 0.297;
   }
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 0);
@@ -1582,7 +2614,8 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   let agiMulti;
   if (character.stats?.agility < 1000) {
     agiMulti = (Math.pow(character.stats?.agility + 1, .4) - 1) / 40;
-  } else {
+  }
+  else {
     agiMulti = (character.stats?.agility - 1e3) / (character.stats?.agility + 2500) * .5 + .371;
   }
   const statuePower = getStatueBonus(account?.statues, 'StatueG2', character?.talents);
@@ -1595,9 +2628,11 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   const tipToeQuickness = getTalentBonus(character?.starTalents, null, 'TIPTOE_QUICKNESS');
   if (finalSpeed > 2) {
     finalSpeed = Math.floor(100 * finalSpeed) / 100;
-  } else if (finalSpeed > 1.75) {
+  }
+  else if (finalSpeed > 1.75) {
     finalSpeed = Math.min(2, Math.floor(100 * ((finalSpeed) + tipToeQuickness / 100)) / 100)
-  } else {
+  }
+  else {
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 7);
     const groundedMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 15)?.baseVal ?? 0;
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TUFT_OF_HAIR');
@@ -1648,7 +2683,8 @@ export const getAfkGain = (character, characters, account) => {
     }
     if (char?.linkedDeity === 4) {
       return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
-    } else if (char?.secondLinkedDeityIndex === 4) {
+    }
+    else if (char?.secondLinkedDeityIndex === 4) {
       return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
     }
     return sum;
@@ -1742,7 +2778,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Guild', value: guildBonus },
       { name: 'Starsign', value: starSignBonus }
     ]
-  } else if (afkType === 'COOKING') {
+  }
+  else if (afkType === 'COOKING') {
     const secondTalentBonus = getTalentBonus(character?.talents, 3, 'WAITING_TO_COOL')
     gains = 0.25
       + (idleSkillingBonus
@@ -1760,7 +2797,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Trapping Bonus', value: trappingBonus },
       { name: 'Bribe', value: bribeAfkGains }
     ]
-  } else if (afkType === 'MINING') {
+  }
+  else if (afkType === 'MINING') {
     const dwarvenSupliesBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 2);
     const miningCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 2);
     const cardBonus = miningCardsArePassives
@@ -1791,7 +2829,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Post Office', value: dwarvenSupliesBonus },
       { name: 'Bubble', value: bubbleBonus }
     ]
-  } else if (afkType === 'CHOPPIN') {
+  }
+  else if (afkType === 'CHOPPIN') {
     const tapedUpTimberBonus = getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 2);
     const choppingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 2);
     const cardBonus = choppingCardsArePassives
@@ -1823,7 +2862,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Post Office', value: tapedUpTimberBonus },
       { name: 'Bubble', value: bubbleBonus }
     ]
-  } else if (afkType === 'FISHING') {
+  }
+  else if (afkType === 'FISHING') {
     const sealedFishheadsBonus = getPostOfficeBonus(character?.postOffice, 'Sealed_Fishheads', 2);
     const fishingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 2);
     const cardBonus = fishingCardsArePassives
@@ -1863,7 +2903,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Obols', value: obolsBonus },
       { name: 'Tools', value: toolsBonus }
     ]
-  } else if (afkType === 'CATCHING') {
+  }
+  else if (afkType === 'CATCHING') {
     const bugHuntingSuppliesBonus = getPostOfficeBonus(character?.postOffice, 'Bug_Hunting_Supplies', 2);
     const sunsetOnTheHivesBonus = getTalentBonus(character?.talents, 2, 'SUNSET_ON_THE_HIVES');
     const catchingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 2);
@@ -1895,7 +2936,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Post Office', value: bugHuntingSuppliesBonus },
       { name: 'Bubble', value: bubbleBonus }
     ]
-  } else if (afkType === 'LABORATORY') {
+  }
+  else if (afkType === 'LABORATORY') {
     gains = 0.25
       + (tickTockTalentBonus
         + (actualBaseAfkGains

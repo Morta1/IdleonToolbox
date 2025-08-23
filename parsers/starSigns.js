@@ -4,6 +4,7 @@ import { starSignsIndicesMap } from './parseMaps';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { getShinyBonus } from './breeding';
 import { getPlayerLabChipBonus } from '@parsers/lab';
+import { getTesseractBonus } from '@parsers/tesseract';
 
 export const getStarSigns = (idleonData) => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
@@ -118,9 +119,11 @@ export const getStarSignBonus = (character, account, effectName, forceNanoChip =
   }) => {
     if (effect.toLowerCase().includes(effectName.toLowerCase()) &&
       (active || isInfiniteStar || forcedByEffect)) {
+      const tesseractBonus = getTesseractBonus(account, 40)
       const calculatedBonus = hasSeraphCosmos
-        ? bonus * Math.min(3, Math.pow(1.1, Math.ceil((summoningLevel + 1) / 20)))
+        ? bonus * Math.min(5, Math.pow(1.1 + Math.min(tesseractBonus, 10) / 100, Math.ceil((summoningLevel + 1) / 20)))
         : bonus;
+
       return sum + (isInfiniteStar && bonus < 0 ? 0 : calculatedBonus);
     }
     return sum;

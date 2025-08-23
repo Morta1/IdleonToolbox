@@ -47,6 +47,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, charactersData: any, a
     }
     return { ...data, bonus, notatedBonus, description: description.replace('{', '+').replace(/@/g, '') }
   });
+  const sneakingExpThing = rawSneaking?.[102]?.[0];
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
   const jadeCoins = rawSneaking?.[102]?.[1];
   const lastLooted = rawSneaking?.[102]?.[2];
@@ -71,14 +72,14 @@ const parseSneaking = (rawSneaking: any, serverVars: any, charactersData: any, a
       ...ninjaEquipment[itemName as keyof typeof ninjaEquipment],
       dropChance
     })));
-  const upgrades = ninjaUpgrades?.map((upgrade, index) =>
-    ({
-      ...upgrade,
-      level: ninjaUpgradeLevels?.[index + 1],
-      value: ninjaUpgradeLevels?.[index + 1] * (upgrade.modifier ?? 1)
-    }));
+  const upgrades = ninjaUpgrades?.map((upgrade, index) => ({
+    ...upgrade,
+    level: ninjaUpgradeLevels?.[index + 1],
+    value: ninjaUpgradeLevels?.[index + 1] * (upgrade.modifier ?? 1)
+  }));
+
   const order = (ninjaExtraInfo[24] as string).split(" ");
-  const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones?.[3]?.bonus);
+  const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones);
   const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (charactersData?.length * 4)), true, gemStones?.[3]?.bonus);
   const players = charactersData.map((_: any, index: number) => ({
     equipment: characterEquipments?.[index]?.map((equip: any) => ({
@@ -128,6 +129,7 @@ const parseSneaking = (rawSneaking: any, serverVars: any, charactersData: any, a
   });
   const itemsMaxLevel = getItemsMaxLevel(selectedNinjaMastery, ninjaMastery, upgrades, gemStones, inventory);
   return {
+    sneakingExpThing,
     jadeEmporium,
     jadeCoins,
     upgrades,
@@ -146,6 +148,22 @@ const parseSneaking = (rawSneaking: any, serverVars: any, charactersData: any, a
     ninjaMastery,
     itemsMaxLevel
   };
+}
+
+export const getLocalNinjaUpgradeBonus = (upgrades, index, gemstones, inventory, account) => {
+  const { level, modifier } = upgrades?.[index];
+  const goldEye = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Eye');
+  const fireFrostBonus = gemstones?.[7]?.bonus;
+  return 11 === index ? level
+    * modifier
+    + (upgrades?.[3]?.level *
+      account?.accountOptions?.[231]
+      + (goldEye + Math.ceil(fireFrostBonus)))
+    : 6 === index || 7 === index || 10 === index || 12 === index ? level
+      * modifier +
+      upgrades?.[3]?.level * account?.accountOptions?.[231]
+      : level *
+      modifier
 }
 
 const getItemsMaxLevel = (
@@ -183,7 +201,8 @@ const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus:
     * (1 + fifthGemstoneBonus / 100)
     * Math.max(1, talentBonus)
 }
-const parseNinjaItems = (array: any, doChunks: boolean, gemstoneBonus: number = 0) => {
+const parseNinjaItems = (array: any, doChunks: boolean, gemstones: any) => {
+  const gemstoneBonus = gemstones?.[3]?.bonus || 0;
   let result = array?.map(([itemName, level]: [string, string]): any => ({
     ...ninjaEquipment[itemName as keyof typeof ninjaEquipment],
     level

@@ -10,7 +10,7 @@ import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import {
   checkCharClass,
   getBubonicGreenTube,
-  getHighestTalentByClass,
+  getHighestTalentByClass, getMaestroLeftHand,
   getTalentBonus,
   getTalentBonusIfActive,
   getVoidWalkerTalentEnhancements
@@ -32,6 +32,7 @@ import { isSuperbitUnlocked } from './gaming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getAllSkillsExp } from '@parsers/character';
 
 export const getAnvilSpeed = (agility = 0, speedPoints, stampBonus = 0, poBoxBonus = 0, hammerHammerBonus = 0, statueBonus = 0, starSignTownSpeed = 0, talentTownSpeed = 0, upgradeVaultBonus = 0) => {
   const boxAndStatueMath = 1 + ((poBoxBonus + statueBonus + upgradeVaultBonus) / 100);
@@ -190,67 +191,7 @@ export const getPlayerAnvil = (character, characters, account) => {
     coinsToMax: getCoinToMax(pointsFromCoins, anvilCostReduction)
   };
 
-  // ANVIL EXP
-  const starSignBonus = getStarSignBonus(character, account, 'Skill_EXP_gain');
-  const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7');
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Skill_EXP_(Passive)')
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Ham', character, account, characters);
-  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet3' ? character?.cards?.cardSet?.bonus : 0;
-  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
-  const greenTubeEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 536);
-  const luckyCharmEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 35, character);
-  const bubonicGreen = getBubonicGreenTube(character, characters, account);
-  const shrineBonus = getShrineBonus(account?.shrines, 5, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.talents);
-  const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy', account)?.bonus
-  const balanceOfEffBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.bonus;
-  const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.curse;
-  const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.curse;
-  const equipmentBonus = getStatsFromGear(character, 27, account);
-  const maestroTransfusionTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
-  const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
-  const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
-  const myriadPostOfficeBox = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 2);
-  const firstAchievementBonus = getAchievementStatus(account?.achievements, 283);
-  const secondAchievementBonus = getAchievementStatus(account?.achievements, 284);
-  const thirdAchievementBonus = getAchievementStatus(account?.achievements, 294);
-  const smithingSkillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 1);
-  const allSkillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 4);
-  const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Skill_EXP');
-  const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
-  const winnerBonus = getWinnerBonus(account, '+{% Skill EXP');
-  const companionBonus = isCompanionBonusActive(account, 9) ? 20 : 0;
-  const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 10 });
-  let godBonus = 0;
-  const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
-  if (flutterbisIndexes?.[character?.playerId] !== -1) {
-    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7) || 0;
-  }
-
-  // "AllSkillxpz" == e
-  stats.baseAnvilExp = starSignBonus
-    + (cEfauntCardBonus
-      + goldenFoodBonus
-      + bubonicGreen
-      * Math.min(1, greenTubeEnhancement ? bubonicGreen : 0)
-      + (cardSetBonus
-        + passiveCardBonus
-        + (Math.min(150, 100 * luckyCharmEnhancement) + shrineBonus)
-        + statueBonus
-        + unendingEnergyBonus
-        + balanceOfEffBonus
-        - skilledDimwitCurse
-        - theRoyalSamplerCurse
-        + (equipmentBonus
-          + (maestroTransfusionTalentBonus
-            + (saltLickBonus
-              + (dungeonSkillExpBonus
-                + (myriadPostOfficeBox
-                  + (godBonus
-                    + (10 * firstAchievementBonus + (25 * secondAchievementBonus
-                      + (10 * thirdAchievementBonus
-                        + (smithingSkillMasteryBonus + (allSkillMasteryBonus
-                          + (shinyBonus + superbitBonus) + companionBonus + winnerBonus + schematicBonus)))))))))))));
+  stats.baseAnvilExp = getAllSkillsExp(character, characters, account)?.value;
 
   // ANVIL SPEED MATH;
   const anvilZoomerBonus = getStampBonus(account, 'skills', 'StampB3', character);
@@ -283,12 +224,8 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
   const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
   const stampBonus = getStampsBonusByEffect(account, 'SmithExp', character);
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
-  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING');
-  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
-  const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
-  if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement) {
-    leftHandOfLearningTalentBonus *= 2;
-  }
+  const leftHandTalentBonus = getMaestroLeftHand(character, 'smithing', characters, account);
+
 
   // "SmithingEXPmulti" == e
   const smithingExpMulti = Math.max(0.1, (1 +
@@ -298,7 +235,7 @@ export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints)
             + 25 * skillMasteryBonus))) / 100)
     * (1 + smithingCards / 100) *
     (1 + blackSmithBoxBonus0 / 100)
-    + (anvilExp + leftHandOfLearningTalentBonus) / 100);
+    + (anvilExp + leftHandTalentBonus) / 100);
 
   const tempAnvilExp = getAnvilExp(xpPoints, smithingExpMulti);
   return 100 * (tempAnvilExp - 1);

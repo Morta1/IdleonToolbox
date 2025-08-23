@@ -472,21 +472,21 @@ const getSkillRankByIndex = (skills, index) => {
 }
 
 export const getSkillMasteryBonusByIndex = (skills, rift, riftBonusIndex) => {
-  const array = new Array(15).fill(1);
-  return array?.reduce((sum, skill, index) => {
+  const array = new Array(18).fill(1);
+  return array.reduce((sum, skill, index) => {
     const skillRank = getSkillRankByIndex(skills, index);
     if (riftBonusIndex === 1) {
-      sum += 10 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex));
+      sum += 10 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
     } else if (riftBonusIndex === 3) {
-      sum += isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex));
+      sum += isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
     } else if (riftBonusIndex === 4) {
-      sum += 25 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex));
-    } else if (0 !== index && 2 !== index && 3 !== index && 5 !== index && 6 !== index && 8 !== index && 8 !== index) {
-      sum += 5 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex));
+      sum += 25 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
+    } else if (index !== 0 && index !== 2 && index !== 3 && index !== 5 && index !== 6 && index !== 8) {
+      sum += 5 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
     }
     return sum;
   }, 7);
-}
+};
 
 export const getExpReq = (skillIndex, t) => {
   return 0 === skillIndex ?

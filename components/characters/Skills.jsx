@@ -1,9 +1,12 @@
 import { notateNumber, prefix } from '../../utility/helpers';
 import Box from '@mui/material/Box';
-import { capitalize, Card, CardContent, Stack, Typography } from '@mui/material';
+import { capitalize, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '../Tooltip';
-import React from 'react';
+import React, { useMemo } from 'react';
 import ProgressBar from '../common/ProgressBar';
+import { getSkillExpMulti } from '@parsers/character';
+import { Breakdown } from '@components/common/styles';
+import { getMaxDamage } from '@parsers/damage';
 
 const getRankColor = (rank) => {
   const colorMap = {
@@ -15,8 +18,9 @@ const getRankColor = (rank) => {
 }
 
 const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
-const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
+const Skills = ({ skills, charName, account, characters, character, showSkillsRankOneOnly }) => {
   const hasRankOne = Object.keys(skills || {})?.filter((skillName) => skills[skillName]?.rank === 1)?.length > 0;
+  const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
   if (showSkillsRankOneOnly && !hasRankOne) return null;
 
   return <Stack>
@@ -39,8 +43,10 @@ const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
           {Object.keys(skills || {})?.map((skillName, index) => {
             const { level, rank, icon } = skills[skillName];
             if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
+            const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
             return <Box key={index}>
-              <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}/>}>
+              <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
+                                            expMulti={expMulti}/>}>
                 <img src={`${prefix}data/${icon}.png`} style={{ width: 38, height: 36 }} alt=""/>
               </Tooltip>
               <Typography>Lv {level}</Typography>
@@ -60,19 +66,29 @@ const Skills = ({ skills, charName, showSkillsRankOneOnly }) => {
   </Stack>
 };
 
-const SkillTooltip = ({ exp, expReq, charName, skillName, level }) => {
+const SkillTooltip = ({ exp, expReq, expMulti, charName, skillName, level }) => {
   const percent = exp / expReq * 100;
-  return <>
+  return <Stack gap={.5}>
     <Typography variant={'h5'} fontWeight={'bold'}>{charName}</Typography>
     <Typography variant={'body1'}>{capitalize(skillName)} <Typography
       variant={'body1'}
       component={'span'}>(Lv. {level})</Typography></Typography>
     <ProgressBar percent={percent} bgColor={'#f3dd4c'}/>
-    <Typography variant={'body1'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')} <Typography
-      variant={'body1'}
-      component={'span'}>({Math.round(percent)}%)</Typography>
-    </Typography>
-  </>
+    <Typography variant={'body1'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')}</Typography>
+
+    {expMulti && <>
+      <Divider sx={{ my: 1 }}/>
+      <Typography variant={'body1'}>Exp
+        multi: {expMulti?.formattedValue || notateNumber(expMulti?.value, 'MultiplierInfo') || 0}x</Typography>
+      {skillName === 'sneaking' ? <>
+        <Divider sx={{ my: 1 }}/>
+        <Typography variant={'caption'}>* inaccurate</Typography>
+      </> : null}
+      <Divider sx={{ my: 1 }}/>
+      <Breakdown breakdown={expMulti?.breakdown} title={'Exp multi breakdown'} notation={'MultiplierInfo'}/>
+    </>}
+
+  </Stack>
 }
 
 

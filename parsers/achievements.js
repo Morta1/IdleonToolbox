@@ -17,8 +17,11 @@ const parseAchievements = (achievementsRaw, steamAchievementsRaw) => {
 }
 
 export const getAchievementStatus = (achievements, achievementIndex) => {
-  if (!achievements?.[achievementIndex]) return 0;
+  const achievement = achievements?.[achievementIndex];
+  if (!achievement || !achievement.completed) return 0;
+
   switch (achievementIndex) {
+    case 4:
     case 27:
     case 37:
     case 44:
@@ -30,11 +33,13 @@ export const getAchievementStatus = (achievements, achievementIndex) => {
       return 10;
     case 99:
     case 104:
+    case 112:
       return 20;
     default:
-      return achievements?.[achievementIndex]?.completed ? 1 : 0;
+      return 1;
   }
 }
+
 
 export const calcTotalAchievements = (achievements) => {
   return achievements.reduce((sum, { completed }) => completed ? sum + 1 : sum, 0);

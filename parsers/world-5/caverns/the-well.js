@@ -103,13 +103,11 @@ export const getSchematicBonus = ({ holesObject, t, i }) => {
   return 46 === t ? 5 * (extraCalculations[26]) : 47 === t
     ? 25 * (extraCalculations[26])
     : 48 === t ? 10 * (extraCalculations[26]) : 49 === t
-      ? i * ((extraCalculations[1]) + (extraCalculations[3]) * getSchematicBonus({
-      wellSediment,
-      extraCalculations,
-      engineerSchematics,
-      t: 50,
-      i: 1
-    }))
+      ? i * (extraCalculations[1]
+      + (extraCalculations[3]
+        * getSchematicBonus({ holesObject, t: 50, i: 1 })
+        + extraCalculations[5]
+        * getSchematicBonus({ holesObject, t: 79, i: 1 })))
       : 52 === t
         ? 60 * Math.floor(lavaLog((wellSediment[0])))
         : 53 === t

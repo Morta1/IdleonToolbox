@@ -1,16 +1,16 @@
-import { atomsInfo, cookingMenu, monsters, randomList } from '../data/website-data';
+import { atomsInfo, cookingMenu, monsters, randomList, bonuses } from '../data/website-data';
 import { getStampsBonusByEffect } from './stamps';
 import { getStatsFromGear } from './items';
 import { tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from './postoffice';
 import { getJewelBonus, getLabBonus } from './lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
-import { getHighestCharacterSkill, isArenaBonusActive } from './misc';
+import { getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getAchievementStatus } from './achievements';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
 import { isSuperbitUnlocked } from './gaming';
-import { getHighestTalentByClass, getVoidWalkerTalentEnhancements } from './talents';
+import { getHighestTalentByClass, getTalentBonus, getVoidWalkerTalentEnhancements } from './talents';
 import { getEquinoxBonus } from './equinox';
 import LavaRand from '@utility/lavaRand';
 import account from '@components/dashboard/Account';
@@ -28,6 +28,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getObolsBonus } from '@parsers/obols';
 
 export const spicesNames = [
   'Grasslands',
@@ -132,17 +133,36 @@ export const getLadlesPerDay = (character, jewels, stamps, meals, playerChips, c
   return 15 * Math.floor(Math.max(Math.pow(cookingEff / (10 * (cookingMonster)), .25 + getCookingProwess(character, meals, bubbles)), 1))
 }
 
-const getCookingEff = (character, jewels, stamps, meals, playerChips, cards, guildBonuses, charactersLevels) => {
-  const allBaseSkillEff = getAllBaseSkillEff(character, playerChips, jewels);
-  const allEfficiencies = getAllEff(character, meals, playerChips, cards, guildBonuses, charactersLevels);
-  const stampBonus = getStampsBonusByEffect(stamps, 'Cooking_Efficiency');
-  const equipmentCookingEffectBonus = getStatsFromGear(character, 62, account);
+export const getCookingEff = (character, characters, account, playerInfo) => {
+  const allEfficiencies = getAllEff(character, characters, account);
+  const talentBonus = getTalentBonus(character?.talents, 3, 'APOCALYPSE_CHOW');
+  const chows = character?.chow?.finished?.[0] ?? 1;
+  const talentBonus2 = getTalentBonus(character?.talents, 0, 'BRUTE_EFFICIENCY');
+  const equipBonus = getStatsFromGear(character, 67, account);
+  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[67]);
+  const talentBonus3 = getTalentBonus(character?.talents, 3, 'SKILL_STRENGTHEN');
+  const stampBonus = getStampsBonusByEffect(account, 'Cooking_Efficiency', character);
+  const equipBonus2 = getStatsFromGear(character, 62, account);
+  const obolsBonus2 = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[62]);
+  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 0);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 0);
-  return allEfficiencies * (250 + (stampBonus + (equipmentCookingEffectBonus + (postOfficeBonus)) + allBaseSkillEff));
+  const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
+
+  return allEfficiencies
+  * (1 + ((talentBonus * chows)
+    + (talentBonus2
+      + (equipBonus + obolsBonus))) / 100)
+  * (250 + (Math.pow(character?.stats?.strength, .6)
+    * (1 + talentBonus3 / 100)
+    + (stampBonus
+      + ((equipBonus2 + obolsBonus2)
+        + 10 * masteryBonus
+        + postOfficeBonus))
+    + allBaseSkillEff))
 }
 
-const getCookingProwess = (character, meals, bubbles) => {
-  return allProwess(character, meals, bubbles);
+export const getCookingProwess = (character, account) => {
+  return allProwess(character, account);
 }
 
 export const getSpiceUpgradeCost = (upgradeLevel) => {

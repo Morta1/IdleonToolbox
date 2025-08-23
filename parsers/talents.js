@@ -83,9 +83,9 @@ export function getBaseClass(className) {
   const path = talentPagesMap[className];
   if (!path) return null; // not found
 
-  if (className === "Beginner") return "Beginner";
-  if (path[0] === "Beginner") return "Beginner";
-  return path[1]; // second item is always the base class
+  if (className === 'Beginner') return 'Beginner';
+  if (path[0] === 'Beginner') return 'Beginner';
+  return path[1];
 }
 
 // { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' }
@@ -204,11 +204,11 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     symbolAddedLevel = growth(symbolTalent?.funcX, symbolTalent?.level, symbolTalent?.x1, symbolTalent?.x2, false) ?? 0;
     addedLevels += symbolAddedLevel;
   }
-  if (familyEffBonus) {
-    addedLevels += Math.floor(familyEffBonus);
-  }
   if (getAchievementStatus(account?.achievements, 291)) {
     addedLevels += 1;
+  }
+  if (familyEffBonus) {
+    addedLevels += Math.floor(familyEffBonus);
   }
   if (isCompanionBonusActive(account, 1)) {
     addedLevels += account?.companions?.list?.at(1)?.bonus;
@@ -221,6 +221,21 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
   addedLevels += Math.min(5, getTesseractBonus(account, 57));
 
+  // 0.5 < c.asNumber(a.engine.getGameAttribute("SkillLevels")[0 | c.asNumber(t)]) || "AllTalentLVz" == e ?
+  //  ((49 <= c.asNumber(t) && 59 >= c.asNumber(t)) || 149 == c.asNumber(t)
+  //  || 374 == c.asNumber(t) || 539 == c.asNumber(t) || 505 == c.asNumber(t)
+  //  || 614 < c.asNumber(t) ? 0 : Math.floor(k._customBlock_GetTalentNumber(1, 149)
+  //    + (k._customBlock_GetTalentNumber(1, 374)
+  //      + (k._customBlock_GetTalentNumber(1, 539)
+  //      + r._customBlock_AchieveStatus(291))) +
+  //    (Math.floor(c.asNumber(a.engine.getGameAttribute("DNSM").h.FamBonusQTYs.h[68]))
+  //      + (n._customBlock_Companions(1) +
+  //        (Math.ceil(n._customBlock_Divinity("Bonus_Minor", a.engine.getGameAttribute("GetPlayersUsernames").indexOf(a.engine.getGameAttribute("UserInfo")[0]), 2))
+  //          + (c.asNumber(a.engine.getGameAttribute("Dream")[12])
+  //            + 5 * Math.floor((97 + c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[232])) / 100)
+  //            + (n._customBlock_Summoning("GrimoireUpgBonus", 39, 0) +
+  //              (n._customBlock_GetSetBonus("KATTLEKRUK_SET", "Bonus", 0, 0)
+  //                + Math.min(5, n._customBlock_ArcaneType("ArcaneUpgBonus", 57, 0)))))))))) : 0;
   breakdown = [
     { title: 'Additive' },
     { name: '' },
@@ -446,4 +461,19 @@ export const calcTotalStarTalent = (characters, account) => {
 export const getCrystalCountdownSkills = () => {
   return Object.values(skillIndexMap).filter((_, index) => index > 0 && index <= 9)
     .reduce((res, { icon }) => ({ ...res, [icon]: true }), {})
+}
+
+export const getMaestroLeftHand = (character, skillName, characters, account) => {
+  const bestMaestro = getCharacterByHighestTalent(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING');
+  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING', false, true);
+  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
+  const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
+  if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement) {
+    leftHandOfLearningTalentBonus *= 2;
+  }
+  if (character?.skillsInfo?.[skillName]?.level > bestMaestro?.skillsInfo?.[skillName]?.level) {
+    leftHandOfLearningTalentBonus = 0;
+  }
+
+  return leftHandOfLearningTalentBonus;
 }

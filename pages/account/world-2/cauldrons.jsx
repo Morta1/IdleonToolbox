@@ -230,8 +230,8 @@ const Cauldrons = () => {
         <Box>
           <Typography my={3} variant={'h5'} mb={3}>Player</Typography>
           <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-            <Section title={'Alch speed'} value={alchemy?.p2w?.player?.speed}/>
-            <Section title={'Extra Exp'} value={alchemy?.p2w?.player?.extraExp}/>
+            <Section title={'Alch speed'} value={alchemy?.p2w?.player?.speedLv}/>
+            <Section title={'Extra Exp'} value={alchemy?.p2w?.player?.extraExpLv}/>
           </Stack>
         </Box>
         <Box>

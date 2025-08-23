@@ -335,7 +335,7 @@ const getCropDepotBonuses = (account: any) => {
   return bonuses;
 }
 
-const getMarketBonus = (market: any, bonusName: string, value = 'baseValue') => {
+export const getMarketBonus = (market: any, bonusName: string, value = 'baseValue') => {
   return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.[value] ?? 0;
 }
 
@@ -476,7 +476,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
         value: Number((1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100).toFixed(3))
       }
     ],
-    expression: `  let value = (1 + marketBonus1 / 100)
+    expression: `let value = (1 + marketBonus1 / 100)
     * (1 + winBonus / 100)
     * (1 + lampBonus / 100)
     * (1 + bubbleBonus1 / 100)

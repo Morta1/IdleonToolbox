@@ -444,6 +444,12 @@ export const getPrismaFragChance = (character, account, upgrades) => {
     * Math.max(1, primoPrisma * Math.pow(1.5, Math.floor(character?.mapIndex / 50)))
 }
 
+export const getPrismaMulti = (account) => {
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
+  const tesseractBonus = getTesseractBonus(account, 45)
+  return Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100);
+}
+
 const getUpgradeCost = ({ index, x1, x2, level, account, upgrades }) => {
   return (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
       * lavaLog(account?.accountOptions?.[392])) / 100))

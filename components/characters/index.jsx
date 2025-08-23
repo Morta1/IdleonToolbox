@@ -74,7 +74,7 @@ const Character = ({
     },
     { component: <EquippedCards {...character}/>, filter: 'Cards' },
     {
-      component: <Skills skills={skillsInfo} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,
+      component: <Skills skills={skillsInfo} account={account} characters={characters} character={character} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,
       filter: 'Skills'
     },
     { component: <Prayers prayers={activePrayers}/>, filter: 'Prayers' },

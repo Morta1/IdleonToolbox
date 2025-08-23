@@ -31,12 +31,16 @@ import { getObolsBonus } from '@parsers/obols';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getAtomBonus } from '@parsers/atomCollider';
 import { lavaLog } from '@utility/helpers';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 export const allProwess = (character, account) => {
   const mainStat = mainStatMap?.[character?.class];
   const prowessBubble = getBubbleBonus(account, 'kazam', 'PROWESESSARY', false, mainStat);
   const starSignProwess = getStarSignBonus(character, account, 'All_Skill_Prowess');
-  const skillProwessMeals = getMealsBonusByEffectOrStat(account?.cooking?.meals, null, 'Sprow')
+  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multfi
+  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
+  const skillProwessMeals = getMealsBonusByEffectOrStat(account, null, 'Sprow', blackDiamondRhinestone);
   return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
 }
 
@@ -80,10 +84,11 @@ export const getAllBaseSkillEff = (character, account, characters, playerInfo) =
 }
 
 export const getAllEff = (character, characters, account) => {
-  const highestLevelHunter = getHighestLevelOfClass(account?.charactersLevels, 'Hunter');
+  const highestLevelHunter = getHighestLevelOfClass(account?.charactersLevels, 'Wind_Walker');
   // const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Beast_Master', 'THE_FAMILY_GUY');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   // const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
+  const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
   const effFromEquipment = getStatsFromGear(character, 48, account);
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Frost_Relic')?.bonus ?? 0;
@@ -91,11 +96,15 @@ export const getAllEff = (character, characters, account) => {
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Seff', blackDiamondRhinestone);
+  const tomeBonus = account?.tome?.bonuses?.[1]?.bonus ?? 0;
   const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 11)?.baseVal ?? 0;
   const cardBonus = account?.cards?.Crystal_Capybara?.stars ? account?.cards?.Crystal_Capybara?.stars + 1 : 0;
   const masteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 2)
+  const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 15 });
   const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B');
-  const companionBonus = isCompanionBonusActive(account, 5) ? 5 : 0
+  const companionBonus = isCompanionBonusActive(account, 5) ? account?.companions?.list?.at(5)?.bonus : 0;
+  const winnerBonus = getWinnerBonus(account, '<x Skill Effncy.');
+
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet2' ? character?.cards?.cardSet?.bonus : 0;
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.bonus;
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.curse;
@@ -107,21 +116,25 @@ export const getAllEff = (character, characters, account) => {
 
   return (1 + (familyEffBonus
       + ((effFromEquipment + effFromObols)
-        + (artifactBonus
-          + Math.min(0.1 * character?.questCompleted, talentBonus)))) / 100)
+        + vialBonus
+        + (artifactBonus +
+          Math.min(0.1 * character?.questCompleted, talentBonus)))) / 100)
     * (1 + (mealBonus
-      + (chipBonus
-        + 3 * cardBonus)
+      + tomeBonus
+      + (chipBonus + 3 * cardBonus)
       + (masteryBonus
-        + (account?.accountOptions?.[180] ?? 0))) / 100)
+        + schematicBonus
+        + (account?.accountOptions?.[180] ?? 0)
+        * account?.islands?.allShimmerBonus)) / 100)
     * (1 + (chaoticTrollBonus
       + companionBonus) / 100)
+    * (1 + winnerBonus / 100)
     * (1 + (guildBonus
       + (cardSetBonus
-        + prayerBonus)) / 100)
-    * Math.max(1 - (secondTalentBonus + prayerCurse) / 100, 0.01);
+        + prayerBonus)) / 100) *
+    Math.max(1 - (secondTalentBonus +
+      prayerCurse) / 100, 0.01);
 }
-
 
 export const getMiningEff = (character, characters, account, playerInfo) => {
   const mainStat = mainStatMap?.[character?.class];

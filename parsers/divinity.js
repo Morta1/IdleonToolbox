@@ -51,6 +51,12 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
   }
 }
 
+export const getDivStylePerHour = (index) => {
+  return 0 === index ? 1 : 1 === index ? 2 : 2 === index || 3 === index
+    ? 1 : 4 === index ? 7 : 5 === index ? 3 : 6 === index
+      ? 8 : 7 === index && 10
+}
+
 export const applyGodCost = (accountData) => {
   return accountData?.divinity?.deities?.map((god, index) => ({
     ...god,

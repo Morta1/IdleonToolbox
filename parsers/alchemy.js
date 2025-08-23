@@ -9,7 +9,7 @@ import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getTesseractBonus } from '@parsers/tesseract';
+import { getPrismaMulti, getTesseractBonus } from '@parsers/tesseract';
 import { getHighestTalentByClass } from '@parsers/talents';
 
 export const MAX_VIAL_LEVEL = 13;
@@ -94,7 +94,8 @@ export const getLiquidCauldrons = (account) => {
     if (account?.accountOptions?.[123] > index) {
       if (bleachLiquidBonus === 0) {
         bleachLiquidBonus = 1;
-      } else {
+      }
+      else {
         bleachLiquidBonus = saltLickBonus / 100 + 2
       }
     }
@@ -197,13 +198,23 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
   })).filter(({ name }) => name);
 
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
-  p2w.player = { speed: player?.[0] || 0, extraExp: player?.[1] || 0 };
+  p2w.player = {
+    speedLv: player?.[0] || 0,
+    speed: getPlayerP2wUpgrades(player?.[0] || 0, 3, 0),
+    extraExpLv: player?.[1] || 0,
+    extraExp: getPlayerP2wUpgrades(player?.[1] || 0, 3, 1)
+  };
   p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
   p2w.vialsAttempts = {
     current: remainingAttempts[0],
     max: Math.round(3 + vials?.[0])
   };
   return p2w;
+}
+
+export const getPlayerP2wUpgrades = (level, p2wIndex, bonusIndex) => {
+  const [x1, x2, func] = p2w[p2wIndex][bonusIndex];
+  return growth(func, level, x1, x2);
 }
 
 const getCostToMax = (type, index, level, maxLevel) => {
@@ -220,7 +231,8 @@ const getP2wCauldronCost = (type, index, level) => {
     return index === 0
       ? Math.round(2500 * Math.pow(1.19 - (0.135 * level) / (100 + level), level))
       : Math.round(3500 * Math.pow(1.2 - (0.13 * level) / (100 + level), level))
-  } else if (type === 'cauldron') {
+  }
+  else if (type === 'cauldron') {
     return (index === 0
       ? Math.round(2500 * Math.pow(1.15 - (0.117 * level) / (100 + level), level))
       : index === 1
@@ -326,7 +338,7 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
 
   // Apply prisma multiplier to base bubble
   const basePrismaMultiplier = isPrismaBubble(account, targetBubble?.bubbleIndex)
-    ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100)
+    ? getPrismaMulti(account)
     : 1;
 
   // Calculate primary multiplier from bubble at index 1 (if shouldMultiply is true)
@@ -341,7 +353,9 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
         primaryMultiBubble?.x2,
         round
       );
-      const primaryPrismaMultiplier = isPrismaBubble(account, primaryMultiBubble?.bubbleIndex) ? 2 : 1;
+      const primaryPrismaMultiplier = isPrismaBubble(account, primaryMultiBubble?.bubbleIndex)
+        ? getPrismaMulti(account)
+        : 1;
       primaryMultiplier = primaryBubbleValue * primaryPrismaMultiplier;
     }
   }
@@ -366,7 +380,9 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
         secondaryBubble?.x2,
         round
       );
-      const secondaryPrismaMultiplier = isPrismaBubble(account, secondaryBubble?.bubbleIndex) ? 2 : 1;
+      const secondaryPrismaMultiplier = isPrismaBubble(account, secondaryBubble?.bubbleIndex)
+        ? getPrismaMulti(account)
+        : 1;
       secondaryMultiplier = secondaryBubbleValue * secondaryPrismaMultiplier;
     }
   }
@@ -483,7 +499,8 @@ const getCauldronStats = (idleonData) => {
   let stats;
   if (idleonData?.CauldUpgLVs && idleonData?.CauldUpgXPs) {
     stats = idleonData?.CauldUpgLVs?.map((lvl, index) => [idleonData?.CauldUpgXPs?.[index], lvl]);
-  } else {
+  }
+  else {
     stats = idleonData?.CauldronInfo?.[8]?.reduce((res, array) => [...res, ...array], []);
   }
   return stats;
