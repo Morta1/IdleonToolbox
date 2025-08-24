@@ -1,7 +1,7 @@
 import { growth } from '../utility/helpers';
 import { classes, classFamilyBonuses, talents } from '../data/website-data';
 import { getAchievementStatus } from './achievements';
-import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
+import { getCharacterByHighestSkillLevel, getHighestLevelOfClass, isCompanionBonusActive } from './misc';
 import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
@@ -501,10 +501,10 @@ export const getCrystalCountdownSkills = () => {
     .reduce((res, { icon }) => ({ ...res, [icon]: true }), {})
 }
 
-export const getMaestroLeftHand = (character, skillName, characters, account) => {
-  const bestMaestro = getCharacterByHighestTalent(characters, 2, CLASSES.Maestro, 'LEFT_HAND_OF_LEARNING');
-  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, CLASSES.Maestro, 'LEFT_HAND_OF_LEARNING', false, true);
-  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'ENHANCEMENT_ECLIPSE');
+export const getMaestroHand = (character, skillName, characters, account, hand) => {
+  const bestMaestro = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Maestro))?.at(-1);
+  let leftHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.talents, 2, hand, false, true);
+  const voidWalkerEnhancementEclipse = getTalentBonus(bestMaestro?.talents, 3, 'ENHANCEMENT_ECLIPSE');
   const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
   if (checkCharClass(character?.class, CLASSES.Maestro) && leftHandEnhancement) {
     leftHandOfLearningTalentBonus *= 2;

@@ -3,9 +3,10 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getPostOfficeBonus } from '@parsers/postoffice';
 import {
+  checkCharClass,
   CLASSES,
   getCharacterByHighestTalent,
-  getHighestTalentByClass,
+  getHighestTalentByClass, getMaestroHand,
   getTalentBonus,
   getTalentBonusIfActive,
   mainStatMap
@@ -155,7 +156,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const stampBonus = getStampsBonusByEffect(account, 'Base_Mining', character);
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 0);
-  const rightHandBonus = getMaestroRightHandBonus(character, 'mining', characters);
+  const rightHandBonus = getMaestroHand(character, 'mining', characters, account, 'RIGHT_HAND_OF_ACTION');
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Peanut', character, account, characters) || 1;
   const thirdTalentBonus = getTalentBonus(character?.talents, 0, 'BRUTE_EFFICIENCY');
   const etcFromTools = getStatsFromGear(character, 10, account, true);
@@ -197,10 +198,10 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
 }
 
 const getMaestroRightHandBonus = (character, skillName, characters) => {
-  const maestroTalentBonus = getHighestTalentByClass(characters, 2, CLASSES.Maestro, 'RIGHT_HAND_OF_ACTION', null, true);
-  const bestMaestro = getCharacterByHighestTalent(characters, 2, CLASSES.Maestro, 'RIGHT_HAND_OF_ACTION', null, true);
+  const bestMaestro = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Maestro))?.at(-1);
+  const rightHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.talents, 2, 'RIGHT_HAND_OF_ACTION', false, true);
   if (character?.skillsInfo?.[skillName]?.level < bestMaestro?.skillsInfo?.[skillName]?.level) {
-    return maestroTalentBonus
+    return rightHandOfLearningTalentBonus
   }
   return 0;
 }

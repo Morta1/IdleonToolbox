@@ -43,7 +43,7 @@ import {
   getActiveBuffs,
   getBubonicGreenTube,
   getHighestTalentByClass,
-  getMaestroLeftHand,
+  getMaestroHand,
   getTalentAddedLevels,
   getTalentBonus,
   getTalentBonusIfActive,
@@ -551,7 +551,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const achievementBonus = getAchievementStatus(account?.achievements, 27);
     const equipBonus = getStatsFromGear(character, 55, account);
     const voteBonus = getVoteBonus(account, 13);
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'mining', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'mining', characters, account, 'LEFT_HAND_OF_LEARNING');
     const value = Math.max(
       0.1,
       1 +
@@ -599,7 +599,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const cardBonus = choppingCardsArePassives
       ? getCardBonusByEffect(account?.cards, 'Choppin_EXP')
       : getCardBonusByEffect(character?.cards?.equippedCards, 'Choppin_EXP');
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'chopping', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'chopping', characters, account, 'LEFT_HAND_OF_LEARNING');
     const achievementBonus = getAchievementStatus(account?.achievements, 4);
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 0);
     const voteBonus = getVoteBonus(account, 9);
@@ -634,7 +634,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
     const stampBonus = getStampsBonusByEffect(account, 'SmithExp', character);
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'smithing', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'smithing', characters, account, 'LEFT_HAND_OF_LEARNING');
 
     const value = Math.max(0.1, (1 +
         (talentBonus
@@ -678,7 +678,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Fishing XP');
     const voteBonus = getVoteBonus(account, 8);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 30);
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'fishing', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'fishing', characters, account, 'LEFT_HAND_OF_LEARNING');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 0);
     const fishingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 2);
     const cardBonus = fishingCardsArePassives
@@ -774,7 +774,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const achievementBonus = getAchievementStatus(account?.achievements, 107);
     const voteBonus = getVoteBonus(account, 10);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 29);
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'catching', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'catching', characters, account, 'LEFT_HAND_OF_LEARNING');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 0);
     const catchingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 2);
     const cardBonus = catchingCardsArePassives
@@ -828,7 +828,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const cardBonus = choppingCardsArePassives
       ? getCardBonusByEffect(account?.cards, 'Trapping_EXP')
       : getCardBonusByEffect(character?.cards?.equippedCards, 'Trapping_EXP');
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'trapping', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'trapping', characters, account, 'LEFT_HAND_OF_LEARNING');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 0);
     const voteBonus = getVoteBonus(account, 30);
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Trapping_Lockbox', 1);
@@ -892,7 +892,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const starSignBonus = getStarSignBonus(character, account, 'Worship_EXP');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 0);
     const voteBonus = getVoteBonus(account, 30);
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'worship', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'worship', characters, account, 'LEFT_HAND_OF_LEARNING');
 
     const value = Math.max(0.1, 1 + (character?.skillsInfo?.worship?.level / 3
         + (talentBonus
@@ -920,7 +920,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
   else if (skillName === 'cooking') {
     const cookingEff = getCookingEff(character, characters, account, playerInfo);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 60);
-    const leftHandTalentBonus = getMaestroLeftHand(character, 'cooking', characters, account);
+    const leftHandTalentBonus = getMaestroHand(character, 'cooking', characters, account, 'LEFT_HAND_OF_LEARNING');
     const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'CookExp', blackDiamondRhinestone);
