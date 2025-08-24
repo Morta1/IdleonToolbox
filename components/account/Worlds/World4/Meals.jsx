@@ -23,7 +23,7 @@ import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getGrimoireBonus } from '@parsers/grimoire';
-import { checkCharClass } from '@parsers/talents';
+import { checkCharClass, CLASSES } from '@parsers/talents';
 
 const maxTimeValue = 8.64e15;
 
