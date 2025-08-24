@@ -2,6 +2,7 @@ import { getStampsBonusByEffect } from './stamps';
 import { round, tryToParse } from '../utility/helpers';
 import { getCardBonusByEffect } from './cards';
 import {
+  CLASSES,
   getCharacterByHighestTalent,
   getHighestTalentByClass,
   getTalentBonus,
