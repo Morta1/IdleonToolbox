@@ -24,7 +24,7 @@ import DropSection from '@components/tools/active-calculator/DropSection';
 import KillsSection from '@components/tools/active-calculator/KillsSection';
 import CardsSection from '@components/tools/active-calculator/CardsSection';
 import PetSection from '@components/tools/active-calculator/PetSection';
-import { checkCharClass } from '@parsers/talents';
+import { checkCharClass, CLASSES } from '@parsers/talents';
 import CoinsSection from '@components/tools/active-calculator/CoinsSection';
 import CauldronsSection from '@components/tools/active-calculator/CauldronsSection';
 import ObolsSection from '@components/tools/active-calculator/ObolsSection';
@@ -42,17 +42,17 @@ const ActiveStuffCalculator = () => {
     defaultValue: sections
   });
   const [selectedChar, setSelectedChar] = useState('0');
-  const isBeastMaster = checkCharClass(state?.characters?.[selectedChar]?.class, 'Beast_Master') || (state?.characters?.[selectedChar]?.class, 'Wind_Walker');
-  const isShaman = checkCharClass(state?.characters?.[selectedChar]?.class, 'Shaman');
+  const isBeastMaster = checkCharClass(state?.characters?.[selectedChar]?.class, CLASSES.Beast_Master) || (state?.characters?.[selectedChar]?.class, CLASSES.Wind_Walker);
+  const isShaman = checkCharClass(state?.characters?.[selectedChar]?.class, CLASSES.Shaman);
 
   useEffect(() => {
     if (snapshottedChar) {
       setSelectedChar(snapshottedChar?.playerId + '');
       let currentSections = selectedSections;
-      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Beast_Master') && !checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Wind_Walker')) {
+      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Beast_Master) && !checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Wind_Walker)) {
         currentSections = currentSections.filter((name) => name !== 'pets');
       }
-      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Shaman')) {
+      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Shaman)) {
         currentSections = currentSections.filter((name) => name !== 'cauldrons');
       }
       setSelectedSections(currentSections);
@@ -65,10 +65,10 @@ const ActiveStuffCalculator = () => {
 
   const handleCharChange = (e) => {
     let currentSections = selectedSections;
-    if (!checkCharClass(state?.characters?.[e.target?.value?.playerId]?.class, 'Beast_Master')) {
+    if (!checkCharClass(state?.characters?.[e.target?.value?.playerId]?.class, CLASSES.Beast_Master)) {
       currentSections = currentSections.filter((name) => name !== 'pets');
     }
-    if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, 'Shaman')) {
+    if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Shaman)) {
       currentSections = currentSections.filter((name) => name !== 'cauldrons');
     }
     setSelectedSections(currentSections);

@@ -8,7 +8,7 @@ import { getWinnerBonus } from "@parsers/world-6/summoning";
 import { getAchievementStatus } from "@parsers/achievements";
 import { getVoteBonus } from "@parsers/world-2/voteBallot";
 import { getGrimoireBonus } from "@parsers/grimoire";
-import { getHighestTalentByClass, getTalentBonus } from "@parsers/talents";
+import { CLASSES, getHighestTalentByClass, getTalentBonus } from "@parsers/talents";
 import { getKillroyBonus, isMasteryBonusUnlocked } from "@parsers/misc";
 import { getLampBonus } from "@parsers/world-5/caverns/the-lamp";
 import { getMealsBonusByEffectOrStat } from "@parsers/cooking";
@@ -69,7 +69,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
   const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
   const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
-  const apocalypseWow = getHighestTalentByClass(charactersData, 4, 'Death_Bringer', 'DANK_RANKS') ?? 0;
+  const apocalypseWow = getHighestTalentByClass(charactersData, 4, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
   const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
     const name = names?.[index];
     const base = bases?.[index];

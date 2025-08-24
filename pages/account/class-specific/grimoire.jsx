@@ -12,13 +12,13 @@ import Upgrades from '@components/account/Misc/class-specific/Grimoire/Upgrades'
 import Monsters from '@components/account/Misc/class-specific/Grimoire/Monsters';
 import { boneNames, getWraithStats } from '@parsers/grimoire';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Grimoire/UpgradeOptimizer';
-import { checkCharClass } from '@parsers/talents';
+import { checkCharClass, CLASSES } from '@parsers/talents';
 
 const Grimoire = () => {
   const { state } = useContext(AppContext);
   const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock } = state?.account?.grimoire;
   const [selectedChar, setSelectedChar] = useState(0);
-  const deathBringers = state?.characters?.filter((character) => checkCharClass(character?.class, 'Death_Bringer'));
+  const deathBringers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
   const wraithStats = useMemo(() => getWraithStats(state?.characters?.[selectedChar], state?.account), [selectedChar]);
 
   useEffect(() => {

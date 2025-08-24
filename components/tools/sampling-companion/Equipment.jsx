@@ -4,7 +4,7 @@ import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import ItemDisplay from '../../common/ItemDisplay';
 import { prefix } from 'utility/helpers';
 import Tooltip from '../../Tooltip';
-import { talentPagesMap } from '@parsers/talents';
+import { CLASSES, talentPagesMap } from '@parsers/talents';
 import { items as itemsList } from '../../../data/website-data';
 
 const Equipment = ({ equipment, tools, food, account, character, weaponByClass, hideEmpty, allAccountItems }) => {
@@ -27,8 +27,8 @@ const Equipment = ({ equipment, tools, food, account, character, weaponByClass, 
 };
 
 const EquipmentPage = ({ allAccountItems, items, character, account, hideEmpty, windowName, weaponByClass }) => {
-  const classes = ['Warrior', 'Mage', 'Archer'];
-  const baseClass = classes.find(cls => talentPagesMap?.[character?.class]?.includes(cls)) || 'Beginner';
+  const classes = [CLASSES.Warrior, CLASSES.Mage, CLASSES.Archer];
+  const baseClass = classes.find(cls => talentPagesMap?.[character?.class]?.includes(cls)) || CLASSES.Beginner;
   const actualItem = itemsList?.[weaponByClass?.[baseClass]];
 
   return (

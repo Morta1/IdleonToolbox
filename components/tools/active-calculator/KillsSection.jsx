@@ -3,7 +3,7 @@ import { Section } from '@components/tools/active-calculator/common';
 import React, { Fragment, useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import { checkCharClass } from '@parsers/talents';
+import { checkCharClass, CLASSES } from '@parsers/talents';
 import { notateNumber, numberWithCommas } from '@utility/helpers';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -14,12 +14,12 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
 
   const characterClass = state?.characters?.[selectedChar]?.class;
-  const isDivineKnight = checkCharClass(characterClass, 'Divine_Knight');
-  const isElementalSorcerer = checkCharClass(characterClass, 'Elemental_Sorcerer');
-  const isSiegeBreaker = checkCharClass(characterClass, 'Siege_Breaker');
-  const isDeathBringer = checkCharClass(characterClass, 'Death_Bringer');
-  const isArcaneCultist = checkCharClass(characterClass, 'Arcane_Cultist');
-  const isWindWalker = checkCharClass(characterClass, 'Wind_Walker');
+  const isDivineKnight = checkCharClass(characterClass, CLASSES.Divine_Knight);
+  const isElementalSorcerer = checkCharClass(characterClass, CLASSES.Elemental_Sorcerer);
+  const isSiegeBreaker = checkCharClass(characterClass, CLASSES.Siege_Breaker);
+  const isDeathBringer = checkCharClass(characterClass, CLASSES.Death_Bringer);
+  const isArcaneCultist = checkCharClass(characterClass, CLASSES.Arcane_Cultist);
+  const isWindWalker = checkCharClass(characterClass, CLASSES.Wind_Walker);
 
   const getPerHour = (difference) => Math.floor((difference / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60);
   const getKills = (source) => Math.floor(source?.kills?.[snapshottedChar?.mapIndex] || 0);

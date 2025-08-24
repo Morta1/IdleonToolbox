@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { talentPagesMap } from '@parsers/talents';
+import { CLASSES, talentPagesMap } from '@parsers/talents';
 import {
   Card,
   CardContent,
@@ -40,8 +40,8 @@ const Apocalypses = () => {
     } else {
       if (state?.characters) {
         const localManiacs = state?.characters?.filter((character) => {
-          const isBarbarian = talentPagesMap[character?.class]?.includes('Barbarian');
-          const isBloodBerserker = talentPagesMap[character?.class]?.includes('Blood_Berserker');
+          const isBarbarian = talentPagesMap[character?.class]?.includes(CLASSES.Barbarian);
+          const isBloodBerserker = talentPagesMap[character?.class]?.includes(CLASSES.Blood_Berserker);
           return isBarbarian || isBloodBerserker;
         });
         setFilteredCharacters(localManiacs?.map(({ playerId }) => playerId))

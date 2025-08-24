@@ -29,7 +29,8 @@ export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLe
     level = useMaxLevel ? talent?.maxLevel : talent?.level;
     if (useMaxAndAddedLevels && (forceTalent || (talent?.level > talent?.maxLevel))) {
       level = talent?.maxLevel + addedLevels;
-    } else {
+    }
+    else {
       level = addedLevels ? level - addedLevels : level;
     }
   }
@@ -54,65 +55,98 @@ export const getTalentBonusIfActive = (activeBuffs, tName, variant = 'x') => {
     : growth(funcY, level, y1, y2, false) : res, 0) ?? 0;
 }
 
+export const CLASSES = {
+  'Beginner': 'Beginner',
+  'Journeyman': 'Journeyman',
+  'Maestro': 'Maestro',
+  'Voidwalker': 'Voidwalker',
+  'Warrior': 'Warrior',
+  'Barbarian': 'Barbarian',
+  'Blood_Berserker': 'Blood_Berserker',
+  'Death_Bringer': 'Death_Bringer',
+  'Squire': 'Squire',
+  'Divine_Knight': 'Divine_Knight',
+  'Archer': 'Archer',
+  'Bowman': 'Bowman',
+  'Siege_Breaker': 'Siege_Breaker',
+  'Hunter': 'Hunter',
+  'Beast_Master': 'Beast_Master',
+  'Wind_Walker': 'Wind_Walker',
+  'Mage': 'Mage',
+  'Shaman': 'Shaman',
+  'Bubonic_Conjuror': 'Bubonic_Conjuror',
+  'Arcane_Cultist': 'Arcane_Cultist',
+  'Wizard': 'Wizard',
+  'Elemental_Sorcerer': 'Elemental_Sorcerer'
+}
+
 export const talentPagesMap = {
-  'Beginner': ['Beginner'],
-  'Journeyman': ['Beginner', 'Journeyman'],
-  'Maestro': ['Beginner', 'Journeyman', 'Maestro'],
-  'Voidwalker': ['Beginner', 'Journeyman', 'Maestro', 'Voidwalker'],
-  'Warrior': ['Rage_Basics', 'Warrior'],
-  'Barbarian': ['Rage_Basics', 'Warrior', 'Barbarian'],
-  'Blood_Berserker': ['Rage_Basics', 'Warrior', 'Barbarian', 'Blood_Berserker'],
-  'Death_Bringer': ['Rage_Basics', 'Warrior', 'Barbarian', 'Blood_Berserker', 'Death_Bringer'],
-  'Squire': ['Rage_Basics', 'Warrior', 'Squire'],
-  'Divine_Knight': ['Rage_Basics', 'Warrior', 'Squire', 'Divine_Knight'],
-  'Archer': ['Calm_Basics', 'Archer'],
-  'Bowman': ['Calm_Basics', 'Archer', 'Bowman'],
-  'Siege_Breaker': ['Calm_Basics', 'Archer', 'Bowman', 'Siege_Breaker'],
-  'Hunter': ['Calm_Basics', 'Archer', 'Hunter'],
-  'Beast_Master': ['Calm_Basics', 'Archer', 'Hunter', 'Beast_Master'],
-  'Wind_Walker': ['Calm_Basics', 'Archer', 'Hunter', 'Beast_Master', 'Wind_Walker'],
-  'Mage': ['Savvy_Basics', 'Mage'],
-  'Shaman': ['Savvy_Basics', 'Mage', 'Shaman'],
-  'Bubonic_Conjuror': ['Savvy_Basics', 'Mage', 'Shaman', 'Bubonic_Conjuror'],
-  'Arcane_Cultist': ['Savvy_Basics', 'Mage', 'Shaman', 'Bubonic_Conjuror', 'Arcane_Cultist'],
-  'Wizard': ['Savvy_Basics', 'Mage', 'Wizard'],
-  'Elemental_Sorcerer': ['Savvy_Basics', 'Mage', 'Wizard', 'Elemental_Sorcerer']
+  [CLASSES.Beginner]: [CLASSES.Beginner],
+  [CLASSES.Journeyman]: [CLASSES.Beginner, CLASSES.Journeyman],
+  [CLASSES.Maestro]: [CLASSES.Beginner, CLASSES.Journeyman, CLASSES.Maestro],
+  [CLASSES.Voidwalker]: [CLASSES.Beginner, CLASSES.Journeyman, CLASSES.Maestro, CLASSES.Voidwalker],
+  //
+  [CLASSES.Warrior]: ['Rage_Basics', CLASSES.Warrior],
+  [CLASSES.Barbarian]: ['Rage_Basics', CLASSES.Warrior, CLASSES.Barbarian],
+  [CLASSES.Blood_Berserker]: ['Rage_Basics', CLASSES.Warrior, CLASSES.Barbarian, CLASSES.Blood_Berserker],
+  [CLASSES.Death_Bringer]: ['Rage_Basics', CLASSES.Warrior, CLASSES.Barbarian, CLASSES.Blood_Berserker,
+    CLASSES.Death_Bringer],
+  [CLASSES.Squire]: ['Rage_Basics', CLASSES.Warrior, CLASSES.Squire],
+  [CLASSES.Divine_Knight]: ['Rage_Basics', CLASSES.Warrior, CLASSES.Squire, CLASSES.Divine_Knight],
+  //
+  [CLASSES.Archer]: ['Calm_Basics', CLASSES.Archer],
+  [CLASSES.Bowman]: ['Calm_Basics', CLASSES.Archer, CLASSES.Bowman],
+  [CLASSES.Siege_Breaker]: ['Calm_Basics', CLASSES.Archer, CLASSES.Bowman, CLASSES.Siege_Breaker],
+  [CLASSES.Hunter]: ['Calm_Basics', CLASSES.Archer, CLASSES.Hunter],
+  [CLASSES.Beast_Master]: ['Calm_Basics', CLASSES.Archer, CLASSES.Hunter, CLASSES.Beast_Master],
+  [CLASSES.Wind_Walker]: ['Calm_Basics', CLASSES.Archer, CLASSES.Hunter, CLASSES.Beast_Master, CLASSES.Wind_Walker],
+  //
+  [CLASSES.Mage]: ['Savvy_Basics', CLASSES.Mage],
+  [CLASSES.Shaman]: ['Savvy_Basics', CLASSES.Mage, CLASSES.Shaman],
+  [CLASSES.Bubonic_Conjuror]: ['Savvy_Basics', CLASSES.Mage, CLASSES.Shaman, CLASSES.Bubonic_Conjuror],
+  [CLASSES.Arcane_Cultist]: ['Savvy_Basics', CLASSES.Mage, CLASSES.Shaman, CLASSES.Bubonic_Conjuror,
+    CLASSES.Arcane_Cultist],
+  [CLASSES.Wizard]: ['Savvy_Basics', CLASSES.Mage, CLASSES.Wizard],
+  [CLASSES.Elemental_Sorcerer]: ['Savvy_Basics', CLASSES.Mage, CLASSES.Wizard, CLASSES.Elemental_Sorcerer]
 };
 
 export function getBaseClass(className) {
   const path = talentPagesMap[className];
   if (!path) return null; // not found
 
-  if (className === 'Beginner') return 'Beginner';
-  if (path[0] === 'Beginner') return 'Beginner';
+  if (className === CLASSES.Beginner) return CLASSES.Beginner;
+  if (path[0] === CLASSES.Beginner) return CLASSES.Beginner;
   return path[1];
 }
 
 // { 0: 'strength', 1: 'agility', 2: 'wisdom', 3: 'luck', 4: 'level' }
 export const mainStatMap = {
-  Beginner: 'luck',
-  Journeyman: 'luck',
-  Maestro: 'luck',
-  Voidwalker: 'luck',
-  Warrior: 'strength',
-  Barbarian: 'strength',
-  Blood_Berserker: 'strength',
-  Death_Bringer: 'strength',
-  Squire: 'strength',
-  Divine_Knight: 'strength',
-  Archer: 'agility',
-  Bowman: 'agility',
-  Siege_Breaker: 'agility',
-  Hunter: 'agility',
-  Beast_Master: 'agility',
-  Wind_Walker: 'agility',
-  Mage: 'wisdom',
-  Shaman: 'wisdom',
-  Bubonic_Conjuror: 'wisdom',
-  Arcane_Cultist: 'wisdom',
-  Wizard: 'wisdom',
-  Elemental_Sorcerer: 'wisdom'
-}
+  [CLASSES.Beginner]: 'luck',
+  [CLASSES.Journeyman]: 'luck',
+  [CLASSES.Maestro]: 'luck',
+  [CLASSES.Voidwalker]: 'luck',
+
+  [CLASSES.Warrior]: 'strength',
+  [CLASSES.Barbarian]: 'strength',
+  [CLASSES.Blood_Berserker]: 'strength',
+  [CLASSES.Death_Bringer]: 'strength',
+  [CLASSES.Squire]: 'strength',
+  [CLASSES.Divine_Knight]: 'strength',
+
+  [CLASSES.Archer]: 'agility',
+  [CLASSES.Bowman]: 'agility',
+  [CLASSES.Siege_Breaker]: 'agility',
+  [CLASSES.Hunter]: 'agility',
+  [CLASSES.Beast_Master]: 'agility',
+  [CLASSES.Wind_Walker]: 'agility',
+
+  [CLASSES.Mage]: 'wisdom',
+  [CLASSES.Shaman]: 'wisdom',
+  [CLASSES.Bubonic_Conjuror]: 'wisdom',
+  [CLASSES.Arcane_Cultist]: 'wisdom',
+  [CLASSES.Wizard]: 'wisdom',
+  [CLASSES.Elemental_Sorcerer]: 'wisdom',
+};
 
 export const starTalentsPages = ['Special Talent 1', 'Special Talent 2',
   'Special Talent 3', 'Special Talent 4', 'Special Talent 5'];
@@ -190,10 +224,12 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 1);
   if (isCompanionBonusActive(account, 0) || pocketLinked) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
-  } else {
+  }
+  else {
     if (linkedDeity === 1) {
       addedLevels += Math.ceil(deityMinorBonus);
-    } else if (secondLinkedDeity === 1) {
+    }
+    else if (secondLinkedDeity === 1) {
       addedLevels += Math.ceil(secondDeityMinorBonus);
     }
   }
@@ -350,7 +386,7 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       return true;
     }
     if (index === 146) {
-      const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class, 'Blood_Berserker'));
+      const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Blood_Berserker));
       const lastBerserker = bloodBerserkers.at(-1);
       if (!lastBerserker) return Math.pow(1.1, 0);
       const superChows = lastBerserker?.chow.finished?.[1];
@@ -364,7 +400,8 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       let base
       if (stats?.luck < 1e3) {
         base = (Math.pow(stats?.luck + 1, 0.37) - 1) / 30;
-      } else {
+      }
+      else {
         base = ((stats?.luck - 1e3) / (stats?.luck + 2500)) * 0.8 + 0.3963
       }
       const talentBonus = getTalentBonus(character?.talents, 3, 'LUCKY_CHARMS');
@@ -380,12 +417,13 @@ export const checkCharClass = (charClass, className) => {
 
 export const getBubonicGreenTube = (character, characters, account) => {
   const charCords = account?.lab?.playersCords?.[character?.playerId];
-  const bubosCords = account?.lab?.playersCords?.filter(({ class: cName }) => checkCharClass(cName, 'Bubonic_Conjuror'));
+  const bubosCords = account?.lab?.playersCords?.filter(({ class: cName }) => checkCharClass(cName, CLASSES.Bubonic_Conjuror));
   if (!charCords || bubosCords?.length === 0) return 0;
   const affected = bubosCords?.some(({ x }) => x > charCords?.x);
   if (affected) {
-    return getHighestTalentByClass(characters, 3, 'Bubonic_Conjuror', 'GREEN_TUBE')
-  } else {
+    return getHighestTalentByClass(characters, 3, CLASSES.Bubonic_Conjuror, 'GREEN_TUBE')
+  }
+  else {
     return 0;
   }
 }
@@ -419,9 +457,9 @@ export const calcTotalStarTalent = (characters, account) => {
     const talentBonus = getTalentBonus(character?.talents, 0, 'STAR_PLAYER');
     const secondTalentBonus = getTalentBonus(character?.starTalents, null, 'STONKS!');
     const thirdTalentBonus = getTalentBonus(character?.talents, 1, 'SUPERNOVA_PLAYER');
-    const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, 'Elemental_Sorcerer', true);
+    const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Elemental_Sorcerer, true);
     let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS', highestLevelElementalSorc);
-    if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
+    if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
       familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
       const familyBonus = getFamilyBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS');
       familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
@@ -464,11 +502,11 @@ export const getCrystalCountdownSkills = () => {
 }
 
 export const getMaestroLeftHand = (character, skillName, characters, account) => {
-  const bestMaestro = getCharacterByHighestTalent(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING');
-  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', 'LEFT_HAND_OF_LEARNING', false, true);
-  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, 'Voidwalker', 'ENHANCEMENT_ECLIPSE');
+  const bestMaestro = getCharacterByHighestTalent(characters, 2, CLASSES.Maestro, 'LEFT_HAND_OF_LEARNING');
+  let leftHandOfLearningTalentBonus = getHighestTalentByClass(characters, 2, CLASSES.Maestro, 'LEFT_HAND_OF_LEARNING', false, true);
+  const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'ENHANCEMENT_ECLIPSE');
   const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
-  if (checkCharClass(character?.class, 'Maestro') && leftHandEnhancement) {
+  if (checkCharClass(character?.class, CLASSES.Maestro) && leftHandEnhancement) {
     leftHandOfLearningTalentBonus *= 2;
   }
   if (character?.skillsInfo?.[skillName]?.level > bestMaestro?.skillsInfo?.[skillName]?.level) {

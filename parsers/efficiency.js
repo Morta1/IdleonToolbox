@@ -3,6 +3,7 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getPostOfficeBonus } from '@parsers/postoffice';
 import {
+  CLASSES,
   getCharacterByHighestTalent,
   getHighestTalentByClass,
   getTalentBonus,
@@ -84,8 +85,8 @@ export const getAllBaseSkillEff = (character, account, characters, playerInfo) =
 }
 
 export const getAllEff = (character, characters, account) => {
-  const highestLevelHunter = getHighestLevelOfClass(account?.charactersLevels, 'Wind_Walker');
-  // const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Beast_Master', 'THE_FAMILY_GUY');
+  const highestLevelHunter = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Wind_Walker);
+  // const theFamilyGuy = getHighestTalentByClass(characters, 3, CLASSES.Beast_Master, 'THE_FAMILY_GUY');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   // const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
@@ -196,8 +197,8 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
 }
 
 const getMaestroRightHandBonus = (character, skillName, characters) => {
-  const maestroTalentBonus = getHighestTalentByClass(characters, 2, 'Maestro', 'RIGHT_HAND_OF_ACTION', null, true);
-  const bestMaestro = getCharacterByHighestTalent(characters, 2, 'Maestro', 'RIGHT_HAND_OF_ACTION', null, true);
+  const maestroTalentBonus = getHighestTalentByClass(characters, 2, CLASSES.Maestro, 'RIGHT_HAND_OF_ACTION', null, true);
+  const bestMaestro = getCharacterByHighestTalent(characters, 2, CLASSES.Maestro, 'RIGHT_HAND_OF_ACTION', null, true);
   if (character?.skillsInfo?.[skillName]?.level < bestMaestro?.skillsInfo?.[skillName]?.level) {
     return maestroTalentBonus
   }

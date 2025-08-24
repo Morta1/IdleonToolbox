@@ -8,7 +8,7 @@ import { getShinyBonus } from '@parsers/breeding';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { constructionMasteryThresholds } from '@parsers/construction';
 import { getArcadeBonus } from '@parsers/arcade';
-import { checkCharClass, getHighestTalentByClass } from '@parsers/talents';
+import { checkCharClass, CLASSES, getHighestTalentByClass } from '@parsers/talents';
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 
@@ -96,9 +96,9 @@ export const getRefineryCycleBonuses = (account, characters) => {
   }
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Refinery_Speed')?.bonus ?? 0;
   const divineKnightsLevels = charactersLevels?.filter((character) =>
-    checkCharClass(character?.class, 'Divine_Knight'))?.map(({ level }) => level);
+    checkCharClass(character?.class, CLASSES.Divine_Knight))?.map(({ level }) => level);
   const highestLevelDivineKnight = divineKnightsLevels?.length > 0 ? Math.max(...divineKnightsLevels) : 0;
-  const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Divine_Knight', 'THE_FAMILY_GUY')
+  const theFamilyGuy = getHighestTalentByClass(characters, 3, CLASSES.Divine_Knight, 'THE_FAMILY_GUY')
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const voteBonus = getVoteBonus(account, 33);
@@ -128,7 +128,7 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
-  const squires = characters?.filter((character) => checkCharClass(character?.class, 'Squire') || checkCharClass(character?.class, 'Divine_Knight'));
+  const squires = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Squire) || checkCharClass(character?.class, CLASSES.Divine_Knight));
   const squiresDataTemp = squires.reduce((res, character) => {
     const { name, talents, cooldowns, postOffice, afkTime } = character;
     const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);

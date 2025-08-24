@@ -4,7 +4,7 @@ import { getMealsBonusByEffectOrStat } from './cooking';
 import { getCardBonusByEffect } from './cards';
 import { isArenaBonusActive, isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getShinyBonus } from './breeding';
-import { checkCharClass, getHighestTalentByClass, getTalentBonus } from './talents';
+import { checkCharClass, CLASSES, getHighestTalentByClass, getTalentBonus } from './talents';
 import { getEquinoxBonus } from './equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
@@ -187,14 +187,14 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
 }
 
 export const isLabEnabledBySorcererRaw = (charData, godIndex) => {
-  if (classes?.[charData?.CharacterClass] === 'Elemental_Sorcerer') {
+  if (classes?.[charData?.CharacterClass] === CLASSES.Elemental_Sorcerer) {
     const polytheism = charData?.SkillLevels?.[505];
     return polytheism % 10 === godIndex;
   }
 }
 
 export const isGodEnabledBySorcerer = (character, godIndex) => {
-  if (checkCharClass(character?.class, 'Elemental_Sorcerer')) {
+  if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
     const polytheism = character.flatTalents?.find(({ talentId }) => talentId === 505);
     return polytheism?.level % 10 === godIndex;
   }
@@ -276,9 +276,9 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
   let purpleTubeBonus = 0;
   if (playerCords?.x >= buboPlayer?.x) {
     const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
-    const purpleTubeData = talents?.['Bubonic_Conjuror']?.['PURPLE_TUBE'] || {};
+    const purpleTubeData = talents?.[CLASSES.Bubonic_Conjuror]?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
-      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, 'Bubonic_Conjuror', 'PURPLE_TUBE', false, true)
+      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, CLASSES.Bubonic_Conjuror, 'PURPLE_TUBE', false, true)
     }
     else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;

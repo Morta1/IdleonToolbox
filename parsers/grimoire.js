@@ -1,6 +1,6 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '../data/website-data';
-import { getTalentBonus } from '@parsers/talents';
+import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
@@ -147,11 +147,11 @@ const getMonsterProgress = (monsterList, accountData, index) => {
 
 export const getWraithStats = (character, account) => {
   const { upgrades, totalUpgradeLevels } = account?.grimoire || {};
-  const bulwarkStyle = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'BULWARK_STYLE');
-  const wraithForm = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'WRAITH_FORM');
-  const marauderStyle = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'MARAUDER_STYLE');
-  const famineFishX = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'FAMINE_O\'_FISH');
-  const famineFishY = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'FAMINE_O\'_FISH', true);
+  const bulwarkStyle = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'BULWARK_STYLE');
+  const wraithForm = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'WRAITH_FORM');
+  const marauderStyle = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'MARAUDER_STYLE');
+  const famineFishX = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH');
+  const famineFishY = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH', true);
   const hp = (10 + (calcGrimoireBonus(upgrades, 3)
       + (calcGrimoireBonus(upgrades, 19)
         + (calcGrimoireBonus(upgrades, 34)
@@ -226,9 +226,9 @@ const getUpgradeCost = ({ index, level, x1, x2 }) => {
 
 const getExtraBonesBonus = (character, account) => {
   const { upgrades } = account?.grimoire || {};
-  const grimoire = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'GRIMOIRE');
-  const highestLevelDeathBringer = getTalentBonus(character?.talents, 'Death_Bringer');
-  const graveyardShift = getTalentBonus(character?.talents, 4, 'Death_Bringer', 'GRAVEYARD_SHIFT');
+  const grimoire = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'GRIMOIRE');
+  const highestLevelDeathBringer = getTalentBonus(character?.talents, CLASSES.Death_Bringer);
+  const graveyardShift = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'GRAVEYARD_SHIFT');
 
   const gearBonus = getStatsFromGear(highestLevelDeathBringer, 76, account);
   const emperorBonus = getEmperorBonus(account, 1);

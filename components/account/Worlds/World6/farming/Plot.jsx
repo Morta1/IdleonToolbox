@@ -8,7 +8,7 @@ import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import MenuItem from '@mui/material/MenuItem';
-import { getCharacterByHighestTalent } from '@parsers/talents';
+import { CLASSES, getCharacterByHighestTalent } from '@parsers/talents';
 import { getPlayerLabChipBonus } from '@parsers/lab';
 import useCheckbox from '@components/common/useCheckbox';
 
@@ -19,7 +19,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters }) => {
   const [NanoCheckboxEl, enableNano, setEnableNano] = useCheckbox('Force nano chip');
 
   useEffect(() => {
-    const highestMassIrrigation = getCharacterByHighestTalent(characters, 4, 'Death_Bringer', 'MASS_IRRIGATION');
+    const highestMassIrrigation = getCharacterByHighestTalent(characters, 4, CLASSES.Death_Bringer, 'MASS_IRRIGATION');
     setSelectedCharacter(highestMassIrrigation);
   }, [characters]);
 

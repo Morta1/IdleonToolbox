@@ -10,7 +10,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharacterByHighestSkillLevel } from '@parsers/misc';
-import { getTalentBonus } from '@parsers/talents';
+import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getArcadeBonus } from '@parsers/arcade';
 
 export const getBreeding = (idleonData, account, processedData) => {
@@ -426,7 +426,7 @@ export const calcShinyLvMulti = (account, characters) => {
 }
 
 export const getEggsPowerRange = (characters) => {
-  const highestBreedingBM = getCharacterByHighestSkillLevel(characters, 'Wind_Walker', 'breeding');
+  const highestBreedingBM = getCharacterByHighestSkillLevel(characters, CLASSES.Wind_Walker, 'breeding');
   const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level;
   const baseTalentBonus = getTalentBonus(highestBreedingBM?.talents, 3, 'CURVITURE_OF_THE_PAW');
   const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);

@@ -12,7 +12,7 @@ import Medallions from '@components/account/Misc/class-specific/Compass/Medallio
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/UpgradeOptimizer';
 import { getCompassStats, getExtraDust } from '@parsers/compass';
-import { checkCharClass } from '@parsers/talents';
+import { checkCharClass, CLASSES } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';
 
 const Compass = () => {
@@ -31,7 +31,7 @@ const Compass = () => {
     topOfTheMorninKills
   } = state?.account?.compass || {};
   const [selectedChar, setSelectedChar] = useState(0);
-  const windWalkers = state?.characters?.filter((character) => checkCharClass(character?.class, 'Wind_Walker'));
+  const windWalkers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
   const tempestStats = useMemo(() => getCompassStats(state?.characters?.[selectedChar], state?.account), [selectedChar]);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '../data/website-data';
-import { getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
+import { CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -181,7 +181,7 @@ export const getRingBaseStats = (itemQuality) => {
 }
 
 const getMaps = (unlockedPortals, mapBonusRaw, upgrades, characters) => {
-  const bestArcane = getCharacterByHighestTalent(characters, 4, 'Arcane_Cultist', 'OVERWHELMING_ENERGY');
+  const bestArcane = getCharacterByHighestTalent(characters, 4, CLASSES.Arcane_Cultist, 'OVERWHELMING_ENERGY');
   const overwhelmingEnergy = getTalentBonus(bestArcane?.talents, 4, 'OVERWHELMING_ENERGY');
 
   const maxMapBonus = 100 * (overwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
@@ -429,7 +429,7 @@ const getDescription = (description, bonus) => {
 }
 
 const getCrystalChargeReq = (characters, upgrades) => {
-  const bestArcane = getCharacterByHighestTalent(characters, 4, 'Arcane_Cultist', 'BACKUP_ENERGY', true);
+  const bestArcane = getCharacterByHighestTalent(characters, 4, CLASSES.Arcane_Cultist, 'BACKUP_ENERGY', true);
   const bestBackupEnergy = getTalentBonus(bestArcane?.talents, 4, 'BACKUP_ENERGY');
 
   return Math.ceil(Math.max(50, 200

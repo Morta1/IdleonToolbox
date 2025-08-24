@@ -10,7 +10,7 @@ import { getArcadeBonus } from './arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getPrismaMulti, getTesseractBonus } from '@parsers/tesseract';
-import { getHighestTalentByClass } from '@parsers/talents';
+import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
 
 export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
@@ -615,7 +615,7 @@ export const getNblbLevel = (acc, characters, isMin) => {
     level += 2;
   }
 
-  const tachyonTruth = getHighestTalentByClass(characters, 4, 'Arcane_Cultist', 'TACHYON_TRUTH');
+  const tachyonTruth = getHighestTalentByClass(characters, 4, CLASSES.Arcane_Cultist, 'TACHYON_TRUTH');
   if (tachyonTruth >= 1) {
     level += 3;
   }

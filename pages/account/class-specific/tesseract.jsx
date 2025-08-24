@@ -1,7 +1,7 @@
 import { NextSeo } from 'next-seo';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Divider, Select, Stack, Typography } from '@mui/material';
-import { checkCharClass } from '@parsers/talents';
+import { checkCharClass, CLASSES } from '@parsers/talents';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
@@ -22,7 +22,7 @@ const Tesseract = () => {
     tachyons
   } = state?.account?.tesseract || {};
   const [selectedChar, setSelectedChar] = useState(0);
-  const arcanists = state?.characters?.filter((character) => checkCharClass(character?.class, 'Arcane_Cultist'));
+  const arcanists = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Arcane_Cultist));
   const arcanistStats = useMemo(() => getArcanistStats(upgrades, totalUpgradeLevels, state?.characters?.[selectedChar], state?.account), [selectedChar]);
   const prismaFragmentChance = useMemo(() => {
     const dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);

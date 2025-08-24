@@ -8,7 +8,7 @@ import {
   randomList
 } from '../../data/website-data';
 import { getLabBonus } from "@parsers/lab";
-import { getHighestTalentByClass } from "@parsers/talents";
+import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -194,7 +194,7 @@ const getItemsMaxLevel = (
 const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus: number, characters: any[]) => {
   // TODO: This is not 100% accurate because lava calculates AddedLevels from the current character (in-game)
   //  rather than the talent owner AddedLevels
-  const talentBonus = getHighestTalentByClass(characters, 4, 'Wind_Walker', 'GENERATIONAL_GEMSTONES') ?? 0;
+  const talentBonus = getHighestTalentByClass(characters, 4, CLASSES.Wind_Walker, 'GENERATIONAL_GEMSTONES') ?? 0;
   return 5 === index
     ? gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))
     : (gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue)))

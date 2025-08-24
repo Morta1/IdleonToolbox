@@ -6,7 +6,7 @@ import {
   getHighestLevelOfClass,
   isMasteryBonusUnlocked
 } from './misc';
-import { getHighestTalentByClass, mainStatMap } from './talents';
+import { CLASSES, getHighestTalentByClass, mainStatMap } from './talents';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './alchemy';
 import { getCardBonusByEffect } from './cards';
 import { getStampsBonusByEffect } from './stamps';
@@ -197,8 +197,8 @@ const getRareTreasureChance = () => {
 const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, characters, charactersLevels, artifactsList, lootPileList) => {
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
-  const highestLevelSiegeBreaker = getHighestLevelOfClass(charactersLevels, 'Siege_Breaker') ?? 0;
-  const theFamilyGuy = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'THE_FAMILY_GUY') ?? 0;
+  const highestLevelSiegeBreaker = getHighestLevelOfClass(charactersLevels, CLASSES.Siege_Breaker) ?? 0;
+  const theFamilyGuy = getHighestTalentByClass(characters, 3, CLASSES.Siege_Breaker, 'THE_FAMILY_GUY') ?? 0;
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'FASTER_MINIMUM_BOAT_TRAVEL_TIME', highestLevelSiegeBreaker);
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Lower_Minimum_Travel_Time_for_Sailing');
   const amplifiedFamilyBonus = familyBonus * (1 + theFamilyGuy / 100);
@@ -398,7 +398,7 @@ const getFinalBoatLoot = ({
   return (5 + lootLevelMath * lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
 }
 const getBoatLootValue = (characters, account, artifactsList, boat, captain) => {
-  const unendingLootSearch = getHighestTalentByClass(characters, 3, 'Siege_Breaker', 'UNENDING_LOOT_SEARCH');
+  const unendingLootSearch = getHighestTalentByClass(characters, 3, CLASSES.Siege_Breaker, 'UNENDING_LOOT_SEARCH');
   const talentBonus = 1 + unendingLootSearch / 100;
   const nextBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)

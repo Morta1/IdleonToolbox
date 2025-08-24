@@ -15,7 +15,7 @@ import {
   rawMapNames,
   slab
 } from '../data/website-data';
-import { checkCharClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
@@ -528,10 +528,10 @@ export const getGiantMobChance = (character, account) => {
 }
 
 export const getGoldenFoodMulti = (character, account, characters) => {
-  const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, 'Bubonic_Conjuror') ?? getHighestLevelOfClass(account?.charactersLevels, 'Shaman') ?? 0;
+  const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Bubonic_Conjuror) ?? getHighestLevelOfClass(account?.charactersLevels, CLASSES.Shaman) ?? 0;
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
-  const isShaman = checkCharClass(character?.class, 'Shaman');
+  const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const toolGoldFoodBonus = getStatsFromGear(character, 8, account, true);
@@ -551,7 +551,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
   const voteBonus = getVoteBonus(account, 26);
   // select first death bringer
-  const deathBringer = characters?.find((character) => checkCharClass(character?.class, 'Death_Bringer'));
+  const deathBringer = characters?.find((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
   const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
@@ -1158,7 +1158,7 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
     return {
       monsters: monstersList.map((mapName) => monsters[mapEnemiesArray[rawMapNames.indexOf(mapName)]]),
       classes: classes.map((classIndex) => ({
-        className: classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage',
+        className: classIndex === 0 ? CLASSES.Beginner : classIndex === 1 ? CLASSES.Warrior : classIndex === 2 ? CLASSES.Archer : CLASSES.Mage,
         classIndex: classIndex === 0 ? 1 : classIndex === 1 ? 6 : classIndex === 2 ? 18 : 30
       })),
       date: Math.floor((baseSeed + iteration - 1) * 604800 * 1000)
@@ -1166,7 +1166,7 @@ export const getKillRoyClasses = (rooms, account, serverVars, ignoreSkipConditio
   }
 
   return classes.map((classIndex) => {
-    return classIndex === 0 ? 'Beginner' : classIndex === 1 ? 'Warrior' : classIndex === 2 ? 'Archer' : 'Mage'
+    return classIndex === 0 ? CLASSES.Beginner : classIndex === 1 ? CLASSES.Warrior : classIndex === 2 ? CLASSES.Archer : CLASSES.Mage
   });
 }
 

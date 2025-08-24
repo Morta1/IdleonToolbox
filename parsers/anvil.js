@@ -8,7 +8,7 @@ import {
 } from './misc';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import {
-  checkCharClass,
+  checkCharClass, CLASSES,
   getBubonicGreenTube,
   getHighestTalentByClass, getMaestroLeftHand,
   getTalentBonus,
@@ -177,7 +177,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   };
 
   const anvilnomicsBubbleBonus = getBubbleBonus(account, 'quicc', 'ANVILNOMICS');
-  const isArcher = checkCharClass(character?.class, 'Archer');
+  const isArcher = checkCharClass(character?.class, CLASSES.Archer);
   const archerMultiBubble = isArcher ? getBubbleBonus(account, 'quicc', 'ARCHER_OR_BUST') : 1;
   const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
   const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);

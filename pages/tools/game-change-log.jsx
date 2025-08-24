@@ -14,6 +14,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { cleanUnderscore } from '@utility/helpers';
+import { CLASSES } from '@parsers/talents';
 
 const CHANGELOG_FILES = [
   { label: '2.3.31 to 2.3.32', value: 'changes-2.3.31-to-2.3.32.json' },
@@ -57,7 +58,7 @@ const formatChange = (change) => {
     if (typeof change.old === 'object' && typeof change.new === 'object') {
       const allKeys = Array.from(new Set([...Object.keys(change.old), ...Object.keys(change.new)]));
 
-      if (change.key === 'Wind_Walker') {
+      if (change.key === CLASSES.Wind_Walker) {
       }
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>

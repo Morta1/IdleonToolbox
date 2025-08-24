@@ -136,8 +136,8 @@ export const getClosestWorshiper = (characters) => {
 export const getChargeWithSyphon = (characters) => {
   const totalCharge = characters?.reduce((res, { worship }) => res + (worship?.currentCharge || 0), 0);
   const totalChargeRate = characters?.reduce((res, { worship }) => res + (worship?.chargeRate || 0), 0);
-  const bestChargeSyphon = getHighestTalentByClass(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y') || 0;
-  const bestWizard = getCharacterByHighestTalent(characters, 2, 'Wizard', 'CHARGE_SYPHON', 'y');
+  const bestChargeSyphon = getHighestTalentByClass(characters, 2, CLASSES.Wizard, 'CHARGE_SYPHON', 'y') || 0;
+  const bestWizard = getCharacterByHighestTalent(characters, 2, CLASSES.Wizard, 'CHARGE_SYPHON', 'y');
 
   return {
     bestWizard,

@@ -9,7 +9,7 @@ import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getBubbleBonus, getVialsBonusByStat } from '@parsers/alchemy';
-import { getHighestTalentByClass } from '@parsers/talents';
+import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
@@ -152,7 +152,7 @@ export const getBitsMulti = (account, characters) => {
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits', blackDiamondRhinestone);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
-  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, 3, 'Divine_Knight', 'BITTY_LITTY') ?? 0;
+  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, 3, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1 });

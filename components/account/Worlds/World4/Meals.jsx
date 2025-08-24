@@ -62,7 +62,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const noMealLeftBehindArray = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel, true), [meals, mealMaxLevel]);
 
   const getHighestOverflowingLadle = () => {
-    const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class,'Blood_Berserker'));
+    const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Blood_Berserker));
     return bloodBerserkers?.reduce((res, { talents, name }) => {
       const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
       const lv = overflowingLadle?.level > overflowingLadle?.maxLevel

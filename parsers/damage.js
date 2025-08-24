@@ -1,5 +1,5 @@
 import {
-  checkCharClass,
+  checkCharClass, CLASSES,
   getHighestTalentByClass,
   getTalentBonus,
   getTalentBonusIfActive,
@@ -125,17 +125,17 @@ const getDamagePercent = (character, characters, account) => {
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_Damage');
   const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
-  const godTalent = getHighestTalentByClass(characters, 3, 'Elemental_Sorcerer', 'GODS_CHOSEN_CHILDREN', false, true);
-  const orbTalent = getHighestTalentByClass(characters, 3, 'Voidwalker', 'POWER_ORB');
+  const godTalent = getHighestTalentByClass(characters, 3, CLASSES.Elemental_Sorcerer, 'GODS_CHOSEN_CHILDREN', false, true);
+  const orbTalent = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'POWER_ORB');
   const shrineBonus = getShrineBonus(account?.shrines, 0, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Deaths_Storage_Unit', 2);
   const secondPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Scurvy_C\'arr\'ate', 2);
   const thirdPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Gaming_Lootcrate', 2);
 
-  const highestLevelBb = getHighestLevelOf(characters, 'Blood_Berserker')
+  const highestLevelBb = getHighestLevelOf(characters, CLASSES.Blood_Berserker)
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY')
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DAMAGE', highestLevelBb);
-  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class,'Blood_Berserker') && theFamilyGuy > 0
+  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class,CLASSES.Blood_Berserker) && theFamilyGuy > 0
     ? (1 + theFamilyGuy / 100)
     : 1)
   const firstArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Crystal_Steak');
@@ -477,10 +477,10 @@ const getMaxHp = (character, characters, account) => {
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_HP');
 
-  const highestLevelSquire = getHighestLevelOf(characters, 'Squire')
+  const highestLevelSquire = getHighestLevelOf(characters, CLASSES.Squire)
   const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY')
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_HP', highestLevelSquire);
-  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class, 'Squire') && character?.level === highestLevelSquire && theFamilyGuy > 0
+  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class, CLASSES.Squire) && character?.level === highestLevelSquire && theFamilyGuy > 0
     ? (1 + theFamilyGuy / 100)
     : 1)
 
@@ -531,7 +531,7 @@ const getWeaponPower = (character, characters, account) => {
     ? getBubbleBonus(account, 'high-iq', 'WAND_PAWUR', false, mainStat === 'wisdom')
     : 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'WeaponPOW');
-  const highestLevelBarbarian = getHighestLevelOf(characters, 'Barbarian')
+  const highestLevelBarbarian = getHighestLevelOf(characters, CLASSES.Barbarian)
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'WEAPON_POWER', highestLevelBarbarian);
   const starSignBonus = getStarSignBonus(character, account, 'Weapon_Power');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Weapon_Power')?.bonus;
@@ -543,7 +543,7 @@ const getWeaponPower = (character, characters, account) => {
   const wpPerLabTalentBonus = getTalentBonus(character?.talents, 3, 'WIRED_IN_POWER');
 
   const firstStoredPet = account?.breeding?.storedPets?.[0]?.power ?? 0;
-  const highestBeginner = getHighestLevelOf(characters, 'Beginner');
+  const highestBeginner = getHighestLevelOf(characters, CLASSES.Beginner);
   const beginnerBonus = getTalentBonus(character?.starTalents, null, 'BEGINNER_BEST_CLASS');
   const bestBeginnerBonus = Math.min(beginnerBonus, Math.floor(highestBeginner / 10));
   const wpFromFood = getFoodBonus(character, account, 'WeaponPowerBoosts');
@@ -901,7 +901,7 @@ const getMultiKillTotal = (character, characters, account, playerInfo) => {
   const deathNoteRank = account?.deathNote?.[Math.floor(character?.mapIndex / 50)]?.rank || 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'Overkill');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS');
-  const voidTalentBonus = getHighestTalentByClass(characters, 3, 'Voidwalker', 'MASTER_OF_THE_SYSTEM');
+  const voidTalentBonus = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'MASTER_OF_THE_SYSTEM');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Multikill_per_Tier')?.bonus ?? 0;
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Trilobite_Rock')?.bonus ?? 0;
   const secondActiveBuff = getTalentBonusIfActive(character?.activeBuffs, 'MANA_IS_LIFE', 'y');

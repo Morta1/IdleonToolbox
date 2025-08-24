@@ -1,6 +1,6 @@
 import { tryToParse } from '../utility/helpers';
 import { statues } from '../data/website-data';
-import { getHighestTalentByClass, getTalentBonus } from './talents';
+import { CLASSES, getHighestTalentByClass, getTalentBonus } from './talents';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getEventShopBonus } from '@parsers/misc';
@@ -40,7 +40,7 @@ const getHighestLevelStatues = (characters, statueIndex) => {
 };
 
 export const applyStatuesMulti = (account, characters) => {
-  const voodoStatusification = getHighestTalentByClass(characters, 3, 'Voidwalker', 'VOODOO_STATUFICATION');
+  const voodoStatusification = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'VOODOO_STATUFICATION');
   const talentMulti = 1 + voodoStatusification / 100;
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
   const eventBonus = getEventShopBonus(account, 19) ?? 0;

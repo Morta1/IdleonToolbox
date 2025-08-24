@@ -7,7 +7,7 @@ import Tooltip from '../../../components/Tooltip';
 import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '../../../parsers/lab';
 import { NextSeo } from 'next-seo';
-import { getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
+import { CLASSES, getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
 import { getAtomColliderThreshold } from '../../../parsers/atomCollider';
 import { calcTotals } from '../../../parsers/printer';
 
@@ -19,8 +19,8 @@ const Printer = () => {
   const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
   const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
-  const highestBrr = getCharacterByHighestTalent(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
-  const highestMaxLevelBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, 'Maestro', 'PRINTER_GO_BRRR');
+  const highestBrr = getCharacterByHighestTalent(state?.characters, 2, CLASSES.Maestro, 'PRINTER_GO_BRRR');
+  const highestMaxLevelBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, CLASSES.Maestro, 'PRINTER_GO_BRRR');
 
   return <>
     <NextSeo

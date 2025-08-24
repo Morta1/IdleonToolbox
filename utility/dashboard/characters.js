@@ -3,7 +3,7 @@ import { getPostOfficeBonus } from '../../parsers/postoffice';
 import { items, randomList } from '../../data/website-data';
 import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '../../parsers/anvil';
-import { checkCharClass, getTalentBonus, relevantTalents } from '../../parsers/talents';
+import { checkCharClass, CLASSES, getTalentBonus, relevantTalents } from '../../parsers/talents';
 import { getAllTools } from '../../parsers/items';
 import { cleanUnderscore } from '@utility/helpers';
 
@@ -166,7 +166,7 @@ export const isTalentReady = (character, options) => {
   }, []);
 }
 export const crystalCooldownSkillsReady = (character, options) => {
-  if (checkCharClass(character?.class, 'Maestro')) {
+  if (checkCharClass(character?.class, CLASSES.Maestro)) {
     return Object.entries(character?.skillsInfo || {})?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character' && options?.crystalCountdown?.skills?.props?.value?.[data?.icon]) {
         const crystalCountdown = getTalentBonus(character?.talents, 2, 'CRYSTAL_COUNTDOWN', null, null, character.addedLevels, true);
@@ -236,7 +236,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
   if (options?.cards?.cardSet?.checked) {
     const equippedCardSet = character?.cards?.cardSet;
     const cardSetEffect = cleanUnderscore(equippedCardSet?.effect).replace('{', '');
-    const dbWithWraith = checkCharClass(character?.class, 'Death_Bringer') && character?.activeBuffs?.find(({ name }) => name === 'WRAITH_FORM') !== -1;
+    const dbWithWraith = checkCharClass(character?.class, CLASSES.Death_Bringer) && character?.activeBuffs?.find(({ name }) => name === 'WRAITH_FORM') !== -1;
     if (character?.level >= 50 && equippedCardSet?.rawName === 'CardSet0') {
       alerts.cardSet = {
         text: `${character.name} has Blunder hill card set equipped which is for level < 50`

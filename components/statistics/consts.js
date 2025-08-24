@@ -4,7 +4,7 @@ import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '../../data/website-data';
 import { worldColor } from '../../pages/account/world-3/death-note';
 import { altStampsMapping, stampsMapping } from '@parsers/stamps';
-import { getBaseClass } from '@parsers/talents';
+import { CLASSES, getBaseClass } from '@parsers/talents';
 
 export const nivoTheme = {
   background: 'transparent',
@@ -209,10 +209,10 @@ export const getVisualizationMap = (classes) => ({
       colors: [worldColor?.[2], worldColor?.[4], worldColor?.[0], worldColor?.[3]],
       legends: [{
         data: [
-          { label: 'Beginner', color: worldColor?.[2] },
-          { label: 'Warrior', color: worldColor?.[4] },
-          { label: 'Archer', color: worldColor?.[0] },
-          { label: 'Mage', color: worldColor?.[3] }
+          { label: CLASSES.Beginner, color: worldColor?.[2] },
+          { label: CLASSES.Warrior, color: worldColor?.[4] },
+          { label: CLASSES.Archer, color: worldColor?.[0] },
+          { label: CLASSES.Mage, color: worldColor?.[3] }
         ],
         anchor: 'bottom-right',
         direction: 'column',
@@ -224,7 +224,7 @@ export const getVisualizationMap = (classes) => ({
       }]
 
     },
-    keys: ['Beginner', 'Warrior', 'Archer', 'Mage'],
+    keys: [CLASSES.Beginner, CLASSES.Warrior, CLASSES.Archer, CLASSES.Mage],
     getData: (raw) => {
       const slotMap = new Map();
 
