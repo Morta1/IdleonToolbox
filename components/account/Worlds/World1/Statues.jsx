@@ -39,8 +39,8 @@ const StatueTooltip = ({ effect, talentMulti, name, rawName, progress, statues, 
       Statufication: {notateNumber(talentMulti, 'MultiplierInfo')}x</Typography>
     <Divider sx={{ my: 1 }}/>
     <Stack>
-      {characters?.map(({ name: cName, talents }) => {
-        const bonus = getStatueBonus(statues, rawName, talents);
+      {characters?.map(({ name: cName, flatTalents }) => {
+        const bonus = getStatueBonus(statues, rawName, flatTalents);
         return <TitleAndValue key={cName} title={cName} value={Math.floor(10 * bonus) / 10}/>
       })}
     </Stack>

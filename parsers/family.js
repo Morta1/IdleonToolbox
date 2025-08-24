@@ -17,7 +17,7 @@ export const getUpdatedFamilyBonus = (character, charactersLevels) => {
   const highestLevelElementalSorc = getHighestLevelOfClass(charactersLevels, CLASSES.Elemental_Sorcerer, true);
   let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1', highestLevelElementalSorc);
   if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
-    familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
+    familyEffBonus *= (1 + getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY') / 100);
     const familyBonus = getFamilyBonus(classFamilyBonuses, 'LV_FOR_ALL_TALENTS_ABOVE_LV_1');
     familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
   }

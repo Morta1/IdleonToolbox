@@ -105,8 +105,8 @@ export const getPrinterMulti = (accountData, charactersData) => {
   const daysSinceLastSample = accountData?.accountOptions?.[125];
   const orbOfRemembranceKills = accountData?.accountOptions?.[138];
   const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, CLASSES.Divine_Knight));
-  const highestKingOfRemembrance = divineKnights?.reduce((res, { talents, addedLevels }) => {
-    const kingOfRemembrance = getTalentBonus(talents, 3, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
+  const highestKingOfRemembrance = divineKnights?.reduce((res, { flatTalents, addedLevels }) => {
+    const kingOfRemembrance = getTalentBonus(flatTalents, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
     if (kingOfRemembrance > res) {
       return kingOfRemembrance
     }

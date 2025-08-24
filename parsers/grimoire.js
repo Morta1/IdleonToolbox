@@ -147,11 +147,11 @@ const getMonsterProgress = (monsterList, accountData, index) => {
 
 export const getWraithStats = (character, account) => {
   const { upgrades, totalUpgradeLevels } = account?.grimoire || {};
-  const bulwarkStyle = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'BULWARK_STYLE');
-  const wraithForm = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'WRAITH_FORM');
-  const marauderStyle = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'MARAUDER_STYLE');
-  const famineFishX = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH');
-  const famineFishY = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH', true);
+  const bulwarkStyle = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'BULWARK_STYLE');
+  const wraithForm = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'WRAITH_FORM');
+  const marauderStyle = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'MARAUDER_STYLE');
+  const famineFishX = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH');
+  const famineFishY = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'FAMINE_O\'_FISH', true);
   const hp = (10 + (calcGrimoireBonus(upgrades, 3)
       + (calcGrimoireBonus(upgrades, 19)
         + (calcGrimoireBonus(upgrades, 34)
@@ -226,9 +226,9 @@ const getUpgradeCost = ({ index, level, x1, x2 }) => {
 
 const getExtraBonesBonus = (character, account) => {
   const { upgrades } = account?.grimoire || {};
-  const grimoire = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'GRIMOIRE');
-  const highestLevelDeathBringer = getTalentBonus(character?.talents, CLASSES.Death_Bringer);
-  const graveyardShift = getTalentBonus(character?.talents, 4, CLASSES.Death_Bringer, 'GRAVEYARD_SHIFT');
+  const grimoire = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRIMOIRE');
+  const highestLevelDeathBringer = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer);
+  const graveyardShift = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRAVEYARD_SHIFT');
 
   const gearBonus = getStatsFromGear(highestLevelDeathBringer, 76, account);
   const emperorBonus = getEmperorBonus(account, 1);

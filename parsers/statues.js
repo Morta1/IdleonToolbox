@@ -40,7 +40,7 @@ const getHighestLevelStatues = (characters, statueIndex) => {
 };
 
 export const applyStatuesMulti = (account, characters) => {
-  const voodoStatusification = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'VOODOO_STATUFICATION');
+  const voodoStatusification = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'VOODOO_STATUFICATION');
   const talentMulti = 1 + voodoStatusification / 100;
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
   const eventBonus = getEventShopBonus(account, 19) ?? 0;
@@ -70,39 +70,39 @@ export const getStatueBonus = (statues, statueName, talents) => {
   switch (statue?.name) {
     case 'POWER':
     case 'MINING':
-      talentBonus += (getTalentBonus(talents, 2, 'SHIELDIEST_STATUES') || getTalentBonus(talents, 2, 'STRONGEST_STATUES')) / 100;
+      talentBonus += (getTalentBonus(talents, 'SHIELDIEST_STATUES') || getTalentBonus(talents, 'STRONGEST_STATUES')) / 100;
       break;
     case 'OCEANMAN':
-      talentBonus += getTalentBonus(talents, 2, 'STRONGEST_STATUES') / 100;
+      talentBonus += getTalentBonus(talents, 'STRONGEST_STATUES') / 100;
       break;
     case 'DEFENCE':
     case 'THICC_SKIN':
-      talentBonus += getTalentBonus(talents, 2, 'SHIELDIEST_STATUES') / 100;
+      talentBonus += getTalentBonus(talents, 'SHIELDIEST_STATUES') / 100;
       break;
     case 'SPEED':
     case 'ANVIL':
-      talentBonus += (getTalentBonus(talents, 2, 'STRAIGHTSHOT_STATUES') || getTalentBonus(talents, 2, 'SHWIFTY_STATUES')) / 100;
+      talentBonus += (getTalentBonus(talents, 'STRAIGHTSHOT_STATUES') || getTalentBonus(talents, 'SHWIFTY_STATUES')) / 100;
       break;
     case 'BULLSEYE':
-      talentBonus += getTalentBonus(talents, 2, 'STRAIGHTSHOT_STATUES') / 100;
+      talentBonus += getTalentBonus(talents, 'STRAIGHTSHOT_STATUES') / 100;
       break;
     case 'OL_RELIABLE':
-      talentBonus += getTalentBonus(talents, 2, 'SHWIFTY_STATUES') / 100;
+      talentBonus += getTalentBonus(talents, 'SHWIFTY_STATUES') / 100;
       break;
     case 'EXP':
     case 'LUMBERBOB':
-      talentBonus += (getTalentBonus(talents, 2, 'STARING_STATUES') || getTalentBonus(talents, 2, 'STUPENDOUS_STATUES')) / 100;
+      talentBonus += (getTalentBonus(talents, 'STARING_STATUES') || getTalentBonus(talents, 'STUPENDOUS_STATUES')) / 100;
       break;
     case 'BEHOLDER':
-      talentBonus += getTalentBonus(talents, 2, 'STARING_STATUES') / 100;
+      talentBonus += getTalentBonus(talents, 'STARING_STATUES') / 100;
       break;
     case 'CAULDRON':
-      talentBonus += getTalentBonus(talents, 2, 'STUPENDOUS_STATUES') / 100;
+      talentBonus += getTalentBonus(talents, 'STUPENDOUS_STATUES') / 100;
       break;
     case 'EHEXPEE':
     case 'KACHOW':
     case 'FEASTY':
-      talentBonus += getTalentBonus(talents, 2, 'SKILLIEST_STATUE') / 100;
+      talentBonus += getTalentBonus(talents, 'SKILLIEST_STATUE') / 100;
       break;
     default:
       talentBonus = 1;

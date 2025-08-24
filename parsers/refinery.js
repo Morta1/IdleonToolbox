@@ -98,7 +98,7 @@ export const getRefineryCycleBonuses = (account, characters) => {
   const divineKnightsLevels = charactersLevels?.filter((character) =>
     checkCharClass(character?.class, CLASSES.Divine_Knight))?.map(({ level }) => level);
   const highestLevelDivineKnight = divineKnightsLevels?.length > 0 ? Math.max(...divineKnightsLevels) : 0;
-  const theFamilyGuy = getHighestTalentByClass(characters, 3, CLASSES.Divine_Knight, 'THE_FAMILY_GUY')
+  const theFamilyGuy = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'THE_FAMILY_GUY')
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const voteBonus = getVoteBonus(account, 33);

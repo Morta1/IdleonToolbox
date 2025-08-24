@@ -278,7 +278,7 @@ export const getPlayerLineWidth = (playerCords, labLevel, soupedTube, labBonuses
     const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
     const purpleTubeData = talents?.[CLASSES.Bubonic_Conjuror]?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
-      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, 3, CLASSES.Bubonic_Conjuror, 'PURPLE_TUBE', false, true)
+      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, CLASSES.Bubonic_Conjuror, 'PURPLE_TUBE', false, true)
     }
     else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
@@ -349,9 +349,9 @@ export const getRequirementAmount = (name, rawName, account) => {
 
 export const getLabEfficiency = (character, characters, account, playerInfo) => {
   const allEfficiencies = getAllEff(character, characters, account);
-  const talentBonus = getTalentBonus(character?.talents, 3, 'SKILL_WIZ');
-  const talentBonus2 = getTalentBonus(character?.talents, 3, 'UPLOAD_SQUARED');
-  const talentBonus3 = getTalentBonus(character?.talents, 0, 'SMART_EFFICIENCY');
+  const talentBonus = getTalentBonus(character?.flatTalents, 'SKILL_WIZ');
+  const talentBonus2 = getTalentBonus(character?.flatTalents, 'UPLOAD_SQUARED');
+  const talentBonus3 = getTalentBonus(character?.flatTalents, 'SMART_EFFICIENCY');
   const equipBonus = getStatsFromGear(character, 63, account);
   const equipBonus2 = getStatsFromGear(character, 66, account);
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);

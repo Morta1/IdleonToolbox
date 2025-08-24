@@ -222,7 +222,7 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   if (!stamp) return 0;
   let toiletPaperPostage = 1, charmBonus = 0;
   if (stamp?.stat?.includes('Eff')) {
-    toiletPaperPostage = getTalentBonus(character?.starTalents, null, 'TOILET_PAPER_POSTAGE')
+    toiletPaperPostage = getTalentBonus(character?.flatStarTalents, 'TOILET_PAPER_POSTAGE')
   }
   if (stampTree !== 'misc') {
     charmBonus = getCharmBonus(account, 'Liqorice_Rolle')

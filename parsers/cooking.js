@@ -135,12 +135,12 @@ export const getLadlesPerDay = (character, jewels, stamps, meals, playerChips, c
 
 export const getCookingEff = (character, characters, account, playerInfo) => {
   const allEfficiencies = getAllEff(character, characters, account);
-  const talentBonus = getTalentBonus(character?.talents, 3, 'APOCALYPSE_CHOW');
+  const talentBonus = getTalentBonus(character?.flatTalents, 'APOCALYPSE_CHOW');
   const chows = character?.chow?.finished?.[0] ?? 1;
-  const talentBonus2 = getTalentBonus(character?.talents, 0, 'BRUTE_EFFICIENCY');
+  const talentBonus2 = getTalentBonus(character?.flatTalents, 'BRUTE_EFFICIENCY');
   const equipBonus = getStatsFromGear(character, 67, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[67]);
-  const talentBonus3 = getTalentBonus(character?.talents, 3, 'SKILL_STRENGTHEN');
+  const talentBonus3 = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
   const stampBonus = getStampsBonusByEffect(account, 'Cooking_Efficiency', character);
   const equipBonus2 = getStatsFromGear(character, 62, account);
   const obolsBonus2 = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[62]);
@@ -263,8 +263,8 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       superbitBonus = superbit?.bonus;
     }
 
-    const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'ENHANCEMENT_ECLIPSE');
-    const voidWalkerBloodMarrow = getHighestTalentByClass(characters, 3, CLASSES.Voidwalker, 'BLOOD_MARROW');
+    const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'ENHANCEMENT_ECLIPSE');
+    const voidWalkerBloodMarrow = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'BLOOD_MARROW');
     const voidWalkerBonusTalent = Math.pow(Math.min(1.012, 1 + voidWalkerBloodMarrow / 100), totalMeals);
     const voidWalkerEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 146);
     const voidWalkerApocalypseBonus = Math.max(1, voidWalkerEnhancement);

@@ -1,36 +1,12 @@
 import { anvilProducts, anvilUpgradeCost, items } from '../data/website-data';
-import {
-  getGoldenFoodBonus,
-  getSkillMasteryBonusByIndex,
-  getSpeedBonusFromAgility,
-  isCompanionBonusActive,
-  isMasteryBonusUnlocked
-} from './misc';
+import { getSpeedBonusFromAgility, isMasteryBonusUnlocked } from './misc';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
-import {
-  checkCharClass, CLASSES,
-  getBubonicGreenTube,
-  getHighestTalentByClass, getMaestroLeftHand,
-  getTalentBonus,
-  getTalentBonusIfActive,
-  getVoidWalkerTalentEnhancements
-} from './talents';
+import { checkCharClass, CLASSES, getMaestroHand, getTalentBonus } from './talents';
 import { getStarSignBonus } from './starSigns';
-import { getCardBonusByEffect, getEquippedCardBonus } from './cards';
-import { getStatsFromGear } from './items';
+import { getCardBonusByEffect } from './cards';
 import { getStampBonus, getStampsBonusByEffect } from './stamps';
-import { getShrineBonus } from './shrines';
 import { getStatueBonus } from './statues';
-import { getPrayerBonusAndCurse } from './prayers';
-import { getSaltLickBonus } from './saltLick';
-import { getDungeonStatBonus } from './dungeons';
 import { getPostOfficeBonus } from './postoffice';
-import { getDeityLinkedIndex, getGodByIndex } from './divinity';
-import { getAchievementStatus } from './achievements';
-import { getShinyBonus } from './breeding';
-import { isSuperbitUnlocked } from './gaming';
-import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getAllSkillsExp } from '@parsers/character';
 
@@ -101,7 +77,7 @@ export const getAnvilExp = (xpPoints, smithingExpMulti) => {
 
 export const getAnvil = (char, character) => {
   const anvilProduction = char?.[`AnvilPA`];
-  const basePointsFromAcme = getTalentBonus(character?.talents, 1, 'ACME_ANVIL');
+  const basePointsFromAcme = getTalentBonus(character?.flatTalents, 'ACME_ANVIL');
   let pointsFromAcme = 0;
   if (basePointsFromAcme) {
     pointsFromAcme = char?.['SkillLevels']?.[281] + basePointsFromAcme * Math.floor(character?.skillsInfo?.smithing?.level / 10);
@@ -197,9 +173,9 @@ export const getPlayerAnvil = (character, characters, account) => {
   const anvilZoomerBonus = getStampBonus(account, 'skills', 'StampB3', character);
   const blackSmithBoxBonus1 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 1);
   const hammerHammerBonus = getActiveBubbleBonus(character?.equippedBubbles, 'quicc', 'HAMMER_HAMMER', account);
-  const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.talents);
+  const anvilStatueBonus = getStatueBonus(account?.statues, 'StatueG12', character?.flatTalents);
   const bobBuildGuyStarSign = getStarSignBonus(character, account, 'Speed_in_Town');
-  const talentTownSpeedBonus = getTalentBonus(character?.talents, 0, 'BROKEN_TIME');
+  const talentTownSpeedBonus = getTalentBonus(character?.flatTalents, 'BROKEN_TIME');
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 24);
   stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus, upgradeVaultBonus);
 
@@ -218,14 +194,13 @@ export const getPlayerAnvil = (character, characters, account) => {
 }
 
 export const calcAnvilExp = (character, characters, account, anvilExp, xpPoints) => {
-  const focusedSoulTalentBonus = getTalentBonus(character?.talents, 1, 'FOCUSED_SOUL');
-  const happyDudeTalentBonus = getTalentBonus(character?.talents, 0, 'HAPPY_DUDE');
+  const focusedSoulTalentBonus = getTalentBonus(character?.flatTalents, 'FOCUSED_SOUL');
+  const happyDudeTalentBonus = getTalentBonus(character?.flatTalents, 'HAPPY_DUDE');
   const smithingCards = getCardBonusByEffect(account?.cards, 'Smithing_EXP_(Passive)');
   const blackSmithBoxBonus0 = getPostOfficeBonus(character?.postOffice, 'Blacksmith_Box', 0);
   const stampBonus = getStampsBonusByEffect(account, 'SmithExp', character);
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.smithing?.rank, 0);
-  const leftHandTalentBonus = getMaestroLeftHand(character, 'smithing', characters, account);
-
+  const leftHandTalentBonus = getMaestroHand(character, 'smithing', characters, account, 'LEFT_HAND_OF_LEARNING');
 
   // "SmithingEXPmulti" == e
   const smithingExpMulti = Math.max(0.1, (1 +
@@ -248,7 +223,7 @@ export const getTimeTillCap = ({
                                  requiredAmount,
                                  afkTime,
                                  stats,
-                                 fromZero = false,
+                                 fromZero = false
                                }) => {
   const productionRate = (stats?.anvilSpeed / 3600 / requiredAmount) * (hammers ?? 0);
 
@@ -276,7 +251,8 @@ export const calcTotals = (account, characters) => {
       const perHour = Math.min(stats?.anvilSpeed * hammers / requiredAmount, stats?.anvilCapacity);
       if (result?.[rawName]) {
         result[rawName] += perHour;
-      } else {
+      }
+      else {
         result[rawName] = perHour
       }
     })

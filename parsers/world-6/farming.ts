@@ -69,7 +69,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
   const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
   const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
-  const apocalypseWow = getHighestTalentByClass(charactersData, 4, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
+  const apocalypseWow = getHighestTalentByClass(charactersData, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
   const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
     const name = names?.[index];
     const base = bases?.[index];
@@ -411,7 +411,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   const marketBonus2 = getMarketBonus(account?.farming?.market, "EVOLUTION_GMO");
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.farming?.rank, 1);
   const starSignBonus = getStarSignBonus(character, account, 'Crop_Evo', forceStarSign);
-  const talentBonus = getTalentBonus(character?.talents, 4, 'MASS_IRRIGATION'); // Death Bringer
+  const talentBonus = getTalentBonus(character?.flatTalents, 'MASS_IRRIGATION'); // Death Bringer
   const voteBonus = getVoteBonus(account, 29);
 
   let value = (1 + marketBonus1 / 100)

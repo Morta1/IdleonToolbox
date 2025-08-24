@@ -529,14 +529,14 @@ export const getGiantMobChance = (character, account) => {
 
 export const getGoldenFoodMulti = (character, account, characters) => {
   const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Bubonic_Conjuror) ?? getHighestLevelOfClass(account?.charactersLevels, CLASSES.Shaman) ?? 0;
-  const theFamilyGuy = getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY');
+  const theFamilyGuy = getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
   const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const toolGoldFoodBonus = getStatsFromGear(character, 8, account, true);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
-  const hungryForGoldTalentBonus = getTalentBonus(character?.talents, 1, 'HAUNGRY_FOR_GOLD');
+  const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
   const goldenFoodBubbleBonus = getBubbleBonus(account, 'power', 'SHIMMERON', false, mainStatMap?.[character?.class] === 'strength');
@@ -552,7 +552,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const voteBonus = getVoteBonus(account, 26);
   // select first death bringer
   const deathBringer = characters?.find((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
-  const apocalypseWow = getTalentBonus(deathBringer?.talents, 4, 'APOCALYPSE_WOW');
+  const apocalypseWow = getTalentBonus(deathBringer?.flatTalents, 'APOCALYPSE_WOW');
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
 
@@ -683,7 +683,7 @@ export const getHighestCapacityCharacter = (item, characters, account, forceMaxC
 }
 export const getAllCap = (character, account, forceMaxCapacity) => {
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
-  const talentBonus = getTalentBonus(character?.starTalents, null, 'TELEKINETIC_STORAGE');
+  const talentBonus = getTalentBonus(character?.flatStarTalents, 'TELEKINETIC_STORAGE');
   const shrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const prayerCurse = forceMaxCapacity
     ? 0
@@ -717,7 +717,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
   const catchCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Catching_Items', character);
   const matCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', character);
   const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
-  const talentBonus = getTalentBonus(character?.talents, 0, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
+  const talentBonus = getTalentBonus(character?.flatTalents, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 17);
   const allCap = getAllCap(character, account, forceMaxCapacity);
   // return Math.floor((v._customBlock_MaxCapacity("AllCapBASE")

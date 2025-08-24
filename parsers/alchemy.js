@@ -615,7 +615,7 @@ export const getNblbLevel = (acc, characters, isMin) => {
     level += 2;
   }
 
-  const tachyonTruth = getHighestTalentByClass(characters, 4, CLASSES.Arcane_Cultist, 'TACHYON_TRUTH');
+  const tachyonTruth = getHighestTalentByClass(characters, CLASSES.Arcane_Cultist, 'TACHYON_TRUTH');
   if (tachyonTruth >= 1) {
     level += 3;
   }

@@ -194,7 +194,7 @@ const getItemsMaxLevel = (
 const getGemstoneBonus: any = (gemstone: any, index: number, fifthGemstoneBonus: number, characters: any[]) => {
   // TODO: This is not 100% accurate because lava calculates AddedLevels from the current character (in-game)
   //  rather than the talent owner AddedLevels
-  const talentBonus = getHighestTalentByClass(characters, 4, CLASSES.Wind_Walker, 'GENERATIONAL_GEMSTONES') ?? 0;
+  const talentBonus = getHighestTalentByClass(characters, CLASSES.Wind_Walker, 'GENERATIONAL_GEMSTONES') ?? 0;
   return 5 === index
     ? gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))
     : (gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue)))

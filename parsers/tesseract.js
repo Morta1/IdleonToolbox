@@ -181,8 +181,8 @@ export const getRingBaseStats = (itemQuality) => {
 }
 
 const getMaps = (unlockedPortals, mapBonusRaw, upgrades, characters) => {
-  const bestArcane = getCharacterByHighestTalent(characters, 4, CLASSES.Arcane_Cultist, 'OVERWHELMING_ENERGY');
-  const overwhelmingEnergy = getTalentBonus(bestArcane?.talents, 4, 'OVERWHELMING_ENERGY');
+  const bestArcane = getCharacterByHighestTalent(characters, CLASSES.Arcane_Cultist, 'OVERWHELMING_ENERGY');
+  const overwhelmingEnergy = getTalentBonus(bestArcane?.flatTalents, 'OVERWHELMING_ENERGY');
 
   const maxMapBonus = 100 * (overwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
   return getFilteredPortals()?.map(({ mapIndex, mapName }) => {
@@ -310,14 +310,14 @@ export const getTachyonType = (index) => {
 
 export const getExtraTachyon = (character, account) => {
   const upgrades = account?.tesseract?.upgrades;
-  const tesseract = getTalentBonus(character?.talents, 4, 'TESSERACT');
+  const tesseract = getTalentBonus(character?.flatTalents, 'TESSERACT');
   const equipBonus = getStatsFromGear(character, 95, account);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcane_Tachyons')?.bonus ?? 0;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 23, spelunkerObolMulti);
   const emperorBonus = getEmperorBonus(account, 6);
   const charmBonus = getCharmBonus(account, 'Mystery_Fizz');
-  const backupEnergy = getTalentBonus(character?.talents, 4, 'BACKUP_ENERGY');
+  const backupEnergy = getTalentBonus(character?.flatTalents, 'BACKUP_ENERGY');
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_x') ? 1.2 : 1;
 
   return (1 + (calcTesseractBonus(upgrades, 17, 0)
@@ -342,11 +342,11 @@ export const getMapTimeLeft = (mapId) => {
 }
 
 export const getArcanistStats = (upgrades, totalUpgradeLevels, character, account) => {
-  const labotomizer = getTalentBonus(character?.talents, 4, 'LABOTOMIZER')
-  const ghastlyPowerX = getTalentBonus(character?.talents, 4, 'GHASTLY_POWER');
-  const ghastlyPowerY = getTalentBonus(character?.talents, 4, 'GHASTLY_POWER', true);
-  const goulishPower = getTalentBonus(character?.talents, 4, 'GHOULISH_POWER');
-  const arcanistForm = getTalentBonus(character?.talents, 4, 'ARCANIST_FORM');
+  const labotomizer = getTalentBonus(character?.flatTalents, 'LABOTOMIZER')
+  const ghastlyPowerX = getTalentBonus(character?.flatTalents, 'GHASTLY_POWER');
+  const ghastlyPowerY = getTalentBonus(character?.flatTalents, 'GHASTLY_POWER', true);
+  const goulishPower = getTalentBonus(character?.flatTalents, 'GHOULISH_POWER');
+  const arcanistForm = getTalentBonus(character?.flatTalents, 'ARCANIST_FORM');
   const equipBonus = getStatsFromGear(character, 94, account);
   const equipBonus2 = getStatsFromGear(character, 93, account);
   let equipmentWeaponPower = 0;
@@ -429,15 +429,15 @@ const getDescription = (description, bonus) => {
 }
 
 const getCrystalChargeReq = (characters, upgrades) => {
-  const bestArcane = getCharacterByHighestTalent(characters, 4, CLASSES.Arcane_Cultist, 'BACKUP_ENERGY', true);
-  const bestBackupEnergy = getTalentBonus(bestArcane?.talents, 4, 'BACKUP_ENERGY');
+  const bestArcane = getCharacterByHighestTalent(characters, CLASSES.Arcane_Cultist, 'BACKUP_ENERGY', true);
+  const bestBackupEnergy = getTalentBonus(bestArcane?.flatTalents, 'BACKUP_ENERGY');
 
   return Math.ceil(Math.max(50, 200
     - (Math.min(100, calcTesseractBonus(upgrades, 13, 0))
       + Math.min(10, bestBackupEnergy))));
 }
 export const getPrismaFragChance = (character, account, upgrades) => {
-  const primoPrisma = getTalentBonus(character?.talents, 4, 'PRIMO_PRISMA');
+  const primoPrisma = getTalentBonus(character?.flatTalents, 'PRIMO_PRISMA');
   return (1 / (1e3 * Math.pow(1.27, account?.accountOptions?.[395])))
     * Math.max(1, (character?.dropRate?.dropRate - 1)
       * (calcTesseractBonus(upgrades, 51, 0) / 100))

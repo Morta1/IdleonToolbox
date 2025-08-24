@@ -1,7 +1,7 @@
 import { growth } from '../utility/helpers';
 import { classes, classFamilyBonuses, talents } from '../data/website-data';
 import { getAchievementStatus } from './achievements';
-import { getCharacterByHighestSkillLevel, getHighestLevelOfClass, isCompanionBonusActive } from './misc';
+import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
 import { getMinorDivinityBonus } from './divinity';
 import { getEquinoxBonus } from './equinox';
 import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
@@ -20,9 +20,9 @@ import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getTesseractBonus } from '@parsers/tesseract';
 
 
-export const getTalentBonus = (talents, talentTree, talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
-  const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
-  const talent = talentsObj?.find(({ name }) => name === talentName);
+export const getTalentBonus = (talents = [], talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
+  if (!talents || !Array.isArray(talents)) return 0;
+  const talent = talents?.find(({ name }) => name === talentName);
   if (!talent) return 0;
   let level = talent?.level;
   if (talent?.level > 0 || forceTalent) {
@@ -145,7 +145,7 @@ export const mainStatMap = {
   [CLASSES.Bubonic_Conjuror]: 'wisdom',
   [CLASSES.Arcane_Cultist]: 'wisdom',
   [CLASSES.Wizard]: 'wisdom',
-  [CLASSES.Elemental_Sorcerer]: 'wisdom',
+  [CLASSES.Elemental_Sorcerer]: 'wisdom'
 };
 
 export const starTalentsPages = ['Special Talent 1', 'Special Talent 2',
@@ -181,10 +181,10 @@ export const getActiveBuffs = (activeBuffs, talents) => {
   return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId))?.filter((talent) => talent);
 }
 
-export const getHighestTalentByClass = (characters, talentTree, className, talentName, yBonus, useMaxLevel, reduceAddedLevels = false) => {
+export const getHighestTalentByClass = (characters, className, talentName, yBonus, useMaxLevel, reduceAddedLevels = false) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
-  return classes?.reduce((res, { talents, addedLevels }) => {
-    const talent = getTalentBonus(talents, talentTree, talentName, yBonus, useMaxLevel, reduceAddedLevels
+  return classes?.reduce((res, { flatTalents, addedLevels }) => {
+    const talent = getTalentBonus(flatTalents, talentName, yBonus, useMaxLevel, reduceAddedLevels
       ? addedLevels + 1
       : false);
     if (talent > res) {
@@ -194,11 +194,11 @@ export const getHighestTalentByClass = (characters, talentTree, className, talen
   }, 0);
 }
 
-export const getCharacterByHighestTalent = (characters, talentTree, className, talentName, yBonus, useMaxLevel) => {
+export const getCharacterByHighestTalent = (characters, className, talentName, yBonus, useMaxLevel) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
   return classes?.reduce((res, character) => {
-    const { talents } = character;
-    const talent = getTalentBonus(talents, talentTree, talentName, yBonus, useMaxLevel);
+    const { flatTalents } = character;
+    const talent = getTalentBonus(flatTalents, talentName, yBonus, useMaxLevel);
     if (talent > res) {
       return character;
     }
@@ -206,11 +206,10 @@ export const getCharacterByHighestTalent = (characters, talentTree, className, t
   }, 0);
 }
 
-export const getHighestMaxLevelTalentByClass = (characters, talentTree, className, talentName) => {
+export const getHighestMaxLevelTalentByClass = (characters, className, talentName) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
-  return classes?.reduce((res, { talents }) => {
-    const talentsObj = talentTree !== null ? talents?.[talentTree]?.orderedTalents : talents?.orderedTalents;
-    const talent = talentsObj?.find(({ name }) => name === talentName);
+  return classes?.reduce((res, { flatTalents }) => {
+    const talent = flatTalents?.find(({ name }) => name === talentName);
     if (talent?.maxLevel > res?.maxLevel) {
       return talent;
     }
@@ -218,7 +217,7 @@ export const getHighestMaxLevelTalentByClass = (characters, talentTree, classNam
   }, { maxLevel: 0 });
 }
 
-export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
+export const getTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   // "AllTalentLV" == e
   let addedLevels = 0, breakdown;
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 1);
@@ -404,7 +403,7 @@ export const getVoidWalkerTalentEnhancements = (characters, account, pointsInves
       else {
         base = ((stats?.luck - 1e3) / (stats?.luck + 2500)) * 0.8 + 0.3963
       }
-      const talentBonus = getTalentBonus(character?.talents, 3, 'LUCKY_CHARMS');
+      const talentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_CHARMS');
       return (base * (1 + talentBonus / 100)) / 1.8;
     }
   }
@@ -421,7 +420,7 @@ export const getBubonicGreenTube = (character, characters, account) => {
   if (!charCords || bubosCords?.length === 0) return 0;
   const affected = bubosCords?.some(({ x }) => x > charCords?.x);
   if (affected) {
-    return getHighestTalentByClass(characters, 3, CLASSES.Bubonic_Conjuror, 'GREEN_TUBE')
+    return getHighestTalentByClass(characters, CLASSES.Bubonic_Conjuror, 'GREEN_TUBE')
   }
   else {
     return 0;
@@ -454,13 +453,13 @@ export const calcTotalStarTalent = (characters, account) => {
     const basePoints = character?.skillsInfoArray?.reduce((sum, { level }, index) => index > 0 && index <= 9
       ? sum + level
       : sum, -3);
-    const talentBonus = getTalentBonus(character?.talents, 0, 'STAR_PLAYER');
-    const secondTalentBonus = getTalentBonus(character?.starTalents, null, 'STONKS!');
-    const thirdTalentBonus = getTalentBonus(character?.talents, 1, 'SUPERNOVA_PLAYER');
+    const talentBonus = getTalentBonus(character?.flatTalents, 'STAR_PLAYER');
+    const secondTalentBonus = getTalentBonus(character?.flatStarTalents, 'STONKS!');
+    const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'SUPERNOVA_PLAYER');
     const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Elemental_Sorcerer, true);
     let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS', highestLevelElementalSorc);
     if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
-      familyEffBonus *= (1 + getTalentBonus(character?.talents, 3, 'THE_FAMILY_GUY') / 100);
+      familyEffBonus *= (1 + getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY') / 100);
       const familyBonus = getFamilyBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS');
       familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
     }
@@ -503,8 +502,8 @@ export const getCrystalCountdownSkills = () => {
 
 export const getMaestroHand = (character, skillName, characters, account, hand) => {
   const bestMaestro = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Maestro))?.at(-1);
-  let leftHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.talents, 2, hand, false, true);
-  const voidWalkerEnhancementEclipse = getTalentBonus(bestMaestro?.talents, 3, 'ENHANCEMENT_ECLIPSE');
+  let leftHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.flatTalents, hand, false, true);
+  const voidWalkerEnhancementEclipse = getTalentBonus(bestMaestro?.flatTalents, 'ENHANCEMENT_ECLIPSE');
   const leftHandEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 42);
   if (checkCharClass(character?.class, CLASSES.Maestro) && leftHandEnhancement) {
     leftHandOfLearningTalentBonus *= 2;

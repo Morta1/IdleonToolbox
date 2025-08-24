@@ -71,7 +71,7 @@ export const getAllBaseSkillEff = (character, account, characters, playerInfo) =
   const blessingBonus = getNobisectBonus(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Myriad_Crate', 1);
   const chipBonus = account?.lab?.playersChips?.[character?.playerId].find((chip) => chip.index === 11)?.baseVal ?? 0;
-  const talentBonus = getTalentBonus(character?.starTalents, null, 'SUPERSOURCE');
+  const talentBonus = getTalentBonus(character?.flatStarTalents, 'SUPERSOURCE');
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 12, spelunkerObolMulti);
   const allGreenActive = account.lab.jewels?.slice(11, 16)?.every(({ active }) => active) ? 2 : 1;
@@ -87,14 +87,14 @@ export const getAllBaseSkillEff = (character, account, characters, playerInfo) =
 
 export const getAllEff = (character, characters, account) => {
   const highestLevelHunter = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Wind_Walker);
-  // const theFamilyGuy = getHighestTalentByClass(characters, 3, CLASSES.Beast_Master, 'THE_FAMILY_GUY');
+  // const theFamilyGuy = getHighestTalentByClass(characters, CLASSES.Beast_Master, 'THE_FAMILY_GUY');
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   // const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
   const effFromEquipment = getStatsFromGear(character, 48, account);
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Frost_Relic')?.bonus ?? 0;
-  const talentBonus = getTalentBonus(character?.starTalents, null, 'STUDIOUS_QUESTER');
+  const talentBonus = getTalentBonus(character?.flatStarTalents, 'STUDIOUS_QUESTER');
   const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Seff', blackDiamondRhinestone);
@@ -142,23 +142,23 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const mainStat = mainStatMap?.[character?.class];
   const effFromTool = character?.tools?.[TOOLS.PICKAXE]?.Weapon_Power || 0;
   let baseMiningEff = effFromTool;
-  const talentBonus = getTalentBonus(character?.talents, 1, 'TOOL_PROFICIENCY');
+  const talentBonus = getTalentBonus(character?.flatTalents, 'TOOL_PROFICIENCY');
   const bubbleBonus = getBubbleBonus(account, 'power', 'STRONK_TOOLS', false, mainStat);
   const miningLevel = character?.skillsInfo?.mining?.level;
   baseMiningEff = baseMiningEff * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
   baseMiningEff += 4;
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG3', character?.talents);
+  const statueBonus = getStatueBonus(account?.statues, 'StatueG3', character?.flatTalents);
   const secondBubbleBonus = getBubbleBonus(account, 'power', 'SLABI_OREFISH', false, mainStat);
   const lootedItems = account?.looty?.rawLootedItems;
   baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100));
 
-  const secondTalentBonus = getTalentBonus(character?.talents, 3, 'SKILL_STRENGTHEN');
+  const secondTalentBonus = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Mining', character);
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 0);
   const rightHandBonus = getMaestroHand(character, 'mining', characters, account, 'RIGHT_HAND_OF_ACTION');
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Peanut', character, account, characters) || 1;
-  const thirdTalentBonus = getTalentBonus(character?.talents, 0, 'BRUTE_EFFICIENCY');
+  const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'BRUTE_EFFICIENCY');
   const etcFromTools = getStatsFromGear(character, 10, account, true);
   const etcFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[10]);
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 1);
@@ -166,7 +166,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const starSignBonus = getStarSignBonus(character, account, 'Mining_Efficency');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MinEff');
   const thirdBubbleBonus = getBubbleBonus(account, 'power', 'HEARTY_DIGGY', false, mainStat);
-  const fourthTalentBonus = getTalentBonus(character?.talents, 1, 'COPPER_COLLECTOR');
+  const fourthTalentBonus = getTalentBonus(character?.flatTalents, 'COPPER_COLLECTOR');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const copperOwned = calculateItemTotalAmount(account?.storage?.list, 'Copper_Ore', true);
   const allEfficiencies = getAllEff(character, characters, account);
@@ -199,7 +199,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
 
 const getMaestroRightHandBonus = (character, skillName, characters) => {
   const bestMaestro = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Maestro))?.at(-1);
-  const rightHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.talents, 2, 'RIGHT_HAND_OF_ACTION', false, true);
+  const rightHandOfLearningTalentBonus = getTalentBonus(bestMaestro?.flatTalents, 'RIGHT_HAND_OF_ACTION', false, true);
   if (character?.skillsInfo?.[skillName]?.level < bestMaestro?.skillsInfo?.[skillName]?.level) {
     return rightHandOfLearningTalentBonus
   }

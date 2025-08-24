@@ -426,9 +426,10 @@ export const calcShinyLvMulti = (account, characters) => {
 }
 
 export const getEggsPowerRange = (characters) => {
+  console.log(characters)
   const highestBreedingBM = getCharacterByHighestSkillLevel(characters, CLASSES.Wind_Walker, 'breeding');
   const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level;
-  const baseTalentBonus = getTalentBonus(highestBreedingBM?.talents, 3, 'CURVITURE_OF_THE_PAW');
+  const baseTalentBonus = getTalentBonus(highestBreedingBM?.flatTalents, 'CURVITURE_OF_THE_PAW');
   const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);
   const talentBonus = Math.min(2.1, Math.max(1, 1 + baseTalentBonus));
   const breedingBonus = Math.min(1.2 + breedingLevel / 12, 4);

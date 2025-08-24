@@ -379,10 +379,10 @@ const getRemainingExaltedStamps = (account, usedExaltedStamps, index) => {
 
 export const getCompassStats = (character, account) => {
   const { upgrades, totalUpgradeLevels } = account?.compass;
-  const defenceAndAccTalent = getTalentBonus(character?.talents, 4, 'WINDBORNE');
-  const critTalent = getTalentBonus(character?.talents, 4, 'PUMPIN\'_POWER');
-  const multiTalent = getTalentBonus(character?.talents, 4, 'ELEMENTAL_MAYHEM', true);
-  const tempestTalent = getTalentBonus(character?.talents, 4, 'TEMPEST_FORM');
+  const defenceAndAccTalent = getTalentBonus(character?.flatTalents, 'WINDBORNE');
+  const critTalent = getTalentBonus(character?.flatTalents, 'PUMPIN\'_POWER');
+  const multiTalent = getTalentBonus(character?.flatTalents, 'ELEMENTAL_MAYHEM', true);
+  const tempestTalent = getTalentBonus(character?.flatTalents, 'TEMPEST_FORM');
   const equipBonus = getStatsFromGear(character, 87, account);
   const equipBonus2 = getStatsFromGear(character, 88, account);
   const equipBonus3 = getStatsFromGear(character, 89, account);
@@ -526,8 +526,8 @@ export const getExtraDust = (character, account) => {
   const upgrades = account?.compass?.upgrades;
   const equipBonus = getStatsFromGear(character, 85, account) ?? 0;
   const equipBonus1 = getStatsFromGear(character, 79, account) ?? 0;
-  const dustTalent = getTalentBonus(character?.talents, 4, 'ETERNAL_HUNT');
-  const compassTalent = getTalentBonus(character?.talents, 4, 'COMPASS');
+  const dustTalent = getTalentBonus(character?.flatTalents, 'ETERNAL_HUNT');
+  const compassTalent = getTalentBonus(character?.flatTalents, 'COMPASS');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
 
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy');

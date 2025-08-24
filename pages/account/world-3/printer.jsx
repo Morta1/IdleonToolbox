@@ -19,8 +19,8 @@ const Printer = () => {
   const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
   const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
-  const highestBrr = getCharacterByHighestTalent(state?.characters, 2, CLASSES.Maestro, 'PRINTER_GO_BRRR');
-  const highestMaxLevelBrr = getHighestMaxLevelTalentByClass(state?.characters, 2, CLASSES.Maestro, 'PRINTER_GO_BRRR');
+  const highestBrr = getCharacterByHighestTalent(state?.characters, CLASSES.Maestro, 'PRINTER_GO_BRRR');
+  const highestMaxLevelBrr = getHighestMaxLevelTalentByClass(state?.characters, CLASSES.Maestro, 'PRINTER_GO_BRRR');
 
   return <>
     <NextSeo

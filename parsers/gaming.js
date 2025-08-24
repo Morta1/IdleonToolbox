@@ -152,7 +152,7 @@ export const getBitsMulti = (account, characters) => {
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits', blackDiamondRhinestone);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
-  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, 3, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
+  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1 });
