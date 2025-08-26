@@ -102,7 +102,6 @@ export const getTesseract = (idleonData, characters, account) => {
       [mapRaw]: true
     }
   }, {});
-  const maps = getMaps(unlockedPortals, mapBonusRaw, upgrades, characters);
 
   return {
     upgrades,
@@ -114,7 +113,8 @@ export const getTesseract = (idleonData, characters, account) => {
     weaponQuality,
     ringDropChance,
     ringQuality,
-    maps
+    unlockedPortals,
+    mapBonusRaw
   }
 }
 
@@ -180,9 +180,9 @@ export const getRingBaseStats = (itemQuality) => {
   ]
 }
 
-const getMaps = (unlockedPortals, mapBonusRaw, upgrades, characters) => {
-  const bestArcane = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Arcane_Cultist))?.at(-1);
-  const overwhelmingEnergy = getTalentBonus(bestArcane?.flatTalents, 'OVERWHELMING_ENERGY');
+export const getMaps = (account, character) => {
+  const { unlockedPortals, upgrades, mapBonusRaw } = account?.tesseract;
+  const overwhelmingEnergy = getTalentBonus(character?.flatTalents, 'OVERWHELMING_ENERGY');
 
   const maxMapBonus = 100 * (overwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
   return getFilteredPortals()?.map(({ mapIndex, mapName }) => {

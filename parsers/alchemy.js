@@ -51,7 +51,6 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   }));
   const p2w = getPay2Win(idleonData, alchemyActivity, serializedCharactersData);
   const bubbles = getBubbles(alchemyRaw);
-  console.log('bubbles', Object.values(bubbles).flat())
   const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
 

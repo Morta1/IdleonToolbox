@@ -94,7 +94,7 @@ const Tesseract = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
       <Upgrades upgrades={upgrades} tachyons={tachyons}/>
       <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]} />
-      <Maps {...(state?.account?.tesseract || {})}/>
+      <Maps account={state?.account} character={state?.characters?.[selectedChar]}/>
     </Tabber>
   </>
 };

@@ -1,17 +1,19 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
-import React from 'react';
+import React, { useMemo } from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { getRingBaseStats, getWeaponBaseStats } from '@parsers/tesseract';
+import { getMaps, getRingBaseStats, getWeaponBaseStats } from '@parsers/tesseract';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Portals = ({
-                   maps, weaponDropChance, ringDropChance,
-                   weaponQuality, ringQuality
+                   character,
+                   account
                  }) => {
   const [CheckboxEl, hideUnlockedMaps] = useCheckbox('Hide unlocked maps');
+  const maps = useMemo(() => getMaps(account, character), [character])
+  const { weaponDropChance, ringDropChance, weaponQuality, ringQuality } = account?.tesseract || {};
   return <>
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
