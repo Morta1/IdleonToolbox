@@ -1,6 +1,6 @@
 import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '../data/website-data';
-import { CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
+import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -181,7 +181,7 @@ export const getRingBaseStats = (itemQuality) => {
 }
 
 const getMaps = (unlockedPortals, mapBonusRaw, upgrades, characters) => {
-  const bestArcane = getCharacterByHighestTalent(characters, CLASSES.Arcane_Cultist, 'OVERWHELMING_ENERGY');
+  const bestArcane = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Arcane_Cultist))?.at(-1);
   const overwhelmingEnergy = getTalentBonus(bestArcane?.flatTalents, 'OVERWHELMING_ENERGY');
 
   const maxMapBonus = 100 * (overwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
@@ -228,7 +228,8 @@ const getMapMultiBonus = (mapBonuses, maxMapBonus) => {
     // First check: if adding 100,000 kills doesn't change the value at 1000x precision
     if (Math.floor(1000 * arcaneValue) === Math.floor(1000 * getMapMulti(testKills + Math.pow(10, 5)))) {
       killsToNext = 'TONS';
-    } else {
+    }
+    else {
       let precisionPower = 4;
       let iterationCount = 0;
 
@@ -268,17 +269,22 @@ export const getTachyonQuantityBase = (index) => {
 
   if (type >= 5) {
     return Math.pow(Math.max(1, index - 9999) / 8, 0.83);
-  } else if (type >= 4) {
+  }
+  else if (type >= 4) {
     return Math.pow(Math.max(1, index - 3999) / 6, 0.87);
-  } else if (type >= 3) {
+  }
+  else if (type >= 3) {
     if (index === 1850) return 40;
     if (index === 2500) return 80;
     return Math.max(5, Math.pow(Math.max(1, index - 2749) / 5, 0.9));
-  } else if (type >= 2) {
+  }
+  else if (type >= 2) {
     return Math.max(3, Math.pow(Math.max(1, index - 799) / 3, 0.9));
-  } else if (type >= 1) {
+  }
+  else if (type >= 1) {
     return Math.pow(Math.max(1, index - 249) / 2, 0.9);
-  } else {
+  }
+  else {
     return Math.pow(Math.max(1, index) / 2, 0.9);
   }
 };
@@ -418,11 +424,13 @@ const getDescription = (description, bonus) => {
     if (bonus < 1e3) {
       const multiplier = 1 + bonus / 100;
       description = description.replace('}', notateNumber(multiplier, 'MultiplierInfo'));
-    } else {
+    }
+    else {
       const multiplier = Math.floor(1 + bonus / 100);
       description = description.replace('}', commaNotation(multiplier));
     }
-  } else {
+  }
+  else {
     description = description.replace('{', notateNumber(bonus));
   }
   return description;
