@@ -1,5 +1,6 @@
 import {
-  checkCharClass, CLASSES,
+  checkCharClass,
+  CLASSES,
   getHighestTalentByClass,
   getTalentBonus,
   getTalentBonusIfActive,
@@ -106,7 +107,7 @@ export const notateDamage = (playerInfo) => {
 const getMastery = (character, characters, account) => {
   const mainStat = mainStatMap?.[character?.class];
   const talent113 = 0;
-  const bubbleBonus = getBubbleBonus(account, 'quicc', 'LIL_BIG_DAMAGE', false, mainStat === 'agility');
+  const bubbleBonus = getBubbleBonus(account, 'LIL_BIG_DAMAGE', false, mainStat === 'agility');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Minimum_Damage');
   const talentBonus = getTalentBonus(character?.flatTalents, 'MASTERY_UP');
   const equipmentBonus = getStatsFromGear(character, 21, account);
@@ -135,7 +136,7 @@ const getDamagePercent = (character, characters, account) => {
   const highestLevelBb = getHighestLevelOf(characters, CLASSES.Blood_Berserker)
   const theFamilyGuy = getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY')
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DAMAGE', highestLevelBb);
-  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class,CLASSES.Blood_Berserker) && theFamilyGuy > 0
+  const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class, CLASSES.Blood_Berserker) && theFamilyGuy > 0
     ? (1 + theFamilyGuy / 100)
     : 1)
   const firstArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Crystal_Steak');
@@ -150,18 +151,18 @@ const getDamagePercent = (character, characters, account) => {
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   const skillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 0);
 
-  const strPercBubbleBonus = getBubbleBonus(account, 'power', 'BRITTLEY_SPEARS', false, mainStat === 'strength')
-  const agiPercBubbleBonus = getBubbleBonus(account, 'quicc', 'BOW_JACK', false, mainStat === 'agility')
-  const wisPercBubbleBonus = getBubbleBonus(account, 'high-iq', 'MATTY_STAFFORD', false, mainStat === 'wisdom')
+  const strPercBubbleBonus = getBubbleBonus(account, 'BRITTLEY_SPEARS', false, mainStat === 'strength')
+  const agiPercBubbleBonus = getBubbleBonus(account, 'BOW_JACK', false, mainStat === 'agility')
+  const wisPercBubbleBonus = getBubbleBonus(account, 'MATTY_STAFFORD', false, mainStat === 'wisdom')
 
   const strBubbleBonus = mainStat === 'strength' || mainStat === 'luck'
-    ? getBubbleBonus(account, 'power', 'POWER_TRIONE', false, mainStat === 'strength')
+    ? getBubbleBonus(account, 'POWER_TRIONE', false, mainStat === 'strength')
     : 0;
   const agiBubbleBonus = mainStat === 'agility'
-    ? getBubbleBonus(account, 'quicc', 'POWER_TRITWO', false, mainStat === 'agility')
+    ? getBubbleBonus(account, 'POWER_TRITWO', false, mainStat === 'agility')
     : 0;
   const wisBubbleBonus = mainStat === 'wisdom'
-    ? getBubbleBonus(account, 'high-iq', 'POWER_TRITHREE', false, mainStat === 'wisdom')
+    ? getBubbleBonus(account, 'POWER_TRITHREE', false, mainStat === 'wisdom')
     : 0;
 
   const constructMastery = account?.towers?.totalLevels >= constructionMasteryThresholds?.[2]
@@ -192,8 +193,7 @@ const getDamagePercent = (character, characters, account) => {
   const secondArenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 15));
 
   const chipBonus = getPlayerLabChipBonus(character, account, 12);
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TotDmg', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TotDmg');
   const curseTalent = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const activeDebuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
   const godBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Flutterbis')
@@ -289,9 +289,11 @@ const getDamageFromPerX = (character, characters, account, playerInfo, hpMpDamag
   const dmgPerDungeonCredits = getTalentBonus(character?.flatStarTalents, 'DUNGEONIC_DAMAGE')
   const dmgPerDungeonCreditsBonus = dmgPerDungeonCredits * lavaLog(account?.accountOptions?.[71]);
   const hasDoot = isCompanionBonusActive(account, 0);
-  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 2) : character?.linkedDeity === 2 ? character?.deityMinorBonus : character?.secondLinkedDeityIndex === 2
-    ? character?.secondDeityMinorBonus
-    : 0;
+  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 2) : character?.linkedDeity === 2
+    ? character?.deityMinorBonus
+    : character?.secondLinkedDeityIndex === 2
+      ? character?.secondDeityMinorBonus
+      : 0;
 
   const secondGoldenFoodBonus = getGoldenFoodBonus('Golden_Kebabs', character, account, characters) || 1;
 
@@ -342,9 +344,9 @@ const getBaseDamage = (character, characters, account, playerInfo, damageFromSta
   const equipmentBonus = getStatsFromGear(character, 16, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[16]);
   const statueBonus = getStatueBonus(account?.statues, 'StatueG1', character?.flatTalents);
-  const hpBubbleBonus = getBubbleBonus(account, 'power', 'BIG_MEATY_CLAWS', false, mainStat === 'strength'); // above 250 HP
-  const speedBubble = getBubbleBonus(account, 'quicc', 'QUICK_SLAP', false, mainStat === 'agility'); // works above 110% speed
-  const mpBubble = getBubbleBonus(account, 'high-iq', 'NAME_I_GUESS', false, mainStat === 'wisdom'); // 150 MP
+  const hpBubbleBonus = getBubbleBonus(account, 'BIG_MEATY_CLAWS', false, mainStat === 'strength'); // above 250 HP
+  const speedBubble = getBubbleBonus(account, 'QUICK_SLAP', false, mainStat === 'agility'); // works above 110% speed
+  const mpBubble = getBubbleBonus(account, 'NAME_I_GUESS', false, mainStat === 'wisdom'); // 150 MP
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_Damage');
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'PLUNGING_SWORD');
   const weaponPowerEffect = Math.pow((weaponPower * (1 + (strWpTalent + (agiWpTalent + intWpTalent)) / 100) + baseWp) / 3, 2) + (damageFromStat + goldenFoodBonus) + arcadeBonus;
@@ -396,7 +398,7 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
         + goldenFoodBonus)
       + stampBonus);
 
-  const bubbleBonus = getBubbleBonus(account, 'quicc', 'SHAQURACY', false, mainStat === 'agility');
+  const bubbleBonus = getBubbleBonus(account, 'SHAQURACY', false, mainStat === 'agility');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Accuracy');
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet4' ? character?.cards?.cardSet?.bonus : 0;
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'EXTENDO_RANGEO');
@@ -412,11 +414,11 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
   const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Pain', account)?.curse;
   const chipBonus = getPlayerLabChipBonus(character, account, 2);
 
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TotAcc', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TotAcc');
   const hasDoot = isCompanionBonusActive(account, 0);
-  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0 ? character?.deityMinorBonus : 0;
+  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0
+    ? character?.deityMinorBonus
+    : 0;
 
   let accuracy = character?.stats?.[accuracyStat]
     * (1 + bubbleBonus / 100) *
@@ -522,13 +524,13 @@ const getWeaponPower = (character, characters, account) => {
   const obols = getObolsBonus(character?.obols, 'Weapon_Power');
   const chipBonus = getPlayerLabChipBonus(character, account, 19);
   const strBubbleBonus = mainStat === 'strength'
-    ? getBubbleBonus(account, 'power', 'SPEAR_POWAH', false, mainStat === 'strength')
+    ? getBubbleBonus(account, 'SPEAR_POWAH', false, mainStat === 'strength')
     : 0;
   const agiBubbleBonus = mainStat === 'agility'
-    ? getBubbleBonus(account, 'quicc', 'BOW_POWER', false, mainStat === 'agility')
+    ? getBubbleBonus(account, 'BOW_POWER', false, mainStat === 'agility')
     : 0;
   const intBubbleBonus = mainStat === 'wisdom' || mainStat === 'luck'
-    ? getBubbleBonus(account, 'high-iq', 'WAND_PAWUR', false, mainStat === 'wisdom')
+    ? getBubbleBonus(account, 'WAND_PAWUR', false, mainStat === 'wisdom')
     : 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'WeaponPOW');
   const highestLevelBarbarian = getHighestLevelOf(characters, CLASSES.Barbarian)
@@ -568,7 +570,7 @@ const getCritDamage = (character, characters, account) => {
   const warTalentBonus = getTalentBonus(character?.flatTalents, 'CRITIKILL');
   const begTalentBonus = getTalentBonus(character?.flatTalents, 'KNUCKLEBUSTER');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'DIVINE_INTERVENTION');
-  const bubbleBonus = getBubbleBonus(account, 'power', 'BAPPITY_BOOPITY', false, mainStat === 'strength');
+  const bubbleBonus = getBubbleBonus(account, 'BAPPITY_BOOPITY', false, mainStat === 'strength');
   const stampBonus = getStampsBonusByEffect(account, 'Critical_Damage');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Critical_Damage');
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Circular_Criticals', account)?.curse;
@@ -592,9 +594,7 @@ const getCritChance = (character, characters, account, playerInfo) => {
   const cardBonusPassive = getCardBonusByEffect(account?.cards, 'Critical_Chance_(Passive)');
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet6' ? character?.cards?.cardSet?.bonus : 0;
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Circular_Criticals', account)?.bonus;
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Crit', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Crit');
   const statueBonus = getStatueBonus(account?.statues, 'StatueG14', character?.flatTalents);
   const starTalentBonus = getTalentBonus(character?.flatStarTalents, 'MEGA_CRIT');
   const secondStarTalentBonus = getTalentBonus(character?.flatStarTalents, 'OVERACCURATE_CRIT');
@@ -609,7 +609,7 @@ const getCritChance = (character, characters, account, playerInfo) => {
   const acc = Math.floor(playerInfo?.accuracy)
   const perAccuracy = lavaLog(acc - 1.5 * monster?.Defence);
   const perAccuracyBonus = secondStarTalentBonus * perAccuracy;
-  const bubbleBonus = getBubbleBonus(account, 'quicc', 'CHEAP_SHOT', false, mainStat === 'agility');
+  const bubbleBonus = getBubbleBonus(account, 'CHEAP_SHOT', false, mainStat === 'agility');
 
   let critChance;
   if (1e3 > character?.stats?.agility) {
@@ -647,11 +647,9 @@ const getKillsPerHour = (character, characters, account, playerInfo) => {
   const charWeapon = character?.equipment?.[1]?.Speed || 0;
   const equipmentBonus = getStatsFromGear(character, 56, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[56]);
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'AtkSpd', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'AtkSpd');
   const chipBonus = getPlayerLabChipBonus(character, account, 4);
-  const bubbleBonus = getBubbleBonus(account, 'high-iq', 'HYPERSWIFT', false, mainStat === 'wisdom');
+  const bubbleBonus = getBubbleBonus(account, 'HYPERSWIFT', false, mainStat === 'wisdom');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Deaths_Storage_Unit', 1);
   const monster = monsters?.[character?.targetMonster];
   const monsterHp = getMonsterHpTotal(monster?.MonsterHPTotal, character, account);
@@ -685,7 +683,7 @@ const getTalentEffectOnKills = (character, account, stat) => {
   const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'DOUBLE_STRIKE');
   const fourthTalentBonus = getTalentBonus(character?.flatTalents, 'HAVE_ANOTHER!');
   const fifthTalentBonus = getTalentBonus(character?.flatTalents, 'HAVE_ANOTHER..._AGAIN!');
-  const bubbleBonus = getBubbleBonus(account, 'high-iq', 'ALL_FOR_KILL', false, mainStat === 'wisdom');
+  const bubbleBonus = getBubbleBonus(account, 'ALL_FOR_KILL', false, mainStat === 'wisdom');
 
   return 'D' === stat ? effect
     * (1 + (Math.min(starTalentBonus, 25) + Math.min(bubbleBonus, 25)) / 100)
@@ -749,7 +747,7 @@ const getPlayerDefence = (character, characters, account) => {
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet4' ? character?.cards?.cardSet?.bonus : 0;
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_Defence');
   const secondCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Defence_from_Equipment');
-  const bubbleBonus = getBubbleBonus(account, 'power', 'FMJ', false, mainStat === 'strength');
+  const bubbleBonus = getBubbleBonus(account, 'FMJ', false, mainStat === 'strength');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Defence');
   const toolBonus = getStatsFromGear(character, 'Defence', account, true);
   const equipmentBonus = getStatsFromGear(character, 'Defence', account);
@@ -760,9 +758,7 @@ const getPlayerDefence = (character, characters, account) => {
   const secondObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[7]);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Base_Defence')?.bonus ?? 0;
   const statueBonus = getStatueBonus(account?.statues, 'StatueG8', character?.flatTalents);
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Def', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Def');
   const talentBonus = getTalentBonus(character?.flatTalents, 'BRICKY_SKIN', true);
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'BUCKLERED_UP');
   const shrineBonus = getShrineBonus(account?.shrines, 1, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
@@ -817,7 +813,7 @@ const getPlayerDefence = (character, characters, account) => {
     { name: 'Prayers', value: prayerCurse + secondPrayerCurse },
     { name: 'Golden Food', value: goldenFoodBonus },
     { name: 'Talents Bonus', value: talentBonus + secondTalentBonus },
-    { name: 'Active Talents Bonus', value: activeBuff },
+    { name: 'Active Talents Bonus', value: activeBuff }
   ]
 
   return {

@@ -9,7 +9,7 @@ import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getPrismaMulti, getTesseractBonus } from '@parsers/tesseract';
+import { getPrismaMulti } from '@parsers/tesseract';
 import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
 
 export const MAX_VIAL_LEVEL = 13;
@@ -51,6 +51,7 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   }));
   const p2w = getPay2Win(idleonData, alchemyActivity, serializedCharactersData);
   const bubbles = getBubbles(alchemyRaw);
+  console.log('bubbles', Object.values(bubbles).flat())
   const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
 
@@ -60,6 +61,7 @@ export const parseAlchemy = (idleonData, alchemyRaw, cauldronJobs1Raw, cauldrons
   return {
     p2w,
     bubbles,
+    bubblesFlat: Object.values(bubbles).flat(),
     vials,
     cauldrons,
     cauldronsInfo,
@@ -99,7 +101,7 @@ export const getLiquidCauldrons = (account) => {
         bleachLiquidBonus = saltLickBonus / 100 + 2
       }
     }
-    const bubbleBonus = getBubbleBonus(account, 'kazam', 'DA_DAILY_DRIP', false);
+    const bubbleBonus = getBubbleBonus(account, 'DA_DAILY_DRIP', false);
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, `Liquid${index + 1}Cap`)
     const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
     const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
@@ -302,30 +304,21 @@ export const getEquippedBubbles = (idleonData, bubbles, serializedCharactersData
     .filter((arr) => arr.length);
 };
 
-export const getActiveBubbleBonus = (equippedBubbles, cauldronName, bubbleName, account) => {
+export const getActiveBubbleBonus = (equippedBubbles, bubbleName, account) => {
   const hasCompanionBonus = isCompanionBonusActive(account, 4);
   if (hasCompanionBonus) {
-    return getBubbleBonus(account, cauldronName, bubbleName, false)
+    return getBubbleBonus(account, bubbleName, false)
   }
   const bubble = equippedBubbles?.find(({ bubbleName: bName }) => bubbleName === bName);
   if (!bubble && !hasCompanionBonus) return 0;
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 
-export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldMultiply) => {
-  // Early return if no alchemy data exists
-  const cauldrons = account?.alchemy?.bubbles;
-  if (!cauldrons?.[cauldronName]) return 0;
-
-  // Find the target bubble by name
-  const targetBubbleIndex = cauldrons[cauldronName]?.findIndex(
+export const getBubbleBonus = (account, bubbleName, round, shouldMultiply) => {
+  const targetBubble = account?.alchemy?.bubblesFlat?.find(
     ({ bubbleName: name }) => name === bubbleName
   );
-  if (targetBubbleIndex === -1) return 0;
-
-  const targetBubble = cauldrons[cauldronName][targetBubbleIndex];
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
-  const tesseractBonus = getTesseractBonus(account, 45)
+  if (targetBubble === -1) return 0;
 
   // Calculate base bubble value
   const baseBubbleValue = growth(
@@ -344,7 +337,7 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
   // Calculate primary multiplier from bubble at index 1 (if shouldMultiply is true)
   let primaryMultiplier = 1;
   if (shouldMultiply) {
-    const primaryMultiBubble = cauldrons[cauldronName][1];
+    const primaryMultiBubble = account?.alchemy?.bubbles[targetBubble?.cauldron][1];
     if (primaryMultiBubble) {
       const primaryBubbleValue = growth(
         primaryMultiBubble?.func,
@@ -368,10 +361,10 @@ export const getBubbleBonus = (account, cauldronName, bubbleName, round, shouldM
   };
 
   let secondaryMultiplier = 1;
-  const qualifiesForSecondaryMultiplier = secondaryMultiplierIndexes[cauldronName]?.has(targetBubbleIndex);
+  const qualifiesForSecondaryMultiplier = secondaryMultiplierIndexes[targetBubble?.cauldron]?.has(targetBubble?.index);
 
   if (qualifiesForSecondaryMultiplier) {
-    const secondaryBubble = cauldrons[cauldronName][16];
+    const secondaryBubble = account?.alchemy?.bubbles[targetBubble?.cauldron][16];
     if (secondaryBubble) {
       const secondaryBubbleValue = growth(
         secondaryBubble?.func,

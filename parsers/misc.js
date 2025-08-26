@@ -84,10 +84,8 @@ const calcTimeToXBooks = (bookCount, maxCount, account, characters, idleonData) 
 //  "BookReqTime"
 export const getTimeToNextBooks = (bookCount, account, characters, idleonData) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null, blackDiamondRhinestone);
-  const bubbleBonus = getBubbleBonus(account, 'kazam', 'IGNORE_OVERDUES', false);
+  const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null);
+  const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
   const libraryTowerLevel = towersLevels?.[1];
@@ -539,12 +537,10 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
-  const goldenFoodBubbleBonus = getBubbleBonus(account, 'power', 'SHIMMERON', false, mainStatMap?.[character?.class] === 'strength');
+  const goldenFoodBubbleBonus = getBubbleBonus(account, 'SHIMMERON', false, mainStatMap?.[character?.class] === 'strength');
   const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE');
   const charmBonus = getCharmBonus(account, 'Gumm_Stick');
-  const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zGoldFood', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zGoldFood');
   const starSignBonus = getStarSignBonus(character, account, 'Golden_Food');
   const bribeBonus = getBribeBonus(account?.bribes, 'Gold_from_Lead');
   const achievementBonus = getAchievementStatus(account?.achievements, 380);

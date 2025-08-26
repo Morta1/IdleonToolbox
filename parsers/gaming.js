@@ -148,9 +148,7 @@ export const getBitsMulti = (account, characters) => {
   const snailBonus = Math.pow(2, Math.max(0, Math.min(25, account?.gaming?.snailLevel)));
   const acornBonus = 1 + (8 * account?.gaming?.squirrelMulti) / (250 + account?.gaming?.squirrelMulti);
   const elegantShellBonus = account?.gaming?.imports?.[3]?.bonus;
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
   const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
@@ -158,7 +156,7 @@ export const getBitsMulti = (account, characters) => {
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1 });
   const emperorBonus = getEmperorBonus(account, 7);
   const skillMastery = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.gaming?.rank, 1) || 0;
-  const bubbleBonus = getBubbleBonus(account, 'kazam', 'BIT_BY_BIT', false);
+  const bubbleBonus = getBubbleBonus(account, 'BIT_BY_BIT', false);
   const ownedLogBooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
   const logBookBitBonus = Math.max(1, Math.pow(1.08, ownedLogBooks) + (bubbleBonus * ownedLogBooks) / 100);
 

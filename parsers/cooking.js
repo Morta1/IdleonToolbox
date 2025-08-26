@@ -173,7 +173,8 @@ export const getSpiceUpgradeCost = (upgradeLevel) => {
 }
 
 
-export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBonus = 0) => {
+export const getMealsBonusByEffectOrStat = (account, effectName, statName) => {
+  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16) ?? 0;
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
   const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
   return account?.cooking?.meals?.reduce((sum, meal, index) => {
@@ -187,7 +188,7 @@ export const getMealsBonusByEffectOrStat = (account, effectName, statName, labBo
       return sum + (level * baseStat ?? 0);
     }
     const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-    return sum + ((1 + (labBonus + shinyMealBonus) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat ?? 0);
+    return sum + ((1 + (blackDiamondRhinestone + shinyMealBonus) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat ?? 0);
   }, 0) ?? 0;
 }
 
@@ -217,30 +218,28 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
   return cookingRaw?.map((table, kitchenIndex) => {
     const [status, foodIndex, spice1, spice2, spice3, spice4, speedLv, fireLv, luckLv, , currentProgress] = table;
     if (status <= 0) return null;
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti)
-    const cookingSpeedJewelMultiplier = getJewelBonus(account?.lab?.jewels, 14, spelunkerObolMulti); // meal cooking speed
+    const cookingSpeedJewelMultiplier = getJewelBonus(account?.lab?.jewels, 14); // meal cooking speed
     const cookingSpeedFromJewel = Math.floor(globalKitchenUpgrades / 25) * (cookingSpeedJewelMultiplier || 0);
 
     const cookingSpeedStamps = getStampsBonusByEffect(account, 'Meal_Cooking_Speed');
     const cookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, 'MealCook');
     const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
     const extraCookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, '6CookSpd');
-    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Mcook', blackDiamondRhinestone);
-    const diamondChef = getBubbleBonus(account, 'kazam', 'DIAMOND_CHEF', false);
-    const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff', blackDiamondRhinestone);
+    const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Mcook');
+    const diamondChef = getBubbleBonus(account, 'DIAMOND_CHEF', false);
+    const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff');
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
     const trollCardStars = trollCard?.stars ?? 0;
     const trollBonus = trollCardStars === 0 ? 0 : trollCardStars + 1;
     const allPurpleActive = account?.lab?.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
-    const amethystRhinestone = getJewelBonus(account?.lab?.jewels, 0, spelunkerObolMulti) * allPurpleActive;
+    const amethystRhinestone = getJewelBonus(account?.lab?.jewels, 0) * allPurpleActive;
     const isRichelin = kitchenIndex < account?.gemShopPurchases?.find((value, index) => index === 120);
     const triagulonArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Triagulon')?.bonus ?? 0;
     const richelinBonus = isRichelin ? 2 : 0;
     const bubbleBonus = Math.pow(diamondChef, diamondMeals);
     const firstAchievement = getAchievementStatus(account?.achievements, 225);
     const secondAchievement = getAchievementStatus(account?.achievements, 224);
-    const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm', blackDiamondRhinestone);
+    const marshmallowBonus = getMealsBonusByEffectOrStat(account, null, 'zMealFarm');
     const cardCookingMulti = getCardBonusByEffect(account?.cards, 'Cooking_Spd_Multi_(Passive)');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_SPD_multi')?.bonus ?? 0;
     const winnerBonus = getWinnerBonus(account, '<x Cooking SPD');
@@ -358,7 +357,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account, 'New_Recipe_Cooking_Speed');
-    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook', blackDiamondRhinestone);
+    const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook');
 
     const fireSpeed = 5
       * (1 + (isRichelin ? 1 : 0))
@@ -381,7 +380,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
 
     // Spices Cost
     const kitchenCostVials = getVialsBonusByEffect(account?.alchemy?.vials, null, 'Kcosts');
-    const kitchenCostMeals = getMealsBonusByEffectOrStat(account, null, 'KitchC', blackDiamondRhinestone);
+    const kitchenCostMeals = getMealsBonusByEffectOrStat(account, null, 'KitchC');
     const arenaBonusActive = isArenaBonusActive(arenaWave, waveReqs, 7);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'GARLIC_GLOVE');
 

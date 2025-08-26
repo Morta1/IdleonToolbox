@@ -79,7 +79,7 @@ const GodPlanner = () => {
                           playerId,
                           skillsInfo
                         }, charIndex) => {
-        const bubbleBonus = getBubbleBonus(account, 'kazam', 'BIG_P', false);
+        const bubbleBonus = getBubbleBonus(account, 'BIG_P', false);
         const divinityLevel = skillsInfo?.divinity?.level
         const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
         return (

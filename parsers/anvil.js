@@ -152,9 +152,9 @@ export const getPlayerAnvil = (character, characters, account) => {
     capPoints
   };
 
-  const anvilnomicsBubbleBonus = getBubbleBonus(account, 'quicc', 'ANVILNOMICS');
+  const anvilnomicsBubbleBonus = getBubbleBonus(account, 'ANVILNOMICS');
   const isArcher = checkCharClass(character?.class, CLASSES.Archer);
-  const archerMultiBubble = isArcher ? getBubbleBonus(account, 'quicc', 'ARCHER_OR_BUST') : 1;
+  const archerMultiBubble = isArcher ? getBubbleBonus(account, 'ARCHER_OR_BUST') : 1;
   const anvilCostReduction = anvilnomicsBubbleBonus * archerMultiBubble;
   const anvilCost = getAnvilUpgradeCostItem(pointsFromMats);
 

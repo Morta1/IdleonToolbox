@@ -532,7 +532,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
   const fishingLv = character?.skillsInfo?.fishing?.level;
   const miningLv = character?.skillsInfo?.mining?.level;
   if (skillName === 'mining') {
-    const bubbleBonus = getBubbleBonus(account, 'power', 'REELY_SMART', false, mainStat === 'strength');
+    const bubbleBonus = getBubbleBonus(account, 'REELY_SMART', false, mainStat === 'strength');
     let base;
     if (fishingLv > miningLv) {
       base = 2 * bubbleBonus;
@@ -596,7 +596,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const choppingCardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 2);
     const talentBonus = getTalentBonus(character?.flatTalents, 'INNER_PEACE');
     const stampBonus = getStampsBonusByEffect(account, 'Choppin_Exp_Gain');
-    const bubbleBonus = getBubbleBonus(account, 'high-iq', 'NOODUBBLE', false, mainStat === 'wisdom');
+    const bubbleBonus = getBubbleBonus(account, 'NOODUBBLE', false, mainStat === 'wisdom');
     const cardBonus = choppingCardsArePassives
       ? getCardBonusByEffect(account?.cards, 'Choppin_EXP')
       : getCardBonusByEffect(character?.cards?.equippedCards, 'Choppin_EXP');
@@ -660,7 +660,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     }
   }
   else if (skillName === 'fishing') {
-    const bubbleBonus = getBubbleBonus(account, 'power', 'REELY_SMART', false, mainStat === 'strength');
+    const bubbleBonus = getBubbleBonus(account, 'REELY_SMART', false, mainStat === 'strength');
     let base;
     if (miningLv > fishingLv) {
       base = 2 * bubbleBonus;
@@ -741,7 +741,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const talentBonus = getTalentBonus(character?.flatTalents, 'BUBBLE_BREAKTHROUGH');
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'SHARING_SOME_SMARTS');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 0);
-    const bubbleBonus = getBubbleBonus(account, 'high-iq', 'NOODUBBLE', false, mainStat === 'wisdom');
+    const bubbleBonus = getBubbleBonus(account, 'NOODUBBLE', false, mainStat === 'wisdom');
     const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'COOKIN_ROADKILL', account);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 28);
 
@@ -922,9 +922,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const cookingEff = getCookingEff(character, characters, account, playerInfo);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 60);
     const leftHandTalentBonus = getMaestroHand(character, 'cooking', characters, account, 'LEFT_HAND_OF_LEARNING');
-    const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'CookExp', blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'CookExp');
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Cooking_EXP_gain', 1);
     const talentBonus = getTalentBonus(character?.flatTalents, 'APOCALYPSE_CHOW');
     const chows = character?.chow?.finished?.[0] ?? 1;
@@ -969,10 +967,8 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
   }
   else if (skillName === 'breeding') {
     const talentBonus = getHighestTalentByClass(characters, CLASSES.Beast_Master, 'SHINING_BEACON_OF_EGG');
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
     const sapphireRhombol = getJewelBonus(account?.lab?.jewels, 5, spelunkerObolMulti)
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp', blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp');
     const cardBonus = getCardBonusByEffect(account?.cards, 'Breeding_EXP')
     const stampBonus = getStampsBonusByEffect(account, 'Breeding_EXP_Gain');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'BreedXP');
@@ -1021,10 +1017,8 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const chipBonus = getPlayerLabChipBonus(character, account, 5);
     const bubonicGreen = getBubonicGreenTube(character, characters, account);
     const talentBonus = getTalentBonus(character?.flatTalents, 'UPLOAD_SQUARED');
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const jewelBonus = getJewelBonus(account?.lab?.jewels, 2, spelunkerObolMulti);
-    const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lexp', blackDiamondRhinestone);
+    const jewelBonus = getJewelBonus(account?.lab?.jewels, 2);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lexp');
     const stampBonus = getStampsBonusByEffect(account, 'Lab_Exp_Gain');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'LabXP');
     const bubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'MATRIX_EVOLVED', account);
@@ -1129,9 +1123,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const stampBonus = getStampsBonusByEffect(account, 'Divinity_EXP_Gain');
     const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'PIOUS_AT_HEART', account);
     const statueBonus = getStatueBonus(account?.statues, 'StatueG24', character?.flatTalents);
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'DivExp', blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'DivExp');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'DivXP');
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'INNER_PEACE');
     const starSignBonus = getStarSignBonus(character, account, 'Divinity_EXP');
@@ -1194,9 +1186,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
   }
   else if (skillName === 'gaming') {
     const stampBonus = getStampsBonusByEffect(account, 'Gaming_EXP_Gain');
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp', blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp');
     const talentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, '1000_HOURS_PLAYED');
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameXP');
@@ -1230,9 +1220,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const marketBonus2 = getMarketBonus(account?.farming?.market, 'SMARTER_SEEDS');
     const msaBonus = account?.msaTotalizer?.farmingExp?.value;
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.farming?.rank, 0);
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zFarmExp', blackDiamondRhinestone)
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zFarmExp')
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Farming_EXP')?.bonus;
     const winnerBonus = getWinnerBonus(account, '<x Farming EXP');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEXP');
@@ -1314,9 +1302,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const compassBonus = getCompassBonus(account, 51);
     const gemstoneBonus = account?.sneaking?.gemStones?.[4]?.bonus;
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6SneakEXP');
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSneakExp', blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSneakExp');
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 0);
     const charmBonus = getCharmBonus(account, 'Sour_Wowzer');
     const cardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_EXP_(Passive)');
@@ -1393,9 +1379,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const talentBonus = getHighestTalentByClass(characters, CLASSES.Arcane_Cultist, 'PASSION_OF_THE_SUMMON');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SummEXP');
     const cardBonus = getCardBonusByEffect(account?.cards, 'Summoning_EXP_(Passive)');
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSummonExp', blackDiamondRhinestone);
+    const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSummonExp');
     const labBonus = getLabBonus(account?.lab.labBonuses, 16);
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Summon_XP_multi')?.bonus;
     const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Summoning_EXP_gain');
@@ -1538,7 +1522,7 @@ const getStealthRate = (character, account) => {
   const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor; // NjaDN1
   const sneakingLevel = character?.skillsInfo?.sneaking?.level; // NjaDN3
   const mainStat = mainStatMap?.[character?.class];
-  const bubbleBonus = getBubbleBonus(account, 'quicc', 'STEALTH_CHAPTER', false, mainStat === 'agility');
+  const bubbleBonus = getBubbleBonus(account, 'STEALTH_CHAPTER', false, mainStat === 'agility');
   const starSignBonus = getStarSignBonus(character, account, 'Ninja_Twin')
   const statueBonus = getStatueBonus(account?.statues, 'StatueG27', character?.flatTalents);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_Stealth_(Passive)');
@@ -1595,9 +1579,7 @@ export const getJadeRate = (character, account) => {
   const ninjaEquip4 = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
   const ninjaEquip5 = getNinjaEquipmentBonus(account, character.playerId, 'Goodie_Bag');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6Jade');
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zJade', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zJade');
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Jade_Coin_gain_(Passive)');
   const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
   const stampBonus = getStampsBonusByEffect(account, '+{%_Jade_Coin_Gain');
@@ -1737,9 +1719,7 @@ export const getClassExpMulti = (character, account, characters) => {
   }
 
   if (character?.level < 120) {
-    const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-    const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16, spelunkerObolMulti);
-    expBonus2 += getMealsBonusByEffectOrStat(account, null, 'Clexp', blackDiamondRhinestone)
+    expBonus2 += getMealsBonusByEffectOrStat(account, null, 'Clexp')
   }
   const weeklyBossBonus = Math.min(150, (account?.weeklyBossesRaw?.c || 0))
   if (account?.weeklyBossesRaw?.c) {
@@ -1805,7 +1785,7 @@ export const getClassExpMulti = (character, account, characters) => {
   const foodBonus = getFoodBonus(character, account, 'ClassEXP', true)
   const starSignBonus = getStarSignBonus(character, account, 'Class_EXP_Gain');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MonsterEXP');
-  const bubbleBonus = getBubbleBonus(account, 'kazam', 'GRIND_TIME', false);
+  const bubbleBonus = getBubbleBonus(account, 'GRIND_TIME', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[44]);
   const statueBonus = getStatueBonus(account?.statues, 'StatueG11', character?.flatTalents);
   const starTalent = getTalentBonus(character?.flatStarTalents, 'JUST_EXP');
@@ -2015,7 +1995,7 @@ export const getDropRate = (character, account, characters) => {
   const equipmentDrMulti = getStatsFromGear(character, 91, account);
   const dropChanceTools = getStatsFromGear(character, 2, account, true);
   const dropChanceObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
-  const bubbleBonus = getBubbleBonus(account, 'kazam', 'DROPPIN_LOADS', false);
+  const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 10);
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25'
@@ -2260,12 +2240,10 @@ if (thirdCompanionDropRate) {
 export const getCashMulti = (character, account, characters) => {
   // "MonsterCash" == e
   const { strength, agility, wisdom } = character?.stats || {};
-  const cashStrBubble = getBubbleBonus(account, 'power', 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
-  const cashAgiBubble = getBubbleBonus(account, 'quicc', 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
-  const cashWisBubble = getBubbleBonus(account, 'high-iq', 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Cash', blackDiamondRhinestone);
+  const cashStrBubble = getBubbleBonus(account, 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
+  const cashAgiBubble = getBubbleBonus(account, 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
+  const cashWisBubble = getBubbleBonus(account, 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Cash');
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Maneki_Kat')?.bonus ?? 0;
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
@@ -2486,7 +2464,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
   const printerSamplingTalent = getTalentBonus(character?.flatStarTalents, 'PRINTER_SAMPLING');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
   const equipSampling = getStatsFromGear(character, 60, account);
-  const sampleItBubble = getBubbleBonus(account, 'kazam', 'SAMPLE_IT', false);
+  const sampleItBubble = getBubbleBonus(account, 'SAMPLE_IT', false);
   const superSampleTalent = getTalentBonus(character?.flatStarTalents, 'SUPER_SAMPLES');
   const sampleAchievement = getAchievementStatus(account?.achievements, 158);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
@@ -2809,7 +2787,7 @@ export const getAfkGain = (character, characters, account) => {
       : getCardBonusByEffect(character?.cards?.equippedCards, 'Mining_Away_Gains')
 
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
+    const bubbleBonus = getBubbleBonus(account, 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
     gains = 0.25 + (idleSkillingBonus
       + (dwarvenSupliesBonus
         + (trappingBonus
@@ -2841,7 +2819,7 @@ export const getAfkGain = (character, characters, account) => {
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[36]);
 
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account, 'high-iq', 'TREE_SLEEPER', false, mainStat === 'wisdom');
+    const bubbleBonus = getBubbleBonus(account, 'TREE_SLEEPER', false, mainStat === 'wisdom');
 
     gains = 0.25 + (activeAfkerBonus
       + (tapedUpTimberBonus
@@ -2873,7 +2851,7 @@ export const getAfkGain = (character, characters, account) => {
       ? getCardBonusByEffect(account?.cards, cardBonuses[39])
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[39]);
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account, 'power', 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
+    const bubbleBonus = getBubbleBonus(account, 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
     const equipmentBonus = getStatsFromGear(character, 64, account);
     const toolsBonus = getStatsFromGear(character, 64, account, true);
     const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[64]);
@@ -2915,7 +2893,7 @@ export const getAfkGain = (character, characters, account) => {
       ? getCardBonusByEffect(account?.cards, cardBonuses[41])
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[41]);
     const mainStat = mainStatMap?.[character?.class];
-    const bubbleBonus = getBubbleBonus(account, 'quicc', 'FLY_IN_MIND', false, mainStat === 'agility');
+    const bubbleBonus = getBubbleBonus(account, 'FLY_IN_MIND', false, mainStat === 'agility');
     gains = 0.25
       + (sunsetOnTheHivesBonus
         + (trappingBonus
@@ -3015,7 +2993,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const constructionLevel = character?.skillsInfo?.construction?.level;
   const baseMath = 3 * Math.pow((constructionLevel) / 2 + 0.7, 1.6);
   const mainStat = mainStatMap?.[character?.class];
-  const bubbleBonus = getBubbleBonus(account, 'power', 'CARPENTER', false, mainStat === 'strength');
+  const bubbleBonus = getBubbleBonus(account, 'CARPENTER', false, mainStat === 'strength');
   const stampsBonus = getStampsBonusByEffect(account, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);

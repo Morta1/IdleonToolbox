@@ -38,19 +38,17 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 export const allProwess = (character, account) => {
   const mainStat = mainStatMap?.[character?.class];
-  const prowessBubble = getBubbleBonus(account, 'kazam', 'PROWESESSARY', false, mainStat);
+  const prowessBubble = getBubbleBonus(account, 'PROWESESSARY', false, mainStat);
   const starSignProwess = getStarSignBonus(character, account, 'All_Skill_Prowess');
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multfi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const skillProwessMeals = getMealsBonusByEffectOrStat(account, null, 'Sprow', blackDiamondRhinestone);
+  const skillProwessMeals = getMealsBonusByEffectOrStat(account, null, 'Sprow');
   return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
 }
 
 export const getNobisectBonus = (character, account, characters, playerInfo) => {
   const mainStat = mainStatMap?.[character?.class];
   const { strength, wisdom, agility } = character?.stats || {};
-  const strBubbleBonus = getBubbleBonus(account, 'power', 'HEARTY_DIGGY', false, mainStat);
-  const wisBubbleBonus = getBubbleBonus(account, 'high-iq', 'HOCUS_CHOPPUS', false, mainStat);
+  const strBubbleBonus = getBubbleBonus(account, 'HEARTY_DIGGY', false, mainStat);
+  const wisBubbleBonus = getBubbleBonus(account, 'HOCUS_CHOPPUS', false, mainStat);
   const base = Math.max(1, getAllEff(character, characters, account)
     + Math.pow(((strBubbleBonus * lavaLog(playerInfo?.maxHp))
       + (wisBubbleBonus * lavaLog(playerInfo?.maxMp))) / 100, 2)
@@ -95,9 +93,7 @@ export const getAllEff = (character, characters, account) => {
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Frost_Relic')?.bonus ?? 0;
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STUDIOUS_QUESTER');
-  const spelunkerObolMulti = getLabBonus(account?.lab?.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(account?.lab.jewels, 16, spelunkerObolMulti);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Seff', blackDiamondRhinestone);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Seff');
   const tomeBonus = account?.tome?.bonuses?.[1]?.bonus ?? 0;
   const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 11)?.baseVal ?? 0;
   const cardBonus = account?.cards?.Crystal_Capybara?.stars ? account?.cards?.Crystal_Capybara?.stars + 1 : 0;
@@ -143,12 +139,12 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const effFromTool = character?.tools?.[TOOLS.PICKAXE]?.Weapon_Power || 0;
   let baseMiningEff = effFromTool;
   const talentBonus = getTalentBonus(character?.flatTalents, 'TOOL_PROFICIENCY');
-  const bubbleBonus = getBubbleBonus(account, 'power', 'STRONK_TOOLS', false, mainStat);
+  const bubbleBonus = getBubbleBonus(account, 'STRONK_TOOLS', false, mainStat);
   const miningLevel = character?.skillsInfo?.mining?.level;
   baseMiningEff = baseMiningEff * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
   baseMiningEff += 4;
   const statueBonus = getStatueBonus(account?.statues, 'StatueG3', character?.flatTalents);
-  const secondBubbleBonus = getBubbleBonus(account, 'power', 'SLABI_OREFISH', false, mainStat);
+  const secondBubbleBonus = getBubbleBonus(account, 'SLABI_OREFISH', false, mainStat);
   const lootedItems = account?.looty?.rawLootedItems;
   baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100));
 
@@ -165,7 +161,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Mining_Efficiency');
   const starSignBonus = getStarSignBonus(character, account, 'Mining_Efficency');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MinEff');
-  const thirdBubbleBonus = getBubbleBonus(account, 'power', 'HEARTY_DIGGY', false, mainStat);
+  const thirdBubbleBonus = getBubbleBonus(account, 'HEARTY_DIGGY', false, mainStat);
   const fourthTalentBonus = getTalentBonus(character?.flatTalents, 'COPPER_COLLECTOR');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const copperOwned = calculateItemTotalAmount(account?.storage?.list, 'Copper_Ore', true);
