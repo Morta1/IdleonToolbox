@@ -66,7 +66,8 @@ const Leaderboards = () => {
         // Append the user's actual stats if they exist
         if (userStats[category] !== undefined) {
           data[category].push({ mainChar: username, ...userStats[category] });
-        } else {
+        }
+        else {
           data[category].push({ mainChar: username });
         }
       }
@@ -100,7 +101,7 @@ const Leaderboards = () => {
       title="Leaderboards | Idleon Toolbox"
       description="Leaderboards for Legends Of Idleon MMO"
     />
-    <Box sx={{ maxWidth: '300px', margin: '16px auto', border: 'none' }}>
+    <Box sx={{ maxWidth: '300px', margin: '16px auto 0 auto', border: 'none' }}>
       <TextField
         fullWidth
         size={'small'} value={searchedChar || ''}
@@ -122,6 +123,8 @@ const Leaderboards = () => {
         error={helperText !== ''}
         helperText={helperText}
       />
+      {!helperText ? <Typography sx={{ ml: 1 }} variant={'caption'} color={'text.secondary'}>Press Enter to search
+        globally</Typography> : null}
     </Box>
     <Box sx={{ maxWidth: '300px', margin: '16px auto', textAlign: 'center' }}>
       {!leaderboards?.totalUsers || !leaderboards?.createdAt ? <Skeleton sx={{ width: 300, margin: '0 auto' }}
