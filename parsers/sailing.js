@@ -268,7 +268,7 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const artifactBonus = isArtifactAcquired(artifactsList, '10_AD_Tablet')?.bonus ?? 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'SailSpd');
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sailing?.rank, 1);
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG25')
+  const statueBonus = getStatueBonus(account, 24)
   const voteBonus = getVoteBonus(account, 24);
   const msaBonus = account?.msaTotalizer?.sailing?.value ?? 0;
 

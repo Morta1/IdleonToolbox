@@ -313,7 +313,7 @@ const getDamageFromPerX = (character, characters, account, playerInfo, hpMpDamag
   return 100 < damage ? 100 + Math.max(Math.pow(damage - 100, .86), 0) : damage;
 }
 const getDamageFromHpMp = (character, characters, account, playerInfo, damageFromStat) => {
-  const secondStatueBonus = getStatueBonus(account?.statues, 'StatueG23', character?.flatTalents);
+  const secondStatueBonus = getStatueBonus(account, 22, character?.flatTalents);
   const talent113 = 0;
   const hpTalentBonus = getTalentBonus(character?.flatTalents, 'MEAT_SHANK');
   const mpTalentBonus = getTalentBonus(character?.flatTalents, 'OVERCLOCKED_ENERGY');
@@ -343,7 +343,7 @@ const getBaseDamage = (character, characters, account, playerInfo, damageFromSta
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 0);
   const equipmentBonus = getStatsFromGear(character, 16, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[16]);
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG1', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 0, character?.flatTalents);
   const hpBubbleBonus = getBubbleBonus(account, 'BIG_MEATY_CLAWS', false, mainStat === 'strength'); // above 250 HP
   const speedBubble = getBubbleBonus(account, 'QUICK_SLAP', false, mainStat === 'agility'); // works above 110% speed
   const mpBubble = getBubbleBonus(account, 'NAME_I_GUESS', false, mainStat === 'wisdom'); // 150 MP
@@ -404,7 +404,7 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'EXTENDO_RANGEO');
   const secondActiveBuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
   const starSignBonus = getStarSignBonus(character, account, 'Accuracy');
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG15', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 14, character?.flatTalents);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Total_Accuracy')?.bonus;
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Accuracy');
   const bribeBonus = account?.bribes?.[21]?.done ? account?.bribes?.[21]?.value : 0;
@@ -461,7 +461,7 @@ const getMaxMp = (character, characters, account) => {
 const getMaxHp = (character, characters, account) => {
   // customBlock_PlayerHPmax
   const foodBonus = getFoodBonus(character, account, 'HpBaseBoosts');
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG5', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 4, character?.flatTalents);
 
   const baseHp = foodBonus + statueBonus;
 
@@ -576,7 +576,7 @@ const getCritDamage = (character, characters, account) => {
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Circular_Criticals', account)?.curse;
   const equipmentBonus = getStatsFromGear(character, 22, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[22]);
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG6', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 5, character?.flatTalents);
   let critDamage;
   if (1e3 > character?.stats?.strength) {
     critDamage = (Math.pow(character?.stats?.strength + 1, 0.37) - 1) / 40;
@@ -595,7 +595,7 @@ const getCritChance = (character, characters, account, playerInfo) => {
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet6' ? character?.cards?.cardSet?.bonus : 0;
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Circular_Criticals', account)?.bonus;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Crit');
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG14', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 13, character?.flatTalents);
   const starTalentBonus = getTalentBonus(character?.flatStarTalents, 'MEGA_CRIT');
   const secondStarTalentBonus = getTalentBonus(character?.flatStarTalents, 'OVERACCURATE_CRIT');
   const starSignBonus = getStarSignBonus(character, account, 'Crit_Chance');
@@ -757,7 +757,7 @@ const getPlayerDefence = (character, characters, account) => {
   const secondEquipmentBonusEtc = getStatsFromGear(character, 7, account);
   const secondObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[7]);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Base_Defence')?.bonus ?? 0;
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG8', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 7, character?.flatTalents);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Def');
   const talentBonus = getTalentBonus(character?.flatTalents, 'BRICKY_SKIN', true);
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'BUCKLERED_UP');

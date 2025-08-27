@@ -143,7 +143,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const miningLevel = character?.skillsInfo?.mining?.level;
   baseMiningEff = baseMiningEff * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
   baseMiningEff += 4;
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG3', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 2, character?.flatTalents);
   const secondBubbleBonus = getBubbleBonus(account, 'SLABI_OREFISH', false, mainStat);
   const lootedItems = account?.looty?.rawLootedItems;
   baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100));

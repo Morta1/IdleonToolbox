@@ -737,7 +737,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
   else if (skillName === 'alchemy') {
     const stampBonus = getStampsBonusByEffect(account, 'Alchemy_Exp_Gain');
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Potion_Package', 1);
-    const statueBonus = getStatueBonus(account?.statues, 'StatueG13', character?.flatTalents);
+    const statueBonus = getStatueBonus(account, 12, character?.flatTalents);
     const talentBonus = getTalentBonus(character?.flatTalents, 'BUBBLE_BREAKTHROUGH');
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'SHARING_SOME_SMARTS');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 0);
@@ -871,7 +871,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'power', 'CALL_ME_BOB', account);
     const stampBonus = getStampsBonusByEffect(account, 'Construction_Exp_Gain');
     const voteBonus = getVoteBonus(account, 18);
-    const statueBonus = getStatueBonus(account?.statues, 'StatueG19', character?.flatTalents);
+    const statueBonus = getStatueBonus(account, 18, character?.flatTalents);
 
     const value = 1 + (activeBubbleBonus
       + (stampBonus
@@ -928,7 +928,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const chows = character?.chow?.finished?.[0] ?? 1;
     const cardBonus = getCardBonusByEffect(account?.cards, 'Cooking_EXP_gain')
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
-    const statueBonus = getStatueBonus(account?.statues, 'StatueG21', character?.flatTalents);
+    const statueBonus = getStatueBonus(account, 20, character?.flatTalents);
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 0);
     const voteBonus = getVoteBonus(account, 13);
     const cookingDef = monsters?.Cooking?.Defence;
@@ -972,7 +972,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const cardBonus = getCardBonusByEffect(account?.cards, 'Breeding_EXP')
     const stampBonus = getStampsBonusByEffect(account, 'Breeding_EXP_Gain');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'BreedXP');
-    const statueBonus = getStatueBonus(account?.statues, 'StatueG22', character?.flatTalents);
+    const statueBonus = getStatueBonus(account, 21, character?.flatTalents);
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.breeding?.rank, 0);
     const voteBonus = getVoteBonus(account, 16);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 59);
@@ -1122,7 +1122,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const cardBonus = getCardBonusByEffect(account?.cards, 'Divinity_EXP')
     const stampBonus = getStampsBonusByEffect(account, 'Divinity_EXP_Gain');
     const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'PIOUS_AT_HEART', account);
-    const statueBonus = getStatueBonus(account?.statues, 'StatueG24', character?.flatTalents);
+    const statueBonus = getStatueBonus(account, 23, character?.flatTalents);
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'DivExp');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'DivXP');
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'INNER_PEACE');
@@ -1224,7 +1224,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Farming_EXP')?.bonus;
     const winnerBonus = getWinnerBonus(account, '<x Farming EXP');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEXP');
-    const statueBonus = getStatueBonus(account?.statues, 'StatueG26', character?.flatTalents);
+    const statueBonus = getStatueBonus(account, 25, character?.flatTalents);
     const cardBonus = getCardBonusByEffect(account?.cards, 'Farming_EXP_(Passive)');
     const charmBonus = getCharmBonus(account, 'Rock_Candy');
     const labBonus = getLabBonus(account?.lab.labBonuses, 16);
@@ -1434,7 +1434,7 @@ export const getAllSkillsExp = (character, characters, account) => {
   const luckyCharmEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 35, character);
   const bubonicGreen = getBubonicGreenTube(character, characters, account);
   const shrineBonus = getShrineBonus(account?.shrines, 5, character?.mapIndex, account.cards, account?.sailing?.artifacts);
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG18', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 17, character?.flatTalents);
   const unendingEnergyBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Unending_Energy', account)?.bonus
   const balanceOfEffBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.bonus;
   const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.curse;
@@ -1524,7 +1524,7 @@ const getStealthRate = (character, account) => {
   const mainStat = mainStatMap?.[character?.class];
   const bubbleBonus = getBubbleBonus(account, 'STEALTH_CHAPTER', false, mainStat === 'agility');
   const starSignBonus = getStarSignBonus(character, account, 'Ninja_Twin')
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG27', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 26, character?.flatTalents);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_Stealth_(Passive)');
   const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Way_of_Stealth');
   let stealthMulti = 1;
@@ -1787,7 +1787,7 @@ export const getClassExpMulti = (character, account, characters) => {
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MonsterEXP');
   const bubbleBonus = getBubbleBonus(account, 'GRIND_TIME', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[44]);
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG11', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 10, character?.flatTalents);
   const starTalent = getTalentBonus(character?.flatStarTalents, 'JUST_EXP');
   const shrineBonus = getShrineBonus(account?.shrines, 5, character?.mapIndex, account.cards, account?.sailing?.artifacts);
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
@@ -2249,7 +2249,7 @@ export const getCashMulti = (character, account, characters) => {
   const waveReqs = randomList?.[53];
   const arenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 5));
   const secondArenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 14));
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG20', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 19, character?.flatTalents);
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
   const harriepGodUsers = getDeityLinkedIndex(account, characters, 3);
@@ -2560,7 +2560,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
 }
 export const getPlayerFoodBonus = (character, account, isHealth) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
-  const statuePower = getStatueBonus(account?.statues, 'StatueG4', character?.flatTalents);
+  const statuePower = getStatueBonus(account, 3, character?.flatTalents);
   const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
   const stampBonus = getStampsBonusByEffect(account, 'Effect_from_Boost_Food', character)
   const starSignBonus = getStarSignBonus(character, account, 'All_Food_Effect');
@@ -2599,7 +2599,7 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   else {
     agiMulti = (character.stats?.agility - 1e3) / (character.stats?.agility + 2500) * .5 + .371;
   }
-  const statuePower = getStatueBonus(account?.statues, 'StatueG2', character?.flatTalents);
+  const statuePower = getStatueBonus(account, 1, character?.flatTalents);
   // const speedFromStatue = 1 + (speedBonusFromPotions + (statuePower) / 2.2);
   const speedStarSign = getStarSignBonus(character, account, 'Movement_Speed');
   const equipmentSpeedEffectBonus = getStatsFromGear(character, 1, account);
@@ -3015,7 +3015,7 @@ export const getPlayerConstructionExpPerHour = (character, account) => {
   const talentBonus = getTalentBonus(character?.flatTalents, 'SHARPER_SAWS');
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
-  const statueBonus = getStatueBonus(account?.statues, 'StatueG19', character?.flatTalents);
+  const statueBonus = getStatueBonus(account, 18, character?.flatTalents);
   const stampBonus = getStampsBonusByEffect(account, '+{%_Construction_Exp_Gain', character);
   const starSignBonus = getStarSignBonus(character, account, 'Construct_Exp');
   const postOfficeBonus = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
