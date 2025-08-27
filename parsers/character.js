@@ -967,7 +967,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
   }
   else if (skillName === 'breeding') {
     const talentBonus = getHighestTalentByClass(characters, CLASSES.Beast_Master, 'SHINING_BEACON_OF_EGG');
-    const sapphireRhombol = getJewelBonus(account?.lab?.jewels, 5, spelunkerObolMulti)
+    const sapphireRhombol = getJewelBonus(account?.lab?.jewels, 5)
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'BrExp');
     const cardBonus = getCardBonusByEffect(account?.cards, 'Breeding_EXP')
     const stampBonus = getStampsBonusByEffect(account, 'Breeding_EXP_Gain');
