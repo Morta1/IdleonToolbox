@@ -22,7 +22,7 @@ const General = () => {
         <ObolsView obols={state?.account?.obols} type={'account'} characters={state?.characters}/>
         <Currencies {...(state?.account?.currencies || {})}/>
         <Shrines shrines={state?.account?.shrines} shrinesExpBonus={state?.account?.shrinesExpBonus}/>
-        <Statues statues={state?.account?.statues} characters={state?.characters}/>
+        <Statues account={state?.account} characters={state?.characters}/>
         <Stack gap={1.5}>
           <Highscores title={'Colosseum'} highscore={state?.account?.highscores?.coloHighscores}/>
           <Highscores title={'Minigame'} highscore={state?.account?.highscores?.minigameHighscores}/>

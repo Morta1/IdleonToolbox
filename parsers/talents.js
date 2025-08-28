@@ -217,7 +217,7 @@ export const getHighestMaxLevelTalentByClass = (characters, className, talentNam
   }, { maxLevel: 0 });
 }
 
-export const getTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
+export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   // "AllTalentLV" == e
   let addedLevels = 0, breakdown;
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 1);
@@ -256,21 +256,6 @@ export const getTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, de
   addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
   addedLevels += Math.min(5, getTesseractBonus(account, 57));
 
-  // 0.5 < c.asNumber(a.engine.getGameAttribute("SkillLevels")[0 | c.asNumber(t)]) || "AllTalentLVz" == e ?
-  //  ((49 <= c.asNumber(t) && 59 >= c.asNumber(t)) || 149 == c.asNumber(t)
-  //  || 374 == c.asNumber(t) || 539 == c.asNumber(t) || 505 == c.asNumber(t)
-  //  || 614 < c.asNumber(t) ? 0 : Math.floor(k._customBlock_GetTalentNumber(1, 149)
-  //    + (k._customBlock_GetTalentNumber(1, 374)
-  //      + (k._customBlock_GetTalentNumber(1, 539)
-  //      + r._customBlock_AchieveStatus(291))) +
-  //    (Math.floor(c.asNumber(a.engine.getGameAttribute("DNSM").h.FamBonusQTYs.h[68]))
-  //      + (n._customBlock_Companions(1) +
-  //        (Math.ceil(n._customBlock_Divinity("Bonus_Minor", a.engine.getGameAttribute("GetPlayersUsernames").indexOf(a.engine.getGameAttribute("UserInfo")[0]), 2))
-  //          + (c.asNumber(a.engine.getGameAttribute("Dream")[12])
-  //            + 5 * Math.floor((97 + c.asNumber(a.engine.getGameAttribute("OptionsListAccount")[232])) / 100)
-  //            + (n._customBlock_Summoning("GrimoireUpgBonus", 39, 0) +
-  //              (n._customBlock_GetSetBonus("KATTLEKRUK_SET", "Bonus", 0, 0)
-  //                + Math.min(5, n._customBlock_ArcaneType("ArcaneUpgBonus", 57, 0)))))))))) : 0;
   breakdown = [
     { title: 'Additive' },
     { name: '' },
@@ -302,7 +287,7 @@ export const getTalentAddedLevels = (talents, linkedDeity, secondLinkedDeity, de
       name: 'Ninja mastery',
       value: account.accountOptions?.[232] >= 3 ? 5 : 0
     }
-  ]
+  ];
   return {
     value: addedLevels,
     breakdown

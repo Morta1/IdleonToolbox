@@ -850,7 +850,7 @@ const getKillPerKill = (character, characters, account, playerInfo) => {
   const wisTalentBonus = getTalentBonus(character?.flatTalents, 'MEMORIAL_SKULLS');
   const warTalentBonus = getTalentBonus(character?.flatTalents, 'MONSTER_DECIMATOR');
   const multiKillTotal = getMultiKillTotal(character, characters, account, playerInfo);
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'quicc', 'KILL_PER_KILL', account);
+  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'KILL_PER_KILL', account);
 
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.bonus;
   return overKill ?
@@ -908,7 +908,7 @@ const getMultiKillTotal = (character, characters, account, playerInfo) => {
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Pain', account)?.bonus;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Multikill_Per_Tier');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 1);
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'kazam', 'MR_MASSACRE', account);
+  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'MR_MASSACRE', account);
   const achievement = getAchievementStatus(account?.achievements, 148);
   const achievementTwo = getAchievementStatus(account?.achievements, 122);
   const achievementThree = getAchievementStatus(account?.achievements, 123);

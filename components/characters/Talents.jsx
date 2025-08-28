@@ -17,24 +17,32 @@ const Talents = ({
                    account
                  }) => {
   const STAR_TAB_INDEX = Object.keys(talents || {}).length === 5 ? 5 : 4;
+
+  // local toggle (0 = default, 1 = flipped)
   const [preset, setSelectedPreset] = useState(selectedTalentPreset);
   const [selectedTab, setSelectedTab] = useState(0);
   const [activeTab, setActiveTab] = useState(0);
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
-  const spentTalentPoints = activeTalents?.orderedTalents?.reduce((res, { level = 0 }) => res + level, 0);
-  const getPreset = (specialTab = 0) => {
-    let presetTalents, presetStarTalents;
 
-    if (selectedTalentPreset === 0) {
-      presetTalents = preset === 0 ? talents : talentPreset?.talents;
-      presetStarTalents = preset === 0 ? starTalents : talentPreset?.starTalents;
-    } else {
-      presetTalents = preset === 0 ? talentPreset?.talents : talents;
-      presetStarTalents = preset === 0 ? talentPreset?.starTalents : starTalents;
-    }
-    return activeTab === STAR_TAB_INDEX ? handleStarTalents(presetStarTalents, specialTab) : presetTalents?.[activeTab];
-  }
+  const spentTalentPoints = activeTalents?.orderedTalents?.reduce(
+    (res, { level = 0 }) => res + level,
+    0
+  );
+
+  // ✅ single boolean flag to decide which set to use
+  const isUsingPreset =
+    (selectedTalentPreset === 0 && preset !== 0) ||
+    (selectedTalentPreset === 1 && preset === 0);
+
+  const getPreset = (specialTab = 0) => {
+    const presetTalents = isUsingPreset ? talentPreset?.talents : talents;
+    const presetStarTalents = isUsingPreset ? talentPreset?.starTalents : starTalents;
+
+    return activeTab === STAR_TAB_INDEX
+      ? handleStarTalents(presetStarTalents, specialTab)
+      : presetTalents?.[activeTab];
+  };
 
   useEffect(() => {
     const currentTalentsDisplay = getPreset(specialsTab);
@@ -42,42 +50,44 @@ const Talents = ({
     if (activeTab !== STAR_TAB_INDEX) {
       setSpecialTabs(0);
     }
-  }, [activeTab, talents, preset]);
+  }, [activeTab, talents, preset, specialsTab]);
 
   const switchSpecials = (tab) => {
     setSpecialTabs(tab);
     setActiveTalents(getPreset(tab));
-  }
-  const getStarTalentPage = (talents, index) => {
-    return talents?.slice(index * 13, (index + 1) * 13)
-  }
+  };
+
+  const getStarTalentPage = (talents, index) =>
+    talents?.slice(index * 13, (index + 1) * 13);
 
   const handleStarTalents = (tab, tabIndex) => {
-    const clonedTalents = structuredClone((tab?.orderedTalents));
+    const clonedTalents = structuredClone(tab?.orderedTalents);
     const filledTalents = fillMissingTalents(clonedTalents);
     let tempTalents = getStarTalentPage(filledTalents, tabIndex);
-    // fill for a full talent page
+
     if (tempTalents.length < 13) {
       tempTalents = new Array(13).fill(1).map((_, ind) => tempTalents[ind] ?? {});
     }
-    // insert arrows
-    tempTalents?.splice(10, 0, { talentId: 'arrow' });
-    tempTalents?.splice(14, 0, { talentId: 'arrow' });
+
+    tempTalents.splice(10, 0, { talentId: 'arrow' });
+    tempTalents.splice(14, 0, { talentId: 'arrow' });
+
     return {
       ...tab,
-      orderedTalents: tempTalents
+      orderedTalents: tempTalents,
     };
-  }
+  };
 
-  const getLevelAndMaxLevel = (level, maxLevel) => {
-    if (level >= 0 && maxLevel >= 0) {
-      return `${level}/${maxLevel}`;
-    }
-    return ''
-  }
+  const getLevelAndMaxLevel = (level, maxLevel) =>
+    level >= 0 && maxLevel >= 0 ? `${level}/${maxLevel}` : '';
 
-  const selectedAddedLevels = preset === 0 ? addedLevels : talentPreset?.addedLevels;
-  const selectedAddedLevelsBreakdown = preset === 0 ? addedLevelsBreakdown : talentPreset?.addedLevelsBreakdown;
+  const selectedAddedLevels = isUsingPreset
+    ? talentPreset?.addedLevels
+    : addedLevels;
+
+  const selectedAddedLevelsBreakdown = isUsingPreset
+    ? talentPreset?.addedLevelsBreakdown
+    : addedLevelsBreakdown;
 
   return <StyledTalents active={activeTab}>
     <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
@@ -124,20 +134,6 @@ const Talents = ({
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
         const { talentId, level, baseLevel, maxLevel, name } = talentDetails;
         if (index >= 15) return null;
-        // if (-1 < this._SkillIconSelected)
-        // const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')
-        // const winnerBonus = 0;
-        // const atomBonus = getAtomBonus(account, 'Oxygen_-_Library_Booker');
-        // const achievementBonus = getAchievementStatus(account?.achievements, 145);
-        // const saltLickBonus = getSaltLickBonus(account?.saltLick, 4);
-        // const unavailableLibraryBook = randomList?.[16]?.split(' ').map((num) => Number(num));
-        // const isBookUnavailable = unavailableLibraryBook.includes(talentId);
-        // const maxBookLevel = Math.round(125 + artifact?.bonus
-        //   + winnerBonus
-        //   + 10 * Math.min(atomBonus, 1)
-        //   + (Math.min(5, Math.max(0, 5 * achievementBonus))
-        //     + saltLickBonus + merits?.[2]?.[2]?.bonusPerLevel
-        //     * account?.tasks?.[2]?.[2]?.[2]));
         const hardMaxed = activeTab === STAR_TAB_INDEX ? true : baseLevel < maxLevel;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
 

@@ -445,7 +445,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   character.zow = getBarbarianZowChow(kills, [1e5]);
   character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
   character.wow = getBarbarianZowChow(kills, [1e9]);
-  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'kazam', 'BIG_P', account);
+  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'BIG_P', account);
   const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
   character.linkedDeity = linkedDeity;
@@ -473,22 +473,13 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   let familyEffBonus = getUpdatedFamilyBonus(character, charactersLevels);
   let addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
-  // Iterative refinement to resolve circular dependency
-  let prevAddedLevels = null;
   let iterations = 0;
   const maxIterations = 3;
 
   while (iterations < maxIterations) {
-
-    prevAddedLevels = addedLevels;
-
-    const tempCharacter = { ...character };
+    const tempCharacter = Object.assign({}, character);
     tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0);
-
-    // Recalculate family bonus with updated talents
     familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
-
-    // Recalculate added levels with new family bonus
     addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
     iterations++;
@@ -742,7 +733,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'SHARING_SOME_SMARTS');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 0);
     const bubbleBonus = getBubbleBonus(account, 'NOODUBBLE', false, mainStat === 'wisdom');
-    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'COOKIN_ROADKILL', account);
+    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'COOKIN_ROADKILL', account);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 28);
 
     const value = 1 + allSkillExp?.value / 100
@@ -868,7 +859,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     }
   }
   else if (skillName === 'construction') {
-    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'power', 'CALL_ME_BOB', account);
+    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_BOB', account);
     const stampBonus = getStampsBonusByEffect(account, 'Construction_Exp_Gain');
     const voteBonus = getVoteBonus(account, 18);
     const statueBonus = getStatueBonus(account, 18, character?.flatTalents);
@@ -1021,7 +1012,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lexp');
     const stampBonus = getStampsBonusByEffect(account, 'Lab_Exp_Gain');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'LabXP');
-    const bubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'MATRIX_EVOLVED', account);
+    const bubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'MATRIX_EVOLVED', account);
     const equipBonus = getStatsFromGear(character, 65, account);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LAB_TESSTUBE');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
@@ -1121,7 +1112,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DIV_SPIRAL');
     const cardBonus = getCardBonusByEffect(account?.cards, 'Divinity_EXP')
     const stampBonus = getStampsBonusByEffect(account, 'Divinity_EXP_Gain');
-    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'high-iq', 'PIOUS_AT_HEART', account);
+    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'PIOUS_AT_HEART', account);
     const statueBonus = getStatueBonus(account, 23, character?.flatTalents);
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'DivExp');
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'DivXP');
@@ -2980,7 +2971,7 @@ const getNonConsumeChance = (character, account) => {
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const nonConsumeJewelBonus = getJewelBonus(lab?.jewels, 8, spelunkerObolMulti);
   const baseMath = 90 + 5 * nonConsumeJewelBonus;
-  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, 'power', 'BITE_BUT_NOT_CHEW', account);
+  const biteButNotChewBubbleBonus = getActiveBubbleBonus(equippedBubbles, 'BITE_BUT_NOT_CHEW', account);
   const bubbleMath = Math.min(baseMath, 98 + Math.min(biteButNotChewBubbleBonus, 1));
   const jewelMath = Math.max(1, nonConsumeJewelBonus);
   const freeMealBonus = getTalentBonus(flatTalents, 'FREE_MEAL');
@@ -3011,7 +3002,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
 }
 export const getPlayerConstructionExpPerHour = (character, account) => {
   const playerBuildSpeed = character?.constructionSpeed;
-  const activeBubbleBonus = getActiveBubbleBonus(character.equippedBubbles, 'power', 'CALL_ME_BOB', account);
+  const activeBubbleBonus = getActiveBubbleBonus(character.equippedBubbles, 'CALL_ME_BOB', account);
   const talentBonus = getTalentBonus(character?.flatTalents, 'SHARPER_SAWS');
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
