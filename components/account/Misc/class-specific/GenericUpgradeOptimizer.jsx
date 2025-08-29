@@ -59,6 +59,14 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:maxUpgrades`,
     defaultValue: 10
   });
+  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:maxUpgradesMode`,
+    defaultValue: 'preset'
+  });
+  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:customMaxUpgrades`,
+    defaultValue: 10
+  });
   const [groupMode, setGroupMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:groupMode`,
     defaultValue: 'None'
@@ -101,12 +109,16 @@ const GenericUpgradeOptimizer = ({
 
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
-    return getOptimizedUpgradesFn(character, account, category, maxUpgrades, {
+    const maxToUse = maxUpgradesMode === 'custom'
+      ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
+      : maxUpgrades;
+    return getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
     });
-  }, [character, category, maxUpgrades, account, getOptimizedUpgradesFn, onlyAffordable, resourcePerHour,
+  }, [character, category, maxUpgradesMode, customMaxUpgrades, maxUpgrades, account, getOptimizedUpgradesFn,
+    onlyAffordable, resourcePerHour,
     optimizationMethod, getResourceType]);
 
   // Group upgrades by name if consolidation is enabled
@@ -349,18 +361,47 @@ const GenericUpgradeOptimizer = ({
             Set RPH
           </Button>
         )}
-        <FormControl size="small" sx={{ width: 120 }}>
+        <FormControl size="small" sx={{ width: 160 }}>
           <InputLabel>Max Upgrades</InputLabel>
           <Select
-            value={maxUpgrades}
+            value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
             label="Max Upgrades"
-            onChange={(e) => setMaxUpgrades(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === 'custom') {
+                setMaxUpgradesMode('custom');
+              }
+              else {
+                setMaxUpgradesMode('preset');
+                setMaxUpgrades(val);
+              }
+            }}
           >
             {maxUpgradesOptions.map(max => (
               <MenuItem key={max} value={max}>{max}</MenuItem>
             ))}
+            <MenuItem value={'custom'}>Custom</MenuItem>
           </Select>
         </FormControl>
+        {maxUpgradesMode === 'custom' && (
+          <TextField
+            size="small"
+            type="number"
+            inputProps={{ min: 1 }}
+            sx={{ width: 120 }}
+            label="Custom Max"
+            value={customMaxUpgrades}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              if (isNaN(v)) {
+                setCustomMaxUpgrades('');
+              }
+              else {
+                setCustomMaxUpgrades(Math.max(1, v));
+              }
+            }}
+          />
+        )}
         <FormControl size="small" sx={{ width: 120 }}>
           <InputLabel>Group mode</InputLabel>
           <Select

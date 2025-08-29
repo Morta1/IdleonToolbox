@@ -25,16 +25,22 @@ import CoinDisplay from 'components/common/CoinDisplay';
 import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { CardTitleAndValue } from '@components/common/styles';
-import { calcStampLevels, evaluateStamp, getStampBonus, unobtainableStamps, updateStamps } from '@parsers/stamps';
+import { Breakdown, CardTitleAndValue } from '@components/common/styles';
+import {
+  calcStampLevels,
+  evaluateStamp,
+  getStampBonus,
+  getStampsPerDay,
+  unobtainableStamps,
+  updateStamps
+} from '@parsers/stamps';
 import Grid from '@mui/material/Grid2';
 import { grey } from '@mui/material/colors';
-import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import Link from '@mui/material/Link';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
 import { useLocalStorage } from '@mantine/hooks';
-import { IconDeviceFloppy, IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconChevronRight, IconDeviceFloppy, IconInfoCircleFilled } from '@tabler/icons-react';
 import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
 import useCheckbox from '@components/common/useCheckbox';
@@ -59,6 +65,7 @@ const Stamps = () => {
       upgradable: true
     }
   });
+  const stampsPerDay = getStampsPerDay(state?.account);
 
   useEffect(() => {
     const hydrogenAtom = state?.account?.atoms?.atoms?.[0];
@@ -105,13 +112,17 @@ const Stamps = () => {
     if (level <= 0) return { border: '#1d1c1c', type: 'level' };
     if (!hasMoney && mode === 'money') {
       return { border: 'warning.light', type: 'money' };
-    } else if (!enoughPlayerStorage && mode === 'material') {
+    }
+    else if (!enoughPlayerStorage && mode === 'material') {
       return { border: '#e3e310', type: 'player' }
-    } else if (mode === 'material' && (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials))) {
+    }
+    else if (mode === 'material' && (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials))) {
       return { border: 'error.light', type: 'materials' };
-    } else if (materials.length > 0) {
+    }
+    else if (materials.length > 0) {
       return { border: 'grey', type: 'equipments' };
-    } else if (materials.length === 0 && ((hasMaterials && enoughPlayerStorage) || mode === 'money') && hasMoney) {
+    }
+    else if (materials.length === 0 && ((hasMaterials && enoughPlayerStorage) || mode === 'money') && hasMoney) {
       const index = reducerValues.indexOf(forcedStampReducer);
       const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
       if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && ((minReductionStamp?.hasMaterials && minReductionStamp?.enoughPlayerStorage) || mode === 'money') && minReductionStamp?.hasMoney) {
@@ -169,6 +180,15 @@ const Stamps = () => {
           <FormControlLabel
             control={<Switch checked={forcedGildedStamp} onChange={() => setForcedGildedStamp(!forcedGildedStamp)}/>}
             label="Gilded Stamp"/>
+          <Divider sx={{ my: 1 }}/>
+          <Typography sx={{ fontSize: 14 }} color="text.secondary">No Stamp Left Behind</Typography>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <Typography>{stampsPerDay?.value}</Typography>
+            <Tooltip
+              title={<Breakdown breakdown={stampsPerDay?.breakdown} />}>
+              <IconInfoCircleFilled size={18}/>
+            </Tooltip>
+          </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Stamp Reducer'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
@@ -203,8 +223,8 @@ const Stamps = () => {
                   sx={{ cursor: 'pointer' }}
                   onClick={() => router.push({ pathname: 'old-stamps' })}>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <ArrowRightAltIcon/>
-                <Typography>Old Stamps Page</Typography>
+                <IconChevronRight size={16}/>
+                <Typography>Old Page</Typography>
               </Stack>
             </Link>
             <FormControlLabel

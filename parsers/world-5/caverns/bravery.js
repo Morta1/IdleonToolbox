@@ -82,17 +82,17 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
     value: afkPercent,
     breakdown: [
       {
-        name: 'Monument Bonus', value: getMonumentBonus({ holesObject, t: 0, i: 8 })
+        name: 'Monument', value: getMonumentBonus({ holesObject, t: 0, i: 8 })
           + getMonumentBonus({ holesObject, t: 1, i: 8 })
           + getMonumentBonus({ holesObject, t: 2, i: 8 })
       },
-      { name: 'Win Bonus', value: winBonus },
-      { name: 'Jar Bonus', value: getJarBonus({ holesObject, i: 19 }) },
-      { name: 'Schematic Bonus', value: getSchematicBonus({ holesObject, t: 81, i: 20 }) },
-      { name: 'Measurement Bonus', value: getMeasurementBonus({ holesObject, accountData, t: 11 }) },
-      { name: 'Arcade Bonus', value: arcadeBonus || 0 },
+      { name: 'Summoning', value: winBonus },
+      { name: 'Jar', value: getJarBonus({ holesObject, i: 19 }) },
+      { name: 'Schematic', value: getSchematicBonus({ holesObject, t: 81, i: 20 }) },
+      { name: 'Measurement', value: getMeasurementBonus({ holesObject, accountData, t: 11 }) },
+      { name: 'Arcade', value: arcadeBonus || 0 },
       {
-        name: 'Achievement Bonus',
+        name: 'Achievement',
         value: 10 * getAchievementStatus(accountData?.achievements, 311)
       }
     ],

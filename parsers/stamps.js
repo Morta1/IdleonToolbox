@@ -2,13 +2,14 @@ import { groupByKey, growth, tryToParse } from '@utility/helpers';
 import { crafts, items, stamps } from '../data/website-data';
 import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
-import { getEventShopBonus, getHighestCapacityCharacter } from '@parsers/misc';
+import { getEventShopBonus, getHighestCapacityCharacter, isBundlePurchased } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/alchemy';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getAtomBonus } from '@parsers/atomCollider';
 import { getCompassBonus } from '@parsers/compass';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 export const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 export const altStampsMapping = { _: 'combat', a: 'skills', b: 'misc' };
@@ -44,6 +45,31 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   }, {});
 }
 
+export const getStampsPerDay = (account) => {
+  let stamps = 0;
+  const hasBundle = isBundlePurchased(account?.bundles, 'bun_s');
+  if (hasBundle) {
+    stamps += 5;
+  }
+  const eventBonus = getEventShopBonus(account, 1);
+  if (eventBonus) {
+    stamps += 3;
+  }
+  const winBonus = getWinnerBonus(account, '+{ Stamp LV/day');
+  if (winBonus) {
+    stamps += winBonus;
+  }
+
+  return {
+    value: stamps,
+    breakdown: [
+      { name: 'Bundle', value: hasBundle ? 5 : 0 },
+      { name: 'Event', value: eventBonus ? 3 : 0 },
+      { name: 'Summoning', value: winBonus ? winBonus : 0 }
+    ]
+  };
+}
+
 export const evaluateStamp = (stamp, account, characters, gildedStamp = true, forcedStampReducer, forceMaxCapacity = false) => {
   const stampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
   const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account, forceMaxCapacity);
@@ -55,7 +81,8 @@ export const evaluateStamp = (stamp, account, characters, gildedStamp = true, fo
   if (stamp?.materials?.length > 0) {
     hasMaterials = checkHasMaterials(stamp?.materials, materialCost, account);
     greenStackHasMaterials = checkHasMaterials(stamp?.materials, materialCost, account, true);
-  } else {
+  }
+  else {
     hasMaterials = stamp?.ownedMats >= materialCost;
     greenStackHasMaterials = Math.max(0, stamp?.ownedMats - 1e7) >= materialCost;
   }
