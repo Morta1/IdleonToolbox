@@ -227,7 +227,7 @@ const GenericUpgradeOptimizer = ({
   };
   const renderCombinedStats = (upgrade) => {
     if (!upgrade.combinedStatChanges) return null;
-    const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === upgrade.resourceType) || upgrade.resourceType;
+    const resourceTypeKey = getResourceType(upgrade);
     return (
       <>
         <Divider sx={{ my: 1 }}/>
