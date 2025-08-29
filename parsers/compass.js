@@ -39,18 +39,19 @@ export const UPGRADE_CATEGORIES = {
   damage: {
     name: 'Damage',
     stats: ['damage'],
-    upgradeIndices: [6,8, 10, 113, 112, 14, 119, 15, 122, 123, 121, 129, 130, 127, 24, 132, 135, 126, 48, 155, 157, 158,
+    upgradeIndices: [6, 8, 10, 23, 113, 112, 14, 119, 15, 122, 123, 121, 129, 130, 127, 24, 132, 135, 126, 48, 155, 157,
+      158,
       60, 64, 74, 75, 81, 85, 94]
   },
   dust: {
     name: 'Dust',
     stats: ['dust'],
-    upgradeIndices: [22, 23, 139, 30, 142, 34, 145, 31, 38, 33, 148, 150, 68, 86, 89, 93]
+    upgradeIndices: [139, 142, 34, 145, 31, 38, 33, 148, 150, 68, 86, 89, 93]
   },
   accuracy: {
     name: 'Accuracy',
     stats: ['accuracy'],
-    upgradeIndices: [6, 17, 120, 124, 19, 22, 125, 134, 128, 133, 25, 131, 136, 147, 61, 79, 84, 90]
+    upgradeIndices: [6, 17, 22, 120, 124, 19, 22, 125, 134, 128, 133, 25, 131, 136, 147, 61, 79, 84, 90]
   },
   defence: {
     name: 'Defence',
@@ -346,7 +347,8 @@ const getGroupedUpgrades = (upgrades, abominations) => {
         ...upg,
         unlocked: !!abominations?.[i]?.unlocked
       }));
-    } else {
+    }
+    else {
       // Apply "unlocked" based on first upgrade's level
       const unlockedCount = list[0]?.level ?? 0;
       list = list.map((upg, i) => ({
