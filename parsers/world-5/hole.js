@@ -514,7 +514,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const tesseractBonus = getTesseractBonus(accountData, 32);
   const arcadeBonus = (getArcadeBonus(accountData?.arcade?.shop, 'Villager_XP_multi')?.bonus ?? 0);
   const companionBonus = isCompanionBonusActive(accountData, 13) ? 1 : 0;
-  const statueBonus = getStatueBonus(accountData, 29);
+  const statueBonus = getStatueBonus(accountData, 28);
   const jarBonuses = getJarBonus({ holesObject, i: 4 })
     + (getJarBonus({ holesObject, i: 10 })
       + (getJarBonus({ holesObject, i: 12 })
