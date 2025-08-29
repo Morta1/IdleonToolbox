@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -25,14 +25,14 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { parseShorthandNumber } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, parseShorthandNumber, prefix } from '@utility/helpers';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
 import { useLocalStorage } from '@mantine/hooks';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
+const groupModes = ['None', 'Upgrade', 'Summary'];
 const GenericUpgradeOptimizer = ({
                                    character,
                                    account,
@@ -59,7 +59,10 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:maxUpgrades`,
     defaultValue: 10
   });
-  const [CheckboxEl, consolidateUpgrades] = useCheckbox('Group by upgrade');
+  const [groupMode, setGroupMode] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:groupMode`,
+    defaultValue: 'None'
+  });
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only show affordable upgrades');
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
@@ -73,7 +76,9 @@ const GenericUpgradeOptimizer = ({
   const [resourcePerHourInput, setResourcePerHourInput] = useState(() => {
     const obj = {};
     Object.keys(resourceNames).forEach(key => {
-      obj[key] = resourcePerHour[key] !== undefined && resourcePerHour[key] !== null && resourcePerHour[key] !== '' ? resourcePerHour[key].toLocaleString() : '';
+      obj[key] = resourcePerHour[key] !== undefined && resourcePerHour[key] !== null && resourcePerHour[key] !== ''
+        ? resourcePerHour[key].toLocaleString()
+        : '';
     });
     return obj;
   });
@@ -106,79 +111,122 @@ const GenericUpgradeOptimizer = ({
 
   // Group upgrades by name if consolidation is enabled
   const displayUpgrades = useMemo(() => {
-    if (!consolidateUpgrades) {
-      return optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
-    }
-    // Group consecutive upgrades of the same type while preserving order
-    const consolidatedUpgrades = [];
-    let currentGroup = null;
-    const currentLevels = {};
-    optimizedUpgrades.forEach((upgrade, index) => {
-      const upgradeName = upgrade.name;
-      // Determine the start level for this group
-      const startLevel = currentGroup && currentGroup.name === upgradeName
-        ? currentGroup.startLevel
-        : (currentLevels[upgradeName] ?? upgrade.level);
-      if (!currentGroup || currentGroup.name !== upgradeName) {
-        if (currentGroup) {
-          // After finishing a group, update the current level and push
-          currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-          currentLevels[currentGroup.name] = currentGroup.finalLevel;
-          consolidatedUpgrades.push(currentGroup);
+    if (groupMode === 'Upgrade') {
+      // Group consecutive upgrades of the same type while preserving order
+      const consolidatedUpgrades = [];
+      let currentGroup = null;
+      const currentLevels = {};
+      optimizedUpgrades.forEach((upgrade, index) => {
+        const upgradeName = upgrade.name;
+        // Determine the start level for this group
+        const startLevel = currentGroup && currentGroup.name === upgradeName
+          ? currentGroup.startLevel
+          : (currentLevels[upgradeName] ?? upgrade.level);
+        if (!currentGroup || currentGroup.name !== upgradeName) {
+          if (currentGroup) {
+            // After finishing a group, update the current level and push
+            currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
+            currentLevels[currentGroup.name] = currentGroup.finalLevel;
+            consolidatedUpgrades.push(currentGroup);
+          }
+          // Start new group
+          currentGroup = {
+            ...upgrade,
+            upgradeIndex: index,
+            sequence: [{ ...upgrade, originalIndex: index }],
+            startLevel
+          };
         }
-        // Start new group
-        currentGroup = {
+        else {
+          currentGroup.sequence.push({ ...upgrade, originalIndex: index });
+        }
+      });
+      // Push the last group
+      if (currentGroup) {
+        currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
+        currentLevels[currentGroup.name] = currentGroup.finalLevel;
+        consolidatedUpgrades.push(currentGroup);
+      }
+      // Calculate combined stats for each group
+      return consolidatedUpgrades.map(upgrade => {
+        if (!upgrade.sequence || upgrade.sequence.length <= 1) {
+          return upgrade;
+        }
+        // Calculate total stats
+        const combinedStats = {};
+        let totalCost = 0;
+        const resourceType = getResourceType(upgrade);
+        upgrade.sequence.forEach(seq => {
+          totalCost += seq.cost;
+          if (category !== 'all') {
+            seq.statChanges.forEach(statChange => {
+              if (!combinedStats[statChange.stat]) {
+                combinedStats[statChange.stat] = {
+                  stat: statChange.stat,
+                  change: 0,
+                  percentChange: 0
+                };
+              }
+              combinedStats[statChange.stat].change += statChange.change;
+              combinedStats[statChange.stat].percentChange += statChange.percentChange;
+            });
+          }
+        });
+        return {
           ...upgrade,
-          upgradeIndex: index,
-          sequence: [{ ...upgrade, originalIndex: index }],
-          startLevel
+          combinedStatChanges: Object.values(combinedStats),
+          totalCost,
+          resourceType,
+          startLevel: upgrade.startLevel,
+          finalLevel: upgrade.finalLevel,
+          numberOfUpgrades: upgrade.sequence.length
         };
-      } else {
-        currentGroup.sequence.push({ ...upgrade, originalIndex: index });
-      }
-    });
-    // Push the last group
-    if (currentGroup) {
-      currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-      currentLevels[currentGroup.name] = currentGroup.finalLevel;
-      consolidatedUpgrades.push(currentGroup);
+      });
     }
-    // Calculate combined stats for each group
-    return consolidatedUpgrades.map(upgrade => {
-      if (!upgrade.sequence || upgrade.sequence.length <= 1) {
-        return upgrade;
-      }
-      // Calculate total stats
-      const combinedStats = {};
-      let totalCost = 0;
-      const resourceType = getResourceType(upgrade);
-      upgrade.sequence.forEach(seq => {
-        totalCost += seq.cost;
-        if (category !== 'all') {
-          seq.statChanges.forEach(statChange => {
-            if (!combinedStats[statChange.stat]) {
-              combinedStats[statChange.stat] = {
+    else if (groupMode === 'Summary') {
+      const grouped = {};
+      optimizedUpgrades.forEach((upgrade, index) => {
+        if (!grouped[upgrade.name]) {
+          grouped[upgrade.name] = {
+            ...upgrade,
+            upgradeIndex: index,
+            startLevel: upgrade.level,
+            finalLevel: upgrade.level,
+            sequence: [],
+            totalCost: 0,
+            combinedStatChanges: {} // temp object for merging
+          };
+        }
+
+        const g = grouped[upgrade.name];
+        g.sequence.push(upgrade);
+        g.finalLevel = Math.max(g.finalLevel, upgrade.level);
+        g.totalCost += upgrade.cost;
+
+        if (upgrade.statChanges) {
+          upgrade.statChanges.forEach(statChange => {
+            if (!g.combinedStatChanges[statChange.stat]) {
+              g.combinedStatChanges[statChange.stat] = {
                 stat: statChange.stat,
                 change: 0,
                 percentChange: 0
               };
             }
-            combinedStats[statChange.stat].change += statChange.change;
-            combinedStats[statChange.stat].percentChange += statChange.percentChange;
+            g.combinedStatChanges[statChange.stat].change += statChange.change;
+            g.combinedStatChanges[statChange.stat].percentChange += statChange.percentChange;
           });
         }
       });
-      return {
-        ...upgrade,
-        combinedStatChanges: Object.values(combinedStats),
-        totalCost,
-        resourceType,
-        startLevel: upgrade.startLevel,
-        finalLevel: upgrade.finalLevel,
-        numberOfUpgrades: upgrade.sequence.length
-      };
-    });
-  }, [optimizedUpgrades, consolidateUpgrades, getResourceType]);
+
+      const summary = Object.values(grouped).map(g => ({
+        ...g,
+        combinedStatChanges: Object.values(g.combinedStatChanges)
+      }));
+
+      return summary;
+    }
+    return optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
+  }, [optimizedUpgrades, groupMode, getResourceType]);
 
   // Calculate total resource costs by type
   const resourceUsage = useMemo(() => {
@@ -260,7 +308,8 @@ const GenericUpgradeOptimizer = ({
       if (raw === '' || isNaN(parsed)) {
         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
         setResourcePerHourInput(input => ({ ...input, [key]: '' }));
-      } else {
+      }
+      else {
         setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
         setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
       }
@@ -312,7 +361,18 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
-        <CheckboxEl/>
+        <FormControl size="small" sx={{ width: 120 }}>
+          <InputLabel>Group mode</InputLabel>
+          <Select
+            value={groupMode}
+            label="Group mode"
+            onChange={(e) => setGroupMode(e.target.value)}
+          >
+            {groupModes.map(group => (
+              <MenuItem key={group} value={group}>{group}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <AffordableCheckboxEl/>
         <Tooltip title={tooltipText}>
           <IconInfoCircleFilled/>
@@ -380,18 +440,21 @@ const GenericUpgradeOptimizer = ({
                       if (raw === '' || isNaN(parsed)) {
                         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
                         setResourcePerHourInput(input => ({ ...input, [key]: '' }));
-                      } else {
+                      }
+                      else {
                         setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
                         setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
                       }
                     }}
                     inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ \u00A0\u2009\u202F]*' }}
                   />
-                  {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000 ? (
-                    <Typography variant="caption" color="text.secondary">
-                      {notateNumber(resourcePerHour[key])}
-                    </Typography>
-                  ) : null}
+                  {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000
+                    ? (
+                      <Typography variant="caption" color="text.secondary">
+                        {notateNumber(resourcePerHour[key])}
+                      </Typography>
+                    )
+                    : null}
                 </Stack>
               ))}
             </Stack>
