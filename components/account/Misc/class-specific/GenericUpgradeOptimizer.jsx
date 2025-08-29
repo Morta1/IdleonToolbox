@@ -468,16 +468,22 @@ const GenericUpgradeOptimizer = ({
                     size="small"
                     value={resourcePerHourInput[key]}
                     onChange={e => {
-                      // Allow any input, including letters for shorthand
                       const value = e.target.value;
-                      // Only allow digits, commas, dots, kmbtq/KMBTQ, and spaces
-                      if (/^[\d,\.kmbtqKMBTQ \u00A0\u2009\u202F]*$/.test(value)) {
+                      if (/^[\d\p{P}\p{Z}kmbtqKMBTQ]*$/u.test(value)) {
                         setResourcePerHourInput(input => ({ ...input, [key]: value }));
                       }
                     }}
                     onBlur={e => {
-                      const raw = e.target.value.replace(/\s+/g, '');
+                      const raw = e.target.value
+                        // Remove all spaces/separators
+                        .replace(/\p{Z}+/gu, '')
+                        // Remove apostrophes/backticks
+                        .replace(/[’'´`]/g, '')
+                        // Optional: unify commas to dots if you want a single decimal separator
+                        .replace(/,/g, '.');
+
                       const parsed = parseShorthandNumber(raw);
+
                       if (raw === '' || isNaN(parsed)) {
                         setResourcePerHour(rph => ({ ...rph, [key]: '' }));
                         setResourcePerHourInput(input => ({ ...input, [key]: '' }));
@@ -487,7 +493,7 @@ const GenericUpgradeOptimizer = ({
                         setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
                       }
                     }}
-                    inputProps={{ inputMode: 'text', pattern: '[0-9.,kmbtqKMBTQ \u00A0\u2009\u202F]*' }}
+                    inputProps={{ inputMode: 'text', pattern: /^[\d\p{P}\p{Z}kmbtqKMBTQ]*$/u }}
                   />
                   {resourcePerHour[key] && !isNaN(resourcePerHour[key]) && resourcePerHour[key] !== 0 && resourcePerHour[key] > 1000
                     ? (
