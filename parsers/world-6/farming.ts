@@ -221,7 +221,8 @@ export const updateFarming = (characters: any, account: any) => {
       * (1 + charmOGChange / 100)
       * (1 + starSignBonus / 100)
       * (1 + (2 * account?.tasks?.[2]?.[5]?.[2]) / 100)
-      * (1 + (15 * achievementBonus) / 100);
+      * (1 + (15 * achievementBonus) / 100)
+      * (1 + getRanksTotalBonus(account?.farming?.ranks, 3) / 100);
 
     const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
     const maxTimeLeft = crop?.growthReq / growthRate;
