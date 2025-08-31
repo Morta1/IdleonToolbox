@@ -216,13 +216,14 @@ export const updateFarming = (characters: any, account: any) => {
     const charmOGChange = getCharmBonus(account, 'Taffy_Disc');
     const starSignBonus = getStarSignBonus(characters?.[0], account, 'OG_Chance');
     const achievementBonus = getAchievementStatus(account?.achievements, 365)
+    const landRankBonus = getLandRankTotalBonus(account, 3);
     const nextOGChance = Math.pow(0.4, crop?.currentOG + 1)
       * Math.max(1, marketOGChance)
       * (1 + charmOGChange / 100)
       * (1 + starSignBonus / 100)
       * (1 + (2 * account?.tasks?.[2]?.[5]?.[2]) / 100)
       * (1 + (15 * achievementBonus) / 100)
-      * (1 + getRanksTotalBonus(account?.farming?.ranks, 3) / 100);
+      * (1 + landRankBonus / 100);
 
     const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
     const maxTimeLeft = crop?.growthReq / growthRate;
