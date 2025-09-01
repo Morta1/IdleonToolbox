@@ -3,7 +3,7 @@ import { Section } from '@components/tools/active-calculator/common';
 import React, { Fragment, useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import { checkCharClass, CLASSES } from '@parsers/talents';
+import { checkCharClass, CLASSES, getTalentBonusIfActive } from '@parsers/talents';
 import { notateNumber, numberWithCommas } from '@utility/helpers';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -13,13 +13,17 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
 
-  const characterClass = state?.characters?.[selectedChar]?.class;
+  const character = state?.characters?.[selectedChar];
+  const characterClass = character?.class;
   const isDivineKnight = checkCharClass(characterClass, CLASSES.Divine_Knight);
   const isElementalSorcerer = checkCharClass(characterClass, CLASSES.Elemental_Sorcerer);
   const isSiegeBreaker = checkCharClass(characterClass, CLASSES.Siege_Breaker);
-  const isDeathBringer = checkCharClass(characterClass, CLASSES.Death_Bringer);
-  const isArcaneCultist = checkCharClass(characterClass, CLASSES.Arcane_Cultist);
-  const isWindWalker = checkCharClass(characterClass, CLASSES.Wind_Walker);
+  const dbFormActive = getTalentBonusIfActive(character?.activeBuffs, 'WRAITH_FORM');
+  const isDeathBringer = checkCharClass(characterClass, CLASSES.Death_Bringer) && dbFormActive;
+  const acFormActive = getTalentBonusIfActive(character?.activeBuffs, 'ARCANIST_FORM');
+  const isArcaneCultist = checkCharClass(characterClass, CLASSES.Arcane_Cultist) && acFormActive;
+  const wwFormActive = getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM');
+  const isWindWalker = checkCharClass(characterClass, CLASSES.Wind_Walker) && wwFormActive;
 
   const getPerHour = (difference) => Math.floor((difference / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60);
   const getKills = (source) => Math.floor(source?.kills?.[snapshottedChar?.mapIndex] || 0);
@@ -64,15 +68,15 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <Typography variant="body2">ES Wormhole: {numberWithCommas(getSnapshotOption(152))}</Typography>}
           {isSiegeBreaker &&
             <Typography variant="body2">SB Plunderous: {numberWithCommas(getSnapshotOption(139))}</Typography>}
-          {isDeathBringer &&
+          {isDeathBringer ?
             <>
               <Typography variant="body1">DK Bones</Typography>
               <Typography variant="body2">Femur: {numberWithCommas(Math.floor(getSnapshotOption(330)))}</Typography>
               <Typography variant="body2">Ribcage: {numberWithCommas(Math.floor(getSnapshotOption(331)))}</Typography>
               <Typography variant="body2">Cranium: {numberWithCommas(Math.floor(getSnapshotOption(332)))}</Typography>
               <Typography variant="body2">Bovinae: {numberWithCommas(Math.floor(getSnapshotOption(333)))}</Typography>
-            </>}
-          {isArcaneCultist && <>
+            </> : null}
+          {isArcaneCultist ? <>
             <Typography variant="body1">AC Tachyons</Typography>
             <Typography variant="body2">Purple: {numberWithCommas(Math.floor(getSnapshotOption(388)))}</Typography>
             <Typography variant="body2">Brown: {numberWithCommas(Math.floor(getSnapshotOption(389)))}</Typography>
@@ -80,15 +84,15 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <Typography variant="body2">Red: {numberWithCommas(Math.floor(getSnapshotOption(391)))}</Typography>
             <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getSnapshotOption(392)))}</Typography>
             <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getSnapshotOption(393)))}</Typography>
-          </>}
-          {isWindWalker && <>
+          </> : null}
+          {isWindWalker ? <>
             <Typography variant="body1">WW Dust</Typography>
             <Typography variant="body2">Stardust: {numberWithCommas(Math.floor(getSnapshotOption(357)))}</Typography>
             <Typography variant="body2">Moondust: {numberWithCommas(Math.floor(getSnapshotOption(358)))}</Typography>
             <Typography variant="body2">Solardust: {numberWithCommas(Math.floor(getSnapshotOption(359)))}</Typography>
             <Typography variant="body2">Cooldust: {numberWithCommas(Math.floor(getSnapshotOption(360)))}</Typography>
             <Typography variant="body2">Novadust: {numberWithCommas(Math.floor(getSnapshotOption(361)))}</Typography>
-          </>}
+          </> : null}
         </Stack>
         <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
         <Stack>
@@ -102,15 +106,15 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <Typography variant="body2">ES Wormhole: {numberWithCommas(getAccountOption(152))}</Typography>}
           {isSiegeBreaker &&
             <Typography variant="body2">SB Plunderous: {numberWithCommas(getAccountOption(139))}</Typography>}
-          {isDeathBringer &&
+          {isDeathBringer ?
             <>
               <Typography variant="body1">DK Bones</Typography>
               <Typography variant="body2">Femur: {numberWithCommas(Math.floor(getAccountOption(330)))}</Typography>
               <Typography variant="body2">Ribcage: {numberWithCommas(Math.floor(getAccountOption(331)))}</Typography>
               <Typography variant="body2">Cranium: {numberWithCommas(Math.floor(getAccountOption(332)))}</Typography>
               <Typography variant="body2">Bovinae: {numberWithCommas(Math.floor(getAccountOption(333)))}</Typography>
-            </>}
-          {isArcaneCultist && <>
+            </> : null}
+          {isArcaneCultist ? <>
             <Typography variant="body1">AC Tachyons</Typography>
             <Typography variant="body2">Purple: {numberWithCommas(Math.floor(getAccountOption(388)))}</Typography>
             <Typography variant="body2">Brown: {numberWithCommas(Math.floor(getAccountOption(389)))}</Typography>
@@ -118,15 +122,15 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <Typography variant="body2">Red: {numberWithCommas(Math.floor(getAccountOption(391)))}</Typography>
             <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getAccountOption(392)))}</Typography>
             <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getAccountOption(393)))}</Typography>
-          </>}
-          {isWindWalker && <>
+          </> : null}
+          {isWindWalker ? <>
             <Typography variant="body1">WW Dust</Typography>
             <Typography variant="body2">Stardust: {numberWithCommas(Math.floor(getAccountOption(357)))}</Typography>
             <Typography variant="body2">Moondust: {numberWithCommas(Math.floor(getAccountOption(358)))}</Typography>
             <Typography variant="body2">Solardust: {numberWithCommas(Math.floor(getAccountOption(359)))}</Typography>
             <Typography variant="body2">Cooldust: {numberWithCommas(Math.floor(getAccountOption(360)))}</Typography>
             <Typography variant="body2">Novadust: {numberWithCommas(Math.floor(getAccountOption(361)))}</Typography>
-          </>}
+          </>:null}
         </Stack>
       </> : null}
       <Stack>
