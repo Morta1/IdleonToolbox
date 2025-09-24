@@ -474,13 +474,7 @@ const GenericUpgradeOptimizer = ({
                       }
                     }}
                     onBlur={e => {
-                      const raw = e.target.value
-                        // Remove all spaces/separators
-                        .replace(/\p{Z}+/gu, '')
-                        // Remove apostrophes/backticks
-                        .replace(/[’'´`]/g, '')
-                        // Optional: unify commas to dots if you want a single decimal separator
-                        .replace(/,/g, '.');
+                      const raw = e.target.value;
 
                       const parsed = parseShorthandNumber(raw);
 

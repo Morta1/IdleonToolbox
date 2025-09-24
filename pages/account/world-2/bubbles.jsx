@@ -76,7 +76,8 @@ const Bubbles = () => {
                              shopBargainBought, smrtAchievement, multiBubble) => {
     if (isLiquid) {
       return baseCost + Math.floor(bubbleLvl / 20);
-    } else {
+    }
+    else {
       const first = bubbleIndex < 15 ?
         baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl) :
         baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
@@ -458,7 +459,7 @@ const AdditionalInfo = ({
                           isPrisma
                         }) => {
   return <Box>
-    {tooltip ? <BubbleTooltip {...{ ...bubble, goalLevel, isPrisma }} /> : null}
+    {tooltip ? <BubbleTooltip {...{ ...bubble, goalBonus, isPrisma }} /> : null}
     <Stack gap={2} direction={'row'}>
       <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
              alignItems={'center'}>
@@ -488,19 +489,24 @@ const AdditionalInfo = ({
             amount = account?.alchemy?.liquids?.[liquids?.[rawName]];
             const index = parseInt(name?.replace(/[^0-9]/g, ''), 10) - 1;
             updatedName = liquidsIndex[index];
-          } else if (rawName.includes('Bits')) {
+          }
+          else if (rawName.includes('Bits')) {
             amount = account?.gaming?.bits;
-          } else if (rawName.includes('Sail')) {
+          }
+          else if (rawName.includes('Sail')) {
             amount = account?.sailing?.lootPile?.find(({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT'))?.amount;
-          } else if (rawName.includes('W6item')) {
+          }
+          else if (rawName.includes('W6item')) {
             const crops = { 'W6item1': 4, 'W6item2': 30, 'W6item3': 46, 'W6item4': 72, 'W6item5': 99 };
             const essences = { 'W6item6': 0, 'W6item7': 1, 'W6item8': 2, 'W6item9': 3, 'W6item10': 4 };
             if (crops?.[rawName]) {
               amount = account?.farming?.crop?.[crops?.[rawName]];
-            } else if (essences.hasOwnProperty(rawName)) {
+            }
+            else if (essences.hasOwnProperty(rawName)) {
               amount = account?.summoning?.essences?.[essences?.[rawName]];
             }
-          } else {
+          }
+          else {
             amount = account?.storage?.list?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
           }
           return <Stack direction={'row'} key={`${rawName}-${name}-${itemIndex}`} gap={3}>
@@ -553,17 +559,12 @@ const BubbleIcon = styled.img`
   border-radius: 50%;
 `;
 
-const BubbleTooltip = ({ goalLevel, bubbleName, desc, func, x1, x2, level, isPrisma }) => {
-  const bonus = growth(func, level, x1, x2, true);
-  const goalBonus = growth(func, goalLevel, x1, x2, true);
+const BubbleTooltip = ({ goalBonus, bubbleName, desc }) => {
   return <>
     <Typography fontWeight={'bold'}
                 variant={'h6'}>{cleanUnderscore(bubbleName.toLowerCase().capitalizeAll())}</Typography>
     <Divider sx={{ my: 1 }}/>
-    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, bonus * (isPrisma ? 2 : 1)))}</Typography>
-    {level !== goalLevel ? <Typography sx={{ color: level > 0 ? 'multi' : '' }} variant={'body1'}>
-      Goal: +{goalBonus}
-    </Typography> : null}
+    <Typography variant={'body1'}>{cleanUnderscore(desc.replace(/{/g, Math.ceil(goalBonus)))}</Typography>
     <Divider sx={{ my: 1 }}/>
   </>;
 }

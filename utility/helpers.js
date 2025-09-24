@@ -744,7 +744,10 @@ export function parseShorthandNumber(input) {
     .trim()
     .replace(/\s+/g, '')          // remove all spaces
     .replace(/\p{Z}/gu, '')       // remove Unicode separators
-    .replace(/[,.'`’]/g, '')      // remove punctuation separators
+    .replace(/[,'`'´'' ]/g, '')   // remove common punctuation separators (keep decimal point)
+    .replace(/\u00A0/g, '')       // remove non-breaking spaces
+    .replace(/\u2009/g, '')       // remove thin spaces
+    .replace(/\u202F/g, '')       // remove narrow no-break spaces
     .toLowerCase();
 
   const match = cleaned.match(/^([0-9.]+)([kmbtq]*)$/);
