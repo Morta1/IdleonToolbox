@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "module": "es6",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "next dev --port=3001",
     "build": "next build",
