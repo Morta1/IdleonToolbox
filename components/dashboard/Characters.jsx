@@ -8,6 +8,7 @@ import {
   alchemyAlerts,
   anvilAlerts,
   cardsAlert,
+  classSpecificAlerts,
   crystalCountdownAlerts,
   getDivinityAlert,
   getEquipmentAlert,
@@ -24,7 +25,13 @@ import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getDropRate, getRespawnRate } from '@parsers/character';
 import { getMaxDamage, notateDamage } from '@parsers/damage';
 import { differenceInMinutes } from 'date-fns';
+import { getTalentBonusIfActive } from '@parsers/talents';
 
+const formMap = {
+  'data/UISkillIcon195': 'Wraith Form',
+  'data/UISkillIcon585': 'Arcanist Form',
+  'data/UISkillIcon420': 'Tempest Form'
+}
 const alertsMap = {
   anvil: anvilAlerts,
   worship: worshipAlerts,
@@ -38,7 +45,8 @@ const alertsMap = {
   talents: talentsAlerts,
   cards: cardsAlert,
   divinityStyle: getDivinityAlert,
-  equipment: getEquipmentAlert
+  equipment: getEquipmentAlert,
+  classSpecific: classSpecificAlerts
 }
 
 const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
@@ -63,7 +71,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
         const alerts = Object.keys(options)?.reduce((result, trackerName) => {
           result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};
           return result;
-        }, {})
+        }, {});
         const isActive = () => {
           const timePassed = new Date().getTime() + (afkTime - lastUpdated);
           const minutes = differenceInMinutes(new Date(), new Date(timePassed));
@@ -71,6 +79,10 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
         };
         const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
         const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
+        const dbFormActive = getTalentBonusIfActive(character?.activeBuffs, 'WRAITH_FORM') && 'data/UISkillIcon195';
+        const acFormActive = getTalentBonusIfActive(character?.activeBuffs, 'ARCANIST_FORM') && 'data/UISkillIcon585';
+        const wwFormActive = getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM') && 'data/UISkillIcon420';
+        const charForm = dbFormActive || acFormActive || wwFormActive;
 
         return <Card key={name} sx={{ width: 300 }} data-cy={`character-${name}`}>
           <CardContent>
@@ -87,6 +99,10 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                   <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
                   />
                 </HtmlTooltip>
+                {charForm ? <HtmlTooltip title={`${formMap?.[charForm]}`}>
+                  <IconImg src={`${prefix}${dbFormActive || acFormActive || wwFormActive}.png`} alt="form icon"
+                  />
+                </HtmlTooltip> : null}
                 <HtmlTooltip title={<CharacterInfo characters={characters} account={account} character={character}
                                                    lastUpdated={lastUpdated}/>}>
                   <IconInfoCircleFilled/>
@@ -129,6 +145,35 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
                 <Alert title={`${name} has ${alerts?.anvil?.unspentPoints} unspent anvil points`}
                        iconPath={'data/ClassIcons43'}/> : null}
+              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acWeapon ?
+                <Alert title={`${name} is not in Arcanist form but is using an Arcanist-form weapon`}
+                       iconPath={'data/EquipmentWandsArc0'}/> : null}
+              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acRings ?
+                <Alert title={`${name} is not in Arcanist form but is using an Arcanist-form ring`}
+                       iconPath={`data/${alerts?.classSpecific?.wrongItems?.acRings}`}/> : null}
+              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwWeapon ?
+                <Alert title={`${name} is not in Temptest form but is using an Tempest-form weapon`}
+                       style={{ zIndex: 1 }}
+                       iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwWeapon}`}
+                /> : null}
+              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwRings ?
+                <Alert title={`${name} is not in Temptest form but is using an Tempest-form rings`}
+                       style={{ zIndex: 1 }}
+                       iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwRings}`}
+                /> : null}
+              {trackers?.classSpecific && alerts?.classSpecific?.betterWeapon ?
+                <Alert title={`${name} has a better class-specific weapon in their inventory`}
+                       iconPath={`data/${alerts?.classSpecific?.betterWeapon?.rawName}`}
+                       extra={<img
+                         src={`${prefix}data/UpgArrowG.png`}
+                         style={{
+                           position: 'absolute',
+                           width: 12,
+                           height: 12,
+                           top: -2,
+                           right: -2
+                         }}/>}
+                /> : null}
               {trackers?.anvil && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
                 alerts?.equipment?.availableUpgradesSlots?.map(({
                                                                   displayName,
@@ -273,8 +318,8 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
 }
 
 const IconImg = styled.img`
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 `;
 

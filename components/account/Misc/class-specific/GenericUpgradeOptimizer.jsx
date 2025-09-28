@@ -25,7 +25,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, parseShorthandNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, parseShorthandNumber, prefix, splitTime } from '@utility/helpers';
 import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
@@ -34,19 +34,19 @@ import { useLocalStorage } from '@mantine/hooks';
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
 const GenericUpgradeOptimizer = ({
-                                   character,
-                                   account,
-                                   getOptimizedUpgradesFn,
-                                   upgradeCategories,
-                                   resourceNames,
-                                   resourceKey,
-                                   resourceImagePrefix,
-                                   upgradeImagePrefix,
-                                   getResourceType,
-                                   getUpgradeIconIndex,
-                                   getResourceAmount,
-                                   tooltipText
-                                 }) => {
+  character,
+  account,
+  getOptimizedUpgradesFn,
+  upgradeCategories,
+  resourceNames,
+  resourceKey,
+  resourceImagePrefix,
+  upgradeImagePrefix,
+  getResourceType,
+  getUpgradeIconIndex,
+  getResourceAmount,
+  tooltipText
+}) => {
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
     defaultValue: 'grid'
@@ -290,7 +290,7 @@ const GenericUpgradeOptimizer = ({
     const resourceTypeKey = getResourceType(upgrade);
     return (
       <>
-        <Divider sx={{ my: 1 }}/>
+        <Divider sx={{ my: 1 }} />
         <Typography variant="subtitle2" gutterBottom>
           Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
         </Typography>
@@ -299,7 +299,7 @@ const GenericUpgradeOptimizer = ({
             {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
           </Typography>
         ))}
-        <Divider sx={{ my: 1 }}/>
+        <Divider sx={{ my: 1 }} />
         <Stack direction="row" gap={1} alignItems="center">
           <img
             style={{ objectPosition: '0 -6px' }}
@@ -414,13 +414,18 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
-        <AffordableCheckboxEl/>
+        <AffordableCheckboxEl />
         <Tooltip title={tooltipText}>
-          <IconInfoCircleFilled/>
+          <IconInfoCircleFilled />
         </Tooltip>
-        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'}/>
+        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
         {resourceUsage.map((resource) => {
           const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) || resource.name;
+          const resourcePerHourValue = resourcePerHour[resourceTypeKey];
+          const hasResourcePerHour = resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
+          const timeEstimateHours = hasResourcePerHour ? resource.cost / resourcePerHourValue : null;
+          // Only show time estimate if it's at least 1 minute (1/60 hour)
+          const shouldShowTimeEstimate = timeEstimateHours && timeEstimateHours >= (1 / 60);
           return (
             <Stack key={resource.name} direction="row" gap={1} alignItems="center">
               <img
@@ -431,6 +436,11 @@ const GenericUpgradeOptimizer = ({
                 height={24}
               />
               <Typography>{notateNumber(resource.cost)}</Typography>
+              {shouldShowTimeEstimate && (
+                <Typography variant="caption" color="text.secondary">
+                  ({splitTime(timeEstimateHours)})
+                </Typography>
+              )}
             </Stack>
           );
         })}
@@ -441,9 +451,9 @@ const GenericUpgradeOptimizer = ({
           onChange={(_, val) => val && setViewMode(val)}
         >
           <Tooltip title={'Grid view'}><ToggleButton sx={{ height: 40 }}
-                                                     value="grid"><IconTable/></ToggleButton></Tooltip>
+            value="grid"><IconTable /></ToggleButton></Tooltip>
           <Tooltip title={'List view'}><ToggleButton sx={{ height: 40 }}
-                                                     value="list"><IconList/></ToggleButton></Tooltip>
+            value="list"><IconList /></ToggleButton></Tooltip>
         </ToggleButtonGroup>
       </Stack>
 
@@ -541,10 +551,10 @@ const GenericUpgradeOptimizer = ({
                       ? renderCombinedStats(upgrade)
                       : (
                         <>
-                          <Divider sx={{ my: 1 }}/>
+                          <Divider sx={{ my: 1 }} />
                           {category === 'all' ? cleanUnderscore(upgrade.description
                           ) : renderStatChanges(upgrade.statChanges)}
-                          <Divider sx={{ my: 1 }}/>
+                          <Divider sx={{ my: 1 }} />
                           <Stack direction="row" gap={1} alignItems="center">
                             <img
                               style={{ objectPosition: '0 -6px' }}

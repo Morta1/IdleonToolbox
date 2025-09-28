@@ -28,10 +28,12 @@ const Looty = () => {
           return { ...res, [key]: sorted }
         }, {})
         setItems(result);
-      } else {
+      }
+      else {
         setItems(groupedBy)
       }
-    } else {
+    }
+    else {
       setItems(sortByStackSize ? sortedItems : state?.account?.storage?.list);
     }
   }, [state, orderByGroup, sortByStackSize])
@@ -113,7 +115,8 @@ const Looty = () => {
                                                             capacity,
                                                             unlocked
                                                           }, index) => {
-              return <Card key={rawName} sx={{ width: 200, opacity: unlocked ? 1 : .5 }}>
+              return <Card key={rawName} sx={{ width: 200, opacity: unlocked ? 1 : .5, cursor: 'pointer' }}
+                           onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}>
                 <CardContent>
                   <Typography>{(cleanUnderscore(displayName)).toLowerCase().capitalize()}</Typography>
                   <Stack direction={'row'} flexWrap={'wrap'} gap={1} data-index={index} alignItems={'center'}>

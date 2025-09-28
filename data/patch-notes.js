@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.10',
+    'gameVer': '2.0.41',
+    'date': '28/09/2025',
+    'features': [
+      'Added a class-specific "Wrong Items" alert to notify when class-specific form items are used outside their form.',
+      'Added a class-specific "Better Weapon" alert to notify when a better form-specific weapon is available in the inventory.',
+      'Added navigation links on chests in the storage page to open their corresponding wiki page.',
+      'Added time estimation for resource costs in the upgrade optimizer pages, based on resources per hour.',
+      'Added an indicator on character cards in the dashboard to show whether they are currently in a form (Wraith, Tempest, or Arcanist).',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.9',
     'gameVer': '2.0.41',
     'date': '19/08/2025',

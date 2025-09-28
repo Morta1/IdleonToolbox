@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 23,
+  version: 24,
   account: {
     General: {
       tasks: {
@@ -424,7 +424,14 @@ const baseTrackers = {
         checked: false
       }]
     },
-    equipment: { checked: true, options: [{ name: 'availableUpgradesSlots', checked: true }] }
+    equipment: { checked: true, options: [{ name: 'availableUpgradesSlots', checked: true }] },
+    classSpecific: {
+      checked: true,
+      options: [
+        { name: 'wrongItems', checked: true, helperText: 'Alert when using class-specific form items while outside form' },
+        { name: 'betterWeapon', checked: true, helperText: 'Alert when there\'s a better form class-specific weapon in your inventory' }
+      ]
+    }
   },
   timers: {
     General: {

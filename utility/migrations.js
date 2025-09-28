@@ -496,6 +496,28 @@ export const migrateToVersion23 = (config) => {
   dashboardConfig.version = 23;
   return dashboardConfig
 }
+export const migrateToVersion24 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.characters?.classSpecific) {
+    dashboardConfig.characters.classSpecific = {
+      checked: true, options: [
+        { name: 'wrongItems', checked: true, helperText: 'Alert when using class-specific form items while outside form' },
+        {
+          name: 'betterWeapon',
+          checked: true,
+          helperText: 'Alert when there\'s a better form class-specific weapon in your inventory'
+        }
+      ]
+    }
+  }
+
+  dashboardConfig.version = 24;
+  return dashboardConfig
+}
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -503,7 +525,8 @@ export const migrateConfig = (baseTrackers, userConfig) => {
   let migratedConfig = userConfig;
   if (!Object.keys(userConfig || {}).length) {
     migratedConfig = baseTrackers;
-  } else {
+  }
+  else {
     if ((!userConfig?.version || userConfig?.version === 1)) {
       migratedConfig = migrateToVersion2(userConfig);
     }
@@ -569,6 +592,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 22) {
       migratedConfig = migrateToVersion23(migratedConfig);
+    }
+    if (migratedConfig?.version === 23) {
+      migratedConfig = migrateToVersion24(migratedConfig);
     }
 
   }
