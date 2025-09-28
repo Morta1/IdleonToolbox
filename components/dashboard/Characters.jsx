@@ -152,12 +152,12 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} is not in Arcanist form but is using an Arcanist-form ring`}
                        iconPath={`data/${alerts?.classSpecific?.wrongItems?.acRings}`}/> : null}
               {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwWeapon ?
-                <Alert title={`${name} is not in Temptest form but is using an Tempest-form weapon`}
+                <Alert title={`${name} is not in Temptest form but is using a Tempest-form weapon`}
                        style={{ zIndex: 1 }}
                        iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwWeapon}`}
                 /> : null}
               {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwRings ?
-                <Alert title={`${name} is not in Temptest form but is using an Tempest-form rings`}
+                <Alert title={`${name} is not in Temptest form but is using a Tempest-form ring`}
                        style={{ zIndex: 1 }}
                        iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwRings}`}
                 /> : null}
