@@ -323,6 +323,6 @@ export const classSpecificAlerts = (account, characters, character, lastUpdated,
 }
 
 const calcTotalAcWandDamage = (weapon) => {
-  const baseDamage = Math.pow(weapon?.Weapon_Power, 1.04);
+  const baseDamage = Math.pow(1.04, weapon?.Weapon_Power);
   return baseDamage * (1 + weapon?.UQ1val / 100);
 }
