@@ -4,10 +4,10 @@ import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
 import { Stack, Typography } from '@mui/material';
 import Tabber from '@components/common/Tabber';
 import WeeklyBoss from '@components/account/Worlds/World2/WeeklyBoss';
-import { cleanUnderscore } from '@utility/helpers';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
+import { CardTitleAndValue } from '@components/common/styles';
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
@@ -23,8 +23,13 @@ const WeeklyBosses = () => {
   const weeklyBosses = useMemo(() => getWeeklyBoss(state?.account, weeks), [state?.account, weeks]);
   return weeklyBosses?.length ? <>
     <Stack direction={'row'} gap={2} mb={3} alignItems={'center'}>
-      <Button onClick={() => handleCopy(weeklyBosses)}><ContentCopyIcon sx={{ mr: 1 }}/> Copy boss data</Button>
-      <Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more bosses</Button>
+      <CardTitleAndValue title={'Trophies'}
+                         icon={'data/Trophie.png'}
+                         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
+                         value={numberWithCommas(state?.account?.accountOptions?.[188])}/>
+      <CardTitleAndValue title={'Options'}
+                         value={<Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more
+                           bosses</Button>}/>
     </Stack>
     <Tabber
       disableQuery

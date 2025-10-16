@@ -53,7 +53,7 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
 
                   return <div className={'obol-wrapper'} key={rawName + '' + index}>
                     <Tooltip
-                      title={isLocked ? `${totalLevels} / ${levelReq}` : !displayName ? 'Empty' : displayName !== 'ERROR'
+                      title={isLocked ? `${levelReq} / ${totalLevels} ` : !displayName ? 'Empty' : displayName !== 'ERROR'
                         ? <ItemDisplay {...item} allowNegativeValues={false}/>
                         : ''}>
                       <span>

@@ -156,7 +156,7 @@ const TotalTooltip = ({ item, value, atoms, highestBrr, highestMaxLevelBrr }) =>
     {(atoms || isAtom) ?
       <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
         <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt=""/>
-        <Typography>{notateNumber(atoms * 24, 'MultiplierInfo')} / day </Typography>
+        <Typography>{notateNumber(atoms * 24)} / day </Typography>
       </Stack> : null}
   </Stack>
 }
