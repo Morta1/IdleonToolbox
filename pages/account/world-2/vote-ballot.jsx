@@ -15,8 +15,8 @@ const VoteBallot = () => {
       description="Keep track of the vote bonuses"
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Bonus multi'} value={`${voteBallot?.voteMulti}x`}/>
-      <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`}/>
+      <CardTitleAndValue title={'Bonus multi'} value={`${voteBallot?.voteMulti?.toFixed(3)}x`} />
+      <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`} />
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {voteBallot?.bonuses?.map((bonus, index) => {
@@ -27,9 +27,9 @@ const VoteBallot = () => {
         }}>
           <CardContent>
             <Stack direction={'row'} gap={2}>
-              <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={''}/>
+              <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={''} />
               <Stack>
-                <Typography>{cleanUnderscore(bonus?.[0].replace('{', bonus?.bonus).replace('}', 1 + bonus?.bonus / 100))}</Typography>
+                <Typography>{cleanUnderscore(bonus?.[0].replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)))}</Typography>
                 {bonus?.active ? <Typography mt={1}>Voters percent: {bonus?.percent}%</Typography> : null}
               </Stack>
             </Stack>

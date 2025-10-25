@@ -728,6 +728,7 @@ export const getFilteredPortals = () => {
 }
 
 // Parses shorthand notations like '12B', '2QQ', '3.2QQQ' into numbers
+// Also handles locale-specific thousands separators like '12.000.000' (German) or '12,000,000' (US)
 export function parseShorthandNumber(input) {
   if (typeof input !== 'string') return NaN;
 
@@ -753,8 +754,31 @@ export function parseShorthandNumber(input) {
   const match = cleaned.match(/^([0-9.]+)([kmbtq]*)$/);
   if (!match) return NaN;
 
-  const num = parseFloat(match[1]);
+  let numberPart = match[1];
   let suffix = match[2];
+
+  // Handle locale-specific thousands separators
+  // If there are multiple periods, treat all as thousands separators
+  const periodCount = (numberPart.match(/\./g) || []).length;
+  if (periodCount > 1) {
+    // Multiple periods: treat all as thousands separators
+    numberPart = numberPart.replace(/\./g, '');
+  } else if (periodCount === 1) {
+    // Single period: check if it's likely a thousands separator or decimal point
+    const periodIndex = numberPart.indexOf('.');
+    const digitsAfterPeriod = numberPart.length - periodIndex - 1;
+    
+    // If there are 3 digits after the period, it's likely a thousands separator
+    // If there are more than 3 digits, it's likely a decimal point
+    if (digitsAfterPeriod === 3) {
+      // Treat as thousands separator
+      numberPart = numberPart.replace('.', '');
+    }
+    // Otherwise, treat as decimal point (no change needed)
+  }
+
+  const num = parseFloat(numberPart);
+  if (isNaN(num)) return NaN;
 
   // Handle repeated Qs (QQ = 1e18, etc.)
   if (suffix.startsWith('q') && suffix.length > 1) {
