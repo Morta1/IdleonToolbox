@@ -13,6 +13,7 @@ import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades
 import Maps from '@components/account/Misc/class-specific/Tesseract/Maps';
 import { getDropRate } from '@parsers/character';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Tesseract/UpgradeOptimizer';
+import ACItems from '@components/account/Misc/class-specific/Tesseract/ACItems';
 
 const Tesseract = () => {
   const { state } = useContext(AppContext);
@@ -28,9 +29,12 @@ const Tesseract = () => {
     const dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);
     return getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate }), state?.account, upgrades)
   }, [selectedChar]);
+  const acItems = useMemo(() => {
+    return state?.characters?.[selectedChar]?.inventory;
+  }, [selectedChar]);
 
   useEffect(() => {
-    if (arcanists.length === 1) {
+    if (arcanists.length >= 1) {
       setSelectedChar(arcanists?.[0]?.playerId);
     }
   }, []);
@@ -42,59 +46,60 @@ const Tesseract = () => {
     />
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {arcanists.length > 1 ? <CardTitleAndValue title={'Character'}
-                                                 value={<Select size={'small'} value={selectedChar}
-                                                                onChange={(e) => setSelectedChar(e.target.value)}>
-                                                   {arcanists?.map((character, index) => {
-                                                     return <MenuItem key={character?.name + index}
-                                                                      value={character?.playerId}
-                                                                      selected={selectedChar === character?.playerId}>
-                                                       <Stack direction={'row'} alignItems={'center'} gap={2}>
-                                                         <img
-                                                           src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                                                           alt="" width={32} height={32}/>
-                                                         <Typography>{character?.name}</Typography>
-                                                       </Stack>
-                                                     </MenuItem>
-                                                   })}
-                                                 </Select>}/> : null}
-      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
-      <CardTitleAndValue title={'Prisma Chance'} value={`1 in ${Math.floor(1 / prismaFragmentChance)}`}/>
+        value={<Select size={'small'} value={selectedChar}
+          onChange={(e) => setSelectedChar(e.target.value)}>
+          {arcanists?.map((character, index) => {
+            return <MenuItem key={character?.name + index}
+              value={character?.playerId}
+              selected={selectedChar === character?.playerId}>
+              <Stack direction={'row'} alignItems={'center'} gap={2}>
+                <img
+                  src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
+                  alt="" width={32} height={32} />
+                <Typography>{character?.name}</Typography>
+              </Stack>
+            </MenuItem>
+          })}
+        </Select>} /> : null}
+      <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels} />
+      <CardTitleAndValue title={'Prisma Chance'} value={`1 in ${Math.floor(1 / prismaFragmentChance)}`} />
       <CardTitleAndValue title={'Extra tachyon'}
-                         value={`${getExtraTachyon(state?.characters?.[selectedChar], state?.account).toFixed(2)}x`}
+        value={`${getExtraTachyon(state?.characters?.[selectedChar], state?.account).toFixed(2)}x`}
       />
       {tachyons?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value < 1e8
         ? commaNotation(value || '0') : notateNumber(value || 0)} title={name}
-                                                                    icon={`data/Tach${index}_x1.png`}
-                                                                    imgStyle={{ objectPosition: '0 -6px' }}
+        icon={`data/Tach${index}_x1.png`}
+        imgStyle={{ objectPosition: '0 -6px' }}
       />)}
     </Stack>
-    <Divider sx={{ mt: { xs: 2, md: 0 } }}/>
+    <Divider sx={{ mt: { xs: 2, md: 0 } }} />
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Damage'} value={arcanistStats?.damage < 1e8
         ? numberWithCommas(Math.floor(arcanistStats?.damage) || '0')
-        : notateNumber(arcanistStats?.damage || 0)}/>
+        : notateNumber(arcanistStats?.damage || 0)} />
       <CardTitleAndValue title={'Accuracy'}
-                         value={arcanistStats?.accuracy < 1e8
-                           ? numberWithCommas(Math.floor(arcanistStats?.accuracy) || '0')
-                           : notateNumber(arcanistStats?.accuracy || 0).replace('.00', '')}/>
+        value={arcanistStats?.accuracy < 1e8
+          ? numberWithCommas(Math.floor(arcanistStats?.accuracy) || '0')
+          : notateNumber(arcanistStats?.accuracy || 0).replace('.00', '')} />
       <CardTitleAndValue title={'Defence'}
-                         value={arcanistStats?.defence < 1e8
-                           ? numberWithCommas(Math.floor(arcanistStats?.defence) || '0')
-                           : notateNumber(arcanistStats?.defence || 0).replace('.00', '')}/>
+        value={arcanistStats?.defence < 1e8
+          ? numberWithCommas(Math.floor(arcanistStats?.defence) || '0')
+          : notateNumber(arcanistStats?.defence || 0).replace('.00', '')} />
       <CardTitleAndValue title={'Mastery'}
-                         value={`${notateNumber(arcanistStats?.mastery, 'MultiplierInfo').replace('.00', '')}%`}/>
+        value={`${notateNumber(arcanistStats?.mastery, 'MultiplierInfo').replace('.00', '')}%`} />
       <CardTitleAndValue title={'Crit pct'}
-                         value={`${notateNumber(arcanistStats?.critPct, 'MultiplierInfo').replace('.00', '')}%`}/>
+        value={`${notateNumber(arcanistStats?.critPct, 'MultiplierInfo').replace('.00', '')}%`} />
       <CardTitleAndValue title={'Crit damage'}
-                         value={`${notateNumber(arcanistStats?.critDamage, 'MultiplierInfo').replace('.00', '')}x`}/>
+        value={`${notateNumber(arcanistStats?.critDamage, 'MultiplierInfo').replace('.00', '')}x`} />
       <CardTitleAndValue title={'Attack speed'}
-                         value={`${notateNumber(arcanistStats?.attackSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
+        value={`${notateNumber(arcanistStats?.attackSpeed, 'MultiplierInfo').replace('.00', '')}%`} />
     </Stack>
-    <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
+    <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }} />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
-      <Upgrades upgrades={upgrades} tachyons={tachyons}/>
+      <Upgrades upgrades={upgrades} tachyons={tachyons} />
       <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]} />
-      <Maps account={state?.account} character={state?.characters?.[selectedChar]}/>
+      <Maps account={state?.account} character={state?.characters?.[selectedChar]} />
+      <ACItems items={acItems} character={state?.characters?.[selectedChar]} />
     </Tabber>
   </>
 };

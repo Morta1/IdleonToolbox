@@ -57,7 +57,7 @@ export const PAGES = {
         {
           label: 'tesseract',
           icon: 'data/StatusArc0',
-          tabs: ['Upgrades', 'Upgrade Optimizer', 'Maps']
+          tabs: ['Upgrades', 'Upgrade Optimizer', 'Maps', 'AC Items']
         }
       ]
     },
