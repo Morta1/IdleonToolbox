@@ -38,7 +38,6 @@ const Tesseract = () => {
       setSelectedChar(arcanists?.[0]?.playerId);
     }
   }, []);
-
   return <>
     <NextSeo
       title="Tesseract | Idleon Toolbox"
